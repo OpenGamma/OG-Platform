@@ -19,14 +19,14 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  */
 public class CombinedInterpolatorExtrapolatorTest {
   private static final LinearInterpolator1D INTERPOLATOR = new LinearInterpolator1D();
-  private static final FlatExtrapolator1D<Interpolator1DDataBundle> LEFT_EXTRAPOLATOR = new FlatExtrapolator1D<Interpolator1DDataBundle>();
-  private static final LinearExtrapolator1D<Interpolator1DDataBundle> RIGHT_EXTRAPOLATOR = new LinearExtrapolator1D<Interpolator1DDataBundle>(INTERPOLATOR);
+  private static final FlatExtrapolator1D LEFT_EXTRAPOLATOR = new FlatExtrapolator1D();
+  private static final LinearExtrapolator1D RIGHT_EXTRAPOLATOR = new LinearExtrapolator1D(INTERPOLATOR);
   private static final double[] X;
   private static final double[] Y;
   private static final Interpolator1DDataBundle DATA;
-  private static final CombinedInterpolatorExtrapolator<Interpolator1DDataBundle> COMBINED1 = new CombinedInterpolatorExtrapolator<Interpolator1DDataBundle>(INTERPOLATOR);
-  private static final CombinedInterpolatorExtrapolator<Interpolator1DDataBundle> COMBINED2 = new CombinedInterpolatorExtrapolator<Interpolator1DDataBundle>(INTERPOLATOR, LEFT_EXTRAPOLATOR);
-  private static final CombinedInterpolatorExtrapolator<Interpolator1DDataBundle> COMBINED3 = new CombinedInterpolatorExtrapolator<Interpolator1DDataBundle>(INTERPOLATOR, LEFT_EXTRAPOLATOR,
+  private static final CombinedInterpolatorExtrapolator COMBINED1 = new CombinedInterpolatorExtrapolator(INTERPOLATOR);
+  private static final CombinedInterpolatorExtrapolator COMBINED2 = new CombinedInterpolatorExtrapolator(INTERPOLATOR, LEFT_EXTRAPOLATOR);
+  private static final CombinedInterpolatorExtrapolator COMBINED3 = new CombinedInterpolatorExtrapolator(INTERPOLATOR, LEFT_EXTRAPOLATOR,
       RIGHT_EXTRAPOLATOR);
   private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
 
@@ -50,32 +50,32 @@ public class CombinedInterpolatorExtrapolatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator1() {
-    new CombinedInterpolatorExtrapolator<Interpolator1DDataBundle>(null);
+    new CombinedInterpolatorExtrapolator(null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator2() {
-    new CombinedInterpolatorExtrapolator<Interpolator1DDataBundle>(null, LEFT_EXTRAPOLATOR);
+    new CombinedInterpolatorExtrapolator(null, LEFT_EXTRAPOLATOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator3() {
-    new CombinedInterpolatorExtrapolator<Interpolator1DDataBundle>(null, LEFT_EXTRAPOLATOR, RIGHT_EXTRAPOLATOR);
+    new CombinedInterpolatorExtrapolator(null, LEFT_EXTRAPOLATOR, RIGHT_EXTRAPOLATOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExtrapolator() {
-    new CombinedInterpolatorExtrapolator<Interpolator1DDataBundle>(INTERPOLATOR, null);
+    new CombinedInterpolatorExtrapolator(INTERPOLATOR, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLeftExtrapolator() {
-    new CombinedInterpolatorExtrapolator<Interpolator1DDataBundle>(INTERPOLATOR, null, RIGHT_EXTRAPOLATOR);
+    new CombinedInterpolatorExtrapolator(INTERPOLATOR, null, RIGHT_EXTRAPOLATOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRightExtrapolator() {
-    new CombinedInterpolatorExtrapolator<Interpolator1DDataBundle>(INTERPOLATOR, LEFT_EXTRAPOLATOR, null);
+    new CombinedInterpolatorExtrapolator(INTERPOLATOR, LEFT_EXTRAPOLATOR, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

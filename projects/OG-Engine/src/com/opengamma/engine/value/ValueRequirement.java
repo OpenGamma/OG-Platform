@@ -7,6 +7,7 @@ package com.opengamma.engine.value;
 
 import java.io.Serializable;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.text.StrBuilder;
 
@@ -35,6 +36,10 @@ import com.opengamma.util.PublicAPI;
 public final class ValueRequirement implements Serializable {
 
   /**
+   * Default serial version ID
+   */
+  private static final long serialVersionUID = 1L;
+  /**
    * The name of the value being requested.
    */
   private final String _valueName;
@@ -48,6 +53,11 @@ public final class ValueRequirement implements Serializable {
    */
   private final ValueProperties _constraints;
 
+  /**
+   * The cached hash code.
+   */
+  private transient volatile int _hashCode;
+  
   /**
    * Creates a requirement with no value constraints.
    * <p>
@@ -123,9 +133,22 @@ public final class ValueRequirement implements Serializable {
     ArgumentChecker.notNull(valueName, "Value name");
     ArgumentChecker.notNull(targetSpecification, "Computation target specification");
     ArgumentChecker.notNull(constraints, "constraints");
-    _valueName = valueName.intern();
+    _valueName = getInterned(valueName);
     _targetSpecification = targetSpecification;
     _constraints = constraints;
+  }
+
+  private static final ConcurrentHashMap<String, String> s_interned = new ConcurrentHashMap<String, String>();
+  
+  public static String getInterned(String valueName) {
+    //This has been observed to be faster if a large proportion of valueNames are already interned and we have a large number of cores
+    String interned = s_interned.get(valueName);
+    if (interned != null) {
+      return interned;
+    }
+    interned = valueName.intern();
+    s_interned.putIfAbsent(interned, interned); //NOTE: use interned for keys too
+    return interned;
   }
 
   //-------------------------------------------------------------------------
@@ -220,12 +243,15 @@ public final class ValueRequirement implements Serializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + _valueName.hashCode();
-    result = prime * result + _targetSpecification.hashCode();
-    result = prime * result + _constraints.hashCode();
-    return result;
+    if (_hashCode == 0) {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + _valueName.hashCode();
+      result = prime * result + _targetSpecification.hashCode();
+      result = prime * result + _constraints.hashCode();
+      _hashCode = result;
+    }
+    return _hashCode;
   }
 
   @Override

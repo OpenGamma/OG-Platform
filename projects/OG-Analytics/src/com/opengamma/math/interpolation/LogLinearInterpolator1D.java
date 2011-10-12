@@ -22,7 +22,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  * 
  */
 
-public class LogLinearInterpolator1D extends Interpolator1D<Interpolator1DDataBundle> {
+public class LogLinearInterpolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
 
   @Override
@@ -48,5 +48,10 @@ public class LogLinearInterpolator1D extends Interpolator1D<Interpolator1DDataBu
   @Override
   public Interpolator1DDataBundle getDataBundleFromSortedArrays(final double[] x, final double[] y) {
     return new ArrayInterpolator1DDataBundle(x, y, true);
+  }
+
+  @Override
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value) {
+    return getFiniteDifferenceSensitivities(data, value);
   }
 }

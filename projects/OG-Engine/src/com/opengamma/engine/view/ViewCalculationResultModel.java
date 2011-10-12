@@ -31,16 +31,16 @@ public interface ViewCalculationResultModel {
    * Returns the computed values for a given target. The values are returned as a map from the value name and
    * properties to the {@link ComputedValue}.
    * 
-   * @param target the target to search for, not {@code null}
-   * @return the computed values for this configuration, or {@code null} if the target does not exist in the view results
+   * @param target the target to search for, not null
+   * @return the computed values for this configuration, or null if the target does not exist in the view results
    */
   Map<Pair<String, ValueProperties>, ComputedValue> getValues(ComputationTargetSpecification target);
   
   /**
    * Returns all computed values for a given target.
    * 
-   * @param target the target to search for, not {@code null}
-   * @return the computed values for this configuration, or {@code null} if the target does not exist in the view results
+   * @param target the target to search for, not null
+   * @return the computed values for this configuration, or null if the target does not exist in the view results
    */
   Collection<ComputedValue> getAllValues(ComputationTargetSpecification target);
 

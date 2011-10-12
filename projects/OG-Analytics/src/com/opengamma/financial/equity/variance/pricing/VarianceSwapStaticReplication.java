@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.equity.variance.pricing;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.equity.variance.VarianceSwapDataBundle;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.model.volatility.BlackFormula;
@@ -21,6 +19,8 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.CompareUtils;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * We construct a model independent method to price variance as a static replication
@@ -58,7 +58,7 @@ public class VarianceSwapStaticReplication {
     CALLDELTA,
     /** Implied spot Put delta  */
     PUTDELTA
-  };
+  }
 
   // Integration parameters
   private final double _lowerBound; // ~ zero
@@ -215,10 +215,9 @@ public class VarianceSwapStaticReplication {
     final boolean forwardStarting = timeToFirstObs > A_FEW_WEEKS;
     if (!forwardStarting) {
       return varianceSpotEnd;
-    } else {
-      final double varianceSpotStart = impliedVarianceFromSpot(timeToFirstObs, market);
-      return (varianceSpotEnd * timeToLastObs - varianceSpotStart * timeToFirstObs) / (timeToLastObs - timeToFirstObs);
     }
+    final double varianceSpotStart = impliedVarianceFromSpot(timeToFirstObs, market);
+    return (varianceSpotEnd * timeToLastObs - varianceSpotStart * timeToFirstObs) / (timeToLastObs - timeToFirstObs);
   }
 
   /**
@@ -297,7 +296,7 @@ public class VarianceSwapStaticReplication {
 
           // Now, handle behaviour near zero strike. ShiftedLognormalVolModel has non-zero put price for zero strike. 
           // What we do is to find the strike, k_min, at which p(k)/k^2 begins to blow up, and fit a quadratic, p(k) = p(k_min) * k^2 / k_min^2
-          // This ensures the implied volatilit and the integrand are well behaved in the limit k -> 0.
+          // This ensures the implied volatility and the integrand are well behaved in the limit k -> 0.
           final Function1D<Double, Double> shiftedLnIntegrand = new Function1D<Double, Double>() {
             @Override
             public Double evaluate(Double strike) {
@@ -318,6 +317,7 @@ public class VarianceSwapStaticReplication {
       // 3. Define the hedging portfolio: The position to hold in each otmOption(k) = 2 / strike^2,
       //                                       where otmOption is a call if k > fwd and a put otherwise
       final Function1D<Double, Double> otmOptionAndWeight = new Function1D<Double, Double>() {
+        @SuppressWarnings("synthetic-access")
         @Override
         public Double evaluate(final Double strike) {
 
@@ -326,16 +326,13 @@ public class VarianceSwapStaticReplication {
           if (_cutoffProvided && strike < cutoffStrike) { // Extrapolate with ShiftedLognormal
             if (strike >= lowerBoundOfExtrapolator) {
               return leftExtrapolator.priceFromFixedStrike(strike) * weight;
-            } else {
-              return lowerBoundValue;
             }
-          } else { // Interp/Extrap directly on volSurf
-            final double vol = volSurf.getVolatility(expiry, strike);
-            BlackFormula formula = new BlackFormula(fwd, strike, expiry, vol, null, isCall);
-            final double otmPrice = formula.computePrice();
-            return otmPrice * weight;
-          }
-
+            return lowerBoundValue;
+          } // Interp/Extrap directly on volSurf
+          final double vol = volSurf.getVolatility(expiry, strike);
+          BlackFormula formula = new BlackFormula(fwd, strike, expiry, vol, null, isCall);
+          final double otmPrice = formula.computePrice();
+          return otmPrice * weight;
         }
       };
 
@@ -376,6 +373,7 @@ public class VarianceSwapStaticReplication {
       // 3. Define the hedging portfolio : The position to hold in each otmOption(k) = 2 / strike^2, 
       //                                    where otmOption is a call if k > fwd and a put otherwise
       final Function1D<Double, Double> otmOptionAndWeight = new Function1D<Double, Double>() {
+        @SuppressWarnings("synthetic-access")
         @Override
         public Double evaluate(final Double delta) {
 
@@ -410,7 +408,7 @@ public class VarianceSwapStaticReplication {
   }
 
   /**
-   * Computes the fair value strike of a spot starting VarianceSwap parameterized in vol/vega terms.
+   * Computes the fair value strike of a spot starting VarianceSwap parameterised in vol/vega terms.
    * This is an estimate of annual Lognormal (Black) volatility 
    * 
    * @param deriv VarianceSwap derivative to be priced

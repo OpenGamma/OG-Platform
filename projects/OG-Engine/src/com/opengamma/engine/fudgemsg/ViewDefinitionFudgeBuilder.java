@@ -37,6 +37,7 @@ import com.opengamma.util.tuple.Pair;
 @GenericFudgeBuilderFor(ViewDefinition.class)
 public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> {
 
+//  private static final String UNIQUE_ID_FIELD = "uniqueId";
   private static final String NAME_FIELD = "name";
   private static final String PORTFOLIO_OBJECT_ID_FIELD = "identifier";
   private static final String USER_FIELD = "user";
@@ -65,6 +66,7 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
     // - There's a cycle of references between ViewDefinition and ViewCalculationConfiguration, so we have to handle
     // both at once.
     MutableFudgeMsg message = serializer.newMessage();
+//    message.add(UNIQUE_ID_FIELD, null, viewDefinition.getUniqueId());
     message.add(NAME_FIELD, null, viewDefinition.getName());
     serializer.addToMessage(message, PORTFOLIO_OBJECT_ID_FIELD, null, viewDefinition.getPortfolioOid());
     serializer.addToMessage(message, USER_FIELD, null, viewDefinition.getMarketDataUser());
@@ -117,13 +119,18 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
 
   @Override
   public ViewDefinition buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    FudgeField portfolioOidField = message.getByName(PORTFOLIO_OBJECT_ID_FIELD);
-    ObjectId portfolioOid = portfolioOidField == null ? null : deserializer.fieldValueToObject(ObjectId.class, portfolioOidField);
     
-    ViewDefinition viewDefinition = new ViewDefinition(message.getFieldValue(String.class, message.getByName(NAME_FIELD)),
+    final FudgeField portfolioOidField = message.getByName(PORTFOLIO_OBJECT_ID_FIELD);
+    final ObjectId portfolioOid = portfolioOidField == null ? null : deserializer.fieldValueToObject(ObjectId.class, portfolioOidField);
+    final String name = message.getFieldValue(String.class, message.getByName(NAME_FIELD));
+    final UserPrincipal user = deserializer.fieldValueToObject(UserPrincipal.class, message.getByName(USER_FIELD));
+    final ResultModelDefinition model = deserializer.fieldValueToObject(ResultModelDefinition.class, message.getByName(RESULT_MODEL_DEFINITION_FIELD)); 
+    ViewDefinition viewDefinition = new ViewDefinition(
+        null, 
+        name,
         portfolioOid,
-        deserializer.fieldValueToObject(UserPrincipal.class, message.getByName(USER_FIELD)),
-        deserializer.fieldValueToObject(ResultModelDefinition.class, message.getByName(RESULT_MODEL_DEFINITION_FIELD)));
+        user,
+        model);
 
     // FudgeField currencyField = message.getByName(CURRENCY_FIELD);
     // if (currencyField != null) {
@@ -170,7 +177,9 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
       for (FudgeField specificRequirementField : calcConfigMsg.getAllByName(SPECIFIC_REQUIREMENT_FIELD)) {
         calcConfig.addSpecificRequirement(deserializer.fieldValueToObject(ValueRequirement.class, specificRequirementField));
       }
-      calcConfig.setDeltaDefinition(deserializer.fieldValueToObject(DeltaDefinition.class, calcConfigMsg.getByName(DELTA_DEFINITION_FIELD)));
+      if (calcConfigMsg.hasField(DELTA_DEFINITION_FIELD)) {
+        calcConfig.setDeltaDefinition(deserializer.fieldValueToObject(DeltaDefinition.class, calcConfigMsg.getByName(DELTA_DEFINITION_FIELD)));
+      }
       if (calcConfigMsg.hasField(DEFAULT_PROPERTIES_FIELD)) {
         calcConfig.setDefaultProperties(deserializer.fieldValueToObject(ValueProperties.class, calcConfigMsg.getByName(DEFAULT_PROPERTIES_FIELD)));
       }

@@ -67,7 +67,7 @@ public class CouponIborGearingDiscountingMethodTest {
   private static final YieldCurveBundle CURVES_BUNDLE = TestsDataSets.createCurves1();
   private static final String[] CURVES_NAMES = CURVES_BUNDLE.getAllNames().toArray(new String[0]);
   private static final CouponIborGearingDiscountingMethod METHOD = CouponIborGearingDiscountingMethod.getInstance();
-  private static final CouponIborGearing COUPON = (CouponIborGearing) COUPON_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAMES);
+  private static final CouponIborGearing COUPON = COUPON_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAMES);
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final PresentValueSensitivityCalculator PVCSC = PresentValueSensitivityCalculator.getInstance();
 

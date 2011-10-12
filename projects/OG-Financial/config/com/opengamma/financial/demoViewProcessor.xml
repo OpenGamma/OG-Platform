@@ -16,15 +16,6 @@
   <import resource="classpath:com/opengamma/financial/common.xml" />
   <import resource="classpath:com/opengamma/financial/demoMasters.xml" />
   
-  <!-- Active MQ -->
-  <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-    <constructor-arg value="${activeMQ.brokerURL}" />
-    <property name="WatchTopicAdvisories" value="false" /> <!-- IGN-94 -->
-  </bean>
-  <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
-    <constructor-arg ref="activeMQConnectionFactory"/>
-  </bean>
-  
   <!-- User supplied data storage -->
   <bean id="userFinancialDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="${opengamma.financial-user.jdbc.driver}" />
@@ -70,7 +61,7 @@
   <bean id="userFinancialSecuritySource" class="com.opengamma.financial.security.MasterFinancialSecuritySource">
     <constructor-arg ref="userFinancialSecurityMaster" />
   </bean>
-  <bean id="combinedSecuritySource" class="com.opengamma.financial.security.DelegatingFinancialSecuritySource">
+  <bean id="combinedSecuritySourceUnderlying" class="com.opengamma.financial.security.DelegatingFinancialSecuritySource">
     <constructor-arg ref="sharedSecuritySource" />
     <constructor-arg>
       <map>
@@ -78,12 +69,19 @@
       </map>
     </constructor-arg>
   </bean>
+  <bean id="combinedSecuritySource" class="com.opengamma.financial.security.EHCachingFinancialSecuritySource">
+    <constructor-arg ref="combinedSecuritySourceUnderlying" />
+    <constructor-arg ref="cacheManager" />
+  </bean>
   
   <!-- User market data snapshots -->
-  <bean id="snapshotMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
+    <bean id="userSnapshotMasterChangeManager" class="com.opengamma.core.change.JmsChangeManager" init-method="start" >
+    <constructor-arg ref="jmsConnectionFactory" />
+    <constructor-arg value="userSnapshotMasterChangeManager" />
+  </bean>
   <bean id="userFinancialSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
     <constructor-arg ref="userFinancialDbSource" />
-    <property name="changeManager" ref="snapshotMasterChangeManager" />
+    <property name="changeManager" ref="userSnapshotMasterChangeManager" />
     <property name="uniqueIdScheme" value="${opengamma.financial-user.db.snapshotmaster.scheme}" />
   </bean>
   <bean id="userFinancialSnapshotSource" class="com.opengamma.master.marketdatasnapshot.impl.MasterSnapshotSource">
@@ -241,9 +239,7 @@
 				    <property name="computationTargetResolver" ref="demoTargetResolver" />
 				    <property name="viewProcessorQuery" ref="demoViewProcessorQuerySender" />
 				    <property name="writeBehindExecutorService">
-				      <bean class="com.opengamma.util.ExecutorServiceFactoryBean">
-				        <property name="styleName" value="CACHED" />
-				      </bean>
+				      <null/> <!-- The demo cache is so fast, and CPU bound, that write behind just slows us down on many core systems -->
 				    </property>
 				    <property name="nodesPerCore" value="1" />
 				    <property name="nodeIdentifier" value="local" />
@@ -349,21 +345,6 @@
         </bean>
       </set>
     </property>
-  </bean>
-  
-  <!-- Pnl Explain -->
-  <bean id="demoPnlExplainProcessor" class="com.opengamma.integration.pnlexplain.DefaultPnlExplainProcessorFactoryBean">
-    <property name="viewProcessor" ref="demoViewProcessor" />
-    <property name="fudgeContext" ref="fudgeContext" />
-    <property name="executorService" ref="scheduler" />
-    <property name="availableOutputsProvider" ref="demoAvailableOutputsProvider" />
-    <property name="positionSource" ref="combinedPositionSource" />
-    <property name="securitySource" ref="combinedSecuritySource" />
-    <property name="manageableViewDefinitionRepository" ref="userViewDefinitionRepository" />
-    <property name="conventionBundleSource" ref="conventionBundleSource" />
-    <property name="regionSource" ref="regionSource" />
-    <property name="interpolatedYieldCurveDefinitionSource" ref="combinedInterpolatedYieldCurveDefinitionSource" />
-    <property name="interpolatedYieldCurveSpecificationBuilder" ref="sharedInterpolatedYieldCurveSpecificationBuilder" />
   </bean>
   
   <!-- Code fragment needed for work on ENG-199 & ENG-200 only -->

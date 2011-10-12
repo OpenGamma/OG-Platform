@@ -35,7 +35,7 @@ public class SwaptionPhysicalFixedIborG2ppNumericalIntegrationMethod implements 
    */
   private static final CashFlowEquivalentCalculator CFEC = CashFlowEquivalentCalculator.getInstance();
   /**
-   * Minimal number of integration steps in the replication.
+   * Minimal number of integration steps in the integration.
    */
   private static final int NB_INTEGRATION = 5;
 

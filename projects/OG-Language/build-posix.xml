@@ -1,6 +1,6 @@
 <project name="build-cpp-impl" xmlns:cpptasks="antlib:net.sf.antcontrib.cpptasks">
 
-	<target name="clean" depends="clean-src" description="--> clean the output folders">
+	<target name="clean" depends="clean-src" description="Cleans the output folders">
 		<delete includeemptydirs="true" failonerror="false" dir="${basedir}/Debug" />
 		<delete includeemptydirs="true" failonerror="false" dir="${basedir}/Release" />
 	</target>
@@ -91,7 +91,7 @@
 			<param name="cc.optimization" value="speed" />
 		</antcall>
 	</target>
-	<target name="compile" depends="cpptask,cpptask-none,compile-debug,compile-release" description="--> compile project" />
+	<target name="compile" depends="cpptask,cpptask-none,compile-debug,compile-release" description="Compiles the project" />
 
 	<property name="tests.results.dir" value="${solution.dir}/TestResults" />
 	<target name="tests-impl-none" unless="cpptask.ok">
@@ -122,7 +122,7 @@
 	<target name="tests-prep" depends="cpptask,cpptask-none">
 		<mkdir dir="${solution.dir}/TestResults" />
 	</target>
-	<target name="tests" depends="tests-prep,tests-debug,tests-release" description="--> run tests in the project" />
+	<target name="tests" depends="tests-prep,tests-debug,tests-release" description="Runs tests in the project" />
 
 	<target name="dist-impl">
 		<mkdir dir="${dist.dir}/lib/${cc.configuration}" />
@@ -141,6 +141,6 @@
 			<param name="cc.configuration" value="Release" />
 		</antcall>
 	</target>
-	<target name="dist" depends="cpptask,cpptask-none,dist-debug,dist-release" description="--> copy artifacts to distribution directories" />
+	<target name="dist" depends="cpptask,cpptask-none,dist-debug,dist-release" description="Copies artifacts to distribution directories" />
 
 </project>

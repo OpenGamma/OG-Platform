@@ -70,5 +70,10 @@ public class CouponTest {
       throw new NotImplementedException();
     }
 
+    @Override
+    public Coupon withNotional(double notional) {
+      return null;
+    }
+
   }
 }

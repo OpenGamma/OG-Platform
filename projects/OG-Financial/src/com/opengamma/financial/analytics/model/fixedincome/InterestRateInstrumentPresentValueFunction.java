@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.fixedincome;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -25,13 +26,13 @@ public class InterestRateInstrumentPresentValueFunction extends InterestRateInst
   private static final PresentValueCalculator CALCULATOR = PresentValueCalculator.getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.PRESENT_VALUE;
 
-  public InterestRateInstrumentPresentValueFunction(String forwardCurveName, String fundingCurveName) {
+  public InterestRateInstrumentPresentValueFunction(final String forwardCurveName, final String fundingCurveName) {
     super(forwardCurveName, fundingCurveName, VALUE_REQUIREMENT);
   }
 
   @Override
-  public Set<ComputedValue> getComputedValues(InterestRateDerivative derivative, YieldCurveBundle bundle,
-      FinancialSecurity security) {
+  public Set<ComputedValue> getComputedValues(final InterestRateDerivative derivative, final YieldCurveBundle bundle,
+      final FinancialSecurity security, final ComputationTarget target) {
     final Double presentValue = CALCULATOR.visit(derivative, bundle);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(
         VALUE_REQUIREMENT, security), FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(security,

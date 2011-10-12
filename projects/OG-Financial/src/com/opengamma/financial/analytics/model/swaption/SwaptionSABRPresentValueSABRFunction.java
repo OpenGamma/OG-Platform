@@ -31,7 +31,7 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalIdBundle;
@@ -61,7 +61,7 @@ public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
     final SwaptionSecurity swaptionSecurity = (SwaptionSecurity) target.getSecurity();
     final FixedIncomeInstrumentConverter<?> swaptionDefinition = swaptionSecurity.accept(getConverter());
     final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(target, inputs));
-    final InterestRateDerivative swaption = swaptionDefinition.toDerivative(now, getForwardCurveName(), getFundingCurveName());
+    final InterestRateDerivative swaption = swaptionDefinition.toDerivative(now, getFundingCurveName(), getForwardCurveName());
     final PresentValueSABRSensitivityDataBundle presentValue = CALCULATOR.visit(swaption, data);
     final ValueProperties resultProperties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, swaptionSecurity.getCurrency().getCode())
@@ -82,7 +82,11 @@ public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties resultProperties = getResultProperties((FinancialSecurity) target.getSecurity());
+    final ValueProperties resultProperties = createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode())
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
+        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
     return getResults(target.toSpecification(), resultProperties);
   }
 

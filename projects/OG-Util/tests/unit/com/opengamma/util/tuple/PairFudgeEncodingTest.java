@@ -71,4 +71,14 @@ public class PairFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
     assertEncodeDecodeCycle(Pair.class, object);
   }
 
+  public void test_nullFirst() {
+    Pair<String, String> object = Pair.of(null, "B");
+    assertEncodeDecodeCycle(Pair.class, object);
+  }
+
+  public void test_nullSecond() {
+    Pair<String, String> object = Pair.of("A", null);
+    assertEncodeDecodeCycle(Pair.class, object);
+  }
+
 }

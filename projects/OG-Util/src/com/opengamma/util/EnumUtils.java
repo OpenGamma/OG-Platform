@@ -7,33 +7,38 @@ package com.opengamma.util;
 
 /**
  * Utility methods for working with enums.
+ * <p>
+ * This is a thread-safe static utility class.
  */
 public final class EnumUtils {
-  
+
   /**
    * Restricted constructor.
    */
   private EnumUtils() {
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * A method that returns enum type from its value
+   * Safely returns the enum instance for the specified name.
+   * <p>
+   * This operates as per {@link Enum#valueOf(Class, String)} but returns null
+   * if the name or class cannot be found.
    * 
-   * @param <T> Enum type
-   * @param enumType the enum class, not null
-   * @param name the enum name
-   * @return corresponding enum, or null
+   * @param <T> the enum type
+   * @param enumType  the enum class, null returns null
+   * @param name  the enum name, null returns null
+   * @return the corresponding enum, null if not found
    */
-  public static <T extends Enum<T>> T getEnumFromString(Class<T> enumType, String name) {
-    T result = null;
-    if (enumType != null && name != null) {
-      try {
-        result = Enum.valueOf(enumType, name.trim());
-      } catch (IllegalArgumentException ex) {
-        //do nothing
-      }
+  public static <T extends Enum<T>> T safeValueOf(Class<T> enumType, String name) {
+    if (enumType == null || name == null) {
+      return null;
     }
-    return result;
+    try {
+      return Enum.valueOf(enumType, name.trim());
+    } catch (IllegalArgumentException ex) {
+      return null;
+    }
   }
 
 }

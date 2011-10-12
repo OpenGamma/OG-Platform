@@ -82,7 +82,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     public Builder with(String propertyName, final String propertyValue) {
       ArgumentChecker.notNull(propertyName, "propertyName");
       ArgumentChecker.notNull(propertyValue, "propertyValue");
-      propertyName = propertyName.intern();
+      propertyName = ValueRequirement.getInterned(propertyName);
       final Set<String> previous = _properties.put(propertyName, Collections.singleton(propertyValue));
       if (previous != null) {
         if (previous.isEmpty()) {

@@ -22,12 +22,11 @@ import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumTransaction;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthly;
@@ -44,9 +43,12 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
+import com.opengamma.financial.interestrate.swap.definition.ForexForward;
+import com.opengamma.financial.interestrate.swap.definition.OISSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
@@ -98,6 +100,8 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitFixedFloatSwap(FixedFloatSwap swap, S data);
 
+  T visitOISSwap(OISSwap swap, S data);
+
   T visitSwaptionCashFixedIbor(SwaptionCashFixedIbor swaption, S data);
 
   T visitSwaptionPhysicalFixedIbor(SwaptionPhysicalFixedIbor swaption, S data);
@@ -106,11 +110,15 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitTenorSwap(TenorSwap<? extends Payment> tenorSwap, S data);
 
+  T visitFloatingRateNote(FloatingRateNote frn, S data);
+
+  T visitCrossCurrencySwap(CrossCurrencySwap ccs, S data);
+
+  T visitForexForward(ForexForward fx, S data);
+
   T visitCash(Cash cash, S data);
 
-  T visitInterestRateFutureSecurity(InterestRateFutureSecurity future, S data);
-
-  T visitInterestRateFutureTransaction(InterestRateFutureTransaction future, S data);
+  T visitInterestRateFuture(InterestRateFuture future, S data);
 
   T visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option, S data);
 
@@ -193,6 +201,8 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitFixedCouponSwap(FixedCouponSwap<?> swap);
 
   T visitFixedFloatSwap(FixedFloatSwap swap);
+  
+  T visitOISSwap(OISSwap swap);
 
   T visitSwaptionCashFixedIbor(SwaptionCashFixedIbor swaption);
 
@@ -202,13 +212,15 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitFloatingRateNote(FloatingRateNote frn);
 
+  T visitCrossCurrencySwap(CrossCurrencySwap ccs);
+
+  T visitForexForward(ForexForward fx);
+
   T visitTenorSwap(TenorSwap<? extends Payment> tenorSwap);
 
   T visitCash(Cash cash);
 
-  T visitInterestRateFutureSecurity(InterestRateFutureSecurity future);
-
-  T visitInterestRateFutureTransaction(InterestRateFutureTransaction future);
+  T visitInterestRateFutureSecurity(InterestRateFuture future);
 
   T visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option);
 

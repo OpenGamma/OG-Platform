@@ -5,28 +5,33 @@
  */
 package com.opengamma.financial.interestrate;
 
-import org.apache.commons.lang.Validate;
-
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
-import com.opengamma.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
+import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.payments.method.CouponOISDiscountingMethod;
+import com.opengamma.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
+import com.opengamma.financial.interestrate.swap.definition.ForexForward;
+import com.opengamma.financial.interestrate.swap.definition.OISSwap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.CompareUtils;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * Get the single fixed rate that makes the PV of the instrument zero. For  fixed-float swaps this is the swap rate, for FRAs it is the forward etc. For instruments that 
@@ -86,18 +91,9 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
   /**
    * Compute the future rate (1-price) without convexity adjustment.
    */
-  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
-    final InterestRateFutureSecurityDiscountingMethod method = InterestRateFutureSecurityDiscountingMethod.getInstance();
+  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
+    final InterestRateFutureDiscountingMethod method = InterestRateFutureDiscountingMethod.getInstance();
     return method.parRate(future, curves);
-  }
-
-  @Override
-  /**
-   * Compute the future rate (1-price) without convexity adjustment.
-   */
-  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    final InterestRateFutureSecurityDiscountingMethod method = InterestRateFutureSecurityDiscountingMethod.getInstance();
-    return method.parRate(future.getUnderlyingFuture(), curves);
   }
 
   /**
@@ -111,6 +107,11 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
     final double pvSecond = PVC.visit(swap.getSecondLeg(), curves);
     final double pvFixed = PVC.visit(REPLACE_RATE.visit(swap.getFixedLeg(), 1.0), curves);
     return -pvSecond / pvFixed;
+  }
+
+  @Override
+  public Double visitOISSwap(final OISSwap swap, final YieldCurveBundle curves) {
+    return visitFixedCouponSwap(swap, curves);
   }
 
   /**
@@ -133,6 +134,38 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
   }
 
   /**
+   * This assumes that the spread is pay on the foreign leg (i.e. foreign ibor + spread against domestic ibor)
+   * @param ccs The Cross Currency Swap.
+   * @param curves The valuation curves.
+   * @return The spread on the foreign leg of a CCS
+   */
+  @Override
+  public Double visitCrossCurrencySwap(final CrossCurrencySwap ccs, final YieldCurveBundle curves) {
+    FloatingRateNote dFRN = ccs.getDomesticLeg();
+    FloatingRateNote fFRN = ccs.getForeignLeg();
+    AnnuityCouponIbor dFloatLeg = dFRN.getFloatingLeg().withZeroSpread();
+    AnnuityCouponIbor fFloatLeg = fFRN.getFloatingLeg().withZeroSpread();
+    AnnuityCouponFixed fAnnuity = fFRN.getFloatingLeg().withUnitCoupons();
+
+    double dPV = PVC.visit(dFloatLeg, curves) + PVC.visit(dFRN.getFirstLeg(), curves); //this is in domestic currency
+    double fPV = PVC.visit(fFloatLeg, curves) + PVC.visit(fFRN.getFirstLeg(), curves); //this is in foreign currency
+    double fAnnuityPV = PVC.visit(fAnnuity, curves); //this is in foreign currency
+
+    double fx = ccs.getSpotFX(); //TODO remove having CCS holding spot FX rate 
+
+    return (dPV - fx * fPV) / fx / fAnnuityPV;
+  }
+
+  @Override
+  public Double visitForexForward(final ForexForward fx, final YieldCurveBundle curves) {
+    //TODO this is not a par rate, it is a forward FX rate
+    final YieldAndDiscountCurve curve1 = curves.getCurve(fx.getPaymentCurrency1().getFundingCurveName());
+    final YieldAndDiscountCurve curve2 = curves.getCurve(fx.getPaymentCurrency2().getFundingCurveName());
+    final double t = fx.getPaymentTime();
+    return fx.getSpotForexRate() * curve2.getDiscountFactor(t) / curve1.getDiscountFactor(t);
+  }
+
+  /**
    * This gives you the bond coupon, for a given yield curve, that renders the bond par (present value of all cash flows equal to 1.0)
    * For a bonds yield use ??????????????? //TODO
    * @param bond the bond
@@ -150,6 +183,12 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
   public Double visitCouponIbor(final CouponIbor payment, final YieldCurveBundle data) {
     final YieldAndDiscountCurve curve = data.getCurve(payment.getForwardCurveName());
     return (curve.getDiscountFactor(payment.getFixingPeriodStartTime()) / curve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1.0) / payment.getFixingYearFraction();
+  }
+
+  @Override
+  public Double visitCouponIborGearing(final CouponIborGearing payment, final YieldCurveBundle data) {
+    final YieldAndDiscountCurve curve = data.getCurve(payment.getForwardCurveName());
+    return (curve.getDiscountFactor(payment.getFixingPeriodStartTime()) / curve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1.0) / payment.getFixingAccrualFactor();
   }
 
   @Override
@@ -176,7 +215,7 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
   }
 
   @Override
-  public Double visitCouponIborFixed(CouponIborFixed payment, YieldCurveBundle data) {
+  public Double visitCouponIborFixed(final CouponIborFixed payment, final YieldCurveBundle data) {
     return visitCouponIbor(payment.toCouponIbor(), data);
   }
 

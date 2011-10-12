@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * The platform (in particular the Spring configuration files) makes use of certain system properties which are assumed
@@ -19,6 +20,10 @@ import com.opengamma.OpenGammaRuntimeException;
  * been set.
  */
 public final class PlatformConfigUtils {
+
+  static {
+    DateUtils.initTimeZone();
+  }
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(PlatformConfigUtils.class);

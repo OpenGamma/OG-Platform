@@ -22,15 +22,18 @@ public class UnorderedCurrencyPairFudgeBuilder implements FudgeBuilder<Unordered
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final UnorderedCurrencyPair object) {
     final MutableFudgeMsg message = serializer.newMessage();
     FudgeSerializer.addClassHeader(message, UnorderedCurrencyPair.class);
-    serializer.addToMessage(message, "currency1", null, object.getFirstCurrency());
-    serializer.addToMessage(message, "currency2", null, object.getSecondCurrency());
+    serializer.addToMessage(message, "currency1", null, object.getFirstCurrency().getCode());
+    serializer.addToMessage(message, "currency2", null, object.getSecondCurrency().getCode());
     return message;
   }
 
   @Override
   public UnorderedCurrencyPair buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-    final Currency currency1 = deserializer.fieldValueToObject(Currency.class, message.getByName("currency1"));
-    final Currency currency2 = deserializer.fieldValueToObject(Currency.class, message.getByName("currency2"));
+    final String currencyCode1 = message.getString("currency1");
+    final Currency currency1 = Currency.of(currencyCode1);
+    
+    final String currencyCode2 = message.getString("currency2");
+    final Currency currency2 = Currency.of(currencyCode2);
     return UnorderedCurrencyPair.of(currency1, currency2);
   }
 

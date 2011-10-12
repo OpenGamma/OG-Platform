@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.ParRateCalculator;
@@ -28,9 +29,6 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.rootfinding.YieldCurveFittingTestDataBundle.TestType;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
@@ -78,7 +76,8 @@ public class YieldCurveFittingFromMarketDataTest extends YieldCurveFittingSetup 
     final YieldCurveFittingTestDataBundle data = getSingleCurveSetup();
     doHotSpot(rootFinder, data, "Single curve, market Data (Libor, FRA, swaps). Root finder: ShermanMorrison");
     data.setTestType(TestType.FD_JACOBIAN);
-    doHotSpot(rootFinder, data, "Single curve, market Data (Libor, FRA, swaps). Root finder:ShermanMorrison (FD Jacobian)");
+    doHotSpot(rootFinder, data,
+        "Single curve, market Data (Libor, FRA, swaps). Root finder:ShermanMorrison (FD Jacobian)");
 
   }
 
@@ -98,28 +97,31 @@ public class YieldCurveFittingFromMarketDataTest extends YieldCurveFittingSetup 
     curveNames.add("single curve");
     final String interpolator = Interpolator1DFactory.DOUBLE_QUADRATIC;
 
-    final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, LINEAR_EXTRAPOLATOR,
-        FLAT_EXTRAPOLATOR);
-    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> extrapolatorWithSense = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
-        .getSensitivityCalculator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
-
+    final CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory
+        .getInterpolator(interpolator, LINEAR_EXTRAPOLATOR,
+            FLAT_EXTRAPOLATOR);
     final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = ParRateCalculator.getInstance();
-    final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator
+        .getInstance();
     // final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = PresentValueCalculator.getInstance();
     // final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueSensitivityCalculator.getInstance();
 
     final HashMap<String, double[]> maturities = new LinkedHashMap<String, double[]>();
-    maturities.put("libor", new double[] {0.019164956, 0.038329911, 0.084873374, 0.169746749, 0.251882272, 0.336755647, 0.41889117, 0.503764545, 0.588637919, 0.665297741, 0.750171116, 0.832306639,
-        0.917180014, 0.999315537}); //
-    maturities.put("fra", new double[] {1.437371663, 1.686516085, 1.938398357});
-    maturities.put("swap", new double[] {/* 2.001368925, */3.000684463, 4, 4.999315537, 7.000684463, 10.00136893, 15.00068446, 20, 24.99931554, 30.00136893, 35.00068446, 50.00136893});
-    maturities.put("swap", new double[] {1, 2, 3, 4, 5, 6, 7, 10, 15, 20, 25, 30});
+    maturities.put("libor", new double[] {0.019164956, 0.038329911, 0.084873374, 0.169746749, 0.251882272, 0.336755647,
+        0.41889117, 0.503764545, 0.588637919, 0.665297741, 0.750171116, 0.832306639,
+        0.917180014, 0.999315537 }); //
+    maturities.put("fra", new double[] {1.437371663, 1.686516085, 1.938398357 });
+    maturities.put("swap", new double[] {/* 2.001368925, */3.000684463, 4, 4.999315537, 7.000684463, 10.00136893,
+        15.00068446, 20, 24.99931554, 30.00136893, 35.00068446, 50.00136893 });
+    maturities.put("swap", new double[] {1, 2, 3, 4, 5, 6, 7, 10, 15, 20, 25, 30 });
 
     final HashMap<String, double[]> marketRates = new LinkedHashMap<String, double[]>();
-    marketRates.put("libor", new double[] {0.0506375, 0.05075, 0.0513, 0.0518625, 0.0523625, 0.0526125, 0.052925, 0.053175, 0.053375, 0.0535188, 0.0536375, 0.0537563, 0.0538438, 0.0539438}); //
-    marketRates.put("fra", new double[] {0.0566, 0.05705, 0.0572});
+    marketRates.put("libor", new double[] {0.0506375, 0.05075, 0.0513, 0.0518625, 0.0523625, 0.0526125, 0.052925,
+        0.053175, 0.053375, 0.0535188, 0.0536375, 0.0537563, 0.0538438, 0.0539438 }); //
+    marketRates.put("fra", new double[] {0.0566, 0.05705, 0.0572 });
     // marketRates.put("swap", new double[] {/* 0.05412, */0.054135, 0.054295, 0.05457, 0.055075, 0.055715, 0.05652, 0.056865, 0.05695, 0.056925, 0.056885, 0.056725});
-    marketRates.put("swap", new double[] {0.04285, 0.03953, 0.03986, 0.040965, 0.042035, 0.04314, 0.044, 0.046045, 0.048085, 0.048925, 0.049155, 0.049195});
+    marketRates.put("swap", new double[] {0.04285, 0.03953, 0.03986, 0.040965, 0.042035, 0.04314, 0.044, 0.046045,
+        0.048085, 0.048925, 0.049155, 0.049195 });
 
     int nNodes = 0;
     for (final double[] temp : maturities.values()) {
@@ -148,7 +150,7 @@ public class YieldCurveFittingFromMarketDataTest extends YieldCurveFittingSetup 
       final double[] rates = marketRates.get(name);
       Validate.isTrue(times.length == rates.length);
       for (int i = 0; i < times.length; i++) {
-        ird = makeIRD(name, times[i], curveNames.get(0), curveNames.get(0), rates[i]);
+        ird = makeSingleCurrencyIRD(name,  times[i], SimpleFrequency.QUARTERLY, curveNames.get(0), curveNames.get(0), rates[i], 1);
         instruments.add(ird);
         marketValues[index] = rates[i];
         index++;
@@ -161,8 +163,8 @@ public class YieldCurveFittingFromMarketDataTest extends YieldCurveFittingSetup 
     }
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
 
-    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, curveNames, curveKnots, extrapolator, extrapolatorWithSense, calculator, sensitivityCalculator,
-        marketValues, startPosition, null);
+    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, curveNames,
+        curveKnots, extrapolator, calculator, sensitivityCalculator, marketValues, startPosition, null, false);
 
     return data;
 

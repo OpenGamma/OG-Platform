@@ -76,6 +76,7 @@ public class MasterRegionSource extends AbstractMasterSource<RegionDocument, Reg
     return getMaster().search(request).getFirstRegion();
   }
 
+  @Override
   public ManageableRegion getHighestLevelRegion(ExternalIdBundle regionIds) {
     RegionSearchRequest request = new RegionSearchRequest(regionIds);
     request.setPagingRequest(PagingRequest.ONE);

@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -38,15 +39,16 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.bond.BondSecurityToBondDefinitionConverter;
+import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.bond.BondDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.LastDateCalculator;
 import com.opengamma.financial.interestrate.NelsonSiegelSvennsonBondCurveModel;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.security.FinancialSecuritySource;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.math.curve.FunctionalDoublesCurve;
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -103,13 +105,15 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
     return new AbstractInvokingCompiledFunction() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
         final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
         final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
+        final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
         final Clock snapshotClock = executionContext.getValuationClock();
         final ZonedDateTime now = snapshotClock.zonedDateTime();
-        final BondSecurityToBondDefinitionConverter converter = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource);
+        final BondSecurityConverter converter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
         final FinancialSecuritySource securitySource = executionContext.getSecuritySource(FinancialSecuritySource.class);
         final Collection<Security> allBonds = new ArrayList<Security>(securitySource.getBondsWithIssuerName("US TREASURY N/B"));
         final Iterator<Security> iter = allBonds.iterator();
@@ -130,7 +134,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
         final double[] ytm = new double[n];
         int i = 0;
         for (final Security security : allBonds) {
-          final BondSecurity bondSec = (BondSecurity) security;
+          final GovernmentBondSecurity bondSec = (GovernmentBondSecurity) security;
           final Object ytmObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YTM, ComputationTargetType.SECURITY, security.getUniqueId()));
           if (ytmObject == null) {
             s_logger.warn("Could not get YTM for " + security.getUniqueId());
@@ -139,8 +143,9 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
           if (!(ytmObject instanceof Double)) {
             throw new IllegalArgumentException("YTM should be a double");
           }
-          final BondDefinition definition = converter.getBond(bondSec, true);
-          final Bond bond = definition.toDerivative(now, PROPERTY_PREFIX + "_" + _currency.getCode());
+          final FixedIncomeInstrumentConverter<?> definition = converter.visitGovernmentBondSecurity(bondSec);
+          final String bondStringName = PROPERTY_PREFIX + "_" + _currency.getCode(); 
+          final InterestRateDerivative bond = definition.toDerivative(now, bondStringName);
           t[i] = LAST_DATE.visit(bond);
           ytm[i++] = ((Double) ytmObject / 100);
         }
@@ -158,16 +163,18 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
         return ComputationTargetType.PRIMITIVE;
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+      public boolean canApplyTo(@SuppressWarnings("hiding") final FunctionCompilationContext context, final ComputationTarget target) {
         if (target.getType() != ComputationTargetType.PRIMITIVE) {
           return false;
         }
         return ObjectUtils.equals(target.getUniqueId(), _currency.getUniqueId());
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+      public Set<ValueRequirement> getRequirements(@SuppressWarnings("hiding") final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
         if (canApplyTo(context, target)) {
           final FinancialSecuritySource securitySource = context.getSecuritySource(FinancialSecuritySource.class);
           final Collection<Security> allBonds = new ArrayList<Security>(securitySource.getBondsWithIssuerName("US TREASURY N/B"));
@@ -201,12 +208,10 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
         return Sets.newHashSet();
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-        if (canApplyTo(context, target)) {
-          return _results;
-        }
-        return null;
+      public Set<ValueSpecification> getResults(@SuppressWarnings("hiding") final FunctionCompilationContext context, final ComputationTarget target) {
+        return _results;
       }
 
     };

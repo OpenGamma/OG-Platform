@@ -345,9 +345,8 @@ public final class BondSecurityDiscountingMethod {
     if (bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) {
       if (nbCoupon > 1) { // More than one coupon left
         return modifiedDurationFromYield(bond, yield) * (1 + yield / bond.getCouponPerYear());
-      } else {
-        return bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear();
-      }
+      } 
+      return bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear();
     } else if (bond.getYieldConvention().equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD)) {
       return modifiedDurationFromYield(bond, yield) * (1 + yield / bond.getCouponPerYear());
     }

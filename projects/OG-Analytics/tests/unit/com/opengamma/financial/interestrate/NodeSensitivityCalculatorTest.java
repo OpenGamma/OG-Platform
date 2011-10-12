@@ -38,7 +38,7 @@ public abstract class NodeSensitivityCalculatorTest {
   protected static final String FUNDING_CURVE_NAME = "funding";
   protected static final String LIBOR_CURVE_NAME = "libor";
   protected static final InterestRateDerivative IRD;
-  protected static final LinkedHashMap<String, YieldAndDiscountCurve> INTERPOLATED_CURVES;
+  protected static final YieldCurveBundle INTERPOLATED_CURVES;
   protected static final YieldAndDiscountCurve FUNDING_CURVE;
   protected static final YieldAndDiscountCurve LIBOR_CURVE;
   protected static final Currency CUR = Currency.USD;
@@ -52,16 +52,17 @@ public abstract class NodeSensitivityCalculatorTest {
     final double[] liborCurveNodes = new double[] {1, 1.5, 1.9, 3., 4.0, 6.0};
     final double[] liborCurveYields = new double[] {0.041, 0.043, 0.048, 0.41, 0.0362, 0.032};
 
-    CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
+    CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
         LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
 
     FUNDING_CURVE = new YieldCurve(InterpolatedDoublesCurve.fromSorted(fundingCurveNodes, fundingCurveYields, extrapolator));
     extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
     LIBOR_CURVE = new YieldCurve(InterpolatedDoublesCurve.fromSorted(liborCurveNodes, liborCurveYields, extrapolator));
 
-    INTERPOLATED_CURVES = new LinkedHashMap<String, YieldAndDiscountCurve>();
-    INTERPOLATED_CURVES.put(FUNDING_CURVE_NAME, FUNDING_CURVE);
-    INTERPOLATED_CURVES.put(LIBOR_CURVE_NAME, LIBOR_CURVE);
+    LinkedHashMap<String, YieldAndDiscountCurve> curves = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    curves.put(FUNDING_CURVE_NAME, FUNDING_CURVE);
+    curves.put(LIBOR_CURVE_NAME, LIBOR_CURVE);
+    INTERPOLATED_CURVES = new YieldCurveBundle(curves);
 
     final double couponRate = 0.07;
     IRD = new FixedFloatSwap(CUR, fixedPaymentTimes, floatingPaymentTimes, couponRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
@@ -98,29 +99,29 @@ public abstract class NodeSensitivityCalculatorTest {
   public void testWithKnownCurve() {
     final YieldCurveBundle fixedCurve = new YieldCurveBundle();
     fixedCurve.setCurve(FUNDING_CURVE_NAME, FUNDING_CURVE);
-    final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurve = new LinkedHashMap<String, YieldAndDiscountCurve>();
-    fittingCurve.put(LIBOR_CURVE_NAME, LIBOR_CURVE);
-
+    final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurveMap = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    fittingCurveMap.put(LIBOR_CURVE_NAME, LIBOR_CURVE);
+    YieldCurveBundle fittingCurve = new YieldCurveBundle(fittingCurveMap);
     final InterestRateDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = getValueCalculator();
     final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = getSensitivityCalculator();
     final DoubleMatrix1D result = getCalculator().calculateSensitivities(IRD, sensitivityCalculator, fixedCurve, fittingCurve);
-    final DoubleMatrix1D fdresult = finiteDiffNodeSensitivities(IRD, valueCalculator, fixedCurve, fittingCurve);
-    assertArrayEquals(result.getData(), fdresult.getData(), 1e-8);
+    final DoubleMatrix1D fdResult = finiteDiffNodeSensitivities(IRD, valueCalculator, fixedCurve, fittingCurve);
+    assertArrayEquals(fdResult.getData(), result.getData(), 1e-8);
   }
 
   protected DoubleMatrix1D finiteDiffNodeSensitivities(final InterestRateDerivative ird, final InterestRateDerivativeVisitor<YieldCurveBundle, Double> valueCalculator,
-      final YieldCurveBundle fixedCurves, final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves) {
+      final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves) {
 
     int nNodes = 0;
-    for (final YieldAndDiscountCurve curve : interpolatedCurves.values()) {
-      final Interpolator1DDataBundle dataBundle = ((InterpolatedDoublesCurve) curve.getCurve()).getDataBundle();
+    for (final String curveName : interpolatedCurves.getAllNames()) {
+      final Interpolator1DDataBundle dataBundle = ((InterpolatedDoublesCurve) interpolatedCurves.getCurve(curveName).getCurve()).getDataBundle();
       nNodes += dataBundle.size();
     }
 
     final double[] yields = new double[nNodes];
     int index = 0;
-    for (final YieldAndDiscountCurve curve : interpolatedCurves.values()) {
-      final Interpolator1DDataBundle dataBundle = ((InterpolatedDoublesCurve) curve.getCurve()).getDataBundle();
+    for (final String curveName : interpolatedCurves.getAllNames()) {
+      final Interpolator1DDataBundle dataBundle = ((InterpolatedDoublesCurve) interpolatedCurves.getCurve(curveName).getCurve()).getDataBundle();
       for (final double y : dataBundle.getValues()) {
         yields[index++] = y;
       }
@@ -133,8 +134,8 @@ public abstract class NodeSensitivityCalculatorTest {
 
         final YieldCurveBundle curves = new YieldCurveBundle();
         int index2 = 0;
-        for (final String name : interpolatedCurves.keySet()) {
-          final YieldAndDiscountCurve curve = interpolatedCurves.get(name);
+        for (final String name : interpolatedCurves.getAllNames()) {
+          final YieldAndDiscountCurve curve = interpolatedCurves.getCurve(name);
           final Interpolator1DDataBundle dataBundle = ((InterpolatedDoublesCurve) curve.getCurve()).getDataBundle();
           final int numberOfNodes = dataBundle.size();
 

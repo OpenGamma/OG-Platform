@@ -10,7 +10,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.forex.calculator.ForexConverter;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionSingleBarrierDefinition;
@@ -31,7 +30,7 @@ import com.opengamma.util.money.Currency;
  */
 public class ForexSingleBarrierOptionSecurityConverter implements FXBarrierOptionSecurityVisitor<ForexConverter<?>> {
 
-  public ForexSingleBarrierOptionSecurityConverter(final SecuritySource securitySource, final FinancialSecurityVisitorAdapter<ForexConverter<?>> visitor) {
+  public ForexSingleBarrierOptionSecurityConverter(final FinancialSecurityVisitorAdapter<ForexConverter<?>> visitor) {
     Validate.notNull(visitor, "visitor");
   }
 
@@ -52,7 +51,7 @@ public class ForexSingleBarrierOptionSecurityConverter implements FXBarrierOptio
                                   getObservationType(barrierOptionSecurity.getMonitoringType()), level);
     final ZonedDateTime settlementDate = barrierOptionSecurity.getSettlementDate();
     final ForexDefinition underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, fxRate); //TODO this needs its own converter
-    final boolean isLong = barrierOptionSecurity.getIsLong();
+    final boolean isLong = barrierOptionSecurity.isLong();
     return new ForexOptionSingleBarrierDefinition(new ForexOptionVanillaDefinition(underlying, expiry, true, isLong), barrier);
   }
 

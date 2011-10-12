@@ -38,9 +38,9 @@ public class RemoteViewProcess implements ViewProcess {
   }
   
   @Override
-  public String getDefinitionName() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessResource.PATH_DEFINITION_NAME).build();
-    return _client.access(uri).get(String.class);
+  public UniqueId getDefinitionId() {
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessResource.PATH_DEFINITION_ID).build();
+    return _client.access(uri).get(UniqueId.class);
   }
   
   @Override

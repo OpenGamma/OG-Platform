@@ -13,6 +13,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.security.FinancialSecurityFudgeBuilder;
+import com.opengamma.financial.security.LongShort;
 import com.opengamma.id.ExternalIdFudgeBuilder;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 import com.opengamma.util.money.Currency;
@@ -48,7 +49,7 @@ public class SwaptionSecurityFudgeBuilder extends AbstractFudgeBuilder implement
     FinancialSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
     addToMessage(msg, IS_PAYER_FIELD_NAME, object.isPayer());
     addToMessage(msg, UNDERLYING_IDENTIFIER_FIELD_NAME, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
-    addToMessage(msg, IS_LONG_FIELD_NAME, object.getIsLong());
+    addToMessage(msg, IS_LONG_FIELD_NAME, object.isLong());
     addToMessage(msg, EXPIRY_FIELD_NAME, ExpiryFudgeBuilder.toFudgeMsg(serializer, object.getExpiry()));
     addToMessage(msg, IS_CASH_SETTLED_FIELD_NAME, object.isCashSettled());
     addToMessage(msg, CURRENCY_FIELD_NAME, object.getCurrency());
@@ -65,7 +66,7 @@ public class SwaptionSecurityFudgeBuilder extends AbstractFudgeBuilder implement
     FinancialSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
     object.setPayer(msg.getBoolean(IS_PAYER_FIELD_NAME));
     object.setUnderlyingId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_FIELD_NAME)));
-    object.setIsLong(msg.getBoolean(IS_LONG_FIELD_NAME));
+    object.setLongShort(LongShort.ofLong(msg.getBoolean(IS_LONG_FIELD_NAME)));
     object.setExpiry(ExpiryFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_FIELD_NAME)));
     object.setCashSettled(msg.getBoolean(IS_CASH_SETTLED_FIELD_NAME));
     object.setCurrency(msg.getValue(Currency.class, CURRENCY_FIELD_NAME));

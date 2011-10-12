@@ -49,7 +49,7 @@ public final class MoneyCalculationUtils {
    * @param amountToSubtract  the amount to subtract, not null
    * @return the subtraction result, not null
    */
-  public static BigDecimal minus(final BigDecimal baseAmount, final BigDecimal amountToSubtract) {
+  public static BigDecimal subtract(final BigDecimal baseAmount, final BigDecimal amountToSubtract) {
     return rounded(baseAmount).subtract(rounded(amountToSubtract));
   }
 

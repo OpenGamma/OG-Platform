@@ -34,7 +34,7 @@ public class Cash implements InterestRateDerivative {
    * @param yieldCurveName Name of yield curve used to price loan
    */
   public Cash(final Currency currency, final double maturity, final double notional, final double rate, final String yieldCurveName) {
-    checkInputs(maturity, rate, yieldCurveName);
+    checkInputs(maturity, yieldCurveName);
     Validate.notNull(currency, "currency");
     _currency = currency;
     _maturity = maturity;
@@ -56,7 +56,7 @@ public class Cash implements InterestRateDerivative {
    * @param yieldCurveName Name of yield curve used to price loan
    */
   public Cash(final Currency currency, final double maturity, final double notional, final double rate, final double tradeTime, final double yearFraction, final String yieldCurveName) {
-    checkInputs(maturity, rate, yieldCurveName);
+    checkInputs(maturity, yieldCurveName);
     Validate.notNull(currency, "currency");
     Validate.isTrue(tradeTime >= 0, "trade time is negative");
     Validate.isTrue(yearFraction >= 0, "year fraction is negative");
@@ -70,9 +70,8 @@ public class Cash implements InterestRateDerivative {
     _notional = notional;
   }
 
-  private void checkInputs(final double maturity, final double rate, final String yieldCurveName) {
+  private void checkInputs(final double maturity, final String yieldCurveName) {
     Validate.isTrue(maturity >= 0, "maturity is negative");
-    Validate.isTrue(rate >= 0, "rate is negative");
     Validate.notNull(yieldCurveName);
   }
 

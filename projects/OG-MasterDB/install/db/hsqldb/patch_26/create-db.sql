@@ -6,7 +6,7 @@
 --
 -- Please do not modify it - modify the originals and recreate this using 'ant create-db-sql'.
 
-    create sequence hibernate_sequence start with 1 increment by 1;
+CREATE SEQUENCE hibernate_sequence START WITH 1 INCREMENT BY 1;
 -- create-db-config.sql: Config Master
 
 -- design has one document
@@ -15,24 +15,24 @@
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-CREATE SEQUENCE cfg_config_seq as bigint
-    start with 1000 increment by 1 no cycle;
+CREATE SEQUENCE cfg_config_seq AS bigint
+    START WITH 1000 INCREMENT BY 1 NO CYCLE;
 -- "as bigint" required by Derby/HSQL, not accepted by Postgresql
 
 CREATE TABLE cfg_config (
-    id bigint not null,
-    oid bigint not null,
-    ver_from_instant timestamp with time zone not null,
-    ver_to_instant timestamp with time zone not null,
-    corr_from_instant timestamp with time zone not null,
-    corr_to_instant timestamp with time zone not null,
-    name varchar(255) not null,
-    config_type varchar(255) not null,
-    config blob not null,
-    primary key (id),
-    constraint cfg_chk_config_ver_order check (ver_from_instant <= ver_to_instant),
-    constraint cfg_chk_config_corr_order check (corr_from_instant <= corr_to_instant),
-	constraint name_type_unique unique (name, config_type, ver_to_instant) -- TODO this is not right IGN-101
+    id bigint NOT NULL,
+    oid bigint NOT NULL,
+    ver_from_instant timestamp without time zone NOT NULL,
+    ver_to_instant timestamp without time zone NOT NULL,
+    corr_from_instant timestamp without time zone NOT NULL,
+    corr_to_instant timestamp without time zone NOT NULL,
+    name varchar(255) NOT NULL,
+    config_type varchar(255) NOT NULL,
+    config blob NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT cfg_chk_config_ver_order CHECK (ver_from_instant <= ver_to_instant),
+    CONSTRAINT cfg_chk_config_corr_order CHECK (corr_from_instant <= corr_to_instant),
+    CONSTRAINT name_type_unique UNIQUE (name, config_type, ver_to_instant) -- TODO this is not right IGN-101
 );
 CREATE INDEX ix_cfg_config_oid ON cfg_config(oid);
 CREATE INDEX ix_cfg_config_ver_from_instant ON cfg_config(ver_from_instant);
@@ -40,7 +40,7 @@ CREATE INDEX ix_cfg_config_ver_to_instant ON cfg_config(ver_to_instant);
 CREATE INDEX ix_cfg_config_corr_from_instant ON cfg_config(corr_from_instant);
 CREATE INDEX ix_cfg_config_corr_to_instant ON cfg_config(corr_to_instant);
 CREATE INDEX ix_cfg_config_name ON cfg_config(name);
--- CREATE INDEX ix_cfg_config_nameu ON cfg_config(upper(name));
+-- CREATE INDEX ix_cfg_config_nameu ON cfg_config(UPPER(name));
 CREATE INDEX ix_cfg_config_config_type ON cfg_config(config_type);
 
 -- create-db-refdata.sql
@@ -51,29 +51,29 @@ CREATE INDEX ix_cfg_config_config_type ON cfg_config(config_type);
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-CREATE SEQUENCE hol_holiday_seq as bigint
-    start with 1000 increment by 1 no cycle;
+CREATE SEQUENCE hol_holiday_seq AS bigint
+    START WITH 1000 INCREMENT BY 1 NO CYCLE;
 -- "as bigint" required by Derby/HSQL, not accepted by Postgresql
 
 CREATE TABLE hol_holiday (
-    id bigint not null,
-    oid bigint not null,
-    ver_from_instant timestamp with time zone not null,
-    ver_to_instant timestamp with time zone not null,
-    corr_from_instant timestamp with time zone not null,
-    corr_to_instant timestamp with time zone not null,
-    name varchar(255) not null,
+    id bigint NOT NULL,
+    oid bigint NOT NULL,
+    ver_from_instant timestamp without time zone NOT NULL,
+    ver_to_instant timestamp without time zone NOT NULL,
+    corr_from_instant timestamp without time zone NOT NULL,
+    corr_to_instant timestamp without time zone NOT NULL,
+    name varchar(255) NOT NULL,
     provider_scheme varchar(255),
     provider_value varchar(255),
-    hol_type varchar(255) not null,
+    hol_type varchar(255) NOT NULL,
     region_scheme varchar(255),
     region_value varchar(255),
     exchange_scheme varchar(255),
     exchange_value varchar(255),
     currency_iso varchar(255),
-    primary key (id),
-    constraint hol_chk_holiday_ver_order check (ver_from_instant <= ver_to_instant),
-    constraint hol_chk_holiday_corr_order check (corr_from_instant <= corr_to_instant)
+    PRIMARY KEY (id),
+    CONSTRAINT hol_chk_holiday_ver_order CHECK (ver_from_instant <= ver_to_instant),
+    CONSTRAINT hol_chk_holiday_corr_order CHECK (corr_from_instant <= corr_to_instant)
 );
 CREATE INDEX ix_hol_holiday_oid ON hol_holiday(oid);
 CREATE INDEX ix_hol_holiday_ver_from_instant ON hol_holiday(ver_from_instant);
@@ -81,7 +81,7 @@ CREATE INDEX ix_hol_holiday_ver_to_instant ON hol_holiday(ver_to_instant);
 CREATE INDEX ix_hol_holiday_corr_from_instant ON hol_holiday(corr_from_instant);
 CREATE INDEX ix_hol_holiday_corr_to_instant ON hol_holiday(corr_to_instant);
 CREATE INDEX ix_hol_holiday_name ON hol_holiday(name);
--- CREATE INDEX ix_hol_holiday_nameu ON hol_holiday(upper(name));
+-- CREATE INDEX ix_hol_holiday_nameu ON hol_holiday(UPPER(name));
 CREATE INDEX ix_hol_holiday_provider_scheme ON hol_holiday(provider_scheme);
 CREATE INDEX ix_hol_holiday_provider_value ON hol_holiday(provider_value);
 CREATE INDEX ix_hol_holiday_holiday_type ON hol_holiday(hol_type);
@@ -92,9 +92,9 @@ CREATE INDEX ix_hol_holiday_exchange_value ON hol_holiday(exchange_value);
 CREATE INDEX ix_hol_holiday_currency_iso ON hol_holiday(currency_iso);
 
 CREATE TABLE hol_date (
-    holiday_id bigint not null,
-    hol_date date not null,
-    constraint hol_fk_date2hol foreign key (holiday_id) references hol_holiday (id)
+    holiday_id bigint NOT NULL,
+    hol_date date NOT NULL,
+    CONSTRAINT hol_fk_date2hol FOREIGN KEY (holiday_id) REFERENCES hol_holiday (id)
 );
 CREATE INDEX ix_hol_date_holiday_id ON hol_date(holiday_id);
 
@@ -105,25 +105,25 @@ CREATE INDEX ix_hol_date_holiday_id ON hol_date(holiday_id);
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-CREATE SEQUENCE exg_exchange_seq as bigint
-    start with 1000 increment by 1 no cycle;
+CREATE SEQUENCE exg_exchange_seq AS bigint
+    START WITH 1000 INCREMENT BY 1 NO CYCLE;
 CREATE SEQUENCE exg_idkey_seq as bigint
-    start with 1000 increment by 1 no cycle;
+    START WITH 1000 INCREMENT BY 1 NO CYCLE;
 -- "as bigint" required by Derby/HSQL, not accepted by Postgresql
 
 CREATE TABLE exg_exchange (
-    id bigint not null,
-    oid bigint not null,
-    ver_from_instant timestamp with time zone not null,
-    ver_to_instant timestamp with time zone not null,
-    corr_from_instant timestamp with time zone not null,
-    corr_to_instant timestamp with time zone not null,
-    name varchar(255) not null,
+    id bigint NOT NULL,
+    oid bigint NOT NULL,
+    ver_from_instant timestamp without time zone NOT NULL,
+    ver_to_instant timestamp without time zone NOT NULL,
+    corr_from_instant timestamp without time zone NOT NULL,
+    corr_to_instant timestamp without time zone NOT NULL,
+    name varchar(255) NOT NULL,
     time_zone varchar(255),
-    detail blob not null,
-    primary key (id),
-    constraint exg_chk_exchange_ver_order check (ver_from_instant <= ver_to_instant),
-    constraint exg_chk_exchange_corr_order check (corr_from_instant <= corr_to_instant)
+    detail blob NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT exg_chk_exchange_ver_order CHECK (ver_from_instant <= ver_to_instant),
+    CONSTRAINT exg_chk_exchange_corr_order CHECK (corr_from_instant <= corr_to_instant)
 );
 CREATE INDEX ix_exg_exchange_oid ON exg_exchange(oid);
 CREATE INDEX ix_exg_exchange_ver_from_instant ON exg_exchange(ver_from_instant);
@@ -131,35 +131,36 @@ CREATE INDEX ix_exg_exchange_ver_to_instant ON exg_exchange(ver_to_instant);
 CREATE INDEX ix_exg_exchange_corr_from_instant ON exg_exchange(corr_from_instant);
 CREATE INDEX ix_exg_exchange_corr_to_instant ON exg_exchange(corr_to_instant);
 CREATE INDEX ix_exg_exchange_name ON exg_exchange(name);
--- CREATE INDEX ix_exg_exchange_nameu ON exg_exchange(upper(name));
+-- CREATE INDEX ix_exg_exchange_nameu ON exg_exchange(UPPER(name));
 
 CREATE TABLE exg_idkey (
-    id bigint not null,
-    key_scheme varchar(255) not null,
-    key_value varchar(255) not null,
-    primary key (id),
-    constraint exg_chk_idkey unique (key_scheme, key_value)
+    id bigint NOT NULL,
+    key_scheme varchar(255) NOT NULL,
+    key_value varchar(255) NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT exg_chk_idkey UNIQUE (key_scheme, key_value)
 );
 
 CREATE TABLE exg_exchange2idkey (
-    exchange_id bigint not null,
-    idkey_id bigint not null,
-    primary key (exchange_id, idkey_id),
-    constraint exg_fk_exgidkey2exg foreign key (exchange_id) references exg_exchange (id),
-    constraint exg_fk_exgidkey2idkey foreign key (idkey_id) references exg_idkey (id)
+    exchange_id bigint NOT NULL,
+    idkey_id bigint NOT NULL,
+    PRIMARY KEY (exchange_id, idkey_id),
+    CONSTRAINT exg_fk_exgidkey2exg FOREIGN KEY (exchange_id) REFERENCES exg_exchange (id),
+    CONSTRAINT exg_fk_exgidkey2idkey FOREIGN KEY (idkey_id) REFERENCES exg_idkey (id)
 );
+CREATE INDEX ix_exg_exg2idkey_idkey ON exg_exchange2idkey(idkey_id);
 -- exg_exchange2idkey is fully dependent of exg_exchange
 
 -- create-db-engine.sql: Config Master
 
 create table eng_functioncosts (
-    configuration varchar(255) not null,
-    function varchar(255) not null,
-    version_instant timestamp with time zone not null,
-    invocation_cost decimal(31,8) not null,
-    data_input_cost decimal(31,8) not null,
-    data_output_cost decimal(31,8) not null,
-    primary key (configuration, function, version_instant)
+    configuration varchar(255) NOT NULL,
+    function varchar(255) NOT NULL,
+    version_instant timestamp without time zone NOT NULL,
+    invocation_cost decimal(31,8) NOT NULL,
+    data_input_cost decimal(31,8) NOT NULL,
+    data_output_cost decimal(31,8) NOT NULL,
+    PRIMARY KEY (configuration, function, version_instant)
 );
 
 -- create-db-security.sql: Security Master
@@ -170,27 +171,27 @@ create table eng_functioncosts (
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-CREATE SEQUENCE sec_security_seq as bigint
-    start with 1000 increment by 1 no cycle;
-CREATE SEQUENCE sec_idkey_seq as bigint
-    start with 1000 increment by 1 no cycle;
+CREATE SEQUENCE sec_security_seq AS bigint
+    START WITH 1000 INCREMENT BY 1 NO CYCLE;
+CREATE SEQUENCE sec_idkey_seq AS bigint
+    START WITH 1000 INCREMENT BY 1 NO CYCLE;
 -- "as bigint" required by Derby/HSQL, not accepted by Postgresql
 
 CREATE TABLE sec_security (
-    id bigint not null,
-    oid bigint not null,
-    ver_from_instant timestamp with time zone not null,
-    ver_to_instant timestamp with time zone not null,
-    corr_from_instant timestamp with time zone not null,
-    corr_to_instant timestamp with time zone not null,
-    name varchar(255) not null,
-    sec_type varchar(255) not null,
-    detail_type char not null,
-    primary key (id),
-    constraint sec_fk_sec2sec foreign key (oid) references sec_security (id),
-    constraint sec_chk_sec_ver_order check (ver_from_instant <= ver_to_instant),
-    constraint sec_chk_sec_corr_order check (corr_from_instant <= corr_to_instant),
-    constraint sec_chk_detail_type check (detail_type in ('D', 'M', 'R'))
+    id bigint NOT NULL,
+    oid bigint NOT NULL,
+    ver_from_instant timestamp without time zone NOT NULL,
+    ver_to_instant timestamp without time zone NOT NULL,
+    corr_from_instant timestamp without time zone NOT NULL,
+    corr_to_instant timestamp without time zone NOT NULL,
+    name varchar(255) NOT NULL,
+    sec_type varchar(255) NOT NULL,
+    detail_type char NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT sec_fk_sec2sec FOREIGN KEY (oid) REFERENCES sec_security (id),
+    CONSTRAINT sec_chk_sec_ver_order CHECK (ver_from_instant <= ver_to_instant),
+    CONSTRAINT sec_chk_sec_corr_order CHECK (corr_from_instant <= corr_to_instant),
+    CONSTRAINT sec_chk_detail_type CHECK (detail_type IN ('D', 'M', 'R'))
 );
 CREATE INDEX ix_sec_security_oid ON sec_security(oid);
 CREATE INDEX ix_sec_security_ver_from_instant ON sec_security(ver_from_instant);
@@ -198,310 +199,310 @@ CREATE INDEX ix_sec_security_ver_to_instant ON sec_security(ver_to_instant);
 CREATE INDEX ix_sec_security_corr_from_instant ON sec_security(corr_from_instant);
 CREATE INDEX ix_sec_security_corr_to_instant ON sec_security(corr_to_instant);
 CREATE INDEX ix_sec_security_name ON sec_security(name);
--- CREATE INDEX ix_sec_security_nameu ON sec_security(upper(name));
 CREATE INDEX ix_sec_security_sec_type ON sec_security(sec_type);
 
 CREATE TABLE sec_idkey (
-    id bigint not null,
-    key_scheme varchar(255) not null,
-    key_value varchar(255) not null,
-    primary key (id),
-    constraint sec_chk_idkey unique (key_scheme, key_value)
+    id bigint NOT NULL,
+    key_scheme varchar(255) NOT NULL,
+    key_value varchar(255) NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT sec_chk_idkey UNIQUE (key_scheme, key_value)
 );
 
 CREATE TABLE sec_security2idkey (
-    security_id bigint not null,
-    idkey_id bigint not null,
-    primary key (security_id, idkey_id),
-    constraint sec_fk_secidkey2sec foreign key (security_id) references sec_security (id),
-    constraint sec_fk_secidkey2idkey foreign key (idkey_id) references sec_idkey (id)
+    security_id bigint NOT NULL,
+    idkey_id bigint NOT NULL,
+    PRIMARY KEY (security_id, idkey_id),
+    CONSTRAINT sec_fk_secidkey2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+    CONSTRAINT sec_fk_secidkey2idkey FOREIGN KEY (idkey_id) REFERENCES sec_idkey (id)
 );
+CREATE INDEX ix_sec_sec2idkey_idkey ON sec_security2idkey(idkey_id);
 -- sec_security_idkey is fully dependent of sec_security
 
 -- Hibernate controlled tables
 CREATE TABLE sec_currency (
-    id bigint not null,
-    name varchar(255) not null unique,
-    primary key (id)
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE sec_commodityfuturetype (
-    id bigint not null,
-    name varchar(255) not null unique,
-    primary key (id)
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE sec_bondfuturetype (
-    id bigint not null,
-    name varchar(255) not null unique,
-    primary key (id)
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE sec_cashrate (
-    id bigint not null,
-    name varchar(255) not null unique,
-    primary key (id)
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE sec_unit (
-    id bigint not null,
-    name varchar(255) not null unique,
-    primary key (id)
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE sec_exchange (
-    id bigint not null,
-    name varchar(255) not null unique,
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL UNIQUE,
     description varchar(255),
-    primary key (id)
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE sec_gics (
-    id bigint not null,
-    name varchar(8) not null unique,
+    id bigint NOT NULL,
+    name varchar(8) NOT NULL UNIQUE,
     description varchar(255),
-    primary key (id)
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE sec_equity (
-    id bigint not null,
-    security_id bigint not null,
+    id bigint NOT NULL,
+    security_id bigint NOT NULL,
     shortName varchar(255),
-    exchange_id bigint not null,
-    companyName varchar(255) not null,
-    currency_id bigint not null,
+    exchange_id bigint NOT NULL,
+    companyName varchar(255) NOT NULL,
+    currency_id bigint NOT NULL,
     gicscode_id bigint,
-    primary key (id),
-    constraint sec_fk_equity2sec foreign key (security_id) references sec_security (id),
-    constraint sec_fk_equity2currency foreign key (currency_id) references sec_currency(id),
-    constraint sec_fk_equity2exchange foreign key (exchange_id) references sec_exchange(id),
-    constraint sec_fk_equity2gics foreign key (gicscode_id) references sec_gics(id)
+    PRIMARY KEY (id),
+    CONSTRAINT sec_fk_equity2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+    CONSTRAINT sec_fk_equity2currency FOREIGN KEY (currency_id) REFERENCES sec_currency(id),
+    CONSTRAINT sec_fk_equity2exchange FOREIGN KEY (exchange_id) REFERENCES sec_exchange(id),
+    CONSTRAINT sec_fk_equity2gics FOREIGN KEY (gicscode_id) REFERENCES sec_gics(id)
 );
 
 CREATE TABLE sec_equityindexoption (
-    id bigint not null,
-    security_id bigint not null,
-    option_exercise_type varchar(32) not null,
-    option_type varchar(32) not null,
-    strike double precision not null,
-    expiry_date timestamp with time zone not null,
-    expiry_zone varchar(50) not null,
-    expiry_accuracy smallint not null,
-    underlying_scheme varchar(255) not null,
-    underlying_identifier varchar(255) not null,
-    currency_id bigint not null,
+    id bigint NOT NULL,
+    security_id bigint NOT NULL,
+    option_exercise_type varchar(32) NOT NULL,
+    option_type varchar(32) NOT NULL,
+    strike double precision NOT NULL,
+    expiry_date timestamp without time zone NOT NULL,
+    expiry_zone varchar(50) NOT NULL,
+    expiry_accuracy smallint NOT NULL,
+    underlying_scheme varchar(255) NOT NULL,
+    underlying_identifier varchar(255) NOT NULL,
+    currency_id bigint NOT NULL,
     exchange_id bigint,
     pointValue double precision,
-    primary key (id),
-    constraint sec_fk_equityindexoption2sec foreign key (security_id) references sec_security (id),
-    constraint sec_fk_equityindexoption2currency foreign key (currency_id) references sec_currency (id),
-    constraint sec_fk_equityindexoption2exchange foreign key (exchange_id) references sec_exchange (id)
+    PRIMARY KEY (id),
+    CONSTRAINT sec_fk_equityindexoption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+    CONSTRAINT sec_fk_equityindexoption2currency FOREIGN KEY (currency_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_equityindexoption2exchange FOREIGN KEY (exchange_id) REFERENCES sec_exchange (id)
 );
 
 CREATE TABLE sec_equityoption (
-    id bigint not null,
-    security_id bigint not null,
-    option_exercise_type varchar(32) not null,
-    option_type varchar(32) not null,
-    strike double precision not null,
-    expiry_date timestamp with time zone not null,
-    expiry_zone varchar(50) not null,
-    expiry_accuracy smallint not null,
-    underlying_scheme varchar(255) not null,
-    underlying_identifier varchar(255) not null,
-    currency_id bigint not null,
+    id bigint NOT NULL,
+    security_id bigint NOT NULL,
+    option_exercise_type varchar(32) NOT NULL,
+    option_type varchar(32) NOT NULL,
+    strike double precision NOT NULL,
+    expiry_date timestamp without time zone NOT NULL,
+    expiry_zone varchar(50) NOT NULL,
+    expiry_accuracy smallint NOT NULL,
+    underlying_scheme varchar(255) NOT NULL,
+    underlying_identifier varchar(255) NOT NULL,
+    currency_id bigint NOT NULL,
     exchange_id bigint,
     pointValue double precision,
-    primary key (id),
-    constraint sec_fk_equityoption2sec foreign key (security_id) references sec_security (id),
-    constraint sec_fk_equityoption2currency foreign key (currency_id) references sec_currency (id),
-    constraint sec_fk_equityoption2exchange foreign key (exchange_id) references sec_exchange (id)
+    PRIMARY KEY (id),
+    CONSTRAINT sec_fk_equityoption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+    CONSTRAINT sec_fk_equityoption2currency FOREIGN KEY (currency_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_equityoption2exchange FOREIGN KEY (exchange_id) REFERENCES sec_exchange (id)
 );
 
 CREATE TABLE sec_fxoption (
-    id bigint not null,
-    security_id bigint not null,
-    put_amount double precision not null,
-    call_amount double precision not null,
-    expiry_date timestamp with time zone not null,
-    expiry_zone varchar(50) not null,
-    expiry_accuracy smallint not null,
-    put_currency_id bigint not null,
-    call_currency_id bigint not null,
-    settlement_date timestamp with time zone not null,
-    settlement_zone varchar(50) not null,
-    is_long boolean not null,
-    primary key (id),
-    constraint sec_fk_fxoption2sec foreign key (security_id) references sec_security (id),
-    constraint sec_fk_fxoption2putcurrency foreign key (put_currency_id) references sec_currency (id),
-    constraint sec_fk_fxoption2callcurrency foreign key (call_currency_id) references sec_currency (id),
+    id bigint NOT NULL,
+    security_id bigint NOT NULL,
+    put_amount double precision NOT NULL,
+    call_amount double precision NOT NULL,
+    expiry_date timestamp without time zone NOT NULL,
+    expiry_zone varchar(50) NOT NULL,
+    expiry_accuracy smallint NOT NULL,
+    put_currency_id bigint NOT NULL,
+    call_currency_id bigint NOT NULL,
+    settlement_date timestamp without time zone NOT NULL,
+    settlement_zone varchar(50) NOT NULL,
+    is_long boolean NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT sec_fk_fxoption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+    CONSTRAINT sec_fk_fxoption2putcurrency FOREIGN KEY (put_currency_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_fxoption2callcurrency FOREIGN KEY (call_currency_id) REFERENCES sec_currency (id)
 );
 
 CREATE TABLE sec_swaption (
-    id bigint not null,
-    security_id bigint not null,
-    underlying_scheme varchar(255) not null,
-    underlying_identifier varchar(255) not null,
-    expiry_date timestamp with time zone not null,
-    expiry_zone varchar(50) not null,
-    expiry_accuracy smallint not null,
-    cash_settled boolean not null,
-    is_long boolean not null,
-    is_payer boolean not null,
-    currency_id BIGINT not null,
-    primary key (id),
-    constraint sec_fk_swaption2currency foreign key (currency_id) references sec_currency(id),
-    constraint sec_fk_swaption2sec foreign key (security_id) references sec_security (id)
+    id bigint NOT NULL,
+    security_id bigint NOT NULL,
+    underlying_scheme varchar(255) NOT NULL,
+    underlying_identifier varchar(255) NOT NULL,
+    expiry_date timestamp without time zone NOT NULL,
+    expiry_zone varchar(50) NOT NULL,
+    expiry_accuracy smallint NOT NULL,
+    cash_settled boolean NOT NULL,
+    is_long boolean NOT NULL,
+    is_payer boolean NOT NULL,
+    currency_id bigint NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT sec_fk_swaption2currency FOREIGN KEY (currency_id) REFERENCES sec_currency(id),
+    CONSTRAINT sec_fk_swaption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id)
 );
 
 CREATE TABLE sec_irfutureoption (
-    id bigint not null,
-    security_id bigint not null,
-    option_exercise_type varchar(32) not null,
-    option_type varchar(32) not null,
-    strike double precision not null,
-    expiry_date timestamp with time zone not null,
-    expiry_zone varchar(50) not null,
-    expiry_accuracy smallint not null,
-    underlying_scheme varchar(255) not null,
-    underlying_identifier varchar(255) not null,
-    currency_id bigint not null,
-    exchange_id bigint not null,
-    margined boolean not null,
-    pointValue double precision not null,
-    primary key (id),
-    constraint sec_fk_irfutureoption2sec foreign key (security_id) references sec_security (id),
-    constraint sec_fk_irfutureoption2currency foreign key (currency_id) references sec_currency (id),
-    constraint sec_fk_irfutureoption2exchange foreign key (exchange_id) references sec_exchange (id)
+    id bigint NOT NULL,
+    security_id bigint NOT NULL,
+    option_exercise_type varchar(32) NOT NULL,
+    option_type varchar(32) NOT NULL,
+    strike double precision NOT NULL,
+    expiry_date timestamp without time zone NOT NULL,
+    expiry_zone varchar(50) NOT NULL,
+    expiry_accuracy smallint NOT NULL,
+    underlying_scheme varchar(255) NOT NULL,
+    underlying_identifier varchar(255) NOT NULL,
+    currency_id bigint NOT NULL,
+    exchange_id bigint NOT NULL,
+    margined boolean NOT NULL,
+    pointValue double precision NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT sec_fk_irfutureoption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+    CONSTRAINT sec_fk_irfutureoption2currency FOREIGN KEY (currency_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_irfutureoption2exchange FOREIGN KEY (exchange_id) REFERENCES sec_exchange (id)
 );
 
 CREATE TABLE sec_fxbarrieroption (
-    id bigint not null,
-    security_id bigint not null,
-    put_amount double precision not null,
-    call_amount double precision not null,
-    expiry_date timestamp with time zone not null,
-    expiry_zone varchar(50) not null,
-    expiry_accuracy smallint not null,
-    put_currency_id bigint not null,
-    call_currency_id bigint not null,
-    settlement_date timestamp with time zone not null,
-    settlement_zone varchar(50) not null,
-    barrier_type varchar(32) not null,
-    barrier_direction varchar(32) not null,
-    barrier_level double precision not null,
-    monitoring_type varchar(32) not null,
+    id bigint NOT NULL,
+    security_id bigint NOT NULL,
+    put_amount double precision NOT NULL,
+    call_amount double precision NOT NULL,
+    expiry_date timestamp without time zone NOT NULL,
+    expiry_zone varchar(50) NOT NULL,
+    expiry_accuracy smallint NOT NULL,
+    put_currency_id bigint NOT NULL,
+    call_currency_id bigint NOT NULL,
+    settlement_date timestamp without time zone NOT NULL,
+    settlement_zone varchar(50) NOT NULL,
+    barrier_type varchar(32) NOT NULL,
+    barrier_direction varchar(32) NOT NULL,
+    barrier_level double precision NOT NULL,
+    monitoring_type varchar(32) NOT NULL,
     sampling_frequency varchar(32),
-    is_long boolean not null,
-    primary key (id),
-    constraint sec_fk_fxbarrieroption2sec foreign key (security_id) references sec_security (id),
-    constraint sec_fk_fxbarrieroption2putcurrency foreign key (put_currency_id) references sec_currency (id),
-    constraint sec_fk_fxbarrieroption2callcurrency foreign key (call_currency_id) references sec_currency (id)
+    is_long boolean NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT sec_fk_fxbarrieroption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+    CONSTRAINT sec_fk_fxbarrieroption2putcurrency FOREIGN KEY (put_currency_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_fxbarrieroption2callcurrency FOREIGN KEY (call_currency_id) REFERENCES sec_currency (id)
 );
 
 CREATE TABLE sec_frequency (
-    id bigint not null,
-    name varchar(255) not null unique,
-    primary key (id)
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE sec_daycount (
-    id bigint not null,
-    name varchar(255) not null unique,
-    primary key (id)
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE sec_businessdayconvention (
-    id bigint not null,
-    name varchar(255) not null unique,
-    primary key (id)
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE sec_issuertype (
-    id bigint not null,
-    name varchar(255) not null unique,
-    primary key (id)
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
  );
 
 CREATE TABLE sec_market (
-    id bigint not null,
-    name varchar(255) not null unique,
-    primary key (id)
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
  );
 
 CREATE TABLE sec_yieldconvention (
-    id bigint not null,
-    name varchar(255) not null unique,
-    primary key (id)
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
  );
 
 CREATE TABLE sec_guaranteetype (
-    id bigint not null,
-    name varchar(255) not null unique,
-    primary key (id)
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
  );
 
 CREATE TABLE sec_coupontype (
-    id bigint not null,
-    name varchar(255) not null unique,
-    primary key (id)
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
  );
 
 CREATE TABLE sec_bond (
-    id bigint not null,
-    security_id bigint not null,
-    bond_type varchar(32) not null,
-    issuername varchar(255) not null,
-    issuertype_id bigint not null,
-    issuerdomicile varchar(255) not null,
-    market_id bigint not null,
-    currency_id bigint not null,
-    yieldconvention_id bigint not null,
+    id bigint NOT NULL,
+    security_id bigint NOT NULL,
+    bond_type varchar(32) NOT NULL,
+    issuername varchar(255) NOT NULL,
+    issuertype_id bigint NOT NULL,
+    issuerdomicile varchar(255) NOT NULL,
+    market_id bigint NOT NULL,
+    currency_id bigint NOT NULL,
+    yieldconvention_id bigint NOT NULL,
     guaranteetype_id bigint,
-    maturity_date timestamp with time zone not null,
-    maturity_zone varchar(50) not null,
-    maturity_accuracy smallint not null,
-    coupontype_id bigint not null,
-    couponrate double precision not null,
-    couponfrequency_id bigint not null,
-    daycountconvention_id bigint not null,
+    maturity_date timestamp without time zone NOT NULL,
+    maturity_zone varchar(50) NOT NULL,
+    maturity_accuracy smallint NOT NULL,
+    coupontype_id bigint NOT NULL,
+    couponrate double precision NOT NULL,
+    couponfrequency_id bigint NOT NULL,
+    daycountconvention_id bigint NOT NULL,
     businessdayconvention_id bigint,
-    announcement_date timestamp with time zone,
+    announcement_date timestamp without time zone,
     announcement_zone varchar(50),
-    interestaccrual_date timestamp with time zone not null,
-    interestaccrual_zone varchar(50) not null,
-    settlement_date timestamp with time zone not null,
-    settlement_zone varchar(50) not null,
-    firstcoupon_date timestamp with time zone not null,
-    firstcoupon_zone varchar(50) not null,
-    issuanceprice double precision not null,
-    totalamountissued double precision not null,
-    minimumamount double precision not null,
-    minimumincrement double precision not null,
-    paramount double precision not null,
-    redemptionvalue double precision not null,
-    primary key (id),
-    constraint sec_fk_bond2sec foreign key (security_id) references sec_security (id),
-    constraint sec_fk_bond2issuertype foreign key (issuertype_id) references sec_issuertype (id),
-    constraint sec_fk_bond2market foreign key (market_id) references sec_market (id),
-    constraint sec_fk_bond2currency foreign key (currency_id) references sec_currency (id),
-    constraint sec_fk_bond2yieldconvention foreign key (yieldconvention_id) references sec_yieldconvention (id),
-    constraint sec_fk_bond2guaranteetype foreign key (guaranteetype_id) references sec_guaranteetype (id),
-    constraint sec_fk_bond2coupontype foreign key (coupontype_id) references sec_coupontype (id),
-    constraint sec_fk_bond2frequency foreign key (couponfrequency_id) references sec_frequency (id),
-    constraint sec_fk_bond2daycount foreign key (daycountconvention_id) references sec_daycount (id),
-    constraint sec_fk_bond2businessdayconvention foreign key (businessdayconvention_id) references sec_businessdayconvention (id)
+    interestaccrual_date timestamp without time zone NOT NULL,
+    interestaccrual_zone varchar(50) NOT NULL,
+    settlement_date timestamp without time zone NOT NULL,
+    settlement_zone varchar(50) NOT NULL,
+    firstcoupon_date timestamp without time zone NOT NULL,
+    firstcoupon_zone varchar(50) NOT NULL,
+    issuanceprice double precision NOT NULL,
+    totalamountissued double precision NOT NULL,
+    minimumamount double precision NOT NULL,
+    minimumincrement double precision NOT NULL,
+    paramount double precision NOT NULL,
+    redemptionvalue double precision NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT sec_fk_bond2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+    CONSTRAINT sec_fk_bond2issuertype FOREIGN KEY (issuertype_id) REFERENCES sec_issuertype (id),
+    CONSTRAINT sec_fk_bond2market FOREIGN KEY (market_id) REFERENCES sec_market (id),
+    CONSTRAINT sec_fk_bond2currency FOREIGN KEY (currency_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_bond2yieldconvention FOREIGN KEY (yieldconvention_id) REFERENCES sec_yieldconvention (id),
+    CONSTRAINT sec_fk_bond2guaranteetype FOREIGN KEY (guaranteetype_id) REFERENCES sec_guaranteetype (id),
+    CONSTRAINT sec_fk_bond2coupontype FOREIGN KEY (coupontype_id) REFERENCES sec_coupontype (id),
+    CONSTRAINT sec_fk_bond2frequency FOREIGN KEY (couponfrequency_id) REFERENCES sec_frequency (id),
+    CONSTRAINT sec_fk_bond2daycount FOREIGN KEY (daycountconvention_id) REFERENCES sec_daycount (id),
+    CONSTRAINT sec_fk_bond2businessdayconvention FOREIGN KEY (businessdayconvention_id) REFERENCES sec_businessdayconvention (id)
 );
 
 CREATE TABLE sec_future (
-    id bigint not null,
-    security_id bigint not null,
-    future_type varchar(32) not null,
-    expiry_date timestamp with time zone not null,
-    expiry_zone varchar(50) not null,
-    expiry_accuracy smallint not null,
-    tradingexchange_id bigint not null,
-    settlementexchange_id bigint not null,
+    id bigint NOT NULL,
+    security_id bigint NOT NULL,
+    future_type varchar(32) NOT NULL,
+    expiry_date timestamp without time zone NOT NULL,
+    expiry_zone varchar(50) NOT NULL,
+    expiry_accuracy smallint NOT NULL,
+    tradingexchange_id bigint NOT NULL,
+    settlementexchange_id bigint NOT NULL,
     currency1_id bigint,
     currency2_id bigint,
     currency3_id bigint,
@@ -512,234 +513,231 @@ CREATE TABLE sec_future (
     unit_amount double precision,
     underlying_scheme varchar(255),
     underlying_identifier varchar(255), 
-    bondFutureFirstDeliveryDate timestamp with time zone,
+    bondFutureFirstDeliveryDate timestamp without time zone,
     bondFutureFirstDeliveryDate_zone varchar(50),
-    bondFutureLastDeliveryDate timestamp with time zone,
+    bondFutureLastDeliveryDate timestamp without time zone,
     bondFutureLastDeliveryDate_zone varchar(50),
-    primary key (id),
-    constraint sec_fk_future2sec foreign key (security_id) references sec_security (id),
-    constraint sec_fk_future2exchange1 foreign key (tradingexchange_id) references sec_exchange (id),
-    constraint sec_fk_future2exchange2 foreign key (settlementexchange_id) references sec_exchange (id),
-    constraint sec_fk_future2currency1 foreign key (currency1_id) references sec_currency (id),
-    constraint sec_fk_future2currency2 foreign key (currency2_id) references sec_currency (id),
-    constraint sec_fk_future2currency3 foreign key (currency3_id) references sec_currency (id),
-    constraint sec_fk_future2bondfuturetype foreign key (bondtype_id) references sec_bondfuturetype (id),
-    constraint sec_fk_future2commodityfuturetype foreign key (commoditytype_id) references sec_commodityfuturetype (id),
-    constraint sec_fk_future2unit foreign key (unitname_id) references sec_unit (id)
+    PRIMARY KEY (id),
+    CONSTRAINT sec_fk_future2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+    CONSTRAINT sec_fk_future2exchange1 FOREIGN KEY (tradingexchange_id) REFERENCES sec_exchange (id),
+    CONSTRAINT sec_fk_future2exchange2 FOREIGN KEY (settlementexchange_id) REFERENCES sec_exchange (id),
+    CONSTRAINT sec_fk_future2currency1 FOREIGN KEY (currency1_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_future2currency2 FOREIGN KEY (currency2_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_future2currency3 FOREIGN KEY (currency3_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_future2bondfuturetype FOREIGN KEY (bondtype_id) REFERENCES sec_bondfuturetype (id),
+    CONSTRAINT sec_fk_future2commodityfuturetype FOREIGN KEY (commoditytype_id) REFERENCES sec_commodityfuturetype (id),
+    CONSTRAINT sec_fk_future2unit FOREIGN KEY (unitname_id) REFERENCES sec_unit (id)
 );
 
 CREATE TABLE sec_futurebundle (
-    id bigint not null,
-    future_id bigint not null,
-    startDate timestamp with time zone,
-    endDate timestamp with time zone,
-    conversionFactor double precision not null,
-    primary key (id),
-    constraint sec_fk_futurebundle2future foreign key (future_id) references sec_future (id)
+    id bigint NOT NULL,
+    future_id bigint NOT NULL,
+    startDate timestamp without time zone,
+    endDate timestamp without time zone,
+    conversionFactor double precision NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT sec_fk_futurebundle2future FOREIGN KEY (future_id) REFERENCES sec_future (id)
 );
 
 CREATE TABLE sec_futurebundleidentifier (
-    bundle_id bigint not null,
-    scheme varchar(255) not null,
-    identifier varchar(255) not null,
-    primary key (bundle_id, scheme, identifier),
-    constraint sec_fk_futurebundleidentifier2futurebundle foreign key (bundle_id) references sec_futurebundle (id)
+    bundle_id bigint NOT NULL,
+    scheme varchar(255) NOT NULL,
+    identifier varchar(255) NOT NULL,
+    PRIMARY KEY (bundle_id, scheme, identifier),
+    CONSTRAINT sec_fk_futurebundleidentifier2futurebundle FOREIGN KEY (bundle_id) REFERENCES sec_futurebundle (id)
 );
 
 CREATE TABLE sec_cash (
-    id bigint not null,
-    security_id bigint not null,
-    currency_id bigint not null,
-    region_scheme varchar(255) not null,
-    region_identifier varchar(255) not null,
-    maturity_date timestamp with time zone not null,
-    maturity_zone varchar(50) not null,
-    rate double precision not null,
-    amount double precision not null,
-    primary key (id),
-    constraint sec_fk_cash2sec foreign key (security_id) references sec_security (id),
-    constraint sec_fk_cash2currency foreign key (currency_id) references sec_currency (id)
+    id bigint NOT NULL,
+    security_id bigint NOT NULL,
+    currency_id bigint NOT NULL,
+    region_scheme varchar(255) NOT NULL,
+    region_identifier varchar(255) NOT NULL,
+    maturity_date timestamp without time zone NOT NULL,
+    maturity_zone varchar(50) NOT NULL,
+    rate double precision NOT NULL,
+    amount double precision NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT sec_fk_cash2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+    CONSTRAINT sec_fk_cash2currency FOREIGN KEY (currency_id) REFERENCES sec_currency (id)
 );
 
 CREATE TABLE sec_fra (
-    id bigint not null,
-    security_id bigint not null,
-    currency_id bigint not null,
-    region_scheme varchar(255) not null,
-    region_identifier varchar(255) not null,
-    start_date timestamp with time zone not null,
-    start_zone varchar(50) not null,
-    end_date timestamp with time zone not null,
-    end_zone varchar(50) not null,
-    rate double precision not null,
-    amount double precision not null,
-    underlying_scheme varchar(255) not null,
-    underlying_identifier varchar(255) not null,
-    primary key (id),
-    constraint sec_fk_fra2sec foreign key (security_id) references sec_security (id),
-    constraint sec_fk_fra2currency foreign key (currency_id) references sec_currency (id)
+    id bigint NOT NULL,
+    security_id bigint NOT NULL,
+    currency_id bigint NOT NULL,
+    region_scheme varchar(255) NOT NULL,
+    region_identifier varchar(255) NOT NULL,
+    start_date timestamp without time zone NOT NULL,
+    start_zone varchar(50) NOT NULL,
+    end_date timestamp without time zone NOT NULL,
+    end_zone varchar(50) NOT NULL,
+    rate double precision NOT NULL,
+    amount double precision NOT NULL,
+    underlying_scheme varchar(255) NOT NULL,
+    underlying_identifier varchar(255) NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT sec_fk_fra2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+    CONSTRAINT sec_fk_fra2currency FOREIGN KEY (currency_id) REFERENCES sec_currency (id)
 );
 
 CREATE TABLE sec_swap (
-    id bigint not null,
-    security_id bigint not null,
-    swaptype varchar(32) not null,
-    trade_date timestamp with time zone not null,
-    trade_zone varchar(50) not null,
-    effective_date timestamp with time zone not null,
-    effective_zone varchar(50) not null,
-    maturity_date timestamp with time zone not null,
-    maturity_zone varchar(50) not null,
-    forwardstart_date timestamp with time zone,
+    id bigint NOT NULL,
+    security_id bigint NOT NULL,
+    swaptype varchar(32) NOT NULL,
+    trade_date timestamp without time zone NOT NULL,
+    trade_zone varchar(50) NOT NULL,
+    effective_date timestamp without time zone NOT NULL,
+    effective_zone varchar(50) NOT NULL,
+    maturity_date timestamp without time zone NOT NULL,
+    maturity_zone varchar(50) NOT NULL,
+    forwardstart_date timestamp without time zone,
     forwardstart_zone varchar(50),
-    counterparty varchar(255) not null,
-    pay_legtype varchar(32) not null,
-    pay_daycount_id bigint not null,
-    pay_frequency_id bigint not null,
-    pay_regionscheme varchar(255) not null,
-    pay_regionid varchar(255) not null,
-    pay_businessdayconvention_id bigint not null,
-    pay_notionaltype varchar(32) not null,
+    counterparty varchar(255) NOT NULL,
+    pay_legtype varchar(32) NOT NULL,
+    pay_daycount_id bigint NOT NULL,
+    pay_frequency_id bigint NOT NULL,
+    pay_regionscheme varchar(255) NOT NULL,
+    pay_regionid varchar(255) NOT NULL,
+    pay_businessdayconvention_id bigint NOT NULL,
+    pay_notionaltype varchar(32) NOT NULL,
     pay_notionalcurrency_id bigint,
     pay_notionalamount double precision,
     pay_notionalscheme varchar(255),
     pay_notionalid varchar(255),
     pay_rate double precision,
-    pay_iseom boolean not null,
+    pay_iseom boolean NOT NULL,
     pay_spread double precision,
     pay_rateidentifierscheme varchar(255),
     pay_rateidentifierid varchar(255),
     pay_floating_rate_type varchar(32),
-    receive_legtype varchar(32) not null,
-    receive_daycount_id bigint not null,
-    receive_frequency_id bigint not null,
-    receive_regionscheme varchar(255) not null,
-    receive_regionid varchar(255) not null,
-    receive_businessdayconvention_id bigint not null,
-    receive_notionaltype varchar(32) not null,
+    receive_legtype varchar(32) NOT NULL,
+    receive_daycount_id bigint NOT NULL,
+    receive_frequency_id bigint NOT NULL,
+    receive_regionscheme varchar(255) NOT NULL,
+    receive_regionid varchar(255) NOT NULL,
+    receive_businessdayconvention_id bigint NOT NULL,
+    receive_notionaltype varchar(32) NOT NULL,
     receive_notionalcurrency_id bigint,
     receive_notionalamount double precision,
     receive_notionalscheme varchar(255),
     receive_notionalid varchar(255),
     receive_rate double precision,
-    receive_iseom boolean not null,
+    receive_iseom boolean NOT NULL,
     receive_spread double precision,
     receive_rateidentifierscheme varchar(255),
     receive_rateidentifierid varchar(255),
     receive_floating_rate_type varchar(32),
-    primary key (id),
-    constraint sec_fk_swap2sec foreign key (security_id) references sec_security (id)
+    PRIMARY KEY (id),
+    CONSTRAINT sec_fk_swap2sec FOREIGN KEY (security_id) REFERENCES sec_security (id)
 );
 
 CREATE TABLE sec_raw (
-    security_id bigint not null,
-    raw_data blob not null,
-    constraint sec_fk_raw2sec foreign key (security_id) references sec_security (id)
+    security_id bigint NOT NULL,
+    raw_data blob NOT NULL,
+    CONSTRAINT sec_fk_raw2sec FOREIGN KEY (security_id) REFERENCES sec_security (id)
 );
 
 CREATE TABLE sec_fx (
-    id bigint not null,
-    security_id bigint not null,
-    pay_currency_id bigint not null,
-    receive_currency_id bigint not null,
-    region_scheme varchar(255) not null,
-    region_identifier varchar(255) not null,
-    pay_amount double precision not null,
-    receive_amount double precision not null,
-    primary key (id),
-    constraint sec_fk_fx2sec foreign key (security_id) references sec_security (id),
-    constraint sec_fk_fxpay2currency foreign key (pay_currency_id) references sec_currency (id),
-    constraint sec_fk_fxreceive2currency foreign key (receive_currency_id) references sec_currency (id)
+    id bigint NOT NULL,
+    security_id bigint NOT NULL,
+    pay_currency_id bigint NOT NULL,
+    receive_currency_id bigint NOT NULL,
+    region_scheme varchar(255) NOT NULL,
+    region_identifier varchar(255) NOT NULL,
+    pay_amount double precision NOT NULL,
+    receive_amount double precision NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT sec_fk_fx2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+    CONSTRAINT sec_fk_fxpay2currency FOREIGN KEY (pay_currency_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_fxreceive2currency FOREIGN KEY (receive_currency_id) REFERENCES sec_currency (id)
 );
 
 CREATE TABLE sec_fxforward (
-  id bigint not null,
-  security_id bigint not null,
-  region_scheme varchar(255) not null,
-  region_identifier varchar(255) not null,
-  underlying_scheme varchar(255) not null,
-  underlying_identifier varchar(255) not null,
-  forward_date timestamp with time zone not null,
-  forward_zone varchar(50) not null,
-  primary key (id),
-  constraint sec_fk_fxforward2sec foreign key (security_id) references sec_security (id)
+  id bigint NOT NULL,
+  security_id bigint NOT NULL,
+  region_scheme varchar(255) NOT NULL,
+  region_identifier varchar(255) NOT NULL,
+  underlying_scheme varchar(255) NOT NULL,
+  underlying_identifier varchar(255) NOT NULL,
+  forward_date timestamp without time zone NOT NULL,
+  forward_zone varchar(50) NOT NULL,
+  PRIMARY KEY (id),
+  CONSTRAINT sec_fk_fxforward2sec FOREIGN KEY (security_id) REFERENCES sec_security (id)
 );
 
 CREATE TABLE sec_capfloor (
-  id bigint not null,
-  security_id bigint not null,
-  currency_id bigint not null,
-  daycountconvention_id bigint not null,
-  frequency_id bigint not null,
-  is_cap boolean not null,
-  is_ibor boolean not null,
-  is_payer boolean not null,
-  maturity_date timestamp with time zone not null,
-  maturity_zone varchar(50) not null,
-  notional double precision not null,
-  start_date timestamp with time zone not null,
-  start_zone varchar(50) not null,
-  strike double precision not null,
-  underlying_scheme varchar(255) not null,
-  underlying_identifier varchar(255) not null,
-  
-  primary key (id),
-  constraint sec_fk_capfloor2sec foreign key (security_id) references sec_security (id),
-  constraint sec_fk_capfloor2currency foreign key (currency_id) references sec_currency(id),
-  constraint sec_fk_capfloor2daycount foreign key (daycountconvention_id) references sec_daycount (id),
-  constraint sec_fk_capfloor2frequency foreign key (frequency_id) references sec_frequency (id)
+  id bigint NOT NULL,
+  security_id bigint NOT NULL,
+  currency_id bigint NOT NULL,
+  daycountconvention_id bigint NOT NULL,
+  frequency_id bigint NOT NULL,
+  is_cap boolean NOT NULL,
+  is_ibor boolean NOT NULL,
+  is_payer boolean NOT NULL,
+  maturity_date timestamp without time zone NOT NULL,
+  maturity_zone varchar(50) NOT NULL,
+  notional double precision NOT NULL,
+  start_date timestamp without time zone NOT NULL,
+  start_zone varchar(50) NOT NULL,
+  strike double precision NOT NULL,
+  underlying_scheme varchar(255) NOT NULL,
+  underlying_identifier varchar(255) NOT NULL,
+  PRIMARY KEY (id),
+  CONSTRAINT sec_fk_capfloor2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+  CONSTRAINT sec_fk_capfloor2currency FOREIGN KEY (currency_id) REFERENCES sec_currency(id),
+  CONSTRAINT sec_fk_capfloor2daycount FOREIGN KEY (daycountconvention_id) REFERENCES sec_daycount (id),
+  CONSTRAINT sec_fk_capfloor2frequency FOREIGN KEY (frequency_id) REFERENCES sec_frequency (id)
 );
 
 CREATE TABLE  sec_capfloorcmsspread (
-  id bigint not null,
-  security_id bigint not null,
-  currency_id bigint not null,
-  daycountconvention_id bigint not null,
-  frequency_id bigint not null,
-  is_cap boolean not null,
-  is_payer boolean not null,
-  long_scheme varchar(255) not null,
-  long_identifier varchar(255) not null,
-  maturity_date timestamp with time zone not null,
-  maturity_zone varchar(50) not null,
-  notional double precision not null,
-  short_scheme varchar(255) not null,
-  short_identifier varchar(255) not null,
-  start_date timestamp with time zone not null,
-  start_zone varchar(50) not null,
-  strike double precision not null,
-  
-  primary key (id),
-  constraint sec_fk_capfloorcmsspread2sec foreign key (security_id) references sec_security (id),
-  constraint sec_fk_capfloorcmsspread2currency foreign key (currency_id) references sec_currency(id),
-  constraint sec_fk_capfloorcmsspread2daycount foreign key (daycountconvention_id) references sec_daycount (id),
-  constraint sec_fk_capfloorcmsspread2frequency foreign key (frequency_id) references sec_frequency (id)
+  id bigint NOT NULL,
+  security_id bigint NOT NULL,
+  currency_id bigint NOT NULL,
+  daycountconvention_id bigint NOT NULL,
+  frequency_id bigint NOT NULL,
+  is_cap boolean NOT NULL,
+  is_payer boolean NOT NULL,
+  long_scheme varchar(255) NOT NULL,
+  long_identifier varchar(255) NOT NULL,
+  maturity_date timestamp without time zone NOT NULL,
+  maturity_zone varchar(50) NOT NULL,
+  notional double precision NOT NULL,
+  short_scheme varchar(255) NOT NULL,
+  short_identifier varchar(255) NOT NULL,
+  start_date timestamp without time zone NOT NULL,
+  start_zone varchar(50) NOT NULL,
+  strike double precision NOT NULL,
+  PRIMARY KEY (id),
+  CONSTRAINT sec_fk_capfloorcmsspread2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+  CONSTRAINT sec_fk_capfloorcmsspread2currency FOREIGN KEY (currency_id) REFERENCES sec_currency(id),
+  CONSTRAINT sec_fk_capfloorcmsspread2daycount FOREIGN KEY (daycountconvention_id) REFERENCES sec_daycount (id),
+  CONSTRAINT sec_fk_capfloorcmsspread2frequency FOREIGN KEY (frequency_id) REFERENCES sec_frequency (id)
 );
 
 CREATE TABLE  sec_equity_variance_swap (
-  id bigint not null,
-  security_id bigint not null,
-  annualization_factor double precision not null,
-  currency_id bigint not null,
-  first_observation_date timestamp with time zone not null,
-  first_observation_zone varchar(50) not null,
-  last_observation_date timestamp with time zone not null,
-  last_observation_zone varchar(50) not null,
-  notional double precision not null,
-  observation_frequency_id bigint not null,
-  parameterised_as_variance boolean not null,
-  region_scheme varchar(255) not null,
-  region_id varchar(255) not null,
-  settlement_date timestamp with time zone not null,
-  settlement_zone varchar(50) not null,
-  spot_scheme varchar(255) not null,
-  spot_id varchar(255) not null,
-  strike double precision not null,
-  
-  primary key (id),
-  constraint sec_fk_equityvarianceswap2sec foreign key (security_id) references sec_security (id),
-  constraint sec_fk_equityvarianceswap2currency foreign key (currency_id) references sec_currency(id),
-  constraint sec_fk_equityvarianceswap2frequency foreign key (observation_frequency_id) references sec_frequency (id)
+  id bigint NOT NULL,
+  security_id bigint NOT NULL,
+  annualization_factor double precision NOT NULL,
+  currency_id bigint NOT NULL,
+  first_observation_date timestamp without time zone NOT NULL,
+  first_observation_zone varchar(50) NOT NULL,
+  last_observation_date timestamp without time zone NOT NULL,
+  last_observation_zone varchar(50) NOT NULL,
+  notional double precision NOT NULL,
+  observation_frequency_id bigint NOT NULL,
+  parameterised_as_variance boolean NOT NULL,
+  region_scheme varchar(255) NOT NULL,
+  region_id varchar(255) NOT NULL,
+  settlement_date timestamp without time zone NOT NULL,
+  settlement_zone varchar(50) NOT NULL,
+  spot_scheme varchar(255) NOT NULL,
+  spot_id varchar(255) NOT NULL,
+  strike double precision NOT NULL,
+  PRIMARY KEY (id),
+  CONSTRAINT sec_fk_equityvarianceswap2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+  CONSTRAINT sec_fk_equityvarianceswap2currency FOREIGN KEY (currency_id) REFERENCES sec_currency(id),
+  CONSTRAINT sec_fk_equityvarianceswap2frequency FOREIGN KEY (observation_frequency_id) REFERENCES sec_frequency (id)
 );
 -- create-db-portfolio.sql: Portfolio Master
 
@@ -749,22 +747,22 @@ CREATE TABLE  sec_equity_variance_swap (
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-CREATE SEQUENCE prt_master_seq as bigint
-    start with 1000 increment by 1 no cycle;
+CREATE SEQUENCE prt_master_seq AS bigint
+    START WITH 1000 INCREMENT BY 1 NO CYCLE;
 -- "as bigint" required by Derby, not accepted by Postgresql
 
 CREATE TABLE prt_portfolio (
-    id bigint not null,
-    oid bigint not null,
-    ver_from_instant timestamp with time zone not null,
-    ver_to_instant timestamp with time zone not null,
-    corr_from_instant timestamp with time zone not null,
-    corr_to_instant timestamp with time zone not null,
-    name varchar(255) not null,
-    primary key (id),
-    constraint prt_fk_port2port foreign key (oid) references prt_portfolio (id),
-    constraint prt_chk_port_ver_order check (ver_from_instant <= ver_to_instant),
-    constraint prt_chk_port_corr_order check (corr_from_instant <= corr_to_instant)
+    id bigint NOT NULL,
+    oid bigint NOT NULL,
+    ver_from_instant timestamp without time zone NOT NULL,
+    ver_to_instant timestamp without time zone NOT NULL,
+    corr_from_instant timestamp without time zone NOT NULL,
+    corr_to_instant timestamp without time zone NOT NULL,
+    name varchar(255) NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT prt_fk_port2port FOREIGN KEY (oid) REFERENCES prt_portfolio (id),
+    CONSTRAINT prt_chk_port_ver_order CHECK (ver_from_instant <= ver_to_instant),
+    CONSTRAINT prt_chk_port_corr_order CHECK (corr_from_instant <= corr_to_instant)
 );
 CREATE INDEX ix_prt_portfolio_oid ON prt_portfolio(oid);
 CREATE INDEX ix_prt_portfolio_ver_from_instant ON prt_portfolio(ver_from_instant);
@@ -772,23 +770,23 @@ CREATE INDEX ix_prt_portfolio_ver_to_instant ON prt_portfolio(ver_to_instant);
 CREATE INDEX ix_prt_portfolio_corr_from_instant ON prt_portfolio(corr_from_instant);
 CREATE INDEX ix_prt_portfolio_corr_to_instant ON prt_portfolio(corr_to_instant);
 CREATE INDEX ix_prt_portfolio_name ON prt_portfolio(name);
--- CREATE INDEX ix_prt_portfolio_nameu ON prt_portfolio(upper(name));
+-- CREATE INDEX ix_prt_portfolio_nameu ON prt_portfolio(UPPER(name));
 
 CREATE TABLE prt_node (
-    id bigint not null,
-    oid bigint not null,
-    portfolio_id bigint not null,
-    portfolio_oid bigint not null,
+    id bigint NOT NULL,
+    oid bigint NOT NULL,
+    portfolio_id bigint NOT NULL,
+    portfolio_oid bigint NOT NULL,
     parent_node_id bigint,
     parent_node_oid bigint,
     depth int,
-    tree_left bigint not null,
-    tree_right bigint not null,
+    tree_left bigint NOT NULL,
+    tree_right bigint NOT NULL,
     name varchar(255),
-    primary key (id),
-    constraint prt_fk_node2node foreign key (oid) references prt_node (id),
-    constraint prt_fk_node2portfolio foreign key (portfolio_id) references prt_portfolio (id),
-    constraint prt_fk_node2parentnode foreign key (parent_node_id) references prt_node (id)
+    PRIMARY KEY (id),
+    CONSTRAINT prt_fk_node2node FOREIGN KEY (oid) REFERENCES prt_node (id),
+    CONSTRAINT prt_fk_node2portfolio FOREIGN KEY (portfolio_id) REFERENCES prt_portfolio (id),
+    CONSTRAINT prt_fk_node2parentnode FOREIGN KEY (parent_node_id) REFERENCES prt_node (id)
 );
 -- prt_node is fully dependent of prt_portfolio
 -- portfolio_oid is an optimization (can be derived via portfolio_id)
@@ -802,10 +800,10 @@ CREATE INDEX ix_prt_node_parent_node_oid ON prt_node(parent_node_oid);
 CREATE INDEX ix_prt_node_depth ON prt_node(depth);
 
 CREATE TABLE prt_position (
-    node_id bigint not null,
-    key_scheme varchar(255) not null,
-    key_value varchar(255) not null,
-    constraint prt_fk_pos2node foreign key (node_id) references prt_node (id)
+    node_id bigint NOT NULL,
+    key_scheme varchar(255) NOT NULL,
+    key_value varchar(255) NOT NULL,
+    CONSTRAINT prt_fk_pos2node FOREIGN KEY (node_id) REFERENCES prt_node (id)
 );
 -- prt_position is fully dependent of prt_portfolio
 CREATE INDEX ix_prt_position_node_id ON prt_position(node_id);
@@ -817,26 +815,26 @@ CREATE INDEX ix_prt_position_node_id ON prt_position(node_id);
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-CREATE SEQUENCE pos_master_seq as bigint
-    start with 1000 increment by 1 no cycle;
-CREATE SEQUENCE pos_idkey_seq as bigint
-    start with 1000 increment by 1 no cycle;
+CREATE SEQUENCE pos_master_seq AS bigint
+    START WITH 1000 INCREMENT BY 1 NO CYCLE;
+CREATE SEQUENCE pos_idkey_seq AS bigint
+    START WITH 1000 INCREMENT BY 1 NO CYCLE;
 -- "as bigint" required by Derby, not accepted by Postgresql
 
 CREATE TABLE pos_position (
-    id bigint not null,
-    oid bigint not null,
-    ver_from_instant timestamp with time zone not null,
-    ver_to_instant timestamp with time zone not null,
-    corr_from_instant timestamp with time zone not null,
-    corr_to_instant timestamp with time zone not null,
+    id bigint NOT NULL,
+    oid bigint NOT NULL,
+    ver_from_instant timestamp without time zone NOT NULL,
+    ver_to_instant timestamp without time zone NOT NULL,
+    corr_from_instant timestamp without time zone NOT NULL,
+    corr_to_instant timestamp without time zone NOT NULL,
     provider_scheme varchar(255),
     provider_value varchar(255),
-    quantity decimal(31,8) not null,
-    primary key (id),
-    constraint pos_fk_posi2posi foreign key (oid) references pos_position (id),
-    constraint pos_chk_posi_ver_order check (ver_from_instant <= ver_to_instant),
-    constraint pos_chk_posi_corr_order check (corr_from_instant <= corr_to_instant)
+    quantity decimal(31,8) NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT pos_fk_posi2posi FOREIGN KEY (oid) REFERENCES pos_position (id),
+    CONSTRAINT pos_chk_posi_ver_order CHECK (ver_from_instant <= ver_to_instant),
+    CONSTRAINT pos_chk_posi_corr_order CHECK (corr_from_instant <= corr_to_instant)
 );
 CREATE INDEX ix_pos_position_oid ON pos_position(oid);
 CREATE INDEX ix_pos_position_ver_from_instant ON pos_position(ver_from_instant);
@@ -846,16 +844,16 @@ CREATE INDEX ix_pos_position_corr_to_instant ON pos_position(corr_to_instant);
 CREATE INDEX ix_pos_position_quantity ON pos_position(quantity);
 
 CREATE TABLE pos_trade (
-    id bigint not null,
-    oid bigint not null,
-    position_id bigint not null,
-    position_oid bigint not null,
-    quantity decimal(31,8) not null,
-    trade_date date not null,
+    id bigint NOT NULL,
+    oid bigint NOT NULL,
+    position_id bigint NOT NULL,
+    position_oid bigint NOT NULL,
+    quantity decimal(31,8) NOT NULL,
+    trade_date date NOT NULL,
     trade_time time(6) null,
     zone_offset int null,
-    cparty_scheme varchar(255) not null,
-    cparty_value varchar(255) not null,
+    cparty_scheme varchar(255) NOT NULL,
+    cparty_value varchar(255) NOT NULL,
     provider_scheme varchar(255),
     provider_value varchar(255),
     premium_value double precision,
@@ -863,8 +861,8 @@ CREATE TABLE pos_trade (
     premium_date date,
     premium_time time(6),
     premium_zone_offset int,
-    primary key (id),
-    constraint pos_fk_trade2position foreign key (position_id) references pos_position (id)
+    PRIMARY KEY (id),
+    CONSTRAINT pos_fk_trade2position FOREIGN KEY (position_id) REFERENCES pos_position (id)
 );
 -- position_oid is an optimization
 -- pos_trade is fully dependent of pos_position
@@ -876,14 +874,14 @@ CREATE SEQUENCE pos_trade_attr_seq as bigint
     start with 1000 increment by 1 no cycle;
 
 CREATE TABLE pos_trade_attribute (
-    id bigint not null,
-    trade_id bigint not null,
-    trade_oid bigint not null,
-    key varchar(255) not null,
-    value varchar(255) not null,
-    primary key (id),
-    constraint pos_fk_tradeattr2trade foreign key (trade_id) references pos_trade (id),
-    constraint pos_chk_uq_trade_attribute unique (trade_id, key, value)
+    id bigint NOT NULL,
+    trade_id bigint NOT NULL,
+    trade_oid bigint NOT NULL,
+    key varchar(255) NOT NULL,
+    value varchar(255) NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT pos_fk_tradeattr2trade FOREIGN KEY (trade_id) REFERENCES pos_trade (id),
+    CONSTRAINT pos_chk_uq_trade_attribute UNIQUE (trade_id, key, value)
 );
 -- trade_oid is an optimization
 -- pos_trade_attribute is fully dependent of pos_trade
@@ -891,14 +889,14 @@ CREATE INDEX ix_pos_trade_attr_trade_oid ON pos_trade_attribute(trade_oid);
 CREATE INDEX ix_pos_trade_attr_key ON pos_trade_attribute(key);
 
 CREATE TABLE pos_attribute (
-    id bigint not null,
-    position_id bigint not null,
-    position_oid bigint not null,
-    key varchar(255) not null,
-    value varchar(255) not null,
-    primary key (id),
-    constraint pos_fk_posattr2pos foreign key (position_id) references pos_position (id),
-    constraint pos_chk_uq_pos_attribute unique (position_id, key, value)
+    id bigint NOT NULL,
+    position_id bigint NOT NULL,
+    position_oid bigint NOT NULL,
+    key varchar(255) NOT NULL,
+    value varchar(255) NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT pos_fk_posattr2pos FOREIGN KEY (position_id) REFERENCES pos_position (id),
+    CONSTRAINT pos_chk_uq_pos_attribute UNIQUE (position_id, key, value)
 );
 -- position_oid is an optimization
 -- pos_attribute is fully dependent of pos_position
@@ -906,28 +904,30 @@ CREATE INDEX ix_pos_attr_position_oid ON pos_attribute(position_oid);
 CREATE INDEX ix_pos_attr_key ON pos_attribute(key);
 
 CREATE TABLE pos_idkey (
-    id bigint not null,
-    key_scheme varchar(255) not null,
-    key_value varchar(255) not null,
-    primary key (id),
-    constraint pos_chk_idkey unique (key_scheme, key_value)
+    id bigint NOT NULL,
+    key_scheme varchar(255) NOT NULL,
+    key_value varchar(255) NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT pos_chk_idkey UNIQUE (key_scheme, key_value)
 );
 
 CREATE TABLE pos_position2idkey (
-    position_id bigint not null,
-    idkey_id bigint not null,
-    primary key (position_id, idkey_id),
-    constraint pos_fk_posidkey2pos foreign key (position_id) references pos_position (id),
-    constraint pos_fk_posidkey2idkey foreign key (idkey_id) references pos_idkey (id)
+    position_id bigint NOT NULL,
+    idkey_id bigint NOT NULL,
+    PRIMARY KEY (position_id, idkey_id),
+    CONSTRAINT pos_fk_posidkey2pos FOREIGN KEY (position_id) REFERENCES pos_position (id),
+    CONSTRAINT pos_fk_posidkey2idkey FOREIGN KEY (idkey_id) REFERENCES pos_idkey (id)
 );
+CREATE INDEX ix_pos_pos2idkey_idkey ON pos_position2idkey(idkey_id);
 
 CREATE TABLE pos_trade2idkey (
-    trade_id bigint not null,
-    idkey_id bigint not null,
-    primary key (trade_id, idkey_id),
-    constraint pos_fk_tradeidkey2trade foreign key (trade_id) references pos_trade (id),
-    constraint pos_fk_tradeidkey2idkey foreign key (idkey_id) references pos_idkey (id)
+    trade_id bigint NOT NULL,
+    idkey_id bigint NOT NULL,
+    PRIMARY KEY (trade_id, idkey_id),
+    CONSTRAINT pos_fk_tradeidkey2trade FOREIGN KEY (trade_id) REFERENCES pos_trade (id),
+    CONSTRAINT pos_fk_tradeidkey2idkey FOREIGN KEY (idkey_id) REFERENCES pos_idkey (id)
 );
+CREATE INDEX ix_pos_trd2idkey_idkey ON pos_trade2idkey(idkey_id);
 -------------------------------------
 -- Static data
 -------------------------------------
@@ -1085,9 +1085,9 @@ create table rsk_run (
     master_process_host_id int not null,    -- machine where 'master' batch process was started
     run_time_id int not null,
     live_data_snapshot_id int not null,
-    create_instant timestamp with time zone not null,
-    start_instant timestamp with time zone not null,       -- can be different from create_instant if is run is restarted
-    end_instant	timestamp with time zone,
+    create_instant timestamp without time zone not null,
+    start_instant timestamp without time zone not null,       -- can be different from create_instant if is run is restarted
+    end_instant	timestamp without time zone,
     num_restarts int not null,
     complete boolean not null,
     
@@ -1192,7 +1192,7 @@ create table rsk_value (
     computation_target_id int not null,        
     run_id int not null,             	       -- shortcut
     value double precision not null,
-    eval_instant timestamp with time zone not null,
+    eval_instant timestamp without time zone not null,
     compute_node_id int not null,
     
     primary key (id),
@@ -1235,7 +1235,7 @@ create table rsk_failure (
     function_unique_id int not null,
     computation_target_id int not null,
     run_id int not null,             	       -- shortcut
-    eval_instant timestamp with time zone not null,
+    eval_instant timestamp without time zone not null,
     compute_node_id int not null,
     
     primary key (id),
@@ -1375,11 +1375,13 @@ rsk_failure_reason.compute_failure_id = rsk_compute_failure.id;
 --  hts_point.ver_instant <= search_version_instant &&
 --  hts_point.corr_instant <= search_correction_instant
 
-CREATE SEQUENCE hts_master_seq as bigint
+CREATE SEQUENCE hts_master_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
-CREATE SEQUENCE hts_idkey_seq as bigint
-    start with 1000 increment by 1 no cycle;
-CREATE SEQUENCE hts_dimension_seq as bigint
+CREATE SEQUENCE hts_idkey_seq AS bigint
+    START WITH 1000 INCREMENT BY 1 NO CYCLE;
+CREATE SEQUENCE hts_doc2idkey_seq AS bigint
+    START WITH 1000 INCREMENT BY 1 NO CYCLE;
+CREATE SEQUENCE hts_dimension_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
 -- "as bigint" required by Derby, not accepted by Postgresql
 
@@ -1421,10 +1423,10 @@ CREATE UNIQUE INDEX ix_hts_observation_time_name ON hts_observation_time(name);
 CREATE TABLE hts_document (
     id bigint NOT NULL,
     oid bigint NOT NULL,
-    ver_from_instant timestamp with time zone NOT NULL,
-    ver_to_instant timestamp with time zone NOT NULL,
-    corr_from_instant timestamp with time zone NOT NULL,
-    corr_to_instant timestamp with time zone NOT NULL,
+    ver_from_instant timestamp without time zone NOT NULL,
+    ver_to_instant timestamp without time zone NOT NULL,
+    corr_from_instant timestamp without time zone NOT NULL,
+    corr_to_instant timestamp without time zone NOT NULL,
     name_id bigint NOT NULL,
     data_field_id bigint NOT NULL,
     data_source_id bigint NOT NULL,
@@ -1458,25 +1460,28 @@ CREATE TABLE hts_idkey (
     PRIMARY KEY (id),
     CONSTRAINT hts_chk_idkey UNIQUE (key_scheme, key_value)
 );
-CREATE INDEX ix_hts_key_scheme ON hts_idkey(key_scheme);
+CREATE INDEX ix_hts_key_schemevalue ON hts_idkey(key_scheme, key_value);
 CREATE INDEX ix_hts_key_value ON hts_idkey(key_value);
 
 CREATE TABLE hts_doc2idkey (
+    id bigint GENERATED BY DEFAULT AS SEQUENCE hts_doc2idkey_seq NOT NULL,
     doc_id bigint NOT NULL,
     idkey_id bigint NOT NULL,
     valid_from date NOT NULL,
     valid_to date NOT NULL,
-    PRIMARY KEY (doc_id, idkey_id, valid_from, valid_to),
+    PRIMARY KEY (id),
     CONSTRAINT hts_fk_htsidkey2doc FOREIGN KEY (doc_id) REFERENCES hts_document (id),
-    CONSTRAINT hts_fk_htsidkey2idkey FOREIGN KEY (idkey_id) REFERENCES hts_idkey (id)
+    CONSTRAINT hts_fk_htsidkey2idkey FOREIGN KEY (idkey_id) REFERENCES hts_idkey (id),
+    CONSTRAINT hts_chk_doc2idkey UNIQUE (doc_id, idkey_id, valid_from, valid_to)
 );
+CREATE INDEX ix_hts_doc2idkey_idkey ON hts_doc2idkey(idkey_id, valid_from, valid_to);
 -- hts_doc2idkey is fully dependent of hts_document
 
 CREATE TABLE hts_point (
     doc_oid bigint NOT NULL,
     point_date date NOT NULL,
-    ver_instant timestamp with time zone NOT NULL,
-    corr_instant timestamp with time zone NOT NULL,
+    ver_instant timestamp without time zone NOT NULL,
+    corr_instant timestamp without time zone NOT NULL,
     point_value double precision,
     PRIMARY KEY (doc_oid, point_date, ver_instant, corr_instant)
 );
@@ -1490,23 +1495,23 @@ CREATE TABLE hts_point (
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-CREATE SEQUENCE snp_snapshot_seq as bigint
-    start with 1000 increment by 1 no cycle;
+CREATE SEQUENCE snp_snapshot_seq AS bigint
+    START WITH 1000 INCREMENT BY 1 NO CYCLE;
 -- "as bigint" required by Derby/HSQL, not accepted by Postgresql
 
 CREATE TABLE snp_snapshot (
-    id bigint not null,
-    oid bigint not null,
-    ver_from_instant timestamp with time zone not null,
-    ver_to_instant timestamp with time zone not null,
-    corr_from_instant timestamp with time zone not null,
-    corr_to_instant timestamp with time zone not null,
-    name varchar(255) not null,
+    id bigint NOT NULL,
+    oid bigint NOT NULL,
+    ver_from_instant timestamp without time zone NOT NULL,
+    ver_to_instant timestamp without time zone NOT NULL,
+    corr_from_instant timestamp without time zone NOT NULL,
+    corr_to_instant timestamp without time zone NOT NULL,
+    name varchar(255) NOT NULL,
     time_zone varchar(255),
-    detail blob not null,
-    primary key (id),
-    constraint snp_chk_snapshot_ver_order check (ver_from_instant <= ver_to_instant),
-    constraint snp_chk_snapshot_corr_order check (corr_from_instant <= corr_to_instant)
+    detail blob NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT snp_chk_snapshot_ver_order CHECK (ver_from_instant <= ver_to_instant),
+    CONSTRAINT snp_chk_snapshot_corr_order CHECK (corr_from_instant <= corr_to_instant)
 );
 CREATE INDEX ix_snp_snapshot_oid ON snp_snapshot(oid);
 CREATE INDEX ix_snp_snapshot_ver_from_instant ON snp_snapshot(ver_from_instant);

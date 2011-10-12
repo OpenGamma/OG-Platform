@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.forex;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -48,67 +47,99 @@ import com.opengamma.util.tuple.DoublesPair;
 public class ForexForwardYieldCurveNodeSensitivitiesFunction extends ForexForwardFunction {
   private static final PresentValueForexYieldCurveNodeSensitivityCalculator CALCULATOR = PresentValueForexYieldCurveNodeSensitivityCalculator.getInstance();
 
-  public ForexForwardYieldCurveNodeSensitivitiesFunction(final String payCurveName, final String receiveCurveName) {
-    super(payCurveName, receiveCurveName, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
+  public ForexForwardYieldCurveNodeSensitivitiesFunction(final String payFundingCurveName, final String payForwardCurveName, final String receiveFundingCurveName,
+      final String receiveForwardCurveName) {
+    super(payFundingCurveName, payForwardCurveName, receiveFundingCurveName, receiveForwardCurveName);
   }
 
   @Override
   protected Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final FunctionInputs inputs, final ComputationTarget target) {
     final Currency payCurrency = fxForward.getCurrency1();
     final Currency receiveCurrency = fxForward.getCurrency2();
-    final String payCurveName = getPayCurveName() + "_" + payCurrency.getCode();
-    final String receiveCurveName = getReceiveCurveName() + "_" + receiveCurrency.getCode();
-    final Object payJacobianObject = inputs.getValue(YieldCurveFunction.getJacobianRequirement(payCurrency, getPayCurveName(), getPayCurveName(),
+    final String payFundingCurveName = getPayFundingCurveName() + "_" + payCurrency.getCode();
+    final String payForwardCurveName = getPayForwardCurveName() + "_" + payCurrency.getCode();
+    final String receiveFundingCurveName = getReceiveFundingCurveName() + "_" + receiveCurrency.getCode();
+    final String receiveForwardCurveName = getReceiveForwardCurveName() + "_" + receiveCurrency.getCode();
+    final Object payJacobianObject = inputs.getValue(YieldCurveFunction.getJacobianRequirement(payCurrency, getPayForwardCurveName(), getPayFundingCurveName(),
         MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     if (payJacobianObject == null) {
       throw new OpenGammaRuntimeException("Pay currency curve Jacobian was null");
     }
-    final Object receiveJacobianObject = inputs.getValue(YieldCurveFunction.getJacobianRequirement(receiveCurrency, getReceiveCurveName(), getReceiveCurveName(),
+    final Object receiveJacobianObject = inputs.getValue(YieldCurveFunction.getJacobianRequirement(receiveCurrency, getReceiveForwardCurveName(), getReceiveFundingCurveName(),
         MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     if (receiveJacobianObject == null) {
       throw new OpenGammaRuntimeException("Receive currency curve Jacobian was null");
     }
-    final Object curveSensitivitiesObject = inputs.getValue(getCurveSensitivitiesRequirement(target, getPayCurveName(), getReceiveCurveName()));
+    final Object curveSensitivitiesObject = inputs.getValue(getCurveSensitivitiesRequirement(target));
     if (curveSensitivitiesObject == null) {
       throw new OpenGammaRuntimeException("Curve sensitivities were null");
     }
-    final Object payCouponSensitivitiesObject = inputs.getValue(YieldCurveFunction.getCouponSensitivityRequirement(payCurrency, getPayCurveName(), getPayCurveName()));
+    final Object payCouponSensitivitiesObject = inputs.getValue(YieldCurveFunction.getCouponSensitivityRequirement(payCurrency, getPayForwardCurveName(), getPayFundingCurveName()));
     if (payCouponSensitivitiesObject == null) {
       throw new OpenGammaRuntimeException("Pay curve coupon sensitivities were null");
     }
-    final Object receiveCouponSensitivitiesObject = inputs.getValue(YieldCurveFunction.getCouponSensitivityRequirement(receiveCurrency, getReceiveCurveName(), getReceiveCurveName()));
+    final Object receiveCouponSensitivitiesObject = inputs.getValue(YieldCurveFunction.getCouponSensitivityRequirement(receiveCurrency, getReceiveForwardCurveName(), getReceiveFundingCurveName()));
     if (receiveCouponSensitivitiesObject == null) {
       throw new OpenGammaRuntimeException("Receive curve coupon sensitivities were null");
     }
-    final Object payCurveSpecObject = inputs.getValue(getPayCurveSpecRequirement(payCurrency, getPayCurveName()));
-    if (payCurveSpecObject == null) {
-      throw new OpenGammaRuntimeException("Pay curve specification was null");
+    final Object payFundingCurveSpecObject = inputs.getValue(getCurveSpecRequirement(payCurrency, getPayFundingCurveName()));
+    if (payFundingCurveSpecObject == null) {
+      throw new OpenGammaRuntimeException(payCurrency + " funding curve " + getPayFundingCurveName() + "  specification was null");
     }
-    final Object receiveCurveSpecObject = inputs.getValue(getReceiveCurveSpecRequirement(receiveCurrency, getReceiveCurveName()));
-    if (receiveCurveSpecObject == null) {
-      throw new OpenGammaRuntimeException("Receive curve specification was null");
+    final Object payForwardCurveSpecObject = inputs.getValue(getCurveSpecRequirement(payCurrency, getPayForwardCurveName()));
+    if (payForwardCurveSpecObject == null) {
+      throw new OpenGammaRuntimeException(payCurrency + " forward curve " + getPayForwardCurveName() + "  specification was null");
     }
-    final InterpolatedYieldCurveSpecificationWithSecurities payCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) payCurveSpecObject;
-    final InterpolatedYieldCurveSpecificationWithSecurities receiveCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) receiveCurveSpecObject;
+    final Object receiveFundingCurveSpecObject = inputs.getValue(getCurveSpecRequirement(receiveCurrency, getReceiveFundingCurveName()));
+    if (receiveFundingCurveSpecObject == null) {
+      throw new OpenGammaRuntimeException(receiveCurrency + " funding curve " + getReceiveFundingCurveName() + "  specification was null");
+    }
+    final Object receiveForwardCurveSpecObject = inputs.getValue(getCurveSpecRequirement(receiveCurrency, getReceiveForwardCurveName()));
+    if (receiveForwardCurveSpecObject == null) {
+      throw new OpenGammaRuntimeException(receiveCurrency + " forward curve " + getReceiveForwardCurveName() + "  specification was null");
+    }
+    final InterpolatedYieldCurveSpecificationWithSecurities payFundingCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) payFundingCurveSpecObject;
+    final InterpolatedYieldCurveSpecificationWithSecurities payForwardCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) payForwardCurveSpecObject;
+    final InterpolatedYieldCurveSpecificationWithSecurities receiveFundingCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) receiveFundingCurveSpecObject;
+    final InterpolatedYieldCurveSpecificationWithSecurities receiveForwardCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) receiveForwardCurveSpecObject;
     final DoubleMatrix2D payJacobian = new DoubleMatrix2D(FunctionUtils.decodeJacobian(payJacobianObject));
     final DoubleMatrix2D receiveJacobian = new DoubleMatrix2D(FunctionUtils.decodeJacobian(receiveJacobianObject));
-    final YieldAndDiscountCurve payCurve = data.getCurve(payCurveName);
-    final YieldAndDiscountCurve receiveCurve = data.getCurve(receiveCurveName);
-    final Map<String, DoubleMatrix2D> jacobians = new HashMap<String, DoubleMatrix2D>();
-    jacobians.put(payCurveName, payJacobian);
-    jacobians.put(receiveCurveName, receiveJacobian);
-    final Map<String, DoubleMatrix1D> couponSensitivities = new HashMap<String, DoubleMatrix1D>();
-    couponSensitivities.put(payCurveName, (DoubleMatrix1D) payCouponSensitivitiesObject);
-    couponSensitivities.put(receiveCurveName, (DoubleMatrix1D) receiveCouponSensitivitiesObject);
-    final Map<String, YieldAndDiscountCurve> interpolatedCurves = new HashMap<String, YieldAndDiscountCurve>();
-    interpolatedCurves.put(payCurveName, payCurve);
-    interpolatedCurves.put(receiveCurveName, receiveCurve);
+    final YieldAndDiscountCurve payFundingCurve = data.getCurve(payFundingCurveName);
+    final YieldAndDiscountCurve payForwardCurve = data.getCurve(payForwardCurveName);
+    final YieldAndDiscountCurve receiveFundingCurve = data.getCurve(receiveFundingCurveName);
+    final YieldAndDiscountCurve receiveForwardCurve = data.getCurve(receiveForwardCurveName);
+    final DoubleMatrix1D payCouponSensitivity = (DoubleMatrix1D) payCouponSensitivitiesObject;
+    final DoubleMatrix1D receiveCouponSensitivity = (DoubleMatrix1D) receiveCouponSensitivitiesObject;
+    final YieldCurveBundle payCurveBundle = new YieldCurveBundle(new String[] {payFundingCurveName, payForwardCurveName}, 
+        new YieldAndDiscountCurve[] {payFundingCurve, payForwardCurve});
+    final YieldCurveBundle receiveCurveBundle = new YieldCurveBundle(new String[] {receiveFundingCurveName, receiveForwardCurveName}, 
+        new YieldAndDiscountCurve[] {receiveFundingCurve, receiveForwardCurve});
     final Map<String, List<DoublesPair>> curveSensitivities = ((PresentValueSensitivity) curveSensitivitiesObject).getSensitivities();
-    final Map<String, DoubleMatrix1D> result = CALCULATOR.calculate(fxForward, curveSensitivities, interpolatedCurves, couponSensitivities, jacobians);
-    final DoubleLabelledMatrix1D payResult = getSensitivitiesForCurve(target, getPayCurveName(), payCurveName, data, result.get(payCurveName), payCurrency, payCurveSpec);
-    final DoubleLabelledMatrix1D receiveResult = getSensitivitiesForCurve(target, getReceiveCurveName(), receiveCurveName, data, result.get(receiveCurveName), receiveCurrency, receiveCurveSpec);
-    return Sets.newHashSet(new ComputedValue(getPaySpec(target, payCurrency.getCode()), payResult),
-                           new ComputedValue(getReceiveSpec(target, receiveCurrency.getCode()), receiveResult));
+    final Map<String, DoubleMatrix1D> payResult, receiveResult;
+    try {
+      payResult = CALCULATOR.calculate(curveSensitivities, payCurveBundle, payCouponSensitivity, payJacobian);
+    } catch (Exception e) {
+      throw new OpenGammaRuntimeException("Could not get sensitivities for " + payCurrency + ", " + getPayFundingCurveName() + " and " + 
+          getPayForwardCurveName() + ", error was: " + e.getMessage());
+    }
+    try {
+      receiveResult = CALCULATOR.calculate(curveSensitivities, receiveCurveBundle, receiveCouponSensitivity, receiveJacobian);
+    } catch (Exception e) {
+      throw new OpenGammaRuntimeException("Could not get sensitivities for " + receiveCurrency + ", " + getReceiveFundingCurveName() + " and " + 
+          getReceiveForwardCurveName() + ", error was: " + e.getMessage());
+    }
+    final DoubleLabelledMatrix1D payFundingCurveResult = getSensitivitiesForCurve(payFundingCurveName, data, 
+        payResult.get(payFundingCurveName), payFundingCurveSpec);
+    final DoubleLabelledMatrix1D payForwardCurveResult = getSensitivitiesForCurve(payForwardCurveName, data, 
+        payResult.get(payForwardCurveName), payForwardCurveSpec);
+    final DoubleLabelledMatrix1D receiveFundingCurveResult = getSensitivitiesForCurve(receiveFundingCurveName, data, 
+        receiveResult.get(receiveFundingCurveName), receiveFundingCurveSpec);
+    final DoubleLabelledMatrix1D receiveForwardCurveResult = getSensitivitiesForCurve(receiveForwardCurveName, data, 
+        receiveResult.get(receiveForwardCurveName), receiveForwardCurveSpec);
+    return Sets.newHashSet(new ComputedValue(getResultSpecForCurve(target, payCurrency.getCode(), getPayFundingCurveName()), payFundingCurveResult),
+                           new ComputedValue(getResultSpecForCurve(target, payCurrency.getCode(), getPayForwardCurveName()), payForwardCurveResult),
+                           new ComputedValue(getResultSpecForCurve(target, receiveCurrency.getCode(), getReceiveFundingCurveName()), receiveFundingCurveResult),
+                           new ComputedValue(getResultSpecForCurve(target, receiveCurrency.getCode(), getReceiveForwardCurveName()), receiveForwardCurveResult));
   }
 
   @Override
@@ -116,20 +147,27 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends ForexForwar
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     final FXForwardSecurity fxForward = (FXForwardSecurity) target.getSecurity();
     final FXSecurity fx = (FXSecurity) getSecuritySource().getSecurity(ExternalIdBundle.of(fxForward.getUnderlyingId()));
-    final String payCurveName = getPayCurveName();
-    final String receiveCurveName = getReceiveCurveName();
+    final String payFundingCurveName = getPayFundingCurveName();
+    final String payForwardCurveName = getPayForwardCurveName();
+    final String receiveFundingCurveName = getReceiveFundingCurveName();
+    final String receiveForwardCurveName = getReceiveForwardCurveName();
     final Currency payCurrency = fx.getPayCurrency();
     final Currency receiveCurrency = fx.getReceiveCurrency();
-    result.add(YieldCurveFunction.getCurveRequirement(payCurrency, payCurveName, payCurveName, payCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getCurveRequirement(receiveCurrency, receiveCurveName, receiveCurveName, receiveCurveName,
+    result.add(YieldCurveFunction.getCurveRequirement(payCurrency, payFundingCurveName, payForwardCurveName, payFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+    result.add(YieldCurveFunction.getCurveRequirement(payCurrency, payForwardCurveName, payForwardCurveName, payFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+    result.add(YieldCurveFunction.getCurveRequirement(receiveCurrency, receiveFundingCurveName, receiveForwardCurveName, receiveFundingCurveName,
         MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getJacobianRequirement(payCurrency, payCurveName, payCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getJacobianRequirement(receiveCurrency, receiveCurveName, receiveCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getCouponSensitivityRequirement(payCurrency, payCurveName, payCurveName));
-    result.add(YieldCurveFunction.getCouponSensitivityRequirement(receiveCurrency, receiveCurveName, receiveCurveName));
-    result.add(getCurveSensitivitiesRequirement(target, payCurveName, receiveCurveName));
-    result.add(getPayCurveSpecRequirement(payCurrency, payCurveName));
-    result.add(getReceiveCurveSpecRequirement(receiveCurrency, receiveCurveName));
+    result.add(YieldCurveFunction.getCurveRequirement(receiveCurrency, receiveForwardCurveName, receiveForwardCurveName, receiveFundingCurveName,
+        MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+    result.add(YieldCurveFunction.getJacobianRequirement(payCurrency, payForwardCurveName, payFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+    result.add(YieldCurveFunction.getJacobianRequirement(receiveCurrency, receiveForwardCurveName, receiveFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+    result.add(YieldCurveFunction.getCouponSensitivityRequirement(payCurrency, payForwardCurveName, payFundingCurveName));
+    result.add(YieldCurveFunction.getCouponSensitivityRequirement(receiveCurrency, receiveForwardCurveName, receiveFundingCurveName));
+    result.add(getCurveSensitivitiesRequirement(target));
+    result.add(getCurveSpecRequirement(payCurrency, payFundingCurveName));
+    result.add(getCurveSpecRequirement(payCurrency, payForwardCurveName));
+    result.add(getCurveSpecRequirement(receiveCurrency, receiveFundingCurveName));
+    result.add(getCurveSpecRequirement(receiveCurrency, receiveForwardCurveName));
     return result;
   }
 
@@ -139,51 +177,40 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends ForexForwar
     final FXSecurity fx = (FXSecurity) getSecuritySource().getSecurity(ExternalIdBundle.of(fxForward.getUnderlyingId()));
     final Currency payCurrency = fx.getPayCurrency();
     final Currency receiveCurrency = fx.getReceiveCurrency();
-    return Sets.newHashSet(getPaySpec(target, payCurrency.getCode()), getReceiveSpec(target, receiveCurrency.getCode()));
+    return Sets.newHashSet(getResultSpecForCurve(target, payCurrency.getCode(), getPayFundingCurveName()),
+                           getResultSpecForCurve(target, payCurrency.getCode(), getPayForwardCurveName()),
+                           getResultSpecForCurve(target, receiveCurrency.getCode(), getReceiveFundingCurveName()),
+                           getResultSpecForCurve(target, receiveCurrency.getCode(), getReceiveForwardCurveName()));
   }
 
-  private ValueRequirement getCurveSensitivitiesRequirement(final ComputationTarget target, final String payCurveName, final String receiveCurveName) {
-    return new ValueRequirement(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.getSecurity(), ValueProperties.builder().with(ValuePropertyNames.PAY_CURVE, payCurveName)
-        .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName).get());
+  private ValueRequirement getCurveSensitivitiesRequirement(final ComputationTarget target) {
+    ValueProperties properties = ValueProperties.builder()
+        .with(ValuePropertyNames.PAY_CURVE, getPayFundingCurveName(), getPayForwardCurveName())
+        .with(ValuePropertyNames.RECEIVE_CURVE, getReceiveFundingCurveName(), getReceiveForwardCurveName()).get();
+    return new ValueRequirement(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.getSecurity(), properties);
   }
 
-  private ValueSpecification getPaySpec(final ComputationTarget target, final String payCurrency) {
-    final ValueProperties payCurveProperties = createValueProperties()
-        .with(ValuePropertyNames.CURVE, getPayCurveName())
-        .with(ValuePropertyNames.CURVE_CURRENCY, payCurrency)
-        .with(ValuePropertyNames.CURRENCY, payCurrency)
+  private ValueRequirement getCurveSpecRequirement(final Currency currency, final String curveName) {
+    ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName).get();
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
+  }
+  
+  private ValueSpecification getResultSpecForCurve(final ComputationTarget target, final String currency, final String curveName) {
+    final ValueProperties properties = createValueProperties()
+        .with(ValuePropertyNames.CURVE, curveName)
+        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
+        .with(ValuePropertyNames.CURRENCY, currency)
         .get();
-    return new ValueSpecification(getValueRequirementName(), target.toSpecification(), payCurveProperties);
+    return new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
   }
 
-  private ValueSpecification getReceiveSpec(final ComputationTarget target, final String receiveCurrency) {
-    final ValueProperties receiveCurveProperties = createValueProperties()
-        .with(ValuePropertyNames.CURVE, getReceiveCurveName())
-        .with(ValuePropertyNames.CURVE_CURRENCY, receiveCurrency)
-        .with(ValuePropertyNames.CURRENCY, receiveCurrency)
-        .get();
-    return new ValueSpecification(getValueRequirementName(), target.toSpecification(), receiveCurveProperties);
-  }
-
-  private ValueRequirement getPayCurveSpecRequirement(final Currency currency, final String payCurveName) {
-    final ValueRequirement payCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, payCurveName).get());
-    return payCurveRequirement;
-  }
-
-  private ValueRequirement getReceiveCurveSpecRequirement(final Currency currency, final String receiveCurveName) {
-    final ValueRequirement receiveCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, receiveCurveName).get());
-    return receiveCurveRequirement;
-  }
-
-  private DoubleLabelledMatrix1D getSensitivitiesForCurve(final ComputationTarget target, final String curveDefinitionName, final String curveName,
-      final YieldCurveBundle bundle, final DoubleMatrix1D sensitivities, final Currency currency, final InterpolatedYieldCurveSpecificationWithSecurities spec) {
+  private DoubleLabelledMatrix1D getSensitivitiesForCurve(final String curveName,
+      final YieldCurveBundle bundle, final DoubleMatrix1D sensitivities, final InterpolatedYieldCurveSpecificationWithSecurities spec) {
     final int n = sensitivities.getNumberOfElements();
     final YieldAndDiscountCurve curve = bundle.getCurve(curveName);
     final Double[] keys = curve.getCurve().getXData();
     final double[] values = new double[n];
-    final Object[] labels = YieldCurveLabelGenerator.getLabels(spec, currency, curveDefinitionName);
+    final Object[] labels = YieldCurveLabelGenerator.getLabels(spec);
     DoubleLabelledMatrix1D labelledMatrix = new DoubleLabelledMatrix1D(keys, labels, values);
     for (int i = 0; i < n; i++) {
       labelledMatrix = (DoubleLabelledMatrix1D) labelledMatrix.add(keys[i], labels[i], sensitivities.getEntry(i));

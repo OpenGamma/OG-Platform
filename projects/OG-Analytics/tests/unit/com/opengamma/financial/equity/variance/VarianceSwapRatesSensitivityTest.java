@@ -23,7 +23,6 @@ import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.math.surface.NodalDoublesSurface;
@@ -77,7 +76,6 @@ public class VarianceSwapRatesSensitivityTest {
    * If the smile/skew translates with the forward, we always expect zero forward sensitivity.
    */
   @Test
-  @SuppressWarnings({"rawtypes", "unchecked" })
   public void testForwardSensitivityForDeltaStrikeParameterisation() {
 
     final InterpolatedDoublesSurface DELTA_SURFACE = new InterpolatedDoublesSurface(EXPIRIES, CALLDELTAs, VOLS, new GridInterpolator2D(INTERPOLATOR_1D_LINEAR, INTERPOLATOR_1D_DBLQUAD));
@@ -187,7 +185,6 @@ public class VarianceSwapRatesSensitivityTest {
   @Test
   public void testBlackVegaForDeltaSurface() {
 
-    @SuppressWarnings({"rawtypes", "unchecked" })
     final InterpolatedDoublesSurface DELTA_SURFACE = new InterpolatedDoublesSurface(EXPIRIES, CALLDELTAs, VOLS, new GridInterpolator2D(INTERPOLATOR_1D_LINEAR, INTERPOLATOR_1D_DBLQUAD));
     final BlackVolatilityDeltaSurface DELTA_VOL_SURFACE = new BlackVolatilityDeltaSurface(DELTA_SURFACE, true);
     final VarianceSwapDataBundle DELTA_MARKET = new VarianceSwapDataBundle(DELTA_VOL_SURFACE, FUNDING, SPOT, FORWARD);
@@ -235,13 +232,12 @@ public class VarianceSwapRatesSensitivityTest {
                                                      0.26, 0.24, 0.23, 0.25,
                                                      0.20, 0.20, 0.20, 0.20 };
 
-  private static final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERPOLATOR_1D_DBLQUAD = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
+  private static final CombinedInterpolatorExtrapolator INTERPOLATOR_1D_DBLQUAD = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
-  final static CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERPOLATOR_1D_LINEAR = getInterpolator(Interpolator1DFactory.LINEAR,
+  final static CombinedInterpolatorExtrapolator INTERPOLATOR_1D_LINEAR = getInterpolator(Interpolator1DFactory.LINEAR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
   private static final InterpolatedDoublesSurface SURFACE = new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, new GridInterpolator2D(INTERPOLATOR_1D_LINEAR, INTERPOLATOR_1D_DBLQUAD));
   private static final BlackVolatilityFixedStrikeSurface VOL_SURFACE = new BlackVolatilityFixedStrikeSurface(SURFACE);
 

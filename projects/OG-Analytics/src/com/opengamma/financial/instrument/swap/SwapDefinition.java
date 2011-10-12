@@ -114,7 +114,7 @@ public class SwapDefinition implements FixedIncomeInstrumentWithDataConverter<Sw
   @Override
   public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] data, final String... yieldCurveNames) {
     Validate.notNull(data, "index data time series array");
-    Validate.isTrue(data.length > 0, "index data time series must contain at least two elements");
+    Validate.isTrue(data.length > 1, "index data time series must contain at least two elements");
     final GenericAnnuity<? extends Payment> firstLeg = getFirstLeg().toDerivative(date, data[0], yieldCurveNames);
     final GenericAnnuity<? extends Payment> secondLeg = getSecondLeg().toDerivative(date, data[1], yieldCurveNames);
     return new Swap(firstLeg, secondLeg);

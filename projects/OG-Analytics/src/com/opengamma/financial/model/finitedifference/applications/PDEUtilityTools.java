@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.model.finitedifference.applications;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.io.PrintStream;
 
 import org.apache.commons.lang.Validate;
 
@@ -18,7 +18,7 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVan
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.math.interpolation.GridInterpolator2D;
-import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.surface.Surface;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -29,10 +29,9 @@ public class PDEUtilityTools {
 
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
-  private static final GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle> GRID_INTERPOLATOR2D = 
-    new GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle>(INTERPOLATOR_1D, INTERPOLATOR_1D);
+  private static final GridInterpolator2D GRID_INTERPOLATOR2D = new GridInterpolator2D(INTERPOLATOR_1D, INTERPOLATOR_1D);
 
-  public static Map<Double, Interpolator1DDoubleQuadraticDataBundle> getInterpolatorDataBundle(final PDEFullResults1D res) {
+  public static Map<Double, Interpolator1DDataBundle> getInterpolatorDataBundle(final PDEFullResults1D res) {
     final int tNodes = res.getNumberTimeNodes();
     final int xNodes = res.getNumberSpaceNodes();
 
@@ -49,7 +48,7 @@ public class PDEUtilityTools {
       }
     }
 
-    final Map<Double, Interpolator1DDoubleQuadraticDataBundle> dataBundle = GRID_INTERPOLATOR2D.getDataBundle(out);
+    final Map<Double, Interpolator1DDataBundle> dataBundle = GRID_INTERPOLATOR2D.getDataBundle(out);
     return dataBundle;
   }
 
@@ -101,8 +100,8 @@ public class PDEUtilityTools {
   }
 
   public static void printSurface(final String name, final PDEFullResults1D res) {
-      PrintStream out = System.out;
-      printSurface(name, res, out);
+    PrintStream out = System.out;
+    printSurface(name, res, out);
   }
 
   public static void printSurface(final String name, final PDEFullResults1D res, final PrintStream out) {
@@ -164,7 +163,7 @@ public class PDEUtilityTools {
 
   public static void printSurfaceInterpolate(final String name, final PDEFullResults1D res) {
 
-    final Map<Double, Interpolator1DDoubleQuadraticDataBundle> dataBundle = getInterpolatorDataBundle(res);
+    final Map<Double, Interpolator1DDataBundle> dataBundle = getInterpolatorDataBundle(res);
     final double tMin = res.getTimeValue(0);
     final double tMax = res.getTimeValue(res.getNumberTimeNodes() - 1);
     final double kMin = res.getSpaceValue(0);
@@ -172,7 +171,7 @@ public class PDEUtilityTools {
     printSurface(name, dataBundle, tMin, tMax, kMin, kMax, 100, 100);
   }
 
-  public static void printSurface(final String name, final Map<Double, Interpolator1DDoubleQuadraticDataBundle> dataBundle, final double tMin, final double tMax, final double kMin, final double kMax,
+  public static void printSurface(final String name, final Map<Double, Interpolator1DDataBundle> dataBundle, final double tMin, final double tMax, final double kMin, final double kMax,
       final int xSteps, final int ySteps) {
 
     System.out.println(name);

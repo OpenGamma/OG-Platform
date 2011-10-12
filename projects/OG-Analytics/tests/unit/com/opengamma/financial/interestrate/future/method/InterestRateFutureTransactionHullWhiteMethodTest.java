@@ -7,16 +7,6 @@ package com.opengamma.financial.interestrate.future.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.List;
-
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
-import org.testng.annotations.Test;
-
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -28,8 +18,7 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
@@ -38,6 +27,16 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
+
+import java.util.List;
+
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.LocalDateTime;
+import javax.time.calendar.Period;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 /**
  * Tests the Hull-White one factor model method for the interest rate futures.
@@ -58,6 +57,7 @@ public class InterestRateFutureTransactionHullWhiteMethodTest {
   private static final ZonedDateTime FIXING_END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, BUSINESS_DAY, CALENDAR, IS_EOM, TENOR);
   private static final double NOTIONAL = 1000000.0; // 1m
   private static final double FUTURE_FACTOR = 0.25;
+  private static final double REFERENCE_PRICE = 0.0;
   private static final String NAME = "ERU2";
   // Time version
   private static final LocalDate REFERENCE_DATE = LocalDate.of(2011, 5, 12);
@@ -69,21 +69,17 @@ public class InterestRateFutureTransactionHullWhiteMethodTest {
   private static final double FIXING_ACCRUAL = DAY_COUNT_INDEX.getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
   private static final String DISCOUNTING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR,
-      NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
+  private static final InterestRateFuture FUTURE_DERIVATIVE = new InterestRateFuture(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL,
+      FUTURE_FACTOR, NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
   private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
-  // Transaction
-  private static final int QUANTITY = -123;
-  private static final double TRADE_PRICE = 0.985;
-  private static final InterestRateFutureTransaction FUTURE_TRANSACTION = new InterestRateFutureTransaction(ERU2, QUANTITY, TRADE_PRICE);
+
   // Method
   private static final double MEAN_REVERSION = 0.01;
-  private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014};
-  private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0};
+  private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014 };
+  private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0 };
   private static final HullWhiteOneFactorPiecewiseConstantParameters MODEL_PARAMETERS = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
   private static final HullWhiteOneFactorPiecewiseConstantDataBundle BUNDLE_HW = new HullWhiteOneFactorPiecewiseConstantDataBundle(MODEL_PARAMETERS, CURVES);
-  private static final InterestRateFutureTransactionHullWhiteMethod METHOD_TRANSACTION = new InterestRateFutureTransactionHullWhiteMethod();
-  private static final InterestRateFutureSecurityHullWhiteMethod METHOD_SECURITY = new InterestRateFutureSecurityHullWhiteMethod();
+  private static final InterestRateFutureHullWhiteMethod METHOD = new InterestRateFutureHullWhiteMethod();
 
   @Test
   /**
@@ -91,8 +87,8 @@ public class InterestRateFutureTransactionHullWhiteMethodTest {
    */
   public void presentValueFromPrice() {
     double quotedPrice = 0.98;
-    double pv = METHOD_TRANSACTION.presentValueFromPrice(FUTURE_TRANSACTION, quotedPrice);
-    double expectedPv = (quotedPrice - TRADE_PRICE) * FUTURE_FACTOR * NOTIONAL * QUANTITY;
+    double pv = METHOD.presentValueFromPrice(FUTURE_DERIVATIVE, quotedPrice);
+    double expectedPv = (quotedPrice - REFERENCE_PRICE) * FUTURE_FACTOR * NOTIONAL;
     assertEquals("Present value from quoted price", expectedPv, pv);
   }
 
@@ -101,12 +97,12 @@ public class InterestRateFutureTransactionHullWhiteMethodTest {
    * Test the present value computed from the curves
    */
   public void presentValue() {
-    final CurrencyAmount pv = METHOD_TRANSACTION.presentValue(FUTURE_TRANSACTION, BUNDLE_HW);
-    double price = METHOD_SECURITY.price(ERU2, BUNDLE_HW);
-    double expectedPv = (price - TRADE_PRICE) * FUTURE_FACTOR * NOTIONAL * QUANTITY;
+    final CurrencyAmount pv = METHOD.presentValue(FUTURE_DERIVATIVE, BUNDLE_HW);
+    double price = METHOD.price(FUTURE_DERIVATIVE, BUNDLE_HW);
+    double expectedPv = (price - REFERENCE_PRICE) * FUTURE_FACTOR * NOTIONAL;
     assertEquals("Future Hull-White method: present value from curves", expectedPv, pv.getAmount());
-    InterestRateDerivative derivative = FUTURE_TRANSACTION;
-    final CurrencyAmount pv2 = METHOD_TRANSACTION.presentValue(derivative, BUNDLE_HW);
+    InterestRateDerivative derivative = FUTURE_DERIVATIVE;
+    final CurrencyAmount pv2 = METHOD.presentValue(derivative, BUNDLE_HW);
     assertEquals("Future Hull-White method: present value from curves", pv, pv2);
   }
 
@@ -115,19 +111,18 @@ public class InterestRateFutureTransactionHullWhiteMethodTest {
    * Test the present value curves sensitivity computed from the curves
    */
   public void presentValueCurveSensitivity() {
-    final PresentValueSensitivity pvsFuture = METHOD_TRANSACTION.presentValueCurveSensitivity(FUTURE_TRANSACTION, BUNDLE_HW);
+    final PresentValueSensitivity pvsFuture = METHOD.presentValueCurveSensitivity(FUTURE_DERIVATIVE, BUNDLE_HW);
     pvsFuture.clean();
     final double deltaTolerancePrice = 1.0E+2;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
     final double deltaShift = 1.0E-6;
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    final InterestRateFutureSecurity futureSecutiryBumpedForward = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL,
-        FUTURE_FACTOR, NAME, DISCOUNTING_CURVE_NAME, bumpedCurveName);
-    final InterestRateFutureTransaction futureTransactionBumpedForward = new InterestRateFutureTransaction(futureSecutiryBumpedForward, QUANTITY, TRADE_PRICE);
-    final double[] nodeTimesForward = new double[] {ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime()};
-    final double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(futureTransactionBumpedForward, BUNDLE_HW, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForward, deltaShift,
-        METHOD_TRANSACTION);
+    final InterestRateFuture futureBumpedForward = new InterestRateFuture(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE,
+        NOTIONAL, FUTURE_FACTOR, NAME, DISCOUNTING_CURVE_NAME, bumpedCurveName);
+    final double[] nodeTimesForward = new double[] {FUTURE_DERIVATIVE.getFixingPeriodStartTime(), FUTURE_DERIVATIVE.getFixingPeriodEndTime() };
+    final double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(futureBumpedForward, BUNDLE_HW, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForward, deltaShift,
+        METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardMethod.length);
     final List<DoublesPair> sensiPvForward = pvsFuture.getSensitivities().get(FORWARD_CURVE_NAME);
     for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {

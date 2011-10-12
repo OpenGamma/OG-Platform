@@ -33,6 +33,7 @@ import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefi
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
+import com.opengamma.financial.interestrate.PresentValueSABRHullWhiteMonteCarloCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
@@ -57,6 +58,7 @@ import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -351,11 +353,22 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     assertEquals("Swaption Physical SABR: Present value SABR sensitivity: method vs calculator", pvssMethod, pvssCalculator);
   }
 
+  @Test(enabled = true)
+  /**
+   * Tests the present value SABR parameters sensitivity: Method vs Calculator.
+   */
+  public void presentValueSABRHullWhiteMonteCarlo() {
+    CurrencyAmount pvSABR = METHOD.presentValue(SWAPTION_LONG_PAYER, SABR_BUNDLE);
+    PresentValueSABRHullWhiteMonteCarloCalculator pvcSABRHWMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
+    double pvMC = pvcSABRHWMC.visit(SWAPTION_LONG_PAYER, SABR_BUNDLE);
+    assertEquals("Swaption Physical SABR: Present value using Hull-White by Monte Carlo", pvSABR.getAmount(), pvMC, 2.5E+4);
+  }
+
   @Test(enabled = false)
   /**
    * Test of performance. In normal testing, "enabled = false".
    */
-  public void testPerformance() {
+  public void performance() {
     long startTime, endTime;
     final int nbTest = 1000;
     final double[] pv = new double[nbTest];
@@ -369,6 +382,16 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " physical swaptions SABR (price+delta+vega): " + (endTime - startTime) + " ms");
     // Performance note: price+delta+vega: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 170 ms for 1000 swaptions.
+
+    final int nbTest2 = 10;
+    PresentValueSABRHullWhiteMonteCarloCalculator pvcSABRHWMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
+    double[] pvMC = new double[nbTest2];
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest2; looptest++) {
+      pvMC[looptest] = pvcSABRHWMC.visit(SWAPTION_LONG_PAYER, SABR_BUNDLE);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest2 + " physical swaptions SABR + Hull-White Monte Carlo: " + (endTime - startTime) + " ms");
 
     //    double sum = 0.0;
     //    for (int looptest = 0; looptest < nbTest; looptest++) {

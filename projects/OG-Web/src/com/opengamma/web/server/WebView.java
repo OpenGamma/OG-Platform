@@ -33,6 +33,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -50,7 +51,7 @@ public class WebView {
   private final Client _local;
   private final Client _remote;
   private final ViewClient _client;
-  private final String _viewDefinitionName;
+  private final UniqueId _viewDefinition;
   private final ViewExecutionOptions _executionOptions;
   private final ExecutorService _executorService;
   private final ResultConverterCache _resultConverterCache;
@@ -69,14 +70,14 @@ public class WebView {
   
   private final AtomicInteger _activeDepGraphCount = new AtomicInteger();
 
-  public WebView(final Client local, final Client remote, final ViewClient client, final String viewDefinitionName,
+  public WebView(final Client local, final Client remote, final ViewClient client, final UniqueId viewDefinition,
       final ViewExecutionOptions executionOptions, final UserPrincipal user, final ExecutorService executorService,
       final ResultConverterCache resultConverterCache) {
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     _local = local;
     _remote = remote;
     _client = client;
-    _viewDefinitionName = viewDefinitionName;
+    _viewDefinition = viewDefinition;
     _executionOptions = executionOptions;
     _executorService = executorService;
     _resultConverterCache = resultConverterCache;
@@ -98,7 +99,7 @@ public class WebView {
       
       @Override
       public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
-        s_logger.info("New result arrived for view '{}'", getViewDefinitionName());
+        s_logger.info("New result arrived for view '{}'", getViewDefinitionId());
         _updateLock.lock();
         try {
           if (_awaitingNextUpdate) {
@@ -114,7 +115,7 @@ public class WebView {
     
     MarketDataSpecification marketDataSpec;
     EnumSet<ViewExecutionFlags> flags;
-    client.attachToViewProcess(viewDefinitionName, executionOptions);
+    client.attachToViewProcess(viewDefinition.getUniqueId(), executionOptions);
   }
   
   //-------------------------------------------------------------------------
@@ -170,16 +171,16 @@ public class WebView {
     getViewClient().shutdown();
   }
   
-  public String getViewDefinitionName() {
-    return _viewDefinitionName;
+  public UniqueId getViewDefinitionId() {
+    return _viewDefinition;
   }
   
   public ViewExecutionOptions getExecutionOptions() {
     return _executionOptions;
   }
   
-  public boolean matches(String viewDefinitionName, ViewExecutionOptions executionOptions) {
-    return getViewDefinitionName().equals(viewDefinitionName) && ObjectUtils.equals(getExecutionOptions(), executionOptions);
+  public boolean matches(UniqueId viewDefinitionId, ViewExecutionOptions executionOptions) {
+    return getViewDefinitionId().equals(viewDefinitionId) && ObjectUtils.equals(getExecutionOptions(), executionOptions);
   }
   
   public WebViewGrid getGridByName(String name) {

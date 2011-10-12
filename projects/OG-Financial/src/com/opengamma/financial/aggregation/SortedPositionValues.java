@@ -45,7 +45,7 @@ public class SortedPositionValues extends AbstractSortedPositionValues {
   public static final String VALUE_NAME = "SortedPositionValues";
 
   private static final Comparator<ComputedValue> s_comparator = new Comparator<ComputedValue>() {
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
     public int compare(final ComputedValue o1, final ComputedValue o2) {
       return ((Comparable) o1.getValue()).compareTo(o2.getValue());

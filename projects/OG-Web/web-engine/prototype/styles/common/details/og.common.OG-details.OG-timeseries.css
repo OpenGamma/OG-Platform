@@ -40,11 +40,62 @@
  * Plot
  */
 
-.OG-timeseries .og-plotHeader div {
-  display: inline-block;
+.OG-timeseries .og-plotHeader {
   position: absolute;
-  top: -10px;
-  left: 5px;
+  top: -20px;
+  left: 3px;
+}
+
+.OG-timeseries .og-plotHeader .og-field {
+  display: inline-block;
+  padding: 0 0 0 5px;
+  background-color: #e9eaeb;
+  -webkit-border-top-left-radius: 2px;
+  -webkit-border-bottom-left-radius: 2px;
+  -moz-border-radius-topleft: 2px;
+  -moz-border-radius-bottomleft: 2px;
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+  line-height: 18px;
+}
+
+.OG-timeseries .og-plotHeader .og-field span {
+  vertical-align: middle;
+  padding: 0 5px 0 0;
+  color: #999;
+}
+
+.OG-timeseries .og-plotHeader select {
+  margin: 0;
+  min-width: 100px;
+}
+
+.OG-timeseries .og-plotHeader .og-observation {
+  height: 17px;
+  position: relative;
+  margin-top: 2px;
+}
+
+.OG-timeseries .og-plotHeader .og-observation label {
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+  padding: 0 5px 2px 0;
+  margin: 0 4px 0 0;
+  height: 17px;
+  position: relative;
+}
+
+.OG-timeseries .og-plotHeader .og-observation input {
+  left: -1px;
+  position: absolute;
+  top: -1px;
+}
+
+.OG-timeseries .og-plotHeader .og-observation span {
+  font-size: 10px;
+  padding-left: 19px;
+  position: relative;
 }
 
 .OG-timeseries .og-plotMeta {
@@ -64,6 +115,27 @@
   width: 550px;
 }
 
+
+/**
+ * Flot furniture
+ */
+.OG-timeseries .og-flot-top {
+  border-bottom: 3px solid #e9eaeb;
+  height: 0;
+  width: 705px;
+  position: absolute;
+  top: 26px;
+  left: 3px;
+}
+
+.OG-timeseries .og-flot-xaxis {
+  border-bottom: 13px solid #c6d1e1;
+  height: 0;
+  width: 705px;
+  position: absolute;
+  top: 222px;
+  left: 3px;
+}
 
 /**
  * DataPoints

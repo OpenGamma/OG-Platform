@@ -77,6 +77,9 @@
     <version value="1.0" />
   </component>
   <component name="IvyIDEA.ProjectSettings">
+    <option name="artifactTypeSettings">
+      <ArtifactTypeSettings />
+    </option>
     <option name="ivyLogLevelThreshold" value="Info" />
     <option name="ivySettingsFile" value="$PROJECT_DIR$/common/ivysettings.xml" />
     <option name="libraryNameIncludesConfiguration" value="true" />

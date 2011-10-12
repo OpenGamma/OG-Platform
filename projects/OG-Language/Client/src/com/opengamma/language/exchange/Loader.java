@@ -6,6 +6,8 @@
 
 package com.opengamma.language.exchange;
 
+import net.sf.ehcache.CacheManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +15,7 @@ import com.opengamma.financial.exchange.rest.RemoteExchangeSource;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
+import com.opengamma.master.exchange.impl.EHCachingExchangeSource;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
@@ -25,7 +28,8 @@ public class Loader extends ContextInitializationBean {
 
   private String _configurationEntry = "exchangeSource";
   private Configuration _configuration;
-
+  private CacheManager _cacheManager = CacheManager.getInstance();
+  
   public void setConfiguration(final Configuration configuration) {
     ArgumentChecker.notNull(configuration, "configuration");
     _configuration = configuration;
@@ -44,6 +48,15 @@ public class Loader extends ContextInitializationBean {
     return _configurationEntry;
   }
 
+  public void setCacheManager(final CacheManager cacheManager) {
+    ArgumentChecker.notNull(cacheManager, "cacheManager");
+    _cacheManager = cacheManager;
+  }
+
+  public CacheManager getCacheManager() {
+    return _cacheManager;
+  }
+
   // ContextInitializationBean
 
   @Override
@@ -59,7 +72,7 @@ public class Loader extends ContextInitializationBean {
       return;
     }
     s_logger.info("Configuring exchange support");
-    globalContext.setExchangeSource(new RemoteExchangeSource(getConfiguration().getFudgeContext(), restTarget));
+    globalContext.setExchangeSource(new EHCachingExchangeSource(new RemoteExchangeSource(getConfiguration().getFudgeContext(), restTarget), getCacheManager()));
     // TODO:
   }
 

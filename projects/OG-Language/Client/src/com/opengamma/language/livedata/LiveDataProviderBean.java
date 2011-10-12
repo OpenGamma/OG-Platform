@@ -7,6 +7,7 @@
 package com.opengamma.language.livedata;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -21,6 +22,17 @@ import edu.emory.mathcs.backport.java.util.Collections;
 public class LiveDataProviderBean extends AbstractLiveDataProvider implements InitializingBean {
 
   private Collection<PublishedLiveData> _liveData;
+
+  public LiveDataProviderBean(final Collection<PublishedLiveData> liveData) {
+    setLiveData(liveData);
+  }
+
+  public LiveDataProviderBean(final PublishedLiveData... liveData) {
+    setLiveData(Arrays.asList(liveData));
+  }
+
+  public LiveDataProviderBean() {
+  }
 
   public void setLiveData(final Collection<PublishedLiveData> liveData) {
     ArgumentChecker.notNull(liveData, "liveData");

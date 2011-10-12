@@ -52,10 +52,8 @@ public class FRASecurityConverter implements FRASecurityVisitor<FixedIncomeInstr
     final ZonedDateTime accrualEndDate = security.getEndDate();
     final double notional = security.getAmount();
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, RegionUtils.currencyRegionId(currency)); //TODO exchange region?
-    final IborIndex iborIndex = new IborIndex(currency, fraConvention.getPeriod(), fraConvention.getSettlementDays(),
-        calendar, fraConvention.getDayCount(), fraConvention.getBusinessDayConvention(),
+    final IborIndex iborIndex = new IborIndex(currency, fraConvention.getPeriod(), fraConvention.getSettlementDays(), calendar, fraConvention.getDayCount(), fraConvention.getBusinessDayConvention(),
         fraConvention.isEOMConvention());
-    final double rate = security.getRate() / 100; //TODO should not be done here
-    return ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, notional, iborIndex, rate);
+    return ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, notional, iborIndex, security.getRate());
   }
 }

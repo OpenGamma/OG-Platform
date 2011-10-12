@@ -15,16 +15,8 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing an OIS-like index. The fixing period is always one business day.
  */
-public class IndexOIS {
+public class IndexOIS extends IndexDeposit {
 
-  /**
-   * The name of the index. Not null.
-   */
-  private final String _name;
-  /**
-   * The index currency. Not null.
-   */
-  private final Currency _currency;
   /**
    * The day count convention associated to the overnight rate. Not null.
    */
@@ -34,10 +26,6 @@ public class IndexOIS {
    * It does not represent the standard number of days between the trade date and the settlement date. 
    */
   private final int _publicationLag;
-  /**
-   * The calendar associated to the index. Not null.
-   */
-  private final Calendar _calendar;
 
   /**
    * Index constructor from all the details.
@@ -48,31 +36,10 @@ public class IndexOIS {
    * @param calendar The calendar associated to the index. Not null.
    */
   public IndexOIS(String name, Currency currency, DayCount dayCount, int publicationLag, Calendar calendar) {
-    Validate.notNull(name, "OIS index: name");
-    Validate.notNull(currency, "OIS index: currency");
+    super(name, currency, calendar);
     Validate.notNull(dayCount, "OIS index: day count");
-    Validate.notNull(calendar, "OIS index: calendar");
-    _name = name;
-    _currency = currency;
     _publicationLag = publicationLag;
     _dayCount = dayCount;
-    _calendar = calendar;
-  }
-
-  /**
-   * Gets the name of the index.
-   * @return The name.
-   */
-  public String getName() {
-    return _name;
-  }
-
-  /**
-   * Gets the index currency.
-   * @return The currency.
-   */
-  public Currency getCurrency() {
-    return _currency;
   }
 
   /**
@@ -91,22 +58,11 @@ public class IndexOIS {
     return _publicationLag;
   }
 
-  /**
-   * Gets the calendar associated to the index.
-   * @return The calendar.
-   */
-  public Calendar getCalendar() {
-    return _calendar;
-  }
-
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = 1;
-    result = prime * result + _calendar.hashCode();
-    result = prime * result + _currency.hashCode();
+    int result = super.hashCode();
     result = prime * result + _dayCount.hashCode();
-    result = prime * result + _name.hashCode();
     result = prime * result + _publicationLag;
     return result;
   }
@@ -116,23 +72,14 @@ public class IndexOIS {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
+    if (!super.equals(obj)) {
       return false;
     }
     if (getClass() != obj.getClass()) {
       return false;
     }
     IndexOIS other = (IndexOIS) obj;
-    if (!ObjectUtils.equals(_calendar, other._calendar)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_currency, other._currency)) {
-      return false;
-    }
     if (!ObjectUtils.equals(_dayCount, other._dayCount)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_name, other._name)) {
       return false;
     }
     if (_publicationLag != other._publicationLag) {

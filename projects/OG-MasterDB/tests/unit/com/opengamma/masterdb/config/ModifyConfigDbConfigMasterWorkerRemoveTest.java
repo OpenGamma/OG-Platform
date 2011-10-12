@@ -7,8 +7,6 @@ package com.opengamma.masterdb.config;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.TimeZone;
-
 import javax.time.Instant;
 
 import org.slf4j.Logger;
@@ -34,7 +32,6 @@ public class ModifyConfigDbConfigMasterWorkerRemoveTest extends AbstractDbConfig
   public ModifyConfigDbConfigMasterWorkerRemoveTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------

@@ -172,7 +172,7 @@ public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Seria
   @Override
   public String toString() {
     return new StringBuilder()
-        .append("Triple[")
+        .append("[")
         .append(getFirst())
         .append(", ")
         .append(getSecond())

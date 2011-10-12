@@ -53,17 +53,16 @@ public class ForexSecurityConverter implements FXOptionSecurityVisitor<ForexConv
     final double callAmount = fxOptionSecurity.getCallAmount();
     final ZonedDateTime expiry = fxOptionSecurity.getExpiry().getExpiry();
     final ZonedDateTime settlementDate = fxOptionSecurity.getSettlementDate();
-    final boolean isLong = fxOptionSecurity.getIsLong();
+    final boolean isLong = fxOptionSecurity.isLong();
     final ForexDefinition underlying;
     if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
       final double fxRate = callAmount / putAmount;
       underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, fxRate);
       return new ForexOptionVanillaDefinition(underlying, expiry, false, isLong);
-    } else {
-      final double fxRate = putAmount / callAmount;
-      underlying = new ForexDefinition(callCurrency, putCurrency, settlementDate, callAmount, fxRate);
-      return new ForexOptionVanillaDefinition(underlying, expiry, true, isLong);
-    }
+    } 
+    final double fxRate = putAmount / callAmount;
+    underlying = new ForexDefinition(callCurrency, putCurrency, settlementDate, callAmount, fxRate);
+    return new ForexOptionVanillaDefinition(underlying, expiry, true, isLong);
   }
 
   @Override
@@ -80,7 +79,7 @@ public class ForexSecurityConverter implements FXOptionSecurityVisitor<ForexConv
     final ZonedDateTime expiry = barrierOptionSecurity.getExpiry().getExpiry();
     final ZonedDateTime settlementDate = barrierOptionSecurity.getSettlementDate();
     final ForexDefinition underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, fxRate); //TODO this needs its own converter
-    final boolean isLong = barrierOptionSecurity.getIsLong();
+    final boolean isLong = barrierOptionSecurity.isLong();
     final Barrier barrier = new Barrier(getKnockType(barrierOptionSecurity.getBarrierDirection()), getBarrierType(barrierOptionSecurity.getBarrierType()),
         getObservationType(barrierOptionSecurity.getMonitoringType()), level);
     return new ForexOptionSingleBarrierDefinition(new ForexOptionVanillaDefinition(underlying, expiry, true, isLong), barrier);

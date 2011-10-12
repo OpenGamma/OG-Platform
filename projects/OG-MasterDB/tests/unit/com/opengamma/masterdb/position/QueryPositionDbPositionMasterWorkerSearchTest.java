@@ -10,7 +10,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.TimeZone;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
@@ -46,7 +45,6 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   public QueryPositionDbPositionMasterWorkerSearchTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------

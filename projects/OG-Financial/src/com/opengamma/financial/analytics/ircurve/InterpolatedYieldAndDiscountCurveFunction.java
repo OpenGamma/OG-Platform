@@ -44,7 +44,6 @@ import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.FlatExtrapolator1D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Triple;
@@ -62,7 +61,7 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
   private final String _curveName;
   private final boolean _isYieldCurve;
 
-  private Interpolator1D<? extends Interpolator1DDataBundle> _interpolator;
+  private Interpolator1D _interpolator;
   private YieldCurveDefinition _definition;
   private ValueSpecification _result;
   private ValueSpecification _specResult;
@@ -104,7 +103,6 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
     return _isYieldCurve;
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public void init(final FunctionCompilationContext context) {
     _definition = _helper.init(context, this);

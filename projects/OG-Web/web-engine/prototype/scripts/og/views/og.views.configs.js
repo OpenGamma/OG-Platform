@@ -18,10 +18,11 @@ $.register_module({
         'og.views.common.versions',
         'og.views.common.state',
         'og.views.common.default_details',
-        'og.views.configs.viewdefinition',
-        'og.views.configs.yieldcurvedefinition',
-        'og.views.configs.curvespecificationbuilderconfiguration',
-        'og.views.configs.default'
+        'og.views.config_forms.viewdefinition',
+        'og.views.config_forms.yieldcurvedefinition',
+        'og.views.config_forms.curvespecificationbuilderconfiguration',
+        'og.views.config_forms.volatilitycubedefinition',
+        'og.views.config_forms.default'
     ],
     obj: function () {
         var api = og.api,
@@ -103,12 +104,6 @@ $.register_module({
                     }
                 }
             },
-            form_generators = {
-                'default': og.views.configs['default'],
-                viewdefinition: og.views.configs.viewdefinition,
-                yieldcurvedefinition: og.views.configs.yieldcurvedefinition,
-                curvespecificationbuilderconfiguration: og.views.configs.curvespecificationbuilderconfiguration
-            },
             toolbar = function (type) {
                 ui.toolbar(options.toolbar[type]);
                 if (config_types.length) return; // if we already have config_types, return
@@ -143,7 +138,7 @@ $.register_module({
                         item: 'history.configs.recent',
                         value: routes.current().hash
                     });
-                    (form_generators[config_type] || form_generators['default'])({
+                    og.views.config_forms[config_type]({
                         is_new: is_new,
                         data: details_json,
                         loading: function () {
@@ -157,20 +152,16 @@ $.register_module({
                             routes.go(routes.hash(module.rules.load_configs, args));
                         },
                         save_handler: function (result) {
-                            ui.message({location: '.ui-layout-inner-center', destroy: true});
                             if (result.error) return ui.dialog({type: 'error', message: result.message});
                             ui.message({location: '.ui-layout-inner-center', message: 'saved'});
-                            setTimeout(function () {
-                                routes.handler();
-                            }, 300);
+                            setTimeout(function () {routes.handler(); details_page(args);}, 300);
                         },
                         handler: function () {
                             var json = details_json.template_data,
                                 error_html = '\
                                     <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
                                         This configuration has been deleted\
-                                    </section>\
-                                ',
+                                    </section>',
                                 layout = og.views.common.layout;
                             toolbar('active');
                             if (json && json.deleted) {
@@ -187,9 +178,7 @@ $.register_module({
                             layout.inner.resizeAll();
                         },
                         selector: '.ui-layout-inner-center .ui-layout-content'
-                    });
-                    if (!(config_type in form_generators))
-                        og.dev.warn('using default config template for config type: ' + config_type);
+                    });                        
                 };
                 rest_options = {
                     handler: rest_handler,
@@ -233,8 +222,10 @@ $.register_module({
                 search_filter();
             },
             load_configs: function (args) {
-                check_state({args: args, conditions: [{new_page: configs.load}]});
-                configs.details(args);
+                check_state({args: args, conditions: [
+                    {new_page: configs.load},
+                    {new_value: 'id', method: configs.details}
+                ]});
             },
             load_new: function (args) {
                 check_state({args: args, conditions: [{new_page: configs.load}]});
@@ -256,7 +247,10 @@ $.register_module({
                         ].join('');
                         configs.search(args);
                     },
-                    loading: function () {options.slickgrid.columns[0].name = 'loading';},
+                    loading: function () {
+                        options.slickgrid.columns[0].name = 'loading';
+                        ui.message({location: '.OG-js-search', message: {0: 'loading...', 3000: 'still loading...'}});
+                    },
                     cache_for: 15 * 1000
                 });
                 search.load($.extend(options.slickgrid, {url: args}));

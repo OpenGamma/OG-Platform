@@ -55,6 +55,7 @@ public enum InterestRateInstrumentType {
   /** Bond future */
   BOND_FUTURE;
 
+  @SuppressWarnings("synthetic-access")
   private static final FinancialSecurityVisitor<InterestRateInstrumentType> TYPE_IDENTIFIER = new TypeIdentifier();
 
   public static InterestRateInstrumentType getInstrumentTypeFromSecurity(final FinancialSecurity security) {
@@ -98,9 +99,6 @@ public enum InterestRateInstrumentType {
       if (security instanceof InterestRateFutureSecurity) {
         return IR_FUTURE;
       }
-      //      if (security instanceof BondFutureSecurity) {
-      //        return BOND_FUTURE;
-      //      }
       throw new OpenGammaRuntimeException("Cannot handle this FutureSecurity");
     }
 

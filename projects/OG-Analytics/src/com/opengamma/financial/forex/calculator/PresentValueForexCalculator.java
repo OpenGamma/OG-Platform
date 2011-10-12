@@ -35,7 +35,7 @@ public class PresentValueForexCalculator extends AbstractForexDerivativeVisitor<
   /**
    * Constructor.
    */
-  /* package */PresentValueForexCalculator() {
+  PresentValueForexCalculator() {
   }
 
   @Override

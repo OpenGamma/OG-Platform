@@ -6,7 +6,9 @@
 package com.opengamma.util;
 
 /**
- * Utility to simplify comparisons.
+ * Utility methods to simplify comparisons.
+ * <p>
+ * This is a thread-safe static utility class.
  */
 public final class CompareUtils {
 
@@ -72,7 +74,7 @@ public final class CompareUtils {
    * @param b  item that is being compared
    * @return negative when a less than b, zero when equal, positive when greater
    */
-  public static <E> int compareWithNull(Comparable<E> a, E b) {
+  public static <E> int compareWithNullLow(Comparable<E> a, E b) {
     if (a == null) {
       return b == null ? 0 : -1;
     } else if (b == null) {
@@ -102,25 +104,30 @@ public final class CompareUtils {
 
   //-------------------------------------------------------------------------
   /**
-   * Compare two doubles to see if they're 'closely' equal - this is because rounding errors can mean 
-   * the results of double precision computations lead to small differences in results.  The definition
-   * in this case of 'close' is that the difference is less than 10^-15 (1E-15).  If a different maximum
-   * allowed difference is required, use the other version of this method.
+   * Compare two doubles to see if they're 'closely' equal.
+   * <p>
+   * This handles rounding errors which can mean the results of double precision computations
+   * lead to small differences in results.
+   * The definition 'close' is that the difference is less than 10^-15 (1E-15).
+   * If a different maximum allowed difference is required, use the other version of this method.
    * 
    * @param a  the first value
    * @param b  the second value
    * @return true, if a and b are equal to within 10^-15, false otherwise
    */
   public static boolean closeEquals(double a, double b) {
+    if (Double.isInfinite(a)) {
+      return (a == b);
+    }
     return (Math.abs(a - b) < 1E-15);
   }
 
   /**
-   * Compare two doubles to see if they're 'closely' equal - this is because rounding errors can mean 
-   * the results of double precision computations lead to small differences in results.  The definition
-   * in this case of 'close' is that the absolute difference is less than the maxDifference parameter.  
-   * If a different maximum
-   * allowed difference is required, use the other version of this method.
+   * Compare two doubles to see if they're 'closely' equal.
+   * <p>
+   * This handles rounding errors which can mean the results of double precision computations
+   * lead to small differences in results.
+   * The definition 'close' is that the absolute difference is less than the specified difference.
    * 
    * @param a  the first value
    * @param b  the second value
@@ -128,13 +135,18 @@ public final class CompareUtils {
    * @return true, if a and b are equal to within the tolerance
    */
   public static boolean closeEquals(double a, double b, double maxDifference) {
+    if (Double.isInfinite(a)) {
+      return (a == b);
+    }
     return (Math.abs(a - b) < maxDifference);
   }
 
-  //-------------------------------------------------------------------------
   /**
-   * Compares two doubles, indicating equality when 'closely' equal, and otherwise
-   * indicating how the first differs from the second.
+   * Compare two doubles to see if they're 'closely' equal.
+   * <p>
+   * This handles rounding errors which can mean the results of double precision computations
+   * lead to small differences in results.
+   * This method returns the difference to indicate how the first differs from the second.
    * 
    * @param a  the first value
    * @param b  the second value
@@ -143,6 +155,15 @@ public final class CompareUtils {
    *         than b; and a value greater than 0 if a is numerically greater than b.
    */
   public static int compareWithTolerance(double a, double b, double maxDifference) {
+    if (a == Double.POSITIVE_INFINITY) {
+      return (a == b ? 0 : 1);
+    } else if (a == Double.NEGATIVE_INFINITY) {
+      return (a == b ? 0 : -1);
+    } else if (b == Double.POSITIVE_INFINITY) {
+      return (a == b ? 0 : -1);
+    } else if (b == Double.NEGATIVE_INFINITY) {
+      return (a == b ? 0 : 1);
+    }
     if (Math.abs(a - b) < maxDifference) {
       return 0;
     }

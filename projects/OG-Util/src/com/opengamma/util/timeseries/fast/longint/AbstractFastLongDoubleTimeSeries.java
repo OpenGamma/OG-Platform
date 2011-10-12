@@ -179,7 +179,7 @@ public abstract class AbstractFastLongDoubleTimeSeries
     }
     final double[] bValues = other.valuesArrayFast();
     int bCount = 0;
-    final long[] resTimes = new long[aTimes.length + bTimes.length];
+    final long[] resTimes = new long[Math.min(aTimes.length, bTimes.length)];
     final double[] resValues = new double[resTimes.length];
     int resCount = 0;
     while (aCount < aTimes.length && bCount < bTimes.length) {
@@ -195,6 +195,9 @@ public abstract class AbstractFastLongDoubleTimeSeries
         bCount++;
       }
     }
+    if (resTimes.length == resCount) {
+      return newInstanceFast(resTimes, resValues);
+    }
     long[] trimmedTimes = new long[resCount];
     double[] trimmedValues = new double[resCount];
     System.arraycopy(resTimes, 0, trimmedTimes, 0, resCount);
@@ -202,6 +205,48 @@ public abstract class AbstractFastLongDoubleTimeSeries
     return newInstanceFast(trimmedTimes, trimmedValues);
   }
 
+  @Override
+  protected FastTimeSeries<Long> intersectionFirstValueFast(FastLongDoubleTimeSeries other) {
+    //PLAT-1590
+    final long[] aTimes = timesArrayFast();
+    final double[] aValues = valuesArrayFast();
+    int aCount = 0;
+    final long[] bTimes = other.timesArrayFast();
+    if (getEncoding() != other.getEncoding()) { // convert to a's format -- NOTE: if we switch to using an underlying array rather than a copy, we can't modify it in-place like we're doing here.
+      DateTimeNumericEncoding aEncoding = getEncoding();
+      DateTimeNumericEncoding bEncoding = other.getEncoding();
+      for (int i = 0; i < bTimes.length; i++) {
+        bTimes[i] = bEncoding.convertToLong(bTimes[i], aEncoding);
+      }
+    }
+    
+    int bCount = 0;
+    final long[] resTimes = new long[Math.min(aTimes.length, bTimes.length)];
+    final double[] resValues = new double[resTimes.length];
+    int resCount = 0;
+    while (aCount < aTimes.length && bCount < bTimes.length) {
+      if (aTimes[aCount] == bTimes[bCount]) {
+        resTimes[resCount] = aTimes[aCount];
+        resValues[resCount] = aValues[aCount];
+        resCount++;
+        aCount++;
+        bCount++;
+      } else if (aTimes[aCount] < bTimes[bCount]) {
+        aCount++;
+      } else { // if (aTimes[aCount] > bTimes[bCount]) {
+        bCount++;
+      }
+    }
+    if (resTimes.length == resCount) {
+      return newInstanceFast(resTimes, resValues);
+    }
+    long[] trimmedTimes = new long[resCount];
+    double[] trimmedValues = new double[resCount];
+    System.arraycopy(resTimes, 0, trimmedTimes, 0, resCount);
+    System.arraycopy(resValues, 0, trimmedValues, 0, resCount);
+    return newInstanceFast(trimmedTimes, trimmedValues);
+  }
+  
   @Override
   public FastLongDoubleTimeSeries operate(final FastIntDoubleTimeSeries other, final BinaryOperator operator) { 
     final long[] aTimes = timesArrayFast();

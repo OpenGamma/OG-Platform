@@ -11,6 +11,9 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
@@ -22,6 +25,8 @@ import com.opengamma.util.ehcache.EHCacheUtils;
  */
 public class EHCachingMasterHolidaySource extends MasterHolidaySource {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(EHCachingMasterHolidaySource.class);
+  
   /**
    * Cache key for holidays.
    */
@@ -44,6 +49,9 @@ public class EHCachingMasterHolidaySource extends MasterHolidaySource {
    */
   public EHCachingMasterHolidaySource(final HolidayMaster underlying, final CacheManager cacheManager) {
     super(underlying);
+    
+    s_logger.warn("EHCache doesn't perform well here (see PLAT-1015)");
+    
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     _cacheManager = cacheManager;
     EHCacheUtils.addCache(cacheManager, HOLIDAY_CACHE);

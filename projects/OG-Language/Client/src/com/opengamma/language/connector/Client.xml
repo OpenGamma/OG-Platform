@@ -36,6 +36,7 @@
         </property>
       </bean>
     </property>
+    <property name="maxThreadsPerClient" value="32" />
   </bean>
 	 <bean id="globalContextFactory" class="com.opengamma.language.context.GlobalContextFactoryBean"> <!-- Extension point - GlobalContextFactoryBean -->
 	   <property name="globalContextEventHandler">
@@ -56,7 +57,7 @@
     </property>
     <property name="userContextFactory" ref="userContextFactory" />
   </bean>
-  
+
   <!-- Remote configuration parameters -->
   <bean id="defaultConfiguration" class="com.opengamma.language.config.ConfigurationFactoryBean">
     <property name="configurationURI" value="${opengamma.configuration.url}" />
@@ -89,6 +90,7 @@
 		</property>
     <property name="condition" ref="isDebugClient" />
   </bean>
+
   <bean id="debugLiveDataLoader" class="com.opengamma.language.livedata.Loader">
     <property name="sessionContextFactory" ref="sessionContextFactory" />
     <property name="liveDataProvider">
@@ -135,6 +137,7 @@
       </list>
     </property>
   </bean>
+
   <bean id="defaultLiveDataLoader" class="com.opengamma.language.livedata.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
     <property name="liveDataProvider">
@@ -148,6 +151,7 @@
       </bean>
     </property>
   </bean>
+
   <bean id="defaultProceduresLoader" class="com.opengamma.language.procedure.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
     <property name="procedureProvider">

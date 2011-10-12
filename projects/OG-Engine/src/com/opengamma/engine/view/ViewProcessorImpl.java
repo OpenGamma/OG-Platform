@@ -189,19 +189,19 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * 
    * @param clientId  the unique identifier of the client, not null
    * @param listener  the process listener, not null
-   * @param viewDefinitionName  the name of the view definition, not null
+   * @param viewDefinitionId  the id of the view definition, not null
    * @param executionOptions  the view execution options, not null
    * @return the permission provider to be used for access control, not null
    */
-  public ViewPermissionProvider attachClientToSharedViewProcess(UniqueId clientId, ViewResultListener listener, String viewDefinitionName, ViewExecutionOptions executionOptions) {
-    ArgumentChecker.notNull(viewDefinitionName, "viewDefinitionName");
+  public ViewPermissionProvider attachClientToSharedViewProcess(UniqueId clientId, ViewResultListener listener, UniqueId viewDefinitionId, ViewExecutionOptions executionOptions) {
+    ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ViewClientImpl client = getViewClient(clientId);
     
     _processLock.lock();
     ViewProcessImpl process = null;
     try {
-      process = getOrCreateViewProcess(viewDefinitionName, executionOptions);
+      process = getOrCreateViewProcess(viewDefinitionId, executionOptions);
       return attachClientToViewProcessCore(client, listener, process, false);
     } catch (Exception e) {
       // Roll-back
@@ -220,19 +220,19 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    *  
    * @param clientId  the unique identifier of the client, not null  
    * @param listener  the process listener, not null
-   * @param viewDefinitionName  the name of the view definition, not null
+   * @param viewDefinitionId  the id of the view definition, not null
    * @param executionOptions  the view execution options, not null
    * @return the permission provider to be used for access control, not null
    */
-  public ViewPermissionProvider attachClientToPrivateViewProcess(UniqueId clientId, ViewResultListener listener, String viewDefinitionName, ViewExecutionOptions executionOptions) {
-    ArgumentChecker.notNull(viewDefinitionName, "viewDefinitionName");
+  public ViewPermissionProvider attachClientToPrivateViewProcess(UniqueId clientId, ViewResultListener listener, UniqueId viewDefinitionId, ViewExecutionOptions executionOptions) {
+    ArgumentChecker.notNull(viewDefinitionId, "definitionID");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ViewClientImpl client = getViewClient(clientId);
     
     ViewProcessImpl process = null;
     _processLock.lock();
     try {
-      process = createViewProcess(viewDefinitionName, executionOptions, true);
+      process = createViewProcess(viewDefinitionId, executionOptions, true);
       return attachClientToViewProcessCore(client, listener, process, true);
     } catch (Exception e) {
       // Roll-back
@@ -310,13 +310,13 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
   }
   
-  private ViewProcessImpl getOrCreateViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions) {
+  private ViewProcessImpl getOrCreateViewProcess(UniqueId viewDefinitionId, ViewExecutionOptions executionOptions) {
     _processLock.lock();
     try {
-      ViewProcessDescription viewDescription = new ViewProcessDescription(viewDefinitionName, executionOptions);
+      ViewProcessDescription viewDescription = new ViewProcessDescription(viewDefinitionId, executionOptions);
       ViewProcessImpl process = _sharedProcessesByDescription.get(viewDescription);
       if (process == null) {
-        process = createViewProcess(viewDefinitionName, executionOptions, false);
+        process = createViewProcess(viewDefinitionId, executionOptions, false);
         _sharedProcessesByDescription.put(viewDescription, process);
       }
       return process;
@@ -325,14 +325,14 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
   }
 
-  private ViewProcessImpl createViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions, boolean privateProcess) {
+  private ViewProcessImpl createViewProcess(UniqueId definitionId, ViewExecutionOptions executionOptions, boolean privateProcess) {
     _processLock.lock();
     try {
       String idValue = generateIdValue(_processIdSource);
       UniqueId viewProcessId = UniqueId.of(PROCESS_SCHEME, idValue);
       ObjectId cycleObjectId = ObjectId.of(CYCLE_SCHEME, idValue);
       ViewProcessContext viewProcessContext = createViewProcessContext();
-      ViewProcessImpl viewProcess = new ViewProcessImpl(viewProcessId, viewDefinitionName, executionOptions, viewProcessContext, getViewCycleManager(), cycleObjectId);
+      ViewProcessImpl viewProcess = new ViewProcessImpl(viewProcessId, definitionId, executionOptions, viewProcessContext, getViewCycleManager(), cycleObjectId);
       
       // The view must be created in a locked state if this view processor is suspended
       _lifecycleLock.lock();
@@ -361,7 +361,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       viewProcess.shutdown();
       
       _allProcessesById.remove(viewProcess.getUniqueId());
-      ViewProcessDescription description = new ViewProcessDescription(viewProcess.getDefinitionName(), viewProcess.getExecutionOptions());
+      ViewProcessDescription description = new ViewProcessDescription(viewProcess.getDefinitionId(), viewProcess.getExecutionOptions());
       ViewProcessImpl sharedProc = _sharedProcessesByDescription.get(description);
       if (sharedProc != null && sharedProc == viewProcess) { //PLAT-1287
         _sharedProcessesByDescription.remove(description);
@@ -664,11 +664,11 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   //-------------------------------------------------------------------------
   private final class ViewProcessDescription {
     
-    private final String _viewDefinitionName;
+    private final UniqueId _viewDefinitionId;
     private final ViewExecutionOptions _executionOptions;
     
-    public ViewProcessDescription(String viewDefinitionName, ViewExecutionOptions executionOptions) {
-      _viewDefinitionName = viewDefinitionName;
+    public ViewProcessDescription(UniqueId definitionId, ViewExecutionOptions executionOptions) {
+      _viewDefinitionId = definitionId;
       _executionOptions = executionOptions;
     }
 
@@ -677,7 +677,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       final int prime = 31;
       int result = 1;
       result = prime * result + _executionOptions.hashCode();
-      result = prime * result + _viewDefinitionName.hashCode();
+      result = prime * result + _viewDefinitionId.hashCode();
       return result;
     }
 
@@ -693,7 +693,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         return false;
       }
       ViewProcessDescription other = (ViewProcessDescription) obj;
-      if (!_viewDefinitionName.equals(other._viewDefinitionName)) {
+      if (!_viewDefinitionId.equals(other._viewDefinitionId)) {
         return false;
       }
       if (!_executionOptions.equals(other._executionOptions)) {

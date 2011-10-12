@@ -22,6 +22,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
 
 /**
  * 
@@ -35,12 +36,13 @@ public class InterpolatedYieldCurveSpecification implements Serializable {
   private final LocalDate _curveDate;
   private final Currency _currency;
   private final String _name;
-  private final Interpolator1D<?> _interpolator;
+  private final Interpolator1D _interpolator;
   private final Set<FixedIncomeStripWithIdentifier> _strips = new LinkedHashSet<FixedIncomeStripWithIdentifier>();
   private final ExternalId _region;
   
   public InterpolatedYieldCurveSpecification(LocalDate curveDate, String name, Currency currency,  
-      Interpolator1D<?> interpolator, Collection<FixedIncomeStripWithIdentifier> resolvedStrips, ExternalId region) {
+      Interpolator1D interpolator, Collection<FixedIncomeStripWithIdentifier> resolvedStrips, 
+      ExternalId region) {
     Validate.notNull(curveDate, "CurveDate");
     Validate.notNull(currency, "Currency");
     Validate.notNull(interpolator, "Interpolator1D");
@@ -57,6 +59,25 @@ public class InterpolatedYieldCurveSpecification implements Serializable {
     }
   }
   
+  public InterpolatedYieldCurveSpecification(LocalDate curveDate, String name, Currency currency,  
+      Interpolator1D interpolator, Collection<FixedIncomeStripWithIdentifier> resolvedStrips, 
+      ExternalId region, Tenor fraBasis, Tenor swapBasis) {
+    Validate.notNull(curveDate, "CurveDate");
+    Validate.notNull(currency, "Currency");
+    Validate.notNull(interpolator, "Interpolator1D");
+    Validate.notNull(resolvedStrips, "ResolvedStrips");
+    Validate.notNull(region, "RegionID");
+    // Name can be null.
+    _curveDate = curveDate;
+    _currency = currency;
+    _name = name;
+    _interpolator = interpolator;
+    _region = region;
+    for (FixedIncomeStripWithIdentifier strip : resolvedStrips) {
+      addStrip(strip);
+    }
+  }
+
   public void addStrip(FixedIncomeStripWithIdentifier strip) {
     ArgumentChecker.notNull(strip, "Strip");
     _strips.add(strip);
@@ -94,7 +115,7 @@ public class InterpolatedYieldCurveSpecification implements Serializable {
   /**
    * @return the interpolator
    */
-  public Interpolator1D<?> getInterpolator() {
+  public Interpolator1D getInterpolator() {
     return _interpolator;
   }
 
@@ -104,7 +125,7 @@ public class InterpolatedYieldCurveSpecification implements Serializable {
   public Set<FixedIncomeStripWithIdentifier> getStrips() {
     return Collections.unmodifiableSet(_strips);
   }
-
+  
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {

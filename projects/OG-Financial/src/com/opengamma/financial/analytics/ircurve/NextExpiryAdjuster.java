@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
+import java.util.EnumSet;
 import java.util.Set;
 
 import javax.time.calendar.DateAdjuster;
@@ -13,16 +14,23 @@ import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 
-import com.google.common.collect.Sets;
-
 /**
- * 
+ * A {@code DatAdjuster} that finds the next expiry.
  */
 public class NextExpiryAdjuster implements DateAdjuster {
-  private static final DateAdjuster s_thirdWedAdjuster = DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
-  private static final DateAdjuster s_nextQuarterAdjuster = new NextQuarterAdjuster();
 
-  private final Set<MonthOfYear> _futureQuarters = Sets.newHashSet(MonthOfYear.MARCH, MonthOfYear.JUNE, MonthOfYear.SEPTEMBER, MonthOfYear.DECEMBER);
+  /**
+   * An adjuster finding the 3rd Wednesday in a month.
+   */
+  private static final DateAdjuster s_thirdWedAdjuster = DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
+  /**
+   * An adjuster moving to the next quarter.
+   */
+  private static final DateAdjuster s_nextQuarterAdjuster = new NextQuarterAdjuster();
+  /**
+   * The expiry months.
+   */
+  private final Set<MonthOfYear> _futureQuarters = EnumSet.of(MonthOfYear.MARCH, MonthOfYear.JUNE, MonthOfYear.SEPTEMBER, MonthOfYear.DECEMBER);
 
   @Override
   public LocalDate adjustDate(final LocalDate date) {
@@ -33,4 +41,5 @@ public class NextExpiryAdjuster implements DateAdjuster {
       return date.with(s_nextQuarterAdjuster).with(s_thirdWedAdjuster);
     }
   }
+
 }

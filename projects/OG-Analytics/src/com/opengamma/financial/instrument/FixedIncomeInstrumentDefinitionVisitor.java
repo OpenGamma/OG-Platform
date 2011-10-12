@@ -23,7 +23,6 @@ import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginT
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
-import com.opengamma.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
@@ -33,6 +32,7 @@ import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponFloatingDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
+import com.opengamma.financial.instrument.payment.CouponOISDefinition;
 import com.opengamma.financial.instrument.payment.CouponOISSimplifiedDefinition;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
@@ -99,10 +99,6 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
 
   U visitInterestRateFutureSecurityDefinition(InterestRateFutureSecurityDefinition future);
 
-  U visitInterestRateFutureTransactionDefinition(InterestRateFutureTransactionDefinition future, T data);
-
-  U visitInterestRateFutureTransactionDefinition(InterestRateFutureTransactionDefinition future);
-
   U visitInterestRateFutureOptionPremiumSecurityDefinition(InterestRateFutureOptionPremiumSecurityDefinition future, T data);
 
   U visitInterestRateFutureOptionPremiumSecurityDefinition(InterestRateFutureOptionPremiumSecurityDefinition future);
@@ -142,6 +138,10 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
   U visitCouponOISSimplified(CouponOISSimplifiedDefinition payment, T data);
 
   U visitCouponOISSimplified(CouponOISSimplifiedDefinition payment);
+
+  U visitCouponOIS(CouponOISDefinition payment, T data);
+
+  U visitCouponOIS(CouponOISDefinition payment);
 
   U visitCouponCMS(CouponCMSDefinition payment, T data);
 

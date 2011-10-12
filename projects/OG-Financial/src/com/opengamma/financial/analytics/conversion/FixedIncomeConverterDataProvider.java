@@ -24,7 +24,6 @@ import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
-import com.opengamma.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.financial.instrument.swap.SwapDefinition;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -78,20 +77,31 @@ public class FixedIncomeConverterDataProvider {
     return definition.toDerivative(now, curveNames);
   }
 
+  /** Convert an InterestRateFutureSecurityDefinition to the derivative form: InterestRateFutureSecurity. NO MORE  Transaction   */
   public InterestRateDerivative convert(final InterestRateFutureSecurity security, final InterestRateFutureSecurityDefinition definition, final ZonedDateTime now,
       final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
+
+    return definition.toDerivative(now, curveNames);
+
+    // TODO - CASE - Future refactor - cleanup the following InterestRateFutureTransactionDefinition rubbish
+    /*
     final ExternalIdBundle id = security.getExternalIdBundle();
-    final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
+    final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7)); // FIXME Hardcoded behaviour
     final HistoricalTimeSeries ts = dataSource
           .getHistoricalTimeSeries(_fieldName, id, null, null, startDate, true, now.toLocalDate(), false);
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price time series for " + security);
     }
     final int length = ts.getTimeSeries().size();
+    if (length < 2) {
+      throw new OpenGammaRuntimeException("Price time series for " + id + " did not contain data for the last week - have they been updated?");
+    }
     final double lastMarginPrice = ts.getTimeSeries().getValueAt(length - 2) / 100;
-    final double price = ts.getTimeSeries().getValueAt(length - 1) / 100; //TODO this is wrong need margin data and previous close for lastMarginPrice
+    final double price = ts.getTimeSeries().getValueAt(length - 1) / 100; //TODO this is wrong; need margin data and previous close for lastMarginPrice
     final InterestRateFutureTransactionDefinition transactionDefinition = new InterestRateFutureTransactionDefinition(definition, 1, now, price);
     return transactionDefinition.toDerivative(now, lastMarginPrice, curveNames);
+    */
+
   }
 
   public InterestRateDerivative convert(final IRFutureOptionSecurity security, final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime now,
@@ -104,6 +114,9 @@ public class FixedIncomeConverterDataProvider {
       throw new OpenGammaRuntimeException("Could not get price time series for " + security);
     }
     final int length = ts.getTimeSeries().size();
+    if (length == 0) {
+      throw new OpenGammaRuntimeException("Price time series for " + security + " was empty");
+    }
     final double lastMarginPrice = ts.getTimeSeries().getValueAt(length - 1);
     return definition.toDerivative(now, lastMarginPrice, curveNames);
   }
@@ -140,13 +153,22 @@ public class FixedIncomeConverterDataProvider {
     final DoubleTimeSeries<ZonedDateTime> receiveLegTS = getIndexTimeSeries(
         InterestRateInstrumentType.getInstrumentTypeFromSecurity(security), receiveLeg, swapStartDate, now, dataSource);
     if (payLegTS != null) {
-      if (receiveLegTS != null) {
-        return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS, receiveLegTS}, curveNames);
+      if (payLegTS.isEmpty()) {
+        throw new OpenGammaRuntimeException("Time series was empty for floating leg for swap: reference index is " + ((FloatingInterestRateLeg) payLeg).getFloatingReferenceRateId());
       }
-      return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS}, curveNames);
+      if (receiveLegTS != null) {
+        if (receiveLegTS.isEmpty()) {
+          throw new OpenGammaRuntimeException("Time series was empty for floating leg for swap: reference index is " + ((FloatingInterestRateLeg) receiveLeg).getFloatingReferenceRateId());
+        }
+        return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS, receiveLegTS }, curveNames);
+      }
+      return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS }, curveNames);
     }
     if (receiveLegTS != null) {
-      return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS}, curveNames);
+      if (receiveLegTS.isEmpty()) {
+        throw new OpenGammaRuntimeException("Time series was empty for floating leg for swap: reference index is " + ((FloatingInterestRateLeg) receiveLeg).getFloatingReferenceRateId());
+      }
+      return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS }, curveNames);
     }
     throw new OpenGammaRuntimeException("Could not get fixing series for either the pay or receive leg");
   }
@@ -155,19 +177,14 @@ public class FixedIncomeConverterDataProvider {
       final ZonedDateTime swapStartDate, final ZonedDateTime now, final HistoricalTimeSeriesSource dataSource) {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
-
       final ExternalId indexID = floatingLeg.getFloatingReferenceRateId();
       final ExternalIdBundle id;
-      //if (!indexID.getScheme().equals(SecurityUtils.BLOOMBERG_TICKER)) {
       ConventionBundle indexConvention = _conventionSource.getConventionBundle(floatingLeg.getFloatingReferenceRateId());
       if (indexConvention == null) {
         //TODO remove this immediately
         indexConvention = _conventionSource.getConventionBundle(ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, indexID.getValue()));
       }
       id = indexConvention.getIdentifiers();
-      //indexID = indexConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
-
-      //final ExternalIdBundle id = indexID.toBundle();
       final LocalDate startDate = swapStartDate.isBefore(now) ? swapStartDate.toLocalDate().minusDays(7) : now.toLocalDate()
           .minusDays(7);
       final HistoricalTimeSeries ts = dataSource
