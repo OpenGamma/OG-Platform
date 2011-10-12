@@ -8,7 +8,7 @@ package com.opengamma.financial.interestrate.future.method;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
@@ -70,10 +70,10 @@ public final class BondFutureTransactionHullWhiteMethod extends BondFutureTransa
    * @param curves The yield curves. Should contain the credit and repo curves associated. 
    * @return The present value rate sensitivity.
    */
-  public PresentValueSensitivity presentValueCurveSensitivity(final BondFutureTransaction future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final BondFutureTransaction future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
     Validate.notNull(future, "Future");
-    final PresentValueSensitivity priceSensitivity = METHOD_SECURITY.priceCurveSensitivity(future.getUnderlyingFuture(), curves);
-    final PresentValueSensitivity transactionSensitivity = priceSensitivity.multiply(future.getQuantity() * future.getUnderlyingFuture().getNotional());
+    final InterestRateCurveSensitivity priceSensitivity = METHOD_SECURITY.priceCurveSensitivity(future.getUnderlyingFuture(), curves);
+    final InterestRateCurveSensitivity transactionSensitivity = priceSensitivity.multiply(future.getQuantity() * future.getUnderlyingFuture().getNotional());
     return transactionSensitivity;
   }
 

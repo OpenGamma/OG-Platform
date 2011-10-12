@@ -16,7 +16,7 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.method.PricingMethod;
@@ -147,7 +147,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
    * @return The present value sensitivity to curves.
    */
   @SuppressWarnings("synthetic-access")
-  public PresentValueSensitivity presentValueSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
+  public InterestRateCurveSensitivity presentValueSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
     final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
     final FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
     final double forward = PRC.visit(underlyingSwap, sabrData);
@@ -194,8 +194,8 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     list.add(new DoublesPair(cmsCapFloor.getPaymentTime(), sensiDF));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
     resultMap.put(cmsCapFloor.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getFundingCurveName(), list);
-    PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
-    final PresentValueSensitivity forwardDr = new PresentValueSensitivity(PRSC.visit(cmsCapFloor.getUnderlyingSwap(), sabrData));
+    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
+    final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(PRSC.visit(cmsCapFloor.getUnderlyingSwap(), sabrData));
     result = result.add(forwardDr.multiply(deltaS0));
     return result;
   }

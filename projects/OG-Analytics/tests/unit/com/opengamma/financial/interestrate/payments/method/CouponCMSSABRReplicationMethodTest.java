@@ -34,7 +34,7 @@ import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalc
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
@@ -147,7 +147,7 @@ public class CouponCMSSABRReplicationMethodTest {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    final PresentValueSensitivity pvsMethod = METHOD.presentValueSensitivity(CMS_COUPON_PAYER, sabrBundle);
+    final InterestRateCurveSensitivity pvsMethod = METHOD.presentValueSensitivity(CMS_COUPON_PAYER, sabrBundle);
     final Map<String, List<DoublesPair>> pvsCalculator = PVCSC_SABR.visit(CMS_COUPON_PAYER, sabrBundle);
     assertEquals("Coupon CMS SABR: method and calculator", pvsMethod.getSensitivities(), pvsCalculator);
   }
@@ -161,7 +161,7 @@ public class CouponCMSSABRReplicationMethodTest {
     final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     // Swaption sensitivity
-    PresentValueSensitivity pvsReceiver = METHOD.presentValueSensitivity(CMS_COUPON_RECEIVER, sabrBundle);
+    InterestRateCurveSensitivity pvsReceiver = METHOD.presentValueSensitivity(CMS_COUPON_RECEIVER, sabrBundle);
     // Present value sensitivity comparison with finite difference.
     final double deltaTolerance = 1E+2; //Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
     final double deltaShift = 1e-9;

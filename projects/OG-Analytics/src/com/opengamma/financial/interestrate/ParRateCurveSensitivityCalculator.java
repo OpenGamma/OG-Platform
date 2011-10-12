@@ -5,7 +5,16 @@
  */
 package com.opengamma.financial.interestrate;
 
-import static com.opengamma.financial.interestrate.PresentValueSensitivityUtils.*;
+import static com.opengamma.financial.interestrate.InterestRateCurveSensitivityUtils.addSensitivity;
+import static com.opengamma.financial.interestrate.InterestRateCurveSensitivityUtils.multiplySensitivity;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
@@ -33,13 +42,6 @@ import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.tuple.DoublesPair;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * For an instrument, this calculates the sensitivity of the par rate (the exact meaning of par rate depends on the instrument - for swaps it is the par swap rate) to points on the yield 
@@ -118,6 +120,8 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
     result.put(curveName, temp);
     return result;
   }
+
+
 
   @Override
   public Map<String, List<DoublesPair>> visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {

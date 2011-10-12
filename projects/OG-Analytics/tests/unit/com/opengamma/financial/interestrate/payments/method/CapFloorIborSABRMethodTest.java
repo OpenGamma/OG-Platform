@@ -33,7 +33,7 @@ import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
@@ -155,10 +155,10 @@ public class CapFloorIborSABRMethodTest {
     final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final double pv = METHOD.presentValue(CAP_LONG, sabrBundle).getAmount();
-    PresentValueSensitivity pvsCapLong = METHOD.presentValueSensitivity(CAP_LONG, sabrBundle);
-    final PresentValueSensitivity pvsCapShort = METHOD.presentValueSensitivity(CAP_SHORT, sabrBundle);
+    InterestRateCurveSensitivity pvsCapLong = METHOD.presentValueSensitivity(CAP_LONG, sabrBundle);
+    final InterestRateCurveSensitivity pvsCapShort = METHOD.presentValueSensitivity(CAP_SHORT, sabrBundle);
     // Long/short parity
-    final PresentValueSensitivity pvsCapShort_1 = pvsCapShort.multiply(-1);
+    final InterestRateCurveSensitivity pvsCapShort_1 = pvsCapShort.multiply(-1);
     assertEquals(pvsCapLong.getSensitivities(), pvsCapShort_1.getSensitivities());
     // Present value sensitivity comparison with finite difference.
     final double deltaTolerance = 1.0E+2;
