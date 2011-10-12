@@ -13,7 +13,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.depgraph.DependencyGraphBuilderPLAT1049.GraphBuildingContext;
+import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.value.ValueRequirement;
 
 /* package */class AggregateResolvedValueProducer extends AbstractResolvedValueProducer implements ResolvedValueCallback {
@@ -21,8 +21,8 @@ import com.opengamma.engine.value.ValueRequirement;
   private static final Logger s_logger = LoggerFactory.getLogger(AggregateResolvedValueProducer.class);
 
   private int _pendingTasks = 1;
+  private boolean _wantResult = true;
   private final List<ResolutionPump> _pumps = new ArrayList<ResolutionPump>();
-  private boolean _deferredPump;
 
   public AggregateResolvedValueProducer(final ValueRequirement valueRequirement) {
     super(valueRequirement);
@@ -34,16 +34,20 @@ import com.opengamma.engine.value.ValueRequirement;
 
   @Override
   public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
-    s_logger.debug("Failed for {}", value);
+    s_logger.debug("Failed on {} for {}", value, this);
     storeFailure(failure);
     Collection<ResolutionPump> pumps = null;
     synchronized (this) {
       assert _pendingTasks > 0;
-      _pendingTasks--;
-      s_logger.debug("{} pending tasks", _pendingTasks);
-      if (getPendingTasks() < 1) {
-        _deferredPump = false;
-        pumps = pumpImpl();
+      if (--_pendingTasks == 0) {
+        if (_wantResult) {
+          s_logger.debug("Pumping underlying after last input failed for {}", this);
+          pumps = pumpImpl();
+        } else {
+          s_logger.debug("No pending tasks after last input failed for {} but no results requested", this);
+        }
+      } else {
+        s_logger.debug("{} pending tasks for {}", _pendingTasks, this);
       }
     }
     pumpImpl(context, pumps);
@@ -52,21 +56,38 @@ import com.opengamma.engine.value.ValueRequirement;
   @Override
   public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue value, final ResolutionPump pump) {
     s_logger.debug("Received {} for {}", value, valueRequirement);
+    boolean wantedResult = false;
+    synchronized (this) {
+      assert _pendingTasks > 0;
+      if (_wantResult) {
+        s_logger.debug("Clearing \"want result\" flag for {}", this);
+        wantedResult = true;
+        _wantResult = false;
+      }
+    }
     if (pushResult(context, value)) {
       Collection<ResolutionPump> pumps = null;
       synchronized (this) {
         assert _pendingTasks > 0;
-        _pendingTasks--;
         _pumps.add(pump);
-        if (_deferredPump) {
-          if (getPendingTasks() < 1) {
-            _deferredPump = false;
+        if (--_pendingTasks == 0) {
+          if (_wantResult) {
+            s_logger.debug("Pumping underlying after last input resolved for {}", this);
             pumps = pumpImpl();
+          } else {
+            s_logger.debug("No pending tasks after last input resolved for {} but no further results requested", this);
           }
         }
       }
       pumpImpl(context, pumps);
     } else {
+      if (wantedResult) {
+        synchronized (this) {
+          assert _pendingTasks > 0;
+          s_logger.debug("Reinstating \"want result\" flag for {}", this);
+          _wantResult = true;
+        }
+      }
       context.pump(pump);
     }
   }
@@ -76,11 +97,12 @@ import com.opengamma.engine.value.ValueRequirement;
     Collection<ResolutionPump> pumps = null;
     synchronized (this) {
       assert _pendingTasks >= 0;
-      if (_pendingTasks < 1) {
+      if (_pendingTasks == 0) {
+        s_logger.debug("Pumping underlying since no pending tasks for {}", this);
         pumps = pumpImpl();
       } else {
-        s_logger.debug("Deferring pump while {} task(s) pending", getPendingTasks());
-        _deferredPump = true;
+        s_logger.debug("Deferring pump while {} task(s) pending for {}", _pendingTasks, this);
+        _wantResult = true;
       }
     }
     pumpImpl(context, pumps);
@@ -94,6 +116,7 @@ import com.opengamma.engine.value.ValueRequirement;
       final List<ResolutionPump> pumps = new ArrayList<ResolutionPump>(_pumps);
       _pumps.clear();
       _pendingTasks = pumps.size();
+      _wantResult = true;
       return pumps;
     }
   }
@@ -105,7 +128,7 @@ import com.opengamma.engine.value.ValueRequirement;
         s_logger.debug("Finished {}", this);
         finished(context);
       } else {
-        s_logger.debug("Pumping {} origin tasks", pumps.size());
+        s_logger.debug("Pumping {} origin tasks from {}", pumps.size(), this);
         for (ResolutionPump pump : pumps) {
           context.pump(pump);
         }
@@ -116,6 +139,9 @@ import com.opengamma.engine.value.ValueRequirement;
   public void addProducer(final GraphBuildingContext context, final ResolvedValueProducer producer) {
     synchronized (this) {
       assert _pendingTasks >= 0;
+      if (_pendingTasks == 0) {
+        _wantResult = true;
+      }
       _pendingTasks++;
       s_logger.debug("{} pending tasks for {}", _pendingTasks, this);
     }
@@ -125,13 +151,13 @@ import com.opengamma.engine.value.ValueRequirement;
   public void start(final GraphBuildingContext context) {
     Collection<ResolutionPump> pumps = null;
     synchronized (this) {
-      assert _pendingTasks > 0;
+      assert _pendingTasks >= 1;
       if (--_pendingTasks == 0) {
-        if (_deferredPump) {
-          _deferredPump = false;
+        if (_wantResult) {
+          s_logger.debug("Pumping underlying after startup tasks completed for {}", this);
           pumps = pumpImpl();
-        } else if (_pumps.isEmpty()) {
-          pumps = Collections.emptyList();
+        } else {
+          s_logger.debug("Startup tasks completed for {} but no further results requested", this);
         }
       }
     }
