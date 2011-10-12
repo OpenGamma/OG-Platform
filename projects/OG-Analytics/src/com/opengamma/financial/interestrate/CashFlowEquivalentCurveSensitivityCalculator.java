@@ -26,7 +26,9 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * Calculator of the cash flow equivalent sensitivity to the curve. The result is a map of <Double, PresentValueSensitivity>. 
+ * The cash flow equivalent sensitivity is represented by the double which is the time of the cash flow and the PresentValueSensitivity which is the sensitivity of the 
+ * cash flow at that date.
  */
 public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<Double, PresentValueSensitivity>> {
 
@@ -111,7 +113,7 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractIntere
     for (final Payment p : annuity.getPayments()) {
       Map<Double, PresentValueSensitivity> paymentSensi = visit(p, curves);
       result.putAll(paymentSensi);
-      // It is suppose that no two coupon have the same cfe sensitivity date.
+      // It is suppose that no two coupons have the same cfe sensitivity date.
     }
     return result;
   }
@@ -135,7 +137,7 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractIntere
     result.putAll(legSensi1);
     Map<Double, PresentValueSensitivity> legSensi2 = visit(swap.getSecondLeg(), curves);
     result.putAll(legSensi2);
-    // It is suppose that the two legs have the different cfe sensitivity date.
+    // It is suppose that the two legs have different cfe sensitivity date.
     return result;
   }
 
