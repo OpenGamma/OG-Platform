@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.time.Instant;
@@ -23,6 +24,7 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.language.config.ConfigurationItem;
 import com.opengamma.language.context.UserContext;
 import com.opengamma.livedata.UserPrincipal;
 
@@ -49,6 +51,7 @@ public final class UserViewClient implements UniqueIdentifiable {
   private volatile Map<Object, UserViewClientData> _data;
   private volatile ViewResultListener[] _listeners = EMPTY;
   private volatile boolean _attached;
+  private Set<ConfigurationItem> _appliedConfiguration;
 
   private final ViewResultListener _listener = new ViewResultListener() {
 
@@ -330,6 +333,12 @@ public final class UserViewClient implements UniqueIdentifiable {
         return;
       }
     }
+  }
+
+  protected synchronized Set<ConfigurationItem> getAndSetConfiguration(final Set<ConfigurationItem> configurationItems) {
+    final Set<ConfigurationItem> previouslyApplied = _appliedConfiguration;
+    _appliedConfiguration = configurationItems;
+    return previouslyApplied;
   }
 
 }
