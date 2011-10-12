@@ -1,0 +1,25 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.language.config {
+
+  /**
+   * An (empty) base class representing an item of configuration. Configuration items are used to provide
+   * arbitrary additional parameters when, for example, constructing view definitions or configuring view
+   * clients, instead of requiring lots of optional parameters to constructors or builder style design
+   * patterns and functions.
+   */
+  abstract message ConfigurationItem {
+  
+    binding Java {
+      body <<<JAVA
+        public abstract <T> T accept(ConfigurationItemVisitor<T> visitor);
+JAVA;
+    }
+  
+  }
+
+}

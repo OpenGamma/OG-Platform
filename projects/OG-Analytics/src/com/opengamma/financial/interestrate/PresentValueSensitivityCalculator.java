@@ -109,7 +109,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
   @Override
   public Map<String, List<DoublesPair>> visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
     InterestRateFutureDiscountingMethod method = InterestRateFutureDiscountingMethod.getInstance();
-    return method.priceCurveSensitivity(future, curves).getSensitivities();
+    return method.presentValueCurveSensitivity(future, curves).getSensitivities();
   }
 
   @Override

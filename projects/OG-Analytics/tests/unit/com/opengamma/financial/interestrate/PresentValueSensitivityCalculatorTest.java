@@ -159,7 +159,7 @@ public class PresentValueSensitivityCalculatorTest {
     final double fixingPeriodAccrualFactor = 0.267;
     final double paymentAccrualFactor = 0.25;
     final double[] nodeTimes = new double[] {fixingPeriodStartTime, fixingPeriodEndTime };
-  
+
     final InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor,
         0.0, 1.0, paymentAccrualFactor, "K", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
 
@@ -167,6 +167,20 @@ public class PresentValueSensitivityCalculatorTest {
 
     List<DoublesPair> senseAnal = clean(sense.get(FIVE_PC_CURVE_NAME), eps, eps);
     List<DoublesPair> senseFD = curveSensitvityFDCalculator(ir, PVC, CURVES, FIVE_PC_CURVE_NAME, nodeTimes, eps);
+
+    //debug
+    YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
+    final double rate = (curve.getDiscountFactor(fixingPeriodEndTime) / curve.getDiscountFactor(fixingPeriodStartTime) - 1.0) / fixingPeriodAccrualFactor;
+    ForwardRateAgreement debug = new ForwardRateAgreement(CUR, fixingPeriodStartTime, ZERO_PC_CURVE_NAME, paymentAccrualFactor, 1.0, iborIndex,
+        fixingPeriodStartTime, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, rate, FIVE_PC_CURVE_NAME);
+
+   double pvFuture = PVC.visit(ir, CURVES);
+   double pvFRA = PVC.visit(debug,CURVES);
+    
+    final Map<String, List<DoublesPair>> senseDebug = PVSC.visit(debug, CURVES);
+    List<DoublesPair> senseDebugClean = clean(senseDebug.get(FIVE_PC_CURVE_NAME), eps, eps);
+//end debug
+    
     assertSensitivityEquals(senseFD, senseAnal, eps);
   }
 
@@ -529,7 +543,5 @@ public class PresentValueSensitivityCalculatorTest {
     senseFD = curveSensitvityFDCalculator(swap, PVC, CURVES, ZERO_PC_CURVE_NAME, nodeTimes, absTol);
     assertSensitivityEquals(senseFD, senseAnal, absTol);
   }
-
- 
 
 }
