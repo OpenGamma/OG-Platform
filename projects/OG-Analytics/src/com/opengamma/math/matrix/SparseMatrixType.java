@@ -8,7 +8,7 @@ package com.opengamma.math.matrix;
 /**
  * Essentially just a wrapper for the many sparse matrix format types
  */
-public abstract class SparseMatrixType implements MatrixPrimitiveInterface {
+public abstract class SparseMatrixType implements MatrixPrimitive {
 
 
   /**

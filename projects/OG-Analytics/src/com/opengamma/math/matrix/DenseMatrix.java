@@ -12,7 +12,7 @@ import org.apache.commons.lang.NotImplementedException;
 /**
  * The DenseMatrix class provides access to the typically understood notion of a matrix, i.e. A Fully populated array.
  */
-public class DenseMatrix implements MatrixPrimitiveInterface {
+public class DenseMatrix implements MatrixPrimitive {
   private double[] _data;
   private int _rows;
   private int _cols;

@@ -15,7 +15,7 @@ import org.apache.commons.lang.NotImplementedException;
  * {@link CompressedSparseRowFormatMatrix}
  * {@link SparseCoordinateFormatMatrix}
  */
-public class SparseMatrix implements MatrixPrimitiveInterface {
+public class SparseMatrix implements MatrixPrimitive {
   private SparseMatrixType _type;
 /**
  * majorness is an enumerated type that is used to specify the anticipated access pattern of the sparse data.

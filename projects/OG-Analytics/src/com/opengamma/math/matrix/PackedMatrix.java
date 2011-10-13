@@ -13,7 +13,7 @@ import org.apache.commons.lang.Validate;
 /**
  * Converts or instantiates a matrix to Packed Matrix format. This class is reserved for expert use only.
  */
-public class PackedMatrix implements MatrixPrimitiveInterface  {
+public class PackedMatrix implements MatrixPrimitive  {
   private double[] _data; // the data
   private int _rows; // number of rows
   private int _cols; // number of columns

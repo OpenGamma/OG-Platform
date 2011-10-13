@@ -18,7 +18,7 @@ import com.opengamma.math.BLAS.BLAS2KernelImplementations.DGEMVForDenseMatrix;
 import com.opengamma.math.matrix.CompressedSparseRowFormatMatrix;
 import com.opengamma.math.matrix.DenseMatrix;
 import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.MatrixPrimitiveInterface;
+import com.opengamma.math.matrix.MatrixPrimitive;
 
 /**
  * Provides the BLAS level 2 behaviour for the OG matrix library.
@@ -71,7 +71,7 @@ public class BLAS2 {
   * @param aMatrix is the matrix to be tested (A)
   * @param aVector is the vector to be tested (x)
   */
-  public static void dgemvInputSanityChecker(MatrixPrimitiveInterface aMatrix, double[] aVector) {
+  public static void dgemvInputSanityChecker(MatrixPrimitive aMatrix, double[] aVector) {
     assertNotNull(aMatrix); // check not null
     assertNotNull(aVector); // check not null
     assertEquals(aMatrix.getNumberOfColumns(), aVector.length); // check commutable
@@ -83,7 +83,7 @@ public class BLAS2 {
    * @param aVector is the vector to be tested (x)
    * @param addToVector is the vector to be tested (y)
    */
-  public static void dgemvInputSanityChecker(MatrixPrimitiveInterface aMatrix, double[] aVector, double[] addToVector) {
+  public static void dgemvInputSanityChecker(MatrixPrimitive aMatrix, double[] aVector, double[] addToVector) {
     assertNotNull(aMatrix); // check not null
     assertNotNull(aVector); // check not null
     assertNotNull(addToVector); // check not null
@@ -96,7 +96,7 @@ public class BLAS2 {
    * @param aMatrix is the matrix to be tested (A)
    * @param aVector is the vector to be tested (x)
    */
-  public static void dgemvInputSanityCheckerTransposed(MatrixPrimitiveInterface aMatrix, double[] aVector) {
+  public static void dgemvInputSanityCheckerTransposed(MatrixPrimitive aMatrix, double[] aVector) {
     assertNotNull(aMatrix); // check not null
     assertNotNull(aVector); // check not null
     assertEquals(aMatrix.getNumberOfRows(), aVector.length); // check commutable
@@ -108,7 +108,7 @@ public class BLAS2 {
    * @param aVector is the vector to be tested (x)
    * @param addToVector is the vector to be tested (y)
    */
-  public static void dgemvInputSanityCheckerTransposed(MatrixPrimitiveInterface aMatrix, double[] aVector, double[] addToVector) {
+  public static void dgemvInputSanityCheckerTransposed(MatrixPrimitive aMatrix, double[] aVector, double[] addToVector) {
     assertNotNull(aMatrix); // check not null
     assertNotNull(aVector); // check not null
     assertNotNull(addToVector); // check not null
@@ -122,7 +122,7 @@ public class BLAS2 {
    * @param aVector is the vector to be tested (x)
    * @param aYVector is the vector to be tested for back assignment (y)
    */
-  public static void dgemvInputSanityChecker(double[] aYVector, MatrixPrimitiveInterface aMatrix, double[] aVector) {
+  public static void dgemvInputSanityChecker(double[] aYVector, MatrixPrimitive aMatrix, double[] aVector) {
     assertNotNull(aMatrix); // check not null
     assertNotNull(aVector); // check not null
     assertNotNull(aYVector); // check not null
@@ -130,19 +130,19 @@ public class BLAS2 {
     assertEquals(aMatrix.getNumberOfRows(), aYVector.length); // check commutable on back assignment
   }
 
-  /* Stateless manipulators on the DenseMatrix type */
+  /* Stateless manipulators on the Matrix implementing the MatrixPrimitive interface type */
 
   /* GROUP1:: A*x OR A^T*x */
   /**
    * DGEMV simplified: returns:=A*x OR returns:=A^T*x depending on the enum orientation.
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return tmp a double[] vector
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(T aMatrix, double[] aVector, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> double[] dgemv(T aMatrix, double[] aVector, BLAS2.orientation o) {
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
     double[] tmp = null;
@@ -163,25 +163,25 @@ public class BLAS2 {
 
   /**
    * DGEMV simplified: returns:=A*x OR returns:=A^T*x depending on the enum orientation.
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return tmp a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(T aMatrix, DoubleMatrix1D aVector, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> double[] dgemv(T aMatrix, DoubleMatrix1D aVector, BLAS2.orientation o) {
     return dgemv(aMatrix, aVector.getData(), o);
   }
 
   /**
    * DGEMV simplified: returns:=A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return tmp a double[] vector
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(T aMatrix, double[] aVector) {
+  public static <T extends MatrixPrimitive> double[] dgemv(T aMatrix, double[] aVector) {
     dgemvInputSanityChecker(aMatrix, aVector);
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
@@ -190,24 +190,24 @@ public class BLAS2 {
 
   /**
    * DGEMV simplified: returns:=A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(T aMatrix, DoubleMatrix1D aVector) {
+  public static <T extends MatrixPrimitive> double[] dgemv(T aMatrix, DoubleMatrix1D aVector) {
     return dgemv(aMatrix, aVector.getData());
   }
 
   /**
    * DGEMV simplified: returns:=A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @return a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> double[] dgemvTransposed(T aMatrix, double[] aVector) {
+  public static <T extends MatrixPrimitive> double[] dgemvTransposed(T aMatrix, double[] aVector) {
     dgemvInputSanityCheckerTransposed(aMatrix, aVector);
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
@@ -216,12 +216,12 @@ public class BLAS2 {
 
   /**
    * DGEMV simplified: returns:=A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemvTransposed(T aMatrix, DoubleMatrix1D aVector) {
+  public static <T extends MatrixPrimitive> double[] dgemvTransposed(T aMatrix, DoubleMatrix1D aVector) {
     return dgemvTransposed(aMatrix, aVector.getData());
   }
 
@@ -229,14 +229,14 @@ public class BLAS2 {
   /**
    * DGEMV simplified: returns:=alpha*A*x OR returns:=alpha*A^T*x depending on the enum orientation.
    * @param alpha a double indicating the scaling of A*x OR A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return tmp a double[] vector
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(double alpha, T aMatrix, double[] aVector, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> double[] dgemv(double alpha, T aMatrix, double[] aVector, BLAS2.orientation o) {
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
     double[] tmp = null;
@@ -258,26 +258,26 @@ public class BLAS2 {
   /**
    * DGEMV simplified: returns:=alpha*A*x OR returns:=alpha*A^T*x depending on the enum orientation.
    * @param alpha a double indicating the scaling of A*x OR A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(double alpha, T aMatrix, DoubleMatrix1D aVector, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> double[] dgemv(double alpha, T aMatrix, DoubleMatrix1D aVector, BLAS2.orientation o) {
     return dgemv(alpha, aMatrix, aVector.getData(), o);
   }
 
   /**
    * DGEMV simplified: returns:=alpha*A*x
    * @param alpha a double indicating the scaling of A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return tmp a double[] vector
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(double alpha, T aMatrix, double[] aVector) {
+  public static <T extends MatrixPrimitive> double[] dgemv(double alpha, T aMatrix, double[] aVector) {
     dgemvInputSanityChecker(aMatrix, aVector);
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
@@ -287,25 +287,25 @@ public class BLAS2 {
   /**
    * DGEMV simplified: returns:=alpha*A*x
    * @param alpha a double indicating the scaling of A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(double alpha, T aMatrix, DoubleMatrix1D aVector) {
+  public static <T extends MatrixPrimitive> double[] dgemv(double alpha, T aMatrix, DoubleMatrix1D aVector) {
     return dgemv(alpha, aMatrix, aVector.getData());
   }
 
   /**
    * DGEMV simplified: returns:=alpha*A^T*x
    * @param alpha a double indicating the scaling of A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @return double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> double[] dgemvTransposed(double alpha, T aMatrix, double[] aVector) {
+  public static <T extends MatrixPrimitive> double[] dgemvTransposed(double alpha, T aMatrix, double[] aVector) {
     dgemvInputSanityCheckerTransposed(aMatrix, aVector);
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
@@ -315,27 +315,27 @@ public class BLAS2 {
   /**
    * DGEMV simplified: returns:=alpha*A^T*x
    * @param alpha a double indicating the scaling of A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemvTransposed(double alpha, T aMatrix, DoubleMatrix1D aVector) {
+  public static <T extends MatrixPrimitive> double[] dgemvTransposed(double alpha, T aMatrix, DoubleMatrix1D aVector) {
     return dgemvTransposed(alpha, aMatrix, aVector.getData());
   }
 
   /* GROUP3:: A*x + y OR A^T*x + y */
   /**
    * DGEMV simplified: returns:=A*x+y OR returns:=A^T*x+y depending on the enum orientation.
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param y a double[] vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return tmp a double[] vector
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(T aMatrix, double[] aVector, double[] y, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> double[] dgemv(T aMatrix, double[] aVector, double[] y, BLAS2.orientation o) {
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
     double[] tmp = null;
@@ -356,53 +356,53 @@ public class BLAS2 {
 
   /**
    * DGEMV simplified: returns:=A*x+y OR returns:=A^T*x+y depending on the enum orientation.
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param y a double[] vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(T aMatrix, DoubleMatrix1D aVector, double[] y, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> double[] dgemv(T aMatrix, DoubleMatrix1D aVector, double[] y, BLAS2.orientation o) {
     return dgemv(aMatrix, aVector.getData(), y, o);
   }
 
   /**
    * DGEMV simplified: returns:=A*x+y OR returns:=A^T*x+y depending on the enum orientation.
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param y a DoubleMatrix1D vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(T aMatrix, double[] aVector, DoubleMatrix1D y, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> double[] dgemv(T aMatrix, double[] aVector, DoubleMatrix1D y, BLAS2.orientation o) {
     return dgemv(aMatrix, aVector, y.getData(), o);
   }
 
   /**
    * DGEMV simplified: returns:=A*x+y OR returns:=A^T*x+y depending on the enum orientation.
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param y a DoubleMatrix1D vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(T aMatrix, DoubleMatrix1D aVector, DoubleMatrix1D y, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> double[] dgemv(T aMatrix, DoubleMatrix1D aVector, DoubleMatrix1D y, BLAS2.orientation o) {
     return dgemv(aMatrix, aVector.getData(), y.getData(), o);
   }
 
   /**
    * DGEMV simplified: returns:=A*x + y
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param y a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(T aMatrix, double[] aVector, double[] y) {
+  public static <T extends MatrixPrimitive> double[] dgemv(T aMatrix, double[] aVector, double[] y) {
     dgemvInputSanityChecker(aMatrix, aVector, y);
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
@@ -411,50 +411,50 @@ public class BLAS2 {
 
   /**
    * DGEMV simplified: returns:=A*x + y
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param y a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(T aMatrix, DoubleMatrix1D aVector, double[] y) {
+  public static <T extends MatrixPrimitive> double[] dgemv(T aMatrix, DoubleMatrix1D aVector, double[] y) {
     return dgemv(aMatrix, aVector.getData(), y);
   }
 
   /**
    * DGEMV simplified: returns:=A*x + y
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param y a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(T aMatrix, double[] aVector, DoubleMatrix1D y) {
+  public static <T extends MatrixPrimitive> double[] dgemv(T aMatrix, double[] aVector, DoubleMatrix1D y) {
     return dgemv(aMatrix, aVector, y.getData());
   }
 
   /**
    * DGEMV simplified: returns:=A*x + y
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param y a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(T aMatrix, DoubleMatrix1D aVector, DoubleMatrix1D y) {
+  public static <T extends MatrixPrimitive> double[] dgemv(T aMatrix, DoubleMatrix1D aVector, DoubleMatrix1D y) {
     return dgemv(aMatrix, aVector.getData(), y.getData());
   }
 
   /**
    * DGEMV simplified: returns:=A^T*x + y
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param y a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> double[] dgemvTransposed(T aMatrix, double[] aVector, double[] y) {
+  public static <T extends MatrixPrimitive> double[] dgemvTransposed(T aMatrix, double[] aVector, double[] y) {
     dgemvInputSanityCheckerTransposed(aMatrix, aVector, y);
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
@@ -463,37 +463,37 @@ public class BLAS2 {
 
   /**
    * DGEMV simplified: returns:=A^T*x + y
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param y a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return tmp a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemvTransposed(T aMatrix, DoubleMatrix1D aVector, double[] y) {
+  public static <T extends MatrixPrimitive> double[] dgemvTransposed(T aMatrix, DoubleMatrix1D aVector, double[] y) {
     return dgemvTransposed(aMatrix, aVector.getData(), y);
   }
 
   /**
    * DGEMV simplified: returns:=A^T*x + y
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param y a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemvTransposed(T aMatrix, double[] aVector, DoubleMatrix1D y) {
+  public static <T extends MatrixPrimitive> double[] dgemvTransposed(T aMatrix, double[] aVector, DoubleMatrix1D y) {
     return dgemvTransposed(aMatrix, aVector, y.getData());
   }
 
   /**
    * DGEMV simplified: returns:=A^T*x + y
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param y a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return tmp a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemvTransposed(T aMatrix, DoubleMatrix1D aVector, DoubleMatrix1D y) {
+  public static <T extends MatrixPrimitive> double[] dgemvTransposed(T aMatrix, DoubleMatrix1D aVector, DoubleMatrix1D y) {
     return dgemvTransposed(aMatrix, aVector.getData(), y.getData());
   }
 
@@ -501,15 +501,15 @@ public class BLAS2 {
   /**
    * DGEMV simplified: returns:= alpha*A*x + y OR returns:=alpha*A^T*x + y  depending on the enum orientation.
    * @param alpha a double indicating the scaling of A*x OR A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param y a double[] vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return tmp a double[] vector
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(double alpha, T aMatrix, double[] aVector, double[] y, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> double[] dgemv(double alpha, T aMatrix, double[] aVector, double[] y, BLAS2.orientation o) {
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
     double[] tmp = null;
@@ -531,56 +531,56 @@ public class BLAS2 {
   /**
    * DGEMV simplified: returns:= alpha*A*x + y OR returns:=alpha*A^T*x + y  depending on the enum orientation.
    * @param alpha a double indicating the scaling of A*x OR A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param y a double[] vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(double alpha, T aMatrix, DoubleMatrix1D aVector, double[] y, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> double[] dgemv(double alpha, T aMatrix, DoubleMatrix1D aVector, double[] y, BLAS2.orientation o) {
     return dgemv(alpha, aMatrix, aVector.getData(), y, o);
   }
 
   /**
    * DGEMV simplified: returns:= alpha*A*x + y OR returns:=alpha*A^T*x + y  depending on the enum orientation.
    * @param alpha a double indicating the scaling of A*x OR A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param y a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(double alpha, T aMatrix, double[] aVector, DoubleMatrix1D y, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> double[] dgemv(double alpha, T aMatrix, double[] aVector, DoubleMatrix1D y, BLAS2.orientation o) {
     return dgemv(alpha, aMatrix, aVector, y.getData(), o);
   }
 
   /**
    * DGEMV simplified: returns:= alpha*A*x + y OR returns:=alpha*A^T*x + y  depending on the enum orientation.
    * @param alpha a double indicating the scaling of A*x OR A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param y a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(double alpha, T aMatrix, DoubleMatrix1D aVector, DoubleMatrix1D y, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> double[] dgemv(double alpha, T aMatrix, DoubleMatrix1D aVector, DoubleMatrix1D y, BLAS2.orientation o) {
     return dgemv(alpha, aMatrix, aVector.getData(), y.getData(), o);
   }
 
   /**
    * DGEMV simplified: returns:=alpha*A*x + y
    * @param alpha a double indicating the scaling of A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param y a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return tmp a double[] vector
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(double alpha, T aMatrix, double[] aVector, double[] y) {
+  public static <T extends MatrixPrimitive> double[] dgemv(double alpha, T aMatrix, double[] aVector, double[] y) {
     dgemvInputSanityChecker(aMatrix, aVector, y);
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
@@ -590,53 +590,53 @@ public class BLAS2 {
   /**
    * DGEMV simplified: returns:=alpha*A*x + y
    * @param alpha a double indicating the scaling of A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param y a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(double alpha, T aMatrix, DoubleMatrix1D aVector, double[] y) {
+  public static <T extends MatrixPrimitive> double[] dgemv(double alpha, T aMatrix, DoubleMatrix1D aVector, double[] y) {
     return dgemv(alpha, aMatrix, aVector.getData(), y);
   }
 
   /**
    * DGEMV simplified: returns:=alpha*A*x + y
    * @param alpha a double indicating the scaling of A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param y a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(double alpha, T aMatrix, double[] aVector, DoubleMatrix1D y) {
+  public static <T extends MatrixPrimitive> double[] dgemv(double alpha, T aMatrix, double[] aVector, DoubleMatrix1D y) {
     return dgemv(alpha, aMatrix, aVector, y.getData());
   }
 
   /**
    * DGEMV simplified: returns:=alpha*A*x + y
    * @param alpha a double indicating the scaling of A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param y a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(double alpha, T aMatrix, DoubleMatrix1D aVector, DoubleMatrix1D y) {
+  public static <T extends MatrixPrimitive> double[] dgemv(double alpha, T aMatrix, DoubleMatrix1D aVector, DoubleMatrix1D y) {
     return dgemv(alpha, aMatrix, aVector.getData(), y.getData());
   }
 
   /**
    * DGEMV simplified: returns:=alpha*A^T*x + y
    * @param alpha a double indicating the scaling of A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param y a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> double[] dgemvTransposed(double alpha, T aMatrix, double[] aVector, double[] y) {
+  public static <T extends MatrixPrimitive> double[] dgemvTransposed(double alpha, T aMatrix, double[] aVector, double[] y) {
     dgemvInputSanityCheckerTransposed(aMatrix, aVector, y);
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
@@ -646,55 +646,55 @@ public class BLAS2 {
   /**
    * DGEMV simplified: returns:=alpha*A^T*x + y
    * @param alpha a double indicating the scaling of A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param y a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemvTransposed(double alpha, T aMatrix, DoubleMatrix1D aVector, double[] y) {
+  public static <T extends MatrixPrimitive> double[] dgemvTransposed(double alpha, T aMatrix, DoubleMatrix1D aVector, double[] y) {
     return dgemvTransposed(alpha, aMatrix, aVector.getData(), y);
   }
 
   /**
    * DGEMV simplified: returns:=alpha*A^T*x + y
    * @param alpha a double indicating the scaling of A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param y a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemvTransposed(double alpha, T aMatrix, double[] aVector, DoubleMatrix1D y) {
+  public static <T extends MatrixPrimitive> double[] dgemvTransposed(double alpha, T aMatrix, double[] aVector, DoubleMatrix1D y) {
     return dgemvTransposed(alpha, aMatrix, aVector, y.getData());
   }
 
   /**
    * DGEMV simplified: returns:=alpha*A^T*x + y
    * @param alpha a double indicating the scaling of A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param y a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemvTransposed(double alpha, T aMatrix, DoubleMatrix1D aVector, DoubleMatrix1D y) {
+  public static <T extends MatrixPrimitive> double[] dgemvTransposed(double alpha, T aMatrix, DoubleMatrix1D aVector, DoubleMatrix1D y) {
     return dgemvTransposed(alpha, aMatrix, aVector.getData(), y.getData());
   }
 
   /* GROUP5:: A*x + beta*y OR A^T*x + beta*y */
   /**
    * DGEMV simplified: returns:= A*x + beta*y OR returns:=A^T*x + beta*y  depending on the enum orientation.
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param beta a double indicating the scaling of y
    * @param y a double[] vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return tmp a double[] vector
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(T aMatrix, double[] aVector, double beta, double[] y, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> double[] dgemv(T aMatrix, double[] aVector, double beta, double[] y, BLAS2.orientation o) {
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
     double[] tmp = null;
@@ -715,57 +715,57 @@ public class BLAS2 {
 
   /**
    * DGEMV simplified: returns:= A*x + beta*y OR returns:=A^T*x + beta*y  depending on the enum orientation.
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param beta a double indicating the scaling of y
    * @param y a double[] vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}   *
+   * @param <T> a matrix that implements {@link MatrixPrimitive}   *
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(T aMatrix, DoubleMatrix1D aVector, double beta, double[] y, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> double[] dgemv(T aMatrix, DoubleMatrix1D aVector, double beta, double[] y, BLAS2.orientation o) {
     return dgemv(aMatrix, aVector.getData(), beta, y, o);
   }
 
   /**
    * DGEMV simplified: returns:= A*x + beta*y OR returns:=A^T*x + beta*y  depending on the enum orientation.
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param beta a double indicating the scaling of y
    * @param y a DoubleMatrix1D vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(T aMatrix, double[] aVector, double beta, DoubleMatrix1D y, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> double[] dgemv(T aMatrix, double[] aVector, double beta, DoubleMatrix1D y, BLAS2.orientation o) {
     return dgemv(aMatrix, aVector, beta, y.getData(), o);
   }
 
   /**
    * DGEMV simplified: returns:= A*x + beta*y OR returns:=A^T*x + beta*y  depending on the enum orientation.
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param beta a double indicating the scaling of y
    * @param y a DoubleMatrix1D vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return tmp a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(T aMatrix, DoubleMatrix1D aVector, double beta, DoubleMatrix1D y, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> double[] dgemv(T aMatrix, DoubleMatrix1D aVector, double beta, DoubleMatrix1D y, BLAS2.orientation o) {
     return dgemv(aMatrix, aVector.getData(), beta, y.getData(), o);
   }
 
   /**
    * DGEMV simplified: returns:=A*x + beta*y
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param beta a double indicating the scaling of y
    * @param y a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(T aMatrix, double[] aVector, double beta, double[] y) {
+  public static <T extends MatrixPrimitive> double[] dgemv(T aMatrix, double[] aVector, double beta, double[] y) {
     dgemvInputSanityChecker(aMatrix, aVector, y);
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
@@ -774,54 +774,54 @@ public class BLAS2 {
 
   /**
    * DGEMV simplified: returns:=A*x + beta*y
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param beta a double indicating the scaling of y
    * @param y a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return tmp a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(T aMatrix, DoubleMatrix1D aVector, double beta, double[] y) {
+  public static <T extends MatrixPrimitive> double[] dgemv(T aMatrix, DoubleMatrix1D aVector, double beta, double[] y) {
     return dgemv(aMatrix, aVector.getData(), beta, y);
   }
 
   /**
    * DGEMV simplified: returns:=A*x + beta*y
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param beta a double indicating the scaling of y
    * @param y a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(T aMatrix, double[] aVector, double beta, DoubleMatrix1D y) {
+  public static <T extends MatrixPrimitive> double[] dgemv(T aMatrix, double[] aVector, double beta, DoubleMatrix1D y) {
     return dgemv(aMatrix, aVector, beta, y.getData());
   }
 
   /**
    * DGEMV simplified: returns:=A*x + beta*y
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param beta a double indicating the scaling of y
    * @param y a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(T aMatrix, DoubleMatrix1D aVector, double beta, DoubleMatrix1D y) {
+  public static <T extends MatrixPrimitive> double[] dgemv(T aMatrix, DoubleMatrix1D aVector, double beta, DoubleMatrix1D y) {
     return dgemv(aMatrix, aVector.getData(), beta, y.getData());
   }
 
   /**
    * DGEMV simplified: returns:=A^T*x + beta*y
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param beta a double indicating the scaling of y
    * @param y a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> double[] dgemvTransposed(T aMatrix, double[] aVector, double beta, double[] y) {
+  public static <T extends MatrixPrimitive> double[] dgemvTransposed(T aMatrix, double[] aVector, double beta, double[] y) {
     dgemvInputSanityCheckerTransposed(aMatrix, aVector, y);
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
@@ -830,40 +830,40 @@ public class BLAS2 {
 
   /**
    * DGEMV simplified: returns:=A^T*x + beta*y
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param beta a double indicating the scaling of y
    * @param y a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemvTransposed(T aMatrix, DoubleMatrix1D aVector, double beta, double[] y) {
+  public static <T extends MatrixPrimitive> double[] dgemvTransposed(T aMatrix, DoubleMatrix1D aVector, double beta, double[] y) {
     return dgemvTransposed(aMatrix, aVector.getData(), beta, y);
   }
 
   /**
    * DGEMV simplified: returns:=A^T*x + beta*y
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param beta a double indicating the scaling of y
    * @param y a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return tmp a double vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemvTransposed(T aMatrix, double[] aVector, double beta, DoubleMatrix1D y) {
+  public static <T extends MatrixPrimitive> double[] dgemvTransposed(T aMatrix, double[] aVector, double beta, DoubleMatrix1D y) {
     return dgemvTransposed(aMatrix, aVector, beta, y.getData());
   }
 
   /**
    * DGEMV simplified: returns:=A^T*x + beta*y
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param beta a double indicating the scaling of y
    * @param y a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemvTransposed(T aMatrix, DoubleMatrix1D aVector, double beta, DoubleMatrix1D y) {
+  public static <T extends MatrixPrimitive> double[] dgemvTransposed(T aMatrix, DoubleMatrix1D aVector, double beta, DoubleMatrix1D y) {
     return dgemvTransposed(aMatrix, aVector.getData(), beta, y.getData());
   }
 
@@ -871,16 +871,16 @@ public class BLAS2 {
   /**
    * DGEMV FULL: returns:= alpha*A*x + beta*y OR returns:=alpha*A^T*x + beta*y  depending on the enum orientation.
    * @param alpha a double indicating the scaling of A*x OR A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param beta a double indicating the scaling of y
    * @param y a double[] vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return tmp a double[] vector
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(double alpha, T aMatrix, double[] aVector, double beta, double[] y, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> double[] dgemv(double alpha, T aMatrix, double[] aVector, double beta, double[] y, BLAS2.orientation o) {
     double[] tmp = null;
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
@@ -900,60 +900,60 @@ public class BLAS2 {
   /**
    * DGEMV FULL: returns:= alpha*A*x + beta*y OR returns:=alpha*A^T*x + beta*y  depending on the enum orientation.
    * @param alpha a double indicating the scaling of A*x OR A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param beta a double indicating the scaling of y
    * @param y a double[] vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(double alpha, T aMatrix, DoubleMatrix1D aVector, double beta, double[] y, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> double[] dgemv(double alpha, T aMatrix, DoubleMatrix1D aVector, double beta, double[] y, BLAS2.orientation o) {
     return dgemv(alpha, aMatrix, aVector.getData(), beta, y, o);
   }
 
   /**
    * DGEMV FULL: returns:= alpha*A*x + beta*y OR returns:=alpha*A^T*x + beta*y  depending on the enum orientation.
    * @param alpha a double indicating the scaling of A*x OR A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param beta a double indicating the scaling of y
    * @param y a DoubleMatrix1D vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(double alpha, T aMatrix, double[] aVector, double beta, DoubleMatrix1D y, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> double[] dgemv(double alpha, T aMatrix, double[] aVector, double beta, DoubleMatrix1D y, BLAS2.orientation o) {
     return dgemv(alpha, aMatrix, aVector, beta, y.getData(), o);
   }
 
   /**
    * DGEMV FULL: returns:= alpha*A*x + beta*y OR returns:=alpha*A^T*x + beta*y  depending on the enum orientation.
    * @param alpha a double indicating the scaling of A*x OR A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param beta a double indicating the scaling of y
    * @param y a DoubleMatrix1D vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(double alpha, T aMatrix, DoubleMatrix1D aVector, double beta, DoubleMatrix1D y, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> double[] dgemv(double alpha, T aMatrix, DoubleMatrix1D aVector, double beta, DoubleMatrix1D y, BLAS2.orientation o) {
     return dgemv(alpha, aMatrix, aVector.getData(), beta, y.getData(), o);
   }
 
   /**
    * DGEMV FULL: returns:=alpha*A*x + beta*y
    * @param alpha a double indicating the scaling of A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param beta a double indicating the scaling of y
    * @param y a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(double alpha, T aMatrix, double[] aVector, double beta, double[] y) {
+  public static <T extends MatrixPrimitive> double[] dgemv(double alpha, T aMatrix, double[] aVector, double beta, double[] y) {
     dgemvInputSanityChecker(aMatrix, aVector, y);
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
@@ -963,57 +963,57 @@ public class BLAS2 {
   /**
    * DGEMV FULL: returns:=alpha*A*x + beta*y
    * @param alpha a double indicating the scaling of A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param beta a double indicating the scaling of y
    * @param y a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(double alpha, T aMatrix, DoubleMatrix1D aVector, double beta, double[] y) {
+  public static <T extends MatrixPrimitive> double[] dgemv(double alpha, T aMatrix, DoubleMatrix1D aVector, double beta, double[] y) {
     return dgemv(alpha, aMatrix, aVector.getData(), beta, y);
   }
 
   /**
    * DGEMV FULL: returns:=alpha*A*x + beta*y
    * @param alpha a double indicating the scaling of A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param beta a double indicating the scaling of y
    * @param y a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(double alpha, T aMatrix, double[] aVector, double beta, DoubleMatrix1D y) {
+  public static <T extends MatrixPrimitive> double[] dgemv(double alpha, T aMatrix, double[] aVector, double beta, DoubleMatrix1D y) {
     return dgemv(alpha, aMatrix, aVector, beta, y.getData());
   }
 
   /**
    * DGEMV FULL: returns:=alpha*A*x + beta*y
    * @param alpha a double indicating the scaling of A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param beta a double indicating the scaling of y
    * @param y a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemv(double alpha, T aMatrix, DoubleMatrix1D aVector, double beta, DoubleMatrix1D y) {
+  public static <T extends MatrixPrimitive> double[] dgemv(double alpha, T aMatrix, DoubleMatrix1D aVector, double beta, DoubleMatrix1D y) {
     return dgemv(alpha, aMatrix, aVector.getData(), beta, y.getData());
   }
 
   /**
    * DGEMV FULL: returns:=alpha*A^T*x + beta*y
    * @param alpha a double indicating the scaling of A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param beta a double indicating the scaling of y
    * @param y a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> double[] dgemvTransposed(double alpha, T aMatrix, double[] aVector, double beta, double[] y) {
+  public static <T extends MatrixPrimitive> double[] dgemvTransposed(double alpha, T aMatrix, double[] aVector, double beta, double[] y) {
     dgemvInputSanityCheckerTransposed(aMatrix, aVector, y);
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
@@ -1023,57 +1023,57 @@ public class BLAS2 {
   /**
    * DGEMV simplified: returns:=A^T*x + beta*y
    * @param alpha a double indicating the scaling of A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param beta a double indicating the scaling of y
    * @param y a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemvTransposed(double alpha, T aMatrix, DoubleMatrix1D aVector, double beta, double[] y) {
+  public static <T extends MatrixPrimitive> double[] dgemvTransposed(double alpha, T aMatrix, DoubleMatrix1D aVector, double beta, double[] y) {
     return dgemvTransposed(alpha, aMatrix, aVector.getData(), beta, y);
   }
 
   /**
    * DGEMV simplified: returns:=A^T*x + beta*y
    * @param alpha a double indicating the scaling of A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param beta a double indicating the scaling of y
    * @param y a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemvTransposed(double alpha, T aMatrix, double[] aVector, double beta, DoubleMatrix1D y) {
+  public static <T extends MatrixPrimitive> double[] dgemvTransposed(double alpha, T aMatrix, double[] aVector, double beta, DoubleMatrix1D y) {
     return dgemvTransposed(alpha, aMatrix, aVector, beta, y.getData());
   }
 
   /**
    * DGEMV simplified: returns:=A^T*x + beta*y
    * @param alpha a double indicating the scaling of A^T*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param beta a double indicating the scaling of y
    * @param y a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    * @return tmp a double[] vector
    */
-  public static <T extends MatrixPrimitiveInterface> double[] dgemvTransposed(double alpha, T aMatrix, DoubleMatrix1D aVector, double beta, DoubleMatrix1D y) {
+  public static <T extends MatrixPrimitive> double[] dgemvTransposed(double alpha, T aMatrix, DoubleMatrix1D aVector, double beta, DoubleMatrix1D y) {
     return dgemvTransposed(alpha, aMatrix, aVector.getData(), beta, y.getData());
   }
 
-  /* Statefull manipulators on the DenseMatrix type */
+  /* Statefull manipulators on the Matrix implementing the MatrixPrimitive interface type */
   //** group 1:: y=A*x OR y=A^T*x
   /**
    * DGEMV simplified: y:=A*x OR y:=A^T*x depending on the enum orientation.
    * @param y a double[] vector that will be altered to contain A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> void dgemvInPlace(double[] y, T aMatrix, double[] aVector, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> void dgemvInPlace(double[] y, T aMatrix, double[] aVector, BLAS2.orientation o) {
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
     switch (o) {
@@ -1093,48 +1093,48 @@ public class BLAS2 {
   /**
    * DGEMV simplified: y:=A*x OR y:=A^T*x depending on the enum orientation.
    * @param y a DoubleMatrix1D vector that will be altered to contain A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
-  public static <T extends MatrixPrimitiveInterface> void dgemvInPlace(DoubleMatrix1D y, T aMatrix, double[] aVector, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> void dgemvInPlace(DoubleMatrix1D y, T aMatrix, double[] aVector, BLAS2.orientation o) {
     dgemvInPlace(y.getData(), aMatrix, aVector, o);
   }
 
   /**
    * DGEMV simplified: y:=A*x OR y:=A^T*x depending on the enum orientation.
    * @param y a double[] vector that will be altered to contain A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
-  public static <T extends MatrixPrimitiveInterface> void dgemvInPlace(double[] y, T aMatrix, DoubleMatrix1D aVector, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> void dgemvInPlace(double[] y, T aMatrix, DoubleMatrix1D aVector, BLAS2.orientation o) {
     dgemvInPlace(y, aMatrix, aVector.getData(), o);
   }
 
   /**
    * DGEMV simplified: y:=A*x OR y:=A^T*x depending on the enum orientation.
    * @param y a DoubleMatrix1D vector that will be altered to contain A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
-  public static <T extends MatrixPrimitiveInterface> void dgemvInPlace(DoubleMatrix1D y, T aMatrix, DoubleMatrix1D aVector, BLAS2.orientation o) {
+  public static <T extends MatrixPrimitive> void dgemvInPlace(DoubleMatrix1D y, T aMatrix, DoubleMatrix1D aVector, BLAS2.orientation o) {
     dgemvInPlace(y.getData(), aMatrix, aVector.getData(), o);
   }
 
   /**
    * DGEMV simplified: y:=A*x
    * @param y a double[] vector that will be altered to contain A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> void dgemvInPlace(double[] y, T aMatrix, double[] aVector) {
+  public static <T extends MatrixPrimitive> void dgemvInPlace(double[] y, T aMatrix, double[] aVector) {
     dgemvInputSanityChecker(y, aMatrix, aVector);
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
@@ -1144,45 +1144,45 @@ public class BLAS2 {
   /**
    * DGEMV simplified: y:=A*x
    * @param y a double vector that will be altered to contain A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
-  public static <T extends MatrixPrimitiveInterface> void dgemvInPlace(double[] y, T aMatrix, DoubleMatrix1D aVector) {
+  public static <T extends MatrixPrimitive> void dgemvInPlace(double[] y, T aMatrix, DoubleMatrix1D aVector) {
     dgemvInPlace(y, aMatrix, aVector.getData());
   }
 
   /**
    * DGEMV simplified: y:=A*x
    * @param y a DoubleMatrix1D that will be altered to contain A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
-  public static <T extends MatrixPrimitiveInterface> void dgemvInPlace(DoubleMatrix1D y, T aMatrix, double[] aVector) {
+  public static <T extends MatrixPrimitive> void dgemvInPlace(DoubleMatrix1D y, T aMatrix, double[] aVector) {
     dgemvInPlace(y.getData(), aMatrix, aVector);
   }
 
   /**
    * DGEMV simplified: y:=A*x
    * @param y a DoubleMatrix1D that will be altered to contain A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
-  public static <T extends MatrixPrimitiveInterface> void dgemvInPlace(DoubleMatrix1D y, T aMatrix, DoubleMatrix1D aVector) {
+  public static <T extends MatrixPrimitive> void dgemvInPlace(DoubleMatrix1D y, T aMatrix, DoubleMatrix1D aVector) {
     dgemvInPlace(y.getData(), aMatrix, aVector.getData());
   }
 
   /**
    * DGEMV simplified: y:=A^T*x
    * @param y a double[] vector that will be altered to contain A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> void dgemvInPlaceTransposed(double[] y, T aMatrix, double[] aVector) {
+  public static <T extends MatrixPrimitive> void dgemvInPlaceTransposed(double[] y, T aMatrix, double[] aVector) {
     dgemvInputSanityCheckerTransposed(aMatrix, aVector, y);
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
@@ -1192,33 +1192,33 @@ public class BLAS2 {
   /**
    * DGEMV simplified: y:=A^T*x
    * @param y a double vector that will be altered to contain A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
-  public static <T extends MatrixPrimitiveInterface> void dgemvInPlaceTransposed(double[] y, T aMatrix, DoubleMatrix1D aVector) {
+  public static <T extends MatrixPrimitive> void dgemvInPlaceTransposed(double[] y, T aMatrix, DoubleMatrix1D aVector) {
     dgemvInPlaceTransposed(y, aMatrix, aVector.getData());
   }
 
   /**
    * DGEMV simplified: y:=A^T*x
    * @param y a DoubleMatrix1D that will be altered to contain A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
-  public static <T extends MatrixPrimitiveInterface> void dgemvInPlaceTransposed(DoubleMatrix1D y, T aMatrix, double[] aVector) {
+  public static <T extends MatrixPrimitive> void dgemvInPlaceTransposed(DoubleMatrix1D y, T aMatrix, double[] aVector) {
     dgemvInPlaceTransposed(y.getData(), aMatrix, aVector);
   }
 
   /**
    * DGEMV simplified: y:=A^T*x
    * @param y a DoubleMatrix1D that will be altered to contain A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param aVector a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
-  public static <T extends MatrixPrimitiveInterface> void dgemvInPlaceTransposed(DoubleMatrix1D y, T aMatrix, DoubleMatrix1D aVector) {
+  public static <T extends MatrixPrimitive> void dgemvInPlaceTransposed(DoubleMatrix1D y, T aMatrix, DoubleMatrix1D aVector) {
     dgemvInPlaceTransposed(y.getData(), aMatrix, aVector.getData());
   }
 
@@ -1255,13 +1255,13 @@ public class BLAS2 {
    * identical for a number of the methods due to writebacks to vector "y"
    * @param y a double[] vector that will be altered to contain alpha*A*x
    * @param alpha a double indicating the scaling of A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param beta a double indicating the scaling of y
    * @param aVector a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> void dgemvInPlace(double[] y, double alpha, T aMatrix, double beta, double[] aVector) {
+  public static <T extends MatrixPrimitive> void dgemvInPlace(double[] y, double alpha, T aMatrix, double beta, double[] aVector) {
     dgemvInputSanityChecker(y, aMatrix, aVector);
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
@@ -1311,12 +1311,12 @@ public class BLAS2 {
    * identical for a number of the methods due to writebacks to vector "y"
    * @param y a double[] vector that will be altered to contain alpha*A*x
    * @param alpha a double indicating the scaling of A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param beta a double indicating the scaling of y
    * @param aVector a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
-  public static <T extends MatrixPrimitiveInterface> void dgemvInPlace(double[] y, double alpha, T aMatrix, double beta, DoubleMatrix1D aVector) {
+  public static <T extends MatrixPrimitive> void dgemvInPlace(double[] y, double alpha, T aMatrix, double beta, DoubleMatrix1D aVector) {
     dgemvInPlace(y, alpha, aMatrix, beta, aVector.getData());
   }
 
@@ -1347,12 +1347,12 @@ public class BLAS2 {
    * identical for a number of the methods due to writebacks to vector "y"
    * @param y a DoubleMatrix1D vector that will be altered to contain alpha*A*x
    * @param alpha a double indicating the scaling of A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param beta a double indicating the scaling of y
    * @param aVector a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
-  public static <T extends MatrixPrimitiveInterface> void dgemvInPlace(DoubleMatrix1D y, double alpha, T aMatrix, double beta, double[] aVector) {
+  public static <T extends MatrixPrimitive> void dgemvInPlace(DoubleMatrix1D y, double alpha, T aMatrix, double beta, double[] aVector) {
     dgemvInPlace(y.getData(), alpha, aMatrix, beta, aVector);
   }
 
@@ -1383,12 +1383,12 @@ public class BLAS2 {
    * identical for a number of the methods due to writebacks to vector "y"
    * @param y a DoubleMatrix1D vector that will be altered to contain alpha*A*x
    * @param alpha a double indicating the scaling of A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param beta a double indicating the scaling of y
    * @param aVector a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
-  public static <T extends MatrixPrimitiveInterface> void dgemvInPlace(DoubleMatrix1D y, double alpha, T aMatrix, double beta, DoubleMatrix1D aVector) {
+  public static <T extends MatrixPrimitive> void dgemvInPlace(DoubleMatrix1D y, double alpha, T aMatrix, double beta, DoubleMatrix1D aVector) {
     dgemvInPlace(y.getData(), alpha, aMatrix, beta, aVector.getData());
   }
 
@@ -1419,13 +1419,13 @@ public class BLAS2 {
    * identical for a number of the methods due to writebacks to vector "y"
    * @param y a double[] vector that will be altered to contain alpha*A*x
    * @param alpha a double indicating the scaling of A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param beta a double indicating the scaling of y
    * @param aVector a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
   @SuppressWarnings("unchecked")
-  public static <T extends MatrixPrimitiveInterface> void dgemvInPlaceTransposed(double[] y, double alpha, T aMatrix, double beta, double[] aVector) {
+  public static <T extends MatrixPrimitive> void dgemvInPlaceTransposed(double[] y, double alpha, T aMatrix, double beta, double[] aVector) {
     dgemvInputSanityCheckerTransposed(aMatrix, aVector, y);
     BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
     Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
@@ -1475,12 +1475,12 @@ public class BLAS2 {
    * identical for a number of the methods due to writebacks to vector "y"
    * @param y a double[] vector that will be altered to contain alpha*A*x
    * @param alpha a double indicating the scaling of A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param beta a double indicating the scaling of y
    * @param aVector a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
-  public static <T extends MatrixPrimitiveInterface> void dgemvInPlaceTransposed(double[] y, double alpha, T aMatrix, double beta, DoubleMatrix1D aVector) {
+  public static <T extends MatrixPrimitive> void dgemvInPlaceTransposed(double[] y, double alpha, T aMatrix, double beta, DoubleMatrix1D aVector) {
     dgemvInPlaceTransposed(y, alpha, aMatrix, beta, aVector.getData());
   }
 
@@ -1511,12 +1511,12 @@ public class BLAS2 {
    * identical for a number of the methods due to writebacks to vector "y"
    * @param y a DoubleMatrix1D vector that will be altered to contain alpha*A*x
    * @param alpha a double indicating the scaling of A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param beta a double indicating the scaling of y
    * @param aVector a double[] vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
-  public static <T extends MatrixPrimitiveInterface> void dgemvInPlaceTransposed(DoubleMatrix1D y, double alpha, T aMatrix, double beta, double[] aVector) {
+  public static <T extends MatrixPrimitive> void dgemvInPlaceTransposed(DoubleMatrix1D y, double alpha, T aMatrix, double beta, double[] aVector) {
     dgemvInPlaceTransposed(y.getData(), alpha, aMatrix, beta, aVector);
   }
 
@@ -1547,12 +1547,12 @@ public class BLAS2 {
    * identical for a number of the methods due to writebacks to vector "y"
    * @param y a DoubleMatrix1D vector that will be altered to contain alpha*A*x
    * @param alpha a double indicating the scaling of A*x
-   * @param aMatrix a DenseMatrix
+   * @param aMatrix a Matrix implementing the MatrixPrimitive interface
    * @param beta a double indicating the scaling of y
    * @param aVector a DoubleMatrix1D vector
-   * @param <T> a matrix that implements {@link MatrixPrimitiveInterface}
+   * @param <T> a matrix that implements {@link MatrixPrimitive}
    */
-  public static <T extends MatrixPrimitiveInterface> void dgemvInPlaceTransposed(DoubleMatrix1D y, double alpha, T aMatrix, double beta, DoubleMatrix1D aVector) {
+  public static <T extends MatrixPrimitive> void dgemvInPlaceTransposed(DoubleMatrix1D y, double alpha, T aMatrix, double beta, DoubleMatrix1D aVector) {
     dgemvInPlaceTransposed(y.getData(), alpha, aMatrix, beta, aVector.getData());
   }
 

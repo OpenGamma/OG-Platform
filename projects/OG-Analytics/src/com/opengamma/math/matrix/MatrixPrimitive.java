@@ -8,7 +8,7 @@ package com.opengamma.math.matrix;
 /**
  *
  */
-public interface MatrixPrimitiveInterface extends Matrix<Double> {
+public interface MatrixPrimitive extends Matrix<Double> {
 
 /**
  * Gets a full row of the matrix.
