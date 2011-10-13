@@ -13,8 +13,8 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.AbstractInterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.CashFlowEquivalentCalculator;
 import com.opengamma.financial.interestrate.CashFlowEquivalentCurveSensitivityCalculator;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
@@ -65,7 +65,7 @@ public class DecisionScheduleDerivativeCalculator extends AbstractInterestRateDe
       impactTime[0][loopcf] = cfe.getNthPayment(loopcf).getPaymentTime();
       impactAmount[0][loopcf] = cfe.getNthPayment(loopcf).getAmount();
     }
-    ArrayList<Map<Double, PresentValueSensitivity>> impactAmountDerivative = new ArrayList<Map<Double, PresentValueSensitivity>>();
+    ArrayList<Map<Double, InterestRateCurveSensitivity>> impactAmountDerivative = new ArrayList<Map<Double, InterestRateCurveSensitivity>>();
     impactAmountDerivative.add(CFECSC.visit(swaption.getUnderlyingSwap(), curves));
     DecisionScheduleDerivative decision = new DecisionScheduleDerivative(decisionTime, impactTime, impactAmount, impactAmountDerivative);
     return decision;

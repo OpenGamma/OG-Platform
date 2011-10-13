@@ -14,7 +14,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -149,12 +149,12 @@ public class SwapFixedIborMethod {
    * @param curves The yield curve bundle (containing the appropriate discounting curve).
    * @return The sensitivity.
    */
-  public static PresentValueSensitivity presentValueBasisPointSensitivity(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final YieldCurveBundle curves) {
+  public static InterestRateCurveSensitivity presentValueBasisPointSensitivity(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final YieldCurveBundle curves) {
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     final AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName());
     result.put(annuityFixed.getNthPayment(0).getFundingCurveName(), presentValueBasisPointSensitivity(fixedCouponSwap, discountingCurve));
-    return new PresentValueSensitivity(result);
+    return new InterestRateCurveSensitivity(result);
   }
 
   /**

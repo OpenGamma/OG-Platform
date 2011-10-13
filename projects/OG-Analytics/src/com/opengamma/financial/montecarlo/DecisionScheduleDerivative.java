@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 
 /**
  * Class describing the times and amounts required to price interest rate derivatives and the derivative of the amounts to the curves.
@@ -19,7 +19,7 @@ public class DecisionScheduleDerivative extends DecisionSchedule {
   /**
    * Derivative of the cash flow equivalent for each decision time.
    */
-  private final List<Map<Double, PresentValueSensitivity>> _impactAmountDerivative;
+  private final List<Map<Double, InterestRateCurveSensitivity>> _impactAmountDerivative;
 
   /**
    * Constructor.
@@ -29,7 +29,7 @@ public class DecisionScheduleDerivative extends DecisionSchedule {
    */
   public DecisionScheduleDerivative(double[] decisionTime, double[][] impactTime, double[][] impactAmount) {
     super(decisionTime, impactTime, impactAmount);
-    _impactAmountDerivative = new ArrayList<Map<Double, PresentValueSensitivity>>();
+    _impactAmountDerivative = new ArrayList<Map<Double, InterestRateCurveSensitivity>>();
   }
 
   /**
@@ -39,7 +39,7 @@ public class DecisionScheduleDerivative extends DecisionSchedule {
    * @param impactAmount The reference amounts at each impact times.
    * @param impactAmountDerivative Derivative of the cash flow equivalent for each decision time.
    */
-  public DecisionScheduleDerivative(double[] decisionTime, double[][] impactTime, double[][] impactAmount, List<Map<Double, PresentValueSensitivity>> impactAmountDerivative) {
+  public DecisionScheduleDerivative(double[] decisionTime, double[][] impactTime, double[][] impactAmount, List<Map<Double, InterestRateCurveSensitivity>> impactAmountDerivative) {
     super(decisionTime, impactTime, impactAmount);
     _impactAmountDerivative = impactAmountDerivative;
   }
@@ -48,7 +48,7 @@ public class DecisionScheduleDerivative extends DecisionSchedule {
    * Gets the derivative of the cash flow equivalent for each decision time.
    * @return The derivative of the cash flow equivalent for each decision time.
    */
-  public List<Map<Double, PresentValueSensitivity>> getImpactAmountDerivative() {
+  public List<Map<Double, InterestRateCurveSensitivity>> getImpactAmountDerivative() {
     return _impactAmountDerivative;
   }
 

@@ -26,7 +26,7 @@ import com.opengamma.financial.instrument.bond.BondIborSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -166,11 +166,11 @@ public class BondTransactionDiscountingMethodTest {
 
   @Test
   public void testPVSFixedBond() {
-    final PresentValueSensitivity pvs = method.presentValueSensitivity(BOND_TRANSACTION_FIXED_3, CURVES);
-    final PresentValueSensitivity pvsNominal = new PresentValueSensitivity(PVSC.visit(NOMINAL_TR_FIXED_3, CURVES));
-    final PresentValueSensitivity pvsCoupon = new PresentValueSensitivity(PVSC.visit(COUPON_TR_FIXED_3, CURVES));
-    final PresentValueSensitivity pvsSettlement = new PresentValueSensitivity(PVSC.visit(BOND_SETTLEMENT_FIXED_3, CURVES));
-    final PresentValueSensitivity expectedPvs = pvsNominal.add(pvsCoupon).multiply(QUANTITY_FRN).add(pvsSettlement).clean();
+    final InterestRateCurveSensitivity pvs = method.presentValueSensitivity(BOND_TRANSACTION_FIXED_3, CURVES);
+    final InterestRateCurveSensitivity pvsNominal = new InterestRateCurveSensitivity(PVSC.visit(NOMINAL_TR_FIXED_3, CURVES));
+    final InterestRateCurveSensitivity pvsCoupon = new InterestRateCurveSensitivity(PVSC.visit(COUPON_TR_FIXED_3, CURVES));
+    final InterestRateCurveSensitivity pvsSettlement = new InterestRateCurveSensitivity(PVSC.visit(BOND_SETTLEMENT_FIXED_3, CURVES));
+    final InterestRateCurveSensitivity expectedPvs = pvsNominal.add(pvsCoupon).multiply(QUANTITY_FRN).add(pvsSettlement).clean();
     assertEquals("Fixed bond present value sensitivity", expectedPvs, pvs.clean());
   }
 
@@ -180,8 +180,8 @@ public class BondTransactionDiscountingMethodTest {
     final double pvMethod = method.presentValue(BOND_TRANSACTION_FIXED_3, CURVES);
     final double pvCalculator = PVC.visit(BOND_TRANSACTION_FIXED_3, CURVES);
     assertEquals("Fixed bond present value: Method vs Calculator", pvMethod, pvCalculator);
-    final PresentValueSensitivity pvsMethod = method.presentValueSensitivity(BOND_TRANSACTION_FIXED_3, CURVES);
-    final PresentValueSensitivity pvsCalculator = new PresentValueSensitivity(PVSC.visit(BOND_TRANSACTION_FIXED_3, CURVES));
+    final InterestRateCurveSensitivity pvsMethod = method.presentValueSensitivity(BOND_TRANSACTION_FIXED_3, CURVES);
+    final InterestRateCurveSensitivity pvsCalculator = new InterestRateCurveSensitivity(PVSC.visit(BOND_TRANSACTION_FIXED_3, CURVES));
     assertEquals("Fixed bond present value sensitivity: Method vs Calculator", pvsMethod, pvsCalculator);
   }
 
@@ -198,11 +198,11 @@ public class BondTransactionDiscountingMethodTest {
   @Test(enabled = false)
   //FIXME change the test and the pv method with correct accrual interests mechanism.
   public void testPVSIborBond() {
-    final PresentValueSensitivity pvs = method.presentValueSensitivity(BOND_TRANSACTION_FRN, CURVES);
-    final PresentValueSensitivity pvsNominal = new PresentValueSensitivity(PVSC.visit(NOMINAL_TR_1_FRN, CURVES));
-    final PresentValueSensitivity pvsCoupon = new PresentValueSensitivity(PVSC.visit(COUPON_TR_1_FRN, CURVES));
-    final PresentValueSensitivity pvsSettlement = new PresentValueSensitivity(PVSC.visit(BOND_SETTLEMENT_FRN, CURVES));
-    final PresentValueSensitivity expectedPvs = pvsNominal.add(pvsCoupon).multiply(QUANTITY_FRN).add(pvsSettlement).clean();
+    final InterestRateCurveSensitivity pvs = method.presentValueSensitivity(BOND_TRANSACTION_FRN, CURVES);
+    final InterestRateCurveSensitivity pvsNominal = new InterestRateCurveSensitivity(PVSC.visit(NOMINAL_TR_1_FRN, CURVES));
+    final InterestRateCurveSensitivity pvsCoupon = new InterestRateCurveSensitivity(PVSC.visit(COUPON_TR_1_FRN, CURVES));
+    final InterestRateCurveSensitivity pvsSettlement = new InterestRateCurveSensitivity(PVSC.visit(BOND_SETTLEMENT_FRN, CURVES));
+    final InterestRateCurveSensitivity expectedPvs = pvsNominal.add(pvsCoupon).multiply(QUANTITY_FRN).add(pvsSettlement).clean();
     assertEquals("FRN present value sensitivity", expectedPvs, pvs.clean());
   }
 }

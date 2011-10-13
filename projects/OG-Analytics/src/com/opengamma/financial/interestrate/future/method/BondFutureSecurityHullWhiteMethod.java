@@ -13,7 +13,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.CashFlowEquivalentCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
@@ -188,7 +188,7 @@ public final class BondFutureSecurityHullWhiteMethod {
       for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(nbInt - 1)].length; loopcf++) {
         price += cfaAdjusted[ctd.get(nbInt - 1)][loopcf] * (1.0 - NORMAL.getCDF(kappa[nbInt - 2] + alpha[ctd.get(nbInt - 1)][loopcf]));
       }
-      price -= e[ctd.get(0)] * (1 - NORMAL.getCDF(kappa[nbInt - 2]));
+      price -= e[ctd.get(nbInt - 1)] * (1 - NORMAL.getCDF(kappa[nbInt - 2]));
     }
 
     return price;
@@ -211,7 +211,7 @@ public final class BondFutureSecurityHullWhiteMethod {
    * @param nbPoint The number of point in the numerical cross estimation.
    * @return The curve sensitivity.
    */
-  public PresentValueSensitivity priceCurveSensitivity(final BondFutureSecurity future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData, final int nbPoint) {
+  public InterestRateCurveSensitivity priceCurveSensitivity(final BondFutureSecurity future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData, final int nbPoint) {
     Validate.notNull(future, "Future");
     Validate.notNull(hwData, "Hull-White data bundle");
     final int nbBond = future.getDeliveryBasket().length;
@@ -288,11 +288,33 @@ public final class BondFutureSecurityHullWhiteMethod {
       }
     }
 
+    //    // Sum on each interval
+    //    int nbInt = ctd.size();
+    //    double[] kappa = new double[nbInt - 1];
+    //    //    double price = 0.0;
+    //    if (nbInt != 1) {
+    //      // The intersections
+    //      final BracketRoot bracketer = new BracketRoot();
+    //      double accuracy = 1.0E-8;
+    //      final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(accuracy);
+    //      for (int loopint = 1; loopint < nbInt; loopint++) {
+    //        BondDifference cross = new BondDifference(cfaAdjusted[ctd.get(loopint - 1)], alpha[ctd.get(loopint - 1)], e[ctd.get(loopint - 1)], cfaAdjusted[ctd.get(loopint)], alpha[ctd.get(loopint)],
+    //            e[ctd.get(loopint)]);
+    //        final double[] range = bracketer.getBracketedPoints(cross, refx.get(loopint - 1) - 0.01, refx.get(loopint - 1) + 0.01);
+    //        kappa[loopint - 1] = rootFinder.getRoot(cross, range[0], range[1]);
+    //      }
+    //    }
+
     // Sum on each interval
     int nbInt = ctd.size();
     double[] kappa = new double[nbInt - 1];
-    //    double price = 0.0;
-    if (nbInt != 1) {
+    double price = 0.0;
+    if (nbInt == 1) {
+      for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(0)].length; loopcf++) {
+        price += cfaAdjusted[ctd.get(0)][loopcf];
+      }
+      price -= e[ctd.get(0)];
+    } else {
       // The intersections
       final BracketRoot bracketer = new BracketRoot();
       double accuracy = 1.0E-8;
@@ -303,7 +325,111 @@ public final class BondFutureSecurityHullWhiteMethod {
         final double[] range = bracketer.getBracketedPoints(cross, refx.get(loopint - 1) - 0.01, refx.get(loopint - 1) + 0.01);
         kappa[loopint - 1] = rootFinder.getRoot(cross, range[0], range[1]);
       }
+      // From -infinity to first cross.
+      for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(0)].length; loopcf++) {
+        price += cfaAdjusted[ctd.get(0)][loopcf] * NORMAL.getCDF(kappa[0] + alpha[ctd.get(0)][loopcf]);
+      }
+      price -= e[ctd.get(0)] * NORMAL.getCDF(kappa[0]);
+      // Between cross
+      for (int loopint = 1; loopint < nbInt - 1; loopint++) {
+        for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(loopint)].length; loopcf++) {
+          price += cfaAdjusted[ctd.get(loopint)][loopcf] * (NORMAL.getCDF(kappa[loopint] + alpha[ctd.get(loopint)][loopcf]) - NORMAL.getCDF(kappa[loopint - 1] + alpha[ctd.get(loopint)][loopcf]));
+        }
+        price -= e[ctd.get(loopint)] * (NORMAL.getCDF(kappa[loopint]) - NORMAL.getCDF(kappa[loopint - 1]));
+      }
+      // From last cross to +infinity
+      for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(nbInt - 1)].length; loopcf++) {
+        price += cfaAdjusted[ctd.get(nbInt - 1)][loopcf] * (1.0 - NORMAL.getCDF(kappa[nbInt - 2] + alpha[ctd.get(nbInt - 1)][loopcf]));
+      }
+      price -= e[ctd.get(nbInt - 1)] * (1 - NORMAL.getCDF(kappa[nbInt - 2]));
     }
+
+    // ===== Test: start
+    //    double testdfdelivery = dfdelivery + 0.0000001;
+    double[][] testcfaAdjusted = new double[nbBond][];
+    double[][] testpv = new double[nbPoint][nbBond];
+    for (int loopbnd = 0; loopbnd < nbBond; loopbnd++) {
+      int nbCf = cf[loopbnd].getNumberOfPayments();
+      testcfaAdjusted[loopbnd] = new double[nbCf];
+      for (int loopcf = 0; loopcf < nbCf; loopcf++) {
+        testcfaAdjusted[loopbnd][loopcf] = cfaAdjusted[loopbnd][loopcf];
+      }
+    }
+    testcfaAdjusted[0][8] += 0.0000001;
+    for (int loopbnd = 0; loopbnd < nbBond; loopbnd++) {
+      int nbCf = cf[loopbnd].getNumberOfPayments();
+      for (int loopcf = 0; loopcf < nbCf; loopcf++) {
+        for (int looppt = 0; looppt < nbPoint; looppt++) {
+          testpv[looppt][loopbnd] += testcfaAdjusted[loopbnd][loopcf] * Math.exp(-alpha[loopbnd][loopcf] * alpha[loopbnd][loopcf] / 2.0 - alpha[loopbnd][loopcf] * x[looppt]);
+        }
+      }
+      for (int looppt = 0; looppt < nbPoint; looppt++) {
+        testpv[looppt][loopbnd] -= e[loopbnd];
+      }
+    }
+
+    double[] testpvMin = new double[nbPoint];
+    int[] testindMin = new int[nbPoint];
+    for (int looppt = 0; looppt < nbPoint; looppt++) {
+      testpvMin[looppt] = Double.POSITIVE_INFINITY;
+      for (int loopbnd = 0; loopbnd < nbBond; loopbnd++) {
+        if (testpv[looppt][loopbnd] < testpvMin[looppt]) {
+          testpvMin[looppt] = testpv[looppt][loopbnd];
+          testindMin[looppt] = loopbnd;
+        }
+      }
+    }
+    ArrayList<Double> testrefx = new ArrayList<Double>();
+    ArrayList<Integer> testctd = new ArrayList<Integer>();
+    int testlastInd = testindMin[0];
+    testctd.add(testindMin[0]);
+    for (int looppt = 1; looppt < nbPoint; looppt++) {
+      if (testindMin[looppt] != testlastInd) {
+        testctd.add(testindMin[looppt]);
+        testlastInd = testindMin[looppt];
+        testrefx.add(x[looppt]);
+      }
+    }
+
+    // Sum on each interval
+    double[] testkappa = new double[nbInt - 1];
+    double testprice = 0.0;
+    if (nbInt == 1) {
+      for (int loopcf = 0; loopcf < testcfaAdjusted[ctd.get(0)].length; loopcf++) {
+        testprice += testcfaAdjusted[testctd.get(0)][loopcf];
+      }
+      testprice -= e[testctd.get(0)];
+    } else {
+      // The intersections
+      final BracketRoot bracketer = new BracketRoot();
+      double accuracy = 1.0E-8;
+      final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(accuracy);
+      for (int loopint = 1; loopint < nbInt; loopint++) {
+        BondDifference cross = new BondDifference(testcfaAdjusted[testctd.get(loopint - 1)], alpha[testctd.get(loopint - 1)], e[testctd.get(loopint - 1)], testcfaAdjusted[testctd.get(loopint)],
+            alpha[testctd.get(loopint)], e[testctd.get(loopint)]);
+        final double[] range = bracketer.getBracketedPoints(cross, testrefx.get(loopint - 1) - 0.01, testrefx.get(loopint - 1) + 0.01);
+        testkappa[loopint - 1] = rootFinder.getRoot(cross, range[0], range[1]);
+      }
+      // From -infinity to first cross.
+      for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(0)].length; loopcf++) {
+        testprice += testcfaAdjusted[ctd.get(0)][loopcf] * NORMAL.getCDF(testkappa[0] + alpha[testctd.get(0)][loopcf]);
+      }
+      testprice -= e[testctd.get(0)] * NORMAL.getCDF(testkappa[0]);
+      // Between cross
+      for (int loopint = 1; loopint < nbInt - 1; loopint++) {
+        for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(loopint)].length; loopcf++) {
+          testprice += testcfaAdjusted[ctd.get(loopint)][loopcf]
+              * (NORMAL.getCDF(testkappa[loopint] + alpha[testctd.get(loopint)][loopcf]) - NORMAL.getCDF(testkappa[loopint - 1] + alpha[testctd.get(loopint)][loopcf]));
+        }
+        testprice -= e[ctd.get(loopint)] * (NORMAL.getCDF(testkappa[loopint]) - NORMAL.getCDF(testkappa[loopint - 1]));
+      }
+      // From last cross to +infinity
+      for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(nbInt - 1)].length; loopcf++) {
+        testprice += testcfaAdjusted[testctd.get(nbInt - 1)][loopcf] * (1.0 - NORMAL.getCDF(testkappa[nbInt - 2] + alpha[testctd.get(nbInt - 1)][loopcf]));
+      }
+      testprice -= e[testctd.get(nbInt - 1)] * (1 - NORMAL.getCDF(testkappa[nbInt - 2]));
+    }
+    // ===== Test: end
 
     // === Backward Sweep ===
     double priceBar = 1.0;
@@ -351,11 +477,11 @@ public final class BondFutureSecurityHullWhiteMethod {
       listCredit.add(new DoublesPair(delivery, -delivery * dfdelivery * dfdeliveryBar));
     }
     resultMap.put(future.getDeliveryBasket()[0].getDiscountingCurveName(), listCredit);
-    PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
+    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     return result;
   }
 
-  public PresentValueSensitivity priceCurveSensitivity(final BondFutureSecurity future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
+  public InterestRateCurveSensitivity priceCurveSensitivity(final BondFutureSecurity future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     return priceCurveSensitivity(future, hwData, DEFAULT_NB_POINTS);
   }
 
@@ -384,11 +510,11 @@ public final class BondFutureSecurityHullWhiteMethod {
     public Double evaluate(Double x) {
       double pv = 0.0;
       for (int loopcf = 0; loopcf < _cfa1.length; loopcf++) {
-        pv += _cfa1[loopcf] * Math.exp(-_alpha1[loopcf] * _alpha1[loopcf] - _alpha1[loopcf] * x / 2.0);
+        pv += _cfa1[loopcf] * Math.exp(-_alpha1[loopcf] * _alpha1[loopcf] / 2.0 - _alpha1[loopcf] * x);
       }
       pv -= _e1;
       for (int loopcf = 0; loopcf < _cfa2.length; loopcf++) {
-        pv -= _cfa2[loopcf] * Math.exp(-_alpha2[loopcf] * _alpha2[loopcf] - _alpha2[loopcf] * x / 2.0);
+        pv -= _cfa2[loopcf] * Math.exp(-_alpha2[loopcf] * _alpha2[loopcf] / 2.0 - _alpha2[loopcf] * x);
       }
       pv += _e2;
       return pv;

@@ -5,7 +5,6 @@
  */
 package com.opengamma.language.view;
 
-
 /**
  * Language binding specific data extension to {@link UserViewClient} instances.
  * 

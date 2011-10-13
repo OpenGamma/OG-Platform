@@ -13,7 +13,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.method.PricingMethod;
@@ -72,7 +72,7 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
    * @param curves The yield curves. Should contain the discounting and forward curves associated. 
    * @return The present value sensitivity.
    */
-  public PresentValueSensitivity presentValueCurveSensitivity(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
     Validate.notNull(fra, "FRA");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(fra.getFundingCurveName());
@@ -92,13 +92,13 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
     final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
     listDiscounting.add(new DoublesPair(fra.getPaymentTime(), -fra.getPaymentTime() * df * dfBar));
     resultMapDiscouting.put(fra.getFundingCurveName(), listDiscounting);
-    final PresentValueSensitivity result = new PresentValueSensitivity(resultMapDiscouting);
+    final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMapDiscouting);
     final Map<String, List<DoublesPair>> resultMapForward = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
     listForward.add(new DoublesPair(fra.getFixingPeriodStartTime(), -fra.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
     listForward.add(new DoublesPair(fra.getFixingPeriodEndTime(), -fra.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
     resultMapForward.put(fra.getForwardCurveName(), listForward);
-    return result.add(new PresentValueSensitivity(resultMapForward));
+    return result.add(new InterestRateCurveSensitivity(resultMapForward));
   }
 
   /**
@@ -121,7 +121,7 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
    * @param curves The yield curves. Should contain the discounting and forward curves associated. 
    * @return The par rate sensitivity.
    */
-  public PresentValueSensitivity parRateCurveSensitivity(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity parRateCurveSensitivity(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
     Validate.notNull(fra, "FRA");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(fra.getForwardCurveName());
@@ -136,7 +136,7 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
     listForward.add(new DoublesPair(fra.getFixingPeriodStartTime(), -fra.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
     listForward.add(new DoublesPair(fra.getFixingPeriodEndTime(), -fra.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
     resultMap.put(fra.getForwardCurveName(), listForward);
-    final PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
+    final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     return result;
   }
 

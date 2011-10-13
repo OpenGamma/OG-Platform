@@ -12,8 +12,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -170,7 +170,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
    * @param hwData The Hull-White data (curves and Hull-White parameters).
    * @return The curve sensitivity.
    */
-  public PresentValueSensitivity presentValueCurveSensitivity(final InterestRateDerivative instrument, final String dscName, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final InterestRateDerivative instrument, final String dscName, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     YieldAndDiscountCurve dsc = hwData.getCurve(dscName);
     // TODO: remove currency and dsc curve name
     // Forward sweep
@@ -308,12 +308,12 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
       }
     }
     resultMap.put(dscName, listDiscounting);
-    PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
+    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     // Adding sensitivity due to cash flow equivalent sensitivity to curves.
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
-      Map<Double, PresentValueSensitivity> impactAmountDerivative = decision.getImpactAmountDerivative().get(loopjump);
+      Map<Double, InterestRateCurveSensitivity> impactAmountDerivative = decision.getImpactAmountDerivative().get(loopjump);
       for (int loopimp = 0; loopimp < impactTime[loopjump].length; loopimp++) {
-        PresentValueSensitivity sensiCfe = impactAmountDerivative.get(impactTime[loopjump][loopimp]);
+        InterestRateCurveSensitivity sensiCfe = impactAmountDerivative.get(impactTime[loopjump][loopimp]);
         if (!(sensiCfe == null)) { // There is some sensitivity to that cfe.
           result = result.add(sensiCfe.multiply(impactAmountBar[loopjump][loopimp]));
         }

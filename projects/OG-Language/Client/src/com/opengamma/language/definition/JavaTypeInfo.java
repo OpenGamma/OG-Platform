@@ -122,14 +122,21 @@ public final class JavaTypeInfo<T> {
     _parameter = parameter;
   }
 
-  @SuppressWarnings("unchecked")
   public JavaTypeInfo<?> arrayOf() {
-    return new JavaTypeInfo<Object>((Class<Object>) Array.newInstance(_rawClass, 0).getClass(), _allowNull, false, null, new JavaTypeInfo<?>[] {this });
+    return arrayOfWithAllowNull(_allowNull);
   }
 
   @SuppressWarnings("unchecked")
+  public JavaTypeInfo<?> arrayOfWithAllowNull(final boolean allowNull) {
+    return new JavaTypeInfo<Object>((Class<Object>) Array.newInstance(_rawClass, 0).getClass(), allowNull, false, null, new JavaTypeInfo<?>[] {this });
+  }
+  @SuppressWarnings("unchecked")
   public JavaTypeInfo<?> withAllowNull(final boolean allowNull) {
-    return new JavaTypeInfo<Object>((Class<Object>) _rawClass, allowNull, _hasDefaultValue, _defaultValue, _parameter);
+    if (allowNull == _allowNull) {
+      return this;
+    } else {
+      return new JavaTypeInfo<Object>((Class<Object>) _rawClass, allowNull, _hasDefaultValue, _defaultValue, _parameter);
+    }
   }
 
   public Class<T> getRawClass() {
