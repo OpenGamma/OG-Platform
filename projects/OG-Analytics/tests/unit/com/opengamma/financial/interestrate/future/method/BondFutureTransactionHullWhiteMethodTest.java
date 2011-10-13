@@ -191,11 +191,11 @@ public class BondFutureTransactionHullWhiteMethodTest {
     List<DoublesPair> fdSensiList = curveSensitvityFDCalculator(FUTURE_TRANSACTION, METHOD_FUTURE_TRANSACTION, BUNDLE_HW, CURVES_NAME[0], nodeTimesBond, 1e-9);
     final List<DoublesPair> sensiPvCredit = pvs.getSensitivities().get(CURVES_NAME[0]);
     assertEquals(fdSensiList.size(), sensiPvCredit.size());
-    for (int loopnode = 0; loopnode < fdSensiList.size(); loopnode++) {
+    for (int loopnode = 0; loopnode < fdSensiList.size(); loopnode++) { //checking times
       final DoublesPair pairPv = sensiPvCredit.get(loopnode);
-      assertEquals(fdSensiList.get(loopnode).getFirst(), pairPv.getFirst(), 1E-8); //checking times
+      assertEquals(fdSensiList.get(loopnode).getFirst(), pairPv.getFirst(), 1E-8);
     }
-    for (int loopnode = 1; loopnode < fdSensiList.size(); loopnode++) {
+    for (int loopnode = 1; loopnode < fdSensiList.size(); loopnode++) { // Checking sensitivity value
       assertEquals("Bond future curve sensitivity: node " + loopnode, fdSensiList.get(loopnode).second, sensiPvCredit.get(loopnode).second, toleranceSensitivity);
     }
   }
@@ -226,7 +226,7 @@ public class BondFutureTransactionHullWhiteMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " pv Bond Future Hull-White (Default number of points): " + (endTime - startTime) + " ms (pv=" + pv + ")");
-    // Performance note: HW pv: 25-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 190 ms for 1000 futures.
+    // Performance note: HW pv: 13-Oct-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 165 ms for 1000 futures.
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
@@ -234,8 +234,7 @@ public class BondFutureTransactionHullWhiteMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " pv curve sensitivity Bond Future Hull-White (Default number of points): " + (endTime - startTime) + " ms (pvs=" + pvs + ")");
-    // Performance note: HW pv sensitivity: 25-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 200 ms for 1000 futures.
-
+    // Performance note: HW pv sensitivity: 13-Oct-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 175 ms for 1000 futures.
   }
 
 }
