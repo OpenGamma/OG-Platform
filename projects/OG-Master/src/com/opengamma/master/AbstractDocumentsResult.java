@@ -27,8 +27,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.util.Paging;
 import com.opengamma.util.PublicSPI;
+import com.opengamma.util.paging.Paging;
 
 /**
  * Result providing a list of documents with paging.

@@ -19,7 +19,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
-import com.opengamma.util.PagingRequest;
+import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DBTest;
 
 /**

@@ -18,7 +18,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
-import com.opengamma.util.PagingRequest;
+import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DBTest;
 
 /**

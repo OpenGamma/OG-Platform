@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
-import com.opengamma.util.PagingRequest;
+import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DBTest;
 
 /**

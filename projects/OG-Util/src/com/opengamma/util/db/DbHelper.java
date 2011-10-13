@@ -12,7 +12,7 @@ import org.hibernate.dialect.Dialect;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 
-import com.opengamma.util.PagingRequest;
+import com.opengamma.util.paging.PagingRequest;
 
 /**
  * Helper for working with databases with subclasses for different databases.

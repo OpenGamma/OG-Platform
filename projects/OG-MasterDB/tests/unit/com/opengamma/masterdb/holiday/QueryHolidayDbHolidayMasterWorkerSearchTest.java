@@ -21,8 +21,8 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
-import com.opengamma.util.PagingRequest;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DBTest;
 
 /**

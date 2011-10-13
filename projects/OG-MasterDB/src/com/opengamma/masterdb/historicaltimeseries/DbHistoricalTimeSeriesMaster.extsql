@@ -1,0 +1,123 @@
+-- SQL for historical time series
+
+-- @Name("GetByUid")
+SELECT
+  main.id AS doc_id,
+  main.oid AS doc_oid,
+  main.ver_from_instant AS ver_from_instant,
+  main.ver_to_instant AS ver_to_instant,
+  main.corr_from_instant AS corr_from_instant,
+  main.corr_to_instant AS corr_to_instant,
+  nm.name AS name,
+  df.name AS data_field,
+  ds.name AS data_source,
+  dp.name AS data_provider,
+  ot.name AS observation_time,
+  i.key_scheme AS key_scheme,
+  i.key_value AS key_value,
+  di.valid_from AS key_valid_from,
+  di.valid_to AS key_valid_to
+FROM
+  hts_document main
+  INNER JOIN hts_name nm ON main.name_id = nm.id
+  INNER JOIN hts_data_field df ON main.data_field_id = df.id
+  INNER JOIN hts_data_source ds ON main.data_source_id = ds.id
+  INNER JOIN hts_data_provider dp ON main.data_provider_id = dp.id
+  INNER JOIN hts_observation_time ot ON main.observation_time_id = ot.id
+  LEFT JOIN hts_doc2idkey di ON (di.doc_id = main.id)
+  LEFT JOIN hts_idkey i ON (di.idkey_id = i.id)
+WHERE main.id = :doc_id
+  AND main.oid = :doc_oid
+
+
+-- @Name("GetByOidInstants")
+SELECT
+  main.id AS doc_id,
+  main.oid AS doc_oid,
+  main.ver_from_instant AS ver_from_instant,
+  main.ver_to_instant AS ver_to_instant,
+  main.corr_from_instant AS corr_from_instant,
+  main.corr_to_instant AS corr_to_instant,
+  nm.name AS name,
+  df.name AS data_field,
+  ds.name AS data_source,
+  dp.name AS data_provider,
+  ot.name AS observation_time,
+  i.key_scheme AS key_scheme,
+  i.key_value AS key_value,
+  di.valid_from AS key_valid_from,
+  di.valid_to AS key_valid_to
+FROM
+  hts_document main
+  INNER JOIN hts_name nm ON main.name_id = nm.id
+  INNER JOIN hts_data_field df ON main.data_field_id = df.id
+  INNER JOIN hts_data_source ds ON main.data_source_id = ds.id
+  INNER JOIN hts_data_provider dp ON main.data_provider_id = dp.id
+  INNER JOIN hts_observation_time ot ON main.observation_time_id = ot.id
+  LEFT JOIN hts_doc2idkey di ON (di.doc_id = main.id)
+  LEFT JOIN hts_idkey i ON (di.idkey_id = i.id)
+WHERE main.oid = :doc_oid
+  AND main.ver_from_instant <= :version_as_of AND main.ver_to_instant > :version_as_of
+  AND main.corr_from_instant <= :corrected_to AND main.corr_to_instant > :corrected_to
+
+
+-- @Name("Search")
+SELECT
+  main.id AS doc_id,
+  main.oid AS doc_oid,
+  main.ver_from_instant AS ver_from_instant,
+  main.ver_to_instant AS ver_to_instant,
+  main.corr_from_instant AS corr_from_instant,
+  main.corr_to_instant AS corr_to_instant,
+  nm.name AS name,
+  df.name AS data_field,
+  ds.name AS data_source,
+  dp.name AS data_provider,
+  ot.name AS observation_time,
+  i.key_scheme AS key_scheme,
+  i.key_value AS key_value,
+  di.valid_from AS key_valid_from,
+  di.valid_to AS key_valid_to
+FROM
+  hts_document main
+  INNER JOIN hts_name nm ON main.name_id = nm.id
+  INNER JOIN hts_data_field df ON main.data_field_id = df.id
+  INNER JOIN hts_data_source ds ON main.data_source_id = ds.id
+  INNER JOIN hts_data_provider dp ON main.data_provider_id = dp.id
+  INNER JOIN hts_observation_time ot ON main.observation_time_id = ot.id
+  LEFT JOIN hts_doc2idkey di ON (di.doc_id = main.id)
+  LEFT JOIN hts_idkey i ON (di.idkey_id = i.id)
+@Where
+  main.ver_from_instant <= :version_as_of AND main.ver_to_instant > :version_as_of
+  main.corr_from_instant <= :corrected_to AND main.corr_to_instant > :corrected_to
+@Where(:name)
+  name_id IN (
+    SELECT id
+    FROM hts_name
+    WHERE UPPER(name) LIKE UPPER(:name)
+  )
+@Where(:data_field)
+  data_field_id IN (
+    SELECT id
+    FROM hts_data_field
+    WHERE UPPER(name) LIKE UPPER(:data_field)
+  )
+@Where(:data_source)
+  data_source_id IN (
+    SELECT id
+    FROM hts_data_source
+    WHERE UPPER(name) LIKE UPPER(:data_source)
+  )
+@Where(:data_provider)
+  data_provider_id IN (
+    SELECT id
+    FROM hts_data_provider
+    WHERE UPPER(name) LIKE UPPER(:data_provider)
+  )
+@Where(:observation_time)
+  observation_time_id IN (
+    SELECT id
+    FROM hts_observation_time
+    WHERE UPPER(name) LIKE UPPER(:observation_time)
+  )
+

@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.util.PagingRequest;
+import com.opengamma.util.paging.PagingRequest;
 
 /**
  * Test DbUtils.
