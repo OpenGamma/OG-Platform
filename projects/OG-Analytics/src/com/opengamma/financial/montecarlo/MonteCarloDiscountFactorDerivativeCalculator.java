@@ -12,7 +12,8 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 
 /**
- * Computes the instrument price as the average over different paths. The data bundle contains the different discount factor paths and the instrument reference amounts.
+ * Computes the instrument price as the average over different paths and the derivative of the output with respect to the inputs. 
+ * The data bundle contains the different discount factor paths and the instrument reference amounts. The method set the derivatives to the inputs.
  */
 public class MonteCarloDiscountFactorDerivativeCalculator extends AbstractInterestRateDerivativeVisitor<MonteCarloDiscountFactorDerivativeDataBundle, Double> {
 

@@ -143,6 +143,22 @@ public class BondFutureTransactionHullWhiteMethodTest {
 
   @Test
   /**
+   * Tests the curve sensitivity with one bond in the basket.
+   */
+  public void presentValueCurveSensitivityOneBasket() {
+
+    BondFixedSecurityDefinition[] basket1Definition = new BondFixedSecurityDefinition[1];
+    basket1Definition[0] = BASKET_DEFINITION[0];
+    BondFutureSecurityDefinition futureSecurity1Definition = new BondFutureSecurityDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, basket1Definition, CONVERSION_FACTOR);
+    BondFutureTransactionDefinition futureTransaction1Definition = new BondFutureTransactionDefinition(futureSecurity1Definition, QUANTITY, REFERENCE_DATE, REFERENCE_PRICE);
+    BondFutureTransaction futureTransaction1 = futureTransaction1Definition.toDerivative(REFERENCE_DATE, REFERENCE_PRICE, CURVES_NAME);
+
+    PresentValueSensitivity pvs = METHOD_FUTURE_TRANSACTION.presentValueCurveSensitivity(futureTransaction1, BUNDLE_HW);
+
+  }
+
+  @Test
+  /**
    * Tests the curve sensitivity.
    */
   public void presentValueCurveSensitivity() {

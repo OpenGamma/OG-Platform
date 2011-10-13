@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -34,12 +36,17 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
    * The decision schedule calculator (calculate the exercise dates, the cash flow dates and the reference amounts).
    */
   private static final DecisionScheduleCalculator DC = DecisionScheduleCalculator.getInstance();
+  /**
+   * The decision schedule derivative calculator (calculate the exercise dates, the cash flow dates, the reference amounts and the sensitivity of the reference amount to the curves).
+   */
   private static final DecisionScheduleDerivativeCalculator DDC = DecisionScheduleDerivativeCalculator.getInstance();
   /**
    * The calculator from discount factors (calculate the price from simulated discount factors and the reference amounts).
    */
   private static final MonteCarloDiscountFactorCalculator MCC = MonteCarloDiscountFactorCalculator.getInstance();
-
+  /**
+   * The calculator of price and derivatives from discount factors and reference amounts.
+   */
   private static final MonteCarloDiscountFactorDerivativeCalculator MCDC = MonteCarloDiscountFactorDerivativeCalculator.getInstance();
   /**
    * The Hull-White one factor model.
@@ -69,7 +76,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
    * @return The present value.
    */
   public CurrencyAmount presentValue(final InterestRateDerivative instrument, Currency ccy, final String dscName, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
-    // TODO: remove currency and dsc curve
+    // TODO: remove currency and dsc curve name (should be available from the instrument)
     YieldAndDiscountCurve dsc = hwData.getCurve(dscName);
     DecisionSchedule decision = DC.visit(instrument, hwData);
     double[] decisionTime = decision.getDecisionTime();
@@ -125,7 +132,6 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
         covCD[loopjump + nbZero][loopjump2 + nbZero] = covCD2[loopjump][loopjump2];
       }
     }
-
     int nbBlock = (int) Math.round(Math.ceil(getNbPath() / ((double) BLOCK_SIZE)));
     int[] nbPath2 = new int[nbBlock];
     for (int i = 0; i < nbBlock - 1; i++) {
@@ -156,12 +162,13 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
   }
 
   /**
-   * 
-   * @param instrument
-   * @param dsc
-   * @param dscName
-   * @param hwData
-   * @return
+   * Computes the present value curve sensitivity in the Hull-White one factor model by Monte-Carlo. The sensitivity is computed by Adjoint Algorithmic Differentiation. 
+   * Implementation note: The total number of paths is divided in blocks of maximum size BLOCK_SIZE=1000. The Monte Carlo is run on each block and the average of each
+   * block price is the total price. 
+   * @param instrument The swaption.
+   * @param dscName The discounting curve name.
+   * @param hwData The Hull-White data (curves and Hull-White parameters).
+   * @return The curve sensitivity.
    */
   public PresentValueSensitivity presentValueCurveSensitivity(final InterestRateDerivative instrument, final String dscName, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     YieldAndDiscountCurve dsc = hwData.getCurve(dscName);
@@ -221,7 +228,6 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
         covCD[loopjump + nbZero][loopjump2 + nbZero] = covCD2[loopjump][loopjump2];
       }
     }
-
     int nbBlock = (int) Math.round(Math.ceil(getNbPath() / ((double) BLOCK_SIZE)));
     int[] nbPath2 = new int[nbBlock];
     for (int i = 0; i < nbBlock - 1; i++) {
@@ -391,8 +397,8 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
 
   @Override
   public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
-    return null;
-    // TODO: generalize to other interest rate derivatives.
+    Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
+    return presentValue(instrument, curves);
   }
 
 }
