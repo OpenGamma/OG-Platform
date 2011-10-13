@@ -150,7 +150,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
       
       ViewClient viewClient = getViewProcessor().createViewClient(user);
       try {
-        webView = new WebView(getClient(), remote, viewClient, viewDefinitionId, executionOptions, user, getExecutorService(), getResultConverterCache());
+        webView = new WebView(getClient(), remote, viewClient, viewDefinitionId.toLatest(), executionOptions, user, getExecutorService(), getResultConverterCache());
       } catch (Exception e) {
         viewClient.shutdown();
         throw new OpenGammaRuntimeException("Error attaching client to view definition '" + viewDefinitionId + "'", e);

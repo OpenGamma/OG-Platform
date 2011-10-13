@@ -27,7 +27,6 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.financial.model.interestrate.HullWhiteTestsDataSet;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.financial.montecarlo.HullWhiteMonteCarloMethod;
@@ -114,17 +113,16 @@ public class CapFloorIborHullWhiteMethodTest {
    * Compare explicit formula with Monte-Carlo and long/short and payer/receiver parities.
    */
   public void monteCarlo() {
-    YieldAndDiscountCurve curve = CURVES.getCurve(FUNDING_CURVE_NAME);
     HullWhiteMonteCarloMethod methodMC;
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), 10 * NB_PATH);
     // Seed fixed to the DEFAULT_SEED for testing purposes.
     CurrencyAmount pvExplicit = METHOD_HW.presentValue(CAP_LONG, BUNDLE_HW);
-    CurrencyAmount pvMC = methodMC.presentValue(CAP_LONG, CUR, curve, BUNDLE_HW);
+    CurrencyAmount pvMC = methodMC.presentValue(CAP_LONG, CUR, FUNDING_CURVE_NAME, BUNDLE_HW);
     assertEquals("Cap/floor - Hull-White - Monte Carlo", pvExplicit.getAmount(), pvMC.getAmount(), 4.0E+2);
     double pvMCPreviousRun = 150060.593;
     assertEquals("Swaption physical - Hull-White - Monte Carlo", pvMCPreviousRun, pvMC.getAmount(), 1.0E-2);
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), 10 * NB_PATH);
-    CurrencyAmount pvShortMC = methodMC.presentValue(CAP_SHORT, CUR, curve, BUNDLE_HW);
+    CurrencyAmount pvShortMC = methodMC.presentValue(CAP_SHORT, CUR, FUNDING_CURVE_NAME, BUNDLE_HW);
     assertEquals("Swaption physical - Hull-White - Monte Carlo", -pvMC.getAmount(), pvShortMC.getAmount(), 1.0E-2);
   }
 
@@ -134,17 +132,16 @@ public class CapFloorIborHullWhiteMethodTest {
    */
   public void convergence() {
     long startTime, endTime;
-    YieldAndDiscountCurve curve = CURVES.getCurve(FUNDING_CURVE_NAME);
     CurrencyAmount pvExplicit = METHOD_HW.presentValue(CAP_LONG, BUNDLE_HW);
     HullWhiteMonteCarloMethod methodMC;
-    int nbPath = 10000000;
+    int nbPath = 1000000;
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
     int nbTest = 10;
     startTime = System.currentTimeMillis();
     double[] pv = new double[nbTest];
     double[] pvDiff = new double[nbTest];
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      pv[looptest] = methodMC.presentValue(CAP_LONG, CUR, curve, BUNDLE_HW).getAmount();
+      pv[looptest] = methodMC.presentValue(CAP_LONG, CUR, FUNDING_CURVE_NAME, BUNDLE_HW).getAmount();
       pvDiff[looptest] = pv[looptest] - pvExplicit.getAmount();
     }
     endTime = System.currentTimeMillis();
