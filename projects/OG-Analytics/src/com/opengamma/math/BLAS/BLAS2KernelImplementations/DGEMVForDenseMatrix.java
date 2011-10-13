@@ -226,12 +226,22 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
 
   @Override
   public double[] dm_stateless_alpha_times_A_times_x_plus_beta_times_y(double alpha, DenseMatrix A, double[] x, double beta, double[] y) {
-    return null;
+    final int rows = A.getNumberOfRows();
+    double[] tmp = dm_stateless_A_times_x(A, x);
+    for (int i = 0; i < rows; i++) {
+      tmp[i] = alpha * tmp[i] + beta * y[i]; // slight cache thrash but should help force A*x to be JITed
+    }
+    return tmp;
   }
 
   @Override
   public double[] dm_stateless_alpha_times_AT_times_x_plus_beta_times_y(double alpha, DenseMatrix A, double[] x, double beta, double[] y) {
-    return null;
+    final int cols = A.getNumberOfColumns();
+    double[] tmp = dm_stateless_AT_times_x(A, x);
+    for (int i = 0; i < cols; i++) {
+      tmp[i] = alpha * tmp[i] + beta * y[i];
+    }
+    return tmp;
   }
 
   @Override
