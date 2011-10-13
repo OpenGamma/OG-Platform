@@ -82,7 +82,7 @@ public abstract class SimpleInstrumentFactory {
   }
 
   public static InterestRateDerivative makeFuture(final double time, final SimpleFrequency paymentFreq, final String fundCurveName,
-      final String indexCurveName, final double rate, final int contracts) {
+      final String indexCurveName) {
     double tau = 1. / paymentFreq.getPeriodsPerYear();
     return new InterestRateFuture(time, DUMMY_INDEX, time, time + tau,
         tau, 0, 1, tau, "N", fundCurveName, indexCurveName);

@@ -33,7 +33,7 @@ import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalc
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
@@ -214,7 +214,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
    * Tests the price curve sensitivity of CMS coupon and cap/floor using replication in the SABR framework. Values are tested against finite difference values.
    */
   public void presentValueCurveSensitivity() {
-    PresentValueSensitivity pvcsCap = METHOD.presentValueSensitivity(CMS_SPREAD, SABR_BUNDLE);
+    InterestRateCurveSensitivity pvcsCap = METHOD.presentValueSensitivity(CMS_SPREAD, SABR_BUNDLE);
     pvcsCap = pvcsCap.clean();
     final double deltaTolerancePrice = 2.5E+6;
     //Testing note: The computed sensitivity does not change the strike of the ATM strike with the curves.
@@ -274,8 +274,8 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     final PresentValueCurveSensitivitySABRCalculator calculator = PresentValueCurveSensitivitySABRCalculator.getInstance();
     SABRInterestRateCorrelationParameters sabrCorrelation = SABRInterestRateCorrelationParameters.from(SABR_PARAMETERS, CORRELATION_FUNCTION);
     SABRInterestRateDataBundle sabrBundleCor = new SABRInterestRateDataBundle(sabrCorrelation, CURVES);
-    PresentValueSensitivity pvcsMethod = METHOD.presentValueSensitivity(CMS_SPREAD, sabrBundleCor);
-    PresentValueSensitivity pvcsCalculator = new PresentValueSensitivity(calculator.visit(CMS_SPREAD, sabrBundleCor));
+    InterestRateCurveSensitivity pvcsMethod = METHOD.presentValueSensitivity(CMS_SPREAD, sabrBundleCor);
+    InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(calculator.visit(CMS_SPREAD, sabrBundleCor));
     assertEquals("CMS spread: curve sensitivity Method vs Calculator", pvcsMethod, pvcsCalculator);
   }
 
@@ -346,7 +346,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     final int nbTest = 100;
     double[] pv = new double[nbTest];
     PresentValueSABRSensitivityDataBundle[] pvss = new PresentValueSABRSensitivityDataBundle[nbTest];
-    PresentValueSensitivity[] pvcs = new PresentValueSensitivity[nbTest];
+    InterestRateCurveSensitivity[] pvcs = new InterestRateCurveSensitivity[nbTest];
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       pv[looptest] = METHOD.presentValue(CMS_SPREAD, SABR_BUNDLE).getAmount();

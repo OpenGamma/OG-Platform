@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.interestrate.payments.method;
 
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -57,7 +57,7 @@ public class CouponCMSSABRExtrapolationRightReplicationMethod {
    * @param sabrData The SABR data bundle. The SABR function need to be the Hagan function.
    * @return The present value sensitivity to curves.
    */
-  public PresentValueSensitivity presentValueSensitivity(CouponCMS cmsCoupon, SABRInterestRateDataBundle sabrData) {
+  public InterestRateCurveSensitivity presentValueSensitivity(CouponCMS cmsCoupon, SABRInterestRateDataBundle sabrData) {
     CapFloorCMS cap0 = CapFloorCMS.from(cmsCoupon, 0.0, true);
     // A CMS coupon is priced as a cap with strike 0.
     CapFloorCMSSABRExtrapolationRightReplicationMethod method = new CapFloorCMSSABRExtrapolationRightReplicationMethod(_cutOffStrike, _mu);

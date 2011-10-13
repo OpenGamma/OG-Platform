@@ -34,20 +34,20 @@ public class ViewsFunctionTest {
 
   public void testAllViews() {
     final ViewDefinitionRepository repo = createRepository();
-    final Map<UniqueId, String> result = ViewsFunction.INSTANCE.invokeImpl(repo, null);
+    final Map<UniqueId, String> result = ViewsFunction.invoke(repo, null);
     assertEquals(result.size(), 3);
   }
 
   public void testNamedViewPresent() {
     final ViewDefinitionRepository repo = createRepository();
-    final Map<UniqueId, String> result = ViewsFunction.INSTANCE.invokeImpl(repo, "Two");
+    final Map<UniqueId, String> result = ViewsFunction.invoke(repo, "Two");
     assertEquals(result.size(), 1);
     assertTrue(result.keySet().contains(UniqueId.of("View", "2")));
   }
 
   public void testNamedViewMissing() {
     final ViewDefinitionRepository repo = createRepository();
-    final Map<UniqueId, String> result = ViewsFunction.INSTANCE.invokeImpl(repo, "Four");
+    final Map<UniqueId, String> result = ViewsFunction.invoke(repo, "Four");
     assertEquals(result.size(), 0);
   }
 
