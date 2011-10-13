@@ -63,6 +63,7 @@ public final class ViewClientDescriptor {
   private static final String MARKET_DATA_HISTORICAL = "Historical";
   private static final String MARKET_DATA_LIVE = "Live";
   private static final String MARKET_DATA_USER = "User";
+  private static final String STATIC = "Static";
   private static final String TICKING = "Ticking";
 
   /**
@@ -107,7 +108,9 @@ public final class ViewClientDescriptor {
           break;
         case 3:
           if (MARKET_DATA_LIVE.equals(values.get(0))) {
-            return staticMarketData(UniqueId.parse(values.get(1)), Instant.ofEpochSeconds(Long.parseLong(values.get(2))));
+            if (STATIC.equals(values.get(2))) {
+              return staticMarketData(UniqueId.parse(values.get(1)));
+            }
           } else if (MARKET_DATA_USER.equals(values.get(0))) {
             return staticSnapshot(UniqueId.parse(values.get(1)), UniqueId.parse(values.get(2)));
           }
@@ -239,20 +242,16 @@ public final class ViewClientDescriptor {
   }
 
   /**
-   * Returns a descriptor for a static live market data view. The view will recalculate when manually triggered. Note the
-   * valuation time is to fix a specific cycle from the live market data which may provide a small amount of recent history
-   * but should not be used for historical regression.
+   * Returns a descriptor for a static live market data view. The view will recalculate when manually triggered. 
    * 
    * @param viewId unique identifier of the view, not null
-   * @param valuationTime valuation time of the live data, not null
    * @return the descriptor
    */
-  public static ViewClientDescriptor staticMarketData(final UniqueId viewId, final InstantProvider valuationTime) {
+  public static ViewClientDescriptor staticMarketData(final UniqueId viewId) {
     final ViewCycleExecutionSequence cycleSequence = new InfiniteViewCycleExecutionSequence();
-    final Instant valuationTimeValue = Instant.of(valuationTime);
-    final ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(Instant.of(valuationTimeValue), MarketData.live());
+    final ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(null, MarketData.live());
     final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions, ExecutionFlags.none().awaitMarketData().get());
-    final String encoded = append(append(new StringBuilder(MARKET_DATA_LIVE), viewId), valuationTimeValue).toString();
+    final String encoded = append(append(new StringBuilder(MARKET_DATA_LIVE), viewId), STATIC).toString();
     return new ViewClientDescriptor(Type.STATIC_MARKET_DATA, viewId, options, encoded);
   }
 
