@@ -12,8 +12,11 @@ import java.util.Collection;
 import java.util.List;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.language.Data;
 import com.opengamma.language.Value;
 import com.opengamma.language.context.SessionContext;
@@ -35,6 +38,15 @@ public class MarketDataOverrideFunction extends AbstractFunctionInvoker implemen
    */
   public static final MarketDataOverrideFunction INSTANCE = new MarketDataOverrideFunction();
 
+  private static final JavaTypeInfo<ExternalId> EXTERNAL_ID = JavaTypeInfo.builder(ExternalId.class).get();
+  private static final JavaTypeInfo<UniqueId> UNIQUE_ID = JavaTypeInfo.builder(UniqueId.class).get();
+
+  private static final int VALUE = 0;
+  private static final int VALUE_REQUIREMENT = 1;
+  private static final int VALUE_NAME = 2;
+  private static final int IDENTIFIER = 3;
+  private static final int TYPE = 4;
+
   private final MetaFunction _meta;
 
   private static List<MetaParameter> parameters() {
@@ -42,7 +54,8 @@ public class MarketDataOverrideFunction extends AbstractFunctionInvoker implemen
         new MetaParameter("value", JavaTypeInfo.builder(Data.class).allowNull().get()),
         new MetaParameter("valueRequirement", JavaTypeInfo.builder(ValueRequirement.class).allowNull().get()),
         new MetaParameter("valueName", JavaTypeInfo.builder(String.class).allowNull().get()),
-        new MetaParameter("identifier", JavaTypeInfo.builder(ExternalId.class).allowNull().get()));
+        new MetaParameter("identifier", JavaTypeInfo.builder(Data.class).allowNull().get()),
+        new MetaParameter("type", JavaTypeInfo.builder(ComputationTargetType.class).allowNull().get()));
   }
 
   private MarketDataOverrideFunction(final DefinitionAnnotater info) {
@@ -110,6 +123,10 @@ public class MarketDataOverrideFunction extends AbstractFunctionInvoker implemen
     return new MarketDataOverride(valueRequirement, null, null, value);
   }
 
+  public static MarketDataOverride invoke(final Object value, final String valueName, final UniqueId identifier, final ComputationTargetType type) {
+    return invoke(value, new ValueRequirement(valueName, new ComputationTargetSpecification(type, identifier)));
+  }
+
   public static MarketDataOverride invoke(final Object value, final String valueName, final ExternalId identifier) {
     return new MarketDataOverride(null, valueName, identifier, value);
   }
@@ -119,25 +136,31 @@ public class MarketDataOverrideFunction extends AbstractFunctionInvoker implemen
   @Override
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
     final Data value = (Data) parameters[0];
-    if (parameters[1] == null) {
-      if (parameters[2] == null) {
-        throw new InvokeInvalidArgumentException(2, "valueName cannot be omitted when valueRequirement is not specified");
+    if (parameters[VALUE_REQUIREMENT] == null) {
+      if (parameters[VALUE_NAME] == null) {
+        throw new InvokeInvalidArgumentException(VALUE_NAME, "argument must be supplied when value requirement is omitted");
       }
-      if (parameters[3] == null) {
-        throw new InvokeInvalidArgumentException(3, "identifier cannot be omitted when valueRequirement is not specified");
+      if (parameters[IDENTIFIER] == null) {
+        throw new InvokeInvalidArgumentException(IDENTIFIER, "argument must be supplied when value requirement is omitted");
       }
-      final String valueName = (String) parameters[2];
-      final ExternalId identifier = (ExternalId) parameters[3];
-      return invoke(convertData(value), valueName, identifier);
+      if (parameters[TYPE] == null) {
+        final ExternalId externalId = sessionContext.getGlobalContext().getValueConverter().convertValue(sessionContext, parameters[IDENTIFIER], EXTERNAL_ID);
+        return invoke(convertData(value), (String) parameters[VALUE_NAME], externalId);
+      } else {
+        final UniqueId uniqueId = sessionContext.getGlobalContext().getValueConverter().convertValue(sessionContext, parameters[IDENTIFIER], UNIQUE_ID);
+        return invoke(convertData(value), (String) parameters[VALUE_NAME], uniqueId, (ComputationTargetType) parameters[TYPE]);
+      }
     } else {
-      if (parameters[2] != null) {
-        throw new InvokeInvalidArgumentException(2, "valueName must be omitted when valueRequirement is specified");
+      if (parameters[VALUE_NAME] != null) {
+        throw new InvokeInvalidArgumentException(VALUE_NAME, "argument must be omitted when value requirement is supplied");
       }
-      if (parameters[3] != null) {
-        throw new InvokeInvalidArgumentException(3, "identifier must be omitted when valueRequirement is specified");
+      if (parameters[IDENTIFIER] != null) {
+        throw new InvokeInvalidArgumentException(IDENTIFIER, "argument must be omitted when value requirement is supplied");
       }
-      final ValueRequirement valueRequirement = (ValueRequirement) parameters[1];
-      return invoke(convertData(value), valueRequirement);
+      if (parameters[TYPE] != null) {
+        throw new InvokeInvalidArgumentException(TYPE, "argument must be omitted when value requirement is supplied");
+      }
+      return invoke(convertData(value), (ValueRequirement) parameters[VALUE_REQUIREMENT]);
     }
   }
 
