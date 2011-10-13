@@ -55,28 +55,28 @@ public abstract  class  BLAS2DGEMVKernelAbstraction<T extends Matrix<Double>> {
 /* Inplace manipulators */
 //{
 /* GROUP1:: A*x OR A^T*x */
-public abstract double[] dm_inplace_A_times_x(double[] y, T A, double[] x);
-public abstract double[] dm_inplace_AT_times_x(double[] y, T A, double[] x);
+public abstract void dm_inplace_A_times_x(double[] y, T A, double[] x);
+public abstract void dm_inplace_AT_times_x(double[] y, T A, double[] x);
 
 /* GROUP2:: alpha*A*x OR alpha*A^T*x */
-public abstract double[] dm_inplace_alpha_times_A_times_x(double[] y, double alpha, T A, double[] x);
-public abstract double[] dm_inplace_alpha_times_AT_times_x(double[] y, double alpha, T A, double[] x);
+public abstract void dm_inplace_alpha_times_A_times_x(double[] y, double alpha, T A, double[] x);
+public abstract void dm_inplace_alpha_times_AT_times_x(double[] y, double alpha, T A, double[] x);
 
 /* GROUP3:: A*x + y OR A^T*x + y */
-public abstract double[] dm_inplace_A_times_x_plus_y(double[] y, T A, double[] x);
-public abstract double[] dm_inplace_AT_times_x_plus_y(double[] y, T A, double[] x);
+public abstract void dm_inplace_A_times_x_plus_y(double[] y, T A, double[] x);
+public abstract void dm_inplace_AT_times_x_plus_y(double[] y, T A, double[] x);
 
 /* GROUP4:: alpha*A*x + y OR alpha*A^T*x + y */
-public abstract double[] dm_inplace_alpha_times_A_times_x_plus_y(double [] y, double alpha, T A, double[] x);
-public abstract double[] dm_inplace_alpha_times_AT_times_x_plus_y(double [] y, double alpha, T A, double[] x);
+public abstract void dm_inplace_alpha_times_A_times_x_plus_y(double [] y, double alpha, T A, double[] x);
+public abstract void dm_inplace_alpha_times_AT_times_x_plus_y(double [] y, double alpha, T A, double[] x);
 
 /* GROUP5:: A*x + beta*y OR A^T*x + beta*y */
-public abstract double[] dm_inplace_A_times_x_plus_beta_times_y(double[] y, T A, double[] x, double beta);
-public abstract double[] dm_inplace_AT_times_x_plus_beta_times_y(double[] y, T A, double[] x, double beta);
+public abstract void dm_inplace_A_times_x_plus_beta_times_y(double[] y, T A, double[] x, double beta);
+public abstract void dm_inplace_AT_times_x_plus_beta_times_y(double[] y, T A, double[] x, double beta);
 
 /* GROUP6:: alpha*A*x + beta*y OR alpha*A^T*x + beta*y */
-public abstract double[] dm_inplace_alpha_times_A_times_x_plus_beta_times_y(double[] y, double alpha, T A, double [] x, double beta);
-public abstract double[] dm_inplace_alpha_times_AT_times_x_plus_beta_times_y(double[] y, double alpha, T A, double [] x, double beta);
+public abstract void dm_inplace_alpha_times_A_times_x_plus_beta_times_y(double[] y, double alpha, T A, double [] x, double beta);
+public abstract void dm_inplace_alpha_times_AT_times_x_plus_beta_times_y(double[] y, double alpha, T A, double [] x, double beta);
 //}
 
 }

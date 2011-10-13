@@ -13,8 +13,8 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.opengamma.math.matrix.CompressedSparseRowFormatMatrix;
-import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DenseMatrix;
+import com.opengamma.math.matrix.DoubleMatrix1D;
 
 /**
  * Tests the BLAS2 library
@@ -3596,7 +3596,7 @@ assertTrue(Arrays.equals(tmp.getData(),tmp_A19x17_times_x17_plus_y19));
 }
 
 @Test
-public void testDGEMV_D1D_y19_A19x17_times_D1D_x17_plus_D1D_y19() {
+public void testDGEMV_D1D_y19_eq_A19x17_times_D1D_x17_plus_D1D_y19() {
 double [] ycp = new double[y19.length];
 System.arraycopy(y19, 0, ycp, 0, y19.length);
 DoubleMatrix1D tmp = new DoubleMatrix1D(ycp);
