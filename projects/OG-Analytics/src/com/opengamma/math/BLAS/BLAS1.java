@@ -53,7 +53,7 @@ public class BLAS1 {
    * @param y a double[] vector
    * @return tmp double[] vector
    */
-  public double[] daxpy(double[] x, double[] y) {
+  public static double[] daxpy(double[] x, double[] y) {
     daxpyInputSanityChecker(x, y);
     final int n = y.length;
     double[] tmp = new double[n];
@@ -91,7 +91,7 @@ public class BLAS1 {
    * @param y a DoubleMatrix1D vector
    * @return tmp double[] vector
    */
-  public double[] daxpy(double[] x, DoubleMatrix1D y) {
+  public static double[] daxpy(double[] x, DoubleMatrix1D y) {
     return daxpy(x, y.getData());
   }
 
@@ -101,7 +101,7 @@ public class BLAS1 {
    * @param y a double[] vector
    * @return tmp double[] vector
    */
-  public double[] daxpy(DoubleMatrix1D x, double[] y) {
+  public static double[] daxpy(DoubleMatrix1D x, double[] y) {
     return daxpy(x.getData(), y);
   }
 
@@ -111,7 +111,7 @@ public class BLAS1 {
    * @param y a DoubleMatrix1D vector
    * @return tmp double[] vector
    */
-  public double[] daxpy(DoubleMatrix1D x, DoubleMatrix1D y) {
+  public static double[] daxpy(DoubleMatrix1D x, DoubleMatrix1D y) {
     return daxpy(x.getData(), y.getData());
   }
 
@@ -122,7 +122,7 @@ public class BLAS1 {
    * @param y a double[] vector
    * @return tmp double[] vector
    */
-  public double[] daxpy(double alpha, double[] x, double[] y) {
+  public static double[] daxpy(double alpha, double[] x, double[] y) {
     daxpyInputSanityChecker(x, y);
     final int n = y.length;
     double[] tmp = new double[n];
@@ -165,7 +165,7 @@ public class BLAS1 {
    * @param y a DoubleMatrix1D vector
    * @return tmp double[] vector
    */
-  public double[] daxpy(double alpha, double[] x, DoubleMatrix1D y) {
+  public static double[] daxpy(double alpha, double[] x, DoubleMatrix1D y) {
     return daxpy(alpha, x, y.getData());
   }
 
@@ -176,7 +176,7 @@ public class BLAS1 {
    * @param y a double[] vector
    * @return tmp double[] vector
    */
-  public double[] daxpy(double alpha, DoubleMatrix1D x, double[] y) {
+  public static double[] daxpy(double alpha, DoubleMatrix1D x, double[] y) {
     return daxpy(alpha, x.getData(), y);
   }
 
@@ -198,7 +198,7 @@ public class BLAS1 {
    * @param x a double[] vector
    * @param y a double[] vector
    */
-  public void daxpyInplace(double[] x, double[] y) {
+  public static void daxpyInplace(double[] x, double[] y) {
     daxpyInputSanityChecker(x, y);
     final int n = y.length;
     final int extra = n - n % 16;
@@ -233,7 +233,7 @@ public class BLAS1 {
    * @param x a double[] vector
    * @param y a DoubleMatrix1D vector
    */
-  public void daxpyInplace(double[] x, DoubleMatrix1D y) {
+  public static void daxpyInplace(double[] x, DoubleMatrix1D y) {
     daxpyInplace(x, y.getData());
   }
 
@@ -242,7 +242,7 @@ public class BLAS1 {
    * @param x a DoubleMatrix1D vector
    * @param y a double[] vector
    */
-  public void daxpyInplace(DoubleMatrix1D x, double[] y) {
+  public static void daxpyInplace(DoubleMatrix1D x, double[] y) {
     daxpyInplace(x.getData(), y);
   }
 
@@ -251,7 +251,7 @@ public class BLAS1 {
    * @param x a DoubleMatrix1D vector
    * @param y a DoubleMatrix1D vector
    */
-  public void daxpyInplace(DoubleMatrix1D x, DoubleMatrix1D y) {
+  public static void daxpyInplace(DoubleMatrix1D x, DoubleMatrix1D y) {
     daxpyInplace(x.getData(), y.getData());
   }
 
@@ -261,7 +261,7 @@ public class BLAS1 {
    * @param x a double[] vector
    * @param y a double[] vector
    */
-  public void daxpyInplace(double alpha, double[] x, double[] y) {
+  public static void daxpyInplace(double alpha, double[] x, double[] y) {
     daxpyInputSanityChecker(x, y);
     final int n = y.length;
     if (Double.doubleToLongBits(alpha) == 0) { // short cut if alpha = 0, insanely stupid thing to do but might occur if coming from generated results
@@ -300,7 +300,7 @@ public class BLAS1 {
    * @param x a double[] vector
    * @param y a DoubleMatrix1D vector
    */
-  public void daxpyInplace(double alpha, double[] x, DoubleMatrix1D y) {
+  public static void daxpyInplace(double alpha, double[] x, DoubleMatrix1D y) {
     daxpyInplace(alpha, x, y.getData());
   }
 
@@ -310,7 +310,7 @@ public class BLAS1 {
    * @param x a DoubleMatrix1D vector
    * @param y a double[] vector
    */
-  public void daxpyInplace(double alpha, DoubleMatrix1D x, double[] y) {
+  public static void daxpyInplace(double alpha, DoubleMatrix1D x, double[] y) {
     daxpyInplace(alpha, x.getData(), y);
   }
 
@@ -348,7 +348,7 @@ public class BLAS1 {
    * @param x a double[] vector
    * @return tmp a double[] vector
    */
-  public double[] dscal(double alpha, double[] x) {
+  public static double[] dscal(double alpha, double[] x) {
     final int n = x.length;
     double[] tmp = new double[n];
     final int extra = n - n % 16;
@@ -385,7 +385,7 @@ public class BLAS1 {
    * @param x a DoubleMatrix1D vector
    * @return a double[] vector
    */
-  public double[] dscal(double alpha, DoubleMatrix1D x) {
+  public static double[] dscal(double alpha, DoubleMatrix1D x) {
     return dscal(alpha, x.getData());
   }
 
@@ -396,7 +396,7 @@ public class BLAS1 {
    * @param alpha double
    * @param x a double[] vector
    */
-  public void dscalInplace(double alpha, double[] x) {
+  public static void dscalInplace(double alpha, double[] x) {
     final int n = x.length;
     final int extra = n - n % 16;
     final int ub = ((n / 16) * 16) - 1;
@@ -430,7 +430,7 @@ public class BLAS1 {
    * @param alpha double
    * @param x a DoubleMatrix1D vector
    */
-  public void dscalInplace(double alpha, DoubleMatrix1D x) {
+  public static void dscalInplace(double alpha, DoubleMatrix1D x) {
     dscalInplace(alpha, x.getData());
   }
 

@@ -675,16 +675,10 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
   @Override
  public void dm_inplace_AT_times_x_plus_beta_times_y(double[] y, DenseMatrix A, double[] x, double beta) {
     final int cols = A.getNumberOfColumns();
-    final int rows = A.getNumberOfRows();
-    double[] ptrA = A.getData();
-    double alphaTmp;
     for (int i = 0; i < cols; i++) {
-      alphaTmp = 0;
-      for (int j = 0; j < rows; j++) {
-        alphaTmp += ptrA[i + j * cols] * x[j];
-      }
-      y[i] = alphaTmp + beta * y[i];
+      y[i] = beta * y[i];
     }
+    dm_inplace_AT_times_x_plus_y(y, A, x);
   }
 
   @Override
@@ -717,16 +711,10 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
   @Override
   public void dm_inplace_alpha_times_AT_times_x_plus_beta_times_y(double[] y, double alpha, DenseMatrix A, double[] x, double beta) {
     final int cols = A.getNumberOfColumns();
-    final int rows = A.getNumberOfRows();
-    double[] ptrA = A.getData();
-    double alphaTmp;
     for (int i = 0; i < cols; i++) {
-      alphaTmp = 0;
-      for (int j = 0; j < rows; j++) {
-        alphaTmp += ptrA[i + j * cols] * x[j];
-      }
-      y[i] = alphaTmp * alpha + beta * y[i];
+      y[i] = beta * y[i];
     }
+    dm_inplace_alpha_times_AT_times_x_plus_y(y, alpha, A, x);
   }
 
 }
