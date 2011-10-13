@@ -77,6 +77,16 @@ public final class ExecutionFlags {
     return this;
   }
   
+  /**
+   * Adds {@link ViewExecutionFlags#WAIT_FOR_INITIAL_TRIGGER}
+   * 
+   * @return this
+   */
+  public ExecutionFlags waitForInitialTrigger() {
+    _flags.add(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER);
+    return this;
+  }
+
   //-------------------------------------------------------------------------
   
   /**
