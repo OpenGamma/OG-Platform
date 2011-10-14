@@ -943,6 +943,20 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     return subscription.getMarketDataDistributor(distributionSpec);
   }
   
+  public Map<LiveDataSpecification, MarketDataDistributor> getMarketDataDistributors(Collection<LiveDataSpecification> fullyQualifiedSpecs) {
+    //NOTE: this is not much (if any) faster here, but for subclasses it can be 
+    _subscriptionLock.lock();
+    try {
+      HashMap<LiveDataSpecification, MarketDataDistributor> hashMap = new HashMap<LiveDataSpecification, MarketDataDistributor>();
+      for (LiveDataSpecification liveDataSpecification : fullyQualifiedSpecs) {
+        hashMap.put(liveDataSpecification, _fullyQualifiedSpec2Distributor.get(liveDataSpecification));
+      }
+      return hashMap;
+    } finally {
+      _subscriptionLock.unlock();
+    }
+  }
+  
   public MarketDataDistributor getMarketDataDistributor(LiveDataSpecification fullyQualifiedSpec) {
     _subscriptionLock.lock();
     try {

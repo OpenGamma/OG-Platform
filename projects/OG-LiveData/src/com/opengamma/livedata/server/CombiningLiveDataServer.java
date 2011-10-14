@@ -8,6 +8,7 @@ package com.opengamma.livedata.server;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -151,6 +152,16 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
   }
   
   
+  @Override
+  public Map<LiveDataSpecification, MarketDataDistributor> getMarketDataDistributors(Collection<LiveDataSpecification> fullyQualifiedSpecs) {
+    Map<AbstractLiveDataServer, Collection<LiveDataSpecification>> grouped = groupByServer(fullyQualifiedSpecs);
+    HashMap<LiveDataSpecification, MarketDataDistributor> ret = new HashMap<LiveDataSpecification, MarketDataDistributor>();
+    for (Entry<AbstractLiveDataServer, Collection<LiveDataSpecification>> entry : grouped.entrySet()) {
+      Map<LiveDataSpecification, MarketDataDistributor> entries = entry.getKey().getMarketDataDistributors(entry.getValue());
+      ret.putAll(entries);
+    }
+    return ret;
+  }
 
   @Override
   public boolean stopDistributor(MarketDataDistributor distributor) {
