@@ -9,8 +9,6 @@ package com.opengamma.language.config;
 import java.util.Arrays;
 import java.util.List;
 
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.ExternalId;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
@@ -46,14 +44,6 @@ public class ValuePropertyFunction extends AbstractFunctionInvoker implements Pu
 
   protected ValuePropertyFunction() {
     this(new DefinitionAnnotater(ValuePropertyFunction.class));
-  }
-
-  public static MarketDataOverride invoke(final Object value, final ValueRequirement valueRequirement) {
-    return new MarketDataOverride(valueRequirement, null, null, value);
-  }
-
-  public static MarketDataOverride invoke(final Object value, final String valueName, final ExternalId identifier) {
-    return new MarketDataOverride(null, valueName, identifier, value);
   }
 
   public static ValueProperty invoke(final String name, final String[] value, final String configuration, final boolean optional) {

@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.marketdata.MarketDataInjector;
+import com.opengamma.financial.marketdata.MarketDataAddOperation;
+import com.opengamma.financial.marketdata.MarketDataMultiplyOperation;
 import com.opengamma.language.config.ConfigurationDelta;
 import com.opengamma.language.config.ConfigurationItem;
 import com.opengamma.language.config.ConfigurationItemVisitor;
@@ -23,6 +25,7 @@ import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
+import com.opengamma.language.error.InvokeInvalidArgumentException;
 import com.opengamma.language.procedure.AbstractProcedureInvoker;
 import com.opengamma.language.procedure.MetaProcedure;
 import com.opengamma.language.procedure.PublishedProcedure;
@@ -92,10 +95,31 @@ public class ConfigureViewClientProcedure extends AbstractProcedureInvoker.NoRes
     public Boolean visitMarketDataOverride(final MarketDataOverride marketDataOverride) {
       s_logger.debug("Applying {}", marketDataOverride);
       final MarketDataInjector injector = getViewClient().getViewClient().getLiveDataOverrideInjector();
+      Object value = marketDataOverride.getValue();
+      if (marketDataOverride.getOperation() != null) {
+        switch (marketDataOverride.getOperation()) {
+          case ADD:
+            if (value instanceof Number) {
+              value = new MarketDataAddOperation(((Number) value).doubleValue());
+            } else {
+              throw new InvokeInvalidArgumentException("Invalid ADD override - " + marketDataOverride.toString());
+            }
+            break;
+          case MULTIPLY:
+            if (value instanceof Number) {
+              value = new MarketDataMultiplyOperation(((Number) value).doubleValue());
+            } else {
+              throw new InvokeInvalidArgumentException("Invalid ADD override - " + marketDataOverride.toString());
+            }
+            break;
+          default:
+            throw new UnsupportedOperationException(marketDataOverride.getOperation().toString());
+        }
+      }
       if (marketDataOverride.getValueRequirement() != null) {
-        injector.addValue(marketDataOverride.getValueRequirement(), marketDataOverride.getValue());
+        injector.addValue(marketDataOverride.getValueRequirement(), value);
       } else {
-        injector.addValue(marketDataOverride.getIdentifier(), marketDataOverride.getValueName(), marketDataOverride.getValue());
+        injector.addValue(marketDataOverride.getIdentifier(), marketDataOverride.getValueName(), value);
       }
       return Boolean.TRUE;
     }
