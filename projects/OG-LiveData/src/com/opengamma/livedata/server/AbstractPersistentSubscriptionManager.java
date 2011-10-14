@@ -5,6 +5,9 @@
  */
 package com.opengamma.livedata.server;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -18,8 +21,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.google.common.collect.Lists;
-import com.opengamma.id.ExternalScheme;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
+import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.util.ArgumentChecker;
 
@@ -165,7 +171,8 @@ public abstract class AbstractPersistentSubscriptionManager implements Lifecycle
   private synchronized void updateServer(boolean catchExceptions) {
     Set<PersistentSubscription> persistentSubscriptionsToMake = new HashSet<PersistentSubscription>(_persistentSubscriptions);
     
-    int partitionSize = 100; //Aim is to make sure we can convert subscriptions quickly enough that nothing expires
+    int partitionSize = 50; //Aim is to make sure we can convert subscriptions quickly enough that nothing expires, and to leave the server responsive, and make retrys not take too long
+
     List<List<PersistentSubscription>> partitions = Lists.partition(Lists.newArrayList(persistentSubscriptionsToMake), partitionSize);
     for (List<PersistentSubscription> partition : partitions) {
       Iterator<PersistentSubscription> iterator = persistentSubscriptionsToMake.iterator();
@@ -182,24 +189,46 @@ public abstract class AbstractPersistentSubscriptionManager implements Lifecycle
         }
       }
       
-      for (PersistentSubscription sub : partition) {
-        //TODO: PLAT-1632 - bulk subscribe, but handle exceptions
-        if (!persistentSubscriptionsToMake.contains(sub)) {
-          continue; // We did this the fast way
-        }
-        createPersistentSubscription(catchExceptions, sub);
-        persistentSubscriptionsToMake.remove(sub);
+      SetView<PersistentSubscription> toMake = Sets.intersection(new HashSet<PersistentSubscription>(partition), persistentSubscriptionsToMake);
+      if (!toMake.isEmpty()) {
+        createPersistentSubscription(catchExceptions, toMake); //PLAT-1632 
+        persistentSubscriptionsToMake.removeAll(toMake);
       }
     }
+    s_logger.info("Server updated");
   }
 
   private void createPersistentSubscription(boolean catchExceptions, PersistentSubscription sub) {
-    s_logger.info("Creating {}", sub);
+    createPersistentSubscription(catchExceptions, Collections.singleton(sub));
+  }
+  
+  private void createPersistentSubscription(boolean catchExceptions, Set<PersistentSubscription> subs) {
+    if (subs.isEmpty()) {
+      return;
+    }
+    s_logger.info("Creating {}", subs);
     try {
-      _server.subscribe(sub.getFullyQualifiedSpec(), true);
+      Collection<LiveDataSpecification> specs = new ArrayList<LiveDataSpecification>();
+      for (PersistentSubscription sub : subs) {
+        specs.add(sub.getFullyQualifiedSpec());
+      }
+      Collection<LiveDataSubscriptionResponse> results = _server.subscribe(specs, true);
+      for (LiveDataSubscriptionResponse liveDataSubscriptionResponse : results) {
+        if (liveDataSubscriptionResponse.getSubscriptionResult() != LiveDataSubscriptionResult.SUCCESS)
+        {
+          s_logger.warn("Failed to create persistent subscription {}", liveDataSubscriptionResponse);
+        }
+      }
     } catch (RuntimeException e) {
       if (catchExceptions) {
-        s_logger.error("Creating a persistent subscription failed for " + sub, e);
+        //This should be rare
+        s_logger.error("Creating a persistent subscription failed for " + subs, e);
+        if (subs.size() > 1) {
+          //  NOTE: have to retry here since _all_ of the subs will have failed
+          for (PersistentSubscription persistentSubscription : subs) {
+            createPersistentSubscription(catchExceptions, persistentSubscription);
+          }
+        }
       } else {
         throw e;            
       }
