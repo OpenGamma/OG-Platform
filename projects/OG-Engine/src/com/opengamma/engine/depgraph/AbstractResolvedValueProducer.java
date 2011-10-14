@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.depgraph.DependencyGraphBuilderPLAT1049.GraphBuildingContext;
+import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -96,6 +96,7 @@ import com.opengamma.engine.value.ValueSpecification;
       synchronized (AbstractResolvedValueProducer.this) {
         assert !_closed;
         _closed = true;
+        _pumped.remove(this);
       }
       release(context);
     }

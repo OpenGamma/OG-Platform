@@ -1,0 +1,43 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.language.config {
+
+  /**
+   * Configuration item representing the view calculation rates for configuring a view definition.
+   */
+  message ViewCalculationRate extends ConfigurationItem {
+  
+    /**
+     * The minimum time to elapse between delta cycles.
+     */
+    required long minDelta;
+    
+    /**
+     * The maximum time to elapse between delta cycles.
+     */
+    required long maxDelta;
+    
+    /**
+     * The minimum time to elapse between full cycles.
+     */
+    required long minFull;
+    
+    /**
+     * The maximum time to elapse between full cycles.
+     */
+    required long maxFull;
+  
+    binding Java {
+      body <<<JAVA
+        @Override 
+        public <T> T accept (final ConfigurationItemVisitor<T> visitor) { return visitor.visitViewCalculationRate (this); }
+JAVA;
+    }
+  
+  }
+
+}
