@@ -28,6 +28,7 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.monitor.OperationTimer;
 
 /**
  * Stores persistent subscriptions in persistent storage so they're not lost if
@@ -170,6 +171,7 @@ public abstract class AbstractPersistentSubscriptionManager implements Lifecycle
    */
   private synchronized void updateServer(boolean catchExceptions) {
     Set<PersistentSubscription> persistentSubscriptionsToMake = new HashSet<PersistentSubscription>(_persistentSubscriptions);
+    OperationTimer operationTimer = new OperationTimer(s_logger, "Updating server's persistent subscriptions {}", persistentSubscriptionsToMake.size());
     
     int partitionSize = 50; //Aim is to make sure we can convert subscriptions quickly enough that nothing expires, and to leave the server responsive, and make retrys not take too long
 
@@ -195,6 +197,7 @@ public abstract class AbstractPersistentSubscriptionManager implements Lifecycle
         persistentSubscriptionsToMake.removeAll(toMake);
       }
     }
+    operationTimer.finished();
     s_logger.info("Server updated");
   }
 
