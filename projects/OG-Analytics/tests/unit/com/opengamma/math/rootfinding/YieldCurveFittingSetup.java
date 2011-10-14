@@ -520,7 +520,7 @@ public abstract class YieldCurveFittingSetup {
       final String foreignIndexCurve, final double spread) {
 
     FloatingRateNote domesticFRN = makeFRN(domesticNotional, swapLength, domesticPaymentFreq, domesticDiscountCurve, domesticIndexCurve, 0.0);
-    FloatingRateNote foreignFRN = makeFRN(foreignNotional, swapLength, foreignPaymentFreq, foreignDiscountCurve, foreignIndexCurve, 0.0);
+    FloatingRateNote foreignFRN = makeFRN(foreignNotional, swapLength, foreignPaymentFreq, foreignDiscountCurve, foreignIndexCurve, spread);
 
     double spotFX = domesticNotional.getAmount() / foreignNotional.getAmount(); //assume the initial exchange of notionals cancels 
     return new CrossCurrencySwap(domesticFRN, foreignFRN, spotFX);
