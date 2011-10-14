@@ -96,7 +96,7 @@ public class BondFutureSecurityHullWhiteMethodTest {
     final double priceComputed = METHOD_HW.price(BOND_FUTURE_SECURITY, BUNDLE_HW);
     double priceExpected = 1.00; // Rates are at 6%
     assertEquals("Bond future security Discounting Method: price from curves", priceExpected, priceComputed, 5.0E-3);
-    double pricePrevious = 0.9963152545; // Price from previous run
+    double pricePrevious = 0.99575269; // Price from previous run
     assertEquals("Bond future security Discounting Method: price from curves", pricePrevious, priceComputed, 1.0E-8);
   }
 

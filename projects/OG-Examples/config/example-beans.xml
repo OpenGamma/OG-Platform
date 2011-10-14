@@ -26,7 +26,7 @@
   
   <import resource="classpath:com/opengamma/financial/demoViewProcessor.xml" />
     
-  <import resource="classpath:dataLoader-${opengamma.platform.runmode}.xml" />
+  <import resource="classpath:dataLoader.xml" />
   
   <!-- Information about the market data -->
   <bean id="liveMarketDataSourceRegistry" class="com.opengamma.engine.marketdata.DefaultLiveMarketDataSourceRegistry" />

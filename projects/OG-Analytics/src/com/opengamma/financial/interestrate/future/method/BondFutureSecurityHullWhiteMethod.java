@@ -188,7 +188,7 @@ public final class BondFutureSecurityHullWhiteMethod {
       for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(nbInt - 1)].length; loopcf++) {
         price += cfaAdjusted[ctd.get(nbInt - 1)][loopcf] * (1.0 - NORMAL.getCDF(kappa[nbInt - 2] + alpha[ctd.get(nbInt - 1)][loopcf]));
       }
-      price -= e[ctd.get(0)] * (1 - NORMAL.getCDF(kappa[nbInt - 2]));
+      price -= e[ctd.get(nbInt - 1)] * (1 - NORMAL.getCDF(kappa[nbInt - 2]));
     }
 
     return price;
@@ -287,7 +287,6 @@ public final class BondFutureSecurityHullWhiteMethod {
         refx.add(x[looppt]);
       }
     }
-
     // Sum on each interval
     int nbInt = ctd.size();
     double[] kappa = new double[nbInt - 1];
@@ -355,6 +354,12 @@ public final class BondFutureSecurityHullWhiteMethod {
     return result;
   }
 
+  /**
+   * Computes the future price curve sensitivity. The default number of points is used for the numerical search.
+   * @param future The future security.
+   * @param hwData The curve and Hull-White parameters.
+   * @return The curve sensitivity.
+   */
   public InterestRateCurveSensitivity priceCurveSensitivity(final BondFutureSecurity future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     return priceCurveSensitivity(future, hwData, DEFAULT_NB_POINTS);
   }
@@ -384,11 +389,11 @@ public final class BondFutureSecurityHullWhiteMethod {
     public Double evaluate(Double x) {
       double pv = 0.0;
       for (int loopcf = 0; loopcf < _cfa1.length; loopcf++) {
-        pv += _cfa1[loopcf] * Math.exp(-_alpha1[loopcf] * _alpha1[loopcf] - _alpha1[loopcf] * x / 2.0);
+        pv += _cfa1[loopcf] * Math.exp(-_alpha1[loopcf] * _alpha1[loopcf] / 2.0 - _alpha1[loopcf] * x);
       }
       pv -= _e1;
       for (int loopcf = 0; loopcf < _cfa2.length; loopcf++) {
-        pv -= _cfa2[loopcf] * Math.exp(-_alpha2[loopcf] * _alpha2[loopcf] - _alpha2[loopcf] * x / 2.0);
+        pv -= _cfa2[loopcf] * Math.exp(-_alpha2[loopcf] * _alpha2[loopcf] / 2.0 - _alpha2[loopcf] * x);
       }
       pv += _e2;
       return pv;
