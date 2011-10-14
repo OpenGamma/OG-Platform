@@ -6,14 +6,19 @@
 package com.opengamma.livedata.server;
 
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CountDownLatch;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
+import com.google.common.collect.Lists;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.util.ArgumentChecker;
@@ -86,7 +91,8 @@ public abstract class AbstractPersistentSubscriptionManager implements Lifecycle
 
   @Override
   public void start() {
-    refresh();
+    refreshAsync(); //PLAT-1632
+    //Safe after refresh queued to avoid empty save
     _saveTask = new SaveTask();
     _timer.schedule(_saveTask, _savePeriod, _savePeriod);
   }
@@ -95,39 +101,107 @@ public abstract class AbstractPersistentSubscriptionManager implements Lifecycle
   public void stop() {
     _saveTask.cancel();
     _saveTask = null;
+    waitForIdleTimer();
   }
 
+  private void waitForIdleTimer() {
+    final CountDownLatch countDownLatch = new CountDownLatch(1);;
+    s_logger.info("Waiting for timer to be idle");
+    try {
+      _timer.schedule(new TimerTask() {
+        @Override
+        public void run() {
+          countDownLatch.countDown();
+        }
+      }, 0);
+      countDownLatch.await();
+      s_logger.info("Timer idle");
+    } catch (Exception ex) {
+      s_logger.error("Couldn't waiting for timer to be idle", ex);
+    }
+  }
+
+  /**
+   * This should mean that all the subscriptions become persistent eventually, 
+   *  and (importantly) none of them expire in the mean time.
+   * Because of the implementation of updateServer.
+   */
+  private synchronized void refreshAsync() {
+    refreshState();
+
+    _timer.schedule(new TimerTask() {
+      @Override
+      public void run() {
+        //We release the lock before here, so someone could sneak in and change things
+        updateServer(true);
+      }
+    }, 0);
+  }
+  
   public synchronized void refresh() {
+    refreshState();
+
+    updateServer(true);
+  }
+
+  /**
+   * Reads from all sources to our private state
+   */
+  private synchronized void refreshState() {
     s_logger.debug("Refreshing persistent subscriptions from storage");
 
     clear();
     readFromStorage();
     readFromServer();
-
-    updateServer(true);
-
+    
     s_logger.info("Refreshed persistent subscriptions from storage. There are currently "
-            + _persistentSubscriptions.size() + " persistent subscriptions.");
+        + _persistentSubscriptions.size() + " persistent subscriptions.");
   }
 
   /**
    * Creates a persistent subscription on the server for any persistent
    * subscriptions which are not yet there.
    */
-  private void updateServer(boolean catchExceptions) {
-    for (PersistentSubscription sub : _persistentSubscriptions) {
-      MarketDataDistributor existingDistributor = _server.getMarketDataDistributor(sub.getFullyQualifiedSpec());
-      if (existingDistributor == null || !existingDistributor.isPersistent()) {
-        s_logger.info("Creating {}", sub);
-        try {
-          _server.subscribe(sub.getFullyQualifiedSpec(), true);
-        } catch (RuntimeException e) {
-          if (catchExceptions) {
-            s_logger.error("Creating a persistent subscription failed for " + sub, e);
-          } else {
-            throw e;            
-          }
+  private synchronized void updateServer(boolean catchExceptions) {
+    Set<PersistentSubscription> persistentSubscriptionsToMake = new HashSet<PersistentSubscription>(_persistentSubscriptions);
+    
+    int partitionSize = 100; //Aim is to make sure we can convert subscriptions quickly enough that nothing expires
+    List<List<PersistentSubscription>> partitions = Lists.partition(Lists.newArrayList(persistentSubscriptionsToMake), partitionSize);
+    for (List<PersistentSubscription> partition : partitions) {
+      Iterator<PersistentSubscription> iterator = persistentSubscriptionsToMake.iterator();
+      while (iterator.hasNext()) {
+        PersistentSubscription sub = iterator.next();
+        MarketDataDistributor existingDistributor = _server.getMarketDataDistributor(sub.getFullyQualifiedSpec());
+        if (existingDistributor == null) {
+          //We'll deal with this in its partition
+          continue;
+        } else {
+          //Upgrade or no/op should be fast, lets do it to avoid expiry
+          createPersistentSubscription(catchExceptions, sub);
+          iterator.remove();
         }
+      }
+      
+      for (PersistentSubscription sub : partition) {
+        //TODO: PLAT-1632 - bulk subscribe, but handle exceptions
+        if (!persistentSubscriptionsToMake.contains(sub)) {
+          continue; // We did this the fast way
+        }
+        createPersistentSubscription(catchExceptions, sub);
+        persistentSubscriptionsToMake.remove(sub);
+      }
+    }
+  }
+
+  private void createPersistentSubscription(boolean catchExceptions, PersistentSubscription sub) {
+    s_logger.info("Creating {}", sub);
+    try {
+      _server.subscribe(sub.getFullyQualifiedSpec(), true);
+    } catch (RuntimeException e) {
+      if (catchExceptions) {
+        s_logger.error("Creating a persistent subscription failed for " + sub, e);
+      } else {
+        throw e;            
       }
     }
   }
