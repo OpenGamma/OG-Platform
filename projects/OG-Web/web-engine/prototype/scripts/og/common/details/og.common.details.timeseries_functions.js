@@ -19,26 +19,27 @@ $.register_module({
                             <td>Data Points</td>\
                             <td><span class="OG-link og-js-timeSeriesCsv">Download (CSV)</span></td>\
                           </tr><tr>\
-                            <td>' + json.fieldLabels[0] + '</td>\
-                            <td>' + json.fieldLabels[1] + '</td>\
+                            <td></td>\
+                            <td></td>\
                           </tr>\
                         </thead>\
                         <tbody class="og-mod-content" style="height: 200px"></tbody>'
                     ).find('tbody'),
                     render = function (start, end) {
-                        if (start >= length) return handler();
-                        var str = json.data.slice(start, end).reduce(function (acc, val) {
-                            var date = new Date(val[0]), d = date.getDate(), m = date.getMonth() + 1,
-                                day = d < 10 ? '0' + d : d,
-                                month = m < 10 ? '0' + m : m;
-                            acc.push(
-                                '<tr><td>', day, '/', month, '/', date.getFullYear(), '</td>',
-                                '<td>', val[1], '</td></tr>'
-                            );
-                            return acc;
-                        }, []).join('');
-                        $parent.append(str);
-                        setTimeout(render.partial(end, end + CHUNK), 0);
+                        handler();
+//                        if (start >= length) return handler();
+//                        var str = json.data.slice(start, end).reduce(function (acc, val) {
+//                            var date = new Date(val[0]), d = date.getDate(), m = date.getMonth() + 1,
+//                                day = d < 10 ? '0' + d : d,
+//                                month = m < 10 ? '0' + m : m;
+//                            acc.push(
+//                                '<tr><td>', day, '/', month, '/', date.getFullYear(), '</td>',
+//                                '<td>', val[1], '</td></tr>'
+//                            );
+//                            return acc;
+//                        }, []).join('');
+//                        $parent.append(str);
+//                        setTimeout(render.partial(end, end + CHUNK), 0);
                     };
                 render(0, CHUNK);
             },
