@@ -149,6 +149,15 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
   }
 
   /**
+   * Gets the non-zero values in the matrix, i.e. the values that are worth storing.
+   * Method is for unity with other matrix types and simply redirects to getNonZeroElements();
+   * @return _values, the non-zero values
+   */
+  public double[] getData() {
+    return getNonZeroElements();
+  }
+
+  /**
    * Gets the number of rows in the matrix (is not equal to count(unique(rowPtr)) as matrix could be singular/have row of zeros))
    * @return _rows, the number of rows corresponding to a full matrix representation of the compressed matrix
    */

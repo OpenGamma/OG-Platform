@@ -11,7 +11,7 @@ import com.opengamma.math.BLAS.BLAS2KernelAbstractions.BLAS2DGEMVKernelAbstracti
 import com.opengamma.math.matrix.DenseMatrix;
 
 /**
- * Does DGEMV like operations on the DenseMatrix type
+ * Does DGEMV like operations on the {@link DenseMatrix} type
  */
 public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<DenseMatrix> {
   private static DGEMVForDenseMatrix s_instance = new DGEMVForDenseMatrix();
