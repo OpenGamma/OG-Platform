@@ -9,8 +9,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -180,19 +181,15 @@ public abstract class AbstractPersistentSubscriptionManager implements Lifecycle
     List<List<LiveDataSpecification>> partitions = Lists.partition(Lists.newArrayList(persistentSubscriptionsToMake), partitionSize);
     for (List<LiveDataSpecification> partition : partitions) {
       
-      Iterator<LiveDataSpecification> iterator = persistentSubscriptionsToMake.iterator();
-      while (iterator.hasNext()) {
-        LiveDataSpecification spec = iterator.next();
-        MarketDataDistributor existingDistributor = _server.getMarketDataDistributor(spec);
-        if (existingDistributor == null) {
-          //We'll deal with this in its partition
-          continue;
-        } else {
+      Map<LiveDataSpecification, MarketDataDistributor> marketDataDistributors = _server.getMarketDataDistributors(persistentSubscriptionsToMake);
+      for (Entry<LiveDataSpecification, MarketDataDistributor> distrEntry : marketDataDistributors.entrySet()) {
+        if (distrEntry.getValue() != null) {
           //Upgrade or no/op should be fast, lets do it to avoid expiry
-          createPersistentSubscription(catchExceptions, spec);
-          iterator.remove();
+          createPersistentSubscription(catchExceptions, distrEntry.getKey());
+          persistentSubscriptionsToMake.remove(distrEntry.getKey());
         }
       }
+      
       
       SetView<LiveDataSpecification> toMake = Sets.intersection(new HashSet<LiveDataSpecification>(partition), persistentSubscriptionsToMake);
       if (!toMake.isEmpty()) {
