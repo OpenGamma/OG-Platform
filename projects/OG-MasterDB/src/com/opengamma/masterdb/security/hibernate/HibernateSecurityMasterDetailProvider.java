@@ -212,6 +212,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
         result.setUniqueId(base.getUniqueId());
         result.setName(base.getName());
         result.setExternalIdBundle(base.getExternalIdBundle());
+        result.setAttributes(base.getAttributes());
         return result;
       }
     });
