@@ -170,28 +170,31 @@ public abstract class AbstractPersistentSubscriptionManager implements Lifecycle
    * subscriptions which are not yet there.
    */
   private synchronized void updateServer(boolean catchExceptions) {
-    Set<PersistentSubscription> persistentSubscriptionsToMake = new HashSet<PersistentSubscription>(_persistentSubscriptions);
+    Collection<LiveDataSpecification> specs = getSpecs(_persistentSubscriptions);
+    Set<LiveDataSpecification> persistentSubscriptionsToMake = new HashSet<LiveDataSpecification>(specs);
+    
     OperationTimer operationTimer = new OperationTimer(s_logger, "Updating server's persistent subscriptions {}", persistentSubscriptionsToMake.size());
     
     int partitionSize = 50; //Aim is to make sure we can convert subscriptions quickly enough that nothing expires, and to leave the server responsive, and make retrys not take too long
 
-    List<List<PersistentSubscription>> partitions = Lists.partition(Lists.newArrayList(persistentSubscriptionsToMake), partitionSize);
-    for (List<PersistentSubscription> partition : partitions) {
-      Iterator<PersistentSubscription> iterator = persistentSubscriptionsToMake.iterator();
+    List<List<LiveDataSpecification>> partitions = Lists.partition(Lists.newArrayList(persistentSubscriptionsToMake), partitionSize);
+    for (List<LiveDataSpecification> partition : partitions) {
+      
+      Iterator<LiveDataSpecification> iterator = persistentSubscriptionsToMake.iterator();
       while (iterator.hasNext()) {
-        PersistentSubscription sub = iterator.next();
-        MarketDataDistributor existingDistributor = _server.getMarketDataDistributor(sub.getFullyQualifiedSpec());
+        LiveDataSpecification spec = iterator.next();
+        MarketDataDistributor existingDistributor = _server.getMarketDataDistributor(spec);
         if (existingDistributor == null) {
           //We'll deal with this in its partition
           continue;
         } else {
           //Upgrade or no/op should be fast, lets do it to avoid expiry
-          createPersistentSubscription(catchExceptions, sub);
+          createPersistentSubscription(catchExceptions, spec);
           iterator.remove();
         }
       }
       
-      SetView<PersistentSubscription> toMake = Sets.intersection(new HashSet<PersistentSubscription>(partition), persistentSubscriptionsToMake);
+      SetView<LiveDataSpecification> toMake = Sets.intersection(new HashSet<LiveDataSpecification>(partition), persistentSubscriptionsToMake);
       if (!toMake.isEmpty()) {
         createPersistentSubscription(catchExceptions, toMake); //PLAT-1632 
         persistentSubscriptionsToMake.removeAll(toMake);
@@ -201,20 +204,16 @@ public abstract class AbstractPersistentSubscriptionManager implements Lifecycle
     s_logger.info("Server updated");
   }
 
-  private void createPersistentSubscription(boolean catchExceptions, PersistentSubscription sub) {
+  private void createPersistentSubscription(boolean catchExceptions, LiveDataSpecification sub) {
     createPersistentSubscription(catchExceptions, Collections.singleton(sub));
   }
   
-  private void createPersistentSubscription(boolean catchExceptions, Set<PersistentSubscription> subs) {
-    if (subs.isEmpty()) {
+  private void createPersistentSubscription(boolean catchExceptions, Set<LiveDataSpecification> specs) {
+    if (specs.isEmpty()) {
       return;
     }
-    s_logger.info("Creating {}", subs);
+    s_logger.info("Creating {}", specs);
     try {
-      Collection<LiveDataSpecification> specs = new ArrayList<LiveDataSpecification>();
-      for (PersistentSubscription sub : subs) {
-        specs.add(sub.getFullyQualifiedSpec());
-      }
       Collection<LiveDataSubscriptionResponse> results = _server.subscribe(specs, true);
       for (LiveDataSubscriptionResponse liveDataSubscriptionResponse : results) {
         if (liveDataSubscriptionResponse.getSubscriptionResult() != LiveDataSubscriptionResult.SUCCESS)
@@ -225,17 +224,25 @@ public abstract class AbstractPersistentSubscriptionManager implements Lifecycle
     } catch (RuntimeException e) {
       if (catchExceptions) {
         //This should be rare
-        s_logger.error("Creating a persistent subscription failed for " + subs, e);
-        if (subs.size() > 1) {
+        s_logger.error("Creating a persistent subscription failed for " + specs, e);
+        if (specs.size() > 1) {
           //  NOTE: have to retry here since _all_ of the subs will have failed
-          for (PersistentSubscription persistentSubscription : subs) {
-            createPersistentSubscription(catchExceptions, persistentSubscription);
+          for (LiveDataSpecification spec : specs) {
+            createPersistentSubscription(catchExceptions, spec);
           }
         }
       } else {
         throw e;            
       }
     }
+  }
+
+  private Collection<LiveDataSpecification> getSpecs(Set<PersistentSubscription> subs) {
+    Collection<LiveDataSpecification> specs = new ArrayList<LiveDataSpecification>();
+    for (PersistentSubscription sub : subs) {
+      specs.add(sub.getFullyQualifiedSpec());
+    }
+    return specs;
   }
 
   public synchronized void save() {
