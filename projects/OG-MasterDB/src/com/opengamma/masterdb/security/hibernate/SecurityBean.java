@@ -5,6 +5,8 @@
  */
 package com.opengamma.masterdb.security.hibernate;
 
+import java.util.Map;
+
 /**
  * Hibernate bean for a security.
  */
@@ -18,6 +20,11 @@ public abstract class SecurityBean {
    * The security id.
    */
   private Long _securityId;
+
+  /**
+   * The security _attributes.
+   */
+  private Map<String, String> _attributes;
 
   //-------------------------------------------------------------------------
   /**
@@ -53,4 +60,21 @@ public abstract class SecurityBean {
     _securityId = securityId;
   }
 
+  /**
+   * Gets the _attributes to use for security aggregation.
+   *
+   * @return the _attributes, not null
+   */
+  public Map<String, String> getAttributes() {
+    return _attributes;
+  }
+
+  /**
+   * Sets the _attributes to use for security aggregation.
+   *
+   * @param attributes to set
+   */
+  public void setAttributes(Map<String, String> attributes) {
+    this._attributes = attributes;
+  }
 }
