@@ -225,18 +225,6 @@
   left: 0;
 }
 
-.ui-layout-inner-south {
-  border: 2px solid #ffdd00;
-  bottom: 0;
-  left: 0;
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-
-/* Versions */
-.ui-layout-inner-south .ui-layout-content {
-  overflow: scroll;
-  overflow-x: auto;
-  overflow-y: scroll;
+.ui-layout-inner-south-south .ui-layout-header {
+  height: 69px;
 }

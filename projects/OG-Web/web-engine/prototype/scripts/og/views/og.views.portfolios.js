@@ -17,7 +17,8 @@ $.register_module({
         'og.views.common.layout',
         'og.views.common.versions',
         'og.views.common.state',
-        'og.views.common.default_details'
+        'og.views.common.default_details',
+        'og.views.common.versions'
     ],
     obj: function () {
         var api = og.api,
@@ -310,7 +311,7 @@ $.register_module({
                                     </section>\
                                 ',
                                 $html = $.tmpl(template, json.template_data),
-                                layout = og.views.common.layout, header, content;
+                                header, content, layout = og.views.common.layout;
                             header = $.outer($html.find('> header')[0]);
                             content = $.outer($html.find('> section')[0]);
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
@@ -342,9 +343,14 @@ $.register_module({
                     },
                     id: args.id,
                     node: args.node,
-                    version: args.version,
+                    version: args.version && args.version !== '*' ? args.version : void 0,
                     loading: function () {
-                        if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions.load()}
+                        var layout = og.views.common.layout;
+                        if (routes.current().args.version) {
+                            layout.inner.open('south');
+                            if (args.version) og.views.common.versions.load();
+                        }
+                        else layout.inner.close('south');
                         ui.message({
                             location: '.ui-layout-inner-center',
                             message: {0: 'loading...', 3000: 'still loading...'}

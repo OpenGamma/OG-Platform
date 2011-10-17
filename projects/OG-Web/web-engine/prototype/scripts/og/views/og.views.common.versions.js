@@ -9,6 +9,7 @@ $.register_module({
         var SELECTOR = '.ui-layout-inner-south .ui-layout-content', versions;
         return versions = {
             load: function () {
+                versions.setup();
                 var cur = og.common.routes.current(), ui = og.common.util.ui, routes = og.common.routes;
                 if (!routes.current().args.id) {versions.clear()}
                 og.api.rest[cur.page.substring(1)].get({
@@ -43,6 +44,7 @@ $.register_module({
                         });
                         $(SELECTOR).html($list);
                         ui.message({location: '.ui-layout-inner-south', destroy: true});
+                        og.views.common.layout.main.resizeAll();
                     },
                     loading: function () {
                         ui.message({
@@ -52,7 +54,19 @@ $.register_module({
                     }
                 });
             },
-            clear: function () {$(SELECTOR).html('History not available for this view')}
+            clear: function () {$(SELECTOR).empty()},
+            setup: function () {
+                $(SELECTOR).prev().html(
+                   '<div><header><h2>Version History</h2></header></div>\
+                    <div class="og-version-header">\
+                      <table>\
+                        <colgroup></colgroup><colgroup></colgroup><colgroup></colgroup>\
+                        <thead><tr><th>Reference</th><th>Name</th><th>Valid from</th></tr></thead>\
+                      </table>\
+                    </div>\
+                    <div class="og-divider"></div>\
+                ').parent().addClass('OG-versions');
+            }
         }
     }
 });
