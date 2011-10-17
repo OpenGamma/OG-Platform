@@ -76,8 +76,8 @@ public abstract class FDCurveSensitivityCalculator {
    * @param absTol If the absolute value of a sensitivities is below this value it is ignored 
    * @return Sensitivities at a given points 
    */
-  public static final List<DoublesPair> curveSensitvityFDCalculator(final InterestRateDerivative ird, PricingMethod method,
-      final YieldCurveBundle curves, final String curveName, final double[] times, final double absTol) {
+  public static final List<DoublesPair> curveSensitvityFDCalculator(final InterestRateDerivative ird, PricingMethod method, final YieldCurveBundle curves, final String curveName,
+      final double[] times, final double absTol) {
 
     Validate.notNull(times, "null times");
     Validate.notNull(ird, "null ird");
@@ -113,8 +113,8 @@ public abstract class FDCurveSensitivityCalculator {
    * @param t The time along the curve. <b>Note</b> This should be a known sensitivity point or the result will be zero 
    * @return Sensitivity at a given point 
    */
-  public static final double curveSensitvityFDCalculator(final InterestRateDerivative ird, AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator,
-      final YieldCurveBundle curves, final String curveName, final double t) {
+  public static final double curveSensitvityFDCalculator(final InterestRateDerivative ird, AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator, final YieldCurveBundle curves,
+      final String curveName, final double t) {
     Validate.notNull(ird, "null ird");
     Validate.notNull(calculator, "null calculator");
     Validate.notNull(curves, "null curves");
@@ -124,8 +124,8 @@ public abstract class FDCurveSensitivityCalculator {
     return impFDCalculator(ird, calculator, curves, curveName, t);
   }
 
-  private static double impFDCalculator(final InterestRateDerivative ird, AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator,
-      final YieldCurveBundle curves, final String curveName, final double t) {
+  private static double impFDCalculator(final InterestRateDerivative ird, AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator, final YieldCurveBundle curves,
+      final String curveName, final double t) {
 
     final double eps = 1e-6;
 
@@ -140,7 +140,7 @@ public abstract class FDCurveSensitivityCalculator {
     YieldAndDiscountCurve originalCurve = curves.getCurve(curveName);
 
     @SuppressWarnings("rawtypes")
-    Curve[] curveSet = new Curve[] {originalCurve.getCurve(), blipCurve };
+    Curve[] curveSet = new Curve[] {originalCurve.getCurve(), blipCurve};
     @SuppressWarnings("unchecked")
     YieldAndDiscountCurve upCurve = new YieldCurve(SpreadDoublesCurve.from(curveSet, new AddCurveSpreadFunction()));
     @SuppressWarnings("unchecked")
@@ -155,8 +155,7 @@ public abstract class FDCurveSensitivityCalculator {
     return (up - down) / 2 / eps;
   }
 
-  private static double impFDCalculator(final InterestRateDerivative ird, PricingMethod method,
-      final YieldCurveBundle curves, final String curveName, final double t) {
+  private static double impFDCalculator(final InterestRateDerivative ird, PricingMethod method, final YieldCurveBundle curves, final String curveName, final double t) {
 
     final double eps = 1e-6;
 
@@ -171,7 +170,7 @@ public abstract class FDCurveSensitivityCalculator {
     YieldAndDiscountCurve originalCurve = curves.getCurve(curveName);
 
     @SuppressWarnings("rawtypes")
-    Curve[] curveSet = new Curve[] {originalCurve.getCurve(), blipCurve };
+    Curve[] curveSet = new Curve[] {originalCurve.getCurve(), blipCurve};
     @SuppressWarnings("unchecked")
     YieldAndDiscountCurve upCurve = new YieldCurve(SpreadDoublesCurve.from(curveSet, new AddCurveSpreadFunction()));
     @SuppressWarnings("unchecked")

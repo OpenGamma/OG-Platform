@@ -25,6 +25,8 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
+import com.opengamma.financial.instrument.future.BondFutureSecurityDefinition;
+import com.opengamma.financial.instrument.future.BondFutureTransactionDefinition;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.TestsDataSets;
@@ -55,12 +57,13 @@ public class BondFutureTransactionHullWhiteMethodTest {
   private static final boolean IS_EOM = false;
   private static final int SETTLEMENT_DAYS = 1;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
-  private static final int NB_BOND = 7;
   private static final Period[] BOND_TENOR = new Period[] {Period.ofYears(5), Period.ofYears(5), Period.ofYears(5), Period.ofYears(8), Period.ofYears(5), Period.ofYears(5), Period.ofYears(5)};
+  private static final int NB_BOND = BOND_TENOR.length;
   private static final ZonedDateTime[] START_ACCRUAL_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 11, 30), DateUtils.getUTCDate(2010, 12, 31), DateUtils.getUTCDate(2011, 1, 31),
       DateUtils.getUTCDate(2008, 2, 29), DateUtils.getUTCDate(2011, 3, 31), DateUtils.getUTCDate(2011, 4, 30), DateUtils.getUTCDate(2011, 5, 31)};
   private static final double[] RATE = new double[] {0.01375, 0.02125, 0.0200, 0.02125, 0.0225, 0.0200, 0.0175};
   private static final double[] CONVERSION_FACTOR = new double[] {.8317, .8565, .8493, .8516, .8540, .8417, .8292};
+
   private static final ZonedDateTime[] MATURITY_DATE = new ZonedDateTime[NB_BOND];
   private static final BondFixedSecurityDefinition[] BASKET_DEFINITION = new BondFixedSecurityDefinition[NB_BOND];
   static {
@@ -105,6 +108,7 @@ public class BondFutureTransactionHullWhiteMethodTest {
   private static final int QUANTITY = 4321;
   private static final double REFERENCE_PRICE = 1.0987;
   private static final BondFutureTransaction FUTURE_TRANSACTION = new BondFutureTransaction(BOND_FUTURE_SECURITY, QUANTITY, REFERENCE_PRICE);
+
   @Test(enabled = true)
   /**
    * Tests the present value method for bond futures transactions.
@@ -133,19 +137,49 @@ public class BondFutureTransactionHullWhiteMethodTest {
     assertEquals("Bond future transaction Method: present value from price", presentValueMethod, presentValueCalculator);
   }
 
- 
-  
+  @Test
+  /**
+   * Tests the curve sensitivity with one bond in the basket.
+   */
+  public void presentValueCurveSensitivityOneBasket() {
+    final double toleranceSensitivity = 1.0E+2; // 1.0E+2: 0.01 USD by bp 
+    BondFixedSecurityDefinition[] basket1Definition = new BondFixedSecurityDefinition[1];
+    basket1Definition[0] = BASKET_DEFINITION[0];
+    double[] conversionFactor = new double[1];
+    conversionFactor[0] = CONVERSION_FACTOR[0];
+    BondFutureSecurityDefinition futureSecurity1Definition = new BondFutureSecurityDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, basket1Definition, conversionFactor);
+    BondFutureTransactionDefinition futureTransaction1Definition = new BondFutureTransactionDefinition(futureSecurity1Definition, QUANTITY, REFERENCE_DATE, REFERENCE_PRICE);
+    BondFutureTransaction futureTransaction1 = futureTransaction1Definition.toDerivative(REFERENCE_DATE, REFERENCE_PRICE, CURVES_NAME);
+    InterestRateCurveSensitivity pvs = METHOD_FUTURE_TRANSACTION.presentValueCurveSensitivity(futureTransaction1, BUNDLE_HW);
+    pvs = pvs.clean();
+    // Bond curve sensitivity
+    DoubleAVLTreeSet bondTime = new DoubleAVLTreeSet();
+    bondTime.add(BOND_FUTURE_SECURITY.getDeliveryLastTime());
+    for (int loopcpn = 0; loopcpn < futureTransaction1.getUnderlyingFuture().getDeliveryBasket()[0].getCoupon().getNumberOfPayments(); loopcpn++) {
+      bondTime.add(futureTransaction1.getUnderlyingFuture().getDeliveryBasket()[0].getCoupon().getNthPayment(loopcpn).getPaymentTime());
+    }
+    double[] nodeTimesBond = bondTime.toDoubleArray();
+    List<DoublesPair> fdSensiList = curveSensitvityFDCalculator(futureTransaction1, METHOD_FUTURE_TRANSACTION, BUNDLE_HW, CURVES_NAME[0], nodeTimesBond, 1e-8); // Shift is 1.0E-6
+    final List<DoublesPair> sensiPvCredit = pvs.getSensitivities().get(CURVES_NAME[0]);
+    assertEquals(fdSensiList.size(), sensiPvCredit.size());
+    for (int loopnode = 0; loopnode < fdSensiList.size(); loopnode++) {
+      final DoublesPair pairPv = sensiPvCredit.get(loopnode);
+      assertEquals("Bond future curve sensitivity: node " + loopnode, fdSensiList.get(loopnode).first, pairPv.getFirst(), 1E-8); //checking times
+    }
+    for (int loopnode = 1; loopnode < fdSensiList.size(); loopnode++) {
+      assertEquals("Bond future curve sensitivity: node " + loopnode, fdSensiList.get(loopnode).second, sensiPvCredit.get(loopnode).second, toleranceSensitivity);
+    }
+  }
+
   @Test
   /**
    * Tests the curve sensitivity.
    */
   public void presentValueCurveSensitivity() {
-    //TODO: review the sensitivity difference.
+    final double toleranceSensitivity = 1.0E+5; // 1.0E+2: 0.01 USD by bp 
     InterestRateCurveSensitivity pvs = METHOD_FUTURE_TRANSACTION.presentValueCurveSensitivity(FUTURE_TRANSACTION, BUNDLE_HW);
     pvs = pvs.clean();
-    final double ratioTolerancePrice = 2.0E-4;
-    // 1. Credit curve sensitivity
-
+    // Bond curve sensitivity
     DoubleAVLTreeSet bondTime = new DoubleAVLTreeSet();
     bondTime.add(BOND_FUTURE_SECURITY.getDeliveryLastTime());
     for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
@@ -154,30 +188,16 @@ public class BondFutureTransactionHullWhiteMethodTest {
       }
     }
     double[] nodeTimesBond = bondTime.toDoubleArray();
-  
-  
-   List<DoublesPair> fdSensiList = curveSensitvityFDCalculator(FUTURE_TRANSACTION,METHOD_FUTURE_TRANSACTION,BUNDLE_HW,CURVES_NAME[0],
-       nodeTimesBond,1e-9);
+    List<DoublesPair> fdSensiList = curveSensitvityFDCalculator(FUTURE_TRANSACTION, METHOD_FUTURE_TRANSACTION, BUNDLE_HW, CURVES_NAME[0], nodeTimesBond, 1e-9);
     final List<DoublesPair> sensiPvCredit = pvs.getSensitivities().get(CURVES_NAME[0]);
-    
-    assertEquals( fdSensiList.size(),  sensiPvCredit.size());
-    
-    
-    for (int loopnode = 0; loopnode <  fdSensiList.size(); loopnode++) {
+    assertEquals(fdSensiList.size(), sensiPvCredit.size());
+    for (int loopnode = 0; loopnode < fdSensiList.size(); loopnode++) { //checking times
       final DoublesPair pairPv = sensiPvCredit.get(loopnode);
-      assertEquals(fdSensiList.get(loopnode).getFirst(), pairPv.getFirst(), 1E-8); //checking times
+      assertEquals(fdSensiList.get(loopnode).getFirst(), pairPv.getFirst(), 1E-8);
     }
-    assertEquals("Sensitivity finite difference method: node sensitivity 0", 1, sensiPvCredit.get(0).second / fdSensiList.get(0).second,
-        ratioTolerancePrice);
-    double sumCalculated = 0.0;
-    double sumExpected = 0.0;
-   //TODO R White: Should test individual sensitivities not the sum - there is some error with the individual entries 
-    for (int loopnode = 1; loopnode < fdSensiList.size(); loopnode++) {
-      sumCalculated += sensiPvCredit.get(loopnode).second;
-      sumExpected += fdSensiList.get(loopnode).second;
+    for (int loopnode = 1; loopnode < fdSensiList.size(); loopnode++) { // Checking sensitivity value
+      assertEquals("Bond future curve sensitivity: node " + loopnode, fdSensiList.get(loopnode).second, sensiPvCredit.get(loopnode).second, toleranceSensitivity);
     }
-    assertEquals("Sensitivity finite difference method: node sensitivity", 1, sumExpected / sumCalculated, ratioTolerancePrice);
-
   }
 
   @Test(enabled = true)
@@ -206,7 +226,7 @@ public class BondFutureTransactionHullWhiteMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " pv Bond Future Hull-White (Default number of points): " + (endTime - startTime) + " ms (pv=" + pv + ")");
-    // Performance note: HW pv: 25-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 190 ms for 1000 futures.
+    // Performance note: HW pv: 13-Oct-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 165 ms for 1000 futures.
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
@@ -214,8 +234,7 @@ public class BondFutureTransactionHullWhiteMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " pv curve sensitivity Bond Future Hull-White (Default number of points): " + (endTime - startTime) + " ms (pvs=" + pvs + ")");
-    // Performance note: HW pv sensitivity: 25-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 200 ms for 1000 futures.
-
+    // Performance note: HW pv sensitivity: 13-Oct-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 175 ms for 1000 futures.
   }
 
 }

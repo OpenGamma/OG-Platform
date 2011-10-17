@@ -184,8 +184,9 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     name = StringUtils.trimToNull(name);
     json = StringUtils.trimToNull(json);
     xml = StringUtils.trimToNull(xml);
+    type = StringUtils.trimToNull(type);
     Response result = null;
-    if (isEmptyName(name) || isEmptyConfigData(json, xml)) {
+    if (name == null || type == null || isEmptyConfigData(json, xml)) {
       result = Response.status(Status.BAD_REQUEST).build();
     } else {
       Object configObj = null;
@@ -211,10 +212,6 @@ public class WebConfigsResource extends AbstractWebConfigResource {
 
   private boolean isEmptyConfigData(String json, String xml) {
     return (json == null && xml == null);
-  }
-
-  private boolean isEmptyName(String name) {
-    return name == null;
   }
 
   //-------------------------------------------------------------------------
