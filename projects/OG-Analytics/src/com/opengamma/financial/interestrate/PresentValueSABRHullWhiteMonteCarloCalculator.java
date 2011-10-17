@@ -88,7 +88,7 @@ public class PresentValueSABRHullWhiteMonteCarloCalculator extends PresentValueC
     HullWhiteOneFactorPiecewiseConstantDataBundle hwBundle = new HullWhiteOneFactorPiecewiseConstantDataBundle(hwParameters, curves);
     // Pricing
     HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), DEFAULT_NB_PATH);
-    CurrencyAmount pvMC = methodMC.presentValue(swaption, swaption.getCurrency(), curves.getCurve(swaption.getUnderlyingSwap().getFirstLeg().getDiscountCurve()), hwBundle);
+    CurrencyAmount pvMC = methodMC.presentValue(swaption, swaption.getCurrency(), swaption.getUnderlyingSwap().getFirstLeg().getDiscountCurve(), hwBundle);
     return pvMC.getAmount();
   }
 
@@ -111,7 +111,7 @@ public class PresentValueSABRHullWhiteMonteCarloCalculator extends PresentValueC
     HullWhiteOneFactorPiecewiseConstantDataBundle hwBundle = new HullWhiteOneFactorPiecewiseConstantDataBundle(hwParameters, curves);
     // Pricing
     HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), DEFAULT_NB_PATH);
-    CurrencyAmount pvMC = methodMC.presentValue(annuity, annuity.getCurrency(), curves.getCurve(annuity.getDiscountCurve()), hwBundle);
+    CurrencyAmount pvMC = methodMC.presentValue(annuity, annuity.getCurrency(), annuity.getDiscountCurve(), hwBundle);
     return pvMC.getAmount();
   }
 

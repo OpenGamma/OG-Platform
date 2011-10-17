@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.interestrate.future.method;
 
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.method.PricingMethod;
@@ -34,10 +34,10 @@ public abstract class InterestRateFutureMethod implements PricingMethod {
    * @param curves The yield curves. Should contain the forward curve associated. 
    * @return The present value rate sensitivity.
    */
-  public PresentValueSensitivity presentValueCurveSensitivity(final InterestRateFuture future, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final InterestRateFuture future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
-    PresentValueSensitivity priceSensi = priceCurveSensitivity(future, curves);
-    PresentValueSensitivity result = priceSensi.multiply(future.getPaymentAccrualFactor() * future.getNotional());
+    InterestRateCurveSensitivity priceSensi = priceCurveSensitivity(future, curves);
+    InterestRateCurveSensitivity result = priceSensi.multiply(future.getPaymentAccrualFactor() *  future.getNotional());
     return result;
   }
 
@@ -47,6 +47,6 @@ public abstract class InterestRateFutureMethod implements PricingMethod {
    * @param curves The yield curves. Should contain the forward curve associated. 
    * @return The price rate sensitivity.
    */
-  abstract public PresentValueSensitivity priceCurveSensitivity(final InterestRateFuture future, final YieldCurveBundle curves);
+  public abstract InterestRateCurveSensitivity priceCurveSensitivity(final InterestRateFuture future, final YieldCurveBundle curves);
 
 }

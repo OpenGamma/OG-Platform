@@ -10,8 +10,11 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.google.common.collect.Lists;
 import org.hsqldb.types.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +83,9 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
         "main.detail_type AS detail_type, " +
         "raw.raw_data AS raw_data, " +
         "i.key_scheme AS key_scheme, " +
-        "i.key_value AS key_value ";
+        "i.key_value AS key_value, " +
+        "sa.key AS security_attr_key, " +
+        "sa.value AS security_attr_value ";
   /**
    * SQL from.
    */
@@ -88,7 +93,8 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
       "FROM sec_security main " +
         "LEFT JOIN sec_raw raw ON (raw.security_id = main.id) " +
         "LEFT JOIN sec_security2idkey si ON (si.security_id = main.id) " +
-        "LEFT JOIN sec_idkey i ON (si.idkey_id = i.id) ";
+        "LEFT JOIN sec_idkey i ON (si.idkey_id = i.id) " +
+        "LEFT JOIN sec_security_attribute sa ON (sa.security_id = main.id) ";
   /**
    * SQL select types.
    */
@@ -450,6 +456,21 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
         detailProvider.storeSecurityDetail(document.getSecurity());
       }
     }
+
+    Map<String, String> attributes = new HashMap<String, String>(document.getSecurity().getAttributes());
+    final List<DbMapSqlParameterSource> securityAttributeList = Lists.newArrayList();
+    for (Map.Entry<String, String> entry : attributes.entrySet()) {
+      final long securityAttrId = nextId("sec_security_attr_seq");
+      final DbMapSqlParameterSource tradeAttributeArgs = new DbMapSqlParameterSource()
+              .addValue("attr_id", securityAttrId)
+              .addValue("security_id", docId)
+              .addValue("security_oid", docOid)
+              .addValue("key", entry.getKey())
+              .addValue("value", entry.getValue());
+      securityAttributeList.add(tradeAttributeArgs);
+    }
+
+    getJdbcTemplate().batchUpdate(sqlInsertSecurityAttributes(), securityAttributeList.toArray(new DbMapSqlParameterSource[securityAttributeList.size()]));
     return document;
   }
 
@@ -512,6 +533,17 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
             "VALUES (:idkey_id, :key_scheme, :key_value)";
   }
 
+    /**
+   * Gets the SQL for inserting trade attributes.
+   *
+   * @return the SQL, not null.
+   */
+  protected String sqlInsertSecurityAttributes() {
+    return "INSERT INTO sec_security_attribute " +
+              "(id, security_id, security_oid, key, value) " +
+           "VALUES (:attr_id, :security_id, :security_oid, :key, :value)";
+  }
+
   //-------------------------------------------------------------------------
   @Override
   protected String sqlSelectFrom() {
@@ -546,6 +578,16 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
           ExternalId id = ExternalId.of(idScheme, idValue);
           _security.setExternalIdBundle(_security.getExternalIdBundle().withExternalId(id));
         }
+
+
+        final String securityAttrKey = rs.getString("SECURITY_ATTR_KEY");
+        final String securityAttrValue = rs.getString("SECURITY_ATTR_VALUE");
+        if (securityAttrKey != null && securityAttrValue != null) {
+          _security.addAttribute(securityAttrKey, securityAttrValue);
+        }
+
+
+
       }
       return _documents;
     }

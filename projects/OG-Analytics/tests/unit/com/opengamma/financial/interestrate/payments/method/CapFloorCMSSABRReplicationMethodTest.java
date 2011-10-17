@@ -34,7 +34,7 @@ import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalc
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
@@ -144,7 +144,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
    * Tests the price curve sensitivity of CMS coupon and cap/floor using replication in the SABR framework. Values are tested against finite difference values.
    */
   public void presentValueCurveSensitivity() {
-    PresentValueSensitivity pvcsCap = METHOD.presentValueSensitivity(CMS_CAP, SABR_BUNDLE);
+    InterestRateCurveSensitivity pvcsCap = METHOD.presentValueSensitivity(CMS_CAP, SABR_BUNDLE);
     pvcsCap = pvcsCap.clean();
     final double deltaTolerancePrice = 1.0E+2;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.

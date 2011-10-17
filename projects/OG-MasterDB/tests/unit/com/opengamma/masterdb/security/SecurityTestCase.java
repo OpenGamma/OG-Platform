@@ -8,15 +8,8 @@ package com.opengamma.masterdb.security;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Random;
+import java.lang.reflect.Type;
+import java.util.*;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.DateProvider;
@@ -248,6 +241,26 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
         values.add(RandomStringUtils.randomAlphabetic(16));
         values.add(RandomStringUtils.randomNumeric(16));
         values.add(RandomStringUtils.randomAlphanumeric(16));
+      }
+    });
+    s_dataProviders.put(Map.class, new TestDataProvider<Map>() {
+      private Map generateRandomMap(int count){
+        Map<String, String> map = new HashMap<String, String>(count);
+        while(count>0){
+          map.put(RandomStringUtils.randomAlphanumeric(16), RandomStringUtils.randomAlphanumeric(16));
+          count--;
+        }
+        return map;
+      }
+      @Override
+      public void getValues(final Collection<Map> values) {
+        Random random = new Random();
+        double qty = 1 + random.nextInt(9);
+        while(qty>0){
+          values.add(generateRandomMap(1 + random.nextInt(9)));
+          qty--;
+        }
+        values.add(new HashMap());
       }
     });
     s_dataProviders.put(Double.class, provider = new TestDataProvider<Double>() {

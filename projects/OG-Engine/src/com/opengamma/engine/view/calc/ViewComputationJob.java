@@ -108,11 +108,10 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     _executionOptions = executionOptions;
     _processContext = processContext;
     _cycleManager = cycleManager;
-    
+    _marketDataChanged = !executionOptions.getFlags().contains(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER);
     _compilationExpiryCycleTrigger = new FixedTimeTrigger();
     _masterCycleTrigger = createViewCycleTrigger(executionOptions);
     _executeCycles = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
-    
     updateViewDefinitionIfRequired();
     subscribeToViewDefinition();
   }

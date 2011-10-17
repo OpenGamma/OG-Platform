@@ -371,17 +371,15 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     _subscriptionLock.lock();
     try {
     
+      Map<LiveDataSpecification, DistributionSpecification> distrSpecs = getDistributionSpecificationResolver().resolve(liveDataSpecificationsFromClient);
       for (LiveDataSpecification specFromClient : liveDataSpecificationsFromClient) {
         
         // this is the only place where subscribe() can 'partially' fail
-        DistributionSpecification distributionSpec;
-        try {
-          //REVIEW simon 2011-09-06: If it weren't for caching doing this unbatched would be very bad. 
-          //    Doing it unbatched might get us an exception, although the comments say that null should be returned. 
-          distributionSpec = getDistributionSpecificationResolver().resolve(specFromClient);
-        } catch (RuntimeException e) {
-          s_logger.info("Unable to work out distribution spec for specification " + specFromClient, e);
-          responses.add(getErrorResponse(specFromClient, LiveDataSubscriptionResult.NOT_PRESENT, e.getMessage()));                    
+        DistributionSpecification distributionSpec = distrSpecs.get(specFromClient);
+        
+        if (distributionSpec == null) {
+          s_logger.info("Unable to work out distribution spec for specification " + specFromClient);
+          responses.add(getErrorResponse(specFromClient, LiveDataSubscriptionResult.NOT_PRESENT, "Unable to work out distribution spec"));
           continue;
         }
         
@@ -943,6 +941,20 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       return null;
     }
     return subscription.getMarketDataDistributor(distributionSpec);
+  }
+  
+  public Map<LiveDataSpecification, MarketDataDistributor> getMarketDataDistributors(Collection<LiveDataSpecification> fullyQualifiedSpecs) {
+    //NOTE: this is not much (if any) faster here, but for subclasses it can be 
+    _subscriptionLock.lock();
+    try {
+      HashMap<LiveDataSpecification, MarketDataDistributor> hashMap = new HashMap<LiveDataSpecification, MarketDataDistributor>();
+      for (LiveDataSpecification liveDataSpecification : fullyQualifiedSpecs) {
+        hashMap.put(liveDataSpecification, _fullyQualifiedSpec2Distributor.get(liveDataSpecification));
+      }
+      return hashMap;
+    } finally {
+      _subscriptionLock.unlock();
+    }
   }
   
   public MarketDataDistributor getMarketDataDistributor(LiveDataSpecification fullyQualifiedSpec) {

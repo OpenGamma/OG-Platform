@@ -27,7 +27,7 @@ import com.opengamma.financial.instrument.payment.CouponOISSimplifiedDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedOISSimplifiedDefinition;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -163,7 +163,7 @@ public class CouponOISDiscountingMethodTest {
    * Tests the present value rate sensitivity.
    */
   public void presentValueCurveSensitivityNotStarted() {
-    final PresentValueSensitivity pvcs = METHOD_OIS.presentValueCurveSensitivity(EONIA_COUPON_NOTSTARTED, CURVES);
+    final InterestRateCurveSensitivity pvcs = METHOD_OIS.presentValueCurveSensitivity(EONIA_COUPON_NOTSTARTED, CURVES);
     pvcs.clean();
     final double deltaTolerancePrice = 1.0E+2;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
@@ -200,7 +200,7 @@ public class CouponOISDiscountingMethodTest {
   public void presentValueCurveSensitivityOneCurveNotStarted() {
     CouponOIS eoniaCouponNotStartedOneCurve = new CouponOIS(EUR_CUR, PAYMENT_TIME_1, CURVES_NAMES[0], PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, START_ACCRUAL_TIME_1, END_ACCRUAL_TIME_1,
         FIXING_YEAR_FRACTION, NOTIONAL, CURVES_NAMES[0]);
-    final PresentValueSensitivity pvcs = METHOD_OIS.presentValueCurveSensitivity(eoniaCouponNotStartedOneCurve, CURVES);
+    final InterestRateCurveSensitivity pvcs = METHOD_OIS.presentValueCurveSensitivity(eoniaCouponNotStartedOneCurve, CURVES);
     pvcs.clean();
     final double deltaTolerancePrice = 1.0E+2;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
@@ -236,7 +236,7 @@ public class CouponOISDiscountingMethodTest {
    * Tests the present value rate sensitivity.
    */
   public void presentValueCurveSensitivityNotStartedMethodVsCalculator() {
-    PresentValueSensitivity pvcsMethod = METHOD_OIS.presentValueCurveSensitivity(EONIA_COUPON_NOTSTARTED, CURVES);
+    InterestRateCurveSensitivity pvcsMethod = METHOD_OIS.presentValueCurveSensitivity(EONIA_COUPON_NOTSTARTED, CURVES);
     Map<String, List<DoublesPair>> pvcsCalculator = PVCSC.visit(EONIA_COUPON_NOTSTARTED, CURVES);
     AssertJUnit.assertEquals(pvcsCalculator.size(), pvcsMethod.getSensitivities().size());
     for (Map.Entry<String, List<DoublesPair>> entry : pvcsCalculator.entrySet()) {
@@ -256,7 +256,7 @@ public class CouponOISDiscountingMethodTest {
    * Tests the present value rate sensitivity.
    */
   public void parRateCurveSensitivityNotStarted() {
-    final PresentValueSensitivity prcs = METHOD_OIS.parRateCurveSensitivity(EONIA_COUPON_NOTSTARTED, CURVES);
+    final InterestRateCurveSensitivity prcs = METHOD_OIS.parRateCurveSensitivity(EONIA_COUPON_NOTSTARTED, CURVES);
     prcs.clean();
     final double deltaTolerancePrice = 1.0E-10;
     // 1. Forward curve sensitivity

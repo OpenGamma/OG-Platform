@@ -48,7 +48,7 @@ public class MonteCarloDiscountFactorCalculator extends AbstractInterestRateDeri
 
   @Override
   public Double visitCapFloorIbor(final CapFloorIbor payment, final MonteCarloDiscountFactorDataBundle mcResults) {
-    Double[][][] pathDiscountFactors = mcResults.getPathDiscountingFactors();
+    Double[][][] pathDiscountFactors = mcResults.getPathDiscountingFactor();
     double[][] impactAmount = mcResults.getImpactAmount();
     Validate.isTrue(pathDiscountFactors[0].length == 1, "Only one decision date for cap/floor.");
     double price = 0;
@@ -65,7 +65,7 @@ public class MonteCarloDiscountFactorCalculator extends AbstractInterestRateDeri
 
   @Override
   public Double visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final MonteCarloDiscountFactorDataBundle mcResults) {
-    Double[][][] pathDiscountFactors = mcResults.getPathDiscountingFactors();
+    Double[][][] pathDiscountFactors = mcResults.getPathDiscountingFactor();
     double[][] impactAmount = mcResults.getImpactAmount();
     Validate.isTrue(pathDiscountFactors[0].length == 1, "Only one decision date for swaptions.");
     double price = 0;
@@ -84,7 +84,7 @@ public class MonteCarloDiscountFactorCalculator extends AbstractInterestRateDeri
 
   @Override
   public Double visitAnnuityCouponIborRatchet(final AnnuityCouponIborRatchet annuity, final MonteCarloDiscountFactorDataBundle mcResults) {
-    Double[][][] pathDiscountFactors = mcResults.getPathDiscountingFactors();
+    Double[][][] pathDiscountFactors = mcResults.getPathDiscountingFactor();
     double[][] impactAmount = mcResults.getImpactAmount();
     double price = 0.0;
     int nbPath = pathDiscountFactors.length;
