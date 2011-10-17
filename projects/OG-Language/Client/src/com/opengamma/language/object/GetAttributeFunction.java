@@ -24,10 +24,10 @@ public class GetAttributeFunction implements PublishedFunction {
   private final Method _read;
   private final MetaFunction _definition;
 
-  public GetAttributeFunction(final String name, final String description, final Method read, final MetaParameter object) {
+  public GetAttributeFunction(final String category, final String name, final String description, final Method read, final MetaParameter object) {
     _read = read;
     final List<MetaParameter> args = Collections.singletonList(object);
-    _definition = new MetaFunction(name, args, new AbstractFunctionInvoker(args) {
+    _definition = new MetaFunction(category, name, args, new AbstractFunctionInvoker(args) {
       @Override
       protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
         try {

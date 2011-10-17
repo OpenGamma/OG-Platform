@@ -14,6 +14,7 @@ import com.opengamma.language.DataUtils;
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtils;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.function.AbstractFunctionInvoker;
@@ -74,7 +75,7 @@ public class DebugFunctionIncrement implements PublishedFunction {
         return execute((Data) parameters[0]);
       }
     };
-    return new MetaFunction("DebugFunctionIncrement", args, invoker);
+    return new MetaFunction(Categories.DEBUG, "DebugFunctionIncrement", args, invoker);
   }
 
 }

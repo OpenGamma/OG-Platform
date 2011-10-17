@@ -13,6 +13,7 @@ import javax.time.Instant;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
@@ -37,7 +38,7 @@ public abstract class ViewClientDescriptorFunction extends AbstractFunctionInvok
 
   private ViewClientDescriptorFunction(final DefinitionAnnotater info, final String name, final List<MetaParameter> parameters) {
     super(info.annotate(parameters));
-    _meta = info.annotate(new MetaFunction(name, getParameters(), this));
+    _meta = info.annotate(new MetaFunction(Categories.VIEW, name, getParameters(), this));
   }
 
   protected ViewClientDescriptorFunction(final String name, final List<MetaParameter> parameters) {

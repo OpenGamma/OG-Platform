@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
@@ -39,7 +40,7 @@ public class ValuePropertyFunction extends AbstractFunctionInvoker implements Pu
 
   private ValuePropertyFunction(final DefinitionAnnotater info) {
     super(info.annotate(parameters()));
-    _meta = info.annotate(new MetaFunction("ValueProperty", getParameters(), this));
+    _meta = info.annotate(new MetaFunction(Categories.VALUE, "ValueProperty", getParameters(), this));
   }
 
   protected ValuePropertyFunction() {

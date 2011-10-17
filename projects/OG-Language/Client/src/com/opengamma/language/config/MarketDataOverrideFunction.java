@@ -21,6 +21,7 @@ import com.opengamma.language.Data;
 import com.opengamma.language.Value;
 import com.opengamma.language.config.MarketDataOverride.Operation;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
@@ -63,7 +64,7 @@ public class MarketDataOverrideFunction extends AbstractFunctionInvoker implemen
 
   private MarketDataOverrideFunction(final DefinitionAnnotater info) {
     super(info.annotate(parameters()));
-    _meta = info.annotate(new MetaFunction("MarketDataOverride", getParameters(), this));
+    _meta = info.annotate(new MetaFunction(Categories.VIEW, "MarketDataOverride", getParameters(), this));
   }
 
   protected MarketDataOverrideFunction() {
