@@ -19,6 +19,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.language.Data;
 import com.opengamma.language.Value;
+import com.opengamma.language.config.MarketDataOverride.Operation;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
@@ -46,6 +47,7 @@ public class MarketDataOverrideFunction extends AbstractFunctionInvoker implemen
   private static final int VALUE_NAME = 2;
   private static final int IDENTIFIER = 3;
   private static final int TYPE = 4;
+  private static final int OPERATION = 5;
 
   private final MetaFunction _meta;
 
@@ -55,7 +57,8 @@ public class MarketDataOverrideFunction extends AbstractFunctionInvoker implemen
         new MetaParameter("valueRequirement", JavaTypeInfo.builder(ValueRequirement.class).allowNull().get()),
         new MetaParameter("valueName", JavaTypeInfo.builder(String.class).allowNull().get()),
         new MetaParameter("identifier", JavaTypeInfo.builder(Data.class).allowNull().get()),
-        new MetaParameter("type", JavaTypeInfo.builder(ComputationTargetType.class).allowNull().get()));
+        new MetaParameter("type", JavaTypeInfo.builder(ComputationTargetType.class).allowNull().get()),
+        new MetaParameter("operation", JavaTypeInfo.builder(Operation.class).allowNull().get()));
   }
 
   private MarketDataOverrideFunction(final DefinitionAnnotater info) {
@@ -119,23 +122,23 @@ public class MarketDataOverrideFunction extends AbstractFunctionInvoker implemen
 
   // end of code which shouldn't be here
 
-  public static MarketDataOverride invoke(final Object value, final ValueRequirement valueRequirement) {
-    return new MarketDataOverride(valueRequirement, null, null, value);
+  public static MarketDataOverride invoke(final Object value, final ValueRequirement valueRequirement, final Operation operation) {
+    return new MarketDataOverride(valueRequirement, null, null, value, operation);
   }
 
-  public static MarketDataOverride invoke(final Object value, final String valueName, final UniqueId identifier, final ComputationTargetType type) {
-    return invoke(value, new ValueRequirement(valueName, new ComputationTargetSpecification(type, identifier)));
+  public static MarketDataOverride invoke(final Object value, final String valueName, final UniqueId identifier, final ComputationTargetType type, final Operation operation) {
+    return invoke(value, new ValueRequirement(valueName, new ComputationTargetSpecification(type, identifier)), operation);
   }
 
-  public static MarketDataOverride invoke(final Object value, final String valueName, final ExternalId identifier) {
-    return new MarketDataOverride(null, valueName, identifier, value);
+  public static MarketDataOverride invoke(final Object value, final String valueName, final ExternalId identifier, final Operation operation) {
+    return new MarketDataOverride(null, valueName, identifier, value, operation);
   }
 
   // AbstractFunctionInvoker
 
   @Override
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
-    final Data value = (Data) parameters[0];
+    final Data value = (Data) parameters[VALUE];
     if (parameters[VALUE_REQUIREMENT] == null) {
       if (parameters[VALUE_NAME] == null) {
         throw new InvokeInvalidArgumentException(VALUE_NAME, "argument must be supplied when value requirement is omitted");
@@ -145,10 +148,10 @@ public class MarketDataOverrideFunction extends AbstractFunctionInvoker implemen
       }
       if (parameters[TYPE] == null) {
         final ExternalId externalId = sessionContext.getGlobalContext().getValueConverter().convertValue(sessionContext, parameters[IDENTIFIER], EXTERNAL_ID);
-        return invoke(convertData(value), (String) parameters[VALUE_NAME], externalId);
+        return invoke(convertData(value), (String) parameters[VALUE_NAME], externalId, (Operation) parameters[OPERATION]);
       } else {
         final UniqueId uniqueId = sessionContext.getGlobalContext().getValueConverter().convertValue(sessionContext, parameters[IDENTIFIER], UNIQUE_ID);
-        return invoke(convertData(value), (String) parameters[VALUE_NAME], uniqueId, (ComputationTargetType) parameters[TYPE]);
+        return invoke(convertData(value), (String) parameters[VALUE_NAME], uniqueId, (ComputationTargetType) parameters[TYPE], (Operation) parameters[OPERATION]);
       }
     } else {
       if (parameters[VALUE_NAME] != null) {
@@ -160,7 +163,7 @@ public class MarketDataOverrideFunction extends AbstractFunctionInvoker implemen
       if (parameters[TYPE] != null) {
         throw new InvokeInvalidArgumentException(TYPE, "argument must be omitted when value requirement is supplied");
       }
-      return invoke(convertData(value), (ValueRequirement) parameters[VALUE_REQUIREMENT]);
+      return invoke(convertData(value), (ValueRequirement) parameters[VALUE_REQUIREMENT], (Operation) parameters[OPERATION]);
     }
   }
 

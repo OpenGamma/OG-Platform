@@ -53,6 +53,7 @@ public class ViewsFunction extends AbstractFunctionInvoker implements PublishedF
     if (viewName == null) {
       entries = repository.getDefinitionEntries();
     } else {
+      // TODO: the "viewName" could take wild-cards
       final ViewDefinition viewDefinition = repository.getDefinition(viewName);
       if (viewDefinition != null) {
         entries = Collections.singletonMap(viewDefinition.getUniqueId(), viewDefinition.getName());
