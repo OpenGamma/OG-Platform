@@ -130,8 +130,10 @@
         <bean class="com.opengamma.language.function.FunctionProviderBean">
           <property name="functions">
             <list>
-              <bean class="com.opengamma.language.value.ValueRequirementNamesFunction" />
+              <!-- The next thing to be added to the "value" package should give it a loader -->
               <bean class="com.opengamma.language.value.ExpandComputedValuesFunction" />
+              <bean class="com.opengamma.language.value.MarketDataRequirementNamesFunction" />
+              <bean class="com.opengamma.language.value.ValueRequirementNamesFunction" />
             </list>
           </property>
         </bean>

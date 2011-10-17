@@ -26,7 +26,6 @@ import com.opengamma.language.function.PublishedFunction;
 public abstract class ViewClientDescriptorFunction extends AbstractFunctionInvoker implements PublishedFunction {
 
   private static final MetaParameter VIEW_PARAMETER = new MetaParameter("view", JavaTypeInfo.builder(UniqueId.class).get());
-  private static final MetaParameter VALUATION_TIME_PARAMETER = new MetaParameter("valuationTime", JavaTypeInfo.builder(Instant.class).get());
   private static final MetaParameter FIRST_VALUATION_TIME_PARAMETER = new MetaParameter("firstValuationTime", JavaTypeInfo.builder(Instant.class).get());
   private static final MetaParameter LAST_VALUATION_TIME_PARAMETER = new MetaParameter("lastValuationTime", JavaTypeInfo.builder(Instant.class).get());
   private static final MetaParameter SAMPLE_PERIOD_PARAMETER = new MetaParameter("samplePeriod", JavaTypeInfo.builder(Integer.class).defaultValue(ViewClientDescriptor.DEFAULT_SAMPLE_PERIOD).get());
@@ -66,14 +65,14 @@ public abstract class ViewClientDescriptorFunction extends AbstractFunctionInvok
   public static final ViewClientDescriptorFunction TICKING_MARKET_DATA = new TickingMarketData();
 
   private static final class StaticMarketData extends ViewClientDescriptorFunction {
-    
+
     private StaticMarketData() {
-      super("StaticMarketDataViewClient", Arrays.asList(VIEW_PARAMETER, VALUATION_TIME_PARAMETER));
+      super("StaticMarketDataViewClient", Arrays.asList(VIEW_PARAMETER));
     }
 
     @Override
     protected ViewClientDescriptor invokeImpl(final Object[] parameters) {
-      return ViewClientDescriptor.staticMarketData((UniqueId) parameters[0], (Instant) parameters[1]);
+      return ViewClientDescriptor.staticMarketData((UniqueId) parameters[0]);
     }
 
   }

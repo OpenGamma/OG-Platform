@@ -108,8 +108,8 @@ public class Loader extends ContextInitializationBean {
         GetViewResultFunction.INSTANCE,
         ViewClientDescriptorFunction.HISTORICAL_MARKET_DATA,
         ViewClientDescriptorFunction.STATIC_MARKET_DATA,
-        ViewClientDescriptorFunction.TICKING_MARKET_DATA,
         ViewClientDescriptorFunction.STATIC_SNAPSHOT,
+        ViewClientDescriptorFunction.TICKING_MARKET_DATA,
         ViewClientDescriptorFunction.TICKING_SNAPSHOT,
         ViewClientFunction.INSTANCE,
         ViewsFunction.INSTANCE));
