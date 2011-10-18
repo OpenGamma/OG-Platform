@@ -16,7 +16,7 @@ import com.opengamma.util.db.DbSourceFactoryBean;
 /**
  * DB test involving Hibernate.
  */
-public abstract class HibernateTest extends DBTest {
+public abstract class HibernateTest extends DbTest {
   
   private SessionFactory _sessionFactory;
   

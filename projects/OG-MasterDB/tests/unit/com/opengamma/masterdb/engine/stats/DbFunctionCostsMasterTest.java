@@ -19,18 +19,18 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsDocument;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Test DbFunctionCostsMaster.
  */
-public class DbFunctionCostsMasterTest extends DBTest {
+public class DbFunctionCostsMasterTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbFunctionCostsMasterTest.class);
 
   private DbFunctionCostsMaster _costsMaster;
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbFunctionCostsMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);

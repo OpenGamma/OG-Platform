@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.MongoDBConnectionSettings;
-import com.opengamma.util.test.MongoDBTestUtils;
+import com.opengamma.util.test.MongoDbTestUtils;
 
 /**
  * 
@@ -28,7 +28,7 @@ public class MongoDBPersistentSubscriptionManagerTest {
     MockLiveDataServer server = new MockLiveDataServer(identificationDomain);
     server.connect();
     
-    MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(MongoDBPersistentSubscriptionManagerTest.class.getSimpleName(), true);
+    MongoDBConnectionSettings settings = MongoDbTestUtils.makeTestSettings(MongoDBPersistentSubscriptionManagerTest.class.getSimpleName(), true);
     MongoDBPersistentSubscriptionManager manager = new MongoDBPersistentSubscriptionManager(server, settings);
     manager.clean();
     

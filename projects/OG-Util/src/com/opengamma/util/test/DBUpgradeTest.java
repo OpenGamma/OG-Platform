@@ -18,50 +18,48 @@ import com.opengamma.util.tuple.Triple;
 
 /**
  * Tests the creation + upgrade sequence results in the same structure as a pure create.
- *
- * @author Andrew Griffin
  */
-abstract public class DBUpgradeTest extends DBTest {
-  
-  private static final Map<String,Map<String,String>> s_targetSchema = new HashMap<String,Map<String,String>> ();
-  
-  private final List<Triple<String,String,String>> _comparisons = new LinkedList<Triple<String,String,String>> ();
-  
-  protected Map<String,String> getVersionSchemas () {
-    Map<String,String> versionSchema = s_targetSchema.get (getDatabaseType ());
+abstract public class DbUpgradeTest extends DbTest {
+
+  private static final Map<String, Map<String, String>> s_targetSchema = new HashMap<String, Map<String, String>>();
+
+  private final List<Triple<String, String, String>> _comparisons = new LinkedList<Triple<String, String, String>>();
+
+  protected Map<String, String> getVersionSchemas() {
+    Map<String, String> versionSchema = s_targetSchema.get(getDatabaseType());
     if (versionSchema == null) {
-      versionSchema = new HashMap<String,String> ();
-      s_targetSchema.put (getDatabaseType (), versionSchema);
+      versionSchema = new HashMap<String, String>();
+      s_targetSchema.put(getDatabaseType(), versionSchema);
     }
     return versionSchema;
   }
-  
-  protected DBUpgradeTest(String databaseType, String databaseVersion) {
-    super (databaseType, databaseVersion);
+
+  protected DbUpgradeTest(String databaseType, String databaseVersion) {
+    super(databaseType, databaseVersion);
   }
 
   @Test
-  public void testDatabaseUpgrade () {
-    for (Triple<String,String,String> comparison : _comparisons) {
+  public void testDatabaseUpgrade() {
+    for (Triple<String, String, String> comparison : _comparisons) {
       /*
        * System.out.println(comparison.getFirst() + " expected:");
        * System.out.println(comparison.getSecond());
        * System.out.println(comparison.getFirst() + " found:");
        * System.out.println(comparison.getThird());
        */
-      assertEquals(getDatabaseType() + ": " + comparison.getFirst (), comparison.getSecond (), comparison.getThird ());
+      assertEquals(getDatabaseType() + ": " + comparison.getFirst(), comparison.getSecond(), comparison.getThird());
     }
   }
-  
+
   @Override
-  public void tablesCreatedOrUpgraded (final String version) {
-    final Map<String,String> versionSchemas = getVersionSchemas ();
-    if (versionSchemas.containsKey (version)) {
+  public void tablesCreatedOrUpgraded(final String version) {
+    final Map<String, String> versionSchemas = getVersionSchemas();
+    if (versionSchemas.containsKey(version)) {
       // if we've already done the full schema, then we want to test that this upgrade has given us the same (but defer the comparison)
-      _comparisons.add (new Triple<String,String,String> (version, versionSchemas.get (version), getDbTool ().describeDatabase ()));
+      _comparisons.add(new Triple<String, String, String>(version, versionSchemas.get(version), getDbTool().describeDatabase()));
     } else {
       // tests are run with most recent full schema first, so we can store that as a reference
-      versionSchemas.put (version, getDbTool ().describeDatabase ());
+      versionSchemas.put(version, getDbTool().describeDatabase());
     }
   }
 

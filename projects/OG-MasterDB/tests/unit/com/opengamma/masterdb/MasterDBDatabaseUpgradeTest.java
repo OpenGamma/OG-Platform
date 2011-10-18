@@ -7,16 +7,16 @@ package com.opengamma.masterdb;
 
 import org.testng.annotations.Factory;
 
-import com.opengamma.util.test.DBTest;
-import com.opengamma.util.test.DBUpgradeTest;
+import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.DbUpgradeTest;
 
 /**
  * Tests the database upgrade scripts.
  */
-public class MasterDBDatabaseUpgradeTest extends DBUpgradeTest {
+public class MasterDbDatabaseUpgradeTest extends DbUpgradeTest {
 
-  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
-  public MasterDBDatabaseUpgradeTest(final String databaseType, final String databaseVersion) {
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DbTest.class)
+  public MasterDbDatabaseUpgradeTest(final String databaseType, final String databaseVersion) {
     super(databaseType, databaseVersion);
   }
 

@@ -29,7 +29,7 @@ public class DBToolTest {
 
   private static final String TEST_TABLE = "db_tool_unit_test_table";
   
-  private DBTool _tool;
+  private DbTool _tool;
   private String _dbHost;
   private String _user;
   private String _password;
@@ -43,7 +43,7 @@ public class DBToolTest {
     _user = props.getProperty("jdbc.username");
     _password = props.getProperty("jdbc.password");
 
-    _tool = new DBTool(_dbHost, _user, _password);
+    _tool = new DbTool(_dbHost, _user, _password);
     _tool.initialize();
   }
 
