@@ -50,9 +50,9 @@ public class DBTool extends Task {
   private static final String DATABASE_UPGRADE_SCRIPT = "upgrade-db.sql";
   private static final String DATABASE_CREATE_SCRIPT = "create-db.sql";
   
-  private static final Map<String, DBDialect> s_url2Dialect = new ConcurrentHashMap<String, DBDialect>();
+  private static final Map<String, DbManagement> s_url2Dialect = new ConcurrentHashMap<String, DbManagement>();
   
-  public static void addDialect(String jdbcUrlPrefix, DBDialect dialect) {
+  public static void addDialect(String jdbcUrlPrefix, DbManagement dialect) {
     s_url2Dialect.put(jdbcUrlPrefix, dialect);
   }
   
@@ -79,7 +79,7 @@ public class DBTool extends Task {
   private Integer _createVersion;
   
   // What to do it on - can change
-  private DBDialect _dialect;
+  private DbManagement _dialect;
   private String _jdbcUrl;
   private String _dbServerHost;
   private String _user;
@@ -125,12 +125,12 @@ public class DBTool extends Task {
       throw new OpenGammaRuntimeException("Server/user/password not initialised");
     }
     
-    addDialect("jdbc:postgresql", PostgresDialect.getInstance());
-    addDialect("jdbc:derby", DerbyDialect.getInstance());
-    addDialect("jdbc:hsqldb", HSQLDialect.getInstance());
+    addDialect("jdbc:postgresql", PostgresDbManagement.getInstance());
+    addDialect("jdbc:derby", DerbyDbManagement.getInstance());
+    addDialect("jdbc:hsqldb", HSQLDbManagement.getInstance());
     
     String dbUrlLowercase = _dbServerHost.toLowerCase();
-    for (Map.Entry<String, DBDialect> entry : s_url2Dialect.entrySet()) {
+    for (Map.Entry<String, DbManagement> entry : s_url2Dialect.entrySet()) {
       if (dbUrlLowercase.indexOf(entry.getKey()) != -1) {
         _dialect = entry.getValue();        
         break;
@@ -354,7 +354,7 @@ public class DBTool extends Task {
     return _dialect.getJDBCDriverClass();
   }
   
-  public DBDialect getDialect() {
+  public DbManagement getDialect() {
     return _dialect;
   }
 

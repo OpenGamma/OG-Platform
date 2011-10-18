@@ -10,36 +10,58 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import org.hibernate.dialect.DerbyDialect;
 import org.hibernate.dialect.Dialect;
 
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
- * Implementation of the database dialect for Derby.
+ * Database management for Derby databases.
  */
-public final class DerbyDialect extends AbstractDBDialect {
-  
+public final class DerbyDbManagement extends AbstractDbManagement {
+
   /**
    * Singleton instance.
    */
-  private static final DerbyDialect INSTANCE = new DerbyDialect(); 
+  private static final DerbyDbManagement INSTANCE = new DerbyDbManagement(); 
   /**
    * The underlying Hibernate dialect.
    */
-  private org.hibernate.dialect.DerbyDialect _hibernateDialect;
+  private DerbyDialect _hibernateDialect;
 
   /**
    * Restricted constructor.
    */
-  private DerbyDialect() {
+  private DerbyDbManagement() {
   }
 
   /**
    * Gets the singleton instance.
+   * 
    * @return the instance, not null
    */
-  public static DerbyDialect getInstance() {
+  public static DerbyDbManagement getInstance() {
     return INSTANCE;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public synchronized Dialect getHibernateDialect() {
+    if (_hibernateDialect == null) {
+      // constructed lazily so we don't get log message about 'using dialect' if we're not actually using it
+      _hibernateDialect = new DerbyDialect();
+    }
+    return _hibernateDialect;
+  }
+
+  @Override
+  public Class<?> getJDBCDriverClass() {
+    return org.apache.derby.jdbc.EmbeddedDriver.class;
+  }
+
+  @Override
+  public String getDatabaseName() {
+    return "derby";
   }
 
   //-------------------------------------------------------------------------
@@ -72,16 +94,7 @@ public final class DerbyDialect extends AbstractDBDialect {
     }
   }
 
-  @Override
-  public Class<?> getJDBCDriverClass() {
-    return org.apache.derby.jdbc.EmbeddedDriver.class;
-  }
-
-  @Override
-  public String getDatabaseName() {
-    return "derby";
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public String getAllSchemasSQL(String catalog) {
     return "SELECT schemaname AS name FROM SYS.SYSSCHEMAS";
@@ -116,7 +129,7 @@ public final class DerbyDialect extends AbstractDBDialect {
     }
     return sql;
   }
-  
+
   @Override
   public String getAllViewsSQL(String catalog, String schema) {
     String sql = "SELECT tablename AS name FROM SYS.SYSTABLES WHERE tabletype = 'V'";
@@ -140,15 +153,6 @@ public final class DerbyDialect extends AbstractDBDialect {
   @Override
   public String getCreateSchemaSQL(String catalog, String schema) {
     return "CREATE SCHEMA " + schema;
-  }
-
-  @Override
-  public synchronized Dialect getHibernateDialect() {
-    if (_hibernateDialect == null) {
-      // constructed lazily so we don't get log message about 'using dialect' if we're not actually using it
-      _hibernateDialect = new org.hibernate.dialect.DerbyDialect();
-    }
-    return _hibernateDialect;
   }
 
   @Override
