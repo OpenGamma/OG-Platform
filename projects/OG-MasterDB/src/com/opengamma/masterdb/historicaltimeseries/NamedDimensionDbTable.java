@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.DbHelper;
+import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
 
@@ -104,11 +104,11 @@ public class NamedDimensionDbTable {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the dialect helper.
+   * Gets the database dialect.
    * 
-   * @return the dialect helper, not null
+   * @return the dialect, not null
    */
-  protected DbHelper getDbDialect() {
+  protected DbDialect getDialect() {
     return getDbSource().getDialect();
   }
 
@@ -118,7 +118,7 @@ public class NamedDimensionDbTable {
    * @return the next database id
    */
   protected long nextId() {
-    return getDbSource().getJdbcTemplate().queryForLong(getDbDialect().sqlNextSequenceValueSelect(_sequenceName));
+    return getDbSource().getJdbcTemplate().queryForLong(getDialect().sqlNextSequenceValueSelect(_sequenceName));
   }
 
   //-------------------------------------------------------------------------
@@ -164,7 +164,7 @@ public class NamedDimensionDbTable {
   public Long search(final String name) {
     String select = sqlSelectSearch(name);
     DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue(getVariableName(), getDbDialect().sqlWildcardAdjustValue(name));
+      .addValue(getVariableName(), getDialect().sqlWildcardAdjustValue(name));
     List<Map<String, Object>> result = getDbSource().getJdbcTemplate().queryForList(select, args);
     if (result.isEmpty()) {
       return null;
@@ -185,7 +185,7 @@ public class NamedDimensionDbTable {
     return
       "SELECT dim.id AS dim_id " +
       "FROM " + getTableName() + " dim " +
-      "WHERE " + getDbDialect().sqlWildcardQuery("UPPER(dim.name) ", "UPPER(:" + getVariableName() + ")", name);
+      "WHERE " + getDialect().sqlWildcardQuery("UPPER(dim.name) ", "UPPER(:" + getVariableName() + ")", name);
   }
 
   //-------------------------------------------------------------------------

@@ -166,9 +166,9 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
-      .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
+      .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()))
       .addValueNullIgnored("sec_type", request.getSecurityType())
-      .addValueNullIgnored("key_value", getDbHelper().sqlWildcardAdjustValue(request.getExternalIdValue()));
+      .addValueNullIgnored("key_value", getDialect().sqlWildcardAdjustValue(request.getExternalIdValue()));
     if (request.getExternalIdSearch() != null) {
       int i = 0;
       for (ExternalId id : request.getExternalIdSearch()) {
@@ -196,7 +196,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
                 "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
     if (request.getName() != null) {
-      where += getDbHelper().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
+      where += getDialect().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
     }
     if (request.getSecurityType() != null) {
       where += "AND UPPER(sec_type) = UPPER(:sec_type) ";
@@ -223,7 +223,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     if (detailProvider != null) {
       selectFromWhereInner = detailProvider.extendSearch(request, args, "SELECT sec_security.id FROM sec_security ", where);
     }
-    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY sec_security.id ", request.getPagingRequest());
+    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY sec_security.id ", request.getPagingRequest());
     String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main.id" + sqlAdditionalOrderBy(false);
     String count = "SELECT COUNT(*) FROM sec_security " + where;
     return new String[] {search, count};
@@ -241,7 +241,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
         "WHERE security_id = main.id " +
         "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
         "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-        "AND idkey_id IN ( SELECT id FROM sec_idkey WHERE " + getDbHelper().sqlWildcardQuery("UPPER(key_value) ", "UPPER(:key_value)", identifierValue) + ") ";
+        "AND idkey_id IN ( SELECT id FROM sec_idkey WHERE " + getDialect().sqlWildcardQuery("UPPER(key_value) ", "UPPER(:key_value)", identifierValue) + ") ";
     return "AND id IN (" + select + ") ";
   }
 
@@ -477,7 +477,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
   private void storeRawSecurityDetail(RawSecurity security) {
     final DbMapSqlParameterSource rawSecurityArgs = new DbMapSqlParameterSource();
     rawSecurityArgs.addValue("security_id", extractRowId(security.getUniqueId()));
-    rawSecurityArgs.addValue("raw_data", new SqlLobValue(security.getRawData(), getDbHelper().getLobHandler()), Types.BLOB);
+    rawSecurityArgs.addValue("raw_data", new SqlLobValue(security.getRawData(), getDialect().getLobHandler()), Types.BLOB);
     getJdbcTemplate().update(sqlInsertRawSecurity(), rawSecurityArgs);
   }
 
@@ -603,7 +603,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
       UniqueId uniqueId = createUniqueId(docOid, docId);
       String detailType = rs.getString("DETAIL_TYPE");
       if (detailType.equalsIgnoreCase("R")) {
-        LobHandler lob = getDbHelper().getLobHandler();
+        LobHandler lob = getDialect().getLobHandler();
         byte[] rawData = lob.getBlobAsBytes(rs, "RAW_DATA");
         _security = new RawSecurity(type, rawData);
         _security.setUniqueId(uniqueId);

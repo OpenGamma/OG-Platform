@@ -296,7 +296,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   protected String[] sqlHistory(final AbstractHistoryRequest request) {
     String where = sqlHistoryWhere(request);
     String selectFromWhereInner = "SELECT id FROM " + mainTableName() + " " + where;
-    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY ver_from_instant DESC, corr_from_instant DESC ", request.getPagingRequest());
+    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY ver_from_instant DESC, corr_from_instant DESC ", request.getPagingRequest());
     String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main.ver_from_instant DESC, main.corr_from_instant DESC" + sqlAdditionalOrderBy(false);
     String count = "SELECT COUNT(*) FROM " + mainTableName() + " " + where;
     return new String[] {search, count};
@@ -376,7 +376,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @return the next database id
    */
   protected long nextId(String sequenceName) {
-    return getJdbcTemplate().queryForLong(getDbHelper().sqlNextSequenceValueSelect(sequenceName));
+    return getJdbcTemplate().queryForLong(getDialect().sqlNextSequenceValueSelect(sequenceName));
   }
 
   //-------------------------------------------------------------------------

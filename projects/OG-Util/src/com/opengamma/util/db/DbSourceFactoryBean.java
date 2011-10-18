@@ -55,7 +55,7 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
   /**
    * The database dialect.
    */
-  private DbHelper _databaseDialect;
+  private DbDialect _databaseDialect;
   /**
    * Factory bean to create Hibernate.
    * This can be used if more control is needed than the properties exposed on this factory bean.
@@ -148,11 +148,11 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
     _databaseDialectClass = databaseDialectClass;
   }
 
-  public DbHelper getDialect() {
+  public DbDialect getDialect() {
     return _databaseDialect;
   }
 
-  public void setDialect(DbHelper dialect) {
+  public void setDialect(DbDialect dialect) {
     _databaseDialect = dialect;
   }
 
@@ -241,7 +241,7 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
   public DbSource createObject() {
     ArgumentChecker.notNull(getName(), "name");
     ArgumentChecker.notNull(getDataSource(), "dataSource");
-    DbHelper dialect = createDialect();
+    DbDialect dialect = createDialect();
     SimpleJdbcTemplate jdbcTemplate = createSimpleJdbcTemplate();
     SessionFactory hbFactory = createSessionFactory(dialect);
     HibernateTemplate hbTemplate = createHibernateTemplate(hbFactory);
@@ -254,8 +254,8 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
    * 
    * @return the dialect, not null
    */
-  protected DbHelper createDialect() {
-    DbHelper dialect = getDialect();
+  protected DbDialect createDialect() {
+    DbDialect dialect = getDialect();
     if (dialect == null) {
       String dialectStr = getDialectName();
       ArgumentChecker.notNull(dialectStr, "dialectStr");
@@ -263,7 +263,7 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
         dialectStr = "org.opengamma.util." + dialectStr;
       }
       try {
-        dialect = (DbHelper) getClass().getClassLoader().loadClass(dialectStr).newInstance();
+        dialect = (DbDialect) getClass().getClassLoader().loadClass(dialectStr).newInstance();
       } catch (Exception ex) {
         throw new RuntimeException(ex);
       }
@@ -287,7 +287,7 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
    * @param dialect  the dialect instance, not null
    * @return the session factory, may be null
    */
-  protected SessionFactory createSessionFactory(DbHelper dialect) {
+  protected SessionFactory createSessionFactory(DbDialect dialect) {
     SessionFactory result = getHibernateSessionFactory();
     if (result != null) {
       return result;

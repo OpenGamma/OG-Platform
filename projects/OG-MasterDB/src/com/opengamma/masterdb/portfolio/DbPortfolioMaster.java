@@ -120,7 +120,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
-      .addValue("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
+      .addValue("name", getDialect().sqlWildcardAdjustValue(request.getName()))
       .addValue("depth", request.getDepth());
     searchWithPaging(request.getPagingRequest(), sqlSearch(request), args, new PortfolioDocumentExtractor(true), result);
     return result;
@@ -136,7 +136,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
                 "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
     if (request.getName() != null) {
-      where += getDbHelper().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
+      where += getDialect().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
     }
     if (request.getPortfolioObjectIds() != null) {
       StringBuilder buf = new StringBuilder(request.getPortfolioObjectIds().size() * 10);
@@ -158,7 +158,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     }
     
     String selectFromWhereInner = "SELECT id FROM prt_portfolio " + where;
-    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY oid ", request.getPagingRequest());
+    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY oid ", request.getPagingRequest());
     String search = SELECT + FROM + "WHERE main.id IN (" + inner + ") ";
     if (request.getDepth() >= 0) {
       search += "AND n.depth <= :depth ";
@@ -197,7 +197,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
   protected String[] sqlHistory(AbstractHistoryRequest request) {
     String where = sqlHistoryWhere(request);
     String selectFromWhereInner = "SELECT id FROM " + mainTableName() + " " + where;
-    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY ver_from_instant DESC, corr_from_instant DESC ", request.getPagingRequest());
+    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY ver_from_instant DESC, corr_from_instant DESC ", request.getPagingRequest());
     String search = SELECT + FROM + "WHERE main.id IN (" + inner + ") ";
     if (((PortfolioHistoryRequest) request).getDepth() >= 0) {
       search += "AND n.depth <= :depth ";

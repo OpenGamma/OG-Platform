@@ -180,7 +180,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       args.addValue("trade_provider_value", request.getTradeProviderId().getValue());
     }
 
-    args.addValueNullIgnored("key_value", getDbHelper().sqlWildcardAdjustValue(request.getSecurityIdValue()));
+    args.addValueNullIgnored("key_value", getDialect().sqlWildcardAdjustValue(request.getSecurityIdValue()));
 
     searchWithPaging(request.getPagingRequest(), sqlSearchPositions(request), args, new PositionDocumentExtractor(), result);
     return result;
@@ -235,7 +235,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     where += sqlAdditionalWhere();
 
     String selectFromWhereInner = "SELECT id FROM pos_position " + where;
-    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY oid ", request.getPagingRequest());
+    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY oid ", request.getPagingRequest());
     String search = SELECT + FROM + "WHERE main.id IN (" + inner + ") ORDER BY main.oid " + sqlAdditionalOrderBy(false);
     String count = "SELECT COUNT(*) FROM pos_position " + where;
     return new String[] {search, count };
@@ -253,7 +253,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         "WHERE position_id = main.id " +
         "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
         "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-        "AND idkey_id IN ( SELECT id FROM pos_idkey WHERE " + getDbHelper().sqlWildcardQuery("UPPER(key_value) ", "UPPER(:key_value)", identifierValue) + ") ";
+        "AND idkey_id IN ( SELECT id FROM pos_idkey WHERE " + getDialect().sqlWildcardQuery("UPPER(key_value) ", "UPPER(:key_value)", identifierValue) + ") ";
     return "AND id IN (" + select + ") ";
   }
 

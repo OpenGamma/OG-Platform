@@ -248,13 +248,13 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
-      .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
-      .addValueNullIgnored("data_field", getDbHelper().sqlWildcardAdjustValue(request.getDataField()))
-      .addValueNullIgnored("data_source", getDbHelper().sqlWildcardAdjustValue(request.getDataSource()))
-      .addValueNullIgnored("data_provider", getDbHelper().sqlWildcardAdjustValue(request.getDataProvider()))
-      .addValueNullIgnored("observation_time", getDbHelper().sqlWildcardAdjustValue(request.getObservationTime()))
+      .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()))
+      .addValueNullIgnored("data_field", getDialect().sqlWildcardAdjustValue(request.getDataField()))
+      .addValueNullIgnored("data_source", getDialect().sqlWildcardAdjustValue(request.getDataSource()))
+      .addValueNullIgnored("data_provider", getDialect().sqlWildcardAdjustValue(request.getDataProvider()))
+      .addValueNullIgnored("observation_time", getDialect().sqlWildcardAdjustValue(request.getObservationTime()))
       .addDateNullIgnored("id_validity_date", request.getValidityDate())
-      .addValueNullIgnored("key_value", getDbHelper().sqlWildcardAdjustValue(request.getExternalIdValue()));
+      .addValueNullIgnored("key_value", getDialect().sqlWildcardAdjustValue(request.getExternalIdValue()));
     if (request.getExternalIdSearch() != null) {
       int i = 0;
       for (ExternalId id : request.getExternalIdSearch()) {
@@ -309,7 +309,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     where += sqlAdditionalWhere();
     
     String selectFromWhereInner = "SELECT id FROM hts_document " + where;
-    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
+    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
     
     String cte = "WITH cte_docs AS (" + inner + ") ";
     String search = cte + SELECT + FROM_PREFIX + "INNER JOIN cte_docs ON main.id = cte_docs.id " + FROM_POSTFIX
@@ -332,7 +332,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
         "AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant " +
         "AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant " +
         (validityDate != null ? "AND hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date " : "") +
-        "AND idkey_id IN ( SELECT id FROM hts_idkey WHERE " + getDbHelper().sqlWildcardQuery("UPPER(key_value) ", "UPPER(:key_value)", identifierValue) + ") ";
+        "AND idkey_id IN ( SELECT id FROM hts_idkey WHERE " + getDialect().sqlWildcardQuery("UPPER(key_value) ", "UPPER(:key_value)", identifierValue) + ") ";
     return "AND id IN (" + select + ") ";
   }
 
@@ -847,7 +847,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
         "(doc_oid, point_date, ver_instant, corr_instant, point_value) " +
       "VALUES " +
         "(:doc_oid, :point_date, " +
-          getDbHelper().sqlNullDefault("(SELECT ver_instant FROM hts_point " +
+          getDialect().sqlNullDefault("(SELECT ver_instant FROM hts_point " +
               "WHERE doc_oid = :doc_oid AND point_date = :point_date AND ver_instant = corr_instant)", ":corr_instant") + ", " +
         ":corr_instant, :point_value)";
   }

@@ -46,7 +46,7 @@ public class DbSource {
   /**
    * The dialect.
    */
-  private final DbHelper _dialect;
+  private final DbDialect _dialect;
   /**
    * The JDBC template.
    */
@@ -71,7 +71,7 @@ public class DbSource {
    * @param transactionTemplate  the transaction template, not null
    */
   public DbSource(
-      String name, DbHelper dialect, DataSource dataSource,
+      String name, DbDialect dialect, DataSource dataSource,
       SimpleJdbcTemplate jdbcTemplate, HibernateTemplate hibernateTemplate, TransactionTemplate transactionTemplate) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(dialect, "dialect");
@@ -110,7 +110,7 @@ public class DbSource {
    * 
    * @return the database dialect, not null
    */
-  public DbHelper getDialect() {
+  public DbDialect getDialect() {
     return _dialect;
   }
 

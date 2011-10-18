@@ -56,24 +56,6 @@ public class DbHistoricalTimeSeriesMasterTest extends DbTest {
     assertNotNull(_htsMaster.getTimeSource());
   }
 
-//  //-------------------------------------------------------------------------
-//  @Test
-//  public void test_sample() throws Exception {
-//    if (_htsMaster.getDbSource().getDialect() instanceof PostgreSQLDbHelper) {
-//      HistoricalTimeSeriesInfoSearchRequest req = new HistoricalTimeSeriesInfoSearchRequest();
-//      req.setPagingRequest(PagingRequest.FIRST_PAGE);
-//      req.addExternalId(SecurityUtils.bloombergBuidSecurityId("EQ0010102100001000"));
-//      req.addExternalId(SecurityUtils.bloombergTickerSecurityId("MOT US Equity"));
-//      req.addExternalId(SecurityUtils.cusipSecurityId("620076109"));
-//      req.addExternalId(SecurityUtils.isinSecurityId("US6200761095"));
-//      req.addExternalId(SecurityUtils.sedol1SecurityId("2606600"));
-//      req.setDataField("CUR_MKT_CAP");
-//      HistoricalTimeSeriesInfoSearchResult res = _htsMaster.search(req);
-//      assertEquals(1, res.getDocuments().size());
-//      assertEquals("6142", res.getFirstInfo().getUniqueId().getValue());
-//    }
-//  }
-
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {

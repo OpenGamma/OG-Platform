@@ -24,11 +24,11 @@ import org.testng.annotations.DataProvider;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ZipUtils;
-import com.opengamma.util.db.DbHelper;
+import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.DbSource;
 import com.opengamma.util.db.DbSourceFactoryBean;
-import com.opengamma.util.db.HSQLDbHelper;
-import com.opengamma.util.db.PostgreSQLDbHelper;
+import com.opengamma.util.db.HSQLDbDialect;
+import com.opengamma.util.db.PostgresDbDialect;
 import com.opengamma.util.test.DbTool.TableCreationCallback;
 import com.opengamma.util.time.DateUtils;
 
@@ -41,12 +41,12 @@ public abstract class DbTest implements TableCreationCallback {
   private static final Logger s_logger = LoggerFactory.getLogger(DbTest.class);
 
   private static Map<String,String> s_databaseTypeVersion = new HashMap<String,String> ();
-  private static final Map<String, DbHelper> s_dbDialects = new HashMap<String, DbHelper>();
+  private static final Map<String, DbDialect> s_dbDialects = new HashMap<String, DbDialect>();
   private static final File SCRIPT_INSTALL_DIR = new File(DbTool.getWorkingDirectory(), "temp/" + DbTest.class.getSimpleName());
   static {
     DateUtils.initTimeZone();
-    addDbDialect("hsqldb", new HSQLDbHelper());
-    addDbDialect("postgres", new PostgreSQLDbHelper());
+    addDbDialect("hsqldb", new HSQLDbDialect());
+    addDbDialect("postgres", new PostgresDbDialect());
   }
 
   static {
@@ -224,7 +224,7 @@ public abstract class DbTest implements TableCreationCallback {
   }
 
   public DbSource getDbSource() {
-    DbHelper dbDialect = s_dbDialects.get(getDatabaseType());
+    DbDialect dbDialect = s_dbDialects.get(getDatabaseType());
     if (dbDialect == null) {
       throw new OpenGammaRuntimeException("config error - no DBHelper setup for " + getDatabaseType());
     }
@@ -243,7 +243,7 @@ public abstract class DbTest implements TableCreationCallback {
    * @param dbType  the database type, not null
    * @param dialect  the dialect, not null
    */
-  public static void addDbDialect(String dbType, DbHelper dialect) {
+  public static void addDbDialect(String dbType, DbDialect dialect) {
     s_dbDialects.put(dbType, dialect);
   }
 

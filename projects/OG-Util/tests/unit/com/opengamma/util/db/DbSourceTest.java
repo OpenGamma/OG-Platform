@@ -30,7 +30,7 @@ public class DbSourceTest {
   //-------------------------------------------------------------------------
   public void test_basics() {
     BasicDataSource ds = new BasicDataSource();
-    HSQLDbHelper dialect = HSQLDbHelper.INSTANCE;
+    HSQLDbDialect dialect = HSQLDbDialect.INSTANCE;
     SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(ds);
     DefaultTransactionDefinition transDefn = new DefaultTransactionDefinition();
     DataSourceTransactionManager transMgr = new DataSourceTransactionManager();
@@ -49,7 +49,7 @@ public class DbSourceTest {
   //-------------------------------------------------------------------------
   public void test_toString() {
     BasicDataSource ds = new BasicDataSource();
-    HSQLDbHelper dialect = HSQLDbHelper.INSTANCE;
+    HSQLDbDialect dialect = HSQLDbDialect.INSTANCE;
     SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(ds);
     DefaultTransactionDefinition transDefn = new DefaultTransactionDefinition();
     DataSourceTransactionManager transMgr = new DataSourceTransactionManager();

@@ -113,7 +113,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
-      .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()));
+      .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));
     if (request.getExternalIdSearch() != null) {
       int i = 0;
       for (ExternalId id : request.getExternalIdSearch()) {
@@ -136,7 +136,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
                 "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
     if (request.getName() != null) {
-      where += getDbHelper().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
+      where += getDialect().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
     }
     if (request.getObjectIds() != null) {
       StringBuilder buf = new StringBuilder(request.getObjectIds().size() * 10);
@@ -153,7 +153,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     where += sqlAdditionalWhere();
     
     String selectFromWhereInner = "SELECT id FROM exg_exchange " + where;
-    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
+    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
     String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main.id" + sqlAdditionalOrderBy(false);
     String count = "SELECT COUNT(*) FROM exg_exchange " + where;
     return new String[] {search, count};
@@ -311,7 +311,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
       .addValue("name", document.getName())
       .addValue("time_zone", exchange.getTimeZone() != null ? exchange.getTimeZone().getID() : null)
-      .addValue("detail", new SqlLobValue(bytes, getDbHelper().getLobHandler()), Types.BLOB);
+      .addValue("detail", new SqlLobValue(bytes, getDialect().getLobHandler()), Types.BLOB);
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
     final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
@@ -413,7 +413,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
       final Timestamp versionTo = rs.getTimestamp("VER_TO_INSTANT");
       final Timestamp correctionFrom = rs.getTimestamp("CORR_FROM_INSTANT");
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
-      LobHandler lob = getDbHelper().getLobHandler();
+      LobHandler lob = getDialect().getLobHandler();
       byte[] bytes = lob.getBlobAsBytes(rs, "DETAIL");
       ManageableExchange exchange = FUDGE_CONTEXT.readObject(ManageableExchange.class, new ByteArrayInputStream(bytes));
       

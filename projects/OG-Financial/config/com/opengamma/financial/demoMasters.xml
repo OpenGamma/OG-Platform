@@ -41,7 +41,7 @@
   <bean id="cfgDbSource" parent="abstractDbSource">
     <property name="name" value="Config"/>
     <property name="dataSource" ref="cfgDataSource"/>
-    <property name="dialectName" value="${opengamma.config.db.dbhelper}"/>
+    <property name="dialectName" value="${opengamma.config.db.dbdialect}"/>
   </bean>
   
   <bean id="finDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
@@ -54,7 +54,7 @@
   <bean id="finDbSource" parent="abstractDbSource">
     <property name="name" value="Integration"/>
     <property name="dataSource" ref="finDataSource"/>
-    <property name="dialectName" value="${opengamma.financial.db.dbhelper}"/>
+    <property name="dialectName" value="${opengamma.financial.db.dbdialect}"/>
   </bean>
   
   <bean id="htsDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
@@ -67,7 +67,7 @@
   <bean id="htsDbSource" class="com.opengamma.util.db.DbSourceFactoryBean">
     <property name="name" value="TimeSeries"/>
     <property name="dataSource" ref="htsDataSource"/>
-    <property name="dialectName" value="${opengamma.hts.db.dbhelper}"/>
+    <property name="dialectName" value="${opengamma.hts.db.dbdialect}"/>
   </bean>
   
   <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
@@ -232,7 +232,7 @@
   <bean id="batchDbSource" parent="abstractDbSource">
     <property name="name" value="Batch"/>
     <property name="dataSource" ref="batchDataSource"/>
-    <property name="dialectName" value="${opengamma.overnight-batch.db.dbhelper}"/>
+    <property name="dialectName" value="${opengamma.overnight-batch.db.dbdialect}"/>
     <property name="allowHibernateThreadBoundSession" value="true"/>
     <property name="hibernateMappingFiles">
       <list>
