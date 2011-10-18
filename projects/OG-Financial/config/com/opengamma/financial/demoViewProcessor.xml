@@ -26,7 +26,7 @@
   <bean id="userFinancialDbSource" parent="abstractDbSource">
     <property name="name" value="UserFinancial"/>
     <property name="dataSource" ref="userFinancialDataSource"/>
-    <property name="dialect" value="${opengamma.financial-user.db.dbhelper}"/>
+    <property name="dialectName" value="${opengamma.financial-user.db.dbhelper}"/>
   </bean>
 
   <!-- User supplied Positions --> 

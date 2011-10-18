@@ -16,8 +16,6 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
@@ -28,6 +26,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ZipUtils;
 import com.opengamma.util.db.DbHelper;
 import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbSourceFactoryBean;
 import com.opengamma.util.db.HSQLDbHelper;
 import com.opengamma.util.db.PostgreSQLDbHelper;
 import com.opengamma.util.test.DBTool.TableCreationCallback;
@@ -225,18 +224,17 @@ public abstract class DBTest implements TableCreationCallback {
   }
 
   public DbSource getDbSource() {
-    DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition();
-    transactionDefinition.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
-    transactionDefinition.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-    
-    DbHelper dbHelper = s_dbHelpers.get(getDatabaseType());
-    if (dbHelper == null) {
+    DbHelper dbDialect = s_dbHelpers.get(getDatabaseType());
+    if (dbDialect == null) {
       throw new OpenGammaRuntimeException("config error - no DBHelper setup for " + getDatabaseType());
     }
-
-    DbSource dbSource = new DbSource("DBTest", getTransactionManager().getDataSource(),
-        dbHelper, null, transactionDefinition, getTransactionManager());
-    return dbSource;
+    DbSourceFactoryBean factory = new DbSourceFactoryBean();
+    factory.setName("DBTest");
+    factory.setDialect(dbDialect);
+    factory.setDataSource(getTransactionManager().getDataSource());
+    factory.setTransactionIsolationLevelName("ISOLATION_READ_COMMITTED");
+    factory.setTransactionPropagationBehaviorName("PROPAGATION_REQUIRED");
+    return factory.createObject();
   }
 
   public static void addDbHelper(String dbType, DbHelper helper) {

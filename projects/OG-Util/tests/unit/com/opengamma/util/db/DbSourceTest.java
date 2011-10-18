@@ -6,12 +6,13 @@
 package com.opengamma.util.db;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertSame;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.testng.annotations.Test;
 
 /**
@@ -22,7 +23,7 @@ public class DbSourceTest {
 
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_isWildcard() {
+  public void test_nulls() {
     new DbSource(null, null, null, null, null, null);
   }
 
@@ -30,27 +31,30 @@ public class DbSourceTest {
   public void test_basics() {
     BasicDataSource ds = new BasicDataSource();
     HSQLDbHelper dialect = HSQLDbHelper.INSTANCE;
+    SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(ds);
     DefaultTransactionDefinition transDefn = new DefaultTransactionDefinition();
     DataSourceTransactionManager transMgr = new DataSourceTransactionManager();
-    DbSource test = new DbSource("Test", ds, dialect, null, transDefn, transMgr);
+    TransactionTemplate transTemplate = new TransactionTemplate(transMgr, transDefn);
+    DbSource test = new DbSource("Test", dialect, ds, jdbcTemplate, null, transTemplate);
     
     assertSame(ds, test.getDataSource());
     assertSame(dialect, test.getDialect());
-    assertNotNull(test.getJdbcTemplate());
+    assertSame(jdbcTemplate, test.getJdbcTemplate());
     assertEquals(null, test.getHibernateSessionFactory());
     assertEquals(null, test.getHibernateTemplate());
-    assertSame(transDefn, test.getTransactionDefinition());
     assertSame(transMgr, test.getTransactionManager());
-    assertNotNull(test.getTransactionTemplate());
+    assertSame(transTemplate, test.getTransactionTemplate());
   }
 
   //-------------------------------------------------------------------------
   public void test_toString() {
     BasicDataSource ds = new BasicDataSource();
     HSQLDbHelper dialect = HSQLDbHelper.INSTANCE;
+    SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(ds);
     DefaultTransactionDefinition transDefn = new DefaultTransactionDefinition();
     DataSourceTransactionManager transMgr = new DataSourceTransactionManager();
-    DbSource test = new DbSource("Test", ds, dialect, null, transDefn, transMgr);
+    TransactionTemplate transTemplate = new TransactionTemplate(transMgr, transDefn);
+    DbSource test = new DbSource("Test", dialect, ds, jdbcTemplate, null, transTemplate);
     
     assertEquals("DbSource[Test]", test.toString());
   }

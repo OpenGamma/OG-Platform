@@ -14,11 +14,14 @@ import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Environment;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.HibernateTransactionManager;
 import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
@@ -29,6 +32,11 @@ import com.opengamma.util.SingletonFactoryBean;
  * This class provides a simple-to-setup and simple-to-use way to access databases.
  * It can be configured for access via JDBC, Hibernate or both.
  * The main benefit is simpler configuration, especially if that configuration is in XML.
+ * <p>
+ * There are multiple options for some elements.
+ * Set either the dialect name or the dialect itself.
+ * Set either the transaction details or the transaction manager itself.
+ * Set the Hibernate factory bean, the Hibernate settings or the session factory itself.
  */
 public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
 
@@ -44,6 +52,10 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
    * The database type, used to create a helper class.
    */
   private String _databaseDialectClass;
+  /**
+   * The database dialect.
+   */
+  private DbHelper _databaseDialect;
   /**
    * Factory bean to create Hibernate.
    * This can be used if more control is needed than the properties exposed on this factory bean.
@@ -65,6 +77,10 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
    * Set to true if you want to use Hibernate thread-bound auto-create sessions 
    */
   private boolean _allowHibernateThreadBoundSession;
+  /**
+   * The Hibernate session factory.
+   */
+  private SessionFactory _hibernateSessionFactory;
   /**
    * The transaction isolation level.
    * See {@link DefaultTransactionDefinition}.
@@ -92,6 +108,21 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
   public DbSourceFactoryBean() {
   }
 
+  /**
+   * Creates an instance based on an existing source.
+   * <p>
+   * This copies the name, dialect, data source, session factory and transaction manager.
+   * 
+   * @param baseSource  the base source to copy, not null
+   */
+  public DbSourceFactoryBean(DbSource baseSource) {
+    setName(baseSource.getName());
+    setDialect(baseSource.getDialect());
+    setDataSource(baseSource.getDataSource());
+    setHibernateSessionFactory(baseSource.getHibernateSessionFactory());
+    setTransactionManager(baseSource.getTransactionManager());
+  }
+
   //-------------------------------------------------------------------------
   public String getName() {
     return _name;
@@ -109,12 +140,20 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
     _dataSource = dataSource;
   }
 
-  public String getDialect() {
+  public String getDialectName() {
     return _databaseDialectClass;
   }
 
-  public void setDialect(String databaseDialectClass) {
+  public void setDialectName(String databaseDialectClass) {
     _databaseDialectClass = databaseDialectClass;
+  }
+
+  public DbHelper getDialect() {
+    return _databaseDialect;
+  }
+
+  public void setDialect(DbHelper dialect) {
+    _databaseDialect = dialect;
   }
 
   public LocalSessionFactoryBean getHibernateFactoryBean() {
@@ -157,6 +196,14 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
     _allowHibernateThreadBoundSession = allowHibernateThreadBoundSession;
   }
 
+  public SessionFactory getHibernateSessionFactory() {
+    return _hibernateSessionFactory;
+  }
+
+  public void setHibernateSessionFactory(SessionFactory sessionFactory) {
+    _hibernateSessionFactory = sessionFactory;
+  }
+
   public String getTransactionIsolationLevelName() {
     return _transactionIsolationLevelName;
   }
@@ -191,41 +238,60 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
 
   //-------------------------------------------------------------------------
   @Override
-  protected DbSource createObject() {
+  public DbSource createObject() {
     ArgumentChecker.notNull(getName(), "name");
     ArgumentChecker.notNull(getDataSource(), "dataSource");
-    ArgumentChecker.notNull(getDialect(), "dialect");
     DbHelper dialect = createDialect();
+    SimpleJdbcTemplate jdbcTemplate = createSimpleJdbcTemplate();
     SessionFactory hbFactory = createSessionFactory(dialect);
-    DefaultTransactionDefinition transDefn = createTransactionDefinition();
-    PlatformTransactionManager transMgr = createTransactionManager(hbFactory);
-    return new DbSource(getName(), getDataSource(), dialect, hbFactory, transDefn, transMgr);
+    HibernateTemplate hbTemplate = createHibernateTemplate(hbFactory);
+    TransactionTemplate transTemplate = createTransactionTemplate(hbFactory);
+    return new DbSource(getName(), dialect, getDataSource(), jdbcTemplate, hbTemplate, transTemplate);
   }
 
   /**
-   * Creates the database dialect.
+   * Creates the database dialect, using the dialect object, then the string.
+   * 
    * @return the dialect, not null
    */
   protected DbHelper createDialect() {
-    DbHelper dialect = null;
-    String dialectStr = getDialect();
-    if (dialectStr.contains(".") == false) {
-      dialectStr = "org.opengamma.util." + dialectStr;
-    }
-    try {
-      dialect = (DbHelper) getClass().getClassLoader().loadClass(dialectStr).newInstance();
-    } catch (Exception ex) {
-      throw new RuntimeException(ex);
+    DbHelper dialect = getDialect();
+    if (dialect == null) {
+      String dialectStr = getDialectName();
+      ArgumentChecker.notNull(dialectStr, "dialectStr");
+      if (dialectStr.contains(".") == false) {
+        dialectStr = "org.opengamma.util." + dialectStr;
+      }
+      try {
+        dialect = (DbHelper) getClass().getClassLoader().loadClass(dialectStr).newInstance();
+      } catch (Exception ex) {
+        throw new RuntimeException(ex);
+      }
     }
     return dialect;
   }
 
   /**
+   * Creates the JDBC template, using the data source.
+   * 
+   * @return the JDBC template, not null
+   */
+  protected SimpleJdbcTemplate createSimpleJdbcTemplate() {
+    return new SimpleJdbcTemplate(getDataSource());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Creates the Hibernate session factory.
+   * 
    * @param dialect  the dialect instance, not null
    * @return the session factory, may be null
    */
   protected SessionFactory createSessionFactory(DbHelper dialect) {
+    SessionFactory result = getHibernateSessionFactory();
+    if (result != null) {
+      return result;
+    }
     LocalSessionFactoryBean factory = getHibernateFactoryBean();
     if (factory == null) {
       String[] files = createHibernateFiles();
@@ -238,12 +304,10 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
       Properties props = new Properties();
       props.setProperty("hibernate.dialect", dialect.getHibernateDialect().getClass().getName());
       props.setProperty("hibernate.show_sql", String.valueOf(isHibernateShowSql()));
-      
       if (isAllowHibernateThreadBoundSession()) {
         props.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
         props.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.transaction.JDBCTransactionFactory");
       }
-
       factory.setHibernateProperties(props);
       factory.setLobHandler(dialect.getLobHandler());
     }
@@ -257,6 +321,7 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
 
   /**
    * Creates the complete list of Hibernate configuration files.
+   * 
    * @return the set of Hibernate files, not null
    */
   protected String[] createHibernateFiles() {
@@ -281,7 +346,34 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
   }
 
   /**
+   * Creates the Hibernate template, using the session factory.
+   * 
+   * @param sessionFactory  the Hibernate session factory, may be null
+   * @return the Hibernate template, not null
+   */
+  protected HibernateTemplate createHibernateTemplate(SessionFactory sessionFactory) {
+    if (sessionFactory != null) {
+      return new HibernateTemplate(sessionFactory);
+    }
+    return null;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates the transaction template.
+   * 
+   * @param sessionFactory  the Hibernate session factory, may be null
+   * @return the transaction template, not null
+   */
+  protected TransactionTemplate createTransactionTemplate(SessionFactory sessionFactory) {
+    DefaultTransactionDefinition transDefn = createTransactionDefinition();
+    PlatformTransactionManager transMgr = createTransactionManager(sessionFactory);
+    return new TransactionTemplate(transMgr, transDefn);
+  }
+
+  /**
    * Creates the transaction definition.
+   * 
    * @return the transaction definition, not null
    */
   protected DefaultTransactionDefinition createTransactionDefinition() {
@@ -301,6 +393,7 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
 
   /**
    * Creates the transaction manager.
+   * 
    * @param sessionFactory  the Hibernate session factory, may be null
    * @return the transaction manager, not null
    */
