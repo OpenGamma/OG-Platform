@@ -13,7 +13,7 @@ import com.opengamma.util.test.DbUpgradeTest;
 /**
  * Tests the database upgrade scripts.
  */
-public class MasterDbDatabaseUpgradeTest1 extends DbUpgradeTest {
+public class MasterDbDatabaseUpgradeTest extends DbUpgradeTest {
 
   @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DbTest.class)
   public MasterDbDatabaseUpgradeTest(final String databaseType, final String databaseVersion) {
