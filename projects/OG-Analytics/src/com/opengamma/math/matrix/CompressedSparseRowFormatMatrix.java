@@ -9,6 +9,8 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.ParallelArrayBinarySort;
+
 /**
  * Converts, or instantiates, a matrix to Compressed Sparse Row format (CSR). CSR is a near optimal method of storing sparse matrix data.
  * Only the non-zero components of the matrix are stored (note: there is no tolerance for testing zero to machine precision, zero is solely tested bitwise).
@@ -122,6 +124,59 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
     this(new DoubleMatrix2D(m));
   }
 
+  /**
+   * Construct from SparseCoordinateFormatMatrix type
+   * @param x x-coordinates of data points
+   * @param y y-coordinates of data points
+   * @param values value of data points
+   */
+  public CompressedSparseRowFormatMatrix(double[] x, double[] y, double[] values) {
+    Validate.notNull(x);
+    Validate.notNull(y);
+    Validate.notNull(values);
+    assert (x.length == y.length);
+    assert (x.length == values.length);
+    _els = x.length;
+    int[] rowPtrTmp = new int[_els > 1 ? _els : 2];
+    int localmaxEntriesInARow;
+    _maxEntriesInARow = -1; // set max entries in a row negative, so that maximiser will work
+    int ptr = 0;
+
+    double[] xtmp = Arrays.copyOf(x, x.length);
+    double[] idx = new double[x.length];
+    for (int i = 0; i < x.length; i++) {
+      idx[i] = i;
+    }
+
+    ParallelArrayBinarySort.parallelBinarySort(x, idx);
+
+    double[] idxI = new double[x.length];
+    for (int i = 0; i < x.length; i++) {
+      idx[i] = i;
+    }
+    int i;
+    for (i = 0; i < m.getNumberOfRows(); i++) {
+      rowPtrTmp[i] = ptr;
+      localmaxEntriesInARow = 0;
+      for (int j = 0; j < m.getNumberOfColumns(); j++) {
+        if (Double.doubleToLongBits(m.getEntry(i, j)) != 0L) {
+          localmaxEntriesInARow++;
+          ptr++;
+        }
+      }
+      if (localmaxEntriesInARow > _maxEntriesInARow) { // is the number of entries on this row the largest?
+        _maxEntriesInARow = localmaxEntriesInARow;
+      }
+    }
+    rowPtrTmp[i] = ptr;
+    _values = Arrays.copyOfRange(m.getNonZeroEntries(), 0, ptr);
+    _colIdx = Arrays.copyOfRange(m.getColumnCoordinates(), 0, ptr);
+    _rowPtr = Arrays.copyOfRange(rowPtrTmp, 0, i + 1); // yes, the +1 is correct!
+    _rows = m.getNumberOfRows();
+    _cols = m.getNumberOfColumns();
+
+  }
+
   /* methods */
 
   /**
@@ -175,10 +230,10 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
     return _cols;
   }
 
- /**
-  * Gets the number of non-zero elements in the matrix
-  * @return _values.length, the number of non-zero elements in the matrix
-  */
+  /**
+   * Gets the number of non-zero elements in the matrix
+   * @return _values.length, the number of non-zero elements in the matrix
+   */
   public int getNumberOfNonzeroElements() {
     return _values.length;
   }
@@ -191,10 +246,10 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
     return _maxEntriesInARow;
   }
 
-/**
- * Converts matrix to a Full Matrix representation (undoes the sparse compression)
- * @return tmp, a DoubleMatrix2D
- */
+  /**
+   * Converts matrix to a Full Matrix representation (undoes the sparse compression)
+   * @return tmp, a DoubleMatrix2D
+   */
   public DoubleMatrix2D toDenseMatrix() {
     return new DoubleMatrix2D(this.toArray());
   }
@@ -207,7 +262,7 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
   public double[][] toArray() {
     double[][] tmp = new double[_rows][_cols];
     for (int ir = 0; ir < _rows; ir++) {
-        //translate an index and see if it exists, if it doesn't then return 0
+      //translate an index and see if it exists, if it doesn't then return 0
       for (int i = _rowPtr[ir]; i <= _rowPtr[ir + 1] - 1; i++) { // loops through elements of correct row
         tmp[ir][_colIdx[i]] = _values[i];
       }
@@ -220,7 +275,6 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
     return _els;
   }
 
-
   @Override
   public double[] getFullRow(int index) {
     double[] tmp = new double[_cols];
@@ -230,7 +284,8 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
     return tmp;
   }
 
-  @Override // column slicing CSR is a nightmare, implemented for completeness, but really not worth actually using unless desperate. Use COO or CSC instead.
+  @Override
+  // column slicing CSR is a nightmare, implemented for completeness, but really not worth actually using unless desperate. Use COO or CSC instead.
   public double[] getFullColumn(int index) {
     double[] tmp = new double[_rows];
     for (int i = 0; i < _rows; i++) {
@@ -250,7 +305,8 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
     return Arrays.copyOfRange(tmp, 0, ptr);
   }
 
-  @Override // again, column slicing CSR is a bad idea and essentially requires multiple brute forces. Store the matrix differently if you are thinking about doing this a lot
+  @Override
+  // again, column slicing CSR is a bad idea and essentially requires multiple brute forces. Store the matrix differently if you are thinking about doing this a lot
   public double[] getColumnElements(int index) {
     double[] tmp = new double[_cols];
     double val;
@@ -270,7 +326,6 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
   public int getNumberOfNonZeroElements() {
     return _values.length;
   }
-
 
   @Override
   public Double getEntry(int... indices) {
@@ -335,6 +390,4 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
     return true;
   }
 
-
 }
-
