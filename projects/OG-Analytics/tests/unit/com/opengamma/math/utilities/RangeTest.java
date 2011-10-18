@@ -122,12 +122,4 @@ public class RangeTest {
     Range.fromToInStepInts(sSmall, eSmall, -1);
   }
 
-
-  private void printVect(int[] V1) {
-    for (int i = 0; i < V1.length; i++) {
-      System.out.println(V1[i]);
-    }
-
-  }
-
 }
