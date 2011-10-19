@@ -21,6 +21,7 @@ import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.ObjectsPairFudgeBuilder;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -49,6 +50,7 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
 
   public org.fudgemsg.FudgeMsg toFudgeMsg(FudgeSerializer serializer) {
     MutableFudgeMsg ret = serializer.newMessage();
+    // TODO: this should not be adding it's own class header; the caller should be doing that, or this be registered as a generic builder for VolatilityCubeSnapshot and that class name be added
     FudgeSerializer.addClassHeader(ret, ManageableVolatilityCubeSnapshot.class);
     MutableFudgeMsg valuesMsg = getValuesMessage(serializer);
     MutableFudgeMsg strikesMsg = getStrikesMessage(serializer);
@@ -76,7 +78,7 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
   private MutableFudgeMsg getStrikesMessage(FudgeSerializer serializer) {
     MutableFudgeMsg msg = serializer.newMessage();
     for (Entry<Pair<Tenor, Tenor>, ValueSnapshot> entry : _strikes.entrySet()) {
-      serializer.addToMessage(msg, null, 1, entry.getKey());
+      serializer.addToMessage(msg, null, 1, ObjectsPairFudgeBuilder.buildMessage(serializer, entry.getKey(), Tenor.class, Tenor.class));
       if (entry.getValue() == null) {
         msg.add(2, IndicatorType.INSTANCE);
       } else {
@@ -99,7 +101,6 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
     return ret;
   }
 
-  @SuppressWarnings("unchecked")
   private static HashMap<Pair<Tenor, Tenor>, ValueSnapshot> readStrikes(FudgeDeserializer deserializer, FudgeMsg msg) {
     HashMap<Pair<Tenor, Tenor>, ValueSnapshot> values = new HashMap<Pair<Tenor, Tenor>, ValueSnapshot>();
 
@@ -116,7 +117,7 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
 
       int intValue = ordinal.intValue();
       if (intValue == 1) {
-        key = deserializer.fieldValueToObject(Pair.class, fudgeField);
+        key = ObjectsPairFudgeBuilder.buildObject(deserializer, (FudgeMsg) fudgeField.getValue(), Tenor.class, Tenor.class);
       } else if (intValue == 2) {
         ValueSnapshot value = deserializer.fieldValueToObject(ValueSnapshot.class, fudgeField);
         values.put(key, value);
