@@ -11,10 +11,12 @@ import java.util.concurrent.ExecutorService;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.financial.user.rest.RemoteClient;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.function.FunctionDefinitionFilter;
 import com.opengamma.language.invoke.AggregatingTypeConverterProvider;
@@ -151,6 +153,14 @@ public class MutableGlobalContext extends GlobalContext {
 
   public void setHolidaySource(final HolidaySource holidaySource) {
     removeOrReplaceValue(HOLIDAY_SOURCE, holidaySource);
+  }
+
+  public void setClient(final RemoteClient client) {
+    removeOrReplaceValue(CLIENT, client);
+  }
+
+  public void setMarketDataSnapshotSource(final MarketDataSnapshotSource marketDataSnapshotSource) {
+    removeOrReplaceValue(MARKET_DATA_SNAPSHOT_SOURCE, marketDataSnapshotSource);
   }
 
   // Arbitrary values

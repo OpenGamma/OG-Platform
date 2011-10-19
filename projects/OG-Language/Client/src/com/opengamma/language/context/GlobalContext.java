@@ -13,10 +13,12 @@ import java.util.concurrent.ExecutorService;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.financial.user.rest.RemoteClient;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.function.DefaultFunctionDefinitionFilter;
 import com.opengamma.language.function.FunctionDefinitionFilter;
@@ -42,9 +44,9 @@ import com.opengamma.language.procedure.ProcedureDefinitionFilter;
 public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> {
 
   /**
-   * Name under which the system settings (OpenGamma.properties) are bound. 
+   * Name under which the shared engine client is bound.
    */
-  protected static final String SYSTEM_SETTINGS = "systemSettings";
+  protected static final String CLIENT = "client";
 
   /**
    * Name under which the exchange source is bound.
@@ -92,6 +94,11 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
   protected static final String LIVEDATA_RESULT_CONVERTER = "liveDataResultConverter";
 
   /**
+   * Name under which a market data snapshot source is bound.
+   */
+  protected static final String MARKET_DATA_SNAPSHOT_SOURCE = "marketDataSnapshotSource";
+
+  /**
    * Name under which the procedure definition filter is bound.
    */
   protected static final String PROCEDURE_DEFINITION_FILTER = "procedureDefinitionFilter";
@@ -135,6 +142,11 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    * Name under which the security source is bound.
    */
   protected static final String SECURITY_SOURCE = "securitySource";
+
+  /**
+   * Name under which the system settings (OpenGamma.properties) are bound. 
+   */
+  protected static final String SYSTEM_SETTINGS = "systemSettings";
 
   /**
    * Name under which a source of type converters is bound.
@@ -334,6 +346,14 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
 
   public HolidaySource getHolidaySource() {
     return getValue(HOLIDAY_SOURCE);
+  }
+
+  public RemoteClient getClient() {
+    return getValue(CLIENT);
+  }
+
+  public MarketDataSnapshotSource getMarketDataSnapshotSource() {
+    return getValue(MARKET_DATA_SNAPSHOT_SOURCE);
   }
 
 }
