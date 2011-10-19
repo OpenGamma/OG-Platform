@@ -98,7 +98,7 @@ public class MarketDataValueSpecification {
   //-------------------------------------------------------------------------
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     final MutableFudgeMsg msg = serializer.newMessage();
-    msg.add("type", null, serializer.objectToFudgeMsg(_type));
+    msg.add("type", null, _type.name());
     msg.add("uniqueId", null, serializer.objectToFudgeMsg(_uniqueId));
     return msg;
   }
