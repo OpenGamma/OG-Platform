@@ -9,8 +9,8 @@ import java.sql.Types;
 import java.util.Map;
 
 import javax.time.InstantProvider;
-import javax.time.calendar.DateProvider;
-import javax.time.calendar.TimeProvider;
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.LocalTime;
 
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
@@ -66,12 +66,12 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
    * Adds a date to this source.
    * 
    * @param name  the name, not null
-   * @param dateProvider  the date, not null
+   * @param date  the date, not null
    * @return this, for chaining, not null
    */
-  public DbMapSqlParameterSource addDate(final String name, final DateProvider dateProvider) {
+  public DbMapSqlParameterSource addDate(final String name, final LocalDate date) {
     ArgumentChecker.notNull(name, "name");
-    addValue(name, DbDateUtils.toSqlDate(dateProvider));
+    addValue(name, DbDateUtils.toSqlDate(date));
     return this;
   }
 
@@ -79,12 +79,12 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
    * Adds a time to this source.
    * 
    * @param name  the name, not null
-   * @param timeProvider  the time, not null
+   * @param time  the time, not null
    * @return this, for chaining, not null
    */
-  public DbMapSqlParameterSource addTime(final String name, final TimeProvider timeProvider) {
+  public DbMapSqlParameterSource addTime(final String name, final LocalTime time) {
     ArgumentChecker.notNull(name, "name");
-    addValue(name, DbDateUtils.toSqlTimestamp(timeProvider));
+    addValue(name, DbDateUtils.toSqlTimestamp(time));
     return this;
   }
 
@@ -164,12 +164,12 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
    * Adds an date to this source unless the object is null.
    * 
    * @param name  the name, not null
-   * @param dateProvider  the date, not null
+   * @param date  the date, not null
    * @return this, for chaining, not null
    */
-  public DbMapSqlParameterSource addDateNullIgnored(final String name, final DateProvider dateProvider) {
-    if (dateProvider != null) {
-      addDate(name, dateProvider);
+  public DbMapSqlParameterSource addDateNullIgnored(final String name, final LocalDate date) {
+    if (date != null) {
+      addDate(name, date);
     } else {
       addValue(name, null, Types.DATE);
     }
@@ -180,12 +180,12 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
    * Adds an time to this source unless the object is null.
    * 
    * @param name  the name, not null
-   * @param timeProvider  the time, not null
+   * @param time  the time, not null
    * @return this, for chaining, not null
    */
-  public DbMapSqlParameterSource addTimeNullIgnored(final String name, final TimeProvider timeProvider) {
-    if (timeProvider != null) {
-      addTime(name, timeProvider);
+  public DbMapSqlParameterSource addTimeNullIgnored(final String name, final LocalTime time) {
+    if (time != null) {
+      addTime(name, time);
     } else {
       addValue(name, null, Types.TIME);
     }
