@@ -296,6 +296,12 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
+            <entry key="marketDataSnapshotSource">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/marketDataSnapshotSource/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
             <entry key="marketDataSnapshotter">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/data/marketDataSnapshotters/Vp~0/" />
@@ -478,4 +484,9 @@
       </map>
     </property>
   </bean>
+  <bean id="snapshotSourceRestBean" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotSourceService">
+    <constructor-arg ref="fudgeContext" />
+    <property name="underlying" ref="sharedSnapshotSource" />
+  </bean>
+  
 </beans>
