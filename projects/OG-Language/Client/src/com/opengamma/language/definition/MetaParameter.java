@@ -41,6 +41,11 @@ public class MetaParameter extends Parameter {
     _javaTypeInfo = copyFrom.getJavaTypeInfo();
   }
 
+  public MetaParameter description(final String description) {
+    super.setDescription(description);
+    return this;
+  }
+
   public JavaTypeInfo<?> getJavaTypeInfo() {
     return _javaTypeInfo;
   }

@@ -53,6 +53,11 @@ public class MetaFunction extends Definition {
     _invoker = copyFrom.getInvoker();
   }
 
+  public MetaFunction description(final String description) {
+    super.setDescription(description);
+    return this;
+  }
+
   public FunctionInvoker getInvoker() {
     return _invoker;
   }
