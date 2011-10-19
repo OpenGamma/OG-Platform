@@ -575,7 +575,7 @@
     <taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask"
       classpath="${lib.path.jar.file}" />
     <mkdir dir="${dbscript.dir}" />
-    <taskdef name="dbtool" classname="com.opengamma.util.test.DBTool" classpath="${lib.path.jar.file}" />
+    <taskdef name="dbtool" classname="com.opengamma.util.test.DbTool" classpath="${lib.path.jar.file}" />
     <dbtool dbServerHost="${jdbc.url}"
           user="${hibernate.connection.username}"
         password="${hibernate.connection.password}"
@@ -696,7 +696,7 @@
     <attribute name="scriptDir" />
     <attribute name="catalog" />
     <sequential>
-      <taskdef name="dbtool" classname="com.opengamma.util.test.DBTool" classpathref="lib.path.id" />
+      <taskdef name="dbtool" classname="com.opengamma.util.test.DbTool" classpathref="lib.path.id" />
       <dbtool 
     jdbcUrl="jdbc:hsqldb:file:@{path}" 
     catalog="@{catalog}" 
