@@ -38,7 +38,7 @@
             </list>
         </property>
         <property name="dataSource" ref="dataSource"/>
-        <property name="dialect" value="${opengamma.db.dialect}"/>
+        <property name="dialectName" value="${opengamma.db.dialect}"/>
     </bean>
     
     <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">

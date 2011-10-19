@@ -21,7 +21,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.DbHelper;
+import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.DbSource;
 
 /**
@@ -124,11 +124,11 @@ public abstract class AbstractDbMaster {
   }
 
   /**
-   * Gets the database helper.
+   * Gets the database dialect.
    * 
-   * @return the helper, not null if correctly initialized
+   * @return the dialect, not null if correctly initialized
    */
-  protected DbHelper getDbHelper() {
+  protected DbDialect getDialect() {
     return getDbSource().getDialect();
   }
 

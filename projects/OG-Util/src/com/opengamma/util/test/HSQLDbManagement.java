@@ -8,41 +8,45 @@ package com.opengamma.util.test;
 import java.io.File;
 
 import org.hibernate.dialect.Dialect;
+import org.hibernate.dialect.HSQLDialect;
 
 /**
- * Implementation of the database dialect for HSQL.
+ * Database management for HSQL databases.
  */
-public final class HSQLDialect extends AbstractDBDialect {
-  
+public final class HSQLDbManagement extends AbstractDbManagement {
+
   /**
    * Singleton instance.
    */
-  private static final HSQLDialect INSTANCE = new HSQLDialect(); 
+  private static final HSQLDbManagement INSTANCE = new HSQLDbManagement(); 
   /**
    * The underlying Hibernate dialect.
    */
-  private org.hibernate.dialect.HSQLDialect _hibernateDialect;
+  private HSQLDialect _hibernateDialect;
 
   /**
    * Restricted constructor.
    */
-  private HSQLDialect() {
+  private HSQLDbManagement() {
   }
 
   /**
    * Gets the singleton instance.
+   * 
    * @return the instance, not null
    */
-  public static HSQLDialect getInstance() {
+  public static HSQLDbManagement getInstance() {
     return INSTANCE;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public void shutdown(String catalog) {
-    super.shutdown(catalog);
-    
-    executeSql(catalog, null, "SHUTDOWN");
+  public synchronized Dialect getHibernateDialect() {
+    if (_hibernateDialect == null) {
+      // constructed lazily so we don't get log message about 'using dialect' if we're not actually using it
+      _hibernateDialect = new HSQLDialect();
+    }
+    return _hibernateDialect;
   }
 
   @Override
@@ -55,6 +59,15 @@ public final class HSQLDialect extends AbstractDBDialect {
     return "hsqldb";
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public void shutdown(String catalog) {
+    super.shutdown(catalog);
+    
+    executeSql(catalog, null, "SHUTDOWN");
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public String getAllSchemasSQL(String catalog) {
     return "SELECT TABLE_SCHEM AS name FROM INFORMATION_SCHEMA.SYSTEM_SCHEMAS";
@@ -89,7 +102,7 @@ public final class HSQLDialect extends AbstractDBDialect {
     }
     return sql;
   }
-  
+
   @Override
   public String getAllViewsSQL(String catalog, String schema) {
     String sql = "SELECT TABLE_NAME AS name FROM INFORMATION_SCHEMA.SYSTEM_TABLES WHERE TABLE_TYPE = 'VIEW'";
@@ -113,15 +126,6 @@ public final class HSQLDialect extends AbstractDBDialect {
   @Override
   public String getCreateSchemaSQL(String catalog, String schema) {
     return "CREATE SCHEMA " + schema;
-  }
-
-  @Override
-  public synchronized Dialect getHibernateDialect() {
-    if (_hibernateDialect == null) {
-      // constructed lazily so we don't get log message about 'using dialect' if we're not actually using it
-      _hibernateDialect = new org.hibernate.dialect.HSQLDialect();
-    }
-    return _hibernateDialect;
   }
 
   @Override

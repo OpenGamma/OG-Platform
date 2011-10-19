@@ -12,9 +12,9 @@ import com.opengamma.util.MongoDBConnectionSettings;
 /**
  * Utility methods for working with MongoDB in testing contexts.
  */
-public final class MongoDBTestUtils {
+public final class MongoDbTestUtils {
 
-  private MongoDBTestUtils() {
+  private MongoDbTestUtils() {
   }
 
   public static MongoDBConnectionSettings makeTestSettings(String testName, boolean makeUnique) {

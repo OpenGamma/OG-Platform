@@ -3,10 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util;
+package com.opengamma.util.paging;
 
 import java.util.Collection;
 import java.util.NoSuchElementException;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Simple immutable description of a range of results.

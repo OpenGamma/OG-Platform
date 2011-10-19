@@ -27,7 +27,6 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
@@ -208,10 +207,6 @@ public abstract class AbstractBatchResultWriter {
     return _dbSource.getHibernateSessionFactory();
   }
 
-  public PlatformTransactionManager getTransactionManager() {
-    return _dbSource.getTransactionManager();
-  }
-  
   public SimpleJdbcTemplate getJdbcTemplate() {
     return _dbSource.getJdbcTemplate();
   }

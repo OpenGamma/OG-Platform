@@ -90,7 +90,7 @@ public class BatchJobRunner {
     dbSourceFactory.setTransactionIsolationLevelName("ISOLATION_SERIALIZABLE");
     dbSourceFactory.setTransactionPropagationBehaviorName("PROPAGATION_REQUIRED");
     dbSourceFactory.setName("BatchJobRunnerConfig");
-    dbSourceFactory.setDialect(dbhelper);
+    dbSourceFactory.setDialectName(dbhelper);
     dbSourceFactory.setDataSource(cfgDataSource);
     
     dbSourceFactory.afterPropertiesSet();

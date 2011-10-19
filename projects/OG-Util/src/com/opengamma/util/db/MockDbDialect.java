@@ -10,9 +10,9 @@ import java.sql.Driver;
 import org.hibernate.dialect.Dialect;
 
 /**
- * Mock helper.
+ * Database dialect for mocking.
  */
-public class MockDbHelper extends DbHelper {
+public class MockDbDialect extends DbDialect {
 
   @Override
   public Class<? extends Driver> getJDBCDriverClass() {

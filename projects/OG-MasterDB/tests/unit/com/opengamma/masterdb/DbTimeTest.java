@@ -23,12 +23,12 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.db.DbDateUtils;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests time in the databse.
  */
-public class DbTimeTest extends DBTest {
+public class DbTimeTest extends DbTest {
   // TIMESTAMP WITHOUT TIME ZONE is consistent across Postgres and HSQL
   // it stores the visible field values from Timestamp (ignoring the Java and DB time zones)
   // TIMESTAMP WITH TIME ZONE is inconsistent across Postgres and HSQL
@@ -48,7 +48,7 @@ public class DbTimeTest extends DBTest {
   private static final Instant INSTANT3 = OffsetDateTime.of(2011, 3, 27, 1, 30, 40, 567123000, ZoneOffset.UTC).toInstant();  // Europe spring gap
   private static final DateTimeFormatter FORMAT = DateTimeFormatters.pattern("yyyy-MM-dd HH:mm:ssfnnnnnn");
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbTimeTest(final String databaseType, final String databaseVersion) {
     super(databaseType, databaseVersion);
   }

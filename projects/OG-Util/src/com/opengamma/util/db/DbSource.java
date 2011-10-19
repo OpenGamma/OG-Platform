@@ -15,7 +15,6 @@ import org.hibernate.SessionFactory;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.opengamma.util.ArgumentChecker;
@@ -47,27 +46,15 @@ public class DbSource {
   /**
    * The dialect.
    */
-  private final DbHelper _dialect;
+  private final DbDialect _dialect;
   /**
    * The JDBC template.
    */
   private final SimpleJdbcTemplate _jdbcTemplate;
   /**
-   * The transaction manager.
-   */
-  private final PlatformTransactionManager _transactionManager;
-  /**
-   * The Hibernate session factory.
-   */
-  private final SessionFactory _sessionFactory;
-  /**
    * The Hibernate template.
    */
   private final HibernateTemplate _hibernateTemplate;
-  /**
-   * The transaction definition.
-   */
-  private final TransactionDefinition _transactionDefinition;
   /**
    * The transaction template.
    */
@@ -77,33 +64,26 @@ public class DbSource {
    * Creates an instance.
    * 
    * @param name  the configuration name, not null
+   * @param dialect  the database dialect, not null
    * @param dataSource  the data source, not null
-   * @param helper  the database helper, not null
-   * @param sessionFactory  the Hibernate session factory
-   * @param transactionDefinition  the transaction definition, not null
-   * @param transactionManager  the transaction manager, not null
+   * @param jdbcTemplate  the JDBC template, not null
+   * @param hibernateTemplate  the Hibernate template, may be null
+   * @param transactionTemplate  the transaction template, not null
    */
   public DbSource(
-      String name, DataSource dataSource, DbHelper helper, SessionFactory sessionFactory,
-      TransactionDefinition transactionDefinition, PlatformTransactionManager transactionManager) {
+      String name, DbDialect dialect, DataSource dataSource,
+      SimpleJdbcTemplate jdbcTemplate, HibernateTemplate hibernateTemplate, TransactionTemplate transactionTemplate) {
     ArgumentChecker.notNull(name, "name");
+    ArgumentChecker.notNull(dialect, "dialect");
     ArgumentChecker.notNull(dataSource, "dataSource");
-    ArgumentChecker.notNull(helper, "helper");
-    ArgumentChecker.notNull(transactionDefinition, "transactionDefinition");
-    ArgumentChecker.notNull(transactionManager, "transactionManager");
+    ArgumentChecker.notNull(jdbcTemplate, "JDBC template");
+    ArgumentChecker.notNull(transactionTemplate, "transactionTemplate");
     _name = name;
     _dataSource = dataSource;
-    _dialect = helper;
-    _jdbcTemplate = new SimpleJdbcTemplate(dataSource);
-    _sessionFactory = sessionFactory;
-    if (sessionFactory != null) {
-      _hibernateTemplate = new HibernateTemplate(sessionFactory);
-    } else {
-      _hibernateTemplate = null;
-    }
-    _transactionDefinition = transactionDefinition;
-    _transactionManager = transactionManager;
-    _transactionTemplate = new TransactionTemplate(transactionManager, transactionDefinition);
+    _dialect = dialect;
+    _jdbcTemplate = jdbcTemplate;
+    _hibernateTemplate = hibernateTemplate;
+    _transactionTemplate = transactionTemplate;
   }
 
   //-------------------------------------------------------------------------
@@ -130,7 +110,7 @@ public class DbSource {
    * 
    * @return the database dialect, not null
    */
-  public DbHelper getDialect() {
+  public DbDialect getDialect() {
     return _dialect;
   }
 
@@ -150,7 +130,10 @@ public class DbSource {
    * @return the Hibernate session factory, may be null
    */
   public SessionFactory getHibernateSessionFactory() {
-    return _sessionFactory;
+    if (_hibernateTemplate == null) {
+      return null;
+    }
+    return _hibernateTemplate.getSessionFactory();
   }
 
   /**
@@ -170,16 +153,7 @@ public class DbSource {
    * @return the transaction manager, may be null
    */
   public PlatformTransactionManager getTransactionManager() {
-    return _transactionManager;
-  }
-
-  /**
-   * Gets the transaction definition.
-   * 
-   * @return the transaction definition, may be null
-   */
-  public TransactionDefinition getTransactionDefinition() {
-    return _transactionDefinition;
+    return _transactionTemplate.getTransactionManager();
   }
 
   /**

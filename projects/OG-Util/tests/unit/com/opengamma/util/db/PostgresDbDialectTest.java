@@ -10,35 +10,35 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 /**
- * Test PostgreSQLDbHelper.
+ * Test.
  */
 @Test
-public class PostgreSQLDbHelperTest extends DbHelperTest {
+public class PostgresDbDialectTest extends DbDialectTest {
 
-  public PostgreSQLDbHelperTest() {
-    _helper = PostgreSQLDbHelper.INSTANCE;
+  public PostgresDbDialectTest() {
+    _dialect = PostgresDbDialect.INSTANCE;
   }
 
   //-------------------------------------------------------------------------
   public void test_getJDBCDriver() {
-    assertEquals(org.postgresql.Driver.class, _helper.getJDBCDriverClass());
+    assertEquals(org.postgresql.Driver.class, _dialect.getJDBCDriverClass());
   }
 
   public void test_getHibernateDialect() {
-    assertEquals(org.hibernate.dialect.PostgreSQLDialect.class, _helper.getHibernateDialect().getClass());
+    assertEquals(org.hibernate.dialect.PostgreSQLDialect.class, _dialect.getHibernateDialect().getClass());
   }
 
   public void test_getName() {
-    assertEquals("PostgreSQL", _helper.getName());
+    assertEquals("Postgres", _dialect.getName());
   }
 
   //-------------------------------------------------------------------------
   public void test_sqlNextSequenceValueSelect() {
-    assertEquals("SELECT nextval('MySeq')", _helper.sqlNextSequenceValueSelect("MySeq"));
+    assertEquals("SELECT nextval('MySeq')", _dialect.sqlNextSequenceValueSelect("MySeq"));
   }
 
   public void test_sqlNextSequenceValueInline() {
-    assertEquals("nextval('MySeq')", _helper.sqlNextSequenceValueInline("MySeq"));
+    assertEquals("nextval('MySeq')", _dialect.sqlNextSequenceValueInline("MySeq"));
   }
 
 }

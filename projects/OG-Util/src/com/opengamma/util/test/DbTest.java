@@ -16,8 +16,6 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
@@ -26,28 +24,29 @@ import org.testng.annotations.DataProvider;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ZipUtils;
-import com.opengamma.util.db.DbHelper;
+import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.DbSource;
-import com.opengamma.util.db.HSQLDbHelper;
-import com.opengamma.util.db.PostgreSQLDbHelper;
-import com.opengamma.util.test.DBTool.TableCreationCallback;
+import com.opengamma.util.db.DbSourceFactoryBean;
+import com.opengamma.util.db.HSQLDbDialect;
+import com.opengamma.util.db.PostgresDbDialect;
+import com.opengamma.util.test.DbTool.TableCreationCallback;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Base DB test.
  */
-public abstract class DBTest implements TableCreationCallback {
+public abstract class DbTest implements TableCreationCallback {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(DBTest.class);
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(DbTest.class);
+
   private static Map<String,String> s_databaseTypeVersion = new HashMap<String,String> ();
-  private static final Map<String, DbHelper> s_dbHelpers = new HashMap<String, DbHelper>();
-
-  private static final File SCRIPT_INSTALL_DIR = new File(DBTool.getWorkingDirectory(), "temp/" + DBTest.class.getSimpleName());
-
+  private static final Map<String, DbDialect> s_dbDialects = new HashMap<String, DbDialect>();
+  private static final File SCRIPT_INSTALL_DIR = new File(DbTool.getWorkingDirectory(), "temp/" + DbTest.class.getSimpleName());
   static {
     DateUtils.initTimeZone();
-    addDbHelper("hsqldb", new HSQLDbHelper());
-    addDbHelper("postgres", new PostgreSQLDbHelper());
+    addDbDialect("hsqldb", new HSQLDbDialect());
+    addDbDialect("postgres", new PostgresDbDialect());
   }
 
   static {
@@ -61,9 +60,9 @@ public abstract class DBTest implements TableCreationCallback {
 
   private final String _databaseType;
   private final String _databaseVersion;
-  private final DBTool _dbtool;
+  private final DbTool _dbtool;
 
-  protected DBTest(String databaseType, String databaseVersion) {
+  protected DbTest(String databaseType, String databaseVersion) {
     ArgumentChecker.notNull(databaseType, "databaseType");
     _databaseType = databaseType;
     _dbtool = TestProperties.getDbTool(databaseType);
@@ -72,7 +71,7 @@ public abstract class DBTest implements TableCreationCallback {
     if (isScriptPublished()) {
       _dbtool.addDbScriptDirectory(SCRIPT_INSTALL_DIR.getAbsolutePath());
     } else {
-      _dbtool.addDbScriptDirectory(DBTool.getWorkingDirectory());
+      _dbtool.addDbScriptDirectory(DbTool.getWorkingDirectory());
     }
   }
 
@@ -107,7 +106,7 @@ public abstract class DBTest implements TableCreationCallback {
 
   @SuppressWarnings("unchecked")
   private static void unzipSQLScripts() throws IOException {
-    File zipScriptPath = new File(DBTool.getWorkingDirectory(), getZipPath());
+    File zipScriptPath = new File(DbTool.getWorkingDirectory(), getZipPath());
     for (File file : (Collection<File>) FileUtils.listFiles(zipScriptPath, new String[] {"zip" }, false)) {
       ZipUtils.unzipArchive(file, SCRIPT_INSTALL_DIR);
     }
@@ -140,11 +139,11 @@ public abstract class DBTest implements TableCreationCallback {
   protected static Collection<Object[]> getParameters(final String databaseType, final int previousVersionCount) {
     ArrayList<Object[]> returnValue = new ArrayList<Object[]>();
     for (String db : TestProperties.getDatabaseTypes(databaseType)) {
-      final DBTool dbTool = TestProperties.getDbTool(db);
+      final DbTool dbTool = TestProperties.getDbTool(db);
       if (isScriptPublished()) {
         dbTool.addDbScriptDirectory(SCRIPT_INSTALL_DIR.getAbsolutePath());
       } else {
-        dbTool.addDbScriptDirectory(DBTool.getWorkingDirectory());
+        dbTool.addDbScriptDirectory(DbTool.getWorkingDirectory());
       }
       final String[] versions = dbTool.getDatabaseCreatableVersions();
       for (int i = 0; i < versions.length; i++) {
@@ -162,7 +161,7 @@ public abstract class DBTest implements TableCreationCallback {
     if (zipPath == null) {
       throw new OpenGammaRuntimeException("missing test.sqlZip.path property in test properties file");
     }
-    File zipScriptPath = new File(DBTool.getWorkingDirectory(), zipPath);
+    File zipScriptPath = new File(DbTool.getWorkingDirectory(), zipPath);
     boolean result = false;
     if (zipScriptPath.exists()) {
       @SuppressWarnings("rawtypes")
@@ -208,7 +207,7 @@ public abstract class DBTest implements TableCreationCallback {
     return previousVersionCount;
   }
 
-  public DBTool getDbTool() {
+  public DbTool getDbTool() {
     return _dbtool;
   }
 
@@ -225,22 +224,27 @@ public abstract class DBTest implements TableCreationCallback {
   }
 
   public DbSource getDbSource() {
-    DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition();
-    transactionDefinition.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
-    transactionDefinition.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-    
-    DbHelper dbHelper = s_dbHelpers.get(getDatabaseType());
-    if (dbHelper == null) {
+    DbDialect dbDialect = s_dbDialects.get(getDatabaseType());
+    if (dbDialect == null) {
       throw new OpenGammaRuntimeException("config error - no DBHelper setup for " + getDatabaseType());
     }
-
-    DbSource dbSource = new DbSource("DBTest", getTransactionManager().getDataSource(),
-        dbHelper, null, transactionDefinition, getTransactionManager());
-    return dbSource;
+    DbSourceFactoryBean factory = new DbSourceFactoryBean();
+    factory.setName("DBTest");
+    factory.setDialect(dbDialect);
+    factory.setDataSource(getTransactionManager().getDataSource());
+    factory.setTransactionIsolationLevelName("ISOLATION_READ_COMMITTED");
+    factory.setTransactionPropagationBehaviorName("PROPAGATION_REQUIRED");
+    return factory.createObject();
   }
 
-  public static void addDbHelper(String dbType, DbHelper helper) {
-    s_dbHelpers.put(dbType, helper);
+  /**
+   * Adds a dialect to the map of known.
+   * 
+   * @param dbType  the database type, not null
+   * @param dialect  the dialect, not null
+   */
+  public static void addDbDialect(String dbType, DbDialect dialect) {
+    s_dbDialects.put(dbType, dialect);
   }
 
   /**

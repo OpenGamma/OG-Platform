@@ -19,7 +19,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.HibernateTest;
 
 /**
@@ -27,7 +27,7 @@ import com.opengamma.util.test.HibernateTest;
  */
 public class HibernateAuditLoggerTest extends HibernateTest {
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public HibernateAuditLoggerTest(String databaseType, final String databaseVersion) {
     super(databaseType, databaseVersion);
   }

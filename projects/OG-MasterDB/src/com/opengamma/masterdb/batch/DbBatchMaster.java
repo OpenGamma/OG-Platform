@@ -70,10 +70,10 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.masterdb.AbstractDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.InetAddressUtils;
-import com.opengamma.util.Paging;
-import com.opengamma.util.PagingRequest;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbSource;
+import com.opengamma.util.paging.Paging;
+import com.opengamma.util.paging.PagingRequest;
 
 /**
  * A batch master implementation using a database for persistence.
@@ -872,7 +872,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
     if (request.getObservationTime() != null) {
       observationTimeCriteria.add(
           Restrictions.sqlRestriction("UPPER(label) like UPPER(?)", 
-              getDbHelper().sqlWildcardAdjustValue(request.getObservationTime()), Hibernate.STRING));
+              getDialect().sqlWildcardAdjustValue(request.getObservationTime()), Hibernate.STRING));
     }
     
     BatchSearchResult result = new BatchSearchResult();
@@ -959,11 +959,11 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
     params.addValue("rsk_run_id", riskRun.getId());
     
     final int dataCount = getJdbcTemplate().queryForInt(ViewResultEntryMapper.sqlCount(), params);
-    String dataSql = getDbHelper().sqlApplyPaging(ViewResultEntryMapper.sqlGet(), " ", request.getDataPagingRequest());
+    String dataSql = getDialect().sqlApplyPaging(ViewResultEntryMapper.sqlGet(), " ", request.getDataPagingRequest());
     List<ViewResultEntry> data = getJdbcTemplate().query(dataSql, ViewResultEntryMapper.ROW_MAPPER, params);
     
     final int errorCount = getJdbcTemplate().queryForInt(BatchErrorMapper.sqlCount(), params);
-    String errorSql = getDbHelper().sqlApplyPaging(BatchErrorMapper.sqlGet(), " ", request.getErrorPagingRequest());
+    String errorSql = getDialect().sqlApplyPaging(BatchErrorMapper.sqlGet(), " ", request.getErrorPagingRequest());
     List<BatchError> errors = getJdbcTemplate().query(errorSql, BatchErrorMapper.ROW_MAPPER, params);
     
     doc.setDataPaging(Paging.of(request.getDataPagingRequest(), dataCount));

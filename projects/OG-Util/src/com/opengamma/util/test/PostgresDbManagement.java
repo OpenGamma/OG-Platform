@@ -9,10 +9,10 @@ import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.PostgreSQLDialect;
 
 /**
- * Implementation of the database dialect for Postgres.
+ * Database management for Postgres databases.
  */
-public final class PostgresDialect extends AbstractDBDialect {
-  
+public final class PostgresDbManagement extends AbstractDbManagement {
+
   /**
    * SQL to retrieve all the columns.
    */
@@ -22,11 +22,11 @@ public final class PostgresDialect extends AbstractDBDialect {
    * The Postgres default schema.
    */
   private static final String POSTGRES_DEFAULT_SCHEMA = "public";
-
   /**
    * Singleton instance.
    */
-  private static final PostgresDialect INSTANCE = new PostgresDialect();
+  private static final PostgresDbManagement INSTANCE = new PostgresDbManagement();
+
   /**
    * The underlying Hibernate dialect.
    */
@@ -35,18 +35,28 @@ public final class PostgresDialect extends AbstractDBDialect {
   /**
    * Restricted constructor.
    */
-  private PostgresDialect() {
+  private PostgresDbManagement() {
   }
 
   /**
    * Gets the singleton instance.
+   * 
    * @return the instance, not null
    */
-  public static PostgresDialect getInstance() {
+  public static PostgresDbManagement getInstance() {
     return INSTANCE;
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public synchronized Dialect getHibernateDialect() {
+    if (_hibernateDialect == null) {
+      // constructed lazily so we don't get log message about 'using dialect' if we're not actually using it
+      _hibernateDialect = new PostgreSQLDialect();
+    }
+    return _hibernateDialect;
+  }
+
   @Override
   public Class<?> getJDBCDriverClass() {
     return org.postgresql.Driver.class;
@@ -57,6 +67,7 @@ public final class PostgresDialect extends AbstractDBDialect {
     return "postgres";
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public String getAllSchemasSQL(String catalog) {
     return "SELECT nspname AS name from pg_namespace";
@@ -91,7 +102,7 @@ public final class PostgresDialect extends AbstractDBDialect {
       "table_catalog = '" + catalog + "'" + " AND table_schema = '" + schema + "' AND table_type = 'BASE TABLE'";
     return sql;
   }
-  
+
   @Override
   public String getAllViewsSQL(String catalog, String schema) {
     if (schema == null) {
@@ -116,15 +127,6 @@ public final class PostgresDialect extends AbstractDBDialect {
   @Override
   public String getCreateSchemaSQL(String catalog, String schema) {
     return "CREATE SCHEMA " + schema;
-  }
-
-  @Override
-  public synchronized Dialect getHibernateDialect() {
-    if (_hibernateDialect == null) {
-      // constructed lazily so we don't get log message about 'using dialect' if we're not actually using it
-      _hibernateDialect = new PostgreSQLDialect();
-    }
-    return _hibernateDialect;
   }
 
   @Override

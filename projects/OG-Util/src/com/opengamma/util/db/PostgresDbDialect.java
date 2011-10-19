@@ -7,43 +7,47 @@ package com.opengamma.util.db;
 
 import java.sql.Driver;
 
-import org.hibernate.dialect.DerbyDialect;
 import org.hibernate.dialect.Dialect;
+import org.hibernate.dialect.PostgreSQLDialect;
 
 /**
- * Helper for working with the Derby database.
+ * Database dialect for Postgres databases.
  * <p>
- * This contains any Derby specific SQL and is tested for version 10.6.
- * Sequences were added in 10.6. Offset/Fetch were added in 10.5.
+ * This contains any Postgres specific SQL and is tested for version 8.4 and 9.1.
  */
-public class DerbyDbHelper extends DbHelper {
+public class PostgresDbDialect extends DbDialect {
 
   /**
    * Helper can be treated as a singleton.
    */
-  public static final DerbyDbHelper INSTANCE = new DerbyDbHelper();
+  public static final PostgresDbDialect INSTANCE = new PostgresDbDialect();
 
   /**
    * Restrictive constructor.
    */
-  public DerbyDbHelper() {
+  public PostgresDbDialect() {
   }
 
   //-------------------------------------------------------------------------
   @Override
   public Class<? extends Driver> getJDBCDriverClass() {
-    return org.apache.derby.jdbc.EmbeddedDriver.class;
+    return org.postgresql.Driver.class;
   }
 
   @Override
   protected Dialect createHibernateDialect() {
-    return new DerbyDialect();
+    return new PostgreSQLDialect();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public String sqlNextSequenceValueSelect(final String sequenceName) {
-    return "SELECT NEXT VALUE FOR " + sequenceName + " FROM sysibm.sysdummy1";
+    return "SELECT nextval('" + sequenceName + "')";
+  }
+
+  @Override
+  public String sqlNextSequenceValueInline(final String sequenceName) {
+    return "nextval('" + sequenceName + "')";
   }
 
 }

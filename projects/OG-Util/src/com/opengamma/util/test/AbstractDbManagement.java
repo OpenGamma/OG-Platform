@@ -27,9 +27,9 @@ import com.opengamma.util.tuple.FirstThenSecondPairComparator;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Abstract implementation of DBDialect.
+ * Abstract implementation of database management.
  */
-public abstract class AbstractDBDialect implements DBDialect {
+public abstract class AbstractDbManagement implements DbManagement {
 
   /**
    * The database server.
@@ -50,24 +50,23 @@ public abstract class AbstractDBDialect implements DBDialect {
     _dbServerHost = dbServerHost;
     _user = user;
     _password = password;
-    
     try {
-      getJDBCDriverClass().newInstance(); // load driver.
-    } catch (Exception e) {
-      throw new OpenGammaRuntimeException("Cannot load JDBC driver", e);
+      getJDBCDriverClass().newInstance();  // load the driver
+    } catch (Exception ex) {
+      throw new OpenGammaRuntimeException("Cannot load JDBC driver", ex);
     }
   }
-  
+
   @Override
   public String getTestCatalog() {
     return "test_" + System.getProperty("user.name").replace('.', '_');    
   }
-  
+
   @Override
   public String getTestSchema() {
     return null; // use default    
   }
-  
+
   @Override
   public void reset(String catalog) {
     // by default, do nothing
@@ -95,7 +94,6 @@ public abstract class AbstractDBDialect implements DBDialect {
    * Generic representation of a column.
    */
   protected class ColumnDefinition implements Comparable<ColumnDefinition> {
-    
     private final String _name;
     private final String _dataType;
     private final String _defaultValue;
@@ -138,21 +136,18 @@ public abstract class AbstractDBDialect implements DBDialect {
     }
     
     @Override
-    public boolean equals(final Object o) {
-      if (o == this) {
+    public boolean equals(final Object obj) {
+      if (obj == this) {
         return true;
       }
-      if (o == null) {
-        return false;
+      if (obj instanceof ColumnDefinition) {
+        ColumnDefinition c = (ColumnDefinition) obj;
+        return ObjectUtils.equals(getName(), c.getName())
+            && ObjectUtils.equals(getDataType(), c.getDataType())
+            && ObjectUtils.equals(getAllowsNull(), c.getAllowsNull())
+            && ObjectUtils.equals(getDefaultValue(), c.getDefaultValue());
       }
-      if (!(o instanceof ColumnDefinition)) {
-        return false;
-      }
-      ColumnDefinition c = (ColumnDefinition) o;
-      return ObjectUtils.equals(getName(), c.getName())
-          && ObjectUtils.equals(getDataType(), c.getDataType())
-          && ObjectUtils.equals(getAllowsNull(), c.getAllowsNull())
-          && ObjectUtils.equals(getDefaultValue(), c.getDefaultValue());
+      return false;
     }
     
     @Override
@@ -169,9 +164,8 @@ public abstract class AbstractDBDialect implements DBDialect {
     public int compareTo(final ColumnDefinition c) {
       return getName().compareTo(c.getName());
     }
-    
   }
-  
+
   public abstract String getAllSchemasSQL(String catalog);
   public abstract String getAllTablesSQL(String catalog, String schema);
   public abstract String getAllViewsSQL(String catalog, String schema);
@@ -180,14 +174,13 @@ public abstract class AbstractDBDialect implements DBDialect {
   public abstract String getAllForeignKeyConstraintsSQL(String catalog, String schema);
   public abstract String getCreateSchemaSQL(String catalog, String schema);
   public abstract CatalogCreationStrategy getCatalogCreationStrategy();
-  
+
   public void setActiveSchema(Connection connection, String schema) throws SQLException {
     // override in subclasses as necessary
   }
-  
+
   protected Connection connect(String catalog) throws SQLException {
-    Connection conn = DriverManager.getConnection(getCatalogToConnectTo(catalog), 
-        _user, _password);
+    Connection conn = DriverManager.getConnection(getCatalogToConnectTo(catalog), _user, _password);
     conn.setAutoCommit(true);
     return conn;
   }
@@ -195,7 +188,7 @@ public abstract class AbstractDBDialect implements DBDialect {
   protected String getCatalogToConnectTo(String catalog) {
     return getDbHost() + "/" + catalog;
   }
-  
+
   private List<String> getAllTables(String catalog, String schema, Statement statement) throws SQLException {
     List<String> tables = new LinkedList<String>();
     ResultSet rs = statement.executeQuery(getAllTablesSQL(catalog, schema));
@@ -205,7 +198,7 @@ public abstract class AbstractDBDialect implements DBDialect {
     rs.close();
     return tables;
   }
-  
+
   private List<String> getAllViews(String catalog, String schema, Statement statement) throws SQLException {
     List<String> tables = new LinkedList<String>();
     ResultSet rs = statement.executeQuery(getAllViewsSQL(catalog, schema));
@@ -215,7 +208,7 @@ public abstract class AbstractDBDialect implements DBDialect {
     rs.close();
     return tables;
   }
-  
+
   private List<ColumnDefinition> getAllColumns(String catalog, String schema, String table, Statement statement) throws SQLException {
     List<ColumnDefinition> columns = new LinkedList<ColumnDefinition>();
     ResultSet rs = statement.executeQuery(getAllColumnsSQL(catalog, schema, table));
@@ -225,7 +218,7 @@ public abstract class AbstractDBDialect implements DBDialect {
     rs.close();
     return columns;
   }
-  
+
   @Override
   public void clearTables(String catalog, String schema, Collection<String> ignoredTables) {
     LinkedList<String> script = new LinkedList<String>();
@@ -277,7 +270,6 @@ public abstract class AbstractDBDialect implements DBDialect {
         throw new OpenGammaRuntimeException("Failed to clear tables - is there a cycle in the table dependency graph?", latestException); 
       }
       
-      
     } catch (SQLException e) {
       throw new OpenGammaRuntimeException("Failed to clear tables", e);
     } finally {
@@ -288,9 +280,8 @@ public abstract class AbstractDBDialect implements DBDialect {
       } catch (SQLException e) {
       }
     }           
-    
   }
-  
+
   protected List<String> getAllSchemas(final String catalog, final Statement stmt) throws SQLException {
     final List<String> schemas = new LinkedList<String>();
     ResultSet rs = stmt.executeQuery(getAllSchemasSQL(catalog));
@@ -300,7 +291,7 @@ public abstract class AbstractDBDialect implements DBDialect {
     rs.close();
     return schemas;
   }
-  
+
   @Override
   public void createSchema(String catalog, String schema) {
     Connection conn = null;
@@ -331,9 +322,8 @@ public abstract class AbstractDBDialect implements DBDialect {
       } catch (SQLException e) {
       }
     }  
-    
   }
-  
+
   protected List<String> getAllSequences(final String catalog, final String schema, final Statement stmt) throws SQLException {
     final List<String> sequences = new LinkedList<String>();
     final String sql = getAllSequencesSQL(catalog, schema);
@@ -363,7 +353,6 @@ public abstract class AbstractDBDialect implements DBDialect {
   @Override
   public void dropSchema(String catalog, String schema) {
     // Does not handle triggers or stored procedures yet
-    
     ArrayList<String> script = new ArrayList<String>();
     
     Connection conn = null;
@@ -461,7 +450,6 @@ public abstract class AbstractDBDialect implements DBDialect {
 
   @Override
   public void executeSql(String catalog, String schema, String sql) {
-    
     ArrayList<String> sqlStatements = new ArrayList<String>();
     
     for (String statement : sql.split(";")) {
@@ -519,7 +507,7 @@ public abstract class AbstractDBDialect implements DBDialect {
       }
     }
   }
-  
+
   @Override
   public String describeDatabase(final String catalog) {
     final StringBuilder description = new StringBuilder();
@@ -569,5 +557,5 @@ public abstract class AbstractDBDialect implements DBDialect {
     }
     return description.toString();
   }
-  
+
 }

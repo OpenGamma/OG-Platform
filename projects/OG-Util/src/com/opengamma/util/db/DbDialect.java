@@ -12,12 +12,15 @@ import org.hibernate.dialect.Dialect;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 
-import com.opengamma.util.PagingRequest;
+import com.opengamma.util.paging.PagingRequest;
 
 /**
- * Helper for working with databases with subclasses for different databases.
+ * Operations that support the working with different database dialects.
+ * <p>
+ * There will typically be a different implementation of this class for
+ * each different database and potentially for different versions.
  */
-public abstract class DbHelper {
+public abstract class DbDialect {
 
   /**
    * The cached hibernate dialect.
@@ -27,28 +30,31 @@ public abstract class DbHelper {
   /**
    * Restrictive constructor.
    */
-  protected DbHelper() {
+  protected DbDialect() {
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the name of the database.
+   * 
    * @return the name of the database
    */
   public String getName() {
     String name = getClass().getSimpleName();
-    int endPos = name.lastIndexOf("DbHelper");
+    int endPos = name.lastIndexOf("DbDialect");
     return (endPos < 0 ? name : name.substring(0, endPos));
   }
 
   /**
    * Gets the JDBC driver class.
+   * 
    * @return the driver, not null
    */
   public abstract Class<? extends Driver> getJDBCDriverClass();
 
   /**
    * Gets the Hibernate dialect object for the database.
+   * 
    * @return the dialect, not null
    */
   public final Dialect getHibernateDialect() {
@@ -62,6 +68,7 @@ public abstract class DbHelper {
   /**
    * Creates the Hibernate dialect object for the database.
    * This will be cached by the base class.
+   * 
    * @return the dialect, not null
    */
   protected abstract Dialect createHibernateDialect();
@@ -69,6 +76,7 @@ public abstract class DbHelper {
   //-------------------------------------------------------------------------
   /**
    * Checks if the string contains wildcard characters.
+   * 
    * @param str  the string to check, null returns false
    * @return true if the string contains wildcards
    */
@@ -78,6 +86,7 @@ public abstract class DbHelper {
 
   /**
    * Returns 'LIKE' if there are wildcards, or '=' otherwise.
+   * 
    * @param str  the string to check, null returns '='
    * @return the wildcard operator, not surrounded with spaces
    */
@@ -90,6 +99,7 @@ public abstract class DbHelper {
    * Returns 'prefix LIKE paramName ' if there are wildcards,
    * 'prefix = paramName ' if no wildcards and '' if null.
    * The prefix is normally 'AND columnName ' or 'OR columnName '.
+   * 
    * @param prefix  the prefix such as 'AND columnName ', not null
    * @param paramName  the parameter name normally prefixed by colon, not null
    * @param value  the string value, may be null
@@ -108,6 +118,7 @@ public abstract class DbHelper {
   /**
    * Adjusts wildcards from the public values of * and ? to the database
    * values of % and _.
+   * 
    * @param value  the string value, may be null
    * @return the SQL fragment, not null
    */
@@ -125,6 +136,7 @@ public abstract class DbHelper {
   //-------------------------------------------------------------------------
   /**
    * Builds SQL to apply paging.
+   * 
    * @param sqlSelectFromWhere  the SQL select from where ending in space, not null
    * @param sqlOrderBy  the SQL order by ending in space, not null
    * @param paging  the paging request, may be null
@@ -151,6 +163,7 @@ public abstract class DbHelper {
   //-------------------------------------------------------------------------
   /**
    * Builds SQL to query a sequence (typically created with CREATE SEQUENCE).
+   * 
    * @param sequenceName  the sequence name, not null
    * @return the SQL, not space terminated, not null
    */
@@ -165,6 +178,7 @@ public abstract class DbHelper {
 
   /**
    * Builds SQL to query a sequence (typically created with CREATE SEQUENCE).
+   * 
    * @param sequenceName  the sequence name, not null
    * @return the SQL, space terminated, not null
    */
@@ -212,6 +226,7 @@ public abstract class DbHelper {
   /**
    * Gets the LOB handler used for BLOBs and CLOBs.
    * Subclasses will return different handlers for different dialects.
+   * 
    * @return the LOB handler, not null
    */
   public LobHandler getLobHandler() {

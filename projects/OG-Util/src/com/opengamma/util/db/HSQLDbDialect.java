@@ -13,21 +13,23 @@ import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 
 /**
- * Helper for working with the Hypersonic SQL database.
+ * Database dialect for HSQL databases.
+ * <p>
+ * This contains any HSQL specific SQL and is tested for version 2.2.5.
  */
-public class HSQLDbHelper extends DbHelper {
+public class HSQLDbDialect extends DbDialect {
 
   /**
    * Helper can be treated as a singleton.
    */
-  public static final HSQLDbHelper INSTANCE = new HSQLDbHelper();
+  public static final HSQLDbDialect INSTANCE = new HSQLDbDialect();
 
   /**
    * Restrictive constructor.
    */
-  public HSQLDbHelper() {
+  public HSQLDbDialect() {
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public Class<? extends Driver> getJDBCDriverClass() {
@@ -57,12 +59,13 @@ public class HSQLDbHelper extends DbHelper {
     handler.setWrapAsLob(true);
     return handler;
   }
-  
+
   /**
    * Returns the prefix with the correct wildcard search type.
    * Returns 'prefix LIKE paramName ' if there are wildcards,
    * 'prefix = paramName ' if no wildcards and '' if null.
    * The prefix is normally 'AND columnName ' or 'OR columnName '.
+   * 
    * @param prefix  the prefix such as 'AND columnName ', not null
    * @param paramName  the parameter name normally prefixed by colon, not null
    * @param value  the string value, may be null

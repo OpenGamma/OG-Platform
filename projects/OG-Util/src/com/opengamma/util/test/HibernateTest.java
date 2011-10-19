@@ -11,11 +11,12 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
 import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbSourceFactoryBean;
 
 /**
  * DB test involving Hibernate.
  */
-public abstract class HibernateTest extends DBTest {
+public abstract class HibernateTest extends DbTest {
   
   private SessionFactory _sessionFactory;
   
@@ -57,13 +58,9 @@ public abstract class HibernateTest extends DBTest {
   @Override
   public DbSource getDbSource() {
     DbSource source = super.getDbSource();
-    return new DbSource(
-        source.getName(),
-        source.getDataSource(),
-        source.getDialect(),
-        getSessionFactory(),
-        source.getTransactionDefinition(),
-        source.getTransactionManager());
+    DbSourceFactoryBean factory = new DbSourceFactoryBean(source);
+    factory.setHibernateSessionFactory(getSessionFactory());
+    return factory.createObject();
   }
 
 }

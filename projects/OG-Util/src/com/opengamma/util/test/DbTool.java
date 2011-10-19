@@ -39,31 +39,35 @@ import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Command-line interface to create or clear databases.
- *
  */
-public class DBTool extends Task {
-  
-  private static final Logger s_logger = LoggerFactory.getLogger(DBTool.class);
+public class DbTool extends Task {
+
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(DbTool.class);
 
   private static final String DATABASE_INSTALL_FOLDER = "install/db";
   private static final String DATABASE_SCRIPT_FOLDER_PREFIX = "patch_";
   private static final String DATABASE_UPGRADE_SCRIPT = "upgrade-db.sql";
   private static final String DATABASE_CREATE_SCRIPT = "create-db.sql";
-  
-  private static final Map<String, DBDialect> s_url2Dialect = new ConcurrentHashMap<String, DBDialect>();
-  
-  public static void addDialect(String jdbcUrlPrefix, DBDialect dialect) {
-    s_url2Dialect.put(jdbcUrlPrefix, dialect);
+
+  private static final Map<String, DbManagement> s_url2Management = new ConcurrentHashMap<String, DbManagement>();
+
+  /**
+   * Adds a db management to the map of known.
+   * 
+   * @param jdbcUrlPrefix  the JDBC prefix, not null
+   * @param management  the management, not null
+   */
+  public static void addDbManagement(String jdbcUrlPrefix, DbManagement management) {
+    s_url2Management.put(jdbcUrlPrefix, management);
   }
-  
+
   /**
    */
   public interface TableCreationCallback {
-    
     void tablesCreatedOrUpgraded(final String version);
-    
   }
-  
+
   // What to do - should be set once
   private String _catalog;
   private String _schema;
@@ -77,32 +81,30 @@ public class DBTool extends Task {
   private Collection<String> _dbScriptDirs = new ArrayList<String>();
   private Integer _targetVersion;
   private Integer _createVersion;
-  
+
   // What to do it on - can change
-  private DBDialect _dialect;
+  private DbManagement _dialect;
   private String _jdbcUrl;
   private String _dbServerHost;
   private String _user;
   private String _password;
-  
+
   /** 
    * Static as the parameterized JUnit test runner seems to create a new DBTool instance
    * for each DBTest test case. This is clearly a hack.
    * All strings will be lower case
    */
   private static final Collection<String> s_tablesThatShouldNotBeCleared = new HashSet<String>();
-  
-  public DBTool() {
+
+  public DbTool() {
   }
-  
-  public DBTool(String dbServerHost,
-      String user,
-      String password) {
+
+  public DbTool(String dbServerHost, String user, String password) {
     setDbServerHost(dbServerHost);
     setUser(user);
     setPassword(password);
   }
-  
+
   public void initialize() {
     if (_dbServerHost == null) {
       // Parse the server host and catalog from a JDBC URL
@@ -125,12 +127,12 @@ public class DBTool extends Task {
       throw new OpenGammaRuntimeException("Server/user/password not initialised");
     }
     
-    addDialect("jdbc:postgresql", PostgresDialect.getInstance());
-    addDialect("jdbc:derby", DerbyDialect.getInstance());
-    addDialect("jdbc:hsqldb", HSQLDialect.getInstance());
+    addDbManagement("jdbc:postgresql", PostgresDbManagement.getInstance());
+    addDbManagement("jdbc:derby", DerbyDbManagement.getInstance());
+    addDbManagement("jdbc:hsqldb", HSQLDbManagement.getInstance());
     
     String dbUrlLowercase = _dbServerHost.toLowerCase();
-    for (Map.Entry<String, DBDialect> entry : s_url2Dialect.entrySet()) {
+    for (Map.Entry<String, DbManagement> entry : s_url2Management.entrySet()) {
       if (dbUrlLowercase.indexOf(entry.getKey()) != -1) {
         _dialect = entry.getValue();        
         break;
@@ -138,7 +140,7 @@ public class DBTool extends Task {
     }
     
     if (_dialect == null) {
-      throw new OpenGammaRuntimeException("Database " + _dbServerHost + " not supported. The database URL must contain one of: " + s_url2Dialect.entrySet());
+      throw new OpenGammaRuntimeException("Database " + _dbServerHost + " not supported. The database URL must contain one of: " + s_url2Management.entrySet());
     }
 
     _dialect.initialise(_dbServerHost, _user, _password);
@@ -151,7 +153,7 @@ public class DBTool extends Task {
   public void shutdown(String catalog) {
     _dialect.shutdown(catalog);
   }
-  
+
   public void setDbServerHost(String dbServerHost) {
     _dbServerHost = dbServerHost;
   }
@@ -175,7 +177,7 @@ public class DBTool extends Task {
   public String getPassword() {
     return _password;
   }
-  
+
   public String getJdbcUrl() {
     return _jdbcUrl;
   }
@@ -183,7 +185,7 @@ public class DBTool extends Task {
   public void setJdbcUrl(String jdbcUrl) {
     _jdbcUrl = jdbcUrl;
   }
-  
+
   public String getCatalog() {
     return _catalog;
   }
@@ -203,7 +205,7 @@ public class DBTool extends Task {
   public void setCreate(boolean create) {
     _create = create;
   }
-  
+
   public void setCreate(String create) {
     setCreate(create.equalsIgnoreCase("true"));
   }
@@ -211,7 +213,7 @@ public class DBTool extends Task {
   public void setDrop(boolean drop) {
     _drop = drop;
   }
-  
+
   public void setDrop(String drop) {
     setDrop(drop.equalsIgnoreCase("true"));
   }
@@ -219,7 +221,7 @@ public class DBTool extends Task {
   public void setClear(boolean clear) {
     _clear = clear;
   }
-  
+
   public void setClear(String clear) {
     setClear(clear.equalsIgnoreCase("true"));
   }
@@ -228,7 +230,7 @@ public class DBTool extends Task {
     _createTestDb = (testDbType != null);
     _testDbType = testDbType;
   }
-  
+
   public String getTestPropertiesDir() {
     return _testPropertiesDir;
   }
@@ -244,11 +246,11 @@ public class DBTool extends Task {
   public void setDbScriptDirs(Collection<String> dirs) {
     _dbScriptDirs = dirs;
   }
-  
+
   public static String getWorkingDirectory() {
     return System.getProperty("user.dir");
   }
-  
+
   /**
    * Primarily for ant
    * 
@@ -263,7 +265,7 @@ public class DBTool extends Task {
       _dbScriptDirs.add(getWorkingDirectory());
     }
   }
-  
+
   /**
    * @param directory If null -> working directory
    */
@@ -273,47 +275,47 @@ public class DBTool extends Task {
     }
     _dbScriptDirs.add(directory);
   }
-  
+
   public void setCreateVersion(final String createVersion) {
     _createVersion = createVersion != null ? Integer.parseInt(createVersion) : null;
   }
-  
+
   public void setCreateVersion(final Integer createVersion) {
     _createVersion = createVersion;
   }
-  
+
   public Integer getCreateVersion() {
     return _createVersion;
   }
-  
+
   public void setTargetVersion(final String targetVersion) {
     _targetVersion = targetVersion != null ? Integer.parseInt(targetVersion) : null;
   }
-  
+
   public void setTargetVersion(final Integer targetVersion) {
     _targetVersion = targetVersion;
   }
-  
+
   public Integer getTargetVersion() {
     return _targetVersion;
   }
-  
+
   public void setCreateTables(boolean create) {
     _createTables = create;
   }
-  
+
   public void setCreateTables(String create) {
     setCreateTables(create.equalsIgnoreCase("true"));
   }
-  
+
   public void createTestSchema() {
     createSchema(getTestCatalog(), getTestSchema());
   }
-  
+
   public void dropTestSchema() {
     dropSchema(getTestCatalog(), getTestSchema());
   }
-  
+
   public void clearTestTables() {
     clearTables(getTestCatalog(), getTestSchema());
   }
@@ -321,40 +323,40 @@ public class DBTool extends Task {
   public void createSchema(String catalog, String schema) {
     _dialect.createSchema(catalog, schema);
   }
-  
+
   public void dropSchema(String catalog, String schema) {
     _dialect.dropSchema(catalog, schema);
   }
-  
+
   public void clearTables(String catalog, String schema) {
     _dialect.clearTables(catalog, schema, s_tablesThatShouldNotBeCleared);    
   }
-  
+
   public String describeDatabase() {
     return _dialect.describeDatabase(getTestCatalog());
   }
-  
+
   public String getTestCatalog() {
     return _dialect.getTestCatalog();    
   }
-  
+
   public String getTestSchema() {
     return _dialect.getTestSchema();
   }
-  
+
   public String getTestDatabaseUrl() {
     return _dbServerHost + "/" + getTestCatalog();         
   }
-  
+
   public Dialect getHibernateDialect() {
     return _dialect.getHibernateDialect();
   }
-  
+
   public Class<?> getJDBCDriverClass() {
     return _dialect.getJDBCDriverClass();
   }
-  
-  public DBDialect getDialect() {
+
+  public DbManagement getDbManagement() {
     return _dialect;
   }
 
@@ -370,7 +372,7 @@ public class DBTool extends Task {
     configuration.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.transaction.JDBCTransactionFactory");
     return configuration;
   }
-  
+
   public Configuration getTestHibernateConfiguration() {
     Configuration configuration = getHibernateConfiguration();
     if (getTestSchema() != null) {
@@ -378,7 +380,7 @@ public class DBTool extends Task {
     }
     return configuration;
   }
-  
+
   public DataSourceTransactionManager getTransactionManager() {
     BasicDataSource dataSource = new BasicDataSource();
 
@@ -389,13 +391,11 @@ public class DBTool extends Task {
     
     return new DataSourceTransactionManager(dataSource);
   }
-  
-  
-  
+
   public void createTestTables(final TableCreationCallback callback) {
     createTables(getTestCatalog(), getTestSchema(), callback);
   }
-  
+
   private void executeCreateScript(String catalog, String schema, File file) {
     String sql;
     try {
@@ -437,7 +437,7 @@ public class DBTool extends Task {
       doNotClearIndex = sql.indexOf(doNotClear, doNotClearIndex + doNotClear.length());
     }
   }
-  
+
   private void createTables(String catalog, String schema, File[] scriptDirs, int index, TableCreationCallback callback) {
     if (index < 0) {
       throw new IllegalArgumentException("Invalid creation or target version (" + getCreateVersion() + "/" + getTargetVersion() + ")");
@@ -469,7 +469,7 @@ public class DBTool extends Task {
       createTables(catalog, schema, scriptDirs, index - 1, callback);
     }
   }
-  
+
   private File[] getScriptDirs() {
     final List<File> scriptDirs = new ArrayList<File>();
     for (String scriptDir : _dbScriptDirs) {
@@ -500,7 +500,7 @@ public class DBTool extends Task {
     }
     return scriptDirs.toArray(new File[0]);
   }
-  
+
   public void createTables(String catalog, String schema, final TableCreationCallback callback) {
     final File[] scriptDirs = getScriptDirs();
     if (getTargetVersion() == null) {
@@ -511,7 +511,7 @@ public class DBTool extends Task {
     }
     createTables(catalog, schema, scriptDirs, scriptDirs.length - 1, callback);
   }
-  
+
   /**
    * Returns version numbers of any that have a "create" script and the most recent (in descending order).
    * @return FIXME
@@ -531,11 +531,11 @@ public class DBTool extends Task {
     }
     return versions.toArray(new String[versions.size()]);
   }
-  
+
   public void executeSql(String catalog, String schema, String sql) {
     _dialect.executeSql(catalog, schema, sql);
   }
-  
+
   @Override
   public void execute() throws BuildException {
     if (!_createTestDb) {
@@ -597,16 +597,13 @@ public class DBTool extends Task {
     
     System.out.println("All tasks succeeded.");
   }
-  
-  
 
   public static void usage(Options options) {
     HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp("java com.opengamma.util.test.DBTool [args]", options);
   }
-  
+
   public static void main(String[] args) { // CSIGNORE
-    
     Options options = new Options();
     options.addOption("jdbcUrl", "jdbcUrl", true, "DB server URL + database - for example, jdbc:postgresql://localhost:1234/OpenGammaTests. You can use" +
         " either this option or specify server and database separately.");
@@ -639,7 +636,7 @@ public class DBTool extends Task {
       System.exit(-1);
     }
     
-    DBTool tool = new DBTool();
+    DbTool tool = new DbTool();
     tool.setJdbcUrl(line.getOptionValue("jdbcUrl"));
     tool.setDbServerHost(line.getOptionValue("server"));
     tool.setUser(line.getOptionValue("user"));
