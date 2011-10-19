@@ -73,15 +73,8 @@ public class DbDateUtils {
    */
   public static Timestamp toSqlTimestamp(InstantProvider instantProvider) {
     ArgumentChecker.notNull(instantProvider, "instantProvider");
-//    Instant instant = Instant.of(instantProvider);
     OffsetDateTime utc = OffsetDateTime.ofInstant(instantProvider, ZoneOffset.UTC);
     return toSqlDateTime(utc);
-//    Timestamp timestamp = new Timestamp(utc.getYear() - 1900, utc.getMonthOfYear().getValue() - 1, utc.getDayOfMonth(),
-//        utc.getHourOfDay(), utc.getMinuteOfHour(), utc.getSecondOfMinute(), utc.getNanoOfSecond());
-//    
-////    Timestamp timestamp = new Timestamp(instant.toEpochMillisLong());
-////    timestamp.setNanos(instant.getNanoOfSecond());
-//    return timestamp;
   }
 
   /**
@@ -93,11 +86,6 @@ public class DbDateUtils {
   public static Instant fromSqlTimestamp(Timestamp timestamp) {
     LocalDateTime ldt = fromSqlDateTime(timestamp);
     return ldt.atOffset(ZoneOffset.UTC).toInstant();
-    
-//    ArgumentChecker.notNull(timestamp, "timestamp");
-//    long seconds = timestamp.getTime() / 1000;
-//    int nanos = timestamp.getNanos();
-//    return Instant.ofEpochSeconds(seconds, nanos);
   }
 
   /**
