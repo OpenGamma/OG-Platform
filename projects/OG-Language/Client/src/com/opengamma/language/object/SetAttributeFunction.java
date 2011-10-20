@@ -24,10 +24,10 @@ public class SetAttributeFunction implements PublishedFunction {
   private final Method _write;
   private final MetaFunction _definition;
 
-  public SetAttributeFunction(final String name, final String description, final Method write, final MetaParameter object, final MetaParameter value) {
+  public SetAttributeFunction(final String category, final String name, final String description, final Method write, final MetaParameter object, final MetaParameter value) {
     _write = write;
     final List<MetaParameter> args = Arrays.asList(object, value);
-    _definition = new MetaFunction(name, args, new AbstractFunctionInvoker(args) {
+    _definition = new MetaFunction(category, name, args, new AbstractFunctionInvoker(args) {
       @Override
       protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
         try {

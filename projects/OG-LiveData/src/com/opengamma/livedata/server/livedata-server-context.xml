@@ -38,7 +38,7 @@
             </list>
         </property>
         <property name="dataSource" ref="dataSource"/>
-        <property name="dialect" value="${opengamma.db.dialect}"/>
+        <property name="dialectName" value="${opengamma.db.dialect}"/>
     </bean>
     
     <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
@@ -143,7 +143,7 @@
     </bean>
 	
 	<bean id="persistentSubscriptionManager" class="com.opengamma.livedata.server.MongoDBPersistentSubscriptionManager"
-		depends-on="liveDataServer" init-method="refresh">
+		depends-on="liveDataServer" init-method="start">
 		<constructor-arg index="0" ref="liveDataServer"/>
 		<constructor-arg index="1" ref="mongoDBSettings"/>
 	</bean>

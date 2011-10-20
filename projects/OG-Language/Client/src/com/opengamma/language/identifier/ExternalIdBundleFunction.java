@@ -15,6 +15,7 @@ import com.opengamma.id.ExternalIdFudgeBuilder;
 import com.opengamma.language.Data;
 import com.opengamma.language.Value;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.function.AbstractFunctionInvoker;
@@ -100,7 +101,7 @@ public class ExternalIdBundleFunction implements PublishedFunction {
         return execute(parameters);
       }
     };
-    final MetaFunction meta = new MetaFunction("ExternalIdBundle", args, invoker);
+    final MetaFunction meta = new MetaFunction(Categories.IDENTIFIER, "ExternalIdBundle", args, invoker);
     meta.setDescription("Creates an ExternalIdBundle from one or more identifiers");
     return meta;
   }

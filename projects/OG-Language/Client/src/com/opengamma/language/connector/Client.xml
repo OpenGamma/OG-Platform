@@ -124,14 +124,17 @@
     <property name="functionProviders">
       <list>
         <bean class="com.opengamma.language.config.ConfigurationFunctionProvider" />
+        <bean class="com.opengamma.language.external.ExternalFunctionProvider" />
         <bean class="com.opengamma.language.identifier.IdentifierFunctionProvider" />
         <bean class="com.opengamma.language.object.ObjectFunctionProvider" />
         <!-- For odd functions, use the provider bean. If a package exports more than a couple, create a provider for it -->
         <bean class="com.opengamma.language.function.FunctionProviderBean">
           <property name="functions">
             <list>
-              <bean class="com.opengamma.language.value.ValueRequirementNamesFunction" />
+              <!-- The next thing to be added to the "value" package should give it a loader -->
               <bean class="com.opengamma.language.value.ExpandComputedValuesFunction" />
+              <bean class="com.opengamma.language.value.MarketDataRequirementNamesFunction" />
+              <bean class="com.opengamma.language.value.ValueRequirementNamesFunction" />
             </list>
           </property>
         </bean>

@@ -5,11 +5,10 @@
  */
 package com.opengamma.core.position;
 
-import java.util.Map;
-
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
+import com.opengamma.core.Attributable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.money.Currency;
@@ -25,7 +24,7 @@ import com.opengamma.util.money.Currency;
  * Implementations may be mutable.
  */
 @PublicSPI
-public interface Trade extends PositionOrTrade {
+public interface Trade extends PositionOrTrade, Attributable {
 
   /**
    * Gets the unique identifier of the parent position.
@@ -88,12 +87,5 @@ public interface Trade extends PositionOrTrade {
    * @return the premium time with offset, can be null
    */
   OffsetTime getPremiumTime();
-
-  /**
-   * Gets the attributes to use for trade aggregation.
-   * 
-   * @return the attributes, not null
-   */
-  Map<String, String> getAttributes();
 
 }

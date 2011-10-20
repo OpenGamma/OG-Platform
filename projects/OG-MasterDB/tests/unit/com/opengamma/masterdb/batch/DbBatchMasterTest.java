@@ -55,9 +55,9 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.util.PagingRequest;
 import com.opengamma.util.db.DbDateUtils;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TransactionalHibernateTest;
 
 /**
@@ -69,7 +69,7 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
   private CommandLineBatchJob _batchJob;
   private CommandLineBatchJobRun _batchJobRun;
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbBatchMasterTest(String databaseType, final String databaseVersion) {
     super(databaseType, databaseVersion);
   }

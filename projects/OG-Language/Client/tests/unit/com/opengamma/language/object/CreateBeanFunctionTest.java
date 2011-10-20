@@ -1,18 +1,22 @@
 package com.opengamma.language.object;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
+
+import java.util.Collections;
+import java.util.Map;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.language.function.MetaFunction;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import javax.time.calendar.ZonedDateTime;
-
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
 
 public class CreateBeanFunctionTest {
 
@@ -36,7 +40,8 @@ public class CreateBeanFunctionTest {
     ExternalIdBundle idBundle = ExternalIdBundle.of(ExternalId.of("Tst", "id"));
     String name = "securityName";
     String securityType = "securityType";
-    Object[] parameters = {uniqueId, idBundle, name, securityType, underlyingId, forwardDate, regionId};
+    Map<String, String> attributes = Collections.singletonMap("Foo", "Bar");
+    Object[] parameters = {uniqueId, idBundle, name, securityType, attributes, underlyingId, forwardDate, regionId };
 
     MetaFunction metaFunction = function.getMetaFunction();
     assertNotNull(metaFunction);
@@ -49,6 +54,7 @@ public class CreateBeanFunctionTest {
     assertEquals(idBundle, security.getExternalIdBundle());
     assertEquals(name, security.getName());
     assertEquals(securityType, security.getSecurityType());
+    assertEquals(attributes, security.getAttributes());
     assertEquals(underlyingId, security.getUnderlyingId());
     assertEquals(forwardDate, security.getForwardDate());
     assertEquals(regionId, security.getRegionId());

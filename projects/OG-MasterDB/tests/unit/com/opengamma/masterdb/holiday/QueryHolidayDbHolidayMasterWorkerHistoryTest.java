@@ -16,8 +16,8 @@ import org.testng.annotations.Test;
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
-import com.opengamma.util.PagingRequest;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests QueryHolidayDbHolidayMasterWorker.
@@ -27,7 +27,7 @@ public class QueryHolidayDbHolidayMasterWorkerHistoryTest extends AbstractDbHoli
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryHolidayDbHolidayMasterWorkerHistoryTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public QueryHolidayDbHolidayMasterWorkerHistoryTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);

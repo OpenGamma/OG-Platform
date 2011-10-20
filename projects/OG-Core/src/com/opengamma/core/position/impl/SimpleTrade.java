@@ -207,6 +207,7 @@ public class SimpleTrade extends DirectBean
    * @param key  the attribute key, not null
    * @param value  the attribute value, not null
    */
+  @Override
   public void addAttribute(String key, String value) {
     ArgumentChecker.notNull(key, "key");
     ArgumentChecker.notNull(value, "value");

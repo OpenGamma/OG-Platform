@@ -14,7 +14,7 @@ $.register_module({
             fields = [SWAP, OPEX, RLST],
             arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
         return og.views.config_forms['default'].preload({
-            type: module.name.split('.').pop(),
+            type: 'com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition',
             meta: [
                 [['0', INDX].join('.'),         Form.type.STR],
                 [[OPEX, EMPT, INDX].join('.'),  Form.type.STR],

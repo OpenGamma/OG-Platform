@@ -14,6 +14,7 @@ import com.opengamma.language.DataUtils;
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtils;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.FunctionInvoker;
@@ -64,7 +65,7 @@ public class DebugFunctionLiteral implements PublishedFunction {
         return getLiteral();
       }
     };
-    return new MetaFunction(getName(), args, invoker);
+    return new MetaFunction(Categories.DEBUG, getName(), args, invoker);
   }
 
 }

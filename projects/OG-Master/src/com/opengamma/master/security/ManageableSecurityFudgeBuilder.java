@@ -16,6 +16,8 @@ import com.opengamma.id.ExternalIdBundleFudgeBuilder;
 import com.opengamma.id.UniqueIdFudgeBuilder;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 
+import java.util.Map;
+
 /**
  * A Fudge builder for {@code ManageableSecurity}.
  */
@@ -30,6 +32,8 @@ public class ManageableSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
   public static final String SECURITY_TYPE_FIELD_NAME = "securityType";
   /** Field name. */
   public static final String IDENTIFIERS_FIELD_NAME = "identifiers";
+  /** Field name. */
+  public static final String ATTRIBUTES_FIELD_NAME = "attributes";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ManageableSecurity object) {
@@ -43,6 +47,7 @@ public class ManageableSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
     addToMessage(msg, NAME_FIELD_NAME, object.getName());
     addToMessage(msg, SECURITY_TYPE_FIELD_NAME, object.getSecurityType());
     addToMessage(msg, IDENTIFIERS_FIELD_NAME, ExternalIdBundleFudgeBuilder.toFudgeMsg(serializer, object.getExternalIdBundle()));
+    addToMessage(msg, ATTRIBUTES_FIELD_NAME, serializer.objectToFudgeMsg(object.getAttributes()));
   }
 
   @Override
@@ -57,6 +62,7 @@ public class ManageableSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
     object.setName(msg.getString(NAME_FIELD_NAME));
     object.setSecurityType(msg.getString(SECURITY_TYPE_FIELD_NAME));
     object.setExternalIdBundle(ExternalIdBundleFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(IDENTIFIERS_FIELD_NAME)));
+    object.setAttributes((Map<String, String>) deserializer.fieldValueToObject(msg.getByName(ATTRIBUTES_FIELD_NAME)));
   }
 
 }

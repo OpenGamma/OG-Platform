@@ -43,7 +43,7 @@ import com.opengamma.masterdb.security.hibernate.option.FxOptionSecurityBeanOper
 import com.opengamma.masterdb.security.hibernate.option.IRFutureOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.SwaptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.swap.SwapSecurityBeanOperation;
-import com.opengamma.util.db.DbHelper;
+import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
 
@@ -173,7 +173,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
    * Gets the database dialect.
    * @return the dialect
    */
-  protected DbHelper getDialect() {
+  protected DbDialect getDialect() {
     return _dbSource.getDialect();
   }
 
@@ -212,6 +212,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
         result.setUniqueId(base.getUniqueId());
         result.setName(base.getName());
         result.setExternalIdBundle(base.getExternalIdBundle());
+        result.setAttributes(base.getAttributes());
         return result;
       }
     });

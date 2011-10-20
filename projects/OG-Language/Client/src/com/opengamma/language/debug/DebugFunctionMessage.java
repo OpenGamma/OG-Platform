@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.language.Data;
 import com.opengamma.language.DataUtils;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.function.AbstractFunctionInvoker;
@@ -53,6 +54,6 @@ public class DebugFunctionMessage implements PublishedFunction {
         return execute((Data) parameters[0], (Data) parameters[1]);
       }
     };
-    return new MetaFunction("DebugFunctionMessage", args, invoker);
+    return new MetaFunction(Categories.DEBUG, "DebugFunctionMessage", args, invoker);
   }
 }

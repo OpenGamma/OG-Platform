@@ -17,18 +17,18 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Test DbHistoricalTimeSeriesMaster.
  */
-public class DbHistoricalTimeSeriesMasterTest extends DBTest {
+public class DbHistoricalTimeSeriesMasterTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbHistoricalTimeSeriesMasterTest.class);
 
   private DbHistoricalTimeSeriesMaster _htsMaster;
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbHistoricalTimeSeriesMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -55,24 +55,6 @@ public class DbHistoricalTimeSeriesMasterTest extends DBTest {
     assertNotNull(_htsMaster.getDbSource());
     assertNotNull(_htsMaster.getTimeSource());
   }
-
-//  //-------------------------------------------------------------------------
-//  @Test
-//  public void test_sample() throws Exception {
-//    if (_htsMaster.getDbSource().getDialect() instanceof PostgreSQLDbHelper) {
-//      HistoricalTimeSeriesInfoSearchRequest req = new HistoricalTimeSeriesInfoSearchRequest();
-//      req.setPagingRequest(PagingRequest.FIRST_PAGE);
-//      req.addExternalId(SecurityUtils.bloombergBuidSecurityId("EQ0010102100001000"));
-//      req.addExternalId(SecurityUtils.bloombergTickerSecurityId("MOT US Equity"));
-//      req.addExternalId(SecurityUtils.cusipSecurityId("620076109"));
-//      req.addExternalId(SecurityUtils.isinSecurityId("US6200761095"));
-//      req.addExternalId(SecurityUtils.sedol1SecurityId("2606600"));
-//      req.setDataField("CUR_MKT_CAP");
-//      HistoricalTimeSeriesInfoSearchResult res = _htsMaster.search(req);
-//      assertEquals(1, res.getDocuments().size());
-//      assertEquals("6142", res.getFirstInfo().getUniqueId().getValue());
-//    }
-//  }
 
   //-------------------------------------------------------------------------
   @Test

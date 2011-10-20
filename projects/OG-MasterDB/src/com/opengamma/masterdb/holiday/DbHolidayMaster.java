@@ -39,11 +39,11 @@ import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.Paging;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.paging.Paging;
 
 /**
  * A holiday master implementation using a database for persistence.
@@ -133,7 +133,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
-      .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
+      .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()))
       .addValueNullIgnored("hol_type", request.getType() != null ? request.getType().name() : null)
       .addValueNullIgnored("currency_iso", currencyISO);
     if (request.getProviderId() != null) {
@@ -176,7 +176,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
                 "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
     if (request.getName() != null) {
-      where += getDbHelper().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
+      where += getDialect().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
     }
     if (request.getType() != null) {
       where += "AND hol_type = :hol_type ";
@@ -205,7 +205,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     where += sqlAdditionalWhere();
     
     String selectFromWhereInner = "SELECT id FROM hol_holiday " + where;
-    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
+    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
     String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main.id" + sqlAdditionalOrderBy(false);
     String count = "SELECT COUNT(*) FROM hol_holiday " + where;
     return new String[] {search, count};

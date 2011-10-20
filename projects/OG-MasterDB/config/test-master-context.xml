@@ -31,7 +31,7 @@
   <bean id="hsqldbDbSource" parent="abstractDbSource">
     <property name="name" value="FinancialTestsHSQL"/>
     <property name="dataSource" ref="hsqldbDataSource"/>
-    <property name="dialect" value="com.opengamma.util.db.HSQLDbHelper"/>
+    <property name="dialectName" value="com.opengamma.util.db.HSQLDbDialect"/>
   </bean>
 
   <bean id="hsqldbDbConfigMaster" class="com.opengamma.masterdb.config.DbConfigMaster">
@@ -91,7 +91,7 @@
   <bean id="postgresDbSource" parent="abstractDbSource">
     <property name="name" value="FinancialTestsPostgres"/>
     <property name="dataSource" ref="postgresDataSource"/>
-    <property name="dialect" value="com.opengamma.util.db.PostgreSQLDbHelper"/>
+    <property name="dialectName" value="com.opengamma.util.db.PostgresDbDialect"/>
   </bean>
 
   <bean id="postgresDbConfigMaster" class="com.opengamma.masterdb.config.DbConfigMaster">

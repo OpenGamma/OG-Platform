@@ -6,8 +6,10 @@
 package com.opengamma.master.security;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
+import com.opengamma.util.ArgumentChecker;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -64,6 +66,12 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
    */
   @PropertyDefinition(validate = "notNull")
   private String _securityType = "";
+
+  /**
+   * The general purpose trade attributes, which can be used for aggregating in portfolios.
+   */
+  @PropertyDefinition
+  private final Map<String, String> _attributes = new HashMap<String, String>();
 
   /**
    * Creates an empty instance.
@@ -136,10 +144,13 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
         return getName();
       case 808245914:  // securityType
         return getSecurityType();
+      case 405645655:  // attributes
+        return getAttributes();
     }
     return super.propertyGet(propertyName, quiet);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
@@ -154,6 +165,9 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
         return;
       case 808245914:  // securityType
         setSecurityType((String) newValue);
+        return;
+      case 405645655:  // attributes
+        setAttributes((Map<String, String>) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -177,7 +191,8 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getSecurityType(), other.getSecurityType());
+          JodaBeanUtils.equal(getSecurityType(), other.getSecurityType()) &&
+          JodaBeanUtils.equal(getAttributes(), other.getAttributes());
     }
     return false;
   }
@@ -189,6 +204,7 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
     hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
     return hash;
   }
 
@@ -306,6 +322,44 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the general purpose trade attributes, which can be used for aggregating in portfolios.
+   * @return the value of the property
+   */
+  public Map<String, String> getAttributes() {
+    return _attributes;
+  }
+
+  /**
+   * Sets the general purpose trade attributes, which can be used for aggregating in portfolios.
+   * @param attributes  the new value of the property
+   */
+  public void setAttributes(Map<String, String> attributes) {
+    this._attributes.clear();
+    this._attributes.putAll(attributes);
+  }
+
+  /**
+   * Adds a key value pair to attributes
+   *
+   * @param key  the key to add, not null
+   * @param value  the value to add, not null
+   */
+  public void addAttribute(String key, String value) {
+    ArgumentChecker.notNull(key, "key");
+    ArgumentChecker.notNull(value, "value");
+    _attributes.put(key, value);
+  }
+
+  /**
+   * Gets the the {@code attributes} property.
+   * @return the property, not null
+   */
+  public final Property<Map<String, String>> attributes() {
+    return metaBean().attributes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ManageableSecurity}.
    */
   public static class Meta extends DirectMetaBean {
@@ -335,6 +389,12 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
     private final MetaProperty<String> _securityType = DirectMetaProperty.ofReadWrite(
         this, "securityType", ManageableSecurity.class, String.class);
     /**
+     * The meta-property for the {@code attributes} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Map<String, String>> _attributes = DirectMetaProperty.ofReadWrite(
+        this, "attributes", ManageableSecurity.class, (Class) Map.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
@@ -342,7 +402,8 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
         "uniqueId",
         "externalIdBundle",
         "name",
-        "securityType");
+        "securityType",
+        "attributes");
 
     /**
      * Restricted constructor.
@@ -361,6 +422,8 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
           return _name;
         case 808245914:  // securityType
           return _securityType;
+        case 405645655:  // attributes
+          return _attributes;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -411,6 +474,14 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
      */
     public final MetaProperty<String> securityType() {
       return _securityType;
+    }
+
+    /**
+     * The meta-property for the {@code attributes} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Map<String, String>> attributes() {
+      return _attributes;
     }
 
   }
