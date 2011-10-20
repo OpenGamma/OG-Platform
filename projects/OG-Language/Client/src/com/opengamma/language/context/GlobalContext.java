@@ -177,6 +177,8 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
     setValue(VALUE_CONVERTER, new DefaultValueConverter());
   }
 
+  // System calls
+
   /**
    * Adds a user context. To combine the user context operations into an atomic operation,
    * synchronize on the global context object (e.g. for get followed by add).
@@ -215,6 +217,8 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
     return _userContexts.get(userName);
   }
 
+  // Core members
+
   /**
    * Returns true iff the service is running from a debug build.
    * This is dependent only on the service runner and should probably control infrastructure
@@ -228,57 +232,13 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
     return System.getProperty("service.debug") != null;
   }
 
-  public Properties getSystemSettings() {
-    return getValue(SYSTEM_SETTINGS);
-  }
-
-  public FunctionDefinitionFilter getFunctionDefinitionFilter() {
-    return getValue(FUNCTION_DEFINITION_FILTER);
-  }
-
-  public LiveDataDefinitionFilter getLiveDataDefinitionFilter() {
-    return getValue(LIVEDATA_DEFINITION_FILTER);
-  }
-
-  public ProcedureDefinitionFilter getProcedureDefinitionFilter() {
-    return getValue(PROCEDURE_DEFINITION_FILTER);
-  }
-
-  public ParameterConverter getParameterConverter() {
-    ParameterConverter v = getValue(PARAMETER_CONVERTER);
-    if (v == null) {
-      v = new DefaultParameterConverter();
-      replaceValue(PARAMETER_CONVERTER, v);
-    }
-    return v;
-  }
+  // Helper members
 
   protected ParameterConverter getParameterConverter(final String key) {
     ParameterConverter v = getValue(key);
     if (v == null) {
       v = getParameterConverter();
       replaceValue(key, v);
-    }
-    return v;
-  }
-
-  public ParameterConverter getFunctionParameterConverter() {
-    return getParameterConverter(FUNCTION_PARAMETER_CONVERTER);
-  }
-
-  public ParameterConverter getLiveDataParameterConverter() {
-    return getParameterConverter(LIVEDATA_PARAMETER_CONVERTER);
-  }
-
-  public ParameterConverter getProcedureParameterConverter() {
-    return getParameterConverter(PROCEDURE_PARAMETER_CONVERTER);
-  }
-
-  public ResultConverter getResultConverter() {
-    ResultConverter v = getValue(RESULT_CONVERTER);
-    if (v == null) {
-      v = new DefaultResultConverter();
-      replaceValue(RESULT_CONVERTER, v);
     }
     return v;
   }
@@ -292,68 +252,116 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
     return v;
   }
 
-  public ResultConverter getFunctionResultConverter() {
-    return getResultConverter(FUNCTION_RESULT_CONVERTER);
-  }
-
-  public ResultConverter getLiveDataResultConverter() {
-    return getResultConverter(LIVEDATA_RESULT_CONVERTER);
-  }
-
-  public ResultConverter getProcedureResultConverter() {
-    return getResultConverter(PROCEDURE_RESULT_CONVERTER);
-  }
-
-  public ValueConverter getValueConverter() {
-    return getValue(VALUE_CONVERTER);
-  }
-
   protected AggregatingTypeConverterProvider getTypeConverterProviderImpl() {
     return getValue(TYPE_CONVERTER_PROVIDER);
   }
 
-  public TypeConverterProvider getTypeConverterProvider() {
-    return getTypeConverterProviderImpl();
-  }
+  // Standard context members
 
-  public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource() {
-    return getValue(HISTORICAL_TIME_SERIES_SOURCE);
-  }
-
-  public ViewProcessor getViewProcessor() {
-    return getValue(VIEW_PROCESSOR);
-  }
-
-  public PositionSource getPositionSource() {
-    return getValue(POSITION_SOURCE);
-  }
-
-  public SecuritySource getSecuritySource() {
-    return getValue(SECURITY_SOURCE);
-  }
-
-  public ExecutorService getSaturatingExecutor() {
-    return getValue(SATURATING_EXECUTOR);
+  public RemoteClient getClient() {
+    return getValue(CLIENT);
   }
 
   public ExchangeSource getExchangeSource() {
     return getValue(EXCHANGE_SOURCE);
   }
 
-  public RegionSource getRegionSource() {
-    return getValue(REGION_SOURCE);
+  public FunctionDefinitionFilter getFunctionDefinitionFilter() {
+    return getValue(FUNCTION_DEFINITION_FILTER);
+  }
+
+  public ParameterConverter getFunctionParameterConverter() {
+    return getParameterConverter(FUNCTION_PARAMETER_CONVERTER);
+  }
+
+  public ResultConverter getFunctionResultConverter() {
+    return getResultConverter(FUNCTION_RESULT_CONVERTER);
+  }
+
+  public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource() {
+    return getValue(HISTORICAL_TIME_SERIES_SOURCE);
   }
 
   public HolidaySource getHolidaySource() {
     return getValue(HOLIDAY_SOURCE);
   }
 
-  public RemoteClient getClient() {
-    return getValue(CLIENT);
+  public LiveDataDefinitionFilter getLiveDataDefinitionFilter() {
+    return getValue(LIVEDATA_DEFINITION_FILTER);
+  }
+
+  public ParameterConverter getLiveDataParameterConverter() {
+    return getParameterConverter(LIVEDATA_PARAMETER_CONVERTER);
+  }
+
+  public ResultConverter getLiveDataResultConverter() {
+    return getResultConverter(LIVEDATA_RESULT_CONVERTER);
   }
 
   public MarketDataSnapshotSource getMarketDataSnapshotSource() {
     return getValue(MARKET_DATA_SNAPSHOT_SOURCE);
+  }
+
+  public ParameterConverter getParameterConverter() {
+    ParameterConverter v = getValue(PARAMETER_CONVERTER);
+    if (v == null) {
+      v = new DefaultParameterConverter();
+      replaceValue(PARAMETER_CONVERTER, v);
+    }
+    return v;
+  }
+
+  public PositionSource getPositionSource() {
+    return getValue(POSITION_SOURCE);
+  }
+
+  public ProcedureDefinitionFilter getProcedureDefinitionFilter() {
+    return getValue(PROCEDURE_DEFINITION_FILTER);
+  }
+
+  public ParameterConverter getProcedureParameterConverter() {
+    return getParameterConverter(PROCEDURE_PARAMETER_CONVERTER);
+  }
+
+  public ResultConverter getProcedureResultConverter() {
+    return getResultConverter(PROCEDURE_RESULT_CONVERTER);
+  }
+
+  public RegionSource getRegionSource() {
+    return getValue(REGION_SOURCE);
+  }
+
+  public ResultConverter getResultConverter() {
+    ResultConverter v = getValue(RESULT_CONVERTER);
+    if (v == null) {
+      v = new DefaultResultConverter();
+      replaceValue(RESULT_CONVERTER, v);
+    }
+    return v;
+  }
+
+  public ExecutorService getSaturatingExecutor() {
+    return getValue(SATURATING_EXECUTOR);
+  }
+
+  public SecuritySource getSecuritySource() {
+    return getValue(SECURITY_SOURCE);
+  }
+
+  public Properties getSystemSettings() {
+    return getValue(SYSTEM_SETTINGS);
+  }
+
+  public TypeConverterProvider getTypeConverterProvider() {
+    return getTypeConverterProviderImpl();
+  }
+
+  public ValueConverter getValueConverter() {
+    return getValue(VALUE_CONVERTER);
+  }
+
+  public ViewProcessor getViewProcessor() {
+    return getValue(VIEW_PROCESSOR);
   }
 
 }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.language.context;
 
+import com.opengamma.financial.user.rest.RemoteClient;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.livedata.AggregatingLiveDataProvider;
 import com.opengamma.language.procedure.AggregatingProcedureProvider;
@@ -54,6 +55,10 @@ public class MutableUserContext extends UserContext {
   }
 
   // Standard context members
+
+  public void setClient(final RemoteClient client) {
+    removeOrReplaceValue(CLIENT, client);
+  }
 
   public void setLiveDataUser(final UserPrincipal liveDataUser) {
     setValue(LIVEDATA_USER, liveDataUser);

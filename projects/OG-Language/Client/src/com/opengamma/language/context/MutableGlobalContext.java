@@ -56,6 +56,89 @@ public class MutableGlobalContext extends GlobalContext {
 
   // Standard context members
 
+  public void setClient(final RemoteClient client) {
+    removeOrReplaceValue(CLIENT, client);
+  }
+
+  public void setExchangeSource(final ExchangeSource exchangeSource) {
+    removeOrReplaceValue(EXCHANGE_SOURCE, exchangeSource);
+  }
+
+  public void setFunctionDefinitionFilter(final FunctionDefinitionFilter functionDefinitionFilter) {
+    ArgumentChecker.notNull(functionDefinitionFilter, "functionDefinitionFilter");
+    replaceValue(FUNCTION_DEFINITION_FILTER, functionDefinitionFilter);
+  }
+
+  public void setFunctionParameterConverter(final ParameterConverter parameterConverter) {
+    removeOrReplaceValue(FUNCTION_PARAMETER_CONVERTER, parameterConverter);
+  }
+
+  public void setFunctionResultConverter(final ResultConverter resultConverter) {
+    removeOrReplaceValue(FUNCTION_RESULT_CONVERTER, resultConverter);
+  }
+
+  public void setHistoricalTimeSeriesSource(final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
+    removeOrReplaceValue(HISTORICAL_TIME_SERIES_SOURCE, historicalTimeSeriesSource);
+  }
+
+  public void setHolidaySource(final HolidaySource holidaySource) {
+    removeOrReplaceValue(HOLIDAY_SOURCE, holidaySource);
+  }
+
+  public void setLiveDataDefinitionFilter(final LiveDataDefinitionFilter liveDataDefinitionFilter) {
+    ArgumentChecker.notNull(liveDataDefinitionFilter, "liveDataDefinitionFilter");
+    replaceValue(LIVEDATA_DEFINITION_FILTER, liveDataDefinitionFilter);
+  }
+
+  public void setLiveDataParameterConverter(final ParameterConverter parameterConverter) {
+    removeOrReplaceValue(LIVEDATA_PARAMETER_CONVERTER, parameterConverter);
+  }
+
+  public void setLiveDataResultConverter(final ResultConverter resultConverter) {
+    removeOrReplaceValue(LIVEDATA_RESULT_CONVERTER, resultConverter);
+  }
+
+  public void setMarketDataSnapshotSource(final MarketDataSnapshotSource marketDataSnapshotSource) {
+    removeOrReplaceValue(MARKET_DATA_SNAPSHOT_SOURCE, marketDataSnapshotSource);
+  }
+
+  public void setParameterConverter(final ParameterConverter parameterConverter) {
+    removeOrReplaceValue(PARAMETER_CONVERTER, parameterConverter);
+  }
+
+  public void setPositionSource(final PositionSource positionSource) {
+    removeOrReplaceValue(POSITION_SOURCE, positionSource);
+  }
+
+  public void setProcedureDefinitionFilter(final ProcedureDefinitionFilter procedureDefinitionFilter) {
+    ArgumentChecker.notNull(procedureDefinitionFilter, "procedureDefinitionFilter");
+    replaceValue(PROCEDURE_DEFINITION_FILTER, procedureDefinitionFilter);
+  }
+
+  public void setProcedureParameterConverter(final ParameterConverter parameterConverter) {
+    removeOrReplaceValue(PROCEDURE_PARAMETER_CONVERTER, parameterConverter);
+  }
+
+  public void setProcedureResultConverter(final ResultConverter resultConverter) {
+    removeOrReplaceValue(PROCEDURE_RESULT_CONVERTER, resultConverter);
+  }
+
+  public void setRegionSource(final RegionSource regionSource) {
+    removeOrReplaceValue(REGION_SOURCE, regionSource);
+  }
+
+  public void setResultConverter(final ResultConverter resultConverter) {
+    removeOrReplaceValue(RESULT_CONVERTER, resultConverter);
+  }
+
+  public void setSaturatingExecutor(final ExecutorService executorService) {
+    setValue(SATURATING_EXECUTOR, executorService);
+  }
+
+  public void setSecuritySource(final SecuritySource securitySource) {
+    removeOrReplaceValue(SECURITY_SOURCE, securitySource);
+  }
+
   public void setSystemSettings(final Properties properties) {
     ArgumentChecker.notNull(properties, "properties");
     setValue(SYSTEM_SETTINGS, properties);
@@ -66,51 +149,9 @@ public class MutableGlobalContext extends GlobalContext {
     replaceValue(SYSTEM_SETTINGS, properties);
   }
 
-  public void setFunctionDefinitionFilter(final FunctionDefinitionFilter functionDefinitionFilter) {
-    ArgumentChecker.notNull(functionDefinitionFilter, "functionDefinitionFilter");
-    replaceValue(FUNCTION_DEFINITION_FILTER, functionDefinitionFilter);
-  }
-
-  public void setLiveDataDefinitionFilter(final LiveDataDefinitionFilter liveDataDefinitionFilter) {
-    ArgumentChecker.notNull(liveDataDefinitionFilter, "liveDataDefinitionFilter");
-    replaceValue(LIVEDATA_DEFINITION_FILTER, liveDataDefinitionFilter);
-  }
-
-  public void setProcedureDefinitionFilter(final ProcedureDefinitionFilter procedureDefinitionFilter) {
-    ArgumentChecker.notNull(procedureDefinitionFilter, "procedureDefinitionFilter");
-    replaceValue(PROCEDURE_DEFINITION_FILTER, procedureDefinitionFilter);
-  }
-
-  public void setParameterConverter(final ParameterConverter parameterConverter) {
-    removeOrReplaceValue(PARAMETER_CONVERTER, parameterConverter);
-  }
-
-  public void setFunctionParameterConverter(final ParameterConverter parameterConverter) {
-    removeOrReplaceValue(FUNCTION_PARAMETER_CONVERTER, parameterConverter);
-  }
-
-  public void setLiveDataParameterConverter(final ParameterConverter parameterConverter) {
-    removeOrReplaceValue(LIVEDATA_PARAMETER_CONVERTER, parameterConverter);
-  }
-
-  public void setProcedureParameterConverter(final ParameterConverter parameterConverter) {
-    removeOrReplaceValue(PROCEDURE_PARAMETER_CONVERTER, parameterConverter);
-  }
-
-  public void setResultConverter(final ResultConverter resultConverter) {
-    removeOrReplaceValue(RESULT_CONVERTER, resultConverter);
-  }
-
-  public void setFunctionResultConverter(final ResultConverter resultConverter) {
-    removeOrReplaceValue(FUNCTION_RESULT_CONVERTER, resultConverter);
-  }
-
-  public void setLiveDataResultConverter(final ResultConverter resultConverter) {
-    removeOrReplaceValue(LIVEDATA_RESULT_CONVERTER, resultConverter);
-  }
-
-  public void setProcedureResultConverter(final ResultConverter resultConverter) {
-    removeOrReplaceValue(PROCEDURE_RESULT_CONVERTER, resultConverter);
+  @Override
+  public AggregatingTypeConverterProvider getTypeConverterProvider() {
+    return getTypeConverterProviderImpl();
   }
 
   public void setValueConverter(final ValueConverter valueConverter) {
@@ -118,49 +159,8 @@ public class MutableGlobalContext extends GlobalContext {
     replaceValue(VALUE_CONVERTER, valueConverter);
   }
 
-  @Override
-  public AggregatingTypeConverterProvider getTypeConverterProvider() {
-    return getTypeConverterProviderImpl();
-  }
-
-  public void setHistoricalTimeSeriesSource(final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
-    removeOrReplaceValue(HISTORICAL_TIME_SERIES_SOURCE, historicalTimeSeriesSource);
-  }
-  
   public void setViewProcessor(final ViewProcessor viewProcessor) {
     removeOrReplaceValue(VIEW_PROCESSOR, viewProcessor);
-  }
-
-  public void setPositionSource(final PositionSource positionSource) {
-    removeOrReplaceValue(POSITION_SOURCE, positionSource);
-  }
-
-  public void setSecuritySource(final SecuritySource securitySource) {
-    removeOrReplaceValue(SECURITY_SOURCE, securitySource);
-  }
-
-  public void setSaturatingExecutor(final ExecutorService executorService) {
-    setValue(SATURATING_EXECUTOR, executorService);
-  }
-
-  public void setExchangeSource(final ExchangeSource exchangeSource) {
-    removeOrReplaceValue(EXCHANGE_SOURCE, exchangeSource);
-  }
-
-  public void setRegionSource(final RegionSource regionSource) {
-    removeOrReplaceValue(REGION_SOURCE, regionSource);
-  }
-
-  public void setHolidaySource(final HolidaySource holidaySource) {
-    removeOrReplaceValue(HOLIDAY_SOURCE, holidaySource);
-  }
-
-  public void setClient(final RemoteClient client) {
-    removeOrReplaceValue(CLIENT, client);
-  }
-
-  public void setMarketDataSnapshotSource(final MarketDataSnapshotSource marketDataSnapshotSource) {
-    removeOrReplaceValue(MARKET_DATA_SNAPSHOT_SOURCE, marketDataSnapshotSource);
   }
 
   // Arbitrary values

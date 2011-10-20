@@ -7,6 +7,8 @@
 package com.opengamma.language.client;
 
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,13 +17,17 @@ import com.opengamma.financial.user.rest.RemoteClient.ExternalTargetProvider;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
+import com.opengamma.language.context.MutableSessionContext;
 import com.opengamma.language.context.MutableUserContext;
+import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Extends the global context with the "shared" {@link RemoteClient} instance.
+ * Extends the contexts with {@link RemoteClient} instances.
  */
 public class Loader extends ContextInitializationBean {
+
+  private static final String CLIENTID_STASH_FIELD = "clientId";
 
   private static final Logger s_logger = LoggerFactory.getLogger(Loader.class);
 
@@ -30,6 +36,7 @@ public class Loader extends ContextInitializationBean {
   private String _portfolioMaster = "portfolioMaster";
   private String _securityMaster = "securityMaster";
   private String _marketDataSnapshotMaster = "marketDataSnapshotMaster";
+  private String _userData = "userData";
   private FudgeContext _fudgeContext = FudgeContext.GLOBAL_DEFAULT;
 
   public void setConfiguration(final Configuration configuration) {
@@ -73,6 +80,14 @@ public class Loader extends ContextInitializationBean {
     return _marketDataSnapshotMaster;
   }
 
+  public void setUserData(final String userData) {
+    _userData = userData;
+  }
+
+  public String getUserData() {
+    return _userData;
+  }
+
   public void setFudgeContext(final FudgeContext fudgeContext) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _fudgeContext = fudgeContext;
@@ -89,6 +104,7 @@ public class Loader extends ContextInitializationBean {
     ArgumentChecker.notNull(getConfiguration(), "configuration");
     ArgumentChecker.notNull(getGlobalContextFactory(), "globalContextFactory");
     ArgumentChecker.notNull(getUserContextFactory(), "userContextFactory");
+    ArgumentChecker.notNull(getSessionContextFactory(), "sessionContextFactory");
   }
 
   @Override
@@ -104,7 +120,41 @@ public class Loader extends ContextInitializationBean {
 
   @Override
   protected void initContext(final MutableUserContext userContext) {
-    // TODO: should set the user's client instance
+    // TODO: do we have a "user" one shared among all of their sessions?
+  }
+
+  protected void initClient(final MutableSessionContext sessionContext, final RemoteClient client) {
+    // TODO: heartbeat sender
+    sessionContext.setClient(client);
+  }
+
+  @Override
+  protected void initContext(final MutableSessionContext sessionContext) {
+    final RestTarget target = getConfiguration().getRestTargetConfiguration(getUserData());
+    if (target == null) {
+      s_logger.warn("Per-user remote engine clients not available");
+      return;
+    }
+    final FudgeMsg msg = sessionContext.getStashMessage().get();
+    if (msg != null) {
+      final String clientId = msg.getString(CLIENTID_STASH_FIELD);
+      if (clientId != null) {
+        s_logger.info("Recovering old remote engine client {}", clientId);
+        initClient(sessionContext, RemoteClient.forClient(getFudgeContext(), target, sessionContext.getUserContext().getUserName(), clientId));
+        return;
+      }
+    }
+    s_logger.info("Creating new remote engine client");
+    final RemoteClient client = RemoteClient.forNewClient(getFudgeContext(), target, sessionContext.getUserContext().getUserName());
+    final MutableFudgeMsg stash = getFudgeContext().newMessage();
+    stash.add(CLIENTID_STASH_FIELD, client.getClientId());
+    sessionContext.getStashMessage().put(stash);
+    initClient(sessionContext, client);
+  }
+
+  @Override
+  protected void doneContext(final MutableSessionContext sessionContext) {
+    // TODO: stop the heartbeat sender
   }
 
 }

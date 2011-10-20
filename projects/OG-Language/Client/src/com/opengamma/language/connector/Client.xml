@@ -193,6 +193,7 @@
   <bean id="clientLoader" class="com.opengamma.language.client.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
     <property name="userContextFactory" ref="userContextFactory" />
+    <property name="sessionContextFactory" ref="sessionContextFactory" />
     <property name="configuration" ref="defaultConfiguration" />
   </bean>
   

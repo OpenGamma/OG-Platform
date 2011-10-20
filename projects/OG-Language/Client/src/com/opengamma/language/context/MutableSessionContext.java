@@ -7,6 +7,7 @@ package com.opengamma.language.context;
 
 import org.fudgemsg.FudgeMsg;
 
+import com.opengamma.financial.user.rest.RemoteClient;
 import com.opengamma.language.connector.MessageSender;
 import com.opengamma.language.connector.StashMessage;
 import com.opengamma.language.function.AggregatingFunctionProvider;
@@ -79,6 +80,14 @@ public class MutableSessionContext extends SessionContext {
 
   // Standard context members
 
+  public void setClient(final RemoteClient client) {
+    removeOrReplaceValue(CLIENT, client);
+  }
+
+  public void setDebug() {
+    setValue(DEBUG, Boolean.TRUE);
+  }
+
   public void setStashMessage(final StashMessage stashMessage) {
     setValue(STASH_MESSAGE, stashMessage);
   }
@@ -87,10 +96,6 @@ public class MutableSessionContext extends SessionContext {
     setValue(MESSAGE_SENDER, messageSender);
   }
 
-  public void setDebug() {
-    setValue(DEBUG, Boolean.TRUE);
-  }
-  
   public void setViewClients(final SessionViewClients viewClients) {
     setValue(VIEW_CLIENTS, viewClients);
   }
