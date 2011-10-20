@@ -1,0 +1,179 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+.OG-sync {
+  border: 1px solid #999!important;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.OG-sync colgroup {
+  width: 16%;
+}
+
+.OG-sync table {
+  width: 100%;
+}
+
+.OG-sync td,
+.OG-sync th {
+  padding: 2px 10px 2px 10px;
+}
+
+.OG-sync td span {
+  color: #999;
+}
+
+.OG-sync th {
+  text-align: left;
+  padding-bottom: 5px;
+}
+
+.OG-sync tbody tr {
+   cursor: default;
+}
+
+.OG-sync th {
+  font-weight: normal;
+  color: #999;
+}
+
+.OG-sync th:first-child {
+  color: inherit;
+}
+
+.OG-sync input {
+  vertical-align: top;
+}
+
+.OG-sync input:checked + span {
+  color: #555;
+}
+
+.OG-sync .og-last {
+  border-bottom: 1px solid #f5f5f5;
+}
+
+/* Header */
+.OG-sync .ui-layout-header header {
+  padding: 10px;
+  -webkit-border-top-left-radius: 5px;
+  -webkit-border-top-right-radius: 5px;
+  -moz-border-radius-topleft: 5px;
+  -moz-border-radius-topright: 5px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.OG-sync .og-sync-header {
+  margin-right: 20px;
+}
+
+.OG-sync .ui-layout-header {
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIklEQVQIW2NkQAKtra2SjDA+iFNdXf0cLADjgNiMyByQAACIGw2tx0FNhwAAAABJRU5ErkJggg==);
+  background-color: #f5f5f5;
+}
+
+.OG-sync .og-divider {
+  border-bottom: 4px solid #ebebeb;
+  border-left: 1px solid #fff;
+  border-right: 1px solid #fff;
+  clear: both;
+  height: 0;
+  outline: 1px solid #fff;
+}
+
+/* Content */
+.OG-sync .ui-layout-content {
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  top: 71px;
+  bottom: 32px;
+  overflow: scroll;
+  overflow-x: auto;
+  overflow-y: scroll;
+}
+
+.OG-sync .og-container {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+}
+
+.OG-sync .ui-layout-content table {
+  margin-bottom: 5px;
+}
+
+.OG-sync .ui-layout-content .og-new-trades {
+  border-bottom: 5px solid #fff;
+}
+
+.OG-sync .ui-layout-content tbody tr:last-child div {
+  height: 1px;
+  line-height: 1px;
+  margin: 5px 0;
+  background-color: #f5f5f5;
+}
+
+
+.OG-sync .ui-layout-content td:last-child {
+  color: #999;
+}
+
+.OG-sync .og-highlight-recommended {
+  border: 1px solid transparent;
+  padding: 0 4px 1px 0;
+}
+
+.OG-sync .og-recommended span,
+.OG-sync .og-recommended-active {
+  background-color: #d1eed7;
+  border: 1px solid #c4dfc9;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  padding: 1px 2px 1px 1px;
+}
+
+.OG-sync .og-recommended-active {
+  padding: 0 4px 1px 0;
+}
+
+
+.OG-sync .ui-layout-content .og-new-trade {
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #fff;
+  color: #999;
+}
+
+.OG-sync .ui-layout-content .og-new-trade td:last-child {
+  font-weight: bold;
+}
+
+/* Footer */
+.OG-sync .ui-layout-footer {
+  background-color: #fbfbfb;
+  border-top: 1px solid #efefef;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}
+
+.OG-sync .ui-layout-footer a {
+  position: relative;
+  top: 1px;
+  left: 5px;
+}
+
+.OG-sync .ui-layout-footer label {
+  float: right;
+  margin: 5px 10px 0 0;
+}

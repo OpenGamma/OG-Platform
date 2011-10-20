@@ -24,6 +24,7 @@ $.register_module({
                 $('.ui-layout-inner-center .ui-layout-header').html(header);
                 $('.ui-layout-inner-center .ui-layout-content').html(content);
                 layout.inner.close('north'), $('.ui-layout-inner-north').empty();
+                layout.inner.close('south'), $('.ui-layout-inner-south').empty();
                 if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions.clear()}
                 // if options are not passed in, do not create a toolbar
                 if (options) og.common.util.ui.toolbar(options.toolbar['default']);

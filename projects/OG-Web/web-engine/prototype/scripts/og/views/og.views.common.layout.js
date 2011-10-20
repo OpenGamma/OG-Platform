@@ -4,7 +4,7 @@
  */
 $.register_module({
     name: 'og.views.common.layout',
-    dependencies: ['og.views.common.versions'],
+    dependencies: [],
     obj: function () {
         var main_layout_settings = {
             defaults: {

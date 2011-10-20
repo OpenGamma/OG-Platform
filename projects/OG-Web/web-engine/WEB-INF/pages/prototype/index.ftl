@@ -20,10 +20,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
       <div class="ui-layout-content">&nbsp;</div>
     </div>
     <div class="ui-layout-inner-north">&nbsp;</div>
-    <div class="ui-layout-inner-south">
-      <div class="ui-layout-header"></div>
-      <div class="ui-layout-content"></div>
-    </div>
+    <div class="ui-layout-inner-south"></div>
   </div>
   <div class="ui-layout-north">
     <#include "modules/common/og.common.masthead.ftl">
