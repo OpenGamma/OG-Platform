@@ -136,16 +136,17 @@
     </bean>
 
 	<!-- Persistent subscriptions -->
-	<bean id="mongoDBSettings" class="com.opengamma.util.MongoDBConnectionSettings">
+	<bean id="mongoConnector" class="com.opengamma.util.mongo.MongoConnectorFactoryBean">
+    <property name="name" value="PersistentSubscription" />
     <property name="host" value="${mongodb.host}" />
     <property name="port" value="${mongodb.port}" />
-    <property name="database" value="${mongodb.db.name}" />
+    <property name="databaseName" value="${mongodb.db.name}" />
   </bean>
 
 	<bean id="persistentSubscriptionManager" class="com.opengamma.livedata.server.MongoDBPersistentSubscriptionManager"
 		depends-on="liveDataServer" init-method="start">
 		<constructor-arg index="0" ref="liveDataServer"/>
-		<constructor-arg index="1" ref="mongoDBSettings"/>
+		<constructor-arg index="1" ref="mongoConnector"/>
 	</bean>
 
 	<!-- reconnect -->
