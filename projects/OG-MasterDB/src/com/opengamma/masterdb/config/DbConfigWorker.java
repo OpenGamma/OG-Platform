@@ -133,7 +133,7 @@ import com.opengamma.util.paging.PagingRequest;
     // refactoring of stored objects following an upgrade through database operations.
     byte[] bytes = FUDGE_CONTEXT.toByteArray(env.getMessage());
     // the arguments for inserting into the config table
-    final MapSqlParameterSource configArgs = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource configArgs = new DbMapSqlParameterSource()
       .addValue("doc_id", docId)
       .addValue("doc_oid", docOid)
       .addTimestamp("ver_from_instant", document.getVersionFromInstant())

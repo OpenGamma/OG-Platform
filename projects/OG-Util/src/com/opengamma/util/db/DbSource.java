@@ -126,6 +126,8 @@ public class DbSource {
   //-------------------------------------------------------------------------
   /**
    * Gets the Hibernate session factory.
+   * <p>
+   * This is shared between all users of this object and must not be further configured.
    * 
    * @return the Hibernate session factory, may be null
    */
@@ -138,7 +140,8 @@ public class DbSource {
 
   /**
    * Gets the shared Hibernate template.
-   * This is shared between all users of this class and must not be further configured.
+   * <p>
+   * This is shared between all users of this object and must not be further configured.
    * 
    * @return the Hibernate template, null if the session factory is null
    */
@@ -149,6 +152,8 @@ public class DbSource {
   //-------------------------------------------------------------------------
   /**
    * Gets the transaction manager.
+   * <p>
+   * This is shared between all users of this object and must not be further configured.
    * 
    * @return the transaction manager, may be null
    */
@@ -158,6 +163,8 @@ public class DbSource {
 
   /**
    * Gets the transaction template.
+   * <p>
+   * This is shared between all users of this object and must not be further configured.
    * 
    * @return the transaction template, may be null
    */
@@ -167,9 +174,9 @@ public class DbSource {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the transaction template.
+   * Gets the current instant using the database clock.
    * 
-   * @return the transaction template, may be null
+   * @return the current database instant, may be null
    */
   public Instant now() {
     Timestamp ts = getJdbcTemplate().queryForObject(getDialect().sqlSelectNow(), Timestamp.class);
@@ -177,7 +184,9 @@ public class DbSource {
   }
 
   /**
-   * Gets a time-source based on the current database timestamp.
+   * Returns a time-source based on the current database clock.
+   * <p>
+   * This can be used to obtain the current instant by calling {@link Instant#now(TimeSource)}.
    * 
    * @return the database time-source, may be null
    */
@@ -191,6 +200,11 @@ public class DbSource {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Returns a description of this object suitable for debugging.
+   * 
+   * @return the description, not null
+   */
   @Override
   public String toString() {
     return getClass().getSimpleName() + "[" + _name + "]";

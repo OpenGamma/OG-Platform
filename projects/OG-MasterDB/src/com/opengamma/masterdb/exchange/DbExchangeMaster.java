@@ -302,7 +302,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     // the arguments for inserting into the exchange table
     FudgeMsgEnvelope env = FUDGE_CONTEXT.toFudgeMsg(exchange);
     byte[] bytes = FUDGE_CONTEXT.toByteArray(env.getMessage());
-    final MapSqlParameterSource exchangeArgs = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource exchangeArgs = new DbMapSqlParameterSource()
       .addValue("doc_id", docId)
       .addValue("doc_oid", docOid)
       .addTimestamp("ver_from_instant", document.getVersionFromInstant())

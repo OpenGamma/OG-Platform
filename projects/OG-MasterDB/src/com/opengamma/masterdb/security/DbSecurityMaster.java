@@ -475,9 +475,9 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
   }
 
   private void storeRawSecurityDetail(RawSecurity security) {
-    final DbMapSqlParameterSource rawSecurityArgs = new DbMapSqlParameterSource();
-    rawSecurityArgs.addValue("security_id", extractRowId(security.getUniqueId()));
-    rawSecurityArgs.addValue("raw_data", new SqlLobValue(security.getRawData(), getDialect().getLobHandler()), Types.BLOB);
+    final DbMapSqlParameterSource rawSecurityArgs = new DbMapSqlParameterSource()
+      .addValue("security_id", extractRowId(security.getUniqueId()))
+      .addValue("raw_data", new SqlLobValue(security.getRawData(), getDialect().getLobHandler()), Types.BLOB);
     getJdbcTemplate().update(sqlInsertRawSecurity(), rawSecurityArgs);
   }
 

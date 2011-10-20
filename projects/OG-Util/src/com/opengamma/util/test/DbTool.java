@@ -90,7 +90,7 @@ public class DbTool extends Task {
   private String _password;
 
   /** 
-   * Static as the parameterized JUnit test runner seems to create a new DBTool instance
+   * Static as the parameterized JUnit test runner seems to create a new DbTool instance
    * for each DBTest test case. This is clearly a hack.
    * All strings will be lower case
    */
@@ -600,7 +600,7 @@ public class DbTool extends Task {
 
   public static void usage(Options options) {
     HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp("java com.opengamma.util.test.DBTool [args]", options);
+    formatter.printHelp("java com.opengamma.util.test.DbTool [args]", options);
   }
 
   public static void main(String[] args) { // CSIGNORE

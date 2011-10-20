@@ -659,7 +659,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
       }
       
       ObservationDateTime snapshotTime = snapshot.getSnapshotTime(); 
-      snapshotTime.setTime(DbDateUtils.toSqlTime(fix));
+      snapshotTime.setTime(DbDateUtils.toSqlTime(fix.toLocalTime()));  // NOTE: this does not record the nano-of-second or offset
       getHibernateTemplate().save(snapshotTime);
       
       getSessionFactory().getCurrentSession().getTransaction().commit();

@@ -908,8 +908,8 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
         .addValue("doc_oid", docOid)
         .addValue("point_date", date.get("POINT_DATE"))
-        .addValue("corr_instant", nowTS);
-      args.addValue("point_value", null, Types.DOUBLE);
+        .addValue("corr_instant", nowTS)
+        .addValue("point_value", null, Types.DOUBLE);
       argsList.add(args);
     }
     getJdbcTemplate().batchUpdate(sqlInsertCorrectDataPoints(), argsList.toArray(new DbMapSqlParameterSource[argsList.size()]));

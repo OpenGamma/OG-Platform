@@ -190,7 +190,7 @@ public class DbMarketDataSnapshotMaster
     // the arguments for inserting into the marketDataSnaphshot table
     FudgeMsgEnvelope env = FUDGE_CONTEXT.toFudgeMsg(marketDataSnaphshot);
     byte[] bytes = FUDGE_CONTEXT.toByteArray(env.getMessage());
-    final MapSqlParameterSource marketDataSnaphshotArgs = new DbMapSqlParameterSource().addValue("doc_id", docId)
+    final DbMapSqlParameterSource marketDataSnaphshotArgs = new DbMapSqlParameterSource().addValue("doc_id", docId)
         .addValue("doc_oid", docOid).addTimestamp("ver_from_instant", document.getVersionFromInstant())
         .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
         .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
