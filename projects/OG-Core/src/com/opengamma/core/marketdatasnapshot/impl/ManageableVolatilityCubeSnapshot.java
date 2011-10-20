@@ -47,7 +47,28 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
     _values = values;
   }
 
-
+  /**
+   * Creates a Fudge representation of the snapshot:
+   * <pre>
+   *   message {
+   *     message { // map
+   *       repeated VolatilityPoint key = 1;
+   *       repeated ValueSnapshot|indicator value = 2;
+   *     } values;
+   *     UnstructuredMarketDataSnapshot otherValues;
+   *     message { // map
+   *       repeated message { // pair
+   *         Tenor first;
+   *         Tenor second;
+   *       } key = 1;
+   *       repeated ValueSnapshot|indicator value = 2;
+   *     } strikes;
+   *   }
+   * </pre>
+   * 
+   * @param serializer Fudge serialization context, not null
+   * @return the message representation of this snapshot
+   */
   public org.fudgemsg.FudgeMsg toFudgeMsg(FudgeSerializer serializer) {
     MutableFudgeMsg ret = serializer.newMessage();
     // TODO: this should not be adding it's own class header; the caller should be doing that, or this be registered as a generic builder for VolatilityCubeSnapshot and that class name be added
@@ -77,6 +98,7 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
   
   private MutableFudgeMsg getStrikesMessage(FudgeSerializer serializer) {
     MutableFudgeMsg msg = serializer.newMessage();
+    // TODO: is this the best encoding for this message; would a 3-tuple be better (key-x = ordinal 1, key-y = ordinal 2, value = ordinal 3)?
     for (Entry<Pair<Tenor, Tenor>, ValueSnapshot> entry : _strikes.entrySet()) {
       serializer.addToMessage(msg, null, 1, ObjectsPairFudgeBuilder.buildMessage(serializer, entry.getKey(), Tenor.class, Tenor.class));
       if (entry.getValue() == null) {
@@ -88,6 +110,16 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
     return msg;
   }
 
+  // TODO: externalize the message representation to a Fudge builder
+
+  /**
+   * Creates a snapshot object from a Fudge message representation. See {@link #toFudgeMsg}
+   * for the message format.
+   * 
+   * @param deserializer the Fudge deserialization context, not null
+   * @param msg message containing the snapshot representation, not null
+   * @return a snapshot object
+   */
   public static ManageableVolatilityCubeSnapshot fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {
 
     HashMap<VolatilityPoint, ValueSnapshot> values = readValues(deserializer, msg);
