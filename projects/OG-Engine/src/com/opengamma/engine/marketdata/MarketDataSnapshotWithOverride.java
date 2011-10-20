@@ -14,6 +14,9 @@ import com.opengamma.engine.value.ValueRequirement;
 
 /**
  * Combines an underlying {@link MarketDataSnapshot} with one designed to provide overrides for certain requirements.
+ * <p>
+ * Note that the overriding snapshot can provide instances of {@link OverrideOperation} instead of (or as well as)
+ * actual values for this to return. In this case the operation is applied to the underlying.
  */
 public class MarketDataSnapshotWithOverride implements MarketDataSnapshot {
 
@@ -51,9 +54,20 @@ public class MarketDataSnapshotWithOverride implements MarketDataSnapshot {
   public Object query(ValueRequirement requirement) {
     Object result = getOverride().query(requirement);
     if (result != null) {
-      return result;
+      if (result instanceof OverrideOperation) {
+        final OverrideOperation operation = (OverrideOperation) result;
+        result = getUnderlying().query(requirement);
+        if (result != null) {
+          return operation.apply(requirement, result);
+        } else {
+          return null;
+        }
+      } else {
+        return result;
+      }
+    } else {
+      return getUnderlying().query(requirement);
     }
-    return getUnderlying().query(requirement);
   }
   
   //-------------------------------------------------------------------------

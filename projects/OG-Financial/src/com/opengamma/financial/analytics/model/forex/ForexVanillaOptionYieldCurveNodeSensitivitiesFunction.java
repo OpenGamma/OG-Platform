@@ -31,7 +31,7 @@ import com.opengamma.financial.analytics.model.fixedincome.YieldCurveLabelGenera
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueForexYieldCurveNodeSensitivityCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
@@ -116,7 +116,7 @@ public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends Forex
     final DoubleMatrix1D callCouponSensitivity = (DoubleMatrix1D) callCouponSensitivitiesObject;
     final YieldCurveBundle putCurveBundle = new YieldCurveBundle(new String[] {putFundingCurveName, putForwardCurveName}, new YieldAndDiscountCurve[] {putFundingCurve, putForwardCurve});
     final YieldCurveBundle callCurveBundle = new YieldCurveBundle(new String[] {callFundingCurveName, callForwardCurveName}, new YieldAndDiscountCurve[] {callFundingCurve, callForwardCurve});
-    final Map<String, List<DoublesPair>> curveSensitivities = ((PresentValueSensitivity) curveSensitivitiesObject).getSensitivities();
+    final Map<String, List<DoublesPair>> curveSensitivities = ((InterestRateCurveSensitivity) curveSensitivitiesObject).getSensitivities();
     final Map<String, DoubleMatrix1D> putArrayResult, callArrayResult;
     try {
       putArrayResult = CALCULATOR.calculate(curveSensitivities, putCurveBundle, putCouponSensitivity, putJacobian);

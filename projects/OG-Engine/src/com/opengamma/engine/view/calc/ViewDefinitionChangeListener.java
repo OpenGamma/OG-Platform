@@ -16,12 +16,12 @@ public class ViewDefinitionChangeListener implements ChangeListener {
 
   private final ViewComputationJob _computationJob;
   private final UniqueId _viewDefinitionId;
-  
+
   public ViewDefinitionChangeListener(ViewComputationJob computationJob, UniqueId viewDefinitionId) {
     _computationJob = computationJob;
     _viewDefinitionId = viewDefinitionId;
   }
-  
+
   @Override
   public void entityChanged(ChangeEvent event) {
     if (event.getBeforeId() == null) {
@@ -32,17 +32,17 @@ public class ViewDefinitionChangeListener implements ChangeListener {
       // View definition could have been deleted - do we want to stop the process?
       return;
     }
-    if (event.getBeforeId().equals(getViewDefinitionId())) {
+    if (event.getBeforeId().getObjectId().equals(getViewDefinitionId().getObjectId())) {
       getViewComputationJob().dirtyViewDefinition();
     }
   }
-  
+
   private UniqueId getViewDefinitionId() {
     return _viewDefinitionId;
   }
-  
+
   private ViewComputationJob getViewComputationJob() {
     return _computationJob;
   }
-  
+
 }

@@ -34,6 +34,16 @@ public class PersistentSubscriptionManagerMBean {
     _manager = manager;
   }
   
+  @ManagedAttribute(description = "Returns the number of securities for which a persistent subscription is currently active.")
+  public int getNumberOfPersistentSubscriptions() {
+    try {
+      return getPersistentSubscriptions().size();
+    } catch (RuntimeException e) {
+      s_logger.error("getNumberOfPersistentSubscriptions() failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+  
   @ManagedAttribute(description = "Returns the list of securities for which a persistent subscription is currently active.")
   public Set<String> getPersistentSubscriptions() {
     try {

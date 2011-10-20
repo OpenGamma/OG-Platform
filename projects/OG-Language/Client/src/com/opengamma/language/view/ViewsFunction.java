@@ -48,11 +48,12 @@ public class ViewsFunction extends AbstractFunctionInvoker implements PublishedF
     this(new DefinitionAnnotater(ViewsFunction.class));
   }
 
-  protected Map<UniqueId, String> invokeImpl(final ViewDefinitionRepository repository, final String viewName) {
+  public static Map<UniqueId, String> invoke(final ViewDefinitionRepository repository, final String viewName) {
     final Map<UniqueId, String> entries;
     if (viewName == null) {
       entries = repository.getDefinitionEntries();
     } else {
+      // TODO: the "viewName" could take wild-cards
       final ViewDefinition viewDefinition = repository.getDefinition(viewName);
       if (viewDefinition != null) {
         entries = Collections.singletonMap(viewDefinition.getUniqueId(), viewDefinition.getName());
@@ -69,7 +70,7 @@ public class ViewsFunction extends AbstractFunctionInvoker implements PublishedF
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
     final ViewDefinitionRepository repository = sessionContext.getGlobalContext().getViewProcessor().getViewDefinitionRepository();
     final String viewName = (String) parameters[0];
-    return invokeImpl(repository, viewName);
+    return invoke(repository, viewName);
   }
 
   // PublishedFunction

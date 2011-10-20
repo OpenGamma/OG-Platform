@@ -182,13 +182,7 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
 
   }
 
-  // AbstractFunctionInvoker
-
-  @Override
-  protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) throws AsynchronousExecution {
-    final ViewClientHandle viewClientHandle = (ViewClientHandle) parameters[0];
-    final int waitForResult = (Integer) parameters[1];
-    final UniqueId lastViewCycleId = (UniqueId) parameters[2];
+  public static Object invoke(final ViewClientHandle viewClientHandle, final int waitForResult, final UniqueId lastViewCycleId) throws AsynchronousExecution {
     final ViewClient viewClient = viewClientHandle.get().getViewClient();
     ViewComputationResultModel result = viewClient.getLatestResult();
     if ((result == null) || result.getViewCycleId().equals(lastViewCycleId)) {
@@ -211,6 +205,16 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
     }
     viewClientHandle.unlock();
     return result;
+  }
+
+  // AbstractFunctionInvoker
+
+  @Override
+  protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) throws AsynchronousExecution {
+    final ViewClientHandle viewClientHandle = (ViewClientHandle) parameters[0];
+    final int waitForResult = (Integer) parameters[1];
+    final UniqueId lastViewCycleId = (UniqueId) parameters[2];
+    return invoke(viewClientHandle, waitForResult, lastViewCycleId);
   }
 
   // PublishedFunction

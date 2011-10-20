@@ -6,8 +6,9 @@
 package com.opengamma.financial.analytics.timeseries.sampling;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 
@@ -28,13 +29,15 @@ public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunction implements T
     Validate.notNull(schedule, "schedule");
     final LocalDateDoubleTimeSeries localDateTS = ts.toLocalDateDoubleTimeSeries();
     final List<LocalDate> tsDates = localDateTS.times();
+    final Set<LocalDate> tsDatesSet = new HashSet<LocalDate>(tsDates);
+    
     final List<LocalDate> scheduledDates = new ArrayList<LocalDate>();
     final List<Double> scheduledData = new ArrayList<Double>();
     final double firstValue = localDateTS.getEarliestValue();
     final LocalDate firstDate = localDateTS.getEarliestTime();
     for (final LocalDate localDate : schedule) {
       scheduledDates.add(localDate);
-      if (contains(tsDates, localDate)) {
+      if (tsDatesSet.contains(localDate)) {
         scheduledData.add(localDateTS.getValue(localDate));
       } else if (firstDate.isAfter(localDate)) {
         scheduledData.add(firstValue);
@@ -43,7 +46,7 @@ public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunction implements T
         if (firstDate.isAfter(temp)) {
           scheduledData.add(firstValue);
         } else {
-          while (!contains(tsDates, temp)) {
+          while (!tsDatesSet.contains(temp)) {
             temp = temp.minusDays(1);
             if (temp.isBefore(schedule[0].toLocalDate()) || temp.isBefore(tsDates.get(0))) {
               scheduledData.add(firstValue);
@@ -55,11 +58,5 @@ public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunction implements T
       }
     }
     return new ArrayLocalDateDoubleTimeSeries(scheduledDates, scheduledData);
-  }
-
-  private boolean contains(List<LocalDate> tsDates, LocalDate localDate) {
-    //NOTE: presumes that tsDates is sorted
-    //TODO: could use cursor hint
-    return Collections.binarySearch(tsDates, localDate) >= 0;
   }
 }

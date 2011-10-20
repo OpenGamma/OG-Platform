@@ -35,7 +35,7 @@ public class ViewClientDescriptorTest {
 
   public void testStaticMarketData() {
     for (UniqueId viewId : VIEW_IDENTIFIERS) {
-      assertCycle(ViewClientDescriptor.staticMarketData(viewId, Instant.now()));
+      assertCycle(ViewClientDescriptor.staticMarketData(viewId));
     }
   }
 

@@ -7,8 +7,6 @@ package com.opengamma.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import static com.opengamma.financial.interestrate.SimpleInstrumentFactory.*;
-
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -103,6 +101,7 @@ public class ParRateCalculatorTest {
     double pv = PVC.visit(ir, CURVES);
     assertEquals(pvExpected, pv, 1e-12);
   }
+  
 
   @Test
   public void testBond() {
