@@ -42,6 +42,7 @@ public class CreateBeanFunction implements PublishedFunction {
       PropertyReadWrite readWrite = metaProperty.readWrite();
       if (readWrite == PropertyReadWrite.READ_WRITE || readWrite == PropertyReadWrite.WRITE_ONLY) {
         paramDescriptions.add(propertyType.getSimpleName() + " " + metaProperty.name());
+        // TODO get the PropertyDefinition annotation from the property and check whether its validate property = notNull
         JavaTypeInfo<?> typeInfo = JavaTypeInfo.builder(propertyType).allowNull().get();
         metaParameters.add(new MetaParameter(metaProperty.name(), typeInfo));
       }
