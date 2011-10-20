@@ -45,7 +45,7 @@ import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailPr
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.paging.Paging;
 
 /**
@@ -108,10 +108,10 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
   /**
    * Creates an instance.
    * 
-   * @param dbSource  the database source combining all configuration, not null
+   * @param dbConnector  the database connector, not null
    */
-  public DbSecurityMaster(final DbSource dbSource) {
-    super(dbSource, IDENTIFIER_SCHEME_DEFAULT);
+  public DbSecurityMaster(final DbConnector dbConnector) {
+    super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
     setDetailProvider(new HibernateSecurityMasterDetailProvider());
   }
 

@@ -72,7 +72,7 @@ public class DbSecurityMasterTest extends DbTest {
   public void test_basics() throws Exception {
     assertNotNull(_secMaster);
     assertEquals(true, _secMaster.getUniqueIdScheme().equals("DbSec"));
-    assertNotNull(_secMaster.getDbSource());
+    assertNotNull(_secMaster.getDbConnector());
     assertNotNull(_secMaster.getTimeSource());
   }
 

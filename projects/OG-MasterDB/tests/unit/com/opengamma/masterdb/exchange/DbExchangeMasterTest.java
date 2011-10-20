@@ -58,7 +58,7 @@ public class DbExchangeMasterTest extends DbTest {
   public void test_basics() throws Exception {
     assertNotNull(_exgMaster);
     assertEquals(true, _exgMaster.getUniqueIdScheme().equals("DbExg"));
-    assertNotNull(_exgMaster.getDbSource());
+    assertNotNull(_exgMaster.getDbConnector());
     assertNotNull(_exgMaster.getTimeSource());
   }
 
