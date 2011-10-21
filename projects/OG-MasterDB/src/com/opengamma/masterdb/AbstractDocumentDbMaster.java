@@ -34,7 +34,7 @@ import com.opengamma.master.AbstractMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 
@@ -65,11 +65,11 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   /**
    * Creates an instance.
    * 
-   * @param dbSource  the database source combining all configuration, not null
+   * @param dbConnector  the database connector, not null
    * @param defaultScheme  the default scheme for unique identifier, not null
    */
-  public AbstractDocumentDbMaster(final DbSource dbSource, final String defaultScheme) {
-    super(dbSource, defaultScheme);
+  public AbstractDocumentDbMaster(final DbConnector dbConnector, final String defaultScheme) {
+    super(dbConnector, defaultScheme);
   }
 
   //-------------------------------------------------------------------------
@@ -353,7 +353,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
       final ResultSetExtractor<List<D>> extractor, final AbstractDocumentsResult<D> result) {
     
     s_logger.debug("with args {}", args);
-    final NamedParameterJdbcOperations namedJdbc = getDbSource().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
     if (pagingRequest.equals(PagingRequest.ALL)) {
       result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
       result.setPaging(Paging.of(pagingRequest, result.getDocuments()));

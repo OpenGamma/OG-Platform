@@ -53,7 +53,7 @@ public class DbFunctionCostsMasterTest extends DbTest {
   @Test
   public void test_basics() throws Exception {
     assertNotNull(_costsMaster);
-    assertNotNull(_costsMaster.getDbSource());
+    assertNotNull(_costsMaster.getDbConnector());
     assertNotNull(_costsMaster.getTimeSource());
   }
 

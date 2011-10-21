@@ -116,7 +116,7 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
 
   @Test
   public void test_update_rollback() {
-    DbHolidayMaster w = new DbHolidayMaster(_holMaster.getDbSource()) {
+    DbHolidayMaster w = new DbHolidayMaster(_holMaster.getDbConnector()) {
       @Override
       protected String sqlInsertDate() {
         return "INSERT";  // bad sql

@@ -133,7 +133,7 @@ public class ModifyConfigDbConfigMasterWorkerUpdateTest extends AbstractDbConfig
 
   @Test
   public void test_update_rollback() {
-    DbConfigWorker w = new DbConfigWorker(_cfgMaster.getDbSource(), _cfgMaster.getUniqueIdScheme()) {
+    DbConfigWorker w = new DbConfigWorker(_cfgMaster.getDbConnector(), _cfgMaster.getUniqueIdScheme()) {
       @Override
       protected String sqlInsertConfig() {
         return "INSERT";  // bad sql

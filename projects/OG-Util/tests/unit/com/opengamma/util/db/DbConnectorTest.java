@@ -16,15 +16,15 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.testng.annotations.Test;
 
 /**
- * Test DbSource.
+ * Test.
  */
 @Test
-public class DbSourceTest {
+public class DbConnectorTest {
 
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_nulls() {
-    new DbSource(null, null, null, null, null, null);
+    new DbConnector(null, null, null, null, null, null);
   }
 
   //-------------------------------------------------------------------------
@@ -35,7 +35,7 @@ public class DbSourceTest {
     DefaultTransactionDefinition transDefn = new DefaultTransactionDefinition();
     DataSourceTransactionManager transMgr = new DataSourceTransactionManager();
     TransactionTemplate transTemplate = new TransactionTemplate(transMgr, transDefn);
-    DbSource test = new DbSource("Test", dialect, ds, jdbcTemplate, null, transTemplate);
+    DbConnector test = new DbConnector("Test", dialect, ds, jdbcTemplate, null, transTemplate);
     
     assertSame(ds, test.getDataSource());
     assertSame(dialect, test.getDialect());
@@ -54,9 +54,9 @@ public class DbSourceTest {
     DefaultTransactionDefinition transDefn = new DefaultTransactionDefinition();
     DataSourceTransactionManager transMgr = new DataSourceTransactionManager();
     TransactionTemplate transTemplate = new TransactionTemplate(transMgr, transDefn);
-    DbSource test = new DbSource("Test", dialect, ds, jdbcTemplate, null, transTemplate);
+    DbConnector test = new DbConnector("Test", dialect, ds, jdbcTemplate, null, transTemplate);
     
-    assertEquals("DbSource[Test]", test.toString());
+    assertEquals("DbConnector[Test]", test.toString());
   }
 
 }

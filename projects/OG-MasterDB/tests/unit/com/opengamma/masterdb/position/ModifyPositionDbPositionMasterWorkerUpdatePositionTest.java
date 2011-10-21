@@ -251,7 +251,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
 
   @Test
   public void test_update_rollback() {
-    DbPositionMaster w = new DbPositionMaster(_posMaster.getDbSource()) {
+    DbPositionMaster w = new DbPositionMaster(_posMaster.getDbConnector()) {
       protected String sqlInsertIdKey() {
         return "INSERT";  // bad sql
       }

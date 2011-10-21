@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * General purpose source of access to databases.
+ * Connector used to access SQL databases.
  * <p>
  * This class provides a simple-to-setup and simple-to-use way to access databases.
  * It can be configured for access via JDBC, Hibernate or both.
@@ -29,7 +29,7 @@ import com.opengamma.util.time.DateUtils;
  * <p>
  * This class is usually configured using the associated factory bean.
  */
-public class DbSource {
+public class DbConnector {
 
   static {
     DateUtils.initTimeZone();
@@ -70,7 +70,7 @@ public class DbSource {
    * @param hibernateTemplate  the Hibernate template, may be null
    * @param transactionTemplate  the transaction template, not null
    */
-  public DbSource(
+  public DbConnector(
       String name, DbDialect dialect, DataSource dataSource,
       SimpleJdbcTemplate jdbcTemplate, HibernateTemplate hibernateTemplate, TransactionTemplate transactionTemplate) {
     ArgumentChecker.notNull(name, "name");
@@ -88,7 +88,7 @@ public class DbSource {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the display name of the source.
+   * Gets the display name of the connector.
    * 
    * @return a name usable for display, not null
    */

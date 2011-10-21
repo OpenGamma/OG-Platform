@@ -21,8 +21,6 @@ import com.opengamma.id.UniqueId;
  */
 public class UserManageableViewDefinitionRepository implements ManageableViewDefinitionRepository {
 
-//  private static final String SCHEME = "View";
-
   private final UserDataTrackerWrapper _tracker;
   private final ManageableViewDefinitionRepository _underlying;
 
@@ -33,9 +31,11 @@ public class UserManageableViewDefinitionRepository implements ManageableViewDef
 
   //-------------------------------------------------------------------------
   @Override
-  public void addViewDefinition(AddViewDefinitionRequest request) {
-    _underlying.addViewDefinition(request);
+  public UniqueId addViewDefinition(AddViewDefinitionRequest request) {
+    UniqueId viewDefinitionId = _underlying.addViewDefinition(request);
     _tracker.created(request.getViewDefinition().getUniqueId());
+    
+    return viewDefinitionId;
   }
 
   @Override
