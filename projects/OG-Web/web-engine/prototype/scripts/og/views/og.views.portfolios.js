@@ -306,7 +306,7 @@ $.register_module({
                             .attr('href', '#' + routes.hash(mod, $.extend(true, {}, cur, {version: '*'})))
                             .unbind('click').bind('click', function (e) {
                                 var layout = og.views.common.layout;
-                                if (!layout.inner.state.south.isClosed) {
+                                if (!layout.inner.state.south.isClosed && routes.current().args.version) {
                                     e.preventDefault();
                                     layout.inner.close('south');
                                     routes.go(routes.hash(mod, cur));
@@ -333,7 +333,7 @@ $.register_module({
                                     $(e.target).html('check sync status').removeClass('og-active');
                                 }, 2000);
                             });
-                        $('.OG-header-links').empty().append($version_link);
+                        $('.OG-header-links').empty().append($version_link).append($sync_link);
                     };
                 api.rest.portfolios.get({
                     handler: function (result) {
