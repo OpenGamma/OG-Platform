@@ -41,7 +41,6 @@ public class Loader extends ContextInitializationBean {
   private String _securityMaster = "securityMaster";
   private String _marketDataSnapshotMaster = "marketDataSnapshotMaster";
   private String _userData = "userData";
-  private FudgeContext _fudgeContext = FudgeContext.GLOBAL_DEFAULT;
   private ScheduledExecutorService _scheduler;
   private int _clientHeartbeat = 5;
 
@@ -94,15 +93,6 @@ public class Loader extends ContextInitializationBean {
     return _userData;
   }
 
-  public void setFudgeContext(final FudgeContext fudgeContext) {
-    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
-    _fudgeContext = fudgeContext;
-  }
-
-  public FudgeContext getFudgeContext() {
-    return _fudgeContext;
-  }
-
   public void setScheduler(final ScheduledExecutorService scheduler) {
     _scheduler = scheduler;
   }
@@ -137,7 +127,7 @@ public class Loader extends ContextInitializationBean {
     targets.setPortfolioMaster(getConfiguration().getURIConfiguration(getPortfolioMaster()));
     targets.setSecurityMaster(getConfiguration().getRestTargetConfiguration(getSecurityMaster()));
     targets.setMarketDataSnapshotMaster(getConfiguration().getRestTargetConfiguration(getMarketDataSnapshotMaster()));
-    globalContext.setClient(new RemoteClient(null, getFudgeContext(), targets));
+    globalContext.setClient(new RemoteClient(null, getConfiguration().getFudgeContext(), targets));
   }
 
   @Override
@@ -175,13 +165,13 @@ public class Loader extends ContextInitializationBean {
       final String clientId = msg.getString(CLIENTID_STASH_FIELD);
       if (clientId != null) {
         s_logger.info("Recovering old remote engine client {}", clientId);
-        initClient(sessionContext, RemoteClient.forClient(getFudgeContext(), target, sessionContext.getUserContext().getUserName(), clientId));
+        initClient(sessionContext, RemoteClient.forClient(getConfiguration().getFudgeContext(), target, sessionContext.getUserContext().getUserName(), clientId));
         return;
       }
     }
     s_logger.info("Creating new remote engine client");
-    final RemoteClient client = RemoteClient.forNewClient(getFudgeContext(), target, sessionContext.getUserContext().getUserName());
-    final MutableFudgeMsg stash = getFudgeContext().newMessage();
+    final RemoteClient client = RemoteClient.forNewClient(getConfiguration().getFudgeContext(), target, sessionContext.getUserContext().getUserName());
+    final MutableFudgeMsg stash = FudgeContext.GLOBAL_DEFAULT.newMessage();
     stash.add(CLIENTID_STASH_FIELD, client.getClientId());
     sessionContext.getStashMessage().put(stash);
     initClient(sessionContext, client);

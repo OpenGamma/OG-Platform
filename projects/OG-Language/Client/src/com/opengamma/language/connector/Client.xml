@@ -191,13 +191,13 @@
   
   <!-- Client (shared) -->
   <bean id="clientLoader" class="com.opengamma.language.client.Loader">
-    <property name="globalContextFactory" ref="globalContextFactory" />
-    <property name="userContextFactory" ref="userContextFactory" />
-    <property name="sessionContextFactory" ref="sessionContextFactory" />
     <property name="configuration" ref="defaultConfiguration" />
+    <property name="globalContextFactory" ref="globalContextFactory" />
     <property name="scheduler">
       <bean factory-bean="clientContextFactory" factory-method="getScheduler" />
     </property>
+    <property name="sessionContextFactory" ref="sessionContextFactory" />
+    <property name="userContextFactory" ref="userContextFactory" />
   </bean>
   
   <!-- Exchange -->
