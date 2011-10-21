@@ -32,6 +32,11 @@ public final class Categories {
   public static final String IDENTIFIER = "Identifier";
 
   /**
+   * Anything concerned with market data (live or snapshot)
+   */
+  public static final String MARKET_DATA = "MarketData";
+
+  /**
    * Miscellaneous value/data manipulation.
    */
   public static final String MISC = "Misc";

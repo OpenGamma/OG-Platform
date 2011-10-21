@@ -39,7 +39,7 @@ public class FetchSnapshotFunction extends AbstractFunctionInvoker implements Pu
 
   private FetchSnapshotFunction(final DefinitionAnnotater info) {
     super(info.annotate(parameters()));
-    _meta = info.annotate(new MetaFunction(Categories.TIMESERIES, "FetchSnapshot", getParameters(), this));
+    _meta = info.annotate(new MetaFunction(Categories.MARKET_DATA, "FetchSnapshot", getParameters(), this));
   }
 
   protected FetchSnapshotFunction() {

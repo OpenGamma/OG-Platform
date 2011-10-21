@@ -74,7 +74,8 @@ public class Loader extends ContextInitializationBean {
     s_logger.info("Configuring snapshot support");
     globalContext.setMarketDataSnapshotSource(new RemoteMarketDataSnapshotSource(getConfiguration().getFudgeContext(), restTarget));
     globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
-        FetchSnapshotFunction.INSTANCE));
+        FetchSnapshotFunction.INSTANCE,
+        SnapshotsFunction.INSTANCE));
     // TODO: type converters
   }
 
