@@ -5,12 +5,11 @@
 
 $.register_module({
     name: 'og.common.util.ui.Form',
-    dependencies: ['og.api.text', 'og.api.rest'],
+    dependencies: ['og.api.text'],
     obj: function () {
-        var stall = 500, item_prefix = 'item_', id_count = 0, dummy = '<p/>',
+        var stall = 500, id_count = 0, dummy = '<p/>', api_text = og.api.text, numbers = {},
             form_template = '<form action="." id="${id}"><div class="OG-form">' +
                 '{{html html}}<input type="submit" style="display: none;"></div></form>',
-            api_text = og.api.text, api_rest = og.api.rest, numbers = {},
             Form, Block, Field;
         /**
          * @class Block
@@ -28,12 +27,12 @@ $.register_module({
                 var self = 'html', total = block.children.length, done = 0, result = [],
                     internal_handler = function () {
                         var html = template ? $(dummy).append($.tmpl(template, $.extend(
-                            result.reduce(function (acc, val, idx) {return acc[item_prefix + idx] = val, acc;}, {}),
+                            result.reduce(function (acc, val, idx) {return acc['item_' + idx] = val, acc;}, {}),
                             extras
                         ))).html() : wrap(result.join(''));
                         return handler(html);
                     };
-                if (!block.children.length) return internal_handler();
+                if (!total) return internal_handler();
                 block.children.forEach(function (val, idx) {
                     if (typeof val.html === 'function') return val.html(function (html) {
                         result[idx] = html, (total === ++done) && internal_handler();
@@ -49,7 +48,6 @@ $.register_module({
                 block.children.forEach(function (child) {child.process(data, errors);});
                 try {if (processor) processor(data);} catch (error) {errors.push(error);}
             };
-            // initialize Block
             if (url || module) {
                 if (url) api_text({handler: function (result) {template = result;}, url: url});
                 else if (module) api_text({handler: function (result) {template = result;}, module: module});
@@ -76,7 +74,6 @@ $.register_module({
             field.process = function (data, errors) {
                 try {if (processor) processor(data);} catch (error) {errors.push(error);}
             };
-            // initialize Field
             if (url || module) {
                 if (url) api_text({handler: function (result) {template = result;}, url: url});
                 else if (module) api_text({handler: function (result) {template = result;}, module: module});
@@ -90,7 +87,7 @@ $.register_module({
          */
         Form = function (config) {
             var form = new Block(null, config), selector = config.selector, $root = $(selector), $form, dom_events = {},
-                klass = 'Form', form_events = {'form:load': [], 'form:unload': [], 'form:submit': [], 'form:error': []},
+                klass = 'Form', form_events = {'form:load': [], 'form:submit': [], 'form:error': []},
                 delegator = function (e) {
                     var $target = $(e.target), results = [];
                     dom_events[e.type].forEach(function (val) {
@@ -100,12 +97,12 @@ $.register_module({
                     });
                     if (results.length && !results.some(Boolean)) return false;
                 },
-                meta_map = config.meta,
+                type_map = config.type_map,
                 find_in_meta = (function (memo) {
                     var key, len;
-                    for (key in meta_map) if (~key.indexOf('*')) memo.push({
+                    for (key in type_map) if (~key.indexOf('*')) memo.push({
                         expr: new RegExp('^' + key.replace(/\./g, '\\.').replace(/\*/g, '[^\.]+') + '$'),
-                        value: meta_map[key]
+                        value: type_map[key]
                     });
                     len = memo.length;
                     return function (path) {
@@ -121,7 +118,7 @@ $.register_module({
                         return value in numbers ? ((data[idx] = +data[idx]), value) : value;
                     });
                     if (data === null || typeof data !== 'object') // no empty string keys at root level
-                        return !(result = meta_map[path] || find_in_meta(path)) ? (warns.push(path), 'BADTYPE'): result;
+                        return !(result = type_map[path] || find_in_meta(path)) ? (warns.push(path), 'BADTYPE'): result;
                     for (key in data) {
                         result[key] = build_meta(data[key], null_path ? key : [path, key || empty].join('.'), warns);
                         if (result[key] in numbers) data[key] = +data[key];
@@ -162,7 +159,7 @@ $.register_module({
                         }
                     });
                     form.process(data, errors);
-                    built_meta = meta_map ? build_meta(data, null, meta_warns) : null;
+                    built_meta = type_map ? build_meta(data, null, meta_warns) : null;
                     meta_warns = meta_warns.sort().reduce(function (acc, val) {
                         return acc[acc.length - 1] !== val ? (acc.push(val), acc) : acc;
                     }, []).join('\n');
@@ -172,14 +169,13 @@ $.register_module({
                     try {
                         form_events['form:submit'].forEach(function (val) {val.handler(result);});
                     } catch (error) {
-                        og.dev.warn(klass + '#' + self + ' a form:submit handler failed with: ', error);
+                        og.dev.warn(klass + '#' + self + ' a form:submit handler failed with:\n', error);
                     }
                     return false;
                 });
             });
             form.Field = Field.partial(form);
             form.id = 'gen_form_' + id_count++;
-            // initialize Form
             $root.unbind();
             if (config.handlers) form.attach(config.handlers);
             return form;
@@ -192,7 +188,7 @@ $.register_module({
             SHR: 'short',
             STR: 'string',
         };
-        numbers[Form.type.SHR] = null; numbers[Form.type.BYT] = null; numbers[Form.type.DBL] = null;
+        [Form.type.BYT, Form.type.DBL, Form.type.SHR].forEach(function (val, idx) {numbers[val] = null;});
         return Form;
     }
 });
