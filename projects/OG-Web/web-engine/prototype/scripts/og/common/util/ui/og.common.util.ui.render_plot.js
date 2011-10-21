@@ -21,7 +21,7 @@ $.register_module({
                 $legend, hover_pos = null,
                 x_max, y_min, y_max, initial_preset,
                 $plot_header = $('.OG-timeseries .og-plotHeader'),
-                load_plots, empty_plots, update_legend, rescale_yaxis, get_legend, panning, rescale_timeout;
+                load_plots, empty_plots, update_legend, rescale_yaxis, get_legend, panning;
             $(selector).html(
                 '<div class="og-js-p1" style="height: 250px; width: 800px; margin: 0 0 0 -20px"></div>\
                  <div class="og-js-p2" style="height: 100px; width: 800px; margin: -43px 0 0 -20px"></div>\

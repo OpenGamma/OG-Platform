@@ -17,7 +17,9 @@ $.register_module({
         'og.views.common.layout',
         'og.views.common.versions',
         'og.views.common.state',
-        'og.views.common.default_details'
+        'og.views.common.default_details',
+        'og.views.common.versions',
+        'og.views.portfolio.sync'
     ],
     obj: function () {
         var api = og.api,
@@ -293,6 +295,45 @@ $.register_module({
                         slick.onMouseLeave.subscribe(function (e) {
                            $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
                         });
+                    },
+                    setup_header_links = function () {
+                        var $version_link, $sync_link, sync_href, vers_href, message_obj,
+                            mod = module.rules.load_portfolios,
+                            cur = $.extend({}, routes.current().args);
+                        delete cur.node, delete cur.version, delete cur.sync;
+                        $version_link = $('<a>version history</a>')
+                            .addClass('OG-link-small og-js-version-link')
+                            .attr('href', '#' + routes.hash(mod, $.extend(true, {}, cur, {version: '*'})))
+                            .unbind('click').bind('click', function (e) {
+                                var layout = og.views.common.layout;
+                                if (!layout.inner.state.south.isClosed) {
+                                    e.preventDefault();
+                                    layout.inner.close('south');
+                                    routes.go(routes.hash(mod, cur));
+                                }
+                            });
+                        sync_href = '#' + routes.hash(mod, $.extend(true, {}, cur, {sync: true}));
+                        message_obj = {
+                            location: '.ui-layout-inner-center .ui-layout-content',
+                            css: {left: 0}, level: 'strong',
+                            message: '\
+                                <span class="OG-icon og-icon-sync"></span>\
+                                This portfolio is out of sync, \
+                                <a href="' + sync_href + '">Click here to Fix...</a>'
+                        };
+                        $sync_link = $('<a>check sync status</a>')
+                            .addClass('OG-link-small og-js-sync-link OG-icon og-icon-sync-small')
+                            .attr('href', sync_href)
+                            .unbind('click').bind('click', function (e) {
+                                e.preventDefault();
+                                $(e.target).html('checking sync status...').addClass('og-active');
+                                // TODO: Check if portfolio is out of sync
+                                setTimeout(function () {
+                                    ui.message(message_obj);
+                                    $(e.target).html('check sync status').removeClass('og-active');
+                                }, 2000);
+                            });
+                        $('.OG-header-links').empty().append($version_link);
                     };
                 api.rest.portfolios.get({
                     handler: function (result) {
@@ -310,12 +351,12 @@ $.register_module({
                                     </section>\
                                 ',
                                 $html = $.tmpl(template, json.template_data),
-                                layout = og.views.common.layout, header, content;
+                                header, content, layout = og.views.common.layout;
                             header = $.outer($html.find('> header')[0]);
                             content = $.outer($html.find('> section')[0]);
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
                             $('.ui-layout-inner-center .ui-layout-content').html(content);
-                            ui.message({location: '.ui-layout-inner-center', destroy: true});
+                            setup_header_links();
                             ui.toolbar(options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);
@@ -337,16 +378,24 @@ $.register_module({
                                     })));
                                 }
                             });
+                            ui.message({location: '.ui-layout-inner-center', destroy: true});
                             layout.inner.resizeAll();
                         }});
                     },
                     id: args.id,
                     node: args.node,
-                    version: args.version,
+                    version: args.version && args.version !== '*' ? args.version : void 0,
                     loading: function () {
-                        if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions.load()}
+                        var layout = og.views.common.layout;
+                        if (routes.current().args.version || routes.current().args.sync) {
+                            layout.inner.open('south');
+                            if (args.version) og.views.common.versions.load();
+                            if (args.sync) og.views.portfolio.sync.load();
+                        }
+                        else layout.inner.close('south');
                         ui.message({
                             location: '.ui-layout-inner-center',
+                            css: {left: 0},
                             message: {0: 'loading...', 3000: 'still loading...'}
                         });
                     }
@@ -361,16 +410,20 @@ $.register_module({
         module.rules = {
             load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
             load_filter: {
-                route: '/' + page_name + '/filter:/:id?/name:?', method: module.name + '.load_filter'
+                route: '/' + page_name + '/filter:/:id?/version:?/name:?/sync:?',
+                method: module.name + '.load_filter'
             },
             load_portfolios: {
-                route: '/' + page_name + '/:id/:node?/version:?/name:?', method: module.name + '.load_' + page_name
+                route: '/' + page_name + '/:id/:node?/version:?/name:?/sync:?',
+                method: module.name + '.load_' + page_name
             },
             load_new_portfolios: {
-                route: '/' + page_name + '/:id/:node?/new:/name:?', method: module.name + '.load_new_' + page_name
+                route: '/' + page_name + '/:id/:node?/new:/name:?',
+                method: module.name + '.load_new_' + page_name
             },
             load_edit_portfolios: {
-                route: '/' + page_name + '/:id/:node?/edit:/name:?', method: module.name + '.load_edit_' + page_name
+                route: '/' + page_name + '/:id/:node?/edit:/name:?',
+                method: module.name + '.load_edit_' + page_name
             }
         };
         return portfolios = {

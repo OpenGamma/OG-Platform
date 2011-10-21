@@ -4,7 +4,7 @@
  */
 $.register_module({
     name: 'og.views.common.layout',
-    dependencies: ['og.views.common.versions'],
+    dependencies: [],
     obj: function () {
         var main_layout_settings = {
             defaults: {
@@ -55,9 +55,7 @@ $.register_module({
                 paneClass: 'ui-layout-inner-south',
                 size: 200,
                 initClosed: true,
-                spacing_closed: 0,
-                enableCursorHotkey: true,
-                onopen: og.views.common.versions.load
+                spacing_closed: 0
             }
         },
         analytics = {
