@@ -191,7 +191,7 @@ public class CommandLineBatchResultWriterTest extends HibernateTest {
     resultModelDefinition.setSecurityOutputMode(ResultOutputMode.NONE);
     resultModelDefinition.setPrimitiveOutputMode(ResultOutputMode.NONE);
     CommandLineBatchResultWriter resultWriter = new CommandLineBatchResultWriter(
-        getDbSource(),
+        getDbConnector(),
         resultModelDefinition,
         cachesByCalculationConfiguration,
         _dbComputationTargets,

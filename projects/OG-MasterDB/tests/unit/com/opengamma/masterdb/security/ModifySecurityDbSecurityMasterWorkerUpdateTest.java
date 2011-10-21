@@ -110,7 +110,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
 
   @Test
   public void test_update_rollback() {
-    DbSecurityMaster w = new DbSecurityMaster(_secMaster.getDbSource()) {
+    DbSecurityMaster w = new DbSecurityMaster(_secMaster.getDbConnector()) {
       @Override
       protected String sqlInsertSecurityIdKey() {
         return "INSERT";  // bad sql

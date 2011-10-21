@@ -19,6 +19,6 @@
         <dependency org="org.springframework" name="spring" rev="3.0.4" conf="*->orm,web,context"/>
         <dependency org="org.cometd" name="cometd-java" rev="1.0.1" conf="*->server,client"/>
         
-        <exclude org="org.junit" />
+        <dependency org="org.junit" name="junit" rev="4.8.2" />
     </dependencies>
 </ivy-module>

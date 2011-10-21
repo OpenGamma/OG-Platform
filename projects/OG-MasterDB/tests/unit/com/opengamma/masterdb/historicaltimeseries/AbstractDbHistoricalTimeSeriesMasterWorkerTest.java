@@ -70,7 +70,7 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbT
     s_logger.debug("test data 2: {}", _version2Instant);
     s_logger.debug("test data 3: {}", _version3Instant);
     s_logger.debug("test data 4: {}", _version4Instant);
-    final SimpleJdbcTemplate template = _htsMaster.getDbSource().getJdbcTemplate();
+    final SimpleJdbcTemplate template = _htsMaster.getDbConnector().getJdbcTemplate();
     template.update("INSERT INTO hts_name VALUES (?,?)",
         1, "N101");
     template.update("INSERT INTO hts_name VALUES (?,?)",

@@ -83,10 +83,9 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(1, secKey.size());
     assertTrue(secKey.getExternalIds().contains(ExternalId.of("A", "B")));
   }
-  
+
   @Test
   public void test_addWithOneTrade_add() {
-    
     LocalDate tradeDate = _now.toLocalDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     
@@ -268,7 +267,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     
     assertEquals(added, fromDb);
   }
-  
+
   @Test
   public void test_addWithTradesAndAttributes_addThenGet() {
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
@@ -346,7 +345,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     
     assertEquals(added, fromDb);
   }
-  
+
   @Test
   public void test_addTradeDeal_add() {
     Instant now = Instant.now(_posMaster.getTimeSource());
@@ -393,7 +392,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(ExternalId.of("CPS", "CPV"), testTrade.getCounterpartyExternalId());
     assertEquals(secKey, testTrade.getSecurityLink().getExternalId());
   }
-  
+
   @Test
   public void test_addTradeDeal_addThenGet() {
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
@@ -403,7 +402,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     ManageableTrade trade = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
     trade.addAttribute("TA1", "C");
     trade.addAttribute("TA2", "D");
-    trade.setDeal(new MockDeal("propOne", "propTwo"));
+//    trade.setDeal(new MockDeal("propOne", "propTwo"));  // TODO: test deal persistence
     position.getTrades().add(trade);
     
     PositionDocument doc = new PositionDocument();
@@ -418,7 +417,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     
     assertEquals(added, fromDb);
   }
-  
+
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {

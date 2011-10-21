@@ -59,7 +59,7 @@ public class DbHolidayMasterTest extends DbTest {
   public void test_basics() throws Exception {
     assertNotNull(_holMaster);
     assertEquals(true, _holMaster.getUniqueIdScheme().equals("DbHol"));
-    assertNotNull(_holMaster.getDbSource());
+    assertNotNull(_holMaster.getDbConnector());
     assertNotNull(_holMaster.getTimeSource());
   }
 

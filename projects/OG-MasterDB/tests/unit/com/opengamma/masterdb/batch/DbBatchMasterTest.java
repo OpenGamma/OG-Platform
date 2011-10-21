@@ -82,7 +82,7 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
   @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
-    _batchMaster = new DbBatchMaster(getDbSource());
+    _batchMaster = new DbBatchMaster(getDbConnector());
     
     _batchJob = new CommandLineBatchJob();
     _batchJob.getParameters().initializeDefaults(_batchJob);

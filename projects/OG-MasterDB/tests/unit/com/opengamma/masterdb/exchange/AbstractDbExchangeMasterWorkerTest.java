@@ -77,7 +77,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
     s_logger.debug("test data later: {}", _version2Instant);
     FudgeContext fudgeContext = OpenGammaFudgeContext.getInstance();
     LobHandler lobHandler = new DefaultLobHandler();
-    final SimpleJdbcTemplate template = _exgMaster.getDbSource().getJdbcTemplate();
+    final SimpleJdbcTemplate template = _exgMaster.getDbConnector().getJdbcTemplate();
     ManageableExchange exchange = new ManageableExchange();
     exchange.setUniqueId(UniqueId.of("DbExg", "101", "0"));
     exchange.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F")));
