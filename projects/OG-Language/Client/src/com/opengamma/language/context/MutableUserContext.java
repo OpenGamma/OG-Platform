@@ -5,6 +5,8 @@
  */
 package com.opengamma.language.context;
 
+import java.util.concurrent.ScheduledFuture;
+
 import com.opengamma.financial.user.rest.RemoteClient;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.livedata.AggregatingLiveDataProvider;
@@ -16,6 +18,13 @@ import com.opengamma.livedata.UserPrincipal;
  * A mutable version of {@link UserContext}. 
  */
 public class MutableUserContext extends UserContext {
+
+  /**
+   * Name under which the user engine client's heartbeat sender is bound. Note that the
+   * heartbeat sender is defined in the mutable context rather than the read-only version
+   * so that only the initializer can access it.
+   */
+  protected static final String CLIENT_HEARTBEAT = "clientHeartbeat";
 
   private final UserContextEventHandler _eventHandler;
 
@@ -58,6 +67,14 @@ public class MutableUserContext extends UserContext {
 
   public void setClient(final RemoteClient client) {
     removeOrReplaceValue(CLIENT, client);
+  }
+
+  public ScheduledFuture<?> getClientHeartbeat() {
+    return getValue(CLIENT_HEARTBEAT);
+  }
+
+  public void setClientHeartbeat(final ScheduledFuture<?> clientHeartbeat) {
+    setValue(CLIENT_HEARTBEAT, clientHeartbeat);
   }
 
   public void setLiveDataUser(final UserPrincipal liveDataUser) {

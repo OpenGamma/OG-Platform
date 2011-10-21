@@ -6,6 +6,10 @@
 
 package com.opengamma.language.client;
 
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -38,6 +42,8 @@ public class Loader extends ContextInitializationBean {
   private String _marketDataSnapshotMaster = "marketDataSnapshotMaster";
   private String _userData = "userData";
   private FudgeContext _fudgeContext = FudgeContext.GLOBAL_DEFAULT;
+  private ScheduledExecutorService _scheduler;
+  private int _clientHeartbeat = 5;
 
   public void setConfiguration(final Configuration configuration) {
     ArgumentChecker.notNull(configuration, "configuration");
@@ -97,6 +103,22 @@ public class Loader extends ContextInitializationBean {
     return _fudgeContext;
   }
 
+  public void setScheduler(final ScheduledExecutorService scheduler) {
+    _scheduler = scheduler;
+  }
+
+  public ScheduledExecutorService getScheduler() {
+    return _scheduler;
+  }
+
+  public void setClientHeartbeatPeriod(final int minutes) {
+    _clientHeartbeat = minutes;
+  }
+
+  public int getClientHeartbeatPeriod() {
+    return _clientHeartbeat;
+  }
+
   // ContextInitializationBean
 
   @Override
@@ -123,8 +145,21 @@ public class Loader extends ContextInitializationBean {
     // TODO: do we have a "user" one shared among all of their sessions?
   }
 
+  @Override
+  protected void doneContext(final MutableUserContext userContext) {
+    final ScheduledFuture<?> heartbeat = userContext.getClientHeartbeat();
+    if (heartbeat != null) {
+      s_logger.debug("Cancelling user client heartbeat");
+      heartbeat.cancel(true);
+    }
+  }
+
   protected void initClient(final MutableSessionContext sessionContext, final RemoteClient client) {
-    // TODO: heartbeat sender
+    if (getScheduler() != null) {
+      sessionContext.setClientHeartbeat(getScheduler().scheduleWithFixedDelay(client.createHeartbeatSender(), getClientHeartbeatPeriod(), getClientHeartbeatPeriod(), TimeUnit.MINUTES));
+    } else {
+      s_logger.warn("No heartbeat scheduler set; client may timeout");
+    }
     sessionContext.setClient(client);
   }
 
@@ -154,7 +189,11 @@ public class Loader extends ContextInitializationBean {
 
   @Override
   protected void doneContext(final MutableSessionContext sessionContext) {
-    // TODO: stop the heartbeat sender
+    final ScheduledFuture<?> heartbeat = sessionContext.getClientHeartbeat();
+    if (heartbeat != null) {
+      s_logger.debug("Cancelling session client heartbeat");
+      heartbeat.cancel(true);
+    }
   }
 
 }

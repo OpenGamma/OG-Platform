@@ -195,6 +195,9 @@
     <property name="userContextFactory" ref="userContextFactory" />
     <property name="sessionContextFactory" ref="sessionContextFactory" />
     <property name="configuration" ref="defaultConfiguration" />
+    <property name="scheduler">
+      <bean factory-bean="clientContextFactory" factory-method="getScheduler" />
+    </property>
   </bean>
   
   <!-- Exchange -->
