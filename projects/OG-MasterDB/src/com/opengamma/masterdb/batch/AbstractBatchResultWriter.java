@@ -32,7 +32,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.financial.conversion.ResultConverterCache;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -41,13 +41,14 @@ import com.opengamma.util.tuple.Pair;
  * For the database structure and tables, see {@code create-db-batch.sql}.
  */
 public abstract class AbstractBatchResultWriter {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractBatchResultWriter.class);
-  
+
   /**
-   * DB configuration
+   * DB connector.
    */
-  private final DbSource _dbSource;
+  private final DbConnector _dbConnector;
   
   /**
    * References rsk_run(id)
@@ -118,19 +119,19 @@ public abstract class AbstractBatchResultWriter {
    */
   private boolean _initialized; // = false;
   
-  public AbstractBatchResultWriter(DbSource dbSource,
+  public AbstractBatchResultWriter(DbConnector dbConnector,
       RiskRun riskRun,
       ResultConverterCache resultConverterCache,
       Collection<ComputationTarget> computationTargets,
       Set<RiskValueName> valueNames) {
-
-    ArgumentChecker.notNull(dbSource, "dbSource");
+    
+    ArgumentChecker.notNull(dbConnector, "dbConnector");
     ArgumentChecker.notNull(computationTargets, "Computation targets");
     ArgumentChecker.notNull(riskRun, "Risk run");
     ArgumentChecker.notNull(valueNames, "Value names");
     ArgumentChecker.notNull(resultConverterCache, "resultConverterCache");
-
-    _dbSource = dbSource;
+    
+    _dbConnector = dbConnector;
     _resultConverterCache = resultConverterCache;
     _riskRunId = riskRun.getId();
     
@@ -204,11 +205,11 @@ public abstract class AbstractBatchResultWriter {
   // --------------------------------------------------------------------------
   
   public SessionFactory getSessionFactory() {
-    return _dbSource.getHibernateSessionFactory();
+    return _dbConnector.getHibernateSessionFactory();
   }
 
   public SimpleJdbcTemplate getJdbcTemplate() {
-    return _dbSource.getJdbcTemplate();
+    return _dbConnector.getJdbcTemplate();
   }
 
   // --------------------------------------------------------------------------
@@ -251,7 +252,7 @@ public abstract class AbstractBatchResultWriter {
       return dbId;
     }
 
-    DbBatchMaster dbManager = new DbBatchMaster(_dbSource);
+    DbBatchMaster dbManager = new DbBatchMaster(_dbConnector);
     
     // try twice to handle situation where two threads contend to insert
     RuntimeException lastException = null;
@@ -279,7 +280,7 @@ public abstract class AbstractBatchResultWriter {
       return dbId;
     }
 
-    DbBatchMaster dbManager = new DbBatchMaster(_dbSource);
+    DbBatchMaster dbManager = new DbBatchMaster(_dbConnector);
     
     // try twice to handle situation where two threads contend to insert
     RuntimeException lastException = null;
@@ -307,7 +308,7 @@ public abstract class AbstractBatchResultWriter {
       return dbId;
     }
 
-    DbBatchMaster dbManager = new DbBatchMaster(_dbSource);
+    DbBatchMaster dbManager = new DbBatchMaster(_dbConnector);
     
     // try twice to handle situation where two threads contend to insert
     RuntimeException lastException = null;

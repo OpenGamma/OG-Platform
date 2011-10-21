@@ -25,8 +25,8 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ZipUtils;
 import com.opengamma.util.db.DbDialect;
-import com.opengamma.util.db.DbSource;
-import com.opengamma.util.db.DbSourceFactoryBean;
+import com.opengamma.util.db.DbConnector;
+import com.opengamma.util.db.DbConnectorFactoryBean;
 import com.opengamma.util.db.HSQLDbDialect;
 import com.opengamma.util.db.PostgresDbDialect;
 import com.opengamma.util.test.DbTool.TableCreationCallback;
@@ -223,12 +223,12 @@ public abstract class DbTest implements TableCreationCallback {
     return getDbTool().getTransactionManager();
   }
 
-  public DbSource getDbSource() {
+  public DbConnector getDbConnector() {
     DbDialect dbDialect = s_dbDialects.get(getDatabaseType());
     if (dbDialect == null) {
       throw new OpenGammaRuntimeException("config error - no DBHelper setup for " + getDatabaseType());
     }
-    DbSourceFactoryBean factory = new DbSourceFactoryBean();
+    DbConnectorFactoryBean factory = new DbConnectorFactoryBean();
     factory.setName("DBTest");
     factory.setDialect(dbDialect);
     factory.setDataSource(getTransactionManager().getDataSource());

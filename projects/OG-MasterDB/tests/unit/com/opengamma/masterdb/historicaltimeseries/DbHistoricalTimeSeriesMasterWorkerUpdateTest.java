@@ -142,7 +142,7 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTest extends AbstractDbHist
 
   @Test
   public void test_update_rollback() {
-    DbHistoricalTimeSeriesMaster w = new DbHistoricalTimeSeriesMaster(_htsMaster.getDbSource()) {
+    DbHistoricalTimeSeriesMaster w = new DbHistoricalTimeSeriesMaster(_htsMaster.getDbConnector()) {
       protected String sqlInsertIdKey() {
         return "INSERT";  // bad sql
       }

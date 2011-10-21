@@ -10,8 +10,8 @@ import org.hibernate.cfg.Configuration;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
-import com.opengamma.util.db.DbSource;
-import com.opengamma.util.db.DbSourceFactoryBean;
+import com.opengamma.util.db.DbConnector;
+import com.opengamma.util.db.DbConnectorFactoryBean;
 
 /**
  * DB test involving Hibernate.
@@ -56,9 +56,9 @@ public abstract class HibernateTest extends DbTest {
   }
 
   @Override
-  public DbSource getDbSource() {
-    DbSource source = super.getDbSource();
-    DbSourceFactoryBean factory = new DbSourceFactoryBean(source);
+  public DbConnector getDbConnector() {
+    DbConnector dbConnector = super.getDbConnector();
+    DbConnectorFactoryBean factory = new DbConnectorFactoryBean(dbConnector);
     factory.setHibernateSessionFactory(getSessionFactory());
     return factory.createObject();
   }

@@ -60,8 +60,9 @@ public class MockViewDefinitionRepository implements ViewDefinitionRepository, S
   
   public void addDefinition(ViewDefinition definition) {
     ArgumentChecker.notNull(definition, "View definition");
-    // if (definition.getUniqueId()!=null) 
-    _definitionsById.put(definition.getUniqueId(), definition);
+    if (definition.getUniqueId() != null) { 
+      _definitionsById.put(definition.getUniqueId(), definition);
+    }
     _definitionsByName.put(definition.getName(), definition);
   }
 

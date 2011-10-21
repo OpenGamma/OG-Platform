@@ -145,7 +145,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
     _marketDataUser = marketDataUser;
     _resultModelDefinition = resultModelDefinition;
 
-    _uniqueIdentifier = uniqueId != null ? uniqueId : UniqueId.of("default", name);
+    _uniqueIdentifier = uniqueId; // != null ? uniqueId : UniqueId.of("default", name);
   }
 
   // --------------------------------------------------------------------------

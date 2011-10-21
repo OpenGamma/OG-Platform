@@ -23,7 +23,7 @@
     <property name="username" value="${opengamma.financial-user.jdbc.username}" />
     <property name="password" value="${opengamma.financial-user.jdbc.password}" />
   </bean>
-  <bean id="userFinancialDbSource" parent="abstractDbSource">
+  <bean id="userFinancialDbConnector" parent="abstractDbConnector">
     <property name="name" value="UserFinancial"/>
     <property name="dataSource" ref="userFinancialDataSource"/>
     <property name="dialectName" value="${opengamma.financial-user.db.dialect}"/>
@@ -31,11 +31,11 @@
 
   <!-- User supplied Positions --> 
   <bean id="userFinancialPortfolioMaster" class="com.opengamma.masterdb.portfolio.DbPortfolioMaster">
-    <constructor-arg ref="userFinancialDbSource" />
+    <constructor-arg ref="userFinancialDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.financial-user.db.portfoliomaster.scheme}" />
   </bean>
   <bean id="userFinancialPositionMaster" class="com.opengamma.masterdb.position.DbPositionMaster">
-    <constructor-arg ref="userFinancialDbSource" />
+    <constructor-arg ref="userFinancialDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.financial-user.db.positionmaster.scheme}" />
   </bean>
   <bean id="userFinancialPositionSource" class="com.opengamma.master.position.impl.MasterPositionSource">
@@ -54,7 +54,7 @@
   <!-- User supplied Securities -->
   <bean id="securityMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
   <bean id="userFinancialSecurityMaster" class="com.opengamma.masterdb.security.DbSecurityMaster">
-    <constructor-arg ref="userFinancialDbSource" />
+    <constructor-arg ref="userFinancialDbConnector" />
     <property name="changeManager" ref="securityMasterChangeManager" />
     <property name="uniqueIdScheme" value="${opengamma.financial-user.db.securitymaster.scheme}" />
   </bean>
@@ -80,7 +80,7 @@
     <constructor-arg value="userSnapshotMasterChangeManager" />
   </bean>
   <bean id="userFinancialSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
-    <constructor-arg ref="userFinancialDbSource" />
+    <constructor-arg ref="userFinancialDbConnector" />
     <property name="changeManager" ref="userSnapshotMasterChangeManager" />
     <property name="uniqueIdScheme" value="${opengamma.financial-user.db.snapshotmaster.scheme}" />
   </bean>

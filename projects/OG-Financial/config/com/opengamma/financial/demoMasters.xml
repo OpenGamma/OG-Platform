@@ -21,7 +21,7 @@
 
   <import resource="classpath:com/opengamma/financial/common.xml" />
 
-  <bean id="abstractDbSource" class="com.opengamma.util.db.DbSourceFactoryBean" abstract="true">
+  <bean id="abstractDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean" abstract="true">
     <property name="transactionIsolationLevelName" value="ISOLATION_READ_COMMITTED" />
     <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
     <property name="hibernateMappingFiles">
@@ -38,7 +38,7 @@
     <property name="password" value="${opengamma.config.jdbc.password}" />
   </bean>
 
-  <bean id="cfgDbSource" parent="abstractDbSource">
+  <bean id="cfgDbConnector" parent="abstractDbConnector">
     <property name="name" value="Config"/>
     <property name="dataSource" ref="cfgDataSource"/>
     <property name="dialectName" value="${opengamma.config.db.dbdialect}"/>
@@ -51,7 +51,7 @@
     <property name="password" value="${opengamma.financial.jdbc.password}" />
   </bean>
 
-  <bean id="finDbSource" parent="abstractDbSource">
+  <bean id="finDbConnector" parent="abstractDbConnector">
     <property name="name" value="Integration"/>
     <property name="dataSource" ref="finDataSource"/>
     <property name="dialectName" value="${opengamma.financial.db.dbdialect}"/>
@@ -64,7 +64,7 @@
     <property name="password" value="${opengamma.hts.jdbc.password}" />
   </bean>
   
-  <bean id="htsDbSource" class="com.opengamma.util.db.DbSourceFactoryBean">
+  <bean id="htsDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean">
     <property name="name" value="TimeSeries"/>
     <property name="dataSource" ref="htsDataSource"/>
     <property name="dialectName" value="${opengamma.hts.db.dbdialect}"/>
@@ -76,7 +76,7 @@
 
   <!-- ConfigMaster -->
   <bean id="sharedConfigMaster" class="com.opengamma.masterdb.config.DbConfigMaster">
-    <constructor-arg ref="cfgDbSource" />
+    <constructor-arg ref="cfgDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.config.db.configmaster.scheme}" />
   </bean>
 
@@ -109,7 +109,7 @@
   
   <!-- ExchangeMaster -->
   <bean id="dbExchangeMaster" class="com.opengamma.masterdb.exchange.DbExchangeMaster">
-    <constructor-arg ref="finDbSource" />
+    <constructor-arg ref="finDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.exchangemaster.scheme}" />
   </bean>
 
@@ -119,7 +119,7 @@
   
   <!-- HolidayMaster -->
   <bean id="dbHolidayMaster" class="com.opengamma.masterdb.holiday.DbHolidayMaster">
-    <constructor-arg ref="finDbSource" />
+    <constructor-arg ref="finDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.holidaymaster.scheme}" />
   </bean>
   <bean id="sharedHolidaySource" class="com.opengamma.master.holiday.impl.ConcurrentMapCachingMasterHolidaySource">
@@ -129,7 +129,7 @@
   <!-- SecurityMaster -->
   <bean id="securityMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
   <bean id="dbSecurityMaster" class="com.opengamma.masterdb.security.DbSecurityMaster">
-    <constructor-arg ref="finDbSource" />
+    <constructor-arg ref="finDbConnector" />
     <property name="changeManager" ref="securityMasterChangeManager" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.securitymaster.scheme}" />
     <property name="detailProvider">
@@ -156,12 +156,12 @@
     <constructor-arg value="dbPositionMasterChangeManager" />
   </bean> 
   <bean id="dbPortfolioMaster" class="com.opengamma.masterdb.portfolio.DbPortfolioMaster">
-    <constructor-arg ref="finDbSource" />
+    <constructor-arg ref="finDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.portfoliomaster.scheme}" />
     <property name="changeManager" ref="dbPortfolioMasterChangeManager" />
   </bean>
   <bean id="dbPositionMaster" class="com.opengamma.masterdb.position.DbPositionMaster">
-    <constructor-arg ref="finDbSource" />
+    <constructor-arg ref="finDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.positionmaster.scheme}" />
   </bean>
   <bean id="sharedPositionSource" class="com.opengamma.core.position.impl.EHCachingPositionSource">
@@ -176,12 +176,12 @@
 
   <!-- FunctionCostsMaster --> 
   <bean id="dbFunctionCostsMaster" class="com.opengamma.masterdb.engine.stats.DbFunctionCostsMaster">
-    <constructor-arg ref="finDbSource" />
+    <constructor-arg ref="finDbConnector" />
   </bean>
 
   <!-- TimeSeries database -->
   <bean id="dbHtsMaster" class="com.opengamma.masterdb.historicaltimeseries.DbHistoricalTimeSeriesMaster">
-    <constructor-arg ref="htsDbSource"/>
+    <constructor-arg ref="htsDbConnector"/>
     <property name="uniqueIdScheme" value="${opengamma.financial.db.htsmaster.scheme}" />
   </bean>
   <bean id="sharedHistoricalTimeSeriesSource" class="com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource">
@@ -229,7 +229,7 @@
     <property name="username" value="${opengamma.overnight-batch.jdbc.username}" />
     <property name="password" value="${opengamma.overnight-batch.jdbc.password}" />
   </bean>
-  <bean id="batchDbSource" parent="abstractDbSource">
+  <bean id="batchDbConnector" parent="abstractDbConnector">
     <property name="name" value="Batch"/>
     <property name="dataSource" ref="batchDataSource"/>
     <property name="dialectName" value="${opengamma.overnight-batch.db.dbdialect}"/>
@@ -241,7 +241,7 @@
     </property>
   </bean>
   <bean id="dbBatchMaster" class="com.opengamma.masterdb.batch.DbBatchMaster">
-    <constructor-arg ref="batchDbSource"/>  	
+    <constructor-arg ref="batchDbConnector"/>  	
   </bean>
 
   <!-- Function configuration -->
@@ -266,7 +266,7 @@
     <constructor-arg value="dbSnapshotMasterChangeManager" />
   </bean>
   <bean id="dbSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
-    <constructor-arg ref="finDbSource" />
+    <constructor-arg ref="finDbConnector" />
     <property name="changeManager" ref="dbSnapshotMasterChangeManager" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.snapshotmaster.scheme}" />
   </bean>
