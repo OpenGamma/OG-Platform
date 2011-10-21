@@ -333,7 +333,7 @@ $.register_module({
                                     $(e.target).html('check sync status').removeClass('og-active');
                                 }, 2000);
                             });
-                        $('.OG-header-links').empty().append($version_link).append($sync_link);
+                        $('.OG-header-links').empty().append($version_link);
                     };
                 api.rest.portfolios.get({
                     handler: function (result) {
