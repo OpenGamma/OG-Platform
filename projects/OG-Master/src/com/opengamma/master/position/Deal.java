@@ -7,6 +7,7 @@ package com.opengamma.master.position;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Trade;
+import com.opengamma.util.money.Currency;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 
@@ -14,6 +15,8 @@ import com.opengamma.util.PublicSPI;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.time.calendar.LocalDate;
 import java.util.HashMap;
@@ -31,6 +34,7 @@ import java.util.Map;
 public interface Deal extends Bean {
 
   public static final String DEAL_CLASSNAME = "Deal~JavaClass";
+  public static final String DEAL_TYPE = "Deal~dealType";
   public static final String DEAL_PREFIX = "Deal~";
 
   /**
@@ -40,6 +44,8 @@ public interface Deal extends Bean {
    */
   // TODO this is temporary until we decide how trade attributes will be handled
   public static class AttributeEncoder {
+
+    private static final Logger s_logger = LoggerFactory.getLogger(AttributeEncoder.class);
 
     private AttributeEncoder() {
     }
@@ -58,13 +64,14 @@ public interface Deal extends Bean {
         MetaBean metaBean = JodaBeanUtils.metaBean(cls);
         deal = (Deal) metaBean.builder().build();
         for (Map.Entry<String, String> entry : tradeAttributes.entrySet()) {
-          if (entry.getKey().startsWith(DEAL_PREFIX)) {
-            MetaProperty<?> mp = metaBean.metaProperty(StringUtils.substringAfter(entry.getKey(), DEAL_PREFIX));
-            if (mp.propertyType() == LocalDate.class) {
-              ((MetaProperty) mp).set(deal, LocalDate.parse(entry.getValue()));
-            } else {
-              mp.setString(deal, entry.getValue());
+          String key = entry.getKey();
+          if (key.startsWith(DEAL_PREFIX) && !key.equals(DEAL_CLASSNAME) && !key.equals(DEAL_TYPE)) {
+            MetaProperty<?> mp = metaBean.metaProperty(StringUtils.substringAfter(key, DEAL_PREFIX));
+            String value = entry.getValue();
+            if (s_logger.isDebugEnabled()) {
+              s_logger.debug("Setting property {}({}) with value {}", new Object[]{mp, mp.propertyType(), value});
             }
+            mp.setString(deal, value);
           }
         }
       }
