@@ -67,16 +67,11 @@ public interface Deal extends Bean {
           String key = entry.getKey();
           if (key.startsWith(DEAL_PREFIX) && !key.equals(DEAL_CLASSNAME) && !key.equals(DEAL_TYPE)) {
             MetaProperty<?> mp = metaBean.metaProperty(StringUtils.substringAfter(key, DEAL_PREFIX));
-            // TODO should these be done using a Joda converter?
             String value = entry.getValue();
-            s_logger.debug("Setting property {}({}) with value {}", new Object[]{mp, mp.propertyType(), value});
-            if (mp.propertyType() == LocalDate.class) {
-              ((MetaProperty) mp).set(deal, LocalDate.parse(value));
-            } else if (mp.propertyType() == Currency.class) {
-              ((MetaProperty) mp).set(deal, Currency.of(value));
-            } else {
-              mp.setString(deal, value);
+            if (s_logger.isDebugEnabled()) {
+              s_logger.debug("Setting property {}({}) with value {}", new Object[]{mp, mp.propertyType(), value});
             }
+            mp.setString(deal, value);
           }
         }
       }
