@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.time.Instant;
 
@@ -32,6 +33,7 @@ import com.opengamma.util.ArgumentChecker;
 public class InMemoryViewDefinitionRepository implements ManageableViewDefinitionRepository {
 
   private static final String UID_SCHEME = "MemViewDef";
+  private final AtomicLong _viewDefinitionCounter = new AtomicLong();
 
   private final ConcurrentMap<ObjectId, ViewDefinition> _definitionsByNewest = new ConcurrentSkipListMap<ObjectId, ViewDefinition>();
   private final ConcurrentMap<UniqueId, ViewDefinition> _definitionsByUniqueId = new ConcurrentSkipListMap<UniqueId, ViewDefinition>();
@@ -108,12 +110,17 @@ public class InMemoryViewDefinitionRepository implements ManageableViewDefinitio
   }
 
   @Override
-  public void addViewDefinition(AddViewDefinitionRequest request) {
+  public UniqueId addViewDefinition(AddViewDefinitionRequest request) {
     ArgumentChecker.notNull(request, "request");
     request.checkValid();
 
     final ViewDefinition viewDefinition = request.getViewDefinition();
 
+    // Create a new UniqueId if none was passed in the request    // or if the passed UniqueId was not of the right scheme
+    if (viewDefinition.getUniqueId() == null) {                   // || viewDefinition.getUniqueId().getScheme() != UID_SCHEME)
+      viewDefinition.setUniqueId(UniqueId.of(UID_SCHEME, Long.toString(_viewDefinitionCounter.incrementAndGet())));
+    }
+    
     // Update indexes
     _definitionsByUniqueId.put(viewDefinition.getUniqueId(), viewDefinition);
     _definitionsByName.put(viewDefinition.getName(), viewDefinition);
@@ -129,7 +136,8 @@ public class InMemoryViewDefinitionRepository implements ManageableViewDefinitio
       _definitionsByNewest.put(viewDefinition.getUniqueId().getObjectId(), viewDefinition);
       changeManager().entityChanged(ChangeType.UPDATED, existingVersion.getUniqueId(), request.getViewDefinition().getUniqueId(), Instant.now());
     }
-
+    
+    return viewDefinition.getUniqueId();
   }
 
   @Override

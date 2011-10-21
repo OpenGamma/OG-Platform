@@ -60,7 +60,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     _version2Instant = _now.toInstant().minusSeconds(50);
     s_logger.debug("test data now:   {}", _version1Instant);
     s_logger.debug("test data later: {}", _version2Instant);
-    final SimpleJdbcTemplate template = _prtMaster.getDbSource().getJdbcTemplate();
+    final SimpleJdbcTemplate template = _prtMaster.getDbConnector().getJdbcTemplate();
     template.update("INSERT INTO prt_portfolio VALUES (?,?,?,?,?, ?,?)",
         101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestPortfolio101");
     template.update("INSERT INTO prt_portfolio VALUES (?,?,?,?,?, ?,?)",

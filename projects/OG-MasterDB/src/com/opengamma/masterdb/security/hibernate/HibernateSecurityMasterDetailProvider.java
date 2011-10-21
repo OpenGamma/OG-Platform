@@ -45,7 +45,7 @@ import com.opengamma.masterdb.security.hibernate.option.SwaptionSecurityBeanOper
 import com.opengamma.masterdb.security.hibernate.swap.SwapSecurityBeanOperation;
 import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
 
 /**
  * Provides access to persist the full bean structure of the security.
@@ -60,9 +60,9 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
   private static final ConcurrentMap<String, SecurityBeanOperation<?, ?>> BEAN_OPERATIONS_BY_TYPE = new ConcurrentHashMap<String, SecurityBeanOperation<?, ?>>();
 
   /**
-   * The database access source.
+   * The database connector.
    */
-  private DbSource _dbSource;
+  private DbConnector _dbConnector;
   /**
    * The operation context for management additional resources.
    */
@@ -149,7 +149,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
   //-------------------------------------------------------------------------
   @Override
   public void init(DbSecurityMaster master) {
-    _dbSource = master.getDbSource();
+    _dbConnector = master.getDbConnector();
   }
 
   //-------------------------------------------------------------------------
@@ -166,7 +166,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
    * @return the template
    */
   protected HibernateTemplate getHibernateTemplate() {
-    return _dbSource.getHibernateTemplate();
+    return _dbConnector.getHibernateTemplate();
   }
 
   /**
@@ -174,7 +174,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
    * @return the dialect
    */
   protected DbDialect getDialect() {
-    return _dbSource.getDialect();
+    return _dbConnector.getDialect();
   }
 
   /**

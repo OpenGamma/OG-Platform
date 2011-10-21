@@ -52,7 +52,7 @@ public class DbPortfolioMasterTest extends DbTest {
   public void test_basics() throws Exception {
     assertNotNull(_prtMaster);
     assertEquals(true, _prtMaster.getUniqueIdScheme().equals("DbPrt"));
-    assertNotNull(_prtMaster.getDbSource());
+    assertNotNull(_prtMaster.getDbConnector());
     assertNotNull(_prtMaster.getTimeSource());
   }
 

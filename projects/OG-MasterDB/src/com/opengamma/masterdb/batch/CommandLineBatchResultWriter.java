@@ -35,7 +35,7 @@ import com.opengamma.financial.batch.BatchResultWriter;
 import com.opengamma.financial.conversion.ResultConverter;
 import com.opengamma.financial.conversion.ResultConverterCache;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
 
 /**
  * This writer is used to write risk that originates from a command line batch job. 
@@ -94,13 +94,13 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
    */
   private final boolean _writeErrors = true;
   
-  public CommandLineBatchResultWriter(DbSource dbSource,
+  public CommandLineBatchResultWriter(DbConnector dbConnector,
       ResultModelDefinition resultModelDefinition,
       Map<String, ViewComputationCache> cachesByCalculationConfiguration,
       Set<ComputationTarget> computationTargets,
       RiskRun riskRun,
       Set<RiskValueName> valueNames) {
-    this(dbSource,
+    this(dbConnector,
         resultModelDefinition,
         cachesByCalculationConfiguration,
         computationTargets,
@@ -110,7 +110,7 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
   }
   
   public CommandLineBatchResultWriter(
-      DbSource dbSource,
+      DbConnector dbConnector,
       ResultModelDefinition resultModelDefinition,
       Map<String, ViewComputationCache> cachesByCalculationConfiguration,
       Set<ComputationTarget> computationTargets,
@@ -118,7 +118,7 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
       Set<RiskValueName> valueNames,
       ResultConverterCache resultConverterCache) {
 
-    super(dbSource, riskRun, resultConverterCache, computationTargets, valueNames);
+    super(dbConnector, riskRun, resultConverterCache, computationTargets, valueNames);
 
     ArgumentChecker.notNull(resultModelDefinition, "Result model definition");
     ArgumentChecker.notNull(cachesByCalculationConfiguration, "Caches by calculation configuration");

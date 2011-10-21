@@ -65,7 +65,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DbTest {
     _version2Instant = now.minusSeconds(50);
     s_logger.debug("test data now:   {}", _version1Instant);
     s_logger.debug("test data later: {}", _version2Instant);
-    final SimpleJdbcTemplate template = _secMaster.getDbSource().getJdbcTemplate();
+    final SimpleJdbcTemplate template = _secMaster.getDbConnector().getJdbcTemplate();
     template.update("INSERT INTO sec_security VALUES (?,?,?,?,?, ?,?,?,?)",
         101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestSecurity101", "EQUITY", "D");
     template.update("INSERT INTO sec_security VALUES (?,?,?,?,?, ?,?,?,?)",

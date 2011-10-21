@@ -53,7 +53,7 @@ import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -153,15 +153,15 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
   /**
    * Creates an instance.
    * 
-   * @param dbSource  the database source combining all configuration, not null
+   * @param dbConnector  the database connector, not null
    */
-  public DbHistoricalTimeSeriesMaster(final DbSource dbSource) {
-    super(dbSource, IDENTIFIER_SCHEME_DEFAULT);
-    _nameTable = new NamedDimensionDbTable(dbSource, "name", "hts_name", "hts_dimension_seq");
-    _dataFieldTable = new NamedDimensionDbTable(dbSource, "data_field", "hts_data_field", "hts_dimension_seq");
-    _dataSourceTable = new NamedDimensionDbTable(dbSource, "data_source", "hts_data_source", "hts_dimension_seq");
-    _dataProviderTable = new NamedDimensionDbTable(dbSource, "data_provider", "hts_data_provider", "hts_dimension_seq");
-    _observationTimeTable = new NamedDimensionDbTable(dbSource, "observation_time", "hts_observation_time", "hts_dimension_seq");
+  public DbHistoricalTimeSeriesMaster(final DbConnector dbConnector) {
+    super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
+    _nameTable = new NamedDimensionDbTable(dbConnector, "name", "hts_name", "hts_dimension_seq");
+    _dataFieldTable = new NamedDimensionDbTable(dbConnector, "data_field", "hts_data_field", "hts_dimension_seq");
+    _dataSourceTable = new NamedDimensionDbTable(dbConnector, "data_source", "hts_data_source", "hts_dimension_seq");
+    _dataProviderTable = new NamedDimensionDbTable(dbConnector, "data_provider", "hts_data_provider", "hts_dimension_seq");
+    _observationTimeTable = new NamedDimensionDbTable(dbConnector, "observation_time", "hts_observation_time", "hts_dimension_seq");
   }
 
   //-------------------------------------------------------------------------
@@ -606,7 +606,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValue("start_date", DbDateUtils.toSqlDateNullFarPast(fromDateInclusive))
       .addValue("end_date", DbDateUtils.toSqlDateNullFarFuture(toDateInclusive));
-    final NamedParameterJdbcOperations namedJdbc = getDbSource().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
     ManageableHistoricalTimeSeries result = namedJdbc.query(sqlSelectDataPointsCommon(), args, new ManageableHTSExtractor(oid));
     if (result == null) {
       throw new DataNotFoundException("Unable to find time-series: " + objectId);
@@ -706,7 +706,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       .addValue("doc_oid", docOid)
       .addTimestamp("ver_instant", vc.getVersionAsOf())
       .addTimestamp("corr_instant", vc.getCorrectedTo());
-    Date result = getDbSource().getJdbcTemplate().queryForObject(sqlSelectMaxPointDate(), Date.class, queryArgs);
+    Date result = getDbConnector().getJdbcTemplate().queryForObject(sqlSelectMaxPointDate(), Date.class, queryArgs);
     if (result != null) {
       LocalDate maxDate = DbDateUtils.fromSqlDateAllowNull(result);
       if (series.getTimeAt(0).isBefore(maxDate)) {
@@ -1014,7 +1014,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       .addValue("doc_oid", oid)
       .addTimestamp("version_as_of_instant", versionCorrection.getVersionAsOf())
       .addTimestamp("corrected_to_instant", versionCorrection.getCorrectedTo());
-    final NamedParameterJdbcOperations namedJdbc = getDbSource().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
     final UniqueIdExtractor extractor = new UniqueIdExtractor(oid);
     UniqueId uniqueId = namedJdbc.query(sqlSelectUniqueIdByVersionCorrection(), args, extractor);
     if (uniqueId == null) {

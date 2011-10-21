@@ -22,7 +22,7 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDialect;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
 
 /**
  * An abstract master for rapid implementation of a database backed master.
@@ -38,9 +38,9 @@ public abstract class AbstractDbMaster {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbMaster.class);
 
   /**
-   * The database source.
+   * The database connector.
    */
-  private final DbSource _dbSource;
+  private final DbConnector _dbConnector;
   /**
    * The time-source to use.
    */
@@ -53,25 +53,25 @@ public abstract class AbstractDbMaster {
   /**
    * Creates an instance.
    * 
-   * @param dbSource  the database source combining all configuration, not null
+   * @param dbConnector  the database connector, not null
    * @param defaultScheme  the default scheme for unique identifier, not null
    */
-  public AbstractDbMaster(final DbSource dbSource, final String defaultScheme) {
-    ArgumentChecker.notNull(dbSource, "dbSource");
-    s_logger.debug("installed DbSource: {}", dbSource);
-    _dbSource = dbSource;
-    _timeSource = dbSource.timeSource();
+  public AbstractDbMaster(final DbConnector dbConnector, final String defaultScheme) {
+    ArgumentChecker.notNull(dbConnector, "dbConnector");
+    s_logger.debug("installed DbConnector: {}", dbConnector);
+    _dbConnector = dbConnector;
+    _timeSource = dbConnector.timeSource();
     _uniqueIdScheme = defaultScheme;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the database source.
+   * Gets the database connector.
    * 
-   * @return the database source, not null
+   * @return the database connector, not null
    */
-  public DbSource getDbSource() {
-    return _dbSource;
+  public DbConnector getDbConnector() {
+    return _dbConnector;
   }
 
   //-------------------------------------------------------------------------
@@ -111,7 +111,7 @@ public abstract class AbstractDbMaster {
    * @return the database template, not null if correctly initialized
    */
   protected SimpleJdbcTemplate getJdbcTemplate() {
-    return getDbSource().getJdbcTemplate();
+    return getDbConnector().getJdbcTemplate();
   }
 
   /**
@@ -120,7 +120,7 @@ public abstract class AbstractDbMaster {
    * @return the transaction template, not null if correctly initialized
    */
   protected TransactionTemplate getTransactionTemplate() {
-    return getDbSource().getTransactionTemplate();
+    return getDbConnector().getTransactionTemplate();
   }
 
   /**
@@ -129,7 +129,7 @@ public abstract class AbstractDbMaster {
    * @return the dialect, not null if correctly initialized
    */
   protected DbDialect getDialect() {
-    return getDbSource().getDialect();
+    return getDbConnector().getDialect();
   }
 
   //-------------------------------------------------------------------------

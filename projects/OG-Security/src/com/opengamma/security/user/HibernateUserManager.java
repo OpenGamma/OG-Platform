@@ -19,7 +19,7 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
 
 /**
  * A manager providing access to the security subsystem.
@@ -34,16 +34,16 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
 
   /**
    * Creates an instance providing access to the database.
-   * @param dbSource  the database access source, not null
+   * @param dbConnector  the database connector, not null
    */
-  public HibernateUserManager(DbSource dbSource) {
-    _hibernateTemplate = dbSource.getHibernateTemplate();
+  public HibernateUserManager(DbConnector dbConnector) {
+    _hibernateTemplate = dbConnector.getHibernateTemplate();
   }
 
   /**
    * Creates an instance providing access to the database.
    * @param sessionFactory  the session factory, not null
-   * @deprecated use the DbSource constructor
+   * @deprecated use the DbConnector constructor
    */
   @Deprecated
   public HibernateUserManager(SessionFactory sessionFactory) {
