@@ -310,7 +310,7 @@ $.register_module({
                                     e.preventDefault();
                                     layout.inner.close('south');
                                     routes.go(routes.hash(mod, cur));
-                                }
+                                } else layout.inner.open('south');
                             });
                         sync_href = '#' + routes.hash(mod, $.extend(true, {}, cur, {sync: true}));
                         message_obj = {
