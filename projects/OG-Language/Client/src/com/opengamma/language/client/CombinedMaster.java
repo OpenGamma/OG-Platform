@@ -98,6 +98,7 @@ import com.opengamma.master.AbstractSearchResult;
       T result;
       if (getSessionMaster() != null) {
         try {
+          s_logger.debug("Trying SESSION master for {}", scheme);
           result = tryMaster(getSessionMaster());
           setSessionMasterScheme(scheme);
           return result;
@@ -107,16 +108,20 @@ import com.opengamma.master.AbstractSearchResult;
       }
       if (getUserMaster() != null) {
         try {
+          s_logger.debug("Trying USER master for {}", scheme);
           result = tryMaster(getUserMaster());
           setUserMasterScheme(scheme);
+          return result;
         } catch (IllegalArgumentException e) {
           s_logger.info("Illegal argument exception from user master", e);
         }
       }
       if (getGlobalMaster() != null) {
         try {
+          s_logger.debug("Trying GLOBAL master for {}", scheme);
           result = tryMaster(getGlobalMaster());
           setGlobalMasterScheme(scheme);
+          return result;
         } catch (IllegalArgumentException e) {
           s_logger.info("Illegal argument exception from global master", e);
         }

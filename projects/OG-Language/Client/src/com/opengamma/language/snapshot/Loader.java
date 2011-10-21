@@ -75,7 +75,8 @@ public class Loader extends ContextInitializationBean {
     globalContext.setMarketDataSnapshotSource(new RemoteMarketDataSnapshotSource(getConfiguration().getFudgeContext(), restTarget));
     globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
         FetchSnapshotFunction.INSTANCE,
-        SnapshotsFunction.INSTANCE));
+        SnapshotsFunction.INSTANCE,
+        SnapshotVersionsFunction.INSTANCE));
     // TODO: type converters
   }
 

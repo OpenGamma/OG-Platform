@@ -6,12 +6,11 @@
 package com.opengamma.language.snapshot;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.opengamma.id.UniqueId;
-import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.client.CombinedMarketDataSnapshotMaster;
 import com.opengamma.language.client.CombiningMaster;
 import com.opengamma.language.client.CombiningMaster.MasterID;
@@ -45,7 +44,7 @@ public class SnapshotsFunction extends AbstractFunctionInvoker implements Publis
 
   private SnapshotsFunction(final DefinitionAnnotater info) {
     super(info.annotate(parameters()));
-    _meta = info.annotate(new MetaFunction(Categories.MARKET_DATA, "Views", getParameters(), this));
+    _meta = info.annotate(new MetaFunction(Categories.MARKET_DATA, "Snapshots", getParameters(), this));
   }
 
   protected SnapshotsFunction() {
@@ -56,7 +55,7 @@ public class SnapshotsFunction extends AbstractFunctionInvoker implements Publis
     final MarketDataSnapshotSearchRequest request = new MarketDataSnapshotSearchRequest();
     request.setName(name);
     request.setIncludeData(false);
-    final Map<UniqueId, String> result = new HashMap<UniqueId, String>();
+    final Map<UniqueId, String> result = new LinkedHashMap<UniqueId, String>();
     CombiningMaster.MARKET_DATA_SNAPSHOT.get(context).search(request, new CombinedMarketDataSnapshotMaster.SearchCallback() {
 
       @Override
@@ -92,6 +91,7 @@ public class SnapshotsFunction extends AbstractFunctionInvoker implements Publis
       public int compare(MarketDataSnapshotDocument o1, MarketDataSnapshotDocument o2) {
         return o1.getName().compareToIgnoreCase(o2.getName());
       }
+
     });
     return result;
   }
@@ -99,7 +99,7 @@ public class SnapshotsFunction extends AbstractFunctionInvoker implements Publis
   // AbstractFunctionInvoker
 
   @Override
-  protected Object invokeImpl(SessionContext sessionContext, Object[] parameters) throws AsynchronousExecution {
+  protected Object invokeImpl(SessionContext sessionContext, Object[] parameters) {
     return invoke(sessionContext, (String) parameters[0]);
   }
 
