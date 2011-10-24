@@ -7,10 +7,12 @@ package com.opengamma.financial.view.rest;
 
 import java.net.URI;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.UpdateViewDefinitionRequest;
 import com.opengamma.id.UniqueId;
+import com.sun.jersey.api.client.ClientResponse;
 
 /**
  * Provides access to a remote {@link ManageableViewDefinitionRepository}.
@@ -28,8 +30,14 @@ public class RemoteManageableViewDefinitionRepository extends RemoteViewDefiniti
 
   @Override
   public UniqueId addViewDefinition(AddViewDefinitionRequest request) {
-    getClient().access(getBaseUri()).post(request);
-    return request.getViewDefinition().getUniqueId(); // currently not retrieving the actual allocated unique id from the remote end
+    final ClientResponse response = getClient().access(getBaseUri()).post(ClientResponse.class, request);
+    final String path = response.getHeaders().getFirst("Location");
+    final int slash = path.lastIndexOf('/');
+    if (slash > 0) {
+      return UniqueId.parse(path.substring(slash + 1));
+    } else {
+      throw new OpenGammaRuntimeException("Remote end returned " + path);
+    }
   }
 
   @Override
