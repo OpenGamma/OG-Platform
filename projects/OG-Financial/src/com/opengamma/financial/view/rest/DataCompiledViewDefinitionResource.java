@@ -68,7 +68,7 @@ public class DataCompiledViewDefinitionResource {
   public Response getComputationTargets() {
     return Response.ok(_compiledViewDefinition.getComputationTargets()).build();
   }
-  
+
   @GET
   @Path(PATH_MARKET_DATA_REQUIREMENTS)
   public Response getMarketDataRequirements() {

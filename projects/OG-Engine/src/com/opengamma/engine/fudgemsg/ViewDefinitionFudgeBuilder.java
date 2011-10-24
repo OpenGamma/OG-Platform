@@ -126,7 +126,6 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
     final UserPrincipal user = deserializer.fieldValueToObject(UserPrincipal.class, message.getByName(USER_FIELD));
     final ResultModelDefinition model = deserializer.fieldValueToObject(ResultModelDefinition.class, message.getByName(RESULT_MODEL_DEFINITION_FIELD)); 
     ViewDefinition viewDefinition = new ViewDefinition(
-        null, 
         name,
         portfolioOid,
         user,
