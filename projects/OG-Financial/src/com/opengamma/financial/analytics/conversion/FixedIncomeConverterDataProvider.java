@@ -77,7 +77,14 @@ public class FixedIncomeConverterDataProvider {
     return definition.toDerivative(now, curveNames);
   }
 
-  /** Convert an InterestRateFutureSecurityDefinition to the derivative form: InterestRateFutureSecurity. NO MORE  Transaction   */
+  /** Convert an InterestRateFutureSecurityDefinition to the derivative form: InterestRateFutureSecurity. 
+   * @param security The (database) security
+   * @param definition The security definition
+   * @param now The current time
+   * @param curveNames The appropriate curve names for the instrument
+   * @param dataSource The historical time series data source
+   * @return An interest rate future object that can be priced in the analytics library
+   */
   public InterestRateDerivative convert(final InterestRateFutureSecurity security, final InterestRateFutureSecurityDefinition definition, final ZonedDateTime now,
       final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
 
