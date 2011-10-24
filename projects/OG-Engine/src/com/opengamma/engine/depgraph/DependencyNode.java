@@ -325,7 +325,7 @@ public class DependencyNode {
 
   /**
    * Marks an output as terminal, meaning that it cannot be pruned. If this node already belongs to a graph, use
-   * {@link DependencyGraph#addTerminalOutputValue(ValueSpecification)}. 
+   * {@link DependencyGraph#addTerminalOutput(ValueRequirement requirement, ValueSpecification specification)}.
    * 
    * @param terminalOutput  the output to mark as terminal
    */

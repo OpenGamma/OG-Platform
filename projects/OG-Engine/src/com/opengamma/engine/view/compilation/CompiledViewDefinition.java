@@ -60,7 +60,7 @@ public interface CompiledViewDefinition {
    *         {@code null}  
    */
   Map<ValueRequirement, ValueSpecification> getMarketDataRequirements();
-  
+
   /**
    * Gets the combined computation targets across every calculation configuration.
    * 
