@@ -13,14 +13,14 @@ import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 
 /**
- * Calculate Macauley duration for bonds.
+ * Calculate Macaulay duration for bonds.
  */
-public final class MacauleyDurationFromCurvesCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> {
+public final class MacaulayDurationFromCurvesCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> {
 
   /**
    * The calculator instance.
    */
-  private static final MacauleyDurationFromCurvesCalculator s_instance = new MacauleyDurationFromCurvesCalculator();
+  private static final MacaulayDurationFromCurvesCalculator s_instance = new MacaulayDurationFromCurvesCalculator();
   /**
    * The fixed coupon bond method.
    */
@@ -30,21 +30,21 @@ public final class MacauleyDurationFromCurvesCalculator extends AbstractInterest
    * Return the calculator instance.
    * @return The instance.
    */
-  public static MacauleyDurationFromCurvesCalculator getInstance() {
+  public static MacaulayDurationFromCurvesCalculator getInstance() {
     return s_instance;
   }
 
   /**
    * Private constructor.
    */
-  private MacauleyDurationFromCurvesCalculator() {
+  private MacaulayDurationFromCurvesCalculator() {
   }
 
   @Override
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
-    return METHOD_BOND.macauleyDurationFromCurves(bond, curves);
+    return METHOD_BOND.macaulayDurationFromCurves(bond, curves);
   }
 
 }

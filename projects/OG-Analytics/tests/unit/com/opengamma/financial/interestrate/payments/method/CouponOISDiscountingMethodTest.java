@@ -28,7 +28,7 @@ import com.opengamma.financial.instrument.swap.SwapFixedOISSimplifiedDefinition;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
@@ -95,7 +95,7 @@ public class CouponOISDiscountingMethodTest {
 
   private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
-  private static final PresentValueSensitivityCalculator PVCSC = PresentValueSensitivityCalculator.getInstance();
+  private static final PresentValueCurveSensitivityCalculator PVCSC = PresentValueCurveSensitivityCalculator.getInstance();
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
 
   @Test

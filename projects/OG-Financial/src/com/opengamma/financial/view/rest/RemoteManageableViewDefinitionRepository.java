@@ -7,7 +7,10 @@ package com.opengamma.financial.view.rest;
 
 import java.net.URI;
 
+import javax.ws.rs.core.Response.Status;
+
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.UpdateViewDefinitionRequest;
@@ -30,14 +33,12 @@ public class RemoteManageableViewDefinitionRepository extends RemoteViewDefiniti
 
   @Override
   public UniqueId addViewDefinition(AddViewDefinitionRequest request) {
-    final ClientResponse response = getClient().access(getBaseUri()).post(ClientResponse.class, request);
-    final String path = response.getHeaders().getFirst("Location");
-    final int slash = path.lastIndexOf('/');
-    if (slash > 0) {
-      return UniqueId.parse(path.substring(slash + 1));
-    } else {
-      throw new OpenGammaRuntimeException("Remote end returned " + path);
+    ClientResponse response = getClient().access(getBaseUri()).post(ClientResponse.class, request);
+    if (response.getStatus() != Status.CREATED.getStatusCode()) {
+      throw new OpenGammaRuntimeException("Could not add view definition: " + response);
     }
+    URI addedUri = response.getLocation();
+    return getClient().access(addedUri).get(ViewDefinition.class).getUniqueId();
   }
 
   @Override

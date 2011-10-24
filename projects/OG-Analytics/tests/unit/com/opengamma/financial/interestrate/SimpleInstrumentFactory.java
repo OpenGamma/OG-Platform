@@ -5,6 +5,10 @@
  */
 package com.opengamma.financial.interestrate;
 
+import javax.time.calendar.Period;
+
+import org.apache.commons.lang.Validate;
+
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -18,7 +22,6 @@ import com.opengamma.financial.instrument.index.IndexOIS;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -32,10 +35,6 @@ import com.opengamma.financial.interestrate.swap.definition.ForexForward;
 import com.opengamma.financial.interestrate.swap.definition.OISSwap;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
-
-import javax.time.calendar.Period;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * A set of methods to generate simply interest rate derivatives for testing purposes 
@@ -264,17 +263,17 @@ public abstract class SimpleInstrumentFactory {
     return new ForexForward(p1, p2, spotFX);
   }
 
-  public static Bond makeBond(final double maturity, final String curveName, final double coupon) {
-
-    final int n = (int) Math.ceil(maturity * 2.0);
-    final double[] paymentTimes = new double[n];
-    paymentTimes[n - 1] = maturity;
-    for (int i = n - 2; i >= 0; i--) {
-      paymentTimes[i] = paymentTimes[i + 1] - 0.5;
-    }
-    final double accuredInterest = coupon * (0.5 - paymentTimes[0]);
-
-    return new Bond(DUMMY_CUR, paymentTimes, coupon, 0.5, accuredInterest, curveName);
-  }
+//  public static Bond makeBond(final double maturity, final String curveName, final double coupon) {
+//
+//    final int n = (int) Math.ceil(maturity * 2.0);
+//    final double[] paymentTimes = new double[n];
+//    paymentTimes[n - 1] = maturity;
+//    for (int i = n - 2; i >= 0; i--) {
+//      paymentTimes[i] = paymentTimes[i + 1] - 0.5;
+//    }
+//    final double accuredInterest = coupon * (0.5 - paymentTimes[0]);
+//
+//    return new Bond(DUMMY_CUR, paymentTimes, coupon, 0.5, accuredInterest, curveName);
+//  }
 
 }

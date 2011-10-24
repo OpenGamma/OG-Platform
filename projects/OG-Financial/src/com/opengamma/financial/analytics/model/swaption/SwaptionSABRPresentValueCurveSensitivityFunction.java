@@ -28,7 +28,7 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRExtrapolationCalculator;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
@@ -39,7 +39,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 public class SwaptionSABRPresentValueCurveSensitivityFunction extends SwaptionSABRFunction {
-  private final PresentValueSensitivityCalculator _calculator;
+  private final PresentValueCurveSensitivityCalculator _calculator;
 
   public SwaptionSABRPresentValueCurveSensitivityFunction(final String currency, final String definitionName, final String useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
     this(Currency.of(currency), definitionName, Boolean.parseBoolean(useSABRExtrapolation), forwardCurveName, fundingCurveName);

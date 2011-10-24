@@ -39,8 +39,9 @@ public class DataManageableViewDefinitionRepositoryResource extends DataViewDefi
   @Consumes(FudgeRest.MEDIA)
   public Response addViewDefinition(@Context UriInfo uriInfo, AddViewDefinitionRequest addRequest) {
     addRequest.checkValid();
-    final UniqueId uid = _repository.addViewDefinition(addRequest);
-    return Response.created(DataViewDefinitionRepositoryResource.uriDefinitionId(uriInfo.getBaseUri(), uid)).build();
+    UniqueId addedId = _repository.addViewDefinition(addRequest);
+    return Response.created(DataViewDefinitionRepositoryResource.uriDefinitionId(
+            uriInfo.getRequestUri(), addedId)).build();
   }
 
   @Path(PATH_VIEWDEFINITION_NAME + "/{viewDefinitionName}")
