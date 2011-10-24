@@ -202,7 +202,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
   /**
    * Constructs an instance
    * 
-   * @param uniqueId  the unique id of the view definition (if null a unique id is automatically generated)
+   * @param uniqueId  the unique id of the view definition
    * @param name  the name of the view definition, cannot be null
    * @param portfolioOid  the object identifier of the portfolio referenced by this view definition, null if
    *                           no portfolio reference is required
@@ -219,7 +219,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
     _marketDataUser = marketDataUser;
     _resultModelDefinition = resultModelDefinition;
 
-    _uniqueIdentifier = uniqueId; // != null ? uniqueId : UniqueId.of("default", name);
+    _uniqueIdentifier = uniqueId;
   }
 
   // --------------------------------------------------------------------------
