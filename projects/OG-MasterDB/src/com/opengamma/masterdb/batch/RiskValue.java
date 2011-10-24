@@ -21,6 +21,7 @@ public class RiskValue {
   private long _id;
   private int _calculationConfigurationId;
   private int _valueNameId;
+  private int _valueConstraintsId;
   private int _functionUniqueId;
   private int _computationTargetId;
   private int _runId;
@@ -50,6 +51,14 @@ public class RiskValue {
 
   public void setValueNameId(int valueNameId) {
     _valueNameId = valueNameId;
+  }
+
+  public int getValueConstraintsId() {
+    return _valueConstraintsId;
+  }
+
+  public void setValueConstraintsId(int valueConstraintsId) {
+    _valueConstraintsId =  valueConstraintsId;
   }
   
   public int getFunctionUniqueId() {
@@ -105,6 +114,7 @@ public class RiskValue {
     source.addValue("id", getId());   
     source.addValue("calculation_configuration_id", getCalculationConfigurationId());
     source.addValue("value_name_id", getValueNameId());
+    source.addValue("value_constraints_id", getValueConstraintsId());
     source.addValue("function_unique_id", getFunctionUniqueId());
     source.addValue("computation_target_id", getComputationTargetId());
     source.addValue("run_id", getRunId());
@@ -116,10 +126,10 @@ public class RiskValue {
   
   public static String sqlInsertRisk() {
     return "INSERT INTO " + DbBatchMaster.getDatabaseSchema() + "rsk_value " +
-              "(id, calculation_configuration_id, value_name_id, function_unique_id, computation_target_id, run_id, value, " +
+              "(id, calculation_configuration_id, value_name_id, value_constraints_id, function_unique_id, computation_target_id, run_id, value, " +
               "eval_instant, compute_node_id) " +
             "VALUES " +
-              "(:id, :calculation_configuration_id, :value_name_id, :function_unique_id, :computation_target_id, :run_id, :value," +
+              "(:id, :calculation_configuration_id, :value_name_id, :value_constraints_id, :function_unique_id, :computation_target_id, :run_id, :value," +
               ":eval_instant, :compute_node_id)";
   }
   
@@ -135,6 +145,7 @@ public class RiskValue {
     return "SELECT * from " + DbBatchMaster.getDatabaseSchema() + "rsk_value WHERE " +
       "calculation_configuration_id = :calculation_configuration_id AND " +
       "value_name_id = :value_name_id AND " +
+      "value_constraints_id = :value_constraints_id AND " +
       "computation_target_id = :computation_target_id";
   }
   
@@ -148,6 +159,7 @@ public class RiskValue {
       riskValue.setId(rs.getLong("id"));
       riskValue.setCalculationConfigurationId(rs.getInt("calculation_configuration_id"));
       riskValue.setValueNameId(rs.getInt("value_name_id"));
+      riskValue.setValueConstraintsId(rs.getInt("value_constraints_id"));
       riskValue.setFunctionUniqueId(rs.getInt("function_unique_id"));
       riskValue.setComputationTargetId(rs.getInt("computation_target_id"));
       riskValue.setRunId(rs.getInt("run_id"));

@@ -17,6 +17,7 @@ import java.util.Map;
 
 import javax.time.Instant;
 
+import com.opengamma.engine.value.ValueRequirement;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -69,16 +70,22 @@ public class MultipleNodeExecutorTest {
       ValuePropertyNames.FUNCTION, "Mock").get());
   private final ValueSpecification _testValue34 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "34"), ValueProperties.builder().with(
       ValuePropertyNames.FUNCTION, "Mock").get());
-  private final ValueSpecification _testValue0x = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "0x"), ValueProperties.builder().with(
-      ValuePropertyNames.FUNCTION, "Mock").get());
-  private final ValueSpecification _testValue1x = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "1x"), ValueProperties.builder().with(
-      ValuePropertyNames.FUNCTION, "Mock").get());
-  private final ValueSpecification _testValue4x = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "4x"), ValueProperties.builder().with(
-      ValuePropertyNames.FUNCTION, "Mock").get());
-  private final ValueSpecification _testValuex2 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "x2"), ValueProperties.builder().with(
-      ValuePropertyNames.FUNCTION, "LiveDataSourcingFunction").get());
-  private final ValueSpecification _testValuex3 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "x3"), ValueProperties.builder().with(
-      ValuePropertyNames.FUNCTION, "LiveDataSourcingFunction").get());
+
+
+  private final ValueRequirement _testRequirement0x = new ValueRequirement("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "0x"), ValueProperties.none());
+  private final ValueSpecification _testValue0x = new ValueSpecification(_testRequirement0x, "Mock");
+
+  private final ValueRequirement _testRequirement1x = new ValueRequirement("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "1x"), ValueProperties.none());
+  private final ValueSpecification _testValue1x = new ValueSpecification(_testRequirement1x, "Mock");
+
+  private final ValueRequirement _testRequirement4x = new ValueRequirement("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "4x"), ValueProperties.none());
+  private final ValueSpecification _testValue4x = new ValueSpecification(_testRequirement4x, "Mock");
+
+  private final ValueRequirement _testRequirementx2 = new ValueRequirement("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "2x"), ValueProperties.none());
+  private final ValueSpecification _testValuex2 = new ValueSpecification(_testRequirementx2, "LiveDataSourcingFunction");
+
+  private final ValueRequirement _testRequirementx3 = new ValueRequirement("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "3x"), ValueProperties.none());
+  private final ValueSpecification _testValuex3 = new ValueSpecification(_testRequirementx3, "LiveDataSourcingFunction");
 
   @BeforeMethod
   public void createGraph() {
@@ -105,12 +112,12 @@ public class MultipleNodeExecutorTest {
     _testNode[4].addInputValue(_testValue24);
     _testNode[4].addInputNode(_testNode[3]);
     _testNode[4].addInputValue(_testValue34);
-    for (int i = 0; i < _testNode.length; i++) {
-      _testGraph.addDependencyNode(_testNode[i]);
+    for (DependencyNode a_testNode : _testNode) {
+      _testGraph.addDependencyNode(a_testNode);
     }
-    _testGraph.addTerminalOutputValue(_testValue0x);
-    _testGraph.addTerminalOutputValue(_testValue1x);
-    _testGraph.addTerminalOutputValue(_testValue4x);
+    _testGraph.addTerminalOutput(_testRequirement0x, _testValue0x);
+    _testGraph.addTerminalOutput(_testRequirement1x, _testValue1x);
+    _testGraph.addTerminalOutput(_testRequirement4x, _testValue4x);
   }
 
   private MultipleNodeExecutor createExecutor(final int minimum, final int maximum, final int concurrency) {
