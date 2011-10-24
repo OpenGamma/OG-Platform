@@ -5,9 +5,10 @@
  */
 package com.opengamma.financial.interestrate;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
@@ -30,8 +31,6 @@ import com.opengamma.financial.interestrate.swap.definition.OISSwap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.CompareUtils;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * Get the single fixed rate that makes the PV of the instrument zero. For  fixed-float swaps this is the swap rate, for FRAs it is the forward etc. For instruments that 
@@ -163,20 +162,6 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
     final YieldAndDiscountCurve curve2 = curves.getCurve(fx.getPaymentCurrency2().getFundingCurveName());
     final double t = fx.getPaymentTime();
     return fx.getSpotForexRate() * curve2.getDiscountFactor(t) / curve1.getDiscountFactor(t);
-  }
-
-  /**
-   * This gives you the bond coupon, for a given yield curve, that renders the bond par (present value of all cash flows equal to 1.0)
-   * For a bonds yield use ??????????????? //TODO
-   * @param bond the bond
-   * @param curves the input curves
-   * @return the par rate
-   */
-  @Override
-  public Double visitBond(final Bond bond, final YieldCurveBundle curves) {
-    final double pvann = PVC.visit(bond.getUnitCouponAnnuity(), curves);
-    final double matPV = PVC.visit(bond.getPrinciplePayment(), curves);
-    return (1 - matPV) / pvann;
   }
 
   @Override

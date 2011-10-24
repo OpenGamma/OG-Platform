@@ -6,6 +6,18 @@
 package com.opengamma.math.rootfinding;
 
 import static org.testng.AssertJUnit.assertEquals;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.time.calendar.Period;
+
+import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -26,7 +38,6 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -55,17 +66,6 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.DoublesPair;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.time.calendar.Period;
-
-import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
 
 /**
  * 
@@ -531,19 +531,6 @@ public abstract class YieldCurveFittingSetup {
     PaymentFixed p1 = new PaymentFixed(domesticNotional.getCurrency(), paymentTime, domesticNotional.getAmount(), domesticDiscountCurve);
     PaymentFixed p2 = new PaymentFixed(foreignNotional.getCurrency(), paymentTime, foreignNotional.getAmount(), foreignDiscountCurve);
     return new ForexForward(p1, p2, spotFX);
-  }
-
-  protected static Bond makeBond(final double maturity, final String curveName, final double coupon) {
-
-    final int n = (int) Math.ceil(maturity * 2.0);
-    final double[] paymentTimes = new double[n];
-    paymentTimes[n - 1] = maturity;
-    for (int i = n - 2; i >= 0; i--) {
-      paymentTimes[i] = paymentTimes[i + 1] - 0.5;
-    }
-    final double accuredInterest = coupon * (0.5 - paymentTimes[0]);
-
-    return new Bond(DUMMY_CUR, paymentTimes, coupon, 0.5, accuredInterest, curveName);
   }
 
   protected double[] catMap(final HashMap<String, double[]> map) {

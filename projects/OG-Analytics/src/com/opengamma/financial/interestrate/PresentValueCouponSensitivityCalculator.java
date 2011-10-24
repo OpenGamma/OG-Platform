@@ -5,9 +5,10 @@
  */
 package com.opengamma.financial.interestrate;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
@@ -18,8 +19,6 @@ import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * Calculates the change in present value (PV) when an instruments fixed payments changes (for bonds this is the coupon rate, for swaps is is then rate on the fixed leg etc) dPV/dC
@@ -42,12 +41,6 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInter
     Validate.notNull(curves);
     Validate.notNull(ird);
     return ird.accept(this, curves);
-  }
-
-  @Override
-  public Double visitBond(final Bond bond, final YieldCurveBundle curves) {
-    final double pvann = PVC.visit(bond.getUnitCouponAnnuity(), curves);
-    return pvann;
   }
 
   @Override

@@ -18,17 +18,14 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
-import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.payments.method.CouponOISDiscountingMethod;
@@ -121,8 +118,6 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
     return result;
   }
 
-
-
   @Override
   public Map<String, List<DoublesPair>> visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
     final AnnuityCouponFixed unitCouponAnnuity = REPLACE_RATE.visitFixedCouponAnnuity(swap.getFixedLeg(), 1.0);
@@ -143,7 +138,6 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
 
   @Override
   public Map<String, List<DoublesPair>> visitCrossCurrencySwap(final CrossCurrencySwap ccs, final YieldCurveBundle curves) {
-
     //wipe any spreads from either FRN
     FloatingRateNote dFRN = REPLACE_RATE.visitFloatingRateNote(ccs.getDomesticLeg(), 0.0);
     FloatingRateNote fFRN = REPLACE_RATE.visitFloatingRateNote(ccs.getForeignLeg(), 0.0);
@@ -227,39 +221,6 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
         }
       }
       if (flag) {
-        result.put(name, temp);
-      }
-    }
-    return result;
-  }
-
-  //  @Override
-  //  public Map<String, List<DoublesPair>> visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
-  //    return visitSwap(frn, curves);
-  //  }
-
-  @Override
-  public Map<String, List<DoublesPair>> visitBond(final Bond bond, final YieldCurveBundle curves) {
-    final GenericAnnuity<CouponFixed> coupons = bond.getUnitCouponAnnuity();
-    final double a = PV_CALCULATOR.visit(coupons, curves);
-    final Map<String, List<DoublesPair>> senseA = PV_SENSITIVITY_CALCULATOR.visit(coupons, curves);
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-
-    final PaymentFixed principlePaymemt = bond.getPrinciplePayment();
-    final double df = PV_CALCULATOR.visit(principlePaymemt, curves);
-    final double factor = -(1 - df) / a / a;
-
-    for (final String name : curves.getAllNames()) {
-      if (senseA.containsKey(name)) {
-        final List<DoublesPair> temp = new ArrayList<DoublesPair>();
-        final List<DoublesPair> list = senseA.get(name);
-        final int n = list.size();
-        for (int i = 0; i < (n - 1); i++) {
-          final DoublesPair pair = list.get(i);
-          temp.add(new DoublesPair(pair.getFirst(), factor * pair.getSecond()));
-        }
-        final DoublesPair pair = list.get(n - 1);
-        temp.add(new DoublesPair(pair.getFirst(), principlePaymemt.getPaymentTime() * df / a + factor * pair.getSecond()));
         result.put(name, temp);
       }
     }

@@ -7,6 +7,10 @@ package com.opengamma.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import javax.time.calendar.Period;
+
+import org.testng.annotations.Test;
+
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -14,7 +18,6 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -23,10 +26,6 @@ import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.util.money.Currency;
-
-import javax.time.calendar.Period;
-
-import org.testng.annotations.Test;
 
 /**
  * 
@@ -101,21 +100,7 @@ public class LastDateCalculatorTest {
     assertEquals(n * alpha + 0.1, LDC.visit(annuity), 1e-12);
   }
 
-  @Test
-  public void testBond() {
-    final int n = 20;
-    final double tau = 0.5;
-    final double yearFrac = 0.5;
-    final double coupon = 0.06;
-    final double[] paymentTimes = new double[n];
-    for (int i = 0; i < n; i++) {
-      paymentTimes[i] = tau * (i + 1);
-    }
-
-    final Bond bond = new Bond(CUR, paymentTimes, coupon, yearFrac, 0.0, "dummy");
-    assertEquals(n * tau, LDC.visit(bond), 1e-12);
-  }
-
+  //TODO test bonds
   @Test
   public void testFixedFloatSwap() {
     final int n = 20;

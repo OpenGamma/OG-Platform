@@ -7,7 +7,6 @@ package com.opengamma.financial.interestrate;
 
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -34,22 +33,6 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
   }
 
   private RateReplacingInterestRateDerivativeVisitor() {
-  }
-
-  @Override
-  public Bond visitBond(final Bond bond, final Double rate) {
-    final CouponFixed[] payments = bond.getCouponAnnuity().getPayments();
-    final int n = payments.length;
-    final double[] times = new double[n];
-    final double[] coupons = new double[n];
-    final double[] yearFrac = new double[n];
-    for (int i = 0; i < n; i++) {
-      final CouponFixed temp = payments[i];
-      times[i] = temp.getPaymentTime();
-      coupons[i] = rate;
-      yearFrac[i] = temp.getPaymentYearFraction();
-    }
-    return new Bond(bond.getCurrency(), times, coupons, yearFrac, bond.getAccruedInterest(), payments[0].getFundingCurveName());
   }
 
   @Override

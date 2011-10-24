@@ -335,12 +335,12 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
-   * Computes the Macauley duration of a bond from the conventional yield.
+   * Computes the Macaulay duration of a bond from the conventional yield.
    * @param bond  The bond security.
    * @param yield The bond yield.
-   * @return The Macauley duration.
+   * @return The Macaulay duration.
    */
-  public double macauleyDurationFromYield(final BondFixedSecurity bond, final double yield) {
+  public double macaulayDurationFromYield(final BondFixedSecurity bond, final double yield) {
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
     if (bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) {
       if (nbCoupon > 1) { // More than one coupon left
@@ -354,14 +354,14 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
-   * Computes the Macauley duration of a bond from the curves.
+   * Computes the Macaulay duration of a bond from the curves.
    * @param bond  The bond security.
    * @param curves The curve bundle.
-   * @return The Macauley duration.
+   * @return The Macaulay duration.
    */
-  public double macauleyDurationFromCurves(final BondFixedSecurity bond, final YieldCurveBundle curves) {
+  public double macaulayDurationFromCurves(final BondFixedSecurity bond, final YieldCurveBundle curves) {
     final double yield = yieldFromCurves(bond, curves);
-    return macauleyDurationFromYield(bond, yield);
+    return macaulayDurationFromYield(bond, yield);
   }
 
   /**
@@ -370,9 +370,9 @@ public final class BondSecurityDiscountingMethod {
    * @param dirtyPrice The bond dirty price.
    * @return The Macauley duration.
    */
-  public double macauleyDurationFromDirtyPrice(final BondFixedSecurity bond, final double dirtyPrice) {
+  public double macaulayDurationFromDirtyPrice(final BondFixedSecurity bond, final double dirtyPrice) {
     final double yield = yieldFromDirtyPrice(bond, dirtyPrice);
-    return macauleyDurationFromYield(bond, yield);
+    return macaulayDurationFromYield(bond, yield);
   }
 
   /**

@@ -30,22 +30,16 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBundle> {
-  private final String _requirementName;
   private final Currency _currency;
-  private String _calculationType;
 
-  public BondFromCurvesFunction(final String currency, final String creditCurveName, final String riskFreeCurveName, final String requirementName, final String calculationType) {
-    this(Currency.of(currency), creditCurveName, riskFreeCurveName, requirementName, calculationType);
+  public BondFromCurvesFunction(final String currency, final String creditCurveName, final String riskFreeCurveName) {
+    this(Currency.of(currency), creditCurveName, riskFreeCurveName);
   }
 
-  public BondFromCurvesFunction(final Currency currency, final String creditCurveName, final String riskFreeCurveName, final String requirementName, final String calculationType) {
+  public BondFromCurvesFunction(final Currency currency, final String creditCurveName, final String riskFreeCurveName) {
     super(creditCurveName, riskFreeCurveName);
-    Validate.notNull(requirementName, "requirement name");
     Validate.notNull(currency, "currency");
-    Validate.notNull(calculationType, "calculation type");
-    _requirementName = requirementName;
     _currency = currency;
-    _calculationType = calculationType;
   }
 
   @Override
@@ -86,8 +80,5 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, _currency.getUniqueId(), properties);
   }
 
-  protected ValueSpecification getResultSpec(final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, _calculationType).get();
-    return new ValueSpecification(_requirementName, target.toSpecification(), properties);
-  }
+  protected abstract ValueSpecification getResultSpec(final ComputationTarget target);
 }

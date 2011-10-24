@@ -10,7 +10,10 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.interestrate.bond.calculator.CleanPriceFromYieldCalculator;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.util.money.Currency;
@@ -22,15 +25,21 @@ public class BondCleanPriceFromYieldFunction extends BondFromYieldFunction {
   private static final CleanPriceFromYieldCalculator CALCULATOR = CleanPriceFromYieldCalculator.getInstance();
 
   public BondCleanPriceFromYieldFunction(final String currency, final String creditCurveName, final String riskFreeCurveName) {
-    super(currency, creditCurveName, riskFreeCurveName, ValueRequirementNames.CLEAN_PRICE, FROM_YIELD_METHOD);
+    super(currency, creditCurveName, riskFreeCurveName);
   }
 
   public BondCleanPriceFromYieldFunction(final Currency currency, final String creditCurveName, final String riskFreeCurveName) {
-    super(currency, creditCurveName, riskFreeCurveName, ValueRequirementNames.CLEAN_PRICE, FROM_YIELD_METHOD);
+    super(currency, creditCurveName, riskFreeCurveName);
   }
 
   @Override
   protected Set<ComputedValue> calculate(final BondFixedSecurity bond, final Double data, final ComputationTarget target) {
     return Sets.newHashSet(new ComputedValue(getResultSpec(target), 100 * CALCULATOR.visit(bond, data)));
+  }
+  
+  @Override
+  protected ValueSpecification getResultSpec(final ComputationTarget target) {
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, FROM_YIELD_METHOD).get();
+    return new ValueSpecification(ValueRequirementNames.CLEAN_PRICE, target.toSpecification(), properties);
   }
 }
