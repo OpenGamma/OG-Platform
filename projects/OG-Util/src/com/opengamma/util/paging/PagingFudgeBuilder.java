@@ -12,8 +12,6 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.util.Paging;
-import com.opengamma.util.PagingRequest;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 
 /**

@@ -48,7 +48,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.db.DbDateUtils;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.HibernateTest;
 
 /**
@@ -76,7 +76,7 @@ public class CommandLineBatchResultWriterTest extends HibernateTest {
   
   private HibernateTemplate _hibernateTemplate;
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public CommandLineBatchResultWriterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
   }
@@ -191,7 +191,7 @@ public class CommandLineBatchResultWriterTest extends HibernateTest {
     resultModelDefinition.setSecurityOutputMode(ResultOutputMode.NONE);
     resultModelDefinition.setPrimitiveOutputMode(ResultOutputMode.NONE);
     CommandLineBatchResultWriter resultWriter = new CommandLineBatchResultWriter(
-        getDbSource(),
+        getDbConnector(),
         resultModelDefinition,
         cachesByCalculationConfiguration,
         _dbComputationTargets,

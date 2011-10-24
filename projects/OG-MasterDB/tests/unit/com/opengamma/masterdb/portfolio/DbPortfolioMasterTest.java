@@ -17,18 +17,18 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Test DbPortfolioMaster.
  */
-public class DbPortfolioMasterTest extends DBTest {
+public class DbPortfolioMasterTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbPortfolioMasterTest.class);
 
   private DbPortfolioMaster _prtMaster;
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbPortfolioMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -52,7 +52,7 @@ public class DbPortfolioMasterTest extends DBTest {
   public void test_basics() throws Exception {
     assertNotNull(_prtMaster);
     assertEquals(true, _prtMaster.getUniqueIdScheme().equals("DbPrt"));
-    assertNotNull(_prtMaster.getDbSource());
+    assertNotNull(_prtMaster.getDbConnector());
     assertNotNull(_prtMaster.getTimeSource());
   }
 

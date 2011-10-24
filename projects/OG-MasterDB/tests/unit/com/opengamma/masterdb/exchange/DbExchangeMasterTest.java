@@ -23,18 +23,18 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Test DbExchangeMaster.
  */
-public class DbExchangeMasterTest extends DBTest {
+public class DbExchangeMasterTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbExchangeMasterTest.class);
 
   private DbExchangeMaster _exgMaster;
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbExchangeMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -58,7 +58,7 @@ public class DbExchangeMasterTest extends DBTest {
   public void test_basics() throws Exception {
     assertNotNull(_exgMaster);
     assertEquals(true, _exgMaster.getUniqueIdScheme().equals("DbExg"));
-    assertNotNull(_exgMaster.getDbSource());
+    assertNotNull(_exgMaster.getDbConnector());
     assertNotNull(_exgMaster.getTimeSource());
   }
 

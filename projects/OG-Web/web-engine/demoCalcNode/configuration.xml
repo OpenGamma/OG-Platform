@@ -114,7 +114,7 @@
     <constructor-arg>
 		  <bean class="com.opengamma.masterdb.config.DbConfigMaster">
 		    <constructor-arg>
-				  <bean class="com.opengamma.util.db.DbSourceFactoryBean">
+				  <bean class="com.opengamma.util.db.DbConnectorFactoryBean">
 				    <property name="transactionIsolationLevelName" value="ISOLATION_SERIALIZABLE" />
 				    <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
             <property name="name" value="CalcNodeConfig"/>
@@ -142,7 +142,7 @@
                 </property>
 						  </bean>
 				    </property>
-				    <property name="dialect">
+				    <property name="dialectName">
 	            <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
 	              <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.db.dbhelper"/>
 	            </bean>

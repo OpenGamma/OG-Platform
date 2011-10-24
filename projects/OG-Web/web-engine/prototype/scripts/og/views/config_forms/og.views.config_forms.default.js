@@ -42,6 +42,7 @@ $.register_module({
                         id: as_new ? undefined : resource_id,
                         name: new_name,
                         json: JSON.stringify({data: data, meta: meta}),
+                        type: config_type,
                         loading: loading,
                         handler: as_new ? save_new_handler : save_handler
                     });
@@ -62,6 +63,9 @@ $.register_module({
                 }},
                 {type: 'keyup', selector: form_id + ' [name=name]', handler: function (e) {
                     $('.ui-layout-inner-center .og-js-name').text($(e.target).val());
+                }},
+                {type: 'click', selector: form_id + ' .og-js-submit', handler: function (e) {
+                    submit_type = $(e.target).val();
                 }},
                 {type: 'form:submit', handler: function (result) {
                     save_resource(result, submit_type === 'save_as_new');

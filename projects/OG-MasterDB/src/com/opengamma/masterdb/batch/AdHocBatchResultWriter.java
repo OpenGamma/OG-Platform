@@ -20,7 +20,7 @@ import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.financial.conversion.ResultConverter;
 import com.opengamma.financial.conversion.ResultConverterCache;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
 
 /**
  * This writer is used to write risk that originates from an ad hoc batch job.
@@ -37,13 +37,13 @@ public class AdHocBatchResultWriter extends AbstractBatchResultWriter {
   
   private final int _computeNodeId;
   
-  public AdHocBatchResultWriter(DbSource dbSource,
+  public AdHocBatchResultWriter(DbConnector dbConnector,
       RiskRun riskRun,
       ComputeNode computeNode,
       ResultConverterCache resultConverterCache,
       Set<ComputationTarget> computationTargets,
       Set<RiskValueName> valueNames) {
-    super(dbSource, riskRun, resultConverterCache, computationTargets, valueNames);
+    super(dbConnector, riskRun, resultConverterCache, computationTargets, valueNames);
     
     _computeNodeId = computeNode.getId();
   }

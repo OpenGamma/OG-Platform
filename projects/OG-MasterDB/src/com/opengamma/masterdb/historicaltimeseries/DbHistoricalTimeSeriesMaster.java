@@ -51,10 +51,10 @@ import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.Paging;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
+import com.opengamma.util.paging.Paging;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -153,15 +153,15 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
   /**
    * Creates an instance.
    * 
-   * @param dbSource  the database source combining all configuration, not null
+   * @param dbConnector  the database connector, not null
    */
-  public DbHistoricalTimeSeriesMaster(final DbSource dbSource) {
-    super(dbSource, IDENTIFIER_SCHEME_DEFAULT);
-    _nameTable = new NamedDimensionDbTable(dbSource, "name", "hts_name", "hts_dimension_seq");
-    _dataFieldTable = new NamedDimensionDbTable(dbSource, "data_field", "hts_data_field", "hts_dimension_seq");
-    _dataSourceTable = new NamedDimensionDbTable(dbSource, "data_source", "hts_data_source", "hts_dimension_seq");
-    _dataProviderTable = new NamedDimensionDbTable(dbSource, "data_provider", "hts_data_provider", "hts_dimension_seq");
-    _observationTimeTable = new NamedDimensionDbTable(dbSource, "observation_time", "hts_observation_time", "hts_dimension_seq");
+  public DbHistoricalTimeSeriesMaster(final DbConnector dbConnector) {
+    super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
+    _nameTable = new NamedDimensionDbTable(dbConnector, "name", "hts_name", "hts_dimension_seq");
+    _dataFieldTable = new NamedDimensionDbTable(dbConnector, "data_field", "hts_data_field", "hts_dimension_seq");
+    _dataSourceTable = new NamedDimensionDbTable(dbConnector, "data_source", "hts_data_source", "hts_dimension_seq");
+    _dataProviderTable = new NamedDimensionDbTable(dbConnector, "data_provider", "hts_data_provider", "hts_dimension_seq");
+    _observationTimeTable = new NamedDimensionDbTable(dbConnector, "observation_time", "hts_observation_time", "hts_dimension_seq");
   }
 
   //-------------------------------------------------------------------------
@@ -248,13 +248,13 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
-      .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
-      .addValueNullIgnored("data_field", getDbHelper().sqlWildcardAdjustValue(request.getDataField()))
-      .addValueNullIgnored("data_source", getDbHelper().sqlWildcardAdjustValue(request.getDataSource()))
-      .addValueNullIgnored("data_provider", getDbHelper().sqlWildcardAdjustValue(request.getDataProvider()))
-      .addValueNullIgnored("observation_time", getDbHelper().sqlWildcardAdjustValue(request.getObservationTime()))
+      .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()))
+      .addValueNullIgnored("data_field", getDialect().sqlWildcardAdjustValue(request.getDataField()))
+      .addValueNullIgnored("data_source", getDialect().sqlWildcardAdjustValue(request.getDataSource()))
+      .addValueNullIgnored("data_provider", getDialect().sqlWildcardAdjustValue(request.getDataProvider()))
+      .addValueNullIgnored("observation_time", getDialect().sqlWildcardAdjustValue(request.getObservationTime()))
       .addDateNullIgnored("id_validity_date", request.getValidityDate())
-      .addValueNullIgnored("key_value", getDbHelper().sqlWildcardAdjustValue(request.getExternalIdValue()));
+      .addValueNullIgnored("key_value", getDialect().sqlWildcardAdjustValue(request.getExternalIdValue()));
     if (request.getExternalIdSearch() != null) {
       int i = 0;
       for (ExternalId id : request.getExternalIdSearch()) {
@@ -309,7 +309,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     where += sqlAdditionalWhere();
     
     String selectFromWhereInner = "SELECT id FROM hts_document " + where;
-    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
+    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
     
     String cte = "WITH cte_docs AS (" + inner + ") ";
     String search = cte + SELECT + FROM_PREFIX + "INNER JOIN cte_docs ON main.id = cte_docs.id " + FROM_POSTFIX
@@ -332,7 +332,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
         "AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant " +
         "AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant " +
         (validityDate != null ? "AND hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date " : "") +
-        "AND idkey_id IN ( SELECT id FROM hts_idkey WHERE " + getDbHelper().sqlWildcardQuery("UPPER(key_value) ", "UPPER(:key_value)", identifierValue) + ") ";
+        "AND idkey_id IN ( SELECT id FROM hts_idkey WHERE " + getDialect().sqlWildcardQuery("UPPER(key_value) ", "UPPER(:key_value)", identifierValue) + ") ";
     return "AND id IN (" + select + ") ";
   }
 
@@ -606,7 +606,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValue("start_date", DbDateUtils.toSqlDateNullFarPast(fromDateInclusive))
       .addValue("end_date", DbDateUtils.toSqlDateNullFarFuture(toDateInclusive));
-    final NamedParameterJdbcOperations namedJdbc = getDbSource().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
     ManageableHistoricalTimeSeries result = namedJdbc.query(sqlSelectDataPointsCommon(), args, new ManageableHTSExtractor(oid));
     if (result == null) {
       throw new DataNotFoundException("Unable to find time-series: " + objectId);
@@ -706,7 +706,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       .addValue("doc_oid", docOid)
       .addTimestamp("ver_instant", vc.getVersionAsOf())
       .addTimestamp("corr_instant", vc.getCorrectedTo());
-    Date result = getDbSource().getJdbcTemplate().queryForObject(sqlSelectMaxPointDate(), Date.class, queryArgs);
+    Date result = getDbConnector().getJdbcTemplate().queryForObject(sqlSelectMaxPointDate(), Date.class, queryArgs);
     if (result != null) {
       LocalDate maxDate = DbDateUtils.fromSqlDateAllowNull(result);
       if (series.getTimeAt(0).isBefore(maxDate)) {
@@ -847,7 +847,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
         "(doc_oid, point_date, ver_instant, corr_instant, point_value) " +
       "VALUES " +
         "(:doc_oid, :point_date, " +
-          getDbHelper().sqlNullDefault("(SELECT ver_instant FROM hts_point " +
+          getDialect().sqlNullDefault("(SELECT ver_instant FROM hts_point " +
               "WHERE doc_oid = :doc_oid AND point_date = :point_date AND ver_instant = corr_instant)", ":corr_instant") + ", " +
         ":corr_instant, :point_value)";
   }
@@ -908,8 +908,8 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
         .addValue("doc_oid", docOid)
         .addValue("point_date", date.get("POINT_DATE"))
-        .addValue("corr_instant", nowTS);
-      args.addValue("point_value", null, Types.DOUBLE);
+        .addValue("corr_instant", nowTS)
+        .addValue("point_value", null, Types.DOUBLE);
       argsList.add(args);
     }
     getJdbcTemplate().batchUpdate(sqlInsertCorrectDataPoints(), argsList.toArray(new DbMapSqlParameterSource[argsList.size()]));
@@ -1014,7 +1014,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       .addValue("doc_oid", oid)
       .addTimestamp("version_as_of_instant", versionCorrection.getVersionAsOf())
       .addTimestamp("corrected_to_instant", versionCorrection.getCorrectedTo());
-    final NamedParameterJdbcOperations namedJdbc = getDbSource().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
     final UniqueIdExtractor extractor = new UniqueIdExtractor(oid);
     UniqueId uniqueId = namedJdbc.query(sqlSelectUniqueIdByVersionCorrection(), args, extractor);
     if (uniqueId == null) {

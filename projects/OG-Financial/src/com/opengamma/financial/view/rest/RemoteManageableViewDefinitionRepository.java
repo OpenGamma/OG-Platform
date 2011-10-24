@@ -27,8 +27,9 @@ public class RemoteManageableViewDefinitionRepository extends RemoteViewDefiniti
   }
 
   @Override
-  public void addViewDefinition(AddViewDefinitionRequest request) {
+  public UniqueId addViewDefinition(AddViewDefinitionRequest request) {
     getClient().access(getBaseUri()).post(request);
+    return request.getViewDefinition().getUniqueId(); // currently not retrieving the actual allocated unique id from the remote end
   }
 
   @Override

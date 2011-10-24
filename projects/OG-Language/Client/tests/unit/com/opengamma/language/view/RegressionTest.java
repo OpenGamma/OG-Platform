@@ -145,6 +145,7 @@ public class RegressionTest {
     try {
       viewClient.setResultListener(createResultListener());
       viewClient.attachToViewProcess(viewClientDescriptor.getViewId(), viewClientDescriptor.getExecutionOptions(), true);
+      viewClient.triggerCycle();
       Object result = getResult();
       assertEquals(result, "COMPILED");
       Instant valuationInstant = firstValuationInstant;

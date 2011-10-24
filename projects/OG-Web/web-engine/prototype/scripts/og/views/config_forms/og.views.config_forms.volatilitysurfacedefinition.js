@@ -12,7 +12,7 @@ $.register_module({
         var module = this, Form = og.common.util.ui.Form,
             INDX = '<INDEX>';
         return og.views.config_forms['default'].preload({
-            type: module.name.split('.').pop(),
+            type: 'com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition',
             meta: [
                 ['0',                                           Form.type.STR],
                 ['currency',                                    Form.type.STR],

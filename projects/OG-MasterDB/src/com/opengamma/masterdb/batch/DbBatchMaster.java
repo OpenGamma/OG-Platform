@@ -70,10 +70,10 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.masterdb.AbstractDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.InetAddressUtils;
-import com.opengamma.util.Paging;
-import com.opengamma.util.PagingRequest;
 import com.opengamma.util.db.DbDateUtils;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
+import com.opengamma.util.paging.Paging;
+import com.opengamma.util.paging.PagingRequest;
 
 /**
  * A batch master implementation using a database for persistence.
@@ -108,11 +108,11 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
   /**
    * Creates an instance.
    * 
-   * @param dbSource  the database source combining all configuration, not null
+   * @param dbConnector  the database connector, not null
    */
-  public DbBatchMaster(final DbSource dbSource) {
-    super(dbSource, IDENTIFIER_SCHEME_DEFAULT);
-    _hibernateTemplate = new HibernateTemplate(dbSource.getHibernateSessionFactory());
+  public DbBatchMaster(final DbConnector dbConnector) {
+    super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
+    _hibernateTemplate = new HibernateTemplate(dbConnector.getHibernateSessionFactory());
     _hibernateTemplate.setAllowCreate(false);
   }
 
@@ -136,7 +136,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
    * @return the session factory, not null
    */
   public SessionFactory getSessionFactory() {
-    return getDbSource().getHibernateSessionFactory();
+    return getDbConnector().getHibernateSessionFactory();
   }
 
   /**
@@ -659,7 +659,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
       }
       
       ObservationDateTime snapshotTime = snapshot.getSnapshotTime(); 
-      snapshotTime.setTime(DbDateUtils.toSqlTime(fix));
+      snapshotTime.setTime(DbDateUtils.toSqlTime(fix.toLocalTime()));  // NOTE: this does not record the nano-of-second or offset
       getHibernateTemplate().save(snapshotTime);
       
       getSessionFactory().getCurrentSession().getTransaction().commit();
@@ -810,7 +810,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
       Map<String, ViewComputationCache> cachesByCalculationConfiguration = cycle.getCachesByCalculationConfiguration();
       
       CommandLineBatchResultWriter writer = new CommandLineBatchResultWriter(
-          getDbSource(),
+          getDbConnector(),
           cycle.getViewDefinition().getResultModelDefinition(),
           cachesByCalculationConfiguration,
           getDbHandle(_batch)._computationTargets,
@@ -841,7 +841,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
     
     public CommandLineBatchResultWriter createTestWriter() {
       CommandLineBatchResultWriter resultWriter = new CommandLineBatchResultWriter(
-          getDbSource(),
+          getDbConnector(),
           new ResultModelDefinition(),
           new HashMap<String, ViewComputationCache>(),
           getDbHandle(_batch)._computationTargets,
@@ -872,7 +872,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
     if (request.getObservationTime() != null) {
       observationTimeCriteria.add(
           Restrictions.sqlRestriction("UPPER(label) like UPPER(?)", 
-              getDbHelper().sqlWildcardAdjustValue(request.getObservationTime()), Hibernate.STRING));
+              getDialect().sqlWildcardAdjustValue(request.getObservationTime()), Hibernate.STRING));
     }
     
     BatchSearchResult result = new BatchSearchResult();
@@ -959,11 +959,11 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
     params.addValue("rsk_run_id", riskRun.getId());
     
     final int dataCount = getJdbcTemplate().queryForInt(ViewResultEntryMapper.sqlCount(), params);
-    String dataSql = getDbHelper().sqlApplyPaging(ViewResultEntryMapper.sqlGet(), " ", request.getDataPagingRequest());
+    String dataSql = getDialect().sqlApplyPaging(ViewResultEntryMapper.sqlGet(), " ", request.getDataPagingRequest());
     List<ViewResultEntry> data = getJdbcTemplate().query(dataSql, ViewResultEntryMapper.ROW_MAPPER, params);
     
     final int errorCount = getJdbcTemplate().queryForInt(BatchErrorMapper.sqlCount(), params);
-    String errorSql = getDbHelper().sqlApplyPaging(BatchErrorMapper.sqlGet(), " ", request.getErrorPagingRequest());
+    String errorSql = getDialect().sqlApplyPaging(BatchErrorMapper.sqlGet(), " ", request.getErrorPagingRequest());
     List<BatchError> errors = getJdbcTemplate().query(errorSql, BatchErrorMapper.ROW_MAPPER, params);
     
     doc.setDataPaging(Paging.of(request.getDataPagingRequest(), dataCount));
@@ -1033,7 +1033,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
       startBatchImpl(batch);
       
       AdHocBatchResultWriter writer = new AdHocBatchResultWriter(
-          getDbSource(),
+          getDbConnector(),
           getRiskRunFromHandle(batch),
           getLocalComputeNode(),
           new ResultConverterCache(),

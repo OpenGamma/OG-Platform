@@ -40,12 +40,12 @@ import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.Paging;
-import com.opengamma.util.PagingRequest;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.paging.Paging;
+import com.opengamma.util.paging.PagingRequest;
 
 /**
  * 
@@ -85,11 +85,13 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   protected static final String SELECT_TYPES = "SELECT DISTINCT main.config_type AS config_type ";
 
   /**
-   * @param dbSource
-   * @param defaultScheme
+   * Creates an instance.
+   * 
+   * @param dbConnector  the database connector, not null
+   * @param defaultScheme  the default scheme, not null
    */
-  public DbConfigWorker(DbSource dbSource, String defaultScheme) {
-    super(dbSource, defaultScheme);
+  public DbConfigWorker(DbConnector dbConnector, String defaultScheme) {
+    super(dbConnector, defaultScheme);
   }
 
   //-------------------------------------------------------------------------
@@ -133,7 +135,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     // refactoring of stored objects following an upgrade through database operations.
     byte[] bytes = FUDGE_CONTEXT.toByteArray(env.getMessage());
     // the arguments for inserting into the config table
-    final MapSqlParameterSource configArgs = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource configArgs = new DbMapSqlParameterSource()
       .addValue("doc_id", docId)
       .addValue("doc_oid", docOid)
       .addTimestamp("ver_from_instant", document.getVersionFromInstant())
@@ -142,7 +144,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
       .addValue("name", document.getName())
       .addValue("config_type", document.getType().getName())
-      .addValue("config", new SqlLobValue(bytes, getDbHelper().getLobHandler()), Types.BLOB);
+      .addValue("config", new SqlLobValue(bytes, getDialect().getLobHandler()), Types.BLOB);
     getJdbcTemplate().update(sqlInsertConfig(), configArgs);
     return document;
   }
@@ -200,7 +202,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
         .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
         .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
-        .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()));
+        .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));
 
     if (!request.getType().isInstance(Object.class)) {
       args.addValue("config_type", request.getType().getName());
@@ -208,7 +210,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
     String[] sql = sqlSearchConfigs(request);
 
-    final NamedParameterJdbcOperations namedJdbc = getDbSource().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
     ConfigDocumentExtractor configDocumentExtractor = new ConfigDocumentExtractor();
     if (request.equals(PagingRequest.ALL)) {
       List<ConfigDocument<?>> queryResult = namedJdbc.query(sql[0], args, configDocumentExtractor);
@@ -246,7 +248,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     final DbMapSqlParameterSource args = argsHistory(request);
     String[] sqlHistory = sqlHistory(request);
 
-    final NamedParameterJdbcOperations namedJdbc = getDbSource().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
     if (request.getPagingRequest().equals(PagingRequest.ALL)) {
       List<ConfigDocument<?>> queryResult = namedJdbc.query(sqlHistory[0], args, extractor);
       for (ConfigDocument<?> configDocument : queryResult) {
@@ -281,7 +283,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
         "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
     if (request.getName() != null) {
-      where += getDbHelper().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
+      where += getDialect().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
     }
     if (!request.getType().isInstance(Object.class)) {
       where += "AND config_type = :config_type ";
@@ -297,7 +299,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     }
     
     String selectFromWhereInner = "SELECT id FROM cfg_config " + where;
-    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY ver_from_instant DESC, corr_from_instant DESC ", request.getPagingRequest());
+    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY ver_from_instant DESC, corr_from_instant DESC ", request.getPagingRequest());
     String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main.ver_from_instant DESC, main.corr_from_instant DESC" + sqlAdditionalOrderBy(false);
     String count = "SELECT COUNT(*) FROM cfg_config " + where;
     return new String[] {search, count };
@@ -348,7 +350,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
       final String name = rs.getString("NAME");
       final String configType = rs.getString("CONFIG_TYPE");
-      LobHandler lob = getDbHelper().getLobHandler();
+      LobHandler lob = getDialect().getLobHandler();
       byte[] bytes = lob.getBlobAsBytes(rs, "CONFIG");
       Class<?> reifiedType = loadClass(configType);
       Object value = FUDGE_CONTEXT.readObject(reifiedType, new ByteArrayInputStream(bytes));
