@@ -10,11 +10,17 @@ import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.financial.marketdatasnapshot.rest.RemoteMarketDataSnapshotSource;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
+import com.opengamma.language.definition.Categories;
+import com.opengamma.language.definition.JavaTypeInfo;
+import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.function.FunctionProviderBean;
+import com.opengamma.language.object.GetAttributeFunction;
+import com.opengamma.language.object.SetAttributeFunction;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
@@ -75,8 +81,29 @@ public class Loader extends ContextInitializationBean {
     globalContext.setMarketDataSnapshotSource(new RemoteMarketDataSnapshotSource(getConfiguration().getFudgeContext(), restTarget));
     globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
         FetchSnapshotFunction.INSTANCE,
+        GetSnapshotGlobalValueFunction.INSTANCE,
+        GetSnapshotVolatilityCubeFunction.INSTANCE,
+        GetSnapshotVolatilitySurfaceFunction.INSTANCE,
+        GetSnapshotYieldCurveFunction.INSTANCE,
+        SetSnapshotGlobalValueFunction.INSTANCE,
+        SetSnapshotVolatilityCubeFunction.INSTANCE,
+        SetSnapshotVolatilitySurfaceFunction.INSTANCE,
+        SetSnapshotYieldCurveFunction.INSTANCE,
+        SetVolatilitySurfacePointFunction.INSTANCE,
+        SetYieldCurvePointFunction.INSTANCE,
         SnapshotsFunction.INSTANCE,
-        SnapshotVersionsFunction.INSTANCE));
+        SnapshotVersionsFunction.INSTANCE,
+        new GetAttributeFunction(Categories.MARKET_DATA, "GetSnapshotName", "Fetches the name of a snapshot", ManageableMarketDataSnapshot.meta().name(),
+            new MetaParameter("snapshot", JavaTypeInfo.builder(ManageableMarketDataSnapshot.class).get()).description("The snapshot to query")),
+        new SetAttributeFunction(Categories.MARKET_DATA, "SetSnapshotName", "Updates the name of a snapshot, returning the updated snapshot", ManageableMarketDataSnapshot.meta().name(),
+            new MetaParameter("snapshot", JavaTypeInfo.builder(ManageableMarketDataSnapshot.class).get()).description("The snapshot to update"),
+            new MetaParameter("name", JavaTypeInfo.builder(String.class).get()).description("The new name for the snapshot")),
+        new GetAttributeFunction(Categories.MARKET_DATA, "GetSnapshotBasisViewName", "Fetches the view name the snapshot was originally based on", ManageableMarketDataSnapshot.meta().name(),
+            new MetaParameter("snapshot", JavaTypeInfo.builder(ManageableMarketDataSnapshot.class).get()).description("The snapshot to query")),
+        new SetAttributeFunction(Categories.MARKET_DATA, "SetSnapshotBasisViewName", "Updates the view name the snapshot was originally based on, returning the updated snapshot",
+            ManageableMarketDataSnapshot.meta().name(),
+            new MetaParameter("snapshot", JavaTypeInfo.builder(ManageableMarketDataSnapshot.class).get()).description("The snapshot to update"),
+            new MetaParameter("name", JavaTypeInfo.builder(String.class).get()).description("The new basis view name for the snapshot"))));
     // TODO: type converters
   }
 
