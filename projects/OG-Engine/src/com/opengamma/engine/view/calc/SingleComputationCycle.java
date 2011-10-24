@@ -501,6 +501,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       }
       getResultModel().addValue(calcConfigurationName, new ComputedValue(value.getFirst(), value.getSecond()));
     }
+    getResultModel().addRequirements(depGraph.getTerminalOutputs());
   }
 
   private Set<ValueSpecification> getOutputSpecificationsForResultModel(DependencyGraph depGraph) {
