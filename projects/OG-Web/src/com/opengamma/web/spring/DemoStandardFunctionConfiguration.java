@@ -51,6 +51,8 @@ import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromYieldFunct
 import com.opengamma.financial.analytics.model.bond.BondCouponPaymentDiaryFunction;
 import com.opengamma.financial.analytics.model.bond.BondDirtyPriceFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.BondDirtyPriceFromYieldFunction;
+import com.opengamma.financial.analytics.model.bond.BondMacaulayDurationFromCurvesFunction;
+import com.opengamma.financial.analytics.model.bond.BondMacaulayDurationFromYieldFunction;
 import com.opengamma.financial.analytics.model.bond.BondMarketCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.BondMarketDirtyPriceFunction;
 import com.opengamma.financial.analytics.model.bond.BondMarketYieldFunction;
@@ -501,9 +503,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(BondYieldFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(BondCleanPriceFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(BondDirtyPriceFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondMacaulayDurationFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(BondModifiedDurationFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(BondCleanPriceFromYieldFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(BondDirtyPriceFromYieldFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondMacaulayDurationFromYieldFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(BondModifiedDurationFromYieldFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(BondZSpreadFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(NelsonSiegelSvenssonBondCurveFunction.class.getName(), Arrays.asList("USD")));

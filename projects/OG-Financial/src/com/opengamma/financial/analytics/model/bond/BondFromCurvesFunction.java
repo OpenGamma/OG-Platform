@@ -15,14 +15,12 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.money.Currency;
 
@@ -41,9 +39,6 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
     Validate.notNull(currency, "currency");
     _currency = currency;
   }
-
-  @Override
-  protected abstract Set<ComputedValue> calculate(BondFixedSecurity bond, YieldCurveBundle data, ComputationTarget target);
 
   @Override
   protected YieldCurveBundle getData(final FunctionInputs inputs, final ComputationTarget target) {

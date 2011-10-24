@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -33,7 +34,7 @@ public class BondModifiedDurationFromYieldFunction extends BondFromYieldFunction
   }
 
   @Override
-  protected Set<ComputedValue> calculate(final BondFixedSecurity bond, final Double data, final ComputationTarget target) {
+  protected Set<ComputedValue> calculate(final BondFixedSecurity bond, final Double data, final ComputationTarget target, final FunctionInputs inputs) {
     return Sets.newHashSet(new ComputedValue(getResultSpec(target), CALCULATOR.visit(bond, data)));
   }
   

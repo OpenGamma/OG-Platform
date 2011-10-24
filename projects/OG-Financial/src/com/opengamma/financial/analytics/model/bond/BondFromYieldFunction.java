@@ -15,11 +15,9 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -35,9 +33,6 @@ public abstract class BondFromYieldFunction extends BondFunction<Double> {
     super(creditCurveName, riskFreeCurveName);
     Validate.notNull(currency, "currency");
   }
-
-  @Override
-  protected abstract Set<ComputedValue> calculate(BondFixedSecurity bond, Double data, ComputationTarget target);
 
   @Override
   protected Double getData(final FunctionInputs inputs, final ComputationTarget target) {
