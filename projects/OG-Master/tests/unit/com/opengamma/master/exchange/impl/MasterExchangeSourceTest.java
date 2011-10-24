@@ -28,8 +28,8 @@ import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.master.exchange.ManageableExchange;
-import com.opengamma.util.PagingRequest;
 import com.opengamma.util.i18n.Country;
+import com.opengamma.util.paging.PagingRequest;
 
 /**
  * Test {@link MasterExchangeSource}.

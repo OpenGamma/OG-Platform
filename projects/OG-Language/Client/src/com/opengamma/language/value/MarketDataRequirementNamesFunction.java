@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.definition.Parameter;
 import com.opengamma.language.function.AbstractFunctionInvoker;
@@ -31,7 +32,7 @@ public class MarketDataRequirementNamesFunction implements PublishedFunction {
 
   @Override
   public MetaFunction getMetaFunction() {
-    final MetaFunction meta = new MetaFunction("MarketDataRequirementNames", Collections.<Parameter>emptyList(), new AbstractFunctionInvoker(Collections.<MetaParameter>emptyList()) {
+    final MetaFunction meta = new MetaFunction(Categories.VALUE, "MarketDataRequirementNames", Collections.<Parameter>emptyList(), new AbstractFunctionInvoker(Collections.<MetaParameter>emptyList()) {
       @Override
       protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
         return getMarketDataRequirementNames();

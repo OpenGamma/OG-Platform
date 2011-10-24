@@ -14,6 +14,7 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.function.AbstractFunctionInvoker;
@@ -70,7 +71,7 @@ public class DebugFunctionMultipleTypes implements PublishedFunction {
             (Short) parameters[7], (String) parameters[8], (FudgeMsg) parameters[9]);
       }
     };
-    return new MetaFunction("DebugFunctionMultipleTypes", args, invoker);
+    return new MetaFunction(Categories.DEBUG, "DebugFunctionMultipleTypes", args, invoker);
   }
 
 }

@@ -11,7 +11,7 @@ $.register_module({
             ZPFT = 'zeroPadFirstTenor', ZPST = 'zeroPadSecondTenor';
         return og.views.config_forms['default'].preload({
             type: 'com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification',
-            meta: [
+            type_map: [
                 ['0', Form.type.STR],
                 ['currency', Form.type.STR],
                 ['name', Form.type.STR],

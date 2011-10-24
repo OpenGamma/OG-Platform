@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.util.ZipUtils;
 import com.opengamma.util.test.AbstractSpringContextValidationTestNG;
-import com.opengamma.util.test.DBTool;
+import com.opengamma.util.test.DbTool;
 
 
 public class ExampleServerSpringTest extends AbstractSpringContextValidationTestNG {
@@ -35,7 +35,7 @@ public class ExampleServerSpringTest extends AbstractSpringContextValidationTest
     createSQLScripts();
     Properties props = new Properties();
     props.load(getClass().getResourceAsStream("/demoMasters-test.properties"));
-    DBTool dbTool = new DBTool();
+    DbTool dbTool = new DbTool();
     dbTool.setCatalog("og-financial");
     dbTool.setJdbcUrl(props.getProperty("opengamma.financial.jdbc.url"));
     dbTool.setUser(props.getProperty("opengamma.financial.jdbc.username"));

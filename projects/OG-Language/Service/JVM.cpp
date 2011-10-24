@@ -90,7 +90,7 @@ static char *_OptionFudgeAnnotationCache (const CSettings *pSettings) {
 		LOGWARN (TEXT ("No path for Fudge annotation cache"));
 		return NULL;
 	}
-	size_t cch = 34 + _tcslen (pszCache);
+	size_t cch = 32 + _tcslen (pszCache);
 	char *pszOption = new char[cch];
 	if (!pszOption) {
 		LOGFATAL (TEXT ("Out of memory"));
@@ -101,6 +101,32 @@ static char *_OptionFudgeAnnotationCache (const CSettings *pSettings) {
 #else
 	StringCbPrintf (pszOption, cch, "-Dfudgemsg.annotationCachePath=%s", pszCache);
 #endif
+	LOGDEBUG ("Using " << pszOption);
+	return pszOption;
+}
+
+/// Creates a JVM parameter to describe the Language annotation cache path as given in the supplied
+/// settings. the caller must free the allocated memory.
+///
+/// @param[in] pSettings current settings
+/// @return the JVM parameter
+static char *_OptionLanguageAnnotationCache (const CSettings *pSettings) {
+	const TCHAR *pszCache = pSettings->GetAnnotationCache ();
+	if (!pszCache) {
+		LOGWARN (TEXT ("No path for Language annotation cache"));
+		return NULL;
+	}
+	size_t cch = 32 + _tcslen (pszCache);
+	char *pszOption = new char[cch];
+	if (!pszOption) {
+		LOGFATAL (TEXT ("Out of memory"));
+		return NULL;
+	}
+#ifdef _UNICODE
+	StringCbPrintfA (pszOption, cch, "-Dlanguage.annotationCachePath=%ws", pszCache);
+#else /* ifdef _UNICODE */
+	StringCbPrintf (pszOption, cch, "-Dlanguage.annotationCachePath=%s", pszCache);
+#endif /* ifdef _UNICODE */
 	LOGDEBUG ("Using " << pszOption);
 	return pszOption;
 }
@@ -320,12 +346,13 @@ CJVM *CJVM::Create () {
 	JavaVMInitArgs args;
 	memset (&args, 0, sizeof (args));
 	args.version = JNI_VERSION_1_6;
-	JavaVMOption option[5];
+	JavaVMOption option[6];
 	memset (&option, 0, sizeof (option));
 	args.options = option;
-	option[args.nOptions++].optionString = _OptionClassPath (&settings);
-	option[args.nOptions++].optionString = _OptionFudgeAnnotationCache (&settings);
-	option[args.nOptions++].optionString = _OptionBaseDir (&settings);
+	if ((option[args.nOptions].optionString = _OptionClassPath (&settings)) != NULL) args.nOptions++;
+	if ((option[args.nOptions].optionString = _OptionFudgeAnnotationCache (&settings)) != NULL) args.nOptions++;
+	if ((option[args.nOptions].optionString = _OptionLanguageAnnotationCache (&settings)) != NULL) args.nOptions++;
+	if ((option[args.nOptions].optionString = _OptionBaseDir (&settings)) != NULL) args.nOptions++;
 #ifdef _DEBUG
 	option[args.nOptions++].optionString = (char*)"-Dservice.debug=true";
 #else

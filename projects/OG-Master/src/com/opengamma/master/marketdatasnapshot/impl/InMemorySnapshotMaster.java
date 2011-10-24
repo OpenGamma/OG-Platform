@@ -31,7 +31,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.Paging;
+import com.opengamma.util.paging.Paging;
 
 /**
  * A simple, in-memory implementation of {@code MarketDataSnapshotMaster}.

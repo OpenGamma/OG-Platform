@@ -29,13 +29,15 @@ public class ViewClientDescriptorTest {
 
   public void testTickingMarketData() {
     for (UniqueId viewId : VIEW_IDENTIFIERS) {
-      assertCycle(ViewClientDescriptor.tickingMarketData(viewId));
+      assertCycle(ViewClientDescriptor.tickingMarketData(viewId, null));
+      assertCycle(ViewClientDescriptor.tickingMarketData(viewId, "bloomberg"));
     }
   }
 
   public void testStaticMarketData() {
     for (UniqueId viewId : VIEW_IDENTIFIERS) {
-      assertCycle(ViewClientDescriptor.staticMarketData(viewId));
+      assertCycle(ViewClientDescriptor.staticMarketData(viewId, null));
+      assertCycle(ViewClientDescriptor.staticMarketData(viewId, "bloomberg"));
     }
   }
 
@@ -61,7 +63,7 @@ public class ViewClientDescriptorTest {
   public void testUnescapedViewName() {
     for (UniqueId viewId : VIEW_IDENTIFIERS) {
       final ViewClientDescriptor decoded = ViewClientDescriptor.decode(viewId.toString());
-      assertEquals(decoded, ViewClientDescriptor.tickingMarketData(viewId));
+      assertEquals(decoded, ViewClientDescriptor.tickingMarketData(viewId, null));
     }
   }
 

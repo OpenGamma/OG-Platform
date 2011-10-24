@@ -24,8 +24,8 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.master.config.impl.MasterConfigSource;
-import com.opengamma.util.db.DbSource;
-import com.opengamma.util.db.DbSourceFactoryBean;
+import com.opengamma.util.db.DbConnector;
+import com.opengamma.util.db.DbConnectorFactoryBean;
 
 /**
  * The entry point for running OpenGamma batches. 
@@ -86,17 +86,16 @@ public class BatchJobRunner {
     cfgDataSource.setUsername(username);
     cfgDataSource.setPassword(password);
     
-    DbSourceFactoryBean dbSourceFactory = new DbSourceFactoryBean();
-    dbSourceFactory.setTransactionIsolationLevelName("ISOLATION_SERIALIZABLE");
-    dbSourceFactory.setTransactionPropagationBehaviorName("PROPAGATION_REQUIRED");
-    dbSourceFactory.setName("BatchJobRunnerConfig");
-    dbSourceFactory.setDialect(dbhelper);
-    dbSourceFactory.setDataSource(cfgDataSource);
+    DbConnectorFactoryBean connectorFactory = new DbConnectorFactoryBean();
+    connectorFactory.setTransactionIsolationLevelName("ISOLATION_SERIALIZABLE");
+    connectorFactory.setTransactionPropagationBehaviorName("PROPAGATION_REQUIRED");
+    connectorFactory.setName("BatchJobRunnerConfig");
+    connectorFactory.setDialectName(dbhelper);
+    connectorFactory.setDataSource(cfgDataSource);
+    connectorFactory.afterPropertiesSet();
+    DbConnector dbConnector = connectorFactory.getObject();
     
-    dbSourceFactory.afterPropertiesSet();
-    DbSource dbSource = dbSourceFactory.getObject();
-    
-    ConfigMaster configMaster = createConfigMaster(managerClass, dbSource, scheme);
+    ConfigMaster configMaster = createConfigMaster(managerClass, dbConnector, scheme);
     
     String springContextFile;
     BatchJobParameters parameters = null;
@@ -145,10 +144,10 @@ public class BatchJobRunner {
     }
   }
 
-  private static ConfigMaster createConfigMaster(final String managerClass, final DbSource dbSource, final String scheme) throws Exception {
+  private static ConfigMaster createConfigMaster(final String managerClass, final DbConnector dbConnector, final String scheme) throws Exception {
     // this isn't ideal, but moving the code to MasterDB seems to be worse
     Class<? extends ConfigMaster> cls = BatchJobRunner.class.getClassLoader().loadClass(managerClass).asSubclass(ConfigMaster.class);
-    ConfigMaster master = cls.getConstructor(DbSource.class).newInstance(dbSource);
+    ConfigMaster master = cls.getConstructor(DbConnector.class).newInstance(dbConnector);
     master.getClass().getMethod("setIdentifierScheme", String.class).invoke(master, scheme);
     return master;
   }

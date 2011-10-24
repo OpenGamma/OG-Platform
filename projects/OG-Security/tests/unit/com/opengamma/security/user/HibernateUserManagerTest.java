@@ -19,7 +19,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TransactionalHibernateTest;
 
 /**
@@ -29,7 +29,7 @@ public class HibernateUserManagerTest extends TransactionalHibernateTest {
 
   private HibernateUserManager _userManager;
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public HibernateUserManagerTest(String databaseType, final String databaseVersion) {
     super(databaseType, databaseVersion);
   }

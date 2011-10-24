@@ -16,6 +16,7 @@ import javax.time.InstantProvider;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ExecutionFlags;
@@ -100,23 +101,27 @@ public final class ViewClientDescriptor {
     try {
       switch (values.size()) {
         case 1:
-          return tickingMarketData(UniqueId.parse(values.get(0)));
+          return tickingMarketData(UniqueId.parse(values.get(0)), null);
         case 2:
           if (MARKET_DATA_LIVE.equals(values.get(0))) {
-            return tickingMarketData(UniqueId.parse(values.get(1)));
+            return tickingMarketData(UniqueId.parse(values.get(1)), null);
           }
           break;
         case 3:
           if (MARKET_DATA_LIVE.equals(values.get(0))) {
             if (STATIC.equals(values.get(2))) {
-              return staticMarketData(UniqueId.parse(values.get(1)));
+              return staticMarketData(UniqueId.parse(values.get(1)), null);
+            } else {
+              return tickingMarketData(UniqueId.parse(values.get(1)), values.get(2));
             }
           } else if (MARKET_DATA_USER.equals(values.get(0))) {
             return staticSnapshot(UniqueId.parse(values.get(1)), UniqueId.parse(values.get(2)));
           }
           break;
         case 4:
-          if (MARKET_DATA_USER.equals(values.get(0)) && TICKING.equals(values.get(3))) {
+          if (MARKET_DATA_LIVE.equals(values.get(0)) && STATIC.equals(values.get(3))) {
+            return staticMarketData(UniqueId.parse(values.get(1)), values.get(2));
+          } else if (MARKET_DATA_USER.equals(values.get(0)) && TICKING.equals(values.get(3))) {
             return tickingSnapshot(UniqueId.parse(values.get(1)), UniqueId.parse(values.get(2)));
           }
           break;
@@ -137,7 +142,7 @@ public final class ViewClientDescriptor {
       // Ignore; drop through to try the "normal" unique identifier below
     }
     // Nothing recognized; assume it's a normal unique identifier and not one of our decorated ones
-    return tickingMarketData(UniqueId.parse(str));
+    return tickingMarketData(UniqueId.parse(str), null);
   }
 
   public String encode() {
@@ -229,29 +234,44 @@ public final class ViewClientDescriptor {
    * Returns a descriptor for ticking live market data. The view will recalculate when market data changes and obey time
    * thresholds on the view definition.
    * 
-   * @param viewId unique identifier of the view, not null
+   * @param viewId  unique identifier of the view, not null
+   * @param dataSource  the data source, null for the default
    * @return the descriptor
    */
-  public static ViewClientDescriptor tickingMarketData(final UniqueId viewId) {
-    String encoded = viewId.toString();
-    // Only encode if normal representation could be confused for an encoded form
-    if (encoded.startsWith(MARKET_DATA_LIVE) || encoded.startsWith(MARKET_DATA_USER)) {
-      encoded = escape(encoded);
+  public static ViewClientDescriptor tickingMarketData(final UniqueId viewId, final String dataSource) {
+    final LiveMarketDataSpecification marketDataSpec;
+    String encoded;
+    if (dataSource == null) {
+      // Only encode if normal representation could be confused for an encoded form
+      encoded = viewId.toString();
+      if (encoded.startsWith(MARKET_DATA_LIVE) || encoded.startsWith(MARKET_DATA_USER)) {
+        encoded = escape(encoded);
+      }
+      marketDataSpec = MarketData.live();
+    } else {
+      encoded = dataSource == null ? viewId.toString() : append(append(new StringBuilder(MARKET_DATA_LIVE), viewId), dataSource).toString();
+      marketDataSpec = MarketData.live(dataSource);
     }
-    return new ViewClientDescriptor(Type.TICKING_MARKET_DATA, viewId, ExecutionOptions.infinite(MarketData.live()), encoded);
+    return new ViewClientDescriptor(Type.TICKING_MARKET_DATA, viewId, ExecutionOptions.infinite(marketDataSpec), encoded);
   }
 
   /**
    * Returns a descriptor for a static live market data view. The view will recalculate when manually triggered. 
    * 
-   * @param viewId unique identifier of the view, not null
+   * @param viewId  unique identifier of the view, not null
+   * @param dataSource  the data source, null for the default
    * @return the descriptor
    */
-  public static ViewClientDescriptor staticMarketData(final UniqueId viewId) {
+  public static ViewClientDescriptor staticMarketData(final UniqueId viewId, final String dataSource) {
     final ViewCycleExecutionSequence cycleSequence = new InfiniteViewCycleExecutionSequence();
-    final ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(null, MarketData.live());
+    final LiveMarketDataSpecification marketDataSpec = dataSource == null ? MarketData.live() : MarketData.live(dataSource);
+    final ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(null, marketDataSpec);
     final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions, ExecutionFlags.none().awaitMarketData().get());
-    final String encoded = append(append(new StringBuilder(MARKET_DATA_LIVE), viewId), STATIC).toString();
+    StringBuilder encodingBuilder = append(new StringBuilder(MARKET_DATA_LIVE), viewId);
+    if (dataSource != null) {
+      append(encodingBuilder, dataSource);
+    }
+    final String encoded = append(encodingBuilder, STATIC).toString();
     return new ViewClientDescriptor(Type.STATIC_MARKET_DATA, viewId, options, encoded);
   }
 

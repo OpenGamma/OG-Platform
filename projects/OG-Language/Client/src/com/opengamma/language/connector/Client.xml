@@ -124,6 +124,7 @@
     <property name="functionProviders">
       <list>
         <bean class="com.opengamma.language.config.ConfigurationFunctionProvider" />
+        <bean class="com.opengamma.language.external.ExternalFunctionProvider" />
         <bean class="com.opengamma.language.identifier.IdentifierFunctionProvider" />
         <bean class="com.opengamma.language.object.ObjectFunctionProvider" />
         <!-- For odd functions, use the provider bean. If a package exports more than a couple, create a provider for it -->

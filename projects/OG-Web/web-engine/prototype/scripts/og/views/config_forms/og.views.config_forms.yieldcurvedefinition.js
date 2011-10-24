@@ -25,7 +25,7 @@ $.register_module({
                 INDX = '<INDEX>',
                 sep = '~',
                 config_type = 'com.opengamma.financial.analytics.ircurve.YieldCurveDefinition',
-                meta_map = [
+                type_map = [
                     [['0', INDX].join('.'),                 Form.type.STR],
                     ['currency',                            Form.type.STR],
                     [INTR,                                  Form.type.STR],
@@ -40,7 +40,7 @@ $.register_module({
                 form = new Form({
                     module: 'og.views.forms.yield-curve-definition',
                     data: master,
-                    meta: meta_map,
+                    type_map: type_map,
                     selector: selector,
                     extras: {
                         name: master.name, currency: master.currency || (master.currency = 'USD'),
@@ -98,7 +98,7 @@ $.register_module({
                     if (as_new && (orig_name === data.name + '_' + data.currency))
                         return window.alert('Please select a new name and/or currency.');
                     api.configs.put({
-                        id: as_new ? undefined : resource_id,
+                        id: as_new ? void 0 : resource_id,
                         name: data.name + '_' + data.currency,
                         json: JSON.stringify({data: data, meta: meta}),
                         type: config_type,

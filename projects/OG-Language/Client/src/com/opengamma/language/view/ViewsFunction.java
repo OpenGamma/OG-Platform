@@ -15,6 +15,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.id.UniqueId;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
@@ -41,7 +42,7 @@ public class ViewsFunction extends AbstractFunctionInvoker implements PublishedF
 
   private ViewsFunction(final DefinitionAnnotater info) {
     super(info.annotate(parameters()));
-    _meta = info.annotate(new MetaFunction("Views", getParameters(), this));
+    _meta = info.annotate(new MetaFunction(Categories.VIEW, "Views", getParameters(), this));
   }
 
   protected ViewsFunction() {
