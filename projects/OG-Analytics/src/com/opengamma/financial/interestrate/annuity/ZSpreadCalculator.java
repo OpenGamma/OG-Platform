@@ -13,7 +13,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -28,7 +28,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public final class ZSpreadCalculator {
   private static final PresentValueCalculator PRESENT_VALUE_CALCULATOR = PresentValueCalculator.getInstance();
-  private static final PresentValueSensitivityCalculator PV_SENSITIVITY_CALCULATOR = PresentValueSensitivityCalculator.getInstance();
+  private static final PresentValueCurveSensitivityCalculator PV_SENSITIVITY_CALCULATOR = PresentValueCurveSensitivityCalculator.getInstance();
   private static final BracketRoot ROOT_BRACKETER = new BracketRoot();
   private static final RealSingleRootFinder ROOT_FINDER = new BrentSingleRootFinder();
   private static final ZSpreadCalculator CALCULATOR = new ZSpreadCalculator();

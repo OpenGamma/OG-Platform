@@ -14,13 +14,19 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -112,30 +118,29 @@ public class PresentValueCouponSensitivityCalculatorTest {
     assertEquals(temp, PVCSC.visit(ir, CURVES), 1e-10);
   }
 
-  //TODO test bonds
-//  @Test
-//  public void testBond() {
-//    final int n = 20;
-//    final double tau = 0.52;
-//    final double yearFrac = 0.5;
-//
-//    final double coupon = 0.07;
-//    final double[] paymentTimes = new double[n];
-//    for (int i = 0; i < n; i++) {
-//      paymentTimes[i] = tau * (i + 1);
-//
-//    }
-//
-//    final Bond bond = new Bond(CUR, paymentTimes, coupon, yearFrac, 0.0, FIVE_PC_CURVE_NAME);
-//    final Bond bondUp = new Bond(CUR, paymentTimes, coupon + DELTA, yearFrac, 0.0, FIVE_PC_CURVE_NAME);
-//    final Bond bondDown = new Bond(CUR, paymentTimes, coupon - DELTA, yearFrac, 0.0, FIVE_PC_CURVE_NAME);
-//
-//    final double pvUp = PVC.visit(bondUp, CURVES);
-//    final double pvDown = PVC.visit(bondDown, CURVES);
-//    final double temp = (pvUp - pvDown) / 2 / DELTA;
-//
-//    assertEquals(temp, PVCSC.visit(bond, CURVES), 1e-10);
-//  }
+  @Test
+  public void testBond() {
+    final int n = 20;
+    final double tau = 0.52;
+    final double yearFrac = 0.5;
+    final double coupon = 0.07;
+    final CouponFixed[] coupons = new CouponFixed[n];
+    final CouponFixed[] couponsUp = new CouponFixed[n];
+    final CouponFixed[] couponsDown = new CouponFixed[n];
+    for (int i = 0; i < n; i++) {
+      coupons[i] = new CouponFixed(CUR, tau * (i + 1), FIVE_PC_CURVE_NAME, yearFrac, coupon);
+      couponsUp[i] = new CouponFixed(CUR, tau * (i + 1), FIVE_PC_CURVE_NAME, yearFrac, coupon + DELTA);
+      couponsDown[i] = new CouponFixed(CUR, tau * (i + 1), FIVE_PC_CURVE_NAME, yearFrac, coupon - DELTA);
+    }
+    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[]{new PaymentFixed(CUR, tau * n, 1, FIVE_PC_CURVE_NAME)});
+    final BondFixedSecurity bond = new BondFixedSecurity(nominal, new AnnuityCouponFixed(coupons), 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FIVE_PC_CURVE_NAME, "S");
+    final BondFixedSecurity bondUp = new BondFixedSecurity(nominal, new AnnuityCouponFixed(couponsUp), 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FIVE_PC_CURVE_NAME, "S");
+    final BondFixedSecurity bondDown = new BondFixedSecurity(nominal, new AnnuityCouponFixed(couponsDown), 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FIVE_PC_CURVE_NAME, "S");
+    final double pvUp = PVC.visit(bondUp, CURVES);
+    final double pvDown = PVC.visit(bondDown, CURVES);
+    final double temp = (pvUp - pvDown) / 2 / DELTA;
+    assertEquals(temp, PVCSC.visit(bond, CURVES), 1e-10);
+  }
 
   @Test
   public void testFixedFloatSwap() {

@@ -8,19 +8,28 @@ package com.opengamma.financial.interestrate;
 import static org.testng.AssertJUnit.assertEquals;
 
 import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.yield.SimpleYieldConvention;
+import com.opengamma.financial.convention.yield.YieldConvention;
+import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -33,13 +42,22 @@ public class RateReplacingInterestRateDerivativeVisitorTest {
   private static final RateReplacingInterestRateDerivativeVisitor VISITOR = RateReplacingInterestRateDerivativeVisitor.getInstance();
   private static final Currency CUR = Currency.USD;
 
-  //TODO test bonds
-//  @Test
-//  public void testBond() {
-//    final Bond b1 = new Bond(CUR, new double[] {1, 2 }, R1, N1);
-//    final Bond b2 = new Bond(CUR, new double[] {1, 2 }, R2, N1);
-//    assertEquals(VISITOR.visit(b1, R2), b2);
-//  }
+  @Test
+  public void testBondFixedSecurity() {
+    final ZonedDateTime maturityDate = DateUtils.getUTCDate(2020, 1, 1);
+    final ZonedDateTime firstAccrualDate = DateUtils.getUTCDate(2010, 1, 1);
+    final Period paymentPeriod = Period.ofMonths(6);    
+    final Calendar calendar = new MondayToFridayCalendar("A");
+    final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    final BusinessDayConvention businessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final YieldConvention yieldConvention = SimpleYieldConvention.TRUE;
+    final ZonedDateTime date = DateUtils.getUTCDate(2011, 1, 1);
+    final String c1 = "a";
+    final String c2 = "b";
+    final BondFixedSecurity b1 = BondFixedSecurityDefinition.from(CUR, maturityDate, firstAccrualDate, paymentPeriod, R1, 0, calendar, dayCount, businessDay, yieldConvention, false).toDerivative(date, c1, c2);
+    final BondFixedSecurity b2 = BondFixedSecurityDefinition.from(CUR, maturityDate, firstAccrualDate, paymentPeriod, R2, 0, calendar, dayCount, businessDay, yieldConvention, false).toDerivative(date, c1, c2);
+    assertEquals(b2, VISITOR.visitBondFixedSecurity(b1, R2));
+  }
 
   @Test
   public void testCash() {

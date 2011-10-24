@@ -13,9 +13,9 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
+import com.opengamma.financial.interestrate.PresentValueCalculator;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondSecurity;
@@ -40,7 +40,7 @@ public final class BondSecurityDiscountingMethod {
   /**
    * The present value curve sensitivity calculator (for the different parts of the bond transaction).
    */
-  private static final PresentValueSensitivityCalculator PVCSC = PresentValueSensitivityCalculator.getInstance();
+  private static final PresentValueCurveSensitivityCalculator PVCSC = PresentValueCurveSensitivityCalculator.getInstance();
   /**
    * The root bracket used for yield finding.
    */
@@ -462,5 +462,16 @@ public final class BondSecurityDiscountingMethod {
   public double zSpreadFromCurvesAndClean(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double cleanPrice) {
     return zSpreadFromCurvesAndPV(bond, curves, presentValueFromCleanPrice(bond, curves, cleanPrice));
   }
-
+  
+  /**
+   * Compute the present value sensitivity of a bond transaction.
+   * @param bond The bond transaction.
+   * @param curves The curve bundle.
+   * @return The present value sensitivity.
+   */
+  public InterestRateCurveSensitivity presentValueSensitivity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
+    final InterestRateCurveSensitivity pvsNominal = new InterestRateCurveSensitivity(PVCSC.visit(bond.getNominal(), curves));
+    final InterestRateCurveSensitivity pvsCoupon = new InterestRateCurveSensitivity(PVCSC.visit(bond.getCoupon(), curves));
+    return pvsNominal.add(pvsCoupon);
+  }
 }

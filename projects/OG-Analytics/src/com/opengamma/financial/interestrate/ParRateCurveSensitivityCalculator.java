@@ -18,14 +18,17 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.payments.method.CouponOISDiscountingMethod;
@@ -49,7 +52,7 @@ import com.opengamma.util.tuple.DoublesPair;
 public final class ParRateCurveSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> {
   private static final PresentValueCalculator PV_CALCULATOR = PresentValueCalculator.getInstance();
   private static final ParRateCalculator PRC_CALCULATOR = ParRateCalculator.getInstance();
-  private static final PresentValueSensitivityCalculator PV_SENSITIVITY_CALCULATOR = PresentValueSensitivityCalculator.getInstance();
+  private static final PresentValueCurveSensitivityCalculator PV_SENSITIVITY_CALCULATOR = PresentValueCurveSensitivityCalculator.getInstance();
   private static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
   /**
    * The method used for OIS coupons.
@@ -281,4 +284,35 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
     return visitCouponIbor(payment.toCouponIbor(), data);
   }
 
+  @Override
+  public Map<String, List<DoublesPair>> visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
+    final GenericAnnuity<CouponFixed> coupons = bond.getCoupon();
+    final int n = coupons.getNumberOfPayments();
+    final CouponFixed[] unitCoupons = new CouponFixed[n];
+    for (int i = 0; i < n; i++) {
+      unitCoupons[i] = coupons.getNthPayment(i).withUnitCoupon();
+    }
+    final GenericAnnuity<CouponFixed> unitCouponAnnuity = new GenericAnnuity<CouponFixed>(unitCoupons);
+    final double a = PV_CALCULATOR.visit(unitCouponAnnuity, curves);
+    final Map<String, List<DoublesPair>> senseA = PV_SENSITIVITY_CALCULATOR.visit(unitCouponAnnuity, curves);
+    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final PaymentFixed principlePaymemt = bond.getNominal().getNthPayment(0);
+    final double df = PV_CALCULATOR.visit(principlePaymemt, curves);
+    final double factor = -(1 - df) / a / a;
+    for (final String name : curves.getAllNames()) {
+      if (senseA.containsKey(name)) {
+        final List<DoublesPair> temp = new ArrayList<DoublesPair>();
+        final List<DoublesPair> list = senseA.get(name);
+        final int m = list.size();
+        for (int i = 0; i < (m - 1); i++) {
+          final DoublesPair pair = list.get(i);
+          temp.add(new DoublesPair(pair.getFirst(), factor * pair.getSecond()));
+        }
+        final DoublesPair pair = list.get(m - 1);
+        temp.add(new DoublesPair(pair.getFirst(), principlePaymemt.getPaymentTime() * df / a + factor * pair.getSecond()));
+        result.put(name, temp);
+      }
+    }
+    return result;
+  }
 }

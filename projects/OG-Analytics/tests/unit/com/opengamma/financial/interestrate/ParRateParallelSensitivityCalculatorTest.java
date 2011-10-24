@@ -19,14 +19,19 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
@@ -100,25 +105,21 @@ public class ParRateParallelSensitivityCalculatorTest {
     doTest(ir, CURVES);
   }
 
-  //TODO test bonds
-//  @Test
-//  public void testBond() {
-//    final int n = 20;
-//    final double tau = 0.5;
-//    final double yearFrac = 180 / 365.0;
-//    final double initalCoupon = 0.015;
-//    final double ramp = 0.0025;
-//    final double[] coupons = new double[n];
-//    final double[] yearFracs = new double[n];
-//    final double[] paymentTimes = new double[n];
-//    for (int i = 0; i < n; i++) {
-//      paymentTimes[i] = tau * (i + 1);
-//      coupons[i] = initalCoupon + i * ramp;
-//      yearFracs[i] = yearFrac;
-//    }
-//    final Bond bond = new Bond(CUR, paymentTimes, coupons, yearFracs, 0.0, FUNDING_CURVE_NAME);
-//    doTest(bond, CURVES);
-//  }
+  @Test
+  public void testBond() {
+    final int n = 20;
+    final double tau = 0.5;
+    final double yearFrac = 180 / 365.0;
+    final double initialCoupon = 0.015;
+    final double ramp = 0.0025;
+    final CouponFixed[] coupons = new CouponFixed[n];
+    for (int i = 0; i < n; i++) {
+      coupons[i] = new CouponFixed(CUR, tau * (i + 1), FUNDING_CURVE_NAME, yearFrac, initialCoupon + i * ramp);
+    }
+    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[]{new PaymentFixed(CUR, tau * n, 1, FUNDING_CURVE_NAME)});
+    final BondFixedSecurity bond = new BondFixedSecurity(nominal, new AnnuityCouponFixed(coupons), 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FUNDING_CURVE_NAME, "S");
+    doTest(bond, CURVES);
+  }
 
   @Test
   public void testFixedFloatSwap() {

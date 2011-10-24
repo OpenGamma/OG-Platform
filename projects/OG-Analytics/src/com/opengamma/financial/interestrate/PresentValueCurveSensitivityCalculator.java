@@ -18,8 +18,10 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
+import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.bond.method.BondTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
@@ -56,7 +58,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * format is a map with curve names (String) as keys and List of DoublesPair as the values; each list holds set of time (corresponding to point of the yield curve) and sensitivity pairs 
  * (i.e. dPV/dR at that time). <b>Note:</b> The length of the list is instrument dependent and may have repeated times (with the understanding the sensitivities should be summed).
  */
-public class PresentValueSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> {
+public class PresentValueCurveSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> {
   //TODO: Change the output format to PresentValueSensitivity.
   //TODO Rename me to be consistent with descendants and the par rate calculators
 
@@ -65,13 +67,13 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
    */
   private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
 
-  private static PresentValueSensitivityCalculator s_instance = new PresentValueSensitivityCalculator();
+  private static PresentValueCurveSensitivityCalculator s_instance = new PresentValueCurveSensitivityCalculator();
 
-  public static PresentValueSensitivityCalculator getInstance() {
+  public static PresentValueCurveSensitivityCalculator getInstance() {
     return s_instance;
   }
 
-  PresentValueSensitivityCalculator() {
+  PresentValueCurveSensitivityCalculator() {
   }
 
   @Override
@@ -111,6 +113,12 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
     return method.presentValueCurveSensitivity(future, curves).getSensitivities();
   }
 
+  @Override
+  public Map<String, List<DoublesPair>> visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
+    final BondSecurityDiscountingMethod method = BondSecurityDiscountingMethod.getInstance();
+    return method.presentValueSensitivity(bond, curves).getSensitivities();
+  }
+  
   @Override
   public Map<String, List<DoublesPair>> visitBondFixedTransaction(final BondFixedTransaction bond, final YieldCurveBundle curves) {
     final BondTransactionDiscountingMethod method = BondTransactionDiscountingMethod.getInstance();

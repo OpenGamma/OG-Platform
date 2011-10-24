@@ -9,12 +9,15 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
@@ -164,6 +167,27 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
     return fx.getSpotForexRate() * curve2.getDiscountFactor(t) / curve1.getDiscountFactor(t);
   }
 
+  /**
+   * This gives you the bond coupon, for a given yield curve, that renders the bond par (present value of all cash flows equal to 1.0)
+   * For a bonds yield use ??????????????? //TODO
+   * @param bond the bond
+   * @param curves the input curves
+   * @return the par rate
+   */
+  @Override
+  public Double visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
+    final GenericAnnuity<CouponFixed> coupons = bond.getCoupon();
+    final int n = coupons.getNumberOfPayments();
+    final CouponFixed[] unitCoupons = new CouponFixed[n];
+    for (int i = 0; i < n; i++) {
+      unitCoupons[i] = coupons.getNthPayment(i).withUnitCoupon();
+    }
+    final GenericAnnuity<CouponFixed> unitCouponAnnuity = new GenericAnnuity<CouponFixed>(unitCoupons);
+    final double pvann = PVC.visit(unitCouponAnnuity, curves);
+    final double matPV = PVC.visit(bond.getNominal(), curves);
+    return (1 - matPV) / pvann;
+  }
+  
   @Override
   public Double visitCouponIbor(final CouponIbor payment, final YieldCurveBundle data) {
     final YieldAndDiscountCurve curve = data.getCurve(payment.getForwardCurveName());

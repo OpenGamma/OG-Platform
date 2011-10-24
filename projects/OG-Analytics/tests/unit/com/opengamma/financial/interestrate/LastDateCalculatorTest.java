@@ -14,14 +14,18 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
@@ -100,7 +104,14 @@ public class LastDateCalculatorTest {
     assertEquals(n * alpha + 0.1, LDC.visit(annuity), 1e-12);
   }
 
-  //TODO test bonds
+  @Test
+  public void testBond() {
+    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[]{new PaymentFixed(CUR, 11, 1, "a")});
+    final AnnuityCouponFixed coupon = new AnnuityCouponFixed(CUR, new double[] {0.5, 1} , 0.03, "a", false);
+    final BondFixedSecurity bond = new BondFixedSecurity(nominal, coupon, 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, "a", "b");
+    assertEquals(1, LDC.visit(bond), 1e-12);
+  }
+  
   @Test
   public void testFixedFloatSwap() {
     final int n = 20;

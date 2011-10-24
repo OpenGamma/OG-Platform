@@ -74,7 +74,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
   private static final List<String> CURVE_NAMES = Arrays.asList("Funding", "Libor 3m");
   private static final Map<String, Map<String, double[]>> MATURITIES = getDoubleCurveMaturities();
   private static final Map<String, Map<String, double[]>> MARKET_DATA = getDoubleCurveMarketData(MATURITIES);
-  private static final YieldCurveFittingTestDataBundle PV_DATA = getDoubleCurveSetup(PresentValueCalculator.getInstance(), PresentValueSensitivityCalculator.getInstance(), MATURITIES, MARKET_DATA,
+  private static final YieldCurveFittingTestDataBundle PV_DATA = getDoubleCurveSetup(PresentValueCalculator.getInstance(), PresentValueCurveSensitivityCalculator.getInstance(), MATURITIES, MARKET_DATA,
       true);
   private static final YieldCurveFittingTestDataBundle PAR_RATE_DATA = getDoubleCurveSetup(ParRateCalculator.getInstance(), ParRateCurveSensitivityCalculator.getInstance(), MATURITIES, MARKET_DATA,
       false);
@@ -233,7 +233,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
       final int firstCurveSize = PV_CURVES.getCurve(CURVE_NAMES.get(0)).getCurve().size();
       final String curveName = i < firstCurveSize ? CURVE_NAMES.get(0) : CURVE_NAMES.get(1);
       final int indexToBump = i < firstCurveSize ? i : i - firstCurveSize;
-      final YieldCurveFittingTestDataBundle bumpedData = getDoubleCurveSetup(PresentValueCalculator.getInstance(), PresentValueSensitivityCalculator.getInstance(), MATURITIES,
+      final YieldCurveFittingTestDataBundle bumpedData = getDoubleCurveSetup(PresentValueCalculator.getInstance(), PresentValueCurveSensitivityCalculator.getInstance(), MATURITIES,
           getBumpedData(curveName, indexToBump, eps), true);
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> f = new MultipleYieldCurveFinderFunction(bumpedData, bumpedData.getMarketValueCalculator());
       final Function1D<DoubleMatrix1D, DoubleMatrix2D> jf = new MultipleYieldCurveFinderJacobian(bumpedData, bumpedData.getMarketValueSensitivityCalculator());
