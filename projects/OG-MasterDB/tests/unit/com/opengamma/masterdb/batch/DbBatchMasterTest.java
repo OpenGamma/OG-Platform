@@ -98,7 +98,7 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
     positionSource.addPortfolio(new SimplePortfolio(portfolioOid.atVersion("1"), "test_portfolio"));
     env.setPositionSource(positionSource);
     
-    ViewDefinition viewDefinition = new ViewDefinition(UniqueId.of("foo", "bar"), "mock_view", portfolioOid, "ViewTestUser");
+    ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioOid, "ViewTestUser");
     env.setViewDefinition(viewDefinition);
     
     env.init();

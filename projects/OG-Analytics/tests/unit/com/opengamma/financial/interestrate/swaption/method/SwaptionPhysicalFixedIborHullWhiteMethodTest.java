@@ -328,12 +328,13 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
    * Tests the curve sensitivity in Monte Carlo approach.
    */
   public void presentValueCurveSensitivityMonteCarlo() {
-    double toleranceDelta = 1000000.0; // 100 USD by bp
+    double toleranceDelta = 1.0E+6; // 100 USD by bp
     InterestRateCurveSensitivity pvcsExplicit = METHOD_HW.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
     int nbPath = 30000; // 10000 path -> 200 USD by bp
     HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
     InterestRateCurveSensitivity pvcsMC = methodMC.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, FUNDING_CURVE_NAME, BUNDLE_HW);
-    InterestRateCurveSensitivity diff = pvcsExplicit.clean().add(pvcsMC.clean().multiply(-1)).clean();
+    pvcsMC = pvcsMC.clean();
+    InterestRateCurveSensitivity diff = pvcsExplicit.clean().add(pvcsMC.multiply(-1)).clean();
     final List<DoublesPair> sensiDsc = diff.getSensitivities().get(FUNDING_CURVE_NAME);
     int nbDsc = sensiDsc.size();
     for (int loopdsc = 0; loopdsc < nbDsc; loopdsc++) {
@@ -343,6 +344,21 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     int nbFwd = sensiFwd.size();
     for (int loopfwd = 0; loopfwd < nbFwd; loopfwd++) {
       assertEquals("Sensitivity MC method: node sensitivity (node: " + loopfwd + ")", 0.0, sensiFwd.get(loopfwd).second, toleranceDelta);
+    }
+
+    // From previous run 
+    final List<DoublesPair> sensiDscMC = pvcsMC.getSensitivities().get(FUNDING_CURVE_NAME);
+    final List<DoublesPair> sensiFwdMC = pvcsMC.getSensitivities().get(FORWARD_CURVE_NAME);
+    double[] sensiDscExpected = new double[] {0.0000, 0.0000, -3637714.1984, 557942.4840, -3787541.0789, 613898.2842, -4080860.4679, 589073.7077, -4178299.1839, 652156.5042, -4447809.9953,
+        617234.4471, -4506992.0525, 678479.4058, -4754223.0800, 591911.3273, -4821219.8085, 708193.7945, -4922426.5897, 664008.0977, -5056657.1907, 734532.5709};
+    double[] sensiFwdExpected = new double[] {-248654368.3630, 4284328.0810, 4407573.3981, 4466697.9207, 4639237.7090, 4802919.1013, 4902043.1034, 4924368.2503, 5082799.3958, 5231525.2847,
+        5310677.1705, 5308454.0898, 5453701.6063, 5606360.6795, 5762074.8382, 5665693.0081, 9427619.7175, -343032977.1261, 348874771.7538, -350204210.4835, 352341391.2901, 5938939.1529,
+        362465824.7561};
+    for (int loopdsc = 0; loopdsc < nbDsc; loopdsc++) {
+      assertEquals("Sensitivity MC method: node sensitivity (node: " + loopdsc + ")", sensiDscExpected[loopdsc], sensiDscMC.get(loopdsc).second, 1.0E-2);
+    }
+    for (int loopfwd = 0; loopfwd < nbFwd; loopfwd++) {
+      assertEquals("Sensitivity MC method: node sensitivity (node: " + loopfwd + ")", sensiFwdExpected[loopfwd], sensiFwdMC.get(loopfwd).second, 1.0E-2);
     }
   }
 

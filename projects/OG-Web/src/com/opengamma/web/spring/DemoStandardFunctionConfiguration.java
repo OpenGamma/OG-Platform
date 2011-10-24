@@ -110,6 +110,7 @@ import com.opengamma.financial.analytics.model.pnl.PositionValueGreekSensitivity
 import com.opengamma.financial.analytics.model.pnl.SecurityPriceSeriesFunction;
 import com.opengamma.financial.analytics.model.pnl.TradeExchangeTradedPnLFunction;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
+import com.opengamma.financial.analytics.model.riskfactor.option.ValueGreekSummingFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRPresentValueFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRPresentValueSABRFunction;
@@ -181,7 +182,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     ParameterizedFunctionConfiguration converterFunctionConfig = new ParameterizedFunctionConfiguration(OptionGreekToValueGreekConverterFunction.class.getName(),
         Collections.singleton(requirementName));
     functionConfigs.add(converterFunctionConfig);
-    addSummingFunction(functionConfigs, requirementName);
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ValueGreekSummingFunction.class.getName(), Collections.singleton(requirementName)));
   }
 
   protected static void addCurrencyConversionFunctions(List<FunctionConfiguration> functionConfigs, String requirementName) {

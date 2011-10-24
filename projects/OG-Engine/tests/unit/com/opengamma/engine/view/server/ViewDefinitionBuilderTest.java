@@ -36,7 +36,7 @@ public class ViewDefinitionBuilderTest {
   }
   
   public void testSerializationCycle() {
-    ViewDefinition viewDef = new ViewDefinition(UniqueId.of("foo", "bar"), "Test View", ObjectId.of("Test Scheme", "Port1"), "someuser");
+    ViewDefinition viewDef = new ViewDefinition("Test View", ObjectId.of("Test Scheme", "Port1"), "someuser");
     viewDef.setMaxDeltaCalculationPeriod(1000L);
     viewDef.setMaxFullCalculationPeriod(60000L);
     viewDef.getResultModelDefinition().setAggregatePositionOutputMode(ResultOutputMode.ALL);
