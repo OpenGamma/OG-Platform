@@ -124,7 +124,8 @@ $.register_module({
                 routes.go(routes.hash(module.rules.load_positions, args));
             },
             details_page = function (args) {
-                var render_identifiers = function (json) {
+                var layout = og.views.common.layout,
+                    render_identifiers = function (json) {
                         $('.OG-js-details-panel .og-js-identifiers').html(json.reduce(function (acc, val) {
                             acc.push('<tr><td><span>' + val.scheme + '</span></td><td>' + val.value + '</td></tr>');
                             return acc
@@ -138,7 +139,32 @@ $.register_module({
                             acc.push(start, fields.map(function (field) {return trade[field];}).join('</td><td>'), end);
                             return acc;
                         }, []).join(''));
+                    },
+                    setup_header_links = function () {
+                        var $version_link,
+                            mod = module.rules.load_positions,
+                            cur = $.extend({}, routes.current().args);
+                        delete cur.node, delete cur.version;
+                        $version_link = $('<a>version history</a>')
+                            .addClass('OG-link-small og-js-version-link')
+                            .attr('href', '#' + routes.hash(mod, $.extend(true, {}, cur, {version: '*'})))
+                            .unbind('click').bind('click', function (e) {
+                                var layout = og.views.common.layout;
+                                if (!layout.inner.state.south.isClosed && routes.current().args.version) {
+                                    e.preventDefault();
+                                    layout.inner.close('south');
+                                    routes.go(routes.hash(mod, cur));
+                                } else layout.inner.open('south');
+                            });
+                        $('.OG-js-header-links').empty().append($version_link);
                     };
+                // if new page, close south panel
+                check_state({args: args, conditions: [{new_page: layout.inner.close.partial('south')}]});
+                // load versions
+                if (args.version) {
+                    layout.inner.open('south');
+                    og.views.common.versions.load();
+                } else layout.inner.close('south');
                 api.rest.positions.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
@@ -160,6 +186,7 @@ $.register_module({
                             content = $.outer($html.find('> section')[0]);
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
                             $('.ui-layout-inner-center .ui-layout-content').html(content);
+                            setup_header_links();
                             ui.toolbar(options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);
@@ -172,24 +199,27 @@ $.register_module({
                             }
                             render_identifiers(json.securities);
                             render_trades(json.trades);
-                            ui.content_editable({
-                                attribute: 'data-og-editable',
-                                handler: function () {
-                                    routes.go(routes.hash(module.rules.load_edit_positions, $.extend(args, {
-                                        edit: 'true'
-                                    })));
-                                }
-                            });
+                            if (!args.version || args.version === '*') {
+                                ui.content_editable({
+                                    attribute: 'data-og-editable',
+                                    handler: function () {
+                                        routes.go(routes.hash(module.rules.load_edit_positions, $.extend(args, {
+                                            edit: 'true'
+                                        })));
+                                    }
+
+                                });
+                            }
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             layout.inner.resizeAll();
                         }});
                     },
                     id: args.id,
-                    version: args.version,
+                    version: args.version && args.version !== '*' ? args.version : void 0,
                     loading: function () {
-                        if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions.load()}
                         ui.message({
                             location: '.ui-layout-inner-center',
+                            css: {left: 0},
                             message: {0: 'loading...', 3000: 'still loading...'}
                         });
                     }

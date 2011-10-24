@@ -138,6 +138,8 @@ $.register_module({
                         item: 'history.configs.recent',
                         value: routes.current().hash
                     });
+                // if new page, close south panel
+                check_state({args: args, conditions: [{new_page: og.views.common.layout.inner.partial.close('south')}]});
                     og.views.config_forms[config_type]({
                         is_new: is_new,
                         data: details_json,
@@ -186,7 +188,7 @@ $.register_module({
                             layout.inner.resizeAll();
                         },
                         selector: '.ui-layout-inner-center .ui-layout-content'
-                    });                        
+                    });
                 };
                 rest_options = {
                     handler: rest_handler,

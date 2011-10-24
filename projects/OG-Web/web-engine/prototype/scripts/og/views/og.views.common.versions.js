@@ -50,7 +50,6 @@ $.register_module({
                         ui.message({location: '.ui-layout-inner-south', destroy: true});
                         og.views.common.layout.main.resizeAll();
                     },
-                    cache_for: 60000,
                     loading: function () {
                         ui.message({
                             location: '.ui-layout-inner-south',

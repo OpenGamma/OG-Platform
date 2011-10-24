@@ -115,7 +115,8 @@ $.register_module({
             },
             default_details = og.views.common.default_details.partial(page_name, 'Portfolios', options),
             details_page = function (args) {
-                var hook_up_add_portfolio_form = function () {
+                var layout = og.views.common.layout,
+                    hook_up_add_portfolio_form = function () {
                         var do_update = function () {
                             api.rest.portfolios.put({
                                 handler: function (r) {
@@ -297,7 +298,7 @@ $.register_module({
                         });
                     },
                     setup_header_links = function () {
-                        var $version_link, $sync_link, sync_href, vers_href, message_obj,
+                        var $version_link, $sync_link, sync_href, message_obj,
                             mod = module.rules.load_portfolios,
                             cur = $.extend({}, routes.current().args);
                         delete cur.node, delete cur.version, delete cur.sync;
@@ -333,8 +334,16 @@ $.register_module({
                                     $(e.target).html('check sync status').removeClass('og-active');
                                 }, 2000);
                             });
-                        $('.OG-header-links').empty().append($version_link);
+                        $('.OG-js-header-links').empty().append($version_link);
                     };
+                // if new page, close south panel
+                check_state({args: args, conditions: [{new_page: layout.inner.close.partial('south')}]});
+                // load versions
+                if (args.version || args.sync) {
+                    layout.inner.open('south');
+                    if (args.version) og.views.common.versions.load();
+                    if (args.sync) og.views.portfolio.sync.load();
+                } else layout.inner.close('south');
                 api.rest.portfolios.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message); // TODO: replace with UI error dialog
@@ -386,13 +395,6 @@ $.register_module({
                     node: args.node,
                     version: args.version && args.version !== '*' ? args.version : void 0,
                     loading: function () {
-                        var layout = og.views.common.layout;
-                        if (routes.current().args.version || routes.current().args.sync) {
-                            layout.inner.open('south');
-                            if (args.version) og.views.common.versions.load();
-                            if (args.sync) og.views.portfolio.sync.load();
-                        }
-                        else layout.inner.close('south');
                         ui.message({
                             location: '.ui-layout-inner-center',
                             css: {left: 0},
