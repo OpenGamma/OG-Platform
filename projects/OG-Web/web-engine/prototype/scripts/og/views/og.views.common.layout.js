@@ -55,7 +55,10 @@ $.register_module({
                 paneClass: 'ui-layout-inner-south',
                 size: 200,
                 initClosed: true,
-                spacing_closed: 0
+                spacing_closed: 0,
+                onclose: function () {
+                    $('.ui-layout-inner-south').empty();
+                }
             }
         },
         analytics = {

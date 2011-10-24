@@ -61,6 +61,8 @@ $.register_module({
         };
         return regions = {
             details: function (args) {
+                // if new page, close south panel
+                check_state({args: args, conditions: [{new_page: og.views.common.layout.inner.close.partial('south')}]});
                 api.regions.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
