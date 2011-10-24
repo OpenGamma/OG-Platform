@@ -198,8 +198,8 @@ public class ViewClientImpl implements ViewClient {
   }
   
   @Override
-  public void attachToViewProcess(UniqueId definitionId, ViewExecutionOptions executionOptions) {
-    attachToViewProcess(definitionId, executionOptions, false);
+  public void attachToViewProcess(UniqueId viewDefinitionId, ViewExecutionOptions executionOptions) {
+    attachToViewProcess(viewDefinitionId, executionOptions, false);
   }
   
   @Override

@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
 
 /**
  * A dimension table within a star schema.
@@ -31,9 +31,9 @@ public class NamedDimensionDbTable {
   private static final Logger s_logger = LoggerFactory.getLogger(NamedDimensionDbTable.class);
 
   /**
-   * The database source.
+   * The database connector.
    */
-  private final DbSource _dbSource;
+  private final DbConnector _dbConnector;
   /**
    * The variable name.
    */
@@ -50,16 +50,16 @@ public class NamedDimensionDbTable {
   /**
    * Creates an instance.
    * 
-   * @param dbSource  the database source combining all configuration, not null
+   * @param dbConnector  the database connector combining all configuration, not null
    * @param variableName  the variable name, used as a placeholder in SQL, not null
    * @param tableName  the table name, not null
    * @param sequenceName  the sequence used to generate the id, may be null
    */
-  public NamedDimensionDbTable(final DbSource dbSource, final String variableName, final String tableName, final String sequenceName) {
-    ArgumentChecker.notNull(dbSource, "dbSource");
+  public NamedDimensionDbTable(final DbConnector dbConnector, final String variableName, final String tableName, final String sequenceName) {
+    ArgumentChecker.notNull(dbConnector, "dbConnector");
     ArgumentChecker.notNull(variableName, "variableName");
     ArgumentChecker.notNull(tableName, "tableName");
-    _dbSource = dbSource;
+    _dbConnector = dbConnector;
     _variableName = variableName;
     _tableName = tableName;
     _sequenceName = sequenceName;
@@ -67,12 +67,12 @@ public class NamedDimensionDbTable {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the database source.
+   * Gets the database connector.
    * 
-   * @return the database source, not null
+   * @return the database connector, not null
    */
-  protected DbSource getDbSource() {
-    return _dbSource;
+  protected DbConnector getDbConnector() {
+    return _dbConnector;
   }
 
   /**
@@ -109,7 +109,7 @@ public class NamedDimensionDbTable {
    * @return the dialect, not null
    */
   protected DbDialect getDialect() {
-    return getDbSource().getDialect();
+    return getDbConnector().getDialect();
   }
 
   /**
@@ -118,7 +118,7 @@ public class NamedDimensionDbTable {
    * @return the next database id
    */
   protected long nextId() {
-    return getDbSource().getJdbcTemplate().queryForLong(getDialect().sqlNextSequenceValueSelect(_sequenceName));
+    return getDbConnector().getJdbcTemplate().queryForLong(getDialect().sqlNextSequenceValueSelect(_sequenceName));
   }
 
   //-------------------------------------------------------------------------
@@ -132,7 +132,7 @@ public class NamedDimensionDbTable {
     String select = sqlSelectGet();
     DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue(getVariableName(), name);
-    List<Map<String, Object>> result = getDbSource().getJdbcTemplate().queryForList(select, args);
+    List<Map<String, Object>> result = getDbConnector().getJdbcTemplate().queryForList(select, args);
     if (result.size() == 1) {
       return (Long) result.get(0).get("dim_id");
     }
@@ -165,7 +165,7 @@ public class NamedDimensionDbTable {
     String select = sqlSelectSearch(name);
     DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue(getVariableName(), getDialect().sqlWildcardAdjustValue(name));
-    List<Map<String, Object>> result = getDbSource().getJdbcTemplate().queryForList(select, args);
+    List<Map<String, Object>> result = getDbConnector().getJdbcTemplate().queryForList(select, args);
     if (result.isEmpty()) {
       return null;
     }
@@ -199,13 +199,13 @@ public class NamedDimensionDbTable {
     String select = sqlSelectGet();
     DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue(getVariableName(), name);
-    List<Map<String, Object>> result = getDbSource().getJdbcTemplate().queryForList(select, args);
+    List<Map<String, Object>> result = getDbConnector().getJdbcTemplate().queryForList(select, args);
     if (result.size() == 1) {
       return (Long) result.get(0).get("dim_id");
     }
     final long id = nextId();
     args.addValue("dim_id", id);
-    getDbSource().getJdbcTemplate().update(sqlInsert(), args);
+    getDbConnector().getJdbcTemplate().update(sqlInsert(), args);
     s_logger.debug("Inserted new value into {} : {} = {}", new Object[] {getTableName(), id, name});
     return id;
   }
@@ -230,7 +230,7 @@ public class NamedDimensionDbTable {
    * @return the set of names, not null
    */
   public List<String> names() {
-    return getDbSource().getJdbcTemplate().getJdbcOperations().queryForList(sqlSelectNames(), String.class);
+    return getDbConnector().getJdbcTemplate().getJdbcOperations().queryForList(sqlSelectNames(), String.class);
   }
 
   /**

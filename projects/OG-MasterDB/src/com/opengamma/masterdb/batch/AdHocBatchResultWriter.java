@@ -6,21 +6,25 @@
 package com.opengamma.masterdb.batch;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewResultEntry;
-import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.financial.conversion.ResultConverter;
 import com.opengamma.financial.conversion.ResultConverterCache;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
+
+import static com.opengamma.util.functional.Functional.reverseMap;
 
 /**
  * This writer is used to write risk that originates from an ad hoc batch job.
@@ -37,18 +41,19 @@ public class AdHocBatchResultWriter extends AbstractBatchResultWriter {
   
   private final int _computeNodeId;
   
-  public AdHocBatchResultWriter(DbSource dbSource,
+  public AdHocBatchResultWriter(DbConnector dbConnector,
       RiskRun riskRun,
       ComputeNode computeNode,
       ResultConverterCache resultConverterCache,
       Set<ComputationTarget> computationTargets,
+      Set<RiskValueConstraints> valueConstraints,
       Set<RiskValueName> valueNames) {
-    super(dbSource, riskRun, resultConverterCache, computationTargets, valueNames);
+    super(dbConnector, riskRun, resultConverterCache, computationTargets, valueNames, valueConstraints);
     
     _computeNodeId = computeNode.getId();
   }
   
-  public synchronized void write(ViewResultModel resultModel) {
+  public synchronized void write(ViewComputationResultModel resultModel) {
     if (!isInitialized()) {
       initialize();
     }
@@ -58,10 +63,12 @@ public class AdHocBatchResultWriter extends AbstractBatchResultWriter {
   }
   
   @SuppressWarnings("unchecked")
-  public void writeImpl(ViewResultModel resultModel) {
+  public void writeImpl(ViewComputationResultModel resultModel) {
     List<SqlParameterSource> successes = new ArrayList<SqlParameterSource>();
     
     int riskRunId = getRiskRunId();
+
+    Map<ValueSpecification, Collection<ValueRequirement>> specificationsWithTheirsRequirements = reverseMap(resultModel.getRequirementToSpecificationMapping());
     
     for (ViewResultEntry result : resultModel.getAllResults()) {
       ValueSpecification output = result.getComputedValue().getSpecification();
@@ -80,22 +87,26 @@ public class AdHocBatchResultWriter extends AbstractBatchResultWriter {
       Map<String, Double> valuesAsDoubles = resultConverter.convert(output.getValueName(), outputValue);
       
       int computationTargetId = getComputationTargetId(output.getTargetSpecification());
-      
+
       for (Map.Entry<String, Double> riskValueEntry : valuesAsDoubles.entrySet()) {
         int valueNameId = getValueNameId(riskValueEntry.getKey());
         int functionUniqueId = getFunctionUniqueId(output.getFunctionUniqueId());
-      
-        RiskValue riskValue = new RiskValue();
-        riskValue.setId(generateUniqueId());
-        riskValue.setCalculationConfigurationId(calcConfId);
-        riskValue.setValueNameId(valueNameId);
-        riskValue.setFunctionUniqueId(functionUniqueId);
-        riskValue.setComputationTargetId(computationTargetId);
-        riskValue.setRunId(riskRunId);
-        riskValue.setValue(riskValueEntry.getValue());
-        riskValue.setEvalInstant(new Date(resultModel.getCalculationTime().toEpochMillisLong()));
-        riskValue.setComputeNodeId(_computeNodeId);
-        successes.add(riskValue.toSqlParameterSource());
+        Collection<ValueRequirement> requirements = specificationsWithTheirsRequirements.get(output);
+        for (ValueRequirement requirement : requirements) {
+          int valueConstraintId = getValueConstraintsId(requirement.getConstraints());
+          RiskValue riskValue = new RiskValue();
+          riskValue.setId(generateUniqueId());
+          riskValue.setCalculationConfigurationId(calcConfId);
+          riskValue.setValueNameId(valueNameId);
+          riskValue.setValueConstraintsId(valueConstraintId);
+          riskValue.setFunctionUniqueId(functionUniqueId);
+          riskValue.setComputationTargetId(computationTargetId);
+          riskValue.setRunId(riskRunId);
+          riskValue.setValue(riskValueEntry.getValue());
+          riskValue.setEvalInstant(new Date(resultModel.getCalculationTime().toEpochMillisLong()));
+          riskValue.setComputeNodeId(_computeNodeId);
+          successes.add(riskValue.toSqlParameterSource());
+        }
       }
     }
     

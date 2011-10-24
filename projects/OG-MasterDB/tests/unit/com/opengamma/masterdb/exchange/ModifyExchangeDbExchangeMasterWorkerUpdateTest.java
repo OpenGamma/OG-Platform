@@ -115,7 +115,7 @@ public class ModifyExchangeDbExchangeMasterWorkerUpdateTest extends AbstractDbEx
 
   @Test
   public void test_update_rollback() {
-    DbExchangeMaster w = new DbExchangeMaster(_exgMaster.getDbSource()) {
+    DbExchangeMaster w = new DbExchangeMaster(_exgMaster.getDbConnector()) {
       @Override
       protected String sqlSelectIdKey() {
         return "SELECT";  // bad sql

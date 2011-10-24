@@ -42,7 +42,7 @@ import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
@@ -85,11 +85,13 @@ import com.opengamma.util.paging.PagingRequest;
   protected static final String SELECT_TYPES = "SELECT DISTINCT main.config_type AS config_type ";
 
   /**
-   * @param dbSource
-   * @param defaultScheme
+   * Creates an instance.
+   * 
+   * @param dbConnector  the database connector, not null
+   * @param defaultScheme  the default scheme, not null
    */
-  public DbConfigWorker(DbSource dbSource, String defaultScheme) {
-    super(dbSource, defaultScheme);
+  public DbConfigWorker(DbConnector dbConnector, String defaultScheme) {
+    super(dbConnector, defaultScheme);
   }
 
   //-------------------------------------------------------------------------
@@ -208,7 +210,7 @@ import com.opengamma.util.paging.PagingRequest;
 
     String[] sql = sqlSearchConfigs(request);
 
-    final NamedParameterJdbcOperations namedJdbc = getDbSource().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
     ConfigDocumentExtractor configDocumentExtractor = new ConfigDocumentExtractor();
     if (request.equals(PagingRequest.ALL)) {
       List<ConfigDocument<?>> queryResult = namedJdbc.query(sql[0], args, configDocumentExtractor);
@@ -246,7 +248,7 @@ import com.opengamma.util.paging.PagingRequest;
     final DbMapSqlParameterSource args = argsHistory(request);
     String[] sqlHistory = sqlHistory(request);
 
-    final NamedParameterJdbcOperations namedJdbc = getDbSource().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
     if (request.getPagingRequest().equals(PagingRequest.ALL)) {
       List<ConfigDocument<?>> queryResult = namedJdbc.query(sqlHistory[0], args, extractor);
       for (ConfigDocument<?> configDocument : queryResult) {

@@ -27,7 +27,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
 
 /**
- * General purpose source of access to databases.
+ * Factory bean to provide SQL database connectors.
  * <p>
  * This class provides a simple-to-setup and simple-to-use way to access databases.
  * It can be configured for access via JDBC, Hibernate or both.
@@ -38,7 +38,7 @@ import com.opengamma.util.SingletonFactoryBean;
  * Set either the transaction details or the transaction manager itself.
  * Set the Hibernate factory bean, the Hibernate settings or the session factory itself.
  */
-public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
+public class DbConnectorFactoryBean extends SingletonFactoryBean<DbConnector> {
 
   /**
    * The name that this source is known by.
@@ -105,7 +105,7 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
   /**
    * Creates an instance.
    */
-  public DbSourceFactoryBean() {
+  public DbConnectorFactoryBean() {
   }
 
   /**
@@ -113,14 +113,14 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
    * <p>
    * This copies the name, dialect, data source, session factory and transaction manager.
    * 
-   * @param baseSource  the base source to copy, not null
+   * @param base  the base source to copy, not null
    */
-  public DbSourceFactoryBean(DbSource baseSource) {
-    setName(baseSource.getName());
-    setDialect(baseSource.getDialect());
-    setDataSource(baseSource.getDataSource());
-    setHibernateSessionFactory(baseSource.getHibernateSessionFactory());
-    setTransactionManager(baseSource.getTransactionManager());
+  public DbConnectorFactoryBean(DbConnector base) {
+    setName(base.getName());
+    setDialect(base.getDialect());
+    setDataSource(base.getDataSource());
+    setHibernateSessionFactory(base.getHibernateSessionFactory());
+    setTransactionManager(base.getTransactionManager());
   }
 
   //-------------------------------------------------------------------------
@@ -238,7 +238,7 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
 
   //-------------------------------------------------------------------------
   @Override
-  public DbSource createObject() {
+  public DbConnector createObject() {
     ArgumentChecker.notNull(getName(), "name");
     ArgumentChecker.notNull(getDataSource(), "dataSource");
     DbDialect dialect = createDialect();
@@ -246,7 +246,7 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
     SessionFactory hbFactory = createSessionFactory(dialect);
     HibernateTemplate hbTemplate = createHibernateTemplate(hbFactory);
     TransactionTemplate transTemplate = createTransactionTemplate(hbFactory);
-    return new DbSource(getName(), dialect, getDataSource(), jdbcTemplate, hbTemplate, transTemplate);
+    return new DbConnector(getName(), dialect, getDataSource(), jdbcTemplate, hbTemplate, transTemplate);
   }
 
   /**

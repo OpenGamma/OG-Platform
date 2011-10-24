@@ -74,7 +74,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DbTest {
     _version2Instant = now.minusSeconds(50);
     s_logger.debug("test data now:   {}", _version1Instant);
     s_logger.debug("test data later: {}", _version2Instant);
-    final SimpleJdbcTemplate template = _holMaster.getDbSource().getJdbcTemplate();
+    final SimpleJdbcTemplate template = _holMaster.getDbConnector().getJdbcTemplate();
     template.update("INSERT INTO hol_holiday VALUES (?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?)",
         101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP,
         "TestHoliday101", "COPP_CLARK", "1", "CURRENCY", null, null, null, null, "GBP");
