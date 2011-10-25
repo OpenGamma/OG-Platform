@@ -9,7 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.List;
 
-import javax.jms.ConnectionFactory;
 import javax.time.Instant;
 
 import org.testng.annotations.AfterMethod;
@@ -19,6 +18,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Lists;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.GUIDGenerator;
+import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.test.ActiveMQTestUtils;
 import com.opengamma.util.tuple.Pair;
 
@@ -31,19 +31,16 @@ public class JmsChangeManagerTest {
   private static final long WAIT_TIMEOUT = 30000;
   private TestChangeClient _testListener;
   private JmsChangeManager _changeManager;
-  private String _topic;
 
   @BeforeMethod
   public void setUp() throws Exception {
-    ConnectionFactory cf = ActiveMQTestUtils.createTestConnectionFactory();
-    
-    // setup topic
     long currentTimeMillis = System.currentTimeMillis();
     String user = System.getProperty("user.name");
-    _topic = "JmsSourceChange-" + user + "-" + currentTimeMillis;
+    String topic = "JmsSourceChange-" + user + "-" + currentTimeMillis;
+    JmsConnector connector = ActiveMQTestUtils.createJmsConnector();
     
     _testListener = new TestChangeClient();
-    _changeManager = new JmsChangeManager(cf, _topic);
+    _changeManager = new JmsChangeManager(connector, topic);
     _changeManager.start();
   }
 

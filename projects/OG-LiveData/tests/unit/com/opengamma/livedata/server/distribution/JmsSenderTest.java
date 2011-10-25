@@ -13,7 +13,6 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -23,6 +22,8 @@ import org.testng.annotations.Test;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.transport.CollectingByteArrayMessageReceiver;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
+import com.opengamma.util.jms.JmsConnector;
+import com.opengamma.util.jms.JmsConnectorFactoryBean;
 import com.opengamma.util.test.ActiveMQTestUtils;
 
 /**
@@ -39,11 +40,13 @@ public class JmsSenderTest {
   @BeforeClass
   public void setUpClass() {
     ActiveMQConnectionFactory cf = ActiveMQTestUtils.createTestConnectionFactory();
-
-    JmsTemplate jmsTemplate = new JmsTemplate(cf);
-    jmsTemplate.setPubSubDomain(true);
+    JmsConnectorFactoryBean jmsFactory= new JmsConnectorFactoryBean();
+    jmsFactory.setName(getClass().getSimpleName());
+    jmsFactory.setConnectionFactory(cf);
+    jmsFactory.setPubSubDomain(true);
+    JmsConnector jmsConnector = jmsFactory.createObject();
     
-    _factory = new JmsSenderFactory(jmsTemplate);
+    _factory = new JmsSenderFactory(jmsConnector);
     _mdd = MarketDataDistributorTest.getTestDistributor(_factory);
     
     _collectingReceiver = new CollectingByteArrayMessageReceiver();
