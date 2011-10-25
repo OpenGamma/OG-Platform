@@ -15,6 +15,7 @@ import java.util.Set;
 
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.definition.Parameter;
 import com.opengamma.language.function.AbstractFunctionInvoker;
@@ -47,7 +48,7 @@ public class ValueRequirementNamesFunction implements PublishedFunction {
 
   @Override
   public MetaFunction getMetaFunction() {
-    final MetaFunction meta = new MetaFunction("ValueRequirementNames", Collections.<Parameter>emptyList(), new AbstractFunctionInvoker(Collections.<MetaParameter>emptyList()) {
+    final MetaFunction meta = new MetaFunction(Categories.VALUE, "ValueRequirementNames", Collections.<Parameter>emptyList(), new AbstractFunctionInvoker(Collections.<MetaParameter>emptyList()) {
       @Override
       protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
         return getValueRequirementNames();

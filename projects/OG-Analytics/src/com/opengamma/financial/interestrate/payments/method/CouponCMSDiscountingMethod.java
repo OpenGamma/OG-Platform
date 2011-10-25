@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -65,7 +65,7 @@ public final class CouponCMSDiscountingMethod {
     final double paymentDiscountFactor = fundingCurve.getDiscountFactor(paymentTime);
     final ParRateCurveSensitivityCalculator parRateSensCal = ParRateCurveSensitivityCalculator.getInstance();
     final InterestRateCurveSensitivity swapRateSens = new InterestRateCurveSensitivity(parRateSensCal.visit(cmsCoupon.getUnderlyingSwap(), curves));
-    final InterestRateCurveSensitivity payDFSens = new InterestRateCurveSensitivity(PresentValueSensitivityCalculator.discountFactorSensitivity(fundingCurveName, fundingCurve, paymentTime));
+    final InterestRateCurveSensitivity payDFSens = new InterestRateCurveSensitivity(PresentValueCurveSensitivityCalculator.discountFactorSensitivity(fundingCurveName, fundingCurve, paymentTime));
     InterestRateCurveSensitivity result = swapRateSens.multiply(paymentDiscountFactor);
     result = result.add(payDFSens.multiply(swapRate));
     result = result.multiply(cmsCoupon.getNotional() * cmsCoupon.getPaymentYearFraction());

@@ -35,12 +35,12 @@ import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Base tests for DbExchangeMasterWorker via DbExchangeMaster.
  */
-public abstract class AbstractDbExchangeMasterWorkerTest extends DBTest {
+public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbExchangeMasterWorkerTest.class);
 
@@ -77,7 +77,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DBTest {
     s_logger.debug("test data later: {}", _version2Instant);
     FudgeContext fudgeContext = OpenGammaFudgeContext.getInstance();
     LobHandler lobHandler = new DefaultLobHandler();
-    final SimpleJdbcTemplate template = _exgMaster.getDbSource().getJdbcTemplate();
+    final SimpleJdbcTemplate template = _exgMaster.getDbConnector().getJdbcTemplate();
     ManageableExchange exchange = new ManageableExchange();
     exchange.setUniqueId(UniqueId.of("DbExg", "101", "0"));
     exchange.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F")));

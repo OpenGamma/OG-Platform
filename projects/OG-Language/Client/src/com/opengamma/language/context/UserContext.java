@@ -11,6 +11,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.financial.user.rest.RemoteClient;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.livedata.AggregatingLiveDataProvider;
 import com.opengamma.language.procedure.AggregatingProcedureProvider;
@@ -23,6 +24,11 @@ import com.opengamma.livedata.UserPrincipal;
 public abstract class UserContext extends AbstractContext<GlobalContext> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(UserContext.class);
+
+  /**
+   * Name under which the remote engine client is bound.
+   */
+  protected static final String CLIENT = "client";
 
   /**
    * Name under which the Live Data user principal is bound.
@@ -56,6 +62,10 @@ public abstract class UserContext extends AbstractContext<GlobalContext> {
   }
 
   // Standard context members
+
+  public RemoteClient getClient() {
+    return getValue(CLIENT);
+  }
 
   public UserPrincipal getLiveDataUser() {
     return getValue(LIVEDATA_USER);

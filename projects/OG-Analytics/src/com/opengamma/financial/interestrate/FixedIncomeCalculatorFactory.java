@@ -31,7 +31,7 @@ public final class FixedIncomeCalculatorFactory {
   /** Present value coupon sensitivity calculator */
   public static final PresentValueCouponSensitivityCalculator PRESENT_VALUE_COUPON_SENSITIVITY_CALCULATOR = PresentValueCouponSensitivityCalculator.getInstance();
   /** Present value sensitivity calculator */
-  public static final PresentValueSensitivityCalculator PRESENT_VALUE_SENSITIVITY_CALCULATOR = PresentValueSensitivityCalculator.getInstance();
+  public static final PresentValueCurveSensitivityCalculator PRESENT_VALUE_SENSITIVITY_CALCULATOR = PresentValueCurveSensitivityCalculator.getInstance();
   /** PV01 calculator */
   public static final PV01Calculator PV01_CALCULATOR = PV01Calculator.getInstance();
   /** Par rate calculator */

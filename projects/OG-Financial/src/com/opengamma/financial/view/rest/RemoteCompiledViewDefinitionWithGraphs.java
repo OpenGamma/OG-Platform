@@ -69,7 +69,7 @@ public class RemoteCompiledViewDefinitionWithGraphs implements CompiledViewDefin
     URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_MARKET_DATA_REQUIREMENTS).build();
     return _client.access(uri).get(Map.class);
   }
-  
+
   @SuppressWarnings("unchecked")
   @Override
   public Set<ComputationTarget> getComputationTargets() {

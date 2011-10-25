@@ -26,10 +26,10 @@ public class ObjectValuesFunction implements PublishedFunction {
   private final Map<String, Method> _readers;
   private final MetaFunction _definition;
 
-  public ObjectValuesFunction(final String name, final String description, final Map<String, Method> readers, final MetaParameter object) {
+  public ObjectValuesFunction(final String category, final String name, final String description, final Map<String, Method> readers, final MetaParameter object) {
     _readers = readers;
     final List<MetaParameter> args = Collections.singletonList(object);
-    _definition = new MetaFunction(name, args, new AbstractFunctionInvoker(args) {
+    _definition = new MetaFunction(category, name, args, new AbstractFunctionInvoker(args) {
       @Override
       protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
         try {

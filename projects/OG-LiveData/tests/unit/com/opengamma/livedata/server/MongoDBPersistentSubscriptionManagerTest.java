@@ -12,24 +12,22 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.util.MongoDBConnectionSettings;
-import com.opengamma.util.test.MongoDBTestUtils;
+import com.opengamma.util.mongo.MongoConnector;
+import com.opengamma.util.test.MongoTestUtils;
 
 /**
- * 
+ * Test.
  */
 public class MongoDBPersistentSubscriptionManagerTest {
-  
+
   @Test(enabled=false)
   public void persistentSubscriptionManagement() {
-    
-    ExternalScheme identificationDomain = ExternalScheme.of("TestDomain");
-    
-    MockLiveDataServer server = new MockLiveDataServer(identificationDomain);
+    ExternalScheme idScheme = ExternalScheme.of("TestDomain");
+    MockLiveDataServer server = new MockLiveDataServer(idScheme);
     server.connect();
     
-    MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(MongoDBPersistentSubscriptionManagerTest.class.getSimpleName(), true);
-    MongoDBPersistentSubscriptionManager manager = new MongoDBPersistentSubscriptionManager(server, settings);
+    MongoConnector connector = MongoTestUtils.makeTestConnector(MongoDBPersistentSubscriptionManagerTest.class.getSimpleName(), true);
+    MongoDBPersistentSubscriptionManager manager = new MongoDBPersistentSubscriptionManager(server, connector);
     manager.clean();
     
     assertTrue(manager.getPersistentSubscriptions().isEmpty());

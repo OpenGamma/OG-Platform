@@ -25,7 +25,7 @@ import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
@@ -254,7 +254,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
   public void presentValueSensitivityMethodVsCalculator() {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     final InterestRateCurveSensitivity pvcsMethod = FRA_METHOD.presentValueCurveSensitivity(FRA, curves);
-    final PresentValueSensitivityCalculator calculator = PresentValueSensitivityCalculator.getInstance();
+    final PresentValueCurveSensitivityCalculator calculator = PresentValueCurveSensitivityCalculator.getInstance();
     final Map<String, List<DoublesPair>> pvcsCalculator = calculator.visit(FRA, curves);
     assertEquals("FRA discounting: present value calculator vs method", pvcsCalculator, pvcsMethod.getSensitivities());
   }

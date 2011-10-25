@@ -17,8 +17,6 @@ import com.opengamma.financial.analytics.model.bond.BondPV01CountryCurveFunction
 import com.opengamma.financial.analytics.model.bond.BondPV01CurrencyCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondPresentValueCountryCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondPresentValueCurrencyCurveFunction;
-import com.opengamma.financial.analytics.model.bond.BondZSpreadCountryCurveFunction;
-import com.opengamma.financial.analytics.model.bond.BondZSpreadCurrencyCurveFunction;
 import com.opengamma.financial.currency.CurrencyConversionFunction;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.DefaultCurrencyFunction;
@@ -55,12 +53,6 @@ public class DemoFunctionResolverFactoryBean extends SingletonFactoryBean<Functi
             // All other currency injections are important; i.e. the currency constraint can't be omitted.
             return Integer.MAX_VALUE;
           }
-        }
-        if (function instanceof BondZSpreadCountryCurveFunction) {
-          return 2;
-        }
-        if (function instanceof BondZSpreadCurrencyCurveFunction) {
-          return 1;
         }
         if (function instanceof BondPresentValueCountryCurveFunction) {
           return 4;

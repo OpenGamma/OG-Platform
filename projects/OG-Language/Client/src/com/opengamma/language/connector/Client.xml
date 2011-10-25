@@ -124,14 +124,17 @@
     <property name="functionProviders">
       <list>
         <bean class="com.opengamma.language.config.ConfigurationFunctionProvider" />
+        <bean class="com.opengamma.language.external.ExternalFunctionProvider" />
         <bean class="com.opengamma.language.identifier.IdentifierFunctionProvider" />
         <bean class="com.opengamma.language.object.ObjectFunctionProvider" />
         <!-- For odd functions, use the provider bean. If a package exports more than a couple, create a provider for it -->
         <bean class="com.opengamma.language.function.FunctionProviderBean">
           <property name="functions">
             <list>
-              <bean class="com.opengamma.language.value.ValueRequirementNamesFunction" />
+              <!-- The next thing to be added to the "value" package should give it a loader -->
               <bean class="com.opengamma.language.value.ExpandComputedValuesFunction" />
+              <bean class="com.opengamma.language.value.MarketDataRequirementNamesFunction" />
+              <bean class="com.opengamma.language.value.ValueRequirementNamesFunction" />
             </list>
           </property>
         </bean>
@@ -186,6 +189,17 @@
     </property>
   </bean>
   
+  <!-- Client (shared) -->
+  <bean id="clientLoader" class="com.opengamma.language.client.Loader">
+    <property name="configuration" ref="defaultConfiguration" />
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="scheduler">
+      <bean factory-bean="clientContextFactory" factory-method="getScheduler" />
+    </property>
+    <property name="sessionContextFactory" ref="sessionContextFactory" />
+    <property name="userContextFactory" ref="userContextFactory" />
+  </bean>
+  
   <!-- Exchange -->
   <bean id="exchangeLoader" class="com.opengamma.language.exchange.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
@@ -194,6 +208,12 @@
   
   <!-- Holiday -->
   <bean id="holidayLoader" class="com.opengamma.language.holiday.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+  
+  <!-- Market data snapshot -->
+  <bean id="snapshotLoader" class="com.opengamma.language.snapshot.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
     <property name="configuration" ref="defaultConfiguration" />
   </bean>

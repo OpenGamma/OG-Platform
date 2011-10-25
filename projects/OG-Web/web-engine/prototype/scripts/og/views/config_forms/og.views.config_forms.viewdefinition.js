@@ -38,6 +38,7 @@ $.register_module({
                 id_count = 0, prefix = 'viewdef_',
                 master = config.data.template_data.configJSON.data,
                 column_set_tabs,
+                config_type = 'com.opengamma.engine.view.ViewDefinition',
                 meta_map = [
                     ['0',                                                                           Form.type.STR],
                     // <constraints>
@@ -115,6 +116,7 @@ $.register_module({
                         id: as_new ? undefined : resource_id,
                         name: data.name,
                         json: JSON.stringify({data: data, meta: meta}),
+                        type: config_type,
                         loading: loading,
                         handler: as_new ? save_new_handler : save_handler
                     });

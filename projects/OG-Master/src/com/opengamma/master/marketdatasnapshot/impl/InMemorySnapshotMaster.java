@@ -31,7 +31,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.Paging;
+import com.opengamma.util.paging.Paging;
 
 /**
  * A simple, in-memory implementation of {@code MarketDataSnapshotMaster}.
@@ -98,6 +98,17 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
     _changeManager = changeManager;
   }
 
+  protected void validateScheme(final String scheme) {
+  }
+
+  protected void validateUniqueId(final UniqueId uniqueId) {
+    validateScheme(uniqueId.getScheme());
+  }
+
+  protected void validateObjectId(final ObjectId objectId) {
+    validateScheme(objectId.getScheme());
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public MarketDataSnapshotSearchResult search(MarketDataSnapshotSearchRequest request) {
@@ -118,6 +129,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
   @Override
   public MarketDataSnapshotDocument get(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
+    validateUniqueId(uniqueId);
     final MarketDataSnapshotDocument document = _store.get(uniqueId.getObjectId());
     if (document == null || !document.getUniqueId().equals(uniqueId)) {
       throw new DataNotFoundException("Snapshot not found: " + uniqueId);
@@ -130,6 +142,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
   public MarketDataSnapshotDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    validateObjectId(objectId.getObjectId());
     final MarketDataSnapshotDocument document = _store.get(objectId.getObjectId());
     if (document == null) {
       throw new DataNotFoundException("Snapshot not found: " + objectId);
@@ -162,8 +175,8 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
-
     final UniqueId uniqueId = document.getUniqueId();
+    validateUniqueId(uniqueId);
     final Instant now = Instant.now();
     final MarketDataSnapshotDocument storedDocument = _store.get(uniqueId.getObjectId());
     if (storedDocument == null) {
@@ -184,6 +197,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
   @Override
   public void remove(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
+    validateUniqueId(uniqueId);
     if (_store.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Security not found: " + uniqueId);
     }
@@ -201,6 +215,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
   public MarketDataSnapshotHistoryResult history(MarketDataSnapshotHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
+    validateObjectId(request.getObjectId());
     final MarketDataSnapshotDocument doc = _store.get(request.getObjectId());
     final List<MarketDataSnapshotDocument> list = (doc != null) ? Collections.singletonList(doc) : Collections.<MarketDataSnapshotDocument>emptyList();
     final MarketDataSnapshotHistoryResult result = new MarketDataSnapshotHistoryResult();

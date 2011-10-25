@@ -91,7 +91,7 @@ public abstract class AbstractProcedureInvoker extends AbstractInvoker implement
       final Object[] results = invokeImpl(sessionContext, parameters);
       final int resultsLength = (results != null) ? results.length : 0;
       if (resultsLength != _resultCount) {
-        final Value err = ValueUtils.ofError(Constants.ERROR_INTERNAL_IMPLEMENTATION);
+        final Value err = ValueUtils.ofError(Constants.ERROR_INTERNAL);
         err.setStringValue("Invalid number of results - expected " + _resultCount + ", got " + resultsLength);
         result.addResult(DataUtils.of(err));
       } else {

@@ -14,7 +14,7 @@ import java.util.Map.Entry;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -132,7 +132,7 @@ public class ZSpreadCalculatorTest {
     }
     zSpread = 0.0;
     dPdC = CALCULATOR.calculatePriceSensitivityToCurve(PAYMENTS, CURVES, zSpread);
-    final Map<String, List<DoublesPair>> pvSensitivity = PresentValueSensitivityCalculator.getInstance().visit(PAYMENTS, CURVES);
+    final Map<String, List<DoublesPair>> pvSensitivity = PresentValueCurveSensitivityCalculator.getInstance().visit(PAYMENTS, CURVES);
     iter1 = dPdC.entrySet().iterator();
     iter2 = pvSensitivity.entrySet().iterator();
     while (iter1.hasNext()) {
