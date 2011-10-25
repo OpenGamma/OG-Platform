@@ -27,7 +27,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Present value curve sensitivity calculator for interest rate instruments using SABR with extrapolation for high strike methods.
  */
-public final class PresentValueCurveSensitivitySABRExtrapolationCalculator extends PresentValueSensitivityCalculator {
+public final class PresentValueCurveSensitivitySABRExtrapolationCalculator extends PresentValueCurveSensitivityCalculator {
 
   /**
    * The instance of the calculator.

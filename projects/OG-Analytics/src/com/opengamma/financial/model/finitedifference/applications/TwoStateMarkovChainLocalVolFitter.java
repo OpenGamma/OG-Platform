@@ -181,9 +181,11 @@ public class TwoStateMarkovChainLocalVolFitter {
       mcLocalVol = MC_LOCAL_VOL_CALC.calc(denRes, chainData, lvOverlay);
     }
 
-    if (_print) {
+    if (_print) {      
       PDEUtilityTools.printSurface("Markov LV local Vols", mcLocalVol.getSurface(), minT, maxT, minK, maxK);
-      PDEUtilityTools.printSurface("Local vol overlay ", lvOverlay.getSurface(), minT, maxT, minK, maxK);
+      if (lvOverlay != null) {
+        PDEUtilityTools.printSurface("Local vol overlay ", lvOverlay.getSurface(), minT, maxT, minK, maxK);
+      }
     }
 
     //Solve the forward PDE with the local vol overlay to check match with data

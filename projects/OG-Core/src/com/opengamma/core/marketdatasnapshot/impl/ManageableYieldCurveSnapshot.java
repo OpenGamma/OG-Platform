@@ -66,6 +66,7 @@ public class ManageableYieldCurveSnapshot implements YieldCurveSnapshot {
 
   public org.fudgemsg.FudgeMsg toFudgeMsg(FudgeSerializer serializer) {
     MutableFudgeMsg ret = serializer.newMessage();
+    // TODO: this should not be adding its own class header; the caller should add it based on application knowledge about the receiving end
     FudgeSerializer.addClassHeader(ret, ManageableYieldCurveSnapshot.class);
     serializer.addToMessage(ret, "values", null, _values);
     serializer.addToMessage(ret, "valuationTime", null, _valuationTime);
