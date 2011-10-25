@@ -27,10 +27,12 @@ public abstract class AbstractContext<ParentContext extends AbstractContext<?>> 
    * 
    */
   protected static final String FUNCTION_PROVIDER = "functionProvider";
+
   /**
    * 
    */
   protected static final String LIVEDATA_PROVIDER = "liveDataProvider";
+
   /**
    * 
    */
@@ -49,7 +51,7 @@ public abstract class AbstractContext<ParentContext extends AbstractContext<?>> 
 
   @SuppressWarnings("unchecked")
   public <T> T getValue(final String key) {
-    ArgumentChecker.notNull(key, "key");
+    // Don't need to check key for null; the map will do that for us
     return (T) _values.get(key);
   }
 

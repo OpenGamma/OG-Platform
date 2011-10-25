@@ -17,6 +17,7 @@ import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.engine.value.ComputedValue;
 import net.sf.ehcache.CacheManager;
 
 import org.slf4j.Logger;
@@ -405,6 +406,17 @@ public class CommandLineBatchJobRun extends BatchJobRun {
       calcConfNames.add(calcConf.getName());      
     }
     return calcConfNames;
+  }
+
+  @Override
+  public Set<ValueProperties> getAllOutputValueConstraints() {
+    Set<ValueProperties> valueConstraints = new HashSet<ValueProperties>();
+    for (CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledViewDefinition().getCompiledCalculationConfigurations()) {
+      for (Pair<String, ValueProperties> output : compiledCalcConfig.getTerminalOutputValues()) {
+        valueConstraints.add(output.getSecond());
+      }
+    }
+    return valueConstraints;
   }
 
   @Override

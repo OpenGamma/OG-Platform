@@ -51,6 +51,8 @@ import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromYieldFunct
 import com.opengamma.financial.analytics.model.bond.BondCouponPaymentDiaryFunction;
 import com.opengamma.financial.analytics.model.bond.BondDirtyPriceFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.BondDirtyPriceFromYieldFunction;
+import com.opengamma.financial.analytics.model.bond.BondMacaulayDurationFromCurvesFunction;
+import com.opengamma.financial.analytics.model.bond.BondMacaulayDurationFromYieldFunction;
 import com.opengamma.financial.analytics.model.bond.BondMarketCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.BondMarketDirtyPriceFunction;
 import com.opengamma.financial.analytics.model.bond.BondMarketYieldFunction;
@@ -58,6 +60,7 @@ import com.opengamma.financial.analytics.model.bond.BondModifiedDurationFromCurv
 import com.opengamma.financial.analytics.model.bond.BondModifiedDurationFromYieldFunction;
 import com.opengamma.financial.analytics.model.bond.BondTenorFunction;
 import com.opengamma.financial.analytics.model.bond.BondYieldFromCurvesFunction;
+import com.opengamma.financial.analytics.model.bond.BondZSpreadFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaModelPortfolioNodeFunction;
@@ -262,21 +265,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(DummyLabelledMatrix2DPortfolioNodeFunction.class.getName()));
 
     functionConfigs.add(new StaticFunctionConfiguration(StandardEquityModelFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(BondCouponPaymentDiaryFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(BondTenorFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(BondMarketCleanPriceFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(BondMarketDirtyPriceFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(BondMarketYieldFunction.class.getName()));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BondYieldFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BondCleanPriceFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BondDirtyPriceFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BondModifiedDurationFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BondCleanPriceFromYieldFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BondDirtyPriceFromYieldFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BondModifiedDurationFromYieldFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BondFutureGrossBasisFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BondFutureNetBasisFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(NelsonSiegelSvenssonBondCurveFunction.class.getName(), Arrays.asList("USD")));
+    addBondCalculators(functionConfigs);
+    addBondFutureCalculators(functionConfigs);
     functionConfigs.add(new ParameterizedFunctionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG")));
     addSwaptionCalculators(functionConfigs);
     addForexVanillaOptionCalculators(functionConfigs);
@@ -497,6 +487,30 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
       }
     }
     return repoConfig;
+  }
+
+  private static void addBondFutureCalculators(List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondFutureGrossBasisFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondFutureNetBasisFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+  }
+
+  private static void addBondCalculators(List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(new StaticFunctionConfiguration(BondCouponPaymentDiaryFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BondTenorFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BondMarketCleanPriceFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BondMarketDirtyPriceFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BondMarketYieldFunction.class.getName()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondYieldFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondCleanPriceFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondDirtyPriceFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondMacaulayDurationFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondModifiedDurationFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondCleanPriceFromYieldFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondDirtyPriceFromYieldFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondMacaulayDurationFromYieldFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondModifiedDurationFromYieldFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondZSpreadFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(NelsonSiegelSvenssonBondCurveFunction.class.getName(), Arrays.asList("USD")));
   }
 
   private static void addForexSingleBarrierOptionCalculators(List<FunctionConfiguration> functionConfigs) {

@@ -40,12 +40,12 @@ public class ParRateNodeSensitivityCalculatorTest extends NodeSensitivityCalcula
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator1() {
-    new PresentValueNodeSensitivityCalculator(null);
+    new ParRateNodeSensitivityCalculator(null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator2() {
-    PresentValueNodeSensitivityCalculator.using(null);
+    ParRateNodeSensitivityCalculator.using(null);
   }
 
   @Test

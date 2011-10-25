@@ -908,7 +908,7 @@ public final class DependencyGraphBuilder {
    * Cancels any construction threads. If background threads had been started for graph construction, they
    * will be stopped and the construction abandoned. Note that this will also reset the number of
    * additional threads to zero to prevent further threads from being started by the existing ones before
-   * they terminate. If a thread is already blocked in a call to {@link getDependencyGraph} it will receive
+   * they terminate. If a thread is already blocked in a call to {@link #getDependencyGraph} it will receive
    * a {@link CancellationException} unless the graph construction completes before the cancellation is
    * noted by that or other background threads. The cancellation is temporary, the additional threads
    * can be reset afterwards for continued background building or a subsequent call to getDependencyGraph
@@ -1029,9 +1029,7 @@ public final class DependencyGraphBuilder {
     for (DependencyNode node : _graphNodes) {
       graph.addDependencyNode(node);
     }
-    for (ValueSpecification valueSpecification : _terminalOutputs.values()) {
-      graph.addTerminalOutputValue(valueSpecification);
-    }
+    graph.addTerminalOutputs(_terminalOutputs);
     //graph.dumpStructureASCII(System.out);
     if (DEBUG_DUMP_DEPENDENCY_GRAPH) {
       final PrintStream ps = openDebugStream("dependencyGraph");

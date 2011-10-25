@@ -172,7 +172,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final InterestRateDerivative instrument, final String dscName, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     YieldAndDiscountCurve dsc = hwData.getCurve(dscName);
-    // TODO: remove currency and dsc curve name
+    // TODO: remove dsc curve name
     // Forward sweep
     DecisionScheduleDerivative decision = DDC.visit(instrument, hwData);
     double[] decisionTime = decision.getDecisionTime();
@@ -319,6 +319,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
         }
       }
     }
+    result = result.clean();
     return result;
   }
 
@@ -366,10 +367,19 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
     return pD;
   }
 
+  /**
+   * Computes the initial discount factors adjoint values.
+   * @param initDiscountFactor The initial discount factors.
+   * @param y The correlated random variables.
+   * @param h The H parameters.
+   * @param h2 The H^2 parameters.
+   * @param gamma The gamma parameters.
+   * @param pDBar The simulated discount factor adjoints (path/jump/cf).
+   * @return The initial discount factor adjoints (jump/cf).
+   */
   private double[][] pathGeneratorDiscountAdjoint(double[][] initDiscountFactor, double[][] y, double[][] h, double[][] h2, double[] gamma, Double[][][] pDBar) {
     int nbJump = y.length;
     int nbPath = y[0].length;
-    Double[][][] pD = new Double[nbPath][nbJump][];
     double[] h2gamma;
     double[][] initDiscountFactorBar = new double[nbJump][];
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
@@ -377,12 +387,6 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
       h2gamma = new double[nbCF];
       for (int loopcf = 0; loopcf < nbCF; loopcf++) {
         h2gamma[loopcf] = h2[loopjump][loopcf] * gamma[loopjump];
-      }
-      for (int looppath = 0; looppath < nbPath; looppath++) {
-        pD[looppath][loopjump] = new Double[nbCF];
-        for (int loopcf = 0; loopcf < nbCF; loopcf++) {
-          pD[looppath][loopjump][loopcf] = initDiscountFactor[loopjump][loopcf] * Math.exp(-h[loopjump][loopcf] * y[loopjump][looppath] - h2gamma[loopcf]);
-        }
       }
       // Backward sweep
       initDiscountFactorBar[loopjump] = new double[nbCF];
@@ -398,7 +402,8 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
   @Override
   public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
-    return presentValue(instrument, curves);
+    // TODO: Remove currency and dsc curve name (should be available from the instrument)
+    return null;
   }
 
 }

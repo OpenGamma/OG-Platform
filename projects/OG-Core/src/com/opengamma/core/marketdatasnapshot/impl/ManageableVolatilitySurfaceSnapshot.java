@@ -45,8 +45,23 @@ public class ManageableVolatilitySurfaceSnapshot implements VolatilitySurfaceSna
     return _values;
   }
 
+  /**
+   * Creates a Fudge representation of the snapshot:
+   * <pre>
+   *   message {
+   *     message { // map
+   *       repeated Pair key = 1;
+   *       repeated Object value = 2;
+   *     } values;
+   *   }
+   * </pre>
+   * 
+   * @param serializer Fudge serialization context, not null
+   * @return the message representation of this snapshot
+   */
   public org.fudgemsg.FudgeMsg toFudgeMsg(FudgeSerializer serializer) {
     MutableFudgeMsg ret = serializer.newMessage();
+    // TODO: this should not be adding it's own class header; the caller should be doing that, or this be registered as a generic builder for VolatilitySurfaceSnapshot and that class name be added
     FudgeSerializer.addClassHeader(ret, ManageableVolatilitySurfaceSnapshot.class);
     MutableFudgeMsg valuesMsg = serializer.newMessage();
     for (Entry<Pair<Object, Object>, ValueSnapshot> entry : _values.entrySet()) {
@@ -61,6 +76,16 @@ public class ManageableVolatilitySurfaceSnapshot implements VolatilitySurfaceSna
     return ret;
   }
 
+  // TODO: externalize the message representation to a Fudge builder
+
+  /**
+   * Creates a snapshot object from a Fudge message representation. See {@link #toFudgeMsg}
+   * for the message format.
+   * 
+   * @param deserializer the Fudge deserialization context, not null
+   * @param msg message containing the snapshot representation, not null
+   * @return a snapshot object
+   */
   @SuppressWarnings("unchecked")
   public static ManageableVolatilitySurfaceSnapshot fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {
 

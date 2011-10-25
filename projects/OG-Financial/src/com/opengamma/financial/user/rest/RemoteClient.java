@@ -79,7 +79,7 @@ public class RemoteClient {
   /**
    * Source of targets externally specified.
    */
-  public static final class TargetProviderBean extends TargetProvider {
+  public static final class ExternalTargetProvider extends TargetProvider {
 
     private URI _portfolioMaster;
     private URI _positionMaster;
@@ -90,7 +90,8 @@ public class RemoteClient {
     private RestTarget _marketDataSnapshotMaster;
 
     public void setPortfolioMaster(final URI portfolioMaster) {
-      _portfolioMaster = portfolioMaster;
+      // The remote portfolio master is broken and assumes a "portfolio" prefix on its URLs 
+      _portfolioMaster = (portfolioMaster != null) ? portfolioMaster.resolve(".") : null;
     }
 
     @Override
@@ -99,7 +100,8 @@ public class RemoteClient {
     }
 
     public void setPositionMaster(final URI positionMaster) {
-      _positionMaster = positionMaster;
+      // The remote position master is broken and assumes a "position" prefix on its URLs
+      _positionMaster = (positionMaster != null) ? positionMaster.resolve(".") : null;
     }
 
     @Override
@@ -168,11 +170,13 @@ public class RemoteClient {
 
     @Override
     public URI getPortfolioMaster() {
+      // The remote portfolio master is broken and assumes a "portfolio" prefix on its URLs 
       return _baseTarget.getURI();
     }
 
     @Override
     public URI getPositionMaster() {
+      // The remote position master is broken and assumes a "position" prefix on its URLs
       return _baseTarget.getURI();
     }
 

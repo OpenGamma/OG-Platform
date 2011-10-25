@@ -189,6 +189,17 @@
     </property>
   </bean>
   
+  <!-- Client (shared) -->
+  <bean id="clientLoader" class="com.opengamma.language.client.Loader">
+    <property name="configuration" ref="defaultConfiguration" />
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="scheduler">
+      <bean factory-bean="clientContextFactory" factory-method="getScheduler" />
+    </property>
+    <property name="sessionContextFactory" ref="sessionContextFactory" />
+    <property name="userContextFactory" ref="userContextFactory" />
+  </bean>
+  
   <!-- Exchange -->
   <bean id="exchangeLoader" class="com.opengamma.language.exchange.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
@@ -197,6 +208,12 @@
   
   <!-- Holiday -->
   <bean id="holidayLoader" class="com.opengamma.language.holiday.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+  
+  <!-- Market data snapshot -->
+  <bean id="snapshotLoader" class="com.opengamma.language.snapshot.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
     <property name="configuration" ref="defaultConfiguration" />
   </bean>
