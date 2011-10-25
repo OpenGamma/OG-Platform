@@ -24,9 +24,9 @@ import org.testng.annotations.DataProvider;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ZipUtils;
-import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbConnectorFactoryBean;
+import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.HSQLDbDialect;
 import com.opengamma.util.db.PostgresDbDialect;
 import com.opengamma.util.test.DbTool.TableCreationCallback;
@@ -229,7 +229,7 @@ public abstract class DbTest implements TableCreationCallback {
       throw new OpenGammaRuntimeException("config error - no DBHelper setup for " + getDatabaseType());
     }
     DbConnectorFactoryBean factory = new DbConnectorFactoryBean();
-    factory.setName("DBTest");
+    factory.setName("DbTest");
     factory.setDialect(dbDialect);
     factory.setDataSource(getTransactionManager().getDataSource());
     factory.setTransactionIsolationLevelName("ISOLATION_READ_COMMITTED");

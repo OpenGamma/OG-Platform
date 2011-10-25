@@ -5,22 +5,20 @@
  */
 package com.opengamma.master.position;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.position.Trade;
-import com.opengamma.util.money.Currency;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
-
-import com.opengamma.util.PublicSPI;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.time.calendar.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.position.Trade;
+import com.opengamma.util.PublicSPI;
 
 /**
  * An empty interface for a deal.
@@ -33,9 +31,18 @@ import java.util.Map;
 @PublicSPI
 public interface Deal extends Bean {
 
-  public static final String DEAL_CLASSNAME = "Deal~JavaClass";
-  public static final String DEAL_TYPE = "Deal~dealType";
-  public static final String DEAL_PREFIX = "Deal~";
+  /**
+   * Deal Classname name
+   */
+  String DEAL_CLASSNAME = "Deal~JavaClass";
+  /**
+   * Deal type name
+   */
+  String DEAL_TYPE = "Deal~dealType";
+  /**
+   * Deal prefix name
+   */
+  String DEAL_PREFIX = "Deal~";
 
   /**
    * Provides helper methods to store a {@link Deal}'s data in a map of strings and reload it into a
@@ -46,7 +53,7 @@ public interface Deal extends Bean {
   public static class AttributeEncoder {
 
     private static final Logger s_logger = LoggerFactory.getLogger(AttributeEncoder.class);
-
+    
     private AttributeEncoder() {
     }
 
@@ -84,7 +91,7 @@ public interface Deal extends Bean {
       for (MetaProperty<Object> mp : deal.metaBean().metaPropertyIterable()) {
         Object value = mp.get(deal);
         if (value != null) {
-          attributes.put(DEAL_PREFIX + mp.name(), value.toString());
+          attributes.put(DEAL_PREFIX + mp.name(), mp.getString(deal));
         }
       }
       return attributes;

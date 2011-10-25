@@ -99,7 +99,7 @@ public abstract class AbstractFudgeBuilderTestCase {
     return cycled;
   }
 
-  private FudgeMsg cycleMessage(final FudgeMsg message) {
+  protected FudgeMsg cycleMessage(final FudgeMsg message) {
     final byte[] data = getFudgeContext().toByteArray(message);
     s_logger.info("{} bytes", data.length);
     return getFudgeContext().deserialize(data).getMessage();

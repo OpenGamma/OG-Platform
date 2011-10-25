@@ -22,7 +22,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class PresentValueNodeSensitivityCalculatorTest extends NodeSensitivityCalculatorTest {
   private static PresentValueCalculator VALUE_CALCULATOR = PresentValueCalculator.getInstance();
-  private static PresentValueSensitivityCalculator SENSITIVITY_CALCULATOR = PresentValueSensitivityCalculator.getInstance();
+  private static PresentValueCurveSensitivityCalculator SENSITIVITY_CALCULATOR = PresentValueCurveSensitivityCalculator.getInstance();
   private static PresentValueNodeSensitivityCalculator CALCULATOR = PresentValueNodeSensitivityCalculator.getDefaultInstance();
 
   @Override
@@ -31,7 +31,7 @@ public class PresentValueNodeSensitivityCalculatorTest extends NodeSensitivityCa
   }
 
   @Override
-  protected PresentValueSensitivityCalculator getSensitivityCalculator() {
+  protected PresentValueCurveSensitivityCalculator getSensitivityCalculator() {
     return SENSITIVITY_CALCULATOR;
   }
 
@@ -65,7 +65,7 @@ public class PresentValueNodeSensitivityCalculatorTest extends NodeSensitivityCa
   @Test
   public void testPresentValue() {
     final InterestRateDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = PresentValueCalculator.getInstance();
-    final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> senseCalculator = PresentValueSensitivityCalculator.getInstance();
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> senseCalculator = PresentValueCurveSensitivityCalculator.getInstance();
     final DoubleMatrix1D result = CALCULATOR.calculateSensitivities(IRD, senseCalculator, null, INTERPOLATED_CURVES);
     final DoubleMatrix1D fdresult = finiteDiffNodeSensitivities(IRD, valueCalculator, null, INTERPOLATED_CURVES);
     assertArrayEquals(result.getData(), fdresult.getData(), 1e-8);
