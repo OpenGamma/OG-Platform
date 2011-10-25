@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.depgraph;
 
+import static com.opengamma.util.functional.Functional.submapByValueSet;
+
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,8 +32,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.tuple.Pair;
-
-import static com.opengamma.util.functional.Functional.submapByValueSet;
 
 /**
  * Represents a directed graph of nodes describing how to execute a view to produce the required terminal outputs.
@@ -420,6 +420,7 @@ public class DependencyGraph {
     // Register it with the node responsible for producing it - informs the node that the output is required
     _specification2DependencyNode.get(specification).addTerminalOutputValue(specification);
     // Maintain a cache of all terminal outputs at the graph level
+    _terminalOutputValues.add(specification);
     _terminalOutputs.put(requirement, specification);
   }
 
@@ -433,6 +434,7 @@ public class DependencyGraph {
       // Register it with the node responsible for producing it - informs the node that the output is required
       _specification2DependencyNode.get(output.getValue()).addTerminalOutputValue(output.getValue());
       // Maintain a cache of all terminal outputs at the graph level
+      _terminalOutputValues.add(output.getValue());
       _terminalOutputs.put(output.getKey(), output.getValue());
     }
   }

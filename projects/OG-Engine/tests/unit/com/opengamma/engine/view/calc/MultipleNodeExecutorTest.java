@@ -17,7 +17,6 @@ import java.util.Map;
 
 import javax.time.Instant;
 
-import com.opengamma.engine.value.ValueRequirement;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -29,6 +28,7 @@ import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
