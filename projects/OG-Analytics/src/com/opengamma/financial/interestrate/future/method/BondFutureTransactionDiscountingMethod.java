@@ -5,19 +5,20 @@
  */
 package com.opengamma.financial.interestrate.future.method;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
 import com.opengamma.util.money.CurrencyAmount;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * Method to compute the present value and its sensitivities for an bond future with discounting (using the cheapest-to-deliver). 
  * The delivery option is not taken into account.
  */
-public final class BondFutureTransactionDiscountingMethod extends BondFutureTransactionMethod {
+public final class BondFutureTransactionDiscountingMethod extends BondFutureMethod {
 
   /**
    * Creates the method unique instance.
@@ -41,19 +42,20 @@ public final class BondFutureTransactionDiscountingMethod extends BondFutureTran
   /**
    * The bond future security method.
    */
-  private static final BondFutureSecurityDiscountingMethod METHOD_SECURITY = BondFutureSecurityDiscountingMethod.getInstance();
+  private static final BondFutureDiscountingMethod METHOD_SECURITY = BondFutureDiscountingMethod.getInstance();
 
   /**
    * Computes the present value of future from the curves using the cheapest-to-deliver and computing the value as a forward.
-   * @param future The future.
+   * @param txn The transaction on the future.
    * @param curves The yield curves. Should contain the credit and repo curves associated to the instrument.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(final BondFutureTransaction future, final YieldCurveBundle curves) {
-    Validate.notNull(future, "Future");
-    final double futurePrice = METHOD_SECURITY.price(future.getUnderlyingFuture(), curves);
-    final double pv = presentValueFromPrice(future, futurePrice);
-    return CurrencyAmount.of(future.getUnderlyingFuture().getCurrency(), pv);
+  public CurrencyAmount presentValue(final BondFutureTransaction txn, final YieldCurveBundle curves) {
+    Validate.notNull(txn, "BondFutureTransaction");
+    final BondFuture future = txn.getUnderlyingFuture();
+    final double futurePrice = METHOD_SECURITY.price(future, curves);
+    final double pv = METHOD_SECURITY.presentValueFromPrice(future, futurePrice);
+    return CurrencyAmount.of(future.getCurrency(), pv);
   }
 
   @Override

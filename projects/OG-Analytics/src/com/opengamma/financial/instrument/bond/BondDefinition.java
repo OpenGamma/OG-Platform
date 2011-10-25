@@ -19,7 +19,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.util.CompareUtils;
@@ -29,7 +29,7 @@ import com.opengamma.util.money.Currency;
  * 
  * A class that defines a coupon bond. 
  */
-public class BondDefinition implements FixedIncomeInstrumentConverter<Bond> {
+public class BondDefinition implements FixedIncomeInstrumentDefinition<Bond> {
   private static final Logger s_logger = LoggerFactory.getLogger(BondDefinition.class);
   private final LocalDate[] _nominalDates;
   private final LocalDate[] _settlementDates; // TODO settlement dates to be calculated in this class?

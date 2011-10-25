@@ -19,7 +19,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
@@ -29,7 +29,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class BondForwardDefinition implements FixedIncomeInstrumentConverter<BondForward> {
+public class BondForwardDefinition implements FixedIncomeInstrumentDefinition<BondForward> {
   private final BondDefinition _underlyingBond;
   private final LocalDate _forwardDate;
   private final BondConvention _convention;

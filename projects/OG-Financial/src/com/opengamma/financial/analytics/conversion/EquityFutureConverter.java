@@ -10,7 +10,6 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.equity.future.definition.EquityFutureDefinition;
-import com.opengamma.financial.instrument.FixedIncomeFutureInstrumentDefinition;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 
 /**
@@ -18,7 +17,7 @@ import com.opengamma.financial.security.future.EquityFutureSecurity;
  * Converts it to a EquityFutureDefinition (OG-Analytics)  
  * TODO - Not sure this should extend from what looks to be an InterestRateFutureConverter
  */
-public class EquityFutureConverter extends AbstractFutureSecurityVisitor<FixedIncomeFutureInstrumentDefinition<?>> {
+public class EquityFutureConverter extends AbstractFutureSecurityVisitor<EquityFutureDefinition> {
 
   public EquityFutureConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final ExchangeSource exchangeSource) {
   }
@@ -38,6 +37,7 @@ public class EquityFutureConverter extends AbstractFutureSecurityVisitor<FixedIn
 
     // TODO Case 2011.10.04 Instead of getting Premium from the trade, we might take previous close from time series in the ConventionSource.
     // I spoke to Elaine about the idea of always pricing against yesterday's close, even on trade date. Latter case is handled by tradePremium ~ (pricePrevClose - priceTradeTime)*unitAmount*nContracts
+    // New idea is to set the referencePrice (futuresPrice) to 0.0. In the future, when a ours or another trading system supplies cash flows, we may construct the Definition with a non-zero ref price
 
     /* FIXME Case 2011-05-27 Revisit holiday conventions for input dates 
     final ConventionBundle conventions = super.getConventionSource().getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_EQFUTURE"));

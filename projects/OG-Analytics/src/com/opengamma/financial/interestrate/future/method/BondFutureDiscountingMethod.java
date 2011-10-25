@@ -5,18 +5,20 @@
  */
 package com.opengamma.financial.interestrate.future.method;
 
-import org.apache.commons.lang.Validate;
-import org.apache.commons.math.stat.descriptive.rank.Min;
-
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
-import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.BondFuture;
+import com.opengamma.util.money.CurrencyAmount;
+
+import org.apache.commons.lang.Validate;
+import org.apache.commons.math.stat.descriptive.rank.Min;
 
 /**
  * Method to compute the price of bond future as the cheapest forward.
  */
-public final class BondFutureSecurityDiscountingMethod {
+public final class BondFutureDiscountingMethod extends BondFutureMethod {
 
   /**
    * The method to compute bond security figures.
@@ -26,20 +28,20 @@ public final class BondFutureSecurityDiscountingMethod {
   /**
    * Creates the method unique instance.
    */
-  private static final BondFutureSecurityDiscountingMethod INSTANCE = new BondFutureSecurityDiscountingMethod();
+  private static final BondFutureDiscountingMethod INSTANCE = new BondFutureDiscountingMethod();
 
   /**
    * Return the method unique instance.
    * @return The instance.
    */
-  public static BondFutureSecurityDiscountingMethod getInstance() {
+  public static BondFutureDiscountingMethod getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  private BondFutureSecurityDiscountingMethod() {
+  private BondFutureDiscountingMethod() {
   }
 
   /**
@@ -48,7 +50,7 @@ public final class BondFutureSecurityDiscountingMethod {
    * @param curves The curves.
    * @return The future price.
    */
-  public double price(final BondFutureSecurity future, final YieldCurveBundle curves) {
+  public double price(final BondFuture future, final YieldCurveBundle curves) {
     return priceNetBasis(future, curves, 0.0);
   }
 
@@ -59,7 +61,7 @@ public final class BondFutureSecurityDiscountingMethod {
    * @param netBasis The net basis associated to the future.
    * @return The future price.
    */
-  public double priceNetBasis(final BondFutureSecurity future, final YieldCurveBundle curves, final double netBasis) {
+  public double priceNetBasis(final BondFuture future, final YieldCurveBundle curves, final double netBasis) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final double[] priceFromBond = new double[future.getDeliveryBasket().length];
@@ -72,12 +74,30 @@ public final class BondFutureSecurityDiscountingMethod {
   }
 
   /**
+   * Computes the present value of future from the curves using the cheapest-to-deliver and computing the value as a forward.
+   * @param future The future.
+   * @param curves The yield curves. Should contain the credit and repo curves associated with the instrument.
+   * @return The present value.
+   */
+  public CurrencyAmount presentValue(final BondFuture future, final YieldCurveBundle curves) {
+    Validate.notNull(future, "Future");
+    final double pv = presentValueFromPrice(future, price(future, curves));
+    return CurrencyAmount.of(future.getCurrency(), pv);
+  }
+
+  @Override
+  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof BondFuture, "Bond future transaction");
+    return presentValue((BondFuture) instrument, curves);
+  }
+
+  /**
    * Computes the future price curve sensitivity.
    * @param future The future security.
    * @param curves The curves.
    * @return The curve sensitivity.
    */
-  public PresentValueSensitivity priceCurveSensitivity(final BondFutureSecurity future, final YieldCurveBundle curves) {
+  public PresentValueSensitivity priceCurveSensitivity(final BondFuture future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final double[] priceFromBond = new double[future.getDeliveryBasket().length];
@@ -96,13 +116,26 @@ public final class BondFutureSecurityDiscountingMethod {
   }
 
   /**
+   * Compute the present value sensitivity to rates of a bond future by discounting.
+   * @param future The future.
+   * @param curves The yield curves. Should contain the credit and repo curves associated. 
+   * @return The present value rate sensitivity.
+   */
+  public PresentValueSensitivity presentValueCurveSensitivity(final BondFuture future, final YieldCurveBundle curves) {
+    Validate.notNull(future, "Future");
+    final PresentValueSensitivity priceSensitivity = priceCurveSensitivity(future, curves);
+    final PresentValueSensitivity transactionSensitivity = priceSensitivity.multiply(future.getNotional());
+    return transactionSensitivity;
+  }
+
+  /**
    * Computes the gross basis of the bonds in the underlying basket from their clean prices.
    * @param future The future security.
    * @param cleanPrices The clean prices (at standard bond market spot date) of the bond in the basket.
    * @param futurePrice The future price.
    * @return The gross basis for each bond in the basket.
    */
-  public double[] grossBasisFromPrices(final BondFutureSecurity future, final double[] cleanPrices, final double futurePrice) {
+  public double[] grossBasisFromPrices(final BondFuture future, final double[] cleanPrices, final double futurePrice) {
     final int nbBasket = future.getDeliveryBasket().length;
     Validate.isTrue(cleanPrices.length == nbBasket, "Number of clean prices");
     final double[] grossBasis = new double[nbBasket];
@@ -119,7 +152,7 @@ public final class BondFutureSecurityDiscountingMethod {
    * @param futurePrice The future price.
    * @return The gross basis for each bond in the basket.
    */
-  public double[] grossBasisFromCurves(final BondFutureSecurity future, final YieldCurveBundle curves, final double futurePrice) {
+  public double[] grossBasisFromCurves(final BondFuture future, final YieldCurveBundle curves, final double futurePrice) {
     final int nbBasket = future.getDeliveryBasket().length;
     final double[] grossBasis = new double[nbBasket];
     final double[] cleanPrices = new double[nbBasket];
@@ -138,7 +171,7 @@ public final class BondFutureSecurityDiscountingMethod {
    * @param futurePrice The future price.
    * @return The net basis for each bond in the basket.
    */
-  public double[] netBasisFromCurves(final BondFutureSecurity future, final YieldCurveBundle curves, final double futurePrice) {
+  public double[] netBasisFromCurves(final BondFuture future, final YieldCurveBundle curves, final double futurePrice) {
     final int nbBasket = future.getDeliveryBasket().length;
     final double[] bondDirtyPrice = new double[nbBasket];
     final double[] netBasis = new double[nbBasket];

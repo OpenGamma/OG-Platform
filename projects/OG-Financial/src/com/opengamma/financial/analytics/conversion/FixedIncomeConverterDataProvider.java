@@ -20,10 +20,10 @@ import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
-import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.instrument.swap.SwapDefinition;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -54,7 +54,7 @@ public class FixedIncomeConverterDataProvider {
     _conventionSource = conventionSource;
   }
 
-  public InterestRateDerivative convert(final Security security, final FixedIncomeInstrumentConverter<?> definition,
+  public InterestRateDerivative convert(final Security security, final FixedIncomeInstrumentDefinition<?> definition,
       final ZonedDateTime now, final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition to convert was null for security " + security);
@@ -64,7 +64,7 @@ public class FixedIncomeConverterDataProvider {
     }
     //TODO this only applies for those futures formed at now (i.e. those used in curves) - interest rate future trades should be converted differently
     if (security instanceof InterestRateFutureSecurity) {
-      return convert((InterestRateFutureSecurity) security, (InterestRateFutureSecurityDefinition) definition, now, curveNames, dataSource);
+      return convert((InterestRateFutureSecurity) security, (InterestRateFutureDefinition) definition, now, curveNames, dataSource);
     }
     if (security instanceof FRASecurity) {
       return convert((FRASecurity) security, (ForwardRateAgreementDefinition) definition, now, curveNames, dataSource);
@@ -78,7 +78,7 @@ public class FixedIncomeConverterDataProvider {
   }
 
   /** Convert an InterestRateFutureSecurityDefinition to the derivative form: InterestRateFutureSecurity. NO MORE  Transaction   */
-  public InterestRateDerivative convert(final InterestRateFutureSecurity security, final InterestRateFutureSecurityDefinition definition, final ZonedDateTime now,
+  public InterestRateDerivative convert(final InterestRateFutureSecurity security, final InterestRateFutureDefinition definition, final ZonedDateTime now,
       final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
 
     return definition.toDerivative(now, curveNames);

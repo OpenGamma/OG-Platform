@@ -15,8 +15,7 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
@@ -43,22 +42,17 @@ public class FutureInstrumentsDescriptionDataSet {
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, CALENDAR, -SETTLEMENT_DAYS);
   private static final double NOTIONAL = 1000000.0; // 1m
   private static final double FUTURE_FACTOR = 0.25;
-  private static final double REFERENCE_PRICE = 0.0; // TODO - CASE - Future refactor - 0.0 Refence Price here
+  private static final double REFERENCE_PRICE = 0.0; // TODO - CASE - Future refactor - 0.0 Reference Price here
   private static final String NAME = "ERU2";
-  private static final InterestRateFutureSecurityDefinition ERU2_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, NAME);
-  // Transaction
-  private static final int QUANTITY = -123;
-  private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2011, 5, 12);
-  private static final double TRADE_PRICE = 0.985;
-  private static final double LAST_MARGIN_PRICE = 0.99;
+
   // Derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 13);
   private static final String DISCOUNTING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME };
 
-  public static InterestRateFutureSecurityDefinition createInterestRateFutureSecurityDefinition() {
-    return new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, NAME);
+  public static InterestRateFutureDefinition createInterestRateFutureSecurityDefinition() {
+    return new InterestRateFutureDefinition(LAST_TRADING_DATE, IBOR_INDEX, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, NAME);
   }
 
   public static InterestRateFuture createInterestRateFutureSecurity() {
@@ -92,32 +86,18 @@ public class FutureInstrumentsDescriptionDataSet {
   private static final ZonedDateTime BNDFUT_FIRST_NOTICE_DATE = DateUtils.getUTCDate(2011, 8, 31);
   private static final ZonedDateTime BNDFUT_LAST_NOTICE_DATE = DateUtils.getUTCDate(2011, 9, 29);
   private static final double BNDFUT_NOTIONAL = 100000;
-  private static final BondFutureSecurityDefinition BNDFUT_DEFINITION = new BondFutureSecurityDefinition(BNDFUT_LAST_TRADING_DATE, BNDFUT_FIRST_NOTICE_DATE, BNDFUT_LAST_NOTICE_DATE, BNDFUT_NOTIONAL,
-      BASKET_DEFINITION, CONVERSION_FACTOR);
-  // Transaction
-  private static final int BNDFUT_QUANTITY = 4321;
-  private static final double BNDFUT_TRADE_PRICE = 1.0987;
-  private static final ZonedDateTime BNDFUT_TRADE_DATE = DateUtils.getUTCDate(2011, 6, 21);
-  private static final double BNDFUT_REFERENCE_PRICE = 1.23;
+  private static final double BNDFUT_REFERENCE_PRICE = 0.0; // FIXME CASE Confirm BNDFUT_REFERENCE_PRICE. Was 1.23 
   private static final ZonedDateTime BNDFUT_REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 21);
   private static final String CREDIT_CURVE_NAME = "Credit";
   private static final String REPO_CURVE_NAME = "Repo";
   private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME };
 
-  public static BondFutureSecurityDefinition createBondFutureSecurityDefinition() {
-    return new BondFutureSecurityDefinition(BNDFUT_LAST_TRADING_DATE, BNDFUT_FIRST_NOTICE_DATE, BNDFUT_LAST_NOTICE_DATE, BNDFUT_NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR);
+  public static BondFutureDefinition createBondFutureSecurityDefinition() {
+    return new BondFutureDefinition(BNDFUT_LAST_TRADING_DATE, BNDFUT_FIRST_NOTICE_DATE, BNDFUT_LAST_NOTICE_DATE, BNDFUT_NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR, BNDFUT_REFERENCE_PRICE);
   }
 
-  public static BondFutureSecurity createBondFutureSecurity() {
-    return createBondFutureSecurityDefinition().toDerivative(BNDFUT_REFERENCE_DATE, CURVES_NAME);
-  }
-
-  public static BondFutureTransactionDefinition createBondFutureTransactionDefinition() {
-    return new BondFutureTransactionDefinition(BNDFUT_DEFINITION, BNDFUT_QUANTITY, BNDFUT_TRADE_DATE, BNDFUT_TRADE_PRICE);
-  }
-
-  public static BondFutureTransaction createBondFutureTransaction() {
-    return createBondFutureTransactionDefinition().toDerivative(BNDFUT_REFERENCE_DATE, BNDFUT_REFERENCE_PRICE, CURVES_NAME);
+  public static BondFuture createBondFutureSecurity() {
+    return createBondFutureSecurityDefinition().toDerivative(BNDFUT_REFERENCE_DATE, BNDFUT_REFERENCE_PRICE, CURVES_NAME);
   }
 
 }

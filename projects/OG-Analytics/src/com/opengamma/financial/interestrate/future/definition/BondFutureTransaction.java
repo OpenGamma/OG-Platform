@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial.interestrate.future.definition;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 
 /**
  * Description of transaction on an bond future security.
@@ -19,7 +19,7 @@ public class BondFutureTransaction implements InterestRateDerivative {
   /**
    * The underlying future security.
    */
-  private final BondFutureSecurity _underlyingFuture;
+  private final BondFuture _underlyingFuture;
   /**
    * The quantity of future. Can be positive or negative.
    */
@@ -36,7 +36,7 @@ public class BondFutureTransaction implements InterestRateDerivative {
    * @param quantity The quantity of future. 
    * @param referencePrice The reference price.
    */
-  public BondFutureTransaction(BondFutureSecurity underlyingFuture, int quantity, double referencePrice) {
+  public BondFutureTransaction(BondFuture underlyingFuture, int quantity, double referencePrice) {
     Validate.notNull(underlyingFuture, "underlying future");
     this._underlyingFuture = underlyingFuture;
     this._quantity = quantity;
@@ -47,7 +47,7 @@ public class BondFutureTransaction implements InterestRateDerivative {
    * Gets the underlying future security.
    * @return The underlying future security.
    */
-  public BondFutureSecurity getUnderlyingFuture() {
+  public BondFuture getUnderlyingFuture() {
     return _underlyingFuture;
   }
 
@@ -69,12 +69,12 @@ public class BondFutureTransaction implements InterestRateDerivative {
 
   @Override
   public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
-    return visitor.visitBondFutureTransaction(this, data);
+    return visitor.visitBondFuture(this.getUnderlyingFuture(), data);
   }
 
   @Override
   public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
-    return visitor.visitBondFutureTransaction(this);
+    return visitor.visitBondFuture(this.getUnderlyingFuture());
   }
 
   @Override

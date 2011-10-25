@@ -20,8 +20,6 @@ import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
-import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
@@ -73,10 +71,6 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitBondForward(BondForward bondForward, S data);
 
   T visitBondFuture(BondFuture bondFuture, S data);
-
-  T visitBondFutureSecurity(BondFutureSecurity bondFuture, S data);
-
-  T visitBondFutureTransaction(BondFutureTransaction bondFuture, S data);
 
   T visitBondFixedSecurity(BondFixedSecurity bond, S data);
 
@@ -176,10 +170,6 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitBondFuture(BondFuture bondFuture);
 
-  T visitBondFutureSecurity(BondFutureSecurity bondFuture);
-
-  T visitBondFutureTransaction(BondFutureTransaction bondFuture);
-
   T visitBondFixedSecurity(BondFixedSecurity bond);
 
   T visitBondFixedTransaction(BondFixedTransaction bond);
@@ -201,7 +191,7 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitFixedCouponSwap(FixedCouponSwap<?> swap);
 
   T visitFixedFloatSwap(FixedFloatSwap swap);
-  
+
   T visitOISSwap(OISSwap swap);
 
   T visitSwaptionCashFixedIbor(SwaptionCashFixedIbor swaption);

@@ -6,7 +6,7 @@
 package com.opengamma.financial.interestrate.future.calculator;
 
 import com.opengamma.financial.interestrate.AbstractInterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.method.BondFutureTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
@@ -52,7 +52,7 @@ public final class PresentValueFromFuturePriceCalculator extends AbstractInteres
   }
 
   @Override
-  public Double visitBondFutureTransaction(final BondFutureTransaction future, final Double futurePrice) {
+  public Double visitBondFuture(final BondFuture future, final Double futurePrice) {
     Validate.notNull(future);
     return METHOD_BOND_FUTURE.presentValueFromPrice(future, futurePrice);
   }

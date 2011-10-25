@@ -13,9 +13,11 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.CashFlowEquivalentCalculator;
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
-import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
@@ -24,13 +26,21 @@ import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.rootfinding.RidderSingleRootFinder;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * Method to compute the price of bond future using the Hull-White one factor model to estimate the delivery option.
  * Reference: Henrard, M. Bonds futures and their options: more than the cheapest-to-deliver; quality option and margining. Journal of Fixed Income, 2006, 16, 62-75
  */
-public final class BondFutureSecurityHullWhiteMethod {
+public final class BondFutureSecurityHullWhiteMethod extends BondFutureMethod {
 
   /**
    * The number of points used in the numerical integration process.
@@ -75,7 +85,7 @@ public final class BondFutureSecurityHullWhiteMethod {
    * @param nbPoint The number of point in the numerical cross estimation.
    * @return The future price.
    */
-  public double price(final BondFutureSecurity future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData, final int nbPoint) {
+  public double price(final BondFuture future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData, final int nbPoint) {
     Validate.notNull(future, "Future");
     Validate.notNull(hwData, "Hull-White data bundle");
     final int nbBond = future.getDeliveryBasket().length;
@@ -188,7 +198,7 @@ public final class BondFutureSecurityHullWhiteMethod {
       for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(nbInt - 1)].length; loopcf++) {
         price += cfaAdjusted[ctd.get(nbInt - 1)][loopcf] * (1.0 - NORMAL.getCDF(kappa[nbInt - 2] + alpha[ctd.get(nbInt - 1)][loopcf]));
       }
-      price -= e[ctd.get(0)] * (1 - NORMAL.getCDF(kappa[nbInt - 2]));
+      price -= e[ctd.get(nbInt - 1)] * (1 - NORMAL.getCDF(kappa[nbInt - 2]));
     }
 
     return price;
@@ -200,8 +210,34 @@ public final class BondFutureSecurityHullWhiteMethod {
    * @param hwData The curve and Hull-White parameters.
    * @return The future price.
    */
-  public double price(final BondFutureSecurity future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
+  public double price(final BondFuture future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     return price(future, hwData, DEFAULT_NB_POINTS);
+  }
+
+  /**
+   * Computes the present value of future from the curves using the cheapest-to-deliver and computing the value as a forward.
+   * @param future The future.
+   * @param curves The yield curves. Should contain the credit and repo curves associated to the instrument.
+   * @return The present value.
+   */
+  public CurrencyAmount presentValue(final BondFuture future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
+    Validate.notNull(future, "Future");
+    final double futurePrice = price(future, curves);
+    final double pv = presentValueFromPrice(future, futurePrice);
+    return CurrencyAmount.of(future.getCurrency(), pv);
+  }
+
+  /**
+   * Computes the present value of future from the curves using the cheapest-to-deliver and computing the value as a forward.
+   * @param instrument The future.
+   * @param curves The yield curves. Should contain the credit and repo curves associated to the instrument.
+   * @return The present value.
+   */
+  @Override
+  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof BondFuture, "Bond future");
+    Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
+    return presentValue((BondFuture) instrument, (HullWhiteOneFactorPiecewiseConstantDataBundle) curves);
   }
 
   /**
@@ -211,7 +247,7 @@ public final class BondFutureSecurityHullWhiteMethod {
    * @param nbPoint The number of point in the numerical cross estimation.
    * @return The curve sensitivity.
    */
-  public PresentValueSensitivity priceCurveSensitivity(final BondFutureSecurity future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData, final int nbPoint) {
+  public PresentValueSensitivity priceCurveSensitivity(final BondFuture future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData, final int nbPoint) {
     Validate.notNull(future, "Future");
     Validate.notNull(hwData, "Hull-White data bundle");
     final int nbBond = future.getDeliveryBasket().length;
@@ -355,8 +391,21 @@ public final class BondFutureSecurityHullWhiteMethod {
     return result;
   }
 
-  public PresentValueSensitivity priceCurveSensitivity(final BondFutureSecurity future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
+  public PresentValueSensitivity priceCurveSensitivity(final BondFuture future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     return priceCurveSensitivity(future, hwData, DEFAULT_NB_POINTS);
+  }
+
+  /**
+   * Compute the present value sensitivity to rates of a bond future by discounting.
+   * @param future The future.
+   * @param curves The yield curves. Should contain the credit and repo curves associated. 
+   * @return The present value rate sensitivity.
+   */
+  public PresentValueSensitivity presentValueCurveSensitivity(final BondFuture future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
+    Validate.notNull(future, "Future");
+    final PresentValueSensitivity priceSensitivity = priceCurveSensitivity(future, curves);
+    final PresentValueSensitivity transactionSensitivity = priceSensitivity.multiply(future.getNotional());
+    return transactionSensitivity;
   }
 
   /**
@@ -384,11 +433,11 @@ public final class BondFutureSecurityHullWhiteMethod {
     public Double evaluate(Double x) {
       double pv = 0.0;
       for (int loopcf = 0; loopcf < _cfa1.length; loopcf++) {
-        pv += _cfa1[loopcf] * Math.exp(-_alpha1[loopcf] * _alpha1[loopcf] - _alpha1[loopcf] * x / 2.0);
+        pv += _cfa1[loopcf] * Math.exp(-_alpha1[loopcf] * _alpha1[loopcf] / 2.0 - _alpha1[loopcf] * x);
       }
       pv -= _e1;
       for (int loopcf = 0; loopcf < _cfa2.length; loopcf++) {
-        pv -= _cfa2[loopcf] * Math.exp(-_alpha2[loopcf] * _alpha2[loopcf] - _alpha2[loopcf] * x / 2.0);
+        pv -= _cfa2[loopcf] * Math.exp(-_alpha2[loopcf] * _alpha2[loopcf] / 2.0 - _alpha2[loopcf] * x);
       }
       pv += _e2;
       return pv;

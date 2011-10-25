@@ -1,135 +1,178 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.instrument.future;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.LocalDate;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.yield.YieldConvention;
+import com.opengamma.financial.convention.yield.YieldConventionFactory;
+import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.financial.interestrate.future.definition.BondFuture;
+import com.opengamma.financial.schedule.ScheduleCalculator;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
+
+import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.convention.yield.SimpleYieldConvention;
-import com.opengamma.financial.instrument.bond.BondConvention;
-import com.opengamma.financial.instrument.bond.BondDefinition;
-import com.opengamma.financial.instrument.bond.BondForwardDefinition;
-import com.opengamma.financial.interestrate.bond.definition.BondForward;
-import com.opengamma.financial.interestrate.future.definition.BondFuture;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtils;
-
 /**
- * 
+ * Tests related to bond futures security Definition construction.
  */
 public class BondFutureDefinitionTest {
+  // 5-Year U.S. Treasury Note Futures: FVU1
   private static final Currency CUR = Currency.USD;
-  private static final LocalDate[] NOMINAL_DATES = new LocalDate[] {LocalDate.of(2010, 1, 1), LocalDate.of(2010, 2, 1), LocalDate.of(2010, 3, 1), LocalDate.of(2010, 4, 1), LocalDate.of(2010, 5, 1),
-      LocalDate.of(2010, 6, 1), LocalDate.of(2010, 7, 1), LocalDate.of(2010, 8, 1), LocalDate.of(2010, 9, 1), LocalDate.of(2010, 10, 1), LocalDate.of(2010, 11, 1), LocalDate.of(2010, 12, 1)};
-  private static final LocalDate[] SETTLEMENT_DATES = new LocalDate[] {LocalDate.of(2010, 1, 5), LocalDate.of(2010, 2, 3), LocalDate.of(2010, 3, 3), LocalDate.of(2010, 4, 5),
-      LocalDate.of(2010, 5, 5), LocalDate.of(2010, 6, 3), LocalDate.of(2010, 7, 5), LocalDate.of(2010, 8, 4), LocalDate.of(2010, 9, 3), LocalDate.of(2010, 10, 5), LocalDate.of(2010, 11, 3),
-      LocalDate.of(2010, 12, 3)};
-  private static final BondConvention BOND_CONVENTION = new BondConvention(1, DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"),
-      BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), new MondayToFridayCalendar("Weekend"), true, "USD Bond", 0, SimpleYieldConvention.US_TREASURY_EQUIVALANT);
-  private static final double COUPON = 0.04;
-  private static final double COUPONS_PER_YEAR = 12;
-  private static final double NOTIONAL = 100;
-  private static final BondDefinition BOND_DEFINITION1 = new BondDefinition(CUR, NOMINAL_DATES, SETTLEMENT_DATES, COUPON, NOTIONAL, COUPONS_PER_YEAR, BOND_CONVENTION);
-  private static final BondDefinition BOND_DEFINITION2 = new BondDefinition(CUR, NOMINAL_DATES, SETTLEMENT_DATES, COUPON + 1, NOTIONAL, COUPONS_PER_YEAR, BOND_CONVENTION);
-  private static final BondDefinition BOND_DEFINITION3 = new BondDefinition(CUR, NOMINAL_DATES, SETTLEMENT_DATES, COUPON + 2, NOTIONAL, COUPONS_PER_YEAR, BOND_CONVENTION);
-  private static final BondDefinition BOND_DEFINITION4 = new BondDefinition(CUR, NOMINAL_DATES, SETTLEMENT_DATES, COUPON + 1, NOTIONAL, COUPONS_PER_YEAR, BOND_CONVENTION);
-  private static final LocalDate DELIVERY_DATE = LocalDate.of(2010, 6, 15);
-  private static final ZonedDateTime ZONED_DELIVERY_DATE = DateUtils.getUTCDate(2010, 6, 15);
-  private static final BondConvention BOND_FUTURE_CONVENTION = new BondConvention(0, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
-      BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), new MondayToFridayCalendar("Weekend"), true, "USD Bond Future", 0, SimpleYieldConvention.MONEY_MARKET);
-  private static final double[] CONVERSION_FACTORS = new double[] {1, .8, .6, .4};
-  private static final BondDefinition[] DELIVERABLES = new BondDefinition[] {BOND_DEFINITION1, BOND_DEFINITION2, BOND_DEFINITION3, BOND_DEFINITION4};
-  private static final BondFutureDefinition BOND_FUTURE_DEFINITION = new BondFutureDefinition(DELIVERABLES, CONVERSION_FACTORS, BOND_FUTURE_CONVENTION, DELIVERY_DATE);
-  private static final double FUTURE_PRICE = 104;
+  private static final Period PAYMENT_TENOR = Period.ofMonths(6);
+  private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
+  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final boolean IS_EOM = false;
+  private static final int SETTLEMENT_DAYS = 1;
+  private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
+  private static final int NB_BOND = 7;
+  private static final Period[] BOND_TENOR = new Period[] {Period.ofYears(5), Period.ofYears(5), Period.ofYears(5), Period.ofYears(8), Period.ofYears(5), Period.ofYears(5), Period.ofYears(5) };
+  private static final ZonedDateTime[] START_ACCRUAL_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 11, 30), DateUtils.getUTCDate(2010, 12, 31), DateUtils.getUTCDate(2011, 1, 31),
+      DateUtils.getUTCDate(2008, 2, 29), DateUtils.getUTCDate(2011, 3, 31), DateUtils.getUTCDate(2011, 4, 30), DateUtils.getUTCDate(2011, 5, 31) };
+  private static final double[] RATE = new double[] {0.01375, 0.02125, 0.0200, 0.02125, 0.0225, 0.0200, 0.0175 };
+  private static final double[] CONVERSION_FACTOR = new double[] {.8317, .8565, .8493, .8516, .8540, .8417, .8292 };
+  private static final ZonedDateTime[] MATURITY_DATE = new ZonedDateTime[NB_BOND];
+  private static final BondFixedSecurityDefinition[] BASKET_DEFINITION = new BondFixedSecurityDefinition[NB_BOND];
+  static {
+    for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
+      MATURITY_DATE[loopbasket] = START_ACCRUAL_DATE[loopbasket].plus(BOND_TENOR[loopbasket]);
+      BASKET_DEFINITION[loopbasket] = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE[loopbasket], START_ACCRUAL_DATE[loopbasket], PAYMENT_TENOR, RATE[loopbasket], SETTLEMENT_DAYS, CALENDAR,
+          DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM);
+    }
+  }
+  private static final ZonedDateTime LAST_TRADING_DATE = DateUtils.getUTCDate(2011, 9, 21);
+  private static final ZonedDateTime FIRST_NOTICE_DATE = DateUtils.getUTCDate(2011, 8, 31);
+  private static final ZonedDateTime LAST_NOTICE_DATE = DateUtils.getUTCDate(2011, 9, 29);
+  private static final double NOTIONAL = 100000;
+  private static final double REF_PRICE = 0.0;
+  private static final BondFutureDefinition FUTURE_DEFINITION = new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION,
+      CONVERSION_FACTOR, REF_PRICE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullDeliverables() {
-    new BondFutureDefinition(null, CONVERSION_FACTORS, BOND_FUTURE_CONVENTION, DELIVERY_DATE);
+  public void testNullLastTrading() {
+    new BondFutureDefinition(null, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR, REF_PRICE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullDeliverable() {
-    new BondFutureDefinition(new BondDefinition[] {null}, CONVERSION_FACTORS, BOND_FUTURE_CONVENTION, DELIVERY_DATE);
+  public void testNullFirstNotice() {
+    new BondFutureDefinition(LAST_TRADING_DATE, null, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR, REF_PRICE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullConversionFactors() {
-    new BondFutureDefinition(DELIVERABLES, null, BOND_FUTURE_CONVENTION, DELIVERY_DATE);
+  public void testNullLastNotice() {
+    new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, null, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR, REF_PRICE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullConvention() {
-    new BondFutureDefinition(DELIVERABLES, CONVERSION_FACTORS, null, DELIVERY_DATE);
+  public void testNullBasket() {
+    new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, null, CONVERSION_FACTOR, REF_PRICE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullDeliveryDate() {
-    new BondFutureDefinition(DELIVERABLES, CONVERSION_FACTORS, BOND_FUTURE_CONVENTION, null);
+  public void testNullConversion() {
+    new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, null, REF_PRICE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testBadArrayLength() {
-    new BondFutureDefinition(DELIVERABLES, new double[] {1, 2, 3}, BOND_FUTURE_CONVENTION, DELIVERY_DATE);
+  public void zeroBasket() {
+    new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, new BondFixedSecurityDefinition[0], CONVERSION_FACTOR, REF_PRICE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testToDerivativeNullDate() {
-    BOND_FUTURE_DEFINITION.toDerivative(null, FUTURE_PRICE, "A");
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testToDerivativeNullNames() {
-    BOND_FUTURE_DEFINITION.toDerivative(ZONED_DELIVERY_DATE, FUTURE_PRICE, (String[]) null);
+  public void sizeConversionFactor() {
+    final double[] incorrectConversionFactor = new double[NB_BOND - 1];
+    new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, incorrectConversionFactor, REF_PRICE);
   }
 
   @Test
-  public void testGetters() {
-    assertEquals(BOND_FUTURE_DEFINITION.getConvention(), BOND_FUTURE_CONVENTION);
-    assertArrayEquals(BOND_FUTURE_DEFINITION.getConversionFactors(), CONVERSION_FACTORS, 0);
-    assertArrayEquals(BOND_FUTURE_DEFINITION.getDeliverableBonds(), DELIVERABLES);
-    assertEquals(BOND_FUTURE_DEFINITION.getDeliveryDate(), DELIVERY_DATE);
+  /**
+   * Tests the getter methods.
+   */
+  public void getter() {
+    assertEquals("Bond future security definition: last trading date", LAST_TRADING_DATE, FUTURE_DEFINITION.getTradingLastDate());
+    assertEquals("Bond future security definition: first notice date", FIRST_NOTICE_DATE, FUTURE_DEFINITION.getNoticeFirstDate());
+    assertEquals("Bond future security definition: last notice date", LAST_NOTICE_DATE, FUTURE_DEFINITION.getNoticeLastDate());
+    assertEquals("Bond future security definition: first delivery date", ScheduleCalculator.getAdjustedDate(FIRST_NOTICE_DATE, CALENDAR, SETTLEMENT_DAYS), FUTURE_DEFINITION.getDeliveryFirstDate());
+    assertEquals("Bond future security definition: last delivery date", ScheduleCalculator.getAdjustedDate(LAST_NOTICE_DATE, CALENDAR, SETTLEMENT_DAYS), FUTURE_DEFINITION.getDeliveryLastDate());
+    assertEquals("Bond future security definition: notional", NOTIONAL, FUTURE_DEFINITION.getNotional());
+    assertEquals("Bond future security definition: delivery basket", BASKET_DEFINITION, FUTURE_DEFINITION.getDeliveryBasket());
+    assertEquals("Bond future security definition: conversion factors", CONVERSION_FACTOR, FUTURE_DEFINITION.getConversionFactor());
+    assertEquals("Bond future security definition: settlement days", SETTLEMENT_DAYS, FUTURE_DEFINITION.getSettlementDays());
   }
 
   @Test
-  public void testHashCodeAndEquals() {
-    BondFutureDefinition other = new BondFutureDefinition(DELIVERABLES, CONVERSION_FACTORS, BOND_FUTURE_CONVENTION, DELIVERY_DATE);
-    assertEquals(other, BOND_FUTURE_DEFINITION);
-    assertEquals(other.hashCode(), BOND_FUTURE_DEFINITION.hashCode());
-    other = new BondFutureDefinition(new BondDefinition[] {BOND_DEFINITION1, BOND_DEFINITION1, BOND_DEFINITION3, BOND_DEFINITION4}, CONVERSION_FACTORS, BOND_FUTURE_CONVENTION, DELIVERY_DATE);
-    assertFalse(other.equals(BOND_FUTURE_DEFINITION));
-    other = new BondFutureDefinition(DELIVERABLES, new double[] {1, 1, 1, 1}, BOND_FUTURE_CONVENTION, DELIVERY_DATE);
-    assertFalse(other.equals(BOND_FUTURE_DEFINITION));
-    other = new BondFutureDefinition(DELIVERABLES, CONVERSION_FACTORS, new BondConvention(0, DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), new MondayToFridayCalendar("Weekend"), true, "USD Bond Future", 0, SimpleYieldConvention.JGB_SIMPLE),
-        DELIVERY_DATE);
-    assertFalse(other.equals(BOND_FUTURE_DEFINITION));
-    other = new BondFutureDefinition(DELIVERABLES, CONVERSION_FACTORS, BOND_FUTURE_CONVENTION, DELIVERY_DATE.plusDays(1));
-    assertFalse(other.equals(BOND_FUTURE_DEFINITION));
+  /**
+   * Tests the equal and hashCode methods.
+   */
+  public void equalHash() {
+    assertTrue(FUTURE_DEFINITION.equals(FUTURE_DEFINITION));
+    BondFutureDefinition other = new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR, REF_PRICE);
+    assertTrue(FUTURE_DEFINITION.equals(other));
+    assertTrue(FUTURE_DEFINITION.hashCode() == other.hashCode());
+    BondFutureDefinition modifiedFuture;
+    modifiedFuture = new BondFutureDefinition(FIRST_NOTICE_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR, REF_PRICE);
+    assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
+    modifiedFuture = new BondFutureDefinition(LAST_TRADING_DATE, LAST_TRADING_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR, REF_PRICE);
+    assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
+    modifiedFuture = new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, FIRST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR, REF_PRICE);
+    assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
+    modifiedFuture = new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL + 100000, BASKET_DEFINITION, CONVERSION_FACTOR, REF_PRICE);
+    assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
+    double[] otherConversionFactor = new double[] {.9000, .8565, .8493, .8516, .8540, .8417, .8292 };
+    modifiedFuture = new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, otherConversionFactor, REF_PRICE);
+    assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
+    BondFixedSecurityDefinition[] otherBasket = new BondFixedSecurityDefinition[NB_BOND];
+    for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
+      otherBasket[loopbasket] = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE[loopbasket], START_ACCRUAL_DATE[loopbasket], PAYMENT_TENOR, 2 * RATE[loopbasket], SETTLEMENT_DAYS, CALENDAR,
+          DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM);
+    }
+    modifiedFuture = new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, otherBasket, CONVERSION_FACTOR, REF_PRICE);
+    assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
+    assertFalse(FUTURE_DEFINITION.equals(LAST_TRADING_DATE));
+    assertFalse(FUTURE_DEFINITION.equals(null));
   }
 
   @Test
-  public void testToDefinition() {
-    final ZonedDateTime date = ZONED_DELIVERY_DATE.minusMonths(2);
-    final double[] cf = new double[] {1, 0.95};
-    final String curveName = "a";
-    final BondDefinition b1 = new BondDefinition(CUR, NOMINAL_DATES, SETTLEMENT_DATES, COUPON, COUPONS_PER_YEAR, BOND_CONVENTION);
-    final BondDefinition b2 = new BondDefinition(CUR, NOMINAL_DATES, SETTLEMENT_DATES, COUPON * 1.05, COUPONS_PER_YEAR, BOND_CONVENTION);
-    final BondForwardDefinition f1 = new BondForwardDefinition(b1, DELIVERY_DATE, BOND_FUTURE_CONVENTION);
-    final BondForwardDefinition f2 = new BondForwardDefinition(b2, DELIVERY_DATE, BOND_FUTURE_CONVENTION);
-    final BondFutureDefinition definition = new BondFutureDefinition(new BondDefinition[] {b1, b2}, cf, BOND_FUTURE_CONVENTION, DELIVERY_DATE);
-    final BondFuture future = new BondFuture(new BondForward[] {f1.toDerivative(date, curveName), f2.toDerivative(date, curveName)}, cf, FUTURE_PRICE);
-    assertEquals(future, definition.toDerivative(date, FUTURE_PRICE, curveName));
+  /**
+   * Tests the toDerivative method.
+   */
+  public void toDerivative() {
+    ZonedDateTime firstDeliveryDate = ScheduleCalculator.getAdjustedDate(FIRST_NOTICE_DATE, CALENDAR, SETTLEMENT_DAYS);
+    ZonedDateTime lastDeliveryDate = ScheduleCalculator.getAdjustedDate(LAST_NOTICE_DATE, CALENDAR, SETTLEMENT_DAYS);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 17);
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final double lastTradingTime = actAct.getDayCountFraction(referenceDate, LAST_TRADING_DATE);
+    final double firstNoticeTime = actAct.getDayCountFraction(referenceDate, FIRST_NOTICE_DATE);
+    final double lastNoticeTime = actAct.getDayCountFraction(referenceDate, LAST_NOTICE_DATE);
+    final double firstDeliveryTime = actAct.getDayCountFraction(referenceDate, firstDeliveryDate);
+    final double lastDeliveryTime = actAct.getDayCountFraction(referenceDate, lastDeliveryDate);
+    final String creditCruveName = "Credit";
+    final String repoCurveName = "Repo";
+    final String[] curvesName = {creditCruveName, repoCurveName };
+    final BondFixedSecurity[] basket = new BondFixedSecurity[NB_BOND];
+    for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
+      basket[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(referenceDate, lastDeliveryDate, curvesName);
+    }
+    final BondFuture futureConverted = FUTURE_DEFINITION.toDerivative(referenceDate, curvesName);
+    final BondFuture futureExpected = new BondFuture(lastTradingTime, firstNoticeTime, lastNoticeTime, firstDeliveryTime, lastDeliveryTime, NOTIONAL, basket, CONVERSION_FACTOR, REF_PRICE);
+    assertEquals("Bond future security definition: future conversion", futureExpected, futureConverted);
   }
+
 }

@@ -12,7 +12,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -21,12 +21,12 @@ import com.opengamma.util.money.Currency;
 /**
  * Description of an interest rate future option security with premium paid up-front (CME type). The option is of American type.
  */
-public class InterestRateFutureOptionPremiumSecurityDefinition implements FixedIncomeInstrumentConverter<InterestRateFutureOptionPremiumSecurity> {
+public class InterestRateFutureOptionPremiumSecurityDefinition implements FixedIncomeInstrumentDefinition<InterestRateFutureOptionPremiumSecurity> {
 
   /**
    * Underlying future security.
    */
-  private final InterestRateFutureSecurityDefinition _underlyingFuture;
+  private final InterestRateFutureDefinition _underlyingFuture;
   /**
    * Expiration date.
    */
@@ -47,7 +47,7 @@ public class InterestRateFutureOptionPremiumSecurityDefinition implements FixedI
    * @param strike The option strike.
    * @param isCall The cap (true) / floor (false) flag.
    */
-  public InterestRateFutureOptionPremiumSecurityDefinition(final InterestRateFutureSecurityDefinition underlyingFuture, final ZonedDateTime expirationDate, final double strike, final boolean isCall) {
+  public InterestRateFutureOptionPremiumSecurityDefinition(final InterestRateFutureDefinition underlyingFuture, final ZonedDateTime expirationDate, final double strike, final boolean isCall) {
     Validate.notNull(underlyingFuture, "underlying future");
     Validate.notNull(expirationDate, "expiration");
     this._underlyingFuture = underlyingFuture;
@@ -60,7 +60,7 @@ public class InterestRateFutureOptionPremiumSecurityDefinition implements FixedI
    * Gets the underlying future security.
    * @return The underlying future security.
    */
-  public InterestRateFutureSecurityDefinition getUnderlyingFuture() {
+  public InterestRateFutureDefinition getUnderlyingFuture() {
     return _underlyingFuture;
   }
 
