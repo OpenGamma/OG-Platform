@@ -305,6 +305,17 @@ static char *_OptionBaseDir (const CSettings *pSettings) {
 	return pszOption;
 }
 
+/// Creates a JVM memory parameter.
+///
+/// @param[in] pszPrefix parameter prefix
+/// @param[in] dwMemory memory limit in Mb
+/// @return the option string
+static char *_OptionMemory (const char *pszPrefix, unsigned long dwMemory) {
+	char szOption[16];
+	StringCbPrintfA (szOption, sizeof (szOption), "-X%s%dm", pszPrefix, dwMemory);
+	return strdup (szOption);
+}
+
 /// Implementation of the notifyStop method in the Main class.
 ///
 /// @param pEnv see Java documentation
@@ -346,7 +357,7 @@ CJVM *CJVM::Create () {
 	JavaVMInitArgs args;
 	memset (&args, 0, sizeof (args));
 	args.version = JNI_VERSION_1_6;
-	JavaVMOption option[6];
+	JavaVMOption option[8];
 	memset (&option, 0, sizeof (option));
 	args.options = option;
 	if ((option[args.nOptions].optionString = _OptionClassPath (&settings)) != NULL) args.nOptions++;
@@ -354,19 +365,18 @@ CJVM *CJVM::Create () {
 	if ((option[args.nOptions].optionString = _OptionLanguageAnnotationCache (&settings)) != NULL) args.nOptions++;
 	if ((option[args.nOptions].optionString = _OptionBaseDir (&settings)) != NULL) args.nOptions++;
 #ifdef _DEBUG
-	option[args.nOptions++].optionString = (char*)"-Dservice.debug=true";
+	if ((option[args.nOptions].optionString = strdup ("-Dservice.debug=true")) != NULL) args.nOptions++;
 #else
-	option[args.nOptions++].optionString = (char*)"-Dservice.ndebug=true";
+	if ((option[args.nOptions].optionString = strdup ("-Dservice.ndebug=true")) != NULL) args.nOptions++;
 #endif
-	option[args.nOptions++].optionString = (char*)"-Dcom.sun.management.jmxremote";
+	if ((option[args.nOptions].optionString = strdup ("-Dcom.sun.management.jmxremote")) != NULL) args.nOptions++;
+	if ((option[args.nOptions].optionString = _OptionMemory ("ms", settings.GetJvmMinHeap ())) != NULL) args.nOptions++;
+	if ((option[args.nOptions].optionString = _OptionMemory ("mx", settings.GetJvmMaxHeap ())) != NULL) args.nOptions++;
 	// TODO [PLAT-1116] additional option strings from registry
 	LOGDEBUG (TEXT ("Creating JVM"));
 	jint err = procCreateVM (&pJVM, &pEnv, &args);
-	if (option[0].optionString) {
-		delete option[0].optionString;
-	}
-	if (option[1].optionString) {
-		delete option[1].optionString;
+	while (args.nOptions > 0) {
+		free (option[--args.nOptions]);
 	}
 	if (err) {
 		LOGWARN (TEXT ("Couldn't create JVM, error ") << err);
