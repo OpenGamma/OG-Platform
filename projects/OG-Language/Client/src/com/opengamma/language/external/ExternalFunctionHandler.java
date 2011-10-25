@@ -6,6 +6,7 @@
 package com.opengamma.language.external;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -15,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +32,8 @@ import com.opengamma.language.function.FunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
 import com.opengamma.language.text.Ordinal;
+import com.thoughtworks.paranamer.BytecodeReadingParanamer;
+import com.thoughtworks.paranamer.Paranamer;
 
 /**
  * Handles external functions, producing {@link MetaFunction} wrappers for
@@ -43,9 +47,10 @@ import com.opengamma.language.text.Ordinal;
 
     private final ExternalFunction _annotation;
     private final Class<?>[] _parameterTypes;
+    private final String[] _parameterNames;
     private final Annotation[][] _parameterAnnotations;
 
-    protected Wrapper(final AnnotatedElement element, final Class<?>[] parameterTypes, final Annotation[][] parameterAnnotations) {
+    protected Wrapper(final AnnotatedElement element, final Class<?>[] parameterTypes, final String[] parameterNames, final Annotation[][] parameterAnnotations) {
       ExternalFunction annotation = null;
       for (Annotation anno : element.getAnnotations()) {
         if (anno instanceof ExternalFunction) {
@@ -55,6 +60,7 @@ import com.opengamma.language.text.Ordinal;
       assert annotation != null;
       _annotation = annotation;
       _parameterTypes = parameterTypes;
+      _parameterNames = parameterNames;
       _parameterAnnotations = parameterAnnotations;
     }
 
@@ -137,7 +143,11 @@ import com.opengamma.language.text.Ordinal;
           }
         }
         if (name == null) {
-          name = generateParamName(i);
+          if (_parameterNames != null && StringUtils.isNotBlank(_parameterNames[i])) {
+            name = _parameterNames[i];
+          } else {
+            name = generateParamName(i);
+          }
         }
         if (description == null) {
           description = "The " + Ordinal.get(i + 1) + " parameter";
@@ -200,7 +210,7 @@ import com.opengamma.language.text.Ordinal;
     private final Object _instance;
 
     public MethodWrapper(final Method method, final Object instance) {
-      super(method, method.getParameterTypes(), method.getParameterAnnotations());
+      super(method, method.getParameterTypes(), tryGetParameterNames(method), method.getParameterAnnotations());
       _method = method;
       _instance = instance;
     }
@@ -252,7 +262,7 @@ import com.opengamma.language.text.Ordinal;
     private final Constructor<?> _constructor;
 
     public ConstructorWrapper(final Constructor<?> constructor) {
-      super(constructor, constructor.getParameterTypes(), constructor.getParameterAnnotations());
+      super(constructor, constructor.getParameterTypes(), tryGetParameterNames(constructor), constructor.getParameterAnnotations());
       _constructor = constructor;
     }
 
@@ -332,6 +342,18 @@ import com.opengamma.language.text.Ordinal;
     _functions = functions;
   }
 
+  private static String[] tryGetParameterNames(AccessibleObject methodOrConstructor) {
+    Paranamer paranamer = new BytecodeReadingParanamer();
+    String[] parameterNames = null;
+    try {
+      parameterNames = paranamer.lookupParameterNames(methodOrConstructor);
+    } catch (Exception e) {
+      // Requires debugging information in the bytecode which might not be present, so not really an error 
+      s_logger.info("Error looking up parameter names from bytecode for: " + methodOrConstructor, e);
+    }
+    return parameterNames;
+  }
+  
   private static Object tryGetInstance(final Class<?> clazz) {
     try {
       return clazz.newInstance();
