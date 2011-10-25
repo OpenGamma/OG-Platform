@@ -376,7 +376,7 @@ CJVM *CJVM::Create () {
 	LOGDEBUG (TEXT ("Creating JVM"));
 	jint err = procCreateVM (&pJVM, &pEnv, &args);
 	while (args.nOptions > 0) {
-		free (option[--args.nOptions]);
+		free (option[--args.nOptions].optionString);
 	}
 	if (err) {
 		LOGWARN (TEXT ("Couldn't create JVM, error ") << err);
