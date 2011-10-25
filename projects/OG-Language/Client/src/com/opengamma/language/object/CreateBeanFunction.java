@@ -38,15 +38,12 @@ public class CreateBeanFunction implements PublishedFunction {
     _metaBean = JodaBeanUtils.metaBean(beanClass);
     final List<MetaParameter> metaParameters = new ArrayList<MetaParameter>();
     List<String> paramDescriptions = new ArrayList<String>();
-    for (MetaProperty<Object> metaProperty : _metaBean.metaPropertyIterable()) {
+    for (MetaProperty<Object> metaProperty : BeanUtils.writableMetaProperties(_metaBean)) {
       Class<Object> propertyType = metaProperty.propertyType();
-      PropertyReadWrite readWrite = metaProperty.readWrite();
-      if (readWrite == PropertyReadWrite.READ_WRITE || readWrite == PropertyReadWrite.WRITE_ONLY) {
-        paramDescriptions.add(propertyType.getSimpleName() + " " + metaProperty.name());
-        // TODO get the PropertyDefinition annotation from the property and check whether its validate property = notNull
-        JavaTypeInfo<?> typeInfo = JavaTypeInfo.builder(propertyType).allowNull().get();
-        metaParameters.add(new MetaParameter(metaProperty.name(), typeInfo));
-      }
+      paramDescriptions.add(propertyType.getSimpleName() + " " + metaProperty.name());
+      // TODO get the PropertyDefinition annotation from the property and check whether its validate property = notNull
+      JavaTypeInfo<?> typeInfo = JavaTypeInfo.builder(propertyType).allowNull().get();
+      metaParameters.add(new MetaParameter(metaProperty.name(), typeInfo));
     }
     _paramDescription = StringUtils.join(paramDescriptions, ", ");
     _metaFunction = new MetaFunction(null, functionName, metaParameters, new Invoker(metaParameters));

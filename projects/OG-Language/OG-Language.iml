@@ -28,6 +28,8 @@
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />
+    <orderEntry type="module" module-name="OG-Excel" />
+    <orderEntry type="module" module-name="GreshamStreet" />
     <orderEntry type="module" module-name="OG-Financial" />
     <orderEntry type="module-library">
       <library name="config">

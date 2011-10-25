@@ -68,9 +68,6 @@ public interface Deal extends Bean {
           if (key.startsWith(DEAL_PREFIX) && !key.equals(DEAL_CLASSNAME) && !key.equals(DEAL_TYPE)) {
             MetaProperty<?> mp = metaBean.metaProperty(StringUtils.substringAfter(key, DEAL_PREFIX));
             String value = entry.getValue();
-            if (s_logger.isDebugEnabled()) {
-              s_logger.debug("Setting property {}({}) with value {}", new Object[]{mp, mp.propertyType(), value});
-            }
             mp.setString(deal, value);
           }
         }
