@@ -28,7 +28,9 @@
             "id": "${item.uniqueId.objectId}",
             "quantity": "${item.quantity}",
             "counterParty": "${item.counterpartyExternalId}",
-            "date": "${item.tradeDate}"
+            "date": "${item.tradeDate}",
+            <#assign tradeAttr = item.attributes>
+            "attributes":{<#list tradeAttr?keys as key>"${key}":"${tradeAttr[key]}"<#if key_has_next>,</#if></#list>}
         }<#if item_has_next>,</#if></#list>
     ]
 }
