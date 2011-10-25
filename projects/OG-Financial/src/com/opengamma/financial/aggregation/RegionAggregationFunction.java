@@ -92,20 +92,23 @@ public class RegionAggregationFunction implements AggregationFunction<String> {
             ExternalId exchangeId = FinancialSecurityUtils.getExchange(security);
             if (exchangeId != null) {
               Exchange exchange = _exchangeSource.getSingleExchange(exchangeId);
-              if (exchange.getRegionIdBundle() != null) {
-                Region highestLevelRegion = _regionSource.getHighestLevelRegion(exchange.getRegionIdBundle());
-                if (s_specialCountriesRegions.contains(highestLevelRegion.getName())) {
-                  return highestLevelRegion.getName();
-                } else {
-                  Set<UniqueId> parentRegionIds = highestLevelRegion.getParentRegionIds();
-                  s_logger.info("got " + highestLevelRegion + ", looking for parent");
-                  String parent = findTopLevelRegion(parentRegionIds);
-                  s_logger.info("parent was " + parent);
-                  return parent;
-                }
-              } else {
+              if (exchange == null) {
+                s_logger.info("No exchange could be found with ID {}", exchangeId);
+                return NO_REGION;
+              }
+              if (exchange.getRegionIdBundle() == null) {
                 s_logger.info("Exchange " + exchange.getName() + " region bundle was null");
                 return NO_REGION;
+              }
+              Region highestLevelRegion = _regionSource.getHighestLevelRegion(exchange.getRegionIdBundle());
+              if (s_specialCountriesRegions.contains(highestLevelRegion.getName())) {
+                return highestLevelRegion.getName();
+              } else {
+                Set<UniqueId> parentRegionIds = highestLevelRegion.getParentRegionIds();
+                s_logger.info("got " + highestLevelRegion + ", looking for parent");
+                String parent = findTopLevelRegion(parentRegionIds);
+                s_logger.info("parent was " + parent);
+                return parent;
               }
             }
           } 
