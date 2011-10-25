@@ -237,12 +237,14 @@ public class BlackPriceFunctionTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " Black price : " + (endTime - startTime) + " ms");
+
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       FUNCTION.getPriceAdjoint(ITM_CALL, ATM_DATA);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " Black price + first order adjoint: " + (endTime - startTime) + " ms");
+
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       FUNCTION.getPriceAdjoint2(ITM_CALL, ATM_DATA, bsD, bsD2);
@@ -272,12 +274,28 @@ public class BlackPriceFunctionTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " Black price : " + (endTime - startTime) + " ms");
+
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       FUNCTION.getPriceAdjoint(ITM_CALL, ATM_DATA);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " Black price + first order adjoint: " + (endTime - startTime) + " ms");
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      FUNCTION.getPriceAdjoint(ITM_CALL, ATM_DATA);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " Black price + first order adjoint: " + (endTime - startTime) + " ms");
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      FUNCTION.getPriceFunction(ITM_CALL).evaluate(ATM_DATA);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " Black price : " + (endTime - startTime) + " ms");
+
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       FUNCTION.getPriceAdjoint2(ITM_CALL, ATM_DATA, bsD, bsD2);

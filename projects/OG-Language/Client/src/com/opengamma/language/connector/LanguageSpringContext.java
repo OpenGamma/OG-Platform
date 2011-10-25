@@ -116,7 +116,7 @@ public class LanguageSpringContext {
   private static String[] findSpringXmlConfig() {
     String extPath = System.getProperty(LANGUAGE_EXT_PATH);
     if (StringUtils.isEmpty(extPath)) {
-      throw new OpenGammaRuntimeException("The directory containing the Spring XML config files for language support" +
+      throw new OpenGammaRuntimeException("The directory containing the Spring XML config files for language support " +
                                               "must be specified in the system property " + LANGUAGE_EXT_PATH);
     }
     File extDir = new File(extPath);

@@ -7,19 +7,25 @@ package com.opengamma.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import static com.opengamma.financial.interestrate.SimpleInstrumentFactory.*;
+import javax.time.calendar.Period;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
@@ -27,10 +33,6 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.money.Currency;
-
-import javax.time.calendar.Period;
-
-import org.testng.annotations.Test;
 
 /**
  * 
@@ -103,23 +105,25 @@ public class ParRateCalculatorTest {
     double pv = PVC.visit(ir, CURVES);
     assertEquals(pvExpected, pv, 1e-12);
   }
-
+  
   @Test
   public void testBond() {
     final int n = 20;
     final double tau = 0.5;
     final double yearFrac = 180 / 365.0;
-
     final double[] yearFracs = new double[n];
     final double[] paymentTimes = new double[n];
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = tau * (i + 1);
       yearFracs[i] = yearFrac;
     }
-    Bond bond = new Bond(CUR, paymentTimes, 0.0, yearFrac, 0.0, FIVE_PC_CURVE_NAME);
+    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[]{new PaymentFixed(CUR, 11, 1, FIVE_PC_CURVE_NAME)});
+    AnnuityCouponFixed coupon = new AnnuityCouponFixed(CUR, new double[] {0.5, 1} , 0.03, FIVE_PC_CURVE_NAME, false);
+    BondFixedSecurity bond = new BondFixedSecurity(nominal, coupon, 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FIVE_PC_CURVE_NAME, "S");
     final double rate = PRC.visit(bond, CURVES);
-    bond = new Bond(CUR, paymentTimes, rate, yearFrac, 0.0, FIVE_PC_CURVE_NAME);
-    assertEquals(1.0, PVC.visit(bond, CURVES), 1e-12);
+    coupon = new AnnuityCouponFixed(CUR, new double[] {0.5, 1} , rate, FIVE_PC_CURVE_NAME, false);
+    bond = new BondFixedSecurity(nominal, coupon, 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FIVE_PC_CURVE_NAME, "S");
+    assertEquals(1.0, PVC.visit(bond, CURVES), 1e-12);    
   }
 
   @Test

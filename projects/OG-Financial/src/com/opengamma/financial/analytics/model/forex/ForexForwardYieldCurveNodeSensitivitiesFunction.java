@@ -30,7 +30,7 @@ import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.fixedincome.YieldCurveLabelGenerator;
 import com.opengamma.financial.forex.calculator.PresentValueForexYieldCurveNodeSensitivityCalculator;
 import com.opengamma.financial.forex.derivative.Forex;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -114,7 +114,7 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends ForexForwar
         new YieldAndDiscountCurve[] {payFundingCurve, payForwardCurve});
     final YieldCurveBundle receiveCurveBundle = new YieldCurveBundle(new String[] {receiveFundingCurveName, receiveForwardCurveName}, 
         new YieldAndDiscountCurve[] {receiveFundingCurve, receiveForwardCurve});
-    final Map<String, List<DoublesPair>> curveSensitivities = ((PresentValueSensitivity) curveSensitivitiesObject).getSensitivities();
+    final Map<String, List<DoublesPair>> curveSensitivities = ((InterestRateCurveSensitivity) curveSensitivitiesObject).getSensitivities();
     final Map<String, DoubleMatrix1D> payResult, receiveResult;
     try {
       payResult = CALCULATOR.calculate(curveSensitivities, payCurveBundle, payCouponSensitivity, payJacobian);

@@ -25,7 +25,6 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
-import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.BondSecurityVisitor;
@@ -84,7 +83,7 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
   }
 
   @Override
-  public BondDefinition visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
+  public FixedIncomeInstrumentConverter<?> visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
     throw new NotImplementedException();
   }
 

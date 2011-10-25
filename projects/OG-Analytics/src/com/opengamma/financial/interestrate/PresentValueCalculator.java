@@ -5,10 +5,11 @@
  */
 package com.opengamma.financial.interestrate;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
@@ -43,8 +44,6 @@ import com.opengamma.financial.interestrate.swap.definition.OISSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * Calculates the present value of an instrument for a given YieldCurveBundle (set of yield curve that the instrument is sensitive to) 
@@ -137,13 +136,6 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
     Validate.notNull(curves);
     Validate.notNull(swap);
     return visitSwap(swap, curves);
-  }
-
-  @Override
-  public Double visitBond(final Bond bond, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(bond);
-    return visit(bond.getAnnuity(), curves);
   }
 
   @Override

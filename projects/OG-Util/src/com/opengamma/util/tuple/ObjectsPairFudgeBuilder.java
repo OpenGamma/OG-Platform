@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.tuple;
 
+import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
@@ -36,6 +37,17 @@ public final class ObjectsPairFudgeBuilder implements FudgeBuilder<ObjectsPair<?
     return msg;
   }
 
+  public static <K, V> MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final Pair<? extends K, ? extends V> object, final Class<K> baseK, final Class<V> baseV) {
+    final MutableFudgeMsg msg = serializer.newMessage();
+    if (object.getFirst() != null) {
+      serializer.addToMessageWithClassHeaders(msg, FIRST_FIELD_NAME, null, object.getFirst(), baseK);
+    }
+    if (object.getSecond() != null) {
+      serializer.addToMessageWithClassHeaders(msg, SECOND_FIELD_NAME, null, object.getSecond(), baseV);
+    }
+    return msg;
+  }
+
   @Override
   public ObjectsPair<?, ?> buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     Object first;
@@ -53,5 +65,12 @@ public final class ObjectsPairFudgeBuilder implements FudgeBuilder<ObjectsPair<?
     return ObjectsPair.of(first, second);
   }
   
+  public static <K, V> ObjectsPair<K, V> buildObject(final FudgeDeserializer deserializer, final FudgeMsg msg, final Class<K> baseK, final Class<V> baseV) {
+    FudgeField field = msg.getByName(FIRST_FIELD_NAME);
+    final K first = (field != null) ? deserializer.fieldValueToObject(baseK, field) : null;
+    field = msg.getByName(SECOND_FIELD_NAME);
+    final V second = (field != null) ? deserializer.fieldValueToObject(baseV, field) : null;
+    return ObjectsPair.of(first, second);
+  }
 
 }

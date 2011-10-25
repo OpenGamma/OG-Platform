@@ -66,7 +66,7 @@ public abstract class BondFunction<T> extends AbstractFunction.NonCompiledInvoke
     final BondSecurity security = (BondSecurity) target.getSecurity();
     final BondFixedSecurityDefinition definition = (BondFixedSecurityDefinition) security.accept(_visitor);
     final BondFixedSecurity bond = definition.toDerivative(date, _creditCurveName, _riskFreeCurveName);
-    return calculate(bond, getData(inputs, target), target);
+    return calculate(bond, getData(inputs, target), target, inputs);
   }
 
   @Override
@@ -82,7 +82,7 @@ public abstract class BondFunction<T> extends AbstractFunction.NonCompiledInvoke
     return target.getSecurity() instanceof BondSecurity;
   }
 
-  protected abstract Set<ComputedValue> calculate(BondFixedSecurity bond, T data, ComputationTarget target);
+  protected abstract Set<ComputedValue> calculate(BondFixedSecurity bond, T data, ComputationTarget target, FunctionInputs inputs);
 
   protected abstract T getData(FunctionInputs inputs, ComputationTarget target);
 

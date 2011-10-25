@@ -23,8 +23,8 @@ import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
-import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -134,12 +134,12 @@ public class BondFutureTransactionDiscountingMethodTest {
    * Tests the present value curve sensitivity method for bond futures transactions.
    */
   public void presentValueCurveSensitivity() {
-    final PresentValueSensitivity pvcsComputed = METHOD_FUTURE_TRANSACTION.presentValueCurveSensitivity(FUTURE_TRANSACTION, CURVES);
-    final PresentValueSensitivity pcsSecurity = METHOD_FUTURE_SECURITY.priceCurveSensitivity(BOND_FUTURE_SECURITY, CURVES);
-    final PresentValueSensitivity pvcsExpected = pcsSecurity.multiply(QUANTITY * NOTIONAL);
+    final InterestRateCurveSensitivity pvcsComputed = METHOD_FUTURE_TRANSACTION.presentValueCurveSensitivity(FUTURE_TRANSACTION, CURVES);
+    final InterestRateCurveSensitivity pcsSecurity = METHOD_FUTURE_SECURITY.priceCurveSensitivity(BOND_FUTURE_SECURITY, CURVES);
+    final InterestRateCurveSensitivity pvcsExpected = pcsSecurity.multiply(QUANTITY * NOTIONAL);
     assertEquals("Bond future transaction Discounting Method: present value curve sensitivity", pvcsExpected, pvcsComputed);
-    final PresentValueSensitivityCalculator calculator = PresentValueSensitivityCalculator.getInstance();
-    final PresentValueSensitivity pvcsCalculator = new PresentValueSensitivity(calculator.visit(FUTURE_TRANSACTION, CURVES));
+    final PresentValueCurveSensitivityCalculator calculator = PresentValueCurveSensitivityCalculator.getInstance();
+    final InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(calculator.visit(FUTURE_TRANSACTION, CURVES));
     assertEquals("Bond future transaction Discounting Method: present value curve sensitivity", pvcsComputed, pvcsCalculator);
   }
 

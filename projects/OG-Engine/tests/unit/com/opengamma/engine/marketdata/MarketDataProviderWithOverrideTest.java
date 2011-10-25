@@ -117,6 +117,29 @@ public class MarketDataProviderWithOverrideTest {
     assertEquals(0, underlyingProvider.getAndResetQueryCount());
   }
 
+  public void testSnapshotWithAlgorithmOverrides() throws InterruptedException {
+    final ValueRequirement req1 = getRequirement(1);
+    MockMarketDataProvider overrideProvider = new MockMarketDataProvider("p1", true, 1);
+    overrideProvider.put(req1, new OverrideOperation() {
+      @Override
+      public Object apply(ValueRequirement requirement, Object original) {
+        assertEquals(req1, requirement);
+        assertEquals("value2", original);
+        return "value1";
+      }
+    });
+    MockMarketDataProvider underlyingProvider = new MockMarketDataProvider("p2", true, 1);
+    underlyingProvider.put(req1, "value2");
+    MarketDataProviderWithOverride provider = new MarketDataProviderWithOverride(underlyingProvider, overrideProvider);
+    MarketDataSnapshot snapshot = provider.snapshot(null);
+    assertEquals(1, overrideProvider.getAndResetSnapshotCount());
+    assertEquals(1, underlyingProvider.getAndResetSnapshotCount());
+    // p1 should override the value in p2, but p2 was queried for the operation
+    assertEquals("value1", snapshot.query(req1));
+    assertEquals(1, overrideProvider.getAndResetQueryCount());
+    assertEquals(1, underlyingProvider.getAndResetQueryCount());
+  }
+
   private ValueRequirement getRequirement(int number) {
     return new ValueRequirement("Req-" + number, new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Scheme", "Target")));
   }

@@ -8,7 +8,7 @@ set JAVACMD=%JAVA_HOME%\bin\java.exe
 echo ### Creating empty database
 
 "%JAVACMD%" -cp "og-examples.jar;lib\*" ^
-  com.opengamma.util.test.DBTool ^
+  com.opengamma.util.test.DbTool ^
   -jdbcUrl jdbc:hsqldb:file:install/db/hsqldb/example-db ^
   -database og-financial ^
   -user "" ^
@@ -19,7 +19,7 @@ echo ### Creating empty database
   -dbscriptbasedir .
   
 "%JAVACMD%" -cp "og-examples.jar;lib\*" ^
-  com.opengamma.util.test.DBTool ^
+  com.opengamma.util.test.DbTool ^
   -jdbcUrl jdbc:hsqldb:file:temp/hsqldb/og-fin-user ^
   -database og-financial ^
   -user "" ^

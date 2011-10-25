@@ -15,6 +15,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.id.UniqueId;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
@@ -41,18 +42,19 @@ public class ViewsFunction extends AbstractFunctionInvoker implements PublishedF
 
   private ViewsFunction(final DefinitionAnnotater info) {
     super(info.annotate(parameters()));
-    _meta = info.annotate(new MetaFunction("Views", getParameters(), this));
+    _meta = info.annotate(new MetaFunction(Categories.VIEW, "Views", getParameters(), this));
   }
 
   protected ViewsFunction() {
     this(new DefinitionAnnotater(ViewsFunction.class));
   }
 
-  protected Map<UniqueId, String> invokeImpl(final ViewDefinitionRepository repository, final String viewName) {
+  public static Map<UniqueId, String> invoke(final ViewDefinitionRepository repository, final String viewName) {
     final Map<UniqueId, String> entries;
     if (viewName == null) {
       entries = repository.getDefinitionEntries();
     } else {
+      // TODO: the "viewName" could take wild-cards
       final ViewDefinition viewDefinition = repository.getDefinition(viewName);
       if (viewDefinition != null) {
         entries = Collections.singletonMap(viewDefinition.getUniqueId(), viewDefinition.getName());
@@ -69,7 +71,7 @@ public class ViewsFunction extends AbstractFunctionInvoker implements PublishedF
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
     final ViewDefinitionRepository repository = sessionContext.getGlobalContext().getViewProcessor().getViewDefinitionRepository();
     final String viewName = (String) parameters[0];
-    return invokeImpl(repository, viewName);
+    return invoke(repository, viewName);
   }
 
   // PublishedFunction

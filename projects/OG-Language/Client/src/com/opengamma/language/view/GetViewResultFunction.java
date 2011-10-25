@@ -26,6 +26,7 @@ import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.async.AsynchronousOperation;
 import com.opengamma.language.async.ResultCallback;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
@@ -58,7 +59,7 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
 
   private GetViewResultFunction(final DefinitionAnnotater info) {
     super(info.annotate(parameters()));
-    _meta = info.annotate(new MetaFunction("GetViewResult", getParameters(), this));
+    _meta = info.annotate(new MetaFunction(Categories.VIEW, "GetViewResult", getParameters(), this));
   }
 
   protected GetViewResultFunction() {
@@ -182,13 +183,7 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
 
   }
 
-  // AbstractFunctionInvoker
-
-  @Override
-  protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) throws AsynchronousExecution {
-    final ViewClientHandle viewClientHandle = (ViewClientHandle) parameters[0];
-    final int waitForResult = (Integer) parameters[1];
-    final UniqueId lastViewCycleId = (UniqueId) parameters[2];
+  public static Object invoke(final ViewClientHandle viewClientHandle, final int waitForResult, final UniqueId lastViewCycleId) throws AsynchronousExecution {
     final ViewClient viewClient = viewClientHandle.get().getViewClient();
     ViewComputationResultModel result = viewClient.getLatestResult();
     if ((result == null) || result.getViewCycleId().equals(lastViewCycleId)) {
@@ -211,6 +206,16 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
     }
     viewClientHandle.unlock();
     return result;
+  }
+
+  // AbstractFunctionInvoker
+
+  @Override
+  protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) throws AsynchronousExecution {
+    final ViewClientHandle viewClientHandle = (ViewClientHandle) parameters[0];
+    final int waitForResult = (Integer) parameters[1];
+    final UniqueId lastViewCycleId = (UniqueId) parameters[2];
+    return invoke(viewClientHandle, waitForResult, lastViewCycleId);
   }
 
   // PublishedFunction

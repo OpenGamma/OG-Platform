@@ -5,8 +5,11 @@
  */
 package com.opengamma.util.tuple;
 
+import static org.testng.Assert.assertEquals;
+
 import javax.time.calendar.LocalDate;
 
+import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
@@ -64,6 +67,16 @@ public class PairFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
   public void test_TypeWithSecondaryTypeAndBuilderEncoding() {
     Pair<Tenor, Tenor> object = Pair.of(Tenor.DAY, Tenor.WORKING_DAYS_IN_MONTH);
     assertEncodeDecodeCycle(Pair.class, object);
+  }
+
+  public void test_staticTypedMethods() {
+    ObjectsPair<Tenor, Tenor> in = Pair.of(Tenor.DAY, Tenor.WORKING_DAYS_IN_MONTH);
+    FudgeMsg msg = ObjectsPairFudgeBuilder.buildMessage(getFudgeSerializer(), in, Tenor.class, Tenor.class);
+    ObjectsPair<Tenor, Tenor> out = ObjectsPairFudgeBuilder.buildObject(getFudgeDeserializer(), msg, Tenor.class, Tenor.class);
+    assertEquals(out, in);
+    msg = cycleMessage(msg);
+    out = ObjectsPairFudgeBuilder.buildObject(getFudgeDeserializer(), msg, Tenor.class, Tenor.class);
+    assertEquals(out, in);
   }
 
   public void test_TypeWithSecondaryTypeAndReducedNumber() {

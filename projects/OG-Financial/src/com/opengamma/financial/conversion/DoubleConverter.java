@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.conversion;
 
+import com.opengamma.engine.value.ValueRequirement;
+
 import java.util.Collections;
 import java.util.Map;
 

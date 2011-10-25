@@ -16,6 +16,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.language.Data;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
@@ -69,7 +70,7 @@ public class FetchTimeSeriesFunction extends AbstractFunctionInvoker implements 
 
   private FetchTimeSeriesFunction(final DefinitionAnnotater info) {
     super(info.annotate(parameters()));
-    _meta = info.annotate(new MetaFunction("FetchTimeSeries", getParameters(), this));
+    _meta = info.annotate(new MetaFunction(Categories.TIMESERIES, "FetchTimeSeries", getParameters(), this));
   }
 
   protected FetchTimeSeriesFunction() {

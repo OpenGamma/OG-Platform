@@ -50,14 +50,7 @@ public class RemoteViewDefinitionRepository implements ViewDefinitionRepository 
   @Override
   public Set<UniqueId> getDefinitionIds() {
     final URI uri = UriBuilder.fromUri(_baseUri).segment(DataViewDefinitionRepositoryResource.PATH_VIEWDEFINITION_GETIDS).build();
-
-    // Hack to convert returned results to UniqueIds, as fudge might return them as Strings instead...
-    Set<UniqueId> result = new TreeSet<UniqueId>();
-    Set<UniqueId> receivedIds = _client.access(uri).get((Set.class));    
-    for (Object uid : receivedIds) {
-      result.add((uid.getClass() == UniqueId.class) ? ((UniqueId) uid).getUniqueId() : UniqueId.parse((String) uid));
-    }
-    return result;
+    return _client.access(uri).get((Set.class));
   }
 
   @SuppressWarnings("unchecked")

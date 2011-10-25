@@ -15,14 +15,12 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.money.Currency;
 
@@ -30,26 +28,17 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBundle> {
-  private final String _requirementName;
   private final Currency _currency;
-  private String _calculationType;
 
-  public BondFromCurvesFunction(final String currency, final String creditCurveName, final String riskFreeCurveName, final String requirementName, final String calculationType) {
-    this(Currency.of(currency), creditCurveName, riskFreeCurveName, requirementName, calculationType);
+  public BondFromCurvesFunction(final String currency, final String creditCurveName, final String riskFreeCurveName) {
+    this(Currency.of(currency), creditCurveName, riskFreeCurveName);
   }
 
-  public BondFromCurvesFunction(final Currency currency, final String creditCurveName, final String riskFreeCurveName, final String requirementName, final String calculationType) {
+  public BondFromCurvesFunction(final Currency currency, final String creditCurveName, final String riskFreeCurveName) {
     super(creditCurveName, riskFreeCurveName);
-    Validate.notNull(requirementName, "requirement name");
     Validate.notNull(currency, "currency");
-    Validate.notNull(calculationType, "calculation type");
-    _requirementName = requirementName;
     _currency = currency;
-    _calculationType = calculationType;
   }
-
-  @Override
-  protected abstract Set<ComputedValue> calculate(BondFixedSecurity bond, YieldCurveBundle data, ComputationTarget target);
 
   @Override
   protected YieldCurveBundle getData(final FunctionInputs inputs, final ComputationTarget target) {
@@ -86,8 +75,5 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, _currency.getUniqueId(), properties);
   }
 
-  protected ValueSpecification getResultSpec(final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, _calculationType).get();
-    return new ValueSpecification(_requirementName, target.toSpecification(), properties);
-  }
+  protected abstract ValueSpecification getResultSpec(final ComputationTarget target);
 }

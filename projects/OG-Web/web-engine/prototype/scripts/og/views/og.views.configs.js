@@ -147,12 +147,20 @@ $.register_module({
                         save_new_handler: function (result) {
                             var args = $.extend({}, routes.last().args, {id: result.meta.id});
                             ui.message({location: '.OG-js-details-panel', destroy: true});
-                            if (result.error) return ui.dialog({type: 'error', message: result.message});
+                            if (result.error) {
+                                ui.message({location: '.ui-layout-inner-center', destroy: true});
+                                ui.dialog({type: 'error', message: result.message});
+                                return;
+                            }
                             configs.search(args);
                             routes.go(routes.hash(module.rules.load_configs, args));
                         },
                         save_handler: function (result) {
-                            if (result.error) return ui.dialog({type: 'error', message: result.message});
+                            if (result.error) {
+                                ui.message({location: '.ui-layout-inner-center', destroy: true});
+                                ui.dialog({type: 'error', message: result.message});
+                                return;
+                            }
                             ui.message({location: '.ui-layout-inner-center', message: 'saved'});
                             setTimeout(function () {routes.handler(); details_page(args);}, 300);
                         },

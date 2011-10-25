@@ -8,11 +8,7 @@ package com.opengamma.engine.view.helper;
 import static org.testng.Assert.assertEquals;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
@@ -94,6 +90,18 @@ public class AvailablePortfolioOutputsTest {
         return UniqueId.of("Security", securityType + "-" + currency + "-" + securityId);
       }
 
+      @Override
+      public Map<String, String> getAttributes() {
+        return new HashMap<String, String>();
+      }
+
+      @Override
+      public void setAttributes(Map<String, String> attributes) {
+      }
+
+      @Override
+      public void addAttribute(String key, String value) {
+      }
     });
     position.setSecurityLink(link);
     return position;

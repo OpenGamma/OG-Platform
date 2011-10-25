@@ -34,16 +34,17 @@ public class CreateObjectFunction<T> implements PublishedFunction {
   /**
    * Constructs a function instance.
    * 
+   * @param category category of the function
    * @param clazz the class whose constructor is being exposed, not null
    * @param description the description, not null
    * @param parameterNames the constructor parameters, not null
    * @param parameterDescriptions the constructor parameter descriptions, not null
    */
-  public CreateObjectFunction(final Class<T> clazz, final String description, final String[] parameterNames, final String[] parameterDescriptions) {
-    this(findPublicConstructor(clazz, parameterNames.length), description, parameterNames, parameterDescriptions);
+  public CreateObjectFunction(final String category, final Class<T> clazz, final String description, final String[] parameterNames, final String[] parameterDescriptions) {
+    this(category, findPublicConstructor(clazz, parameterNames.length), description, parameterNames, parameterDescriptions);
   }
 
-  public CreateObjectFunction(final Constructor<T> constructor, final String description, final String[] parameterNames, final String[] parameterDescriptions) {
+  public CreateObjectFunction(final String category, final Constructor<T> constructor, final String description, final String[] parameterNames, final String[] parameterDescriptions) {
     _constructor = constructor;
     final Class<?>[] constructorParameters = constructor.getParameterTypes();
     _constructorParameterCount = constructorParameters.length;
@@ -66,7 +67,7 @@ public class CreateObjectFunction<T> implements PublishedFunction {
     if (_appendedParameterCount > 0) {
       parameters.addAll(appendedParameters);
     }
-    _definition = new MetaFunction(getFunctionName(constructor.getDeclaringClass()), parameters, new AbstractFunctionInvoker(parameters) {
+    _definition = new MetaFunction(category, getFunctionName(constructor.getDeclaringClass()), parameters, new AbstractFunctionInvoker(parameters) {
       @Override
       protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
         return postConstruction(sessionContext, createObject(parameters), parameters);

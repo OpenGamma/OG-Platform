@@ -9,17 +9,14 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
-import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -67,12 +64,6 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visit(InterestRateDerivative derivative, S data);
 
   T[] visit(InterestRateDerivative[] derivative, S data);
-
-  T visitBond(Bond bond, S data);
-
-  T visitBondForward(BondForward bondForward, S data);
-
-  T visitBondFuture(BondFuture bondFuture, S data);
 
   T visitBondFutureSecurity(BondFutureSecurity bondFuture, S data);
 
@@ -169,12 +160,6 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visit(InterestRateDerivative derivative);
 
   T[] visit(InterestRateDerivative[] derivative);
-
-  T visitBond(Bond bond);
-
-  T visitBondForward(BondForward bondForward);
-
-  T visitBondFuture(BondFuture bondFuture);
 
   T visitBondFutureSecurity(BondFutureSecurity bondFuture);
 

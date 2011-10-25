@@ -7,7 +7,7 @@
 package com.opengamma.language.error;
 
 /**
- * Exception wrapper for {@link Constants.ERROR_INVOCATION}.
+ * Exception wrapper for {@link Constants.ERROR_INVALID_ARGUMENT}.
  */
 public class InvokeInvalidArgumentException extends AbstractException {
 

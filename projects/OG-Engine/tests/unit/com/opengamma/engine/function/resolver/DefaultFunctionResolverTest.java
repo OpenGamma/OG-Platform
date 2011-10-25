@@ -11,7 +11,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.test.PrimitiveTestFunction;
@@ -27,7 +26,6 @@ import com.opengamma.util.tuple.Pair;
 public class DefaultFunctionResolverTest {
 
   private ComputationTarget _target;
-  private DependencyNode _node;
   private PrimitiveTestFunction _f1;
   private PrimitiveTestFunction _f2;
   private ParameterizedFunction _parameterizedF1;
@@ -37,7 +35,6 @@ public class DefaultFunctionResolverTest {
   @BeforeMethod
   public void setUp() {
     _target = new ComputationTarget(UniqueId.of("scheme", "test_target"));
-    _node = new DependencyNode(_target);
     _f1 = new PrimitiveTestFunction("req1");
     _f1.setUniqueId("1");
     _f2 = new PrimitiveTestFunction("req1");
@@ -50,9 +47,7 @@ public class DefaultFunctionResolverTest {
   public void globalRuleSelection() {
     _resolver.addRule(new ResolutionRule(_parameterizedF1, ApplyToAllTargets.INSTANCE, 100));
     _resolver.addRule(new ResolutionRule(_parameterizedF2, ApplyToAllTargets.INSTANCE, 200));
-    // PLAT-1049
-    Pair<ParameterizedFunction, ValueSpecification> result = _resolver.resolveFunction(new ValueRequirement("req1", _target.toSpecification()), _node).next();
-    //Pair<ParameterizedFunction, ValueSpecification> result = _resolver.resolveFunction(new ValueRequirement("req1", _target.toSpecification()), _target).next();
+    Pair<ParameterizedFunction, ValueSpecification> result = _resolver.resolveFunction(new ValueRequirement("req1", _target.toSpecification()), _target).next();
     assertEquals(_parameterizedF2, result.getFirst());
   }
 
@@ -74,15 +69,10 @@ public class DefaultFunctionResolverTest {
   public void nonGlobalRuleSelection() {
     _resolver.addRule(new ResolutionRule(_parameterizedF1, ApplyToAllTargets.INSTANCE, 100));
     _resolver.addRule(new ResolutionRule(_parameterizedF2, new Filter(_target), 200));
-    // PLAT-1049
-    Pair<ParameterizedFunction, ValueSpecification> result = _resolver.resolveFunction(new ValueRequirement("req1", _target.toSpecification()), _node).next();
-    //Pair<ParameterizedFunction, ValueSpecification> result = _resolver.resolveFunction(new ValueRequirement("req1", _target.toSpecification()), _target).next();
+    Pair<ParameterizedFunction, ValueSpecification> result = _resolver.resolveFunction(new ValueRequirement("req1", _target.toSpecification()), _target).next();
     assertEquals(_parameterizedF2, result.getFirst());
     ComputationTarget anotherTarget = new ComputationTarget(UniqueId.of("scheme", "target2"));
-    // PLAT-1049
-    final DependencyNode anotherNode = new DependencyNode(anotherTarget);
-    result = _resolver.resolveFunction(new ValueRequirement("req1", anotherTarget.toSpecification()), anotherNode).next();
-    //result = _resolver.resolveFunction(new ValueRequirement("req1", anotherTarget.toSpecification()), anotherTarget).next();
+    result = _resolver.resolveFunction(new ValueRequirement("req1", anotherTarget.toSpecification()), anotherTarget).next();
     assertEquals(_parameterizedF1, result.getFirst());
   }
 

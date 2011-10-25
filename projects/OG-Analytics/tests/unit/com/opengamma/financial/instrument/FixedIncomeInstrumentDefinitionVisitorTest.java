@@ -12,13 +12,17 @@ package com.opengamma.financial.instrument;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
+
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponCMSDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
@@ -26,16 +30,12 @@ import com.opengamma.financial.instrument.annuity.AnnuityCouponIborSpreadDefinit
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
-import com.opengamma.financial.instrument.bond.BondConvention;
-import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedTransactionDefinition;
-import com.opengamma.financial.instrument.bond.BondForwardDefinition;
 import com.opengamma.financial.instrument.bond.BondIborSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
-import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.instrument.future.BondFutureSecurityDefinition;
 import com.opengamma.financial.instrument.future.BondFutureTransactionDefinition;
 import com.opengamma.financial.instrument.future.FutureInstrumentsDescriptionDataSet;
@@ -72,12 +72,6 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
-import org.testng.annotations.Test;
-
 /**
  * Class testing the Fixed income instrument definition visitor.
  */
@@ -86,12 +80,8 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
   private static final DayCount DC = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private static final BusinessDayConvention BD = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final Calendar C = new MondayToFridayCalendar("F");
-  private static final BondConvention BOND_CONVENTION = new BondConvention(2, DC, BD, C, false, "A", 0, YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury"));
-  private static final LocalDate[] LOCAL_DATES = new LocalDate[] {LocalDate.of(2011, 1, 1), LocalDate.of(2012, 1, 1) };
-  private static final BondDefinition BOND = new BondDefinition(CUR, LOCAL_DATES, LOCAL_DATES, 0.02, 1, BOND_CONVENTION);
-  private static final BondForwardDefinition BOND_FORWARD = new BondForwardDefinition(BOND, LocalDate.of(2011, 7, 1), BOND_CONVENTION);
-  private static final BondFutureDefinition BOND_FUTURE = new BondFutureDefinition(new BondDefinition[] {BOND }, new double[] {1 }, BOND_CONVENTION, LocalDate.of(2010, 1, 1));
-  private static final CashDefinition CASH = new CashDefinition(CUR, DateUtils.getUTCDate(2011, 1, 1), 1, 0.04, BOND_CONVENTION);
+  private static final Convention CONVENTION = new Convention(2, DC, BD, C, "A");
+  private static final CashDefinition CASH = new CashDefinition(CUR, DateUtils.getUTCDate(2011, 1, 1), 1, 0.04, CONVENTION);
   private static final ZonedDateTime SETTLE_DATE = DateUtils.getUTCDate(2011, 1, 1);
   private static final Period TENOR = Period.ofYears(2);
   private static final Period FIXED_PERIOD = Period.ofMonths(6);
@@ -146,12 +136,6 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
   @Test
   public void test() {
     final Object o = "G";
-    assertEquals(BOND.accept(VISITOR), "Bond2");
-    assertEquals(BOND.accept(VISITOR, o), "Bond1");
-    assertEquals(BOND_FORWARD.accept(VISITOR), "BondForward2");
-    assertEquals(BOND_FORWARD.accept(VISITOR, o), "BondForward1");
-    assertEquals(BOND_FUTURE.accept(VISITOR), "BondFuture2");
-    assertEquals(BOND_FUTURE.accept(VISITOR, o), "BondFuture1");
     assertEquals(CASH.accept(VISITOR), "Cash2");
     assertEquals(CASH.accept(VISITOR, o), "Cash1");
     assertEquals(ANNUITY_FIXED.accept(VISITOR), "Annuity2");
@@ -186,7 +170,7 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     assertEquals(SWAPTION_PHYS.accept(VISITOR, o), "SwaptionPhysicalFixedIbor2");
   }
 
-  private static class MyVisitor<T, U> implements FixedIncomeInstrumentDefinitionVisitor<T, String>, FixedIncomeFutureInstrumentDefinitionVisitor<T, String> {
+  private static class MyVisitor<T, U> implements FixedIncomeInstrumentDefinitionVisitor<T, String> {
 
     @Override
     public String visit(final FixedIncomeInstrumentConverter<?> definition, final T data) {
@@ -196,36 +180,6 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     @Override
     public String visit(final FixedIncomeInstrumentConverter<?> definition) {
       return definition.accept(this);
-    }
-
-    @Override
-    public String visitBondDefinition(final BondDefinition bond, final T data) {
-      return "Bond1";
-    }
-
-    @Override
-    public String visitBondDefinition(final BondDefinition bond) {
-      return "Bond2";
-    }
-
-    @Override
-    public String visitBondForwardDefinition(final BondForwardDefinition bondForward, final T data) {
-      return "BondForward1";
-    }
-
-    @Override
-    public String visitBondForwardDefinition(final BondForwardDefinition bondForward) {
-      return "BondForward2";
-    }
-
-    @Override
-    public String visitBondFutureDefinition(final BondFutureDefinition bondFuture, final T data) {
-      return "BondFuture1";
-    }
-
-    @Override
-    public String visitBondFutureDefinition(final BondFutureDefinition bondFuture) {
-      return "BondFuture2";
     }
 
     @Override

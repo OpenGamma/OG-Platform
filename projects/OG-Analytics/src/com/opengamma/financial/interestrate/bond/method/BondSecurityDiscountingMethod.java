@@ -13,9 +13,9 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
-import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondSecurity;
@@ -40,7 +40,7 @@ public final class BondSecurityDiscountingMethod {
   /**
    * The present value curve sensitivity calculator (for the different parts of the bond transaction).
    */
-  private static final PresentValueSensitivityCalculator PVCSC = PresentValueSensitivityCalculator.getInstance();
+  private static final PresentValueCurveSensitivityCalculator PVCSC = PresentValueCurveSensitivityCalculator.getInstance();
   /**
    * The root bracket used for yield finding.
    */
@@ -120,9 +120,9 @@ public final class BondSecurityDiscountingMethod {
    * @param curves The curve bundle.
    * @return The present value curve sensitivity.
    */
-  public PresentValueSensitivity presentValueCurveSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves) {
-    final PresentValueSensitivity pvcsNominal = new PresentValueSensitivity(PVCSC.visit(bond.getNominal(), curves));
-    final PresentValueSensitivity pvcsCoupon = new PresentValueSensitivity(PVCSC.visit(bond.getCoupon(), curves));
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves) {
+    final InterestRateCurveSensitivity pvcsNominal = new InterestRateCurveSensitivity(PVCSC.visit(bond.getNominal(), curves));
+    final InterestRateCurveSensitivity pvcsCoupon = new InterestRateCurveSensitivity(PVCSC.visit(bond.getCoupon(), curves));
     return pvcsNominal.add(pvcsCoupon);
   }
 
@@ -189,16 +189,16 @@ public final class BondSecurityDiscountingMethod {
    * @param curves The curve bundle.
    * @return The price curve sensitivity.
    */
-  public PresentValueSensitivity dirtyPriceCurveSensitivity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity dirtyPriceCurveSensitivity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
     final double pv = presentValue(bond, curves);
-    final PresentValueSensitivity sensiPv = presentValueCurveSensitivity(bond, curves);
+    final InterestRateCurveSensitivity sensiPv = presentValueCurveSensitivity(bond, curves);
     final double df = curves.getCurve(bond.getRepoCurveName()).getDiscountFactor(bond.getSettlementTime());
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDf = new ArrayList<DoublesPair>();
     listDf.add(new DoublesPair(bond.getSettlementTime(), bond.getSettlementTime() / df));
     resultMap.put(bond.getRepoCurveName(), listDf);
-    PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
+    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     result = result.multiply(pv / notional);
     result = result.add(sensiPv.multiply(1 / (df * notional)));
     return result;
@@ -335,12 +335,12 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
-   * Computes the Macauley duration of a bond from the conventional yield.
+   * Computes the Macaulay duration of a bond from the conventional yield.
    * @param bond  The bond security.
    * @param yield The bond yield.
-   * @return The Macauley duration.
+   * @return The Macaulay duration.
    */
-  public double macauleyDurationFromYield(final BondFixedSecurity bond, final double yield) {
+  public double macaulayDurationFromYield(final BondFixedSecurity bond, final double yield) {
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
     if (bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) {
       if (nbCoupon > 1) { // More than one coupon left
@@ -354,14 +354,14 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
-   * Computes the Macauley duration of a bond from the curves.
+   * Computes the Macaulay duration of a bond from the curves.
    * @param bond  The bond security.
    * @param curves The curve bundle.
-   * @return The Macauley duration.
+   * @return The Macaulay duration.
    */
-  public double macauleyDurationFromCurves(final BondFixedSecurity bond, final YieldCurveBundle curves) {
+  public double macaulayDurationFromCurves(final BondFixedSecurity bond, final YieldCurveBundle curves) {
     final double yield = yieldFromCurves(bond, curves);
-    return macauleyDurationFromYield(bond, yield);
+    return macaulayDurationFromYield(bond, yield);
   }
 
   /**
@@ -370,9 +370,9 @@ public final class BondSecurityDiscountingMethod {
    * @param dirtyPrice The bond dirty price.
    * @return The Macauley duration.
    */
-  public double macauleyDurationFromDirtyPrice(final BondFixedSecurity bond, final double dirtyPrice) {
+  public double macaulayDurationFromDirtyPrice(final BondFixedSecurity bond, final double dirtyPrice) {
     final double yield = yieldFromDirtyPrice(bond, dirtyPrice);
-    return macauleyDurationFromYield(bond, yield);
+    return macaulayDurationFromYield(bond, yield);
   }
 
   /**
@@ -462,5 +462,16 @@ public final class BondSecurityDiscountingMethod {
   public double zSpreadFromCurvesAndClean(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double cleanPrice) {
     return zSpreadFromCurvesAndPV(bond, curves, presentValueFromCleanPrice(bond, curves, cleanPrice));
   }
-
+  
+  /**
+   * Compute the present value sensitivity of a bond transaction.
+   * @param bond The bond transaction.
+   * @param curves The curve bundle.
+   * @return The present value sensitivity.
+   */
+  public InterestRateCurveSensitivity presentValueSensitivity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
+    final InterestRateCurveSensitivity pvsNominal = new InterestRateCurveSensitivity(PVCSC.visit(bond.getNominal(), curves));
+    final InterestRateCurveSensitivity pvsCoupon = new InterestRateCurveSensitivity(PVCSC.visit(bond.getCoupon(), curves));
+    return pvsNominal.add(pvsCoupon);
+  }
 }
