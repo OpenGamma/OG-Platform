@@ -6,15 +6,23 @@
 package com.opengamma.financial.model.volatility.smile.function;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.math.MathException;
+import com.opengamma.math.differentiation.FiniteDifferenceType;
+import com.opengamma.math.function.Function1D;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
+import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * Tests related to the Hagan et al. approximation of the SABR implied volatility.
  */
 public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestCase {
+
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   private static final SABRHaganVolatilityFunction FUNCTION = new SABRHaganVolatilityFunction();
 
@@ -60,7 +68,7 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
       sabrVolatilty[looppts + nbPoints] = FUNCTION.getVolatilityFunction(option).evaluate(SabrData);
     }
     for (int looppts = -nbPoints; looppts < nbPoints; looppts++) {
-      assertEquals(true, Math.abs(sabrVolatilty[looppts + nbPoints + 1] - sabrVolatilty[looppts + nbPoints]) / (strike[looppts + nbPoints + 1] - strike[looppts + nbPoints]) < 20.0);
+      assertTrue(Math.abs(sabrVolatilty[looppts + nbPoints + 1] - sabrVolatilty[looppts + nbPoints]) / (strike[looppts + nbPoints + 1] - strike[looppts + nbPoints]) < 20.0);
     }
 
   }
@@ -118,6 +126,131 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
     double volatilityNM = FUNCTION.getVolatilityFunction(CALL_STRIKE).evaluate(dataNM);
     double derivativeN_FD = (volatilityNP - volatilityNM) / (2 * deltaF);
     assertEquals(derivativeN_FD, volatilityAdjoint[5], 1E-6);
+  }
+
+  @Test
+  /**
+   * Tests the first order adjoint derivatives for the SABR Hagan volatility function. The derivatives with respect to the forward, strike, alpha, rho and nu are provided.
+   */
+  public void testVolatilityAdjointDebug() {
+    final double eps = 1e-5;
+    final double tol = 1e-6;
+    testVolatilityAdjoint(CALL_ATM, DATA, eps, tol);
+    testVolatilityAdjoint(CALL_STRIKE, DATA, eps, tol);
+  }
+
+  /**
+   *Test the alpha = 0 edge case
+   */
+  @Test
+  public void testVolatilityAdjointAlpha0() {
+    final double eps = 1e-5;
+    final double tol = 1e-6;
+    SABRFormulaData data = DATA.withAlpha(0.0);
+    testVolatilityAdjoint(CALL_ATM, data, eps, tol);
+
+    double volatility = FUNCTION.getVolatilityFunction(CALL_STRIKE).evaluate(data);
+    double[] volatilityAdjoint = FUNCTION.getVolatilityAdjointDebug(CALL_STRIKE, data);
+
+    assertEquals("Vol", volatility, volatilityAdjoint[0], tol);
+
+    assertEquals("Forward Sensitivity", 0.0, volatilityAdjoint[1], tol);
+    assertEquals("Strike Sensitivity", 0.0, volatilityAdjoint[2], tol);
+    assertEquals("Alpha Sensitivity", 1e7, volatilityAdjoint[3], tol);
+    assertEquals("Beta Sensitivity", 0.0, volatilityAdjoint[4], tol);
+    assertEquals("Rho Sensitivity", 0.0, volatilityAdjoint[5], tol);
+    assertEquals("Nu Sensitivity", 0.0, volatilityAdjoint[6], tol);
+  }
+
+  @Test
+  public void testVolatilityAdjointSmallAlpha() {
+    final double eps = 1e-9;
+    final double tol = 1e-6;
+    SABRFormulaData data = DATA.withAlpha(1e-5);
+    testVolatilityAdjoint(CALL_ATM, data, eps, tol);
+    testVolatilityAdjoint(CALL_STRIKE, data, eps, tol);
+    testVolatilityAdjoint(CALL_ATM.withStrike(DATA.getForward() * 1.1), data, eps, 100 * tol);
+  }
+
+  /**
+   *Test the beta = 0 edge case
+   */
+  @Test
+  public void testVolatilityAdjointBeta0() {
+    final double eps = 1e-5;
+    final double tol = 1e-6;
+    SABRFormulaData data = DATA.withBeta(0.0);
+    testVolatilityAdjoint(CALL_ATM, data, eps, tol);
+    testVolatilityAdjoint(CALL_STRIKE, data, eps, tol);
+  }
+
+  /**
+   *Test the beta = 1 edge case
+   */
+  @Test
+  public void testVolatilityAdjointBeta1() {
+    final double eps = 1e-6;
+    final double tol = 1e-6;
+    SABRFormulaData data = DATA.withBeta(1.0);
+    testVolatilityAdjoint(CALL_ATM, data, eps, tol);
+    testVolatilityAdjoint(CALL_STRIKE, data, eps, tol);
+  }
+
+  /**
+   *Test the nu = 0 edge case
+   */
+  @Test
+  //NOTWORKING
+  public void testVolatilityAdjointNu0() {
+    final double eps = 1e-5;
+    final double tol = 1e-6;
+    SABRFormulaData data = DATA.withNu(0.0000001);
+    //    testVolatilityAdjoint(CALL_ATM, data, eps, tol);
+
+    double[] volatilityAdjoint = FUNCTION.getVolatilityAdjointDebug(CALL_STRIKE, data);
+    System.out.println(volatilityAdjoint[6]);
+    testVolatilityAdjoint(CALL_STRIKE, data, eps, tol);
+  }
+
+  /**
+   *Test the rho = -1 edge case
+   */
+  @Test
+  public void testVolatilityAdjointRhoM1() {
+    final double eps = 1e-5;
+    final double tol = 1e-6;
+    SABRFormulaData data = DATA.withRho(-1.0);
+    testVolatilityAdjoint(CALL_ATM, data, eps, tol);
+    testVolatilityAdjoint(CALL_STRIKE, data, eps, tol);
+  }
+
+  /**
+   *Test the rho = 1 edge case
+   */
+  @Test
+  //NOTWORKING
+  public void testVolatilityAdjointRho1() {
+    final double eps = 1e-5;
+    final double tol = 1e-6;
+    SABRFormulaData data = DATA.withRho(1.0);
+    testVolatilityAdjoint(CALL_ATM, data, eps, tol);
+    testVolatilityAdjoint(CALL_STRIKE, data, eps, tol);
+  }
+
+  private void testVolatilityAdjoint(final EuropeanVanillaOption optionData, final SABRFormulaData sabrData, final double eps, final double tol) {
+    double volatility = FUNCTION.getVolatilityFunction(optionData).evaluate(sabrData);
+    double[] volatilityAdjoint = FUNCTION.getVolatilityAdjointDebug(optionData, sabrData);
+
+    // System.out.println("Debug alpha:" + volatilityAdjoint[3]);
+
+    assertEquals("Vol", volatility, volatilityAdjoint[0], tol);
+
+    assertEquals("Forward Sensitivity" + sabrData.toString(), fdSensitivity(optionData, sabrData, SABRParameter.Forward, eps), volatilityAdjoint[1], tol);
+    assertEquals("Strike Sensitivity" + sabrData.toString(), fdSensitivity(optionData, sabrData, SABRParameter.Strike, eps), volatilityAdjoint[2], tol);
+    assertEquals("Alpha Sensitivity" + sabrData.toString(), fdSensitivity(optionData, sabrData, SABRParameter.Alpha, eps), volatilityAdjoint[3], tol);
+    assertEquals("Beta Sensitivity" + sabrData.toString(), fdSensitivity(optionData, sabrData, SABRParameter.Beta, eps), volatilityAdjoint[4], tol);
+    assertEquals("Rho Sensitivity" + sabrData.toString(), fdSensitivity(optionData, sabrData, SABRParameter.Rho, eps), volatilityAdjoint[5], tol);
+    assertEquals("Nu Sensitivity" + sabrData.toString(), fdSensitivity(optionData, sabrData, SABRParameter.Nu, eps), volatilityAdjoint[6], tol);
   }
 
   @Test
@@ -195,4 +328,207 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
     //    assertEquals(derivativeR_FD, volatilityAdjoint1[4], 1E-6);
   }
 
+  //TODO write a fuzzer that hits SABR with random parameters 
+  @Test
+  public void testRandomParameters() {
+    final double eps = 1e-5;
+    final double tol = 1e-6;
+
+    for (int count = 0; count < 100; count++) {
+      double alpha = Math.exp(NORMAL.nextRandom() * 0.2 - 2);
+      double beta = Math.random(); //TODO Uniform numbers in distribution
+      double nu = Math.exp(NORMAL.nextRandom() * 0.3 - 1);
+      double rho = 2 * Math.random() - 1;
+      SABRFormulaData data = new SABRFormulaData(DATA.getForward(), alpha, beta, nu, rho);
+      testVolatilityAdjoint(CALL_ATM, data, eps, tol);
+      //    testVolatilityAdjoint(CALL_STRIKE, data, 1e-6);
+    }
+  }
+
+  @Test
+  public void testExtremeParameters2() {
+    double alpha = 0.05;
+    double beta = 0.5;
+    double nu = 0;
+    double rho = -0.25;
+    double forward = DATA.getForward();
+    EuropeanVanillaOption option = CALL_STRIKE.withStrike(forward * 1.01);
+
+//    for (int i = 0; i < 200; i++) {
+//      double e = -6 + 6.0 * i / 199;
+//
+//      SABRFormulaData data = new SABRFormulaData(forward, alpha, beta, nu, rho);
+//      double volatility = FUNCTION.getVolatilityFunction(option).evaluate(data);
+//      double[] volatilityAdjoint = FUNCTION.getVolatilityAdjointDebug(option, data);
+//      System.out.println(nu + "\t" + volatility+"\t"+volatilityAdjoint[6]);
+//      nu = Math.pow(10, e);
+//    }
+
+    SABRFormulaData data = new SABRFormulaData(forward, alpha, beta, 2.5e-2, rho);
+//    double volatility = FUNCTION.getVolatilityFunction(option).evaluate(data);
+    
+    double[] volatilityAdjoint = FUNCTION.getVolatilityAdjointDebug(option, data);
+    System.out.println(volatilityAdjoint[6]);
+    
+    //    testVolatilityAdjoint(option, data, 1e-6);
+    //    testVolatilityAdjoint(CALL_ATM, data, 1e-5);
+  }
+
+  //Extreme 
+  @Test
+  public void testExtremeParameters() {
+    double alpha = 0;
+    double beta = 1.0;
+    double nu = 19.0;
+    double rho = -0.97;
+
+    double fwd = 0.0416;
+    double k = 0.005;
+    double t = 17.5; //this is too long for SABR
+    EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
+    //  for (int i = 0; i < 200; i++) {
+    //  rho = -1.0 + i * 2.0 / 200;
+    SABRFormulaData data = new SABRFormulaData(fwd, alpha, beta, nu, rho);
+    double vol = getFunction().getVolatilityFunction(option).evaluate(data);
+    System.out.println(rho + "\t" + vol);
+    // }
+  }
+
+  private enum SABRParameter {
+    Forward,
+    Strike,
+    Alpha,
+    Beta,
+    Nu,
+    Rho
+  }
+
+  private double fdSensitivity(final EuropeanVanillaOption optionData, final SABRFormulaData sabrData,
+      final SABRParameter param, final double delta) {
+
+    Function1D<SABRFormulaData, Double> funcC = null;
+    Function1D<SABRFormulaData, Double> funcB = null;
+    Function1D<SABRFormulaData, Double> funcA = null;
+    SABRFormulaData dataC = null;
+    SABRFormulaData dataB = sabrData;
+    SABRFormulaData dataA = null;
+    final Function1D<SABRFormulaData, Double> func = FUNCTION.getVolatilityFunction(optionData);
+
+    FiniteDifferenceType fdType = null;
+
+    switch (param) {
+      case Strike:
+        double strike = optionData.getStrike();
+        if (strike >= delta) {
+          fdType = FiniteDifferenceType.CENTRAL;
+          funcA = FUNCTION.getVolatilityFunction(optionData.withStrike(strike - delta));
+          funcC = FUNCTION.getVolatilityFunction(optionData.withStrike(strike + delta));
+        } else {
+          fdType = FiniteDifferenceType.FORWARD;
+          funcA = func;
+          funcB = FUNCTION.getVolatilityFunction(optionData.withStrike(strike + delta));
+          funcC = FUNCTION.getVolatilityFunction(optionData.withStrike(strike + 2 * delta));
+        }
+        dataC = sabrData;
+        dataB = sabrData;
+        dataA = sabrData;
+        break;
+      case Forward:
+        double fwd = sabrData.getForward();
+        if (fwd > delta) {
+          fdType = FiniteDifferenceType.CENTRAL;
+          dataA = sabrData.withForward(fwd - delta);
+          dataC = sabrData.withForward(fwd + delta);
+        } else {
+          fdType = FiniteDifferenceType.FORWARD;
+          dataA = sabrData;
+          dataB = sabrData.withForward(fwd + delta);
+          dataC = sabrData.withForward(fwd + 2 * delta);
+        }
+        funcC = func;
+        funcB = func;
+        funcA = func;
+        break;
+      case Alpha:
+        double a = sabrData.getAlpha();
+        if (a >= delta) {
+          fdType = FiniteDifferenceType.CENTRAL;
+          dataA = sabrData.withAlpha(a - delta);
+          dataC = sabrData.withAlpha(a + delta);
+        } else {
+          fdType = FiniteDifferenceType.FORWARD;
+          dataA = sabrData;
+          dataB = sabrData.withAlpha(a + delta);
+          dataC = sabrData.withAlpha(a + 2 * delta);
+        }
+        funcC = func;
+        funcB = func;
+        funcA = func;
+        break;
+      case Beta:
+        double b = sabrData.getBeta();
+        if (b >= delta) {
+          fdType = FiniteDifferenceType.CENTRAL;
+          dataA = sabrData.withBeta(b - delta);
+          dataC = sabrData.withBeta(b + delta);
+        } else {
+          fdType = FiniteDifferenceType.FORWARD;
+          dataA = sabrData;
+          dataB = sabrData.withBeta(b + delta);
+          dataC = sabrData.withBeta(b + 2 * delta);
+        }
+        funcC = func;
+        funcB = func;
+        funcA = func;
+        break;
+      case Nu:
+        double n = sabrData.getNu();
+        if (n >= delta) {
+          fdType = FiniteDifferenceType.CENTRAL;
+          dataA = sabrData.withNu(n - delta);
+          dataC = sabrData.withNu(n + delta);
+        } else {
+          fdType = FiniteDifferenceType.FORWARD;
+          dataA = sabrData;
+          dataB = sabrData.withNu(n + delta);
+          dataC = sabrData.withNu(n + 2 * delta);
+        }
+        funcC = func;
+        funcB = func;
+        funcA = func;
+        break;
+      case Rho:
+        double r = sabrData.getRho();
+        if ((r + 1) < delta) {
+          fdType = FiniteDifferenceType.FORWARD;
+          dataA = sabrData;
+          dataB = sabrData.withRho(r + delta);
+          dataC = sabrData.withRho(r + 2 * delta);
+        } else if ((1 - r) < delta) {
+          fdType = FiniteDifferenceType.BACKWARD;
+          dataA = sabrData.withRho(r - 2 * delta);
+          dataB = sabrData.withRho(r - delta);
+          dataC = sabrData;
+        } else {
+          fdType = FiniteDifferenceType.CENTRAL;
+          dataC = sabrData.withRho(r + delta);
+          dataA = sabrData.withRho(r - delta);
+        }
+        funcC = func;
+        funcB = func;
+        funcA = func;
+        break;
+    }
+
+    switch (fdType) {
+      case FORWARD:
+        return (-1.5 * funcA.evaluate(dataA) + 2.0 * funcB.evaluate(dataB) - 0.5 * funcC.evaluate(dataC)) / delta;
+      case BACKWARD:
+        return (0.5 * funcA.evaluate(dataA) - 2.0 * funcB.evaluate(dataB) + 1.5 * funcC.evaluate(dataC)) / delta;
+      case CENTRAL:
+        return (funcC.evaluate(dataC) - funcA.evaluate(dataA)) / 2.0 / delta;
+      default:
+        throw new MathException("enum not found");
+    }
+  }
 }

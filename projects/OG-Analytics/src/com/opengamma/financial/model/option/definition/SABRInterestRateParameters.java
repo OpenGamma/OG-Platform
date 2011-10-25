@@ -25,8 +25,9 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
 
   /**
    * The alpha (volatility level) surface.
+   *TODO: Call me pedantic, but these aren't Volatility Surfaces, they are parameter surfaces - so maybe they should just be Surfaces
    */
-  private final VolatilitySurface _alphaSurface;
+  private final VolatilitySurface _alphaSurface; 
   /**
    * The beta (elasticity) surface.
    */

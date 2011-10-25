@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.volatility.smile.function;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +41,9 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
       public final Double evaluate(final SABRFormulaData data) {
         Validate.notNull(data, "data");
         final double alpha = data.getAlpha();
+        if (alpha == 0.0) {
+          return 0.0;
+        }
         final double beta = data.getBeta();
         final double rho = data.getRho();
         final double nu = data.getNu();
@@ -73,13 +78,153 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
             final double first = alpha / (f1Sqrt * (1 + lnBetaSq / 24 + lnBetaSq * lnBetaSq / 1920));
             final double second = zOverChi;
             final double third = 1 + t * (beta1 * beta1 * alpha * alpha / 24 / f1 + rho * nu * beta * alpha / 4 / f1Sqrt + nu * nu * (2 - 3 * rho * rho) / 24);
+
             vol = first * second * third;
           }
         }
-
-        return vol;
+        //There is nothing to prevent the nu * nu * (2 - 3 * rho * rho) / 24 part taking the third term, and hence the volatility negative 
+        return Math.max(0.0, vol);
       }
     };
+  }
+
+  /**
+   * Return the Black implied volatility in the SABR model and its derivatives.
+   * @param option The option.
+   * @param data The SABR data.
+   * @return An array with [0] the volatility, [1] Derivative w.r.t the forward, [2] the derivative w.r.t the strike, [3] the derivative w.r.t. to alpha,
+   *  [4] the derivative w.r.t. to beta, [5] the derivative w.r.t. to rho, [6] the derivative w.r.t. to nu
+   */
+  public double[] getVolatilityAdjointDebug(final EuropeanVanillaOption option, final SABRFormulaData data) {
+    /**
+     * The array storing the price and derivatives.
+     */
+    final double[] volatilityAdjoint = new double[7];
+    final double alpha = data.getAlpha();
+    final double forward = data.getForward();
+    final double strike = Math.max(option.getStrike(), forward * CUTOFF_MONEYNESS);
+    final double timeToExpiry = option.getTimeToExpiry();
+
+    final double beta = data.getBeta();
+    final double betaStar = 1 - beta;
+    final double rho = data.getRho();
+    final double nu = data.getNu();
+
+    if (alpha == 0.0) {
+      Arrays.fill(volatilityAdjoint, 0.0);
+      if (Math.abs(forward - strike) < 1E-7) {
+        volatilityAdjoint[3] = (1 + (2 - 3 * rho * rho) * nu * nu / 24 * timeToExpiry) / Math.pow(forward, betaStar);
+      } else {
+        //for non-atm options the alpha sensitivity at alpha = 0 is infinite. Returning this will most likely break calibrations,
+        // so we return an arbitrary large number 
+        volatilityAdjoint[3] = 1e7;
+      }
+      return volatilityAdjoint;
+    }
+
+    // Implementation note: Forward sweep.
+    final double sfK = Math.pow(forward * strike, betaStar / 2);
+    final double lnrfK = Math.log(forward / strike);
+    final double z = nu / alpha * sfK * lnrfK;
+    double rzxz;
+    double xz = 0;
+    if (Math.abs(forward - strike) < 1E-7) {
+      rzxz = 1 - rho * z / 2; // order 1
+    } else {
+      if (CompareUtils.closeEquals(z, 0.0, 1e-3)) {
+        rzxz = 1.0 - 0.5 * z * rho;
+      } else if (CompareUtils.closeEquals(1.0 - rho, 0.0, 1e-8)) {
+        if (z >= 1.0) {
+          rzxz = 0.0;
+        } else {
+          rzxz = -z / Math.log(1 - z);
+        }
+      } else {
+        double arg;
+        if (z < -1e6) {
+          arg = (rho * rho - 1) / 2 / z; //get rounding errors due to fine balanced cancellation for very large negative z
+        } else if (z > 1e8) {
+          arg = 2 * (z - rho);
+        } else {
+          arg = (Math.sqrt(1 - 2 * rho * z + z * z) + z - rho);
+        }
+        if (arg <= 0.0) {//Mathematically this cannot be less than zero, but you know what computers are like.
+          rzxz = 0.0;
+        } else {
+          xz = Math.log(arg / (1 - rho));
+          rzxz = z / xz;
+        }
+      }
+    }
+    final double sf1 = sfK * (1 + betaStar * betaStar / 24 * (lnrfK * lnrfK) + Math.pow(betaStar, 4) / 1920 * Math.pow(lnrfK, 4));
+    final double sf2 = (1 + (Math.pow(betaStar * alpha / sfK, 2) / 24 + (rho * beta * nu * alpha) / (4 * sfK) + (2 - 3 * rho * rho) * nu * nu / 24) * timeToExpiry);
+    volatilityAdjoint[0] = alpha / sf1 * rzxz * sf2;
+
+    // Implementation note: Backward sweep.
+    final double vBar = 1;
+    final double sf2Bar = alpha / sf1 * rzxz * vBar;
+    final double sf1Bar = -alpha / (sf1 * sf1) * rzxz * sf2 * vBar;
+    final double rzxzBar = alpha / sf1 * sf2 * vBar;
+    double zBar;
+    double xzBar = 0;
+    if (Math.abs(forward - strike) < 1E-7) {
+      zBar = -rho / 2 * rzxzBar;
+    } else {
+      if (CompareUtils.closeEquals(z, 0.0, 1e-3)) {
+        zBar = -0.5 * rho;
+      } else if (CompareUtils.closeEquals(1.0 - rho, 0.0, 1e-8)) {
+        if (z >= 1.0) {
+          zBar = 0.0;
+        } else {
+          zBar = -1.0 / Math.log(1 - z) * (1 + z / Math.log(1 - z) / (1 - z)) * rzxzBar;
+        }
+      } else {
+        if (z < -1e6) {
+          zBar = 1 / xz * rzxzBar + xzBar / (xz * xz) * rzxzBar;
+        } else if (z > 1e8) {
+          zBar = 1 / xz * rzxzBar - xzBar / (xz * xz) * rzxzBar;
+        } else {
+          xzBar = -z / (xz * xz) * rzxzBar;
+          zBar = 1 / xz * rzxzBar + 1 / ((Math.sqrt(1 - 2 * rho * z + z * z) + z - rho))
+              * (0.5 * Math.pow(1 - 2 * rho * z + z * z, -0.5) * (-2 * rho + 2 * z) + 1) * xzBar;
+        }
+      }
+    }
+    final double lnrfKBar = sfK * (betaStar * betaStar / 12 * lnrfK + Math.pow(betaStar, 4) / 1920 * 4 * Math.pow(lnrfK, 3)) * sf1Bar + nu / alpha * sfK * zBar;
+    final double sfKBar = nu / alpha * lnrfK * zBar + sf1 / sfK * sf1Bar
+                - (Math.pow(betaStar * alpha, 2) / Math.pow(sfK, 3) / 12 + (rho * beta * nu * alpha) / 4 / (sfK * sfK)) * timeToExpiry * sf2Bar;
+    final double strikeBar = -1 / strike * lnrfKBar + betaStar * sfK / (2 * strike) * sfKBar;
+    final double forwardBar = 1 / forward * lnrfKBar + betaStar * sfK / (2 * forward) * sfKBar;
+    final double nuBar = 1 / alpha * sfK * lnrfK * zBar + ((rho * beta * alpha) / (4 * sfK) + (2 - 3 * rho * rho) * nu / 12) * timeToExpiry * sf2Bar;
+    double rhoBar;
+    if (Math.abs(forward - strike) < 1E-7) {
+      rhoBar = -z / 2 * rzxzBar;
+    } else {
+      if (CompareUtils.closeEquals(1.0 - rho, 0.0, 1e-8)) {
+        s_logger.error("SABR derivatives are not correct in the degenerate case were rho=1.0.");
+        //FIXME: Complete the derivatives in the degenerate case.
+        rhoBar = 0.0;
+      } else {
+        rhoBar = (1 / (Math.sqrt(1 - 2 * rho * z + z * z) + z - rho) * (-Math.pow(1 - 2 * rho * z + z * z, -0.5) * z - 1) + 1 / (1 - rho)) * xzBar;
+      }
+    }
+    rhoBar += ((beta * nu * alpha) / (4 * sfK) - rho * nu * nu / 4) * timeToExpiry * sf2Bar;
+
+    final double alphaBar = -nu / (alpha * alpha) * sfK * lnrfK * zBar + ((betaStar * alpha / sfK) * (betaStar / sfK) / 12 + (rho * beta * nu) / (4 * sfK)) * timeToExpiry * sf2Bar + 1 / sf1
+        * rzxz * sf2 * vBar;
+    //TODO edge cases of beta = 0 or 1
+    final double betaBar = -0.5 * Math.log(forward * strike) * sfK * sfKBar
+        - sfK * (betaStar / 12 * (lnrfK * lnrfK) + Math.pow(betaStar, 3) / 480 * Math.pow(lnrfK, 4)) * sf1Bar
+        + (-betaStar * alpha * alpha / sfK / sfK / 12 + rho * nu * alpha / 4 / sfK) * timeToExpiry * sf2Bar;
+
+    volatilityAdjoint[1] = forwardBar;
+    volatilityAdjoint[2] = strikeBar;
+    volatilityAdjoint[3] = alphaBar;
+    volatilityAdjoint[4] = betaBar;
+    volatilityAdjoint[5] = rhoBar;
+    volatilityAdjoint[6] = nuBar;
+
+    return volatilityAdjoint;
   }
 
   /**
@@ -322,7 +467,21 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
     if (CompareUtils.closeEquals(z, 0.0, 1E-7)) {
       return 1.0 - rho * z / 2.0;
     }
-    final double chi = Math.log((Math.sqrt(1 - 2 * rho * z + z * z) + z - rho)) - Math.log(rhoStar);
+
+    double arg;
+    if (z < -1e6) {
+      arg = (rho * rho - 1) / 2 / z; //get rounding errors due to fine balanced cancellation for very large negative z
+    } else if (z > 1e8) {
+      arg = 2 * (z - rho);
+    } else {
+      arg = (Math.sqrt(1 - 2 * rho * z + z * z) + z - rho);
+      //Mathematically this cannot be less than zero, but you know what computers are like.
+      if (arg <= 0.0) {
+        return 0.0;
+      }
+    }
+
+    final double chi = Math.log(arg) - Math.log(rhoStar);
     return z / chi;
   }
 }

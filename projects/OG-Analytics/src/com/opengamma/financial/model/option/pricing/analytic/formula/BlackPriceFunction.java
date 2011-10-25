@@ -7,6 +7,7 @@ package com.opengamma.financial.model.option.pricing.analytic.formula;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
@@ -21,34 +22,18 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
   @Override
   public Function1D<BlackFunctionData, Double> getPriceFunction(final EuropeanVanillaOption option) {
     Validate.notNull(option, "option");
-    final double eps = 1E-16;
     final double k = option.getStrike();
     final double t = option.getTimeToExpiry();
+    final boolean isCall = option.isCall();
     return new Function1D<BlackFunctionData, Double>() {
 
       @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final BlackFunctionData data) {
-        Validate.notNull(data, "data");
-        final double f = data.getForward();
-        final double discountFactor = data.getDiscountFactor();
-        if (k < eps) {
-          return option.isCall() ? (discountFactor * f) : 0.0;
-        }
+        final double forward = data.getForward();
         final double sigma = data.getBlackVolatility();
-        final int sign = option.isCall() ? 1 : -1;
-        final double sigmaRootT = sigma * Math.sqrt(t);
-        if (f == k) {
-          return discountFactor * f * (2 * NORMAL.getCDF(sigmaRootT / 2) - 1);
-        }
-        if (sigmaRootT < eps) {
-          final double x = sign * (f - k);
-          return (x > 0 ? discountFactor * x : 0.0);
-        }
-        final double d1 = getD1(f, k, sigmaRootT);
-        final double d2 = d1 - sigmaRootT;
-
-        return sign * discountFactor * (f * NORMAL.getCDF(sign * d1) - k * NORMAL.getCDF(sign * d2));
+        final double df = data.getDiscountFactor();
+        return df * BlackFormulaRepository.price(forward, k, t, sigma, isCall);
       }
     };
   }
@@ -232,20 +217,9 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
         final double sigma = data.getBlackVolatility();
         final double f = data.getForward();
         final double discountFactor = data.getDiscountFactor();
-        final double rootT = Math.sqrt(t);
-        final double d1 = getD1(f, k, sigma * rootT);
-        return f * rootT * discountFactor * NORMAL.getPDF(d1);
+        return discountFactor * BlackFormulaRepository.vega(f, k, t, sigma);
       }
-
     };
-  }
-
-  private static double getD1(final double f, final double k, final double sigmaRootT) {
-    final double numerator = (Math.log(f / k) + sigmaRootT * sigmaRootT / 2);
-    if (CompareUtils.closeEquals(numerator, 0, 1e-16)) {
-      return 0;
-    }
-    return numerator / sigmaRootT;
   }
 
 }

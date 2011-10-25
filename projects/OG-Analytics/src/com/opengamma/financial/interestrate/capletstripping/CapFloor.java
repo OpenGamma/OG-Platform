@@ -17,7 +17,12 @@ public class CapFloor extends GenericAnnuity<CapFloorIbor> {
    * @param payments
    */
   public CapFloor(CapFloorIbor[] payments) {
+  //TODO check inputs 
     super(payments);
+  }
+  
+  public double getStrike() {
+    return getNthPayment(0).getStrike();
   }
 
 }
