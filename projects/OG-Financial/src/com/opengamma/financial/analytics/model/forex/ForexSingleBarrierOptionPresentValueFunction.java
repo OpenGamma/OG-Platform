@@ -59,9 +59,9 @@ public class ForexSingleBarrierOptionPresentValueFunction extends ForexSingleBar
     Currency callCurrency = security.getCallCurrency();
     Currency ccy;
     if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) {
-      ccy = callCurrency;
-    } else {
       ccy = putCurrency;
+    } else {
+      ccy = callCurrency;
     }
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName())
