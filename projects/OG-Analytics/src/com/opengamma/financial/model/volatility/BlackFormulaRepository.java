@@ -7,6 +7,7 @@ package com.opengamma.financial.model.volatility;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.lang.annotation.ExternalFunction;
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
@@ -37,6 +38,7 @@ public abstract class BlackFormulaRepository {
    * @param isCall True for calls, false for puts 
    * @return The <b>forward</b> price
    */
+  @ExternalFunction
   public static double price(final double forward, final double strike, final double timeToExpiry, final double lognormalVol, final boolean isCall) {
     if (strike < SMALL) {
       return isCall ? forward : 0.0;
@@ -87,6 +89,7 @@ public abstract class BlackFormulaRepository {
     return forward * rootT * NORMAL.getPDF(d1);
   }
 
+  @ExternalFunction
   public static double vega(final SimpleOptionData data, final double lognormalVol) {
     return data.getDiscountFactor() * vega(data.getForward(), data.getStrike(), data.getTimeToExpiry(), lognormalVol);
   }

@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.volatility;
 
+import com.opengamma.lang.annotation.ExternalFunction;
+
 /**
  * 
  */
@@ -16,6 +18,7 @@ public class SimpleOptionData {
   private final double _df;
   private final boolean _isCall;
 
+  @ExternalFunction
   public SimpleOptionData(final double forward, final double strike, final double timeToExpiry, final double discountFactor, final boolean isCall) {
     _f = forward;
     _k = strike;
