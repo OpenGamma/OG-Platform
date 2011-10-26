@@ -15,6 +15,7 @@ $.register_module({
                 meta = {}, // object that stores the structure and data of the different plots
                 state = {}, // keeps a record of the current active data sets in the plot along with zoom and pan data
                 colors_arr = ['#42669a', '#ff9c00', '#00e13a', '#313b44'], // line colours for the different data sets
+                colors_arr_p2 = ['#ccc', '#b1b1b1', '#969696', '#858585'], // line colours for the different data sets
                 $p1, p1_options, p1_selector = selector + ' .og-js-p1',
                 $p2, p2_options, p2_selector = selector + ' .og-js-p2',
                 tenor = selector + ' .og-tenor',
@@ -23,8 +24,8 @@ $.register_module({
                 $plot_header = $('.OG-timeseries .og-plotHeader'),
                 load_plots, empty_plots, update_legend, rescale_yaxis, get_legend, panning;
             $(selector).html(
-                '<div class="og-js-p1" style="height: 250px; width: 800px; margin: 0 0 0 -20px"></div>\
-                 <div class="og-js-p2" style="height: 100px; width: 800px; margin: -43px 0 0 -20px"></div>\
+                '<div class="og-js-p1" style="height: 270px; width: 800px; margin: 0 0 0 -20px"></div>\
+                 <div class="og-js-p2" style="height: 140px; width: 800px; margin: -56px 0 0 -34px"></div>\
                  <div class="og-tenor" style="margin: 30px 0 0 15px; position: absolute; top: -27px; right: -166px;\
                      background: #fff"></div>'
             ).css({position: 'relative'});
@@ -34,37 +35,42 @@ $.register_module({
                     colors: colors_arr,
                     series: {shadowSize: 1, threshold: {below: 0, color: '#960505'}},
                     legend: {
-                        show: true, labelBoxBorderColor: 'transparent', position: 'nw', margin: 1, backgroundColor: null                    },
+                        show: true, labelBoxBorderColor: 'transparent', position: 'nw', margin: 1, backgroundColor: null
+                    },
                     crosshair: {mode: 'x', color: '#e5e5e5', lineWidth: '1'},
                     lines: {lineWidth: 1, fill: 1, fillColor: '#f8fbfd'},
                     xaxis: {
-                        ticks: 6, mode: 'time',
-                        min: initial_preset, max: x_max,
-                        tickLength: 0, labelHeight: 26,
-                        color: '#fff', // base color, labels, ticks
-                        tickColor: null // possibly different color of ticks, e.g. "rgba(0,0,0,0.15)"
+                        ticks: 6, mode: 'time', tickLength: 0, labelHeight: 26, color: '#fff', tickColor: null,
+                        min: initial_preset, max: x_max
                     },
                     yaxis: {
                         ticks: 5, position: 'right', panRange: false, tickLength: 'full', tickColor: '#f3f3f3',
                         labelWidth: 53, reserveSpace: true, min: y_min, max: y_max
                     },
-                    grid: {borderWidth: 1, color: '#999', borderColor: '#e9eaeb', labelMargin: 3,
-                        minBorderMargin: 30, hoverable: true},
-                    selection: {mode: null, color: '#d7e7f2'},
+                    grid: {
+                        borderWidth: 1, color: '#999', borderColor: '#e9eaeb', labelMargin: 3,
+                        minBorderMargin: 29, hoverable: true
+                    },
+                    selection: {mode: null},
                     pan: {interactive: true, cursor: "move", frameRate: 30}
                 };
                 p2_options = {
-                    colors: colors_arr,
+                    colors: colors_arr_p2,
                     series: {shadowSize: 1, threshold: {below: 0, color: '#960505'}},
                     legend: {show: false},
                     lines: {lineWidth: 1, fill: 1, fillColor: '#fafafa'},
-                    xaxis: {ticks: 6, mode: 'time', tickLength: 10, labelHeight: 17},
+                    xaxis: {ticks: 6, mode: 'time'
+                        , tickLength: '0', labelHeight: 55, tickColor: '#fff'
+                    },
                     yaxis: {
                         show: false, ticks: 1, position: 'right', tickLength: 0, labelWidth: 53,
                         reserveSpace: true, min: y_min , max: y_max
                     },
-                    grid: {borderWidth: 1, color: '#999', borderColor: '#e9eaeb', labelMargin: 3, minBorderMargin: 30},
-                    selection: {mode: 'x', color: '#d7e7f2'}
+                    grid: {
+                        borderWidth: 1, color: '#999', borderColor: '#e9eaeb',
+                        aboveData: true, labelMargin: -14, minBorderMargin: 43
+                    },
+                    selection: {mode: 'x', color: '#ddd'}
                 };
             };
             empty_plots = function () {
