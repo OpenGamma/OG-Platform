@@ -115,7 +115,7 @@ public class AdHocBatchJobRun extends BatchJobRun {
   }
 
   @Override
-  public Set<ValueProperties> getAllOutputValueConstraints() {
+  public Set<ValueProperties> getAllOutputValueRequirement() {
     Set<ValueProperties> valueConstraints = new HashSet<ValueProperties>();
     Set<ValueRequirement> valueRequirements = getResultModel().getRequirementToSpecificationMapping().keySet();
     for (ValueRequirement valueRequirement : valueRequirements) {
