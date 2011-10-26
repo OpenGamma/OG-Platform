@@ -34,7 +34,7 @@ public class FixedFloatSwap extends FixedCouponSwap<CouponIbor> {
    * @param couponRate fixed rate paid on the notional amount on fixed payment dates (amount paid is notional*rate*yearFraction)
    * @param fundingCurveName  Name of curve from which payments are discounted
    * @param liborCurveName Name of curve from which forward rates are calculated
-   * @param isPayer TODO
+   * @param isPayer whether the swap is a payer (i.e. pay the fixed leg)
    */
   public FixedFloatSwap(Currency currency, final double[] fixedPaymentTimes, final double[] floatingPaymentTimes, final double couponRate, final String fundingCurveName, final String liborCurveName,
       boolean isPayer) {

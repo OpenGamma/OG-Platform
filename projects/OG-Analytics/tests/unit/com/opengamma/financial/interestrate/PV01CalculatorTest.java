@@ -7,27 +7,6 @@ package com.opengamma.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
-import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.payments.CouponIbor;
-import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
-import com.opengamma.financial.interestrate.swap.definition.Swap;
-import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.math.curve.FunctionalDoublesCurve;
-import com.opengamma.math.function.Function;
-import com.opengamma.util.money.Currency;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +15,32 @@ import javax.time.calendar.Period;
 
 import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
+
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.yield.SimpleYieldConvention;
+import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
+import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.math.curve.FunctionalDoublesCurve;
+import com.opengamma.math.function.Function;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -149,18 +154,17 @@ public class PV01CalculatorTest {
     final int n = 20;
     final double tau = 0.5;
     final double yearFrac = 180 / 365.0;
-    final double initalCoupon = 0.015;
+    final double initialCoupon = 0.015;
     final double ramp = 0.0025;
-    final double[] coupons = new double[n];
-    final double[] yearFracs = new double[n];
-    final double[] paymentTimes = new double[n];
+    final CouponFixed[] coupons = new CouponFixed[n];
     for (int i = 0; i < n; i++) {
-      paymentTimes[i] = tau * (i + 1);
-      coupons[i] = initalCoupon + i * ramp;
-      yearFracs[i] = yearFrac;
+      coupons[i] = new CouponFixed(CUR, tau * (i + 1), FUNDING_CURVE_NAME, yearFrac, initialCoupon + i * ramp);
     }
-    final Bond bond = new Bond(CUR, paymentTimes, coupons, yearFracs, 0.0, FUNDING_CURVE_NAME);
+    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[]{new PaymentFixed(CUR, tau * n, 1, FUNDING_CURVE_NAME)});
+    final BondFixedSecurity bond = new BondFixedSecurity(nominal, new AnnuityCouponFixed(coupons), 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FUNDING_CURVE_NAME, "S");
     doTest(bond, CURVES);
+    final BondFixedTransaction trade = new BondFixedTransaction(bond, 100, 100, bond, 90);
+    doTest(trade, CURVES);
   }
 
   @Test

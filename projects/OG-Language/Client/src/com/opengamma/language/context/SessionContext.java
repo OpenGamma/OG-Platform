@@ -7,6 +7,7 @@ package com.opengamma.language.context;
 
 import org.fudgemsg.FudgeMsg;
 
+import com.opengamma.financial.user.rest.RemoteClient;
 import com.opengamma.language.connector.MessageSender;
 import com.opengamma.language.connector.StashMessage;
 import com.opengamma.language.definition.DefinitionRepository;
@@ -27,33 +28,33 @@ import com.opengamma.language.view.SessionViewClients;
 public abstract class SessionContext extends AbstractContext<UserContext> {
 
   /**
+   * Name under which the user's session engine client is bound.
+   */
+  protected static final String CLIENT = "client";
+
+  /**
    * Whether the client for the session is in debug mode.
    */
   protected static final String DEBUG = "debug";
+
   /**
    * The {@link MessageSender} for posting asynchronously to the client.
    */
   protected static final String MESSAGE_SENDER = "messageSender";
-  /**
-   * The repository of published functions.
-   */
-  protected static final String FUNCTION_REPOSITORY = "functionRepository";
-  /**
-   * The repository of published live data.
-   */
-  protected static final String LIVEDATA_REPOSITORY = "liveDataRepository";
-  /**
-   * The repository of published procedures.
-   */
-  protected static final String PROCEDURE_REPOSITORY = "procedureRepository";
+
   /**
    * The stash message.
    */
   protected static final String STASH_MESSAGE = "stashMessage";
+
   /**
    * The view clients detached into this session.
    */
   protected static final String VIEW_CLIENTS = "viewClients";
+
+  private final FunctionRepository _functionRepository;
+  private final LiveDataRepository _liveDataRepository;
+  private final ProcedureRepository _procedureRepository;
 
   /* package */SessionContext(final UserContext userContext) {
     super(userContext);
@@ -63,9 +64,9 @@ public abstract class SessionContext extends AbstractContext<UserContext> {
     setValue(PROCEDURE_PROVIDER, AggregatingProcedureProvider.nonCachingInstance());
     // Repositories
     final DefinitionRepository<?> repo = new DefinitionRepository<Object>();
-    setValue(FUNCTION_REPOSITORY, new FunctionRepository(repo));
-    setValue(LIVEDATA_REPOSITORY, new LiveDataRepository(repo));
-    setValue(PROCEDURE_REPOSITORY, new ProcedureRepository(repo));
+    _functionRepository = new FunctionRepository(repo);
+    _liveDataRepository = new LiveDataRepository(repo);
+    _procedureRepository = new ProcedureRepository(repo);
   }
 
   public GlobalContext getGlobalContext() {
@@ -85,30 +86,36 @@ public abstract class SessionContext extends AbstractContext<UserContext> {
 
   public abstract void doneContext();
 
-  // Standard context members
+  // Core members
 
-  public StashMessage getStashMessage() {
-    return getValue(STASH_MESSAGE);
+  public FunctionRepository getFunctionRepository() {
+    return _functionRepository;
   }
 
-  public MessageSender getMessageSender() {
-    return getValue(MESSAGE_SENDER);
+  public LiveDataRepository getLiveDataRepository() {
+    return _liveDataRepository;
+  }
+
+  public ProcedureRepository getProcedureRepository() {
+    return _procedureRepository;
+  }
+
+  // Standard context members
+
+  public RemoteClient getClient() {
+    return getValue(CLIENT);
   }
 
   public boolean isDebug() {
     return getValue(DEBUG) != null;
   }
 
-  public FunctionRepository getFunctionRepository() {
-    return getValue(FUNCTION_REPOSITORY);
+  public MessageSender getMessageSender() {
+    return getValue(MESSAGE_SENDER);
   }
 
-  public LiveDataRepository getLiveDataRepository() {
-    return getValue(LIVEDATA_REPOSITORY);
-  }
-
-  public ProcedureRepository getProcedureRepository() {
-    return getValue(PROCEDURE_REPOSITORY);
+  public StashMessage getStashMessage() {
+    return getValue(STASH_MESSAGE);
   }
 
   public SessionViewClients getViewClients() {

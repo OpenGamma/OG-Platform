@@ -175,7 +175,14 @@ import com.opengamma.engine.value.ValueSpecification;
   protected boolean pushResult(final GraphBuildingContext context, final ResolvedValue value) {
     assert value != null;
     assert !_finished;
-    assert getValueRequirement().isSatisfiedBy(value.getValueSpecification());
+    if (!getValueRequirement().isSatisfiedBy(value.getValueSpecification())) {
+      // Happens when a task was selected early on for satisfying the requirement as part of
+      // an aggregation feed. Late resolution then produces different specifications which
+      // would have caused in-line failures, but the delegating subscriber will receive them
+      // as-is. This would be bad.
+      s_logger.debug("Rejecting {} not satisfying {}", value, this);
+      return false;
+    }
     Collection<Callback> pumped = null;
     final ResolvedValue[] newResults;
     synchronized (this) {

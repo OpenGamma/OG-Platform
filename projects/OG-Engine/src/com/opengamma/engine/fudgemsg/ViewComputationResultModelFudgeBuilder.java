@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.fudgemsg;
 
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
+import java.util.Map;
+
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -16,11 +16,11 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.InMemoryViewResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
-
-import java.util.Map;
 
 /**
  */
@@ -43,7 +43,7 @@ public class ViewComputationResultModelFudgeBuilder extends ViewResultModelFudge
       serializer.addToMessage(liveDataMsg, null, 1, value);
     }
     message.add(FIELD_LIVEDATA, liveDataMsg);
-    message.add(FIELD_SPECIFICATIONS, resultModel.getRequirementToSpecificationMapping());
+    serializer.addToMessage(message, FIELD_SPECIFICATIONS, null, resultModel.getRequirementToSpecificationMapping());
     
     return message;
   }
@@ -56,7 +56,7 @@ public class ViewComputationResultModelFudgeBuilder extends ViewResultModelFudge
       ComputedValue liveData = deserializer.fieldValueToObject(ComputedValue.class, field);
       resultModel.addMarketData(liveData);      
     }
-    resultModel.addRequirements((Map<ValueRequirement, ValueSpecification>) deserializer.fieldValueToObject(message.getByName(FIELD_SPECIFICATIONS)));
+    resultModel.addRequirements((Map<ValueRequirement, ValueSpecification>) deserializer.fieldValueToObject(Map.class, message.getByName(FIELD_SPECIFICATIONS)));
     
     return resultModel;
   }

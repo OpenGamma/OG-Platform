@@ -80,8 +80,7 @@ public class ViewComputationJobTest {
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
-    client.attachToViewProcess(UniqueId.of("boo", "far"), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
-    //client.attachToViewProcess(client.getViewProcessor().getViewDefinitionRepository().getDefinition("Something random").getUniqueId(), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
+    client.attachToViewProcess(UniqueId.of("not", "here"), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
   }
   
   @Test
@@ -262,7 +261,8 @@ public class ViewComputationJobTest {
     client.setResultListener(resultListener);
     EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().get();
     ViewExecutionOptions viewExecutionOptions = ExecutionOptions.infinite(MarketData.live(), flags);
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), viewExecutionOptions);
+    final UniqueId viewDefinitionId = env.getViewDefinition().getUniqueId();
+    client.attachToViewProcess(viewDefinitionId, viewExecutionOptions);
     
     ViewComputationJob computationJob = env.getCurrentComputationJob(env.getViewProcess(vp, client.getUniqueId()));
     
@@ -270,7 +270,6 @@ public class ViewComputationJobTest {
     resultListener.assertCycleCompleted(TIMEOUT);
     computationJob.triggerCycle();
     resultListener.assertCycleCompleted(TIMEOUT);
-    final UniqueId viewDefinitionId = UniqueId.of("AnyScheme", ViewProcessorTestEnvironment.TEST_VIEW_DEFINITION_NAME);
     env.getViewDefinitionRepository().changeManager().entityChanged(ChangeType.UPDATED, viewDefinitionId, viewDefinitionId, Instant.now());
     computationJob.triggerCycle();
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
