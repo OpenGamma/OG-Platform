@@ -127,7 +127,7 @@ public class SABRExtrapolationRightFunction {
     double priceDerivative;
     final double k = option.getStrike();
     if (k <= _cutOffStrike) { // Uses Hagan et al SABR function.
-      final double[] volatilityA = _sabrFunction.getVolatilityAdjoint(option, _sabrData);
+      final double[] volatilityA = _sabrFunction.getVolatilityAdjointOld(option, _sabrData);
       final BlackFunctionData dataBlack = new BlackFunctionData(_sabrData.getForward(), 1.0, volatilityA[0]);
       pA = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
       priceDerivative = pA[1] + pA[2] * volatilityA[1];
@@ -157,7 +157,7 @@ public class SABRExtrapolationRightFunction {
     double price;
     final double k = option.getStrike();
     if (k <= _cutOffStrike) { // Uses Hagan et al SABR function.
-      final double[] volatilityA = _sabrFunction.getVolatilityAdjoint(option, _sabrData);
+      final double[] volatilityA = _sabrFunction.getVolatilityAdjointOld(option, _sabrData);
       final BlackFunctionData dataBlack = new BlackFunctionData(_sabrData.getForward(), 1.0, volatilityA[0]);
       pA = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
       price = pA[0];
