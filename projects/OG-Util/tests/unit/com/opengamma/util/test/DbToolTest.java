@@ -28,27 +28,20 @@ import com.opengamma.OpenGammaRuntimeException;
 public class DbToolTest {
 
   private static final String TEST_TABLE = "db_tool_unit_test_table";
-  
+
   private DbTool _tool;
-  private String _dbHost;
-  private String _user;
-  private String _password;
 
   @BeforeMethod
   public void setUp() throws Exception {
-    Properties props = new Properties();
-    props.load(getClass().getResourceAsStream("/tests.properties"));
-
-    _dbHost = props.getProperty("jdbc.url");
-    _user = props.getProperty("jdbc.username");
-    _password = props.getProperty("jdbc.password");
-
-    _tool = new DbTool(_dbHost, _user, _password);
+    Properties props = TestProperties.getTestProperties();
+    String dbHost = props.getProperty("jdbc.url");
+    String user = props.getProperty("jdbc.username");
+    String password = props.getProperty("jdbc.password");
+    _tool = new DbTool(dbHost, user, password);
     _tool.initialize();
   }
 
   public void testDrop() throws Exception {
-
     _tool.createTestSchema();
     createTestTable();
     _tool.dropTestSchema();
@@ -63,7 +56,6 @@ public class DbToolTest {
   }
 
   public void testClear() throws Exception {
-
     _tool.createTestSchema();
     createTestTable();
     _tool.executeSql(_tool.getTestCatalog(), _tool.getTestSchema(), "INSERT INTO " + TEST_TABLE + " (test_column) VALUES ('test')");
@@ -89,8 +81,8 @@ public class DbToolTest {
   }
 
   private Connection getConnection() throws SQLException {
-    return DriverManager.getConnection(_dbHost + "/" + _tool.getTestCatalog(),
-        _user, _password);
+    return DriverManager.getConnection(
+        _tool.getDbServerHost() + "/" + _tool.getTestCatalog(), _tool.getUser(), _tool.getPassword());
   }
 
   private void createTestTable() throws SQLException {
