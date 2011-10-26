@@ -30,12 +30,12 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocumen
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.db.DbDateUtils;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Base tests for DbHistoricalTimeSeriesMasterWorker via DbHistoricalTimeSeriesMaster.
  */
-public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBTest {
+public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbHistoricalTimeSeriesMasterWorkerTest.class);
 
@@ -70,7 +70,7 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
     s_logger.debug("test data 2: {}", _version2Instant);
     s_logger.debug("test data 3: {}", _version3Instant);
     s_logger.debug("test data 4: {}", _version4Instant);
-    final SimpleJdbcTemplate template = _htsMaster.getDbSource().getJdbcTemplate();
+    final SimpleJdbcTemplate template = _htsMaster.getDbConnector().getJdbcTemplate();
     template.update("INSERT INTO hts_name VALUES (?,?)",
         1, "N101");
     template.update("INSERT INTO hts_name VALUES (?,?)",

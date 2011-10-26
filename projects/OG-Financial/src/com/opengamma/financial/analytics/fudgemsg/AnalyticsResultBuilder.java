@@ -18,7 +18,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
@@ -30,14 +30,14 @@ import com.opengamma.util.tuple.Pair;
   private AnalyticsResultBuilder() {
   }
 
-  @FudgeBuilderFor(PresentValueSensitivity.class)
-  public static final class PresentValueSensitivityBuilder extends AbstractFudgeBuilder<PresentValueSensitivity> {
+  @FudgeBuilderFor(InterestRateCurveSensitivity.class)
+  public static final class PresentValueSensitivityBuilder extends AbstractFudgeBuilder<InterestRateCurveSensitivity> {
     private static final String CURVE_FIELD_NAME = "CurveName";
     private static final String PAIR_FIELD_NAME = "Pair";
     private static final String SENSITIVITIES_FIELD_NAME = "Sensitivities";
 
     @Override
-    public PresentValueSensitivity buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    public InterestRateCurveSensitivity buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final List<FudgeField> curveNameFields = message.getAllByName(CURVE_FIELD_NAME);
       final List<FudgeField> sensitivitiesFields = message.getAllByName(SENSITIVITIES_FIELD_NAME);
       final Map<String, List<DoublesPair>> data = new HashMap<String, List<DoublesPair>>();
@@ -56,11 +56,11 @@ import com.opengamma.util.tuple.Pair;
         }
         data.put(name, pairs);
       }
-      return new PresentValueSensitivity(data);
+      return new InterestRateCurveSensitivity(data);
     }
 
     @Override
-    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final PresentValueSensitivity object) {
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final InterestRateCurveSensitivity object) {
       final Map<String, List<DoublesPair>> data = object.getSensitivities();
       for (final Map.Entry<String, List<DoublesPair>> entry : data.entrySet()) {
         message.add(CURVE_FIELD_NAME, null, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(entry.getKey()), entry.getKey().getClass()));

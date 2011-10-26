@@ -28,9 +28,10 @@ $.register_module({
             INST = 'instrument',
             PRFX = 'prefix',
             INDX = '<INDEX>',
+            config_type = 'com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration',
             arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
         return og.views.config_forms['default'].preload({
-            type: module.name.split('.').pop(),
+            type: config_type,
             meta: [
                 [['0', INDX].join('.'),         Form.type.STR],
                 [['*', '*', '0'].join('.'),     Form.type.STR],

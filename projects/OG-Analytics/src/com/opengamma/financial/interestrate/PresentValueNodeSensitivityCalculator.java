@@ -32,7 +32,7 @@ public class PresentValueNodeSensitivityCalculator extends NodeSensitivityCalcul
   private final AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> _presentValueSensitivityCalculator;
 
   public PresentValueNodeSensitivityCalculator() {
-    _presentValueSensitivityCalculator = PresentValueSensitivityCalculator.getInstance();
+    _presentValueSensitivityCalculator = PresentValueCurveSensitivityCalculator.getInstance();
   }
 
   public PresentValueNodeSensitivityCalculator(final AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> presentValueSensitivityCalculator) {

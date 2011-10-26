@@ -104,7 +104,7 @@ public class InterestRateFutureOptionPremiumSecurityDefinitionTest {
    */
   public void toDerivative() {
     InterestRateFutureOptionPremiumSecurity optionEDU2Converted = OPTION_EDU2_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
-    InterestRateFuture future = EDU2_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
+    InterestRateFuture future = EDU2_DEFINITION.toDerivative(REFERENCE_DATE, REFERENCE_PRICE, CURVES);
     double expirationTime = ACT_ACT.getDayCountFraction(REFERENCE_DATE, EXPIRATION_DATE);
     InterestRateFutureOptionPremiumSecurity optionEDU2 = new InterestRateFutureOptionPremiumSecurity(future, expirationTime, STRIKE, IS_CALL);
     assertEquals("Option on future: to derivative", optionEDU2, optionEDU2Converted);

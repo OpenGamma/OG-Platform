@@ -1,13 +1,8 @@
 package com.opengamma.language.object;
 
-import com.opengamma.language.Data;
-import com.opengamma.language.context.SessionContext;
-import com.opengamma.language.definition.JavaTypeInfo;
-import com.opengamma.language.definition.MetaParameter;
-import com.opengamma.language.function.AbstractFunctionInvoker;
-import com.opengamma.language.function.MetaFunction;
-import com.opengamma.language.function.PublishedFunction;
-import com.opengamma.util.ArgumentChecker;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -16,8 +11,14 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.PropertyReadWrite;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.opengamma.language.Data;
+import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.JavaTypeInfo;
+import com.opengamma.language.definition.MetaParameter;
+import com.opengamma.language.function.AbstractFunctionInvoker;
+import com.opengamma.language.function.MetaFunction;
+import com.opengamma.language.function.PublishedFunction;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A function that can create instances of a Joda {@link Bean} class.  The function's parameters are derived from
@@ -42,12 +43,13 @@ public class CreateBeanFunction implements PublishedFunction {
       PropertyReadWrite readWrite = metaProperty.readWrite();
       if (readWrite == PropertyReadWrite.READ_WRITE || readWrite == PropertyReadWrite.WRITE_ONLY) {
         paramDescriptions.add(propertyType.getSimpleName() + " " + metaProperty.name());
-        JavaTypeInfo<?> typeInfo = JavaTypeInfo.builder(propertyType).get();
+        // TODO get the PropertyDefinition annotation from the property and check whether its validate property = notNull
+        JavaTypeInfo<?> typeInfo = JavaTypeInfo.builder(propertyType).allowNull().get();
         metaParameters.add(new MetaParameter(metaProperty.name(), typeInfo));
       }
     }
     _paramDescription = StringUtils.join(paramDescriptions, ", ");
-    _metaFunction = new MetaFunction(functionName, metaParameters, new Invoker(metaParameters));
+    _metaFunction = new MetaFunction(null, functionName, metaParameters, new Invoker(metaParameters));
   }
 
   @Override

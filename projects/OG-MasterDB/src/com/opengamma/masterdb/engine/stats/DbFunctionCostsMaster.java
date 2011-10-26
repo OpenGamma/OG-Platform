@@ -22,10 +22,10 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsDocument;
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.PagingRequest;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
+import com.opengamma.util.paging.PagingRequest;
 
 /**
  * Database storage of function costs.
@@ -38,9 +38,9 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
   private static final Logger s_logger = LoggerFactory.getLogger(DbFunctionCostsMaster.class);
 
   /**
-   * The database source.
+   * The database connector.
    */
-  private final DbSource _dbSource;
+  private final DbConnector _dbConnector;
   /**
    * The time-source to use.
    */
@@ -49,22 +49,22 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
   /**
    * Creates an instance.
    * 
-   * @param dbSource  the database source combining all configuration, not null
+   * @param dbConnector  the database connector, not null
    */
-  public DbFunctionCostsMaster(final DbSource dbSource) {
-    ArgumentChecker.notNull(dbSource, "dbSource");
-    s_logger.debug("installed DbSource: {}", dbSource);
-    _dbSource = dbSource;
+  public DbFunctionCostsMaster(final DbConnector dbConnector) {
+    ArgumentChecker.notNull(dbConnector, "dbConnector");
+    s_logger.debug("installed DbConnector: {}", dbConnector);
+    _dbConnector = dbConnector;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the database source.
+   * Gets the database connector.
    * 
-   * @return the database source, not null
+   * @return the database connector, not null
    */
-  public DbSource getDbSource() {
-    return _dbSource;
+  public DbConnector getDbConnector() {
+    return _dbConnector;
   }
 
   //-------------------------------------------------------------------------
@@ -100,7 +100,7 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
       .addValue("function", functionId)
       .addTimestamp("version_instant", versionAsOf);
     final FunctionCostsDocumentExtractor extractor = new FunctionCostsDocumentExtractor();
-    final NamedParameterJdbcOperations namedJdbc = getDbSource().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
     final List<FunctionCostsDocument> docs = namedJdbc.query(sqlSelectCosts(), args, extractor);
     return docs.isEmpty() ? null : docs.get(0);
   }
@@ -117,7 +117,7 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
       "WHERE configuration = :configuration " +
         "AND function = :function " +
         "AND version_instant <= :version_instant ";
-    return getDbSource().getDialect().sqlApplyPaging(selectFrom + where, "ORDER BY version_instant DESC ", PagingRequest.ONE);
+    return getDbConnector().getDialect().sqlApplyPaging(selectFrom + where, "ORDER BY version_instant DESC ", PagingRequest.ONE);
   }
 
   //-------------------------------------------------------------------------
@@ -135,7 +135,7 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
       .addValue("invocation_cost", costs.getInvocationCost())
       .addValue("data_input_cost", costs.getDataInputCost())
       .addValue("data_output_cost", costs.getDataOutputCost());
-    getDbSource().getJdbcTemplate().update(sqlInsertCosts(), args);
+    getDbConnector().getJdbcTemplate().update(sqlInsertCosts(), args);
     return costs;
   }
 

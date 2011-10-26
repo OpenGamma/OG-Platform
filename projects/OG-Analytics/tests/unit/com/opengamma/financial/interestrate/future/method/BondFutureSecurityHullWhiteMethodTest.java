@@ -16,8 +16,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
-import com.opengamma.financial.instrument.future.BondFutureDefinition;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -92,7 +91,7 @@ public class BondFutureSecurityHullWhiteMethodTest {
       STANDARD[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(REFERENCE_DATE, CURVES_NAME);
     }
   }
-  private static final BondFutureDefinition BOND_FUTURE_DEFN = new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR);
+
   private static final BondFuture BOND_FUTURE_DERIV = new BondFuture(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL,
       BASKET, CONVERSION_FACTOR, REF_PRICE);
   private static final BondFutureHullWhiteMethod METHOD_HW = BondFutureHullWhiteMethod.getInstance();
@@ -163,8 +162,8 @@ public class BondFutureSecurityHullWhiteMethodTest {
    * Tests the curve sensitivity.
    */
   public void presentValueCurveSensitivity() {
-    final double toleranceSensitivity = 1.0E+5; // 1.0E+2: 0.01 USD by bp 
-    PresentValueSensitivity pvs = METHOD_HW.presentValueCurveSensitivity(BOND_FUTURE_DERIV, BUNDLE_HW);
+
+    InterestRateCurveSensitivity pvs = METHOD_HW.presentValueCurveSensitivity(BOND_FUTURE_DERIV, BUNDLE_HW);
     pvs = pvs.clean();
     // Bond curve sensitivity
     DoubleAVLTreeSet bondTime = new DoubleAVLTreeSet();
@@ -175,6 +174,7 @@ public class BondFutureSecurityHullWhiteMethodTest {
       }
     }
     /*
+    final double toleranceSensitivity = 1.0E+5; // 1.0E+2: 0.01 USD by bp 
     double[] nodeTimesBond = bondTime.toDoubleArray();
     List<DoublesPair> fdSensiList = curveSensitvityFDCalculator(BOND_FUTURE_DERIV, BUNDLE_HW, BUNDLE_HW, CURVES_NAME[0], nodeTimesBond, 1e-9);
     final List<DoublesPair> sensiPvCredit = pvs.getSensitivities().get(CURVES_NAME[0]);
@@ -194,9 +194,9 @@ public class BondFutureSecurityHullWhiteMethodTest {
    * Tests the present value curve sensitivity method for bond futures.
    */
   public void presentValueCurveSensitivityRelative() {
-    final PresentValueSensitivity pvcsComputed = METHOD_HW.presentValueCurveSensitivity(BOND_FUTURE_DERIV, BUNDLE_HW);
-    final PresentValueSensitivity pcsSecurity = METHOD_HW.priceCurveSensitivity(BOND_FUTURE_DERIV, BUNDLE_HW);
-    final PresentValueSensitivity pvcsExpected = pcsSecurity.multiply(NOTIONAL);
+    final InterestRateCurveSensitivity pvcsComputed = METHOD_HW.presentValueCurveSensitivity(BOND_FUTURE_DERIV, BUNDLE_HW);
+    final InterestRateCurveSensitivity pcsSecurity = METHOD_HW.priceCurveSensitivity(BOND_FUTURE_DERIV, BUNDLE_HW);
+    final InterestRateCurveSensitivity pvcsExpected = pcsSecurity.multiply(NOTIONAL);
     assertEquals("Bond future transaction Discounting Method: present value curve sensitivity", pvcsExpected, pvcsComputed);
   }
 

@@ -294,7 +294,9 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
         getFXPresentValue(),
         getFXCurrencyExposure(),
         getYieldCurveNodeSensitivities(getFundingCurve(), underlying.getPayCurrency()),
-        getYieldCurveNodeSensitivities(getFundingCurve(), underlying.getReceiveCurrency()));
+        getYieldCurveNodeSensitivities(getFundingCurve(), underlying.getReceiveCurrency()),
+        getYieldCurveNodeSensitivities(getForwardCurve(underlying.getPayCurrency()), underlying.getPayCurrency()),
+        getYieldCurveNodeSensitivities(getForwardCurve(underlying.getReceiveCurrency()), underlying.getReceiveCurrency()));
   }
 
   @Override

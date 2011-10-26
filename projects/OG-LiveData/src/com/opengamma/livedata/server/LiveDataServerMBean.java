@@ -15,6 +15,9 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
@@ -186,4 +189,77 @@ public class LiveDataServerMBean {
     }
   }
 
+  
+  @ManagedOperation(description = "Gets the current snapshot of a security. Will not cause an underlying snapshot.")
+  @ManagedOperationParameters({
+       @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
+  public String getSnapshot(String securityUniqueId) {
+    try {
+      MarketDataDistributor marketDataDistributor = _server.getMarketDataDistributor(securityUniqueId);
+      return marketDataDistributor.getSnapshot().toString();
+    } catch (RuntimeException e) {
+      s_logger.error("getSnapshot() failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+  
+  @ManagedOperation(description = "Gets the current snapshot of all active securities. Will not cause any underlying snapshots.")
+  public String[] getAllSnapshots() {
+    try {
+      Set<String> activeSubscriptionIds = _server.getActiveSubscriptionIds();
+      Iterable<String> results = Iterables.transform(activeSubscriptionIds, new Function<String, String>() {
+
+        @Override
+        public String apply(String from) {
+          try {
+            return getSnapshot(from);
+          } catch (RuntimeException e) {
+            return e.getMessage();
+          }
+        }
+      });
+      return Iterators.toArray(results.iterator(), String.class);
+    } catch (RuntimeException e) {
+      s_logger.error("getAllSnapshots() failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+  
+  @ManagedOperation(description = "Gets the current field history of a security. Will not cause an underlying snapshot.")
+  @ManagedOperationParameters({ @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
+  public String getFieldHistory(String securityUniqueId) {
+    try {
+      Subscription subscription = _server.getSubscription(securityUniqueId);
+      if (subscription == null) {
+        return null;
+      }
+      return subscription.getLiveDataHistory().getLastKnownValues().toString();
+    } catch (RuntimeException e) {
+      s_logger.error("getFieldHistory() failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+
+  @ManagedOperation(description = "Gets the current field history of all active securities. Will not cause any underlying snapshots.")
+  public String[] getAllFieldHistories() {
+    try {
+      Set<String> activeSubscriptionIds = _server.getActiveSubscriptionIds();
+      Iterable<String> results = Iterables.transform(activeSubscriptionIds, new Function<String, String>() {
+
+        @Override
+        public String apply(String from) {
+          try {
+            return getFieldHistory(from);
+          } catch (RuntimeException e) {
+            return e.getMessage();
+          }
+        }
+      });
+      return Iterators.toArray(results.iterator(), String.class);
+    } catch (RuntimeException e) {
+      s_logger.error("getAllFieldHistories() failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+  
 }

@@ -108,8 +108,7 @@ public class ConfigDbViewDefinitionRepository implements ViewDefinitionRepositor
           return;
         }
         ViewDefinition newDefinition = (ViewDefinition) newDocument.getValue();
-        getUnderlyingRepository().addViewDefinition(new AddViewDefinitionRequest(newDefinition));
-        afterId = newDefinition.getUniqueId();
+        afterId = getUnderlyingRepository().addViewDefinition(new AddViewDefinitionRequest(newDefinition));
         break;
       case REMOVED:
         ConfigDocument<?> removedDocument = getConfigMaster().get(event.getBeforeId());

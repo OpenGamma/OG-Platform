@@ -30,7 +30,7 @@ import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.fixedincome.YieldCurveLabelGenerator;
 import com.opengamma.financial.forex.calculator.PresentValueForexYieldCurveNodeSensitivityCalculator;
 import com.opengamma.financial.forex.derivative.Forex;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -114,7 +114,7 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends ForexForwar
         new YieldAndDiscountCurve[] {payFundingCurve, payForwardCurve});
     final YieldCurveBundle receiveCurveBundle = new YieldCurveBundle(new String[] {receiveFundingCurveName, receiveForwardCurveName}, 
         new YieldAndDiscountCurve[] {receiveFundingCurve, receiveForwardCurve});
-    final Map<String, List<DoublesPair>> curveSensitivities = ((PresentValueSensitivity) curveSensitivitiesObject).getSensitivities();
+    final Map<String, List<DoublesPair>> curveSensitivities = ((InterestRateCurveSensitivity) curveSensitivitiesObject).getSensitivities();
     final Map<String, DoubleMatrix1D> payResult, receiveResult;
     try {
       payResult = CALCULATOR.calculate(curveSensitivities, payCurveBundle, payCouponSensitivity, payJacobian);
@@ -136,10 +136,10 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends ForexForwar
         receiveResult.get(receiveFundingCurveName), receiveFundingCurveSpec);
     final DoubleLabelledMatrix1D receiveForwardCurveResult = getSensitivitiesForCurve(receiveForwardCurveName, data, 
         receiveResult.get(receiveForwardCurveName), receiveForwardCurveSpec);
-    return Sets.newHashSet(new ComputedValue(getResultSpecForCurve(target, payCurrency.getCode(), payFundingCurveName), payFundingCurveResult),
-                           new ComputedValue(getResultSpecForCurve(target, payCurrency.getCode(), payForwardCurveName), payForwardCurveResult),
-                           new ComputedValue(getResultSpecForCurve(target, receiveCurrency.getCode(), receiveFundingCurveName), receiveFundingCurveResult),
-                           new ComputedValue(getResultSpecForCurve(target, receiveCurrency.getCode(), receiveForwardCurveName), receiveForwardCurveResult));
+    return Sets.newHashSet(new ComputedValue(getResultSpecForCurve(target, payCurrency.getCode(), getPayFundingCurveName()), payFundingCurveResult),
+                           new ComputedValue(getResultSpecForCurve(target, payCurrency.getCode(), getPayForwardCurveName()), payForwardCurveResult),
+                           new ComputedValue(getResultSpecForCurve(target, receiveCurrency.getCode(), getReceiveFundingCurveName()), receiveFundingCurveResult),
+                           new ComputedValue(getResultSpecForCurve(target, receiveCurrency.getCode(), getReceiveForwardCurveName()), receiveForwardCurveResult));
   }
 
   @Override

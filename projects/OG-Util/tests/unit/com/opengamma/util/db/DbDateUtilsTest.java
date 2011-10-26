@@ -17,7 +17,6 @@ import javax.time.InstantProvider;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.LocalTime;
-import javax.time.calendar.TimeProvider;
 
 import org.testng.annotations.Test;
 
@@ -37,10 +36,10 @@ public class DbDateUtilsTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_toSqlTimestamp_TimeProvider_null() {
-    DbDateUtils.toSqlTimestamp((TimeProvider) null);
+  public void test_toSqlTimestamp_LocalTime_null() {
+    DbDateUtils.toSqlTimestamp((LocalTime) null);
   }
-  
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_toSqlTimestamp_InstantProvider_null() {
     DbDateUtils.toSqlTimestamp((InstantProvider) null);

@@ -10,8 +10,11 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.google.common.collect.Lists;
 import org.hsqldb.types.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,10 +43,10 @@ import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.Paging;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
+import com.opengamma.util.paging.Paging;
 
 /**
  * A security master implementation using a database for persistence.
@@ -80,7 +83,9 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
         "main.detail_type AS detail_type, " +
         "raw.raw_data AS raw_data, " +
         "i.key_scheme AS key_scheme, " +
-        "i.key_value AS key_value ";
+        "i.key_value AS key_value, " +
+        "sa.key AS security_attr_key, " +
+        "sa.value AS security_attr_value ";
   /**
    * SQL from.
    */
@@ -88,7 +93,8 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
       "FROM sec_security main " +
         "LEFT JOIN sec_raw raw ON (raw.security_id = main.id) " +
         "LEFT JOIN sec_security2idkey si ON (si.security_id = main.id) " +
-        "LEFT JOIN sec_idkey i ON (si.idkey_id = i.id) ";
+        "LEFT JOIN sec_idkey i ON (si.idkey_id = i.id) " +
+        "LEFT JOIN sec_security_attribute sa ON (sa.security_id = main.id) ";
   /**
    * SQL select types.
    */
@@ -102,10 +108,10 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
   /**
    * Creates an instance.
    * 
-   * @param dbSource  the database source combining all configuration, not null
+   * @param dbConnector  the database connector, not null
    */
-  public DbSecurityMaster(final DbSource dbSource) {
-    super(dbSource, IDENTIFIER_SCHEME_DEFAULT);
+  public DbSecurityMaster(final DbConnector dbConnector) {
+    super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
     setDetailProvider(new HibernateSecurityMasterDetailProvider());
   }
 
@@ -160,9 +166,9 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
-      .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
+      .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()))
       .addValueNullIgnored("sec_type", request.getSecurityType())
-      .addValueNullIgnored("key_value", getDbHelper().sqlWildcardAdjustValue(request.getExternalIdValue()));
+      .addValueNullIgnored("key_value", getDialect().sqlWildcardAdjustValue(request.getExternalIdValue()));
     if (request.getExternalIdSearch() != null) {
       int i = 0;
       for (ExternalId id : request.getExternalIdSearch()) {
@@ -190,7 +196,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
                 "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
     if (request.getName() != null) {
-      where += getDbHelper().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
+      where += getDialect().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
     }
     if (request.getSecurityType() != null) {
       where += "AND UPPER(sec_type) = UPPER(:sec_type) ";
@@ -217,7 +223,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     if (detailProvider != null) {
       selectFromWhereInner = detailProvider.extendSearch(request, args, "SELECT sec_security.id FROM sec_security ", where);
     }
-    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY sec_security.id ", request.getPagingRequest());
+    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY sec_security.id ", request.getPagingRequest());
     String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main.id" + sqlAdditionalOrderBy(false);
     String count = "SELECT COUNT(*) FROM sec_security " + where;
     return new String[] {search, count};
@@ -235,7 +241,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
         "WHERE security_id = main.id " +
         "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
         "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-        "AND idkey_id IN ( SELECT id FROM sec_idkey WHERE " + getDbHelper().sqlWildcardQuery("UPPER(key_value) ", "UPPER(:key_value)", identifierValue) + ") ";
+        "AND idkey_id IN ( SELECT id FROM sec_idkey WHERE " + getDialect().sqlWildcardQuery("UPPER(key_value) ", "UPPER(:key_value)", identifierValue) + ") ";
     return "AND id IN (" + select + ") ";
   }
 
@@ -450,13 +456,28 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
         detailProvider.storeSecurityDetail(document.getSecurity());
       }
     }
+
+    Map<String, String> attributes = new HashMap<String, String>(document.getSecurity().getAttributes());
+    final List<DbMapSqlParameterSource> securityAttributeList = Lists.newArrayList();
+    for (Map.Entry<String, String> entry : attributes.entrySet()) {
+      final long securityAttrId = nextId("sec_security_attr_seq");
+      final DbMapSqlParameterSource tradeAttributeArgs = new DbMapSqlParameterSource()
+              .addValue("attr_id", securityAttrId)
+              .addValue("security_id", docId)
+              .addValue("security_oid", docOid)
+              .addValue("key", entry.getKey())
+              .addValue("value", entry.getValue());
+      securityAttributeList.add(tradeAttributeArgs);
+    }
+
+    getJdbcTemplate().batchUpdate(sqlInsertSecurityAttributes(), securityAttributeList.toArray(new DbMapSqlParameterSource[securityAttributeList.size()]));
     return document;
   }
 
   private void storeRawSecurityDetail(RawSecurity security) {
-    final DbMapSqlParameterSource rawSecurityArgs = new DbMapSqlParameterSource();
-    rawSecurityArgs.addValue("security_id", extractRowId(security.getUniqueId()));
-    rawSecurityArgs.addValue("raw_data", new SqlLobValue(security.getRawData(), getDbHelper().getLobHandler()), Types.BLOB);
+    final DbMapSqlParameterSource rawSecurityArgs = new DbMapSqlParameterSource()
+      .addValue("security_id", extractRowId(security.getUniqueId()))
+      .addValue("raw_data", new SqlLobValue(security.getRawData(), getDialect().getLobHandler()), Types.BLOB);
     getJdbcTemplate().update(sqlInsertRawSecurity(), rawSecurityArgs);
   }
 
@@ -512,6 +533,17 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
             "VALUES (:idkey_id, :key_scheme, :key_value)";
   }
 
+    /**
+   * Gets the SQL for inserting trade attributes.
+   *
+   * @return the SQL, not null.
+   */
+  protected String sqlInsertSecurityAttributes() {
+    return "INSERT INTO sec_security_attribute " +
+              "(id, security_id, security_oid, key, value) " +
+           "VALUES (:attr_id, :security_id, :security_oid, :key, :value)";
+  }
+
   //-------------------------------------------------------------------------
   @Override
   protected String sqlSelectFrom() {
@@ -546,6 +578,16 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
           ExternalId id = ExternalId.of(idScheme, idValue);
           _security.setExternalIdBundle(_security.getExternalIdBundle().withExternalId(id));
         }
+
+
+        final String securityAttrKey = rs.getString("SECURITY_ATTR_KEY");
+        final String securityAttrValue = rs.getString("SECURITY_ATTR_VALUE");
+        if (securityAttrKey != null && securityAttrValue != null) {
+          _security.addAttribute(securityAttrKey, securityAttrValue);
+        }
+
+
+
       }
       return _documents;
     }
@@ -561,7 +603,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
       UniqueId uniqueId = createUniqueId(docOid, docId);
       String detailType = rs.getString("DETAIL_TYPE");
       if (detailType.equalsIgnoreCase("R")) {
-        LobHandler lob = getDbHelper().getLobHandler();
+        LobHandler lob = getDialect().getLobHandler();
         byte[] rawData = lob.getBlobAsBytes(rs, "RAW_DATA");
         _security = new RawSecurity(type, rawData);
         _security.setUniqueId(uniqueId);

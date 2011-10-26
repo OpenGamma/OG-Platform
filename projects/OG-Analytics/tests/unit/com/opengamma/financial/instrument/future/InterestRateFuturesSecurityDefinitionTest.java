@@ -122,7 +122,7 @@ public class InterestRateFuturesSecurityDefinitionTest {
     double FIXING_ACCRUAL = DAY_COUNT_INDEX.getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
     InterestRateFuture ERU2 = new InterestRateFuture(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR,
         NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-    InterestRateFuture convertedERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
+    InterestRateFuture convertedERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE, REFERENCE_PRICE, CURVES);
     assertTrue("Rate future security converter", ERU2.equals(convertedERU2));
   }
 }

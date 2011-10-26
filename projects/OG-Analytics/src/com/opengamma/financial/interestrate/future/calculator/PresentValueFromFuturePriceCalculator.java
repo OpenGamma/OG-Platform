@@ -5,13 +5,12 @@
  */
 package com.opengamma.financial.interestrate.future.calculator;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.AbstractInterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.method.BondFutureDiscountingMethod;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * Calculate present value for futures from the quoted price.
@@ -29,6 +28,7 @@ public final class PresentValueFromFuturePriceCalculator extends AbstractInteres
   /**
    * The method to compute interest rate future prices.
    */
+  @SuppressWarnings("unused")
   private static final InterestRateFutureDiscountingMethod METHOD_RATE_FUTURE = InterestRateFutureDiscountingMethod.getInstance();
 
   /**
@@ -45,11 +45,11 @@ public final class PresentValueFromFuturePriceCalculator extends AbstractInteres
   private PresentValueFromFuturePriceCalculator() {
   }
 
-  @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future, final Double futurePrice) {
-    Validate.notNull(future);
-    return METHOD_RATE_FUTURE.presentValueFromPrice(future, futurePrice);
-  }
+//  @Override
+//  public Double visitInterestRateFuture(final InterestRateFuture future, final Double futurePrice) {
+//    Validate.notNull(future);
+//    return METHOD_RATE_FUTURE.
+//  }
 
   @Override
   public Double visitBondFuture(final BondFuture future, final Double futurePrice) {

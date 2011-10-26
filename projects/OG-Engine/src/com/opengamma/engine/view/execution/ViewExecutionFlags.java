@@ -36,7 +36,14 @@ public enum ViewExecutionFlags {
    * between cycles specified in the view definition, and possibly executing cycles concurrently.
    */
   RUN_AS_FAST_AS_POSSIBLE,
-  
+
+  /**
+   * Indicates that the execution sequence should wait for an initial trigger; e.g. market data changes (if
+   * {@link #TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED} is set), a time elapse (if {@link #TRIGGER_CYCLE_ON_TIME_ELAPSED}
+   * is set), or a manual trigger.
+   */
+  WAIT_FOR_INITIAL_TRIGGER,
+
   /**
    * Indicates that the view definition should be compiled but not executed.
    */

@@ -16,9 +16,9 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -118,7 +118,7 @@ public class BondFutureSecurityDiscountingMethodTest {
    * Tests the computation of the price curve sensitivity.
    */
   public void priceCurveSensitivity() {
-    PresentValueSensitivity sensiFuture = METHOD.priceCurveSensitivity(BOND_FUTURE_DERIV, CURVES);
+    InterestRateCurveSensitivity sensiFuture = METHOD.priceCurveSensitivity(BOND_FUTURE_DERIV, CURVES);
     final double[] bondForwardPrice = new double[NB_BOND];
     final double[] bondFuturePrice = new double[NB_BOND];
     double minPrice = 100.0;
@@ -131,7 +131,7 @@ public class BondFutureSecurityDiscountingMethodTest {
         minIndex = loopbasket;
       }
     }
-    PresentValueSensitivity sensiBond = METHOD_BOND.dirtyPriceCurveSensitivity(BASKET[minIndex], CURVES);
+    InterestRateCurveSensitivity sensiBond = METHOD_BOND.dirtyPriceCurveSensitivity(BASKET[minIndex], CURVES);
     sensiBond = sensiBond.multiply(1.0 / CONVERSION_FACTOR[minIndex]);
     sensiFuture = sensiFuture.clean();
     sensiBond = sensiBond.clean();
@@ -148,8 +148,8 @@ public class BondFutureSecurityDiscountingMethodTest {
    * Tests the computation of the price curve sensitivity.
    */
   public void priceCurveSensitivityMethodVsCalculator() {
-    final PresentValueSensitivity sensiMethod = METHOD.priceCurveSensitivity(BOND_FUTURE_DERIV, CURVES);
-    final PresentValueSensitivity sensiCalculator = PRICE_SENSI_CALCULATOR.visit(BOND_FUTURE_DERIV, CURVES);
+    final InterestRateCurveSensitivity sensiMethod = METHOD.priceCurveSensitivity(BOND_FUTURE_DERIV, CURVES);
+    final InterestRateCurveSensitivity sensiCalculator = PRICE_SENSI_CALCULATOR.visit(BOND_FUTURE_DERIV, CURVES);
     assertEquals("Bond future security Discounting Method: curve sensitivity Method versus Calculator", sensiMethod, sensiCalculator);
   }
 

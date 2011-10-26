@@ -5,16 +5,9 @@
  */
 package com.opengamma.financial.interestrate.future.method;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.interestrate.CashFlowEquivalentCalculator;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
@@ -247,7 +240,7 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
    * @param nbPoint The number of point in the numerical cross estimation.
    * @return The curve sensitivity.
    */
-  public PresentValueSensitivity priceCurveSensitivity(final BondFuture future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData, final int nbPoint) {
+  public InterestRateCurveSensitivity priceCurveSensitivity(final BondFuture future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData, final int nbPoint) {
     Validate.notNull(future, "Future");
     Validate.notNull(hwData, "Hull-White data bundle");
     final int nbBond = future.getDeliveryBasket().length;
@@ -323,7 +316,6 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
         refx.add(x[looppt]);
       }
     }
-
     // Sum on each interval
     int nbInt = ctd.size();
     double[] kappa = new double[nbInt - 1];
@@ -387,11 +379,17 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
       listCredit.add(new DoublesPair(delivery, -delivery * dfdelivery * dfdeliveryBar));
     }
     resultMap.put(future.getDeliveryBasket()[0].getDiscountingCurveName(), listCredit);
-    PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
+    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     return result;
   }
 
-  public PresentValueSensitivity priceCurveSensitivity(final BondFuture future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
+  /**
+   * Computes the future price curve sensitivity. The default number of points is used for the numerical search.
+   * @param future The future derivative.
+   * @param hwData The curve and Hull-White parameters.
+   * @return The curve sensitivity.
+   */
+  public InterestRateCurveSensitivity priceCurveSensitivity(final BondFuture future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     return priceCurveSensitivity(future, hwData, DEFAULT_NB_POINTS);
   }
 
@@ -401,10 +399,10 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
    * @param curves The yield curves. Should contain the credit and repo curves associated. 
    * @return The present value rate sensitivity.
    */
-  public PresentValueSensitivity presentValueCurveSensitivity(final BondFuture future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final BondFuture future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
     Validate.notNull(future, "Future");
-    final PresentValueSensitivity priceSensitivity = priceCurveSensitivity(future, curves);
-    final PresentValueSensitivity transactionSensitivity = priceSensitivity.multiply(future.getNotional());
+    final InterestRateCurveSensitivity priceSensitivity = priceCurveSensitivity(future, curves);
+    final InterestRateCurveSensitivity transactionSensitivity = priceSensitivity.multiply(future.getNotional());
     return transactionSensitivity;
   }
 

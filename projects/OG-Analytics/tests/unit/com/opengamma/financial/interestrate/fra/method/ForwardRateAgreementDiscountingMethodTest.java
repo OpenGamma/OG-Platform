@@ -24,8 +24,8 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
-import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
@@ -116,8 +116,8 @@ public class ForwardRateAgreementDiscountingMethodTest {
   public void sensitivity() {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     // Par rate sensitivity
-    final PresentValueSensitivity prsFra = FRA_METHOD.parRateCurveSensitivity(FRA, curves);
-    final PresentValueSensitivity pvsFra = FRA_METHOD.presentValueCurveSensitivity(FRA, curves);
+    final InterestRateCurveSensitivity prsFra = FRA_METHOD.parRateCurveSensitivity(FRA, curves);
+    final InterestRateCurveSensitivity pvsFra = FRA_METHOD.presentValueCurveSensitivity(FRA, curves);
     prsFra.clean();
     final double deltaTolerancePrice = 1.0E+2;
     final double deltaToleranceRate = 1.0E-7;
@@ -253,8 +253,8 @@ public class ForwardRateAgreementDiscountingMethodTest {
   @Test
   public void presentValueSensitivityMethodVsCalculator() {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final PresentValueSensitivity pvcsMethod = FRA_METHOD.presentValueCurveSensitivity(FRA, curves);
-    final PresentValueSensitivityCalculator calculator = PresentValueSensitivityCalculator.getInstance();
+    final InterestRateCurveSensitivity pvcsMethod = FRA_METHOD.presentValueCurveSensitivity(FRA, curves);
+    final PresentValueCurveSensitivityCalculator calculator = PresentValueCurveSensitivityCalculator.getInstance();
     final Map<String, List<DoublesPair>> pvcsCalculator = calculator.visit(FRA, curves);
     assertEquals("FRA discounting: present value calculator vs method", pvcsCalculator, pvcsMethod.getSensitivities());
   }

@@ -13,7 +13,7 @@ $.register_module({
             INDX = '<INDEX>', CRIP = 'curveInstrumentProvider',
             DATA = 'dataFieldName', FUPX = 'futurePrefix', POFX = 'postfix';
         return og.views.config_forms['default'].preload({
-            type: module.name.split('.').pop(),
+            type: 'com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpecification',
             meta: [
                 ['0',                               Form.type.STR],
                 [[CRIP, '0'].join('.'),             Form.type.STR],

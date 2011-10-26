@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.interestrate.future.method;
 
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
@@ -97,7 +97,7 @@ public final class BondFutureDiscountingMethod extends BondFutureMethod {
    * @param curves The curves.
    * @return The curve sensitivity.
    */
-  public PresentValueSensitivity priceCurveSensitivity(final BondFuture future, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity priceCurveSensitivity(final BondFuture future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final double[] priceFromBond = new double[future.getDeliveryBasket().length];
@@ -110,7 +110,7 @@ public final class BondFutureDiscountingMethod extends BondFutureMethod {
         indexCTD = loopbasket;
       }
     }
-    PresentValueSensitivity result = BOND_METHOD.dirtyPriceCurveSensitivity(future.getDeliveryBasket()[indexCTD], curves);
+    InterestRateCurveSensitivity result = BOND_METHOD.dirtyPriceCurveSensitivity(future.getDeliveryBasket()[indexCTD], curves);
     result = result.multiply(1.0 / future.getConversionFactor()[indexCTD]);
     return result;
   }
@@ -121,10 +121,10 @@ public final class BondFutureDiscountingMethod extends BondFutureMethod {
    * @param curves The yield curves. Should contain the credit and repo curves associated. 
    * @return The present value rate sensitivity.
    */
-  public PresentValueSensitivity presentValueCurveSensitivity(final BondFuture future, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final BondFuture future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
-    final PresentValueSensitivity priceSensitivity = priceCurveSensitivity(future, curves);
-    final PresentValueSensitivity transactionSensitivity = priceSensitivity.multiply(future.getNotional());
+    final InterestRateCurveSensitivity priceSensitivity = priceCurveSensitivity(future, curves);
+    final InterestRateCurveSensitivity transactionSensitivity = priceSensitivity.multiply(future.getNotional());
     return transactionSensitivity;
   }
 

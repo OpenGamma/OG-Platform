@@ -9,12 +9,10 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
-import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
@@ -66,12 +64,6 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T[] visit(InterestRateDerivative[] derivative, S data);
 
-  T visitBond(Bond bond, S data);
-
-  T visitBondForward(BondForward bondForward, S data);
-
-  T visitBondFuture(BondFuture bondFuture, S data);
-
   T visitBondFixedSecurity(BondFixedSecurity bond, S data);
 
   T visitBondFixedTransaction(BondFixedTransaction bond, S data);
@@ -111,6 +103,8 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitForexForward(ForexForward fx, S data);
 
   T visitCash(Cash cash, S data);
+
+  T visitBondFuture(BondFuture bondFuture, S data);
 
   T visitInterestRateFuture(InterestRateFuture future, S data);
 
@@ -164,12 +158,6 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T[] visit(InterestRateDerivative[] derivative);
 
-  T visitBond(Bond bond);
-
-  T visitBondForward(BondForward bondForward);
-
-  T visitBondFuture(BondFuture bondFuture);
-
   T visitBondFixedSecurity(BondFixedSecurity bond);
 
   T visitBondFixedTransaction(BondFixedTransaction bond);
@@ -209,6 +197,8 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitTenorSwap(TenorSwap<? extends Payment> tenorSwap);
 
   T visitCash(Cash cash);
+
+  T visitBondFuture(BondFuture future);
 
   T visitInterestRateFutureSecurity(InterestRateFuture future);
 

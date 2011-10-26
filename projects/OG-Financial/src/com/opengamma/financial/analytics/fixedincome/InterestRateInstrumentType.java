@@ -55,6 +55,7 @@ public enum InterestRateInstrumentType {
   /** Bond future */
   BOND_FUTURE;
 
+  @SuppressWarnings("synthetic-access")
   private static final FinancialSecurityVisitor<InterestRateInstrumentType> TYPE_IDENTIFIER = new TypeIdentifier();
 
   public static InterestRateInstrumentType getInstrumentTypeFromSecurity(final FinancialSecurity security) {

@@ -255,8 +255,8 @@ $.register_module({
                 },
                 put: function (config) {
                     var root = this.root, method = [root], data = {}, meta,
-                        id = str(config.id), fields = ['name', 'json', 'xml'],
-                        api_fields = ['name', 'configJSON', 'configXML'];
+                        id = str(config.id), fields = ['name', 'json', 'type', 'xml'],
+                        api_fields = ['name', 'configJSON', 'type', 'configXML'];
                     meta = check({
                         bundle: {method: root + '#put', config: config},
                         empties: [{

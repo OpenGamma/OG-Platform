@@ -31,7 +31,7 @@ import com.opengamma.financial.analytics.model.fixedincome.YieldCurveLabelGenera
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueForexYieldCurveNodeSensitivityCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
@@ -117,7 +117,7 @@ public class ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction extends
     final DoubleMatrix1D callCouponSensitivity = (DoubleMatrix1D) callCouponSensitivitiesObject;
     final YieldCurveBundle putCurveBundle = new YieldCurveBundle(new String[] {putFundingCurveName, putForwardCurveName}, new YieldAndDiscountCurve[] {putFundingCurve, putForwardCurve});
     final YieldCurveBundle callCurveBundle = new YieldCurveBundle(new String[] {callFundingCurveName, callForwardCurveName}, new YieldAndDiscountCurve[] {callFundingCurve, callForwardCurve});
-    final Map<String, List<DoublesPair>> curveSensitivities = ((PresentValueSensitivity) curveSensitivitiesObject).getSensitivities();
+    final Map<String, List<DoublesPair>> curveSensitivities = ((InterestRateCurveSensitivity) curveSensitivitiesObject).getSensitivities();
     final Map<String, DoubleMatrix1D> putArrayResult, callArrayResult;
     try {
       putArrayResult = CALCULATOR.calculate(curveSensitivities, putCurveBundle, putCouponSensitivity, putJacobian);
@@ -148,7 +148,7 @@ public class ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction extends
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
-    final FXOptionSecurity fxOption = (FXOptionSecurity) target.getSecurity();
+    final FXBarrierOptionSecurity fxOption = (FXBarrierOptionSecurity) target.getSecurity();
     final String putFundingCurveName = getPutFundingCurveName();
     final String putForwardCurveName = getPutForwardCurveName();
     final String callFundingCurveName = getCallFundingCurveName();

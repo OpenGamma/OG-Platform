@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
@@ -38,11 +39,19 @@ public class ViewClientFunction extends AbstractFunctionInvoker implements Publi
 
   private ViewClientFunction(final DefinitionAnnotater info) {
     super(info.annotate(parameters()));
-    _meta = info.annotate(new MetaFunction("ViewClient", getParameters(), this));
+    _meta = info.annotate(new MetaFunction(Categories.VIEW, "ViewClient", getParameters(), this));
   }
 
   protected ViewClientFunction() {
     this(new DefinitionAnnotater(ViewClientFunction.class));
+  }
+
+  public static ViewClientKey invoke(final String viewDescriptor, final boolean useSharedProcess) {
+    return new ViewClientKey(viewDescriptor, useSharedProcess);
+  }
+
+  public static ViewClientKey invoke(final String viewDescriptor, final boolean useSharedProcess, final String clientName) {
+    return new ViewClientKey(viewDescriptor, useSharedProcess, clientName);
   }
 
   // AbstractFunctionInvoker
@@ -51,9 +60,9 @@ public class ViewClientFunction extends AbstractFunctionInvoker implements Publi
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
     final ViewClientKey key;
     if (parameters[2] == null) {
-      key = new ViewClientKey((String) parameters[0], (Boolean) parameters[1]);
+      key = invoke((String) parameters[0], (Boolean) parameters[1]);
     } else {
-      key = new ViewClientKey((String) parameters[0], (Boolean) parameters[1], (String) parameters[2]);
+      key = invoke((String) parameters[0], (Boolean) parameters[1], (String) parameters[2]);
     }
     return sessionContext.getUserContext().getViewClients().lockViewClient(key);
   }

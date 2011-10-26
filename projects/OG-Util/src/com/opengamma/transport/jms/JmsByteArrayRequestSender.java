@@ -99,7 +99,7 @@ public class JmsByteArrayRequestSender extends AbstractJmsByteArraySender implem
 
             } catch (Exception ex) {
               // TODO UTL-37.
-              s_logger.error("Unexpected exception while waiting for a response to send to {}", responseReceiver);
+              s_logger.error("Unexpected exception while waiting for a response to send to " + responseReceiver, ex);
             }
             return null;
           }

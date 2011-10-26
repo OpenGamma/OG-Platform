@@ -8,7 +8,6 @@ package com.opengamma.financial.interestrate;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
@@ -137,13 +136,6 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
     Validate.notNull(curves);
     Validate.notNull(swap);
     return visitSwap(swap, curves);
-  }
-
-  @Override
-  public Double visitBond(final Bond bond, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(bond);
-    return visit(bond.getAnnuity(), curves);
   }
 
   @Override
@@ -290,5 +282,4 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   public Double visitCouponIborFixed(final CouponIborFixed payment, final YieldCurveBundle data) {
     return visitCouponIbor(payment.toCouponIbor(), data);
   }
-
 }

@@ -56,7 +56,7 @@ import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueCouponSensitivityCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -140,7 +140,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       _sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
     } else if (calculationType.equals(PRESENT_VALUE_STRING)) {
       _calculator = PresentValueCalculator.getInstance();
-      _sensitivityCalculator = PresentValueSensitivityCalculator.getInstance();
+      _sensitivityCalculator = PresentValueCurveSensitivityCalculator.getInstance();
       _couponSensitivityCalculator = PresentValueCouponSensitivityCalculator.getInstance();
     } else {
       throw new IllegalArgumentException("Could not get calculator type " + calculationType);

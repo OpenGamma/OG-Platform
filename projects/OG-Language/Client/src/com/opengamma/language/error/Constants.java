@@ -53,9 +53,12 @@ public final class Constants {
   public static final int ERROR_INVALID_ARGUMENT = declare(ERROR_INVOCATION + 2);
 
   /**
-   * The internal implementation did not behave as expected. A description of the problem is in the string field.
+   * The internal implementation did not behave as expected. A description of the problem is in the string field. This is used when
+   * none of the other messages make sense - e.g. an arbitrary exception thrown, or an assertion style fault.
    */
-  public static final int ERROR_INTERNAL_IMPLEMENTATION = declare(ERROR_INVOCATION + 3);
+  public static final int ERROR_INTERNAL = declare(ERROR_INVOCATION + 3);
+
+  // TODO: other classes of error such as database/network/file system style problems
 
   /**
    * Errors 100 to 999 reserved for built-in OpenGamma functions.
