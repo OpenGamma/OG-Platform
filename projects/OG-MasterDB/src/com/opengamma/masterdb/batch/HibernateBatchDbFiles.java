@@ -26,7 +26,7 @@ public class HibernateBatchDbFiles implements HibernateMappingFiles {
       OpenGammaVersion.class,
       RiskRun.class,
       RiskValueName.class,
-      RiskValueConstraints.class,
+      RiskValueRequirement.class,
       FunctionUniqueId.class,
       ComputationTarget.class,
       RiskValue.class,

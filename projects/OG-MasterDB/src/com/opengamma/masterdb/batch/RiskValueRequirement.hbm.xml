@@ -4,7 +4,7 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.masterdb.batch">
 
-  <class name="com.opengamma.masterdb.batch.RiskValueConstraints" table="rsk_value_constraints">
+  <class name="RiskValueRequirement" table="rsk_value_requirement">
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
         <param name="optimizer">hilo</param>
@@ -12,12 +12,12 @@
       </generator>
     </id>
 
-    <property name="syntheticConstraints" column="synthetic_constraints" not-null="true"/>
+    <property name="syntheticForm" column="synthetic_form" not-null="true"/>
   </class>
 
-  <query name="RiskValueConstraints.one.bySynthesizedConstraints">
-    from RiskValueConstraints as a where
-    a.syntheticConstraints = :constraints
+  <query name="RiskValueRequirement.one.bySynthesizedForm">
+    from RiskValueRequirement as a where
+    a.syntheticForm = :requirement
   </query>
 
 </hibernate-mapping>
