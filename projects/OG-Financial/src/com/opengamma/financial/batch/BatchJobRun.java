@@ -74,7 +74,7 @@ public abstract class BatchJobRun {
 
   public abstract Set<String> getAllOutputValueNames();
 
-  public abstract Set<ValueProperties> getAllOutputValueConstraints();
+  public abstract Set<ValueProperties> getAllOutputValueRequirement();
 
   /**
    * @param spec  one of the targets returned by {@link #getAllComputationTargets()}
