@@ -200,7 +200,7 @@ public class CapletStrippingTest {
     }
   }
 
-  @Test
+  @Test(enabled = false)
   public void testStripping() {
     double[] start = new double[4 * NODES.length];
     //start from some realistic values, and transform these into the fitting parameters 

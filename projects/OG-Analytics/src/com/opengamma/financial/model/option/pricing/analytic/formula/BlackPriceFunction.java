@@ -30,6 +30,7 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
       @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final BlackFunctionData data) {
+        Validate.notNull(data, "data");
         final double forward = data.getForward();
         final double sigma = data.getBlackVolatility();
         final double df = data.getDiscountFactor();

@@ -57,7 +57,7 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
         double k = option.getStrike();
         final double cutoff = f * CUTOFF_MONEYNESS;
         if (k < cutoff) {
-          s_logger.error("Given strike of " + k + " is less than cutoff at " + cutoff + ", therefore the strike is taken as " + cutoff);
+          s_logger.warn("Given strike of " + k + " is less than cutoff at " + cutoff + ", therefore the strike is taken as " + cutoff);
           k = cutoff;
         }
         double vol, z, zOverChi;
@@ -131,7 +131,7 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
     double strike = option.getStrike();
     final double cutoff = forward * CUTOFF_MONEYNESS;
     if (strike < cutoff) {
-      s_logger.error("Given strike of " + strike + " is less than cutoff at " + cutoff + ", therefore the strike is taken as " + cutoff);
+      s_logger.warn("Given strike of " + strike + " is less than cutoff at " + cutoff + ", therefore the strike is taken as " + cutoff);
       strike = cutoff;
     }
 
