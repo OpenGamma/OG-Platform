@@ -27,30 +27,30 @@ public class SpreadDoublesCurve extends Curve<Double, Double> {
   /**
    * Takes an array of curves that are to be operated on by the spread function. The name of the spread
    * curve is automatically generated.
-   * @param curves The curves, not null
    * @param spreadFunction The spread function, not null
+   * @param curves The curves, not null
    * @return The spread curve
    */
-  public static SpreadDoublesCurve from(final Curve<Double, Double>[] curves, final CurveSpreadFunction spreadFunction) {
-    return new SpreadDoublesCurve(curves, spreadFunction);
+  public static SpreadDoublesCurve from(final CurveSpreadFunction spreadFunction, final Curve<Double, Double>... curves) {
+    return new SpreadDoublesCurve(spreadFunction, curves);
   }
 
   /**
    * Takes an array of curves that are to be operated on by the spread function.
-   * @param curves The curves, not null
    * @param spreadFunction The spread function, not null
    * @param name The name of the curve
+   * @param curves The curves, not null
    * @return The spread curve
    */
-  public static SpreadDoublesCurve from(final Curve<Double, Double>[] curves, final CurveSpreadFunction spreadFunction, final String name) {
-    return new SpreadDoublesCurve(curves, spreadFunction, name);
+  public static SpreadDoublesCurve from(final CurveSpreadFunction spreadFunction, final String name, final Curve<Double, Double>... curves) {
+    return new SpreadDoublesCurve(spreadFunction, name, curves);
   }
 
   /**
-   * @param curves The curves, not null, contains more than one curve
    * @param spreadFunction The spread function, not null
+   * @param curves The curves, not null, contains more than one curve
    */
-  public SpreadDoublesCurve(final Curve<Double, Double>[] curves, final CurveSpreadFunction spreadFunction) {
+  public SpreadDoublesCurve(final CurveSpreadFunction spreadFunction, final Curve<Double, Double>... curves) {
     super();
     Validate.notNull(curves, "curves");
     Validate.isTrue(curves.length > 1, "curves");
@@ -62,11 +62,11 @@ public class SpreadDoublesCurve extends Curve<Double, Double> {
 
   /**
    * 
-   * @param curves The curves, not null, contains more than one curve
    * @param spreadFunction The spread function, not null
    * @param name The name of the curve
+   * @param curves The curves, not null, contains more than one curve
    */
-  public SpreadDoublesCurve(final Curve<Double, Double>[] curves, final CurveSpreadFunction spreadFunction, final String name) {
+  public SpreadDoublesCurve(final CurveSpreadFunction spreadFunction, final String name, final Curve<Double, Double>... curves) {
     super(name);
     Validate.notNull(curves, "curves");
     Validate.isTrue(curves.length > 1, "curves");

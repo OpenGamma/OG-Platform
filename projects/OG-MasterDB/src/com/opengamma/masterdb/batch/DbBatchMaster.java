@@ -378,21 +378,21 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
     return riskValueName;
   }
   
-  /*package*/ RiskValueConstraints getRiskValueConstraint(final ValueProperties constraints) {
-    final String synthesizedConstraints = RiskValueConstraints.synthesize(constraints);
-    RiskValueConstraints riskValueConstraints = getHibernateTemplate().execute(new HibernateCallback<RiskValueConstraints>() {
+  /*package*/ RiskValueRequirement getRiskValueRequirement(final ValueProperties requirement) {
+    final String synthesizedRequirement = RiskValueRequirement.synthesize(requirement);
+    RiskValueRequirement riskValueRequirement = getHibernateTemplate().execute(new HibernateCallback<RiskValueRequirement>() {
       @Override
-      public RiskValueConstraints doInHibernate(Session session) throws HibernateException, SQLException {
-        Query query = session.getNamedQuery("RiskValueConstraints.one.bySynthesizedConstraints");
-        query.setString("constraints", synthesizedConstraints);
-        return (RiskValueConstraints) query.uniqueResult();
+      public RiskValueRequirement doInHibernate(Session session) throws HibernateException, SQLException {
+        Query query = session.getNamedQuery("RiskValueRequirement.one.bySynthesizedForm");
+        query.setString("requirement", synthesizedRequirement);
+        return (RiskValueRequirement) query.uniqueResult();
       }
     });
-    if (riskValueConstraints == null) {
-      riskValueConstraints = new RiskValueConstraints(constraints);
-      getHibernateTemplate().save(riskValueConstraints);
+    if (riskValueRequirement == null) {
+      riskValueRequirement = new RiskValueRequirement(requirement);
+      getHibernateTemplate().save(riskValueRequirement);
     }
-    return riskValueConstraints;
+    return riskValueRequirement;
   }
   
   /*package*/ FunctionUniqueId getFunctionUniqueId(final String uniqueId) {
@@ -544,13 +544,13 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
     return returnValue;
   }
   
-  /*package*/ Set<RiskValueConstraints> populateRiskValueConstraints(BatchJobRun job) {
-    Set<RiskValueConstraints> returnValue = new HashSet<RiskValueConstraints>();
+  /*package*/ Set<RiskValueRequirement> populateRiskValueRequirement(BatchJobRun job) {
+    Set<RiskValueRequirement> returnValue = new HashSet<RiskValueRequirement>();
     
-    Set<ValueProperties> valueConstraints = job.getAllOutputValueConstraints();
-    for (ValueProperties constraints : valueConstraints) {
-      RiskValueConstraints riskValueConstraints = getRiskValueConstraint(constraints);
-      returnValue.add(riskValueConstraints);
+    Set<ValueProperties> valueRequirement = job.getAllOutputValueRequirement();
+    for (ValueProperties requirement : valueRequirement) {
+      RiskValueRequirement riskValueRequirement = getRiskValueRequirement(requirement);
+      returnValue.add(riskValueRequirement);
     }
     return returnValue;
   }
@@ -828,13 +828,13 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
     }
 
     Set<RiskValueName> riskValueNames = populateRiskValueNames(batch);
-    Set<RiskValueConstraints> riskValueConstraints = populateRiskValueConstraints(batch);
+    Set<RiskValueRequirement> riskValueRequirement = populateRiskValueRequirement(batch);
     Set<ComputationTarget> computationTargets = populateComputationTargets(batch);
     
     DbHandle dbHandle = new DbHandle();
     dbHandle._riskRun = run;
     dbHandle._riskValueNames = riskValueNames;
-    dbHandle._riskValueConstraints = riskValueConstraints;
+    dbHandle._riskValueRequirement = riskValueRequirement;
     dbHandle._computationTargets = computationTargets;
     
     batch.setDbHandle(dbHandle);
@@ -843,7 +843,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
   private static class DbHandle {
     private RiskRun _riskRun;
     private Set<RiskValueName> _riskValueNames;
-    private Set<RiskValueConstraints> _riskValueConstraints;
+    private Set<RiskValueRequirement> _riskValueRequirement;
     private Set<ComputationTarget> _computationTargets;
   }
   
@@ -878,7 +878,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
           getDbHandle(_batch)._computationTargets,
           getRiskRunFromHandle(_batch),
           getDbHandle(_batch)._riskValueNames,
-          getDbHandle(_batch)._riskValueConstraints);
+          getDbHandle(_batch)._riskValueRequirement);
 
       // Ultimate executor of the tasks
       DependencyGraphExecutor<CalculationJobResult> level3Executor =
@@ -910,7 +910,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
           getDbHandle(_batch)._computationTargets,
           getRiskRunFromHandle(_batch),
           getDbHandle(_batch)._riskValueNames,
-          getDbHandle(_batch)._riskValueConstraints);
+          getDbHandle(_batch)._riskValueRequirement);
 
       return resultWriter;
     }
@@ -1102,7 +1102,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
           getLocalComputeNode(),
           new ResultConverterCache(),
           getDbHandle(batch)._computationTargets,
-          getDbHandle(batch)._riskValueConstraints,
+          getDbHandle(batch)._riskValueRequirement,
           getDbHandle(batch)._riskValueNames);
       
       writer.write(result.getResult());

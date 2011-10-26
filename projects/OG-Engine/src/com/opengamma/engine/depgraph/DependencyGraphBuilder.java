@@ -93,25 +93,33 @@ public final class DependencyGraphBuilder {
     @Override
     protected void finished(final GraphBuildingContext context) {
       assert getPendingTasks() == 0;
-      if (_fallback == null) {
-        _fallback = context.getOrCreateTaskResolving(getValueRequirement(), _parentTask);
-        if (_tasks.add(_fallback)) {
-          _fallback.addRef();
-          s_loggerResolver.debug("Creating fallback task {}", _fallback);
-          addProducer(context, _fallback);
+      ResolveTask fallback;
+      synchronized (this) {
+        fallback = _fallback;
+        _fallback = null;
+      }
+      if (fallback == null) {
+        fallback = context.getOrCreateTaskResolving(getValueRequirement(), _parentTask);
+        if (_tasks.add(fallback)) {
+          fallback.addRef();
+          s_loggerResolver.debug("Creating fallback task {}", fallback);
+          synchronized (this) {
+            assert _fallback == null;
+            _fallback = fallback;
+          }
+          addProducer(context, fallback);
           return;
         } else {
-          _fallback.release(context);
-          _fallback = null;
+          fallback.release(context);
+          fallback = null;
         }
       }
       super.finished(context);
-      if (_fallback != null) {
+      if (fallback != null) {
         // Discard the fallback task if another has produced the same set of results for the requirement
-        s_loggerContext.debug("Discarding finished task");
-        context.discardFinishedTask(getResults(), _fallback);
-        _fallback.release(context);
-        _fallback = null;
+        s_loggerContext.debug("Discarding finished task {} by {}", fallback, this);
+        context.discardFinishedTask(getResults(), fallback);
+        fallback.release(context);
       }
       // Release any other tasks
       for (ResolveTask task : _tasks) {
@@ -128,12 +136,16 @@ public final class DependencyGraphBuilder {
     public int release(final GraphBuildingContext context) {
       final int count = super.release(context);
       if (count == 0) {
-        if (_fallback != null) {
-          // Discard the fallback task
-          s_loggerContext.debug("Discarding unfinished fallback task");
-          context.discardUnfinishedTask(_fallback);
-          _fallback.release(context);
+        final ResolveTask fallback;
+        synchronized (this) {
+          fallback = _fallback;
           _fallback = null;
+        }
+        if (fallback != null) {
+          // Discard the fallback task
+          s_loggerContext.debug("Discarding unfinished fallback task {} by {}", fallback, this);
+          context.discardUnfinishedTask(fallback);
+          fallback.release(context);
         }
       }
       return count;

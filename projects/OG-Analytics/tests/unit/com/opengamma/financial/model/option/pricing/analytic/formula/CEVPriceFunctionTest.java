@@ -91,7 +91,7 @@ public class CEVPriceFunctionTest {
     }
   }
 
-  @Test
+  @Test(enabled = false)
   public void funnySmileTest() {
 
     final double beta = 0.4;

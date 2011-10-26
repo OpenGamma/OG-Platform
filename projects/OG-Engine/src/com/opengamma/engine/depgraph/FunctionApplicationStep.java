@@ -147,6 +147,10 @@ import com.opengamma.util.tuple.Pair;
       return ResolutionFailure.functionApplication(getValueRequirement(), getFunction(), getValueSpecification());
     }
 
+    public boolean canHandleMissingInputs() {
+      return getFunction().getFunction().canHandleMissingRequirements();
+    }
+
     public boolean inputsAvailable(final GraphBuildingContext context, final Map<ValueSpecification, ValueRequirement> inputs) {
       s_logger.info("Function inputs available {} for {}", inputs, getValueSpecification());
       // Late resolution of the output based on the actual inputs used (skip if everything was strict)

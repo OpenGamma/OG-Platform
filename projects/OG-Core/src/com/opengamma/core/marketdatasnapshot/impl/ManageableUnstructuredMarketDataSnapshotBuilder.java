@@ -21,9 +21,18 @@ import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 
 /**
  * Fudge message builder for {@link ManageableUnstructuredMarketDataSnapshot}
+ * <pre>
+ *   message {
+ *     repeated message { // set
+ *       MarketDataValueSpecification valueSpec;
+ *       string valueName;
+ *       ValueSnapshot value;
+ *     } value = 1;
+ *   }
+ * </pre>
  */
 @FudgeBuilderFor(ManageableUnstructuredMarketDataSnapshot.class)
-public class ManageableUnstrucutredMarketDataSnapshotBuilder implements FudgeBuilder<ManageableUnstructuredMarketDataSnapshot>  {
+public class ManageableUnstructuredMarketDataSnapshotBuilder implements FudgeBuilder<ManageableUnstructuredMarketDataSnapshot>  {
 
   /** Field name. */
   public static final String VALUE_SPEC_FIELD_NAME = "valueSpec";
@@ -31,6 +40,10 @@ public class ManageableUnstrucutredMarketDataSnapshotBuilder implements FudgeBui
   public static final String VALUE_NAME_FIELD_NAME = "valueName";
   /** Field name. */
   public static final String VALUE_FIELD_NAME = "value";
+
+  // TODO: This is not the most efficient representation. Either keep the repeat and use a 3-tuple approach rather
+  // than a set for the outer message, or use a map of value specs to a map of names and values. Which is the more
+  // concise depends on how likely there are to be multiple named values for each given specification.
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ManageableUnstructuredMarketDataSnapshot object) {
@@ -57,9 +70,8 @@ public class ManageableUnstrucutredMarketDataSnapshotBuilder implements FudgeBui
 
     for (FudgeField fudgeField : message.getAllByOrdinal(1)) {
       FudgeMsg innerValue = (FudgeMsg) fudgeField.getValue();
-      MarketDataValueSpecification spec = deserializer.fieldValueToObject(MarketDataValueSpecification.class,
-          innerValue.getByName(VALUE_SPEC_FIELD_NAME));
-      String valueName = deserializer.fieldValueToObject(String.class, innerValue.getByName(VALUE_NAME_FIELD_NAME));
+      MarketDataValueSpecification spec = deserializer.fieldValueToObject(MarketDataValueSpecification.class, innerValue.getByName(VALUE_SPEC_FIELD_NAME));
+      String valueName = innerValue.getFieldValue(String.class, innerValue.getByName(VALUE_NAME_FIELD_NAME));
       ValueSnapshot value = deserializer.fieldValueToObject(ValueSnapshot.class, innerValue.getByName(VALUE_FIELD_NAME));
       if (!values.containsKey(spec)) {
         values.put(spec, new HashMap<String, ValueSnapshot>());

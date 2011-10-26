@@ -54,7 +54,8 @@ public abstract class SABRVolatilityFunctionTestCase {
   public void testApproachingLogNormalEquivalent3() {
     assertEquals(getFunction().getVolatilityFunction(OPTION).evaluate(APPROACHING_LOG_NORMAL_EQUIVALENT3), LOG_NORMAL_EQUIVALENT.getAlpha(), 1e-5);
   }
-
+  
+ 
   //TODO need to fill in tests
   //TODO beta = 1 nu = 0 => Black equivalent volatility
   //TODO beta = 0 nu = 0 => Bachelier

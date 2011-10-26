@@ -70,7 +70,7 @@ public class CommandLineBatchResultWriterTest extends HibernateTest {
   private com.opengamma.masterdb.batch.ComputationTarget _dbComputationTarget;
   private Set<com.opengamma.masterdb.batch.ComputationTarget> _dbComputationTargets;
   private Set<RiskValueName> _valueNames;
-  private Set<RiskValueConstraints> _valueConstraints;
+  private Set<RiskValueRequirement> _valueConstraints;
 
   private MockFunction _mockFunction;
   private TestCalculationNode _calcNode;
@@ -148,11 +148,11 @@ public class CommandLineBatchResultWriterTest extends HibernateTest {
     _valueNames.add(valueName);
     _hibernateTemplate.saveOrUpdateAll(_valueNames);
 
-    _valueConstraints = new HashSet<RiskValueConstraints>();
+    _valueConstraints = new HashSet<RiskValueRequirement>();
 
-    _valueConstraints.add(new RiskValueConstraints(ValueProperties.parse("currency=USD")));
-    _valueConstraints.add(new RiskValueConstraints(ValueProperties.parse("currency=EUR")));
-    _valueConstraints.add(new RiskValueConstraints(ValueProperties.parse("currency=GBP")));
+    _valueConstraints.add(new RiskValueRequirement(ValueProperties.parse("currency=USD")));
+    _valueConstraints.add(new RiskValueRequirement(ValueProperties.parse("currency=EUR")));
+    _valueConstraints.add(new RiskValueRequirement(ValueProperties.parse("currency=GBP")));
     _hibernateTemplate.saveOrUpdateAll(_valueConstraints);
 
     _mockFunctionComputationTarget = new com.opengamma.engine.ComputationTarget(ComputationTargetType.POSITION,
@@ -516,18 +516,21 @@ public class CommandLineBatchResultWriterTest extends HibernateTest {
     RiskValue value = resultWriter.getValue(
         CalculationNodeUtils.CALC_CONF_NAME,
         _mockFunction.getResultSpec().getValueName() + "[0]",
+        _mockFunction.getResultSpec().getProperties(),
         _mockFunction.getTarget().toSpecification());
     assertEquals(4.0, value.getValue(), 0.0000001);
 
     value = resultWriter.getValue(
         CalculationNodeUtils.CALC_CONF_NAME,
         _mockFunction.getResultSpec().getValueName() + "[1]",
+        _mockFunction.getResultSpec().getProperties(),
         _mockFunction.getTarget().toSpecification());
     assertEquals(5.0, value.getValue(), 0.0000001);
 
     value = resultWriter.getValue(
         CalculationNodeUtils.CALC_CONF_NAME,
         _mockFunction.getResultSpec().getValueName() + "[2]",
+        _mockFunction.getResultSpec().getProperties(),
         _mockFunction.getTarget().toSpecification());
     assertEquals(6.0, value.getValue(), 0.0000001);
 
@@ -721,6 +724,7 @@ public class CommandLineBatchResultWriterTest extends HibernateTest {
     return resultWriter.getValue(
         CalculationNodeUtils.CALC_CONF_NAME,
         _mockFunction.getResultSpec().getValueName(),
+        _mockFunction.getResultSpec().getProperties(),
         _mockFunction.getTarget().toSpecification());
   }
 

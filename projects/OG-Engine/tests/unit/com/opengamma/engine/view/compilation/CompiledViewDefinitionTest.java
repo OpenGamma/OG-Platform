@@ -125,6 +125,11 @@ public class CompiledViewDefinitionTest {
         return ComputationTargetType.PRIMITIVE;
       }
 
+      @Override
+      public boolean canHandleMissingRequirements() {
+        return false;
+      }
+
     });
     return node;
   }

@@ -118,7 +118,20 @@ public class ValueSnapshot implements Serializable {
     return Double.valueOf(getMarketValue()).hashCode() ^ ObjectUtils.hashCode(getOverrideValue());
   }
 
-  //-------------------------------------------------------------------------
+  // TODO: externalize the Fudge representation to a builder
+
+  /**
+   * Creates a Fudge representation of the snapshot value:
+   * <pre>
+   *   message {
+   *     optional double marketValue;
+   *     optional double overrideValue;
+   *   }
+   * </pre>
+   * 
+   * @param serializer the Fudge serialization context, not null
+   * @return the message representation
+   */
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     final MutableFudgeMsg msg = serializer.newMessage();
     if (getMarketValue() != null) {
@@ -130,6 +143,14 @@ public class ValueSnapshot implements Serializable {
     return msg;
   }
 
+  /**
+   * Creates a snapshot value object from a Fudge message representation. See {@link #toFudgeMsg}
+   * for the message format.
+   * 
+   * @param deserializer the Fudge deserialization context, not null
+   * @param msg message containing the value representation, not null
+   * @return a snapshot object
+   */
   public static ValueSnapshot fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     Double marketValue = msg.getDouble("marketValue");
     Double overrideValue = msg.getDouble("overrideValue");
