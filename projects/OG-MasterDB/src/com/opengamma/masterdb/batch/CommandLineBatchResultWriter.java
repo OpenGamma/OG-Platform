@@ -101,14 +101,16 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
       Set<ComputationTarget> computationTargets,
       RiskRun riskRun,
       Set<RiskValueName> valueNames,
-      Set<RiskValueRequirement> valueRequirement) {
+      Set<RiskValueRequirement> valueRequirements,
+      Set<RiskValueSpecification> valueSpecifications) {
     this(dbConnector,
         resultModelDefinition,
         cachesByCalculationConfiguration,
         computationTargets,
         riskRun,
         valueNames,
-        valueRequirement,
+        valueRequirements,
+        valueSpecifications,
         new ResultConverterCache());
   }
   
@@ -119,10 +121,11 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
       Set<ComputationTarget> computationTargets,
       RiskRun riskRun,
       Set<RiskValueName> valueNames,
-      Set<RiskValueRequirement> valueRequirement,
+      Set<RiskValueRequirement> valueRequirements,
+      Set<RiskValueSpecification> valueSpecifications,
       ResultConverterCache resultConverterCache) {
 
-    super(dbConnector, riskRun, resultConverterCache, computationTargets, valueNames, valueRequirement);
+    super(dbConnector, riskRun, resultConverterCache, computationTargets, valueNames, valueRequirements, valueSpecifications);
 
     ArgumentChecker.notNull(resultModelDefinition, "Result model definition");
     ArgumentChecker.notNull(cachesByCalculationConfiguration, "Caches by calculation configuration");

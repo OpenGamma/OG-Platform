@@ -18,6 +18,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueSpecification;
 import net.sf.ehcache.CacheManager;
 
 import org.slf4j.Logger;
@@ -71,6 +72,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.tuple.Pair;
+
+import static com.opengamma.util.functional.Functional.merge;
 
 /**
  * A batch run started from the command line. 
@@ -409,14 +412,12 @@ public class CommandLineBatchJobRun extends BatchJobRun {
   }
 
   @Override
-  public Set<ValueProperties> getAllOutputValueRequirement() {
-    Set<ValueProperties> valueConstraints = new HashSet<ValueProperties>();
+  public Map<ValueSpecification, Set<ValueRequirement>> getAllOutputs() {
+    Map<ValueSpecification, Set<ValueRequirement>> outputs = new HashMap<ValueSpecification, Set<ValueRequirement>>();
     for (CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledViewDefinition().getCompiledCalculationConfigurations()) {
-      for (Pair<String, ValueProperties> output : compiledCalcConfig.getTerminalOutputValues()) {
-        valueConstraints.add(output.getSecond());
-      }
+      merge(outputs, compiledCalcConfig.getTerminalOutputSpecifications());
     }
-    return valueConstraints;
+    return outputs;
   }
 
   @Override

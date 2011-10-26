@@ -45,7 +45,7 @@ import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProv
 import com.opengamma.financial.analytics.conversion.InterestRateInstrumentTradeOrSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.LastDateCalculator;
@@ -252,7 +252,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         InterestRateDerivative derivative;
         final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper
             .getCurveNamesForFundingCurveInstrument(strip.getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
-        final FixedIncomeInstrumentConverter<?> definition = _securityConverter.visit(financialSecurity);
+        final FixedIncomeInstrumentDefinition<?> definition = _securityConverter.visit(financialSecurity);
         derivative = _definitionConverter.convert(financialSecurity, definition, now, curveNames, dataSource);
         if (derivative == null) {
           throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);
@@ -278,7 +278,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         InterestRateDerivative derivative;
         final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper
             .getCurveNamesForForwardCurveInstrument(strip.getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
-        final FixedIncomeInstrumentConverter<?> definition = _securityConverter.visit(financialSecurity);
+        final FixedIncomeInstrumentDefinition<?> definition = _securityConverter.visit(financialSecurity);
         derivative = _definitionConverter.convert(financialSecurity, definition, now, curveNames, dataSource);
         if (derivative == null) {
           throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);
@@ -400,7 +400,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
         final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper
             .getCurveNamesForFundingCurveInstrument(strip.getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
-        final FixedIncomeInstrumentConverter<?> definition = _securityConverter.visit(financialSecurity);
+        final FixedIncomeInstrumentDefinition<?> definition = _securityConverter.visit(financialSecurity);
         derivative = _definitionConverter.convert(financialSecurity, definition, now, curveNames, dataSource);
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);

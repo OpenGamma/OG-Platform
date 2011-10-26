@@ -7,8 +7,8 @@ package com.opengamma.financial.instrument.future;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionWithData;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -23,7 +23,7 @@ import org.apache.commons.lang.Validate;
 /**
  * Description of an interest rate future security.
  */
-public class InterestRateFutureSecurityDefinition implements FixedIncomeInstrumentConverter<InterestRateDerivative> {
+public class InterestRateFutureDefinition implements FixedIncomeInstrumentDefinitionWithData<InterestRateDerivative, Double> {
 
   /**
    * Future last trading date. Usually the date for which the third Wednesday of the month is the spot date.
@@ -46,11 +46,6 @@ public class InterestRateFutureSecurityDefinition implements FixedIncomeInstrume
    */
   private final double _fixingPeriodAccrualFactor;
   /**
-   * The reference price.     the last close price afterward.
-   * The price is in relative number and not in percent. A standard price will be 0.985 and not 98.5.
-   */
-  private final double _referencePrice;
-  /**
    * Future notional.
    */
   private final double _notional;
@@ -72,7 +67,7 @@ public class InterestRateFutureSecurityDefinition implements FixedIncomeInstrume
    * @param paymentAccrualFactor Future payment accrual factor. 
    * @param name Future name.
    */
-  public InterestRateFutureSecurityDefinition(final ZonedDateTime lastTradingDate, final IborIndex iborIndex, double referencePrice, final double notional, final double paymentAccrualFactor,
+  public InterestRateFutureDefinition(final ZonedDateTime lastTradingDate, final IborIndex iborIndex, double referencePrice, final double notional, final double paymentAccrualFactor,
       final String name) {
     Validate.notNull(lastTradingDate, "Last trading date");
     Validate.notNull(iborIndex, "Ibor index");
@@ -83,7 +78,6 @@ public class InterestRateFutureSecurityDefinition implements FixedIncomeInstrume
     _fixingPeriodEndDate = ScheduleCalculator
         .getAdjustedDate(_fixingPeriodStartDate, _iborIndex.getBusinessDayConvention(), _iborIndex.getCalendar(), _iborIndex.isEndOfMonth(), _iborIndex.getTenor());
     _fixingPeriodAccrualFactor = _iborIndex.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);
-    this._referencePrice = referencePrice;
     this._notional = notional;
     this._paymentAccrualFactor = paymentAccrualFactor;
     _name = name;
@@ -97,7 +91,7 @@ public class InterestRateFutureSecurityDefinition implements FixedIncomeInstrume
    * @param notional Future notional.
    * @param paymentAccrualFactor Future payment accrual factor.
    */
-  public InterestRateFutureSecurityDefinition(final ZonedDateTime lastTradingDate, final IborIndex iborIndex, double referencePrice, final double notional, final double paymentAccrualFactor) {
+  public InterestRateFutureDefinition(final ZonedDateTime lastTradingDate, final IborIndex iborIndex, double referencePrice, final double notional, final double paymentAccrualFactor) {
     this(lastTradingDate, iborIndex, referencePrice, notional, paymentAccrualFactor, "RateFuture " + iborIndex.getName());
   }
 
@@ -142,14 +136,6 @@ public class InterestRateFutureSecurityDefinition implements FixedIncomeInstrume
   }
 
   /**
-   * Gets the referencePrice.
-   * @return the referencePrice
-   */
-  public double getReferencePrice() {
-    return _referencePrice;
-  }
-
-  /**
    * Gets the future notional.
    * @return The notional.
    */
@@ -182,7 +168,7 @@ public class InterestRateFutureSecurityDefinition implements FixedIncomeInstrume
   }
 
   @Override
-  public InterestRateFuture toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public InterestRateFuture toDerivative(ZonedDateTime date, Double referencePrice, String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
@@ -193,9 +179,15 @@ public class InterestRateFutureSecurityDefinition implements FixedIncomeInstrume
     final double lastTradingTime = actAct.getDayCountFraction(date, getLastTradingDate());
     final double fixingPeriodStartTime = actAct.getDayCountFraction(date, getFixingPeriodStartDate());
     final double fixingPeriodEndTime = actAct.getDayCountFraction(date, getFixingPeriodEndDate());
-    InterestRateFuture future = new InterestRateFuture(lastTradingTime, _iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, _fixingPeriodAccrualFactor, _referencePrice,
+    InterestRateFuture future = new InterestRateFuture(lastTradingTime, _iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, _fixingPeriodAccrualFactor, referencePrice,
         _notional, _paymentAccrualFactor, _name, discountingCurveName, forwardCurveName);
     return future;
+  }
+
+  @Override
+  public InterestRateDerivative toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+    throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() +
+        " does not support the two argument method (without margin price data).");
   }
 
   @Override
@@ -247,7 +239,7 @@ public class InterestRateFutureSecurityDefinition implements FixedIncomeInstrume
     if (getClass() != obj.getClass()) {
       return false;
     }
-    InterestRateFutureSecurityDefinition other = (InterestRateFutureSecurityDefinition) obj;
+    InterestRateFutureDefinition other = (InterestRateFutureDefinition) obj;
     if (!ObjectUtils.equals(_iborIndex, other._iborIndex)) {
       return false;
     }

@@ -6,6 +6,7 @@
 package com.opengamma.engine.fudgemsg;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
@@ -56,7 +57,7 @@ public class ViewComputationResultModelFudgeBuilder extends ViewResultModelFudge
       ComputedValue liveData = deserializer.fieldValueToObject(ComputedValue.class, field);
       resultModel.addMarketData(liveData);      
     }
-    resultModel.addRequirements((Map<ValueRequirement, ValueSpecification>) deserializer.fieldValueToObject(Map.class, message.getByName(FIELD_SPECIFICATIONS)));
+    resultModel.addRequirements((Map<ValueSpecification, Set<ValueRequirement>>) deserializer.fieldValueToObject(Map.class, message.getByName(FIELD_SPECIFICATIONS)));
     
     return resultModel;
   }

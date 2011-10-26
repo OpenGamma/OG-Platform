@@ -12,7 +12,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentWithDataConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionWithData;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
@@ -30,7 +30,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * Describes a transaction on a Ibor coupon bond issue.
  */
 public class BondIborTransactionDefinition extends BondTransactionDefinition<PaymentFixedDefinition, CouponIborDefinition> implements
-    FixedIncomeInstrumentWithDataConverter<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {
+    FixedIncomeInstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * Constructor of a Ibor coupon bond transaction from all the transaction details.

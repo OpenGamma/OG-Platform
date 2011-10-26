@@ -5,13 +5,13 @@
  */
 package com.opengamma.financial.interestrate.future.method;
 
-import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 
 /**
  * Methods for the pricing of bond futures generic to all models.
  */
-public abstract class BondFutureTransactionMethod implements PricingMethod {
+public abstract class BondFutureMethod implements PricingMethod {
 
   /**
    * Compute the present value of a future transaction from a quoted price.
@@ -19,8 +19,8 @@ public abstract class BondFutureTransactionMethod implements PricingMethod {
    * @param price The quoted price.
    * @return The present value.
    */
-  public double presentValueFromPrice(final BondFutureTransaction future, final double price) {
-    double pv = (price - future.getReferencePrice()) * future.getUnderlyingFuture().getNotional() * future.getQuantity();
+  public double presentValueFromPrice(final BondFuture future, final double price) {
+    double pv = (price - future.getReferencePrice()) * future.getNotional();
     return pv;
   }
 

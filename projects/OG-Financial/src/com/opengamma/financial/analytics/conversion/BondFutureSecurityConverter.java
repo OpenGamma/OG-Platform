@@ -12,17 +12,17 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
-import com.opengamma.financial.instrument.future.BondFutureSecurityDefinition;
+import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 
 /**
- * 
+ * FIXME CASE - BondFutureDefinition needs a reference price. Without a trade, where will it come from?
  */
-public class BondFutureSecurityConverter extends AbstractFutureSecurityVisitor<FixedIncomeInstrumentConverter<?>> {
+public class BondFutureSecurityConverter extends AbstractFutureSecurityVisitor<FixedIncomeInstrumentDefinition<?>> {
   private final SecuritySource _securitySource;
   private final BondSecurityConverter _bondConverter;
 
@@ -34,7 +34,7 @@ public class BondFutureSecurityConverter extends AbstractFutureSecurityVisitor<F
   }
 
   @Override
-  public FixedIncomeInstrumentConverter<?> visitBondFutureSecurity(final BondFutureSecurity bondFuture) {
+  public FixedIncomeInstrumentDefinition<?> visitBondFutureSecurity(final BondFutureSecurity bondFuture) {
     Validate.notNull(bondFuture);
     final ZonedDateTime tradingLastDate = bondFuture.getExpiry().getExpiry();
     final ZonedDateTime noticeFirstDate = bondFuture.getFirstDeliveryDate();
@@ -50,6 +50,6 @@ public class BondFutureSecurityConverter extends AbstractFutureSecurityVisitor<F
       deliverables[i] = (BondFixedSecurityDefinition) bondSecurity.accept(_bondConverter); //TODO check type
       conversionFactor[i] = deliverable.getConversionFactor();
     }
-    return new BondFutureSecurityDefinition(tradingLastDate, noticeFirstDate, noticeLastDate, notional, deliverables, conversionFactor);
+    return new BondFutureDefinition(tradingLastDate, noticeFirstDate, noticeLastDate, notional, deliverables, conversionFactor);
   }
 }

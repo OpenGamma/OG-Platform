@@ -5,19 +5,19 @@
  */
 package com.opengamma.financial.interestrate.future.definition;
 
-import java.util.Arrays;
-
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.util.money.Currency;
 
+import java.util.Arrays;
+
+import org.apache.commons.lang.Validate;
+
 /**
- * Description of a bond future security (derivative version).
+ * Description of a bond future (derivative version).
  */
-public class BondFutureSecurity implements InterestRateDerivative {
+public class BondFuture implements InterestRateDerivative {
 
   /**
    * The last trading time.
@@ -41,6 +41,7 @@ public class BondFutureSecurity implements InterestRateDerivative {
   private final double _deliveryLastTime;
   /**
    * The notional of the bond future (also called face value or contract value).
+   * TODO _notional is the unitAmount of a BondFuture. Consider changing name in constructor.
    */
   private final double _notional;
   /**
@@ -51,6 +52,12 @@ public class BondFutureSecurity implements InterestRateDerivative {
    * The conversion factor of each bond in the basket.
    */
   private final double[] _conversionFactor;
+  /**
+   * The reference price is used to express present value with respect to some level, for example, the transaction price on the transaction date or the last close price afterward.  
+   * The price is in relative number and not in percent. A standard price will be 0.985 and not 98.5.
+   * TODO Confirm treatment
+   */
+  private final double _referencePrice;
 
   /**
    * Constructor from all the details.
@@ -62,9 +69,10 @@ public class BondFutureSecurity implements InterestRateDerivative {
    * @param notional The notional of the bond future.
    * @param deliveryBasket The basket of deliverable bonds.
    * @param conversionFactor The conversion factor of each bond in the basket.
+   * @param referencePrice The price used to express present value with respect to some level, for example, the transaction price on the transaction date or the last close price afterward. 
    */
-  public BondFutureSecurity(double tradingLastTime, double noticeFirstTime, double noticeLastTime, double deliveryFirstTime, double deliveryLastTime, double notional,
-      BondFixedSecurity[] deliveryBasket, double[] conversionFactor) {
+  public BondFuture(double tradingLastTime, double noticeFirstTime, double noticeLastTime, double deliveryFirstTime, double deliveryLastTime, double notional,
+      BondFixedSecurity[] deliveryBasket, double[] conversionFactor, double referencePrice) {
     Validate.notNull(deliveryBasket, "Delivery basket");
     Validate.notNull(conversionFactor, "Conversion factors");
     Validate.isTrue(deliveryBasket.length > 0, "At least one bond in basket");
@@ -77,6 +85,7 @@ public class BondFutureSecurity implements InterestRateDerivative {
     this._deliveryBasket = deliveryBasket;
     this._conversionFactor = conversionFactor;
     this._notional = notional;
+    this._referencePrice = referencePrice;
   }
 
   /**
@@ -144,6 +153,14 @@ public class BondFutureSecurity implements InterestRateDerivative {
   }
 
   /**
+   * Gets the referencePrice.
+   * @return the referencePrice
+   */
+  public double getReferencePrice() {
+    return _referencePrice;
+  }
+
+  /**
    * Gets the future currency.
    * @return The currency.
    */
@@ -153,12 +170,12 @@ public class BondFutureSecurity implements InterestRateDerivative {
 
   @Override
   public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
-    return visitor.visitBondFutureSecurity(this, data);
+    return visitor.visitBondFuture(this, data);
   }
 
   @Override
   public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
-    return visitor.visitBondFutureSecurity(this);
+    return visitor.visitBondFuture(this);
   }
 
   @Override
@@ -194,7 +211,7 @@ public class BondFutureSecurity implements InterestRateDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondFutureSecurity other = (BondFutureSecurity) obj;
+    BondFuture other = (BondFuture) obj;
     if (!Arrays.equals(_conversionFactor, other._conversionFactor)) {
       return false;
     }
