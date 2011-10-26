@@ -56,7 +56,7 @@ public class FutureInstrumentsDescriptionDataSet {
   }
 
   public static InterestRateFuture createInterestRateFutureSecurity() {
-    return createInterestRateFutureSecurityDefinition().toDerivative(REFERENCE_DATE, CURVES);
+    return createInterestRateFutureSecurityDefinition().toDerivative(REFERENCE_DATE, REFERENCE_PRICE, CURVES);
   }
 
   // 5-Year U.S. Treasury Note Futures: FVU1
@@ -93,7 +93,7 @@ public class FutureInstrumentsDescriptionDataSet {
   private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME };
 
   public static BondFutureDefinition createBondFutureSecurityDefinition() {
-    return new BondFutureDefinition(BNDFUT_LAST_TRADING_DATE, BNDFUT_FIRST_NOTICE_DATE, BNDFUT_LAST_NOTICE_DATE, BNDFUT_NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR, BNDFUT_REFERENCE_PRICE);
+    return new BondFutureDefinition(BNDFUT_LAST_TRADING_DATE, BNDFUT_FIRST_NOTICE_DATE, BNDFUT_LAST_NOTICE_DATE, BNDFUT_NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR);
   }
 
   public static BondFuture createBondFutureSecurity() {

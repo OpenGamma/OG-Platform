@@ -8,7 +8,7 @@ package com.opengamma.financial.interestrate.future.calculator;
 import com.opengamma.financial.interestrate.AbstractInterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.future.method.BondFutureTransactionDiscountingMethod;
+import com.opengamma.financial.interestrate.future.method.BondFutureDiscountingMethod;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
 
 import org.apache.commons.lang.Validate;
@@ -25,7 +25,7 @@ public final class PresentValueFromFuturePriceCalculator extends AbstractInteres
   /**
    * The method to compute bond future prices.
    */
-  private static final BondFutureTransactionDiscountingMethod METHOD_BOND_FUTURE = BondFutureTransactionDiscountingMethod.getInstance();
+  private static final BondFutureDiscountingMethod METHOD_BOND_FUTURE = BondFutureDiscountingMethod.getInstance();
   /**
    * The method to compute interest rate future prices.
    */

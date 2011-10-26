@@ -40,7 +40,7 @@ import org.apache.commons.lang.Validate;
  * Method to compute the price of bond future using the Hull-White one factor model to estimate the delivery option.
  * Reference: Henrard, M. Bonds futures and their options: more than the cheapest-to-deliver; quality option and margining. Journal of Fixed Income, 2006, 16, 62-75
  */
-public final class BondFutureSecurityHullWhiteMethod extends BondFutureMethod {
+public final class BondFutureHullWhiteMethod extends BondFutureMethod {
 
   /**
    * The number of points used in the numerical integration process.
@@ -62,20 +62,20 @@ public final class BondFutureSecurityHullWhiteMethod extends BondFutureMethod {
   /**
    * Creates the method unique instance.
    */
-  private static final BondFutureSecurityHullWhiteMethod INSTANCE = new BondFutureSecurityHullWhiteMethod();
+  private static final BondFutureHullWhiteMethod INSTANCE = new BondFutureHullWhiteMethod();
 
   /**
    * Return the method unique instance.
    * @return The instance.
    */
-  public static BondFutureSecurityHullWhiteMethod getInstance() {
+  public static BondFutureHullWhiteMethod getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  private BondFutureSecurityHullWhiteMethod() {
+  private BondFutureHullWhiteMethod() {
   }
 
   /**

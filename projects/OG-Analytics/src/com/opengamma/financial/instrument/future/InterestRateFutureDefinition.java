@@ -7,8 +7,8 @@ package com.opengamma.financial.instrument.future;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionWithData;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -23,7 +23,7 @@ import org.apache.commons.lang.Validate;
 /**
  * Description of an interest rate future security.
  */
-public class InterestRateFutureDefinition implements FixedIncomeInstrumentDefinition<InterestRateDerivative> {
+public class InterestRateFutureDefinition implements FixedIncomeInstrumentDefinitionWithData<InterestRateDerivative, Double> {
 
   /**
    * Future last trading date. Usually the date for which the third Wednesday of the month is the spot date.
@@ -45,12 +45,6 @@ public class InterestRateFutureDefinition implements FixedIncomeInstrumentDefini
    * Fixing period of the reference Ibor accrual factor.
    */
   private final double _fixingPeriodAccrualFactor;
-  /**
-   * The reference price is used to express present value with respect to some level, for example, the transaction price on the transaction date or the last close price afterward.  
-   * The price is in relative number and not in percent. A standard price will be 0.985 and not 98.5.
-   * TODO Confirm treatment
-   */
-  private final double _referencePrice;
   /**
    * Future notional.
    */
@@ -84,7 +78,6 @@ public class InterestRateFutureDefinition implements FixedIncomeInstrumentDefini
     _fixingPeriodEndDate = ScheduleCalculator
         .getAdjustedDate(_fixingPeriodStartDate, _iborIndex.getBusinessDayConvention(), _iborIndex.getCalendar(), _iborIndex.isEndOfMonth(), _iborIndex.getTenor());
     _fixingPeriodAccrualFactor = _iborIndex.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);
-    this._referencePrice = referencePrice;
     this._notional = notional;
     this._paymentAccrualFactor = paymentAccrualFactor;
     _name = name;
@@ -143,14 +136,6 @@ public class InterestRateFutureDefinition implements FixedIncomeInstrumentDefini
   }
 
   /**
-   * Gets the referencePrice.
-   * @return the referencePrice
-   */
-  public double getReferencePrice() {
-    return _referencePrice;
-  }
-
-  /**
    * Gets the future notional.
    * @return The notional.
    */
@@ -183,7 +168,7 @@ public class InterestRateFutureDefinition implements FixedIncomeInstrumentDefini
   }
 
   @Override
-  public InterestRateFuture toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public InterestRateFuture toDerivative(ZonedDateTime date, Double referencePrice, String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
@@ -194,9 +179,15 @@ public class InterestRateFutureDefinition implements FixedIncomeInstrumentDefini
     final double lastTradingTime = actAct.getDayCountFraction(date, getLastTradingDate());
     final double fixingPeriodStartTime = actAct.getDayCountFraction(date, getFixingPeriodStartDate());
     final double fixingPeriodEndTime = actAct.getDayCountFraction(date, getFixingPeriodEndDate());
-    InterestRateFuture future = new InterestRateFuture(lastTradingTime, _iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, _fixingPeriodAccrualFactor, _referencePrice,
+    InterestRateFuture future = new InterestRateFuture(lastTradingTime, _iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, _fixingPeriodAccrualFactor, referencePrice,
         _notional, _paymentAccrualFactor, _name, discountingCurveName, forwardCurveName);
     return future;
+  }
+
+  @Override
+  public InterestRateDerivative toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+    throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() +
+        " does not support the two argument method (without margin price data).");
   }
 
   @Override

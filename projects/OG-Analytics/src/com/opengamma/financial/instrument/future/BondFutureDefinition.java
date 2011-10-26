@@ -6,8 +6,8 @@
 package com.opengamma.financial.instrument.future;
 
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionWithData;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
@@ -24,7 +24,7 @@ import org.apache.commons.lang.Validate;
 /**
  * Description of a bond future (definition version).
  */
-public class BondFutureDefinition implements FixedIncomeInstrumentDefinition<BondFuture> {
+public class BondFutureDefinition implements FixedIncomeInstrumentDefinitionWithData<BondFuture, Double> {
 
   /**
    * The last trading date.
@@ -62,12 +62,6 @@ public class BondFutureDefinition implements FixedIncomeInstrumentDefinition<Bon
    * The notional of the bond future (also called face value or contract value).
    */
   private final double _notional;
-  /**
-   * The reference price is used to express present value with respect to some level, for example, the transaction price on the transaction date or the last close price afterward.  
-   * The price is in relative number and not in percent. A standard price will be 0.985 and not 98.5.
-   * TODO Confirm treatment
-   */
-  private final double _referencePrice;
 
   /**
    * Constructor from the trading and notice dates and the basket.
@@ -77,10 +71,9 @@ public class BondFutureDefinition implements FixedIncomeInstrumentDefinition<Bon
    * @param notional The bond future notional.
    * @param deliveryBasket The basket of deliverable bonds.
    * @param conversionFactor The conversion factor of each bond in the basket.
-   * @param referencePrice The price used to express present value with respect to some level, for example, the transaction price on the transaction date or the last close price afterward.
    */
   public BondFutureDefinition(final ZonedDateTime tradingLastDate, final ZonedDateTime noticeFirstDate, final ZonedDateTime noticeLastDate, double notional,
-      final BondFixedSecurityDefinition[] deliveryBasket, final double[] conversionFactor, final double referencePrice) {
+      final BondFixedSecurityDefinition[] deliveryBasket, final double[] conversionFactor) {
     super();
     Validate.notNull(tradingLastDate, "Last trading date");
     Validate.notNull(noticeFirstDate, "First notice date");
@@ -99,7 +92,6 @@ public class BondFutureDefinition implements FixedIncomeInstrumentDefinition<Bon
     Calendar calendar = _deliveryBasket[0].getCalendar();
     _deliveryFirstDate = ScheduleCalculator.getAdjustedDate(_noticeFirstDate, calendar, _settlementDays);
     _deliveryLastDate = ScheduleCalculator.getAdjustedDate(_noticeLastDate, calendar, _settlementDays);
-    _referencePrice = referencePrice;
   }
 
   /**
@@ -174,20 +166,14 @@ public class BondFutureDefinition implements FixedIncomeInstrumentDefinition<Bon
     return _conversionFactor;
   }
 
-  /**
-   * Gets the referencePrice.
-   * @return the referencePrice
-   */
-  public double getReferencePrice() {
-    return _referencePrice;
+  @Override
+  public BondFuture toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+    throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() +
+        " does not support the two argument method (without margin price data).");
   }
 
   @Override
-  public BondFuture toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    throw new UnsupportedOperationException("The method toDerivative of BondFutureTransactionDefinition does not support the two argument method (without margin price data).");
-  }
-
-  public BondFuture toDerivative(ZonedDateTime valDate, double referencePrice, String... yieldCurveNames) {
+  public BondFuture toDerivative(ZonedDateTime valDate, Double referencePrice, String... yieldCurveNames) {
     Validate.notNull(valDate, "valDate must always be provided to form a Derivative from a Definition");
     Validate.isTrue(!valDate.isAfter(getDeliveryLastDate()), "Valuation date is after last delivery date");
     Validate.notNull(yieldCurveNames, "yield curve names");

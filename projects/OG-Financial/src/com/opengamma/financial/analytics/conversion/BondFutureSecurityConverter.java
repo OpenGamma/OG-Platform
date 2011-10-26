@@ -50,7 +50,6 @@ public class BondFutureSecurityConverter extends AbstractFutureSecurityVisitor<F
       deliverables[i] = (BondFixedSecurityDefinition) bondSecurity.accept(_bondConverter); //TODO check type
       conversionFactor[i] = deliverable.getConversionFactor();
     }
-    final double referencePrice = 0.0; // TODO CASE - Review referencePrice treatment
-    return new BondFutureDefinition(tradingLastDate, noticeFirstDate, noticeLastDate, notional, deliverables, conversionFactor, referencePrice);
+    return new BondFutureDefinition(tradingLastDate, noticeFirstDate, noticeLastDate, notional, deliverables, conversionFactor);
   }
 }

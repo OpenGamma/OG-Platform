@@ -63,42 +63,42 @@ public class BondFutureDefinitionTest {
   private static final double NOTIONAL = 100000;
   private static final double REF_PRICE = 0.0;
   private static final BondFutureDefinition FUTURE_DEFINITION = new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION,
-      CONVERSION_FACTOR, REF_PRICE);
+      CONVERSION_FACTOR);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLastTrading() {
-    new BondFutureDefinition(null, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR, REF_PRICE);
+    new BondFutureDefinition(null, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFirstNotice() {
-    new BondFutureDefinition(LAST_TRADING_DATE, null, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR, REF_PRICE);
+    new BondFutureDefinition(LAST_TRADING_DATE, null, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLastNotice() {
-    new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, null, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR, REF_PRICE);
+    new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, null, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBasket() {
-    new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, null, CONVERSION_FACTOR, REF_PRICE);
+    new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, null, CONVERSION_FACTOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConversion() {
-    new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, null, REF_PRICE);
+    new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void zeroBasket() {
-    new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, new BondFixedSecurityDefinition[0], CONVERSION_FACTOR, REF_PRICE);
+    new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, new BondFixedSecurityDefinition[0], CONVERSION_FACTOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void sizeConversionFactor() {
     final double[] incorrectConversionFactor = new double[NB_BOND - 1];
-    new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, incorrectConversionFactor, REF_PRICE);
+    new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, incorrectConversionFactor);
   }
 
   @Test
@@ -123,27 +123,27 @@ public class BondFutureDefinitionTest {
    */
   public void equalHash() {
     assertTrue(FUTURE_DEFINITION.equals(FUTURE_DEFINITION));
-    BondFutureDefinition other = new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR, REF_PRICE);
+    BondFutureDefinition other = new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR);
     assertTrue(FUTURE_DEFINITION.equals(other));
     assertTrue(FUTURE_DEFINITION.hashCode() == other.hashCode());
     BondFutureDefinition modifiedFuture;
-    modifiedFuture = new BondFutureDefinition(FIRST_NOTICE_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR, REF_PRICE);
+    modifiedFuture = new BondFutureDefinition(FIRST_NOTICE_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR);
     assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
-    modifiedFuture = new BondFutureDefinition(LAST_TRADING_DATE, LAST_TRADING_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR, REF_PRICE);
+    modifiedFuture = new BondFutureDefinition(LAST_TRADING_DATE, LAST_TRADING_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR);
     assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
-    modifiedFuture = new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, FIRST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR, REF_PRICE);
+    modifiedFuture = new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, FIRST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR);
     assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
-    modifiedFuture = new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL + 100000, BASKET_DEFINITION, CONVERSION_FACTOR, REF_PRICE);
+    modifiedFuture = new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL + 100000, BASKET_DEFINITION, CONVERSION_FACTOR);
     assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
     double[] otherConversionFactor = new double[] {.9000, .8565, .8493, .8516, .8540, .8417, .8292 };
-    modifiedFuture = new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, otherConversionFactor, REF_PRICE);
+    modifiedFuture = new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, otherConversionFactor);
     assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
     BondFixedSecurityDefinition[] otherBasket = new BondFixedSecurityDefinition[NB_BOND];
     for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
       otherBasket[loopbasket] = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE[loopbasket], START_ACCRUAL_DATE[loopbasket], PAYMENT_TENOR, 2 * RATE[loopbasket], SETTLEMENT_DAYS, CALENDAR,
           DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM);
     }
-    modifiedFuture = new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, otherBasket, CONVERSION_FACTOR, REF_PRICE);
+    modifiedFuture = new BondFutureDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, otherBasket, CONVERSION_FACTOR);
     assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
     assertFalse(FUTURE_DEFINITION.equals(LAST_TRADING_DATE));
     assertFalse(FUTURE_DEFINITION.equals(null));
@@ -170,7 +170,7 @@ public class BondFutureDefinitionTest {
     for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
       basket[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(referenceDate, lastDeliveryDate, curvesName);
     }
-    final BondFuture futureConverted = FUTURE_DEFINITION.toDerivative(referenceDate, curvesName);
+    final BondFuture futureConverted = FUTURE_DEFINITION.toDerivative(referenceDate, REF_PRICE, curvesName);
     final BondFuture futureExpected = new BondFuture(lastTradingTime, firstNoticeTime, lastNoticeTime, firstDeliveryTime, lastDeliveryTime, NOTIONAL, basket, CONVERSION_FACTOR, REF_PRICE);
     assertEquals("Bond future security definition: future conversion", futureExpected, futureConverted);
   }
