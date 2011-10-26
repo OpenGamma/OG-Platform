@@ -249,7 +249,6 @@ import com.opengamma.engine.value.ValueSpecification;
   public void start(final GraphBuildingContext context) {
     FunctionApplicationStep.PumpingState state = null;
     Map<ValueSpecification, ValueRequirement> resolvedValues = null;
-    Collection<ResolutionPump> pumps = null;
     FunctionApplicationStep.PumpingState finished = null;
     synchronized (this) {
       if (_taskState != null) {
@@ -262,25 +261,17 @@ import com.opengamma.engine.value.ValueSpecification;
             s_logger.debug("Full input set available at {}", this);
           } else {
             // We've got no valid inputs
-            if (_pumps.isEmpty()) {
-              if (_taskState.canHandleMissingInputs()) {
-                // Empty input set; notify the task state
-                resolvedValues = Collections.emptyMap();
-                state = _taskState;
-                _invokingFunction = true;
-                s_logger.debug("Empty input set available at {}", this);
-              } else {
-                s_logger.debug("No input set available, finished at {}", this);
-                pumps = null;
-                finished = _taskState;
-                _taskState = null;
-              }
+            assert _pumps.isEmpty();
+            if (_taskState.canHandleMissingInputs()) {
+              // Empty input set; notify the task state
+              resolvedValues = Collections.emptyMap();
+              state = _taskState;
+              _invokingFunction = true;
+              s_logger.debug("Empty input set available at {}", this);
             } else {
-              // TODO: This case shouldn't occur? How can pumps be non-empty but validInputs == 0?
-              s_logger.debug("No input set available, pumping at {}", this);
-              pumps = new ArrayList<ResolutionPump>(_pumps);
-              _pumps.clear();
-              _pendingInputs = pumps.size();
+              s_logger.debug("No input set available, finished at {}", this);
+              finished = _taskState;
+              _taskState = null;
             }
           }
         }
@@ -299,11 +290,6 @@ import com.opengamma.engine.value.ValueSpecification;
       }
       if (!inputsAccepted) {
         pumpImpl(context);
-      }
-    } else if (pumps != null) {
-      for (ResolutionPump pump : pumps) {
-        s_logger.debug("Pumping {} from {}", pump, this);
-        context.pump(pump);
       }
     } else if (finished != null) {
       s_logger.debug("Calling finished on {} from {}", finished, this);
