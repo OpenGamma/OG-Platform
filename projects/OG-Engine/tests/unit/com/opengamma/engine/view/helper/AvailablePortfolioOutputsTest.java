@@ -8,7 +8,12 @@ package com.opengamma.engine.view.helper;
 import static org.testng.Assert.assertEquals;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
@@ -190,6 +195,11 @@ public class AvailablePortfolioOutputsTest {
     @Override
     public Instant getLatestInvocationTime() {
       return null;
+    }
+
+    @Override
+    public boolean canHandleMissingRequirements() {
+      return false;
     }
 
     protected ValueProperties.Builder properties() {

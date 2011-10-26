@@ -46,9 +46,9 @@ public class AdHocBatchResultWriter extends AbstractBatchResultWriter {
       ComputeNode computeNode,
       ResultConverterCache resultConverterCache,
       Set<ComputationTarget> computationTargets,
-      Set<RiskValueConstraints> valueConstraints,
+      Set<RiskValueRequirement> valueRequirement,
       Set<RiskValueName> valueNames) {
-    super(dbConnector, riskRun, resultConverterCache, computationTargets, valueNames, valueConstraints);
+    super(dbConnector, riskRun, resultConverterCache, computationTargets, valueNames, valueRequirement);
     
     _computeNodeId = computeNode.getId();
   }
@@ -93,12 +93,12 @@ public class AdHocBatchResultWriter extends AbstractBatchResultWriter {
         int functionUniqueId = getFunctionUniqueId(output.getFunctionUniqueId());
         Collection<ValueRequirement> requirements = specificationsWithTheirsRequirements.get(output);
         for (ValueRequirement requirement : requirements) {
-          int valueConstraintId = getValueConstraintsId(requirement.getConstraints());
+          int valueRequirementId = getValueRequirementId(requirement.getConstraints());
           RiskValue riskValue = new RiskValue();
           riskValue.setId(generateUniqueId());
           riskValue.setCalculationConfigurationId(calcConfId);
           riskValue.setValueNameId(valueNameId);
-          riskValue.setValueConstraintsId(valueConstraintId);
+          riskValue.setValueRequirementId(valueRequirementId);
           riskValue.setFunctionUniqueId(functionUniqueId);
           riskValue.setComputationTargetId(computationTargetId);
           riskValue.setRunId(riskRunId);

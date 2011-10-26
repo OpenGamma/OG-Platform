@@ -12,47 +12,39 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.regex.Pattern;
+
+import static com.opengamma.util.functional.Functional.sort;
 
 /**
  * Hibernate bean.
  */
-public class RiskValueConstraints {
+public class RiskValueProperties {
 
   private int _id;
 
-  private String _syntheticConstraints;
+  private String _syntheticForm;
 
-  public RiskValueConstraints() {
+  public RiskValueProperties() {
   }
 
-  public RiskValueConstraints(ValueProperties constraints) {
-    setSyntheticConstraints(synthesize(constraints));
+  public RiskValueProperties(ValueProperties requirement) {
+    setSyntheticForm(synthesize(requirement));
   }
 
   private static String escape(Pattern p, String s) {
     return p.matcher(s).replaceAll("\\\\$0");
   }
 
-  private static <T extends Comparable> List<T> sort(Collection<T> c) {
-    List<T> list = new ArrayList<T>(c);
-    Collections.sort(list);
-    return list;
-  }
-
-  public static String synthesize(ValueProperties constraints) {
+  public static String synthesize(ValueProperties requirement) {
     try {
       Pattern escapePattern = Pattern.compile("[=\\?\\[\\],\\\\]");
       JSONObject json = new JSONObject();
 
-      if (ValueProperties.InfinitePropertiesImpl.class.isInstance(constraints)) {
+      if (ValueProperties.InfinitePropertiesImpl.class.isInstance(requirement)) {
         json.put("infinity", true).toString();
-      } else if (ValueProperties.NearlyInfinitePropertiesImpl.class.isInstance(constraints)) {
-        ValueProperties.NearlyInfinitePropertiesImpl nearlyInifite = (ValueProperties.NearlyInfinitePropertiesImpl) constraints;
+      } else if (ValueProperties.NearlyInfinitePropertiesImpl.class.isInstance(requirement)) {
+        ValueProperties.NearlyInfinitePropertiesImpl nearlyInifite = (ValueProperties.NearlyInfinitePropertiesImpl) requirement;
         JSONArray without = new JSONArray();
         for (String value : sort(nearlyInifite.getWithout())) {
           without.put(escape(escapePattern, value));
@@ -60,17 +52,17 @@ public class RiskValueConstraints {
         json.put("without", without);
       } else {
         JSONArray properties = new JSONArray();
-        if (constraints.getProperties() != null){
-          for (String property : sort(constraints.getProperties())) {
+        if (requirement.getProperties() != null){
+          for (String property : sort(requirement.getProperties())) {
             JSONObject propertyJson = new JSONObject();
 
             propertyJson.put("name", property);
-            if (constraints.isOptional(property)) {
+            if (requirement.isOptional(property)) {
               propertyJson.put("optional", true);
             }
 
             JSONArray values = new JSONArray();
-            for (String value : sort(constraints.getValues(property))) {
+            for (String value : sort(requirement.getValues(property))) {
               values.put(escape(escapePattern, value));
             }
             propertyJson.put("values", values);
@@ -85,19 +77,19 @@ public class RiskValueConstraints {
     }
   }
 
-  public ValueProperties toConstraints() {
+  public ValueProperties toProperties() {
     try {
-      JSONObject jsonObject = new JSONObject(_syntheticConstraints);
+      JSONObject jsonObject = new JSONObject(_syntheticForm);
       if (jsonObject.has("infinity") && jsonObject.getBoolean("infinity")) {
         return ValueProperties.all();
       } else if (jsonObject.has("without")) {
         JSONArray withoutProperties = jsonObject.getJSONArray("without");
-        ValueProperties constraints = ValueProperties.all();
+        ValueProperties requirement = ValueProperties.all();
         for (int i = 0; i < withoutProperties.length(); i++) {
           String without = (String) withoutProperties.get(i);
-          constraints = constraints.withoutAny(without);
+          requirement = requirement.withoutAny(without);
         }
-        return constraints;
+        return requirement;
       } else if (jsonObject.has("properties") && jsonObject.getJSONArray("properties") != null) {
         JSONArray withProperties = jsonObject.getJSONArray("properties");
         final ValueProperties.Builder builder = ValueProperties.builder();
@@ -130,12 +122,12 @@ public class RiskValueConstraints {
     _id = id;
   }
 
-  public String getSyntheticConstraints() {
-    return _syntheticConstraints;
+  public String getSyntheticForm() {
+    return _syntheticForm;
   }
 
-  public void setSyntheticConstraints(String syntheticConstraints) {
-    this._syntheticConstraints = syntheticConstraints;
+  public void setSyntheticForm(String syntheticForm) {
+    this._syntheticForm = syntheticForm;
   }
 
   @Override
@@ -150,7 +142,7 @@ public class RiskValueConstraints {
 
   @Override
   public String toString() {
-    return _syntheticConstraints;
+    return _syntheticForm;
   }
 
 }

@@ -444,14 +444,14 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
   @Test
   public void getValueConstraint() {
     // create
-    RiskValueConstraints valueConstraints1 = _batchMaster.getRiskValueConstraint(ValueProperties.parse("currency=USD"));
-    assertNotNull(valueConstraints1);
-    assertEquals("{\"properties\":[{\"values\":[\"USD\"],\"name\":\"currency\"}]}", valueConstraints1.getSyntheticConstraints());
+    RiskValueRequirement valueRequirement1 = _batchMaster.getRiskValueRequirement(ValueProperties.parse("currency=USD"));
+    assertNotNull(valueRequirement1);
+    assertEquals("{\"properties\":[{\"values\":[\"USD\"],\"name\":\"currency\"}]}", valueRequirement1.getSyntheticForm());
 
     // get
-    RiskValueConstraints valueConstraints2 = _batchMaster.getRiskValueConstraint(ValueProperties.parse("currency=USD"));
-    assertEquals(valueConstraints1, valueConstraints2);
-    assertEquals(valueConstraints1.getId(), valueConstraints2.getId());
+    RiskValueRequirement valueRequirement2 = _batchMaster.getRiskValueRequirement(ValueProperties.parse("currency=USD"));
+    assertEquals(valueRequirement1, valueRequirement2);
+    assertEquals(valueRequirement1.getId(), valueRequirement2.getId());
   }
 
   @Test

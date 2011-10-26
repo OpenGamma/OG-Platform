@@ -409,7 +409,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
   }
 
   @Override
-  public Set<ValueProperties> getAllOutputValueConstraints() {
+  public Set<ValueProperties> getAllOutputValueRequirement() {
     Set<ValueProperties> valueConstraints = new HashSet<ValueProperties>();
     for (CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledViewDefinition().getCompiledCalculationConfigurations()) {
       for (Pair<String, ValueProperties> output : compiledCalcConfig.getTerminalOutputValues()) {
