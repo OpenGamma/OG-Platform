@@ -24,12 +24,11 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/Client/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Client/tests/unit" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/config" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />
-    <orderEntry type="module" module-name="OG-Excel" />
-    <orderEntry type="module" module-name="GreshamStreet" />
     <orderEntry type="module" module-name="OG-Financial" />
     <orderEntry type="module-library">
       <library name="config">

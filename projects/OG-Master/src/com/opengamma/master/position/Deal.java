@@ -5,20 +5,18 @@
  */
 package com.opengamma.master.position;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.position.Trade;
+import com.opengamma.util.PublicSPI;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.joda.convert.StringConverter;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.position.Trade;
-import com.opengamma.util.PublicSPI;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An empty interface for a deal.
@@ -51,8 +49,6 @@ public interface Deal extends Bean {
    */
   // TODO this is temporary until we decide how trade attributes will be handled
   public static class AttributeEncoder {
-
-    private static final Logger s_logger = LoggerFactory.getLogger(AttributeEncoder.class);
     
     private AttributeEncoder() {
     }
@@ -88,7 +84,10 @@ public interface Deal extends Bean {
       for (MetaProperty<Object> mp : deal.metaBean().metaPropertyIterable()) {
         Object value = mp.get(deal);
         if (value != null) {
-          attributes.put(DEAL_PREFIX + mp.name(), mp.getString(deal));
+          // TODO this won't work if the property type is an interface, change needed in Joda Convert and Joda Beans
+          //attributes.put(DEAL_PREFIX + mp.name(), mp.getString(deal));
+          StringConverter<Object> converter = JodaBeanUtils.stringConverter().findConverter(mp.propertyType());
+          attributes.put(DEAL_PREFIX + mp.name(), converter.convertToString(value));
         }
       }
       return attributes;
