@@ -28,11 +28,13 @@ public interface CompiledViewCalculationConfiguration {
   String getName();
 
   /**
-   * Gets the set of terminal output {@link ValueSpecification} for the calculation configuration.
+   * Gets the map of terminal output {@link ValueSpecification} to all satisfying requirements {@link ValueRequirement}
+   * for the calculation configuration.
    * 
-   * @return the set of terminal output {@link ValueSpecification} for the calculation configuration, not {@code null}
+   * @return the map of terminal output {@link ValueSpecification} to all satisfying requirements {@link ValueRequirement}
+   * for the calculation configuration., not {@code null}
    */
-  Set<ValueSpecification> getTerminalOutputSpecifications();
+  Map<ValueSpecification, Set<ValueRequirement>> getTerminalOutputSpecifications();
 
   /**
    * Gets the set of terminal output values for the calculation configuration.

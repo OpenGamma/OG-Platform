@@ -47,8 +47,9 @@ public class AdHocBatchResultWriter extends AbstractBatchResultWriter {
       ResultConverterCache resultConverterCache,
       Set<ComputationTarget> computationTargets,
       Set<RiskValueRequirement> valueRequirement,
+      Set<RiskValueSpecification> valueSpecifications,
       Set<RiskValueName> valueNames) {
-    super(dbConnector, riskRun, resultConverterCache, computationTargets, valueNames, valueRequirement);
+    super(dbConnector, riskRun, resultConverterCache, computationTargets, valueNames, valueRequirement, valueSpecifications);
     
     _computeNodeId = computeNode.getId();
   }
@@ -68,7 +69,7 @@ public class AdHocBatchResultWriter extends AbstractBatchResultWriter {
     
     int riskRunId = getRiskRunId();
 
-    Map<ValueSpecification, Collection<ValueRequirement>> specificationsWithTheirsRequirements = reverseMap(resultModel.getRequirementToSpecificationMapping());
+    Map<ValueSpecification, Set<ValueRequirement>> specificationsWithTheirsRequirements = resultModel.getRequirementToSpecificationMapping();
     
     for (ViewResultEntry result : resultModel.getAllResults()) {
       ValueSpecification output = result.getComputedValue().getSpecification();
