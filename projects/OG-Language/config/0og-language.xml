@@ -9,15 +9,9 @@
   -->
   
   <!-- Use ActiveMQ for JMS -->
-  <bean id="defaultJMSConnectionFactory" class="com.opengamma.language.jms.ActiveMQConnectionFactoryFactoryBean">
+  <bean id="defaultJmsConnectionFactory" class="com.opengamma.language.jms.ActiveMQConnectionFactoryFactoryBean">
     <property name="configuration" ref="defaultConfiguration" />
   </bean>
-  <bean id="defaultJmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean">
-    <property name="name" value="Language" />
-    <property name="connectionFactory" ref="defaultJMSConnectionFactory" />
-  </bean>
-  <!-- REVIEW: The defaultJmsConnector bean should be moved to Client.xml as it is not necessary to be
-       changeable at a local installation and bloats this file -->
   
   <!--
     TODO: working extension example
