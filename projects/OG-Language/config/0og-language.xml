@@ -16,6 +16,8 @@
     <property name="name" value="Language" />
     <property name="connectionFactory" ref="defaultJMSConnectionFactory" />
   </bean>
+  <!-- REVIEW: The defaultJmsConnector bean should be moved to Client.xml as it is not necessary to be
+       changeable at a local installation and bloats this file -->
   
   <!--
     TODO: working extension example
