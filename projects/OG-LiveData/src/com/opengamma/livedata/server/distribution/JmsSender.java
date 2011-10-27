@@ -17,13 +17,13 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.jms.JmsConnector;
 
 /**
  * This {@link MarketDataSender} sends market data to JMS.
@@ -31,13 +31,11 @@ import com.opengamma.util.ArgumentChecker;
  * When the sender loses connection to JMS, it starts building a 
  * cumulative delta of changes. This cumulative delta is published when 
  * the sender reconnects.
- *
- * @author kirk
  */
 public class JmsSender implements MarketDataSender {
   private static final Logger s_logger = LoggerFactory.getLogger(JmsSender.class);
   
-  private final JmsTemplate _jmsTemplate;
+  private final JmsConnector _jmsConnector;
   private final FudgeContext _fudgeContext;
   private final MarketDataDistributor _distributor;
   
@@ -47,11 +45,11 @@ public class JmsSender implements MarketDataSender {
   private volatile boolean _interrupted; // = false;
   private final Semaphore _lock = new Semaphore(1);
   
-  public JmsSender(JmsTemplate jmsTemplate, MarketDataDistributor distributor, FudgeContext fudgeContext) {
-    ArgumentChecker.notNull(jmsTemplate, "JMS template");
+  public JmsSender(JmsConnector jmsConnector, MarketDataDistributor distributor, FudgeContext fudgeContext) {
+    ArgumentChecker.notNull(jmsConnector, "jmsConnector");
     ArgumentChecker.notNull(distributor, "Market data distributor");
     
-    _jmsTemplate = jmsTemplate;
+    _jmsConnector = jmsConnector;
     _fudgeContext = fudgeContext;
     _distributor = distributor;
   }
@@ -92,7 +90,7 @@ public class JmsSender implements MarketDataSender {
     String destinationName = distributionSpec.getJmsTopic();
     final byte[] bytes = _fudgeContext.toByteArray(fudgeMsg);
     
-    _jmsTemplate.send(destinationName, new MessageCreator() {
+    _jmsConnector.getJmsTemplate().send(destinationName, new MessageCreator() {
       @Override
       public Message createMessage(Session session) throws JMSException {
         // TODO kirk 2009-10-30 -- We want to put stuff in the properties as well I think.

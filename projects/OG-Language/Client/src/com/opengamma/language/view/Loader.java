@@ -9,8 +9,6 @@ package com.opengamma.language.view;
 import java.net.URI;
 import java.util.concurrent.ScheduledExecutorService;
 
-import javax.jms.ConnectionFactory;
-
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,17 +23,19 @@ import com.opengamma.language.function.FunctionProviderBean;
 import com.opengamma.language.invoke.TypeConverterProviderBean;
 import com.opengamma.language.procedure.ProcedureProviderBean;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.jms.JmsConnector;
 
 /**
  * Extends the global context with view processor support (if available).
  */
 public class Loader extends ContextInitializationBean {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(Loader.class);
 
   private String _configurationEntry = "viewProcessor";
   private Configuration _configuration;
-  private ConnectionFactory _connectionFactory;
+  private JmsConnector _jmsConnector;
   private ScheduledExecutorService _housekeepingScheduler;
   private FudgeContext _fudgeContext = FudgeContext.GLOBAL_DEFAULT;
 
@@ -57,13 +57,13 @@ public class Loader extends ContextInitializationBean {
     return _configurationEntry;
   }
 
-  public void setConnectionFactory(final ConnectionFactory connectionFactory) {
-    ArgumentChecker.notNull(connectionFactory, "connectionFactory");
-    _connectionFactory = connectionFactory;
+  public void setJmsConnector(final JmsConnector jmsConnector) {
+    ArgumentChecker.notNull(jmsConnector, "jmsConnector");
+    _jmsConnector = jmsConnector;
   }
 
-  public ConnectionFactory getConnectionFactory() {
-    return _connectionFactory;
+  public JmsConnector getJmsConnector() {
+    return _jmsConnector;
   }
 
   public void setHousekeepingScheduler(final ScheduledExecutorService housekeepingScheduler) {
@@ -88,7 +88,7 @@ public class Loader extends ContextInitializationBean {
   @Override
   protected void assertPropertiesSet() {
     ArgumentChecker.notNull(getConfiguration(), "configuration");
-    ArgumentChecker.notNull(getConnectionFactory(), "connectionFactory");
+    ArgumentChecker.notNull(getJmsConnector(), "jmsConnector");
     ArgumentChecker.notNull(getHousekeepingScheduler(), "housekeepingScheduler");
     ArgumentChecker.notNull(getGlobalContextFactory(), "globalContextFactory");
     ArgumentChecker.notNull(getUserContextFactory(), "userContextFactory");
@@ -103,7 +103,7 @@ public class Loader extends ContextInitializationBean {
       return;
     }
     s_logger.info("Configuring view processor support");
-    globalContext.setViewProcessor(new RemoteViewProcessor(uri, getConnectionFactory(), getHousekeepingScheduler()));
+    globalContext.setViewProcessor(new RemoteViewProcessor(uri, getJmsConnector(), getHousekeepingScheduler()));
     globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
         GetViewResultFunction.INSTANCE,
         ViewClientDescriptorFunction.HISTORICAL_MARKET_DATA,

@@ -6,12 +6,13 @@
 package com.opengamma.transport.jms;
 
 import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.Session;
 import javax.jms.TemporaryQueue;
+
+import com.opengamma.util.jms.JmsConnector;
 
 /**
  * Hosts a temporary queue through which messages will be received.
@@ -30,22 +31,22 @@ public class JmsTemporaryQueueHost {
    * The temporary queue
    */
   private final TemporaryQueue _queue;
-  
-  public JmsTemporaryQueueHost(ConnectionFactory connectionFactory, MessageListener listener) throws JMSException {
-    _connection = connectionFactory.createConnection();
+
+  public JmsTemporaryQueueHost(JmsConnector jmsConnector, MessageListener listener) throws JMSException {
+    _connection = jmsConnector.getConnectionFactory().createConnection();
     Session session = _connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
     _queue = session.createTemporaryQueue();
     _consumer = session.createConsumer(_queue);
     _consumer.setMessageListener(listener);
     _connection.start();
   }
-  
+
   public String getQueueName() throws JMSException {
     return _queue.getQueueName();
   }
-  
+
   public void close() throws JMSException {
     _connection.close();
   }
-  
+
 }

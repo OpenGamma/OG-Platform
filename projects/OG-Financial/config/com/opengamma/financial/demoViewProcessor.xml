@@ -76,7 +76,7 @@
   
   <!-- User market data snapshots -->
     <bean id="userSnapshotMasterChangeManager" class="com.opengamma.core.change.JmsChangeManager" init-method="start" >
-    <constructor-arg ref="jmsConnectionFactory" />
+    <constructor-arg ref="jmsConnector" />
     <constructor-arg value="userSnapshotMasterChangeManager" />
   </bean>
   <bean id="userFinancialSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">

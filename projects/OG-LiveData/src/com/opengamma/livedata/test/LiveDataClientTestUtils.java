@@ -8,7 +8,6 @@ package com.opengamma.livedata.test;
 import javax.jms.ConnectionFactory;
 
 import org.apache.activemq.pool.PooledConnectionFactory;
-import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.livedata.client.DistributedLiveDataClient;
 import com.opengamma.livedata.client.JmsLiveDataClient;
@@ -23,6 +22,8 @@ import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.DirectInvocationByteArrayMessageSender;
 import com.opengamma.transport.FudgeRequestDispatcher;
 import com.opengamma.transport.InMemoryByteArrayRequestConduit;
+import com.opengamma.util.jms.JmsConnector;
+import com.opengamma.util.jms.JmsConnectorFactoryBean;
 import com.opengamma.util.test.ActiveMQTestUtils;
 
 /**
@@ -51,18 +52,19 @@ public class LiveDataClientTestUtils {
     ByteArrayFudgeRequestSender entitlementRequestSender = getEntitlementRequestSender(server);
     
     ConnectionFactory cf = new PooledConnectionFactory(ActiveMQTestUtils.createTestConnectionFactory());
+    JmsConnectorFactoryBean jmsFactory = new JmsConnectorFactoryBean();
+    jmsFactory.setName("LiveDataClientTestUtils");
+    jmsFactory.setConnectionFactory(cf);
+    jmsFactory.setPubSubDomain(true);
+    JmsConnector jmsConnector = jmsFactory.createObject();
     
     JmsLiveDataClient liveDataClient = new JmsLiveDataClient(
         subscriptionRequestSender, 
         entitlementRequestSender,
-        cf);
-    
-    JmsTemplate marketDataTemplate = new JmsTemplate();
-    marketDataTemplate.setPubSubDomain(true);
-    marketDataTemplate.setConnectionFactory(cf);
+        jmsConnector);
     
     JmsSenderFactory factory = new JmsSenderFactory();
-    factory.setJmsTemplate(marketDataTemplate);
+    factory.setJmsConnector(jmsConnector);
     server.setMarketDataSenderFactory(factory);
     
     liveDataClient.setFudgeContext(liveDataClient.getFudgeContext());

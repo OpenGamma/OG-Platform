@@ -248,7 +248,7 @@
     <property name="userContextFactory" ref="userContextFactory" />
     <property name="sessionContextFactory" ref="sessionContextFactory" />
     <property name="configuration" ref="defaultConfiguration" />
-    <property name="connectionFactory" ref="defaultJMSConnectionFactory" />
+    <property name="jmsConnector" ref="defaultJmsConnector" />
     <property name="housekeepingScheduler">
       <bean factory-bean="clientContextFactory" factory-method="getHousekeepingScheduler" />
     </property>
