@@ -132,18 +132,16 @@ $.register_module({
                 var layout = og.views.common.layout,
                     setup_header_links = function () {
                         var $version_link,
-                            mod = module.rules.load_securities,
-                            cur = $.extend({}, routes.current().args);
-                        delete cur.node, delete cur.version;
+                            rules = module.rules.load_securities;
                         $version_link = $('<a>version history</a>')
                             .addClass('OG-link-small og-js-version-link')
-                            .attr('href', '#' + routes.hash(mod, $.extend(true, {}, cur, {version: '*'})))
+                            .attr('href', routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}))
                             .unbind('click').bind('click', function (e) {
                                 var layout = og.views.common.layout;
                                 if (!layout.inner.state.south.isClosed && args.version) {
                                     e.preventDefault();
                                     layout.inner.close('south');
-                                    routes.go(routes.hash(mod, cur));
+                                    routes.go(routes.hash(rule, args, {del: ['version']}));
                                 } else layout.inner.open('south');
                             });
                         $('.OG-js-header-links').empty().append($version_link);

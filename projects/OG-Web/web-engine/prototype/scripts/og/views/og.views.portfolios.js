@@ -299,21 +299,19 @@ $.register_module({
                     },
                     setup_header_links = function () {
                         var $version_link, $sync_link, sync_href, message_obj,
-                            mod = module.rules.load_portfolios,
-                            cur = $.extend({}, routes.current().args);
-                        delete cur.node, delete cur.version, delete cur.sync;
+                            rule = module.rules.load_portfolios;
                         $version_link = $('<a>version history</a>')
                             .addClass('OG-link-small og-js-version-link')
-                            .attr('href', '#' + routes.hash(mod, $.extend(true, {}, cur, {version: '*'})))
+                            .attr('href', routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}))
                             .unbind('click').bind('click', function (e) {
                                 var layout = og.views.common.layout;
-                                if (!layout.inner.state.south.isClosed && routes.current().args.version) {
+                                if (!layout.inner.state.south.isClosed && args.version) {
                                     e.preventDefault();
                                     layout.inner.close('south');
-                                    routes.go(routes.hash(mod, cur));
+                                    routes.go(routes.hash(rule, args, {del: ['version', 'node', 'sync']}));
                                 } else layout.inner.open('south');
                             });
-                        sync_href = '#' + routes.hash(mod, $.extend(true, {}, cur, {sync: true}));
+                        sync_href = routes.prefix() + routes.hash(rule, args, {add: {sync: 'true'}});
                         message_obj = {
                             location: '.ui-layout-inner-center .ui-layout-content',
                             css: {left: 0}, level: 'strong',
@@ -327,11 +325,11 @@ $.register_module({
                             .attr('href', sync_href)
                             .unbind('click').bind('click', function (e) {
                                 e.preventDefault();
-                                $(e.target).html('checking sync status...').addClass('og-active');
+                                $(e.target).text('checking sync status...').addClass('og-active');
                                 // TODO: Check if portfolio is out of sync
                                 setTimeout(function () {
                                     ui.message(message_obj);
-                                    $(e.target).html('check sync status').removeClass('og-active');
+                                    $(e.target).text('check sync status').removeClass('og-active');
                                 }, 2000);
                             });
                         $('.OG-js-header-links').empty().append($version_link);
