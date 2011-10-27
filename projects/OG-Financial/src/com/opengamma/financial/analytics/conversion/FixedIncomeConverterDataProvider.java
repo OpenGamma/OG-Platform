@@ -20,13 +20,15 @@ import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
+import com.opengamma.financial.instrument.future.BondFutureDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
-import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.financial.instrument.swap.SwapDefinition;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
@@ -43,7 +45,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
 import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeEpochMillisConverter;
 
 /**
- * 
+ * Convert an OG-Financial Security to it's OG-Analytics Derivative form as seen from now
  */
 public class FixedIncomeConverterDataProvider {
 
@@ -54,53 +56,61 @@ public class FixedIncomeConverterDataProvider {
     _conventionSource = conventionSource;
   }
 
-  public InterestRateDerivative convert(final Security security, final FixedIncomeInstrumentConverter<?> definition,
+  public InterestRateDerivative convert(final Security security, final FixedIncomeInstrumentDefinition<?> definition,
       final ZonedDateTime now, final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition to convert was null for security " + security);
     }
-    if (security instanceof SwapSecurity) {
-      return convert((SwapSecurity) security, (SwapDefinition) definition, now, curveNames, dataSource);
-    }
-    //TODO this only applies for those futures formed at now (i.e. those used in curves) - interest rate future trades should be converted differently
-    if (security instanceof InterestRateFutureSecurity) {
-      return convert((InterestRateFutureSecurity) security, (InterestRateFutureSecurityDefinition) definition, now, curveNames, dataSource);
+    if (security instanceof BondFutureSecurity) {
+      return convert((BondFutureSecurity) security, (BondFutureDefinition) definition, now, curveNames, dataSource);
     }
     if (security instanceof FRASecurity) {
       return convert((FRASecurity) security, (ForwardRateAgreementDefinition) definition, now, curveNames, dataSource);
+    }
+    if (security instanceof InterestRateFutureSecurity) {
+      return convert((InterestRateFutureSecurity) security, (InterestRateFutureDefinition) definition, now, curveNames, dataSource);
     }
     if (security instanceof IRFutureOptionSecurity) {
       if (definition instanceof InterestRateFutureOptionMarginTransactionDefinition) {
         return convert((IRFutureOptionSecurity) security, (InterestRateFutureOptionMarginTransactionDefinition) definition, now, curveNames, dataSource);
       }
     }
+    if (security instanceof SwapSecurity) {
+      return convert((SwapSecurity) security, (SwapDefinition) definition, now, curveNames, dataSource);
+    }
     return definition.toDerivative(now, curveNames);
   }
 
-  /** Convert an InterestRateFutureSecurityDefinition to the derivative form: InterestRateFutureSecurity. NO MORE  Transaction   */
-  public InterestRateDerivative convert(final InterestRateFutureSecurity security, final InterestRateFutureSecurityDefinition definition, final ZonedDateTime now,
+  public InterestRateDerivative convert(final InterestRateFutureSecurity security, final InterestRateFutureDefinition definition, final ZonedDateTime now,
       final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
 
-    return definition.toDerivative(now, curveNames);
+    // Get the time-dependent reference data required to price the Analytics Derivative
+    Double referencePrice = 0.0;
 
     // TODO - CASE - Future refactor - cleanup the following InterestRateFutureTransactionDefinition rubbish
-    /*
+    /* Here are some tools available:
     final ExternalIdBundle id = security.getExternalIdBundle();
     final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7)); // FIXME Hardcoded behaviour
     final HistoricalTimeSeries ts = dataSource
           .getHistoricalTimeSeries(_fieldName, id, null, null, startDate, true, now.toLocalDate(), false);
-    if (ts == null) {
-      throw new OpenGammaRuntimeException("Could not get price time series for " + security);
-    }
-    final int length = ts.getTimeSeries().size();
-    if (length < 2) {
-      throw new OpenGammaRuntimeException("Price time series for " + id + " did not contain data for the last week - have they been updated?");
-    }
-    final double lastMarginPrice = ts.getTimeSeries().getValueAt(length - 2) / 100;
-    final double price = ts.getTimeSeries().getValueAt(length - 1) / 100; //TODO this is wrong; need margin data and previous close for lastMarginPrice
-    final InterestRateFutureTransactionDefinition transactionDefinition = new InterestRateFutureTransactionDefinition(definition, 1, now, price);
-    return transactionDefinition.toDerivative(now, lastMarginPrice, curveNames);
+    if (ts == null) { throw new OpenGammaRuntimeException("Could not get price time series for " + security); }
+    final Double referencePrice = ts.getTimeSeries().getLatestValue() / 100;    
     */
+
+    // Construct the derivative as seen from now
+    return definition.toDerivative(now, referencePrice, curveNames);
+
+  }
+
+  public InterestRateDerivative convert(final BondFutureSecurity security, final BondFutureDefinition definition, final ZonedDateTime now,
+      final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
+
+    // TODO - CASE - Future refactor - See notes in convert(InterestRateFutureSecurity)
+    // Get the time-dependent reference data required to price the Analytics Derivative
+    Double referencePrice = 0.0;
+
+    // Construct the derivative as seen from now
+    return definition.toDerivative(now, referencePrice, curveNames);
 
   }
 

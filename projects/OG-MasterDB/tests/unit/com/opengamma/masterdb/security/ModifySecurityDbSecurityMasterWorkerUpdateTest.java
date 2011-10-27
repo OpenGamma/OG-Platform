@@ -23,7 +23,7 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests ModifySecurityDbSecurityMasterWorker.
@@ -33,7 +33,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifySecurityDbSecurityMasterWorkerUpdateTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifySecurityDbSecurityMasterWorkerUpdateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -110,7 +110,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
 
   @Test
   public void test_update_rollback() {
-    DbSecurityMaster w = new DbSecurityMaster(_secMaster.getDbSource()) {
+    DbSecurityMaster w = new DbSecurityMaster(_secMaster.getDbConnector()) {
       @Override
       protected String sqlInsertSecurityIdKey() {
         return "INSERT";  // bad sql

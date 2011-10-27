@@ -13,6 +13,7 @@ import java.util.List;
 import org.springframework.util.ObjectUtils;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Holds as much information about a Java type as possible. This will drive parameter conversions
@@ -122,14 +123,22 @@ public final class JavaTypeInfo<T> {
     _parameter = parameter;
   }
 
-  @SuppressWarnings("unchecked")
   public JavaTypeInfo<?> arrayOf() {
-    return new JavaTypeInfo<Object>((Class<Object>) Array.newInstance(_rawClass, 0).getClass(), _allowNull, false, null, new JavaTypeInfo<?>[] {this });
+    return arrayOfWithAllowNull(_allowNull);
+  }
+
+  @SuppressWarnings("unchecked")
+  public JavaTypeInfo<?> arrayOfWithAllowNull(final boolean allowNull) {
+    return new JavaTypeInfo<Object>((Class<Object>) Array.newInstance(_rawClass, 0).getClass(), allowNull, false, null, new JavaTypeInfo<?>[] {this });
   }
 
   @SuppressWarnings("unchecked")
   public JavaTypeInfo<?> withAllowNull(final boolean allowNull) {
-    return new JavaTypeInfo<Object>((Class<Object>) _rawClass, allowNull, _hasDefaultValue, _defaultValue, _parameter);
+    if (allowNull == _allowNull) {
+      return this;
+    } else {
+      return new JavaTypeInfo<Object>((Class<Object>) _rawClass, allowNull, _hasDefaultValue, _defaultValue, _parameter);
+    }
   }
 
   public Class<T> getRawClass() {
@@ -250,6 +259,104 @@ public final class JavaTypeInfo<T> {
    */
   public String toClientString() {
     return getRawClass().getSimpleName();
+  }
+
+  /**
+   * Return a string that can be processed by the "parse" method.
+   * 
+   * @return the string
+   */
+  public String toParseableString() {
+    final StringBuilder sb = new StringBuilder();
+    toParseableString(sb);
+    return sb.toString();
+  }
+
+  private void toParseableString(final StringBuilder sb) {
+    if (isArray()) {
+      getArrayElementType().toParseableString(sb);
+      sb.append("[]");
+    } else {
+      sb.append(getRawClass().getName());
+      if (_parameter != null) {
+        sb.append("<");
+        for (int i = 0; i < _parameter.length; i++) {
+          if (i > 0) {
+            sb.append(",");
+          }
+          _parameter[i].toParseableString(sb);
+        }
+        sb.append(">");
+      }
+    }
+    // TODO: include NULL constraints
+    // TODO: include default
+  }
+
+  private static Pair<JavaTypeInfo<?>, String> checkArray(final Pair<JavaTypeInfo<?>, String> type) {
+    if (type.getSecond().startsWith("[]")) {
+      return checkArray(Pair.<JavaTypeInfo<?>, String>of(type.getFirst().arrayOf(), type.getSecond().substring(2)));
+    } else {
+      return type;
+    }
+  }
+
+  /**
+   * Parses a string that describes the type and all enclosed meta data.
+   * 
+   * @param str string, not null
+   * @return pair containing 
+   */
+  private static Pair<JavaTypeInfo<?>, String> parseStringImpl(final String str) throws ClassNotFoundException {
+    int i;
+    for (i = 0; i < str.length(); i++) {
+      switch (str.charAt(i)) {
+        case '<': {
+          final JavaTypeInfo.Builder<?> builder = JavaTypeInfo.builder(Class.forName(str.substring(0, i)));
+          String remainder = str.substring(i + 1);
+          do {
+            final Pair<JavaTypeInfo<?>, String> param = parseStringImpl(remainder);
+            if (param.getFirst() == null) {
+              return param;
+            }
+            builder.parameter(param.getFirst());
+            remainder = param.getSecond();
+            if (remainder.length() == 0) {
+              throw new IllegalArgumentException("Unexpected end of expression");
+            }
+            if (remainder.charAt(0) == ',') {
+              remainder = remainder.substring(1);
+              continue;
+            }
+            if (remainder.charAt(0) == '>') {
+              return checkArray(Pair.<JavaTypeInfo<?>, String>of(builder.get(), remainder.substring(1)));
+            } else {
+              return Pair.of(null, remainder);
+            }
+          } while (true);
+        }
+        case ',':
+        case '>': {
+          return Pair.<JavaTypeInfo<?>, String>of(JavaTypeInfo.builder(Class.forName(str.substring(0, i))).get(), str.substring(i));
+        }
+        case '[': {
+          return checkArray(Pair.<JavaTypeInfo<?>, String>of(JavaTypeInfo.builder(Class.forName(str.substring(0, i))).get(), str.substring(i)));
+        }
+      }
+    }
+    return Pair.<JavaTypeInfo<?>, String>of(JavaTypeInfo.builder(Class.forName(str)).get(), "");
+  }
+
+  public static JavaTypeInfo<?> parseString(final String str) {
+    try {
+      final Pair<JavaTypeInfo<?>, String> parsed = parseStringImpl(str);
+      if (parsed.getSecond().length() > 0) {
+        throw new IllegalArgumentException("Invalid characters at end of expression - " + parsed.getSecond());
+      }
+      return parsed.getFirst();
+    } catch (ClassNotFoundException e) {
+      throw new IllegalArgumentException("Couldn't parse type expression " + str, e);
+    }
   }
 
   public static <T> Builder<T> builder(final Class<T> rawClass) {

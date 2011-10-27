@@ -74,7 +74,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
   private static final List<String> CURVE_NAMES = Arrays.asList("Funding", "Libor 3m");
   private static final Map<String, Map<String, double[]>> MATURITIES = getDoubleCurveMaturities();
   private static final Map<String, Map<String, double[]>> MARKET_DATA = getDoubleCurveMarketData(MATURITIES);
-  private static final YieldCurveFittingTestDataBundle PV_DATA = getDoubleCurveSetup(PresentValueCalculator.getInstance(), PresentValueSensitivityCalculator.getInstance(), MATURITIES, MARKET_DATA,
+  private static final YieldCurveFittingTestDataBundle PV_DATA = getDoubleCurveSetup(PresentValueCalculator.getInstance(), PresentValueCurveSensitivityCalculator.getInstance(), MATURITIES, MARKET_DATA,
       true);
   private static final YieldCurveFittingTestDataBundle PAR_RATE_DATA = getDoubleCurveSetup(ParRateCalculator.getInstance(), ParRateCurveSensitivityCalculator.getInstance(), MATURITIES, MARKET_DATA,
       false);
@@ -180,26 +180,26 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
     final double eps = 1e-4;
 
     final InterestRateDerivative libor = makeSingleCurrencyIRD("libor", 1.5, FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.04, notional);
-    testBumpedDataParRateMethod(libor, notional, eps);
-    testBumpedDataPVMethod(libor, notional, eps);
+    testBumpedDataParRateMethod(libor, eps);
+    testBumpedDataPVMethod(libor, eps);
     InterestRateDerivative swap = makeSingleCurrencyIRD("swap", 13,FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.048, notional);
-    testBumpedDataParRateMethod(swap, notional, eps);
-    testBumpedDataPVMethod(swap, notional, eps);
+    testBumpedDataParRateMethod(swap, eps);
+    testBumpedDataPVMethod(swap, eps);
     final InterestRateDerivative fra = makeSingleCurrencyIRD("fra", 0.6666, FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.02, notional);
-    testBumpedDataParRateMethod(fra, notional, eps);
-    testBumpedDataPVMethod(fra, notional, eps);
+    testBumpedDataParRateMethod(fra, eps);
+    testBumpedDataPVMethod(fra, eps);
     final InterestRateDerivative future = makeSingleCurrencyIRD("fra", 2, FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.03, notional);
-    testBumpedDataParRateMethod(future, notional, eps);
-    testBumpedDataPVMethod(future, notional, eps);
+    testBumpedDataParRateMethod(future, eps);
+    testBumpedDataPVMethod(future, eps);
     swap = makeSingleCurrencyIRD("swap", 19,FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.05, notional);
-    testBumpedDataParRateMethod(swap, notional, eps);
-    testBumpedDataPVMethod(swap, notional, eps);
+    testBumpedDataParRateMethod(swap, eps);
+    testBumpedDataPVMethod(swap, eps);
     final InterestRateDerivative basisSwap = makeSingleCurrencyIRD("basisSwap", 12,FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.005, notional);
-    testBumpedDataParRateMethod(basisSwap, notional, eps);
-    testBumpedDataPVMethod(basisSwap, notional, eps);
+    testBumpedDataParRateMethod(basisSwap, eps);
+    testBumpedDataPVMethod(basisSwap, eps);
   }
 
-  private void testBumpedDataParRateMethod(final InterestRateDerivative ird, final double notional, final double eps) {
+  private void testBumpedDataParRateMethod(final InterestRateDerivative ird, final double eps) {
     final DoubleMatrix1D sensitivities = ISC.calculateFromParRate(ird, null, PAR_RATE_CURVES, PAR_RATE_JACOBIAN, PVNS);
     final PresentValueCalculator calculator = PresentValueCalculator.getInstance();
     final double pv1 = calculator.visit(ird, PAR_RATE_ALL_CURVES);
@@ -225,7 +225,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
     }
   }
 
-  private void testBumpedDataPVMethod(final InterestRateDerivative ird, final double notional, final double eps) {
+  private void testBumpedDataPVMethod(final InterestRateDerivative ird, final double eps) {
     final DoubleMatrix1D sensitivities = ISC.calculateFromPresentValue(ird, null, PV_CURVES, PV_COUPON_SENSITIVITY, PV_JACOBIAN, PVNS);
     final PresentValueCalculator calculator = PresentValueCalculator.getInstance();
     final double pv1 = calculator.visit(ird, PV_ALL_CURVES);
@@ -233,7 +233,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
       final int firstCurveSize = PV_CURVES.getCurve(CURVE_NAMES.get(0)).getCurve().size();
       final String curveName = i < firstCurveSize ? CURVE_NAMES.get(0) : CURVE_NAMES.get(1);
       final int indexToBump = i < firstCurveSize ? i : i - firstCurveSize;
-      final YieldCurveFittingTestDataBundle bumpedData = getDoubleCurveSetup(PresentValueCalculator.getInstance(), PresentValueSensitivityCalculator.getInstance(), MATURITIES,
+      final YieldCurveFittingTestDataBundle bumpedData = getDoubleCurveSetup(PresentValueCalculator.getInstance(), PresentValueCurveSensitivityCalculator.getInstance(), MATURITIES,
           getBumpedData(curveName, indexToBump, eps), true);
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> f = new MultipleYieldCurveFinderFunction(bumpedData, bumpedData.getMarketValueCalculator());
       final Function1D<DoubleMatrix1D, DoubleMatrix2D> jf = new MultipleYieldCurveFinderJacobian(bumpedData, bumpedData.getMarketValueSensitivityCalculator());

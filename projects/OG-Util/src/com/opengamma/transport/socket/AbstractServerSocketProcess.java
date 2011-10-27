@@ -38,6 +38,7 @@ public abstract class AbstractServerSocketProcess implements Lifecycle, EndPoint
 
   private int _portNumber;
   private InetAddress _bindAddress;
+  private boolean _isDaemon = true;
 
   private ServerSocket _serverSocket;
   private Thread _socketAcceptThread;
@@ -80,6 +81,20 @@ public abstract class AbstractServerSocketProcess implements Lifecycle, EndPoint
   public void setBindAddress(InetAddress bindAddress) {
     _bindAddress = bindAddress;
   }
+  
+  /**
+   * @param isDaemon  true if the socket accept thread should be run as a daemon thread, false otherwise
+   */
+  public void setDaemon(final boolean isDaemon) {
+    _isDaemon = isDaemon;
+  }
+  
+  /**
+   * @return true if the socket accept thread should be run as a daemon thread, false otherwise
+   */
+  public boolean isDaemon() {
+    return _isDaemon;
+  }
 
   @Override
   public synchronized boolean isRunning() {
@@ -102,7 +117,7 @@ public abstract class AbstractServerSocketProcess implements Lifecycle, EndPoint
 
     _socketAcceptJob = new SocketAcceptJob();
     _socketAcceptThread = new Thread(_socketAcceptJob, "Socket Accept Thread");
-    _socketAcceptThread.setDaemon(true);
+    _socketAcceptThread.setDaemon(_isDaemon);
     _socketAcceptThread.start();
 
     _started = true;

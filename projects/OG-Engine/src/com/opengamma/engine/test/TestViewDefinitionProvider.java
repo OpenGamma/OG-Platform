@@ -41,7 +41,7 @@ public final class TestViewDefinitionProvider {
     ValueProperties noConstraints = ValueProperties.none();
     ValueProperties nearlyAllConstraints = ValueProperties.all().withoutAny("SomePropName");
 
-    final ViewDefinition viewDefinition = new ViewDefinition(UniqueId.of("foo", "bar"), TEST_VIEW_DEFINITION_NAME, TEST_PORTFOLIO_OBJECT_ID, TEST_USER, new ResultModelDefinition());
+    final ViewDefinition viewDefinition = new ViewDefinition(TEST_VIEW_DEFINITION_NAME, TEST_PORTFOLIO_OBJECT_ID, TEST_USER, new ResultModelDefinition());
     final ViewCalculationConfiguration calcConfig1 = new ViewCalculationConfiguration(viewDefinition, "1");
     calcConfig1.addSpecificRequirement(new ValueRequirement("Value1", UniqueId.of("Test", "Foo")));
     calcConfig1.addSpecificRequirement(new ValueRequirement("Value1", UniqueId.of("Test", "Bar"), constraints));

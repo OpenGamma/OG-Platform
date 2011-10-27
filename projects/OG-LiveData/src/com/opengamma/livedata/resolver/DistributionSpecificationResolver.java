@@ -31,7 +31,7 @@ public interface DistributionSpecificationResolver extends Resolver<LiveDataSpec
    * @param liveDataSpecifications what the client wants. Different specs from the client can map to the same distribution spec. 
    * @return map from request to result.  
    * For each input spec, there must be an entry in the map.
-   * @throws IllegalArgumentException if the distribution spec cannot be built.  
+   * The value will be null if the distribution spec cannot be build for that spec  
    */
   Map<LiveDataSpecification, DistributionSpecification> resolve(Collection<LiveDataSpecification> liveDataSpecifications);
   

@@ -128,6 +128,7 @@ public abstract class FilteringSummingFunction extends PropertyPreservingFunctio
       ValueRequirement positionRequirement = new ValueRequirement(getValueName(), targetSpec, constraints);
       requirements.add(positionRequirement);
     }
+    
     /*
     for (PortfolioNode childNode : portfolioNode.getChildNodes()) {
       // Require value on child node, constrained to match this node
@@ -136,6 +137,7 @@ public abstract class FilteringSummingFunction extends PropertyPreservingFunctio
       requirements.add(childNodeRequirement);
     }
     */
+    
     
     if (requirements.size() == 0) {
       // Nothing to aggregate

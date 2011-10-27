@@ -7,7 +7,6 @@ package com.opengamma.web.spring;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -19,6 +18,7 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.financial.analytics.model.forex.ForexVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
@@ -33,8 +33,8 @@ import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpe
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.util.PlatformConfigUtils;
-import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.PlatformConfigUtils.RunMode;
+import com.opengamma.util.SingletonFactoryBean;
 
 /**
  * Creates function repository configuration for surface supplying functions.
@@ -62,11 +62,12 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
   
   public RepositoryConfiguration constructRepositoryConfiguration() {
     final List<FunctionConfiguration> configs = new ArrayList<FunctionConfiguration>();
-    addConfigFor(configs, RawVolatilitySurfaceDataFunction.class.getName(), new String[] {"DEFAULT", "SWAPTION", "DEFAULT" });
-    addConfigFor(configs, IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction.class.getName(), new String[] {"DEFAULT", "DEFAULT", "IR_FUTURE_OPTION", "IR_FUTURE_PRICE" });
-    addConfigFor(configs, RawVolatilitySurfaceDataFunction.class.getName(), new String[] {"DEFAULT", "IR_FUTURE_OPTION", "DEFAULT" });
-    addConfigFor(configs, RawVolatilitySurfaceDataFunction.class.getName(), new String[] {"DEFAULT", "FX_VANILLA_OPTION", "DEFAULT" });
+    addConfigFor(configs, RawVolatilitySurfaceDataFunction.class.getName(), new String[] {"DEFAULT", "SWAPTION", "DEFAULT"});
+    addConfigFor(configs, IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction.class.getName(), new String[] {"DEFAULT", "DEFAULT", "IR_FUTURE_OPTION", "IR_FUTURE_PRICE"});
+    addConfigFor(configs, RawVolatilitySurfaceDataFunction.class.getName(), new String[] {"DEFAULT", "IR_FUTURE_OPTION", "DEFAULT"});
+    addConfigFor(configs, RawVolatilitySurfaceDataFunction.class.getName(), new String[] {"DEFAULT", "FX_VANILLA_OPTION", "DEFAULT"});
     addConfigFor(configs, EquityOptionVolatilitySurfaceDataFunction.class.getName(), new String[] {"DEFAULT", "EQUITY_OPTION", "DEFAULT"});
+    configs.add(new ParameterizedFunctionConfiguration(ForexVolatilitySurfaceFunction.class.getName(), Arrays.asList("DEFAULT", "DEFAULT")));
     return new RepositoryConfiguration(configs);
   }
   

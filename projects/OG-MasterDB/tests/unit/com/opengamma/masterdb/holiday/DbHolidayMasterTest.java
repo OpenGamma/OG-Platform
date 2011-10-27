@@ -24,18 +24,18 @@ import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Test DbHolidayMaster.
  */
-public class DbHolidayMasterTest extends DBTest {
+public class DbHolidayMasterTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbHolidayMasterTest.class);
 
   private DbHolidayMaster _holMaster;
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbHolidayMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -59,7 +59,7 @@ public class DbHolidayMasterTest extends DBTest {
   public void test_basics() throws Exception {
     assertNotNull(_holMaster);
     assertEquals(true, _holMaster.getUniqueIdScheme().equals("DbHol"));
-    assertNotNull(_holMaster.getDbSource());
+    assertNotNull(_holMaster.getDbConnector());
     assertNotNull(_holMaster.getTimeSource());
   }
 

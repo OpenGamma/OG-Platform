@@ -8,7 +8,6 @@ package com.opengamma.financial.interestrate;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
@@ -18,9 +17,9 @@ import com.opengamma.financial.interestrate.bond.method.BondTransactionDiscounti
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
-import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.future.method.BondFutureTransactionDiscountingMethod;
+import com.opengamma.financial.interestrate.future.method.BondFutureDiscountingMethod;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -140,13 +139,6 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   }
 
   @Override
-  public Double visitBond(final Bond bond, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(bond);
-    return visit(bond.getAnnuity(), curves);
-  }
-
-  @Override
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
@@ -179,10 +171,10 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   }
 
   @Override
-  public Double visitBondFutureTransaction(final BondFutureTransaction bondFuture, final YieldCurveBundle curves) {
+  public Double visitBondFuture(final BondFuture bondFuture, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bondFuture);
-    final BondFutureTransactionDiscountingMethod method = BondFutureTransactionDiscountingMethod.getInstance();
+    final BondFutureDiscountingMethod method = BondFutureDiscountingMethod.getInstance();
     return method.presentValue(bondFuture, curves).getAmount();
   }
 
@@ -290,5 +282,4 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   public Double visitCouponIborFixed(final CouponIborFixed payment, final YieldCurveBundle data) {
     return visitCouponIbor(payment.toCouponIbor(), data);
   }
-
 }

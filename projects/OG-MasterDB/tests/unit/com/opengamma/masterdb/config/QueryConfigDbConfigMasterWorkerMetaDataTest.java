@@ -18,7 +18,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.config.ConfigMetaDataRequest;
 import com.opengamma.master.config.ConfigMetaDataResult;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Test metaData() in DbConfigMaster
@@ -27,7 +27,7 @@ public class QueryConfigDbConfigMasterWorkerMetaDataTest extends AbstractDbConfi
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryConfigDbConfigMasterWorkerMetaDataTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public QueryConfigDbConfigMasterWorkerMetaDataTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);

@@ -36,8 +36,7 @@
     </property>
     <property name="eventListeners">
       <list>
-        <bean id="contextLoader"
-          class="org.springframework.web.context.ContextLoaderListener" />
+        <bean id="contextLoader" class="org.springframework.web.context.ContextLoaderListener" />
       </list>
     </property>
   </bean>

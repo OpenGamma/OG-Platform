@@ -6,6 +6,8 @@
 package com.opengamma.engine.test;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.google.common.base.Objects;
 import com.opengamma.core.security.Security;
@@ -25,6 +27,7 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
   private String _securityType;
   private String _name;
   private ExternalIdBundle _identifiers;
+  private Map<String, String> _attributes;
 
   /**
    * Creates an instance.
@@ -76,6 +79,21 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
 
   public void addIdentifier(final ExternalId identifier) {
     setIdentifiers(getExternalIdBundle().withExternalId(identifier));
+  }
+
+  @Override
+  public Map<String, String> getAttributes() {
+    return _attributes;
+  }
+
+  @Override
+  public void setAttributes(Map<String, String> attributes) {
+    this._attributes = attributes;
+  }
+
+  @Override
+  public void addAttribute(String key, String value) {
+    this._attributes.put(key, value);
   }
 
   //-------------------------------------------------------------------------

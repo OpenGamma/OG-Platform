@@ -194,6 +194,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @return the permission provider to be used for access control, not null
    */
   public ViewPermissionProvider attachClientToSharedViewProcess(UniqueId clientId, ViewResultListener listener, UniqueId viewDefinitionId, ViewExecutionOptions executionOptions) {
+    ArgumentChecker.notNull(clientId, "clientId");
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ViewClientImpl client = getViewClient(clientId);

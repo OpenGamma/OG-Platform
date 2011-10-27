@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.object.CreateObjectFunction;
@@ -22,7 +23,7 @@ import com.opengamma.master.security.ManageableSecurity;
 public class CreateSecurityFunction<T extends ManageableSecurity> extends CreateObjectFunction<T> {
 
   public CreateSecurityFunction(final Class<T> clazz, final String description, final String[] parameterNames, final String[] parameterDescriptions) {
-    super(clazz, description, parameterNames, parameterDescriptions);
+    super(Categories.SECURITY, clazz, description, parameterNames, parameterDescriptions);
   }
 
   protected List<MetaParameter> getPrependedParameters() {

@@ -7,7 +7,6 @@ package com.opengamma.util.paging;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.util.PagingRequest;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**

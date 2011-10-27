@@ -26,7 +26,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.BondFutureSecurityConverter;
 import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.future.BondFutureSecurityDefinition;
+import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 
 /**
@@ -34,8 +34,8 @@ import com.opengamma.financial.security.future.BondFutureSecurity;
  * @param <T> The type of data that the calculator needs
  */
 public abstract class BondFutureFunction<T> extends AbstractFunction.NonCompiledInvoker {
-  private String _creditCurveName;
-  private String _riskFreeCurveName;
+  private final String _creditCurveName;
+  private final String _riskFreeCurveName;
   private BondFutureSecurityConverter _visitor;
 
   public BondFutureFunction(final String creditCurveName, final String riskFreeCurveName) {
@@ -59,13 +59,14 @@ public abstract class BondFutureFunction<T> extends AbstractFunction.NonCompiled
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ZonedDateTime date = executionContext.getValuationClock().zonedDateTime();
     final BondFutureSecurity security = (BondFutureSecurity) target.getSecurity();
-    final BondFutureSecurityDefinition definition = (BondFutureSecurityDefinition) security.accept(_visitor);
-    final com.opengamma.financial.interestrate.future.definition.BondFutureSecurity bondFuture = definition.toDerivative(date, _creditCurveName, _riskFreeCurveName);
+    final BondFutureDefinition definition = (BondFutureDefinition) security.accept(_visitor);
+    final Double referencePrice = 0.0; // TODO Futures Refactor
+    final com.opengamma.financial.interestrate.future.definition.BondFuture bondFuture = definition.toDerivative(date, referencePrice, _creditCurveName, _riskFreeCurveName);
     return calculate(security, bondFuture, getData(inputs, target), target);
   }
 
   protected abstract Set<ComputedValue> calculate(com.opengamma.financial.security.future.BondFutureSecurity security,
-      com.opengamma.financial.interestrate.future.definition.BondFutureSecurity bondFuture, T data, ComputationTarget target);
+      com.opengamma.financial.interestrate.future.definition.BondFuture bondFuture, T data, ComputationTarget target);
 
   protected abstract T getData(FunctionInputs inputs, ComputationTarget target);
 

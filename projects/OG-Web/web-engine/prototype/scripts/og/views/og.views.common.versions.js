@@ -14,11 +14,7 @@ $.register_module({
                 og.api.rest[cur.page.substring(1)].get({
                     id: cur.args.id, version: '*',
                     handler: function (r) {
-                        var thead = '<thead><tr>\
-                                       <th>Reference</th><th>Name</th><th>Valid from</th>\
-                                     </tr></thead>',
-                        cols = '<colgroup align="left"></colgroup>\
-                                <colgroup align="left"></colgroup>',
+                        var cols = '<colgroup></colgroup><colgroup></colgroup><colgroup></colgroup>',
                         build_url = function (version) {
                             var current = routes.current().args,
                                 page = routes.current().page.substring(1);
@@ -26,6 +22,9 @@ $.register_module({
                             return routes.hash(
                                 og.views[page].rules['load_' + page], $.extend({}, current, {version: version})
                             );
+                        },
+                        format_date = function (timestamp) {
+                            return timestamp;
                         },
                         $list = $(r.data.data.reduce(function (acc, val, i) {
                             var arr = val.split('|'), cur, sel, ver = routes.current().args.version;
@@ -35,9 +34,9 @@ $.register_module({
                                 '<tr' + sel + '>' +
                                     '<td><a href="#' + build_url(arr[0]) + '">' + arr[0] + '</a>' + cur + '</td>' +
                                     '<td>' + arr[1] + '</td>' +
-                                    '<td>' + arr[2] + '</td>' +
+                                    '<td>' + format_date(arr[2]) + '</td>' +
                                 '</tr>';
-                        }, '<div class="og-container"><table>' + thead) + '</table></div>')
+                        }, '<div class="og-container"><table>' + cols) + '</table></div>')
                         .click(function (e) {
                             var version = $(e.target).parents('tbody tr').find('td:first-child a').text();
                             if (version) routes.go(build_url(version));

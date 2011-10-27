@@ -175,7 +175,7 @@ public class ViewProcessorTestEnvironment {
   }
 
   private ViewDefinition generateViewDefinition() {
-    ViewDefinition testDefinition = new ViewDefinition(UniqueId.of("AnyScheme", TEST_VIEW_DEFINITION_NAME), TEST_VIEW_DEFINITION_NAME, TEST_USER);
+    ViewDefinition testDefinition = new ViewDefinition(UniqueId.of("boo", "far"), TEST_VIEW_DEFINITION_NAME, TEST_USER);
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(testDefinition, TEST_CALC_CONFIG_NAME);
     calcConfig.addSpecificRequirement(getPrimitive1());
     calcConfig.addSpecificRequirement(getPrimitive2());

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.engine.value.ValueRequirement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -35,7 +36,7 @@ import com.opengamma.financial.batch.BatchResultWriter;
 import com.opengamma.financial.conversion.ResultConverter;
 import com.opengamma.financial.conversion.ResultConverterCache;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
 
 /**
  * This writer is used to write risk that originates from a command line batch job. 
@@ -94,31 +95,37 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
    */
   private final boolean _writeErrors = true;
   
-  public CommandLineBatchResultWriter(DbSource dbSource,
-      ResultModelDefinition resultModelDefinition,
-      Map<String, ViewComputationCache> cachesByCalculationConfiguration,
-      Set<ComputationTarget> computationTargets,
-      RiskRun riskRun,
-      Set<RiskValueName> valueNames) {
-    this(dbSource,
-        resultModelDefinition,
-        cachesByCalculationConfiguration,
-        computationTargets,
-        riskRun,
-        valueNames,
-        new ResultConverterCache());
-  }
-  
-  public CommandLineBatchResultWriter(
-      DbSource dbSource,
+  public CommandLineBatchResultWriter(DbConnector dbConnector,
       ResultModelDefinition resultModelDefinition,
       Map<String, ViewComputationCache> cachesByCalculationConfiguration,
       Set<ComputationTarget> computationTargets,
       RiskRun riskRun,
       Set<RiskValueName> valueNames,
+      Set<RiskValueRequirement> valueRequirements,
+      Set<RiskValueSpecification> valueSpecifications) {
+    this(dbConnector,
+        resultModelDefinition,
+        cachesByCalculationConfiguration,
+        computationTargets,
+        riskRun,
+        valueNames,
+        valueRequirements,
+        valueSpecifications,
+        new ResultConverterCache());
+  }
+  
+  public CommandLineBatchResultWriter(
+      DbConnector dbConnector,
+      ResultModelDefinition resultModelDefinition,
+      Map<String, ViewComputationCache> cachesByCalculationConfiguration,
+      Set<ComputationTarget> computationTargets,
+      RiskRun riskRun,
+      Set<RiskValueName> valueNames,
+      Set<RiskValueRequirement> valueRequirements,
+      Set<RiskValueSpecification> valueSpecifications,
       ResultConverterCache resultConverterCache) {
 
-    super(dbSource, riskRun, resultConverterCache, computationTargets, valueNames);
+    super(dbConnector, riskRun, resultConverterCache, computationTargets, valueNames, valueRequirements, valueSpecifications);
 
     ArgumentChecker.notNull(resultModelDefinition, "Result model definition");
     ArgumentChecker.notNull(cachesByCalculationConfiguration, "Caches by calculation configuration");
@@ -301,6 +308,7 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
     // SQL statements to write risk into rsk_value and rsk_failure (& rsk_failure_reason)
     
     for (CalculationJobResultItem item : result.getResultItems()) {
+
       ResultOutputMode targetOutputMode = _resultModelDefinition.getOutputMode(item.getComputationTargetSpecification().getType());
       
       if (successfulTargets.contains(item.getComputationTargetSpecification())) {
@@ -312,7 +320,7 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
         if (status == StatusEntry.Status.SUCCESS) {
           continue;
         }
-        
+
         for (ValueSpecification output : item.getOutputs()) {
           if (!targetOutputMode.shouldOutputResult(output, depGraph)) {
             continue;
@@ -324,22 +332,28 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
           Map<String, Double> valuesAsDoubles = resultConverter.convert(output.getValueName(), outputValue);
           
           int computationTargetId = getComputationTargetId(output.getTargetSpecification());
-          
-          for (Map.Entry<String, Double> riskValueEntry : valuesAsDoubles.entrySet()) {
-            int valueNameId = getValueNameId(riskValueEntry.getKey());
-            int functionUniqueId = getFunctionUniqueId(output.getFunctionUniqueId());
 
-            RiskValue riskValue = new RiskValue();
-            riskValue.setId(generateUniqueId());
-            riskValue.setCalculationConfigurationId(calcConfId);
-            riskValue.setValueNameId(valueNameId);
-            riskValue.setFunctionUniqueId(functionUniqueId);
-            riskValue.setComputationTargetId(computationTargetId);
-            riskValue.setRunId(riskRunId);
-            riskValue.setValue(riskValueEntry.getValue());
-            riskValue.setEvalInstant(evalInstant);
-            riskValue.setComputeNodeId(computeNodeId);
-            successes.add(riskValue.toSqlParameterSource());
+          for (Map.Entry<String, Double> riskValueEntry : valuesAsDoubles.entrySet()) {
+            for (ValueRequirement requirement : item.getItem().getDesiredValues()) {
+              int valueRequirementId = getValueRequirementId(requirement.getConstraints());
+              int valueSpecificationId = getValueSpecificationId(output.getProperties());
+              int valueNameId = getValueNameId(riskValueEntry.getKey());
+              int functionUniqueId = getFunctionUniqueId(output.getFunctionUniqueId());
+
+              RiskValue riskValue = new RiskValue();
+              riskValue.setId(generateUniqueId());
+              riskValue.setCalculationConfigurationId(calcConfId);
+              riskValue.setValueNameId(valueNameId);
+              riskValue.setValueRequirementId(valueRequirementId);
+              riskValue.setValueSpecificationId(valueSpecificationId);
+              riskValue.setFunctionUniqueId(functionUniqueId);
+              riskValue.setComputationTargetId(computationTargetId);
+              riskValue.setRunId(riskRunId);
+              riskValue.setValue(riskValueEntry.getValue());
+              riskValue.setEvalInstant(evalInstant);
+              riskValue.setComputeNodeId(computeNodeId);
+              successes.add(riskValue.toSqlParameterSource());
+            }
           }
         }
         
@@ -353,48 +367,53 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
         }
         
         for (ValueSpecification outputValue : item.getOutputs()) {
-          
-          int valueNameId = getValueNameId(outputValue.getValueName());
-          int functionUniqueId = getFunctionUniqueId(outputValue.getFunctionUniqueId());
-          int computationTargetId = getComputationTargetId(outputValue.getTargetSpecification());
-        
-          RiskFailure failure = new RiskFailure();
-          failure.setId(generateUniqueId());
-          failure.setCalculationConfigurationId(calcConfId);
-          failure.setValueNameId(valueNameId);
-          failure.setFunctionUniqueId(functionUniqueId);
-          failure.setComputationTargetId(computationTargetId);
-          failure.setRunId(riskRunId);
-          failure.setEvalInstant(evalInstant);
-          failure.setComputeNodeId(computeNodeId);
-          failures.add(failure.toSqlParameterSource());
-          
-          switch (item.getResult()) {
+          for (ValueRequirement requirement : item.getItem().getDesiredValues()) {
+            int valueNameId = getValueNameId(outputValue.getValueName());
+            int functionUniqueId = getFunctionUniqueId(outputValue.getFunctionUniqueId());
+            int computationTargetId = getComputationTargetId(outputValue.getTargetSpecification());
+            int valueRequirementId = getValueRequirementId(requirement.getConstraints());
+            int valueSpecificationId = getValueSpecificationId(outputValue.getProperties());
 
-            case MISSING_INPUTS:
-            case FUNCTION_THREW_EXCEPTION:
-            
-              BatchResultWriterFailure cachedFailure = (BatchResultWriterFailure) cache.getValue(outputValue);
-              if (cachedFailure != null) {
-                for (Number computeFailureId : cachedFailure.getComputeFailureIds()) {
-                  FailureReason reason = new FailureReason();
-                  reason.setId(generateUniqueId());
-                  reason.setRiskFailure(failure);
-                  reason.setComputeFailureId(computeFailureId.longValue());
-                  failureReasons.add(reason.toSqlParameterSource());
+            RiskFailure failure = new RiskFailure();
+            failure.setId(generateUniqueId());
+            failure.setCalculationConfigurationId(calcConfId);
+            failure.setValueNameId(valueNameId);
+            failure.setValueRequirementId(valueRequirementId);
+            failure.setValueSpecificationId(valueSpecificationId);
+            failure.setFunctionUniqueId(functionUniqueId);
+            failure.setComputationTargetId(computationTargetId);
+            failure.setRunId(riskRunId);
+            failure.setEvalInstant(evalInstant);
+            failure.setComputeNodeId(computeNodeId);
+            failures.add(failure.toSqlParameterSource());
+
+            switch (item.getResult()) {
+
+              case MISSING_INPUTS:
+              case FUNCTION_THREW_EXCEPTION:
+
+                BatchResultWriterFailure cachedFailure = (BatchResultWriterFailure) cache.getValue(outputValue);
+                if (cachedFailure != null) {
+                  for (Number computeFailureId : cachedFailure.getComputeFailureIds()) {
+                    FailureReason reason = new FailureReason();
+                    reason.setId(generateUniqueId());
+                    reason.setRiskFailure(failure);
+                    reason.setComputeFailureId(computeFailureId.longValue());
+                    failureReasons.add(reason.toSqlParameterSource());
+                  }
                 }
-              }
-                            
-              break;
-              
-            case SUCCESS:
-            
-              // maybe this output succeeded, but some other outputs for the same target failed.
-              s_logger.debug("Not adding any failure reasons for partial failures / unsupported outputs for now");
-              break;
-              
-            default:
-              throw new RuntimeException("Should not get here");
+
+                break;
+
+              case SUCCESS:
+
+                // maybe this output succeeded, but some other outputs for the same target failed.
+                s_logger.debug("Not adding any failure reasons for partial failures / unsupported outputs for now");
+                break;
+
+              default:
+                throw new RuntimeException("Should not get here");
+            }
           }
         }
           

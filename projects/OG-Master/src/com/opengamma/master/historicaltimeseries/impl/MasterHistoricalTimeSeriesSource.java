@@ -11,12 +11,12 @@ import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -253,8 +253,13 @@ public class MasterHistoricalTimeSeriesSource
   public Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
       Set<ExternalIdBundle> identifierSet, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean includeStart, LocalDate end, boolean includeEnd) {
-    // TODO [PLAT-1046]
-    throw new NotImplementedException();
+    ArgumentChecker.notNull(identifierSet, "identifierSet");
+    Map<ExternalIdBundle, HistoricalTimeSeries> result = Maps.newHashMap();
+    for (ExternalIdBundle externalIdBundle : identifierSet) {
+      HistoricalTimeSeries historicalTimeSeries = getHistoricalTimeSeries(externalIdBundle, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd);
+      result.put(externalIdBundle, historicalTimeSeries);
+    }
+    return result;
   }
 
   //-------------------------------------------------------------------------
@@ -262,5 +267,5 @@ public class MasterHistoricalTimeSeriesSource
   public String toString() {
     return "MasterHistoricalTimeSeriesSource[" + getMaster() + "]";
   }
-
+  
 }

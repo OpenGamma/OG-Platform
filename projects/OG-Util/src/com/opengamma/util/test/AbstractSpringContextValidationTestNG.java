@@ -13,6 +13,8 @@ import static org.testng.AssertJUnit.fail;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.ClassPathResource;
@@ -31,6 +33,7 @@ import com.opengamma.util.PlatformConfigUtils;
  */
 public abstract class AbstractSpringContextValidationTestNG {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractSpringContextValidationTestNG.class);
   private ThreadLocal<GenericApplicationContext> _springContext = new ThreadLocal<GenericApplicationContext>();
 
   @DataProvider(name = "runModes")
@@ -127,9 +130,9 @@ public abstract class AbstractSpringContextValidationTestNG {
     if (beans.length == 0) {
       fail("No beans created");
     }
-    System.out.println("Beans created");
+    s_logger.info("{} beans created by {}", beans.length, getClass());
     for (String bean : beans) {
-      System.out.println("\t" + bean);
+      s_logger.debug("Bean name {}", bean);
     }
   }
 

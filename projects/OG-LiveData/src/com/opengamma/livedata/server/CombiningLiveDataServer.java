@@ -8,6 +8,7 @@ package com.opengamma.livedata.server;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +50,35 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
 
   }
 
+  
+  @Override
+  public Collection<LiveDataSubscriptionResponse> subscribe(
+      Collection<LiveDataSpecification> liveDataSpecificationsFromClient, boolean persistent) {
+
+    Map<AbstractLiveDataServer, Collection<LiveDataSpecification>> mapped = groupByServer(liveDataSpecificationsFromClient);
+
+    Collection<LiveDataSubscriptionResponse> responses = new ArrayList<LiveDataSubscriptionResponse>(
+        liveDataSpecificationsFromClient.size());
+
+    //TODO: should probably be asynchronous 
+    for (Entry<AbstractLiveDataServer, Collection<LiveDataSpecification>> entry : mapped.entrySet()) {
+      if (entry.getValue().isEmpty()) {
+        continue;
+      }
+      AbstractLiveDataServer server = entry.getKey();
+      s_logger.debug("Sending subscription for {} to underlying server {}", entry.getValue(), server);
+      //NOTE: we call up to subscriptionRequestMade to get the exception catching
+      Collection<LiveDataSubscriptionResponse> response = server.subscribe(entry.getValue(), persistent);
+
+      responses.addAll(response);
+    }
+    return responses;
+  }
+
   @Override
   public LiveDataSubscriptionResponseMsg subscriptionRequestMadeImpl(LiveDataSubscriptionRequest subscriptionRequest) {
+    //TODO dedupe with subscribe
+    //Need to override here as well in order to catch the resolution/entitlement checking
     List<LiveDataSpecification> specs = subscriptionRequest.getSpecifications();
     Map<AbstractLiveDataServer, Collection<LiveDataSpecification>> mapped = groupByServer(specs);
 
@@ -78,11 +106,7 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
     }
     return new LiveDataSubscriptionResponseMsg(subscriptionRequest.getUser(), responses);
   }
-  
-  @Override
-  public LiveDataSubscriptionResponse subscribe(LiveDataSpecification liveDataSpecificationFromClient, boolean persistent) {
-    return getServer(liveDataSpecificationFromClient).subscribe(liveDataSpecificationFromClient, persistent);
-  }
+
   protected abstract Map<AbstractLiveDataServer, Collection<LiveDataSpecification>> groupByServer(
       Collection<LiveDataSpecification> specs);
 
@@ -128,6 +152,16 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
   }
   
   
+  @Override
+  public Map<LiveDataSpecification, MarketDataDistributor> getMarketDataDistributors(Collection<LiveDataSpecification> fullyQualifiedSpecs) {
+    Map<AbstractLiveDataServer, Collection<LiveDataSpecification>> grouped = groupByServer(fullyQualifiedSpecs);
+    HashMap<LiveDataSpecification, MarketDataDistributor> ret = new HashMap<LiveDataSpecification, MarketDataDistributor>();
+    for (Entry<AbstractLiveDataServer, Collection<LiveDataSpecification>> entry : grouped.entrySet()) {
+      Map<LiveDataSpecification, MarketDataDistributor> entries = entry.getKey().getMarketDataDistributors(entry.getValue());
+      ret.putAll(entries);
+    }
+    return ret;
+  }
 
   @Override
   public boolean stopDistributor(MarketDataDistributor distributor) {

@@ -21,7 +21,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocumen
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.historicaltimeseries.impl.RandomTimeSeriesGenerator;
 import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -29,13 +29,13 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  * A performance test of time-series.
  */
 @Test(enabled = false)
-public class PerformanceTest extends DBTest {
+public class PerformanceTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PerformanceTest.class);
 
   private DbHistoricalTimeSeriesMaster _htsMaster;
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public PerformanceTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);

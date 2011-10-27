@@ -47,7 +47,7 @@ public class CompiledViewCalculationConfigurationFudgeBuilder implements FudgeBu
   public CompiledViewCalculationConfiguration buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     String name = message.getString(NAME_FIELD);
     Set<ComputationTarget> computationTargets = deserializer.fieldValueToObject(Set.class, message.getByName(COMPUTATION_TARGETS_FIELD));
-    Set<ValueSpecification> terminalOutputSpecifications = deserializer.fieldValueToObject(Set.class, message.getByName(TERMINAL_OUTPUT_SPECIFICATIONS_FIELD));
+    Map<ValueSpecification, Set<ValueRequirement>> terminalOutputSpecifications = deserializer.fieldValueToObject(Map.class, message.getByName(TERMINAL_OUTPUT_SPECIFICATIONS_FIELD));
     Map<ValueRequirement, ValueSpecification> marketDataRequirements = deserializer.fieldValueToObject(Map.class, message.getByName(MARKET_DATA_REQUIREMENTS_FIELD));
     return new CompiledViewCalculationConfigurationImpl(name, computationTargets, terminalOutputSpecifications, marketDataRequirements);
   }

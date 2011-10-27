@@ -211,6 +211,20 @@ const TCHAR *CSettings::GetJvmLibrary () const {
 	return GetJvmLibrary (&g_oJvmLibraryDefault);
 }
 
+/// Returns the minimum heap size for the JVM.
+///
+/// @return the minimum heap size in Mb
+unsigned long CSettings::GetJvmMinHeap () const {
+	return GetJvmMinHeap (256);
+}
+
+/// Returns the maximum heap size for the JVM
+///
+/// @return the maximum heap size in Mb
+unsigned long CSettings::GetJvmMaxHeap () const {
+	return GetJvmMaxHeap (512);
+}
+
 /// Returns the name of the pipe for incoming client connections
 ///
 /// @return the pipe name

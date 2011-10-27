@@ -19,7 +19,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public final class PV01Calculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, Double>> {
   private static final PV01Calculator s_instance = new PV01Calculator();
-  private final PresentValueSensitivityCalculator _pvsc = PresentValueSensitivityCalculator.getInstance();
+  private final PresentValueCurveSensitivityCalculator _pvsc = PresentValueCurveSensitivityCalculator.getInstance();
 
   public static PV01Calculator getInstance() {
     return s_instance;

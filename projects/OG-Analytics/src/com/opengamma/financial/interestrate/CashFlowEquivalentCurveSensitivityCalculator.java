@@ -26,9 +26,11 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * Calculator of the cash flow equivalent sensitivity to the curve. The result is a map of <Double, PresentValueSensitivity>. 
+ * The cash flow equivalent sensitivity is represented by the double which is the time of the cash flow and the PresentValueSensitivity which is the sensitivity of the 
+ * cash flow at that date.
  */
-public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<Double, PresentValueSensitivity>> {
+public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<Double, InterestRateCurveSensitivity>> {
 
   /**
    * The unique instance of the calculator.
@@ -50,28 +52,28 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractIntere
   }
 
   @Override
-  public Map<Double, PresentValueSensitivity> visit(final InterestRateDerivative derivative, final YieldCurveBundle curves) {
+  public Map<Double, InterestRateCurveSensitivity> visit(final InterestRateDerivative derivative, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(derivative);
     return derivative.accept(this, curves);
   }
 
   @Override
-  public Map<Double, PresentValueSensitivity> visitFixedPayment(final PaymentFixed payment, final YieldCurveBundle curves) {
+  public Map<Double, InterestRateCurveSensitivity> visitFixedPayment(final PaymentFixed payment, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(payment);
-    return new HashMap<Double, PresentValueSensitivity>();
+    return new HashMap<Double, InterestRateCurveSensitivity>();
   }
 
   @Override
-  public Map<Double, PresentValueSensitivity> visitFixedCouponPayment(final CouponFixed coupon, final YieldCurveBundle curves) {
+  public Map<Double, InterestRateCurveSensitivity> visitFixedCouponPayment(final CouponFixed coupon, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(coupon);
-    return new HashMap<Double, PresentValueSensitivity>();
+    return new HashMap<Double, InterestRateCurveSensitivity>();
   }
 
   @Override
-  public Map<Double, PresentValueSensitivity> visitCouponIbor(final CouponIbor payment, final YieldCurveBundle curves) {
+  public Map<Double, InterestRateCurveSensitivity> visitCouponIbor(final CouponIbor payment, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(payment);
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(payment.getFundingCurveName());
@@ -83,7 +85,7 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractIntere
         / discountingCurve.getDiscountFactor(fixingStartTime);
     double betaBar = payment.getNotional() * payment.getPaymentYearFraction() / payment.getFixingYearFraction();
 
-    Map<Double, PresentValueSensitivity> result = new HashMap<Double, PresentValueSensitivity>();
+    Map<Double, InterestRateCurveSensitivity> result = new HashMap<Double, InterestRateCurveSensitivity>();
     final Map<String, List<DoublesPair>> resultPVS = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
     DoublesPair forwardStart = new DoublesPair(fixingStartTime, -fixingStartTime * beta * betaBar);
@@ -99,53 +101,53 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractIntere
     listDisc.add(discPay);
     resultPVS.put(payment.getFundingCurveName(), listDisc);
 
-    result.put(fixingStartTime, new PresentValueSensitivity(resultPVS));
+    result.put(fixingStartTime, new InterestRateCurveSensitivity(resultPVS));
     return result;
   }
 
   @Override
-  public Map<Double, PresentValueSensitivity> visitGenericAnnuity(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle curves) {
+  public Map<Double, InterestRateCurveSensitivity> visitGenericAnnuity(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(annuity);
-    Map<Double, PresentValueSensitivity> result = new HashMap<Double, PresentValueSensitivity>();
+    Map<Double, InterestRateCurveSensitivity> result = new HashMap<Double, InterestRateCurveSensitivity>();
     for (final Payment p : annuity.getPayments()) {
-      Map<Double, PresentValueSensitivity> paymentSensi = visit(p, curves);
+      Map<Double, InterestRateCurveSensitivity> paymentSensi = visit(p, curves);
       result.putAll(paymentSensi);
-      // It is suppose that no two coupon have the same cfe sensitivity date.
+      // It is suppose that no two coupons have the same cfe sensitivity date.
     }
     return result;
   }
 
   @Override
-  public Map<Double, PresentValueSensitivity> visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final YieldCurveBundle curves) {
+  public Map<Double, InterestRateCurveSensitivity> visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final YieldCurveBundle curves) {
     return visitGenericAnnuity(annuity, curves);
   }
 
   @Override
-  public Map<Double, PresentValueSensitivity> visitForwardLiborAnnuity(final AnnuityCouponIbor annuity, final YieldCurveBundle curves) {
+  public Map<Double, InterestRateCurveSensitivity> visitForwardLiborAnnuity(final AnnuityCouponIbor annuity, final YieldCurveBundle curves) {
     return visitGenericAnnuity(annuity, curves);
   }
 
   @Override
-  public Map<Double, PresentValueSensitivity> visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
+  public Map<Double, InterestRateCurveSensitivity> visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(swap);
-    Map<Double, PresentValueSensitivity> result = new HashMap<Double, PresentValueSensitivity>();
-    Map<Double, PresentValueSensitivity> legSensi1 = visit(swap.getFirstLeg(), curves);
+    Map<Double, InterestRateCurveSensitivity> result = new HashMap<Double, InterestRateCurveSensitivity>();
+    Map<Double, InterestRateCurveSensitivity> legSensi1 = visit(swap.getFirstLeg(), curves);
     result.putAll(legSensi1);
-    Map<Double, PresentValueSensitivity> legSensi2 = visit(swap.getSecondLeg(), curves);
+    Map<Double, InterestRateCurveSensitivity> legSensi2 = visit(swap.getSecondLeg(), curves);
     result.putAll(legSensi2);
-    // It is suppose that the two legs have the different cfe sensitivity date.
+    // It is suppose that the two legs have different cfe sensitivity date.
     return result;
   }
 
   @Override
-  public Map<Double, PresentValueSensitivity> visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
+  public Map<Double, InterestRateCurveSensitivity> visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
     return visitSwap(swap, curves);
   }
 
   @Override
-  public Map<Double, PresentValueSensitivity> visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
+  public Map<Double, InterestRateCurveSensitivity> visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
     return visitSwap(swap, curves);
   }
 

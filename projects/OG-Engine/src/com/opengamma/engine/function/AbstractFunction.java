@@ -102,6 +102,15 @@ public abstract class AbstractFunction implements FunctionDefinition {
       return _latestInvocationTime;
     }
 
+    /**
+     * Returns false indicating the requirements to the function must be produced within the dependency graph.
+     * @return always false
+     */
+    @Override
+    public boolean canHandleMissingRequirements() {
+      return false;
+    }
+
   }
 
   /**
@@ -264,6 +273,15 @@ public abstract class AbstractFunction implements FunctionDefinition {
     @Override
     public final Instant getLatestInvocationTime() {
       return null;
+    }
+
+    /**
+     * Returns false indicating the requirements to the function must be produced within the dependency graph.
+     * @return always false
+     */
+    @Override
+    public boolean canHandleMissingRequirements() {
+      return false;
     }
 
   }

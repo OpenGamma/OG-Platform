@@ -18,6 +18,8 @@ public class RiskFailure {
   private long _id;
   private int _calculationConfigurationId;
   private int _valueNameId;
+  private int _valueRequirementId;
+  private int _valueSpecificationId;
   private int _functionUniqueId;
   private int _computationTargetId;
   private int _runId;
@@ -87,12 +89,29 @@ public class RiskFailure {
   public void setComputeNodeId(int computeNodeId) {
     _computeNodeId = computeNodeId;
   }
-  
+
+  public int getValueRequirementId() {
+    return _valueRequirementId;
+  }
+
+  public void setValueRequirementId(int valueRequirementId) {
+    this._valueRequirementId = valueRequirementId;
+  }
+
+  public int getValueSpecificationId() {
+    return _valueSpecificationId;
+  }
+
+  public void setValueSpecificationId(int valueSpecificationId) {
+    _valueSpecificationId =  valueSpecificationId;
+  }
+
   public SqlParameterSource toSqlParameterSource() {
     MapSqlParameterSource source = new MapSqlParameterSource();
     source.addValue("id", getId());   
     source.addValue("calculation_configuration_id", getCalculationConfigurationId());
     source.addValue("value_name_id", getValueNameId());
+    source.addValue("value_Requirement_id", getValueRequirementId());
     source.addValue("function_unique_id", getFunctionUniqueId());
     source.addValue("computation_target_id", getComputationTargetId());
     source.addValue("run_id", getRunId());
@@ -107,10 +126,10 @@ public class RiskFailure {
   
   public static String sqlInsertRiskFailure() {
     return "INSERT INTO " + DbBatchMaster.getDatabaseSchema() + "rsk_failure " +
-              "(id, calculation_configuration_id, value_name_id, function_unique_id, computation_target_id, " +
+              "(id, calculation_configuration_id, value_name_id, value_Requirement_id, function_unique_id, computation_target_id, " +
               "run_id, eval_instant, compute_node_id) " +
             "VALUES " +
-              "(:id, :calculation_configuration_id, :value_name_id, :function_unique_id, :computation_target_id, " +
+              "(:id, :calculation_configuration_id, :value_name_id, :value_Requirement_id, :function_unique_id, :computation_target_id, " +
               ":run_id, :eval_instant, :compute_node_id)";
   }
   

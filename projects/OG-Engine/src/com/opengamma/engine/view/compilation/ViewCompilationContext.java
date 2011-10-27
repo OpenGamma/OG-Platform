@@ -15,7 +15,6 @@ import javax.time.Instant;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.ResolutionRule;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -53,8 +52,7 @@ public class ViewCompilationContext {
   // --------------------------------------------------------------------------
   private Map<String, DependencyGraphBuilder> generateBuilders(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant valuationTime) {
     Map<String, DependencyGraphBuilder> result = new HashMap<String, DependencyGraphBuilder>();
-    final CompiledFunctionResolver functionResolver = compilationServices.getFunctionResolver().compile(valuationTime);
-    final Collection<ResolutionRule> rules = functionResolver.getAllResolutionRules();
+    final Collection<ResolutionRule> rules = compilationServices.getFunctionResolver().compile(valuationTime).getAllResolutionRules();
     final DependencyGraphBuilderFactory builderFactory = new DependencyGraphBuilderFactory();
     for (String configName : viewDefinition.getAllCalculationConfigurationNames()) {
       final DependencyGraphBuilder builder = builderFactory.newInstance();
@@ -65,13 +63,7 @@ public class ViewCompilationContext {
       final ViewCalculationConfiguration calcConfig = viewDefinition.getCalculationConfiguration(configName);
       compilationContext.setViewCalculationConfiguration(calcConfig);
       final Collection<ResolutionRule> transformedRules = calcConfig.getResolutionRuleTransform().transform(rules);
-      if (transformedRules == rules) {
-        // No transformation applied; use the default resolver
-        builder.setFunctionResolver(functionResolver);
-      } else {
-        // Create a new resolver with the transformed rules
-        builder.setFunctionResolver(new DefaultCompiledFunctionResolver(compilationContext, transformedRules));
-      }
+      builder.setFunctionResolver(new DefaultCompiledFunctionResolver(compilationContext, transformedRules));
       builder.setCompilationContext(compilationContext);
       result.put(configName, builder);
     }

@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.util.PagingRequest;
 
 /**
  * Test PagingRequest.

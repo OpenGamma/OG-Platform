@@ -8,21 +8,18 @@ package com.opengamma.financial.instrument;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
-import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedTransactionDefinition;
-import com.opengamma.financial.instrument.bond.BondForwardDefinition;
 import com.opengamma.financial.instrument.bond.BondIborSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
-import com.opengamma.financial.instrument.future.BondFutureSecurityDefinition;
-import com.opengamma.financial.instrument.future.BondFutureTransactionDefinition;
+import com.opengamma.financial.instrument.future.BondFutureDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
-import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
@@ -51,17 +48,9 @@ import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefi
  */
 public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
 
-  U visit(FixedIncomeInstrumentConverter<?> definition, T data);
+  U visit(FixedIncomeInstrumentDefinition<?> definition, T data);
 
-  U visit(FixedIncomeInstrumentConverter<?> definition);
-
-  U visitBondDefinition(BondDefinition bond, T data);
-
-  U visitBondDefinition(BondDefinition bond);
-
-  U visitBondForwardDefinition(BondForwardDefinition bondForward, T data);
-
-  U visitBondForwardDefinition(BondForwardDefinition bondForward);
+  U visit(FixedIncomeInstrumentDefinition<?> definition);
 
   U visitBondFixedSecurityDefinition(BondFixedSecurityDefinition bond, T data);
 
@@ -71,13 +60,9 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
 
   U visitBondFixedTransactionDefinition(BondFixedTransactionDefinition bond);
 
-  U visitBondFutureSecurityDefinition(BondFutureSecurityDefinition bond, T data);
+  U visitBondFutureSecurityDefinition(BondFutureDefinition bond, T data);
 
-  U visitBondFutureSecurityDefinition(BondFutureSecurityDefinition bond);
-
-  U visitBondFutureTransactionDefinition(BondFutureTransactionDefinition bond, T data);
-
-  U visitBondFutureTransactionDefinition(BondFutureTransactionDefinition bond);
+  U visitBondFutureSecurityDefinition(BondFutureDefinition bond);
 
   U visitBondIborTransactionDefinition(BondIborTransactionDefinition bond, T data);
 
@@ -95,9 +80,9 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
 
   U visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition fra);
 
-  U visitInterestRateFutureSecurityDefinition(InterestRateFutureSecurityDefinition future, T data);
+  U visitInterestRateFutureSecurityDefinition(InterestRateFutureDefinition future, T data);
 
-  U visitInterestRateFutureSecurityDefinition(InterestRateFutureSecurityDefinition future);
+  U visitInterestRateFutureSecurityDefinition(InterestRateFutureDefinition future);
 
   U visitInterestRateFutureOptionPremiumSecurityDefinition(InterestRateFutureOptionPremiumSecurityDefinition future, T data);
 

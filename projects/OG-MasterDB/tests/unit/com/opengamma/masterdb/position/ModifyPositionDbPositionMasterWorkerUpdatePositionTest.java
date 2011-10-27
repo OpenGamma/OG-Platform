@@ -31,7 +31,7 @@ import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionHistoryRequest;
 import com.opengamma.master.position.PositionHistoryResult;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests ModifyPositionDbPositionMasterWorker.
@@ -41,7 +41,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPositionDbPositionMasterWorkerUpdatePositionTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyPositionDbPositionMasterWorkerUpdatePositionTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -251,7 +251,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
 
   @Test
   public void test_update_rollback() {
-    DbPositionMaster w = new DbPositionMaster(_posMaster.getDbSource()) {
+    DbPositionMaster w = new DbPositionMaster(_posMaster.getDbConnector()) {
       protected String sqlInsertIdKey() {
         return "INSERT";  // bad sql
       }

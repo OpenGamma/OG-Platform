@@ -48,7 +48,7 @@ public class ForexVanillaOptionPresentValueFunction extends ForexVanillaOptionFu
                                                               .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
                                                               .with(ValuePropertyNames.SURFACE, getSurfaceName())
                                                               .with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_PRESENT_VALUE, target.toSpecification(), properties);
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, amount));
   }
   
@@ -68,6 +68,6 @@ public class ForexVanillaOptionPresentValueFunction extends ForexVanillaOptionFu
         .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
         .with(ValuePropertyNames.SURFACE, getSurfaceName())
         .with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.FX_PRESENT_VALUE, target.toSpecification(), properties));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties));
   }
 }

@@ -38,10 +38,14 @@ public interface FunctionInvoker {
       FunctionInputs inputs,
       ComputationTarget target,
       Set<ValueRequirement> desiredValues);
-  
+
   /**
+   * Tests whether the function should be executed when one or more of its expected input values
+   * have not been calculated (perhaps due to an execution fault or missing market data).
    * 
-   * @return whether the function should be executed, even if not all of its input requirements were met
+   * @return true to always execute the function, false to execute even if there are missing
+   *         input values
    */
   boolean canHandleMissingInputs();
+
 }

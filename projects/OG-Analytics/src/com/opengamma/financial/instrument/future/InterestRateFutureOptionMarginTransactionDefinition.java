@@ -11,14 +11,14 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentWithDataConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionWithData;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
 
 /**
  * Description of transaction on an interest rate future option security with daily margining process (LIFFE and Eurex type).
  */
-public class InterestRateFutureOptionMarginTransactionDefinition implements FixedIncomeInstrumentWithDataConverter<InterestRateFutureOptionMarginTransaction, Double> {
+public class InterestRateFutureOptionMarginTransactionDefinition implements FixedIncomeInstrumentDefinitionWithData<InterestRateFutureOptionMarginTransaction, Double> {
 
   /**
    * The underlying option future security.

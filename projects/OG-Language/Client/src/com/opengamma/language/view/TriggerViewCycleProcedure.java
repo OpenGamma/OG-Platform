@@ -8,6 +8,7 @@ package com.opengamma.language.view;
 import java.util.Arrays;
 import java.util.List;
 
+import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
@@ -42,12 +43,16 @@ public final class TriggerViewCycleProcedure extends AbstractProcedureInvoker.No
     this(new DefinitionAnnotater(TriggerViewCycleProcedure.class));
   }
 
+  public static void invoke(final ViewClient viewClient) {
+    viewClient.triggerCycle();
+  }
+
   // AbstractProcedureInvoker.NoResult
 
   @Override
   protected void invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
     final ViewClientHandle viewClient = (ViewClientHandle) parameters[0];
-    viewClient.get().getViewClient().triggerCycle();
+    invoke(viewClient.get().getViewClient());
     viewClient.unlock();
   }
 

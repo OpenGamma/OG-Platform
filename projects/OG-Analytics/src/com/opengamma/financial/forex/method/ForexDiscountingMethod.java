@@ -10,8 +10,8 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
-import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -27,7 +27,7 @@ public final class ForexDiscountingMethod implements ForexPricingMethod {
   /**
    * Interest rate present value rate sensitivity by discounting.
    */
-  private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();
+  private static final PresentValueCurveSensitivityCalculator PVSC = PresentValueCurveSensitivityCalculator.getInstance();
   private static final ForexDiscountingMethod INSTANCE = new ForexDiscountingMethod();
 
   /**
@@ -70,9 +70,9 @@ public final class ForexDiscountingMethod implements ForexPricingMethod {
    * @param curves The curves.
    * @return The sensitivity.
    */
-  public PresentValueSensitivity presentValueCurveSensitivity(final Forex fx, final YieldCurveBundle curves) {
-    PresentValueSensitivity result = new PresentValueSensitivity(PVSC.visit(fx.getPaymentCurrency1(), curves));
-    result = result.add(new PresentValueSensitivity(PVSC.visit(fx.getPaymentCurrency2(), curves)));
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final Forex fx, final YieldCurveBundle curves) {
+    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(PVSC.visit(fx.getPaymentCurrency1(), curves));
+    result = result.add(new InterestRateCurveSensitivity(PVSC.visit(fx.getPaymentCurrency2(), curves)));
     return result;
   }
 

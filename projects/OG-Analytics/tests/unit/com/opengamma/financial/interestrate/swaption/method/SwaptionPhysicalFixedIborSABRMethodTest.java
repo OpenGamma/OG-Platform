@@ -36,8 +36,8 @@ import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRHullWhiteMonteCarloCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
-import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.Coupon;
@@ -116,7 +116,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   // Calculators
   private static final PresentValueSABRCalculator PVC = PresentValueSABRCalculator.getInstance();
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
-  private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();
+  private static final PresentValueCurveSensitivityCalculator PVSC = PresentValueCurveSensitivityCalculator.getInstance();
   private static final PresentValueCurveSensitivitySABRCalculator PVCSC_SABR = PresentValueCurveSensitivitySABRCalculator.getInstance();
   private static final PresentValueSABRSensitivitySABRCalculator PVSSC_SABR = PresentValueSABRSensitivitySABRCalculator.getInstance();
   private static final SwaptionPhysicalFixedIborSABRMethod METHOD = SwaptionPhysicalFixedIborSABRMethod.getInstance();
@@ -210,7 +210,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    final PresentValueSensitivity pvsMethod = METHOD.presentValueSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
+    final InterestRateCurveSensitivity pvsMethod = METHOD.presentValueSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
     final Map<String, List<DoublesPair>> pvsCalculator = PVCSC_SABR.visit(SWAPTION_LONG_PAYER, sabrBundle);
     assertEquals("Swaption physical SABR: present value curve sensitivity: method and calculator", pvsMethod.getSensitivities(), pvsCalculator);
   }
@@ -221,10 +221,10 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     // Swaption sensitivity
-    final PresentValueSensitivity pvsLongPayer = METHOD.presentValueSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
-    final PresentValueSensitivity pvsShortPayer = METHOD.presentValueSensitivity(SWAPTION_SHORT_PAYER, sabrBundle);
+    final InterestRateCurveSensitivity pvsLongPayer = METHOD.presentValueSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
+    final InterestRateCurveSensitivity pvsShortPayer = METHOD.presentValueSensitivity(SWAPTION_SHORT_PAYER, sabrBundle);
     // Long/short parity
-    final PresentValueSensitivity pvsShortPayer_1 = pvsShortPayer.multiply(-1);
+    final InterestRateCurveSensitivity pvsShortPayer_1 = pvsShortPayer.multiply(-1);
     assertEquals(pvsLongPayer.getSensitivities(), pvsShortPayer_1.getSensitivities());
     // PresentValueCalculator
     final Map<String, List<DoublesPair>> pvscLongPayer = PVCSC_SABR.visit(SWAPTION_LONG_PAYER, sabrBundle);
@@ -232,9 +232,9 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     // Present value sensitivity comparison with finite difference.
     final double deltaTolerance = 1E+2; //Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
     final double deltaShift = 1e-9;
-    PresentValueSensitivity pvsSwapPayer = new PresentValueSensitivity(PVSC.visit(SWAP_PAYER, sabrBundle));
+    InterestRateCurveSensitivity pvsSwapPayer = new InterestRateCurveSensitivity(PVSC.visit(SWAP_PAYER, sabrBundle));
     pvsSwapPayer = pvsSwapPayer.clean();
-    PresentValueSensitivity sensi = new PresentValueSensitivity(pvscLongPayer);
+    InterestRateCurveSensitivity sensi = new InterestRateCurveSensitivity(pvscLongPayer);
     sensi = sensi.clean();
     final double pv = PVC.visit(SWAPTION_LONG_PAYER, sabrBundle);
     // 1. Forward curve sensitivity

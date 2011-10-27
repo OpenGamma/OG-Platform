@@ -31,13 +31,12 @@ import com.opengamma.financial.analytics.model.fixedincome.YieldCurveLabelGenera
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueForexYieldCurveNodeSensitivityCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -117,7 +116,7 @@ public class ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction extends
     final DoubleMatrix1D callCouponSensitivity = (DoubleMatrix1D) callCouponSensitivitiesObject;
     final YieldCurveBundle putCurveBundle = new YieldCurveBundle(new String[] {putFundingCurveName, putForwardCurveName}, new YieldAndDiscountCurve[] {putFundingCurve, putForwardCurve});
     final YieldCurveBundle callCurveBundle = new YieldCurveBundle(new String[] {callFundingCurveName, callForwardCurveName}, new YieldAndDiscountCurve[] {callFundingCurve, callForwardCurve});
-    final Map<String, List<DoublesPair>> curveSensitivities = ((PresentValueSensitivity) curveSensitivitiesObject).getSensitivities();
+    final Map<String, List<DoublesPair>> curveSensitivities = ((InterestRateCurveSensitivity) curveSensitivitiesObject).getSensitivities();
     final Map<String, DoubleMatrix1D> putArrayResult, callArrayResult;
     try {
       putArrayResult = CALCULATOR.calculate(curveSensitivities, putCurveBundle, putCouponSensitivity, putJacobian);
@@ -153,14 +152,17 @@ public class ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction extends
     final String putForwardCurveName = getPutForwardCurveName();
     final String callFundingCurveName = getCallFundingCurveName();
     final String callForwardCurveName = getCallForwardCurveName();
+    final String surfaceName = getSurfaceName();
     final Currency putCurrency = fxOption.getPutCurrency();
     final Currency callCurrency = fxOption.getCallCurrency();
     final ExternalId spotIdentifier = FXUtils.getSpotIdentifier(fxOption, true);
     final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
-    final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, getSurfaceName())
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
+    final ExternalId inverseSpotIdentifier = FXUtils.getSpotIdentifier(fxOption, true);
+    final ValueRequirement inverseSpotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, inverseSpotIdentifier);
+    final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, surfaceName)
+                                                             .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
     final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(fxOption.getPutCurrency(), fxOption.getCallCurrency());
-    final ValueRequirement fxVolatilitySurface = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
+    final ValueRequirement fxVolatilitySurface = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
     result.add(YieldCurveFunction.getCurveRequirement(putCurrency, putFundingCurveName, putForwardCurveName, putFundingCurveName, 
         MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     result.add(YieldCurveFunction.getCurveRequirement(putCurrency, putForwardCurveName, putForwardCurveName, putFundingCurveName, 
@@ -175,6 +177,7 @@ public class ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction extends
     result.add(YieldCurveFunction.getCouponSensitivityRequirement(callCurrency, callForwardCurveName, callFundingCurveName));
     result.add(getCurveSensitivitiesRequirement(target));
     result.add(spotRequirement);
+    result.add(inverseSpotRequirement);
     result.add(fxVolatilitySurface);
     result.add(getCurveSpecRequirement(putCurrency, putFundingCurveName));
     result.add(getCurveSpecRequirement(putCurrency, putForwardCurveName));
@@ -185,7 +188,7 @@ public class ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction extends
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final FXOptionSecurity fxOption = (FXOptionSecurity) target.getSecurity();
+    final FXBarrierOptionSecurity fxOption = (FXBarrierOptionSecurity) target.getSecurity();
     final Currency putCurrency = fxOption.getPutCurrency();
     final Currency callCurrency = fxOption.getCallCurrency();
     return Sets.newHashSet(getResultSpecForCurve(target, putCurrency.getCode(), getPutFundingCurveName()), 

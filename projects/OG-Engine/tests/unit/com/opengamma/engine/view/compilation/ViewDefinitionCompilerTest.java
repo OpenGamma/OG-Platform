@@ -88,7 +88,7 @@ public class ViewDefinitionCompilerTest {
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService, securitySource,
         positionSource);
 
-    ViewDefinition viewDefinition = new ViewDefinition(UniqueId.of("foo", "bar"), "My View", ObjectId.of("FOO", "BAR"), "kirk");
+    ViewDefinition viewDefinition = new ViewDefinition("My View", ObjectId.of("FOO", "BAR"), "kirk");
 
     CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now(), VersionCorrection.LATEST);
 
@@ -137,7 +137,7 @@ public class ViewDefinitionCompilerTest {
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService, securitySource,
         positionSource);
 
-    ViewDefinition viewDefinition = new ViewDefinition(UniqueId.of("foo", "bar"), "My View", ObjectId.of("FOO", "BAR"), "kirk");
+    ViewDefinition viewDefinition = new ViewDefinition("My View", ObjectId.of("FOO", "BAR"), "kirk");
 
     // We've not provided a function that targets the position level, so we can't ask for it.
     viewDefinition.getResultModelDefinition().setPositionOutputMode(ResultOutputMode.NONE);
@@ -197,7 +197,7 @@ public class ViewDefinitionCompilerTest {
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService, securitySource,
         positionSource);
 
-    ViewDefinition viewDefinition = new ViewDefinition(UniqueId.of("foo", "bar"), "My View", ObjectId.of("FOO", "BAR"), "kirk");
+    ViewDefinition viewDefinition = new ViewDefinition("My View", ObjectId.of("FOO", "BAR"), "kirk");
     viewDefinition.getResultModelDefinition().setPositionOutputMode(ResultOutputMode.NONE);
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");
     calcConfig.addPortfolioRequirementName("My Sec", "OUTPUT");
@@ -218,7 +218,7 @@ public class ViewDefinitionCompilerTest {
   }
 
   public void testPrimitivesOnlyNoPortfolioReference() {
-    ViewDefinition viewDefinition = new ViewDefinition(UniqueId.of("foo", "bar"), "Test", "jonathan");
+    ViewDefinition viewDefinition = new ViewDefinition("Test", "jonathan");
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Config1");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
 
@@ -251,7 +251,7 @@ public class ViewDefinitionCompilerTest {
   }
 
   public void testPrimitivesAndSecuritiesNoPortfolioReference() {
-    ViewDefinition viewDefinition = new ViewDefinition(UniqueId.of("foo", "bar"), "Test", "jonathan");
+    ViewDefinition viewDefinition = new ViewDefinition("Test", "jonathan");
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Config1");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
 
