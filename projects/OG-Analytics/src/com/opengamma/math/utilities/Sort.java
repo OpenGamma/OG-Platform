@@ -13,6 +13,7 @@ import com.opengamma.math.ParallelArrayBinarySort;
 
 /**
  * Sorts primitives without having to go through {@link ParallelArrayBinarySort}
+ * TODO: should probably write another load of overloaded sorts that do things backwards
  */
 public final class Sort {
 
@@ -76,7 +77,7 @@ public final class Sort {
   }
 
   /**
-   * Sorts values statelessly in ascending order
+   * Sorts values statelessly in order given by enumeration
    * @param v1 the values to sort (a native backed array)
    * @param d the direction in which the sorted array should be returned (based on {@link direction})
    * @return tmp the sorted values
@@ -95,7 +96,7 @@ public final class Sort {
   }
 
   /**
-   * Sorts values statelessly in ascending order
+   * Sorts values statelessly in order given by enumeration
    * @param v1 the values to sort (a native backed array)
    * @param d the direction in which the sorted array should be returned (based on {@link direction})
    * @return tmp the sorted values
@@ -114,7 +115,7 @@ public final class Sort {
   }
 
   /**
-   * Sorts values statelessly in ascending order
+   * Sorts values statelessly in order given by enumeration
    * @param v1 the values to sort (a native backed array)
    * @param d the direction in which the sorted array should be returned (based on {@link direction})
    * @return tmp the sorted values
@@ -133,7 +134,7 @@ public final class Sort {
   }
 
   /**
-   * Sorts values statelessly in ascending order
+   * Sorts values statelessly in order given by enumeration
    * @param v1 the values to sort (a native backed array)
    * @param d the direction in which the sorted array should be returned (based on {@link direction})
    * @return tmp the sorted values
@@ -190,7 +191,7 @@ public final class Sort {
 
 
   /**
-   * Sorts values in place in ascending order
+   * Sorts values in place in order given by enumeration
    * @param v1 the values to sort (a native backed array)
    * @param d the direction in which the sorted array should be returned (based on {@link direction})
    */
@@ -207,7 +208,7 @@ public final class Sort {
   }
 
   /**
-   * Sorts values in place in ascending order
+   * Sorts values in place in order given by enumeration
    * @param v1 the values to sort (a native backed array)
    * @param d the direction in which the sorted array should be returned (based on {@link direction})
    */
@@ -224,7 +225,7 @@ public final class Sort {
   }
 
   /**
-   * Sorts values in place in ascending order
+   * Sorts values in place in order given by enumeration
    * @param v1 the values to sort (a native backed array)
    * @param d the direction in which the sorted array should be returned (based on {@link direction})
    */
@@ -241,7 +242,7 @@ public final class Sort {
   }
 
   /**
-   * Sorts values in place in ascending order
+   * Sorts values in place in order given by enumeration
    * @param v1 the values to sort (a native backed array)
    * @param d the direction in which the sorted array should be returned (based on {@link direction})
    */

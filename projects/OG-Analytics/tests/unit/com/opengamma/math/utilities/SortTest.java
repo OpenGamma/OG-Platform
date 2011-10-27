@@ -53,6 +53,78 @@ public class SortTest {
     Sort.stateless(tmp);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStatelessNullIntSortInterfaced() {
+    int[] tmp=null;
+    Sort.stateless(tmp,Sort.direction.ascend);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStatelessNullLongSortInterfaced() {
+    long[] tmp=null;
+    Sort.stateless(tmp,Sort.direction.ascend);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStatelessNullFloatSortInterfaced() {
+    float[] tmp=null;
+    Sort.stateless(tmp,Sort.direction.ascend);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStatelessNullDoubleSortInterfaced() {
+    double[] tmp=null;
+    Sort.stateless(tmp,Sort.direction.ascend);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInplaceNullIntSort() {
+    int[] tmp=null;
+    Sort.valuesInplace(tmp);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInplaceNullLongSort() {
+    long[] tmp=null;
+    Sort.valuesInplace(tmp);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInplaceNullFloatSort() {
+    float[] tmp=null;
+    Sort.valuesInplace(tmp);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInplaceNullDoubleSort() {
+    double[] tmp=null;
+    Sort.valuesInplace(tmp);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInplaceNullIntSortInterfaced() {
+    int[] tmp=null;
+    Sort.valuesInplace(tmp,Sort.direction.ascend);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInplaceNullLongSortInterfaced() {
+    long[] tmp=null;
+    Sort.valuesInplace(tmp,Sort.direction.ascend);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInplaceNullFloatSortInterfaced() {
+    float[] tmp=null;
+    Sort.valuesInplace(tmp,Sort.direction.ascend);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInplaceNullDoubleSortInterfaced() {
+    double[] tmp=null;
+    Sort.valuesInplace(tmp,Sort.direction.ascend);
+  }
+
   @Test
   public void testStatelessIntSort() {
     assertTrue(Arrays.equals(sortedI,Sort.stateless(unsortedI)));
