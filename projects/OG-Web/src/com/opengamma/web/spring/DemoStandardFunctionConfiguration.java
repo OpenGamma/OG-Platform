@@ -34,6 +34,7 @@ import com.opengamma.financial.analytics.DummyLabelledMatrix2DPortfolioNodeFunct
 import com.opengamma.financial.analytics.DummyLabelledMatrix2DPositionFunction;
 import com.opengamma.financial.analytics.DummyPortfolioNodeFunction;
 import com.opengamma.financial.analytics.DummyPortfolioNodeMultipleCurrencyAmountFunction;
+import com.opengamma.financial.analytics.FilteringSummingFunction;
 import com.opengamma.financial.analytics.LastHistoricalValueFunction;
 import com.opengamma.financial.analytics.PositionScalingFunction;
 import com.opengamma.financial.analytics.PositionTradeScalingFunction;
@@ -77,7 +78,6 @@ import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumen
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateParallelCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPresentValueFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentYieldCurveNodeSensitivitiesFunction;
-import com.opengamma.financial.analytics.model.fixedincome.YieldCurveNodeSensitivitiesSummingFunction;
 import com.opengamma.financial.analytics.model.forex.ForexForwardCurrencyExposureFunction;
 import com.opengamma.financial.analytics.model.forex.ForexForwardPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.ForexForwardPresentValueFunction;
@@ -109,11 +109,9 @@ import com.opengamma.financial.analytics.model.pnl.PositionValueGreekSensitivity
 import com.opengamma.financial.analytics.model.pnl.SecurityPriceSeriesFunction;
 import com.opengamma.financial.analytics.model.pnl.TradeExchangeTradedPnLFunction;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
-import com.opengamma.financial.analytics.model.riskfactor.option.ValueGreekSummingFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRPresentValueFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRPresentValueSABRFunction;
-import com.opengamma.financial.analytics.model.swaption.SwaptionSABRSummingFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.var.OptionPortfolioParametricVaRCalculatorFunction;
 import com.opengamma.financial.analytics.model.var.OptionPositionParametricVaRCalculatorFunction;
@@ -178,15 +176,12 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   protected static void addFilteredSummingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
-    ParameterizedFunctionConfiguration functionConfig = new ParameterizedFunctionConfiguration(FilteredSummingFunction.class.getName(), Collections.singleton(requirementName));
-    functionConfigs.add(functionConfig);
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Collections.singleton(requirementName)));
   }
 
   protected static void addValueGreekAndSummingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
-    ParameterizedFunctionConfiguration converterFunctionConfig = new ParameterizedFunctionConfiguration(OptionGreekToValueGreekConverterFunction.class.getName(),
-        Collections.singleton(requirementName));
-    functionConfigs.add(converterFunctionConfig);
-    functionConfigs.add(new ParameterizedFunctionConfiguration(ValueGreekSummingFunction.class.getName(), Collections.singleton(requirementName)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(OptionGreekToValueGreekConverterFunction.class.getName(), Collections.singleton(requirementName)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Collections.singleton(requirementName)));
   }
 
   protected static void addCurrencyConversionFunctions(List<FunctionConfiguration> functionConfigs, String requirementName) {
@@ -653,9 +648,9 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueSABRFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "FORWARD_3M", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY)));
   }
 
   private static void addFixedIncomeInstrumentCalculators(List<FunctionConfiguration> functionConfigs) {
@@ -676,7 +671,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         .asList("FORWARD_6M", "FUNDING", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays
         .asList("FORWARD_6M", "FUNDING", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)));
-    functionConfigs.add(new StaticFunctionConfiguration(YieldCurveNodeSensitivitiesSummingFunction.class.getName()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)));
     
     // Secondary
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentPresentValueFunction.class.getName(), Arrays.asList("SECONDARY", "SECONDARY")));
