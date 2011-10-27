@@ -25,8 +25,9 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
 
   /**
    * The alpha (volatility level) surface.
+   *TODO: Call me pedantic, but these aren't Volatility Surfaces, they are parameter surfaces - so maybe they should just be Surfaces
    */
-  private final VolatilitySurface _alphaSurface;
+  private final VolatilitySurface _alphaSurface; 
   /**
    * The beta (elasticity) surface.
    */
@@ -212,7 +213,7 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
     final DoublesPair expiryMaturity = new DoublesPair(expiryTime, maturity);
     final SABRFormulaData data = new SABRFormulaData(forward, getAlpha(expiryMaturity), getBeta(expiryMaturity), getNu(expiryMaturity), getRho(expiryMaturity));
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiryTime, true);
-    return sabrHaganFunction.getVolatilityAdjoint(option, data);
+    return sabrHaganFunction.getVolatilityAdjointOld(option, data);
   }
 
   @Override

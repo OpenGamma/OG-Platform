@@ -10,7 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -22,7 +22,7 @@ import com.opengamma.util.time.TimeCalculator;
 /**
  * Class describing a European swaption on a vanilla swap with physical delivery.
  */
-public final class SwaptionPhysicalFixedIborDefinition implements FixedIncomeInstrumentConverter<SwaptionPhysicalFixedIbor> {
+public final class SwaptionPhysicalFixedIborDefinition implements FixedIncomeInstrumentDefinition<SwaptionPhysicalFixedIbor> {
 
   /**
    * Swap underlying the swaption.

@@ -142,9 +142,9 @@ public abstract class FDCurveSensitivityCalculator {
     @SuppressWarnings("rawtypes")
     Curve[] curveSet = new Curve[] {originalCurve.getCurve(), blipCurve};
     @SuppressWarnings("unchecked")
-    YieldAndDiscountCurve upCurve = new YieldCurve(SpreadDoublesCurve.from(curveSet, new AddCurveSpreadFunction()));
+    YieldAndDiscountCurve upCurve = new YieldCurve(SpreadDoublesCurve.from(new AddCurveSpreadFunction(), curveSet));
     @SuppressWarnings("unchecked")
-    YieldAndDiscountCurve downCurve = new YieldCurve(SpreadDoublesCurve.from(curveSet, new SubtractCurveSpreadFunction()));
+    YieldAndDiscountCurve downCurve = new YieldCurve(SpreadDoublesCurve.from(new SubtractCurveSpreadFunction(), curveSet));
 
     curves.replaceCurve(curveName, upCurve);
     double up = calculator.visit(ird, curves);
@@ -172,9 +172,9 @@ public abstract class FDCurveSensitivityCalculator {
     @SuppressWarnings("rawtypes")
     Curve[] curveSet = new Curve[] {originalCurve.getCurve(), blipCurve};
     @SuppressWarnings("unchecked")
-    YieldAndDiscountCurve upCurve = new YieldCurve(SpreadDoublesCurve.from(curveSet, new AddCurveSpreadFunction()));
+    YieldAndDiscountCurve upCurve = new YieldCurve(SpreadDoublesCurve.from(new AddCurveSpreadFunction(), curveSet));
     @SuppressWarnings("unchecked")
-    YieldAndDiscountCurve downCurve = new YieldCurve(SpreadDoublesCurve.from(curveSet, new SubtractCurveSpreadFunction()));
+    YieldAndDiscountCurve downCurve = new YieldCurve(SpreadDoublesCurve.from(new SubtractCurveSpreadFunction(), curveSet));
 
     curves.replaceCurve(curveName, upCurve);
     double up = method.presentValue(ird, curves).getAmount();

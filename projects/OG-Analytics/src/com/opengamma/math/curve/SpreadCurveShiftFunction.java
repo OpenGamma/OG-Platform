@@ -36,7 +36,7 @@ public class SpreadCurveShiftFunction implements CurveShiftFunction<SpreadDouble
       curves[i++] = c;
     }
     curves[n] = ConstantDoublesCurve.from(shift);
-    return SpreadDoublesCurve.from(curves, SPREAD_FUNCTION, newName);
+    return SpreadDoublesCurve.from(SPREAD_FUNCTION, newName, curves);
   }
 
   /**

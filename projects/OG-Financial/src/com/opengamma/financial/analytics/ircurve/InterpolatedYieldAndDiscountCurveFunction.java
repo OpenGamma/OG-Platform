@@ -163,7 +163,7 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
 
       @Override
       public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-        return _helper.canApplyTo(context, target);
+        return _helper.canApplyTo(target);
       }
 
       @Override

@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,6 +37,6 @@ public interface ViewComputationResultModel extends ViewResultModel {
    *
    * @return mapping of requirements to specifications
    */
-  Map<ValueRequirement, ValueSpecification> getRequirementToSpecificationMapping();
+  Map<ValueSpecification, Set<ValueRequirement>> getRequirementToSpecificationMapping();
 
 }

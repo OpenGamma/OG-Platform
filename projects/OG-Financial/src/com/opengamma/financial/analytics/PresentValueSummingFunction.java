@@ -87,7 +87,7 @@ public class PresentValueSummingFunction extends FilteringSummingFunction implem
 
   @Override
   public Boolean visitFXOptionSecurity(FXOptionSecurity security) {
-    return false;
+    return true;
   }
 
   @Override
@@ -102,7 +102,7 @@ public class PresentValueSummingFunction extends FilteringSummingFunction implem
 
   @Override
   public Boolean visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
-    return false;
+    return true;
   }
 
   @Override

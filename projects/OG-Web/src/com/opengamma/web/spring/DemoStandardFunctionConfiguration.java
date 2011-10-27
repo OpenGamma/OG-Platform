@@ -392,8 +392,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
     functionConfigs.add(new StaticFunctionConfiguration(PresentValueSummingFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(PV01SummingFunction.class.getName()));
-    addSummingFunction(functionConfigs, ValueRequirementNames.FX_PRESENT_VALUE);
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.FX_CURRENCY_EXPOSURE)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FXSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.FX_PRESENT_VALUE)));
     functionConfigs.add(new StaticFunctionConfiguration(VegaMatrixSummingFunction.class.getName()));
     addSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
 
@@ -416,7 +416,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addScalingFunction(functionConfigs, ValueRequirementNames.BOND_COUPON_PAYMENT_TIMES);
 
     addScalingFunction(functionConfigs, ValueRequirementNames.FX_PRESENT_VALUE);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
+    addScalingFunction(functionConfigs, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
     addDummyFunction(functionConfigs, ValueRequirementNames.FX_CURVE_SENSITIVITIES);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.FX_CURVE_SENSITIVITIES);
 
