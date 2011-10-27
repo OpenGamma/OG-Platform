@@ -51,8 +51,9 @@
   </bean>
 
   <!-- JMS sending -->
-  <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
-    <property name="connectionFactory" ref="jmsConnectionFactory" />
+  <bean id="jmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean"> 
+    <property name="name" value="LiveDataServerContext"/>
+    <property name="connectionFactory" ref="jmsConnectionFactory"/>
     <property name="pubSubDomain" value="true"/>
   </bean>
 
