@@ -4,7 +4,7 @@
 
   <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <!--todo relative path?-->
-    <property name="location"><value>classpath:db.properties</value></property>
+    <property name="location"><value>classpath:tests.properties</value></property>
   </bean>
 
   <bean id="abstractDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean" abstract="true">
