@@ -1041,8 +1041,8 @@ public final class DependencyGraphBuilder {
     for (DependencyNode node : _graphNodes) {
       graph.addDependencyNode(node);
     }
-    for (ValueRequirement requirement : _terminalOutputs.keySet()) {
-      graph.addTerminalOutput(requirement, _terminalOutputs.get(requirement));
+    for (Map.Entry<ValueRequirement, ValueSpecification> terminalOutput : _terminalOutputs.entrySet()) {
+      graph.addTerminalOutput(terminalOutput.getKey(), terminalOutput.getValue());
     }
     //graph.dumpStructureASCII(System.out);
     if (DEBUG_DUMP_DEPENDENCY_GRAPH) {
