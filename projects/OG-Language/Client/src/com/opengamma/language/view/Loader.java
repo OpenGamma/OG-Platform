@@ -36,7 +36,7 @@ public class Loader extends ContextInitializationBean {
   private String _configurationEntry = "viewProcessor";
   private Configuration _configuration;
   private ConnectionFactory _connectionFactory;
-  private ScheduledExecutorService _scheduler;
+  private ScheduledExecutorService _housekeepingScheduler;
   private FudgeContext _fudgeContext = FudgeContext.GLOBAL_DEFAULT;
 
   public void setConfiguration(final Configuration configuration) {
@@ -66,12 +66,12 @@ public class Loader extends ContextInitializationBean {
     return _connectionFactory;
   }
 
-  public void setScheduler(final ScheduledExecutorService scheduler) {
-    _scheduler = scheduler;
+  public void setHousekeepingScheduler(final ScheduledExecutorService housekeepingScheduler) {
+    _housekeepingScheduler = housekeepingScheduler;
   }
 
-  public ScheduledExecutorService getScheduler() {
-    return _scheduler;
+  public ScheduledExecutorService getHousekeepingScheduler() {
+    return _housekeepingScheduler;
   }
 
   public void setFudgeContext(final FudgeContext fudgeContext) {
@@ -89,7 +89,7 @@ public class Loader extends ContextInitializationBean {
   protected void assertPropertiesSet() {
     ArgumentChecker.notNull(getConfiguration(), "configuration");
     ArgumentChecker.notNull(getConnectionFactory(), "connectionFactory");
-    ArgumentChecker.notNull(getScheduler(), "scheduler");
+    ArgumentChecker.notNull(getHousekeepingScheduler(), "housekeepingScheduler");
     ArgumentChecker.notNull(getGlobalContextFactory(), "globalContextFactory");
     ArgumentChecker.notNull(getUserContextFactory(), "userContextFactory");
     ArgumentChecker.notNull(getSessionContextFactory(), "sessionContextFactory");
@@ -103,7 +103,7 @@ public class Loader extends ContextInitializationBean {
       return;
     }
     s_logger.info("Configuring view processor support");
-    globalContext.setViewProcessor(new RemoteViewProcessor(uri, getConnectionFactory(), getScheduler()));
+    globalContext.setViewProcessor(new RemoteViewProcessor(uri, getConnectionFactory(), getHousekeepingScheduler()));
     globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
         GetViewResultFunction.INSTANCE,
         ViewClientDescriptorFunction.HISTORICAL_MARKET_DATA,
