@@ -95,11 +95,13 @@ public class AdHocBatchResultWriter extends AbstractBatchResultWriter {
         Collection<ValueRequirement> requirements = specificationsWithTheirsRequirements.get(output);
         for (ValueRequirement requirement : requirements) {
           int valueRequirementId = getValueRequirementId(requirement.getConstraints());
+          int valueSpecificationId = getValueSpecificationId(output.getProperties());
           RiskValue riskValue = new RiskValue();
           riskValue.setId(generateUniqueId());
           riskValue.setCalculationConfigurationId(calcConfId);
           riskValue.setValueNameId(valueNameId);
           riskValue.setValueRequirementId(valueRequirementId);
+          riskValue.setValueSpecificationId(valueSpecificationId);
           riskValue.setFunctionUniqueId(functionUniqueId);
           riskValue.setComputationTargetId(computationTargetId);
           riskValue.setRunId(riskRunId);

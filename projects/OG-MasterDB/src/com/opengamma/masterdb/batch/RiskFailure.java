@@ -19,6 +19,7 @@ public class RiskFailure {
   private int _calculationConfigurationId;
   private int _valueNameId;
   private int _valueRequirementId;
+  private int _valueSpecificationId;
   private int _functionUniqueId;
   private int _computationTargetId;
   private int _runId;
@@ -95,6 +96,14 @@ public class RiskFailure {
 
   public void setValueRequirementId(int valueRequirementId) {
     this._valueRequirementId = valueRequirementId;
+  }
+
+  public int getValueSpecificationId() {
+    return _valueSpecificationId;
+  }
+
+  public void setValueSpecificationId(int valueSpecificationId) {
+    _valueSpecificationId =  valueSpecificationId;
   }
 
   public SqlParameterSource toSqlParameterSource() {

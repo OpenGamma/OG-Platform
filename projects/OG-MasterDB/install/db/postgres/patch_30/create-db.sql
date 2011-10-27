@@ -1407,7 +1407,7 @@ where
 rsk_failure.calculation_configuration_id = rsk_calculation_configuration.id and
 rsk_failure.value_name_id = rsk_value_name.id and
 rsk_failure.value_requirement_id = rsk_value_requirement.id and
-rsk_value.value_specification_id = rsk_value_specification.id and
+rsk_failure.value_specification_id = rsk_value_specification.id and
 rsk_failure.function_unique_id = rsk_function_unique_id.id and
 rsk_failure.computation_target_id = rsk_computation_target.id and
 rsk_computation_target.type_id = rsk_computation_target_type.id and

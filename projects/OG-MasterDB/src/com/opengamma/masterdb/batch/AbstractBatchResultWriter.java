@@ -660,17 +660,19 @@ public abstract class AbstractBatchResultWriter {
    * @param requirement the requirement
    * @return the value for this target, null if does not exist
    */
-  public RiskValue getValue(String calcConfName, String valueName, ValueProperties requirement, ComputationTargetSpecification ct) {
+  public RiskValue getValue(String calcConfName, String valueName, ValueProperties requirement, ValueProperties specification, ComputationTargetSpecification ct) {
     Integer calcConfId = getCalculationConfigurationId(calcConfName);
     Integer valueId = getValueNameId(valueName);
     Integer computationTargetId = getComputationTargetId(ct);
     Integer valueRequirementId = getValueRequirementId(requirement);
+    Integer valueSpecificationId = getValueSpecificationId(specification);
     
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("calculation_configuration_id", calcConfId);
     params.addValue("value_name_id", valueId);
     params.addValue("computation_target_id", computationTargetId);
     params.addValue("value_requirement_id", valueRequirementId);
+    params.addValue("value_specification_id", valueSpecificationId);
     
     try {
       return getJdbcTemplate().queryForObject(RiskValue.sqlGet(), RiskValue.ROW_MAPPER, params);
