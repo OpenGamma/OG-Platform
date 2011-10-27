@@ -880,7 +880,8 @@ CREATE TABLE pos_trade (
     premium_time time,
     premium_zone_offset int,
     PRIMARY KEY (id),
-    CONSTRAINT pos_fk_trade2position FOREIGN KEY (position_id) REFERENCES pos_position (id)
+    CONSTRAINT pos_fk_trade2position FOREIGN KEY (position_id) REFERENCES pos_position (id),
+    CONSTRAINT pos_fk_tradei2tradei FOREIGN KEY (oid) REFERENCES pos_trade(id)
 );
 -- position_oid is an optimization
 -- pos_trade is fully dependent of pos_position

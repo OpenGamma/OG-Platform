@@ -354,7 +354,7 @@ public abstract class AbstractBatchResultWriter {
   public int getValueSpecificationId(ValueProperties specification) {
     ArgumentChecker.notNull(specification, "Risk value specification");
 
-    Integer dbId = _valueRequirement2Id.get(specification);
+    Integer dbId = _valueSpecification2Id.get(specification);
     if (dbId != null) {
       return dbId;
     }
