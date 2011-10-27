@@ -12,6 +12,10 @@
   <bean id="defaultJMSConnectionFactory" class="com.opengamma.language.jms.ActiveMQConnectionFactoryFactoryBean">
     <property name="configuration" ref="defaultConfiguration" />
   </bean>
+  <bean id="defaultJmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean">
+    <property name="name" value="Language" />
+    <property name="connectionFactory" ref="defaultJMSConnectionFactory" />
+  </bean>
   
   <!--
     TODO: working extension example

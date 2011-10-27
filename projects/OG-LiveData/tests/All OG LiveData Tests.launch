@@ -19,6 +19,7 @@
 <listEntry value="com.opengamma.livedata.normalization"/>
 <listEntry value="com.opengamma.livedata.resolver"/>
 <listEntry value="com.opengamma.livedata.server"/>
+<listEntry value="com.opengamma.livedata.server.combining"/>
 <listEntry value="com.opengamma.livedata.server.distribution"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
