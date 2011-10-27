@@ -10,7 +10,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.ws.rs.core.UriBuilder;
 
@@ -26,6 +25,7 @@ import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.transport.jms.JmsTemporaryQueueHost;
+import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.rest.FudgeRestClient;
 
 /**
@@ -50,9 +50,9 @@ public abstract class AbstractRestfulJmsResultConsumer {
    */
   private final ScheduledFuture<?> _scheduledHeartbeat;
   /**
-   * The connection factory.
+   * The JMS connector.
    */
-  private final ConnectionFactory _connectionFactory;
+  private final JmsConnector _jmsConnector;
   /**
    * The Fudge context
    */
@@ -66,9 +66,9 @@ public abstract class AbstractRestfulJmsResultConsumer {
    */
   private JmsTemporaryQueueHost _queueHost;
   
-  protected AbstractRestfulJmsResultConsumer(URI baseUri, FudgeContext fudgeContext, ConnectionFactory connectionFactory, ScheduledExecutorService scheduler, long heartbeatPeriodMillis) {
+  protected AbstractRestfulJmsResultConsumer(URI baseUri, FudgeContext fudgeContext, JmsConnector jmsConnector, ScheduledExecutorService scheduler, long heartbeatPeriodMillis) {
     _baseUri = baseUri;
-    _connectionFactory = connectionFactory;
+    _jmsConnector = jmsConnector;
     _fudgeContext = fudgeContext;
     _client = FudgeRestClient.create();
     Runnable runnable = new Runnable() {
@@ -141,7 +141,7 @@ public abstract class AbstractRestfulJmsResultConsumer {
   
   private String startJms() throws JMSException {
     try {
-      _queueHost = new JmsTemporaryQueueHost(_connectionFactory, new JmsByteArrayMessageDispatcher(new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
+      ByteArrayFudgeMessageReceiver bafmr = new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
         @SuppressWarnings("unchecked")
         @Override
         public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
@@ -156,7 +156,8 @@ public abstract class AbstractRestfulJmsResultConsumer {
           }
           dispatchListenerCall(listenerCall);
         }
-      }, _fudgeContext)));
+      }, _fudgeContext);
+      _queueHost = new JmsTemporaryQueueHost(_jmsConnector, new JmsByteArrayMessageDispatcher(bafmr));
       
       s_logger.info("Set up result JMS subscription to {}", _queueHost.getQueueName());
       return _queueHost.getQueueName();

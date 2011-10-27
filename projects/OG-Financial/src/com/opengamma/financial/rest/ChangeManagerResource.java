@@ -12,24 +12,34 @@ import javax.ws.rs.core.Response;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.JmsChangeManager;
 
-
 /**
  * RESTful resource for a {@link ChangeManager}.
  * Changes are published via JMS only at the moment
  */
 public class ChangeManagerResource {
+
+  /**
+   * The change manager.
+   */
   private final JmsChangeManager _changeManager;
 
+  /**
+   * Creates a new instance.
+   * 
+   * @param changeManager  the change manager, not null
+   */
   public ChangeManagerResource(ChangeManager changeManager) {
-    if (!(changeManager instanceof JmsChangeManager)) {
-      throw new UnsupportedOperationException("This change manager cannot be published over rest");
+    if (changeManager instanceof JmsChangeManager == false) {
+      throw new UnsupportedOperationException("Only JmsChangeManager can be published over REST");
     }
     _changeManager = (JmsChangeManager) changeManager; //TODO: implement other change managers?
   }
 
+  //-------------------------------------------------------------------------
   @GET
   @Path("topicName")
   public Response getTopicName() {
-    return Response.ok(_changeManager.getTopic()).build();
+    return Response.ok(_changeManager.getJmsConnector().getTopicName()).build();
   }
+
 }

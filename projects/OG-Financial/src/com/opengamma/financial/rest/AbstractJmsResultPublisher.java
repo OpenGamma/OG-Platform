@@ -13,7 +13,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
@@ -24,42 +23,51 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.util.jms.JmsConnector;
+
 /**
  * Publishes asynchronous results over JMS.
  * <p>
- * Always call {@link #stopPublishingResults()} when this result publisher is no longer required to ensure that
- * associated resources are tidied up.
+ * Always call {@link #stopPublishingResults()} when this result publisher is no longer
+ * required to ensure that associated resources are tidied up.
  */
 public abstract class AbstractJmsResultPublisher {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractJmsResultPublisher.class);
   private static final String SEQUENCE_NUMBER_FIELD_NAME = "#";
-  
+
   private final FudgeContext _fudgeContext;
   private final FudgeSerializer _fudgeSerializationContext;
-  private final ConnectionFactory _connectionFactory;
+  private final JmsConnector _jmsConnector;
   private final ReentrantLock _lock = new ReentrantLock();
   private final AtomicLong _sequenceNumber = new AtomicLong();
 
   private final AtomicBoolean _isShutdown = new AtomicBoolean(false);
   private BlockingQueue<byte[]> _messageQueue = new LinkedBlockingQueue<byte[]>();
-  
+
   private volatile Connection _connection;
   private volatile Session _session;
   private volatile MessageProducer _producer;
 
-  public AbstractJmsResultPublisher(FudgeContext fudgeContext, ConnectionFactory connectionFactory) {
+  /**
+   * Creates an instance.
+   * 
+   * @param fudgeContext  the Fudge context, not null
+   * @param jmsConnector  the JMS connector, not null
+   */
+  public AbstractJmsResultPublisher(FudgeContext fudgeContext, JmsConnector jmsConnector) {
     _fudgeContext = fudgeContext;
     _fudgeSerializationContext = new FudgeSerializer(fudgeContext);
-    _connectionFactory = connectionFactory;
+    _jmsConnector = jmsConnector;
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Stops listening to results from the underlying provider. 
    */
   protected abstract void stopListener();
-  
+
   /**
    * Begins listening to results from the underlying provider. When a result occurs, {@code #send(Object)} should be
    * called to publish that result over JMS.
@@ -83,7 +91,7 @@ public abstract class AbstractJmsResultPublisher {
     byte[] resultMsgByteArray = _fudgeContext.toByteArray(resultMsg);
     _messageQueue.add(resultMsgByteArray);
   }
-  
+
   //-------------------------------------------------------------------------
   public void startPublishingResults(String destination) throws Exception {
     _lock.lock();
@@ -98,7 +106,7 @@ public abstract class AbstractJmsResultPublisher {
   private void startJmsIfRequired(String destination) throws Exception {
     if (_producer == null) {
       try {
-        _connection = _connectionFactory.createConnection();
+        _connection = _jmsConnector.getConnectionFactory().createConnection();
         _session = _connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
         _producer = _session.createProducer(_session.createQueue(destination));
         _messageQueue.clear();
@@ -110,7 +118,7 @@ public abstract class AbstractJmsResultPublisher {
       }
     }
   }
-  
+
   private void closeJms() {
     if (_connection != null) {
       try {
@@ -124,7 +132,7 @@ public abstract class AbstractJmsResultPublisher {
       }
     }
   }
-  
+
   private void startSenderThread() throws JMSException {
     Thread senderThread = new Thread(new Runnable() {
       @Override
@@ -146,7 +154,7 @@ public abstract class AbstractJmsResultPublisher {
     senderThread.setDaemon(true);
     senderThread.start();
   }
-  
+
   private void sendSync(byte[] buffer) {
     MessageProducer producer = _producer;
     if (producer == null) {
@@ -161,7 +169,7 @@ public abstract class AbstractJmsResultPublisher {
       s_logger.error("Error while sending result over JMS. This result may never reach the client.", e);
     }
   }
-  
+
   public void stopPublishingResults() throws JMSException {
     _lock.lock();
     try {
@@ -174,5 +182,5 @@ public abstract class AbstractJmsResultPublisher {
       _lock.unlock();
     }
   }
-  
+
 }

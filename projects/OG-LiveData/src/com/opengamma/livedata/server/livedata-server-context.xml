@@ -59,7 +59,7 @@
     </bean>
     
     <bean id="jmsSenderFactory" class="com.opengamma.livedata.server.distribution.JmsSenderFactory">
-        <property name="jmsTemplate" ref="jmsTemplate"/>
+        <property name="jmsConnector" ref="jmsConnector"/>
     </bean>
     
     <bean id="activeMqTransportListener" class="com.opengamma.livedata.server.distribution.ActiveMQTransportListener">
