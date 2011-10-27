@@ -51,7 +51,7 @@
         <constructor-arg ref="activeMQConnectionFactory"/>          
     </bean>
     
-    <!-- JMX sending -->
+    <!-- JMS sending -->
     
     <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
         <property name="connectionFactory" ref="jmsConnectionFactory" />
@@ -170,6 +170,27 @@
     <property name="assembler" ref="jmxAssembler"/>
     <property name="namingStrategy" ref="jmxNamingStrategy"/>
     <property name="autodetect" value="true"/>
+  </bean>
+  
+  <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
+    <property name="locateExistingServerIfPossible" value="true" />
+  </bean>
+  
+  <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+    <property name="shared" value="true"/>
+  </bean>
+  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="staticMethod" value="net.sf.ehcache.management.ManagementService.registerMBeans"/>
+    <property name="arguments">
+      <list>
+        <ref bean="cacheManager" />
+        <ref bean="mbeanServer" />
+        <value>true</value>
+        <value>true</value>
+        <value>true</value>
+        <value>true</value>
+      </list>
+    </property>
   </bean>
 
   <bean id="serverMBean" class="com.opengamma.livedata.server.LiveDataServerMBean">
