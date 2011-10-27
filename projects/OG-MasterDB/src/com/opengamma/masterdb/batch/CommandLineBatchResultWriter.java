@@ -7,7 +7,6 @@ package com.opengamma.masterdb.batch;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -38,8 +37,6 @@ import com.opengamma.financial.conversion.ResultConverter;
 import com.opengamma.financial.conversion.ResultConverterCache;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
-
-import static com.opengamma.util.functional.Functional.reverseMap;
 
 /**
  * This writer is used to write risk that originates from a command line batch job. 
@@ -104,14 +101,16 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
       Set<ComputationTarget> computationTargets,
       RiskRun riskRun,
       Set<RiskValueName> valueNames,
-      Set<RiskValueConstraints> valueConstraints) {
+      Set<RiskValueRequirement> valueRequirements,
+      Set<RiskValueSpecification> valueSpecifications) {
     this(dbConnector,
         resultModelDefinition,
         cachesByCalculationConfiguration,
         computationTargets,
         riskRun,
         valueNames,
-        valueConstraints,
+        valueRequirements,
+        valueSpecifications,
         new ResultConverterCache());
   }
   
@@ -122,10 +121,11 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
       Set<ComputationTarget> computationTargets,
       RiskRun riskRun,
       Set<RiskValueName> valueNames,
-      Set<RiskValueConstraints> valueConstraints,
+      Set<RiskValueRequirement> valueRequirements,
+      Set<RiskValueSpecification> valueSpecifications,
       ResultConverterCache resultConverterCache) {
 
-    super(dbConnector, riskRun, resultConverterCache, computationTargets, valueNames, valueConstraints);
+    super(dbConnector, riskRun, resultConverterCache, computationTargets, valueNames, valueRequirements, valueSpecifications);
 
     ArgumentChecker.notNull(resultModelDefinition, "Result model definition");
     ArgumentChecker.notNull(cachesByCalculationConfiguration, "Caches by calculation configuration");
@@ -335,7 +335,8 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
 
           for (Map.Entry<String, Double> riskValueEntry : valuesAsDoubles.entrySet()) {
             for (ValueRequirement requirement : item.getItem().getDesiredValues()) {
-              int valueConstraintId = getValueConstraintsId(requirement.getConstraints());
+              int valueRequirementId = getValueRequirementId(requirement.getConstraints());
+              int valueSpecificationId = getValueSpecificationId(output.getProperties());
               int valueNameId = getValueNameId(riskValueEntry.getKey());
               int functionUniqueId = getFunctionUniqueId(output.getFunctionUniqueId());
 
@@ -343,7 +344,8 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
               riskValue.setId(generateUniqueId());
               riskValue.setCalculationConfigurationId(calcConfId);
               riskValue.setValueNameId(valueNameId);
-              riskValue.setValueConstraintsId(valueConstraintId);
+              riskValue.setValueRequirementId(valueRequirementId);
+              riskValue.setValueSpecificationId(valueSpecificationId);
               riskValue.setFunctionUniqueId(functionUniqueId);
               riskValue.setComputationTargetId(computationTargetId);
               riskValue.setRunId(riskRunId);
@@ -369,13 +371,15 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
             int valueNameId = getValueNameId(outputValue.getValueName());
             int functionUniqueId = getFunctionUniqueId(outputValue.getFunctionUniqueId());
             int computationTargetId = getComputationTargetId(outputValue.getTargetSpecification());
-            int valueConstraintId = getValueConstraintsId(requirement.getConstraints());
+            int valueRequirementId = getValueRequirementId(requirement.getConstraints());
+            int valueSpecificationId = getValueSpecificationId(outputValue.getProperties());
 
             RiskFailure failure = new RiskFailure();
             failure.setId(generateUniqueId());
             failure.setCalculationConfigurationId(calcConfId);
             failure.setValueNameId(valueNameId);
-            failure.setValueConstraintsId(valueConstraintId);
+            failure.setValueRequirementId(valueRequirementId);
+            failure.setValueSpecificationId(valueSpecificationId);
             failure.setFunctionUniqueId(functionUniqueId);
             failure.setComputationTargetId(computationTargetId);
             failure.setRunId(riskRunId);

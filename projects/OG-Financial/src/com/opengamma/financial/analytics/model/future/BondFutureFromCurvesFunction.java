@@ -49,7 +49,7 @@ public abstract class BondFutureFromCurvesFunction extends BondFutureFunction<Yi
 
   @Override
   protected abstract Set<ComputedValue> calculate(com.opengamma.financial.security.future.BondFutureSecurity security,
-      com.opengamma.financial.interestrate.future.definition.BondFutureSecurity bondFuture, YieldCurveBundle data,
+      com.opengamma.financial.interestrate.future.definition.BondFuture bondFuture, YieldCurveBundle data,
       ComputationTarget target);
 
   @Override

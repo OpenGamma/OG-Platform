@@ -18,6 +18,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.VersionUtils;
@@ -115,13 +116,8 @@ public class AdHocBatchJobRun extends BatchJobRun {
   }
 
   @Override
-  public Set<ValueProperties> getAllOutputValueConstraints() {
-    Set<ValueProperties> valueConstraints = new HashSet<ValueProperties>();
-    Set<ValueRequirement> valueRequirements = getResultModel().getRequirementToSpecificationMapping().keySet();
-    for (ValueRequirement valueRequirement : valueRequirements) {
-      valueConstraints.add(valueRequirement.getConstraints());
-    }
-    return valueConstraints;
+  public Map<ValueSpecification, Set<ValueRequirement>> getAllOutputs() {
+    return getResultModel().getRequirementToSpecificationMapping();
   }
 
   @Override

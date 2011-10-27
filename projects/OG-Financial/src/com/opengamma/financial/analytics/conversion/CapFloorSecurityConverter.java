@@ -16,7 +16,7 @@ import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CapFloorIborDefinition;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -27,7 +27,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class CapFloorSecurityConverter implements CapFloorSecurityVisitor<FixedIncomeInstrumentConverter<?>> {
+public class CapFloorSecurityConverter implements CapFloorSecurityVisitor<FixedIncomeInstrumentDefinition<?>> {
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
 
@@ -39,7 +39,7 @@ public class CapFloorSecurityConverter implements CapFloorSecurityVisitor<FixedI
   }
 
   @Override
-  public FixedIncomeInstrumentConverter<?> visitCapFloorSecurity(final CapFloorSecurity capFloorSecurity) {
+  public FixedIncomeInstrumentDefinition<?> visitCapFloorSecurity(final CapFloorSecurity capFloorSecurity) {
     Validate.notNull(capFloorSecurity, "cap/floor security");
     final double notional = capFloorSecurity.getNotional();
     final ZonedDateTime fixingDate = capFloorSecurity.getStartDate(); //TODO is this right?

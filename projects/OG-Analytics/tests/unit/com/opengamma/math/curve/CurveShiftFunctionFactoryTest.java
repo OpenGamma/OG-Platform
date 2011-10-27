@@ -30,7 +30,7 @@ public class CurveShiftFunctionFactoryTest {
   private static final InterpolatedDoublesCurve INTERPOLATED = InterpolatedDoublesCurve.from(new double[] {1, 2}, new double[] {1.2, 3.4}, new LinearInterpolator1D());
   private static final NodalDoublesCurve NODAL = NodalDoublesCurve.from(new double[] {1, 2}, new double[] {1.2, 3.4});
   @SuppressWarnings("unchecked")
-  private static final SpreadDoublesCurve SPREAD = SpreadDoublesCurve.from(new Curve[] {INTERPOLATED, CONSTANT}, new AddCurveSpreadFunction());
+  private static final SpreadDoublesCurve SPREAD = SpreadDoublesCurve.from(new AddCurveSpreadFunction(), new Curve[] {INTERPOLATED, CONSTANT});
   private static final Curve<Double, Double> DUMMY = new Curve<Double, Double>() {
 
     @Override

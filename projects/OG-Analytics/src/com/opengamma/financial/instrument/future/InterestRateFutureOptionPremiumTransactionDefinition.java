@@ -12,7 +12,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumSecurity;
@@ -21,7 +21,7 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 /**
  * Description of transaction on an interest rate future option security with premium paid up-front (CME type).
  */
-public class InterestRateFutureOptionPremiumTransactionDefinition implements FixedIncomeInstrumentConverter<InterestRateFutureOptionPremiumTransaction> {
+public class InterestRateFutureOptionPremiumTransactionDefinition implements FixedIncomeInstrumentDefinition<InterestRateFutureOptionPremiumTransaction> {
 
   /**
    * The underlying option future security.

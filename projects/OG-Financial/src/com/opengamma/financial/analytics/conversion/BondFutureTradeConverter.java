@@ -5,14 +5,10 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.position.Trade;
-import com.opengamma.financial.instrument.future.BondFutureSecurityDefinition;
-import com.opengamma.financial.instrument.future.BondFutureTransactionDefinition;
+import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 
 /**
@@ -26,14 +22,17 @@ public class BondFutureTradeConverter {
     _securityConverter = securityConverter;
   }
 
-  public BondFutureTransactionDefinition convert(final Trade trade) {
+  /**
+   * Convert a Trade on a Bond FutureSecurity into the OG-Analytics Definition. 
+   * TODO Consider extending the function arguments to allow dynamic treatment of the reference price of the future.
+   * This is currently just a wrapper on the Security converter, but the Trade contains data we may wish to use for risk management. 
+   * @param trade A trade containing a BondFutureSecurity
+   * @return BondFutureDefinition
+   */
+  public BondFutureDefinition convert(final Trade trade) {
     Validate.notNull(trade, "trade");
     Validate.isTrue(trade.getSecurity() instanceof BondFutureSecurity, "Can only handle trades with security type BondFutureSecurity");
-    final BondFutureSecurityDefinition underlyingFuture = (BondFutureSecurityDefinition) ((BondFutureSecurity) trade.getSecurity()).accept(_securityConverter);
-    final int quantity = trade.getQuantity().intValue();
-    final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getPremiumDate().atTime(trade.getPremiumTime()),
-        TimeZone.UTC); //TODO need the zone of the exchange
-    final double tradePrice = trade.getPremium();
-    return new BondFutureTransactionDefinition(underlyingFuture, quantity, tradeDate, tradePrice);
+    final BondFutureDefinition underlyingFuture = (BondFutureDefinition) ((BondFutureSecurity) trade.getSecurity()).accept(_securityConverter);
+    return underlyingFuture;
   }
 }

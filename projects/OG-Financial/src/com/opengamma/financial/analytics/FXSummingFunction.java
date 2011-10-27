@@ -86,7 +86,7 @@ public class FXSummingFunction extends FilteringSummingFunction implements Finan
 
   @Override
   public Boolean visitFXOptionSecurity(FXOptionSecurity security) {
-    return true;
+    return false;
   }
 
   @Override
@@ -101,12 +101,12 @@ public class FXSummingFunction extends FilteringSummingFunction implements Finan
 
   @Override
   public Boolean visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
-    return true;
+    return false;
   }
 
   @Override
   public Boolean visitFXSecurity(FXSecurity security) {
-    return false;
+    return true;
   }
 
   @Override

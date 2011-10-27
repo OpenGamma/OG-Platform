@@ -46,9 +46,10 @@ public class AdHocBatchResultWriter extends AbstractBatchResultWriter {
       ComputeNode computeNode,
       ResultConverterCache resultConverterCache,
       Set<ComputationTarget> computationTargets,
-      Set<RiskValueConstraints> valueConstraints,
+      Set<RiskValueRequirement> valueRequirement,
+      Set<RiskValueSpecification> valueSpecifications,
       Set<RiskValueName> valueNames) {
-    super(dbConnector, riskRun, resultConverterCache, computationTargets, valueNames, valueConstraints);
+    super(dbConnector, riskRun, resultConverterCache, computationTargets, valueNames, valueRequirement, valueSpecifications);
     
     _computeNodeId = computeNode.getId();
   }
@@ -68,7 +69,7 @@ public class AdHocBatchResultWriter extends AbstractBatchResultWriter {
     
     int riskRunId = getRiskRunId();
 
-    Map<ValueSpecification, Collection<ValueRequirement>> specificationsWithTheirsRequirements = reverseMap(resultModel.getRequirementToSpecificationMapping());
+    Map<ValueSpecification, Set<ValueRequirement>> specificationsWithTheirsRequirements = resultModel.getRequirementToSpecificationMapping();
     
     for (ViewResultEntry result : resultModel.getAllResults()) {
       ValueSpecification output = result.getComputedValue().getSpecification();
@@ -93,12 +94,14 @@ public class AdHocBatchResultWriter extends AbstractBatchResultWriter {
         int functionUniqueId = getFunctionUniqueId(output.getFunctionUniqueId());
         Collection<ValueRequirement> requirements = specificationsWithTheirsRequirements.get(output);
         for (ValueRequirement requirement : requirements) {
-          int valueConstraintId = getValueConstraintsId(requirement.getConstraints());
+          int valueRequirementId = getValueRequirementId(requirement.getConstraints());
+          int valueSpecificationId = getValueSpecificationId(output.getProperties());
           RiskValue riskValue = new RiskValue();
           riskValue.setId(generateUniqueId());
           riskValue.setCalculationConfigurationId(calcConfId);
           riskValue.setValueNameId(valueNameId);
-          riskValue.setValueConstraintsId(valueConstraintId);
+          riskValue.setValueRequirementId(valueRequirementId);
+          riskValue.setValueSpecificationId(valueSpecificationId);
           riskValue.setFunctionUniqueId(functionUniqueId);
           riskValue.setComputationTargetId(computationTargetId);
           riskValue.setRunId(riskRunId);

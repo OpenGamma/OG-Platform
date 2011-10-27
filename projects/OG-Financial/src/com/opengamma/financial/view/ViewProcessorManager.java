@@ -7,6 +7,7 @@ package com.opengamma.financial.view;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -35,8 +36,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.util.ArgumentChecker;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Manages a set of view processors that share common resources, making system configuration appear atomic to them.
@@ -83,7 +82,6 @@ public class ViewProcessorManager implements Lifecycle {
     _viewProcessors.addAll(viewProcessors);
   }
 
-  @SuppressWarnings("unchecked")
   public Set<ViewProcessorInternal> getViewProcessors() {
     return Collections.unmodifiableSet(_viewProcessors);
   }

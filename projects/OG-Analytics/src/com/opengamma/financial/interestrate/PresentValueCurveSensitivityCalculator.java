@@ -26,9 +26,9 @@ import com.opengamma.financial.interestrate.bond.method.BondTransactionDiscounti
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
-import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.future.method.BondFutureTransactionDiscountingMethod;
+import com.opengamma.financial.interestrate.future.method.BondFutureDiscountingMethod;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -132,10 +132,10 @@ public class PresentValueCurveSensitivityCalculator extends AbstractInterestRate
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitBondFutureTransaction(final BondFutureTransaction bondFuture, final YieldCurveBundle curves) {
+  public Map<String, List<DoublesPair>> visitBondFuture(final BondFuture bondFuture, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bondFuture);
-    final BondFutureTransactionDiscountingMethod method = BondFutureTransactionDiscountingMethod.getInstance();
+    final BondFutureDiscountingMethod method = BondFutureDiscountingMethod.getInstance();
     return method.presentValueCurveSensitivity(bondFuture, curves).getSensitivities();
   }
 

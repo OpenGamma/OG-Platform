@@ -200,7 +200,7 @@ public abstract class LabelledMatrix3DFudgeBuilder<KX, KY, KZ, T extends Labelle
     message.add(keysKey, submsg);
   }
 
-  protected void writeDoubleKeys(final FudgeSerializer serializer, final MutableFudgeMsg message, final Double[] keys, final String keysKey) {
+  protected void writeDoubleKeys(final MutableFudgeMsg message, final Double[] keys, final String keysKey) {
     final double[] arr = new double[keys.length];
     for (int i = 0; i < keys.length; i++) {
       arr[i] = keys[i];
@@ -345,7 +345,7 @@ public abstract class LabelledMatrix3DFudgeBuilder<KX, KY, KZ, T extends Labelle
     return keys;
   }
 
-  protected Double[] readDoubleKeys(final FudgeDeserializer deserializer, final FudgeMsg message, final String keysKey) {
+  protected Double[] readDoubleKeys(final FudgeMsg message, final String keysKey) {
     final FudgeField field = message.getByName(keysKey);
     if (field == null) {
       s_logger.warn("Message field {} not found in {}", keysKey, message);
@@ -404,32 +404,32 @@ public abstract class LabelledMatrix3DFudgeBuilder<KX, KY, KZ, T extends Labelle
     
     @Override
     protected void writeXKeys(final FudgeSerializer serializer, final MutableFudgeMsg message, final Double[] keys) {
-      writeDoubleKeys(serializer, message, keys, X_KEYS_KEY);
+      writeDoubleKeys(message, keys, X_KEYS_KEY);
     }
 
     @Override
     protected void writeYKeys(final FudgeSerializer serializer, final MutableFudgeMsg message, final Double[] keys) {
-      writeDoubleKeys(serializer, message, keys, Y_KEYS_KEY);
+      writeDoubleKeys(message, keys, Y_KEYS_KEY);
     }
 
     @Override
     protected void writeZKeys(final FudgeSerializer serializer, final MutableFudgeMsg message, final Double[] keys) {
-      writeDoubleKeys(serializer, message, keys, Z_KEYS_KEY);
+      writeDoubleKeys(message, keys, Z_KEYS_KEY);
     }
 
     @Override
     protected Double[] readXKeys(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      return readDoubleKeys(deserializer, message, X_KEYS_KEY);
+      return readDoubleKeys(message, X_KEYS_KEY);
     }
 
     @Override
     protected Double[] readYKeys(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      return readDoubleKeys(deserializer, message, Y_KEYS_KEY);
+      return readDoubleKeys(message, Y_KEYS_KEY);
     }
 
     @Override
     protected Double[] readZKeys(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      return readDoubleKeys(deserializer, message, Z_KEYS_KEY);
+      return readDoubleKeys(message, Z_KEYS_KEY);
     }
 
     @Override

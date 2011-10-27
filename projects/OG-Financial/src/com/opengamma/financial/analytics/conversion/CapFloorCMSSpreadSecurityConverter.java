@@ -16,7 +16,7 @@ import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CapFloorCMSSpreadDefinition;
@@ -28,7 +28,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class CapFloorCMSSpreadSecurityConverter implements CapFloorCMSSpreadSecurityVisitor<FixedIncomeInstrumentConverter<?>> {
+public class CapFloorCMSSpreadSecurityConverter implements CapFloorCMSSpreadSecurityVisitor<FixedIncomeInstrumentDefinition<?>> {
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
 
@@ -41,7 +41,7 @@ public class CapFloorCMSSpreadSecurityConverter implements CapFloorCMSSpreadSecu
 
   //TODO too much is being done in this method - should be in the constructor
   @Override
-  public FixedIncomeInstrumentConverter<?> visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity capFloorCMSSpreadSecurity) {
+  public FixedIncomeInstrumentDefinition<?> visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity capFloorCMSSpreadSecurity) {
     Validate.notNull(capFloorCMSSpreadSecurity, "cap/floor security");
     final double notional = capFloorCMSSpreadSecurity.getNotional();
     final ZonedDateTime paymentDate = capFloorCMSSpreadSecurity.getMaturityDate(); //TODO check this

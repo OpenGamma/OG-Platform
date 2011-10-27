@@ -31,13 +31,13 @@ public class EquityFutureConverter extends AbstractFutureSecurityVisitor<EquityF
 
     final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
 
-    // TODO Case 2011-5-27 Revisit use of trade._premium as a futures price (often simply be an index value). Ensure no payments are being automatically computed here.
-    // What this futuresPrice represents is the last margin price, then when one computes pv, they get back the value expected if one unwinds the trade 
-    final Double futuresPrice = trade.getPremium();
 
-    // TODO Case 2011.10.04 Instead of getting Premium from the trade, we might take previous close from time series in the ConventionSource.
-    // I spoke to Elaine about the idea of always pricing against yesterday's close, even on trade date. 
-    // Latter case is handled by tradePremium ~ (pricePrevClose - priceTradeTime)*unitAmount*nContracts
+
+    final Double futuresPrice = trade.getPremium();
+    // TODO Case Futures Refactor 2011.10.04 Instead of getting Premium from the trade, we might take previous close from time series in the ConventionSource.
+    // Idea 1: Always pricing against yesterday's close, even on trade date.   Latter case is handled by tradePremium ~ (pricePrevClose - priceTradeTime)*unitAmount*nContracts
+    // Idea 2: Set the referencePrice (futuresPrice) to 0.0. Handle economics through premium. This ensures risk and pnl are straightforward.
+    // In the future, when ours or some back-office system supplies cash flows, we may construct the Definition with a non-zero ref price
 
     /* FIXME Case 2011-05-27 Revisit holiday conventions for input dates 
     final ConventionBundle conventions = super.getConventionSource().getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_EQFUTURE"));

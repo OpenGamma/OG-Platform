@@ -27,11 +27,11 @@ public class FXOptionVolatilitySurfaceConfigPopulator {
 
   public static ConfigMaster populateVolatilitySurfaceConfigMaster(final ConfigMaster configMaster) {
     populateVolatilitySurfaceSpecifications(configMaster, UnorderedCurrencyPair.of(Currency.EUR, Currency.USD), "EURUSD");
-    populateVolatilitySurfaceDefinitions(configMaster, UnorderedCurrencyPair.of(Currency.EUR, Currency.USD), "EURUSD");
+    populateVolatilitySurfaceDefinitions(configMaster, UnorderedCurrencyPair.of(Currency.EUR, Currency.USD));
     return configMaster;
   }
 
-  private static void populateVolatilitySurfaceDefinitions(final ConfigMaster configMaster, UniqueIdentifiable target, final String currencyCrossString) {
+  private static void populateVolatilitySurfaceDefinitions(final ConfigMaster configMaster, UniqueIdentifiable target) {
     final Tenor[] expiryTenors = new Tenor[] {Tenor.ofDays(7), Tenor.ofDays(14), Tenor.ofDays(21), Tenor.ofMonths(1),
                                               Tenor.ofMonths(3), Tenor.ofMonths(6), Tenor.ofMonths(9), Tenor.ofYears(1), 
                                               Tenor.ofYears(5), Tenor.ofYears(10)};
