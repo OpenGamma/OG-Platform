@@ -34,17 +34,13 @@ import com.opengamma.financial.analytics.DummyLabelledMatrix2DPortfolioNodeFunct
 import com.opengamma.financial.analytics.DummyLabelledMatrix2DPositionFunction;
 import com.opengamma.financial.analytics.DummyPortfolioNodeFunction;
 import com.opengamma.financial.analytics.DummyPortfolioNodeMultipleCurrencyAmountFunction;
-import com.opengamma.financial.analytics.FXSummingFunction;
 import com.opengamma.financial.analytics.LastHistoricalValueFunction;
-import com.opengamma.financial.analytics.PV01SummingFunction;
 import com.opengamma.financial.analytics.PositionScalingFunction;
 import com.opengamma.financial.analytics.PositionTradeScalingFunction;
 import com.opengamma.financial.analytics.PositionWeightFromNAVFunction;
-import com.opengamma.financial.analytics.PresentValueSummingFunction;
 import com.opengamma.financial.analytics.SummingFunction;
 import com.opengamma.financial.analytics.UnitPositionScalingFunction;
 import com.opengamma.financial.analytics.UnitPositionTradeScalingFunction;
-import com.opengamma.financial.analytics.VegaMatrixSummingFunction;
 import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromYieldFunction;
@@ -178,6 +174,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
   protected static void addSummingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
     ParameterizedFunctionConfiguration functionConfig = new ParameterizedFunctionConfiguration(SummingFunction.class.getName(), Collections.singleton(requirementName));
+    functionConfigs.add(functionConfig);
+  }
+
+  protected static void addFilteredSummingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
+    ParameterizedFunctionConfiguration functionConfig = new ParameterizedFunctionConfiguration(FilteredSummingFunction.class.getName(), Collections.singleton(requirementName));
     functionConfigs.add(functionConfig);
   }
 
@@ -390,13 +391,12 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
     addDummyFunction(functionConfigs, ValueRequirementNames.BOND_TENOR);
 
-    functionConfigs.add(new StaticFunctionConfiguration(PresentValueSummingFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(PV01SummingFunction.class.getName()));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(FXSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.FX_CURRENCY_EXPOSURE)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(FXSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.FX_PRESENT_VALUE)));
-    functionConfigs.add(new StaticFunctionConfiguration(VegaMatrixSummingFunction.class.getName()));
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE);
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.PV01);
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FX_PRESENT_VALUE);
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.VEGA_MATRIX);
     addSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
-
     addSummingFunction(functionConfigs, ValueRequirementNames.PRICE_SERIES);
     addSummingFunction(functionConfigs, ValueRequirementNames.PNL_SERIES);
     addSummingFunction(functionConfigs, ValueRequirementNames.WEIGHT);

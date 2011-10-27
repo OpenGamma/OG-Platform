@@ -33,11 +33,10 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
    * @return the properties which the function is required to preserve, not null
    */
   protected abstract Collection<String> getPreservedProperties();
-  
+
   /**
    * Gets the properties which the function will attempt to preserve. A property in this category will appear on the
-   * the function outputs if the property is present and has the same value across every input, otherwise it will be
-   * dropped.
+   * function outputs if the property is present and has the same value across every input, otherwise it will be dropped.
    * 
    * @return the properties which the function will attempt to preserve, not null
    */
