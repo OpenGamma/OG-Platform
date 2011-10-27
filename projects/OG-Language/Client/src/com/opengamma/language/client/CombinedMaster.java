@@ -349,7 +349,7 @@ import com.opengamma.master.AbstractSearchResult;
             final int sg = callback.compare(sessionDocument, globalDocument);
             if (sg == 0) {
               callback.accept(sessionDocument, MasterID.SESSION, !nonUnique.contains(sessionDocument), false);
-              callback.accept(userDocument, MasterID.GLOBAL, !nonUnique.contains(globalDocument), false);
+              callback.accept(globalDocument, MasterID.GLOBAL, !nonUnique.contains(globalDocument), false);
               sessionDocument = next(sessionDocumentIterator, callback);
               globalDocument = next(globalDocumentIterator, callback);
             } else if (sg < 0) {
