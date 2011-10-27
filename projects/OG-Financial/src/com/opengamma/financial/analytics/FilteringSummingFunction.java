@@ -38,4 +38,9 @@ public class FilteringSummingFunction extends SummingFunction {
     return true;
   }
 
+  @Override
+  public String toString() {
+    return getShortName();
+  }
+
 }
