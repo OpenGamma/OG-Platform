@@ -47,7 +47,7 @@ public class InterestRateFutureOptionPremiumSecurityDefinitionTest {
   private static final double FUTURE_FACTOR = 0.25;
   private static final double REFERENCE_PRICE = 0.0; // TODO - CASE - Future refactor - 0.0 Refence Price here
   private static final String NAME = "EDU2";
-  private static final InterestRateFutureSecurityDefinition EDU2_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, NAME);
+  private static final InterestRateFutureDefinition EDU2_DEFINITION = new InterestRateFutureDefinition(LAST_TRADING_DATE, IBOR_INDEX, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, NAME);
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
   private static final double STRIKE = 0.9895;
   private static final boolean IS_CALL = true;
@@ -104,7 +104,7 @@ public class InterestRateFutureOptionPremiumSecurityDefinitionTest {
    */
   public void toDerivative() {
     InterestRateFutureOptionPremiumSecurity optionEDU2Converted = OPTION_EDU2_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
-    InterestRateFuture future = EDU2_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
+    InterestRateFuture future = EDU2_DEFINITION.toDerivative(REFERENCE_DATE, REFERENCE_PRICE, CURVES);
     double expirationTime = ACT_ACT.getDayCountFraction(REFERENCE_DATE, EXPIRATION_DATE);
     InterestRateFutureOptionPremiumSecurity optionEDU2 = new InterestRateFutureOptionPremiumSecurity(future, expirationTime, STRIKE, IS_CALL);
     assertEquals("Option on future: to derivative", optionEDU2, optionEDU2Converted);

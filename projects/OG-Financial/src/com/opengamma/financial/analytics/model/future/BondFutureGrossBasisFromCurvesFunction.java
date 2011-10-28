@@ -37,7 +37,7 @@ public class BondFutureGrossBasisFromCurvesFunction extends BondFutureFromCurves
 
   @Override
   protected Set<ComputedValue> calculate(final com.opengamma.financial.security.future.BondFutureSecurity security,
-      final com.opengamma.financial.interestrate.future.definition.BondFutureSecurity bondFuture, final YieldCurveBundle data,
+      final com.opengamma.financial.interestrate.future.definition.BondFuture bondFuture, final YieldCurveBundle data,
       final ComputationTarget target) {
     final List<BondFutureDeliverable> deliverables = security.getBasket();
     final int n = deliverables.size();

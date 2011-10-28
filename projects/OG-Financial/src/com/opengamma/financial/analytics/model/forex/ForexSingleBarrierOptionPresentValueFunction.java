@@ -48,7 +48,7 @@ public class ForexSingleBarrierOptionPresentValueFunction extends ForexSingleBar
                                                               .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
                                                               .with(ValuePropertyNames.SURFACE, getSurfaceName())
                                                               .with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_PRESENT_VALUE, target.toSpecification(), properties);
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, amount));
   }
 
@@ -59,15 +59,15 @@ public class ForexSingleBarrierOptionPresentValueFunction extends ForexSingleBar
     Currency callCurrency = security.getCallCurrency();
     Currency ccy;
     if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) {
-      ccy = callCurrency;
-    } else {
       ccy = putCurrency;
+    } else {
+      ccy = callCurrency;
     }
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName())
         .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
         .with(ValuePropertyNames.SURFACE, getSurfaceName())
         .with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.FX_PRESENT_VALUE, target.toSpecification(), properties));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties));
   }
 }

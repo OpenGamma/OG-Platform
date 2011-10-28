@@ -18,6 +18,11 @@
   <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop"> 
     <constructor-arg ref="activeMQConnectionFactory"/>
   </bean>
+  <bean id="jmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean"> 
+    <property name="name" value="MasterChange"/>
+    <property name="connectionFactory" ref="jmsConnectionFactory"/>
+    <property name="pubSubDomain" value="true"/>
+  </bean>
 
   <import resource="classpath:com/opengamma/financial/common.xml" />
 
@@ -152,8 +157,8 @@
 
   <!-- PortfolioMaster/PositionMaster -->
   <bean id="dbPortfolioMasterChangeManager" class="com.opengamma.core.change.JmsChangeManager" init-method="start" >
-    <constructor-arg ref="jmsConnectionFactory" />
-    <constructor-arg value="dbPositionMasterChangeManager" />
+    <constructor-arg ref="jmsConnector" />
+    <constructor-arg value="dbPortfolioMasterChangeManager" />
   </bean> 
   <bean id="dbPortfolioMaster" class="com.opengamma.masterdb.portfolio.DbPortfolioMaster">
     <constructor-arg ref="finDbConnector" />
@@ -262,7 +267,7 @@
   
   <!-- MarketDataSnapshotMaster -->
   <bean id="dbSnapshotMasterChangeManager" class="com.opengamma.core.change.JmsChangeManager" init-method="start" >
-    <constructor-arg ref="jmsConnectionFactory" />
+    <constructor-arg ref="jmsConnector" />
     <constructor-arg value="dbSnapshotMasterChangeManager" />
   </bean>
   <bean id="dbSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">

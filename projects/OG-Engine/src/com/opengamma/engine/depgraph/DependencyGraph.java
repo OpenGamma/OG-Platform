@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.depgraph;
 
+import static com.opengamma.util.functional.Functional.submapByKeySet;
+import static com.opengamma.util.functional.Functional.submapByValueSet;
+
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,6 +57,8 @@ public class DependencyGraph {
    * A cache of terminal output values from this graph's nodes
    */
   private final Set<ValueSpecification> _terminalOutputValues = new HashSet<ValueSpecification>();
+
+  private final Map<ValueSpecification, Set<ValueRequirement>> _terminalOutputs = new HashMap<ValueSpecification, Set<ValueRequirement>>();
 
   /** A map to speed up lookups. Contents are equal to _dependencyNodes. */
   private final Map<ComputationTargetType, Set<DependencyNode>> _computationTargetType2DependencyNode = new HashMap<ComputationTargetType, Set<DependencyNode>>();
@@ -142,6 +147,18 @@ public class DependencyGraph {
    */
   public Set<ValueSpecification> getTerminalOutputSpecifications() {
     return Collections.unmodifiableSet(_terminalOutputValues);
+  }
+
+  /**
+   * Returns the set of output values from the graph that are marked as terminal outputs.
+   * These are the requested values that drove the graph construction and will not be pruned.
+   * Any other output values in the graph are intermediate values required by the functions
+   * used to deliver the requested terminal outputs.
+   *
+   * @return the set of terminal output values
+   */
+  public Map<ValueSpecification, Set<ValueRequirement>> getTerminalOutputs() {
+    return Collections.unmodifiableMap(_terminalOutputs);
   }
 
   /**
@@ -397,14 +414,45 @@ public class DependencyGraph {
 
   /**
    * Marks an output as terminal, meaning that it cannot be pruned.
-   * 
-   * @param terminalOutput the output to mark as terminal
+   * @param requirement the output requirement to mark as terminal
+   * @param specification the output specification to mark as terminal
    */
-  public void addTerminalOutputValue(ValueSpecification terminalOutput) {
+  public void addTerminalOutput(ValueRequirement requirement, ValueSpecification specification) {
     // Register it with the node responsible for producing it - informs the node that the output is required
-    _specification2DependencyNode.get(terminalOutput).addTerminalOutputValue(terminalOutput);
+    _specification2DependencyNode.get(specification).addTerminalOutputValue(specification);
     // Maintain a cache of all terminal outputs at the graph level
-    _terminalOutputValues.add(terminalOutput);
+    _terminalOutputValues.add(specification);
+    synchronized (_terminalOutputs) {
+      Set<ValueRequirement> requirements = _terminalOutputs.get(specification);
+      if (requirements == null) {
+        requirements = new HashSet<ValueRequirement>();
+        _terminalOutputs.put(specification, requirements);
+      }
+      requirements.add(requirement);
+    }
+  }
+
+  /**
+   * Marks an outputs as terminals, meaning that it cannot be pruned.
+   *
+   * @param specifications the outputs to mark as terminals
+   */
+  public void addTerminalOutputs(Map<ValueSpecification, Set<ValueRequirement>> specifications) {
+    for (ValueSpecification specification : specifications.keySet()) {
+      // Register it with the node responsible for producing it - informs the node that the output is required
+      _specification2DependencyNode.get(specification).addTerminalOutputValue(specification);
+      // Maintain a cache of all terminal outputs at the graph level
+      _terminalOutputValues.add(specification);
+      synchronized (_terminalOutputs) {
+
+        Set<ValueRequirement> requirements = _terminalOutputs.get(specification);
+        if (requirements == null) {
+          requirements = new HashSet<ValueRequirement>();
+          _terminalOutputs.put(specification, requirements);
+        }
+        requirements.addAll(specifications.get(specification));
+      }
+    }
   }
 
   /**
@@ -484,6 +532,8 @@ public class DependencyGraph {
     }
   }
 
+
+
   /**
    * Applies a filter to the graph to create a sub-graph.
    * 
@@ -497,6 +547,7 @@ public class DependencyGraph {
         subGraph.addDependencyNode(node);
       }
     }
+    subGraph.addTerminalOutputs(submapByKeySet(_terminalOutputs, subGraph.getOutputSpecifications()));
     return subGraph;
   }
 
@@ -512,6 +563,7 @@ public class DependencyGraph {
     for (DependencyNode node : subNodes) {
       subGraph.addDependencyNode(node);
     }
+    subGraph.addTerminalOutputs(submapByKeySet(_terminalOutputs, subGraph.getOutputSpecifications()));
     return subGraph;
   }
 

@@ -9,12 +9,11 @@ package com.opengamma.language.procedure;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.springframework.beans.factory.InitializingBean;
 
 import com.opengamma.util.ArgumentChecker;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Produce a {@link ProcedureProvider} from a set of {@link PublishedProcedure} objects.
@@ -43,7 +42,6 @@ public class ProcedureProviderBean extends AbstractProcedureProvider implements 
     return _procedures;
   }
 
-  @SuppressWarnings("unchecked")
   public Collection<PublishedProcedure> getProcedures() {
     return Collections.unmodifiableCollection(getProceduresInternal());
   }

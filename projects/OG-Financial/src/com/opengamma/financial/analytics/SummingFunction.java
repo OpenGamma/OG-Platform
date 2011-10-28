@@ -51,7 +51,7 @@ public class SummingFunction extends PropertyPreservingFunction {
    * allows the result to be distinguished from a related summing function that doesn't apply
    * uniformly to all inputs (e.g. it might filter or weight them). 
    */
-  public static final String AGGREGATION_STYLE = "Full";
+  public static final String AGGREGATION_STYLE_FULL = "Full";
 
   @Override
   protected Collection<String> getPreservedProperties() {
@@ -68,15 +68,18 @@ public class SummingFunction extends PropertyPreservingFunction {
         YieldCurveFunction.PROPERTY_FORWARD_CURVE,
         YieldCurveFunction.PROPERTY_FUNDING_CURVE,
         ValuePropertyNames.CURVE_CALCULATION_METHOD,
-        ValuePropertyNames.CALCULATION_METHOD,
         ValuePropertyNames.PAY_CURVE,
         ValuePropertyNames.RECEIVE_CURVE);
+  }
+
+  protected String getAggregationStyle() {
+    return AGGREGATION_STYLE_FULL;
   }
 
   @Override
   protected void applyAdditionalResultProperties(final ValueProperties.Builder builder) {
     super.applyAdditionalResultProperties(builder);
-    builder.with(ValuePropertyNames.AGGREGATION, AGGREGATION_STYLE);
+    builder.with(ValuePropertyNames.AGGREGATION, getAggregationStyle());
   }
 
   private final String _requirementName;
@@ -95,13 +98,10 @@ public class SummingFunction extends PropertyPreservingFunction {
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final PortfolioNode node = target.getPortfolioNode();
-    final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
     Object currentSum = null;
-    for (final Position position : allPositions) {
-      final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.POSITION, position.getUniqueId());
-      final Object positionValue = inputs.getValue(requirement);
-      currentSum = addValue(currentSum, positionValue);
+    for (ComputedValue input : inputs.getAllValues()) {
+      Object nextValue = input.getValue();
+      currentSum = addValue(currentSum, nextValue);
     }
     final ComputedValue computedValue = new ComputedValue(new ValueSpecification(_requirementName, target.toSpecification(), getResultPropertiesFromInputs(inputs.getAllValues())), currentSum);
     return Collections.singleton(computedValue);

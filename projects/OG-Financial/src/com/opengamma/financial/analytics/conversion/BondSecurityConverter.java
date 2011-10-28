@@ -24,8 +24,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
-import com.opengamma.financial.instrument.bond.BondDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.BondSecurityVisitor;
@@ -38,7 +37,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeInstrumentConverter<?>> {
+public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeInstrumentDefinition<?>> {
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
   private final RegionSource _regionSource;
@@ -53,7 +52,7 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
   }
 
   @Override
-  public FixedIncomeInstrumentConverter<?> visitCorporateBondSecurity(final CorporateBondSecurity security) {
+  public FixedIncomeInstrumentDefinition<?> visitCorporateBondSecurity(final CorporateBondSecurity security) {
     final String domicile = security.getIssuerDomicile();
     Validate.notNull(domicile, "bond security domicile cannot be null");
     final ConventionBundle convention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, domicile + "_CORPORATE_BOND_CONVENTION"));
@@ -61,14 +60,14 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
   }
 
   @Override
-  public FixedIncomeInstrumentConverter<?> visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
+  public FixedIncomeInstrumentDefinition<?> visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
     final String domicile = security.getIssuerDomicile();
     Validate.notNull(domicile, "bond security domicile cannot be null");
     final ConventionBundle convention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, domicile + "_TREASURY_BOND_CONVENTION"));
     return visitBondSecurity(security, convention);
   }
 
-  public FixedIncomeInstrumentConverter<?> visitBondSecurity(final BondSecurity security, final ConventionBundle convention) {
+  public FixedIncomeInstrumentDefinition<?> visitBondSecurity(final BondSecurity security, final ConventionBundle convention) {
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, RegionUtils.financialRegionId(security.getIssuerDomicile()));
     final Currency currency = security.getCurrency();
     final ZonedDateTime firstAccrualDate = security.getInterestAccrualDate();
@@ -84,7 +83,7 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
   }
 
   @Override
-  public BondDefinition visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
+  public FixedIncomeInstrumentDefinition<?> visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
     throw new NotImplementedException();
   }
 

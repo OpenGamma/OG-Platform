@@ -29,10 +29,10 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.bond.BondDefinition;
+import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.interestrate.PV01Calculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.bond.BondSecurity;
 
@@ -64,7 +64,7 @@ public abstract class BondPV01Function extends AbstractFunction.NonCompiledInvok
         .getConventionBundleSource(executionContext);
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
     final BondSecurityConverter visitor = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
-    Bond bond = ((BondDefinition) security.accept(visitor)).toDerivative(now, curveName);
+    BondFixedSecurity bond = ((BondFixedSecurityDefinition) security.accept(visitor)).toDerivative(now, curveName);
     final YieldCurveBundle bundle;
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
     bundle = new YieldCurveBundle(new String[] {curveName}, new YieldAndDiscountCurve[] {curve});

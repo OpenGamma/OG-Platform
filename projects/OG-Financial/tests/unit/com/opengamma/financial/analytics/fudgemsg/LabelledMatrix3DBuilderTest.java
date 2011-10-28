@@ -18,7 +18,7 @@ import com.opengamma.util.money.Currency;
  */
 public class LabelledMatrix3DBuilderTest extends AnalyticsTestBase {
 
-  private static final Object[] X_LABELS = new Object[] {"A", 42d, "C", (int) Short.MAX_VALUE + 1, "E" };
+  private static final Object[] X_LABELS = new Object[] {"A", 42d, "C", Short.MAX_VALUE + 1, "E" };
   private static final Object[] Y_LABELS = new Object[] {"A", Currency.USD, SimpleFrequency.ANNUAL, "D" };
   private static final Object[] Z_LABELS = new Object[] {(short) 1, 1, 1L };
   private static final double[][][] VALUES = new double[][][] { { {1., 2., 3., 4., 5. }, {6., 7., 8., 9., 10. }, {11., 12., 13., 14., 15. }, {16., 17., 18., 19., 20., } },

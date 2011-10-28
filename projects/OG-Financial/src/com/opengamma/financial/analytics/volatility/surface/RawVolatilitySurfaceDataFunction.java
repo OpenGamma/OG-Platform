@@ -103,8 +103,7 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
 
   @SuppressWarnings("unchecked")
   public static <X, Y> Set<ValueRequirement> buildRequirements(final VolatilitySurfaceSpecification specification,
-                                                        final VolatilitySurfaceDefinition<X, Y> definition,
-                                                        final FunctionCompilationContext context,
+                                                        final VolatilitySurfaceDefinition<X, Y> definition,                                                        
                                                         final ZonedDateTime atInstant) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     final SurfaceInstrumentProvider<X, Y> provider = (SurfaceInstrumentProvider<X, Y>) specification.getSurfaceInstrumentProvider();
@@ -121,7 +120,7 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
     final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
-    final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(_specification, _definition, context, atInstant));
+    final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(_specification, _definition, atInstant));
     //TODO ENG-252 see MarketInstrumentImpliedYieldCurveFunction; need to work out the expiry more efficiently
     return new AbstractInvokingCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000)) {
 
@@ -130,8 +129,9 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
         return ComputationTargetType.PRIMITIVE;
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+      public Set<ValueSpecification> getResults(@SuppressWarnings("hiding") final FunctionCompilationContext context, final ComputationTarget target) {
         if (canApplyTo(context, target)) {
           return _results;
         }
@@ -139,23 +139,23 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
       }
 
       @Override
-      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+      public Set<ValueRequirement> getRequirements(@SuppressWarnings("hiding") final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
         if (canApplyTo(context, target)) {
           return requirements;
         }
         return null;
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+      public boolean canApplyTo(@SuppressWarnings("hiding") final FunctionCompilationContext context, final ComputationTarget target) {
         if (target.getType() != ComputationTargetType.PRIMITIVE) {
           return false;
         }
-        // REVIEW: jim 23-July-2010 is this enough? Probably not, but I'm not entirely sure what the deal with the Ids is...
         return ObjectUtils.equals(target.getUniqueId(), _definition.getTarget().getUniqueId());
       }
 
-      @SuppressWarnings("unchecked")
+      @SuppressWarnings({"unchecked", "synthetic-access" })
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) {

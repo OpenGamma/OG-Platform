@@ -1,0 +1,22 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+.OG-link-small {
+  font-size: 10px;
+  border-bottom: 1px solid #999!important;
+  color: #999!important;
+  line-height: 13px;
+}
+
+.OG-link-small:hover {
+  border-bottom: 1px solid #ccc!important;
+  color: #999;
+}
+
+.OG-link-small.og-active {
+  border: none!important;
+  font-weight: bold;
+  cursor: default!important;
+}

@@ -216,7 +216,7 @@ public class ExternalFunctionHandlerTest {
     final List<Parameter> parameters = function.getParameter();
     assertEquals(parameters.size(), 1);
     final MetaParameter param1 = (MetaParameter) parameters.get(0);
-    assertEquals(param1.getName(), "a");
+    assertEquals(param1.getName(), "param1");
     assertEquals(param1.getDescription(), "The first parameter");
     assertEquals(param1.getRequired(), false);
     assertEquals(param1.getJavaTypeInfo(), JavaTypeInfo.builder(Map.class).allowNull().get());

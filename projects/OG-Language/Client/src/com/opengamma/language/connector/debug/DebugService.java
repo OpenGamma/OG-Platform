@@ -58,6 +58,7 @@ public class DebugService {
     int port = args.length == 2 ? Integer.parseInt(args[1]) : DEFAULT_PORT;
     s_serverSocketConnectionReceiver = new ServerSocketFudgeConnectionReceiver(s_clientContext.getFudgeContext(), new DebugConnectionReceiver());
     s_serverSocketConnectionReceiver.setPortNumber(port);
+    s_serverSocketConnectionReceiver.setDaemon(false);
     s_serverSocketConnectionReceiver.start();
     
     System.out.println("================================== READY TO SERVE " + languageId.toUpperCase() + " =======================================");

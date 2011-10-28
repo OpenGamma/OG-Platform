@@ -152,14 +152,17 @@ public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends Forex
     final String putForwardCurveName = getPutForwardCurveName();
     final String callFundingCurveName = getCallFundingCurveName();
     final String callForwardCurveName = getCallForwardCurveName();
+    final String surfaceName = getSurfaceName();
     final Currency putCurrency = fxOption.getPutCurrency();
     final Currency callCurrency = fxOption.getCallCurrency();
     final ExternalId spotIdentifier = FXUtils.getSpotIdentifier(fxOption, true);
     final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
-    final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, getSurfaceName())
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
+    final ExternalId inverseSpotIdentifier = FXUtils.getSpotIdentifier(fxOption, true);
+    final ValueRequirement inverseSpotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, inverseSpotIdentifier);
+    final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, surfaceName)
+                                                             .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
     final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(fxOption.getPutCurrency(), fxOption.getCallCurrency());
-    final ValueRequirement fxVolatilitySurface = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
+    final ValueRequirement fxVolatilitySurface = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
     result.add(YieldCurveFunction.getCurveRequirement(putCurrency, putFundingCurveName, putForwardCurveName, putFundingCurveName, 
         MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     result.add(YieldCurveFunction.getCurveRequirement(putCurrency, putForwardCurveName, putForwardCurveName, putFundingCurveName, 
@@ -174,6 +177,7 @@ public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends Forex
     result.add(YieldCurveFunction.getCouponSensitivityRequirement(callCurrency, callForwardCurveName, callFundingCurveName));
     result.add(getCurveSensitivitiesRequirement(target));
     result.add(spotRequirement);
+    result.add(inverseSpotRequirement);
     result.add(fxVolatilitySurface);
     result.add(getCurveSpecRequirement(putCurrency, putFundingCurveName));
     result.add(getCurveSpecRequirement(putCurrency, putForwardCurveName));

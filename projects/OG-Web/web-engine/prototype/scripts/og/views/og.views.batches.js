@@ -72,6 +72,8 @@ $.register_module({
             },
             default_details = og.views.common.default_details.partial(page_name, 'Batches', options),
             details_page = function (args){
+                // if new page, close south panel
+                check_state({args: args, conditions: [{new_page: og.views.common.layout.inner.close('south')}]});
                 api.rest.batches.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);

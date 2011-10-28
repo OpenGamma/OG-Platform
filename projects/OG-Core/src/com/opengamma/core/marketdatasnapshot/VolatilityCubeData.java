@@ -6,6 +6,7 @@
 package com.opengamma.core.marketdatasnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,8 +16,6 @@ import java.util.Set;
 import com.google.common.collect.Lists;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * A bundle of data to use to build a volatility cube.

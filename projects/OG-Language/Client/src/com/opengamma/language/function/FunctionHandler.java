@@ -6,9 +6,10 @@
 
 package com.opengamma.language.function;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +64,13 @@ public class FunctionHandler implements FunctionVisitor<UserMessagePayload, Sess
 
   @Override
   public Available visitQueryAvailable(final QueryAvailable message, final SessionContext context) {
-    final Set<MetaFunction> definitions = context.getFunctionProvider().getDefinitions();
+    final List<MetaFunction> definitions = new ArrayList<MetaFunction>(context.getFunctionProvider().getDefinitions());
+    Collections.sort(definitions, new Comparator<MetaFunction>() {
+      @Override
+      public int compare(MetaFunction o1, MetaFunction o2) {
+        return o1.getName().compareTo(o2.getName());
+      }
+    });
     final FunctionRepository repository = context.getFunctionRepository();
     s_logger.info("{} functions available", definitions.size());
     final Available available = new Available();

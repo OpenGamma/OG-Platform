@@ -13,7 +13,7 @@ $.register_module({
             INDX = '<INDEX>';
         return og.views.config_forms['default'].preload({
             type: 'com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating',
-            meta: [
+            type_map: [
                 ['0',                                       Form.type.STR],
                 [['rules', INDX, 'fieldName'].join('.'),    Form.type.STR],
                 [['rules', INDX, 'fieldValue'].join('.'),   Form.type.STR],

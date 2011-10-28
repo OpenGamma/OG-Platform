@@ -2,3 +2,17 @@
  * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
+
+.OG-config label span {
+  display: block;
+}
+
+.OG-config p {
+  color: #999;
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+.OG-config p em {
+  font-weight: bold;
+}

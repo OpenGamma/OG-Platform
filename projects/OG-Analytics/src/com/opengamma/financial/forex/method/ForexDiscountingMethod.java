@@ -11,7 +11,7 @@ import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -27,7 +27,7 @@ public final class ForexDiscountingMethod implements ForexPricingMethod {
   /**
    * Interest rate present value rate sensitivity by discounting.
    */
-  private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();
+  private static final PresentValueCurveSensitivityCalculator PVSC = PresentValueCurveSensitivityCalculator.getInstance();
   private static final ForexDiscountingMethod INSTANCE = new ForexDiscountingMethod();
 
   /**

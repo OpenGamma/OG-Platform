@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.engine.value.ValueProperties;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.hibernate.engine.SessionFactoryImplementor;
@@ -69,7 +70,18 @@ public abstract class AbstractBatchResultWriter {
    * -> references rsk_value_name(id)
    */
   private final Map<String, Integer> _riskValueName2Id = new HashMap<String, Integer>();
-  
+
+  /**
+   * -> references rsk_value_requirement(id)
+   */
+  private final Map<ValueProperties, Integer> _valueRequirement2Id = new HashMap<ValueProperties, Integer>();
+
+  /**
+   * -> references rsk_value_specification(id)
+   */
+  private final Map<ValueProperties, Integer> _valueSpecification2Id = new HashMap<ValueProperties, Integer>();
+
+
   /**
    * -> references rsk_function_unique_id(id)
    */
@@ -118,17 +130,21 @@ public abstract class AbstractBatchResultWriter {
    * Have DB connections been set up successfully?
    */
   private boolean _initialized; // = false;
-  
+
   public AbstractBatchResultWriter(DbConnector dbConnector,
       RiskRun riskRun,
       ResultConverterCache resultConverterCache,
       Collection<ComputationTarget> computationTargets,
-      Set<RiskValueName> valueNames) {
+      Set<RiskValueName> valueNames,
+      Set<RiskValueRequirement> valueRequirements,
+      Set<RiskValueSpecification> valueSpecifications) {
     
     ArgumentChecker.notNull(dbConnector, "dbConnector");
     ArgumentChecker.notNull(computationTargets, "Computation targets");
     ArgumentChecker.notNull(riskRun, "Risk run");
     ArgumentChecker.notNull(valueNames, "Value names");
+    ArgumentChecker.notNull(valueRequirements, "Value requirements");
+    ArgumentChecker.notNull(valueSpecifications, "Value specifications");
     ArgumentChecker.notNull(resultConverterCache, "resultConverterCache");
     
     _dbConnector = dbConnector;
@@ -150,13 +166,21 @@ public abstract class AbstractBatchResultWriter {
       }
       _computationTarget2Id.put(target.toComputationTargetSpec(), id);      
     }
-    
-    
+
+
     for (RiskValueName valueName : valueNames) {
       _riskValueName2Id.put(valueName.getName(), valueName.getId());
     }
+
+    for (RiskValueRequirement valueRequirement : valueRequirements) {
+      _valueRequirement2Id.put(valueRequirement.toProperties(), valueRequirement.getId());
+    }
+
+    for (RiskValueSpecification valueSpecification : valueSpecifications) {
+      _valueSpecification2Id.put(valueSpecification.toProperties(), valueSpecification.getId());
+    }
   }
-  
+
   // --------------------------------------------------------------------------
   
   public void initialize() {
@@ -219,7 +243,7 @@ public abstract class AbstractBatchResultWriter {
     if (!(generatedId instanceof Long)) {
       throw new IllegalStateException("Got ID of type " + generatedId.getClass());
     }
-    return ((Long) generatedId).longValue();
+    return (Long) generatedId;
   }
   
   // --------------------------------------------------------------------------
@@ -227,11 +251,11 @@ public abstract class AbstractBatchResultWriter {
   public int getCalculationConfigurationId(String calcConfName) {
     ArgumentChecker.notNull(calcConfName, "Calc conf name");
     
-    Number confId = _calculationConfiguration2Id.get(calcConfName);
+    Integer confId = _calculationConfiguration2Id.get(calcConfName);
     if (confId == null) {
       throw new IllegalArgumentException("Calculation configuration " + calcConfName + " is not in the database");
     }
-    return confId.intValue();
+    return confId;
   }
 
   public int getComputationTargetId(ComputationTargetSpecification spec) {
@@ -241,7 +265,7 @@ public abstract class AbstractBatchResultWriter {
     if (specId == null) {
       throw new IllegalArgumentException(spec + " is not in the database");
     }
-    return specId.intValue();
+    return specId;
   }
 
   public Integer getComputeNodeId(String nodeId) {
@@ -271,17 +295,16 @@ public abstract class AbstractBatchResultWriter {
     _computeNodeId2Id.put(nodeId, dbId);
     return dbId;
   }
-  
+
   public int getValueNameId(String name) {
     ArgumentChecker.notNull(name, "Risk value name");
-    
+
     Integer dbId = _riskValueName2Id.get(name);
     if (dbId != null) {
       return dbId;
     }
 
     DbBatchMaster dbManager = new DbBatchMaster(_dbConnector);
-    
     // try twice to handle situation where two threads contend to insert
     RuntimeException lastException = null;
     for (int i = 0; i < 2; i++) {
@@ -297,6 +320,62 @@ public abstract class AbstractBatchResultWriter {
       throw lastException;
     }
     _riskValueName2Id.put(name, dbId);
+    return dbId;
+  }
+
+  public int getValueRequirementId(ValueProperties requirement) {
+    ArgumentChecker.notNull(requirement, "Risk value requirement");
+    
+    Integer dbId = _valueRequirement2Id.get(requirement);
+    if (dbId != null) {
+      return dbId;
+    }
+
+    DbBatchMaster dbManager = new DbBatchMaster(_dbConnector);
+    
+    // try twice to handle situation where two threads contend to insert
+    RuntimeException lastException = null;
+    for (int i = 0; i < 2; i++) {
+      try {
+        dbId = dbManager.getRiskValueRequirement(requirement).getId();
+        lastException = null;
+        break;
+      } catch (RuntimeException e) {
+        lastException = e;
+      }
+    }
+    if (lastException != null) {
+      throw lastException;
+    }
+    _valueRequirement2Id.put(requirement, dbId);
+    return dbId;
+  }
+
+  public int getValueSpecificationId(ValueProperties specification) {
+    ArgumentChecker.notNull(specification, "Risk value specification");
+
+    Integer dbId = _valueSpecification2Id.get(specification);
+    if (dbId != null) {
+      return dbId;
+    }
+
+    DbBatchMaster dbManager = new DbBatchMaster(_dbConnector);
+
+    // try twice to handle situation where two threads contend to insert
+    RuntimeException lastException = null;
+    for (int i = 0; i < 2; i++) {
+      try {
+        dbId = dbManager.getRiskValueSpecification(specification).getId();
+        lastException = null;
+        break;
+      } catch (RuntimeException e) {
+        lastException = e;
+      }
+    }
+    if (lastException != null) {
+      throw lastException;
+    }
+    _valueSpecification2Id.put(specification, dbId);
     return dbId;
   }
   
@@ -346,6 +425,9 @@ public abstract class AbstractBatchResultWriter {
     return _riskValueName2Id;
   }
 
+  public Map<ValueProperties, Integer> getValueRequirement2Id() {
+    return _valueRequirement2Id;
+  }
 
   public ResultConverterCache getResultConverterCache() {
     return _resultConverterCache;
@@ -575,17 +657,22 @@ public abstract class AbstractBatchResultWriter {
    * @param calcConfName  the calculation config name
    * @param valueName  the value name
    * @param ct  the computation target
+   * @param requirement the requirement
    * @return the value for this target, null if does not exist
    */
-  public RiskValue getValue(String calcConfName, String valueName, ComputationTargetSpecification ct) {
+  public RiskValue getValue(String calcConfName, String valueName, ValueProperties requirement, ValueProperties specification, ComputationTargetSpecification ct) {
     Integer calcConfId = getCalculationConfigurationId(calcConfName);
     Integer valueId = getValueNameId(valueName);
     Integer computationTargetId = getComputationTargetId(ct);
+    Integer valueRequirementId = getValueRequirementId(requirement);
+    Integer valueSpecificationId = getValueSpecificationId(specification);
     
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("calculation_configuration_id", calcConfId);
     params.addValue("value_name_id", valueId);
     params.addValue("computation_target_id", computationTargetId);
+    params.addValue("value_requirement_id", valueRequirementId);
+    params.addValue("value_specification_id", valueSpecificationId);
     
     try {
       return getJdbcTemplate().queryForObject(RiskValue.sqlGet(), RiskValue.ROW_MAPPER, params);
@@ -593,5 +680,5 @@ public abstract class AbstractBatchResultWriter {
       return null;
     }
   }
-  
+
 }

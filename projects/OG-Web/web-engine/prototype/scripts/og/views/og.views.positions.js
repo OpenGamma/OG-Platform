@@ -54,11 +54,11 @@ $.register_module({
                         'OK': function () {
                             api.rest.positions.put({
                                 handler: function (r) {
+                                    var args = routes.last().args;
                                     if (r.error) return ui.dialog({type: 'error', message: r.message});
                                     ui.dialog({type: 'input', action: 'close'});
-                                    routes.go(routes.hash(module.rules.load_new_positions,
-                                            $.extend({}, routes.last().args, {id: r.meta.id, 'new': true})
-                                    ));
+                                    positions.search(args);
+                                    routes.go(routes.hash(module.rules.load_positions, args, {add: {id: r.meta.id}}));
                                 },
                                 quantity: ui.dialog({return_field_value: 'quantity'}),
                                 scheme_type: ui.dialog({return_field_value: 'scheme-type'}),
@@ -77,9 +77,8 @@ $.register_module({
                                 handler: function (r) {
                                     if (r.error) return ui.dialog({type: 'error', message: r.message});
                                     ui.dialog({type: 'confirm', action: 'close'});
-                                    routes.go(routes.hash(module.rules.load_delete,
-                                            $.extend({}, routes.last().args, {deleted: true})
-                                    ));
+                                    positions.search(args);
+                                    routes.go(routes.hash(module.rules.load, {}));
                                 }, id: routes.last().args.id
                             });
                         }
@@ -117,14 +116,9 @@ $.register_module({
                     }
                 }
             },
-            load_positions_without = function (field, args) {
-                check_state({args: args, conditions: [{new_page: positions.load, stop: true}]});
-                delete args[field];
-                positions.search(args);
-                routes.go(routes.hash(module.rules.load_positions, args));
-            },
             details_page = function (args) {
-                var render_identifiers = function (json) {
+                var layout = og.views.common.layout,
+                    render_identifiers = function (json) {
                         $('.OG-js-details-panel .og-js-identifiers').html(json.reduce(function (acc, val) {
                             acc.push('<tr><td><span>' + val.scheme + '</span></td><td>' + val.value + '</td></tr>');
                             return acc
@@ -138,7 +132,30 @@ $.register_module({
                             acc.push(start, fields.map(function (field) {return trade[field];}).join('</td><td>'), end);
                             return acc;
                         }, []).join(''));
+                    },
+                    setup_header_links = function () {
+                        var $version_link,
+                            rule = module.rules.load_positions;
+                        $version_link = $('<a>version history</a>')
+                            .addClass('OG-link-small og-js-version-link')
+                            .attr('href', routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}))
+                            .unbind('click').bind('click', function (e) {
+                                var layout = og.views.common.layout;
+                                if (!layout.inner.state.south.isClosed && args.version) {
+                                    e.preventDefault();
+                                    layout.inner.close('south');
+                                    routes.go(routes.hash(rule, args, {del: ['version']}));
+                                } else layout.inner.open('south');
+                            });
+                        $('.OG-js-header-links').empty().append($version_link);
                     };
+                // if new page, close south panel
+                check_state({args: args, conditions: [{new_page: layout.inner.close.partial('south')}]});
+                // load versions
+                if (args.version) {
+                    layout.inner.open('south');
+                    og.views.common.versions.load();
+                } else layout.inner.close('south');
                 api.rest.positions.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
@@ -160,6 +177,7 @@ $.register_module({
                             content = $.outer($html.find('> section')[0]);
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
                             $('.ui-layout-inner-center .ui-layout-content').html(content);
+                            setup_header_links();
                             ui.toolbar(options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);
@@ -172,24 +190,22 @@ $.register_module({
                             }
                             render_identifiers(json.securities);
                             render_trades(json.trades);
-                            ui.content_editable({
-                                attribute: 'data-og-editable',
-                                handler: function () {
-                                    routes.go(routes.hash(module.rules.load_edit_positions, $.extend(args, {
-                                        edit: 'true'
-                                    })));
-                                }
-                            });
+                            if (!args.version || args.version === '*') {
+                                ui.content_editable({
+                                    attribute: 'data-og-editable',
+                                    handler: function () {positions.search(args), routes.handler();}
+                                });
+                            }
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             layout.inner.resizeAll();
                         }});
                     },
                     id: args.id,
-                    version: args.version,
+                    version: args.version && args.version !== '*' ? args.version : void 0,
                     loading: function () {
-                        if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions.load()}
                         ui.message({
                             location: '.ui-layout-inner-center',
+                            css: {left: 0},
                             message: {0: 'loading...', 3000: 'still loading...'}
                         });
                     }
@@ -199,15 +215,8 @@ $.register_module({
         module.rules = {
             load: {route: '/' + page_name + '/quantity:?', method: module.name + '.load'},
             load_filter: {route: '/' + page_name + '/filter:/:id?/quantity:?', method: module.name + '.load_filter'},
-            load_delete: {route: '/' + page_name + '/deleted:/quantity:?', method: module.name + '.load_delete'},
             load_positions: {
                 route: '/' + page_name + '/:id/:node?/version:?/quantity:?', method: module.name + '.load_' + page_name
-            },
-            load_new_positions: {
-                route: '/' + page_name + '/:id/:node?/new:/quantity:?', method: module.name + '.load_new_' + page_name
-            },
-            load_edit_positions: {
-                route: '/' + page_name + '/:id/:node?/edit:/quantity:?', method: module.name + '.load_edit_' + page_name
             }
         };
         /**
@@ -237,13 +246,9 @@ $.register_module({
         return positions = {
             load: function (args) {
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        positions.search(args);
-                        masthead.menu.set_tab(page_name);
-                    }}
+                    {new_page: function () {positions.search(args), masthead.menu.set_tab(page_name);}}
                 ]});
-                if (args.id) return;
-                default_details();
+                if (args.id) return; else default_details();
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [
@@ -258,12 +263,6 @@ $.register_module({
                 delete args['filter'];
                 search.filter($.extend(true, args, {filter: true}, get_quantities(args.quantity)));
             },
-            load_delete: function (args) {
-                positions.search(args);
-                routes.go(routes.hash(module.rules.load, {}));
-            },
-            load_new_positions: load_positions_without.partial('new'),
-            load_edit_positions: load_positions_without.partial('edit'),
             load_positions: function (args) {
                 check_state({args: args, conditions: [{new_page: positions.load}]});
                 positions.details(args);

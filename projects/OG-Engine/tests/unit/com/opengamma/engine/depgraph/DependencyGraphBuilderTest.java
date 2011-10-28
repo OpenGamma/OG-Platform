@@ -258,7 +258,7 @@ public class DependencyGraphBuilderTest {
     return result;
   }
 
-  public void testFunctionByName1() {
+  public void functionByName1() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn = helper.addFunctionProducing2();
     final MockFunction fnBeta = helper.addFunctionProducing2Beta();
@@ -279,7 +279,7 @@ public class DependencyGraphBuilderTest {
     assertGraphContains(graph, fn, fnBeta);
   }
 
-  public void testFunctionByName2() {
+  public void functionByName2() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.addFunctionProducing2();
     final MockFunction fnBeta = helper.addFunctionProducing2Beta();
@@ -300,7 +300,7 @@ public class DependencyGraphBuilderTest {
     assertGraphContains(graph, fnBeta);
   }
 
-  public void testFunctionByNameMissing() {
+  public void functionByNameMissing() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.addFunctionProducing2();
     final DependencyGraphBuilder builder = helper.getBuilder(null);
@@ -308,7 +308,7 @@ public class DependencyGraphBuilderTest {
     expectFailure(builder, builder.getContext().resolveRequirement(helper.getRequirement2Beta(), null));
   }
 
-  public void testFunctionWithProperty() {
+  public void functionWithProperty() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn1 = helper.addFunctionProducing(helper.getValue1Foo());
     helper.addFunctionRequiringProducing(helper.getRequirement1Bar(), helper.getValue2Bar());
@@ -321,7 +321,7 @@ public class DependencyGraphBuilderTest {
     assertGraphContains(graph, fn1, fn2b);
   }
 
-  public void testFunctionWithPropertyMissing() {
+  public void functionWithPropertyMissing() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.addFunctionProducing(helper.getValue1Foo());
     helper.addFunctionRequiringProducing(helper.getRequirement1Bar(), helper.getValue2Bar());
@@ -330,7 +330,7 @@ public class DependencyGraphBuilderTest {
     expectFailure(builder, builder.getContext().resolveRequirement(helper.getRequirement2Bar(), null));
   }
 
-  public void testFunctionWithStaticConversion() {
+  public void functionWithStaticConversion() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn1 = helper.addFunctionProducing(helper.getValue1Foo());
     final MockFunction fnConv = new MockFunction(helper.getTarget()) {
@@ -364,7 +364,7 @@ public class DependencyGraphBuilderTest {
     assertGraphContains(graph, fn1, fn2, fnConv);
   }
 
-  public void testFunctionWithDynamicConversionSingle() {
+  public void functionWithDynamicConversionSingle() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn1 = helper.addFunctionProducing(helper.getValue1Foo());
     final MockFunction fn2 = helper.addFunctionRequiringProducing(helper.getRequirement1Foo(), helper.getValue2Foo());
@@ -403,7 +403,7 @@ public class DependencyGraphBuilderTest {
     assertTrue(getResultsCalled.get());
   }
 
-  public void testFunctionWithDynamicConversionTwoLevel() {
+  public void functionWithDynamicConversionTwoLevel() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn1 = helper.addFunctionProducing(helper.getValue1Foo());
     // This converter will manipulate a value name but preserve a property; requiring late-stage property/constraint composition
@@ -475,7 +475,7 @@ public class DependencyGraphBuilderTest {
     assertTrue(nodes.get(fnConv2).getOutputRequirements().iterator().next().getConstraints().getValues("TEST").contains("Bar"));
   }
 
-  public void testFunctionWithDynamicConversionDouble() {
+  public void functionWithDynamicConversionDouble() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn1 = helper.addFunctionProducing(helper.getValue1Foo());
     final AtomicInteger getResultsInvoked = new AtomicInteger();
@@ -509,7 +509,7 @@ public class DependencyGraphBuilderTest {
     assertEquals(2, getResultsInvoked.get());
   }
 
-  public void testBacktrackCleanup() {
+  public void backtrackCleanup() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.addFunctionProducing(helper.getValue2Foo());
     final MockFunction fn2Bar = helper.addFunctionProducing(helper.getValue2Bar());
@@ -552,7 +552,7 @@ public class DependencyGraphBuilderTest {
     assertGraphContains(graph, fn2Bar, fnConv);
   }
 
-  public void testOutputBasedRequirements() {
+  public void outputBasedRequirements() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.addFunctionProducing(helper.getValue2Foo());
     final MockFunction fn2Bar = helper.addFunctionProducing(helper.getValue2Bar());
@@ -578,7 +578,7 @@ public class DependencyGraphBuilderTest {
     assertGraphContains(graph, fn2Bar, fnConv);
   }
 
-  public void testAdditionalRequirements() {
+  public void additionalRequirements() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn1Foo = helper.addFunctionProducing(helper.getValue1Foo());
     final MockFunction fn2Bar = helper.addFunctionProducing(helper.getValue2Bar());
@@ -612,7 +612,7 @@ public class DependencyGraphBuilderTest {
     assertGraphContains(graph, fn2Bar, fnConv, fn1Foo);
   }
 
-  public void testAdditionalRequirementBacktracking() {
+  public void additionalRequirementBacktracking() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn1Foo = helper.addFunctionProducing(helper.getValue1Foo());
     final MockFunction fn2Foo = helper.addFunctionProducing(helper.getValue2Foo());
@@ -671,7 +671,7 @@ public class DependencyGraphBuilderTest {
 
   };
 
-  public void testTwoLevelConversion() {
+  public void twoLevelConversion() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final ComputationTarget target1 = new ComputationTarget(UniqueId.of("Target", "1"));
     final ComputationTarget target2 = new ComputationTarget(UniqueId.of("Target", "2"));
@@ -871,6 +871,83 @@ public class DependencyGraphBuilderTest {
     graph.removeUnnecessaryValues();
     s_logger.debug("After removeUnnecessaryValues");
     //graph.dumpStructureASCII(System.out);
+  }
+
+  private static class OptionalInputsFunction extends TestFunction {
+
+    private final boolean _expect1;
+    private final boolean _expect2;
+    private final ValueRequirement _req1;
+    private final ValueRequirement _req2;
+
+    public OptionalInputsFunction(final DepGraphTestHelper helper, final boolean expect1, final boolean expect2) {
+      _expect1 = expect1;
+      _expect2 = expect2;
+      _req1 = helper.getRequirement2();
+      _req2 = helper.getRequirement1();
+    }
+
+    @Override
+    public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
+      return null;
+    }
+
+    @Override
+    public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+      final Set<ValueRequirement> req = Sets.newHashSetWithExpectedSize(4);
+      req.add(_req1);
+      req.add(_req2);
+      return req;
+    }
+
+    @Override
+    public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+      if (_expect1) {
+        assertTrue(inputs.values().contains(_req1));
+      } else {
+        assertFalse(inputs.values().contains(_req1));
+      }
+      if (_expect2) {
+        assertTrue(inputs.values().contains(_req2));
+      } else {
+        assertFalse(inputs.values().contains(_req2));
+      }
+      return getResults(context, target);
+    }
+
+    @Override
+    public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+      return Collections.singleton(new ValueSpecification("OUT", target.toSpecification(), ValueProperties.all()));
+    }
+
+    @Override
+    public boolean canHandleMissingRequirements() {
+      return true;
+    }
+
+  }
+
+  public void optionalInputsPresent() {
+    final DepGraphTestHelper helper = new DepGraphTestHelper();
+    helper.addFunctionProducing1and2();
+    helper.getFunctionRepository().addFunction(new OptionalInputsFunction(helper, true, true));
+    final DependencyGraphBuilder builder = helper.getBuilder(null);
+    expectCompletion(builder, builder.getContext().resolveRequirement(new ValueRequirement("OUT", helper.getTarget().toSpecification()), null));
+  }
+
+  public void optionalInputsBothMissing() {
+    final DepGraphTestHelper helper = new DepGraphTestHelper();
+    helper.getFunctionRepository().addFunction(new OptionalInputsFunction(helper, false, false));
+    final DependencyGraphBuilder builder = helper.getBuilder(null);
+    expectCompletion(builder, builder.getContext().resolveRequirement(new ValueRequirement("OUT", helper.getTarget().toSpecification()), null));
+  }
+
+  public void optionalInputsOneMissing() {
+    final DepGraphTestHelper helper = new DepGraphTestHelper();
+    helper.addFunctionProducing2();
+    helper.getFunctionRepository().addFunction(new OptionalInputsFunction(helper, true, false));
+    final DependencyGraphBuilder builder = helper.getBuilder(null);
+    expectCompletion(builder, builder.getContext().resolveRequirement(new ValueRequirement("OUT", helper.getTarget().toSpecification()), null));
   }
 
 }
