@@ -22,6 +22,7 @@ public class RiskValue {
   private int _calculationConfigurationId;
   private int _valueNameId;
   private int _valueRequirementId;
+  private int _valueSpecificationId;
   private int _functionUniqueId;
   private int _computationTargetId;
   private int _runId;
@@ -59,6 +60,14 @@ public class RiskValue {
 
   public void setValueRequirementId(int valueRequirementId) {
     _valueRequirementId =  valueRequirementId;
+  }
+  
+  public int getValueSpecificationId() {
+    return _valueSpecificationId;
+  }
+
+  public void setValueSpecificationId(int valueSpecificationId) {
+    _valueSpecificationId =  valueSpecificationId;
   }
   
   public int getFunctionUniqueId() {
@@ -115,6 +124,7 @@ public class RiskValue {
     source.addValue("calculation_configuration_id", getCalculationConfigurationId());
     source.addValue("value_name_id", getValueNameId());
     source.addValue("value_requirement_id", getValueRequirementId());
+    source.addValue("value_specification_id", getValueSpecificationId());
     source.addValue("function_unique_id", getFunctionUniqueId());
     source.addValue("computation_target_id", getComputationTargetId());
     source.addValue("run_id", getRunId());
@@ -126,10 +136,10 @@ public class RiskValue {
   
   public static String sqlInsertRisk() {
     return "INSERT INTO " + DbBatchMaster.getDatabaseSchema() + "rsk_value " +
-              "(id, calculation_configuration_id, value_name_id, value_requirement_id, function_unique_id, computation_target_id, run_id, value, " +
+              "(id, calculation_configuration_id, value_name_id, value_requirement_id, value_specification_id, function_unique_id, computation_target_id, run_id, value, " +
               "eval_instant, compute_node_id) " +
             "VALUES " +
-              "(:id, :calculation_configuration_id, :value_name_id, :value_requirement_id, :function_unique_id, :computation_target_id, :run_id, :value," +
+              "(:id, :calculation_configuration_id, :value_name_id, :value_requirement_id, :value_specification_id, :function_unique_id, :computation_target_id, :run_id, :value," +
               ":eval_instant, :compute_node_id)";
   }
   
@@ -146,6 +156,7 @@ public class RiskValue {
       "calculation_configuration_id = :calculation_configuration_id AND " +
       "value_name_id = :value_name_id AND " +
       "value_requirement_id = :value_requirement_id AND " +
+      "value_specification_id = :value_specification_id AND " +
       "computation_target_id = :computation_target_id";
   }
   
@@ -160,6 +171,7 @@ public class RiskValue {
       riskValue.setCalculationConfigurationId(rs.getInt("calculation_configuration_id"));
       riskValue.setValueNameId(rs.getInt("value_name_id"));
       riskValue.setValueRequirementId(rs.getInt("value_requirement_id"));
+      riskValue.setValueSpecificationId(rs.getInt("value_specification_id"));
       riskValue.setFunctionUniqueId(rs.getInt("function_unique_id"));
       riskValue.setComputationTargetId(rs.getInt("computation_target_id"));
       riskValue.setRunId(rs.getInt("run_id"));

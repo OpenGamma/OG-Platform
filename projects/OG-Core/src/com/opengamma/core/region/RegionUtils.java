@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.region;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,7 +20,6 @@ import com.opengamma.util.PublicAPI;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Utilities and constants for {@code Region}.
@@ -156,7 +156,6 @@ public class RegionUtils {
    * @param regionId The region id, not null
    * @return a set of the region(s)
    */
-  @SuppressWarnings("unchecked")
   public static Set<Region> getRegions(RegionSource regionSource, final ExternalId regionId) {
     Validate.notNull(regionSource, "region source");
     Validate.notNull(regionId, "region id");

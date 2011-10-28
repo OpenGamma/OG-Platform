@@ -58,22 +58,7 @@ public class BlackFormula {
    */
   public final double computePrice() {
     Validate.notNull(_lognormalVol, "Black Volatility parameter, _vol, has not been set.");
-
-    if (_strike < SMALL) {
-      return _isCall ? _forward : 0.0;
-    }
-    final int sign = _isCall ? 1 : -1;
-    final double sigmaRootT = _lognormalVol * Math.sqrt(_expiry);
-    if (Math.abs(_forward - _strike) < SMALL) {
-      return _forward * (2 * NORMAL.getCDF(sigmaRootT / 2) - 1);
-    }
-    if (sigmaRootT < SMALL) {
-      return Math.max(sign * (_forward - _strike), 0.0);
-    }
-
-    final double d1 = Math.log(_forward / _strike) / sigmaRootT + 0.5 * sigmaRootT;
-    final double d2 = d1 - sigmaRootT;
-    return sign * (_forward * NORMAL.getCDF(sign * d1) - _strike * NORMAL.getCDF(sign * d2));
+    return BlackFormulaRepository.price(_forward, _strike, _expiry, _lognormalVol, _isCall);
   }
 
   /**
@@ -145,15 +130,17 @@ public class BlackFormula {
    * @return Black formula price of the option
    */
   public final double computeImpliedVolatility() {
-    try {
-      final BlackFunctionData blackData = new BlackFunctionData(_forward, 1.0, 0.0);
-      final EuropeanVanillaOption blackOption = new EuropeanVanillaOption(_strike, _expiry, _isCall);
-      final double impVol = new BlackImpliedVolatilityFormula().getImpliedVolatility(blackData, blackOption, _fwdMtm);
-      return impVol;
-    } catch (final com.opengamma.math.MathException e) {
-      System.err.println("Failed to compute ImpliedVolatility");
-      throw new OpenGammaRuntimeException(e.getMessage());
-    }
+    Validate.notNull(_fwdMtm, "price is not set. Cannot compute implied volatility. call setMtm first");
+    return BlackFormulaRepository.impliedVolatility(_fwdMtm.doubleValue(), _forward, _strike, _expiry, _isCall);
+    //    try {
+    //      final BlackFunctionData blackData = new BlackFunctionData(_forward, 1.0, 0.0);
+    //      final EuropeanVanillaOption blackOption = new EuropeanVanillaOption(_strike, _expiry, _isCall);
+    //      final double impVol = new BlackImpliedVolatilityFormula().getImpliedVolatility(blackData, blackOption, _fwdMtm);
+    //      return impVol;
+    //    } catch (final com.opengamma.math.MathException e) {
+    //      System.err.println("Failed to compute ImpliedVolatility");
+    //      throw new OpenGammaRuntimeException(e.getMessage());
+    //    }
   }
 
   // The following function was used to test the other. 

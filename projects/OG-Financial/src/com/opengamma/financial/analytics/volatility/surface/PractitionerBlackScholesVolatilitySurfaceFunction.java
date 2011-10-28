@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,15 +35,12 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
-import edu.emory.mathcs.backport.java.util.Collections;
-
 /**
  * 
  * 
  */
 public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
 
-  @SuppressWarnings("unchecked")
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
@@ -96,7 +94,6 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
     return null;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {

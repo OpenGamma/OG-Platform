@@ -47,7 +47,7 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctionH
 import com.opengamma.financial.analytics.volatility.sabr.SABRFittedSurfaces;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.interestrate.InstrumentSensitivityCalculator;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
@@ -117,7 +117,7 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final SwaptionSecurity security = (SwaptionSecurity) target.getSecurity();
-    final FixedIncomeInstrumentConverter<?> swaptionDefinition = security.accept(_swaptionVisitor);
+    final FixedIncomeInstrumentDefinition<?> swaptionDefinition = security.accept(_swaptionVisitor);
     final InterestRateDerivative swaption = swaptionDefinition.toDerivative(now, _fundingCurveName, _forwardCurveName);
     final Currency currency = security.getCurrency();
     final Object forwardCurveObject = inputs.getValue(getForwardCurveRequirement(currency, _forwardCurveName, _fundingCurveName));

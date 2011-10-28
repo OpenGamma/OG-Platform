@@ -6,7 +6,6 @@
 package com.opengamma.core.change;
 
 import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -21,7 +20,6 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
-import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
@@ -30,6 +28,7 @@ import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.transport.jms.JmsByteArrayMessageSender;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.jms.JmsConnector;
 
 /**
  * Manager for receiving and handling entity change events.
@@ -45,88 +44,72 @@ public class JmsChangeManager extends BasicChangeManager implements MessageListe
   private static final Logger s_logger = LoggerFactory.getLogger(JmsChangeManager.class);
 
   /**
-   * The JMS template, not null
+   * The JMS connector, not null
    */
-  private final JmsTemplate _jmsTemplate;
-  /**
-   * The JMS topic, not null
-   */
-  private final String _topic;
+  private final JmsConnector _jmsConnector;
   /**
    * The JMS message dispatcher.
    */
   private final JmsByteArrayMessageDispatcher _messageDispatcher;
-
-  private final ConnectionFactory _connectionFactory;
-
-  private Connection _connection;
+  /**
+   * The connection.
+   */
+  private volatile Connection _connection;
 
   /**
-   * Creates a manager.
-   * @param connectionFactory the connectionFactory to use to send and receive events
-   * @param topic the topic to send events to
+   * Creates a change manager.
+   * 
+   * @param connector  the JMS connector, configured with a topic, not null
+   * @param topicName  the topic name, not null
    */
-  public JmsChangeManager(ConnectionFactory connectionFactory, String topic) {
-    
-    _connectionFactory = connectionFactory;
-    _topic = topic;
-    
-    //Hook up our two message interfaces
-    _jmsTemplate = new JmsTemplate();
-    _jmsTemplate.setPubSubDomain(true);
-    _jmsTemplate.setConnectionFactory(connectionFactory);
+  public JmsChangeManager(JmsConnector connector, String topicName) {
+    _jmsConnector = connector.withTopicName(topicName);
     ByteArrayFudgeMessageReceiver bafmr = new ByteArrayFudgeMessageReceiver(this, OpenGammaFudgeContext.getInstance());
     _messageDispatcher = new JmsByteArrayMessageDispatcher(bafmr);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public void start() {
+    final String topicName = _jmsConnector.getTopicName();
     try {
-      _connection = _connectionFactory.createConnection();
+      _connection = _jmsConnector.getConnectionFactory().createConnection();
       _connection.start();
-      Session session = _connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      Topic topic = session.createTopic(_topic);
-      
-      MessageConsumer messageConsumer = session.createConsumer(topic);
+      final Session session = _connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      final Topic topic = session.createTopic(topicName);
+      final MessageConsumer messageConsumer = session.createConsumer(topic);
       messageConsumer.setMessageListener(this);
-    } catch (JMSException e) {
-      throw new OpenGammaRuntimeException("Failed to create change manager for topic " + _topic, e);      
+      
+    } catch (JMSException ex) {
+      throw new OpenGammaRuntimeException("Failed to create change manager on topic: " + topicName, ex);      
     }
   }
 
   @Override
   public void stop() {
+    final String topicName = _jmsConnector.getTopicName();
     try {
       _connection.stop();
-    } catch (JMSException e) {
-      throw new OpenGammaRuntimeException("Failed to stop change manager for topic " + _topic, e);
+      _connection = null;
+      
+    } catch (JMSException ex) {
+      throw new OpenGammaRuntimeException("Failed to stop change manager on topic: " + topicName, ex);
     }
-    _connection = null;
   }
-  
+
   @Override
   public boolean isRunning() {
     return _connection != null;
   }
 
-  
   //-------------------------------------------------------------------------
   /**
-   * Gets the JMS template.
+   * Gets the JMS connector.
    * 
-   * @return the JMS template, not null
+   * @return the JMS connector, not null
    */
-  public JmsTemplate getJmsTemplate() {
-    return _jmsTemplate;
-  }
-
-  /**
-   * Gets the JMS topic.
-   * 
-   * @return the JMS topic, not null
-   */
-  public String getTopic() {
-    return _topic;
+  public JmsConnector getJmsConnector() {
+    return _jmsConnector;
   }
 
   //-------------------------------------------------------------------------
@@ -140,10 +123,10 @@ public class JmsChangeManager extends BasicChangeManager implements MessageListe
    */
   @Override
   protected void handleEntityChanged(final ChangeEvent event) {
-    FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().toFudgeMsg(event);
-    s_logger.debug("Source changed: Sending message {}", msg);
-    byte[] fudgeMsg = OpenGammaFudgeContext.getInstance().toByteArray(msg.getMessage());
-    JmsByteArrayMessageSender messageSender = new JmsByteArrayMessageSender(getTopic(), getJmsTemplate());
+    final FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().toFudgeMsg(event);
+    s_logger.debug("Sending change message {}", msg);
+    final byte[] fudgeMsg = OpenGammaFudgeContext.getInstance().toByteArray(msg.getMessage());
+    final JmsByteArrayMessageSender messageSender = new JmsByteArrayMessageSender(getJmsConnector().getTopicName(), getJmsConnector().getJmsTemplate());
     messageSender.send(fudgeMsg);
   }
 
@@ -154,10 +137,10 @@ public class JmsChangeManager extends BasicChangeManager implements MessageListe
 
   @Override
   public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
-    FudgeMsg msg = msgEnvelope.getMessage();
-    s_logger.debug("Source changed: Received message {}", msg);
-    FudgeDeserializer deserializer = new FudgeDeserializer(fudgeContext);
-    ChangeEvent event = deserializer.fudgeMsgToObject(ChangeEvent.class, msg);
+    final FudgeMsg msg = msgEnvelope.getMessage();
+    s_logger.debug("Received change message {}", msg);
+    final FudgeDeserializer deserializer = new FudgeDeserializer(fudgeContext);
+    final ChangeEvent event = deserializer.fudgeMsgToObject(ChangeEvent.class, msg);
     fireEntityChanged(event);
   }
 
@@ -171,4 +154,5 @@ public class JmsChangeManager extends BasicChangeManager implements MessageListe
   public String toString() {
     return getClass().getSimpleName();
   }
+
 }

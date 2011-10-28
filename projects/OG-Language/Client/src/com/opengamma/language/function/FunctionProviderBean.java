@@ -9,12 +9,11 @@ package com.opengamma.language.function;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.springframework.beans.factory.InitializingBean;
 
 import com.opengamma.util.ArgumentChecker;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Produce a {@link FunctionProvider} from a set of {@link PublishedFunction} objects.
@@ -43,7 +42,6 @@ public class FunctionProviderBean extends AbstractFunctionProvider implements In
     return _functions;
   }
 
-  @SuppressWarnings("unchecked")
   public Collection<PublishedFunction> getFunctions() {
     return Collections.unmodifiableCollection(getFunctionsInternal());
   }

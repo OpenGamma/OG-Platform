@@ -9,12 +9,11 @@ package com.opengamma.language.livedata;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.springframework.beans.factory.InitializingBean;
 
 import com.opengamma.util.ArgumentChecker;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Produce a {@link LiveDataProvider} from a set of {@link PublishedLiveData} objects.
@@ -43,7 +42,6 @@ public class LiveDataProviderBean extends AbstractLiveDataProvider implements In
     return _liveData;
   }
 
-  @SuppressWarnings("unchecked")
   public Collection<PublishedLiveData> getLiveData() {
     return Collections.unmodifiableCollection(getLiveDataInternal());
   }

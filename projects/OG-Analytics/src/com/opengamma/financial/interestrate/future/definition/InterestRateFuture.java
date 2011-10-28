@@ -59,8 +59,9 @@ public class InterestRateFuture implements InterestRateDerivative {
    */
   private final String _forwardCurveName;
   /**
-   * The reference price.     the last close price afterward.
+   * The reference price is used to express present value with respect to some level, for example, the transaction price on the transaction date or the last close price afterward.  
    * The price is in relative number and not in percent. A standard price will be 0.985 and not 98.5.
+   * TODO Confirm treatment
    */
   private final double _referencePrice;
 

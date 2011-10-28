@@ -27,6 +27,7 @@ public class HibernateBatchDbFiles implements HibernateMappingFiles {
       RiskRun.class,
       RiskValueName.class,
       RiskValueRequirement.class,
+      RiskValueSpecification.class,
       FunctionUniqueId.class,
       ComputationTarget.class,
       RiskValue.class,

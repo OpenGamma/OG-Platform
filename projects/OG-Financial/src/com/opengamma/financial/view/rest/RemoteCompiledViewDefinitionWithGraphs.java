@@ -7,6 +7,7 @@ package com.opengamma.financial.view.rest;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,6 +24,8 @@ import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguratio
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.util.rest.FudgeRestClient;
+
+import static com.opengamma.util.functional.Functional.merge;
 
 /**
  * Remote implementation of {@link CompiledViewDefinition}.
@@ -94,5 +97,14 @@ public class RemoteCompiledViewDefinitionWithGraphs implements CompiledViewDefin
     URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_GRAPHS).path(calcConfig).build();
     return new RemoteDependencyGraphExplorer(uri);
   }
-  
+
+  @Override
+  public Map<ValueSpecification, Set<ValueRequirement>> getTerminalValuesRequirements() {
+    Map<ValueSpecification, Set<ValueRequirement>> terminalValuesRequirements = new HashMap<ValueSpecification, Set<ValueRequirement>>();
+    Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations =  getCompiledCalculationConfigurations();
+    for (CompiledViewCalculationConfiguration compiledCalculationConfiguration : compiledCalculationConfigurations) {
+      merge(terminalValuesRequirements, compiledCalculationConfiguration.getTerminalOutputSpecifications());
+    }
+    return terminalValuesRequirements;
+  }
 }

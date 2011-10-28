@@ -101,14 +101,16 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
       Set<ComputationTarget> computationTargets,
       RiskRun riskRun,
       Set<RiskValueName> valueNames,
-      Set<RiskValueRequirement> valueRequirement) {
+      Set<RiskValueRequirement> valueRequirements,
+      Set<RiskValueSpecification> valueSpecifications) {
     this(dbConnector,
         resultModelDefinition,
         cachesByCalculationConfiguration,
         computationTargets,
         riskRun,
         valueNames,
-        valueRequirement,
+        valueRequirements,
+        valueSpecifications,
         new ResultConverterCache());
   }
   
@@ -119,10 +121,11 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
       Set<ComputationTarget> computationTargets,
       RiskRun riskRun,
       Set<RiskValueName> valueNames,
-      Set<RiskValueRequirement> valueRequirement,
+      Set<RiskValueRequirement> valueRequirements,
+      Set<RiskValueSpecification> valueSpecifications,
       ResultConverterCache resultConverterCache) {
 
-    super(dbConnector, riskRun, resultConverterCache, computationTargets, valueNames, valueRequirement);
+    super(dbConnector, riskRun, resultConverterCache, computationTargets, valueNames, valueRequirements, valueSpecifications);
 
     ArgumentChecker.notNull(resultModelDefinition, "Result model definition");
     ArgumentChecker.notNull(cachesByCalculationConfiguration, "Caches by calculation configuration");
@@ -333,6 +336,7 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
           for (Map.Entry<String, Double> riskValueEntry : valuesAsDoubles.entrySet()) {
             for (ValueRequirement requirement : item.getItem().getDesiredValues()) {
               int valueRequirementId = getValueRequirementId(requirement.getConstraints());
+              int valueSpecificationId = getValueSpecificationId(output.getProperties());
               int valueNameId = getValueNameId(riskValueEntry.getKey());
               int functionUniqueId = getFunctionUniqueId(output.getFunctionUniqueId());
 
@@ -341,6 +345,7 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
               riskValue.setCalculationConfigurationId(calcConfId);
               riskValue.setValueNameId(valueNameId);
               riskValue.setValueRequirementId(valueRequirementId);
+              riskValue.setValueSpecificationId(valueSpecificationId);
               riskValue.setFunctionUniqueId(functionUniqueId);
               riskValue.setComputationTargetId(computationTargetId);
               riskValue.setRunId(riskRunId);
@@ -367,12 +372,14 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
             int functionUniqueId = getFunctionUniqueId(outputValue.getFunctionUniqueId());
             int computationTargetId = getComputationTargetId(outputValue.getTargetSpecification());
             int valueRequirementId = getValueRequirementId(requirement.getConstraints());
+            int valueSpecificationId = getValueSpecificationId(outputValue.getProperties());
 
             RiskFailure failure = new RiskFailure();
             failure.setId(generateUniqueId());
             failure.setCalculationConfigurationId(calcConfId);
             failure.setValueNameId(valueNameId);
             failure.setValueRequirementId(valueRequirementId);
+            failure.setValueSpecificationId(valueSpecificationId);
             failure.setFunctionUniqueId(functionUniqueId);
             failure.setComputationTargetId(computationTargetId);
             failure.setRunId(riskRunId);

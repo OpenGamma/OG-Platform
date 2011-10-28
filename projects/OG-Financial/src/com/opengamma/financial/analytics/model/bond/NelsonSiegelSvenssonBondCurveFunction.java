@@ -41,7 +41,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.LastDateCalculator;
 import com.opengamma.financial.interestrate.NelsonSiegelSvennsonBondCurveModel;
@@ -143,13 +143,13 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
           if (!(ytmObject instanceof Double)) {
             throw new IllegalArgumentException("YTM should be a double");
           }
-          final FixedIncomeInstrumentConverter<?> definition = converter.visitGovernmentBondSecurity(bondSec);
-          final String bondStringName = PROPERTY_PREFIX + "_" + _currency.getCode(); 
+          final FixedIncomeInstrumentDefinition<?> definition = converter.visitGovernmentBondSecurity(bondSec);
+          final String bondStringName = PROPERTY_PREFIX + "_" + _currency.getCode();
           final InterestRateDerivative bond = definition.toDerivative(now, bondStringName);
           t[i] = LAST_DATE.visit(bond);
           ytm[i++] = ((Double) ytmObject / 100);
         }
-        final DoubleMatrix1D initialValues = new DoubleMatrix1D(new double[] {1, 2, 3, 4, 2, 3});
+        final DoubleMatrix1D initialValues = new DoubleMatrix1D(new double[] {1, 2, 3, 4, 2, 3 });
         final ParameterizedFunction<Double, DoubleMatrix1D, Double> parameterizedFunction = MODEL.getParameterizedFunction();
         final LeastSquareResults result = MINIMISER.solve(new DoubleMatrix1D(t), new DoubleMatrix1D(ytm), parameterizedFunction, initialValues);
         final DoubleMatrix1D parameters = result.getParameters();
@@ -165,7 +165,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
 
       @SuppressWarnings("synthetic-access")
       @Override
-      public boolean canApplyTo(@SuppressWarnings("hiding") final FunctionCompilationContext context, final ComputationTarget target) {
+      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
         if (target.getType() != ComputationTargetType.PRIMITIVE) {
           return false;
         }
@@ -174,7 +174,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
 
       @SuppressWarnings("synthetic-access")
       @Override
-      public Set<ValueRequirement> getRequirements(@SuppressWarnings("hiding") final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
         if (canApplyTo(context, target)) {
           final FinancialSecuritySource securitySource = context.getSecuritySource(FinancialSecuritySource.class);
           final Collection<Security> allBonds = new ArrayList<Security>(securitySource.getBondsWithIssuerName("US TREASURY N/B"));
@@ -210,7 +210,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
 
       @SuppressWarnings("synthetic-access")
       @Override
-      public Set<ValueSpecification> getResults(@SuppressWarnings("hiding") final FunctionCompilationContext context, final ComputationTarget target) {
+      public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
         return _results;
       }
 

@@ -7,7 +7,6 @@ package com.opengamma.financial.view.rest;
 
 import java.net.URI;
 
-import javax.jms.ConnectionFactory;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -31,6 +30,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.jms.JmsConnector;
 
 /**
  * RESTful resource for a view client.
@@ -72,8 +72,8 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   private final ViewClient _viewClient;
   private final DataEngineResourceManagerResource<ViewCycle> _viewCycleManagerResource;
 
-  public DataViewClientResource(ViewClient viewClient, DataEngineResourceManagerResource<ViewCycle> viewCycleManagerResource, ConnectionFactory connectionFactory) {
-    super(new ViewClientJmsResultPublisher(viewClient, OpenGammaFudgeContext.getInstance(), connectionFactory));
+  public DataViewClientResource(ViewClient viewClient, DataEngineResourceManagerResource<ViewCycle> viewCycleManagerResource, JmsConnector jmsConnector) {
+    super(new ViewClientJmsResultPublisher(viewClient, OpenGammaFudgeContext.getInstance(), jmsConnector));
     _viewClient = viewClient;
     _viewCycleManagerResource = viewCycleManagerResource;
   }

@@ -16,6 +16,8 @@ import javax.time.calendar.LocalDate;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -74,7 +76,7 @@ public abstract class BatchJobRun {
 
   public abstract Set<String> getAllOutputValueNames();
 
-  public abstract Set<ValueProperties> getAllOutputValueRequirement();
+  public abstract Map<ValueSpecification, Set<ValueRequirement>> getAllOutputs();
 
   /**
    * @param spec  one of the targets returned by {@link #getAllComputationTargets()}

@@ -22,6 +22,8 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.util.ArgumentChecker;
 
+import static com.opengamma.util.functional.Functional.merge;
+
 /**
  * Default implementation of {@link CompiledViewDefinition}.
  */
@@ -72,6 +74,15 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
     Map<ValueRequirement, ValueSpecification> allRequirements = new HashMap<ValueRequirement, ValueSpecification>();
     for (CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
       allRequirements.putAll(compiledCalcConfig.getMarketDataRequirements());
+    }
+    return Collections.unmodifiableMap(allRequirements);
+  }
+
+  @Override
+  public Map<ValueSpecification, Set<ValueRequirement>> getTerminalValuesRequirements() {
+    Map<ValueSpecification, Set<ValueRequirement>> allRequirements = new HashMap<ValueSpecification, Set<ValueRequirement>>();
+    for (CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
+      merge(allRequirements, compiledCalcConfig.getTerminalOutputSpecifications());
     }
     return Collections.unmodifiableMap(allRequirements);
   }

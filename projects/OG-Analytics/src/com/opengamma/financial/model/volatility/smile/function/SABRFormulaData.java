@@ -11,6 +11,8 @@ import org.apache.commons.lang.Validate;
  * 
  */
 public class SABRFormulaData {
+ 
+
   private final double _nu;
   private final double _rho;
   private final double _beta;
@@ -55,6 +57,26 @@ public class SABRFormulaData {
 
   public double getForward() {
     return _forward;
+  }
+
+  public SABRFormulaData withForward(final double forward) {
+    return new SABRFormulaData(forward, _alpha, _beta, _nu, _rho);
+  }
+
+  public SABRFormulaData withAlpha(final double alpha) {
+    return new SABRFormulaData(_forward, alpha, _beta, _nu, _rho);
+  }
+
+  public SABRFormulaData withBeta(final double beta) {
+    return new SABRFormulaData(_forward, _alpha, beta, _nu, _rho);
+  }
+
+  public SABRFormulaData withNu(final double nu) {
+    return new SABRFormulaData(_forward, _alpha, _beta, nu, _rho);
+  }
+
+  public SABRFormulaData withRho(final double rho) {
+    return new SABRFormulaData(_forward, _alpha, _beta, _nu, rho);
   }
 
   @Override
@@ -103,6 +125,11 @@ public class SABRFormulaData {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public String toString() {
+    return "SABRFormulaData [forward=" + _forward + ", alpha=" + _alpha + ", beta=" + _beta + ", nu=" + _nu + ", rho=" + _rho + "]";
   }
 
 }
