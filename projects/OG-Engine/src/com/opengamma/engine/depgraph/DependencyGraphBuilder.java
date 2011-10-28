@@ -59,6 +59,7 @@ public final class DependencyGraphBuilder {
   private static final Logger s_loggerContext = LoggerFactory.getLogger(GraphBuildingContext.class);
 
   private static final AtomicInteger s_nextObjectId = new AtomicInteger();
+  private static final AtomicInteger s_nextJobId = new AtomicInteger();
 
   private static final boolean NO_BACKGROUND_THREADS = false; // DON'T CHECK IN WITH =true
   private static final int MAX_ADDITIONAL_THREADS = -1; // DON'T CHECK IN WITH !=-1
@@ -519,6 +520,9 @@ public final class DependencyGraphBuilder {
     }
 
     private void reportStateSize() {
+      if (!s_loggerContext.isInfoEnabled()) {
+        return;
+      }
       synchronized (_requirements) {
         int count = 0;
         for (Map<ResolveTask, ResolveTask> entries : _requirements.values()) {
@@ -533,6 +537,8 @@ public final class DependencyGraphBuilder {
         }
         s_loggerContext.info("Specifications cache = {} tasks for {} specifications", count, _specifications.size());
       }
+      //final Runtime rt = Runtime.getRuntime();
+      //s_loggerContext.info("Used memory = {}M", (double) (rt.totalMemory() - rt.freeMemory()) / 1e6);
     }
 
   };
@@ -807,6 +813,7 @@ public final class DependencyGraphBuilder {
    */
   protected final class Job implements Runnable, Cancelable {
 
+    private final int _objectId = s_nextJobId.incrementAndGet();
     private volatile boolean _poison;
 
     private Job() {
@@ -814,10 +821,11 @@ public final class DependencyGraphBuilder {
 
     @Override
     public void run() {
-      s_loggerBuilder.info("Building job started for {}", DependencyGraphBuilder.this);
+      s_loggerBuilder.info("Building job {} started for {}", _objectId, DependencyGraphBuilder.this);
       boolean jobsLeftToRun;
       int completed = 0;
       do {
+        s_loggerBuilder.info("Build fraction = {}", estimateBuildFraction());
         // Create a new context for each logical block so that an exception from the build won't leave us with
         // an inconsistent context.
         final GraphBuildingContext context = new GraphBuildingContext(getContext());
@@ -852,7 +860,7 @@ public final class DependencyGraphBuilder {
       synchronized (_activeJobs) {
         _activeJobs.remove(this);
       }
-      s_loggerBuilder.info("{} building job stopped after {} operations", this, completed);
+      s_loggerBuilder.info("Building job {} stopped after {} operations", _objectId, completed);
     }
 
     @Override
@@ -967,6 +975,7 @@ public final class DependencyGraphBuilder {
     }
     // TODO: need a better metric here; need to somehow predict/project the eventual number of "scheduled" steps
     s_loggerBuilder.info("Completed {} of {} scheduled steps", completed, scheduled);
+    //getContext().reportStateSize();
     return (double) completed / (double) scheduled;
   }
 

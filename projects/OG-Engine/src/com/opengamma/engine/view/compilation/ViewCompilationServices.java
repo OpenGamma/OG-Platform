@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutorService;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
+import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
@@ -22,6 +23,9 @@ import com.opengamma.util.ArgumentChecker;
  * All the injected services necessary for view compilation.
  */
 public class ViewCompilationServices {
+
+  private static final DependencyGraphBuilderFactory s_dependencyGraphBuilder = new DependencyGraphBuilderFactory();
+
   private final MarketDataAvailabilityProvider _marketDataAvailabilityProvider;
   private final FunctionResolver _functionResolver;
   private final PositionSource _positionSource;
@@ -29,6 +33,8 @@ public class ViewCompilationServices {
   private final ExecutorService _executorService;
   private final FunctionCompilationContext _compilationContext;
   private final CachingComputationTargetResolver _computationTargetResolver;
+  // TODO: pass this into constructors
+  private final DependencyGraphBuilderFactory _dependencyGraphBuilder = s_dependencyGraphBuilder;
   
   /**
    * Constructs an instance, without a position source or security source.
@@ -106,7 +112,7 @@ public class ViewCompilationServices {
   /**
    * Gets the market data availability provider.
    * 
-   * @return the market data availability provider, not {@code null}
+   * @return the market data availability provider, not null
    */
   public MarketDataAvailabilityProvider getMarketDataAvailabilityProvider() {
     return _marketDataAvailabilityProvider;
@@ -158,6 +164,14 @@ public class ViewCompilationServices {
    */
   public CachingComputationTargetResolver getComputationTargetResolver() {
     return _computationTargetResolver;
+  }
+
+  /**
+   * Gets the dependency graph builder factory.
+   * @return the dependency graph builder factory, not null
+   */
+  public DependencyGraphBuilderFactory getDependencyGraphBuilder() {
+    return _dependencyGraphBuilder;
   }
 
 }
