@@ -8,7 +8,6 @@ package com.opengamma.util.paging;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import org.testng.annotations.Test;
@@ -118,21 +117,21 @@ public final class PagingRequestTest {
   //-------------------------------------------------------------------------
   public void test_select_firstPage() {
     PagingRequest test = PagingRequest.ofPage(1, 2);
-    Collection<String> coll = Arrays.asList("Hello", "World", "Test");
+    List<String> coll = Arrays.asList("Hello", "World", "Test");
     List<String> result = test.select(coll);
     assertEquals(Arrays.asList("Hello", "World"), result);
   }
 
   public void test_select_lastPage() {
     PagingRequest test = PagingRequest.ofPage(2, 2);
-    Collection<String> coll = Arrays.asList("Hello", "World", "Test");
+    List<String> coll = Arrays.asList("Hello", "World", "Test");
     List<String> result = test.select(coll);
     assertEquals(Arrays.asList("Test"), result);
   }
 
   public void test_select_all() {
     PagingRequest test = PagingRequest.ofPage(1, 20);
-    Collection<String> coll = Arrays.asList("Hello", "World", "Test");
+    List<String> coll = Arrays.asList("Hello", "World", "Test");
     List<String> result = test.select(coll);
     assertEquals(coll, result);
   }
