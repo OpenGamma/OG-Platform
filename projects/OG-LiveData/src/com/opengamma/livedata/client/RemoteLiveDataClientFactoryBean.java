@@ -5,8 +5,6 @@
  */
 package com.opengamma.livedata.client;
 
-import javax.jms.ConnectionFactory;
-
 import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.livedata.LiveDataClient;
@@ -15,23 +13,24 @@ import com.opengamma.transport.jms.JmsByteArrayMessageSender;
 import com.opengamma.transport.jms.JmsByteArrayRequestSender;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.jms.JmsConnector;
 
 /**
  * Creates a {@link JmsLiveDataClient}.
  */
 public class RemoteLiveDataClientFactoryBean extends SingletonFactoryBean<LiveDataClient> {
 
-  private ConnectionFactory _connectionFactory;
+  private JmsConnector _jmsConnector;
   private String _subscriptionTopic;
   private String _entitlementTopic;
   private String _heartbeatTopic;
   
-  public void setConnectionFactory(final ConnectionFactory connectionFactory) {
-    _connectionFactory = connectionFactory;
+  public void setJmsConnector(final JmsConnector jmsConnector) {
+    _jmsConnector = jmsConnector;
   }
   
-  public ConnectionFactory getConnectionFactory() {
-    return _connectionFactory;
+  public JmsConnector getJmsConnector() {
+    return _jmsConnector;
   }
   
   public void setSubscriptionTopic(final String subscriptionTopic) {
@@ -60,9 +59,7 @@ public class RemoteLiveDataClientFactoryBean extends SingletonFactoryBean<LiveDa
   
   @Override
   protected LiveDataClient createObject() {
-    final JmsTemplate jmsTemplate = new JmsTemplate();
-    jmsTemplate.setPubSubDomain(true);
-    jmsTemplate.setConnectionFactory(getConnectionFactory());
+    final JmsTemplate jmsTemplate = getJmsConnector().getJmsTemplate();
     
     JmsByteArrayRequestSender jmsSubscriptionRequestSender = new JmsByteArrayRequestSender(getSubscriptionTopic(), jmsTemplate);
     ByteArrayFudgeRequestSender fudgeSubscriptionRequestSender = new ByteArrayFudgeRequestSender(jmsSubscriptionRequestSender);
@@ -73,7 +70,7 @@ public class RemoteLiveDataClientFactoryBean extends SingletonFactoryBean<LiveDa
     final JmsLiveDataClient liveDataClient = new JmsLiveDataClient(
         fudgeSubscriptionRequestSender, 
         fudgeEntitlementRequestSender, 
-        getConnectionFactory(), 
+        getJmsConnector(), 
         OpenGammaFudgeContext.getInstance(),
         JmsLiveDataClient.DEFAULT_NUM_SESSIONS);
     liveDataClient.setFudgeContext(OpenGammaFudgeContext.getInstance());

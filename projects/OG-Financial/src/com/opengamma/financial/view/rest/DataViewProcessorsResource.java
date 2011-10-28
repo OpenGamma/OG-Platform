@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
-import javax.jms.ConnectionFactory;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -21,38 +20,39 @@ import org.fudgemsg.FudgeContext;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.jms.JmsConnector;
 
 /**
  * RESTful back-end to provide access to view processors
  */
 @Path("/data/viewProcessors")
 public class DataViewProcessorsResource {
-  
+
   private final Map<UniqueId, DataViewProcessorResource> _viewProcessorResourceMap = new HashMap<UniqueId, DataViewProcessorResource>();
-  
+
   public DataViewProcessorsResource() {
   }
 
-  public DataViewProcessorsResource(final ViewProcessor viewProcessor, final ConnectionFactory connectionFactory, FudgeContext fudgeContext,
+  public DataViewProcessorsResource(final ViewProcessor viewProcessor, final JmsConnector jmsConnector, FudgeContext fudgeContext,
       ScheduledExecutorService scheduler) {
-    addViewProcessor(viewProcessor, connectionFactory, fudgeContext, scheduler);
+    addViewProcessor(viewProcessor, jmsConnector, fudgeContext, scheduler);
   }
 
   public DataViewProcessorsResource(final Collection<ViewProcessor> viewProcessors,
-      final ConnectionFactory connectionFactory, FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
+      final JmsConnector jmsConnector, FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
     for (ViewProcessor viewProcessor : viewProcessors) {
-      addViewProcessor(viewProcessor, connectionFactory, fudgeContext, scheduler);
+      addViewProcessor(viewProcessor, jmsConnector, fudgeContext, scheduler);
     }
   }
 
   //-------------------------------------------------------------------------
-  public void addViewProcessor(ViewProcessor viewProcessor, ConnectionFactory connectionFactory,
+  public void addViewProcessor(ViewProcessor viewProcessor, JmsConnector jmsConnector,
       FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
     if (_viewProcessorResourceMap.get(viewProcessor.getUniqueId()) != null) {
       throw new OpenGammaRuntimeException("A view processor with the ID " + viewProcessor.getUniqueId() + " is already being managed");
     }
     _viewProcessorResourceMap.put(viewProcessor.getUniqueId(),
-        new DataViewProcessorResource(viewProcessor, connectionFactory, fudgeContext, scheduler));
+        new DataViewProcessorResource(viewProcessor, jmsConnector, fudgeContext, scheduler));
   }
   
   //-------------------------------------------------------------------------

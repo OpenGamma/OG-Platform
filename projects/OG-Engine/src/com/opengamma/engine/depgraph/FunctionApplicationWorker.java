@@ -54,7 +54,8 @@ import com.opengamma.engine.value.ValueSpecification;
             finished = _taskState;
             _taskState = null;
           } else {
-            s_logger.debug("{} inputs valid and not in pumped state", _validInputs);
+            // Can this happen? Should we just assert validInputs == 0?
+            s_logger.error("{} inputs valid and not in pumped state", _validInputs);
           }
         } else {
           pumps = new ArrayList<ResolutionPump>(_pumps);
@@ -122,11 +123,11 @@ import com.opengamma.engine.value.ValueSpecification;
           if (_taskState != null) {
             requirementFailure = _taskState.functionApplication().requirement(value, failure);
             if (_taskState.canHandleMissingInputs()) {
+              state = _taskState;
               if (_pendingInputs == 0) {
                 // Got as full a set of inputs as we're going to get; notify the task state
                 resolvedValues = createResolvedValuesMap();
                 _invokingFunction = true;
-                state = _taskState;
                 s_logger.debug("Partial input set available");
               } else {
                 resolvedValues = null;
@@ -137,10 +138,21 @@ import com.opengamma.engine.value.ValueSpecification;
             }
           }
         } else {
-          if ((_pendingInputs > 0) || (_validInputs > 0)) {
-            // Ok; we've already had some values for this requirement and there are others pending or still valid
-            s_logger.debug("PendingInputs={}, ValidInputs={}", _pendingInputs, _validInputs);
-            return;
+          if (_taskState != null) {
+            // Might be okay - we've already had at least one value for this requirement
+            if (_pendingInputs > 0) {
+              // Ok; still waiting on other inputs
+              s_logger.debug("{} other inputs still pending", _pendingInputs);
+              return;
+            }
+            if (_validInputs > 0) {
+              // Ok; we've got other new values to push up
+              state = _taskState;
+              resolvedValues = createResolvedValuesMap();
+              _invokingFunction = true;
+              s_logger.debug("Partial input set available on {} new inputs", _validInputs);
+              break;
+            }
           }
         }
         if (_inputHandles.isEmpty()) {
@@ -175,6 +187,9 @@ import com.opengamma.engine.value.ValueSpecification;
       return;
     } while (false);
     // Ok; partial results may be available
+    if (state != null) {
+      state.storeFailure(requirementFailure);
+    }
     storeFailure(requirementFailure);
     inputsAvailable(context, state, resolvedValues);
   }
@@ -189,7 +204,7 @@ import com.opengamma.engine.value.ValueSpecification;
       if (_taskState != null) {
         _inputs.put(valueRequirement, resolvedValue.getValueSpecification());
         if (--_pendingInputs == 0) {
-          // We've got a full set of inputs; notify the task state
+          // We've got a full (or partial) set of inputs; notify the task state
           resolvedValues = createResolvedValuesMap();
           state = _taskState;
           _invokingFunction = true;

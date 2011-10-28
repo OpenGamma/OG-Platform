@@ -7,13 +7,12 @@ package com.opengamma.financial.view.rest;
 
 import java.util.concurrent.ScheduledExecutorService;
 
-import javax.jms.ConnectionFactory;
-
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.util.SingletonFactoryBean;
+import com.opengamma.util.jms.JmsConnector;
 
 /**
  * Spring helper for {@link DataViewProcessorsResource}.
@@ -21,10 +20,10 @@ import com.opengamma.util.SingletonFactoryBean;
 public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewProcessorsResource> {
 
   private ViewProcessor _viewProcessor;
-  private ConnectionFactory _connectionFactory;
+  private JmsConnector _jmsConnector;
   private FudgeContext _fudgeContext;
   private ScheduledExecutorService _scheduler;
-   
+
   public ViewProcessor getViewProcessor() {
     return _viewProcessor;
   }
@@ -33,12 +32,12 @@ public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewP
     _viewProcessor = viewProcessor;
   }
 
-  public ConnectionFactory getConnectionFactory() {
-    return _connectionFactory;
+  public JmsConnector getJmsConnector() {
+    return _jmsConnector;
   }
 
-  public void setConnectionFactory(ConnectionFactory connectionFactory) {
-    _connectionFactory = connectionFactory;
+  public void setJmsConnector(JmsConnector jmsConnector) {
+    _jmsConnector = jmsConnector;
   }
   
   public FudgeContext getFudgeContext() {
@@ -57,12 +56,13 @@ public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewP
     _scheduler = scheduler;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected DataViewProcessorsResource createObject() {
     if (_viewProcessor == null) {
       throw new OpenGammaRuntimeException("The viewProcessor property must be set");
     }
-    if (_connectionFactory == null) {
+    if (_jmsConnector == null) {
       throw new OpenGammaRuntimeException("The connectionFactory property must be set");
     }
     if (_scheduler == null) {
@@ -70,7 +70,7 @@ public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewP
     }
     
     DataViewProcessorsResource resource = new DataViewProcessorsResource();
-    resource.addViewProcessor(getViewProcessor(), getConnectionFactory(), getFudgeContext(), getScheduler());
+    resource.addViewProcessor(getViewProcessor(), getJmsConnector(), getFudgeContext(), getScheduler());
     return resource;
   }
 

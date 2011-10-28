@@ -99,6 +99,8 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.cometd/cometd-java/jars/cometd-java-server-1.0.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.cometd/cometd-java/jars/cometd-java-client-1.0.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.cometd/cometd-java/jars/cometd-api-1.0.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.junit/junit/jars/junit-4.8.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.junit/junit/jars/junit-dep-4.8.2.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.eclipse/jetty/javadocs/jetty-continuation-7.0.1.v20091125.zip!/" />
@@ -145,6 +147,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.cometd/cometd-java/sources/cometd-api-src-1.0.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.cometd/cometd-java/sources/cometd-java-server-src-1.0.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.cometd/cometd-java/sources/cometd-java-client-src-1.0.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.junit/junit/sources/junit-src-4.8.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

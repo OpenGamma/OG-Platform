@@ -238,7 +238,7 @@ public class Client implements Runnable {
     final Thread sender = new Thread(createMessageWriter());
     sender.setName(Thread.currentThread().getName() + "-Writer");
     sender.start();
-    final ScheduledFuture<?> watchdogFuture = getClientContext().getScheduler().scheduleWithFixedDelay(watchdog,
+    final ScheduledFuture<?> watchdogFuture = getClientContext().getHousekeepingScheduler().scheduleWithFixedDelay(watchdog,
         getClientContext().getHeartbeatTimeout(), getClientContext().getHeartbeatTimeout() * 2, TimeUnit.MILLISECONDS);
     // Main read loop - this thread is always available to read to avoid process deadlock. The loop will
     // abort on I/O error or if the watchdog fires (triggering an I/O error)

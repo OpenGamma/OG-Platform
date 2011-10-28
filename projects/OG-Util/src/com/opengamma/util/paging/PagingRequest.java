@@ -6,8 +6,6 @@
 package com.opengamma.util.paging;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import com.opengamma.util.ArgumentChecker;
@@ -173,31 +171,25 @@ public final class PagingRequest {
 
   //-------------------------------------------------------------------------
   /**
-   * Selects the elements from the collection matching this request.
+   * Selects the elements from the list matching this request.
+   * <p>
+   * This will return a new list consisting of the selected elements from the supplied list.
+   * The elements are selected based on {@link #getFirstItem()} and {@link #getLastItem()}.
    * 
-   * @param <T> the collection type
-   * @param coll  the collection to select from, not null
-   * @return the selected collection, not linked to the original, not null
+   * @param <T> the list type
+   * @param list  the collection to select from, not null
+   * @return the selected list, not linked to the original, not null
    */
-  public <T> List<T> select(Collection<T> coll) {
+  public <T> List<T> select(List<T> list) {
     int firstIndex = getFirstItem();
     int lastIndex = getLastItem();
-    if (firstIndex >= coll.size()) {
+    if (firstIndex >= list.size()) {
       firstIndex = 0;
     }
-    if (lastIndex > coll.size()) {
-      lastIndex = coll.size();
+    if (lastIndex > list.size()) {
+      lastIndex = list.size();
     }
-    List<T> list = new ArrayList<T>();
-    Iterator<T> it = coll.iterator();
-    for (int i = 0; i < lastIndex; i++) {
-      if (i >= firstIndex) {
-        list.add(it.next());
-      } else {
-        it.next();
-      }
-    }
-    return list;
+    return new ArrayList<T>(list.subList(firstIndex, lastIndex));
   }
 
   //-------------------------------------------------------------------------
