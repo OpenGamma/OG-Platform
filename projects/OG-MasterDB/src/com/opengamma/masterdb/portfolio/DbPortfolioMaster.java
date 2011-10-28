@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,6 +40,7 @@ import com.opengamma.master.portfolio.PortfolioHistoryResult;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
+import com.opengamma.master.portfolio.PortfolioSearchSortOrder;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
@@ -92,6 +94,18 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
       "FROM prt_portfolio main " +
         "LEFT JOIN prt_node n ON (n.portfolio_id = main.id) " +
         "LEFT JOIN prt_position p ON (p.node_id = n.id) ";
+  /**
+   * SQL order by.
+   */
+  protected static final EnumMap<PortfolioSearchSortOrder, String> ORDER_BY_MAP = new EnumMap<PortfolioSearchSortOrder, String>(PortfolioSearchSortOrder.class);
+  static {
+    ORDER_BY_MAP.put(PortfolioSearchSortOrder.OBJECT_ID_ASC, "oid ASC");
+    ORDER_BY_MAP.put(PortfolioSearchSortOrder.OBJECT_ID_DESC, "oid DESC");
+    ORDER_BY_MAP.put(PortfolioSearchSortOrder.VERSION_FROM_INSTANT_ASC, "ver_from_instant ASC");
+    ORDER_BY_MAP.put(PortfolioSearchSortOrder.VERSION_FROM_INSTANT_DESC, "ver_from_instant DESC");
+    ORDER_BY_MAP.put(PortfolioSearchSortOrder.NAME_ASC, "name ASC");
+    ORDER_BY_MAP.put(PortfolioSearchSortOrder.NAME_DESC, "name DESC");
+  }
 
   /**
    * Creates an instance.
@@ -158,12 +172,13 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     }
     
     String selectFromWhereInner = "SELECT id FROM prt_portfolio " + where;
-    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY oid ", request.getPagingRequest());
+    String orderBy = ORDER_BY_MAP.get(request.getSortOrder());
+    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY " + orderBy + " ", request.getPagingRequest());
     String search = SELECT + FROM + "WHERE main.id IN (" + inner + ") ";
     if (request.getDepth() >= 0) {
       search += "AND n.depth <= :depth ";
     }
-    search += "ORDER BY main.oid" + sqlAdditionalOrderBy(false);
+    search += "ORDER BY main." + orderBy + sqlAdditionalOrderBy(false);
     String count = "SELECT COUNT(*) FROM prt_portfolio " + where;
     return new String[] {search, count};
   }

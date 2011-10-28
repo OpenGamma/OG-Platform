@@ -57,6 +57,11 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
    */
   @PropertyDefinition
   private Class<T> _type;
+  /**
+   * The sort order to use.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ConfigSearchSortOrder _sortOrder = ConfigSearchSortOrder.VERSION_FROM_INSTANT_DESC;
 
   /**
    * Creates an instance.
@@ -154,6 +159,8 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
         return getName();
       case 3575610:  // type
         return getType();
+      case -26774448:  // sortOrder
+        return getSortOrder();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -171,8 +178,17 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
       case 3575610:  // type
         setType((Class<T>) newValue);
         return;
+      case -26774448:  // sortOrder
+        setSortOrder((ConfigSearchSortOrder) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_sortOrder, "sortOrder");
+    super.validate();
   }
 
   @Override
@@ -185,6 +201,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
       return JodaBeanUtils.equal(getConfigIds(), other.getConfigIds()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getType(), other.getType()) &&
+          JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
           super.equals(obj);
     }
     return false;
@@ -196,6 +213,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigIds());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
     return hash ^ super.hashCode();
   }
 
@@ -270,6 +288,32 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the sort order to use.
+   * @return the value of the property, not null
+   */
+  public ConfigSearchSortOrder getSortOrder() {
+    return _sortOrder;
+  }
+
+  /**
+   * Sets the sort order to use.
+   * @param sortOrder  the new value of the property, not null
+   */
+  public void setSortOrder(ConfigSearchSortOrder sortOrder) {
+    JodaBeanUtils.notNull(sortOrder, "sortOrder");
+    this._sortOrder = sortOrder;
+  }
+
+  /**
+   * Gets the the {@code sortOrder} property.
+   * @return the property, not null
+   */
+  public final Property<ConfigSearchSortOrder> sortOrder() {
+    return metaBean().sortOrder().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ConfigSearchRequest}.
    */
   public static class Meta<T> extends AbstractSearchRequest.Meta {
@@ -297,13 +341,19 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
     private final MetaProperty<Class<T>> _type = DirectMetaProperty.ofReadWrite(
         this, "type", ConfigSearchRequest.class, (Class) Class.class);
     /**
+     * The meta-property for the {@code sortOrder} property.
+     */
+    private final MetaProperty<ConfigSearchSortOrder> _sortOrder = DirectMetaProperty.ofReadWrite(
+        this, "sortOrder", ConfigSearchRequest.class, ConfigSearchSortOrder.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "configIds",
         "name",
-        "type");
+        "type",
+        "sortOrder");
 
     /**
      * Restricted constructor.
@@ -320,6 +370,8 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
           return _name;
         case 3575610:  // type
           return _type;
+        case -26774448:  // sortOrder
+          return _sortOrder;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -363,6 +415,14 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
      */
     public final MetaProperty<Class<T>> type() {
       return _type;
+    }
+
+    /**
+     * The meta-property for the {@code sortOrder} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ConfigSearchSortOrder> sortOrder() {
+      return _sortOrder;
     }
 
   }
