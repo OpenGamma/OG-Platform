@@ -16,6 +16,8 @@ import com.opengamma.util.PublicAPI;
  * <p>
  * This class is follows the design of SQL OFFSET and FETCH/LIMIT, exposed as a first-item/size data model.
  * This can be used to implement traditional fixed paging or arbitrary paging starting from an index.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 @PublicAPI
 public final class PagingRequest {
