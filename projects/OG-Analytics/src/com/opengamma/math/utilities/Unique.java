@@ -56,6 +56,57 @@ class Unique {
   }
 
 
+  /* floats can be uniqued by bit match or by being within some tolerance */
+  /**
+   * Uniques the data, duplicates are removed based on bitwise comparison of data.
+   * @param data float[] the data to unique
+   * @return the float[] uniqued data
+   */
+  public static float[] bitwise(float[] data) {
+    Validate.notNull(data);
+    int n = data.length;
+    float[] sorteddata = Sort.stateless(data);
+    int j = 0;
+    for (int i = 1; i < n; i++) {
+      if (Float.floatToIntBits(sorteddata[i]) != Float.floatToIntBits(sorteddata[j])) {
+        j++;
+        sorteddata[j] = sorteddata[i];
+      }
+    }
+    return Arrays.copyOf(sorteddata, j + 1);
+  }
+
+  /**
+   * Uniques the data, duplicates are removed based on their absolute difference in magnitude (set based on native type)
+   * See also byTol(native[] data, float tol).
+   * @param data float[] the data
+   * @return the float[] uniqued data
+   */
+  public static float[] byTol(float[] data) {
+    return byTol(data, 1e-7f);
+  }
+
+/**
+ * Uniques the data, duplicates are removed based on their absolute difference in magnitude with respect to tol
+ * @param data float[] the data
+ * @param tol the tolerance for two numbers being considered identical
+ * @return the float[] uniqued data
+ */
+  public static float[] byTol(float[] data, float tol) {
+    Validate.notNull(data);
+    int n = data.length;
+    float[] sorteddata = Sort.stateless(data);
+    int j = 0;
+    for (int i = 1; i < n; i++) {
+      if (!(Math.abs(sorteddata[i] - sorteddata[j]) < tol)) {
+        j++;
+        sorteddata[j] = sorteddata[i];
+      }
+    }
+    return Arrays.copyOf(sorteddata, j + 1);
+  }
+
+
   /* doubles can be uniqued by bit match or by being within some tolerance */
   /**
    * Uniques the data, duplicates are removed based on bitwise comparison of data.
@@ -98,12 +149,13 @@ class Unique {
     double[] sorteddata = Sort.stateless(data);
     int j = 0;
     for (int i = 1; i < n; i++) {
-      if (Math.abs(sorteddata[i] - sorteddata[j]) < tol) {
+      if (!(Math.abs(sorteddata[i] - sorteddata[j]) < tol)) {
         j++;
         sorteddata[j] = sorteddata[i];
       }
     }
     return Arrays.copyOf(sorteddata, j + 1);
   }
+
 
 } // end class
