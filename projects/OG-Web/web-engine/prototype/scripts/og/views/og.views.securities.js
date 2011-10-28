@@ -157,7 +157,7 @@ $.register_module({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var json = result.data, text_handler,
-                            security_type = json.template_data.securityType.toLowerCase(),
+                            security_type = json.template_data['securityType'].toLowerCase(),
                             template = module.name + '.' + security_type;
                         history.put({
                             name: json.template_data.name,
@@ -178,12 +178,12 @@ $.register_module({
                                 layout = og.views.common.layout, header, content,
                                 html = [], id, json_id = json.identifiers;
                             (function () {
-                                if (json.template_data.underlyingOid) {
-                                    var id = json.template_data.underlyingOid,
+                                if (json.template_data['underlyingOid']) {
+                                    var id = json.template_data['underlyingOid'],
                                         rule = module.rules.load_securities,
                                         hash = routes.hash(rule, routes.current().args, {add: {id: id}}),
-                                        text = json.template_data.underlyingExternalId,
-                                        anchor = '<a href="#' + hash + '">' + text + '</a>';
+                                        text = json.template_data['underlyingExternalId'],
+                                        anchor = '<a href="' + routes.prefix() + hash + '">' + text + '</a>';
                                         $html.find('.OG-js-underlying-id').html(anchor);
                                 }
                             }());
