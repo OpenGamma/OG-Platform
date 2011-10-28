@@ -13,6 +13,7 @@ import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
+import com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
@@ -65,6 +66,7 @@ public final class DemoMastersHelper {
     InMemoryConfigMaster cfgMaster = new InMemoryConfigMaster();
     YieldCurveConfigPopulator.populateCurveConfigMaster(cfgMaster);
     CurrencyMatrixConfigPopulator.populateCurrencyMatrixConfigMaster(cfgMaster);
+    FXOptionVolatilitySurfaceConfigPopulator.populateVolatilitySurfaceConfigMaster(cfgMaster);
     _configMaster = cfgMaster;
     _configSource = new MasterConfigSource(cfgMaster);
     

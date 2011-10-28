@@ -41,7 +41,7 @@ public class Loader extends ContextInitializationBean {
   private String _securityMaster = "securityMaster";
   private String _marketDataSnapshotMaster = "marketDataSnapshotMaster";
   private String _userData = "userData";
-  private ScheduledExecutorService _scheduler;
+  private ScheduledExecutorService _housekeepingScheduler;
   private int _clientHeartbeat = 5;
 
   public void setConfiguration(final Configuration configuration) {
@@ -93,12 +93,12 @@ public class Loader extends ContextInitializationBean {
     return _userData;
   }
 
-  public void setScheduler(final ScheduledExecutorService scheduler) {
-    _scheduler = scheduler;
+  public void setHousekeepingScheduler(final ScheduledExecutorService housekeepingScheduler) {
+    _housekeepingScheduler = housekeepingScheduler;
   }
 
-  public ScheduledExecutorService getScheduler() {
-    return _scheduler;
+  public ScheduledExecutorService getHousekeepingScheduler() {
+    return _housekeepingScheduler;
   }
 
   public void setClientHeartbeatPeriod(final int minutes) {
@@ -145,10 +145,10 @@ public class Loader extends ContextInitializationBean {
   }
 
   protected void initClient(final MutableSessionContext sessionContext, final RemoteClient client) {
-    if (getScheduler() != null) {
-      sessionContext.setClientHeartbeat(getScheduler().scheduleWithFixedDelay(client.createHeartbeatSender(), getClientHeartbeatPeriod(), getClientHeartbeatPeriod(), TimeUnit.MINUTES));
+    if (getHousekeepingScheduler() != null) {
+      sessionContext.setClientHeartbeat(getHousekeepingScheduler().scheduleWithFixedDelay(client.createHeartbeatSender(), getClientHeartbeatPeriod(), getClientHeartbeatPeriod(), TimeUnit.MINUTES));
     } else {
-      s_logger.warn("No heartbeat scheduler set; client may timeout");
+      s_logger.warn("No housekeeping scheduler set so no heartbeats will be sent; client may timeout");
     }
     sessionContext.setClient(client);
   }

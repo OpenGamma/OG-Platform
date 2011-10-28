@@ -384,7 +384,7 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
     ValueProperties.Builder constraints = ValueProperties
         .with(ValuePropertyNames.CURVE_CURRENCY, currency.getCode())
         .with(ValuePropertyNames.CURVE, curve)
-        .with(ValuePropertyNames.AGGREGATION, FilteringSummingFunction.AGGREGATION_STYLE)
+        .with(ValuePropertyNames.AGGREGATION, FilteringSummingFunction.AGGREGATION_STYLE_FILTERED)
         .withOptional(ValuePropertyNames.AGGREGATION);
     return getRiskFactor(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, constraints);
   }

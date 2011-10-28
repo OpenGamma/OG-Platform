@@ -59,7 +59,6 @@ public final class DependencyGraphBuilder {
   private static final Logger s_loggerContext = LoggerFactory.getLogger(GraphBuildingContext.class);
 
   private static final AtomicInteger s_nextObjectId = new AtomicInteger();
-  private static final AtomicInteger s_nextDebugId = new AtomicInteger();
 
   private static final boolean NO_BACKGROUND_THREADS = false; // DON'T CHECK IN WITH =true
   private static final int MAX_ADDITIONAL_THREADS = -1; // DON'T CHECK IN WITH !=-1
@@ -67,6 +66,7 @@ public final class DependencyGraphBuilder {
   private static final boolean DEBUG_DUMP_FAILURE_INFO = false; // DON'T CHECK IN WITH =true
   private static final int MAX_CALLBACK_DEPTH = 16;
 
+  @SuppressWarnings("unused")
   public static int getDefaultMaxAdditionalThreads() {
     return NO_BACKGROUND_THREADS ? 0 : (MAX_ADDITIONAL_THREADS >= 0) ? MAX_ADDITIONAL_THREADS : Runtime.getRuntime().availableProcessors();
   }
@@ -1041,8 +1041,8 @@ public final class DependencyGraphBuilder {
     for (DependencyNode node : _graphNodes) {
       graph.addDependencyNode(node);
     }
-    for (ValueRequirement requirement : _terminalOutputs.keySet()) {
-      graph.addTerminalOutput(requirement, _terminalOutputs.get(requirement));
+    for (Map.Entry<ValueRequirement, ValueSpecification> terminalOutput : _terminalOutputs.entrySet()) {
+      graph.addTerminalOutput(terminalOutput.getKey(), terminalOutput.getValue());
     }
     //graph.dumpStructureASCII(System.out);
     if (DEBUG_DUMP_DEPENDENCY_GRAPH) {
@@ -1054,10 +1054,9 @@ public final class DependencyGraphBuilder {
     return graph;
   }
 
-  protected static PrintStream openDebugStream(final String name) {
+  protected PrintStream openDebugStream(final String name) {
     try {
-      final int fileId = s_nextDebugId.getAndIncrement();
-      final String fileName = System.getProperty("java.io.tmpdir") + File.separatorChar + name + fileId + ".txt";
+      final String fileName = System.getProperty("java.io.tmpdir") + File.separatorChar + name + _objectId + ".txt";
       return new PrintStream(new FileOutputStream(fileName));
     } catch (IOException e) {
       s_loggerBuilder.error("Can't open debug file", e);

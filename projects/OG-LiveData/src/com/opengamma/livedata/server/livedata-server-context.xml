@@ -2,20 +2,19 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:aop="http://www.springframework.org/schema/aop"
-	xmlns:tx="http://www.springframework.org/schema/tx"
-	xsi:schemaLocation="
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-    	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
-    	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+      http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
 
-	<bean id="propertyConfigurer"
-		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="location">
-			<value>classpath:server.properties</value>
-		</property>
-	</bean>
-	
-	<tx:annotation-driven transaction-manager="txManager"/>
+  <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="location">
+      <value>classpath:server.properties</value>
+    </property>
+  </bean>
+
+  <tx:annotation-driven transaction-manager="txManager"/>
 
   <bean id="txManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
     <property name="sessionFactory">
@@ -23,96 +22,96 @@
     </property>
   </bean>
 
-	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-	    <property name="driverClassName" value="${jdbc.driverClassName}"/>
-	    <property name="url" value="${jdbc.url}"/>
-	    <property name="username" value="${jdbc.username}"/>
-	    <property name="password" value="${jdbc.password}"/>
-  	</bean>
-	
-    <bean id="dbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean">
-        <property name="name" value="${dbsource.name}"/>
-        <property name="hibernateMappingFiles">
-            <list>
-                <bean class="com.opengamma.security.user.HibernateUserManagerFiles"/>
-            </list>
-        </property>
-        <property name="dataSource" ref="dataSource"/>
-        <property name="dialectName" value="${opengamma.db.dialect}"/>
-    </bean>
-    
-    <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-        <property name="brokerURL" value="${activeMQ.brokerURL}" />
-        <property name="transportListener" ref="activeMqTransportListener" />
-        <property name="sendTimeout" value="${activeMQ.sendTimeout}" />
-    </bean>
-    
-    <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
-        <constructor-arg ref="activeMQConnectionFactory"/>          
-    </bean>
-    
-    <!-- JMS sending -->
-    
-    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
-        <property name="connectionFactory" ref="jmsConnectionFactory" />
-        <property name="pubSubDomain" value="true"/>
-    </bean>
-    
-    <bean id="jmsSenderFactory" class="com.opengamma.livedata.server.distribution.JmsSenderFactory">
-        <property name="jmsConnector" ref="jmsConnector"/>
-    </bean>
-    
-    <bean id="activeMqTransportListener" class="com.opengamma.livedata.server.distribution.ActiveMQTransportListener">
-        <constructor-arg index="0" ref="jmsSenderFactory"/>
-    </bean>
-    
-    <!-- Subscriptions -->
-	<bean id="subscriptionRequestReceiver" class="com.opengamma.livedata.server.SubscriptionRequestReceiver">
-		<constructor-arg index="0" ref="liveDataServer"/>
-	</bean>
-	
-	<bean id="subscriptionRequestDispatcher" class="com.opengamma.transport.FudgeRequestDispatcher">
-		<constructor-arg index="0" ref="subscriptionRequestReceiver"/>
-	</bean>
-	
-	<bean id="subscriptionRequestJmsReceiver" class="com.opengamma.transport.jms.JmsByteArrayRequestDispatcher">
-		<constructor-arg index="0" ref="subscriptionRequestDispatcher"/>	
-	</bean>
+  <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <property name="driverClassName" value="${jdbc.driverClassName}"/>
+    <property name="url" value="${jdbc.url}"/>
+    <property name="username" value="${jdbc.username}"/>
+    <property name="password" value="${jdbc.password}"/>
+  </bean>
 
-	<bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer" init-method="start">
-    	<property name="connectionFactory" ref="jmsConnectionFactory"/>
-    	<property name="destination">
-			<bean class="org.apache.activemq.command.ActiveMQTopic">
-				<constructor-arg value="${subscriptionrequest.topic.name}" />
-			</bean>
-    	</property>
-    	<property name="messageListener" ref="subscriptionRequestJmsReceiver" />
-	</bean>
-	
-	<!-- Heartbeat -->
-	<bean id="activeSecurityPublicationManager" class="com.opengamma.livedata.server.ExpirationManager">
-		<constructor-arg ref="liveDataServer"/>
-	</bean>
-	
-	<bean id="heartbeatReceiver" class="com.opengamma.livedata.server.HeartbeatReceiver">
-		<constructor-arg ref="activeSecurityPublicationManager"/>
-	</bean>
-	
-	<bean id="heartbeatJmsReceiver" class="com.opengamma.transport.jms.JmsByteArrayMessageDispatcher">
-		<constructor-arg index="0" ref="heartbeatReceiver"/>	
-	</bean>
+  <bean id="dbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean">
+    <property name="name" value="${dbsource.name}"/>
+    <property name="hibernateMappingFiles">
+      <list>
+        <bean class="com.opengamma.security.user.HibernateUserManagerFiles"/>
+      </list>
+    </property>
+    <property name="dataSource" ref="dataSource"/>
+    <property name="dialectName" value="${opengamma.db.dialect}"/>
+  </bean>
 
-	<bean id="heartbeatJmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer" init-method="start">
-    	<property name="connectionFactory" ref="jmsConnectionFactory"/>
-    	<property name="destination">
-			<bean class="org.apache.activemq.command.ActiveMQTopic">
-				<constructor-arg value="${heartbeat.topic.name}" />
-			</bean>
-    	</property>
-    	<property name="messageListener" ref="heartbeatJmsReceiver" />
-	</bean>
-	
-	<!-- Entitlement -->
+  <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+    <property name="brokerURL" value="${activeMQ.brokerURL}" />
+    <property name="transportListener" ref="activeMqTransportListener" />
+    <property name="sendTimeout" value="${activeMQ.sendTimeout}" />
+  </bean>
+    
+  <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
+    <constructor-arg ref="activeMQConnectionFactory"/>          
+  </bean>
+
+  <!-- JMS sending -->
+  <bean id="jmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean"> 
+    <property name="name" value="LiveDataServerContext"/>
+    <property name="connectionFactory" ref="jmsConnectionFactory"/>
+    <property name="pubSubDomain" value="true"/>
+  </bean>
+
+  <bean id="jmsSenderFactory" class="com.opengamma.livedata.server.distribution.JmsSenderFactory">
+    <property name="jmsConnector" ref="jmsConnector"/>
+  </bean>
+
+  <bean id="activeMqTransportListener" class="com.opengamma.livedata.server.distribution.ActiveMQTransportListener">
+    <constructor-arg index="0" ref="jmsSenderFactory"/>
+  </bean>
+
+  <!-- Subscriptions -->
+  <bean id="subscriptionRequestReceiver" class="com.opengamma.livedata.server.SubscriptionRequestReceiver">
+    <constructor-arg index="0" ref="liveDataServer"/>
+  </bean>
+  
+  <bean id="subscriptionRequestDispatcher" class="com.opengamma.transport.FudgeRequestDispatcher">
+    <constructor-arg index="0" ref="subscriptionRequestReceiver"/>
+  </bean>
+  
+  <bean id="subscriptionRequestJmsReceiver" class="com.opengamma.transport.jms.JmsByteArrayRequestDispatcher">
+    <constructor-arg index="0" ref="subscriptionRequestDispatcher"/>  
+  </bean>
+
+  <bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer" init-method="start">
+    <property name="connectionFactory" ref="jmsConnectionFactory"/>
+    <property name="destination">
+      <bean class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="${subscriptionrequest.topic.name}" />
+      </bean>
+    </property>
+    <property name="messageListener" ref="subscriptionRequestJmsReceiver" />
+  </bean>
+  
+  <!-- Heartbeat -->
+  <bean id="activeSecurityPublicationManager" class="com.opengamma.livedata.server.ExpirationManager">
+    <constructor-arg ref="liveDataServer"/>
+  </bean>
+  
+  <bean id="heartbeatReceiver" class="com.opengamma.livedata.server.HeartbeatReceiver">
+    <constructor-arg ref="activeSecurityPublicationManager"/>
+  </bean>
+  
+  <bean id="heartbeatJmsReceiver" class="com.opengamma.transport.jms.JmsByteArrayMessageDispatcher">
+    <constructor-arg index="0" ref="heartbeatReceiver"/>  
+  </bean>
+
+  <bean id="heartbeatJmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer" init-method="start">
+    <property name="connectionFactory" ref="jmsConnectionFactory"/>
+    <property name="destination">
+      <bean class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="${heartbeat.topic.name}" />
+      </bean>
+    </property>
+    <property name="messageListener" ref="heartbeatJmsReceiver" />
+  </bean>
+  
+  <!-- Entitlement -->
     <bean id="entitlementJmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer" init-method="start">
         <property name="connectionFactory" ref="jmsConnectionFactory"/>
         <property name="destination">
@@ -135,27 +134,27 @@
         <constructor-arg index="0" ref="entitlementChecker"/>
     </bean>
 
-	<!-- Persistent subscriptions -->
-	<bean id="mongoConnector" class="com.opengamma.util.mongo.MongoConnectorFactoryBean">
+  <!-- Persistent subscriptions -->
+  <bean id="mongoConnector" class="com.opengamma.util.mongo.MongoConnectorFactoryBean">
     <property name="name" value="PersistentSubscription" />
     <property name="host" value="${mongodb.host}" />
     <property name="port" value="${mongodb.port}" />
     <property name="databaseName" value="${mongodb.db.name}" />
   </bean>
 
-	<bean id="persistentSubscriptionManager" class="com.opengamma.livedata.server.MongoDBPersistentSubscriptionManager"
-		depends-on="liveDataServer" init-method="start">
-		<constructor-arg index="0" ref="liveDataServer"/>
-		<constructor-arg index="1" ref="mongoConnector"/>
-	</bean>
+  <bean id="persistentSubscriptionManager" class="com.opengamma.livedata.server.MongoDBPersistentSubscriptionManager"
+    depends-on="liveDataServer" init-method="start">
+    <constructor-arg index="0" ref="liveDataServer"/>
+    <constructor-arg index="1" ref="mongoConnector"/>
+  </bean>
 
-	<!-- reconnect -->
+  <!-- reconnect -->
   <bean id="reconnectManager" class="com.opengamma.livedata.server.ReconnectManager"
         depends-on="liveDataServer" init-method="start">
     <constructor-arg index="0" ref="liveDataServer"/>
   </bean>
 
-	<!-- JMX beans -->
+  <!-- JMX beans -->
   <bean id="jmxAttributeSource" class="org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource"/>
 
   <bean id="jmxAssembler" class="org.springframework.jmx.export.assembler.MetadataMBeanInfoAssembler">
@@ -171,11 +170,11 @@
     <property name="namingStrategy" ref="jmxNamingStrategy"/>
     <property name="autodetect" value="true"/>
   </bean>
-  
+
   <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
     <property name="locateExistingServerIfPossible" value="true" />
   </bean>
-  
+
   <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     <property name="shared" value="true"/>
   </bean>
