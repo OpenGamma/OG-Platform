@@ -132,7 +132,7 @@ $.register_module({
                 var layout = og.views.common.layout,
                     setup_header_links = function () {
                         var $version_link,
-                            rules = module.rules.load_securities;
+                            rule = module.rules.load_securities;
                         $version_link = $('<a>version history</a>')
                             .addClass('OG-link-small og-js-version-link')
                             .attr('href', routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}))
@@ -181,7 +181,7 @@ $.register_module({
                                 if (json.template_data.underlyingOid) {
                                     var id = json.template_data.underlyingOid,
                                         rule = module.rules.load_securities,
-                                        hash = routes.hash(rule, $.extend(true, {}, routes.current().args, {id: id})),
+                                        hash = routes.hash(rule, routes.current().args, {add: {id: id}}),
                                         text = json.template_data.underlyingExternalId,
                                         anchor = '<a href="#' + hash + '">' + text + '</a>';
                                         $html.find('.OG-js-underlying-id').html(anchor);
