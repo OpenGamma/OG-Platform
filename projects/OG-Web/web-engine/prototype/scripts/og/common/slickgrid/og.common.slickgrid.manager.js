@@ -56,6 +56,7 @@ $.register_module({
                     if (r.error) {
                         ui.message({
                             location: '.OG-js-search',
+                            css: {bottom: '6px'},
                             message: 'oops, something bad happened (' + r.message + ')'
                         });
                         return;
@@ -83,7 +84,7 @@ $.register_module({
                     on_data_loaded.notify({from: from,to: to});
                     ui.message({location: '.OG-js-search', destroy: true});
                     clearTimeout(timer);
-                }
+                };
                 /**
                  * Do rest request
                  */
@@ -91,7 +92,9 @@ $.register_module({
                     og.api.rest[obj.page_type].get($.extend({
                         handler: handle_data,
                         loading: function () {
-                            ui.message({location: '.OG-js-search',
+                            ui.message({
+                                location: '.OG-js-search',
+                                css: {bottom: '6px'},
                                 message: {0: 'loading...', 3000: 'still loading...'}});
                         },
                         page_size: request_page_size,

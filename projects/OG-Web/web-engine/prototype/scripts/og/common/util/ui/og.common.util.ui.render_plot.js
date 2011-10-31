@@ -19,9 +19,9 @@ $.register_module({
                 $p2, p2_options, p2_selector = selector + ' .og-js-p2',
                 tenor = selector + ' .og-tenor',
                 $legend, hover_pos = null,
-                x_max, y_min, y_max, initial_preset,
+                x_max, y_min, y_max, initial_preset, reset_options,
                 $plot_header = $('.OG-timeseries .og-plotHeader'),
-                load_plots, empty_plots, update_legend, rescale_yaxis, get_legend, panning, rescale_timeout;
+                load_plots, empty_plots, update_legend, rescale_yaxis, get_legend, panning;
             $(selector).html(
                 '<div class="og-js-p1" style="height: 250px; width: 800px; margin: 0 0 0 -20px"></div>\
                  <div class="og-js-p2" style="height: 100px; width: 800px; margin: -43px 0 0 -20px"></div>\
@@ -29,8 +29,50 @@ $.register_module({
                      background: #fff"></div>'
             ).css({position: 'relative'});
             get_legend = function () {return $(selector + ' .legend');}; // the legend is often regenerated
+            reset_options = function () {
+                p1_options = {
+                    colors: colors_arr,
+                    series: {shadowSize: 1, threshold: {below: 0, color: '#960505'}},
+                    legend: {
+                        show: true, labelBoxBorderColor: 'transparent', position: 'nw', margin: 1, backgroundColor: null                    },
+                    crosshair: {mode: 'x', color: '#e5e5e5', lineWidth: '1'},
+                    lines: {lineWidth: 1, fill: 1, fillColor: '#f8fbfd'},
+                    xaxis: {
+                        ticks: 6, mode: 'time',
+                        min: initial_preset, max: x_max,
+                        tickLength: 0, labelHeight: 26,
+                        color: '#fff', // base color, labels, ticks
+                        tickColor: null // possibly different color of ticks, e.g. "rgba(0,0,0,0.15)"
+                    },
+                    yaxis: {
+                        ticks: 5, position: 'right', panRange: false, tickLength: 'full', tickColor: '#f3f3f3',
+                        labelWidth: 53, reserveSpace: true, min: y_min, max: y_max
+                    },
+                    grid: {borderWidth: 1, color: '#999', borderColor: '#e9eaeb', labelMargin: 3,
+                        minBorderMargin: 30, hoverable: true},
+                    selection: {mode: null, color: '#d7e7f2'},
+                    pan: {interactive: true, cursor: "move", frameRate: 30}
+                };
+                p2_options = {
+                    colors: colors_arr,
+                    series: {shadowSize: 1, threshold: {below: 0, color: '#960505'}},
+                    legend: {show: false},
+                    lines: {lineWidth: 1, fill: 1, fillColor: '#fafafa'},
+                    xaxis: {ticks: 6, mode: 'time', tickLength: 10, labelHeight: 17},
+                    yaxis: {
+                        show: false, ticks: 1, position: 'right', tickLength: 0, labelWidth: 53,
+                        reserveSpace: true, min: y_min , max: y_max
+                    },
+                    grid: {borderWidth: 1, color: '#999', borderColor: '#e9eaeb', labelMargin: 3, minBorderMargin: 30},
+                    selection: {mode: 'x', color: '#d7e7f2'}
+                };
+            };
             empty_plots = function () {
-                var d = ['1', '2'], $p1, $p2, disabled_options;
+                var d = ['1', '2'], $p1, $p2, disabled_options,
+                    msg = $('<div>Not enough data to plot</div>').css({
+                        position: 'absolute', color: '#ccc', left: '35px', top: '30px'
+                    });
+                reset_options();
                 disabled_options = {
                     xaxis: {show: false, panRange: false},
                     yaxis: {show: false, panRange: false},
@@ -38,11 +80,13 @@ $.register_module({
                     pan: {interactive: false}
                 };
                 $(tenor).css({visibility: 'hidden'});
+                console.log('p1_options', p1_options);
                 $p1 = $.plot($(p1_selector), d, $.extend(true, {}, p1_options, disabled_options));
                 $p2 = $.plot($(p2_selector), d, $.extend(true, {}, p2_options, disabled_options));
+                $(p1_selector).append(msg);
             };
             load_plots = function (data_arr) {
-                if (data_arr[0] === void 0) {empty_plots(); return}
+                if (data_arr[0] === void 0 || data_arr[0].data.length < 2) {empty_plots(); return}
                 var d = data_arr, data = data_arr[0].data;
                 (function () { // set up presets
                     var new_max_date_obj, _1m, _3m, _6m, _1y, _2y, _3y, counter = 0, presets = {};
@@ -85,42 +129,8 @@ $.register_module({
                     });
                     $(tenor).css({visibility: 'visible'});
                 }());
-                p1_options = {
-                    colors: colors_arr,
-                    series: {shadowSize: 1, threshold: {below: 0, color: '#960505'}},
-                    legend: {
-                        show: true, labelBoxBorderColor: 'transparent', position: 'nw', margin: 1, backgroundColor: null                    },
-                    crosshair: {mode: 'x', color: '#e5e5e5', lineWidth: '1'},
-                    lines: {lineWidth: 1, fill: 1, fillColor: '#f8fbfd'},
-                    xaxis: {
-                        ticks: 6, mode: 'time', panRange: [data[0][0], data[data.length-1][0]],
-                        min: initial_preset, max: x_max,
-                        tickLength: 0, labelHeight: 26,
-                        color: '#fff', // base color, labels, ticks
-                        tickColor: null // possibly different color of ticks, e.g. "rgba(0,0,0,0.15)"
-                    },
-                    yaxis: {
-                        ticks: 5, position: 'right', panRange: false, tickLength: 'full', tickColor: '#f3f3f3',
-                        labelWidth: 53, reserveSpace: true, min: y_min, max: y_max
-                    },
-                    grid: {borderWidth: 1, color: '#999', borderColor: '#e9eaeb', labelMargin: 3,
-                        minBorderMargin: 30, hoverable: true},
-                    selection: {mode: null, color: '#d7e7f2'},
-                    pan: {interactive: true, cursor: "move", frameRate: 30}
-                };
-                p2_options = {
-                    colors: colors_arr,
-                    series: {shadowSize: 1, threshold: {below: 0, color: '#960505'}},
-                    legend: {show: false},
-                    lines: {lineWidth: 1, fill: 1, fillColor: '#fafafa'},
-                    xaxis: {ticks: 6, mode: 'time', tickLength: 10, labelHeight: 17},
-                    yaxis: {
-                        show: false, ticks: 1, position: 'right', tickLength: 0, labelWidth: 53,
-                        reserveSpace: true, min: y_min , max: y_max
-                    },
-                    grid: {borderWidth: 1, color: '#999', borderColor: '#e9eaeb', labelMargin: 3, minBorderMargin: 30},
-                    selection: {mode: 'x', color: '#d7e7f2'}
-                };
+                reset_options();
+                p1_options.xaxis.panRange = [data[0][0], data[data.length-1][0]];
                 if (!(state.from && state.to)) {state.from = initial_preset, state.to = x_max;}
                 // in xaxis, min/max sets the pan, from/to sets the selection
                 p1_options.xaxis.min = state.from, p1_options.xaxis.max = state.to;

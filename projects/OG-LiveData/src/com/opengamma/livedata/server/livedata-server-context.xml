@@ -54,7 +54,6 @@
   <bean id="jmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean"> 
     <property name="name" value="LiveDataServerContext"/>
     <property name="connectionFactory" ref="jmsConnectionFactory"/>
-    <property name="pubSubDomain" value="true"/>
   </bean>
 
   <bean id="jmsSenderFactory" class="com.opengamma.livedata.server.distribution.JmsSenderFactory">

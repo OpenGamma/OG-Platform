@@ -16,7 +16,7 @@ $.register_module({
             CPTT = 'computationTargetType', RECP = 'reciprocal';
         return og.views.config_forms['default'].preload({
             type: 'com.opengamma.financial.currency.CurrencyMatrix',
-            meta: [
+            type_map: [
                 [['0', INDX].join('.'),             Form.type.STR],
                 [[CRCV, '*', '*'].join('.'),        Form.type.STR],
                 [[CRCV, '*', '*', INDX].join('.'),  Form.type.STR],

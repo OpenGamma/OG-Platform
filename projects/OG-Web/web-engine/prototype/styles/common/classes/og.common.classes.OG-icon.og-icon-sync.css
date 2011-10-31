@@ -1,0 +1,33 @@
+.OG-icon.og-icon-sync,
+.OG-icon.og-icon-sync-small {
+  cursor: default;
+}
+
+a.OG-icon.og-icon-sync,
+a.OG-icon.og-icon-sync-small {
+  cursor: pointer;
+}
+
+.OG-icon.og-icon-sync:before {
+  background-position: -30px -46px;
+  background-color: transparent;
+  height: 13px;
+  width: 13px;
+  position: relative;
+  top: 2px;
+  left: 1px;
+}
+
+.OG-icon.og-icon-sync-small:before {
+  background-position: -40px -25px;
+  background-color: transparent;
+  height: 9px;
+  width: 8px;
+  position: absolute;
+  top: 3px;
+  left: -10px;
+}
+
+a.OG-icon.og-icon-sync-small {
+  margin-left: 11px;
+}
