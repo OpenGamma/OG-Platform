@@ -17,7 +17,7 @@ public class Min {
    * @param data the data to search
    * @return min, the minimum
    */
-  public static int value(int[] data) {
+  public static int value(int... data) {
     Validate.notNull(data);
     int min = 0x7fffffff;
     final int n = data.length;
@@ -34,7 +34,7 @@ public class Min {
    * @param data the data to search
    * @return idx, the index of the minimum value in the data
    */
-  public static int index(int[] data) {
+  public static int index(int... data) {
     Validate.notNull(data);
     int min = 0x7fffffff;
     int idx = -1;
@@ -54,7 +54,7 @@ public class Min {
    * @return min, the minimum
    */
 
-  public static long value(long[] data) {
+  public static long value(long... data) {
     Validate.notNull(data);
     long min = 0x7fffffff;
     final long n = data.length;
@@ -71,7 +71,7 @@ public class Min {
    * @param data the data to search
    * @return idx, the index of the minimum value in the data
    */
-  public static int index(long[] data) {
+  public static int index(long... data) {
     Validate.notNull(data);
     long min = 0x7fffffff;
     int idx = -1;
@@ -90,7 +90,7 @@ public class Min {
    * @param data the data to search
    * @return min, the minimum
    */
-  public static float value(float[] data) {
+  public static float value(float... data) {
     Validate.notNull(data);
     float min = Float.MAX_VALUE;
     final int n = data.length;
@@ -107,7 +107,7 @@ public class Min {
    * @param data the data to search
    * @return idx, the index of the minimum value in the data
    */
-  public static int index(float[] data) {
+  public static int index(float... data) {
     Validate.notNull(data);
     float min = Float.MAX_VALUE;
     int idx = -1;
@@ -126,7 +126,7 @@ public class Min {
    * @param data the data to search
    * @return min, the minimum
    */
-  public static double value(double[] data) {
+  public static double value(double... data) {
     Validate.notNull(data);
     double min = Double.MAX_VALUE;
     final int n = data.length;
@@ -143,7 +143,7 @@ public class Min {
    * @param data the data to search
    * @return idx, the index of the minimum value in the data
    */
-  public static int index(double[] data) {
+  public static int index(double... data) {
     Validate.notNull(data);
     double min = Double.MAX_VALUE;
     int idx = -1;

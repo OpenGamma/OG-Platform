@@ -15,7 +15,7 @@ import org.apache.commons.lang.Validate;
  *                    : unique to tolerance - unique at a specified precision
  * TODO: Code is pretty horrible and inefficient, merge sort with remove dupes would be better
  */
-class Unique {
+public final class Unique {
 
   /**
    * Uniques the data, duplicates are removed based on bitwise comparison of data.

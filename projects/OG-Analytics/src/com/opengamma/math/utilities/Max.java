@@ -17,7 +17,7 @@ public class Max {
    * @param data the data to search
    * @return max, the maximum
    */
-  public static int value(int[] data) {
+  public static int value(int... data) {
     Validate.notNull(data);
     int max = 0x80000000;
     final int n = data.length;
@@ -34,7 +34,7 @@ public class Max {
    * @param data the data to search
    * @return idx, the index of the maximum value in the data
    */
-  public static int index(int[] data) {
+  public static int index(int... data) {
     Validate.notNull(data);
     int max = 0x80000000;
     int idx = -1;
@@ -54,7 +54,7 @@ public class Max {
    * @return max, the maximum
    */
 
-  public static long value(long[] data) {
+  public static long value(long... data) {
     Validate.notNull(data);
     long max = 0x80000000;
     final long n = data.length;
@@ -71,7 +71,7 @@ public class Max {
    * @param data the data to search
    * @return idx, the index of the maximum value in the data
    */
-  public static int index(long[] data) {
+  public static int index(long... data) {
     Validate.notNull(data);
     long max = 0x80000000;
     int idx = -1;
@@ -90,7 +90,7 @@ public class Max {
    * @param data the data to search
    * @return max, the maximum
    */
-  public static float value(float[] data) {
+  public static float value(float... data) {
     Validate.notNull(data);
     float max = Float.MIN_VALUE;
     final int n = data.length;
@@ -107,7 +107,7 @@ public class Max {
    * @param data the data to search
    * @return idx, the index of the maximum value in the data
    */
-  public static int index(float[] data) {
+  public static int index(float... data) {
     Validate.notNull(data);
     float max = Float.MIN_VALUE;
     int idx = -1;
@@ -126,7 +126,7 @@ public class Max {
    * @param data the data to search
    * @return max, the maximum
    */
-  public static double value(double[] data) {
+  public static double value(double... data) {
     Validate.notNull(data);
     double max = Double.MIN_VALUE;
     final int n = data.length;
@@ -143,7 +143,7 @@ public class Max {
    * @param data the data to search
    * @return idx, the index of the maximum value in the data
    */
-  public static int index(double[] data) {
+  public static int index(double... data) {
     Validate.notNull(data);
     double max = Double.MIN_VALUE;
     int idx = -1;
