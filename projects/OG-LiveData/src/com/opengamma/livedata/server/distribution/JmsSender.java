@@ -90,7 +90,7 @@ public class JmsSender implements MarketDataSender {
     String destinationName = distributionSpec.getJmsTopic();
     final byte[] bytes = _fudgeContext.toByteArray(fudgeMsg);
     
-    _jmsConnector.getJmsTemplate().send(destinationName, new MessageCreator() {
+    _jmsConnector.getJmsTemplateTopic().send(destinationName, new MessageCreator() {
       @Override
       public Message createMessage(Session session) throws JMSException {
         // TODO kirk 2009-10-30 -- We want to put stuff in the properties as well I think.
