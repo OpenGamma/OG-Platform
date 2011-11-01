@@ -59,7 +59,7 @@ public class RemoteLiveDataClientFactoryBean extends SingletonFactoryBean<LiveDa
   
   @Override
   protected LiveDataClient createObject() {
-    final JmsTemplate jmsTemplate = getJmsConnector().getJmsTemplate();
+    final JmsTemplate jmsTemplate = getJmsConnector().getJmsTemplateTopic();
     
     JmsByteArrayRequestSender jmsSubscriptionRequestSender = new JmsByteArrayRequestSender(getSubscriptionTopic(), jmsTemplate);
     ByteArrayFudgeRequestSender fudgeSubscriptionRequestSender = new ByteArrayFudgeRequestSender(jmsSubscriptionRequestSender);

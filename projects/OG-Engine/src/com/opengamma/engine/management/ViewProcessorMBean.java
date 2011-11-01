@@ -24,6 +24,13 @@ public interface ViewProcessorMBean {
   Set<UniqueId> getViewProcesses();
   
   /**
+   * See getViewProcesses()
+   * 
+   * @return the number of view processes currently being managed by this view processor.
+   */
+  int getNumberOfViewProcesses();
+  
+  /**
    * Start this view processor
    */
   void start();
