@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
@@ -36,7 +37,7 @@ public final class TriggerViewCycleProcedure extends AbstractProcedureInvoker.No
 
   private TriggerViewCycleProcedure(final DefinitionAnnotater info) {
     super(info.annotate(parameters()));
-    _meta = info.annotate(new MetaProcedure("TriggerViewCycle", getParameters(), this));
+    _meta = info.annotate(new MetaProcedure(Categories.VIEW, "TriggerViewCycle", getParameters(), this));
   }
 
   private TriggerViewCycleProcedure() {
