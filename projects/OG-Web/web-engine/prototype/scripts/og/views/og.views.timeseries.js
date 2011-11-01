@@ -179,10 +179,6 @@ $.register_module({
                                 </section>\
                             ';
                             $html = $.tmpl(template, json.template_data);
-                            stop_loading = function () {
-                                ui.message({location: '.ui-layout-inner-center', destroy: true});
-                                layout.inner.resizeAll();
-                            };
                             // Initial html setup
                             header = $.outer($html.find('> header')[0]);
                             content = $.outer($html.find('> section')[0]);
@@ -206,20 +202,13 @@ $.register_module({
                             );
                             // Plot
                             ui.render_plot({
-                                selector: '.OG-timeseries .og-js-timeseriesPlot',
+                                selector: '.OG-timeseries .og-plots',
                                 data: result, // sending the whole result to be in sync with future requested objects
                                 identifier: json.identifiers[0].value,
                                 init_data_field: json.template_data.data_field,
                                 init_ob_time: json.template_data.observation_time
                             });
-                            // Data points
-                            f.render_table('.OG-timeseries .og-js-table', {
-                                'fieldLabels': json.timeseries.fieldLabels, 'data': json.timeseries.data
-                            }, stop_loading);
-                            // Hookup data download link
-                            $('.og-js-timeSeriesCsv').click(function () {
-                                window.location.href = '/jax/timeseries/' + args.id + '.csv';
-                            });
+                            ui.message({location: '.ui-layout-inner-center', destroy: true});
                             layout.inner.resizeAll();
                         }});
                     },

@@ -12,37 +12,6 @@ $.register_module({
              * @param {String} selector
              * @param {json} data
              */
-            render_table = function (selector, json, handler) {
-                var CHUNK = 500, length = json.data.length, $parent = $(selector).html(
-                       '<thead>\
-                          <tr>\
-                            <td>Data Points</td>\
-                            <td><span class="OG-link og-js-timeSeriesCsv">Download (CSV)</span></td>\
-                          </tr><tr>\
-                            <td></td>\
-                            <td></td>\
-                          </tr>\
-                        </thead>\
-                        <tbody class="og-mod-content" style="height: 200px"></tbody>'
-                    ).find('tbody'),
-                    render = function (start, end) {
-                        handler();
-//                        if (start >= length) return handler();
-//                        var str = json.data.slice(start, end).reduce(function (acc, val) {
-//                            var date = new Date(val[0]), d = date.getDate(), m = date.getMonth() + 1,
-//                                day = d < 10 ? '0' + d : d,
-//                                month = m < 10 ? '0' + m : m;
-//                            acc.push(
-//                                '<tr><td>', day, '/', month, '/', date.getFullYear(), '</td>',
-//                                '<td>', val[1], '</td></tr>'
-//                            );
-//                            return acc;
-//                        }, []).join('');
-//                        $parent.append(str);
-//                        setTimeout(render.partial(end, end + CHUNK), 0);
-                    };
-                render(0, CHUNK);
-            },
             render_identifiers = function (selector, json) {
                 var html = [];
                 json.forEach(function (datum) {
@@ -54,10 +23,8 @@ $.register_module({
                     );
                 });
                 $(selector).html(html.join(''));
-            }
-
+            };
         return timeseries_functions = {
-            render_table: render_table,
             render_identifiers: render_identifiers
         };
 

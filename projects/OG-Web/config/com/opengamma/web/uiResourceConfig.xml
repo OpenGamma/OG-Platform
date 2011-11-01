@@ -58,6 +58,7 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-table.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-delete.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-unhook.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-download.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-sync.css</fragment>
   </bundle>
   <bundle id="common.search.css">
@@ -134,6 +135,7 @@
     <fragment>/scripts/lib/js.ext.array.prototype.map.js</fragment>
     <fragment>/scripts/lib/js.ext.array.prototype.reduce.js</fragment>
     <fragment>/scripts/lib/js.ext.array.prototype.some.js</fragment>
+    <fragment>/scripts/lib/js.ext.object.keys.js</fragment>
     <fragment>/scripts/lib/js.ext.function.prototype.partial.js</fragment>
     <fragment>/scripts/lib/js.ext.function.prototype.preload.js</fragment>
     <fragment>/scripts/lib/json2.js</fragment>
