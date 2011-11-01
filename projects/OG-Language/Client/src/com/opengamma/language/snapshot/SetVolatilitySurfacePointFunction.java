@@ -10,6 +10,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilitySurfaceSnapshot;
 import com.opengamma.language.context.SessionContext;
@@ -27,12 +30,20 @@ import com.opengamma.util.tuple.Pair;
  */
 public class SetVolatilitySurfacePointFunction extends AbstractFunctionInvoker implements PublishedFunction {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(SetVolatilitySurfacePointFunction.class);
+
   /**
    * Default instance.
    */
   public static final SetVolatilitySurfacePointFunction INSTANCE = new SetVolatilitySurfacePointFunction();
 
   private final MetaFunction _meta;
+
+  private static final int SNAPSHOT = 0;
+  private static final int X = 1;
+  private static final int Y = 2;
+  private static final int OVERRIDE_VALUE = 3;
+  private static final int MARKET_VALUE = 4;
 
   private static List<MetaParameter> parameters() {
     return Arrays.asList(
@@ -58,9 +69,9 @@ public class SetVolatilitySurfacePointFunction extends AbstractFunctionInvoker i
   public static ManageableVolatilitySurfaceSnapshot invoke(final ManageableVolatilitySurfaceSnapshot snapshot, final String x, final String y, final Double overrideValue, final Double marketValue) {
     for (Map.Entry<Pair<Object, Object>, ValueSnapshot> surfacePoint : snapshot.getValues().entrySet()) {
       final Object xObject = surfacePoint.getKey().getFirst();
-      if (x.equals(VolatilitySurfaceSnapshotUtil.toString(xObject))) {
+      if (x.equals(StructuredMarketDataSnapshotUtil.toString(xObject))) {
         final Object yObject = surfacePoint.getKey().getSecond();
-        if (y.equals(VolatilitySurfaceSnapshotUtil.toString(yObject))) {
+        if (y.equals(StructuredMarketDataSnapshotUtil.toString(yObject))) {
           if (marketValue != null) {
             snapshot.getValues().put(surfacePoint.getKey(), new ValueSnapshot(marketValue, overrideValue));
           } else {
@@ -69,7 +80,6 @@ public class SetVolatilitySurfacePointFunction extends AbstractFunctionInvoker i
           break;
         }
       }
-      break;
     }
     return snapshot;
   }
@@ -78,7 +88,7 @@ public class SetVolatilitySurfacePointFunction extends AbstractFunctionInvoker i
 
   @Override
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
-    return invoke((ManageableVolatilitySurfaceSnapshot) parameters[0], (String) parameters[1], (String) parameters[2], (Double) parameters[3], (Double) parameters[4]);
+    return invoke((ManageableVolatilitySurfaceSnapshot) parameters[SNAPSHOT], (String) parameters[X], (String) parameters[Y], (Double) parameters[OVERRIDE_VALUE], (Double) parameters[MARKET_VALUE]);
   }
 
   // PublishedFunction
