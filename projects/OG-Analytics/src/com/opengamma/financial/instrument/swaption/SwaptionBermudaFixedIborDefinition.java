@@ -11,7 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.payments.Coupon;
@@ -22,7 +22,7 @@ import com.opengamma.util.time.TimeCalculator;
 /**
  * Class describing a Bermuda swaption on vanilla swaps with physical delivery.
  */
-public class SwaptionBermudaFixedIborDefinition implements FixedIncomeInstrumentConverter<SwaptionBermudaFixedIbor> {
+public class SwaptionBermudaFixedIborDefinition implements FixedIncomeInstrumentDefinition<SwaptionBermudaFixedIbor> {
 
   /**
    * The swaps underlying the swaption. There is one swap for each expiration date. 

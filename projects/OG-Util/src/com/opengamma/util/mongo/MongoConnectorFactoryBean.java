@@ -59,7 +59,7 @@ public class MongoConnectorFactoryBean extends SingletonFactoryBean<MongoConnect
   /**
    * Creates an instance based on an existing connector.
    * <p>
-   * This copies the name, mongo and databse.
+   * This copies the name, mongo and database.
    * 
    * @param base  the base connector to copy, not null
    */
@@ -129,10 +129,11 @@ public class MongoConnectorFactoryBean extends SingletonFactoryBean<MongoConnect
   //-------------------------------------------------------------------------
   @Override
   public MongoConnector createObject() {
-    ArgumentChecker.notNull(getName(), "name");
+    final String name = getName();  // store in variable to protect against change by subclass
+    ArgumentChecker.notNull(name, "name");
     final Mongo mongo = createMongo();
     final DB db = createDatabase(mongo);
-    return new MongoConnector(getName(), mongo, db, getCollectionSuffix());
+    return new MongoConnector(name, mongo, db, getCollectionSuffix());
   }
 
   /**
@@ -145,9 +146,11 @@ public class MongoConnectorFactoryBean extends SingletonFactoryBean<MongoConnect
     if (mongo != null) {
       return mongo;
     }
-    ArgumentChecker.notNull(getHost(), "host");
+    final String host = getHost();  // store in variable to protect against change by subclass
+    final int port = getPort();  // store in variable to protect against change by subclass
+    ArgumentChecker.notNull(host, "host");
     try {
-      return new Mongo(getHost(), getPort());
+      return new Mongo(host, port);
     } catch (UnknownHostException ex) {
       throw new MongoException(ex.getMessage(), ex);
     }

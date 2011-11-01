@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.volatility.cube;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -16,8 +17,6 @@ import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.util.time.Tenor;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Loads a default vol cube defns into the configuration database.

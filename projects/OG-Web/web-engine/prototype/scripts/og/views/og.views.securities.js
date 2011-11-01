@@ -132,18 +132,16 @@ $.register_module({
                 var layout = og.views.common.layout,
                     setup_header_links = function () {
                         var $version_link,
-                            mod = module.rules.load_securities,
-                            cur = $.extend({}, routes.current().args);
-                        delete cur.node, delete cur.version;
+                            rule = module.rules.load_securities;
                         $version_link = $('<a>version history</a>')
                             .addClass('OG-link-small og-js-version-link')
-                            .attr('href', '#' + routes.hash(mod, $.extend(true, {}, cur, {version: '*'})))
+                            .attr('href', routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}))
                             .unbind('click').bind('click', function (e) {
                                 var layout = og.views.common.layout;
                                 if (!layout.inner.state.south.isClosed && args.version) {
                                     e.preventDefault();
                                     layout.inner.close('south');
-                                    routes.go(routes.hash(mod, cur));
+                                    routes.go(routes.hash(rule, args, {del: ['version']}));
                                 } else layout.inner.open('south');
                             });
                         $('.OG-js-header-links').empty().append($version_link);
@@ -159,7 +157,7 @@ $.register_module({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var json = result.data, text_handler,
-                            security_type = json.template_data.securityType.toLowerCase(),
+                            security_type = json.template_data['securityType'].toLowerCase(),
                             template = module.name + '.' + security_type;
                         history.put({
                             name: json.template_data.name,
@@ -180,12 +178,12 @@ $.register_module({
                                 layout = og.views.common.layout, header, content,
                                 html = [], id, json_id = json.identifiers;
                             (function () {
-                                if (json.template_data.underlyingOid) {
-                                    var id = json.template_data.underlyingOid,
+                                if (json.template_data['underlyingOid']) {
+                                    var id = json.template_data['underlyingOid'],
                                         rule = module.rules.load_securities,
-                                        hash = routes.hash(rule, $.extend(true, {}, routes.current().args, {id: id})),
-                                        text = json.template_data.underlyingExternalId,
-                                        anchor = '<a href="#' + hash + '">' + text + '</a>';
+                                        hash = routes.hash(rule, routes.current().args, {add: {id: id}}),
+                                        text = json.template_data['underlyingExternalId'],
+                                        anchor = '<a href="' + routes.prefix() + hash + '">' + text + '</a>';
                                         $html.find('.OG-js-underlying-id').html(anchor);
                                 }
                             }());

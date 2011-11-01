@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.irfutureoption;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -41,8 +42,6 @@ import com.opengamma.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * 

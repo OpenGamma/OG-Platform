@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValueRequirement;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.hibernate.engine.SessionFactoryImplementor;
@@ -73,10 +72,14 @@ public abstract class AbstractBatchResultWriter {
   private final Map<String, Integer> _riskValueName2Id = new HashMap<String, Integer>();
 
   /**
-   * -> references rsk_value_name(id)
+   * -> references rsk_value_requirement(id)
    */
-  private final Map<ValueProperties, Integer> _valueConstraints2Id = new HashMap<ValueProperties, Integer>();
+  private final Map<ValueProperties, Integer> _valueRequirement2Id = new HashMap<ValueProperties, Integer>();
 
+  /**
+   * -> references rsk_value_specification(id)
+   */
+  private final Map<ValueProperties, Integer> _valueSpecification2Id = new HashMap<ValueProperties, Integer>();
 
 
   /**
@@ -133,13 +136,15 @@ public abstract class AbstractBatchResultWriter {
       ResultConverterCache resultConverterCache,
       Collection<ComputationTarget> computationTargets,
       Set<RiskValueName> valueNames,
-      Set<RiskValueConstraints> valueConstraints) {
+      Set<RiskValueRequirement> valueRequirements,
+      Set<RiskValueSpecification> valueSpecifications) {
     
     ArgumentChecker.notNull(dbConnector, "dbConnector");
     ArgumentChecker.notNull(computationTargets, "Computation targets");
     ArgumentChecker.notNull(riskRun, "Risk run");
     ArgumentChecker.notNull(valueNames, "Value names");
-    ArgumentChecker.notNull(valueConstraints, "Value constraints");
+    ArgumentChecker.notNull(valueRequirements, "Value requirements");
+    ArgumentChecker.notNull(valueSpecifications, "Value specifications");
     ArgumentChecker.notNull(resultConverterCache, "resultConverterCache");
     
     _dbConnector = dbConnector;
@@ -167,8 +172,12 @@ public abstract class AbstractBatchResultWriter {
       _riskValueName2Id.put(valueName.getName(), valueName.getId());
     }
 
-    for (RiskValueConstraints valueConstraint : valueConstraints) {
-      _valueConstraints2Id.put(valueConstraint.toConstraints(), valueConstraint.getId());
+    for (RiskValueRequirement valueRequirement : valueRequirements) {
+      _valueRequirement2Id.put(valueRequirement.toProperties(), valueRequirement.getId());
+    }
+
+    for (RiskValueSpecification valueSpecification : valueSpecifications) {
+      _valueSpecification2Id.put(valueSpecification.toProperties(), valueSpecification.getId());
     }
   }
 
@@ -314,10 +323,10 @@ public abstract class AbstractBatchResultWriter {
     return dbId;
   }
 
-  public int getValueConstraintsId(ValueProperties constraints) {
-    ArgumentChecker.notNull(constraints, "Risk value constraints");
+  public int getValueRequirementId(ValueProperties requirement) {
+    ArgumentChecker.notNull(requirement, "Risk value requirement");
     
-    Integer dbId = _valueConstraints2Id.get(constraints);
+    Integer dbId = _valueRequirement2Id.get(requirement);
     if (dbId != null) {
       return dbId;
     }
@@ -328,7 +337,7 @@ public abstract class AbstractBatchResultWriter {
     RuntimeException lastException = null;
     for (int i = 0; i < 2; i++) {
       try {
-        dbId = dbManager.getRiskValueConstraint(constraints).getId();
+        dbId = dbManager.getRiskValueRequirement(requirement).getId();
         lastException = null;
         break;
       } catch (RuntimeException e) {
@@ -338,7 +347,35 @@ public abstract class AbstractBatchResultWriter {
     if (lastException != null) {
       throw lastException;
     }
-    _valueConstraints2Id.put(constraints, dbId);
+    _valueRequirement2Id.put(requirement, dbId);
+    return dbId;
+  }
+
+  public int getValueSpecificationId(ValueProperties specification) {
+    ArgumentChecker.notNull(specification, "Risk value specification");
+
+    Integer dbId = _valueSpecification2Id.get(specification);
+    if (dbId != null) {
+      return dbId;
+    }
+
+    DbBatchMaster dbManager = new DbBatchMaster(_dbConnector);
+
+    // try twice to handle situation where two threads contend to insert
+    RuntimeException lastException = null;
+    for (int i = 0; i < 2; i++) {
+      try {
+        dbId = dbManager.getRiskValueSpecification(specification).getId();
+        lastException = null;
+        break;
+      } catch (RuntimeException e) {
+        lastException = e;
+      }
+    }
+    if (lastException != null) {
+      throw lastException;
+    }
+    _valueSpecification2Id.put(specification, dbId);
     return dbId;
   }
   
@@ -388,8 +425,8 @@ public abstract class AbstractBatchResultWriter {
     return _riskValueName2Id;
   }
 
-  public Map<ValueProperties, Integer> getValueConstraints2Id() {
-    return _valueConstraints2Id;
+  public Map<ValueProperties, Integer> getValueRequirement2Id() {
+    return _valueRequirement2Id;
   }
 
   public ResultConverterCache getResultConverterCache() {
@@ -620,20 +657,22 @@ public abstract class AbstractBatchResultWriter {
    * @param calcConfName  the calculation config name
    * @param valueName  the value name
    * @param ct  the computation target
-   * @param constraints the constraints
+   * @param requirement the requirement
    * @return the value for this target, null if does not exist
    */
-  public RiskValue getValue(String calcConfName, String valueName, ValueProperties constraints, ComputationTargetSpecification ct) {
+  public RiskValue getValue(String calcConfName, String valueName, ValueProperties requirement, ValueProperties specification, ComputationTargetSpecification ct) {
     Integer calcConfId = getCalculationConfigurationId(calcConfName);
     Integer valueId = getValueNameId(valueName);
     Integer computationTargetId = getComputationTargetId(ct);
-    Integer valueConstraintId = getValueConstraintsId(constraints);
+    Integer valueRequirementId = getValueRequirementId(requirement);
+    Integer valueSpecificationId = getValueSpecificationId(specification);
     
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("calculation_configuration_id", calcConfId);
     params.addValue("value_name_id", valueId);
     params.addValue("computation_target_id", computationTargetId);
-    params.addValue("value_constraints_id", valueConstraintId);
+    params.addValue("value_requirement_id", valueRequirementId);
+    params.addValue("value_specification_id", valueSpecificationId);
     
     try {
       return getJdbcTemplate().queryForObject(RiskValue.sqlGet(), RiskValue.ROW_MAPPER, params);

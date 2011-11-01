@@ -60,6 +60,11 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
    */
   @PropertyDefinition
   private String _name;
+  /**
+   * The sort order to use.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ExchangeSearchSortOrder _sortOrder = ExchangeSearchSortOrder.OBJECT_ID_ASC;
 
   /**
    * Creates an instance.
@@ -208,6 +213,8 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
         return getExternalIdSearch();
       case 3373707:  // name
         return getName();
+      case -26774448:  // sortOrder
+        return getSortOrder();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -225,8 +232,17 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
       case 3373707:  // name
         setName((String) newValue);
         return;
+      case -26774448:  // sortOrder
+        setSortOrder((ExchangeSearchSortOrder) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_sortOrder, "sortOrder");
+    super.validate();
   }
 
   @Override
@@ -239,6 +255,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
       return JodaBeanUtils.equal(getObjectIds(), other.getObjectIds()) &&
           JodaBeanUtils.equal(getExternalIdSearch(), other.getExternalIdSearch()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
           super.equals(obj);
     }
     return false;
@@ -250,6 +267,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
     hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
     return hash ^ super.hashCode();
   }
 
@@ -324,6 +342,32 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the sort order to use.
+   * @return the value of the property, not null
+   */
+  public ExchangeSearchSortOrder getSortOrder() {
+    return _sortOrder;
+  }
+
+  /**
+   * Sets the sort order to use.
+   * @param sortOrder  the new value of the property, not null
+   */
+  public void setSortOrder(ExchangeSearchSortOrder sortOrder) {
+    JodaBeanUtils.notNull(sortOrder, "sortOrder");
+    this._sortOrder = sortOrder;
+  }
+
+  /**
+   * Gets the the {@code sortOrder} property.
+   * @return the property, not null
+   */
+  public final Property<ExchangeSearchSortOrder> sortOrder() {
+    return metaBean().sortOrder().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ExchangeSearchRequest}.
    */
   public static class Meta extends AbstractSearchRequest.Meta {
@@ -349,13 +393,19 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
         this, "name", ExchangeSearchRequest.class, String.class);
     /**
+     * The meta-property for the {@code sortOrder} property.
+     */
+    private final MetaProperty<ExchangeSearchSortOrder> _sortOrder = DirectMetaProperty.ofReadWrite(
+        this, "sortOrder", ExchangeSearchRequest.class, ExchangeSearchSortOrder.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "objectIds",
         "externalIdSearch",
-        "name");
+        "name",
+        "sortOrder");
 
     /**
      * Restricted constructor.
@@ -372,6 +422,8 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
           return _externalIdSearch;
         case 3373707:  // name
           return _name;
+        case -26774448:  // sortOrder
+          return _sortOrder;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -414,6 +466,14 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<String> name() {
       return _name;
+    }
+
+    /**
+     * The meta-property for the {@code sortOrder} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExchangeSearchSortOrder> sortOrder() {
+      return _sortOrder;
     }
 
   }

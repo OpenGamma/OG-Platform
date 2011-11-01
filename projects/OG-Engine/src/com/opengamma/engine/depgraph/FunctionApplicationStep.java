@@ -147,6 +147,10 @@ import com.opengamma.util.tuple.Pair;
       return ResolutionFailure.functionApplication(getValueRequirement(), getFunction(), getValueSpecification());
     }
 
+    public boolean canHandleMissingInputs() {
+      return getFunction().getFunction().canHandleMissingRequirements();
+    }
+
     public boolean inputsAvailable(final GraphBuildingContext context, final Map<ValueSpecification, ValueRequirement> inputs) {
       s_logger.info("Function inputs available {} for {}", inputs, getValueSpecification());
       // Late resolution of the output based on the actual inputs used (skip if everything was strict)
@@ -402,7 +406,12 @@ import com.opengamma.util.tuple.Pair;
     }
 
     public void finished(final GraphBuildingContext context) {
-      s_logger.info("Application of {} to produce {} complete; rescheduling for next resolution", getFunction(), getValueSpecification());
+      if (getWorker().getResults().length == 0) {
+        s_logger.info("Application of {} to produce {} failed; rescheduling for next resolution", getFunction(), getValueSpecification());
+        context.discardTaskProducing(getValueSpecification(), getTask());
+      } else {
+        s_logger.info("Application of {} to produce {} complete; rescheduling for next resolution", getFunction(), getValueSpecification());
+      }
       // Become runnable again; the next function will then be considered
       context.run(getTask());
     }

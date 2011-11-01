@@ -42,7 +42,7 @@ import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveE
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -56,7 +56,7 @@ import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 public abstract class InterestRateInstrumentFunction extends AbstractFunction.NonCompiledInvoker {
   private FixedIncomeConverterDataProvider _definitionConverter;
   private final String _valueRequirementName;
-  private FinancialSecurityVisitorAdapter<FixedIncomeInstrumentConverter<?>> _visitor;
+  private FinancialSecurityVisitorAdapter<FixedIncomeInstrumentDefinition<?>> _visitor;
   private final String _forwardCurveName;
   private final String _fundingCurveName;
 
@@ -85,7 +85,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
     final FutureSecurityConverter futureConverter = new FutureSecurityConverter(bondFutureConverter, irFutureConverter);
     _visitor =
-      FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>>builder()
+      FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentDefinition<?>>builder()
         .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
         .futureSecurityVisitor(futureConverter)
         .bondSecurityVisitor(bondConverter).create();
@@ -117,7 +117,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
         : (YieldAndDiscountCurve) fundingCurveObject;
     final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {_fundingCurveName, _forwardCurveName},
         new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
-    final FixedIncomeInstrumentConverter<?> definition = security.accept(_visitor);
+    final FixedIncomeInstrumentDefinition<?> definition = security.accept(_visitor);
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }

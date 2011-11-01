@@ -15,6 +15,8 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is the result of using {@link PagingRequest} to obtain an indexed subset of results.
  * This may represent traditional fixed paging or arbitrary paging starting from an index.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 public final class Paging {
 

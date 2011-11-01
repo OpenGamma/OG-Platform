@@ -45,7 +45,7 @@ import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProv
 import com.opengamma.financial.analytics.conversion.InterestRateInstrumentTradeOrSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.LastDateCalculator;
@@ -214,6 +214,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       return _forwardCurveSpecification;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
       final FixedIncomeStripIdentifierAndMaturityBuilder builder = new FixedIncomeStripIdentifierAndMaturityBuilder(OpenGammaExecutionContext.getRegionSource(executionContext),
@@ -251,7 +252,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         InterestRateDerivative derivative;
         final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper
             .getCurveNamesForFundingCurveInstrument(strip.getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
-        final FixedIncomeInstrumentConverter<?> definition = _securityConverter.visit(financialSecurity);
+        final FixedIncomeInstrumentDefinition<?> definition = _securityConverter.visit(financialSecurity);
         derivative = _definitionConverter.convert(financialSecurity, definition, now, curveNames, dataSource);
         if (derivative == null) {
           throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);
@@ -277,7 +278,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         InterestRateDerivative derivative;
         final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper
             .getCurveNamesForForwardCurveInstrument(strip.getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
-        final FixedIncomeInstrumentConverter<?> definition = _securityConverter.visit(financialSecurity);
+        final FixedIncomeInstrumentDefinition<?> definition = _securityConverter.visit(financialSecurity);
         derivative = _definitionConverter.convert(financialSecurity, definition, now, curveNames, dataSource);
         if (derivative == null) {
           throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);
@@ -351,11 +352,13 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       return result;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-      return _forwardHelper.canApplyTo(context, target) && _fundingHelper.canApplyTo(context, target);
+      return _forwardHelper.canApplyTo(target) && _fundingHelper.canApplyTo(target);
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
       final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
@@ -365,6 +368,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       return result;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
       return _results;
@@ -375,6 +379,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       return ComputationTargetType.PRIMITIVE;
     }
 
+    @SuppressWarnings("synthetic-access")
     private Set<ComputedValue> getSingleCurveResult(final Map<ExternalId, Double> marketDataMap, final FixedIncomeStripIdentifierAndMaturityBuilder builder, final ZonedDateTime now,
         final HistoricalTimeSeriesSource dataSource) {
       // TODO going to arbitrarily use funding curve - will give the same result as forward curve
@@ -395,7 +400,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
         final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper
             .getCurveNamesForFundingCurveInstrument(strip.getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
-        final FixedIncomeInstrumentConverter<?> definition = _securityConverter.visit(financialSecurity);
+        final FixedIncomeInstrumentDefinition<?> definition = _securityConverter.visit(financialSecurity);
         derivative = _definitionConverter.convert(financialSecurity, definition, now, curveNames, dataSource);
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
@@ -465,6 +470,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     }
   }
 
+  @SuppressWarnings("synthetic-access")
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
     final Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> forwardCompile = _forwardHelper.compile(context, atInstant);
@@ -497,9 +503,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   public int getPriority() {
     if (isSecondary()) {
       return -1;
-    } else {
-      return 0;
-    }
+    } 
+    return 0;
   }
 
   private boolean isSecondary() {

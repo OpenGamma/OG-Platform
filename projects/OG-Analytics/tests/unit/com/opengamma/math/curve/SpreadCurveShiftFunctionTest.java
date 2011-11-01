@@ -35,7 +35,7 @@ public class SpreadCurveShiftFunctionTest {
       Y[i] = 2 * i + 1;
     }
     CURVE1 = InterpolatedDoublesCurve.fromSorted(X, Y, LINEAR, "A");
-    SPREAD = SpreadDoublesCurve.from(new Curve[] {CURVE1, CURVE2}, SPREAD_FUNCTION);
+    SPREAD = SpreadDoublesCurve.from(SPREAD_FUNCTION, new Curve[] {CURVE1, CURVE2});
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

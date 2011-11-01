@@ -17,7 +17,6 @@ import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * A base class for functions which need to preserve a set of properties from their inputs to their outputs, and
@@ -33,11 +32,10 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
    * @return the properties which the function is required to preserve, not null
    */
   protected abstract Collection<String> getPreservedProperties();
-  
+
   /**
    * Gets the properties which the function will attempt to preserve. A property in this category will appear on the
-   * the function outputs if the property is present and has the same value across every input, otherwise it will be
-   * dropped.
+   * function outputs if the property is present and has the same value across every input, otherwise it will be dropped.
    * 
    * @return the properties which the function will attempt to preserve, not null
    */
@@ -125,8 +123,9 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
    */
   protected ValueProperties getResultProperties(final Collection<ValueSpecification> inputs) {
     //NOTE: this function must be invariant under inputs ordering
-    
-    ArgumentChecker.notEmpty(inputs, "inputs");
+    if (inputs.isEmpty()) {
+      return null;
+    }
     ValueProperties compositeProperties = null;
     ValueProperties referenceRequiredProperties = null;
     for (ValueSpecification input : inputs) {

@@ -18,24 +18,26 @@ public final class DummyChangeManager implements ChangeManager {
    * Singleton instance
    */
   public static final DummyChangeManager INSTANCE = new DummyChangeManager();
-  
+
   /**
    * Hidden constructor.
    */
   private DummyChangeManager() {
   }
-  
+
   @Override
   public void addChangeListener(ChangeListener listener) {
+    // dummy manager does nothing
   }
 
   @Override
   public void removeChangeListener(ChangeListener listener) {
+    // dummy manager does nothing
   }
 
   @Override
   public void entityChanged(ChangeType type, UniqueId beforeId, UniqueId afterId, Instant versionInstant) {
-    throw new UnsupportedOperationException(DummyChangeManager.class.getSimpleName() + " does not support change notifications");
+    // dummy manager does nothing
   }
 
 }

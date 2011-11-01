@@ -276,9 +276,9 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
     return compare(key1, key2, getDefaultTolerance());
   }
 
-  protected abstract LabelledMatrix1D<S, T> getMatrix(S[] keys, Object[] labels, double[] values);
+  public abstract LabelledMatrix1D<S, T> getMatrix(S[] keys, Object[] labels, double[] values);
 
-  protected abstract LabelledMatrix1D<S, T> getMatrix(S[] keys, double[] values);
+  public abstract LabelledMatrix1D<S, T> getMatrix(S[] keys, double[] values);
 
   private void quickSort() {
     (new ArrayQuickSorter<S>(_keys) {

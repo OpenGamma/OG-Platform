@@ -406,6 +406,21 @@ $.register_module({
                 },
                 del: default_del
             },
+            sync: {  // all requests that begin with /sync
+                root: 'sync',
+                get: function (config) {
+                    var root = this.root, method = [root], data = {}, meta, fields = ['status', 'trades'];
+                    meta = check({
+                        bundle: {method: root + '#get', config: config},
+                        required: [{one_of: fields}],
+                        empties: [{condition: config.status, fields: ['trades'], label: 'status exists'}],
+                    });
+                    fields.forEach(function (field) {if (config[field]) method.push(config[field], field);});
+                    return request(method, {data: data, meta: meta});
+                },
+                put: not_implemented.partial('put'),
+                del: not_available.partial('del')
+            },
             timeseries: { // all requests that begin with /timeseries
                 root: 'timeseries',
                 get: function (config) {

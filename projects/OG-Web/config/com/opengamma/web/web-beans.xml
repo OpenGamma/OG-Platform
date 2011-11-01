@@ -35,7 +35,7 @@
   <!-- View processor service -->
   <bean id="viewProcessorRestBean" class="com.opengamma.financial.view.rest.RestViewProcessorFactoryBean">
     <property name="viewProcessor" ref="demoViewProcessor" />
-    <property name="connectionFactory" ref="activeMQConnectionFactory" />
+    <property name="jmsConnector" ref="jmsConnector" />
     <property name="fudgeContext" ref="fudgeContext" />
     <property name="executorService" ref="scheduler" />
   </bean>
@@ -489,4 +489,11 @@
     <property name="underlying" ref="sharedSnapshotSource" />
   </bean>
   
+  <!-- Trade synchronisation RESTful service -->
+  <bean id="tradeSyncRestBean" class="com.opengamma.web.sync.TradeSyncResource">
+    <property name="portfolioMaster" ref="dbPortfolioMaster" />
+    <property name="positionMaster" ref="dbPositionMaster" />
+    <property name="securitySource" ref="sharedSecuritySource" />
+  </bean>
+
 </beans>
