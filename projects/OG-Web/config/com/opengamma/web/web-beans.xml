@@ -489,11 +489,4 @@
     <property name="underlying" ref="sharedSnapshotSource" />
   </bean>
   
-  <!-- Trade synchronisation RESTful service -->
-  <bean id="tradeSyncRestBean" class="com.opengamma.web.sync.TradeSyncResource">
-    <property name="portfolioMaster" ref="dbPortfolioMaster" />
-    <property name="positionMaster" ref="dbPositionMaster" />
-    <property name="securitySource" ref="sharedSecuritySource" />
-  </bean>
-
 </beans>
