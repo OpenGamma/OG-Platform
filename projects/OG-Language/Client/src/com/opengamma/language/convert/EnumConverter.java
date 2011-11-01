@@ -29,9 +29,14 @@ public final class EnumConverter extends AbstractTypeConverter {
 
   @SuppressWarnings("unchecked")
   private static final JavaTypeInfo<Enum> ENUM = JavaTypeInfo.builder(Enum.class).get();
+  @SuppressWarnings("unchecked")
+  private static final JavaTypeInfo<Enum> ENUM_NULL = JavaTypeInfo.builder(Enum.class).allowNull().get();
   private static final JavaTypeInfo<String> STRING = JavaTypeInfo.builder(String.class).get();
+  private static final JavaTypeInfo<String> STRING_NULL = JavaTypeInfo.builder(String.class).allowNull().get();
   private static final Map<JavaTypeInfo<?>, Integer> TO_STRING = TypeMap.of(ZERO_LOSS, ENUM);
+  private static final Map<JavaTypeInfo<?>, Integer> TO_STRING_NULL = TypeMap.of(ZERO_LOSS, ENUM_NULL);
   private static final Map<JavaTypeInfo<?>, Integer> TO_ENUM = TypeMap.of(MINOR_LOSS, STRING);
+  private static final Map<JavaTypeInfo<?>, Integer> TO_ENUM_NULL = TypeMap.of(MINOR_LOSS, STRING_NULL);
 
   private final ConcurrentMap<Class<?>, Map<String, Enum<?>>> _enumValues = new ConcurrentHashMap<Class<?>, Map<String, Enum<?>>>();
 
@@ -103,9 +108,9 @@ public final class EnumConverter extends AbstractTypeConverter {
   @Override
   public Map<JavaTypeInfo<?>, Integer> getConversionsTo(final JavaTypeInfo<?> targetType) {
     if (targetType.getRawClass() == String.class) {
-      return TO_STRING;
+      return targetType.isAllowNull() ? TO_STRING_NULL : TO_STRING;
     } else {
-      return TO_ENUM;
+      return targetType.isAllowNull() ? TO_ENUM_NULL : TO_ENUM;
     }
   }
 
