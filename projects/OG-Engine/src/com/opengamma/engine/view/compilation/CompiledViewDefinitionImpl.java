@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view.compilation;
 
+import static com.opengamma.util.functional.Functional.merge;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,14 +17,14 @@ import java.util.Set;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.util.ArgumentChecker;
-
-import static com.opengamma.util.functional.Functional.merge;
 
 /**
  * Default implementation of {@link CompiledViewDefinition}.
@@ -78,6 +80,21 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
     return Collections.unmodifiableMap(allRequirements);
   }
 
+  /**
+   * Equivalent to getMarketDataRequirements().keySet().containsAny(requirements), but faster
+   * @param requirements The requirements to match
+   * @return Whether any of the provider requirements are market data requirements of this view definition 
+   */
+  public boolean hasAnyMarketDataRequirements(Collection<ValueRequirement> requirements)
+  {
+    for (CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
+      if (CollectionUtils.containsAny(compiledCalcConfig.getMarketDataRequirements().keySet(), requirements))
+      {
+        return true;
+      }
+    }
+    return false;
+  }
   @Override
   public Map<ValueSpecification, Set<ValueRequirement>> getTerminalValuesRequirements() {
     Map<ValueSpecification, Set<ValueRequirement>> allRequirements = new HashMap<ValueSpecification, Set<ValueRequirement>>();

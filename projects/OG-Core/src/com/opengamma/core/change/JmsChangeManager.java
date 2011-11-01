@@ -126,7 +126,7 @@ public class JmsChangeManager extends BasicChangeManager implements MessageListe
     final FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().toFudgeMsg(event);
     s_logger.debug("Sending change message {}", msg);
     final byte[] fudgeMsg = OpenGammaFudgeContext.getInstance().toByteArray(msg.getMessage());
-    final JmsByteArrayMessageSender messageSender = new JmsByteArrayMessageSender(getJmsConnector().getTopicName(), getJmsConnector().getJmsTemplate());
+    final JmsByteArrayMessageSender messageSender = new JmsByteArrayMessageSender(getJmsConnector().getTopicName(), getJmsConnector().getJmsTemplateTopic());
     messageSender.send(fudgeMsg);
   }
 

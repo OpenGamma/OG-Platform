@@ -17,6 +17,8 @@ import com.opengamma.util.SingletonFactoryBean;
  * <p>
  * This class provides a simple-to-setup and simple-to-use way to access JMS.
  * The main benefit is simpler configuration, especially if that configuration is in XML.
+ * <p>
+ * The caller can set the connection factory, or one/both of the templates.
  */
 public class JmsConnectorFactoryBean extends SingletonFactoryBean<JmsConnector> {
 
@@ -29,13 +31,13 @@ public class JmsConnectorFactoryBean extends SingletonFactoryBean<JmsConnector> 
    */
   private ConnectionFactory _connectionFactory;
   /**
-   * The template.
+   * The topic template.
    */
-  private JmsTemplate _jmsTemplate;
+  private JmsTemplate _jmsTemplateTopic;
   /**
-   * The pub-sub domain flag, as per JmsTemplate.
+   * The queue template.
    */
-  private boolean _pubSubDomain;
+  private JmsTemplate _jmsTemplateQueue;
   /**
    * The topic name.
    */
@@ -57,7 +59,9 @@ public class JmsConnectorFactoryBean extends SingletonFactoryBean<JmsConnector> 
   public JmsConnectorFactoryBean(JmsConnector base) {
     setName(base.getName());
     setConnectionFactory(base.getConnectionFactory());
-    setJmsTemplate(base.getJmsTemplate());
+    setJmsTemplateTopic(base.getJmsTemplateTopic());
+    setJmsTemplateQueue(base.getJmsTemplateQueue());
+    setTopicName(base.getTopicName());
   }
 
   //-------------------------------------------------------------------------
@@ -100,42 +104,41 @@ public class JmsConnectorFactoryBean extends SingletonFactoryBean<JmsConnector> 
   }
 
   /**
-   * Gets the JMS template.
+   * Gets the JMS template for topic-based messages.
    * 
-   * @return the JMS template
+   * @return the JMS template for topics
    */
-  public JmsTemplate getJmsTemplate() {
-    return _jmsTemplate;
+  public JmsTemplate getJmsTemplateTopic() {
+    return _jmsTemplateTopic;
   }
 
   /**
-   * Sets the template.
-   * If this is not set, then a template will be created.
+   * Sets the template for topic-based messages.
+   * If this is not set, then a template with standard defaults will be created.
    * 
    * @param jmsTemplate  the template
    */
-  public void setJmsTemplate(JmsTemplate jmsTemplate) {
-    _jmsTemplate = jmsTemplate;
+  public void setJmsTemplateTopic(JmsTemplate jmsTemplate) {
+    _jmsTemplateTopic = jmsTemplate;
   }
 
   /**
-   * Gets the pub-sub domain flag.
+   * Gets the JMS template for queue-based messages.
    * 
-   * @return the flag
+   * @return the JMS template for topics
    */
-  public boolean isPubSubDomain() {
-    return _pubSubDomain;
+  public JmsTemplate getJmsTemplateQueue() {
+    return _jmsTemplateQueue;
   }
 
   /**
-   * Sets the pub-sub domain.
-   * This is only used if the template is not specified by {@link #setJmsTemplate(JmsTemplate)}.
-   * This defaults to false.
+   * Sets the template for queue-based messages.
+   * If this is not set, then a template with standard defaults will be created.
    * 
-   * @param pubSubDomain  the pub-sub domain
+   * @param jmsTemplate  the template
    */
-  public void setPubSubDomain(boolean pubSubDomain) {
-    _pubSubDomain = pubSubDomain;
+  public void setJmsTemplateQueue(JmsTemplate jmsTemplate) {
+    _jmsTemplateQueue = jmsTemplate;
   }
 
   /**
@@ -161,28 +164,60 @@ public class JmsConnectorFactoryBean extends SingletonFactoryBean<JmsConnector> 
   @Override
   public JmsConnector createObject() {
     ArgumentChecker.notNull(getName(), "name");
-    final JmsTemplate jmsTemplate = createTemplate();
+    final ConnectionFactory providedFactory = getConnectionFactory();  // store in variable to protect against change by subclass
+    final JmsTemplate providedTemplateTopic = getJmsTemplateTopic();  // store in variable to protect against change by subclass
+    final JmsTemplate providedTemplateQueue = getJmsTemplateQueue();  // store in variable to protect against change by subclass
+    
+    final JmsTemplate jmsTemplateTopic = createTemplateTopic(providedFactory, providedTemplateTopic, providedTemplateQueue);
+    final JmsTemplate jmsTemplateQueue = createTemplateQueue(providedFactory, providedTemplateQueue, providedTemplateTopic);
     final String topicName = getTopicName();  // store in variable to protect against change by subclass
-    return new JmsConnector(getName(), jmsTemplate, topicName);
+    return new JmsConnector(getName(), jmsTemplateTopic, jmsTemplateQueue, topicName);
   }
 
   /**
-   * Creates the template.
+   * Creates the template for topics.
    * 
-   * @return the template, may be null
+   * @param providedFactory  the provided factory, may be null
+   * @param providedTemplateTopic  the provided template for topics, may be null
+   * @param providedTemplateQueue  the provided template for queues, may be null
+   * @return the topic template, may be null
    */
-  protected JmsTemplate createTemplate() {
-    final ConnectionFactory providedFactory = getConnectionFactory();  // store in variable to protect against change by subclass
-    final JmsTemplate providedTemplate = getJmsTemplate();  // store in variable to protect against change by subclass
-    if (providedTemplate != null) {
-      return providedTemplate;
+  protected JmsTemplate createTemplateTopic(ConnectionFactory providedFactory, JmsTemplate providedTemplateTopic, JmsTemplate providedTemplateQueue) {
+    if (providedTemplateTopic != null) {
+      return providedTemplateTopic;
     }
-    if (providedFactory != null) {
-      final JmsTemplate template = new JmsTemplate(providedFactory);
-      template.setPubSubDomain(isPubSubDomain());
-      return template;
+    if (providedFactory == null && providedTemplateQueue != null) {
+      providedFactory = providedTemplateQueue.getConnectionFactory();
     }
-    throw new IllegalArgumentException("Neither ConnectionFactory nor JmsTemplate provided");
+    if (providedFactory == null) {
+      throw new IllegalArgumentException("ConnectionFactory or JmsTemplate must be provided");
+    }
+    JmsTemplate template = new JmsTemplate(providedFactory);
+    template.setPubSubDomain(true);
+    return template;
+  }
+
+  /**
+   * Creates the template for queues.
+   * 
+   * @param providedFactory  the provided factory, may be null
+   * @param providedTemplateTopic  the provided template for topics, may be null
+   * @param providedTemplateQueue  the provided template for queues, may be null
+   * @return the topic template, may be null
+   */
+  protected JmsTemplate createTemplateQueue(ConnectionFactory providedFactory, JmsTemplate providedTemplateTopic, JmsTemplate providedTemplateQueue) {
+    if (providedTemplateQueue != null) {
+      return providedTemplateQueue;
+    }
+    if (providedFactory == null && providedTemplateTopic != null) {
+      providedFactory = providedTemplateTopic.getConnectionFactory();
+    }
+    if (providedFactory == null) {
+      throw new IllegalArgumentException("ConnectionFactory or JmsTemplate must be provided");
+    }
+    JmsTemplate template = new JmsTemplate(providedFactory);
+    template.setPubSubDomain(false);
+    return template;
   }
 
   //-------------------------------------------------------------------------

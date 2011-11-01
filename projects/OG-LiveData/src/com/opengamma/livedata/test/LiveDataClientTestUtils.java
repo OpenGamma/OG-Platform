@@ -55,7 +55,6 @@ public class LiveDataClientTestUtils {
     JmsConnectorFactoryBean jmsFactory = new JmsConnectorFactoryBean();
     jmsFactory.setName("LiveDataClientTestUtils");
     jmsFactory.setConnectionFactory(cf);
-    jmsFactory.setPubSubDomain(true);
     JmsConnector jmsConnector = jmsFactory.createObject();
     
     JmsLiveDataClient liveDataClient = new JmsLiveDataClient(

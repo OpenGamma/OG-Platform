@@ -74,7 +74,9 @@ public class Loader extends ContextInitializationBean {
     }
     s_logger.info("Configuring position support");
     globalContext.setPositionSource(new EHCachingPositionSource(new RemotePositionSource(getConfiguration().getFudgeContext(), restTarget), getCacheManager()));
-    globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(PortfoliosFunction.INSTANCE));
+    globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
+        FetchPortfolioFunction.INSTANCE,
+        PortfoliosFunction.INSTANCE));
     // TODO: type converter and procedure providers
   }
 

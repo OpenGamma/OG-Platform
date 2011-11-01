@@ -20,12 +20,12 @@ public class StringLabelledMatrix1D extends LabelledMatrix1D<String, String> {
   }
 
   @Override
-  protected LabelledMatrix1D<String, String> getMatrix(final String[] keys, final Object[] labels, final double[] values) {
+  public LabelledMatrix1D<String, String> getMatrix(final String[] keys, final Object[] labels, final double[] values) {
     return new StringLabelledMatrix1D(keys, values);
   }
 
   @Override
-  protected LabelledMatrix1D<String, String> getMatrix(final String[] keys, final double[] values) {
+  public LabelledMatrix1D<String, String> getMatrix(final String[] keys, final double[] values) {
     return new StringLabelledMatrix1D(keys, values);
   }
 
