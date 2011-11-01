@@ -1,0 +1,1 @@
+CREATE INDEX ix_sec_swap_security_id ON sec_swap(security_id);
