@@ -186,7 +186,7 @@ public class MarketDataSets {
     Curve<Double, Double> adj = new SeasonalCurve(curveNoAdj.getXData()[0], SEASONAL_FACTOR_USD);
     @SuppressWarnings("unchecked")
     Curve<Double, Double>[] curveSet = new Curve[] {curveNoAdj, adj};
-    Curve<Double, Double> curveAdj = new SpreadDoublesCurve(curveSet, new MultiplyCurveSpreadFunction());
+    Curve<Double, Double> curveAdj = new SpreadDoublesCurve(new MultiplyCurveSpreadFunction(), curveSet);
     market.replaceCurve(PRICE_INDEX_USD, new PriceIndexCurve(curveAdj));
     return market;
   }
