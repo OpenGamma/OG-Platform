@@ -22,10 +22,36 @@ import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSerie
 public interface MutableLocalDateDoubleTimeSeries extends LocalDateDoubleTimeSeries, MutableDoubleTimeSeries<LocalDate> {
 
   /** */
-  public abstract static class Integer extends AbstractMutableIntDoubleTimeSeries<LocalDate> implements
-      MutableLocalDateDoubleTimeSeries {
+  public abstract static class Integer extends AbstractMutableIntDoubleTimeSeries<LocalDate> implements MutableLocalDateDoubleTimeSeries {
+    private static final long serialVersionUID = 1L;
+
     public Integer(final DateTimeConverter<LocalDate> converter, final FastMutableIntDoubleTimeSeries timeSeries) {
       super(converter, timeSeries);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeries subSeries(LocalDate startTime, boolean includeStart, LocalDate endTime, boolean includeEnd) {
+      return (LocalDateDoubleTimeSeries) super.subSeries(startTime, includeStart, endTime, includeEnd);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeries subSeries(LocalDate startTime, LocalDate endTime) {
+      return (LocalDateDoubleTimeSeries) super.subSeries(startTime, endTime);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeries head(int numItems) {
+      return (LocalDateDoubleTimeSeries) super.head(numItems);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeries tail(int numItems) {
+      return (LocalDateDoubleTimeSeries) super.tail(numItems);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeries lag(final int lagCount) {
+      return (LocalDateDoubleTimeSeries) super.lag(lagCount);
     }
 
     @Override
@@ -37,10 +63,36 @@ public interface MutableLocalDateDoubleTimeSeries extends LocalDateDoubleTimeSer
   }
 
   /** */
-  public abstract static class Long extends AbstractMutableLongDoubleTimeSeries<LocalDate> implements
-      MutableLocalDateDoubleTimeSeries {
+  public abstract static class Long extends AbstractMutableLongDoubleTimeSeries<LocalDate> implements MutableLocalDateDoubleTimeSeries {
+    private static final long serialVersionUID = 1L;
+
     public Long(final DateTimeConverter<LocalDate> converter, final FastMutableLongDoubleTimeSeries timeSeries) {
       super(converter, timeSeries);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeries subSeries(LocalDate startTime, boolean includeStart, LocalDate endTime, boolean includeEnd) {
+      return (LocalDateDoubleTimeSeries) super.subSeries(startTime, includeStart, endTime, includeEnd);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeries subSeries(LocalDate startTime, LocalDate endTime) {
+      return (LocalDateDoubleTimeSeries) super.subSeries(startTime, endTime);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeries head(int numItems) {
+      return (LocalDateDoubleTimeSeries) super.head(numItems);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeries tail(int numItems) {
+      return (LocalDateDoubleTimeSeries) super.tail(numItems);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeries lag(final int lagCount) {
+      return (LocalDateDoubleTimeSeries) super.lag(lagCount);
     }
 
     @Override
@@ -50,4 +102,5 @@ public interface MutableLocalDateDoubleTimeSeries extends LocalDateDoubleTimeSer
 
     public abstract MutableLocalDateDoubleTimeSeries newInstanceFast(LocalDate[] dateTimes, double[] values);
   }
+
 }

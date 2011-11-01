@@ -34,12 +34,12 @@ public class ZonedDateTimeLabelledMatrix1D extends LabelledMatrix1D<ZonedDateTim
   }
 
   @Override
-  protected LabelledMatrix1D<ZonedDateTime, Period> getMatrix(final ZonedDateTime[] keys, final Object[] labels, final double[] values) {
+  public LabelledMatrix1D<ZonedDateTime, Period> getMatrix(final ZonedDateTime[] keys, final Object[] labels, final double[] values) {
     return new ZonedDateTimeLabelledMatrix1D(keys, labels, values);
   }
 
   @Override
-  protected LabelledMatrix1D<ZonedDateTime, Period> getMatrix(final ZonedDateTime[] keys, final double[] values) {
+  public LabelledMatrix1D<ZonedDateTime, Period> getMatrix(final ZonedDateTime[] keys, final double[] values) {
     return new ZonedDateTimeLabelledMatrix1D(keys, values);
   }
 
