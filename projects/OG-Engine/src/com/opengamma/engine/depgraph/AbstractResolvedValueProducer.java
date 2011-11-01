@@ -267,7 +267,7 @@ import com.opengamma.engine.value.ValueSpecification;
     }
   }
 
-  protected ResolvedValue[] getResults() {
+  protected synchronized ResolvedValue[] getResults() {
     assert _finished;
     return _results;
   }
