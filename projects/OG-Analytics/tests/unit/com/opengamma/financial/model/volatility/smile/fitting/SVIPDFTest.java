@@ -71,7 +71,7 @@ public class SVIPDFTest {
 
     final double chiSqr = result.getChiSq();
     final DoubleMatrix1D params = result.getParameters();
-    final SABRFormulaData fittedData = new SABRFormulaData(F, params.getEntry(0), params.getEntry(1), params.getEntry(2), params.getEntry(3));
+    final SABRFormulaData fittedData = new SABRFormulaData(F, params.getEntry(0), params.getEntry(1), params.getEntry(3), params.getEntry(2));
 
     final Function1D<Double, Double> sabrFunction = new Function1D<Double, Double>() {
       @Override

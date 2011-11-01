@@ -115,7 +115,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     double beta = SABR_PARAMETERS.getBeta(expiryMaturity);
     double rho = SABR_PARAMETERS.getRho(expiryMaturity);
     double nu = SABR_PARAMETERS.getNu(expiryMaturity);
-    SABRFormulaData sabrParam = new SABRFormulaData(forward, alpha, beta, nu, rho);
+    SABRFormulaData sabrParam = new SABRFormulaData(forward, alpha, beta, rho, nu);
     SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(sabrParam, CUT_OFF_STRIKE, CAP_LONG.getFixingTime(), MU);
     EuropeanVanillaOption option = new EuropeanVanillaOption(CAP_LONG.getStrike(), CAP_LONG.getFixingTime(), CAP_LONG.isCap());
     final double expectedPrice = sabrExtrapolation.price(option) * CAP_LONG.getNotional() * CAP_LONG.getPaymentYearFraction() * df;
@@ -136,7 +136,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     double beta = SABR_PARAMETERS.getBeta(expiryMaturity);
     double rho = SABR_PARAMETERS.getRho(expiryMaturity);
     double nu = SABR_PARAMETERS.getNu(expiryMaturity);
-    SABRFormulaData sabrParam = new SABRFormulaData(forward, alpha, beta, nu, rho);
+    SABRFormulaData sabrParam = new SABRFormulaData(forward, alpha, beta, rho, nu);
     SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(sabrParam, CUT_OFF_STRIKE, CAP_HIGH_LONG.getFixingTime(), MU);
     EuropeanVanillaOption option = new EuropeanVanillaOption(CAP_HIGH_LONG.getStrike(), CAP_HIGH_LONG.getFixingTime(), CAP_HIGH_LONG.isCap());
     final double expectedPrice = sabrExtrapolation.price(option) * CAP_HIGH_LONG.getNotional() * CAP_HIGH_LONG.getPaymentYearFraction() * df;

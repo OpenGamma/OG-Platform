@@ -181,7 +181,7 @@ public class SwaptionPhysicalFixedIborTest {
     final double forward = PRC.visit(SWAP_PAYER, CURVES);
     final double pvbp = SwapFixedIborMethod.presentValueBasisPoint(SWAP_PAYER, CURVE_5);
 
-    final SABRFormulaData data = new SABRFormulaData(forward, alpha, beta, nu, rho);
+    final SABRFormulaData data = new SABRFormulaData(forward, alpha, beta, rho, nu);
 
     final Function1D<SABRFormulaData, Double> funcSabrLongPayer = SABR_FUNCTION.getVolatilityFunction(SWAPTION_LONG_PAYER);
     final double volatilityLongPayer = funcSabrLongPayer.evaluate(data);

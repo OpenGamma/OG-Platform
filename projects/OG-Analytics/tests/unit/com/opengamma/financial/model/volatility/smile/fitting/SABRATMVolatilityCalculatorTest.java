@@ -16,7 +16,7 @@ import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatili
  */
 public class SABRATMVolatilityCalculatorTest {
   private static final SABRATMVolatilityCalculator CALCULATOR = new SABRATMVolatilityCalculator(new SABRHaganVolatilityFunction());
-  private static final SABRFormulaData DATA = new SABRFormulaData(100, 0.5, 1, 0.3, 0.5);
+  private static final SABRFormulaData DATA = new SABRFormulaData(100, 0.5, 1, 0.5, 0.3);
   private static final EuropeanVanillaOption OPTION = new EuropeanVanillaOption(100, 2, true);
   private static final double ATM_VOL = 0.24;
 

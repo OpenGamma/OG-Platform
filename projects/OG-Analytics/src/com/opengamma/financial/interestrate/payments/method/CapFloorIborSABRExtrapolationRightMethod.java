@@ -93,7 +93,7 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
       double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
       double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
       double nu = sabrData.getSABRParameter().getNu(expiryMaturity);
-      SABRFormulaData sabrParam = new SABRFormulaData(forward, alpha, beta, nu, rho);
+      SABRFormulaData sabrParam = new SABRFormulaData(forward, alpha, beta, rho, nu);
       sabrExtrapolation = new SABRExtrapolationRightFunction(sabrParam, _cutOffStrike, cap.getFixingTime(), _mu);
       price = df * sabrExtrapolation.price(option) * cap.getNotional() * cap.getPaymentYearFraction();
     }
@@ -142,7 +142,7 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
       double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
       double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
       double nu = sabrData.getSABRParameter().getNu(expiryMaturity);
-      SABRFormulaData sabrParam = new SABRFormulaData(forward, alpha, beta, nu, rho);
+      SABRFormulaData sabrParam = new SABRFormulaData(forward, alpha, beta, rho, nu);
       SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(sabrParam, _cutOffStrike, cap.getFixingTime(), _mu);
       bsPrice = sabrExtrapolation.price(option);
       bsDforward = sabrExtrapolation.priceDerivativeForward(option);
@@ -180,7 +180,7 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
       double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
       double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
       double nu = sabrData.getSABRParameter().getNu(expiryMaturity);
-      SABRFormulaData sabrParam = new SABRFormulaData(forward, alpha, beta, nu, rho);
+      SABRFormulaData sabrParam = new SABRFormulaData(forward, alpha, beta, rho, nu);
       SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(sabrParam, _cutOffStrike, cap.getFixingTime(), _mu);
       sabrExtrapolation.priceAdjointSABR(option, bsDsabr);
     }

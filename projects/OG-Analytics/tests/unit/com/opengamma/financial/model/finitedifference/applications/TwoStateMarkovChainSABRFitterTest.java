@@ -131,7 +131,7 @@ public class TwoStateMarkovChainSABRFitterTest {
         final double k = tk[1];
         final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
         final Function1D<SABRFormulaData, Double> func = hagan.getVolatilityFunction(option);
-        final SABRFormulaData data = new SABRFormulaData(FORWARD_CURVE.getForward(t), ALPHA.evaluate(t), BETA, NU.evaluate(t), RHO);
+        final SABRFormulaData data = new SABRFormulaData(FORWARD_CURVE.getForward(t), ALPHA.evaluate(t), BETA, RHO, NU.evaluate(t));
         return func.evaluate(data);
       }
     };

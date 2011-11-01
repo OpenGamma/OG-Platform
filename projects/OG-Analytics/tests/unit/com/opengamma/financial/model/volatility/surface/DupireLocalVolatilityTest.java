@@ -44,7 +44,7 @@ public class DupireLocalVolatilityTest {
       public Double evaluate(final Double... x) {
         final double t = x[0];
         final double k = x[1];
-        final SABRFormulaData sabrdata = new SABRFormulaData(SPOT * Math.exp(RATE * t), ALPHA, BETA, NU, RHO);
+        final SABRFormulaData sabrdata = new SABRFormulaData(SPOT * Math.exp(RATE * t), ALPHA, BETA, RHO, NU);
         final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
         final Function1D<SABRFormulaData, Double> func = SABR.getVolatilityFunction(option);
         return func.evaluate(sabrdata);

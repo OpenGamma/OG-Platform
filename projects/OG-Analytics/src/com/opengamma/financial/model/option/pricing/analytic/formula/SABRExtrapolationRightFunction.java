@@ -358,13 +358,13 @@ public class SABRExtrapolationRightFunction {
       SABRFormulaData sabrDatapP;
       double param;
       if (loopparam == 0) {
-        sabrDatapP = new SABRFormulaData(_sabrData.getForward(), _sabrData.getAlpha() * (1 + shift), _sabrData.getBeta(), _sabrData.getNu(), _sabrData.getRho());
+        sabrDatapP = new SABRFormulaData(_sabrData.getForward(), _sabrData.getAlpha() * (1 + shift), _sabrData.getBeta(), _sabrData.getRho(), _sabrData.getNu());
         param = _sabrData.getAlpha();
       } else if (loopparam == 1) {
-        sabrDatapP = new SABRFormulaData(_sabrData.getForward(), _sabrData.getAlpha(), _sabrData.getBeta(), _sabrData.getNu(), _sabrData.getRho() * (1 + shift));
+        sabrDatapP = new SABRFormulaData(_sabrData.getForward(), _sabrData.getAlpha(), _sabrData.getBeta(), _sabrData.getRho() * (1 + shift), _sabrData.getNu());
         param = _sabrData.getRho();
       } else {
-        sabrDatapP = new SABRFormulaData(_sabrData.getForward(), _sabrData.getAlpha(), _sabrData.getBeta(), _sabrData.getNu() * (1 + shift), _sabrData.getRho());
+        sabrDatapP = new SABRFormulaData(_sabrData.getForward(), _sabrData.getAlpha(), _sabrData.getBeta(), _sabrData.getRho(), _sabrData.getNu() * (1 + shift));
         param = _sabrData.getNu();
       }
       _sabrFunction.getVolatilityAdjoint2(option, sabrDatapP, vDpP, vD2pP);

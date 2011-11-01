@@ -44,7 +44,7 @@ public class SABRFittingTest {
   private static final BlackFunctionData[] NOISY_DATA;
   private static double[] STRIKES;
   private static double[] ERRORS;
-  private static final SABRFormulaData SABR_DATA = new SABRFormulaData(F, ALPHA, BETA, NU, RHO);
+  private static final SABRFormulaData SABR_DATA = new SABRFormulaData(F, ALPHA, BETA, RHO, NU);
   private static SABRHaganVolatilityFunction SABR = new SABRHaganVolatilityFunction();
   private static ProbabilityDistribution<Double> RANDOM = new NormalDistribution(0, 1, new MersenneTwister(12));
   private static final SABRNonLinearLeastSquareFitter NLSS = new SABRNonLinearLeastSquareFitter(SABR);
@@ -101,7 +101,7 @@ public class SABRFittingTest {
   @Test
   public void testSmileGenerationTime() {
     final SABRHaganVolatilityFunction sabr = new SABRHaganVolatilityFunction();
-    final SABRFormulaData data = new SABRFormulaData(F, ALPHA, BETA, NU, RHO);
+    final SABRFormulaData data = new SABRFormulaData(F, ALPHA, BETA, RHO, NU);
     final EuropeanVanillaOption option = new EuropeanVanillaOption(0.9 * F, T, true);
     final Function1D<SABRFormulaData, Double> f = sabr.getVolatilityFunction(option);
     double x = 0;

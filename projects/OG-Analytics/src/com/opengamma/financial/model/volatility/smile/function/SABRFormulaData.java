@@ -24,10 +24,10 @@ public class SABRFormulaData {
    * @param forward The forward value of the underlying 
    * @param alpha The initial value of the stochastic volatility 
    * @param beta The CEV parameter 
-   * @param nu The vol-of-vol
    * @param rho The correlation between the driver of the underlying and the driver of the stochastic volatility 
+   * @param nu The vol-of-vol
    */
-  public SABRFormulaData(final double forward, final double alpha, final double beta, final double nu, final double rho) {
+  public SABRFormulaData(final double forward, final double alpha, final double beta, final double rho, final double nu) {
     Validate.isTrue(forward > 0.0, "f must be > 0.0");
     Validate.isTrue(beta >= 0.0, "beta must be >= 0.0");
     Validate.isTrue(nu >= 0.0, "nu must be >= 0.0");
@@ -60,23 +60,23 @@ public class SABRFormulaData {
   }
 
   public SABRFormulaData withForward(final double forward) {
-    return new SABRFormulaData(forward, _alpha, _beta, _nu, _rho);
+    return new SABRFormulaData(forward, _alpha, _beta, _rho, _nu);
   }
 
   public SABRFormulaData withAlpha(final double alpha) {
-    return new SABRFormulaData(_forward, alpha, _beta, _nu, _rho);
+    return new SABRFormulaData(_forward, alpha, _beta, _rho, _nu);
   }
 
   public SABRFormulaData withBeta(final double beta) {
-    return new SABRFormulaData(_forward, _alpha, beta, _nu, _rho);
+    return new SABRFormulaData(_forward, _alpha, beta, _rho, _nu);
   }
 
   public SABRFormulaData withNu(final double nu) {
-    return new SABRFormulaData(_forward, _alpha, _beta, nu, _rho);
+    return new SABRFormulaData(_forward, _alpha, _beta, _rho, nu);
   }
 
   public SABRFormulaData withRho(final double rho) {
-    return new SABRFormulaData(_forward, _alpha, _beta, _nu, rho);
+    return new SABRFormulaData(_forward, _alpha, _beta, rho, _nu);
   }
 
   @Override

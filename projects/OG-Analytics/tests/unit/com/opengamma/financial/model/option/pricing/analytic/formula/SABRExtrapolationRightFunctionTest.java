@@ -24,7 +24,7 @@ public class SABRExtrapolationRightFunctionTest {
   private static final double BETA = 0.50;
   private static final double ALPHA = 0.05;
   private static final double FORWARD = 0.05;
-  private static final SABRFormulaData SABR_DATA = new SABRFormulaData(FORWARD, ALPHA, BETA, NU, RHO);
+  private static final SABRFormulaData SABR_DATA = new SABRFormulaData(FORWARD, ALPHA, BETA, RHO, NU);
   private static final double CUT_OFF_STRIKE = 0.10; // Set low for the test
   private static final double MU = 4.0;
   private static final double TIME_TO_EXPIRY = 2.0;
@@ -75,7 +75,7 @@ public class SABRExtrapolationRightFunctionTest {
     EuropeanVanillaOption optionAt = new EuropeanVanillaOption(strikeAt, TIME_TO_EXPIRY, true);
     EuropeanVanillaOption optionOut = new EuropeanVanillaOption(strikeOut, TIME_TO_EXPIRY, true);
     double shiftF = 0.000001;
-    SABRFormulaData sabrDataFP = new SABRFormulaData(FORWARD + shiftF, ALPHA, BETA, NU, RHO);
+    SABRFormulaData sabrDataFP = new SABRFormulaData(FORWARD + shiftF, ALPHA, BETA, RHO, NU);
     SABRExtrapolationRightFunction sabrExtrapolationFP = new SABRExtrapolationRightFunction(sabrDataFP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
     // Below cut-off strike
     double priceIn = SABR_EXTRAPOLATION.price(optionIn);
@@ -117,9 +117,9 @@ public class SABRExtrapolationRightFunctionTest {
     EuropeanVanillaOption optionAt = new EuropeanVanillaOption(strikeAt, TIME_TO_EXPIRY, true);
     EuropeanVanillaOption optionOut = new EuropeanVanillaOption(strikeOut, TIME_TO_EXPIRY, true);
     double shift = 0.000001;
-    SABRFormulaData sabrDataAP = new SABRFormulaData(FORWARD, ALPHA + shift, BETA, NU, RHO);
-    SABRFormulaData sabrDataRP = new SABRFormulaData(FORWARD, ALPHA, BETA, NU, RHO + shift);
-    SABRFormulaData sabrDataNP = new SABRFormulaData(FORWARD, ALPHA, BETA, NU + shift, RHO);
+    SABRFormulaData sabrDataAP = new SABRFormulaData(FORWARD, ALPHA + shift, BETA, RHO, NU);
+    SABRFormulaData sabrDataRP = new SABRFormulaData(FORWARD, ALPHA, BETA, RHO + shift, NU);
+    SABRFormulaData sabrDataNP = new SABRFormulaData(FORWARD, ALPHA, BETA, RHO, NU + shift);
     SABRExtrapolationRightFunction sabrExtrapolationAP = new SABRExtrapolationRightFunction(sabrDataAP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
     SABRExtrapolationRightFunction sabrExtrapolationRP = new SABRExtrapolationRightFunction(sabrDataRP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
     SABRExtrapolationRightFunction sabrExtrapolationNP = new SABRExtrapolationRightFunction(sabrDataNP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);

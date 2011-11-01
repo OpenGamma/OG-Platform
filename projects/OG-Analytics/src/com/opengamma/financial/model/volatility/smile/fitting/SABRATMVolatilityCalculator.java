@@ -37,7 +37,7 @@ public class SABRATMVolatilityCalculator {
       @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double alpha) {
-        final SABRFormulaData newData = new SABRFormulaData(data.getForward(), alpha, data.getBeta(), data.getNu(), data.getRho());
+        final SABRFormulaData newData = new SABRFormulaData(data.getForward(), alpha, data.getBeta(), data.getRho(), data.getNu());
         return _sabrFormula.getVolatilityFunction(option).evaluate(newData) - atmVol;
       }
     };

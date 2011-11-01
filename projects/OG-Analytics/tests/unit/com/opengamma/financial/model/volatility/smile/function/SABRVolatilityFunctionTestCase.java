@@ -18,10 +18,10 @@ public abstract class SABRVolatilityFunctionTestCase {
   private static final double K = 105;
   private static final double T = 1.5;
   protected static final EuropeanVanillaOption OPTION = new EuropeanVanillaOption(K, T, true);
-  protected static final SABRFormulaData LOG_NORMAL_EQUIVALENT = new SABRFormulaData(103, 0.8, 1, 0, 0.5);
-  protected static final SABRFormulaData APPROACHING_LOG_NORMAL_EQUIVALENT1 = new SABRFormulaData(103, 0.8, 1, 1e-6, 0.5);
-  protected static final SABRFormulaData APPROACHING_LOG_NORMAL_EQUIVALENT2 = new SABRFormulaData(103, 0.8, 1 + 1e-6, 0, 0.5);
-  protected static final SABRFormulaData APPROACHING_LOG_NORMAL_EQUIVALENT3 = new SABRFormulaData(103, 0.8, 1 - 1e-6, 0, 0.5);
+  protected static final SABRFormulaData LOG_NORMAL_EQUIVALENT = new SABRFormulaData(103, 0.8, 1, 0.5, 0);
+  protected static final SABRFormulaData APPROACHING_LOG_NORMAL_EQUIVALENT1 = new SABRFormulaData(103, 0.8, 1, 0.5, 1e-6);
+  protected static final SABRFormulaData APPROACHING_LOG_NORMAL_EQUIVALENT2 = new SABRFormulaData(103, 0.8, 1 + 1e-6, 0.5, 0);
+  protected static final SABRFormulaData APPROACHING_LOG_NORMAL_EQUIVALENT3 = new SABRFormulaData(103, 0.8, 1 - 1e-6, 0.5, 0);
 
   protected abstract VolatilityFunctionProvider<SABRFormulaData> getFunction();
 

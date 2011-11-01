@@ -31,7 +31,7 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
   private static final double RHO = -0.25;
   private static final double NU = 0.4;
   private static final double FORWARD = 0.05;
-  private static final SABRFormulaData DATA = new SABRFormulaData(FORWARD, ALPHA, BETA, NU, RHO);
+  private static final SABRFormulaData DATA = new SABRFormulaData(FORWARD, ALPHA, BETA, RHO, NU);
   private static final double T = 4.5;
   private static final double STRIKE_ITM = 0.0450;
   private static final double STRIKE_OTM = 0.0550;
@@ -65,7 +65,7 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
     for (int looppts = -nbPoints; looppts <= nbPoints; looppts++) {
       strike[looppts + nbPoints] = forward + ((double) looppts) / nbPoints * range;
       option = new EuropeanVanillaOption(strike[looppts + nbPoints], timeToExpiry, isCall);
-      SABRFormulaData SabrData = new SABRFormulaData(forward, alpha, beta, nu, rho);
+      SABRFormulaData SabrData = new SABRFormulaData(forward, alpha, beta, rho, nu);
       sabrVolatilty[looppts + nbPoints] = FUNCTION.getVolatilityFunction(option).evaluate(SabrData);
     }
     for (int looppts = -nbPoints; looppts < nbPoints; looppts++) {
@@ -252,8 +252,8 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
     }
     // Derivative forward-forward
     double deltaF = 0.000001;
-    SABRFormulaData dataFP = new SABRFormulaData(FORWARD + deltaF, ALPHA, BETA, NU, RHO);
-    SABRFormulaData dataFM = new SABRFormulaData(FORWARD - deltaF, ALPHA, BETA, NU, RHO);
+    SABRFormulaData dataFP = new SABRFormulaData(FORWARD + deltaF, ALPHA, BETA, RHO, NU);
+    SABRFormulaData dataFM = new SABRFormulaData(FORWARD - deltaF, ALPHA, BETA, RHO, NU);
     double volatilityFP = FUNCTION.getVolatilityFunction(CALL_ITM).evaluate(dataFP);
     double volatilityFM = FUNCTION.getVolatilityFunction(CALL_ITM).evaluate(dataFM);
     double derivativeFF_FD = (volatilityFP + volatilityFM - 2 * volatility) / (deltaF * deltaF);
@@ -284,7 +284,7 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
       double beta = Math.random(); //TODO Uniform numbers in distribution
       double nu = Math.exp(NORMAL.nextRandom() * 0.3 - 1);
       double rho = 2 * Math.random() - 1;
-      SABRFormulaData data = new SABRFormulaData(DATA.getForward(), alpha, beta, nu, rho);
+      SABRFormulaData data = new SABRFormulaData(DATA.getForward(), alpha, beta, rho, nu);
       testVolatilityAdjoint(CALL_ATM, data, eps, tol);
       testVolatilityAdjoint(CALL_ITM, data, eps, tol);
       testVolatilityAdjoint(CALL_OTM, data, eps, tol);

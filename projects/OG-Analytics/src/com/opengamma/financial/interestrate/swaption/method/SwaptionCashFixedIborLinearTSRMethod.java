@@ -129,7 +129,7 @@ public class SwaptionCashFixedIborLinearTSRMethod implements PricingMethod {
       final double beta = sabrParameter.getBeta(expiryMaturity);
       final double rho = sabrParameter.getRho(expiryMaturity);
       final double nu = sabrParameter.getNu(expiryMaturity);
-      _sabrData = new SABRFormulaData(_forward, alpha, beta, nu, rho);
+      _sabrData = new SABRFormulaData(_forward, alpha, beta, rho, nu);
       _sabrFunction = sabrParameter.getSabrFunction();
       _isCall = swaption.isCall();
       _strike = swaption.getStrike();

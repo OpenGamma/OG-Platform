@@ -290,7 +290,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod implements Prici
       final double beta = sabrParameter.getBeta(expiryMaturity);
       final double rho = sabrParameter.getRho(expiryMaturity);
       final double nu = sabrParameter.getNu(expiryMaturity);
-      final SABRFormulaData sabrData = new SABRFormulaData(_forward, alpha, beta, nu, rho);
+      final SABRFormulaData sabrData = new SABRFormulaData(_forward, alpha, beta, rho, nu);
       _sabrExtrapolation = new SABRExtrapolationRightFunction(sabrData, cutOffStrike, _timeToExpiry, mu);
       _isCall = cmsCap.isCap();
       _strike = cmsCap.getStrike();

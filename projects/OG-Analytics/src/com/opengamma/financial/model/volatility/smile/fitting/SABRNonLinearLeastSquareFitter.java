@@ -104,10 +104,10 @@ public class SABRNonLinearLeastSquareFitter extends LeastSquareSmileFitter {
         final double rho = mp.getEntry(3);
         final SABRFormulaData sabrFormulaData;
         if (recoverATMVol) {
-          alpha = _atmCalculator.calculate(new SABRFormulaData(forward, alpha, beta, nu, rho), atmOption, atmVol);
-          sabrFormulaData = new SABRFormulaData(forward, alpha, beta, nu, rho);
+          alpha = _atmCalculator.calculate(new SABRFormulaData(forward, alpha, beta, rho, nu), atmOption, atmVol);
+          sabrFormulaData = new SABRFormulaData(forward, alpha, beta, rho, nu);
         } else {
-          sabrFormulaData = new SABRFormulaData(forward, alpha, beta, nu, rho);
+          sabrFormulaData = new SABRFormulaData(forward, alpha, beta, rho, nu);
         }
         final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, maturity, true);
         return _formula.getVolatilityFunction(option).evaluate(sabrFormulaData);
@@ -123,7 +123,7 @@ public class SABRNonLinearLeastSquareFitter extends LeastSquareSmileFitter {
       final double nu = mp[2];
       final double rho = mp[3];
       final EuropeanVanillaOption option = new EuropeanVanillaOption(forward, maturity, true);
-      final SABRFormulaData sabrFormulaData = new SABRFormulaData(forward, mp[0], beta, nu, rho);
+      final SABRFormulaData sabrFormulaData = new SABRFormulaData(forward, mp[0], beta, rho, nu);
       final double value = _atmCalculator.calculate(sabrFormulaData, option, atmVol);
       mp[0] = value;
     }

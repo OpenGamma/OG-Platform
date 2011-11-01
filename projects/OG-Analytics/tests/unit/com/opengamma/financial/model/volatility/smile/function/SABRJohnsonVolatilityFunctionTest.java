@@ -34,7 +34,7 @@ public class SABRJohnsonVolatilityFunctionTest extends SABRVolatilityFunctionTes
 
   @Test(expectedExceptions = NotImplementedException.class)
   public void testZeroBeta() {
-    getFunction().getVolatilityFunction(OPTION).evaluate(new SABRFormulaData(103, 0.8, 0, 0.15, 0.5));
+    getFunction().getVolatilityFunction(OPTION).evaluate(new SABRFormulaData(103, 0.8, 0, 0.5, 0.15));
   }
 
 }
