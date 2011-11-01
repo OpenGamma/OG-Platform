@@ -171,12 +171,12 @@ public class LabelledMatrix1DTest {
     }
 
     @Override
-    protected LabelledMatrix1D<Integer, Integer> getMatrix(final Integer[] keys, final Object[] labels, final double[] values) {
+    public LabelledMatrix1D<Integer, Integer> getMatrix(final Integer[] keys, final Object[] labels, final double[] values) {
       return new MyLabelledMatrix1D(keys, labels, values);
     }
 
     @Override
-    protected LabelledMatrix1D<Integer, Integer> getMatrix(final Integer[] keys, final double[] values) {
+    public LabelledMatrix1D<Integer, Integer> getMatrix(final Integer[] keys, final double[] values) {
       return new MyLabelledMatrix1D(keys, values);
     }
   }
