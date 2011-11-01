@@ -120,7 +120,7 @@ public class YieldCurveFunctionHelper {
     */
   }
 
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+  public boolean canApplyTo(final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }

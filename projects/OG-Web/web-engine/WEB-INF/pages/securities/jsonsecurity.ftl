@@ -179,7 +179,7 @@
         "callAmount":"${security.callAmount}",
         "callCurrency":"${security.callCurrency}",
         "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
-        "isLong":"${security.isLong?string?upper_case}",
+        "isLong":"${security.long?string?upper_case}",
         "monitoringType":"${security.monitoringType}",
         "putAmount":"${security.putAmount}",
         "putCurrency":"${security.putCurrency}",

@@ -29,7 +29,7 @@ public final class ClientContextFactoryBean implements ClientContextFactory, Ini
   /**
    * A scheduler to use for housekeeping tasks such as watchdogs.
    */
-  private ScheduledExecutorService _scheduler;
+  private ScheduledExecutorService _housekeepingScheduler;
 
   /**
    * Message timeout. This should match the value used by the clients for consistent behavior. This is
@@ -80,7 +80,7 @@ public final class ClientContextFactoryBean implements ClientContextFactory, Ini
 
   private void setDefaults() {
     setFudgeContext(FudgeContext.GLOBAL_DEFAULT);
-    setScheduler(Executors.newSingleThreadScheduledExecutor(new CustomizableThreadFactory("Scheduler-")));
+    setHousekeepingScheduler(Executors.newSingleThreadScheduledExecutor(new CustomizableThreadFactory("Scheduler-")));
     setMessageTimeout(3000);
     setHeartbeatTimeout(4000);
     setTerminationTimeout(30000);
@@ -92,7 +92,7 @@ public final class ClientContextFactoryBean implements ClientContextFactory, Ini
   public ClientContextFactoryBean(final ClientContextFactoryBean copyFrom) {
     ArgumentChecker.notNull(copyFrom, "copyFrom");
     setFudgeContext(copyFrom.getFudgeContext());
-    setScheduler(copyFrom.getScheduler());
+    setHousekeepingScheduler(copyFrom.getHousekeepingScheduler());
     setMessageTimeout(copyFrom.getMessageTimeout());
     setHeartbeatTimeout(copyFrom.getHeartbeatTimeout());
     setTerminationTimeout(copyFrom.getTerminationTimeout());
@@ -111,13 +111,13 @@ public final class ClientContextFactoryBean implements ClientContextFactory, Ini
     return _fudgeContext;
   }
 
-  public void setScheduler(final ScheduledExecutorService scheduler) {
-    ArgumentChecker.notNull(scheduler, "scheduler");
-    _scheduler = scheduler;
+  public void setHousekeepingScheduler(final ScheduledExecutorService housekeepingScheduler) {
+    ArgumentChecker.notNull(housekeepingScheduler, "housekeepingScheduler");
+    _housekeepingScheduler = housekeepingScheduler;
   }
 
-  public ScheduledExecutorService getScheduler() {
-    return _scheduler;
+  public ScheduledExecutorService getHousekeepingScheduler() {
+    return _housekeepingScheduler;
   }
 
   public void setMessageTimeout(final int messageTimeout) {
@@ -197,7 +197,7 @@ public final class ClientContextFactoryBean implements ClientContextFactory, Ini
 
   @Override
   public ClientContext createClientContext() {
-    return new ClientContext(getFudgeContext(), getScheduler(), getClientExecutor(), getMessageTimeout(), getHeartbeatTimeout(), getTerminationTimeout(), getMessageHandler());
+    return new ClientContext(getFudgeContext(), getHousekeepingScheduler(), getClientExecutor(), getMessageTimeout(), getHeartbeatTimeout(), getTerminationTimeout(), getMessageHandler());
   }
 
 }

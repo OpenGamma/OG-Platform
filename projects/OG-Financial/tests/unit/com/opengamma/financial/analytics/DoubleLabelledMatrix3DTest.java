@@ -8,9 +8,9 @@ package com.opengamma.financial.analytics;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-import org.testng.annotations.Test;
+import java.util.Arrays;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
+import org.testng.annotations.Test;
 
 /**
  * Test the DoubleLabelledMatrix3D implementation.

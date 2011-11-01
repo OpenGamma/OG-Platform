@@ -37,11 +37,16 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
   private static final MarketBundle MARKET = MarketDataSets.createMarket1();
-  private static final PriceIndex[] PRICE_INDEXES = MARKET.getPriceIndexes().toArray(new PriceIndex[0]);
+  private static final PriceIndex[] PRICE_INDEXES = MarketDataSets.getPriceIndexes();
   private static final PriceIndex PRICE_INDEX_EUR = PRICE_INDEXES[0];
-  private static final IborIndex[] IBOR_INDEXES = MARKET.getIborIndexes().toArray(new IborIndex[0]);
+  //  private static final PriceIndex PRICE_INDEX_UK = PRICE_INDEXES[1];
+  private static final PriceIndex PRICE_INDEX_US = PRICE_INDEXES[2];
+  private static final IborIndex[] IBOR_INDEXES = MarketDataSets.getIborIndexes();
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
+  //  private static final IborIndex EURIBOR6M = IBOR_INDEXES[1];
+  private static final IborIndex USDLIBOR3M = IBOR_INDEXES[2];
   private static final Calendar CALENDAR_EUR = EURIBOR3M.getCalendar();
+  private static final Calendar CALENDAR_USD = USDLIBOR3M.getCalendar();
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final Period COUPON_TENOR = Period.ofYears(10);
@@ -113,4 +118,27 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
     }
   }
 
+  @Test
+  /**
+   * Tests the present value for curves with seasonal adjustment.
+   */
+  public void presentValueSeasonality() {
+    MarketBundle marketSeason = MarketDataSets.createMarket2(PRICING_DATE);
+    int tenorYear = 5;
+    double notional = 100000000;
+    ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(PRICING_DATE, CALENDAR_USD, USDLIBOR3M.getSettlementDays());
+    ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(settleDate, BUSINESS_DAY, CALENDAR_USD, USDLIBOR3M.isEndOfMonth(), Period.ofYears(tenorYear));
+    double weightSettle = 1.0 - (settleDate.getDayOfMonth() - 1.0) / settleDate.getMonthOfYear().getLastDayOfMonth(settleDate.isLeapYear());
+    double indexStart = weightSettle * 225.964 + (1 - weightSettle) * 225.722;
+    CouponInflationZeroCouponInterpolationDefinition zeroCouponUsdDefinition = CouponInflationZeroCouponInterpolationDefinition.from(settleDate, paymentDate, notional, PRICE_INDEX_US, indexStart,
+        MONTH_LAG, false);
+    CouponInflationZeroCouponInterpolation zeroCouponUsd = zeroCouponUsdDefinition.toDerivative(PRICING_DATE, "not used");
+    CurrencyAmount pvInflation = METHOD.presentValue(zeroCouponUsd, marketSeason);
+    double df = MARKET.getCurve(zeroCouponUsd.getCurrency()).getDiscountFactor(zeroCouponUsd.getPaymentTime());
+    double indexMonth0 = marketSeason.getCurve(PRICE_INDEX_US).getPriceIndex(zeroCouponUsd.getReferenceEndTime()[0]);
+    double indexMonth1 = marketSeason.getCurve(PRICE_INDEX_US).getPriceIndex(zeroCouponUsd.getReferenceEndTime()[1]);
+    double finalIndex = zeroCouponUsdDefinition.getWeight() * indexMonth0 + (1 - zeroCouponUsdDefinition.getWeight()) * indexMonth1;
+    double pvExpected = (finalIndex / indexStart - 1) * df * notional;
+    assertEquals("PV in market with seasonal adjustment", pvExpected, pvInflation.getAmount(), 1E-2);
+  }
 }

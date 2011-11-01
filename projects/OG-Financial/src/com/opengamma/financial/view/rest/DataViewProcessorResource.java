@@ -12,7 +12,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.jms.ConnectionFactory;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -32,6 +31,7 @@ import com.opengamma.financial.rest.AbstractRestfulJmsResultPublisherExpiryJob;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.jaxrs.FudgeRest;
+import com.opengamma.util.jms.JmsConnector;
 
 /**
  * RESTful resource for a {@link ViewProcessor}.
@@ -60,7 +60,7 @@ public class DataViewProcessorResource {
   /**
    * The connection factory.
    */
-  private final ConnectionFactory _connectionFactory;
+  private final JmsConnector _jmsConnector;
   /**
    * The executor service.
    */
@@ -82,25 +82,22 @@ public class DataViewProcessorResource {
    * Creates an instance.
    * 
    * @param viewProcessor  the view processor
-   * @param connectionFactory  the connection factory
+   * @param jmsConnector  the JMS connector
    * @param fudgeContext  the Fudge context
    * @param scheduler  the scheduler, not null
    */
-  public DataViewProcessorResource(ViewProcessor viewProcessor, ConnectionFactory connectionFactory, FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
+  public DataViewProcessorResource(ViewProcessor viewProcessor, JmsConnector jmsConnector, FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
     _viewProcessor = viewProcessor;
-    _connectionFactory = connectionFactory;
+    _jmsConnector = jmsConnector;
     _scheduler = scheduler;
-    
     _expiryJob = new AbstractRestfulJmsResultPublisherExpiryJob<DataViewClientResource>(VIEW_CLIENT_TIMEOUT_MILLIS, scheduler) {
-
       @Override
       protected Collection<DataViewClientResource> getResources() {
         return _createdViewClients.values();
       }
-      
     };
   }
-  
+
   /**
    * Gets the viewProcessor field.
    * @return the viewProcessor
@@ -199,7 +196,7 @@ public class DataViewProcessorResource {
 
   private DataViewClientResource createViewClientResource(ViewClient viewClient, URI viewProcessorUri) {
     DataViewCycleManagerResource cycleManagerResource = getOrCreateDataViewCycleManagerResource(viewProcessorUri);
-    return new DataViewClientResource(viewClient, cycleManagerResource, _connectionFactory);
+    return new DataViewClientResource(viewClient, cycleManagerResource, _jmsConnector);
   }
 
 }

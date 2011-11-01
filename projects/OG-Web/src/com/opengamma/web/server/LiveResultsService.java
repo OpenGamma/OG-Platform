@@ -7,11 +7,11 @@ package com.opengamma.web.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
 
@@ -47,8 +47,6 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.conversion.ConversionMode;
 import com.opengamma.web.server.conversion.ResultConverterCache;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * The core of the back-end to the web client, providing the implementation of the Bayeux protocol.

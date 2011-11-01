@@ -20,20 +20,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
       <div class="ui-layout-content">&nbsp;</div>
     </div>
     <div class="ui-layout-inner-north">&nbsp;</div>
-    <div class="ui-layout-inner-south OG-versions">
-      <div class="ui-layout-header">
-        <div>
-          <header><h2>Version History</h2></header>
-        </div>
-        <div class="og-version-header">
-          <table>
-            <colgroup></colgroup><colgroup></colgroup><colgroup></colgroup>
-            <thead><tr><th>Reference</th><th>Name</th><th>Valid from</th></tr></thead>
-          </table>
-        </div>
-      </div>
-      <div class="ui-layout-content"></div>
-    </div>
+    <div class="ui-layout-inner-south"></div>
   </div>
   <div class="ui-layout-north">
     <#include "modules/common/og.common.masthead.ftl">

@@ -18,8 +18,8 @@
 <listEntry value="com.opengamma.engine.function"/>
 <listEntry value="com.opengamma.engine.function.config"/>
 <listEntry value="com.opengamma.engine.function.resolver"/>
-<listEntry value="com.opengamma.engine.livedata"/>
 <listEntry value="com.opengamma.engine.management"/>
+<listEntry value="com.opengamma.engine.marketdata"/>
 <listEntry value="com.opengamma.engine.position.csv"/>
 <listEntry value="com.opengamma.engine.position.rest"/>
 <listEntry value="com.opengamma.engine.value"/>
@@ -32,6 +32,7 @@
 <listEntry value="com.opengamma.engine.view.client"/>
 <listEntry value="com.opengamma.engine.view.client.merging"/>
 <listEntry value="com.opengamma.engine.view.compilation"/>
+<listEntry value="com.opengamma.engine.view.server"/>
 <listEntry value="com.opengamma.engine.view.server"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>

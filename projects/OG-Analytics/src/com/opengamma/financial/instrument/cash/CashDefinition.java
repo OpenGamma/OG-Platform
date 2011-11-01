@@ -20,7 +20,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.Convention;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.util.money.Currency;
@@ -28,7 +28,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class CashDefinition implements FixedIncomeInstrumentConverter<Cash> {
+public class CashDefinition implements FixedIncomeInstrumentDefinition<Cash> {
   private static final Logger s_logger = LoggerFactory.getLogger(CashDefinition.class);
   private final Currency _currency;
   private final Convention _convention;

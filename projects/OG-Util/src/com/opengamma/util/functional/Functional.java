@@ -38,6 +38,25 @@ public class Functional {
   }
 
   /**
+   * Returns part of the provided map which keys are contained by provided set of keys
+   * @param map the map
+   * @param keys the set of keys
+   * @param <K> type of map keys
+   * @param <V> type of map values
+   * @return submap of the original map
+   */
+  public static <K, V> Map<K, V> submapByKeySet(Map<K, V> map, Set<K> keys) {
+    Map<K, V> submap = new HashMap<K, V>();
+    for (K key : keys) {
+      if (map.containsKey(key)) {
+        submap.put(key, map.get(key));
+      }
+    }
+    return submap;
+  }
+
+
+  /**
    * Creates reversed map of type Map<V, Collection<K>> from map of type Map<K, V>
    * @param map the underlying map
    * @param <K> type of map keys
@@ -56,6 +75,21 @@ public class Functional {
       keys.add(key);
     }
     return reversed;
+  }
+
+  /**
+   * Merges source map into target one by mutating it (overwriting entries if the target map already contains tha same keys)
+   * @param target the target map
+   * @param source the source map
+   * @param <K> type of map keys
+   * @param <V> type of map values
+   * @return the merged map
+   */
+  public static <K, V> Map<K, V> merge(Map<K, V> target, Map<K, V> source) {
+    for (K key : source.keySet()) {
+      target.put(key, source.get(key));
+    }
+    return target;
   }
 
   /**

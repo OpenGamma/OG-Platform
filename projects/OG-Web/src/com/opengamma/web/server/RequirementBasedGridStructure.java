@@ -127,7 +127,7 @@ public class RequirementBasedGridStructure {
       
       // Process each value specification, recording the requirement if a single one can be identified, or the set of
       // requirements if there is more than one candidate.
-      for (ValueSpecification valueSpec : compiledCalcConfig.getTerminalOutputSpecifications()) {
+      for (ValueSpecification valueSpec : compiledCalcConfig.getTerminalOutputSpecifications().keySet()) {
         if (!targetTypes.contains(valueSpec.getTargetSpecification().getType())) {
           // Not relevant
           continue;

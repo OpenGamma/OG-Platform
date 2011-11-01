@@ -72,10 +72,14 @@ public abstract class AbstractBatchResultWriter {
   private final Map<String, Integer> _riskValueName2Id = new HashMap<String, Integer>();
 
   /**
-   * -> references rsk_value_name(id)
+   * -> references rsk_value_requirement(id)
    */
   private final Map<ValueProperties, Integer> _valueRequirement2Id = new HashMap<ValueProperties, Integer>();
 
+  /**
+   * -> references rsk_value_specification(id)
+   */
+  private final Map<ValueProperties, Integer> _valueSpecification2Id = new HashMap<ValueProperties, Integer>();
 
 
   /**
@@ -132,13 +136,15 @@ public abstract class AbstractBatchResultWriter {
       ResultConverterCache resultConverterCache,
       Collection<ComputationTarget> computationTargets,
       Set<RiskValueName> valueNames,
-      Set<RiskValueRequirement> valueRequirements) {
+      Set<RiskValueRequirement> valueRequirements,
+      Set<RiskValueSpecification> valueSpecifications) {
     
     ArgumentChecker.notNull(dbConnector, "dbConnector");
     ArgumentChecker.notNull(computationTargets, "Computation targets");
     ArgumentChecker.notNull(riskRun, "Risk run");
     ArgumentChecker.notNull(valueNames, "Value names");
-    ArgumentChecker.notNull(valueRequirements, "Value requirement");
+    ArgumentChecker.notNull(valueRequirements, "Value requirements");
+    ArgumentChecker.notNull(valueSpecifications, "Value specifications");
     ArgumentChecker.notNull(resultConverterCache, "resultConverterCache");
     
     _dbConnector = dbConnector;
@@ -168,6 +174,10 @@ public abstract class AbstractBatchResultWriter {
 
     for (RiskValueRequirement valueRequirement : valueRequirements) {
       _valueRequirement2Id.put(valueRequirement.toProperties(), valueRequirement.getId());
+    }
+
+    for (RiskValueSpecification valueSpecification : valueSpecifications) {
+      _valueSpecification2Id.put(valueSpecification.toProperties(), valueSpecification.getId());
     }
   }
 
@@ -338,6 +348,34 @@ public abstract class AbstractBatchResultWriter {
       throw lastException;
     }
     _valueRequirement2Id.put(requirement, dbId);
+    return dbId;
+  }
+
+  public int getValueSpecificationId(ValueProperties specification) {
+    ArgumentChecker.notNull(specification, "Risk value specification");
+
+    Integer dbId = _valueSpecification2Id.get(specification);
+    if (dbId != null) {
+      return dbId;
+    }
+
+    DbBatchMaster dbManager = new DbBatchMaster(_dbConnector);
+
+    // try twice to handle situation where two threads contend to insert
+    RuntimeException lastException = null;
+    for (int i = 0; i < 2; i++) {
+      try {
+        dbId = dbManager.getRiskValueSpecification(specification).getId();
+        lastException = null;
+        break;
+      } catch (RuntimeException e) {
+        lastException = e;
+      }
+    }
+    if (lastException != null) {
+      throw lastException;
+    }
+    _valueSpecification2Id.put(specification, dbId);
     return dbId;
   }
   
@@ -622,17 +660,19 @@ public abstract class AbstractBatchResultWriter {
    * @param requirement the requirement
    * @return the value for this target, null if does not exist
    */
-  public RiskValue getValue(String calcConfName, String valueName, ValueProperties requirement, ComputationTargetSpecification ct) {
+  public RiskValue getValue(String calcConfName, String valueName, ValueProperties requirement, ValueProperties specification, ComputationTargetSpecification ct) {
     Integer calcConfId = getCalculationConfigurationId(calcConfName);
     Integer valueId = getValueNameId(valueName);
     Integer computationTargetId = getComputationTargetId(ct);
     Integer valueRequirementId = getValueRequirementId(requirement);
+    Integer valueSpecificationId = getValueSpecificationId(specification);
     
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("calculation_configuration_id", calcConfId);
     params.addValue("value_name_id", valueId);
     params.addValue("computation_target_id", computationTargetId);
     params.addValue("value_requirement_id", valueRequirementId);
+    params.addValue("value_specification_id", valueSpecificationId);
     
     try {
       return getJdbcTemplate().queryForObject(RiskValue.sqlGet(), RiskValue.ROW_MAPPER, params);

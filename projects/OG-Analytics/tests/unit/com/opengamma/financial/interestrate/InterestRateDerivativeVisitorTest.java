@@ -7,10 +7,6 @@ package com.opengamma.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-
-import org.testng.annotations.Test;
-
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -29,8 +25,7 @@ import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
@@ -65,6 +60,10 @@ import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixe
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.util.money.Currency;
 
+import javax.time.calendar.Period;
+
+import org.testng.annotations.Test;
+
 /**
  * 
  */
@@ -98,8 +97,7 @@ public class InterestRateDerivativeVisitorTest {
   private static final SwaptionCashFixedIbor SWAPTION_CASH = SwaptionInstrumentsDescriptionDataSet.createSwaptionCashFixedIbor();
   private static final SwaptionPhysicalFixedIbor SWAPTION_PHYS = SwaptionInstrumentsDescriptionDataSet.createSwaptionPhysicalFixedIbor();
   private static final InterestRateFuture IR_FUT_SECURITY = FutureInstrumentsDescriptionDataSet.createInterestRateFutureSecurity();
-  private static final BondFutureSecurity BNDFUT_SECURITY = FutureInstrumentsDescriptionDataSet.createBondFutureSecurity();
-  private static final BondFutureTransaction BNDFUT_TRANSACTION = FutureInstrumentsDescriptionDataSet.createBondFutureTransaction();
+  private static final BondFuture BNDFUT_SECURITY = FutureInstrumentsDescriptionDataSet.createBondFutureSecurity();
 
   private static final InterestRateDerivativeVisitor<Object, Class<?>> VISITOR = new InterestRateDerivativeVisitor<Object, Class<?>>() {
 
@@ -409,22 +407,12 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitBondFutureSecurity(final BondFutureSecurity bondFuture, final Object data) {
+    public Class<?> visitBondFuture(final BondFuture bondFuture, final Object data) {
       return visit(bondFuture, data);
     }
 
     @Override
-    public Class<?> visitBondFutureSecurity(final BondFutureSecurity bondFuture) {
-      return visit(bondFuture);
-    }
-
-    @Override
-    public Class<?> visitBondFutureTransaction(final BondFutureTransaction bondFuture, final Object data) {
-      return visit(bondFuture, data);
-    }
-
-    @Override
-    public Class<?> visitBondFutureTransaction(final BondFutureTransaction bondFuture) {
+    public Class<?> visitBondFuture(final BondFuture bondFuture) {
       return visit(bondFuture);
     }
 
@@ -607,8 +595,7 @@ public class InterestRateDerivativeVisitorTest {
     assertEquals(FCP.accept(VISITOR), CouponFixed.class);
     assertEquals(CM.accept(VISITOR), ZZZCouponOIS.class);
     assertEquals(IR_FUT_SECURITY.accept(VISITOR), InterestRateFuture.class);
-    assertEquals(BNDFUT_SECURITY.accept(VISITOR), BondFutureSecurity.class);
-    assertEquals(BNDFUT_TRANSACTION.accept(VISITOR), BondFutureTransaction.class);
+    assertEquals(BNDFUT_SECURITY.accept(VISITOR), BondFuture.class);
     assertEquals(FIXED_FIXED.accept(VISITOR), Swap.class);
     assertEquals(SWAPTION_CASH.accept(VISITOR), SwaptionCashFixedIbor.class);
     assertEquals(SWAPTION_PHYS.accept(VISITOR), SwaptionPhysicalFixedIbor.class);
@@ -795,8 +782,4 @@ public class InterestRateDerivativeVisitorTest {
     ABSTRACT_VISITOR.visit(BNDFUT_SECURITY);
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
-  public void testBondFutTran() {
-    ABSTRACT_VISITOR.visit(BNDFUT_TRANSACTION);
-  }
 }

@@ -11,7 +11,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentWithDataConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionWithData;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
@@ -25,7 +25,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  */
 //TODO get rid when checkstyle can actually handle this class declaration
 //CSOFF
-public class SwapDefinition implements FixedIncomeInstrumentWithDataConverter<Swap<? extends Payment, ? extends Payment>, DoubleTimeSeries<ZonedDateTime>[]> {
+public class SwapDefinition implements FixedIncomeInstrumentDefinitionWithData<Swap<? extends Payment, ? extends Payment>, DoubleTimeSeries<ZonedDateTime>[]> {
   //CSON
   private final AnnuityDefinition<? extends PaymentDefinition> _firstLeg;
   private final AnnuityDefinition<? extends PaymentDefinition> _secondLeg;
