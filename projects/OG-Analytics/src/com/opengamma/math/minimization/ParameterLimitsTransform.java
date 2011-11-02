@@ -7,7 +7,8 @@ package com.opengamma.math.minimization;
 
 /**
  * Interface for objects containing functions that can transform constrained model parameters into unconstrained fitting parameters and vice versa. It also
- * provides functions that will provide the gradient of the functions that perform these transformations
+ * provides functions that will provide the gradient of the functions that perform these transformations. Let y be the model parameter and
+ * yStar the transformed (fitting) parameter, then we write y* = f(y)
  */
 public interface ParameterLimitsTransform {
   /** Types of the limits */
@@ -19,18 +20,27 @@ public interface ParameterLimitsTransform {
   }
 
   /**
-   * A function to transform a constrained model parameter to an unconstrained fitting parameter
+   * A function to transform a constrained model parameter (y) to an unconstrained fitting parameter (y*) - i.e. y* = f(y)
    * @param x Model parameter 
    * @return Fitting parameter
    */
   double transform(double x);
+  
+//  /**
+//   * A function to transform a set of constrained model parameters to a set of unconstrained fitting parameters
+//   * @param x Model parameter 
+//   * @return Fitting parameter
+//   */
+//  double[] transform(double[] x);
 
   /**
-   * A function to transform an unconstrained fitting parameter to a constrained model parameter
+   * A function to transform an unconstrained fitting parameter (y*) to a constrained model parameter (y) - i.e. y = f^-1(y*)
    * @param y Fitting parameter
    * @return Model parameter 
    */
   double inverseTransform(double y);
+  
+  
 
   /**
    * The gradient of the function used to transform from a model parameter that is only allows to take certain values, to a fitting parameter that can take any value

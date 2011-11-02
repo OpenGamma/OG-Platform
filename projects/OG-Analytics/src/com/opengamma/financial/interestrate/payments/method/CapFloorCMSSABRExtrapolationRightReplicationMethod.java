@@ -290,8 +290,8 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod implements Prici
       final double beta = sabrParameter.getBeta(expiryMaturity);
       final double rho = sabrParameter.getRho(expiryMaturity);
       final double nu = sabrParameter.getNu(expiryMaturity);
-      final SABRFormulaData sabrData = new SABRFormulaData(_forward, alpha, beta, nu, rho);
-      _sabrExtrapolation = new SABRExtrapolationRightFunction(sabrData, cutOffStrike, _timeToExpiry, mu);
+      final SABRFormulaData sabrData = new SABRFormulaData(alpha, beta, rho, nu);
+      _sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrData, cutOffStrike, _timeToExpiry, mu);
       _isCall = cmsCap.isCap();
       _strike = cmsCap.getStrike();
       _factor = g(_forward) / h(_forward);
@@ -375,7 +375,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod implements Prici
       final double hpp = (_eta - 1.0) * _tau * hp / periodFactor;
       final double kp = hp / g - h * gp / (g * g);
       final double kpp = hpp / g - 2 * hp * gp / (g * g) - h * (gpp / (g * g) - 2 * (gp * gp) / (g * g * g));
-      return new double[] {kp, kpp};
+      return new double[] {kp, kpp };
     }
 
     /**
