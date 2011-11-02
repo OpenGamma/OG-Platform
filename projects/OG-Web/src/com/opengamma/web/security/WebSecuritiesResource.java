@@ -238,7 +238,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
 
   //-------------------------------------------------------------------------
   @Path("{securityId}")
-  public WebSecurityResource findSecurity(@PathParam("securityId") String idStr) {
+  public AbstractWebSecurityResource findSecurity(@PathParam("securityId") String idStr) {
     data().setUriSecurityId(idStr);
     UniqueId oid = UniqueId.parse(idStr);
     try {
