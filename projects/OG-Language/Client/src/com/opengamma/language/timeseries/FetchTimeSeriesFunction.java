@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -93,6 +94,57 @@ public class FetchTimeSeriesFunction extends AbstractFunctionInvoker implements 
     }
   }
 
+  public static HistoricalTimeSeries invoke(final HistoricalTimeSeriesSource source, final UniqueId uniqueId) {
+    try {
+      return source.getHistoricalTimeSeries(uniqueId);
+    } catch (IllegalArgumentException e) {
+      throw new InvokeInvalidArgumentException(IDENTIFIER, "Invalid identifier");
+    }
+  }
+
+  public static HistoricalTimeSeries invoke(final HistoricalTimeSeriesSource source, final UniqueId uniqueId, LocalDate start, final boolean inclusiveStart, final LocalDate end,
+      final boolean inclusiveEnd) {
+    return source.getHistoricalTimeSeries(uniqueId, start, inclusiveStart, end, inclusiveEnd);
+  }
+
+  public static HistoricalTimeSeries invoke(final HistoricalTimeSeriesSource source, final ExternalIdBundle identifier, final String dataSource, final String dataProvider, final String dataField) {
+    return source.getHistoricalTimeSeries(identifier, dataSource, dataProvider, dataField);
+  }
+
+  public static HistoricalTimeSeries invoke(final HistoricalTimeSeriesSource source, final ExternalIdBundle identifier, final String dataSource, final String dataProvider, final String dataField,
+      final LocalDate start, final boolean inclusiveStart, final LocalDate end, final boolean inclusiveEnd) {
+    return source.getHistoricalTimeSeries(identifier, dataSource, dataProvider, dataField, start, inclusiveStart, end, inclusiveEnd);
+  }
+
+  public static HistoricalTimeSeries invoke(final HistoricalTimeSeriesSource source, final ExternalIdBundle identifier, final LocalDate identifierValidityDate, final String dataSource,
+      final String dataProvider, final String dataField) {
+    return source.getHistoricalTimeSeries(identifier, identifierValidityDate, dataSource, dataProvider, dataField);
+  }
+
+  public static HistoricalTimeSeries invoke(final HistoricalTimeSeriesSource source, final ExternalIdBundle identifier, final LocalDate identifierValidityDate, final String dataSource,
+      final String dataProvider, final String dataField, final LocalDate start, final boolean inclusiveStart, final LocalDate end, final boolean inclusiveEnd) {
+    return source.getHistoricalTimeSeries(identifier, identifierValidityDate, dataSource, dataProvider, dataField, start, inclusiveStart, end, inclusiveEnd);
+  }
+
+  public static HistoricalTimeSeries invoke(final HistoricalTimeSeriesSource source, final String field, final ExternalIdBundle identifier, final String resolutionKey) {
+    return source.getHistoricalTimeSeries(field, identifier, resolutionKey);
+  }
+
+  public static HistoricalTimeSeries invoke(final HistoricalTimeSeriesSource source, final String field, final ExternalIdBundle identifier, final LocalDate identifierValidityDate,
+      final String resolutionKey) {
+    return source.getHistoricalTimeSeries(field, identifier, identifierValidityDate, resolutionKey);
+  }
+
+  public static HistoricalTimeSeries invoke(final HistoricalTimeSeriesSource source, final String field, final ExternalIdBundle identifier, final String resolutionKey, final LocalDate start,
+      final boolean inclusiveStart, final LocalDate end, final boolean inclusiveEnd) {
+    return source.getHistoricalTimeSeries(field, identifier, resolutionKey, start, inclusiveStart, end, inclusiveEnd);
+  }
+
+  public static HistoricalTimeSeries invoke(final HistoricalTimeSeriesSource source, final String field, final ExternalIdBundle identifier, final LocalDate identifierValidityDate,
+      final String resolutionKey, final LocalDate start, final boolean inclusiveStart, final LocalDate end, final boolean inclusiveEnd) {
+    return source.getHistoricalTimeSeries(field, identifier, identifierValidityDate, resolutionKey, start, inclusiveStart, end, inclusiveEnd);
+  }
+
   // AbstractFunctionInvoker
 
   private static final int FLAG_START_AND_END = 0x01;
@@ -118,34 +170,34 @@ public class FetchTimeSeriesFunction extends AbstractFunctionInvoker implements 
     final HistoricalTimeSeriesSource source = sessionContext.getGlobalContext().getHistoricalTimeSeriesSource();
     switch (flags) {
       case 0:
-        return source.getHistoricalTimeSeries(getUniqueId(sessionContext, parameters[IDENTIFIER]));
+        return invoke(source, getUniqueId(sessionContext, parameters[IDENTIFIER]));
       case FLAG_START_AND_END:
-        return source.getHistoricalTimeSeries(getUniqueId(sessionContext, parameters[IDENTIFIER]), (LocalDate) parameters[START], (Boolean) parameters[INCLUSIVE_START], (LocalDate) parameters[END],
+        return invoke(source, getUniqueId(sessionContext, parameters[IDENTIFIER]), (LocalDate) parameters[START], (Boolean) parameters[INCLUSIVE_START], (LocalDate) parameters[END],
             (Boolean) parameters[INCLUSIVE_END]);
       case FLAG_SOURCE_AND_PROVIDER | FLAG_FIELD:
-        return source.getHistoricalTimeSeries(getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (String) parameters[DATA_SOURCE], (String) parameters[DATA_PROVIDER],
+        return invoke(source, getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (String) parameters[DATA_SOURCE], (String) parameters[DATA_PROVIDER],
             (String) parameters[DATA_FIELD]);
       case FLAG_SOURCE_AND_PROVIDER | FLAG_FIELD | FLAG_START_AND_END:
-        return source.getHistoricalTimeSeries(getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (String) parameters[DATA_SOURCE], (String) parameters[DATA_PROVIDER],
+        return invoke(source, getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (String) parameters[DATA_SOURCE], (String) parameters[DATA_PROVIDER],
             (String) parameters[DATA_FIELD], (LocalDate) parameters[START], (Boolean) parameters[INCLUSIVE_START], (LocalDate) parameters[END],
             (Boolean) parameters[INCLUSIVE_END]);
       case FLAG_SOURCE_AND_PROVIDER | FLAG_FIELD | FLAG_IDENTIFIER_VALIDITY_DATE:
-        return source.getHistoricalTimeSeries(getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (LocalDate) parameters[IDENTIFIER_VALIDITY_DATE], (String) parameters[DATA_SOURCE],
+        return invoke(source, getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (LocalDate) parameters[IDENTIFIER_VALIDITY_DATE], (String) parameters[DATA_SOURCE],
             (String) parameters[DATA_PROVIDER], (String) parameters[DATA_FIELD]);
       case FLAG_SOURCE_AND_PROVIDER | FLAG_FIELD | FLAG_START_AND_END | FLAG_IDENTIFIER_VALIDITY_DATE:
-        return source.getHistoricalTimeSeries(getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (LocalDate) parameters[IDENTIFIER_VALIDITY_DATE], (String) parameters[DATA_SOURCE],
+        return invoke(source, getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (LocalDate) parameters[IDENTIFIER_VALIDITY_DATE], (String) parameters[DATA_SOURCE],
             (String) parameters[DATA_PROVIDER], (String) parameters[DATA_FIELD], (LocalDate) parameters[START], (Boolean) parameters[INCLUSIVE_START], (LocalDate) parameters[END],
             (Boolean) parameters[INCLUSIVE_END]);
       case FLAG_FIELD:
-        return source.getHistoricalTimeSeries((String) parameters[DATA_FIELD], getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (String) parameters[RESOLUTION_KEY]);
+        return invoke(source, (String) parameters[DATA_FIELD], getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (String) parameters[RESOLUTION_KEY]);
       case FLAG_FIELD | FLAG_START_AND_END:
-        return source.getHistoricalTimeSeries((String) parameters[DATA_FIELD], getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (String) parameters[RESOLUTION_KEY],
+        return invoke(source, (String) parameters[DATA_FIELD], getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (String) parameters[RESOLUTION_KEY],
             (LocalDate) parameters[START], (Boolean) parameters[INCLUSIVE_START], (LocalDate) parameters[END], (Boolean) parameters[INCLUSIVE_END]);
       case FLAG_FIELD | FLAG_IDENTIFIER_VALIDITY_DATE:
-        return source.getHistoricalTimeSeries((String) parameters[DATA_FIELD], getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (LocalDate) parameters[IDENTIFIER_VALIDITY_DATE],
+        return invoke(source, (String) parameters[DATA_FIELD], getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (LocalDate) parameters[IDENTIFIER_VALIDITY_DATE],
             (String) parameters[RESOLUTION_KEY]);
       case FLAG_FIELD | FLAG_START_AND_END | FLAG_IDENTIFIER_VALIDITY_DATE:
-        return source.getHistoricalTimeSeries((String) parameters[DATA_FIELD], getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (LocalDate) parameters[IDENTIFIER_VALIDITY_DATE],
+        return invoke(source, (String) parameters[DATA_FIELD], getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (LocalDate) parameters[IDENTIFIER_VALIDITY_DATE],
             (String) parameters[RESOLUTION_KEY], (LocalDate) parameters[START], (Boolean) parameters[INCLUSIVE_START], (LocalDate) parameters[END], (Boolean) parameters[INCLUSIVE_END]);
       default:
         throw new InvokeInvalidArgumentException("Invalid combination of omitted parameters");
