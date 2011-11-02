@@ -486,7 +486,13 @@
   </bean>
   <bean id="snapshotSourceRestBean" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotSourceService">
     <constructor-arg ref="fudgeContext" />
-    <property name="underlying" ref="sharedSnapshotSource" />
+    <property name="underlyingMap">
+      <map>
+        <entry key="0" value-ref="combinedSnapshotSource" />
+        <entry key="shared" value-ref="sharedSnapshotSource" />
+        <entry key="user" value-ref="userFinancialSnapshotSource" />
+      </map>
+    </property>
   </bean>
   
   <!-- Trade synchronisation RESTful service -->
