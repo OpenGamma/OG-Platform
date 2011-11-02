@@ -7,9 +7,10 @@ package com.opengamma.financial.analytics.model.forex;
 
 import static com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 import javax.time.calendar.Period;
@@ -93,26 +94,27 @@ public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiled
     }
     @SuppressWarnings("unchecked")
     final VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>> fxVolatilitySurface = (VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>>) volatilitySurfaceObject;
-    final Object[] objectTenors = fxVolatilitySurface.getXs();
-    final Tenor[] tenors = convertTenors(objectTenors); 
-    final Pair<Number, FXVolQuoteType>[] quotes = sortQuotes(fxVolatilitySurface.getYs());
+    final Tenor[] tenors = fxVolatilitySurface.getXs();
+    Arrays.sort(tenors);
+    final Pair<Number, FXVolQuoteType>[] quotes = fxVolatilitySurface.getYs(); 
+    final Number[] deltaValues = getDeltaValues(quotes);
     final int nPoints = tenors.length;
     final SmileDeltaParameter[] smile = new SmileDeltaParameter[nPoints];
-    final int nSmiles = (quotes.length - 1) / 2;
+    final int nSmileValues = deltaValues.length - 1;
     for (int i = 0; i < tenors.length; i++) {
       final Tenor tenor = tenors[i];
       final double t = getTime(tenor);
-      final Double atm = fxVolatilitySurface.getVolatility(tenor, quotes[0]);
+      final Double atm = fxVolatilitySurface.getVolatility(tenor, ObjectsPair.of(deltaValues[0], FXVolQuoteType.ATM));
       if (atm == null) {
         throw new OpenGammaRuntimeException("Could not get ATM volatility data for surface");
       }
-      final double[] deltas = new double[nSmiles];
-      final double[] riskReversals = new double[nSmiles];
-      final double[] butterflies = new double[nSmiles];
-      for (int j = 1, k = 0; j < quotes.length; j += 2, k++) {
-        deltas[k] = quotes[j].getFirst().doubleValue() / 100;
-        riskReversals[k] = fxVolatilitySurface.getVolatility(tenors[i], quotes[j]);
-        butterflies[k] = fxVolatilitySurface.getVolatility(tenors[i], quotes[j + 1]);
+      final double[] deltas = new double[nSmileValues];
+      final double[] riskReversals = new double[nSmileValues];
+      final double[] butterflies = new double[nSmileValues];
+      for (int j = 0; j < nSmileValues; j++) {        
+        deltas[j] = deltaValues[j + 1].doubleValue() / 100.;
+        riskReversals[j] = fxVolatilitySurface.getVolatility(tenor, ObjectsPair.of(deltaValues[j + 1], FXVolQuoteType.RISK_REVERSAL));
+        butterflies[j] = fxVolatilitySurface.getVolatility(tenor, ObjectsPair.of(deltaValues[j + 1], FXVolQuoteType.BUTTERFLY));
       }
       smile[i] = new SmileDeltaParameter(t, atm, deltas, riskReversals, butterflies);
     }
@@ -139,15 +141,6 @@ public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiled
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     return Collections.<ValueSpecification>singleton(_result);
   }
-
-  private Tenor[] convertTenors(final Object[] objectTenors) {
-    final int n = objectTenors.length;
-    final Tenor[] result = new Tenor[n];
-    for (int i = 0; i < n; i++) {
-      result[i] = (Tenor) objectTenors[i];
-    }
-    return result;
-  }
   
   private double getTime(final Tenor tenor) {
     final Period period = tenor.getPeriod();
@@ -163,25 +156,11 @@ public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiled
     throw new OpenGammaRuntimeException("Should never happen");
   }
 
-  @SuppressWarnings("unchecked")
-  private Pair<Number, FXVolQuoteType>[] sortQuotes(final Object[] quotes) {
-    final int n = quotes.length;
-    @SuppressWarnings("rawtypes")
-    final Pair[] sorted = new Pair[n];
-    final SortedSet<Number> deltas = new TreeSet<Number>();
-    for (final Object quote : quotes) {
-      final Pair<Number, FXVolQuoteType> pair = (Pair<Number, FXVolQuoteType>) quote;
-      deltas.add(pair.getFirst());
+  private Number[] getDeltaValues(Pair<Number, FXVolQuoteType>[] quotes) {
+    final TreeSet<Number> values = new TreeSet<Number>();
+    for (Pair<Number, FXVolQuoteType> pair : quotes) {
+      values.add(pair.getFirst());
     }
-    int i = 0;
-    for (final Number delta : deltas) {
-      if (delta.intValue() != 0) {
-        sorted[i++] = ObjectsPair.of(delta, FXVolQuoteType.RISK_REVERSAL);
-        sorted[i++] = ObjectsPair.of(delta, FXVolQuoteType.BUTTERFLY);
-      } else {
-        sorted[i++] = ObjectsPair.of(delta, FXVolQuoteType.ATM);
-      }
-    }
-    return sorted;
+    return values.toArray((Number[]) Array.newInstance(Number.class, values.size()));
   }
 }

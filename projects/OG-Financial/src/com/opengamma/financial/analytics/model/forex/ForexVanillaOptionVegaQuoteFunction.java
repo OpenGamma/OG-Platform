@@ -69,7 +69,7 @@ public class ForexVanillaOptionVegaQuoteFunction extends ForexVanillaOptionFunct
     final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName())
                                                               .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
                                                               .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VEGA_MATRIX, target.toSpecification(), properties);
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VEGA_QUOTE_MATRIX, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, new DoubleLabelledMatrix2D(rowValues, rowLabels, columnValues, columnLabels, values)));
   }
 
@@ -78,7 +78,7 @@ public class ForexVanillaOptionVegaQuoteFunction extends ForexVanillaOptionFunct
     final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName())
                                                               .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
                                                               .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.VEGA_MATRIX, target.toSpecification(), properties));    
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.VEGA_QUOTE_MATRIX, target.toSpecification(), properties));    
   }
 
   private String getFormattedExpiry(final double expiry) {

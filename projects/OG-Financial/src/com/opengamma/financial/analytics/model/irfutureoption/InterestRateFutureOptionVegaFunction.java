@@ -108,9 +108,9 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
       throw new OpenGammaRuntimeException("Cannot handle volatility cubes");
     }
     final double[] expiryValues = alphaSurface.getXDataAsPrimitive();
-    final DoubleMatrix2D alphaResult = getVegaSurfaceForParameter(alpha, alphaGridNodeSensitivities, inverseJacobians, 0, expiryValues);
-    final DoubleMatrix2D nuResult = getVegaSurfaceForParameter(nu, nuGridNodeSensitivities, inverseJacobians, 1, expiryValues);
-    final DoubleMatrix2D rhoResult = getVegaSurfaceForParameter(rho, rhoGridNodeSensitivities, inverseJacobians, 2, expiryValues);
+    final DoubleMatrix2D alphaResult = getVegaSurfaceForParameter(alpha, alphaGridNodeSensitivities, inverseJacobians, 0);
+    final DoubleMatrix2D nuResult = getVegaSurfaceForParameter(nu, nuGridNodeSensitivities, inverseJacobians, 1);
+    final DoubleMatrix2D rhoResult = getVegaSurfaceForParameter(rho, rhoGridNodeSensitivities, inverseJacobians, 2);
     final DoubleMatrix2D result = (DoubleMatrix2D) ALGEBRA.add(alphaResult, ALGEBRA.add(nuResult, rhoResult));
     final DoubleLabelledMatrix2D formatted = getTempFormatting(result, expiryValues);
     return Collections.singleton(new ComputedValue(getResultSpec(target), formatted));
@@ -147,8 +147,7 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
   private DoubleMatrix2D getVegaSurfaceForParameter(final double parameter,
       final Map<Double, List<Pair<Double, Double>>> gridNodeSensitivities,
       final Map<Double, List<Pair<Double, DoubleMatrix2D>>> inverseJacobians,
-      final int parameterNumber,
-      final double[] expiryValues) {
+      final int parameterNumber) {
     //only works if this is a surface
     final List<Pair<Double, Double>> gns = gridNodeSensitivities.values().iterator().next();
     final List<Pair<Double, DoubleMatrix2D>> invJac = inverseJacobians.values().iterator().next();
