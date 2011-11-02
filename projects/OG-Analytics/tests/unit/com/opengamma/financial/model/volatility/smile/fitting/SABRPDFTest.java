@@ -35,7 +35,7 @@ public class SABRPDFTest {
   private static ProbabilityDistribution<Double> BERESTYCKI_DIST;
   private static ProbabilityDistribution<Double> PAULOT_DIST;
   private static ProbabilityDistribution<Double> JOHNSON_DIST;
-  private static final SABRFormulaData DATA = new SABRFormulaData(F, ALPHA, BETA, RHO, NU);
+  private static final SABRFormulaData DATA = new SABRFormulaData( ALPHA, BETA, RHO, NU);
   private final static Function1D<Double, Double> SABR = new MyFunction(new SABRHaganVolatilityFunction());
   private final static Function1D<Double, Double> SABR_HAGAN = new MyFunction(new SABRHaganAlternativeVolatilityFunction());
   private final static Function1D<Double, Double> SABR_BERESTYCKI = new MyFunction(new SABRBerestyckiVolatilityFunction());
@@ -100,7 +100,7 @@ public class SABRPDFTest {
     @Override
     public Double evaluate(final Double k) {
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, T, true);
-      return _sabr.getVolatilityFunction(option).evaluate(DATA);
+      return _sabr.getVolatilityFunction(option,F).evaluate(DATA);
     }
   }
 }

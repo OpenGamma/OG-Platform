@@ -74,6 +74,7 @@ public class SVINonLinearLeastSquareFitter extends LeastSquareSmileFitter {
       strikes[i] = options[i].getStrike();
       blackVols[i] = data[i].getBlackVolatility();
     }
+    final double forward = data[0].getForward();
     final TransformParameters transforms = new TransformParameters(new DoubleMatrix1D(initialFitParameters), TRANSFORMS, fixed);
 
     final ParameterizedFunction<Double, DoubleMatrix1D, Double> function = new ParameterizedFunction<Double, DoubleMatrix1D, Double>() {
@@ -87,7 +88,7 @@ public class SVINonLinearLeastSquareFitter extends LeastSquareSmileFitter {
         final double sigma = mp.getEntry(3);
         final double m = mp.getEntry(4);
         final SVIFormulaData newData = new SVIFormulaData(a, b, rho, sigma, m);
-        return FORMULA.getVolatilityFunction(new EuropeanVanillaOption(strike, maturity, true)).evaluate(newData);
+        return FORMULA.getVolatilityFunction(new EuropeanVanillaOption(strike, maturity, true), forward).evaluate(newData);
       }
     };
 

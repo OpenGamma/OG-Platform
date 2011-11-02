@@ -125,8 +125,8 @@ public class CapletStrippingJacobian extends Function1D<DoubleMatrix1D, DoubleMa
         t = capletExpiries[tIndex];
         EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
         //TODO again this is SABR specific 
-        SABRFormulaData data = new SABRFormulaData(f, cAlpha.getYValue(t), cBeta.getYValue(t), cRho.getYValue(t), cNu.getYValue(t));
-        greeks[tIndex] = SABR.getVolatilityAdjoint(option, data); //2nd and 3rd entries are forward & strike sensitivity which we don't use
+        SABRFormulaData data = new SABRFormulaData(cAlpha.getYValue(t), cBeta.getYValue(t), cRho.getYValue(t), cNu.getYValue(t));
+        greeks[tIndex] = SABR.getVolatilityAdjoint(option, f, data); //2nd and 3rd entries are forward & strike sensitivity which we don't use
         capletVega[tIndex] = capletDF[tIndex] * BlackFormulaRepository.vega(f, k, t, greeks[tIndex][0]);
 
         int parmIndex = 0;

@@ -80,7 +80,7 @@ public class SABRTermStructureParameters implements VolatilityModel1D {
   public double getBeta(final double timeToExpiry) {
     return _beta.getYValue(timeToExpiry);
   }
-  
+
   public double getRho(final double timeToExpiry) {
     return _rho.getYValue(timeToExpiry);
   }
@@ -110,9 +110,9 @@ public class SABRTermStructureParameters implements VolatilityModel1D {
    */
   @Override
   public double getVolatility(final double fwd, final double strike, final double timeToExpiry) {
-    final SABRFormulaData data = new SABRFormulaData(fwd, getAlpha(timeToExpiry), getBeta(timeToExpiry), getRho(timeToExpiry), getNu(timeToExpiry));
+    final SABRFormulaData data = new SABRFormulaData(getAlpha(timeToExpiry), getBeta(timeToExpiry), getRho(timeToExpiry), getNu(timeToExpiry));
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, timeToExpiry, true);
-    final Function1D<SABRFormulaData, Double> func = _sabrFunction.getVolatilityFunction(option);
+    final Function1D<SABRFormulaData, Double> func = _sabrFunction.getVolatilityFunction(option, fwd);
     return func.evaluate(data);
   }
 

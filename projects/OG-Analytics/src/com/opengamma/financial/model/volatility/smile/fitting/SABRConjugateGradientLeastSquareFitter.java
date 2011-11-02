@@ -76,9 +76,9 @@ public class SABRConjugateGradientLeastSquareFitter extends LeastSquareSmileFitt
         final double nu = mp.getEntry(2);
         final double rho = mp.getEntry(3);
         double chiSqr = 0;
-        final SABRFormulaData sabrFormulaData = new SABRFormulaData(forward, alpha, beta, rho, nu);
+        final SABRFormulaData sabrFormulaData = new SABRFormulaData(alpha, beta, rho, nu);
         for (int i = 0; i < n; i++) {
-          chiSqr += FunctionUtils.square((data[i].getBlackVolatility() - _formula.getVolatilityFunction(options[i]).evaluate(sabrFormulaData)) / errors[i]);
+          chiSqr += FunctionUtils.square((data[i].getBlackVolatility() - _formula.getVolatilityFunction(options[i], forward).evaluate(sabrFormulaData)) / errors[i]);
         }
         return chiSqr;
       }
