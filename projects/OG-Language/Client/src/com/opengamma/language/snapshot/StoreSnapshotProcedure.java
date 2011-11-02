@@ -13,12 +13,14 @@ import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.financial.user.rest.RemoteClient;
 import com.opengamma.id.UniqueId;
+import com.opengamma.language.client.ContextRemoteClient;
 import com.opengamma.language.client.MasterID;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
+import com.opengamma.language.error.InvokeInvalidArgumentException;
 import com.opengamma.language.procedure.AbstractProcedureInvoker;
 import com.opengamma.language.procedure.MetaProcedure;
 import com.opengamma.language.procedure.PublishedProcedure;
@@ -57,8 +59,7 @@ public class StoreSnapshotProcedure extends AbstractProcedureInvoker.SingleResul
     this(new DefinitionAnnotater(StoreSnapshotProcedure.class));
   }
 
-  protected static UniqueId invoke(final RemoteClient client, final UniqueId identifier, final ManageableMarketDataSnapshot snapshot) {
-    final MarketDataSnapshotMaster master = client.getMarketDataSnapshotMaster();
+  protected static UniqueId invoke(final MarketDataSnapshotMaster master, final UniqueId identifier, final ManageableMarketDataSnapshot snapshot) {
     MarketDataSnapshotDocument document = new MarketDataSnapshotDocument(identifier, snapshot);
     if (identifier == null) {
       document = master.add(document);
@@ -69,16 +70,14 @@ public class StoreSnapshotProcedure extends AbstractProcedureInvoker.SingleResul
   }
 
   public static UniqueId invoke(final SessionContext sessionContext, final ManageableMarketDataSnapshot snapshot, final UniqueId identifier, final MasterID master) {
-    switch (master) {
-      case SESSION:
-        return invoke(sessionContext.getClient(), identifier, snapshot);
-      case USER:
-        return invoke(sessionContext.getUserContext().getClient(), identifier, snapshot);
-      case GLOBAL:
-        return invoke(sessionContext.getGlobalContext().getClient(), identifier, snapshot);
-      default:
-        throw new IllegalStateException("master=" + master);
+    final RemoteClient client = ContextRemoteClient.get(sessionContext, master);
+    final MarketDataSnapshotMaster mdsMaster;
+    try {
+      mdsMaster = client.getMarketDataSnapshotMaster();
+    } catch (UnsupportedOperationException e) {
+      throw new InvokeInvalidArgumentException(MASTER, e);
     }
+    return invoke(mdsMaster, identifier, snapshot);
   }
 
   // AbstractProcedureInvoker
