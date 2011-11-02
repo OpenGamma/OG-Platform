@@ -19,7 +19,7 @@ public class SABRBerestyckiVolatilityFunction implements VolatilityFunctionProvi
   private static final double EPS = 1e-15;
 
   @Override
-  public Function1D<SABRFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option) {
+  public Function1D<SABRFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option, final double forward) {
     Validate.notNull(option, "option");
     final double k = option.getStrike();
     final double t = option.getTimeToExpiry();
@@ -32,21 +32,20 @@ public class SABRBerestyckiVolatilityFunction implements VolatilityFunctionProvi
         final double beta = data.getBeta();
         final double rho = data.getRho();
         final double nu = data.getNu();
-        final double f = data.getForward();
         double i0;
         final double beta1 = 1 - beta;
 
-        if (CompareUtils.closeEquals(f, k, EPS)) {
+        if (CompareUtils.closeEquals(forward, k, EPS)) {
           i0 = alpha / Math.pow(k, beta1);
         } else {
 
-          final double x = Math.log(f / k);
+          final double x = Math.log(forward / k);
 
           if (CompareUtils.closeEquals(nu, 0, EPS)) {
             if (CompareUtils.closeEquals(beta, 1.0, EPS)) {
               return alpha; // this is just log-normal
             }
-            i0 = x * alpha * beta1 / (Math.pow(f, beta1) - Math.pow(k, beta1));
+            i0 = x * alpha * beta1 / (Math.pow(forward, beta1) - Math.pow(k, beta1));
           } else {
 
             double z;
@@ -54,7 +53,7 @@ public class SABRBerestyckiVolatilityFunction implements VolatilityFunctionProvi
               z = nu * x / alpha;
 
             } else {
-              z = nu * (Math.pow(f, beta1) - Math.pow(k, beta1)) / alpha / beta1;
+              z = nu * (Math.pow(forward, beta1) - Math.pow(k, beta1)) / alpha / beta1;
             }
             final double temp = (Math.sqrt(1 + z * (z - 2 * rho)) + z - rho) / (1 - rho);
             i0 = nu * x / Math.log(temp);
@@ -62,7 +61,7 @@ public class SABRBerestyckiVolatilityFunction implements VolatilityFunctionProvi
           }
         }
 
-        final double f1sqrt = Math.pow(f * k, beta1 / 2);
+        final double f1sqrt = Math.pow(forward * k, beta1 / 2);
         final double i1 = beta1 * beta1 * alpha * alpha / 24 / f1sqrt / f1sqrt + rho * alpha * beta * nu / 4 / f1sqrt + nu * nu * (2 - 3 * rho * rho) / 24;
 
         return i0 * (1 + i1 * t);
