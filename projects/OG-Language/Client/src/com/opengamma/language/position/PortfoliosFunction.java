@@ -12,7 +12,7 @@ import java.util.List;
 
 import com.opengamma.language.client.CombinedPortfolioMaster;
 import com.opengamma.language.client.CombiningMaster;
-import com.opengamma.language.client.CombiningMaster.MasterID;
+import com.opengamma.language.client.MasterID;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
@@ -77,19 +77,7 @@ public class PortfoliosFunction extends AbstractFunctionInvoker implements Publi
           name = name + " " + portfolio.getUniqueId().toString();
         }
         if (!clientUnique) {
-          switch (master) {
-            case SESSION:
-              name = name + " (" + CombiningMaster.SESSION_MASTER_DISPLAY_NAME + ")";
-              break;
-            case USER:
-              name = name + " (" + CombiningMaster.USER_MASTER_DISPLAY_NAME + ")";
-              break;
-            case GLOBAL:
-              name = name + " (" + CombiningMaster.GLOBAL_MASTER_DISPLAY_NAME + ")";
-              break;
-            default:
-              throw new IllegalStateException();
-          }
+          name = name + " (" + master.getLabel() + ")";
         }
         result[1] = name;
         result[2] = portfolio.getRootNode().getUniqueId();

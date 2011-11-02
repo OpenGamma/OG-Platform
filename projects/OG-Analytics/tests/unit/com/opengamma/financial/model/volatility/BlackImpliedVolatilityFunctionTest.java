@@ -57,96 +57,11 @@ public class BlackImpliedVolatilityFunctionTest {
       assertEquals(SIGMA, vol, 1e-6);
     }
   }
-  //
-  //  @Test
-  //  public void test2() {
-  //    final double f = 0.03;
-  //    final double k = 0.0636;
-  //    final double t = 0.25;
-  //    final double sigma = 0.2;
-  //
-  //    final BlackImpliedVolatilityFormula formula = new BlackImpliedVolatilityFormula();
-  //    final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
-  //    final BlackFunctionData data = new BlackFunctionData(f, 1.0, sigma);
-  //    final double price = FORMULA.getPriceFunction(option).evaluate(data);
-  //    final double impVol = formula.getImpliedVolatility(data, option, price);
-  //    assertEquals(sigma, impVol, 1e-4);
-  //  }
 
-  //TODO clean this up
-  //TODO this doesn't test anything
-  //  @Test(enabled = false)
-  //  public void test3() {
-  //    final NormalDistribution normal = new NormalDistribution(0, 1);
-  //    final double f = 0.03;
-  //    final double k = 0.0636;
-  //    final double t = 0.25;
-  //    //double sigma = 0.2;
-  //
-  //    final BlackImpliedVolatilityFormula formula = new BlackImpliedVolatilityFormula();
-  //    final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
-  //
-  //    for (int i = 0; i < 201; i++) {
-  //      final double sigma = 0.19 + 0.025 * i / 200.0;
-  //      final BlackFunctionData data = new BlackFunctionData(f, 1.0, sigma);
-  //      final double d1 = (Math.log(f / k) + sigma * sigma * t / 2) / sigma / Math.sqrt(t);
-  //      final double d2 = d1 - sigma * Math.sqrt(t);
-  //      final double price = FORMULA.getPriceFunction(option).evaluate(data);
-  //
-  //      System.out.println(sigma + "\t" + price + "\t" + Math.log(price));
-  //    }
-  //  }
-  //
-  //  @Test(enabled = false)
-  //  public void testNormalCDF() {
-  //    final NormalDistribution normal = new NormalDistribution(0, 1);
-  //    final double eps = 1e-3;
-  //    for (int i = 0; i < 201; i++) {
-  //      final double z = -8.0 + 1.0 * i / 200.0;
-  //      final double cdf = normal.getCDF(z);
-  //      final double div = (normal.getCDF(z + eps) - normal.getCDF(z - eps)) / 2 / eps;
-  //      System.out.println(/*z + "\t" + */cdf);// + "\t" + Math.log(cdf) + "\t" + div);
-  //
-  //    }
-  //  }
-
-  //  private double normalCDF(final double x) {
-  //    //  return 1 - 0.5 * erfcc(x / Math.sqrt(2));
-  //    return 0.5 * (1 + erf(x / Math.sqrt(2)));
-  //  }
-  //
-  //  double erf(double x) {
-  //    if (x >= 0.) {
-  //      return 1.0 - erfccheb(x);
-  //    } else {
-  //      return erfccheb(-x) - 1.0;
-  //    }
-  //  }
-  //
-  //  private double erfccheb(double z) {
-  //    int j;
-  //    int ncof = ERF_COF.length;
-  //    double t, ty, tmp, d = 0., dd = 0.;
-  //    Validate.isTrue(z >= 0.0);
-  //    t = 2. / (2. + z);
-  //    ty = 4. * t - 2.;
-  //    for (j = ncof - 1; j > 0; j--) {
-  //      tmp = d;
-  //      d = ty * d - dd + ERF_COF[j];
-  //      dd = tmp;
-  //    }
-  //    return t * Math.exp(-z * z + 0.5 * (ERF_COF[0] + ty * d) - dd);
-  //  }
-  //
-  //  private double erfcc(final double x) {
-  //    double t, z, ans;
-  //
-  //    z = Math.abs(x);
-  //    t = 1.0 / (1.0 + 0.5 * z);
-  //    ans = t * Math.exp(-z * z - 1.26551223 + t * (1.00002368 + t * (0.37409196 + t * (0.09678418 +
-  //        t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 + t * (1.48851587 +
-  //            t * (-0.82215223 + t * 0.17087277)))))))));
-  //    return x >= 0.0 ? ans : 2.0 - ans;
-  //  }
+  @Test(enabled = false)
+  public void test2() {
+    double vol = BlackFormulaRepository.impliedVolatility(291.975, 405, 115, 0.231222322, true);
+    System.out.println(vol);
+  }
 
 }

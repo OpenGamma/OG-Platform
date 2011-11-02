@@ -12,6 +12,7 @@ import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.RestClient;
+import com.opengamma.transport.jaxrs.RestRuntimeException;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
@@ -61,7 +62,11 @@ public class RemoteMarketDataSnapshotSource implements MarketDataSnapshotSource 
   @Override
   public StructuredMarketDataSnapshot getSnapshot(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    return getRestClient().getSingleValue(StructuredMarketDataSnapshot.class, getTargetBase().resolveBase("uid").resolve(uniqueId.toString()), "snapshot");
+    try {
+      return getRestClient().getSingleValue(StructuredMarketDataSnapshot.class, getTargetBase().resolveBase("uid").resolve(uniqueId.toString()), "snapshot");
+    } catch (RestRuntimeException e) {
+      throw e.translate();
+    }
   }
 
   @Override

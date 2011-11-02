@@ -93,8 +93,8 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
       double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
       double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
       double nu = sabrData.getSABRParameter().getNu(expiryMaturity);
-      SABRFormulaData sabrParam = new SABRFormulaData(forward, alpha, beta, nu, rho);
-      sabrExtrapolation = new SABRExtrapolationRightFunction(sabrParam, _cutOffStrike, cap.getFixingTime(), _mu);
+      SABRFormulaData sabrParam = new SABRFormulaData(alpha, beta, rho, nu);
+      sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrParam, _cutOffStrike, cap.getFixingTime(), _mu);
       price = df * sabrExtrapolation.price(option) * cap.getNotional() * cap.getPaymentYearFraction();
     }
     return CurrencyAmount.of(cap.getCurrency(), price);
@@ -142,8 +142,8 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
       double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
       double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
       double nu = sabrData.getSABRParameter().getNu(expiryMaturity);
-      SABRFormulaData sabrParam = new SABRFormulaData(forward, alpha, beta, nu, rho);
-      SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(sabrParam, _cutOffStrike, cap.getFixingTime(), _mu);
+      SABRFormulaData sabrParam = new SABRFormulaData(alpha, beta, rho, nu);
+      SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrParam, _cutOffStrike, cap.getFixingTime(), _mu);
       bsPrice = sabrExtrapolation.price(option);
       bsDforward = sabrExtrapolation.priceDerivativeForward(option);
     }
@@ -180,8 +180,8 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
       double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
       double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
       double nu = sabrData.getSABRParameter().getNu(expiryMaturity);
-      SABRFormulaData sabrParam = new SABRFormulaData(forward, alpha, beta, nu, rho);
-      SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(sabrParam, _cutOffStrike, cap.getFixingTime(), _mu);
+      SABRFormulaData sabrParam = new SABRFormulaData(alpha, beta, rho, nu);
+      SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrParam, _cutOffStrike, cap.getFixingTime(), _mu);
       sabrExtrapolation.priceAdjointSABR(option, bsDsabr);
     }
     PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();

@@ -27,12 +27,12 @@ public class DoubleLabelledMatrix1D extends LabelledMatrix1D<Double, Double> {
   }
 
   @Override
-  protected LabelledMatrix1D<Double, Double> getMatrix(final Double[] keys, final Object[] labels, final double[] values) {
+  public LabelledMatrix1D<Double, Double> getMatrix(final Double[] keys, final Object[] labels, final double[] values) {
     return new DoubleLabelledMatrix1D(keys, labels, values);
   }
 
   @Override
-  protected LabelledMatrix1D<Double, Double> getMatrix(final Double[] keys, final double[] values) {
+  public LabelledMatrix1D<Double, Double> getMatrix(final Double[] keys, final double[] values) {
     return new DoubleLabelledMatrix1D(keys, values);
   }
 }
