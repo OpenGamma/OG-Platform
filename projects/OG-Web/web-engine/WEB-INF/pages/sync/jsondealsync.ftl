@@ -6,7 +6,7 @@
 		{	"tradeId" : "${item.objectid}",
 			"tradeVersion" : "${item.version}",
 			"securityName" : "${item.securityname}",
-			"isNew" : "${item.isnew}",
+			"isNew" : ${item.isnew},
 			"fields" : [
 			<#list item.fields as item>
 				{	"fieldName" : "${item.name}",
