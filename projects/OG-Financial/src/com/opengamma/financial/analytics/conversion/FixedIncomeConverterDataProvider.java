@@ -117,18 +117,18 @@ public class FixedIncomeConverterDataProvider {
   public InterestRateDerivative convert(final IRFutureOptionSecurity security, final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime now,
         final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
     final ExternalIdBundle id = ExternalIdBundle.of(security.getUnderlyingId());
-    final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
-    final HistoricalTimeSeries ts = dataSource
-            .getHistoricalTimeSeries(_fieldName, id, null, null, startDate, true, now.toLocalDate(), false);
-    if (ts == null) {
-      throw new OpenGammaRuntimeException("Could not get price time series for " + security);
-    }
-    final int length = ts.getTimeSeries().size();
-    if (length == 0) {
-      throw new OpenGammaRuntimeException("Price time series for " + security + " was empty");
-    }
-    final double lastMarginPrice = ts.getTimeSeries().getValueAt(length - 1);
-    return definition.toDerivative(now, lastMarginPrice, curveNames);
+//    final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
+//    final HistoricalTimeSeries ts = dataSource
+//            .getHistoricalTimeSeries(_fieldName, id, null, null, startDate, true, now.toLocalDate(), false);
+//    if (ts == null) {
+//      throw new OpenGammaRuntimeException("Could not get price time series for " + security);
+//    }
+//    final int length = ts.getTimeSeries().size();
+//    if (length == 0) {
+//      throw new OpenGammaRuntimeException("Price time series for " + security.getUnderlyingId() + " was empty");
+//    }
+//    final double lastMarginPrice = ts.getTimeSeries().getValueAt(length - 1);
+    return definition.toDerivative(now, 0.99, curveNames);
   }
 
   public InterestRateDerivative convert(final FRASecurity security, final ForwardRateAgreementDefinition definition, final ZonedDateTime now,

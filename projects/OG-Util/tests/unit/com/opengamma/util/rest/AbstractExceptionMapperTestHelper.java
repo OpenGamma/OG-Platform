@@ -43,6 +43,9 @@ public abstract class AbstractExceptionMapperTestHelper {
     assertEquals(th.getClass().getName(), test.getMetadata().get(ExceptionThrowingClientFilter.EXCEPTION_TYPE).get(0));
     assertEquals(1, test.getMetadata().get(ExceptionThrowingClientFilter.EXCEPTION_MESSAGE).size());
     assertEquals(th.getMessage(), test.getMetadata().get(ExceptionThrowingClientFilter.EXCEPTION_MESSAGE).get(0));
+    assertEquals(1, test.getMetadata().get(ExceptionThrowingClientFilter.EXCEPTION_POINT).size());
+    assertEquals(true, test.getMetadata().get(ExceptionThrowingClientFilter.EXCEPTION_POINT).get(0).toString().contains(getClass().getName()));
+    assertEquals(true, test.getMetadata().get(ExceptionThrowingClientFilter.EXCEPTION_POINT).get(0).toString().contains(".java"));
   }
 
   @DataProvider(name="mediaTypes")

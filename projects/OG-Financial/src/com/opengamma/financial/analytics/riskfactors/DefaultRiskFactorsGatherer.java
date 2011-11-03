@@ -402,7 +402,7 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   }
   
   private Pair<String, ValueProperties> getVegaMatrix(ValueProperties.Builder constraints) {
-    return getRiskFactor(ValueRequirementNames.VEGA_MATRIX, constraints, false);
+    return getRiskFactor(ValueRequirementNames.VEGA_QUOTE_MATRIX, constraints, false);
   }
   
   private Pair<String, ValueProperties> getPV01(String curveName) {
