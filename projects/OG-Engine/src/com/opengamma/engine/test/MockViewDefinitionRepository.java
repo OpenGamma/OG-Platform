@@ -17,17 +17,15 @@ import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDefinitionRepository;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
-/**
- * KV: test for behaviour with duplicate view definition names
- */
 public class MockViewDefinitionRepository implements ViewDefinitionRepository, Serializable {
 
   private static final long serialVersionUID = 1L;
   
-  private final ConcurrentMap<UniqueId, ViewDefinition> _definitionsById = new ConcurrentSkipListMap<UniqueId, ViewDefinition>();
+  private final ConcurrentMap<ObjectId, ViewDefinition> _definitionsById = new ConcurrentSkipListMap<ObjectId, ViewDefinition>();
   private final ConcurrentMap<String, ViewDefinition> _definitionsByName = new ConcurrentSkipListMap<String, ViewDefinition>();
   private final ChangeManager _changeManager = new BasicChangeManager();
 
@@ -43,8 +41,8 @@ public class MockViewDefinitionRepository implements ViewDefinitionRepository, S
   
 
   @Override
-  public Set<UniqueId> getDefinitionIds() {
-    return new TreeSet<UniqueId>(_definitionsById.keySet());
+  public Set<ObjectId> getDefinitionIds() {
+    return new TreeSet<ObjectId>(_definitionsById.keySet());
   }
   
   @Override
@@ -52,8 +50,8 @@ public class MockViewDefinitionRepository implements ViewDefinitionRepository, S
     
     Map<UniqueId, String> result = new HashMap<UniqueId, String>();
         
-    for (Map.Entry<UniqueId, ViewDefinition> entry : _definitionsById.entrySet()) {
-      result.put(entry.getKey(), entry.getValue().getName());
+    for (Map.Entry<ObjectId, ViewDefinition> entry : _definitionsById.entrySet()) {
+      result.put(entry.getKey().atLatestVersion(), entry.getValue().getName());
     }
     return result;
   }
@@ -61,7 +59,7 @@ public class MockViewDefinitionRepository implements ViewDefinitionRepository, S
   public void addDefinition(ViewDefinition definition) {
     ArgumentChecker.notNull(definition, "View definition");
     if (definition.getUniqueId() != null) { 
-      _definitionsById.put(definition.getUniqueId(), definition);
+      _definitionsById.put(definition.getUniqueId().getObjectId(), definition);
     }
     _definitionsByName.put(definition.getName(), definition);
   }

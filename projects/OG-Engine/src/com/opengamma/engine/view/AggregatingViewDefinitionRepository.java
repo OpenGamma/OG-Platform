@@ -14,6 +14,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import com.opengamma.core.change.AggregatingChangeManager;
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -63,8 +64,8 @@ public class AggregatingViewDefinitionRepository implements ViewDefinitionReposi
   }
   
   @Override
-  public Set<UniqueId> getDefinitionIds() {
-    Set<UniqueId> result = new TreeSet<UniqueId>();
+  public Set<ObjectId> getDefinitionIds() {
+    Set<ObjectId> result = new TreeSet<ObjectId>();
     for (ViewDefinitionRepository repository : _repositories) {
       result.addAll(repository.getDefinitionIds());
     }
