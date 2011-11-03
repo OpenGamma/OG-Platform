@@ -13,6 +13,7 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.engine.view.ViewDefinition;
@@ -31,7 +32,11 @@ public class MockViewDefinitionRepository implements ViewDefinitionRepository, S
 
   @Override
   public ViewDefinition getDefinition(UniqueId definitionId) {
-    return _definitionsById.get(definitionId);
+    ViewDefinition viewDefinition = _definitionsById.get(definitionId.getObjectId());
+    if (!viewDefinition.getUniqueId().isLatest() && !viewDefinition.getUniqueId().equals(definitionId)) {
+      throw new OpenGammaRuntimeException("Previous versions of definitions not supported");
+    }
+    return viewDefinition;
   }
   
   @Override

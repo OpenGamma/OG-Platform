@@ -151,6 +151,9 @@ public final class PostgresDbManagement extends AbstractDbManagement {
       super.dropSchema(catalog, schema);
     } else {
       try {
+        if (!getCatalogCreationStrategy().catalogExists(catalog)) {
+          return;
+        }
         Connection conn = connect(catalog);
         Statement statement = conn.createStatement();
         //TODO default schema
