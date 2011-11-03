@@ -19,7 +19,7 @@ $.register_module({
         'og.views.common.state',
         'og.views.common.default_details',
         'og.views.common.versions',
-        'og.views.portfolio.sync'
+        'og.views.portfolios_sync'
     ],
     obj: function () {
         var api = og.api,
@@ -340,7 +340,7 @@ $.register_module({
                 if (args.version || args.sync) {
                     layout.inner.open('south');
                     if (args.version) og.views.common.versions.load();
-                    if (args.sync) og.views.portfolio.sync.load();
+                    if (args.sync) og.views.portfolios_sync.load(args);
                 } else layout.inner.close('south');
                 api.rest.portfolios.get({
                     handler: function (result) {

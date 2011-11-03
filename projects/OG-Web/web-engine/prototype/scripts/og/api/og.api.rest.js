@@ -413,7 +413,7 @@ $.register_module({
                     meta = check({
                         bundle: {method: root + '#get', config: config},
                         required: [{one_of: fields}],
-                        empties: [{condition: config.status, fields: ['trades'], label: 'status exists'}],
+                        empties: [{condition: config.status, fields: ['trades'], label: 'status exists'}]
                     });
                     fields.forEach(function (field) {if (config[field]) method.push(config[field], field);});
                     return request(method, {data: data, meta: meta});
