@@ -15,6 +15,7 @@ import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
 import com.opengamma.language.function.FunctionProviderBean;
 import com.opengamma.language.invoke.TypeConverterProviderBean;
+import com.opengamma.language.procedure.ProcedureProviderBean;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
@@ -64,6 +65,8 @@ public class Loader extends ContextInitializationBean {
     globalContext.setHistoricalTimeSeriesSource(new RemoteHistoricalTimeSeriesSource(getConfiguration().getFudgeContext(), restTarget));
     globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
         FetchTimeSeriesFunction.INSTANCE));
+    globalContext.getProcedureProvider().addProvider(new ProcedureProviderBean(
+        StoreTimeSeriesProcedure.INSTANCE));
     globalContext.getTypeConverterProvider().addTypeConverterProvider(new TypeConverterProviderBean(
         HistoricalTimeSeriesConverter.INSTANCE,
         LocalDateDoubleTimeSeriesConverter.INSTANCE));

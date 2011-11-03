@@ -41,6 +41,7 @@ public class Loader extends ContextInitializationBean {
   private String _securityMaster = "securityMaster";
   private String _marketDataSnapshotMaster = "marketDataSnapshotMaster";
   private String _userData = "userData";
+  private String _historicalTimeSeriesMaster = "historicalTimeSeriesMaster";
   private ScheduledExecutorService _housekeepingScheduler;
   private int _clientHeartbeat = 5;
 
@@ -109,6 +110,14 @@ public class Loader extends ContextInitializationBean {
     return _clientHeartbeat;
   }
 
+  public void setHistoricalTimeSeriesMaster(final String historicalTimeSeriesMaster) {
+    _historicalTimeSeriesMaster = historicalTimeSeriesMaster;
+  }
+
+  public String getHistoricalTimeSeriesMaster() {
+    return _historicalTimeSeriesMaster;
+  }
+
   // ContextInitializationBean
 
   @Override
@@ -127,6 +136,7 @@ public class Loader extends ContextInitializationBean {
     targets.setPortfolioMaster(getConfiguration().getURIConfiguration(getPortfolioMaster()));
     targets.setSecurityMaster(getConfiguration().getRestTargetConfiguration(getSecurityMaster()));
     targets.setMarketDataSnapshotMaster(getConfiguration().getRestTargetConfiguration(getMarketDataSnapshotMaster()));
+    targets.setHistoricalTimeSeriesMaster(getConfiguration().getRestTargetConfiguration(getHistoricalTimeSeriesMaster()));
     globalContext.setClient(new RemoteClient(null, getConfiguration().getFudgeContext(), targets));
   }
 

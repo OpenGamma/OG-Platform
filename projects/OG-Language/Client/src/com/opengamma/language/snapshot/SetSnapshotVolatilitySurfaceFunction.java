@@ -13,7 +13,6 @@ import java.util.List;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
-import com.opengamma.id.UniqueId;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
@@ -36,6 +35,10 @@ public class SetSnapshotVolatilitySurfaceFunction extends AbstractFunctionInvoke
 
   private final MetaFunction _meta;
 
+  private static final int SNAPSHOT = 0;
+  private static final int NAME = 1;
+  private static final int SURFACE = 2;
+
   private static List<MetaParameter> parameters() {
     return Arrays.asList(
         new MetaParameter("snapshot", JavaTypeInfo.builder(ManageableMarketDataSnapshot.class).get()),
@@ -53,12 +56,10 @@ public class SetSnapshotVolatilitySurfaceFunction extends AbstractFunctionInvoke
   }
 
   public static ManageableMarketDataSnapshot invoke(final ManageableMarketDataSnapshot snapshot, final String name, final VolatilitySurfaceSnapshot surface) {
-    // TODO: this is bad; need to do some escaping
-    final String[] surfaceNames = name.split("_");
-    if (surfaceNames.length != 3) {
-      throw new InvokeInvalidArgumentException(1, "Invalid surface name");
+    final VolatilitySurfaceKey key = StructuredMarketDataSnapshotUtil.toVolatilitySurfaceKey(name);
+    if (key == null) {
+      throw new InvokeInvalidArgumentException(NAME, "Invalid surface name");
     }
-    final VolatilitySurfaceKey key = new VolatilitySurfaceKey(UniqueId.parse(surfaceNames[0]), surfaceNames[1], surfaceNames[2]);
     if (snapshot.getVolatilitySurfaces() == null) {
       snapshot.setVolatilitySurfaces(new HashMap<VolatilitySurfaceKey, VolatilitySurfaceSnapshot>());
     }
@@ -74,7 +75,7 @@ public class SetSnapshotVolatilitySurfaceFunction extends AbstractFunctionInvoke
 
   @Override
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
-    return invoke((ManageableMarketDataSnapshot) parameters[0], (String) parameters[1], (VolatilitySurfaceSnapshot) parameters[2]);
+    return invoke((ManageableMarketDataSnapshot) parameters[SNAPSHOT], (String) parameters[NAME], (VolatilitySurfaceSnapshot) parameters[SURFACE]);
   }
 
   // PublishedFunction

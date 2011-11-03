@@ -10,12 +10,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.id.UniqueId;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
+import com.opengamma.language.error.InvokeInvalidArgumentException;
 import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
@@ -32,6 +34,8 @@ public class FetchSnapshotFunction extends AbstractFunctionInvoker implements Pu
 
   private final MetaFunction _meta;
 
+  private static final int IDENTIFIER = 0;
+
   private static List<MetaParameter> parameters() {
     final MetaParameter identifierParameter = new MetaParameter("identifier", JavaTypeInfo.builder(UniqueId.class).get());
     return Arrays.asList(identifierParameter);
@@ -46,12 +50,19 @@ public class FetchSnapshotFunction extends AbstractFunctionInvoker implements Pu
     this(new DefinitionAnnotater(FetchSnapshotFunction.class));
   }
 
+  public static StructuredMarketDataSnapshot invoke(final SessionContext context, final UniqueId uid) {
+    try {
+      return context.getGlobalContext().getMarketDataSnapshotSource().getSnapshot(uid);
+    } catch (IllegalArgumentException e) {
+      throw new InvokeInvalidArgumentException(IDENTIFIER, "Identifier is not valid");
+    }
+  }
+
   // AbstractFunctionInvoker
 
   @Override
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
-    final UniqueId uid = (UniqueId) parameters[0];
-    return sessionContext.getGlobalContext().getMarketDataSnapshotSource().getSnapshot(uid);
+    return invoke(sessionContext, (UniqueId) parameters[IDENTIFIER]);
   }
 
   // PublishedFunction

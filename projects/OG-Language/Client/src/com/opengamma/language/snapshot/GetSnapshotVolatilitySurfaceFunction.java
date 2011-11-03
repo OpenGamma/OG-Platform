@@ -8,11 +8,11 @@ package com.opengamma.language.snapshot;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
-import com.opengamma.id.UniqueId;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
@@ -35,10 +35,13 @@ public class GetSnapshotVolatilitySurfaceFunction extends AbstractFunctionInvoke
 
   private final MetaFunction _meta;
 
+  private static final int SNAPSHOT = 0;
+  private static final int NAME = 1;
+
   private static List<MetaParameter> parameters() {
     return Arrays.asList(
         new MetaParameter("snapshot", JavaTypeInfo.builder(ManageableMarketDataSnapshot.class).get()),
-        new MetaParameter("name", JavaTypeInfo.builder(String.class).get()));
+        new MetaParameter("name", JavaTypeInfo.builder(String.class).allowNull().get()));
   }
 
   private GetSnapshotVolatilitySurfaceFunction(final DefinitionAnnotater info) {
@@ -51,27 +54,41 @@ public class GetSnapshotVolatilitySurfaceFunction extends AbstractFunctionInvoke
   }
 
   public static VolatilitySurfaceSnapshot invoke(final ManageableMarketDataSnapshot snapshot, final String name) {
-    // TODO: this is bad; need to do some escaping
-    final String[] surfaceNames = name.split("_");
-    if (surfaceNames.length != 3) {
-      throw new InvokeInvalidArgumentException(1, "Invalid surface name");
-    }
-    final VolatilitySurfaceKey key = new VolatilitySurfaceKey(UniqueId.parse(surfaceNames[0]), surfaceNames[1], surfaceNames[2]);
-    if (snapshot.getVolatilitySurfaces() == null) {
-      throw new InvokeInvalidArgumentException(0, "No surfaces in snapshot");
+    final VolatilitySurfaceKey key = StructuredMarketDataSnapshotUtil.toVolatilitySurfaceKey(name);
+    if (key == null) {
+      throw new InvokeInvalidArgumentException(NAME, "Invalid surface name");
     }
     final VolatilitySurfaceSnapshot surfaceSnapshot = snapshot.getVolatilitySurfaces().get(key);
     if (surfaceSnapshot == null) {
-      throw new InvokeInvalidArgumentException(1, "Surface not found in snapshot");
+      throw new InvokeInvalidArgumentException(NAME, "Surface not found in snapshot");
     }
     return surfaceSnapshot;
+  }
+
+  public static String[] invoke(final ManageableMarketDataSnapshot snapshot) {
+    final Set<VolatilitySurfaceKey> keys = snapshot.getVolatilitySurfaces().keySet();
+    final String[] result = new String[keys.size()];
+    int i = 0;
+    for (VolatilitySurfaceKey key : keys) {
+      result[i++] = StructuredMarketDataSnapshotUtil.fromVolatilitySurfaceKey(key);
+    }
+    Arrays.sort(result);
+    return result;
   }
 
   // AbstractFunctionInvoker
 
   @Override
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
-    return invoke((ManageableMarketDataSnapshot) parameters[0], (String) parameters[1]);
+    final ManageableMarketDataSnapshot snapshot = (ManageableMarketDataSnapshot) parameters[SNAPSHOT];
+    if (snapshot.getVolatilitySurfaces() == null) {
+      throw new InvokeInvalidArgumentException(SNAPSHOT, "No surfaces in snapshot");
+    }
+    if (parameters[NAME] == null) {
+      return invoke(snapshot);
+    } else {
+      return invoke(snapshot, (String) parameters[NAME]);
+    }
   }
 
   // PublishedFunction
