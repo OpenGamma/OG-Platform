@@ -28,6 +28,7 @@ import com.opengamma.engine.marketdata.LiveMarketDataSnapshot;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
@@ -405,10 +406,10 @@ public class ViewComputationJobTest {
     }
 
     @Override
-    public boolean isAvailable(ValueRequirement requirement) {
+    public MarketDataAvailability getAvailability(ValueRequirement requirement) {
       // Want the market data provider to indicate that data is available even before it's really available
-      return requirement.equals(ViewProcessorTestEnvironment.getPrimitive1())
-          || requirement.equals(ViewProcessorTestEnvironment.getPrimitive2());
+      return (requirement.equals(ViewProcessorTestEnvironment.getPrimitive1()) || requirement.equals(ViewProcessorTestEnvironment.getPrimitive2())) ? MarketDataAvailability.AVAILABLE
+          : MarketDataAvailability.NOT_AVAILABLE;
     }
 
     @Override

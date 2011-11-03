@@ -182,7 +182,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
         for (ValueRequirement requirement : requirements) {
           final ComputationTargetSpecification targetSpec = requirement.getTargetSpecification();
           if (targetSpec.getUniqueId() != null) {
-            if (marketDataAvailabilityProvider.isAvailable(requirement)) {
+            if (marketDataAvailabilityProvider.getAvailability(requirement).isAvailable()) {
               s_logger.debug("Requirement {} can be satisfied by market data", requirement);
               inputs.put(Collections.singleton(new ValueSpecification(requirement, "marketdata")).iterator(), requirement);
             } else {

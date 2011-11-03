@@ -5,8 +5,18 @@
  */
 package com.opengamma.util.test;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Collections;
+import java.util.List;
+
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.PostgreSQLDialect;
+import org.hibernate.mapping.Table;
+import org.testng.collections.Lists;
+
+import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Database management for Postgres databases.
@@ -139,4 +149,41 @@ public final class PostgresDbManagement extends AbstractDbManagement {
         "template1");
   }
 
+  @Override
+  public void dropSchema(String catalog, String schema) {
+    if (schema != null) {
+      super.dropSchema(catalog, schema);
+    } else {
+      try {
+        Connection conn = connect(catalog);
+        //setActiveSchema(conn, schema);
+        Statement statement = conn.createStatement();
+        //TODO default schema
+        statement.executeUpdate("DROP SCHEMA IF EXISTS public CASCADE;CREATE SCHEMA public;");
+        statement.close();
+        conn.close();
+      } catch (SQLException se) {
+        throw new OpenGammaRuntimeException("Failed to drop the default schema", se);
+      }
+    }
+  }
+  
+  @Override
+  protected List<String> getClearTablesCommand(String schema, List<String> tablesToClear) {
+    {
+      if (tablesToClear.isEmpty()) {
+        return Lists.newArrayList();
+      }
+      StringBuffer buffer = new StringBuffer("TRUNCATE TABLE ");
+
+      for (String name : tablesToClear) {
+        Table table = new Table(name);
+        String qualifiedName = table.getQualifiedName(getHibernateDialect(), null, schema);
+        buffer.append(qualifiedName);
+        buffer.append(",");
+      }
+      buffer.setCharAt(buffer.length() - 1, ';');
+      return Lists.newArrayList(Collections.singleton(buffer.toString()));
+    }
+  }
 }
