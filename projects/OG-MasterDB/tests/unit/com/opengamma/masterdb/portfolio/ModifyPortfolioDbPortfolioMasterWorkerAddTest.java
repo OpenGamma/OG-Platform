@@ -70,6 +70,8 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
     rootNode.addChildNode(childNode);
     ManageablePortfolio portfolio = new ManageablePortfolio("Test");
     portfolio.setRootNode(rootNode);
+    portfolio.addAttribute("A1", "V1");
+    portfolio.addAttribute("A2", "V2");
     PortfolioDocument doc = new PortfolioDocument();
     doc.setPortfolio(portfolio);
     PortfolioDocument test = _prtMaster.add(doc);
@@ -88,6 +90,10 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
     ManageablePortfolio testPortfolio = test.getPortfolio();
     assertEquals(uniqueId, testPortfolio.getUniqueId());
     assertEquals("Test", testPortfolio.getName());
+    assertNotNull(testPortfolio.getAttributes());
+    assertEquals(2, testPortfolio.getAttributes().size());
+    assertEquals("V1", testPortfolio.getAttributes().get("A1"));
+    assertEquals("V2", testPortfolio.getAttributes().get("A2"));
     
     ManageablePortfolioNode testRootNode = testPortfolio.getRootNode();
     assertEquals("Root", testRootNode.getName());
