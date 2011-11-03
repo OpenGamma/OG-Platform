@@ -28,7 +28,7 @@ $.register_module({
                 tenor = selector + ' .og-tenor',
                 plot_selector = selector + ' .og-plot-header',
                 $legend, panning, hover_pos = null,
-                x_max, y_min, y_max, initial_preset, reset_options,
+                x_max, initial_preset, reset_options,
                 load_plots, empty_plots, update_legend, rescale_yaxis, calculate_y_values, data_points, get_legend;
             $(selector).html('\
               <div class="og-flot-top"></div>\
