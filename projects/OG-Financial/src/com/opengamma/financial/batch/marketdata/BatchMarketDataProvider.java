@@ -16,6 +16,7 @@ import com.opengamma.engine.marketdata.InMemoryLKVMarketDataSnapshot;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
@@ -152,10 +153,19 @@ public class BatchMarketDataProvider implements MarketDataProvider, MarketDataAv
     return Duration.between(fromInstant, toInstant);
   }
 
-  //-------------------------------------------------------------------------
   @Override
-  public boolean isAvailable(ValueRequirement requirement) {
-    return _batchDbProvider.isAvailable(requirement) || (_historicalMarketDataProvider != null && _historicalMarketDataProvider.isAvailable(requirement));
+  public MarketDataAvailability getAvailability(final ValueRequirement requirement) {
+    final MarketDataAvailability batch = _batchDbProvider.getAvailability(requirement);
+    if (batch == MarketDataAvailability.AVAILABLE) {
+      return batch;
+    }
+    if (_historicalMarketDataProvider != null) {
+      final MarketDataAvailability historical = _historicalMarketDataProvider.getAvailability(requirement);
+      if (historical != MarketDataAvailability.NOT_AVAILABLE) {
+        return historical;
+      }
+    }
+    return batch;
   }
 
 }

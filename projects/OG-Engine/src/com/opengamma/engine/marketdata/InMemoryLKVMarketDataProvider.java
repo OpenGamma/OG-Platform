@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
@@ -102,8 +103,8 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
 
   //-------------------------------------------------------------------------
   @Override
-  public boolean isAvailable(ValueRequirement requirement) {
-    return _lastKnownValues.containsKey(requirement);
+  public MarketDataAvailability getAvailability(ValueRequirement requirement) {
+    return _lastKnownValues.containsKey(requirement) ? MarketDataAvailability.AVAILABLE : MarketDataAvailability.NOT_AVAILABLE;
   }
 
   //-------------------------------------------------------------------------

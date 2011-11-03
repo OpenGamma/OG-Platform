@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.spec.CombinedMarketDataSpecification;
@@ -26,10 +27,10 @@ import com.opengamma.livedata.UserPrincipal;
  */
 public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
 
-  private final MarketDataProvider _preffered;
+  private final MarketDataProvider _preferred;
   private final MarketDataProvider _fallBack;
   
-  private final CombinedMarketDataListener _prefferedListener;
+  private final CombinedMarketDataListener _preferredListener;
   private final CombinedMarketDataListener _fallBackListener;
   private final MarketDataAvailabilityProvider _availabilityProvider;
   
@@ -37,18 +38,14 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
 
   private final Object _listenerLock = new Object();
   private boolean _listenerAttached;
-  
-  public CombinedMarketDataProvider(MarketDataProvider preffered, MarketDataProvider fallBack) {
-    _preffered = preffered;
+
+  public CombinedMarketDataProvider(MarketDataProvider preferred, MarketDataProvider fallBack) {
+    _preferred = preferred;
     _fallBack = fallBack;
-    
-    _prefferedListener = new CombinedMarketDataListener(this, _preffered);
+    _preferredListener = new CombinedMarketDataListener(this, _preferred);
     _fallBackListener = new CombinedMarketDataListener(this, _fallBack);
-    
     _availabilityProvider = buildAvailabilityProvider();
   }
-
-  
   
   @Override
   public void addListener(MarketDataListener listener) {
@@ -62,19 +59,16 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
     checkListenerAttach();
   }
 
-
-
   private void checkListenerAttach() { 
     //TODO: dedupe with CombinedMarketDataProvider
     synchronized (_listenerLock) {
       boolean anyListeners = getListeners().size() > 0;
-
       if (anyListeners && !_listenerAttached) {
-        _preffered.addListener(_prefferedListener);
+        _preferred.addListener(_preferredListener);
         _fallBack.addListener(_fallBackListener);
         _listenerAttached = true;
       } else if (!anyListeners && _listenerAttached) {
-        _preffered.removeListener(_prefferedListener);
+        _preferred.removeListener(_preferredListener);
         _fallBack.removeListener(_fallBackListener);
         _listenerAttached = false;
       }
@@ -129,25 +123,37 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
     return _availabilityProvider;
   }
 
-
-
+  /**
+   * Creates an availability provider that combines results from the two providers.
+   * The availability status is:
+   * <ul> 
+   *  <li>AVAILABLE if either provider reports AVAILABLE
+   *  <li>MISSING if neither provider reports AVAILABLE, and at least one reports MISSING
+   *  <li>NOT_AVAILABLE if both providers report NOT_AVAILABLE
+   * </ul>
+   */
   private MarketDataAvailabilityProvider buildAvailabilityProvider() {
-    final MarketDataAvailabilityProvider prefProvider = _preffered.getAvailabilityProvider();
-    final MarketDataAvailabilityProvider fallbackProvider = _fallBack.getAvailabilityProvider();
     return new MarketDataAvailabilityProvider() {
 
+      private final MarketDataAvailabilityProvider _preferredProvider = _preferred.getAvailabilityProvider();
+      private final MarketDataAvailabilityProvider _fallbackProvider = _fallBack.getAvailabilityProvider();
+
       @Override
-      public boolean isAvailable(ValueRequirement requirement) {
-        if (prefProvider.isAvailable(requirement)) {
-          _providerByRequirement.put(requirement, _preffered);
-          return true;
-        } else if (fallbackProvider.isAvailable(requirement)) {
-          _providerByRequirement.put(requirement, _fallBack);
-          return true;
-        } else {
-          return false;
+      public MarketDataAvailability getAvailability(final ValueRequirement requirement) {
+        final MarketDataAvailability preferred = _preferredProvider.getAvailability(requirement);
+        if (preferred == MarketDataAvailability.AVAILABLE) {
+          // preferred is available
+          return preferred;
         }
+        final MarketDataAvailability fallback = _fallbackProvider.getAvailability(requirement);
+        if (fallback != MarketDataAvailability.NOT_AVAILABLE) {
+          // fallback is either available or missing
+          return fallback;
+        }
+        // preferred is either not available or missing
+        return preferred;
       }
+
     };
   }
 
@@ -198,14 +204,11 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
   @Override
   public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
     CombinedMarketDataSpecification combinedSpec = (CombinedMarketDataSpecification) marketDataSpec;
-    
     Map<MarketDataProvider, MarketDataSnapshot> snapByProvider = new HashMap<MarketDataProvider, MarketDataSnapshot>();
-    snapByProvider.put(_preffered, _preffered.snapshot(combinedSpec.getPrefferedSpecification()));
+    snapByProvider.put(_preferred, _preferred.snapshot(combinedSpec.getPrefferedSpecification()));
     snapByProvider.put(_fallBack, _fallBack.snapshot(combinedSpec.getFallbackSpecification()));
-    
-    MarketDataSnapshot prefferedSnap = snapByProvider.get(_preffered);
-    
-    return new CombinedMarketDataSnapshot(prefferedSnap, snapByProvider, this);
+    MarketDataSnapshot preferredSnap = snapByProvider.get(_preferred);
+    return new CombinedMarketDataSnapshot(preferredSnap, snapByProvider, this);
   }
   
   @Override
@@ -214,7 +217,7 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
       return false;
     }
     CombinedMarketDataSpecification combinedMarketDataSpec = (CombinedMarketDataSpecification) marketDataSpec;
-    return _preffered.isCompatible(combinedMarketDataSpec.getPrefferedSpecification())
+    return _preferred.isCompatible(combinedMarketDataSpec.getPrefferedSpecification())
         && _fallBack.isCompatible(combinedMarketDataSpec.getFallbackSpecification());
   }
 
@@ -238,9 +241,11 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
   public MarketDataProvider getProvider(ValueRequirement valueRequirement) {
     MarketDataProvider provider = _providerByRequirement.get(valueRequirement);
     if (provider == null) {
-      getAvailabilityProvider().isAvailable(valueRequirement);
+      // REVIEW 2011-11-02 andrew -- Is this call to getAvailability a poke to get some subscriptions to succeed? Or is it unnecessary?
+      getAvailabilityProvider().getAvailability(valueRequirement);
       provider = _providerByRequirement.get(valueRequirement);
     }
     return provider;
   }
+
 }
