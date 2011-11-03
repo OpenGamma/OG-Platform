@@ -10,28 +10,33 @@ import java.util.Collection;
 import com.opengamma.engine.value.ValueRequirement;
 
 /**
- * Indicates that market data is available if any of the underlyings claim that it is
+ * Indicates that market data is available if any of the underlyings claim that it is.
+ * If none of the underlying claim availability, but at least one claims a {@link MarketDataAvailability.MISSING}
+ * state, the market data is considered missing. Otherwise it is not available.
  */
 public class UnionMarketDataAvailabilityProvider implements MarketDataAvailabilityProvider {
 
   private final Collection<? extends MarketDataAvailabilityProvider> _underlyings;
   
-  
   /**
    * @param underlyings The availability providers to union
    */
   public UnionMarketDataAvailabilityProvider(Collection<? extends MarketDataAvailabilityProvider> underlyings) {
-    super();
     _underlyings = underlyings;
   }
 
   @Override
-  public boolean isAvailable(ValueRequirement requirement) {
+  public MarketDataAvailability getAvailability(ValueRequirement requirement) {
+    boolean missing = false;
     for (MarketDataAvailabilityProvider underlying : _underlyings) {
-      if (underlying.isAvailable(requirement)) {
-        return true;
+      switch (underlying.getAvailability(requirement)) {
+        case AVAILABLE:
+          return MarketDataAvailability.AVAILABLE;
+        case MISSING:
+          missing = true;
+          break;
       }
     }
-    return false;
+    return missing ? MarketDataAvailability.MISSING : MarketDataAvailability.NOT_AVAILABLE;
   }
 }
