@@ -105,7 +105,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
         }
         case FUTURE:
           // TODO: jim 17-Aug-2010 -- we need to sort out the zoned date time related to the expiry.
-          final FutureSecurity futureSecurity = getFuture(curveSpecification, strip);
+          final FutureSecurity futureSecurity = getFuture(strip);
           if (futureSecurity == null) {
             throw new OpenGammaRuntimeException("Could not resolve future curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
           }
@@ -259,7 +259,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
         marketValues.get(strip.getSecurity()) / 100, 1.0d, underlyingIdentifier);
   }
 
-  private FutureSecurity getFuture(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip) {
+  private FutureSecurity getFuture(final FixedIncomeStripWithIdentifier strip) {
     return (FutureSecurity) _secSource.getSecurity(ExternalIdBundle.of(strip.getSecurity()));
   }
 
@@ -377,8 +377,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   private TimeZone ensureZone(final TimeZone zone) {
     if (zone != null) {
       return zone;
-    } else {
-      return TimeZone.UTC;
-    }
+    } 
+    return TimeZone.UTC;
   }
 }

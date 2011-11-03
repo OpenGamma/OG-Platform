@@ -48,7 +48,7 @@ public class RemoteViewDefinitionRepository implements ViewDefinitionRepository 
    
   @SuppressWarnings("unchecked")
   @Override
-  public Set<UniqueId> getDefinitionIds() {
+  public Set<ObjectId> getDefinitionIds() {
     final URI uri = UriBuilder.fromUri(_baseUri).segment(DataViewDefinitionRepositoryResource.PATH_VIEWDEFINITION_GETIDS).build();
     return _client.access(uri).get((Set.class));
   }

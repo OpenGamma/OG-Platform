@@ -86,6 +86,7 @@ import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionCur
 import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionPresentValueVolatilitySensitivityFunction;
+import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionVegaFunction;
 import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionVegaQuoteFunction;
 import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionCurrencyExposureFunction;
@@ -552,6 +553,14 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction.class.getName(), 
         Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionVegaFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionVegaFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionVegaFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionVegaFunction.class.getName(), 
         Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionVegaQuoteFunction.class.getName(), 
         Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT")));
