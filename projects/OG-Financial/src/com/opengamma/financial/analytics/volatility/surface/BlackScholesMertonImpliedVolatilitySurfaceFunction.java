@@ -107,7 +107,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     }
     final ValueProperties.Builder props = createValueProperties((EquityOptionSecurity) target.getSecurity());
     final ViewCalculationConfiguration calcConfig = context.getViewCalculationConfiguration();
-    final Set<String> shifts = calcConfig.getDefaultProperties().getValues(VOLATILITY_SURFACE_SHIFT);
+    final Set<String> shifts = calcConfig == null ? null : calcConfig.getDefaultProperties().getValues(VOLATILITY_SURFACE_SHIFT);
     if (shifts != null) {
       if (shifts.size() != 1) {
         // This doesn't really mean much
