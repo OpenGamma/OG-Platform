@@ -69,7 +69,7 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
   @PropertyDefinition
   private String _externalIdValue;
   /**
-   * The date on which external identifiers must be valid.
+   * The date on which external identifiers must be valid, null to ignore identifier date limitations.
    */
   @PropertyDefinition
   private LocalDate _validityDate;
@@ -443,7 +443,7 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the date on which external identifiers must be valid.
+   * Gets the date on which external identifiers must be valid, null to ignore identifier date limitations.
    * @return the value of the property
    */
   public LocalDate getValidityDate() {
@@ -451,7 +451,7 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
   }
 
   /**
-   * Sets the date on which external identifiers must be valid.
+   * Sets the date on which external identifiers must be valid, null to ignore identifier date limitations.
    * @param validityDate  the new value of the property
    */
   public void setValidityDate(LocalDate validityDate) {

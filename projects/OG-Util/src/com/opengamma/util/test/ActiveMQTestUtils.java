@@ -8,9 +8,9 @@ package com.opengamma.util.test;
 import javax.jms.ConnectionFactory;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.util.jms.JmsConnector;
+import com.opengamma.util.jms.JmsConnectorFactoryBean;
 
 /**
  * Ensures that the Ivy configuration is sufficient to launch an in-memory ActiveMQ connection.
@@ -52,9 +52,11 @@ public class ActiveMQTestUtils {
    */
   public static JmsConnector createJmsConnector(String topicName) {
     ConnectionFactory cf = createTestConnectionFactory();
-    JmsTemplate template = new JmsTemplate(cf);
-    template.setPubSubDomain(true);
-    return new JmsConnector("Testing", template, topicName);
+    JmsConnectorFactoryBean factory = new JmsConnectorFactoryBean();
+    factory.setName("ActiveMQTestUtils");
+    factory.setConnectionFactory(cf);
+    factory.setTopicName(topicName);
+    return factory.createObject();
   }
 
 }

@@ -33,13 +33,17 @@ import com.opengamma.util.ArgumentChecker;
       new HashMap<ParameterizedFunction, Map<ComputationTarget, List<DependencyNode>>>();
   private final Set<DependencyNode> _graphNodes;
   private final Map<ValueRequirement, ValueSpecification> _resolvedValues;
-  private final ResolutionFailureVisitor _failureVisitor;
+  private ResolutionFailureVisitor _failureVisitor;
 
   public GetTerminalValuesCallback(final Set<DependencyNode> graphNodes, final Map<ValueRequirement, ValueSpecification> resolvedValues, final ResolutionFailureVisitor failureVisitor) {
     ArgumentChecker.notNull(graphNodes, "graphNodes");
     ArgumentChecker.notNull(resolvedValues, "resolvedValues");
     _graphNodes = graphNodes;
     _resolvedValues = resolvedValues;
+    _failureVisitor = failureVisitor;
+  }
+
+  public void setResolutionFailureVisitor(final ResolutionFailureVisitor failureVisitor) {
     _failureVisitor = failureVisitor;
   }
 
@@ -50,6 +54,7 @@ import com.opengamma.util.ArgumentChecker;
       if (_failureVisitor != null) {
         failure.accept(_failureVisitor);
       }
+      // TODO: check context settings; does the user want all of the failure information in the exceptions?
       context.exception(new UnsatisfiableDependencyGraphException(failure));
     } else {
       s_logger.warn("No failure state for {}", value);

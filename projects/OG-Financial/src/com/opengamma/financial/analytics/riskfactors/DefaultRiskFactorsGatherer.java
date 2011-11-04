@@ -22,6 +22,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
+import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.BondSecurity;
@@ -238,7 +239,10 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
       .add(getFXPresentValue())
       .add(getFXCurrencyExposure())
-      .add(getVegaMatrix(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")))
+      .add(getVegaMatrix(ValueProperties
+          .with(ValuePropertyNames.SURFACE, "DEFAULT")
+          .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
+          .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())))
       .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
       .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
       .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
@@ -263,7 +267,10 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
       .add(getYieldCurveNodeSensitivities(getFundingCurve(), ccy))
       .add(getYieldCurveNodeSensitivities(getForwardCurve(ccy), ccy))
       .add(getPresentValue(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")))
-      .add(getVegaMatrix(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT"))).build();
+      .add(getVegaMatrix(ValueProperties
+          .with(ValuePropertyNames.SURFACE, "DEFAULT")
+          .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurve())
+          .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurve(ccy)))).build();
   }
 
   @Override
@@ -402,7 +409,7 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   }
   
   private Pair<String, ValueProperties> getVegaMatrix(ValueProperties.Builder constraints) {
-    return getRiskFactor(ValueRequirementNames.VEGA_MATRIX, constraints, false);
+    return getRiskFactor(ValueRequirementNames.VEGA_QUOTE_MATRIX, constraints, false);
   }
   
   private Pair<String, ValueProperties> getPV01(String curveName) {

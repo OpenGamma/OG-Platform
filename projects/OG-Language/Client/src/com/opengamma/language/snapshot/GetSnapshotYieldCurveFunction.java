@@ -8,6 +8,7 @@ package com.opengamma.language.snapshot;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
@@ -21,7 +22,6 @@ import com.opengamma.language.error.InvokeInvalidArgumentException;
 import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
-import com.opengamma.util.money.Currency;
 
 /**
  * Retrieves a "yield curve" component of a snapshot
@@ -35,10 +35,13 @@ public class GetSnapshotYieldCurveFunction extends AbstractFunctionInvoker imple
 
   private final MetaFunction _meta;
 
+  private static final int SNAPSHOT = 0;
+  private static final int NAME = 1;
+
   private static List<MetaParameter> parameters() {
     return Arrays.asList(
         new MetaParameter("snapshot", JavaTypeInfo.builder(ManageableMarketDataSnapshot.class).get()),
-        new MetaParameter("name", JavaTypeInfo.builder(String.class).get()));
+        new MetaParameter("name", JavaTypeInfo.builder(String.class).allowNull().get()));
   }
 
   private GetSnapshotYieldCurveFunction(final DefinitionAnnotater info) {
@@ -51,28 +54,41 @@ public class GetSnapshotYieldCurveFunction extends AbstractFunctionInvoker imple
   }
 
   public static YieldCurveSnapshot invoke(final ManageableMarketDataSnapshot snapshot, final String name) {
-    final int underscore = name.indexOf('_');
-    if (underscore <= 0) {
-      throw new InvokeInvalidArgumentException(1, "Invalid curve name");
-    }
-    final String curveCurrency = name.substring(0, underscore);
-    final String curveName = name.substring(underscore + 1);
-    final YieldCurveKey key = new YieldCurveKey(Currency.of(curveCurrency), curveName);
-    if (snapshot.getYieldCurves() == null) {
-      throw new InvokeInvalidArgumentException(0, "Snapshot does not contain any curves");
+    final YieldCurveKey key = StructuredMarketDataSnapshotUtil.toYieldCurveKey(name);
+    if (key == null) {
+      throw new InvokeInvalidArgumentException(NAME, "Invalid curve name");
     }
     final YieldCurveSnapshot curveSnapshot = snapshot.getYieldCurves().get(key);
     if (curveSnapshot == null) {
-      throw new InvokeInvalidArgumentException(1, "Curve not found");
+      throw new InvokeInvalidArgumentException(NAME, "Curve not found");
     }
     return curveSnapshot;
+  }
+
+  public static String[] invoke(final ManageableMarketDataSnapshot snapshot) {
+    final Set<YieldCurveKey> keys = snapshot.getYieldCurves().keySet();
+    final String[] result = new String[keys.size()];
+    int i = 0;
+    for (YieldCurveKey key : keys) {
+      result[i++] = StructuredMarketDataSnapshotUtil.fromYieldCurveKey(key);
+    }
+    Arrays.sort(result);
+    return result;
   }
 
   // AbstractFunctionInvoker
 
   @Override
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
-    return invoke((ManageableMarketDataSnapshot) parameters[0], (String) parameters[1]);
+    final ManageableMarketDataSnapshot snapshot = (ManageableMarketDataSnapshot) parameters[SNAPSHOT];
+    if (snapshot.getYieldCurves() == null) {
+      throw new InvokeInvalidArgumentException(SNAPSHOT, "Snapshot does not contain any curves");
+    }
+    if (parameters[NAME] == null) {
+      return invoke(snapshot);
+    } else {
+      return invoke(snapshot, (String) parameters[NAME]);
+    }
   }
 
   // PublishedFunction

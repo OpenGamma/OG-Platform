@@ -22,6 +22,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.web.FreemarkerCustomRenderer;
 
 /**
  * RESTful resource for a version of a security.
@@ -72,6 +73,8 @@ public class WebSecurityVersionResource extends AbstractWebSecurityResource {
     out.put("securityDoc", versionedSecurity);
     out.put("security", versionedSecurity.getSecurity());
     out.put("deleted", !latestSecDoc.isLatest());
+    addSecuritySpecificMetaData(versionedSecurity.getSecurity(), out);
+    out.put("customRenderer", FreemarkerCustomRenderer.INSTANCE);
     return out;
   }
 

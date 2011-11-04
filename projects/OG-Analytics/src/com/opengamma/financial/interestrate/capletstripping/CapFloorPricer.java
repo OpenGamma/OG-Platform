@@ -85,4 +85,46 @@ public class CapFloorPricer {
     return BlackFormulaRepository.impliedVolatility(data, price);
   }
 
+  /**
+   * Gets the fwds.
+   * @return the fwds
+   */
+  protected double[] getForwards() {
+    return _fwds;
+  }
+
+  /**
+   * Gets the t.
+   * @return the t
+   */
+  protected double[] getExpiries() {
+    return _t;
+  }
+
+  /**
+   * Gets the df.
+   * @return the df
+   */
+  protected double[] getDiscountFactors() {
+    return _df;
+  }
+
+  /**
+   * Gets the k.
+   * @return the k
+   */
+  protected double getStrike() {
+    return _k;
+  }
+
+  /**
+   * Gets the n.
+   * @return the n
+   */
+  protected int getNumberCaplets() {
+    return _n;
+  }
+  
+  
+
 }

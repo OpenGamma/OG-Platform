@@ -10,11 +10,11 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
 import org.hsqldb.types.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +23,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
+import com.google.common.collect.Lists;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdSearch;
@@ -40,12 +41,13 @@ import com.opengamma.master.security.SecurityMetaDataRequest;
 import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.master.security.SecuritySearchSortOrder;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.paging.Paging;
 
 /**
@@ -99,6 +101,20 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
    * SQL select types.
    */
   protected static final String SELECT_TYPES = "SELECT DISTINCT main.sec_type AS sec_type FROM sec_security main";
+  /**
+   * SQL order by.
+   */
+  protected static final EnumMap<SecuritySearchSortOrder, String> ORDER_BY_MAP = new EnumMap<SecuritySearchSortOrder, String>(SecuritySearchSortOrder.class);
+  static {
+    ORDER_BY_MAP.put(SecuritySearchSortOrder.OBJECT_ID_ASC, "oid ASC");
+    ORDER_BY_MAP.put(SecuritySearchSortOrder.OBJECT_ID_DESC, "oid DESC");
+    ORDER_BY_MAP.put(SecuritySearchSortOrder.VERSION_FROM_INSTANT_ASC, "ver_from_instant ASC");
+    ORDER_BY_MAP.put(SecuritySearchSortOrder.VERSION_FROM_INSTANT_DESC, "ver_from_instant DESC");
+    ORDER_BY_MAP.put(SecuritySearchSortOrder.NAME_ASC, "name ASC");
+    ORDER_BY_MAP.put(SecuritySearchSortOrder.NAME_DESC, "name DESC");
+    ORDER_BY_MAP.put(SecuritySearchSortOrder.SECURITY_TYPE_ASC, "sec_type ASC");
+    ORDER_BY_MAP.put(SecuritySearchSortOrder.SECURITY_TYPE_DESC, "sec_type DESC");
+  }
 
   /**
    * The detail provider.
@@ -219,12 +235,13 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     where += sqlAdditionalWhere();
     
     String selectFromWhereInner = "SELECT sec_security.id FROM sec_security " +  where;
+    String orderBy = ORDER_BY_MAP.get(request.getSortOrder());
     SecurityMasterDetailProvider detailProvider = getDetailProvider();  // lock against change
     if (detailProvider != null) {
       selectFromWhereInner = detailProvider.extendSearch(request, args, "SELECT sec_security.id FROM sec_security ", where);
     }
-    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY sec_security.id ", request.getPagingRequest());
-    String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main.id" + sqlAdditionalOrderBy(false);
+    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY " + orderBy + " ", request.getPagingRequest());
+    String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main." + orderBy + sqlAdditionalOrderBy(false);
     String count = "SELECT COUNT(*) FROM sec_security " + where;
     return new String[] {search, count};
   }

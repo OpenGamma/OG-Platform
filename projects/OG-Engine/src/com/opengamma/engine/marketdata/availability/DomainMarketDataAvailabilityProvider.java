@@ -52,32 +52,31 @@ public class DomainMarketDataAvailabilityProvider implements MarketDataAvailabil
     _validMarketDataRequirementNames = new HashSet<String>(validMarketDataRequirementNames);
   }
 
-  //-------------------------------------------------------------------------
   @Override
-  public boolean isAvailable(ValueRequirement requirement) {
+  public MarketDataAvailability getAvailability(final ValueRequirement requirement) {
     if (!_validMarketDataRequirementNames.contains(requirement.getValueName())) {
-      return false;
+      return MarketDataAvailability.NOT_AVAILABLE;
     }
     switch (requirement.getTargetSpecification().getType()) {
       case PRIMITIVE: {
         ExternalScheme scheme = requirement.getTargetSpecification().getIdentifier().getScheme();
-        return _acceptableSchemes.contains(scheme);
+        return _acceptableSchemes.contains(scheme) ? MarketDataAvailability.AVAILABLE : MarketDataAvailability.NOT_AVAILABLE;
       }
       case SECURITY: {
         try {
           Security security = _securitySource.getSecurity(requirement.getTargetSpecification().getUniqueId());
           for (ExternalId identifier : security.getExternalIdBundle()) {
             if (_acceptableSchemes.contains(identifier.getScheme())) {
-              return true;
+              return MarketDataAvailability.AVAILABLE;
             }
           }
-          return false;
+          return MarketDataAvailability.NOT_AVAILABLE;
         } catch (DataNotFoundException ex) {
-          return false;
+          return MarketDataAvailability.NOT_AVAILABLE;
         }
       }
       default:
-        return false;
+        return MarketDataAvailability.NOT_AVAILABLE;
     }
   }
 

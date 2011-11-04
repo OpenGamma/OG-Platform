@@ -19,9 +19,8 @@
     <constructor-arg ref="activeMQConnectionFactory"/>
   </bean>
   <bean id="jmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean"> 
-    <property name="name" value="MasterChange"/>
+    <property name="name" value="Masters"/>
     <property name="connectionFactory" ref="jmsConnectionFactory"/>
-    <property name="pubSubDomain" value="true"/>
   </bean>
 
   <import resource="classpath:com/opengamma/financial/common.xml" />

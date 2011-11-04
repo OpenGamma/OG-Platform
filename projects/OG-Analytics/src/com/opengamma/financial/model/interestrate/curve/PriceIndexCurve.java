@@ -33,7 +33,7 @@ public class PriceIndexCurve {
   }
 
   /**
-   * Build a simple price index curve from known index and annual zero-coupon swap rates. The inflation coupon reference is a month are not interpolated. 
+   * Build a simple price index curve from known index and annual zero-coupon swap rates. The inflation coupon reference are exact month are not interpolated. 
    * No seasonality is used. The price index are interpolated linearly.
    * @param nodeTimeKnown The time to the known price index. Those time will typically be negative (the price index are published after month end).
    * @param indexKnown The value of the known index. The first one in the list is the one used in the swaps used for curve construction.

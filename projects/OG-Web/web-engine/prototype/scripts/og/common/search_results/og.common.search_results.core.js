@@ -37,7 +37,9 @@ $.register_module({
                                 name: (last && last.args.name) || '',
                                 quantity: (last && last.args.quantity) || '',
                                 type: (last && last.args.type) || '',
-                                filter: slick_manager.data[$(e.currentTarget).attr('row')].filter
+                                filter: slick_manager.data[$(e.currentTarget).attr('row')].filter,
+                                version: '',
+                                sync: ''
                             };
                         delete obj_url.node;
                         routes.go(routes.hash(
@@ -46,7 +48,7 @@ $.register_module({
 
                     grid.onViewportChanged.subscribe(function () {
                         clearTimeout(timer);
-                        timer = setTimeout(function () {filter($.extend(true, filters_obj, {filter: false}))}, 150);
+                        timer = setTimeout(function () {filter($.extend({}, filters_obj, {filter: false}))}, 150);
                     });
 
                     // Prepare grid for new data

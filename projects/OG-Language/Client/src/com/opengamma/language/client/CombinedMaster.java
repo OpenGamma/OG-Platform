@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.language.client.CombiningMaster.MasterID;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractMaster;
 import com.opengamma.master.AbstractSearchResult;

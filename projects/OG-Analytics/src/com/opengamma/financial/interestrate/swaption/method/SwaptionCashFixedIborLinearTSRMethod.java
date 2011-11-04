@@ -129,7 +129,7 @@ public class SwaptionCashFixedIborLinearTSRMethod implements PricingMethod {
       final double beta = sabrParameter.getBeta(expiryMaturity);
       final double rho = sabrParameter.getRho(expiryMaturity);
       final double nu = sabrParameter.getNu(expiryMaturity);
-      _sabrData = new SABRFormulaData(_forward, alpha, beta, nu, rho);
+      _sabrData = new SABRFormulaData(alpha, beta, rho, nu);
       _sabrFunction = sabrParameter.getSabrFunction();
       _isCall = swaption.isCall();
       _strike = swaption.getStrike();
@@ -186,7 +186,7 @@ public class SwaptionCashFixedIborLinearTSRMethod implements PricingMethod {
       }
       final double kp = _linear[0] * g + (_linear[0] * x + _linear[1]) * gp;
       final double kpp = 2 * _linear[0] * gp + (_linear[0] * x + _linear[1]) * gpp;
-      return new double[] {kp, kpp};
+      return new double[] {kp, kpp };
     }
 
     /**
@@ -196,7 +196,7 @@ public class SwaptionCashFixedIborLinearTSRMethod implements PricingMethod {
      */
     double bs(final double strike) {
       final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, _timeToExpiry, _isCall);
-      final Function1D<SABRFormulaData, Double> funcSabr = _sabrFunction.getVolatilityFunction(option);
+      final Function1D<SABRFormulaData, Double> funcSabr = _sabrFunction.getVolatilityFunction(option, _forward);
       final double volatility = funcSabr.evaluate(_sabrData);
       final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility);
       final Function1D<BlackFunctionData, Double> func = _blackFunction.getPriceFunction(option);

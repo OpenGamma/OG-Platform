@@ -9,7 +9,6 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -18,7 +17,6 @@ import java.util.concurrent.TimeUnit;
 import javax.time.Duration;
 import javax.time.Instant;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +30,6 @@ import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.ViewProcessImpl;
@@ -735,8 +732,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     if (compiledView == null) {
       return;
     }
-    Map<ValueRequirement, ValueSpecification> marketDataRequirements = compiledView.getMarketDataRequirements();
-    if (CollectionUtils.containsAny(marketDataRequirements.keySet(), values)) {
+    //Since this happens for every tick, for every job, we need to use the quick call here 
+    if (compiledView.hasAnyMarketDataRequirements(values)) {
       marketDataChanged();
     }
   }

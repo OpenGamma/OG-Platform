@@ -19,5 +19,5 @@ public interface VolatilityFunctionProvider<T> {
    * @param option The option, not null
    * @return Returns a function that, given data of type T, calculates the volatility
    */
-  Function1D<T, Double> getVolatilityFunction(EuropeanVanillaOption option);
+  Function1D<T, Double> getVolatilityFunction(final EuropeanVanillaOption option, final double forward);
 }

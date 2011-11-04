@@ -129,11 +129,35 @@ $.register_module({
             },
             default_details = og.views.common.default_details.partial(page_name, 'Securities', options),
             details_page = function (args) {
+                var layout = og.views.common.layout,
+                    setup_header_links = function () {
+                        var $version_link,
+                            rule = module.rules.load_securities;
+                        $version_link = $('<a>version history</a>')
+                            .addClass('OG-link-small og-js-version-link')
+                            .attr('href', routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}))
+                            .unbind('click').bind('click', function (e) {
+                                var layout = og.views.common.layout;
+                                if (!layout.inner.state.south.isClosed && args.version) {
+                                    e.preventDefault();
+                                    layout.inner.close('south');
+                                    routes.go(routes.hash(rule, args, {del: ['version']}));
+                                } else layout.inner.open('south');
+                            });
+                        $('.OG-js-header-links').empty().append($version_link);
+                    };
+                // if new page, close south panel
+                check_state({args: args, conditions: [{new_page: layout.inner.close.partial('south')}]});
+                // load versions
+                if (args.version) {
+                    layout.inner.open('south');
+                    og.views.common.versions.load();
+                } else layout.inner.close('south');
                 api.rest.securities.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var json = result.data, text_handler,
-                            security_type = json.template_data.securityType.toLowerCase(),
+                            security_type = json.template_data['securityType'].toLowerCase(),
                             template = module.name + '.' + security_type;
                         history.put({
                             name: json.template_data.name,
@@ -154,12 +178,12 @@ $.register_module({
                                 layout = og.views.common.layout, header, content,
                                 html = [], id, json_id = json.identifiers;
                             (function () {
-                                if (json.template_data.underlyingOid) {
-                                    var id = json.template_data.underlyingOid,
+                                if (json.template_data['underlyingOid']) {
+                                    var id = json.template_data['underlyingOid'],
                                         rule = module.rules.load_securities,
-                                        hash = routes.hash(rule, $.extend(true, routes.current().args, {id: id})),
-                                        text = json.template_data.underlyingExternalId,
-                                        anchor = '<a href="#' + hash + '">' + text + '</a>';
+                                        hash = routes.hash(rule, routes.current().args, {add: {id: id}}),
+                                        text = json.template_data['underlyingExternalId'],
+                                        anchor = '<a href="' + routes.prefix() + hash + '">' + text + '</a>';
                                         $html.find('.OG-js-underlying-id').html(anchor);
                                 }
                             }());
@@ -174,6 +198,7 @@ $.register_module({
                             content = $.outer($html.find('> section')[0]);
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
                             $('.ui-layout-inner-center .ui-layout-content').html(content);
+                            setup_header_links();
                             ui.toolbar(options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);
@@ -189,9 +214,8 @@ $.register_module({
                         }});
                     },
                     id: args.id,
-                    version: args.version,
+                    version: args.version && args.version !== '*' ? args.version : void 0,
                     loading: function () {
-                        if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions.load()}
                         ui.message({
                             location: '.ui-layout-inner-center',
                             message: {0: 'loading...', 3000: 'still loading...'}

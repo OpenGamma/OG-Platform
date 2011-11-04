@@ -25,12 +25,12 @@ public class SVIVolatilityFunctionTest {
   private static final double T = 1.5;
   private static final EuropeanVanillaOption OPTION = new EuropeanVanillaOption(K, T, true);
   private static final SVIVolatilityFunction F = new SVIVolatilityFunction();
-  private static final Function1D<SVIFormulaData, Double> VOL = F.getVolatilityFunction(OPTION);
+  private static final Function1D<SVIFormulaData, Double> VOL = F.getVolatilityFunction(OPTION, 0);
   private static final double EPS = 1e-12;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOption() {
-    F.getVolatilityFunction(null);
+    F.getVolatilityFunction(null, 0);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -43,7 +43,7 @@ public class SVIVolatilityFunctionTest {
   @Test
   public void testNoArbitrageNegativeVerticalSpread() {
     final double t = 4 / (B * (1 + Math.abs(RHO))) + 10;
-    F.getVolatilityFunction(new EuropeanVanillaOption(K, t, true)).evaluate(new SVIFormulaData(A, B, RHO, SIGMA, M));
+    F.getVolatilityFunction(new EuropeanVanillaOption(K, t, true), 0).evaluate(new SVIFormulaData(A, B, RHO, SIGMA, M));
   }
 
   @Test

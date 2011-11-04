@@ -8,6 +8,7 @@ package com.opengamma.language.snapshot;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
@@ -21,7 +22,6 @@ import com.opengamma.language.error.InvokeInvalidArgumentException;
 import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
-import com.opengamma.util.money.Currency;
 
 /**
  * Fetches a "volatility cube" component of a snapshot
@@ -35,10 +35,13 @@ public class GetSnapshotVolatilityCubeFunction extends AbstractFunctionInvoker i
 
   private final MetaFunction _meta;
 
+  private static final int SNAPSHOT = 0;
+  private static final int NAME = 1;
+
   private static List<MetaParameter> parameters() {
     return Arrays.asList(
         new MetaParameter("snapshot", JavaTypeInfo.builder(ManageableMarketDataSnapshot.class).get()),
-        new MetaParameter("name", JavaTypeInfo.builder(String.class).get()));
+        new MetaParameter("name", JavaTypeInfo.builder(String.class).allowNull().get()));
   }
 
   private GetSnapshotVolatilityCubeFunction(final DefinitionAnnotater info) {
@@ -51,28 +54,38 @@ public class GetSnapshotVolatilityCubeFunction extends AbstractFunctionInvoker i
   }
 
   public static VolatilityCubeSnapshot invoke(final ManageableMarketDataSnapshot snapshot, final String name) {
-    final int underscore = name.indexOf('_');
-    if (underscore <= 0) {
-      throw new InvokeInvalidArgumentException(1, "Invalid cube name");
-    }
-    final String cubeCurrency = name.substring(0, underscore);
-    final String cubeName = name.substring(underscore + 1);
-    final VolatilityCubeKey key = new VolatilityCubeKey(Currency.of(cubeCurrency), cubeName);
-    if (snapshot.getVolatilityCubes() == null) {
-      throw new InvokeInvalidArgumentException(0, "No cubes in snapshot");
+    final VolatilityCubeKey key = StructuredMarketDataSnapshotUtil.toVolatilityCubeKey(name);
+    if (key == null) {
+      throw new InvokeInvalidArgumentException(NAME, "Invalid cube name");
     }
     final VolatilityCubeSnapshot cubeSnapshot = snapshot.getVolatilityCubes().get(key);
     if (cubeSnapshot == null) {
-      throw new InvokeInvalidArgumentException(1, "Cube not found in snapshot");
+      throw new InvokeInvalidArgumentException(NAME, "Cube not found in snapshot");
     }
     return cubeSnapshot;
+  }
+
+  public static String[] invoke(final ManageableMarketDataSnapshot snapshot) {
+    final Set<VolatilityCubeKey> keys = snapshot.getVolatilityCubes().keySet();
+    final String[] result = new String[keys.size()];
+    int i = 0;
+    for (VolatilityCubeKey key : keys) {
+      result[i++] = StructuredMarketDataSnapshotUtil.fromVolatilityCubeKey(key);
+    }
+    Arrays.sort(result);
+    return result;
   }
 
   // AbstractFunctionInvoker
 
   @Override
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
-    return invoke((ManageableMarketDataSnapshot) parameters[0], (String) parameters[1]);
+    final ManageableMarketDataSnapshot snapshot = (ManageableMarketDataSnapshot) parameters[SNAPSHOT];
+    if (parameters[NAME] == null) {
+      return invoke(snapshot);
+    } else {
+      return invoke(snapshot, (String) parameters[NAME]);
+    }
   }
 
   // PublishedFunction

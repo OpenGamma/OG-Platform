@@ -22,6 +22,7 @@ import com.opengamma.language.config.MarketDataOverride;
 import com.opengamma.language.config.ValueProperty;
 import com.opengamma.language.config.ViewCalculationRate;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
@@ -52,7 +53,7 @@ public class ConfigureViewClientProcedure extends AbstractProcedureInvoker.NoRes
 
   private ConfigureViewClientProcedure(final DefinitionAnnotater info) {
     super(info.annotate(parameters()));
-    _meta = info.annotate(new MetaProcedure("ConfigureViewClient", getParameters(), this));
+    _meta = info.annotate(new MetaProcedure(Categories.VIEW, "ConfigureViewClient", getParameters(), this));
   }
 
   protected ConfigureViewClientProcedure() {

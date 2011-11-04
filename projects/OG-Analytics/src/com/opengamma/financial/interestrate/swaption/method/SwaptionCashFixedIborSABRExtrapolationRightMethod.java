@@ -86,8 +86,8 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethod {
       final double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
       final double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
       final double nu = sabrData.getSABRParameter().getNu(expiryMaturity);
-      final SABRFormulaData sabrParam = new SABRFormulaData(forward, alpha, beta, nu, rho);
-      final SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(sabrParam, _cutOffStrike, swaption.getTimeToExpiry(), _mu);
+      final SABRFormulaData sabrParam = new SABRFormulaData(alpha, beta, rho, nu);
+      final SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrParam, _cutOffStrike, swaption.getTimeToExpiry(), _mu);
       price = discountFactorSettle * pvbp * sabrExtrapolation.price(swaption) * (swaption.isLong() ? 1.0 : -1.0);
     }
     return price;
@@ -124,8 +124,8 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethod {
     final double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
     final double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
     final double nu = sabrData.getSABRParameter().getNu(expiryMaturity);
-    final SABRFormulaData sabrParam = new SABRFormulaData(forward, alpha, beta, nu, rho);
-    final SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(sabrParam, _cutOffStrike, swaption.getTimeToExpiry(), _mu);
+    final SABRFormulaData sabrParam = new SABRFormulaData(alpha, beta, rho, nu);
+    final SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrParam, _cutOffStrike, swaption.getTimeToExpiry(), _mu);
     final double price = sabrExtrapolation.price(swaption);
     result = result.multiply(pvbp * price);
     result = result.add(forwardDr.multiply(discountFactorSettle * (pvbpDf * price + pvbp * sabrExtrapolation.priceDerivativeForward(swaption))));
@@ -155,8 +155,8 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethod {
     final double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
     final double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
     final double nu = sabrData.getSABRParameter().getNu(expiryMaturity);
-    final SABRFormulaData sabrParam = new SABRFormulaData(forward, alpha, beta, nu, rho);
-    final SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(sabrParam, _cutOffStrike, swaption.getTimeToExpiry(), _mu);
+    final SABRFormulaData sabrParam = new SABRFormulaData(alpha, beta, rho, nu);
+    final SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrParam, _cutOffStrike, swaption.getTimeToExpiry(), _mu);
     final double[] priceDSabr = new double[3];
     sabrExtrapolation.priceAdjointSABR(swaption, priceDSabr);
     final double omega = (swaption.isLong() ? 1.0 : -1.0);

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.core.change.ChangeProvider;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 
 /**
@@ -24,7 +25,7 @@ public interface ViewDefinitionRepository extends ChangeProvider {
    * 
    * @return the definition Ids, not null
    */
-  Set<UniqueId> getDefinitionIds();
+  Set<ObjectId> getDefinitionIds();
     
   /**
    * Returns the current set of ViewId/ViewName pairs

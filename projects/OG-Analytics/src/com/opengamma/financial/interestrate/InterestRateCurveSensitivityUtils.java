@@ -146,8 +146,7 @@ public class InterestRateCurveSensitivityUtils {
   }
 
   //TODO smarter way to do this?
-  public static Map<String, List<DoublesPair>> addSensitivity(final Map<String, List<DoublesPair>> sensi1, final Map<String, List<DoublesPair>> sensi2,
-      final Map<String, List<DoublesPair>> sensi3) {
+  public static Map<String, List<DoublesPair>> addSensitivity(final Map<String, List<DoublesPair>> sensi1, final Map<String, List<DoublesPair>> sensi2, final Map<String, List<DoublesPair>> sensi3) {
     return addSensitivity(addSensitivity(sensi1, sensi2), sensi3);
   }
 

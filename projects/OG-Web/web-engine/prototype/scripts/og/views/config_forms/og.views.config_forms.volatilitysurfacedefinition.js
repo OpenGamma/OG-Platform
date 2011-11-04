@@ -13,7 +13,7 @@ $.register_module({
             INDX = '<INDEX>';
         return og.views.config_forms['default'].preload({
             type: 'com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition',
-            meta: [
+            type_map: [
                 ['0',                                           Form.type.STR],
                 ['currency',                                    Form.type.STR],
                 ['name',                                        Form.type.STR],

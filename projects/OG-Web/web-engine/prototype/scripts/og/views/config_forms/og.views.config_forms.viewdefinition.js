@@ -39,7 +39,7 @@ $.register_module({
                 master = config.data.template_data.configJSON.data,
                 column_set_tabs,
                 config_type = 'com.opengamma.engine.view.ViewDefinition',
-                meta_map = [
+                type_map = [
                     ['0',                                                                           Form.type.STR],
                     // <constraints>
                     [[SETS, INDX, DEFP, WITH, '*'].join('.'),                                       Form.type.IND],
@@ -89,7 +89,7 @@ $.register_module({
                 form = new Form({
                     module: 'og.views.forms.view-definition',
                     data: master,
-                    meta: meta_map,
+                    type_map: type_map,
                     selector: selector,
                     extras: {name: master.name},
                     processor: function (data) { // remove undefineds that we added
@@ -113,7 +113,7 @@ $.register_module({
                     if (!deleted && !is_new && as_new && (orig_name === data.name))
                         return window.alert('Please select a new name.');
                     api.configs.put({
-                        id: as_new ? undefined : resource_id,
+                        id: as_new ? void 0 : resource_id,
                         name: data.name,
                         json: JSON.stringify({data: data, meta: meta}),
                         type: config_type,

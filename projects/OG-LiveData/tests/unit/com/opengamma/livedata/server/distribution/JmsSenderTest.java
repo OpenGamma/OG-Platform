@@ -43,7 +43,6 @@ public class JmsSenderTest {
     JmsConnectorFactoryBean jmsFactory= new JmsConnectorFactoryBean();
     jmsFactory.setName(getClass().getSimpleName());
     jmsFactory.setConnectionFactory(cf);
-    jmsFactory.setPubSubDomain(true);
     JmsConnector jmsConnector = jmsFactory.createObject();
     
     _factory = new JmsSenderFactory(jmsConnector);

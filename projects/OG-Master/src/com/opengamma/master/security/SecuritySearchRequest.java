@@ -76,6 +76,11 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   @PropertyDefinition
   private String _securityType;
   /**
+   * The sort order to use.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private SecuritySearchSortOrder _sortOrder = SecuritySearchSortOrder.OBJECT_ID_ASC;
+  /**
    * The depth of security data to return.
    * False will only return the basic information held in the {@code ManageableSecurity} class.
    * True will load the full security subclass for each returned security.
@@ -245,6 +250,8 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
         return getName();
       case 808245914:  // securityType
         return getSecurityType();
+      case -26774448:  // sortOrder
+        return getSortOrder();
       case -1233600576:  // fullDetail
         return isFullDetail();
     }
@@ -270,11 +277,20 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
       case 808245914:  // securityType
         setSecurityType((String) newValue);
         return;
+      case -26774448:  // sortOrder
+        setSortOrder((SecuritySearchSortOrder) newValue);
+        return;
       case -1233600576:  // fullDetail
         setFullDetail((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_sortOrder, "sortOrder");
+    super.validate();
   }
 
   @Override
@@ -289,6 +305,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
           JodaBeanUtils.equal(getExternalIdValue(), other.getExternalIdValue()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getSecurityType(), other.getSecurityType()) &&
+          JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
           JodaBeanUtils.equal(isFullDetail(), other.isFullDetail()) &&
           super.equals(obj);
     }
@@ -303,6 +320,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdValue());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
     hash += hash * 31 + JodaBeanUtils.hashCode(isFullDetail());
     return hash ^ super.hashCode();
   }
@@ -443,6 +461,32 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the sort order to use.
+   * @return the value of the property, not null
+   */
+  public SecuritySearchSortOrder getSortOrder() {
+    return _sortOrder;
+  }
+
+  /**
+   * Sets the sort order to use.
+   * @param sortOrder  the new value of the property, not null
+   */
+  public void setSortOrder(SecuritySearchSortOrder sortOrder) {
+    JodaBeanUtils.notNull(sortOrder, "sortOrder");
+    this._sortOrder = sortOrder;
+  }
+
+  /**
+   * Gets the the {@code sortOrder} property.
+   * @return the property, not null
+   */
+  public final Property<SecuritySearchSortOrder> sortOrder() {
+    return metaBean().sortOrder().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the depth of security data to return.
    * False will only return the basic information held in the {@code ManageableSecurity} class.
    * True will load the full security subclass for each returned security.
@@ -512,6 +556,11 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     private final MetaProperty<String> _securityType = DirectMetaProperty.ofReadWrite(
         this, "securityType", SecuritySearchRequest.class, String.class);
     /**
+     * The meta-property for the {@code sortOrder} property.
+     */
+    private final MetaProperty<SecuritySearchSortOrder> _sortOrder = DirectMetaProperty.ofReadWrite(
+        this, "sortOrder", SecuritySearchRequest.class, SecuritySearchSortOrder.class);
+    /**
      * The meta-property for the {@code fullDetail} property.
      */
     private final MetaProperty<Boolean> _fullDetail = DirectMetaProperty.ofReadWrite(
@@ -526,6 +575,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
         "externalIdValue",
         "name",
         "securityType",
+        "sortOrder",
         "fullDetail");
 
     /**
@@ -547,6 +597,8 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
           return _name;
         case 808245914:  // securityType
           return _securityType;
+        case -26774448:  // sortOrder
+          return _sortOrder;
         case -1233600576:  // fullDetail
           return _fullDetail;
       }
@@ -607,6 +659,14 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<String> securityType() {
       return _securityType;
+    }
+
+    /**
+     * The meta-property for the {@code sortOrder} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<SecuritySearchSortOrder> sortOrder() {
+      return _sortOrder;
     }
 
     /**

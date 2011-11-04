@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
 import net.sf.ehcache.Cache;
@@ -73,6 +74,10 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
    * The cache.
    */
   private final Cache _cache;
+  /**
+   * The clock.
+   */
+  private final Clock _clock = Clock.systemDefaultZone();  // TODO: TIMEZONE
 
   /**
    * Creates an instance.
@@ -136,6 +141,15 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     return _cache.getCacheManager();
   }
 
+  /**
+   * Gets the clock.
+   * 
+   * @return the clock, not null
+   */
+  public Clock getClock() {
+    return _clock;
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId) {
@@ -169,7 +183,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       ExternalIdBundle identifiers, String dataSource, String dataProvider, String dataField) {
-    return getHistoricalTimeSeries(identifiers, (LocalDate) null, dataSource, dataProvider, dataField);
+    return getHistoricalTimeSeries(identifiers, LocalDate.now(getClock()), dataSource, dataProvider, dataField);
   }
 
   @Override
@@ -201,7 +215,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       ExternalIdBundle identifiers, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean includeStart, LocalDate end, boolean includeEnd) {
     return getHistoricalTimeSeries(
-        identifiers, (LocalDate) null, dataSource, dataProvider, dataField,
+        identifiers, LocalDate.now(getClock()), dataSource, dataProvider, dataField,
         start, includeStart, end, includeEnd);
   }
 
@@ -217,7 +231,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifierBundle, String resolutionKey) {
-    return getHistoricalTimeSeries(dataField, identifierBundle, null, resolutionKey);
+    return getHistoricalTimeSeries(dataField, identifierBundle, LocalDate.now(getClock()), resolutionKey);
   }
 
   @Override
@@ -249,7 +263,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifierBundle, String resolutionKey, 
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-    return getHistoricalTimeSeries(dataField, identifierBundle, (LocalDate) null, resolutionKey, start, includeStart, end, includeEnd);
+    return getHistoricalTimeSeries(dataField, identifierBundle, LocalDate.now(getClock()), resolutionKey, start, includeStart, end, includeEnd);
   }
 
   /*

@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -59,6 +60,7 @@ public final class DependencyGraphBuilder {
   private static final Logger s_loggerContext = LoggerFactory.getLogger(GraphBuildingContext.class);
 
   private static final AtomicInteger s_nextObjectId = new AtomicInteger();
+  private static final AtomicInteger s_nextJobId = new AtomicInteger();
 
   private static final boolean NO_BACKGROUND_THREADS = false; // DON'T CHECK IN WITH =true
   private static final int MAX_ADDITIONAL_THREADS = -1; // DON'T CHECK IN WITH !=-1
@@ -90,17 +92,41 @@ public final class DependencyGraphBuilder {
       }
     }
 
+    private synchronized List<ResolveTask> takeTasks() {
+      final List<ResolveTask> tasks = new ArrayList<ResolveTask>(_tasks);
+      _tasks.clear();
+      return tasks;
+    }
+
     @Override
     protected void finished(final GraphBuildingContext context) {
       assert getPendingTasks() == 0;
+      boolean useFallback = false;
       ResolveTask fallback;
       synchronized (this) {
         fallback = _fallback;
-        _fallback = null;
+        if (fallback == null) {
+          // REVIEW andrew 2011-11-01 -- Is this logic correct? I think we only need the fallback if ALL tasks hit the
+          // recursion constraint. As long as one of the tasks ran to completion without hitting the constraint then
+          // the productions from that task should be sufficient to this caller - so no fallback is required.
+          for (ResolveTask task : _tasks) {
+            if (task.wasRecursionDetected()) {
+              // Only use the fallback task if one of the feeder tasks detected a value requirement loop
+              s_loggerResolver.debug("Using fallback task after recursion failure of {}", task);
+              useFallback = true;
+              break;
+            }
+          }
+        } else {
+          _fallback = null;
+        }
       }
-      if (fallback == null) {
+      if ((fallback == null) && useFallback) {
         fallback = context.getOrCreateTaskResolving(getValueRequirement(), _parentTask);
-        if (_tasks.add(fallback)) {
+        synchronized (this) {
+          useFallback = _tasks.add(fallback);
+        }
+        if (useFallback) {
           fallback.addRef();
           s_loggerResolver.debug("Creating fallback task {}", fallback);
           synchronized (this) {
@@ -122,7 +148,7 @@ public final class DependencyGraphBuilder {
         fallback.release(context);
       }
       // Release any other tasks
-      for (ResolveTask task : _tasks) {
+      for (ResolveTask task : takeTasks()) {
         task.release(context);
       }
     }
@@ -146,6 +172,10 @@ public final class DependencyGraphBuilder {
           s_loggerContext.debug("Discarding unfinished fallback task {} by {}", fallback, this);
           context.discardUnfinishedTask(fallback);
           fallback.release(context);
+        }
+        // Release any other tasks
+        for (ResolveTask task : takeTasks()) {
+          task.release(context);
         }
       }
       return count;
@@ -339,6 +369,7 @@ public final class DependencyGraphBuilder {
     public ResolvedValueProducer resolveRequirement(final ValueRequirement requirement, final ResolveTask dependent) {
       s_loggerResolver.debug("Resolve requirement {}", requirement);
       if ((dependent != null) && dependent.hasParent(requirement)) {
+        dependent.setRecursionDetected();
         s_loggerResolver.debug("Can't introduce a ValueRequirement loop");
         return new ResolvedValueProducer() {
 
@@ -489,6 +520,19 @@ public final class DependencyGraphBuilder {
       return result;
     }
 
+    public void discardTaskProducing(final ValueSpecification valueSpecification, final ResolveTask task) {
+      final ResolvedValueProducer producer;
+      synchronized (_specifications) {
+        final Map<ResolveTask, ResolvedValueProducer> tasks = _specifications.get(valueSpecification);
+        producer = tasks.remove(task);
+        if (producer == null) {
+          // Wasn't in the set
+          return;
+        }
+      }
+      producer.release(this);
+    }
+
     // Collation
 
     private synchronized void mergeThreadContext(final GraphBuildingContext context) {
@@ -519,6 +563,9 @@ public final class DependencyGraphBuilder {
     }
 
     private void reportStateSize() {
+      if (!s_loggerContext.isInfoEnabled()) {
+        return;
+      }
       synchronized (_requirements) {
         int count = 0;
         for (Map<ResolveTask, ResolveTask> entries : _requirements.values()) {
@@ -533,6 +580,9 @@ public final class DependencyGraphBuilder {
         }
         s_loggerContext.info("Specifications cache = {} tasks for {} specifications", count, _specifications.size());
       }
+      //final Runtime rt = Runtime.getRuntime();
+      //rt.gc();
+      //s_loggerContext.info("Used memory = {}M", (double) (rt.totalMemory() - rt.freeMemory()) / 1e6);
     }
 
   };
@@ -546,7 +596,7 @@ public final class DependencyGraphBuilder {
   private final GraphBuildingContext _context = new GraphBuildingContext();
   private final AtomicLong _completedSteps = new AtomicLong();
   private final AtomicLong _scheduledSteps = new AtomicLong();
-  private final ResolvedValueCallback _getTerminalValuesCallback = new GetTerminalValuesCallback(_graphNodes, _terminalOutputs,
+  private final GetTerminalValuesCallback _getTerminalValuesCallback = new GetTerminalValuesCallback(_graphNodes, _terminalOutputs,
       DEBUG_DUMP_FAILURE_INFO ? new ResolutionFailurePrinter(openDebugStream("resolutionFailure")) : ResolutionFailureVisitor.DEFAULT_INSTANCE);
   private final Executor _executor;
 
@@ -660,6 +710,16 @@ public final class DependencyGraphBuilder {
     ArgumentChecker.isTrue(maxAdditionalThreads >= 0, "maxAdditionalThreads");
     _maxAdditionalThreads = maxAdditionalThreads;
     startBackgroundBuild();
+  }
+
+  /**
+   * Sets the visitor to receive resolution failures. If not set, a synthetic exception is created for
+   * each failure in the miscellaneous exception set.
+   * 
+   * @param failureVisitor the visitor to use, or null to create synthetic exceptions
+   */
+  public void setResolutionFailureVisitor(final ResolutionFailureVisitor failureVisitor) {
+    _getTerminalValuesCallback.setResolutionFailureVisitor(failureVisitor);
   }
 
   protected void checkInjectedInputs() {
@@ -807,6 +867,7 @@ public final class DependencyGraphBuilder {
    */
   protected final class Job implements Runnable, Cancelable {
 
+    private final int _objectId = s_nextJobId.incrementAndGet();
     private volatile boolean _poison;
 
     private Job() {
@@ -814,10 +875,11 @@ public final class DependencyGraphBuilder {
 
     @Override
     public void run() {
-      s_loggerBuilder.info("Building job started for {}", DependencyGraphBuilder.this);
+      s_loggerBuilder.info("Building job {} started for {}", _objectId, DependencyGraphBuilder.this);
       boolean jobsLeftToRun;
       int completed = 0;
       do {
+        s_loggerBuilder.info("Build fraction = {}", estimateBuildFraction());
         // Create a new context for each logical block so that an exception from the build won't leave us with
         // an inconsistent context.
         final GraphBuildingContext context = new GraphBuildingContext(getContext());
@@ -852,7 +914,7 @@ public final class DependencyGraphBuilder {
       synchronized (_activeJobs) {
         _activeJobs.remove(this);
       }
-      s_loggerBuilder.info("{} building job stopped after {} operations", this, completed);
+      s_loggerBuilder.info("Building job {} stopped after {} operations", _objectId, completed);
     }
 
     @Override
@@ -967,6 +1029,7 @@ public final class DependencyGraphBuilder {
     }
     // TODO: need a better metric here; need to somehow predict/project the eventual number of "scheduled" steps
     s_loggerBuilder.info("Completed {} of {} scheduled steps", completed, scheduled);
+    getContext().reportStateSize();
     return (double) completed / (double) scheduled;
   }
 

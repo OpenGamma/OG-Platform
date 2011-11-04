@@ -23,9 +23,13 @@ public class JmsConnector {
    */
   private final String _name;
   /**
-   * The JMS template.
+   * The JMS template for topic-based messaging.
    */
-  private final JmsTemplate _jmsTemplate;
+  private final JmsTemplate _jmsTemplateTopic;
+  /**
+   * The JMS template for queue-based messaging.
+   */
+  private final JmsTemplate _jmsTemplateQueue;
   /**
    * The topic name.
    */
@@ -35,14 +39,17 @@ public class JmsConnector {
    * Creates an instance.
    * 
    * @param name  the configuration name, not null
-   * @param jmsTemplate  the JMS Spring template, not null
+   * @param jmsTemplateTopic  the JMS Spring template for topic-based messaging, not null
+   * @param jmsTemplateQueue  the JMS Spring template for queue-based messaging, not null
    * @param topicName  the topic name, null if left up to the application
    */
-  public JmsConnector(String name, JmsTemplate jmsTemplate, String topicName) {
+  public JmsConnector(String name, JmsTemplate jmsTemplateTopic, JmsTemplate jmsTemplateQueue, String topicName) {
     ArgumentChecker.notNull(name, "name");
-    ArgumentChecker.notNull(jmsTemplate, "jmsTemplate");
+    ArgumentChecker.notNull(jmsTemplateTopic, "jmsTemplateTopic");
+    ArgumentChecker.notNull(jmsTemplateQueue, "jmsTemplateQueue");
     _name = name;
-    _jmsTemplate = jmsTemplate;
+    _jmsTemplateTopic = jmsTemplateTopic;
+    _jmsTemplateQueue = jmsTemplateQueue;
     _topicName = topicName;
   }
 
@@ -60,23 +67,35 @@ public class JmsConnector {
   /**
    * Gets the JMS connection factory.
    * <p>
+   * This extracts the factory of the topic template, which should be the same as that of the queue template.
    * This is shared between all users of this object and must not be further configured.
    * 
    * @return the JMS connection factory, may be null
    */
   public ConnectionFactory getConnectionFactory() {
-    return _jmsTemplate.getConnectionFactory();
+    return _jmsTemplateTopic.getConnectionFactory();
   }
 
   /**
-   * Gets the shared JMS template.
+   * Gets the shared JMS template for topic-based messaging.
    * <p>
    * This is shared between all users of this object and must not be further configured.
    * 
-   * @return the JMS template, null if the session factory is null
+   * @return the JMS template for topic-based messaging, null if not setup by configuration
    */
-  public JmsTemplate getJmsTemplate() {
-    return _jmsTemplate;
+  public JmsTemplate getJmsTemplateTopic() {
+    return _jmsTemplateTopic;
+  }
+
+  /**
+   * Gets the shared JMS template for queue-based messaging.
+   * <p>
+   * This is shared between all users of this object and must not be further configured.
+   * 
+   * @return the JMS template for queue-based messaging, null if not setup by configuration
+   */
+  public JmsTemplate getJmsTemplateQueue() {
+    return _jmsTemplateQueue;
   }
 
   //-------------------------------------------------------------------------
@@ -96,7 +115,7 @@ public class JmsConnector {
    * @return a copy of this connector with the new topic name, not null
    */
   public JmsConnector withTopicName(String topicName) {
-    return new JmsConnector(_name, _jmsTemplate, topicName);
+    return new JmsConnector(_name, _jmsTemplateTopic, _jmsTemplateQueue, topicName);
   }
 
   //-------------------------------------------------------------------------
