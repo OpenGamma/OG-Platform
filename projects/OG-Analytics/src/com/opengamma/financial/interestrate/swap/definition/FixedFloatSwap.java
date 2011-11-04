@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate.swap.definition;
 
+import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
@@ -31,14 +32,16 @@ public class FixedFloatSwap extends FixedCouponSwap<CouponIbor> {
    * @param currency The payment currency.
    * @param fixedPaymentTimes Time in years of fixed payments 
    * @param floatingPaymentTimes  Time in Years of floating payments
+   * @param index TODO
    * @param couponRate fixed rate paid on the notional amount on fixed payment dates (amount paid is notional*rate*yearFraction)
    * @param fundingCurveName  Name of curve from which payments are discounted
    * @param liborCurveName Name of curve from which forward rates are calculated
    * @param isPayer whether the swap is a payer (i.e. pay the fixed leg)
    */
-  public FixedFloatSwap(Currency currency, final double[] fixedPaymentTimes, final double[] floatingPaymentTimes, final double couponRate, final String fundingCurveName, final String liborCurveName,
-      boolean isPayer) {
-    this(new AnnuityCouponFixed(currency, fixedPaymentTimes, couponRate, fundingCurveName, isPayer), new AnnuityCouponIbor(currency, floatingPaymentTimes, fundingCurveName, liborCurveName, !isPayer));
+  public FixedFloatSwap(Currency currency, final double[] fixedPaymentTimes, final double[] floatingPaymentTimes, IborIndex index, final double couponRate, final String fundingCurveName,
+      final String liborCurveName, boolean isPayer) {
+    this(new AnnuityCouponFixed(currency, fixedPaymentTimes, couponRate, fundingCurveName, isPayer), new AnnuityCouponIbor(currency, floatingPaymentTimes, index, fundingCurveName, liborCurveName,
+        !isPayer));
   }
 
   public AnnuityCouponIbor getFloatingLeg() {
