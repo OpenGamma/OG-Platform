@@ -240,7 +240,7 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
       .add(getFXPresentValue())
       .add(getFXCurrencyExposure())
       .add(getVegaMatrix(ValueProperties
-          .with(ValuePropertyNames.SURFACE, "DEFAULT")
+          .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
           .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
           .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())))
       .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
