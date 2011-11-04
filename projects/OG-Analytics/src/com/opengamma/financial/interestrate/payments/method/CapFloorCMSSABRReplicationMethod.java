@@ -120,6 +120,8 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     final double absoluteTolerance = 1.0 / (discountFactor * Math.abs(cmsCapFloor.getNotional()) * cmsCapFloor.getPaymentYearFraction());
     final double relativeTolerance = 1E-2;
     final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, _nbIteration);
+    // TODO: replace the integrator by an integrator that does not used the limits (open end). Recorded as [PLAT-1679].
+    // TODO: replace the integrator by an integrator that accept infinite interval (for the upper limit of cap).
     double integralPart;
     try {
       if (cmsCapFloor.isCap()) {
