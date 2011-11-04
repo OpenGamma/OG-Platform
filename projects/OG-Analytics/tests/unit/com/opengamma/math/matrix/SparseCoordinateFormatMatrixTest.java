@@ -17,7 +17,12 @@ public class SparseCoordinateFormatMatrixTest {
   double[] expectedData = {1.0,2.0,3.0,4.0,5.0,6.0,7.0};
   int[] expectedX = {0,0,1,1,2,2,3};
   int[] expectedY = {0,1,0,2,1,2,2};
-
+  
+  // for testing construction from coord "vectors"
+  int [] xdata = {0,1,0,2,1,2,2};
+  int [] ydata = {0,0,1,1,2,2,3};
+  double [] valuedata = {1,2,3,4,5,6,7};
+  
   // test constructors
 
   @Test
@@ -25,13 +30,78 @@ public class SparseCoordinateFormatMatrixTest {
     new SparseCoordinateFormatMatrix(data);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullConstructorDoubleArrays() {
+    double[][] broken = null;
+    new SparseCoordinateFormatMatrix(broken);
+  }  
+  
   @Test
   public void testConstructorDoubleMatrix2D() {
     DoubleMatrix2D tmp = new DoubleMatrix2D(data);
     new SparseCoordinateFormatMatrix(tmp);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullDM2DConstructorDoubleArrays() {
+    DoubleMatrix2D broken = null;
+    new SparseCoordinateFormatMatrix(broken);
+  }    
+  
+  @Test
+  public void testConstructorCoordMatrix(){
+    new SparseCoordinateFormatMatrix(xdata,ydata,valuedata,ydata.length,xdata.length);
+  }
+  
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testConstructorNullXCoordMatrix(){
+    int[] tmp=null;
+    new SparseCoordinateFormatMatrix(tmp,ydata,valuedata,ydata.length,xdata.length);
+  }    
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testConstructorNullYCoordMatrix(){
+    int[] tmp=null;
+    new SparseCoordinateFormatMatrix(xdata,tmp,valuedata,ydata.length,xdata.length);
+  }      
+  
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testConstructorNullValuesCoordMatrix(){
+    double[] tmp=null;
+    new SparseCoordinateFormatMatrix(xdata,ydata,tmp,ydata.length,xdata.length);
+  }      
+  
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testBrokenDataConstructor1CoordMatrix(){
+    new SparseCoordinateFormatMatrix(Arrays.copyOfRange(xdata, 0, xdata.length-2),ydata,valuedata,ydata.length,xdata.length);
+  }  
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testBrokenDataConstructor2CoordMatrix(){
+    new SparseCoordinateFormatMatrix(Arrays.copyOfRange(xdata, 0, xdata.length-2),Arrays.copyOfRange(ydata, 0, ydata.length-2),valuedata,ydata.length,xdata.length);
+  }  
+  
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNegativeDimensionXConstructorCoordMatrix(){
+    new SparseCoordinateFormatMatrix(xdata,ydata,valuedata,ydata.length,-1);
+  }
+  
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNegativeDimensionYConstructorCoordMatrix(){
+    new SparseCoordinateFormatMatrix(xdata,ydata,valuedata,-1,xdata.length);
+  }  
+ 
+  
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testBadDimensionXConstructorCoordMatrix(){
+    new SparseCoordinateFormatMatrix(xdata,ydata,valuedata,ydata.length,1);
+  }
+  
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testBadDimensionYConstructorCoordMatrix(){
+    new SparseCoordinateFormatMatrix(xdata,ydata,valuedata,1,xdata.length);
+  }    
+  
   // test methods
 
  @Test  // tests entry getter
