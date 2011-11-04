@@ -299,7 +299,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
       final double beta = sabrParameter.getBeta(expiryMaturity);
       final double rho = sabrParameter.getRho(expiryMaturity);
       final double nu = sabrParameter.getNu(expiryMaturity);
-      _sabrData = new SABRFormulaData(_forward, alpha, beta, nu, rho);
+      _sabrData = new SABRFormulaData(alpha, beta, rho, nu);
       _sabrFunction = sabrParameter.getSabrFunction();
       _isCall = cmsCap.isCap();
       _strike = cmsCap.getStrike();
@@ -385,7 +385,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
       final double hpp = (_eta - 1.0) * _tau * hp / periodFactor;
       final double kp = hp / g - h * gp / g2;
       final double kpp = hpp / g - 2 * hp * gp / g2 - h * (gpp / g2 - 2 * (gp * gp) / (g2 * g));
-      return new double[] {kp, kpp};
+      return new double[] {kp, kpp };
     }
 
     /**
@@ -395,7 +395,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
      */
     double bs(final double strike) {
       final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, _timeToExpiry, _isCall);
-      final Function1D<SABRFormulaData, Double> funcSabr = _sabrFunction.getVolatilityFunction(option);
+      final Function1D<SABRFormulaData, Double> funcSabr = _sabrFunction.getVolatilityFunction(option, _forward);
       final double volatility = funcSabr.evaluate(_sabrData);
       final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility);
       final Function1D<BlackFunctionData, Double> func = _blackFunction.getPriceFunction(option);
@@ -477,7 +477,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
       final double[] result = new double[2];
       final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, super._timeToExpiry, super._isCall);
       final SABRHaganVolatilityFunction sabrHaganFunction = (SABRHaganVolatilityFunction) super._sabrFunction;
-      final double[] volatility = sabrHaganFunction.getVolatilityAdjoint(option, super._sabrData);
+      final double[] volatility = sabrHaganFunction.getVolatilityAdjoint(option, super._forward, super._sabrData);
       final BlackFunctionData dataBlack = new BlackFunctionData(super._forward, 1.0, volatility[0]);
       final double[] bsAdjoint = super._blackFunction.getPriceAdjoint(option, dataBlack);
       result[0] = bsAdjoint[0];
@@ -515,7 +515,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
       // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
       final EuropeanVanillaOption option = new EuropeanVanillaOption(x, super._timeToExpiry, super._isCall);
       final SABRHaganVolatilityFunction sabrHaganFunction = (SABRHaganVolatilityFunction) super._sabrFunction;
-      final double[] volatilityAdjoint = sabrHaganFunction.getVolatilityAdjoint(option, super._sabrData);
+      final double[] volatilityAdjoint = sabrHaganFunction.getVolatilityAdjoint(option, super._forward, super._sabrData);
       return super._factor * (kD[1] * (x - super._strike) + 2.0 * kD[0]) * bs(x) * volatilityAdjoint[3 + _parameterIndex];
     }
 
@@ -528,7 +528,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     @Override
     double bs(final double strike) {
       final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, super._timeToExpiry, super._isCall);
-      final Function1D<SABRFormulaData, Double> funcSabr = super._sabrFunction.getVolatilityFunction(option);
+      final Function1D<SABRFormulaData, Double> funcSabr = super._sabrFunction.getVolatilityFunction(option, super._forward);
       final double volatility = funcSabr.evaluate(super._sabrData);
       final BlackFunctionData dataBlack = new BlackFunctionData(super._forward, 1.0, volatility);
       final double[] bsAdjoint = super._blackFunction.getPriceAdjoint(option, dataBlack);

@@ -25,6 +25,10 @@ public class ExceptionThrowingClientFilter extends ClientFilter {
    * Header key for exception message.
    */
   public static final String EXCEPTION_MESSAGE = "X-OpenGamma-ExceptionMessage";
+  /**
+   * Header key for exception point.
+   */
+  public static final String EXCEPTION_POINT = "X-OpenGamma-ExceptionPoint";
 
   /**
    * Creates the filter.

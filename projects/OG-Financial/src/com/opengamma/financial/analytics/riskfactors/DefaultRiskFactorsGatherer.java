@@ -238,7 +238,10 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
       .add(getFXPresentValue())
       .add(getFXCurrencyExposure())
-      .add(getVegaMatrix(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")))
+      .add(getVegaMatrix(ValueProperties
+          .with(ValuePropertyNames.SURFACE, "DEFAULT")
+          .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
+          .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())))
       .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
       .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
       .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
@@ -402,7 +405,7 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   }
   
   private Pair<String, ValueProperties> getVegaMatrix(ValueProperties.Builder constraints) {
-    return getRiskFactor(ValueRequirementNames.VEGA_MATRIX, constraints, false);
+    return getRiskFactor(ValueRequirementNames.VEGA_QUOTE_MATRIX, constraints, false);
   }
   
   private Pair<String, ValueProperties> getPV01(String curveName) {

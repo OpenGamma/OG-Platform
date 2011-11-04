@@ -24,7 +24,7 @@ public class SABRPaulotVolatilityFunction implements VolatilityFunctionProvider<
   private static final double EPS = 1e-15;
 
   @Override
-  public Function1D<SABRFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option) {
+  public Function1D<SABRFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option, final double forward) {
     Validate.notNull(option, "option");
     final double k = option.getStrike();
     final double t = option.getTimeToExpiry();
@@ -38,13 +38,12 @@ public class SABRPaulotVolatilityFunction implements VolatilityFunctionProvider<
         final double beta = data.getBeta();
         final double rho = data.getRho();
         final double nu = data.getNu();
-        final double f = data.getForward();
 
         double sigma0, sigma1;
 
         final double beta1 = 1 - beta;
 
-        final double x = Math.log(k / f);
+        final double x = Math.log(k / forward);
         if (CompareUtils.closeEquals(nu, 0, EPS)) {
           if (CompareUtils.closeEquals(beta, 1.0, EPS)) {
             return alpha; // this is just log-normal
@@ -55,14 +54,14 @@ public class SABRPaulotVolatilityFunction implements VolatilityFunctionProvider<
         // the formula behaves very badly close to ATM
         if (CompareUtils.closeEquals(x, 0.0, 1e-3)) {
           final double delta = 1.01e-3;
-          final double a0 = (HAGAN.getVolatilityFunction(option)).evaluate(data);
+          final double a0 = (HAGAN.getVolatilityFunction(option, forward)).evaluate(data);
           double kPlus, kMinus;
-          kPlus = f * Math.exp(delta);
-          kMinus = f * Math.exp(-delta);
+          kPlus = forward * Math.exp(delta);
+          kMinus = forward * Math.exp(-delta);
           EuropeanVanillaOption other = new EuropeanVanillaOption(kPlus, option.getTimeToExpiry(), option.isCall());
-          final double yPlus = getVolatilityFunction(other).evaluate(data);
+          final double yPlus = getVolatilityFunction(other, forward).evaluate(data);
           other = new EuropeanVanillaOption(kMinus, option.getTimeToExpiry(), option.isCall());
-          final double yMinus = getVolatilityFunction(other).evaluate(data);
+          final double yMinus = getVolatilityFunction(other, forward).evaluate(data);
           final double a2 = (yPlus + yMinus - 2 * a0) / 2 / delta / delta;
           final double a1 = (yPlus - yMinus) / 2 / delta;
           return a2 * x * x + a1 * x + a0;
@@ -74,15 +73,15 @@ public class SABRPaulotVolatilityFunction implements VolatilityFunctionProvider<
         if (CompareUtils.closeEquals(beta, 1.0, EPS)) {
           q = x;
         } else {
-          q = (Math.pow(k, beta1) - Math.pow(f, beta1)) / beta1;
+          q = (Math.pow(k, beta1) - Math.pow(forward, beta1)) / beta1;
         }
 
         final double vMin = Math.sqrt(alphaScale * alphaScale + 2 * rho * alphaScale * q + q * q);
         final double logTerm = Math.log((vMin + rho * alphaScale + q) / (1 + rho) / alphaScale);
         sigma0 = x / logTerm;
 
-        final double cTilde = getCTilde(f, k, alphaScale, beta, rho, q);
-        sigma1 = -(cTilde + Math.log(sigma0 * Math.sqrt(k * f))) / square(logTerm);
+        final double cTilde = getCTilde(forward, k, alphaScale, beta, rho, q);
+        sigma1 = -(cTilde + Math.log(sigma0 * Math.sqrt(k * forward))) / square(logTerm);
         return nu * sigma0 * (1 + sigma1 * tScale);
       }
     };

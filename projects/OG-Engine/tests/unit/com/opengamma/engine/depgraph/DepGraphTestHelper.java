@@ -147,7 +147,11 @@ public class DepGraphTestHelper {
   }
 
   public void make2AvailableFromLiveData() {
-    _liveDataAvailabilityProvider.addRequirement(_req2);
+    _liveDataAvailabilityProvider.addAvailableRequirement(_req2);
+  }
+
+  public void make2MissingFromLiveData() {
+    _liveDataAvailabilityProvider.addMissingRequirement(_req2);
   }
 
   public DependencyGraphBuilder getBuilder(final FunctionPriority prioritizer) {

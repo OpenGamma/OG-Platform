@@ -9,17 +9,18 @@ import java.net.URI;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
+import com.opengamma.financial.historicaltimeseries.rest.RemoteHistoricalTimeSeriesMaster;
 import com.opengamma.financial.marketdatasnapshot.rest.RemoteMarketDataSnapshotMaster;
 import com.opengamma.financial.portfolio.rest.RemotePortfolioMaster;
 import com.opengamma.financial.position.rest.RemotePositionMaster;
 import com.opengamma.financial.security.rest.RemoteSecurityMaster;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.rest.RemoteManageableViewDefinitionRepository;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
@@ -43,7 +44,7 @@ public class RemoteClient {
   public abstract static class TargetProvider {
 
     protected <T> T notImplemented(final String what) {
-      throw new OpenGammaRuntimeException("The '" + what + "' is not available for this client");
+      throw new UnsupportedOperationException("The '" + what + "' is not available for this client");
     }
 
     public URI getPortfolioMaster() {
@@ -74,6 +75,10 @@ public class RemoteClient {
       return notImplemented("marketDataSnapshotMaster");
     }
 
+    public RestTarget getHistoricalTimeSeriesMaster() {
+      return notImplemented("historicalTimeSeriesMaster");
+    }
+
   }
 
   /**
@@ -88,6 +93,7 @@ public class RemoteClient {
     private RestTarget _interpolatedYieldCurveDefinitionMaster;
     private RestTarget _heartbeat;
     private RestTarget _marketDataSnapshotMaster;
+    private RestTarget _historicalTimeSeriesMaster;
 
     public void setPortfolioMaster(final URI portfolioMaster) {
       // The remote portfolio master is broken and assumes a "portfolio" prefix on its URLs 
@@ -154,6 +160,15 @@ public class RemoteClient {
       return (_marketDataSnapshotMaster != null) ? _marketDataSnapshotMaster : super.getMarketDataSnapshotMaster();
     }
 
+    public void setHistoricalTimeSeriesMaster(final RestTarget historicalTimeSeriesMaster) {
+      _historicalTimeSeriesMaster = historicalTimeSeriesMaster;
+    }
+
+    @Override
+    public RestTarget getHistoricalTimeSeriesMaster() {
+      return (_historicalTimeSeriesMaster != null) ? _historicalTimeSeriesMaster : super.getHistoricalTimeSeriesMaster();
+    }
+
   }
 
   /**
@@ -205,17 +220,20 @@ public class RemoteClient {
       return _baseTarget.resolveBase(ClientResource.MARKET_DATA_SNAPSHOTS_PATH);
     }
 
+    // TODO: user timeseries?
+
   }
 
   private final String _clientId;
   private final FudgeContext _fudgeContext;
   private final TargetProvider _targetProvider;
-  private PortfolioMaster _portfolioMaster;
-  private PositionMaster _positionMaster;
-  private SecurityMaster _securityMaster;
-  private ManageableViewDefinitionRepository _viewDefinitionRepository;
-  private InterpolatedYieldCurveDefinitionMaster _interpolatedYieldCurveDefinitionMaster;
-  private MarketDataSnapshotMaster _marketDataSnapshotMaster;
+  private volatile PortfolioMaster _portfolioMaster;
+  private volatile PositionMaster _positionMaster;
+  private volatile SecurityMaster _securityMaster;
+  private volatile ManageableViewDefinitionRepository _viewDefinitionRepository;
+  private volatile InterpolatedYieldCurveDefinitionMaster _interpolatedYieldCurveDefinitionMaster;
+  private volatile MarketDataSnapshotMaster _marketDataSnapshotMaster;
+  private volatile HistoricalTimeSeriesMaster _historicalTimeSeriesMaster;
   // TODO [PLAT-637] We're using the in memory job as a hack
   private static ConventionBundleMaster s_conventionBundleMaster;
 
@@ -269,6 +287,13 @@ public class RemoteClient {
       _marketDataSnapshotMaster = new RemoteMarketDataSnapshotMaster(_fudgeContext, _targetProvider.getMarketDataSnapshotMaster());
     }
     return _marketDataSnapshotMaster;
+  }
+
+  public HistoricalTimeSeriesMaster getHistoricalTimeSeriesMaster() {
+    if (_historicalTimeSeriesMaster == null) {
+      _historicalTimeSeriesMaster = new RemoteHistoricalTimeSeriesMaster(_fudgeContext, _targetProvider.getHistoricalTimeSeriesMaster());
+    }
+    return _historicalTimeSeriesMaster;
   }
 
   public ConventionBundleMaster getConventionBundleMaster() {

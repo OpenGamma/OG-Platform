@@ -37,7 +37,7 @@ public class SVINonLinearLeastSquareFitterTest extends LeastSquareSmileFitterTes
     for (int i = 0; i < n; i++) {
       OPTIONS[i] = new EuropeanVanillaOption(kStart + i * delta, T, true);
       FLAT_DATA[i] = new BlackFunctionData(FORWARD, DF, SIGMA);
-      SMILE_DATA[i] = new BlackFunctionData(FORWARD, DF, SVI_VOL_FUNCTION.getVolatilityFunction(OPTIONS[i]).evaluate(SVI_DATA));
+      SMILE_DATA[i] = new BlackFunctionData(FORWARD, DF, SVI_VOL_FUNCTION.getVolatilityFunction(OPTIONS[i],FORWARD).evaluate(SVI_DATA));
       ERRORS[i] = ERROR;
     }
     INITIAL_VALUES = new double[] {0.01, 0.01, 0.01, 0.01, FORWARD * 0.5};

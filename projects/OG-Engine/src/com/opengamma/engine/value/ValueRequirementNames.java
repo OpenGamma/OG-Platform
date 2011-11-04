@@ -312,6 +312,7 @@ public final class ValueRequirementNames {
   
   //Vega matrix
   public static final String VEGA_MATRIX = "Vega Matrix";
+  public static final String VEGA_QUOTE_MATRIX = "Vega Quote Matrix";
   
   //Historical Data values
   public static final String DAILY_VOLUME = "Last Volume";

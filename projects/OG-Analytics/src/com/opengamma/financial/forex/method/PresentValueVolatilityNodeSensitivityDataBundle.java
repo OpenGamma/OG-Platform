@@ -96,7 +96,7 @@ public class PresentValueVolatilityNodeSensitivityDataBundle {
 
   /**
    * Computes the volatility sensitivities with respect to quoted data (ATM, RR, strangle) related to the (strike) node sensitivity.
-   * @return The volatility quote sensitivities. The sensitivity figures are in teh same currency as the node sensitivity.
+   * @return The volatility quote sensitivities. The sensitivity figures are in the same currency as the node sensitivity.
    * The first dimension is the expiration and the second dimension the quotes: ATM, Risk Reversal, Strangle.
    */
   public PresentValueVolatilityQuoteSensitivityDataBundle quoteSensitivity() {

@@ -13,6 +13,11 @@ public class StringLabelledMatrix1D extends LabelledMatrix1D<String, String> {
   public StringLabelledMatrix1D(final String[] keys, final double[] values) {
     super(keys, values, null);
   }
+  
+  public StringLabelledMatrix1D(final String[] keys, final Object[] labels, final double[] values) {
+    super(keys, labels, values, null);
+  }
+
 
   @Override
   public int compare(final String key1, final String key2, final String tolerance) {
@@ -20,12 +25,12 @@ public class StringLabelledMatrix1D extends LabelledMatrix1D<String, String> {
   }
 
   @Override
-  protected LabelledMatrix1D<String, String> getMatrix(final String[] keys, final Object[] labels, final double[] values) {
+  public LabelledMatrix1D<String, String> getMatrix(final String[] keys, final Object[] labels, final double[] values) {
     return new StringLabelledMatrix1D(keys, values);
   }
 
   @Override
-  protected LabelledMatrix1D<String, String> getMatrix(final String[] keys, final double[] values) {
+  public LabelledMatrix1D<String, String> getMatrix(final String[] keys, final double[] values) {
     return new StringLabelledMatrix1D(keys, values);
   }
 

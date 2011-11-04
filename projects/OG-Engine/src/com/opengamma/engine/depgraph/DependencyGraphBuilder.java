@@ -106,6 +106,9 @@ public final class DependencyGraphBuilder {
       synchronized (this) {
         fallback = _fallback;
         if (fallback == null) {
+          // REVIEW andrew 2011-11-01 -- Is this logic correct? I think we only need the fallback if ALL tasks hit the
+          // recursion constraint. As long as one of the tasks ran to completion without hitting the constraint then
+          // the productions from that task should be sufficient to this caller - so no fallback is required.
           for (ResolveTask task : _tasks) {
             if (task.wasRecursionDetected()) {
               // Only use the fallback task if one of the feeder tasks detected a value requirement loop

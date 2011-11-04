@@ -22,7 +22,6 @@ import com.opengamma.language.error.InvokeInvalidArgumentException;
 import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
-import com.opengamma.util.money.Currency;
 
 /**
  * Updates a "yield curve" component of a snapshot
@@ -35,6 +34,10 @@ public class SetSnapshotYieldCurveFunction extends AbstractFunctionInvoker imple
   public static final SetSnapshotYieldCurveFunction INSTANCE = new SetSnapshotYieldCurveFunction();
 
   private final MetaFunction _meta;
+
+  private static final int SNAPSHOT = 0;
+  private static final int NAME = 1;
+  private static final int YIELD_CURVE = 2;
 
   private static List<MetaParameter> parameters() {
     return Arrays.asList(
@@ -53,13 +56,10 @@ public class SetSnapshotYieldCurveFunction extends AbstractFunctionInvoker imple
   }
 
   public static ManageableMarketDataSnapshot invoke(final ManageableMarketDataSnapshot snapshot, final String name, final YieldCurveSnapshot yieldCurve) {
-    final int underscore = name.indexOf('_');
-    if (underscore <= 0) {
-      throw new InvokeInvalidArgumentException(1, "Invalid curve name");
+    final YieldCurveKey key = StructuredMarketDataSnapshotUtil.toYieldCurveKey(name);
+    if (key == null) {
+      throw new InvokeInvalidArgumentException(NAME, "Invalid curve name");
     }
-    final String curveCurrency = name.substring(0, underscore);
-    final String curveName = name.substring(underscore + 1);
-    final YieldCurveKey key = new YieldCurveKey(Currency.of(curveCurrency), curveName);
     if (snapshot.getYieldCurves() == null) {
       snapshot.setYieldCurves(new HashMap<YieldCurveKey, YieldCurveSnapshot>());
     }
@@ -75,7 +75,7 @@ public class SetSnapshotYieldCurveFunction extends AbstractFunctionInvoker imple
 
   @Override
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
-    return invoke((ManageableMarketDataSnapshot) parameters[0], (String) parameters[1], (YieldCurveSnapshot) parameters[2]);
+    return invoke((ManageableMarketDataSnapshot) parameters[SNAPSHOT], (String) parameters[NAME], (YieldCurveSnapshot) parameters[YIELD_CURVE]);
   }
 
   // PublishedFunction

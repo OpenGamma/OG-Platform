@@ -47,6 +47,16 @@ static TCHAR *_InvalidArgumentError (int nIndex, const TCHAR *pszMessage) {
 	return _tcsdup (sz);
 }
 
+/// Processes the ERROR_INTERNAL error.
+///
+/// @param[in] pszMessage reason for the internal error, never NULL
+/// @return the full error message
+static TCHAR *_InternalError (const TCHAR *pszMessage) {
+	TCHAR sz[MESSAGE_BUFFER_SIZE];
+	StringCbPrintf (sz, sizeof (sz), TEXT ("Internal error - %s"), pszMessage);
+	return _tcsdup (sz);
+}
+
 /// Processes any other errors
 ///
 /// @param[in] nCode error code
@@ -75,6 +85,8 @@ TCHAR *CError::ToString (const com_opengamma_language_Value *pValue) {
 			return _ResultConversionError (SAFE_INT (pValue->_intValue), SAFE_STRING (pValue->_stringValue));
 		case ERROR_INVALID_ARGUMENT :
 			return _InvalidArgumentError (SAFE_INT (pValue->_intValue), SAFE_STRING (pValue->_stringValue));
+		case ERROR_INTERNAL :
+			return _InternalError (SAFE_STRING (pValue->_stringValue));
 		default :
 			return _DefaultError (*pValue->_errorValue);
 	}

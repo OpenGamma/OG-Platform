@@ -31,6 +31,10 @@
     <constructor-arg ref="fudgeContext" />
     <property name="underlying" ref="sharedHistoricalTimeSeriesSource" />
   </bean>
+  <bean id="historicalTimeSeriesMasterRestBean" class="com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesMasterService">
+    <constructor-arg ref="fudgeContext" />
+    <property name="underlying" ref="dbHtsMaster" />
+  </bean>
   
   <!-- View processor service -->
   <bean id="viewProcessorRestBean" class="com.opengamma.financial.view.rest.RestViewProcessorFactoryBean">
@@ -266,6 +270,12 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
+            <entry key="historicalTimeSeriesMaster">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/historicalTimeSeriesMaster/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
             <entry key="historicalTimeSeriesSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/historicalTimeSeriesSource/0/" />
@@ -486,7 +496,13 @@
   </bean>
   <bean id="snapshotSourceRestBean" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotSourceService">
     <constructor-arg ref="fudgeContext" />
-    <property name="underlying" ref="sharedSnapshotSource" />
+    <property name="underlyingMap">
+      <map>
+        <entry key="0" value-ref="combinedSnapshotSource" />
+        <entry key="shared" value-ref="sharedSnapshotSource" />
+        <entry key="user" value-ref="userFinancialSnapshotSource" />
+      </map>
+    </property>
   </bean>
   
 </beans>
