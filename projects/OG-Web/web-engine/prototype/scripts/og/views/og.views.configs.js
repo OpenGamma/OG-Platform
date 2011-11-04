@@ -247,6 +247,7 @@ $.register_module({
                 if (options.slickgrid.columns[0].name === null) return api.rest.configs.get({
                     meta: true,
                     handler: function (result) {
+                        if (result.error) return ui.dialog({type: 'error', message: result.message});
                         options.slickgrid.columns[0].name = [
                             '<select class="og-js-type-filter" style="width: 80px">',
                             result.data.types.sort().reduce(function (acc, type) {
