@@ -33,6 +33,13 @@ public class CholeskyDecompositionOpenGamma extends Decomposition<CholeskyDecomp
     return evaluate(x, DEFAULT_SYMMETRY_THRESHOLD, DEFAULT_POSITIVITY_THRESHOLD);
   }
 
+  /**
+   * Perform the decomposition with a given symmetry and positivity threshold.
+   * @param matrix The matrix to decompose.
+   * @param symmetryThreshold The symmetry threshold.
+   * @param positivityThreshold The positivity threshold.
+   * @return The Cholesky decomposition.
+   */
   public CholeskyDecompositionResult evaluate(final DoubleMatrix2D matrix, final double symmetryThreshold, final double positivityThreshold) {
     Validate.notNull(matrix, "Matrix null");
     int nbRow = matrix.getNumberOfRows();
