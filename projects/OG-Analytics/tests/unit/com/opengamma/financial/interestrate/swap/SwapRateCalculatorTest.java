@@ -5,8 +5,17 @@
  */
 package com.opengamma.financial.interestrate.swap;
 
+import javax.time.calendar.Period;
+
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
@@ -30,6 +39,14 @@ public class SwapRateCalculatorTest {
   private static final FixedFloatSwap SWAP;
   private static final Currency CUR = Currency.USD;
 
+  private static final Period TENOR = Period.ofMonths(6);
+  private static final int SETTLEMENT_DAYS = 2;
+  private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
+  private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final boolean IS_EOM = true;
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+
   static {
     final double[] t1 = new double[] {0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5};
     final int n = t1.length;
@@ -39,7 +56,7 @@ public class SwapRateCalculatorTest {
       forward[i] = Math.pow(DF_1, t1[i]);
     }
     FORWARD_CURVE = new DiscountCurve(InterpolatedDoublesCurve.from(t1, forward, new LinearInterpolator1D()));
-    SWAP = new FixedFloatSwap(CUR, t2, t2, 0.0, FUNDING_CURVE_NAME, FORWARD_CURVE_NAME, true);
+    SWAP = new FixedFloatSwap(CUR, t2, t2, INDEX, 0.0, FUNDING_CURVE_NAME, FORWARD_CURVE_NAME, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

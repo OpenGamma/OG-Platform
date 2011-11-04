@@ -15,6 +15,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.time.calendar.Period;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -23,6 +25,13 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
@@ -113,6 +122,14 @@ public class YieldCurveBootStrapTest {
   private static final double[] FUNDING_YIELDS;
   private static final double[] LIBOR_YIELDS;
 
+  private static final Period TENOR = Period.ofMonths(6);
+  private static final int SETTLEMENT_DAYS = 2;
+  private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
+  private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final boolean IS_EOM = true;
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+
   static {
     final int[] payments = new int[] {1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60};
 
@@ -153,13 +170,11 @@ public class YieldCurveBootStrapTest {
     LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
     unknownCurveInterpolators.put(LIBOR_CURVE_NAME, EXTRAPOLATOR);
     unknownCurveNodes.put(LIBOR_CURVE_NAME, TIME_GRID);
-    MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(SINGLE_CURVE_INSTRUMENTS, SWAP_VALUES, null, unknownCurveNodes, unknownCurveInterpolators,
-        false);
+    MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(SINGLE_CURVE_INSTRUMENTS, SWAP_VALUES, null, unknownCurveNodes, unknownCurveInterpolators, false);
     SINGLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
     SINGLE_CURVE_JACOBIAN = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
 
-    data = new MultipleYieldCurveFinderDataBundle(SINGLE_CURVE_INSTRUMENTS, new double[SINGLE_CURVE_INSTRUMENTS.size()], null, unknownCurveNodes, unknownCurveInterpolators,
-        true);
+    data = new MultipleYieldCurveFinderDataBundle(SINGLE_CURVE_INSTRUMENTS, new double[SINGLE_CURVE_INSTRUMENTS.size()], null, unknownCurveNodes, unknownCurveInterpolators, true);
     SINGLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
 
     unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D>();
@@ -342,8 +357,7 @@ public class YieldCurveBootStrapTest {
         final InterestRateDerivative ird = new FixedFloatSwap(newLeg, swap.getFloatingLeg());
         instruments.add(ird);
       }
-      final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(instruments, swapRates, null, unknownCurveNodes, unknownCurveInterpolators,
-          false);
+      final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(instruments, swapRates, null, unknownCurveNodes, unknownCurveInterpolators, false);
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
       yieldCurveNodes = rootFinder.getRoot(functor, yieldCurveNodes);
       curve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, EXTRAPOLATOR);
@@ -385,8 +399,7 @@ public class YieldCurveBootStrapTest {
     final LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
     unknownCurveInterpolators.put(LIBOR_CURVE_NAME, EXTRAPOLATOR);
     unknownCurveNodes.put(LIBOR_CURVE_NAME, TIME_GRID);
-    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(DOUBLE_CURVE_INSTRUMENTS, SWAP_VALUES, knownCurves, unknownCurveNodes, unknownCurveInterpolators,
-        false);
+    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(DOUBLE_CURVE_INSTRUMENTS, SWAP_VALUES, knownCurves, unknownCurveNodes, unknownCurveInterpolators, false);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
 
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacCal = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
@@ -409,8 +422,7 @@ public class YieldCurveBootStrapTest {
     final LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
     unknownCurveInterpolators.put(FUNDING_CURVE_NAME, EXTRAPOLATOR);
     unknownCurveNodes.put(FUNDING_CURVE_NAME, TIME_GRID);
-    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(DOUBLE_CURVE_INSTRUMENTS, SWAP_VALUES, knownCurves, unknownCurveNodes, unknownCurveInterpolators,
-        false);
+    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(DOUBLE_CURVE_INSTRUMENTS, SWAP_VALUES, knownCurves, unknownCurveNodes, unknownCurveInterpolators, false);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
 
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacCal = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
@@ -468,7 +480,7 @@ public class YieldCurveBootStrapTest {
       indexMaturity[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
     }
     final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(CUR, fixed, 1.0, fundingCurveName, true); //<-
-    final AnnuityCouponIbor floatingLeg = new AnnuityCouponIbor(CUR, floating, indexFixing, indexMaturity, yearFrac, 1.0, fundingCurveName, liborCurveName, false);
+    final AnnuityCouponIbor floatingLeg = new AnnuityCouponIbor(CUR, floating, indexFixing, INDEX, indexMaturity, yearFrac, 1.0, fundingCurveName, liborCurveName, false);
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 

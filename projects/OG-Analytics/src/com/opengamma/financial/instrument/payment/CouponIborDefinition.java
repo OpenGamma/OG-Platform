@@ -227,7 +227,7 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
     final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, getFixingPeriodStartDate());
     final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, getFixingPeriodEndDate());
     //TODO: Definition has no spread and time version has one: to be standardized.
-    return new CouponIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+    return new CouponIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, _index, fixingPeriodStartTime, fixingPeriodEndTime,
         getFixingPeriodAccrualFactor(), forwardCurveName);
   }
 
@@ -270,7 +270,7 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
         fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, getFixingPeriodStartDate());
       }
       final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, getFixingPeriodEndDate());
-      return new CouponIborFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixedRate, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+      return new CouponIborFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixedRate, fixingTime, _index, fixingPeriodStartTime, fixingPeriodEndTime,
           getFixingPeriodAccrualFactor(), 0.0, forwardCurveName);
     }
 
@@ -278,7 +278,7 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
     final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, getFixingPeriodStartDate());
     final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, getFixingPeriodEndDate());
     //TODO: Definition has no spread and time version has one: to be standardized.
-    return new CouponIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+    return new CouponIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, _index, fixingPeriodStartTime, fixingPeriodEndTime,
         getFixingPeriodAccrualFactor(), forwardCurveName);
   }
 }

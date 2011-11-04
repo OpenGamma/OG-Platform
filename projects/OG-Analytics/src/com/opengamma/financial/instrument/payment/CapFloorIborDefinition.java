@@ -137,7 +137,7 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
     final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, getFixingPeriodStartDate());
     final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, getFixingPeriodEndDate());
     //TODO: Definition has no spread and time version has one: to be standardized.
-    return new CapFloorIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+    return new CapFloorIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, getIndex(), fixingPeriodStartTime, fixingPeriodEndTime,
         getFixingPeriodAccrualFactor(), forwardCurveName, _strike, _isCap);
   }
 
@@ -160,7 +160,7 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
     final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, getFixingPeriodStartDate());
     final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, getFixingPeriodEndDate());
     //TODO: Definition has no spread and time version has one: to be standardized.
-    return new CapFloorIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+    return new CapFloorIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, getIndex(), fixingPeriodStartTime, fixingPeriodEndTime,
         getFixingPeriodAccrualFactor(), forwardCurveName, _strike, _isCap);
   }
 
