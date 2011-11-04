@@ -90,6 +90,7 @@ public final class RemoteMarketDataSnapshotMaster implements MarketDataSnapshotM
       final FudgeMsgEnvelope response = getRestClient().post(getTargetBase().resolve("add"), getFudgeSerializer().objectToFudgeMsg(document));
       UniqueId snapshotId = getFudgeDeserializer().fieldValueToObject(UniqueId.class, response.getMessage().getByName("uniqueId"));
       document.setUniqueId(snapshotId);
+      document.getSnapshot().setUniqueId(snapshotId);
       return document;
     } catch (RestRuntimeException ex) {
       throw ex.translate();

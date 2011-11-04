@@ -399,6 +399,15 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     // Performance note: curve sensitivity (40): 19-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 890 ms for 10000 swaptions.
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
+      pvhws = METHOD_HW.presentValueHullWhiteSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
+      pvcs = METHOD_HW.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
+      pvhws = METHOD_HW.presentValueHullWhiteSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " price/delta/vega swaption Hull-White explicit method: " + (endTime - startTime) + " ms");
+    // Performance note: present value/delta/vega: 19-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1300 ms for 10000 swaptions.
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
       pvPayerLongIntegration = METHOD_HW_INTEGRATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
     }
     endTime = System.currentTimeMillis();
