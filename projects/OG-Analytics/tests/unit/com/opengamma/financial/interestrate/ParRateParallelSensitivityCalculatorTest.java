@@ -16,8 +16,11 @@ import javax.time.calendar.Period;
 import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.instrument.index.IborIndex;
@@ -57,6 +60,14 @@ public class ParRateParallelSensitivityCalculatorTest {
   private static final String LIBOR_CURVE_NAME = "libor";
   private static YieldCurveBundle CURVES;
   private static final Currency CUR = Currency.USD;
+
+  private static final Period TENOR = Period.ofMonths(6);
+  private static final int SETTLEMENT_DAYS = 2;
+  private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
+  private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final boolean IS_EOM = true;
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
 
   static {
     CURVES = new YieldCurveBundle();
@@ -100,8 +111,8 @@ public class ParRateParallelSensitivityCalculatorTest {
     final double fixingPeriodAccrualFactor = 0.267;
     final double paymentAccrualFactor = 0.25;
     final double referencePrice = 0.0; // TODO CASE - Future refactor - referencePrice = 0.0
-    final InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor,
-        referencePrice, 1, paymentAccrualFactor, "L", FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    final InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice, 1, paymentAccrualFactor,
+        "L", FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
     doTest(ir, CURVES);
   }
 
@@ -116,7 +127,7 @@ public class ParRateParallelSensitivityCalculatorTest {
     for (int i = 0; i < n; i++) {
       coupons[i] = new CouponFixed(CUR, tau * (i + 1), FUNDING_CURVE_NAME, yearFrac, initialCoupon + i * ramp);
     }
-    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[]{new PaymentFixed(CUR, tau * n, 1, FUNDING_CURVE_NAME)});
+    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, tau * n, 1, FUNDING_CURVE_NAME)});
     final BondFixedSecurity bond = new BondFixedSecurity(nominal, new AnnuityCouponFixed(coupons), 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FUNDING_CURVE_NAME, "S");
     doTest(bond, CURVES);
   }
@@ -141,11 +152,11 @@ public class ParRateParallelSensitivityCalculatorTest {
     }
     final double swapRate = 0.04;
 
-    Swap<?, ?> swap = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, swapRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
+    Swap<?, ?> swap = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, INDEX, swapRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
     doTest(swap, CURVES);
 
-    final AnnuityCouponIbor va = new AnnuityCouponIbor(CUR, floatPaymentTimes, indexFixingTimes, indexFixingTimes, indexMaturityTimes, yearFrac, yearFrac, new double[2 * n], 3.43, FUNDING_CURVE_NAME,
-        LIBOR_CURVE_NAME, true);
+    final AnnuityCouponIbor va = new AnnuityCouponIbor(CUR, floatPaymentTimes, indexFixingTimes, INDEX, indexFixingTimes, indexMaturityTimes, yearFrac, yearFrac, new double[2 * n], 3.43,
+        FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
     final AnnuityCouponFixed ca = new AnnuityCouponFixed(CUR, fixedPaymentTimes, swapRate, FUNDING_CURVE_NAME, false);
     swap = new FixedFloatSwap(ca, va);
     doTest(swap, CURVES);
@@ -168,8 +179,8 @@ public class ParRateParallelSensitivityCalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
-    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FUNDING_CURVE_NAME,
+    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexMaturity, yearFracs, 1.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
+    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FUNDING_CURVE_NAME,
         FUNDING_CURVE_NAME, false);
 
     final Swap<?, ?> swap = new TenorSwap<CouponIbor>(payLeg, receiveLeg);

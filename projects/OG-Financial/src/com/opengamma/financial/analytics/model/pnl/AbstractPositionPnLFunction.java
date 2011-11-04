@@ -59,7 +59,12 @@ public abstract class AbstractPositionPnLFunction extends AbstractFunction.NonCo
   }
   
   private ValueProperties extractCurrencyProperty(ValueRequirement desiredValue) {
-    return ValueProperties.with(ValuePropertyNames.CURRENCY, desiredValue.getConstraint(ValuePropertyNames.CURRENCY)).get();
+    String currency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
+    if (currency == null) {
+      return ValueProperties.none();
+    } else {
+      return ValueProperties.with(ValuePropertyNames.CURRENCY, currency).get();
+    }
   }
 
   @Override

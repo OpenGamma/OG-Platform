@@ -13,16 +13,23 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.apache.commons.lang.Validate;
+import javax.time.calendar.Period;
+
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
+import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.SABRTermStructureParameters;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.VolatilityModel1D;
-import com.opengamma.math.cube.InterpolatedDoublesCube;
 import com.opengamma.math.curve.AddCurveSpreadFunction;
 import com.opengamma.math.curve.Curve;
 import com.opengamma.math.curve.FunctionalDoublesCurve;
@@ -34,8 +41,6 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.TransformedInterpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.minimization.DoubleRangeLimitTransform;
@@ -54,12 +59,21 @@ public class CapletStrippingTest {
 
   private static final LinkedHashMap<String, Function1D<Double, Double>> PARAMETER_FUNCTIONS = new LinkedHashMap<String, Function1D<Double, Double>>();
 
+  protected static final Currency CUR = Currency.USD;
+  private static final Period TENOR = Period.ofMonths(6);
+  private static final int SETTLEMENT_DAYS = 2;
+  private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
+  private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final boolean IS_EOM = true;
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+
   private static Function1D<Double, Double> ALPHA = new Function1D<Double, Double>() {
 
-    private double a = -0.01;
-    private double b = 0.05;
-    private double c = 0.3;
-    private double d = 0.04;
+    private final double a = -0.01;
+    private final double b = 0.05;
+    private final double c = 0.3;
+    private final double d = 0.04;
 
     @Override
     public Double evaluate(Double t) {
@@ -77,10 +91,10 @@ public class CapletStrippingTest {
 
   private static Function1D<Double, Double> RHO = new Function1D<Double, Double>() {
 
-    private double a = -0.7;
-    private double b = 0.0;
-    private double c = 0.1;
-    private double d = 0.0;
+    private final double a = -0.7;
+    private final double b = 0.0;
+    private final double c = 0.1;
+    private final double d = 0.0;
 
     @Override
     public Double evaluate(Double t) {
@@ -90,10 +104,10 @@ public class CapletStrippingTest {
 
   private static Function1D<Double, Double> NU = new Function1D<Double, Double>() {
 
-    private double a = 0.8;
-    private double b = 0.0;
-    private double c = 0.1;
-    private double d = 0.4;
+    private final double a = 0.8;
+    private final double b = 0.0;
+    private final double c = 0.1;
+    private final double d = 0.4;
 
     @Override
     public Double evaluate(Double t) {
@@ -137,14 +151,14 @@ public class CapletStrippingTest {
   private static double[] MARKET_VOLS;
   private static double[] MARKET_VEGAS;
 
-  private static int[] CAP_MATURITIES = new int[] {1, 2, 3, 5, 10, 15, 20 };
-  private static double[] NODES = new double[] {0., 1, 2, 3, 5, 10, 15, 20 };
-  private static double[] STRIKES = new double[] {0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.07, 0.1 };
+  private static int[] CAP_MATURITIES = new int[] {1, 2, 3, 5, 10, 15, 20};
+  private static double[] NODES = new double[] {0., 1, 2, 3, 5, 10, 15, 20};
+  private static double[] STRIKES = new double[] {0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.07, 0.1};
   private static LinkedHashMap<String, double[]> CURVE_NODES;
   private static LinkedHashMap<String, Interpolator1D> INTERPOLATORS;
   private static LinkedHashMap<String, ParameterLimitsTransform> TRANSFORMS;
   private static final InterpolatedCurveBuildingFunction CURVE_BUILDER;
-  private static String[] NAMES = new String[] {"alpha", "beta", "rho", "nu" };
+  private static String[] NAMES = new String[] {"alpha", "beta", "rho", "nu"};
   private static final DoubleMatrix1D START;
   private static final DoubleMatrix1D END;
 
@@ -187,8 +201,7 @@ public class CapletStrippingTest {
 
     YIELD_CURVES = new YieldCurveBundle();
     YIELD_CURVES.setCurve("funding", new YieldCurve(FunctionalDoublesCurve.from(DISCOUNT_CURVE)));
-    YIELD_CURVES.setCurve("3m Libor", new YieldCurve(SpreadDoublesCurve.from(new AddCurveSpreadFunction(),
-        FunctionalDoublesCurve.from(DISCOUNT_CURVE), FunctionalDoublesCurve.from(SPREAD_CURVE))));
+    YIELD_CURVES.setCurve("3m Libor", new YieldCurve(SpreadDoublesCurve.from(new AddCurveSpreadFunction(), FunctionalDoublesCurve.from(DISCOUNT_CURVE), FunctionalDoublesCurve.from(SPREAD_CURVE))));
 
     CAPS = new ArrayList<CapFloor>(CAP_MATURITIES.length * STRIKES.length);
     MARKET_PRICES = new double[CAP_MATURITIES.length * STRIKES.length];
@@ -237,8 +250,6 @@ public class CapletStrippingTest {
     return res;
   }
 
-
-
   @Test
   public void testJacobian() {
 
@@ -277,9 +288,9 @@ public class CapletStrippingTest {
 
     NonLinearLeastSquare ls = new NonLinearLeastSquare();
     LeastSquareResults lsRes = ls.solve(new DoubleMatrix1D(MARKET_VOLS), new DoubleMatrix1D(sigma), func, jac, START);
- 
+
     DoubleMatrix1D res = lsRes.getParameters();
- 
+
     assertTrue("chi^2 too large", lsRes.getChiSq() < 0.3);
 
     //We don't recover exactly the initial curves. Why?
@@ -296,8 +307,7 @@ public class CapletStrippingTest {
 
   }
 
-  private static CapFloor makeCap(final int years, final SimpleFrequency freq, final String discountCurve, final String indexCurve,
-       final double strike) {
+  private static CapFloor makeCap(final int years, final SimpleFrequency freq, final String discountCurve, final String indexCurve, final double strike) {
     int n = (int) (years * freq.getPeriodsPerYear()) - 1; //first caplet missing
     double tau = 1.0 / freq.getPeriodsPerYear();
 
@@ -305,7 +315,7 @@ public class CapletStrippingTest {
     for (int i = 0; i < n; i++) {
       double fixingStart = (i + 1) * tau;
       double fixingEnd = (i + 2) * tau;
-      caplets[i] = new CapFloorIbor(Currency.USD, fixingEnd, discountCurve, tau, 1.0, fixingStart, fixingStart, fixingEnd, tau, indexCurve, strike, true);
+      caplets[i] = new CapFloorIbor(Currency.USD, fixingEnd, discountCurve, tau, 1.0, fixingStart, INDEX, fixingStart, fixingEnd, tau, indexCurve, strike, true);
     }
     return new CapFloor(caplets);
   }

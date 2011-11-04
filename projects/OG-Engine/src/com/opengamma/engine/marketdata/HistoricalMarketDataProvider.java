@@ -58,6 +58,10 @@ public class HistoricalMarketDataProvider extends AbstractMarketDataProvider imp
     _permissionProvider = new PermissiveMarketDataPermissionProvider();
   }
   
+  public HistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final HistoricalMarketDataFieldResolver fieldResolver) {
+    this(historicalTimeSeriesSource, null, fieldResolver, null);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public void subscribe(UserPrincipal user, ValueRequirement valueRequirement) {

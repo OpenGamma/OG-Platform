@@ -142,16 +142,12 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
     double pv = 0;
     for (int loopblock = 0; loopblock < nbBlock; loopblock++) {
       double[][] x = getNormalArray(nbJump, nbPath2[loopblock]);
-
       double[][] y = new double[nbJump][nbPath2[loopblock]]; // jump/path
-      double s; // tmp sum
       for (int looppath = 0; looppath < nbPath2[loopblock]; looppath++) {
         for (int i = 0; i < nbJump; i++) {
-          s = 0;
           for (int j = 0; j < nbJump; j++) {
-            s += x[j][looppath] * covCD[i][j];
+            y[i][looppath] += x[j][looppath] * covCD[i][j];
           }
-          y[i][looppath] = s;
         }
       }
       Double[][][] pD = pathGeneratorDiscount(pDI, y, h, h2, gamma);
@@ -255,14 +251,11 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
     for (int loopblock = 0; loopblock < nbBlock; loopblock++) {
       double[][] x = getNormalArray(nbJump, nbPath2[loopblock]);
       double[][] y = new double[nbJump][nbPath2[loopblock]]; // jump/path
-      double s; // tmp sum
       for (int looppath = 0; looppath < nbPath2[loopblock]; looppath++) {
         for (int i = 0; i < nbJump; i++) {
-          s = 0;
           for (int j = 0; j < nbJump; j++) {
-            s += x[j][looppath] * covCD[i][j];
+            y[i][looppath] += x[j][looppath] * covCD[i][j];
           }
-          y[i][looppath] = s;
         }
       }
       Double[][][] pD = pathGeneratorDiscount(pDI, y, h, h2, gamma);
@@ -270,12 +263,12 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
       pvBlock[loopblock] = MCDC.visit(instrument, mcdDB) * nbPath2[loopblock];
       pv += pvBlock[loopblock];
       // Backward sweep (in block loop)
-      Double[][][] pDBar = new Double[nbPath2[loopblock]][nbJump][];
       for (int loopjump = 0; loopjump < nbJump; loopjump++) {
         for (int loopimp = 0; loopimp < impactAmount[loopjump].length; loopimp++) {
           impactAmountBar[loopjump][loopimp] += mcdDB.getImpactAmountDerivative()[loopjump][loopimp] * nbPath2[loopblock] * pvBlockBar[loopblock];
         }
       }
+      Double[][][] pDBar = new Double[nbPath2[loopblock]][nbJump][];
       for (int looppath = 0; looppath < nbPath2[loopblock]; looppath++) {
         for (int loopjump = 0; loopjump < nbJump; loopjump++) {
           pDBar[looppath][loopjump] = new Double[impactAmount[loopjump].length];
@@ -284,7 +277,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
           }
         }
       }
-      double[][] pDIBarTemp = pathGeneratorDiscountAdjoint(pDI, y, h, h2, gamma, pDBar);
+      double[][] pDIBarTemp = pathGeneratorDiscountAdjointIDF(pDI, y, h, h2, gamma, pDBar);
       for (int loopjump = 0; loopjump < nbJump; loopjump++) {
         for (int loopimp = 0; loopimp < impactAmount[loopjump].length; loopimp++) {
           pDIBar[loopjump][loopimp] += pDIBarTemp[loopjump][loopimp];
@@ -368,7 +361,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
   }
 
   /**
-   * Computes the initial discount factors adjoint values.
+   * Computes the initial discount factors adjoint values with respect to the initDiscountFactor.
    * @param initDiscountFactor The initial discount factors.
    * @param y The correlated random variables.
    * @param h The H parameters.
@@ -377,7 +370,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
    * @param pDBar The simulated discount factor adjoints (path/jump/cf).
    * @return The initial discount factor adjoints (jump/cf).
    */
-  private double[][] pathGeneratorDiscountAdjoint(double[][] initDiscountFactor, double[][] y, double[][] h, double[][] h2, double[] gamma, Double[][][] pDBar) {
+  private double[][] pathGeneratorDiscountAdjointIDF(double[][] initDiscountFactor, double[][] y, double[][] h, double[][] h2, double[] gamma, Double[][][] pDBar) {
     int nbJump = y.length;
     int nbPath = y[0].length;
     double[] h2gamma;

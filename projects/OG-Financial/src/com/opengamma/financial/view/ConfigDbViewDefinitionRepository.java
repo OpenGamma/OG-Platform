@@ -20,6 +20,7 @@ import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
@@ -61,7 +62,7 @@ public class ConfigDbViewDefinitionRepository implements ViewDefinitionRepositor
   }
 
   @Override
-  public Set<UniqueId> getDefinitionIds() {
+  public Set<ObjectId> getDefinitionIds() {
     return _underlyingRepository.getDefinitionIds();
   }
 
