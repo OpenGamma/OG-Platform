@@ -29,6 +29,7 @@ import com.opengamma.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
  */
 public class SABRExtrapolationRightFunction {
 
+  private final double _forward;
   /**
    * The SABR parameter for the pricing below the cut-off strike.
    */
@@ -84,8 +85,9 @@ public class SABRExtrapolationRightFunction {
    */
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
 
-  public SABRExtrapolationRightFunction(final SABRFormulaData sabrData, final double cutOffStrike, final double timeToExpiry, final double mu) {
+  public SABRExtrapolationRightFunction(final double forward, final SABRFormulaData sabrData, final double cutOffStrike, final double timeToExpiry, final double mu) {
     Validate.notNull(sabrData, "SABR data");
+    _forward = forward;
     _sabrData = sabrData;
     _cutOffStrike = cutOffStrike;
     _timeToExpiry = timeToExpiry;
@@ -103,15 +105,15 @@ public class SABRExtrapolationRightFunction {
     double p = 0.0;
     final double k = option.getStrike();
     if (k <= _cutOffStrike) { // Uses Hagan et al SABR function.
-      final Function1D<SABRFormulaData, Double> funcSabr = _sabrFunction.getVolatilityFunction(option);
+      final Function1D<SABRFormulaData, Double> funcSabr = _sabrFunction.getVolatilityFunction(option, _forward);
       final double volatility = funcSabr.evaluate(_sabrData);
-      final BlackFunctionData dataBlack = new BlackFunctionData(_sabrData.getForward(), 1.0, volatility);
+      final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility);
       final Function1D<BlackFunctionData, Double> funcBlack = BLACK_FUNCTION.getPriceFunction(option);
       p = funcBlack.evaluate(dataBlack);
     } else { // Uses extrapolation for call.
       p = extrapolation(k);
       if (!option.isCall()) { // Put by call/put parity
-        p = p - (_sabrData.getForward() - option.getStrike());
+        p = p - (_forward - option.getStrike());
       }
     }
     return p;
@@ -157,16 +159,12 @@ public class SABRExtrapolationRightFunction {
     double price;
     final double k = option.getStrike();
     if (k <= _cutOffStrike) { // Uses Hagan et al SABR function.
-      final double[] volatilityA = _sabrFunction.getVolatilityAdjoint(option, _forward, _sabrData);
+      final double[] volatilityA = _sabrFunction.getVolatilityAdjointOld(option, _forward, _sabrData);
       final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatilityA[0]);
       pA = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
       price = pA[0];
-      final int[] parameterIndex = new int[3];
-      parameterIndex[0] = 0; // sabr-alpha
-      parameterIndex[1] = 2; // sabr-rho
-      parameterIndex[2] = 3; // sabr-nu
       for (int loopparam = 0; loopparam < 3; loopparam++) {
-        priceDerivativeSABR[loopparam] = pA[2] * volatilityA[parameterIndex[loopparam] + 3];
+        priceDerivativeSABR[loopparam] = pA[2] * volatilityA[loopparam + 3];
       }
     } else { // Uses extrapolation for call.
       if (!_parameterDerivativeSABRComputed) {
@@ -259,8 +257,8 @@ public class SABRExtrapolationRightFunction {
     // Computes derivatives at cut-off.
     final double[] vD = new double[5];
     final double[][] vD2 = new double[2][2];
-    _volatilityK = _sabrFunction.getVolatilityAdjoint2(option, _sabrData, vD, vD2);
-    final BlackFunctionData dataBlack = new BlackFunctionData(_sabrData.getForward(), 1.0, _volatilityK);
+    _volatilityK = _sabrFunction.getVolatilityAdjoint2(option, _forward, _sabrData, vD, vD2);
+    final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, _volatilityK);
     final double[] bsD = new double[3];
     final double[][] bsD2 = new double[3][3];
     _priceK[0] = BLACK_FUNCTION.getPriceAdjoint2(option, dataBlack, bsD, bsD2);
@@ -291,8 +289,8 @@ public class SABRExtrapolationRightFunction {
     final EuropeanVanillaOption option = new EuropeanVanillaOption(_cutOffStrike, _timeToExpiry, true);
     final double[] vD = new double[5];
     final double[][] vD2 = new double[2][2];
-    _sabrFunction.getVolatilityAdjoint2(option, _sabrData, vD, vD2);
-    final BlackFunctionData dataBlack = new BlackFunctionData(_sabrData.getForward(), 1.0, _volatilityK);
+    _sabrFunction.getVolatilityAdjoint2(option, _forward, _sabrData, vD, vD2);
+    final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, _volatilityK);
     final double[] bsD = new double[3];
     final double[][] bsD2 = new double[3][3];
     BLACK_FUNCTION.getPriceAdjoint2(option, dataBlack, bsD, bsD2);
@@ -303,7 +301,7 @@ public class SABRExtrapolationRightFunction {
     final double[][] bsD2KP = new double[3][3];
     BLACK_FUNCTION.getPriceAdjoint2(optionKP, dataBlack, bsDKP, bsD2KP);
     final double bsD3FKK = (bsD2KP[2][0] - bsD2[2][0]) / (_cutOffStrike * shift);
-    final BlackFunctionData dataBlackVP = new BlackFunctionData(_sabrData.getForward(), 1.0, _volatilityK * (1 + shift));
+    final BlackFunctionData dataBlackVP = new BlackFunctionData(_forward, 1.0, _volatilityK * (1 + shift));
     final double[] bsDVP = new double[3];
     final double[][] bsD2VP = new double[3][3];
     BLACK_FUNCTION.getPriceAdjoint2(option, dataBlackVP, bsDVP, bsD2VP);
@@ -314,7 +312,7 @@ public class SABRExtrapolationRightFunction {
     final double bsD3ssK = (bsD2VP[1][2] - bsD2[1][2]) / (_volatilityK * shift);
     final double[] vDKP = new double[5];
     final double[][] vD2KP = new double[2][2];
-    _sabrFunction.getVolatilityAdjoint2(optionKP, _sabrData, vDKP, vD2KP);
+    _sabrFunction.getVolatilityAdjoint2(optionKP, _forward, _sabrData, vDKP, vD2KP);
     final double vD3KKF = (vD2KP[1][0] - vD2[1][0]) / (_cutOffStrike * shift);
     pDF[2] = bsD3FKK + bsD3sFK * vD[1] + (bsD3sFK + bsD3sFs * vD[1]) * vD[1] + bsD2[1][0] * vD2[1][1] + (bsD3sKK + bsD3ssK * vD[1] + (bsD3ssK + bsD3sss * vD[1]) * vD[1] + bsD2[1][1] * vD2[1][1])
         * vD[0] + 2 * (bsD2[2][1] + bsD2[1][1] * vD[1]) * vD2[1][0] + bsD[1] * vD3KKF;
@@ -349,8 +347,8 @@ public class SABRExtrapolationRightFunction {
     final EuropeanVanillaOption option = new EuropeanVanillaOption(_cutOffStrike, _timeToExpiry, true);
     final double[] vD = new double[5];
     final double[][] vD2 = new double[2][2];
-    _sabrFunction.getVolatilityAdjoint2(option, _sabrData, vD, vD2);
-    final BlackFunctionData dataBlack = new BlackFunctionData(_sabrData.getForward(), 1.0, _volatilityK);
+    _sabrFunction.getVolatilityAdjoint2(option, _forward, _sabrData, vD, vD2);
+    final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, _volatilityK);
     for (int loopparam = 0; loopparam < 3; loopparam++) {
       final int paramIndex = 2 + loopparam;
       final double[] bsD = new double[3];
@@ -362,22 +360,22 @@ public class SABRExtrapolationRightFunction {
       SABRFormulaData sabrDatapP;
       double param;
       if (loopparam == 0) {
-        sabrDatapP = new SABRFormulaData(_sabrData.getForward(), _sabrData.getAlpha() * (1 + shift), _sabrData.getBeta(), _sabrData.getNu(), _sabrData.getRho());
         param = _sabrData.getAlpha();
+        sabrDatapP = _sabrData.withAlpha(param * (1 + shift));
       } else if (loopparam == 1) {
-        sabrDatapP = new SABRFormulaData(_sabrData.getForward(), _sabrData.getAlpha(), _sabrData.getBeta(), _sabrData.getNu(), _sabrData.getRho() * (1 + shift));
         param = _sabrData.getRho();
+        sabrDatapP = _sabrData.withRho(param * (1 + shift));
       } else {
-        sabrDatapP = new SABRFormulaData(_sabrData.getForward(), _sabrData.getAlpha(), _sabrData.getBeta(), _sabrData.getNu() * (1 + shift), _sabrData.getRho());
         param = _sabrData.getNu();
+        sabrDatapP = _sabrData.withNu(param * (1 + shift));
       }
-      _sabrFunction.getVolatilityAdjoint2(option, sabrDatapP, vDpP, vD2pP);
+      _sabrFunction.getVolatilityAdjoint2(option, _forward, sabrDatapP, vDpP, vD2pP);
       final double vD2Kp = (vDpP[1] - vD[1]) / (param * shift);
       final double vD3KKa = (vD2pP[1][1] - vD2[1][1]) / (param * shift);
       pDSABR[loopparam][1] = (bsD2[2][1] + bsD2[1][1] * vD[1]) * vD[paramIndex] + bsD[1] * vD2Kp;
       final double[] bsDVP = new double[3];
       final double[][] bsD2VP = new double[3][3];
-      final BlackFunctionData dataBlackVP = new BlackFunctionData(_sabrData.getForward(), 1.0, _volatilityK * (1 + shift));
+      final BlackFunctionData dataBlackVP = new BlackFunctionData(_forward, 1.0, _volatilityK * (1 + shift));
       BLACK_FUNCTION.getPriceAdjoint2(option, dataBlackVP, bsDVP, bsD2VP);
       final double bsD3sss = (bsD2VP[1][1] - bsD2[1][1]) / (_volatilityK * shift);
       final double bsD3sKK = (bsD2VP[2][2] - bsD2[2][2]) / (_volatilityK * shift);

@@ -99,6 +99,7 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
   /**
    * Return the Black implied volatility in the SABR model and its derivatives.
    * @param option The option.
+   * @param forward The forward.
    * @param data The SABR data.
    * @return An array with [0] the volatility, [1] Derivative w.r.t the forward, [2] the derivative w.r.t the strike, [3] the derivative w.r.t. to alpha,
    *  [4] the derivative w.r.t. to rho, [5] the derivative w.r.t. to nu
@@ -116,6 +117,7 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
   /**
    * Return the Black implied volatility in the SABR model and its derivatives.
    * @param option The option.
+   * @param forward The forward.
    * @param data The SABR data.
    * @return An array with [0] the volatility, [1] Derivative w.r.t the forward, [2] the derivative w.r.t the strike, [3] the derivative w.r.t. to alpha,
    *  [4] the derivative w.r.t. to beta, [5] the derivative w.r.t. to rho, [6] the derivative w.r.t. to nu
