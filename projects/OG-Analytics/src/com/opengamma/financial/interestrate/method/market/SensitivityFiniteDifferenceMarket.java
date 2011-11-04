@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.method;
+package com.opengamma.financial.interestrate.method.market;
 
 import org.apache.commons.lang.Validate;
 
@@ -14,6 +14,7 @@ import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketDiscountingTimeDecorated;
 import com.opengamma.financial.interestrate.market.MarketForwardTimeDecorated;
 import com.opengamma.financial.interestrate.market.MarketPriceIndexTimeDecorated;
+import com.opengamma.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.math.differentiation.FiniteDifferenceType;
 import com.opengamma.util.money.Currency;
 
