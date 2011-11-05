@@ -27,12 +27,20 @@
     <form>
     <table>
       <colgroup>
-        <col style="width: ${show_orig_col ? 16 : 20}%" />
-        <col style="width: ${show_orig_col ? 16 : 20}%" />
-        <col style="width: ${show_orig_col ? 16 : 20}%" />
-        <col style="width: ${show_orig_col ? 16 : 20}%" />
-        <col style="width: ${show_orig_col ? 16 : 20}%" />
-        {{if show_orig_col}}<col style="width: 16%" />{{/if}}
+      {{if show_orig_col}}
+        <col style="width: 16%" />
+        <col style="width: 16%" />
+        <col style="width: 16%" />
+        <col style="width: 16%" />
+        <col style="width: 16%" />
+        <col style="width: 16%" />
+      {{else}}
+        <col style="width: 20%" />
+        <col style="width: 20%" />
+        <col style="width: 20%" />
+        <col style="width: 20%" />
+        <col style="width: 20%" />
+      {{/if}}
       </colgroup>
       {{each(trade_index, trade) data}}
       <tbody class="og-new-trades">

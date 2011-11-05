@@ -28,12 +28,13 @@ $.register_module({
                             data: result.data,
                             extras: {
                                 data: result.data.data,
-                                show_orig_col: result.data.data.reduce(function (a, v) {
-                                    return a || v.fields.reduce(function (a, v) {return a || !!v[ORIG];}, a);
+                                show_orig_col: result.data.data.reduce(function (acc, val) {
+                                    return acc ||
+                                        !!val.fields.reduce(function (acc, val) {return acc || val[ORIG];}, false);
                                 }, false)
                             },
                             handlers: [{type: 'form:submit', handler: function (result) {
-                                console.log(result);
+                                // console.log(result);
                             }}]
                         });
                         form.dom();
