@@ -248,7 +248,7 @@ $.register_module({
                 check_state({args: args, conditions: [
                     {new_page: function () {positions.search(args), masthead.menu.set_tab(page_name);}}
                 ]});
-                if (args.id) return; else default_details();
+                if (!args.id) default_details();
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [
