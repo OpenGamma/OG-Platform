@@ -21,7 +21,7 @@ public final class Sort {
    * enum direction is used to specify the direction of the sort.
    * default direction used is ascend
    */
-  enum direction {
+  public enum direction {
     /** enumerates the sort direction as having ascending values */
     ascend,
     /** enumerates the sort direction as having descending values */
