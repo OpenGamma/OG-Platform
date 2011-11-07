@@ -12,6 +12,7 @@ import java.util.Collections;
 import com.opengamma.core.exchange.ExchangeUtils;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -34,8 +35,8 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.region.impl.InMemoryRegionMaster;
 import com.opengamma.util.money.Currency;
 
 
@@ -393,9 +394,10 @@ public class FinancialSecurityUtils {
   }
   /**
    * @param security the security to be examined.
+   * @param securitySource a security source
    * @return a Currency, where it is possible to determine a single Currency association, null otherwise.
    */
-  public static Collection<Currency> getCurrencies(final Security security) {
+  public static Collection<Currency> getCurrencies(final Security security, final SecuritySource securitySource) {
     if (security instanceof FinancialSecurity) {
       final FinancialSecurity finSec = (FinancialSecurity) security;
       final Collection<Currency> ccy = finSec.accept(new FinancialSecurityVisitor<Collection<Currency>>() {
@@ -468,7 +470,6 @@ public class FinancialSecurityUtils {
 
         @Override
         public Collection<Currency> visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
-          
           return Collections.singletonList(security.getCurrency());
         }
 
@@ -491,10 +492,7 @@ public class FinancialSecurityUtils {
         // REVIEW: jim 1-Aug-2011 -- fix once FXForwardSecurity is refactored
         @Override
         public Collection<Currency> visitFXForwardSecurity(final FXForwardSecurity security) {
-          //Collection<Currency> currencies = new ArrayList<Currency>();
-          //currencies.add(security.getPayCurrency());
-          //currencies.add(security.getReceiveCurrency());
-          return Collections.emptyList();          
+          return visitFXSecurity((FXSecurity) securitySource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId())));
         }
 
         @Override

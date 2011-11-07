@@ -309,17 +309,19 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   @Override
   public Set<Pair<String, ValueProperties>> visitCapFloorSecurity(CapFloorSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
-        .addAll(getSabrSensitivities())
-        .add(getPresentValue(ValueProperties.builder()))
-        .build();
+      .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
+      .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()))
+      .addAll(getSabrSensitivities())
+      .add(getPresentValue(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT"))).build();
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitCapFloorCMSSpreadSecurity(CapFloorCMSSpreadSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
-        .addAll(getSabrSensitivities())
-        .add(getPresentValue(ValueProperties.builder()))
-        .build();
+      .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
+      .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()))
+      .addAll(getSabrSensitivities())
+      .add(getPresentValue(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT"))).build();
   }
   
   @Override
