@@ -266,7 +266,6 @@ $.register_module({
                     }}
                 ]});
                 delete args['filter'];
-                securities.search(args);
                 search_filter();
             },
             load_delete: function (args) {securities.search(args), routes.go(routes.hash(module.rules.load, {}));},
