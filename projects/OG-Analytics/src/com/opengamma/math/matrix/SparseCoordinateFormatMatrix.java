@@ -9,6 +9,13 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.utilities.Find.condition;
+import com.opengamma.math.utilities.Max;
+import com.opengamma.math.utilities.Permute;
+import com.opengamma.math.utilities.Sort;
+import com.opengamma.math.utilities.Unique;
+import com.opengamma.math.utilities.Find;
+
 /**
  * Converts or instantiates a matrix to Sparse Coordinate Format (COO). COO is a non optimal method of storing sparse matrix data and is generally used as
  * an intermediary storage format prior to conversion to @see {@link CompressedSparseRowFormatMatrix} or {@link CompressedSparseColumnFormatMatrix}.
@@ -79,11 +86,66 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
     this(new DoubleMatrix2D(aMatrix));
   }
 
+  /**
+   * Construct from vectors of coordinates with corresponding values
+   * @param x x-coordinates of data points (column number)
+   * @param y y-coordinates of data points (row number)
+   * @param values value of data points (value)
+   * @param m the number of rows to implement in the instantiated matrix
+   * @param n the number of columns to implement in the instantiated matrix
+   */
+  public SparseCoordinateFormatMatrix(int[] x, int[] y, double[] values, int m, int n) {
+    Validate.notNull(x);
+    Validate.notNull(y);
+    Validate.notNull(values);
+    Validate.isTrue(x.length == y.length, "Vector lengths do not match, therefore one to one coordinate pairings do not exist");
+    Validate.isTrue(x.length == values.length, "Vector lengths do not match, therefore one to one coordinate pairings do not exist");
+    Validate.isTrue(m >= 1, "m (number of rows) must be greater than or equal to one");
+    Validate.isTrue(n >= 1, "n (number of columns) must be greater than or equal to one");
+    Validate.isTrue(Max.value(y) <= m - 1, "Number of rows requested (m) is less than the most positive row coordinate");
+    Validate.isTrue(Max.value(x) <= n - 1, "Number of columns requested (n) is less than the most positive column coordinate");
+    _els = x.length;
+    // twiddle rows into ascending order
+    int[] rowPerm = Sort.getIndex(y);
+    Permute.inplace(x, rowPerm);
+    Permute.inplace(y, rowPerm);
+    Permute.inplace(values, rowPerm);
 
-// here we shall shove in constructors for just about all types (eventually).
+    // temp storage
+    int[] yU = Unique.bitwise(y); // unique row indexes
+    int[] yTmp = new int[_els];
+    int[] xTmp = new int[_els];
+    double[] valuesTmp = new double[_els];
 
+    // walk vectors permute as needed assign to tmp Storage
+    _maxEntriesInARow = -1;
+    int ptr = 0;
+    for (int i = 0; i < yU.length; i++) {
+      int[] xlocals = Find.indexes(y, condition.eq, yU[i]);
+      Validate.notNull(xlocals, "Y coordinate given with no corresponding X coordinate, this should never happen");
+      int[] xperm = Sort.stateless(xlocals);
+      for (int j = 0; j < xlocals.length; j++) {
+        yTmp[ptr] = yU[i];
+        xTmp[ptr] = x[xperm[j]];
+        valuesTmp[ptr] = values[xperm[j]];
+        ptr++;
+      }
+      if (xlocals.length > _maxEntriesInARow) {
+        _maxEntriesInARow = xlocals.length;
+      }
+    }
 
-// Methods
+    _values = Arrays.copyOfRange(valuesTmp, 0, ptr);
+    _x = Arrays.copyOfRange(xTmp, 0, ptr);
+    _y = Arrays.copyOfRange(yTmp, 0, ptr);
+    _rows = m;
+    _cols = n;
+
+  }
+
+  // here we shall shove in constructors for just about all types (eventually).
+
+  // Methods
   /**
    * Returns the "coordinates" of the columns where there are nonzero entries
    * @return _x, the column coordinates
@@ -191,7 +253,7 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
         ptr++;
       }
     }
-    return  Arrays.copyOfRange(tmp, 0, ptr);
+    return Arrays.copyOfRange(tmp, 0, ptr);
   }
 
   /**
@@ -208,7 +270,7 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
         ptr++;
       }
     }
-    return  Arrays.copyOfRange(tmp, 0, ptr);
+    return Arrays.copyOfRange(tmp, 0, ptr);
   }
 
   /**
@@ -227,7 +289,6 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
     return _els;
   }
 
-
   /**
    * {@inheritDoc}
    */
@@ -235,7 +296,6 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
   public int getMaxNonZerosInSignificantDirection() {
     return _maxEntriesInARow;
   }
-
 
   /**
    * {@inheritDoc}
@@ -261,10 +321,10 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
   @Override
   public String toString() {
     return "SparseCoordinateFormatMatrix:\n"
-      + "x=" + Arrays.toString(_x) + "\n"
-      + "y=" + Arrays.toString(_y) + "\n"
-      + "data=" + Arrays.toString(_values) + "\n"
-      + "number of nonzero elements=" + _els;
+        + "x=" + Arrays.toString(_x) + "\n"
+        + "y=" + Arrays.toString(_y) + "\n"
+        + "data=" + Arrays.toString(_values) + "\n"
+        + "number of nonzero elements=" + _els;
   }
 
   /**

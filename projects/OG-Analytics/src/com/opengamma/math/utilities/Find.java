@@ -17,7 +17,7 @@ public class Find {
   /**
    * Enum for the condition to satisfy, rather Fortran.
    */
-  enum condition {
+  public enum condition {
     /** Equal to */
     eq,
     /** Not equal to */
