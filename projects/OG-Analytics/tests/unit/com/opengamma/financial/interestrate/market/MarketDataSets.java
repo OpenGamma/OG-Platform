@@ -18,11 +18,15 @@ import com.opengamma.financial.instrument.index.iborindex.Euribor3M;
 import com.opengamma.financial.instrument.index.iborindex.Euribor6M;
 import com.opengamma.financial.instrument.index.iborindex.UsdLibor3M;
 import com.opengamma.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.financial.model.interestrate.curve.SeasonalCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.curve.Curve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.math.curve.MultiplyCurveSpreadFunction;
+import com.opengamma.math.curve.SpreadDoublesCurve;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
@@ -91,6 +95,10 @@ public class MarketDataSets {
     MARKET_1.setCurve(ISSUER_UK_GOVT, CURVE_GBP_30);
     MARKET_1.setCurve(ISSUER_US_GOVT, CURVE_USD_30);
   }
+  // Seasonal factors (from February/January to December/November)
+  //  private static final double[] SEASONAL_FACTOR_EUR = new double[] {1.0010, 1.0010, 1.0020, 0.9990, 0.9990, 0.9990, 0.9990, 1.0000, 1.0010, 1.0010, 1.0010};
+  private static final double[] SEASONAL_FACTOR_USD = new double[] {1.0010, 1.0010, 1.0020, 0.9990, 0.9990, 0.9990, 0.9990, 1.0000, 1.0010, 1.0010, 1.0010};
+  //  private static final double[] SEASONAL_FACTOR_GBP = new double[] {1.0010, 1.0010, 1.0020, 0.9990, 0.9990, 0.9990, 0.9990, 1.0000, 1.0010, 1.0010, 1.0010};
   // Price index data
   private static final double[] UKRPI_VALUE = new double[] {217.9, 219.2, 220.7, 222.8, 223.6, 224.1, 223.6, 224.5, 225.3, 225.8, 226.8, 228.4, 229, 231.3, 232.5, 234.4, 235.2, 235.2};
   private static final ZonedDateTime[] UKRPI_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 1, 1), DateUtils.getUTCDate(2010, 2, 1), DateUtils.getUTCDate(2010, 3, 1),
@@ -127,7 +135,8 @@ public class MarketDataSets {
 
   /**
    * Creates a market with three currencies (EUR, USD, GBP), three Ibor indexes (Euribor3M, Euribor6M, UsdLibor3M) and three inflation (Euro HICP x, UK RPI and US CPI-U).
-   * The US CPI-U price curve is constructed to have the correct past data (if available in the time series) and a fake 2% inflation for the future.
+   * The US CPI-U price curve is constructed to have the correct past data (if available in the time series) and a fake 2% inflation for the future. 
+   * No seasonal adjustment is done.
    * @param pricingDate The data for which the curve is constructed.
    * @return The market.
    */
@@ -149,22 +158,36 @@ public class MarketDataSets {
     referenceDate[0] = referenceInterpolatedDate.withDayOfMonth(1);
     referenceDate[1] = referenceDate[0].plusMonths(1);
     int[] yearUs = new int[] {1, 5, 10, 20, 50};
-    double[] indexValueUs = new double[2 + yearUs.length];
-    double[] timeValueUs = new double[2 + yearUs.length];
+    double[] indexValueUs = new double[2 + 2 * yearUs.length];
+    double[] timeValueUs = new double[2 + 2 * yearUs.length];
     indexValueUs[0] = USCPI_TIME_SERIES.getValue(referenceDate[0]);
     indexValueUs[1] = USCPI_TIME_SERIES.getValue(referenceDate[1]);
     timeValueUs[0] = TimeCalculator.getTimeBetween(pricingDate, referenceDate[0]);
     timeValueUs[1] = TimeCalculator.getTimeBetween(pricingDate, referenceDate[1]);
-    ZonedDateTime[] maturityDateUs = new ZonedDateTime[yearUs.length];
+    ZonedDateTime[] maturityDateUs = new ZonedDateTime[2 * yearUs.length];
     //    double[] maturityTimeUs = new double[yearUs.length];
     for (int loopus = 0; loopus < yearUs.length; loopus++) {
-      maturityDateUs[loopus] = ScheduleCalculator.getAdjustedDate(spotUs, BUSINESS_DAY_USD, CALENDAR_USD, yearUs[loopus]);
-      timeValueUs[loopus + 2] = TimeCalculator.getTimeBetween(pricingDate, maturityDateUs[loopus]);
-      indexValueUs[loopus + 2] = indexValueUs[1] * Math.pow(1 + 0.02, yearUs[loopus]); // 2% inflation a year.
+      maturityDateUs[2 * loopus] = ScheduleCalculator.getAdjustedDate(referenceDate[0], BUSINESS_DAY_USD, CALENDAR_USD, Period.ofYears(yearUs[loopus]));
+      maturityDateUs[2 * loopus + 1] = ScheduleCalculator.getAdjustedDate(referenceDate[1], BUSINESS_DAY_USD, CALENDAR_USD, Period.ofYears(yearUs[loopus]));
+      timeValueUs[2 + 2 * loopus] = TimeCalculator.getTimeBetween(pricingDate, maturityDateUs[2 * loopus]);
+      timeValueUs[2 + 2 * loopus + 1] = TimeCalculator.getTimeBetween(pricingDate, maturityDateUs[2 * loopus + 1]);
+      indexValueUs[2 + 2 * loopus] = indexValueUs[0] * Math.pow(1 + 0.02, yearUs[loopus]); // 2% inflation a year.
+      indexValueUs[2 + 2 * loopus + 1] = indexValueUs[1] * Math.pow(1 + 0.02, yearUs[loopus]); // 2% inflation a year.
     }
     InterpolatedDoublesCurve curveUs = InterpolatedDoublesCurve.from(timeValueUs, indexValueUs, new LinearInterpolator1D(), NAME_USD_PRICE_INDEX);
     PriceIndexCurve priceIndexCurveUs = new PriceIndexCurve(curveUs);
     market.setCurve(PRICE_INDEX_USD, priceIndexCurveUs);
+    return market;
+  }
+
+  public static MarketBundle createMarket2(ZonedDateTime pricingDate) {
+    MarketBundle market = createMarket1(pricingDate);
+    Curve<Double, Double> curveNoAdj = market.getCurve(PRICE_INDEX_USD).getCurve();
+    Curve<Double, Double> adj = new SeasonalCurve(curveNoAdj.getXData()[0], SEASONAL_FACTOR_USD);
+    @SuppressWarnings("unchecked")
+    Curve<Double, Double>[] curveSet = new Curve[] {curveNoAdj, adj};
+    Curve<Double, Double> curveAdj = new SpreadDoublesCurve(new MultiplyCurveSpreadFunction(), curveSet);
+    market.replaceCurve(PRICE_INDEX_USD, new PriceIndexCurve(curveAdj));
     return market;
   }
 
@@ -182,6 +205,14 @@ public class MarketDataSets {
    */
   public static DoubleTimeSeries<ZonedDateTime> usCpiFrom2009() {
     return USCPI_TIME_SERIES;
+  }
+
+  public static PriceIndex[] getPriceIndexes() {
+    return new PriceIndex[] {PRICE_INDEX_EUR, PRICE_INDEX_GBP, PRICE_INDEX_USD};
+  }
+
+  public static IborIndex[] getIborIndexes() {
+    return new IborIndex[] {EURIBOR_3M, EURIBOR_6M, USDLIBOR_3M};
   }
 
 }

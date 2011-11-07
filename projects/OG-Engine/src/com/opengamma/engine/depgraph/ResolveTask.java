@@ -124,6 +124,11 @@ import com.opengamma.engine.value.ValueSpecification;
   private volatile State _state;
 
   /**
+   * Flag to mark whether any child production was rejected because of a value requirement loop.
+   */
+  private volatile boolean _recursion;
+
+  /**
    * Resolved target for the value requirement.
    */
   private ComputationTarget _target;
@@ -285,6 +290,14 @@ import com.opengamma.engine.value.ValueSpecification;
       }
     }
     return count;
+  }
+
+  public void setRecursionDetected() {
+    _recursion = true;
+  }
+
+  public boolean wasRecursionDetected() {
+    return _recursion;
   }
 
 }

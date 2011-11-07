@@ -61,6 +61,7 @@ public interface HistoricalTimeSeriesSource {
   /**
    * Finds a time-series from identifierBundle, source, provider and field.
    * <p>
+   * The validity date for identifiers is set to today's date.
    * This returns all the available data points.
    * 
    * @param identifierBundle  the identifier bundle, not null
@@ -91,6 +92,7 @@ public interface HistoricalTimeSeriesSource {
   /**
    * Finds a time-series from identifierBundle, source, provider and field.
    * <p>
+   * The validity date for identifiers is set to today's date.
    * This returns a subset of the data points filtered by the dates provided.
    * 
    * @param identifierBundle  the identifier bundle, not null
@@ -132,6 +134,7 @@ public interface HistoricalTimeSeriesSource {
   /**
    * Finds a time-series from identifierBundle using configuration.
    * <p>
+   * The validity date for identifiers is set to today's date.
    * This returns all the available data points.
    * 
    * @param dataField  the type of data required, see {@code HistoricalTimeSeriesFields}, not null
@@ -159,6 +162,7 @@ public interface HistoricalTimeSeriesSource {
   /**
    * Finds a time-series from identifierBundle using configuration.
    * <p>
+   * The validity date for identifiers is set to today's date.
    * This returns a subset of the data points filtered by the dates provided.
    * 
    * @param dataField  the type of data required, see {@code HistoricalTimeSeriesFields}, not null

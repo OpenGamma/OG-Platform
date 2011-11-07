@@ -171,8 +171,8 @@ public class CapFloorIborDefinitionTest {
     final String fundingCurve = "Funding";
     final String forwardCurve = "Forward";
     final String[] curves = {fundingCurve, forwardCurve};
-    final CapFloorIbor expectedCapIbor = new CapFloorIbor(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, ACCRUAL_FACTOR_FIXING,
-        forwardCurve, STRIKE, IS_CAP);
+    final CapFloorIbor expectedCapIbor = new CapFloorIbor(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, fixingTime, INDEX, fixingPeriodStartTime, fixingPeriodEndTime,
+        ACCRUAL_FACTOR_FIXING, forwardCurve, STRIKE, IS_CAP);
     final CapFloorIbor convertedCapIborDefinition = (CapFloorIbor) IBOR_CAP.toDerivative(REFERENCE_DATE, curves);
     assertEquals(expectedCapIbor, convertedCapIborDefinition);
     assertEquals(expectedCapIbor, IBOR_CAP.toDerivative(REFERENCE_DATE, HIGH_FIXING_TS, curves));

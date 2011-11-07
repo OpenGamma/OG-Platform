@@ -36,7 +36,8 @@ public final class ResolutionFailure implements Cloneable {
     LATE_RESOLUTION_FAILURE,
     NO_FUNCTIONS,
     RECURSIVE_REQUIREMENT,
-    UNSATISFIED
+    UNSATISFIED,
+    MARKET_DATA_MISSING
   }
 
   private final ValueRequirement _valueRequirement;
@@ -71,6 +72,10 @@ public final class ResolutionFailure implements Cloneable {
 
   protected static ResolutionFailure unsatisfied(final ValueRequirement valueRequirement) {
     return new ResolutionFailure(valueRequirement).appendEvent(Status.UNSATISFIED);
+  }
+
+  protected static ResolutionFailure marketDataMissing(final ValueRequirement valueRequirement) {
+    return new ResolutionFailure(valueRequirement).appendEvent(Status.MARKET_DATA_MISSING);
   }
 
   protected ResolutionFailure additionalRequirement(final ValueRequirement valueRequirement, final ResolutionFailure failure) {
@@ -196,6 +201,13 @@ public final class ResolutionFailure implements Cloneable {
               function = null;
             }
             visitor.visitUnsatisfied(getValueRequirement());
+            break;
+          case MARKET_DATA_MISSING:
+            if (function != null) {
+              visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional);
+              function = null;
+            }
+            visitor.visitMarketDataMissing(getValueRequirement());
             break;
           default:
             throw new IllegalStateException("event = " + event);

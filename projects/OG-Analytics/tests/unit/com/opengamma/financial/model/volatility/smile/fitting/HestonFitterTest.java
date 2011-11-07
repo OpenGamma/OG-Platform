@@ -78,7 +78,7 @@ public class HestonFitterTest {
       //using Fourier integral here rather than FFT 
       final double price = pricer.price(data, OPTIONS[i], heston, -0.5, 1e-10, true);
       BLACK_VOLS[i] = new BlackFunctionData(FORWARD, DF, blackImpliedVol.getImpliedVolatility(data, OPTIONS[i], price));
-      SABR_VOLS[i] = new BlackFunctionData(FORWARD, DF, sabr.getVolatilityFunction(OPTIONS[i]).evaluate(new SABRFormulaData(FORWARD, alpha, beta, nu, rho)));
+      SABR_VOLS[i] = new BlackFunctionData(FORWARD, DF, sabr.getVolatilityFunction(OPTIONS[i], FORWARD).evaluate(new SABRFormulaData(alpha, beta, rho, nu)));
     }
   }
 

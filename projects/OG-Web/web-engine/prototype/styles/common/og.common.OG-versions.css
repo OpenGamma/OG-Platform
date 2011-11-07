@@ -5,7 +5,6 @@
 
 .OG-versions header {
   padding: 10px;
-  background-color: #fffdf2;
   -webkit-border-top-left-radius: 5px;
   -webkit-border-top-right-radius: 5px;
   -moz-border-radius-topleft: 5px;
@@ -25,10 +24,6 @@
   width: 100%;
 }
 
-.OG-versions thead {
-  background-color: #fffdf2;
-}
-
 .OG-versions td,
 .OG-versions th {
   padding:  0 10px 0 10px;
@@ -44,7 +39,7 @@
 }
 
 .OG-versions tbody tr:hover {
-  background-color: #fffdf2;
+  background-color: #f3f1e7;
   color: #487287;
   cursor: default;
 }
@@ -65,4 +60,42 @@
 
 .OG-versions colgroup {
   width: 33%;
+}
+
+.OG-versions {
+  border: 1px solid #ffdd00!important;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.OG-versions .ui-layout-header {
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIklEQVQIW2NkQAKtra2SjDA+iFNdXf0cLADjgNiMyByQAACIGw2tx0FNhwAAAABJRU5ErkJggg==);
+  background-color: #fffdf2;
+}
+
+.OG-versions .ui-layout-content {
+  overflow: scroll;
+  overflow-x: auto;
+  overflow-y: scroll;
+}
+
+.OG-versions th {
+  font-weight: normal;
+  color: #999;
+}
+
+.OG-versions th:first-child {
+  color: inherit;
+}
+
+.OG-versions .og-divider {
+  border-bottom: 4px solid #f3f1e7;
+  border-left: 1px solid #fff;
+  border-right: 1px solid #fff;
+  clear: both;
+  height: 0;
+  outline: 1px solid #fff;
 }

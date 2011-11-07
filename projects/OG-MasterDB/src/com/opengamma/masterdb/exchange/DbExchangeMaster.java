@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 
 import org.fudgemsg.FudgeContext;
@@ -19,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
@@ -35,12 +35,13 @@ import com.opengamma.master.exchange.ExchangeHistoryResult;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
+import com.opengamma.master.exchange.ExchangeSearchSortOrder;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.paging.Paging;
 
@@ -85,6 +86,18 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
    */
   protected static final String FROM =
       "FROM exg_exchange main ";
+  /**
+   * SQL order by.
+   */
+  protected static final EnumMap<ExchangeSearchSortOrder, String> ORDER_BY_MAP = new EnumMap<ExchangeSearchSortOrder, String>(ExchangeSearchSortOrder.class);
+  static {
+    ORDER_BY_MAP.put(ExchangeSearchSortOrder.OBJECT_ID_ASC, "oid ASC");
+    ORDER_BY_MAP.put(ExchangeSearchSortOrder.OBJECT_ID_DESC, "oid DESC");
+    ORDER_BY_MAP.put(ExchangeSearchSortOrder.VERSION_FROM_INSTANT_ASC, "ver_from_instant ASC");
+    ORDER_BY_MAP.put(ExchangeSearchSortOrder.VERSION_FROM_INSTANT_DESC, "ver_from_instant DESC");
+    ORDER_BY_MAP.put(ExchangeSearchSortOrder.NAME_ASC, "name ASC");
+    ORDER_BY_MAP.put(ExchangeSearchSortOrder.NAME_DESC, "name DESC");
+  }
 
   /**
    * Creates an instance.
@@ -153,8 +166,9 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     where += sqlAdditionalWhere();
     
     String selectFromWhereInner = "SELECT id FROM exg_exchange " + where;
-    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
-    String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main.id" + sqlAdditionalOrderBy(false);
+    String orderBy = ORDER_BY_MAP.get(request.getSortOrder());
+    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY " + orderBy + " ", request.getPagingRequest());
+    String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main." + orderBy + sqlAdditionalOrderBy(false);
     String count = "SELECT COUNT(*) FROM exg_exchange " + where;
     return new String[] {search, count};
   }

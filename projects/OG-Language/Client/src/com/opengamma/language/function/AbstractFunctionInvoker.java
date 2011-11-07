@@ -21,7 +21,6 @@ import com.opengamma.language.async.ResultListener;
 import com.opengamma.language.context.GlobalContext;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.MetaParameter;
-import com.opengamma.language.error.AbstractException;
 import com.opengamma.language.error.Constants;
 import com.opengamma.language.invoke.AbstractInvoker;
 import com.opengamma.language.invoke.ParameterConverter;
@@ -58,10 +57,6 @@ public abstract class AbstractFunctionInvoker extends AbstractInvoker implements
     return new Result(Collections.singleton(resultData));
   }
 
-  private Result invokeException(final AbstractException e) {
-    return new Result(Collections.singleton(DataUtils.of(e.getValue())));
-  }
-
   // AbstractInvoker
 
   @Override
@@ -78,33 +73,27 @@ public abstract class AbstractFunctionInvoker extends AbstractInvoker implements
 
   @Override
   public final Result invoke(final SessionContext sessionContext, final List<Data> parameterValue) throws AsynchronousExecution {
+    final Object[] parameters = convertParameters(sessionContext, parameterValue);
+    final Object resultObject;
     try {
-      final Object[] parameters = convertParameters(sessionContext, parameterValue);
-      final Object resultObject;
-      try {
-        resultObject = invokeImpl(sessionContext, parameters);
-      } catch (AsynchronousExecution e) {
-        final AsynchronousOperation<Result> async = new AsynchronousOperation<Result>();
-        final ResultCallback<Result> asyncResult = async.getCallback();
-        e.setResultListener(new ResultListener<Object>() {
-          @Override
-          public void operationComplete(final AsynchronousResult<Object> result) {
-            try {
-              final Object resultObject = result.getResult();
-              asyncResult.setResult(invokeResult(sessionContext, resultObject));
-            } catch (AbstractException e) {
-              asyncResult.setResult(invokeException(e));
-            } catch (RuntimeException e) {
-              asyncResult.setException(e);
-            }
+      resultObject = invokeImpl(sessionContext, parameters);
+    } catch (AsynchronousExecution e) {
+      final AsynchronousOperation<Result> async = new AsynchronousOperation<Result>();
+      final ResultCallback<Result> asyncResult = async.getCallback();
+      e.setResultListener(new ResultListener<Object>() {
+        @Override
+        public void operationComplete(final AsynchronousResult<Object> result) {
+          try {
+            final Object resultObject = result.getResult();
+            asyncResult.setResult(invokeResult(sessionContext, resultObject));
+          } catch (RuntimeException e) {
+            asyncResult.setException(e);
           }
-        });
-        return async.getResult();
-      }
-      return invokeResult(sessionContext, resultObject);
-    } catch (AbstractException e) {
-      return invokeException(e);
+        }
+      });
+      return async.getResult();
     }
+    return invokeResult(sessionContext, resultObject);
   }
 
 }

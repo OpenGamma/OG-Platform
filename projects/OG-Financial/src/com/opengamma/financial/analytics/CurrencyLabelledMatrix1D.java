@@ -26,12 +26,12 @@ public class CurrencyLabelledMatrix1D extends LabelledMatrix1D<Currency, Currenc
   }
 
   @Override
-  protected LabelledMatrix1D<Currency, Currency> getMatrix(final Currency[] keys, final Object[] labels, final double[] values) {
+  public LabelledMatrix1D<Currency, Currency> getMatrix(final Currency[] keys, final Object[] labels, final double[] values) {
     return new CurrencyLabelledMatrix1D(keys, labels, values);
   }
 
   @Override
-  protected LabelledMatrix1D<Currency, Currency> getMatrix(final Currency[] keys, final double[] values) {
+  public LabelledMatrix1D<Currency, Currency> getMatrix(final Currency[] keys, final double[] values) {
     return new CurrencyLabelledMatrix1D(keys, values);
   }
 

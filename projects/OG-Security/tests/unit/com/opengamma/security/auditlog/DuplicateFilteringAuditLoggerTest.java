@@ -12,12 +12,15 @@ import org.testng.annotations.Test;
 /**
  * 
  */
-@Test
+@Test(invocationCount = 4)
 public class DuplicateFilteringAuditLoggerTest {
 
   public void testDuplicateFiltering() throws InterruptedException {
     InMemoryAuditLogger memoryLogger = new InMemoryAuditLogger();  
-    DuplicateFilteringAuditLogger filteringLogger = new DuplicateFilteringAuditLogger(memoryLogger, 1000, 1);
+    
+    int seconds = 3; //Big enough to make sure writes complete, short enough that we can wait for timeout
+    
+    DuplicateFilteringAuditLogger filteringLogger = new DuplicateFilteringAuditLogger(memoryLogger, 1000, seconds);
     
     log5Messages(filteringLogger);
     assertEquals(5, memoryLogger.getMessages().size());
@@ -25,7 +28,7 @@ public class DuplicateFilteringAuditLoggerTest {
     log5Messages(filteringLogger);
     assertEquals(5, memoryLogger.getMessages().size());
     
-    Thread.sleep(1500);
+    Thread.sleep(seconds * 2 * 1000); //Long enough to expire everything
     
     log5Messages(filteringLogger);
     assertEquals(10, memoryLogger.getMessages().size());

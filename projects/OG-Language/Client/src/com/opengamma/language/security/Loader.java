@@ -16,6 +16,7 @@ import com.opengamma.financial.security.EHCachingFinancialSecuritySource;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
+import com.opengamma.language.function.FunctionProviderBean;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
@@ -73,7 +74,9 @@ public class Loader extends ContextInitializationBean {
     }
     s_logger.info("Configuring security support");
     globalContext.setSecuritySource(new EHCachingFinancialSecuritySource(new RemoteFinancialSecuritySource(getConfiguration().getFudgeContext(), restTarget), getCacheManager()));
-    // TODO: type, function and procedure providers
+    globalContext.getFunctionProvider().addProvider(
+        new FunctionProviderBean(FetchSecurityFunction.INSTANCE));
+    // TODO: type and procedure providers
   }
 
 }

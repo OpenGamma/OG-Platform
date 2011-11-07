@@ -5,8 +5,14 @@
  */
 package com.opengamma.util.test;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.PostgreSQLDialect;
+
+import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Database management for Postgres databases.
@@ -139,4 +145,24 @@ public final class PostgresDbManagement extends AbstractDbManagement {
         "template1");
   }
 
+  @Override
+  public void dropSchema(String catalog, String schema) {
+    if (schema != null) {
+      super.dropSchema(catalog, schema);
+    } else {
+      try {
+        if (!getCatalogCreationStrategy().catalogExists(catalog)) {
+          return;
+        }
+        Connection conn = connect(catalog);
+        Statement statement = conn.createStatement();
+        //TODO default schema
+        statement.executeUpdate("DROP SCHEMA IF EXISTS public CASCADE;CREATE SCHEMA public;");
+        statement.close();
+        conn.close();
+      } catch (SQLException se) {
+        throw new OpenGammaRuntimeException("Failed to drop the default schema", se);
+      }
+    }
+  }
 }

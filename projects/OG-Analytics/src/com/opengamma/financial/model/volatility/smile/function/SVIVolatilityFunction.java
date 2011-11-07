@@ -16,7 +16,7 @@ import com.opengamma.math.function.Function1D;
 public class SVIVolatilityFunction implements VolatilityFunctionProvider<SVIFormulaData> {
 
   @Override
-  public Function1D<SVIFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option) {
+  public Function1D<SVIFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option, final double forward) {
     Validate.notNull(option, "option");
     final double k = option.getStrike();
     final double t = option.getTimeToExpiry();

@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate.payments;
 
+import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CapFloor;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.util.money.Currency;
@@ -31,6 +32,7 @@ public class CapFloorIbor extends CouponIbor implements CapFloor {
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param notional Coupon notional.
    * @param fixingTime Time (in years) up to fixing.
+   * @param index The Ibor-like index on which the coupon fixes.
    * @param fixingPeriodStartTime Time (in years) up to the start of the fixing period.
    * @param fixingPeriodEndTime Time (in years) up to the end of the fixing period.
    * @param fixingYearFraction The year fraction (or accrual factor) for the fixing period.
@@ -38,9 +40,9 @@ public class CapFloorIbor extends CouponIbor implements CapFloor {
    * @param strike The strike
    * @param isCap The cap/floor flag.
    */
-  public CapFloorIbor(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double fixingTime, double fixingPeriodStartTime,
+  public CapFloorIbor(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double fixingTime, IborIndex index, double fixingPeriodStartTime,
       double fixingPeriodEndTime, double fixingYearFraction, String forwardCurveName, double strike, boolean isCap) {
-    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, forwardCurveName);
+    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime, index, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, forwardCurveName);
     _strike = strike;
     _isCap = isCap;
   }
@@ -51,8 +53,8 @@ public class CapFloorIbor extends CouponIbor implements CapFloor {
    * @return The cap/floor.
    */
   public CapFloorIbor withStrike(final double strike) {
-    return new CapFloorIbor(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixingTime(), getFixingPeriodStartTime(), getFixingPeriodEndTime(),
-        getFixingYearFraction(), getForwardCurveName(), strike, _isCap);
+    return new CapFloorIbor(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixingTime(), getIndex(), getFixingPeriodStartTime(),
+        getFixingPeriodEndTime(), getFixingYearFraction(), getForwardCurveName(), strike, _isCap);
   }
 
   /**
@@ -64,7 +66,7 @@ public class CapFloorIbor extends CouponIbor implements CapFloor {
    */
   public static CapFloorIbor from(final CouponIbor coupon, final double strike, final boolean isCap) {
     return new CapFloorIbor(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getFundingCurveName(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(),
-        coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingYearFraction(), coupon.getForwardCurveName(), strike, isCap);
+        coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingYearFraction(), coupon.getForwardCurveName(), strike, isCap);
   }
 
   @Override

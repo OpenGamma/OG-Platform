@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
@@ -57,6 +58,10 @@ public class HistoricalMarketDataProvider extends AbstractMarketDataProvider imp
     _permissionProvider = new PermissiveMarketDataPermissionProvider();
   }
   
+  public HistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final HistoricalMarketDataFieldResolver fieldResolver) {
+    this(historicalTimeSeriesSource, null, fieldResolver, null);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public void subscribe(UserPrincipal user, ValueRequirement valueRequirement) {
@@ -112,14 +117,14 @@ public class HistoricalMarketDataProvider extends AbstractMarketDataProvider imp
   //-------------------------------------------------------------------------
 
   @Override
-  public boolean isAvailable(ValueRequirement requirement) {
+  public MarketDataAvailability getAvailability(final ValueRequirement requirement) {
     final String fieldName = getTimeSeriesFieldResolver().resolve(requirement.getValueName(), getTimeSeriesFieldResolverKey());
     if (fieldName == null) {
-      return false;
+      return MarketDataAvailability.NOT_AVAILABLE;
     }
     final ExternalId identifier = requirement.getTargetSpecification().getIdentifier();
     final HistoricalTimeSeries hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(fieldName, ExternalIdBundle.of(identifier), getTimeSeriesResolverKey());
-    return (hts != null);
+    return (hts != null) ? MarketDataAvailability.AVAILABLE : MarketDataAvailability.NOT_AVAILABLE;
   }
   
   //-------------------------------------------------------------------------

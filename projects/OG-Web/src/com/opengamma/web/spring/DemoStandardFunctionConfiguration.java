@@ -86,12 +86,14 @@ import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionCur
 import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionPresentValueVolatilitySensitivityFunction;
+import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionVegaFunction;
 import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionVegaQuoteFunction;
 import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionCurrencyExposureFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionPresentValueVolatilitySensitivityFunction;
+import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionVegaFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionVegaQuoteFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureGrossBasisFromCurvesFunction;
@@ -391,6 +393,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FX_PRESENT_VALUE);
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.VEGA_MATRIX);
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.VEGA_QUOTE_MATRIX);
     addSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
     addSummingFunction(functionConfigs, ValueRequirementNames.PRICE_SERIES);
     addSummingFunction(functionConfigs, ValueRequirementNames.PNL_SERIES);
@@ -417,6 +420,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
     addScalingFunction(functionConfigs, ValueRequirementNames.VEGA_MATRIX);
     addSummingFunction(functionConfigs, ValueRequirementNames.VEGA_MATRIX);
+    addScalingFunction(functionConfigs, ValueRequirementNames.VEGA_QUOTE_MATRIX);
+    addSummingFunction(functionConfigs, ValueRequirementNames.VEGA_QUOTE_MATRIX);
     addScalingFunction(functionConfigs, ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES);
     addSummingFunction(functionConfigs, ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES);
 
@@ -549,6 +554,14 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction.class.getName(), 
         Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionVegaFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionVegaFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionVegaFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionVegaFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionVegaQuoteFunction.class.getName(), 
         Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionVegaQuoteFunction.class.getName(), 
@@ -599,6 +612,14 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionYieldCurveNodeSensitivitiesFunction.class.getName(), 
         Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionYieldCurveNodeSensitivitiesFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionVegaFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionVegaFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionVegaFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionVegaFunction.class.getName(), 
         Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionVegaQuoteFunction.class.getName(), 
         Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT")));

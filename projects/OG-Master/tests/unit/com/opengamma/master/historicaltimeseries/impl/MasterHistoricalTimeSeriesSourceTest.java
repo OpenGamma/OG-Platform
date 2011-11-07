@@ -84,6 +84,7 @@ public class MasterHistoricalTimeSeriesSourceTest {
 
   public void getHistoricalTimeSeriesByExternalIdWithMetaData() throws Exception {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest(IDENTIFIERS);
+    request.setValidityDate(LocalDate.now());
     request.setDataSource(BBG_DATA_SOURCE);
     request.setDataProvider(CMPL_DATA_PROVIDER);
     request.setDataField(CLOSE_DATA_FIELD);
@@ -112,7 +113,7 @@ public class MasterHistoricalTimeSeriesSourceTest {
     hts.setUniqueId(UID);
     hts.setTimeSeries(randomTimeSeries());
     when(_mockMaster.getTimeSeries(UID, null, null)).thenReturn(hts);
-    when(_mockResolver.resolve(HistoricalTimeSeriesFields.LAST_PRICE, IDENTIFIERS, null, TEST_CONFIG)).thenReturn(UID);
+    when(_mockResolver.resolve(HistoricalTimeSeriesFields.LAST_PRICE, IDENTIFIERS, LocalDate.now(), TEST_CONFIG)).thenReturn(UID);
     
     HistoricalTimeSeries test = _tsSource.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, IDENTIFIERS, TEST_CONFIG);
     verify(_mockMaster, times(1)).getTimeSeries(UID, null, null);
@@ -127,6 +128,7 @@ public class MasterHistoricalTimeSeriesSourceTest {
     LocalDate start = end.minusDays(7);
     
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest(IDENTIFIERS);
+    request.setValidityDate(LocalDate.now());
     request.setDataSource(BBG_DATA_SOURCE);
     request.setDataProvider(CMPL_DATA_PROVIDER);
     request.setDataField(CLOSE_DATA_FIELD);

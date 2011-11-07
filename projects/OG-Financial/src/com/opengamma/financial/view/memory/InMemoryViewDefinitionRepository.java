@@ -56,8 +56,8 @@ public class InMemoryViewDefinitionRepository implements ManageableViewDefinitio
   }
 
   @Override
-  public Set<UniqueId> getDefinitionIds() {
-    return new TreeSet<UniqueId>(_definitionsByUniqueId.keySet());
+  public Set<ObjectId> getDefinitionIds() {
+    return new TreeSet<ObjectId>(_definitionsByNewest.keySet());
   }
 
   public Map<UniqueId, String> getDefinitionEntries() {

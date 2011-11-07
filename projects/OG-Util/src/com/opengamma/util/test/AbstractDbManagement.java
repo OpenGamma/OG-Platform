@@ -234,14 +234,16 @@ public abstract class AbstractDbManagement implements DbManagement {
       Statement statement = conn.createStatement();
       
       // Clear tables SQL
+      List<String> tablesToClear = new ArrayList<String>();
       for (String name : getAllTables(catalog, schema, statement)) {
-        if (ignoredTables.contains(name.toLowerCase())) {
-          continue;
+        if (!ignoredTables.contains(name.toLowerCase())) {
+          tablesToClear.add(name);
         }
-        
+      }
+      List<String> clearTablesCommands = getClearTablesCommand(schema, tablesToClear);
+      script.addAll(clearTablesCommands);
+      for (String name : tablesToClear) {
         Table table = new Table(name);
-        script.add("DELETE FROM " + table.getQualifiedName(getHibernateDialect(), null, schema));
-        
         if (table.getName().toLowerCase().indexOf("hibernate_sequence") != -1) { // if it's a sequence table, reset it 
           script.add("INSERT INTO " + table.getQualifiedName(getHibernateDialect(), null, schema) + " values ( 1 )");
         }
@@ -280,6 +282,15 @@ public abstract class AbstractDbManagement implements DbManagement {
       } catch (SQLException e) {
       }
     }           
+  }
+
+  protected List<String> getClearTablesCommand(String schema, List<String> tablesToClear) {
+    List<String> clearTablesCommands = new ArrayList<String>();
+    for (String name : tablesToClear) {
+      Table table = new Table(name);
+      clearTablesCommands.add("DELETE FROM " + table.getQualifiedName(getHibernateDialect(), null, schema));
+    }
+    return clearTablesCommands;
   }
 
   protected List<String> getAllSchemas(final String catalog, final Statement stmt) throws SQLException {
