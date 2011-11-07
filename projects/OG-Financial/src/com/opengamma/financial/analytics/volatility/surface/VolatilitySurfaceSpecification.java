@@ -44,6 +44,7 @@ public class VolatilitySurfaceSpecification {
     return _target;
   }
   
+  @Override
   public boolean equals(Object o) {
     if (o == null) {
       return false;
@@ -57,6 +58,7 @@ public class VolatilitySurfaceSpecification {
            other.getSurfaceInstrumentProvider().equals(getSurfaceInstrumentProvider());
   }
   
+  @Override
   public int hashCode() {
     return getName().hashCode() * getTarget().hashCode();
   }

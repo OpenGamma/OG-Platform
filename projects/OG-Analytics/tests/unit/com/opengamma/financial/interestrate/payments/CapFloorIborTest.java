@@ -21,6 +21,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
@@ -36,8 +37,8 @@ public class CapFloorIborTest {
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-  //  private static final boolean IS_EOM = true;
-  //  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+  private static final boolean IS_EOM = true;
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
 
   private static final double NOTIONAL = 1000000;
   private static final double STRIKE = 0.04;
@@ -64,7 +65,7 @@ public class CapFloorIborTest {
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
 
-  private static final CapFloorIbor CAP = new CapFloorIbor(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, FIXING_START_TIME, FIXING_END_TIME,
+  private static final CapFloorIbor CAP = new CapFloorIbor(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME,
       FIXING_YEAR_FRACTION, FORWARD_CURVE_NAME, STRIKE, IS_CAP);
 
   @Test
@@ -78,7 +79,7 @@ public class CapFloorIborTest {
   @Test
   public void withStrike() {
     double otherStrike = STRIKE + 0.01;
-    CapFloorIbor otherCap = new CapFloorIbor(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, FIXING_START_TIME, FIXING_END_TIME, FIXING_YEAR_FRACTION,
+    CapFloorIbor otherCap = new CapFloorIbor(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_YEAR_FRACTION,
         FORWARD_CURVE_NAME, otherStrike, IS_CAP);
     CapFloorIbor otherCapWith = CAP.withStrike(otherStrike);
     assertEquals("Strike", otherStrike, otherCapWith.getStrike());
