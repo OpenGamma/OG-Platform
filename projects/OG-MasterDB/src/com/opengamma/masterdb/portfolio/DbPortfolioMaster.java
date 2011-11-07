@@ -88,7 +88,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
         "n.tree_right AS tree_right, " +
         "n.name AS node_name, " +
         "p.key_scheme AS pos_key_scheme, " +
-        "p.key_value AS pos_key_value " +
+        "p.key_value AS pos_key_value, " +
         "prtAttr.key AS prt_attr_key, " +
         "prtAttr.value AS prt_attr_value ";
   /**
@@ -263,7 +263,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     // the arguments for inserting into the portifolio_attribute table
     final List<DbMapSqlParameterSource> prtAttrList = Lists.newArrayList();
     for (Entry<String, String> entry : document.getPortfolio().getAttributes().entrySet()) {
-      final long prtAttrId = nextId("prt_attr_seq");
+      final long prtAttrId = nextId("prt_portfolio_attr_seq");
       final DbMapSqlParameterSource posAttrArgs = new DbMapSqlParameterSource()
           .addValue("attr_id", prtAttrId)
           .addValue("portfolio_id", portfolioId)
@@ -530,7 +530,9 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
         final String posIdValue = rs.getString("POS_KEY_VALUE");
         if (posIdScheme != null && posIdValue != null) {
           UniqueId id = UniqueId.of(posIdScheme, posIdValue);
-          _node.addPosition(id);
+          if (!_node.getPositionIds().contains(id.getObjectId())) {
+            _node.addPosition(id);
+          }
         }
         
         final String prtAttrKey = rs.getString("PRT_ATTR_KEY");
