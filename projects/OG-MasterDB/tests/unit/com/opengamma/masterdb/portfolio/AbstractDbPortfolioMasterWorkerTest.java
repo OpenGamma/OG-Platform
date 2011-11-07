@@ -9,6 +9,7 @@ import static com.opengamma.util.db.DbDateUtils.MAX_SQL_TIMESTAMP;
 import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.Instant;
 import javax.time.TimeSource;
@@ -94,6 +95,16 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
         211, "DbPos", "500");
     template.update("INSERT INTO prt_position VALUES (?,?,?)",
         212, "DbPos", "500");
+    
+    template.update("INSERT INTO prt_portfolio_attribute VALUES (?,?,?,?,?)",
+        10, 101, 101, "K101a", "V101a");
+    template.update("INSERT INTO prt_portfolio_attribute VALUES (?,?,?,?,?)",
+        11, 101, 101, "K101b", "V101b");
+    template.update("INSERT INTO prt_portfolio_attribute VALUES (?,?,?,?,?)",
+        12, 102, 102,  "K102a", "V102a");
+    template.update("INSERT INTO prt_portfolio_attribute VALUES (?,?,?,?,?)",
+        13, 102, 102, "K102b", "V102b");
+    
     _totalPositions = 6;
   }
 
@@ -117,6 +128,11 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     assertEquals("TestPortfolio101", portfolio.getName());
     ManageablePortfolioNode rootNode = portfolio.getRootNode();
     assertNode111(rootNode, depth, uniqueId);
+    
+    assertNotNull(portfolio.getAttributes());
+    assertEquals(2, portfolio.getAttributes().size());
+    assertEquals("V101a", portfolio.getAttributes().get("K101a"));
+    assertEquals("V101b", portfolio.getAttributes().get("K101b"));
   }
 
   protected void assertNode111(final ManageablePortfolioNode node, final int depth, final UniqueId portfolioId) {
@@ -139,7 +155,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     assertEquals("TestNode112", node.getName());
     assertEquals(UniqueId.of("DbPrt", "111", "0"), node.getParentNodeId());
     assertEquals(portfolioId, node.getPortfolioId());
-    assertEquals(1, node.getPositionIds().size());
+    assertEquals(node.getPositionIds().toString(), 1, node.getPositionIds().size());
     assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
     if (depth == 1) {
       assertEquals(0, node.getChildNodes().size());
@@ -172,6 +188,11 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     ManageablePortfolio portfolio = test.getPortfolio();
     assertEquals(uniqueId, portfolio.getUniqueId());
     assertEquals("TestPortfolio102", portfolio.getName());
+    
+    assertNotNull(portfolio.getAttributes());
+    assertEquals(2, portfolio.getAttributes().size());
+    assertEquals("V102a", portfolio.getAttributes().get("K102a"));
+    assertEquals("V102b", portfolio.getAttributes().get("K102b"));
   }
 
   protected void assert201(final PortfolioDocument test) {
@@ -187,6 +208,9 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     assertEquals("TestPortfolio201", portfolio.getName());
     ManageablePortfolioNode rootNode = portfolio.getRootNode();
     assertNode211(rootNode, uniqueId);
+    
+    assertNotNull(portfolio.getAttributes());
+    assertTrue(portfolio.getAttributes().isEmpty());
   }
 
   protected void assertNode211(final ManageablePortfolioNode node, final UniqueId portfolioId) {
@@ -212,6 +236,9 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     assertEquals("TestPortfolio202", portfolio.getName());
     ManageablePortfolioNode rootNode = portfolio.getRootNode();
     assertNode212(rootNode, uniqueId);
+    
+    assertNotNull(portfolio.getAttributes());
+    assertTrue(portfolio.getAttributes().isEmpty());
   }
 
   protected void assertNode212(final ManageablePortfolioNode node, final UniqueId portfolioId) {
