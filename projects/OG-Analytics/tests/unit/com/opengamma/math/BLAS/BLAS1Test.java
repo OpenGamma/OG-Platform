@@ -636,6 +636,64 @@ public class BLAS1Test {
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////// DCOPY /////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testDCOPY_nullX() {
+    BLAS1.dcopyInplace(xnull, y1);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testDCOPY_nullY() {
+    BLAS1.dcopyInplace(xnull, y1);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testDCOPY_badLengths() {
+    BLAS1.dcopyInplace(x1, y16);
+  }
+
+  @Test
+  public void testDCOPY_x37_copy_y37() {
+    double[] tmpX = new double[x37.length];
+    double[] tmpY = new double[y37.length];
+    System.arraycopy(x37, 0, tmpX, 0, x37.length);
+    System.arraycopy(y37, 0, tmpY, 0, y37.length);
+    BLAS1.dcopyInplace(tmpX, tmpY);
+    assertTrue(Arrays.equals(tmpX, y37));
+    assertTrue(Arrays.equals(tmpY, y37));
+  }
+
+  @Test
+  public void testDCOPY_D1D_x37_copy_y37() {
+    DoubleMatrix1D tmpX = new DoubleMatrix1D(x37);
+    double[] tmpY = new double[y37.length];
+    System.arraycopy(y37, 0, tmpY, 0, y37.length);
+    BLAS1.dcopyInplace(tmpX, tmpY);
+    assertTrue(Arrays.equals(tmpX.getData(), y37));
+    assertTrue(Arrays.equals(tmpY, y37));
+  }
+
+  @Test
+  public void testDCOPY_x37_copy_D1D_y37() {
+    DoubleMatrix1D tmpY = new DoubleMatrix1D(y37);
+    double[] tmpX = new double[x37.length];
+    System.arraycopy(x37, 0, tmpX, 0, x37.length);
+    BLAS1.dcopyInplace(tmpX, tmpY);
+    assertTrue(Arrays.equals(tmpX, y37));
+    assertTrue(Arrays.equals(tmpY.getData(), y37));
+  }
+
+  @Test
+  public void testDCOPY_D1D_x37_copy_D1D_y37() {
+    DoubleMatrix1D tmpY = new DoubleMatrix1D(y37);
+    DoubleMatrix1D tmpX = new DoubleMatrix1D(x37);
+    BLAS1.dcopyInplace(tmpX, tmpY);
+    assertTrue(Arrays.equals(tmpX.getData(), y37));
+    assertTrue(Arrays.equals(tmpY.getData(), y37));
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
   /* HELPERS *//* HELPERS *//* HELPERS *//* HELPERS *//* HELPERS *//* HELPERS *//* HELPERS */
   ///////////////////////////////////////////////////////////////////////////////////////////////
 

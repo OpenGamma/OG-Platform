@@ -494,6 +494,56 @@ public class BLAS1 {
     dswapInplace(x.getData(), y.getData());
   }
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////// DCOPY /////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  /**
+   * DCOPY performs the following vector operation
+   *
+   *  x <-- y
+   *
+   *  x and y are vectors.
+   *
+   */
+
+  /**
+   * DCOPY: x <-- y
+   * @param x a vector
+   * @param y a vector
+   */
+  public static void dcopyInplace(double[] x, double[] y) {
+    Validate.notNull(x);
+    Validate.notNull(y);
+    Validate.isTrue(x.length == y.length);
+    System.arraycopy(y, 0, x, 0, x.length);
+  }
+
+  /**
+   * DCOPY: x <-- y
+   * @param x a DoubleMatrix1D
+   * @param y a vector
+   */
+  public static void dcopyInplace(DoubleMatrix1D x, double[] y) {
+    dcopyInplace(x.getData(), y);
+  }
+
+  /**
+   * DCOPY: x <-- y
+   * @param x a vector
+   * @param y a DoubleMatrix1D
+   */
+  public static void dcopyInplace(double[] x, DoubleMatrix1D y) {
+    dcopyInplace(x, y.getData());
+  }
+
+  /**
+   * DCOPY: x <-- y
+   * @param x a DoubleMatrix1D
+   * @param y a DoubleMatrix1D
+   */
+  public static void dcopyInplace(DoubleMatrix1D x, DoubleMatrix1D y) {
+    dcopyInplace(x.getData(), y.getData());
+  }
 
 } // class end
 
