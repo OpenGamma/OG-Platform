@@ -198,6 +198,7 @@ const TCHAR *CAbstractSettings::CacheReplace (const TCHAR *pszKey, const TCHAR *
 		pCache->pszKey = _tcsdup (pszKey);
 		pCache->pszValue = _tcsdup (pszValue);
 		pCache->pNext = m_pCache;
+		m_pCache = pCache;
 		return pCache->pszValue;
 	}
 }
@@ -254,6 +255,7 @@ void CAbstractSettings::RegistryEnumerate (HKEY hkey) const {
 		DWORD dwSize = sizeof (data);
 		lResult = RegEnumValue (hkey, dwIndex, szValueName, &cchValueName, NULL, &dwType, (LPBYTE)&data, &dwSize);
 		if (lResult != ERROR_SUCCESS) {
+			LOGINFO (TEXT ("Enumerated ") << dwIndex << TEXT (" registry values"));
 			break;
 		}
 		switch (dwType) {
