@@ -9,12 +9,14 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.utilities.Find;
 import com.opengamma.math.utilities.Find.condition;
 import com.opengamma.math.utilities.Max;
 import com.opengamma.math.utilities.Permute;
 import com.opengamma.math.utilities.Sort;
+import com.opengamma.math.utilities.Sort.direction;
 import com.opengamma.math.utilities.Unique;
-import com.opengamma.math.utilities.Find;
+import com.opengamma.math.utilities.View;
 
 /**
  * Converts or instantiates a matrix to Sparse Coordinate Format (COO). COO is a non optimal method of storing sparse matrix data and is generally used as
@@ -107,31 +109,39 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
     _els = x.length;
     // twiddle rows into ascending order
     int[] rowPerm = Sort.getIndex(y);
-    Permute.inplace(x, rowPerm);
-    Permute.inplace(y, rowPerm);
-    Permute.inplace(values, rowPerm);
+    int[] localRSx = Permute.stateless(x, rowPerm); // local row sorted X
+    int[] localRSy = Permute.stateless(y, rowPerm); // local row sorted Y
+    double[] localRSv = Permute.stateless(values, rowPerm); // local row sorted values
 
     // temp storage
-    int[] yU = Unique.bitwise(y); // unique row indexes
     int[] yTmp = new int[_els];
     int[] xTmp = new int[_els];
     double[] valuesTmp = new double[_els];
+
+    // unique rows and sort (should be sorted anyway)
+    int[] yU = Unique.bitwise(localRSy); // unique row indexes
+    Sort.valuesInplace(yU, direction.ascend);
 
     // walk vectors permute as needed assign to tmp Storage
     _maxEntriesInARow = -1;
     int ptr = 0;
     for (int i = 0; i < yU.length; i++) {
-      int[] xlocals = Find.indexes(y, condition.eq, yU[i]);
-      Validate.notNull(xlocals, "Y coordinate given with no corresponding X coordinate, this should never happen");
-      int[] xperm = Sort.stateless(xlocals);
-      for (int j = 0; j < xlocals.length; j++) {
+
+      int[] indexesOfXOnThisRow = Find.indexes(localRSy, condition.eq, yU[i]);
+
+      int[] xlocaltmp = View.byIndex(localRSx, indexesOfXOnThisRow);
+      int[] xlocaltmpsortedindex = Sort.getIndex(xlocaltmp);
+      xlocaltmp = Permute.stateless(xlocaltmp, xlocaltmpsortedindex);
+      double[] vlocaltmp = Permute.stateless(View.byIndex(localRSv, indexesOfXOnThisRow), xlocaltmpsortedindex);
+      Validate.notNull(indexesOfXOnThisRow, "Y coordinate given with no corresponding X coordinate, this should never happen");
+      for (int j = 0; j < indexesOfXOnThisRow.length; j++) {
         yTmp[ptr] = yU[i];
-        xTmp[ptr] = x[xperm[j]];
-        valuesTmp[ptr] = values[xperm[j]];
+        xTmp[ptr] = xlocaltmp[j];
+        valuesTmp[ptr] = vlocaltmp[j];
         ptr++;
       }
-      if (xlocals.length > _maxEntriesInARow) {
-        _maxEntriesInARow = xlocals.length;
+      if (indexesOfXOnThisRow.length > _maxEntriesInARow) {
+        _maxEntriesInARow = indexesOfXOnThisRow.length;
       }
     }
 
