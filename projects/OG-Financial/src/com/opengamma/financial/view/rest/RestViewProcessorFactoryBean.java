@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.view.rest;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.fudgemsg.FudgeContext;
@@ -19,17 +21,18 @@ import com.opengamma.util.jms.JmsConnector;
  */
 public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewProcessorsResource> {
 
-  private ViewProcessor _viewProcessor;
+  private final Collection<ViewProcessor> _viewProcessors = new HashSet<ViewProcessor>();
   private JmsConnector _jmsConnector;
   private FudgeContext _fudgeContext;
   private ScheduledExecutorService _scheduler;
 
-  public ViewProcessor getViewProcessor() {
-    return _viewProcessor;
+  public Collection<ViewProcessor> getViewProcessors() {
+    return _viewProcessors;
   }
 
-  public void setViewProcessor(ViewProcessor viewProcessor) {
-    _viewProcessor = viewProcessor;
+  public void setViewProcessors(Collection<ViewProcessor> viewProcessors) {
+    _viewProcessors.clear();
+    _viewProcessors.addAll(viewProcessors);
   }
 
   public JmsConnector getJmsConnector() {
@@ -59,8 +62,8 @@ public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewP
   //-------------------------------------------------------------------------
   @Override
   protected DataViewProcessorsResource createObject() {
-    if (_viewProcessor == null) {
-      throw new OpenGammaRuntimeException("The viewProcessor property must be set");
+    if (_viewProcessors.isEmpty()) {
+      throw new OpenGammaRuntimeException("The viewProcessors must be set");
     }
     if (_jmsConnector == null) {
       throw new OpenGammaRuntimeException("The connectionFactory property must be set");
@@ -70,7 +73,9 @@ public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewP
     }
     
     DataViewProcessorsResource resource = new DataViewProcessorsResource();
-    resource.addViewProcessor(getViewProcessor(), getJmsConnector(), getFudgeContext(), getScheduler());
+    for (ViewProcessor viewProcessor : getViewProcessors()) {
+      resource.addViewProcessor(viewProcessor, getJmsConnector(), getFudgeContext(), getScheduler());
+    }
     return resource;
   }
 

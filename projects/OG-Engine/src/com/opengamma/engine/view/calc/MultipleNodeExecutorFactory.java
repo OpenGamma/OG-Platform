@@ -18,7 +18,7 @@ public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFacto
   
   private static final int DEFAULT_EXECUTION_PLAN_CACHE = 100;
 
-  private ExecutionPlanCache _executionPlanCache;
+  protected ExecutionPlanCache _executionPlanCache;
   private int _minimumJobItems = 1;
   private int _maximumJobItems = Integer.MAX_VALUE;
   private long _minimumJobCost = 1;

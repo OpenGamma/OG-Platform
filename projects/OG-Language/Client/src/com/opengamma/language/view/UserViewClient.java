@@ -18,6 +18,7 @@ import javax.time.Instant;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -54,6 +55,13 @@ public final class UserViewClient implements UniqueIdentifiable {
   private Set<ConfigurationItem> _appliedConfiguration;
 
   private final ViewResultListener _listener = new ViewResultListener() {
+
+    @Override
+    public void jobResultReceived(ViewResultModel fullResult, ViewDeltaResultModel deltaResult) {
+      for (ViewResultListener listener : _listeners) {
+        listener.jobResultReceived(fullResult, deltaResult);
+      }
+    }
 
     @Override
     public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
