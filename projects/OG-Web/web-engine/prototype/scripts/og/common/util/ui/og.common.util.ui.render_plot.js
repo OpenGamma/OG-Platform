@@ -177,8 +177,8 @@ $.register_module({
                 });
                 (check_meta = function () { // load empty data points table(s)
                     var diff;
-                    if (!meta) setTimeout(check_meta, 25);
-                    else if (diff = Object.keys(meta[state.field]).length - data_arr.length)
+                    if (!meta) return setTimeout(check_meta, 25);
+                    if (diff = Object.keys(meta[state.field]).length - data_arr.length)
                         while (diff--) $(empty_tmpl).appendTo($template);
                 })();
             };
