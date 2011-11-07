@@ -291,6 +291,25 @@ int CAbstractSettings::Get (const TCHAR *pszKey, int nDefault) const {
 	return pszValue ? _tstoi (pszValue) : nDefault;
 }
 
+/// Enumerates setting keys and values that start with a given prefix. The enumerator receives
+/// the key values WITHOUT the prefix.
+///
+/// @param[in] pszPrefix key prefix
+/// @param[in] poEnum enumerator to receive the settings
+void CAbstractSettings::Enumerate (const TCHAR *pszPrefix, const CEnumerator *poEnum) const {
+	size_t cchPrefix = _tcslen (pszPrefix);
+#ifdef _WIN32
+	// TODO: load the keys (if not already done so)
+#endif /* ifdef _WIN32 */
+	struct _setting *pSetting = m_pCache;
+	while (pSetting) {
+		if (!_tcsncmp (pszPrefix, pSetting->pszKey, cchPrefix)) {
+			poEnum->Setting (pSetting->pszKey + cchPrefix, pSetting->pszValue);
+		}
+		pSetting = pSetting->pNext;
+	}
+}
+
 /// Returns the location of the settings. This is constructed as the company and product names separated
 /// by the file separator character. The names are retrieved from the metadata embedded within the
 /// calling executable, DLL or DSO.

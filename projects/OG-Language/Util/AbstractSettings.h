@@ -99,6 +99,22 @@ protected:
 	const TCHAR *Get (const TCHAR *pszKey, const CAbstractSettingProvider *poDefault) const;
 	int Get (const TCHAR *pszKey, int nDefault) const;
 public:
+
+	/// Enumeration of setting key/value pairs.
+	class CEnumerator {
+	public:
+
+		/// Handles an enumerated setting.
+		///
+		/// @param[in] pszKey setting key
+		/// @param[in] pszValue setting value
+		virtual void Setting (const TCHAR *pszKey, const TCHAR *pszValue) const = 0;
+
+	};
+
+protected:
+	void Enumerate (const TCHAR *pszPrefix, const CEnumerator *poEnum) const;
+public:
 	CAbstractSettings ();
 	~CAbstractSettings ();
 	static bool GetSettingsLocation (TCHAR *pszBuffer, size_t cbBufferLen);

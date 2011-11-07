@@ -5,6 +5,7 @@
  */
 package com.opengamma.language.context;
 
+import java.util.Enumeration;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -25,7 +26,7 @@ public final class DefaultGlobalContextEventHandler implements InitializingBean,
 
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultGlobalContextEventHandler.class);
 
-  private Properties _systemSettings;
+  private final Properties _systemSettings;
   private ExecutorService _saturatingExecutor;
 
   public DefaultGlobalContextEventHandler() {
@@ -34,11 +35,34 @@ public final class DefaultGlobalContextEventHandler implements InitializingBean,
     executor.allowCoreThreadTimeOut(true);
     executor.setThreadFactory(new NamedThreadPoolFactory("S-Worker"));
     setSaturatingExecutor(executor);
+    _systemSettings = new Properties();
+    _systemSettings.putAll(System.getProperties());
   }
 
+  /**
+   * Merges user specified settings into the "system" settings. Typically, settings
+   * will be provided by the O/S launcher (e.g. from the registry on Windows). A
+   * properties file can be used for a fallback if the properties aren't defined in
+   * the registry. For example to provide defaults.
+   * 
+   * @param systemSettings the default settings to use
+   */
   public void setSystemSettings(final Properties systemSettings) {
     ArgumentChecker.notNull(systemSettings, "systemSettings");
-    _systemSettings = systemSettings;
+    final Enumeration<Object> keys = systemSettings.keys();
+    while (keys.hasMoreElements()) {
+      final Object keyObject = keys.nextElement();
+      if (_systemSettings.containsKey(keyObject)) {
+        s_logger.debug("Ignoring {} in favour of system property", keyObject);
+      } else {
+        if (keyObject instanceof String) {
+          final String key = (String) keyObject;
+          final String value = systemSettings.getProperty(key);
+          _systemSettings.setProperty(key, value);
+          s_logger.debug("Using {}={}", key, value);
+        }
+      }
+    }
   }
 
   public Properties getSystemSettings() {
