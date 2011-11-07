@@ -351,6 +351,7 @@ public class BLAS1 {
    * @return tmp a double[] vector
    */
   public static double[] dscal(double alpha, double[] x) {
+    Validate.notNull(x);
     final int n = x.length;
     double[] tmp = new double[n];
     final int extra = n - n % 16;
@@ -399,6 +400,7 @@ public class BLAS1 {
    * @param x a double[] vector
    */
   public static void dscalInplace(double alpha, double[] x) {
+    Validate.notNull(x);
     final int n = x.length;
     final int extra = n - n % 16;
     final int ub = ((n / 16) * 16) - 1;
