@@ -14,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.time.Instant;
@@ -26,6 +27,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
@@ -86,14 +88,17 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
         "n.tree_right AS tree_right, " +
         "n.name AS node_name, " +
         "p.key_scheme AS pos_key_scheme, " +
-        "p.key_value AS pos_key_value ";
+        "p.key_value AS pos_key_value, " +
+        "prtAttr.key AS prt_attr_key, " +
+        "prtAttr.value AS prt_attr_value ";
   /**
    * SQL from.
    */
   protected static final String FROM =
       "FROM prt_portfolio main " +
         "LEFT JOIN prt_node n ON (n.portfolio_id = main.id) " +
-        "LEFT JOIN prt_position p ON (p.node_id = n.id) ";
+        "LEFT JOIN prt_position p ON (p.node_id = n.id) " +
+        "LEFT JOIN prt_portfolio_attribute prtAttr ON (prtAttr.portfolio_id = main.id) ";
   /**
    * SQL order by.
    */
@@ -254,9 +259,24 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     insertBuildArgs(portfolioUid, null, document.getPortfolio().getRootNode(), document.getUniqueId() != null,
         portfolioId, portfolioOid, null, null,
         new AtomicInteger(1), 0, nodeList, posList);
+    
+    // the arguments for inserting into the portifolio_attribute table
+    final List<DbMapSqlParameterSource> prtAttrList = Lists.newArrayList();
+    for (Entry<String, String> entry : document.getPortfolio().getAttributes().entrySet()) {
+      final long prtAttrId = nextId("prt_portfolio_attr_seq");
+      final DbMapSqlParameterSource posAttrArgs = new DbMapSqlParameterSource()
+          .addValue("attr_id", prtAttrId)
+          .addValue("portfolio_id", portfolioId)
+          .addValue("portfolio_oid", portfolioOid)
+          .addValue("key", entry.getKey())
+          .addValue("value", entry.getValue());
+      prtAttrList.add(posAttrArgs);
+    }
+    
     getJdbcTemplate().update(sqlInsertPortfolio(), portfolioArgs);
     getJdbcTemplate().batchUpdate(sqlInsertNode(), nodeList.toArray(new DbMapSqlParameterSource[nodeList.size()]));
     getJdbcTemplate().batchUpdate(sqlInsertPosition(), posList.toArray(new DbMapSqlParameterSource[posList.size()]));
+    getJdbcTemplate().batchUpdate(sqlInsertPortfolioAttributes(), prtAttrList.toArray(new DbMapSqlParameterSource[prtAttrList.size()]));
     // set the uniqueId
     document.getPortfolio().setUniqueId(portfolioUid);
     document.setUniqueId(portfolioUid);
@@ -355,6 +375,16 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     return "INSERT INTO prt_position (node_id, key_scheme, key_value) " +
             "VALUES " +
             "(:node_id, :key_scheme, :key_value)";
+  }
+  
+  /**
+   * Gets the SQL for inserting position attributes.
+   * 
+   * @return the SQL, not null.
+   */
+  protected String sqlInsertPortfolioAttributes() {
+    return "INSERT INTO prt_portfolio_attribute (id, portfolio_id, portfolio_oid, key, value) " +
+           "VALUES (:attr_id, :portfolio_id, :portfolio_oid, :key, :value)";
   }
 
   //-------------------------------------------------------------------------
@@ -500,7 +530,15 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
         final String posIdValue = rs.getString("POS_KEY_VALUE");
         if (posIdScheme != null && posIdValue != null) {
           UniqueId id = UniqueId.of(posIdScheme, posIdValue);
-          _node.addPosition(id);
+          if (!_node.getPositionIds().contains(id.getObjectId())) {
+            _node.addPosition(id);
+          }
+        }
+        
+        final String prtAttrKey = rs.getString("PRT_ATTR_KEY");
+        final String prtAttrValue = rs.getString("PRT_ATTR_VALUE");
+        if (prtAttrKey != null && prtAttrValue != null) {
+          _portfolio.addAttribute(prtAttrKey, prtAttrValue);
         }
       }
       return _documents;

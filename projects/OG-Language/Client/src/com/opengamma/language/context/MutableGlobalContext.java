@@ -5,7 +5,6 @@
  */
 package com.opengamma.language.context;
 
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 
 import com.opengamma.core.exchange.ExchangeSource;
@@ -137,16 +136,6 @@ public class MutableGlobalContext extends GlobalContext {
 
   public void setSecuritySource(final SecuritySource securitySource) {
     removeOrReplaceValue(SECURITY_SOURCE, securitySource);
-  }
-
-  public void setSystemSettings(final Properties properties) {
-    ArgumentChecker.notNull(properties, "properties");
-    setValue(SYSTEM_SETTINGS, properties);
-  }
-
-  public void replaceSystemSettings(final Properties properties) {
-    ArgumentChecker.notNull(properties, "properties");
-    replaceValue(SYSTEM_SETTINGS, properties);
   }
 
   @Override

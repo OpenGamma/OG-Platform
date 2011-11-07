@@ -225,6 +225,13 @@ unsigned long CSettings::GetJvmMaxHeap () const {
 	return GetJvmMaxHeap (512);
 }
 
+/// Enumerate the system properties to be passed to the JVM.
+///
+/// @param[in] poEnum enumerator to receive the key/value pairs
+void CSettings::GetJvmProperties (const CEnumerator *poEnum) const {
+	Enumerate (SETTINGS_JVM_PROPERTY TEXT ("."), poEnum);
+}
+
 /// Returns the name of the pipe for incoming client connections
 ///
 /// @return the pipe name
