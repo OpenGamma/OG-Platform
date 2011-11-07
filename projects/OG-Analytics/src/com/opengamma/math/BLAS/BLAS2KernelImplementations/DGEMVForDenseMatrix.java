@@ -27,7 +27,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public double[] dm_stateless_A_times_x(DenseMatrix aMatrix, double[] aVector) {
+  public double[] dm_stateless_A_times_x(DenseMatrix aMatrix, double[] aVector) { //CSIGNORE
     final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
     final double[] ptrA = aMatrix.getData();
@@ -62,7 +62,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public double[] dm_stateless_AT_times_x(DenseMatrix aMatrix, double[] aVector) {
+  public double[] dm_stateless_AT_times_x(DenseMatrix aMatrix, double[] aVector) { //CSIGNORE
     final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
     double[] ptrA = aMatrix.getData();
@@ -155,7 +155,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public double[] dm_stateless_alpha_times_A_times_x(double alpha, DenseMatrix aMatrix, double[] aVector) {
+  public double[] dm_stateless_alpha_times_A_times_x(double alpha, DenseMatrix aMatrix, double[] aVector) { //CSIGNORE
     final int rows = aMatrix.getNumberOfRows();
     double[] tmp = dm_stateless_A_times_x(aMatrix, aVector);
     for (int i = 0; i < rows; i++) {
@@ -168,7 +168,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public double[] dm_stateless_alpha_times_AT_times_x(double alpha, DenseMatrix aMatrix, double[] aVector) {
+  public double[] dm_stateless_alpha_times_AT_times_x(double alpha, DenseMatrix aMatrix, double[] aVector) { //CSIGNORE
     final int cols = aMatrix.getNumberOfColumns();
     double[] tmp = dm_stateless_AT_times_x(aMatrix, aVector);
     for (int i = 0; i < cols; i++) {
@@ -181,7 +181,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public double[] dm_stateless_A_times_x_plus_y(DenseMatrix aMatrix, double[] aVector, double[] y) {
+  public double[] dm_stateless_A_times_x_plus_y(DenseMatrix aMatrix, double[] aVector, double[] y) { //CSIGNORE
     final int rows = aMatrix.getNumberOfRows();
     double[] tmp = dm_stateless_A_times_x(aMatrix, aVector);
     for (int i = 0; i < rows; i++) {
@@ -194,7 +194,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public double[] dm_stateless_AT_times_x_plus_y(DenseMatrix aMatrix, double[] aVector, double[] y) {
+  public double[] dm_stateless_AT_times_x_plus_y(DenseMatrix aMatrix, double[] aVector, double[] y) { //CSIGNORE
     final int cols = aMatrix.getNumberOfColumns();
     double[] tmp = dm_stateless_AT_times_x(aMatrix, aVector);
     for (int i = 0; i < cols; i++) {
@@ -207,7 +207,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public double[] dm_stateless_alpha_times_A_times_x_plus_y(double alpha, DenseMatrix A, double[] x, double[] y) {
+  public double[] dm_stateless_alpha_times_A_times_x_plus_y(double alpha, DenseMatrix A, double[] x, double[] y) { //CSIGNORE
     final int rows = A.getNumberOfRows();
     double[] tmp = dm_stateless_A_times_x(A, x);
     for (int i = 0; i < rows; i++) {
@@ -220,7 +220,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public double[] dm_stateless_alpha_times_AT_times_x_plus_y(double alpha, DenseMatrix A, double[] x, double[] y) {
+  public double[] dm_stateless_alpha_times_AT_times_x_plus_y(double alpha, DenseMatrix A, double[] x, double[] y) { //CSIGNORE
     final int cols = A.getNumberOfColumns();
     double[] tmp = dm_stateless_AT_times_x(A, x);
     for (int i = 0; i < cols; i++) {
@@ -233,7 +233,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public double[] dm_stateless_A_times_x_plus_beta_times_y(DenseMatrix A, double[] x, double beta, double[] y) {
+  public double[] dm_stateless_A_times_x_plus_beta_times_y(DenseMatrix A, double[] x, double beta, double[] y) { //CSIGNORE
     final int rows = A.getNumberOfRows();
     double[] tmp = dm_stateless_A_times_x(A, x);
     for (int i = 0; i < rows; i++) {
@@ -246,7 +246,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public double[] dm_stateless_AT_times_x_plus_beta_times_y(DenseMatrix A, double[] x, double beta, double[] y) {
+  public double[] dm_stateless_AT_times_x_plus_beta_times_y(DenseMatrix A, double[] x, double beta, double[] y) { //CSIGNORE
     final int cols = A.getNumberOfColumns();
     double[] tmp = dm_stateless_AT_times_x(A, x);
     for (int i = 0; i < cols; i++) {
@@ -259,7 +259,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public double[] dm_stateless_alpha_times_A_times_x_plus_beta_times_y(double alpha, DenseMatrix A, double[] x, double beta, double[] y) {
+  public double[] dm_stateless_alpha_times_A_times_x_plus_beta_times_y(double alpha, DenseMatrix A, double[] x, double beta, double[] y) { //CSIGNORE
     final int rows = A.getNumberOfRows();
     double[] tmp = dm_stateless_A_times_x(A, x);
     for (int i = 0; i < rows; i++) {
@@ -272,7 +272,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public double[] dm_stateless_alpha_times_AT_times_x_plus_beta_times_y(double alpha, DenseMatrix A, double[] x, double beta, double[] y) {
+  public double[] dm_stateless_alpha_times_AT_times_x_plus_beta_times_y(double alpha, DenseMatrix A, double[] x, double beta, double[] y) { //CSIGNORE
     final int cols = A.getNumberOfColumns();
     double[] tmp = dm_stateless_AT_times_x(A, x);
     for (int i = 0; i < cols; i++) {
@@ -285,7 +285,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public void dm_inplace_A_times_x(double[] y, DenseMatrix A, double[] x) {
+  public void dm_inplace_A_times_x(double[] y, DenseMatrix A, double[] x) { //CSIGNORE
     final int rows = A.getNumberOfRows();
     final int cols = A.getNumberOfColumns();
     assert (y.length == rows);
@@ -320,7 +320,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public void dm_inplace_AT_times_x(double[] y, DenseMatrix A, double[] x) {
+  public void dm_inplace_AT_times_x(double[] y, DenseMatrix A, double[] x) { //CSIGNORE
     final int rows = A.getNumberOfRows();
     final int cols = A.getNumberOfColumns();
     double[] ptrA = A.getData();
@@ -410,7 +410,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public void dm_inplace_alpha_times_A_times_x(double[] y, double alpha, DenseMatrix A, double[] x) {
+  public void dm_inplace_alpha_times_A_times_x(double[] y, double alpha, DenseMatrix A, double[] x) { //CSIGNORE
     final double[] ptrA = A.getData();
     final int rows = A.getNumberOfRows();
     final int cols = A.getNumberOfColumns();
@@ -446,7 +446,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public void dm_inplace_alpha_times_AT_times_x(double[] y, double alpha, DenseMatrix A, double[] x) {
+  public void dm_inplace_alpha_times_AT_times_x(double[] y, double alpha, DenseMatrix A, double[] x) { //CSIGNORE
     final int rows = A.getNumberOfRows();
     final int cols = A.getNumberOfColumns();
     double[] ptrA = A.getData();
@@ -538,7 +538,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public void dm_inplace_A_times_x_plus_y(double[] y, DenseMatrix A, double[] x) {
+  public void dm_inplace_A_times_x_plus_y(double[] y, DenseMatrix A, double[] x) { //CSIGNORE
     final double[] ptrA = A.getData();
     final int rows = A.getNumberOfRows();
     final int cols = A.getNumberOfColumns();
@@ -573,7 +573,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
   *{@inheritDoc}
   */
   @Override
-  public void dm_inplace_AT_times_x_plus_y(double[] y, DenseMatrix A, double[] x) {
+  public void dm_inplace_AT_times_x_plus_y(double[] y, DenseMatrix A, double[] x) { //CSIGNORE
     final int rows = A.getNumberOfRows();
     final int cols = A.getNumberOfColumns();
     double[] ptrA = A.getData();
@@ -661,7 +661,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public void dm_inplace_alpha_times_A_times_x_plus_y(double[] y, double alpha, DenseMatrix A, double[] x) {
+  public void dm_inplace_alpha_times_A_times_x_plus_y(double[] y, double alpha, DenseMatrix A, double[] x) { //CSIGNORE
     final double[] ptrA = A.getData();
     final int rows = A.getNumberOfRows();
     final int cols = A.getNumberOfColumns();
@@ -690,7 +690,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public void dm_inplace_alpha_times_AT_times_x_plus_y(double[] y, double alpha, DenseMatrix A, double[] x) {
+  public void dm_inplace_alpha_times_AT_times_x_plus_y(double[] y, double alpha, DenseMatrix A, double[] x) { //CSIGNORE
     final int cols = A.getNumberOfColumns();
     final int rows = A.getNumberOfRows();
     double[] ptrA = A.getData();
@@ -708,7 +708,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public void dm_inplace_A_times_x_plus_beta_times_y(double[] y, DenseMatrix A, double[] x, double beta) {
+  public void dm_inplace_A_times_x_plus_beta_times_y(double[] y, DenseMatrix A, double[] x, double beta) { //CSIGNORE
     final double[] ptrA = A.getData();
     final int rows = A.getNumberOfRows();
     final int cols = A.getNumberOfColumns();
@@ -738,7 +738,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
- public void dm_inplace_AT_times_x_plus_beta_times_y(double[] y, DenseMatrix A, double[] x, double beta) {
+ public void dm_inplace_AT_times_x_plus_beta_times_y(double[] y, DenseMatrix A, double[] x, double beta) { //CSIGNORE
     final int cols = A.getNumberOfColumns();
     for (int i = 0; i < cols; i++) {
       y[i] = beta * y[i];
@@ -750,7 +750,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public void dm_inplace_alpha_times_A_times_x_plus_beta_times_y(double[] y, double alpha, DenseMatrix A, double[] x, double beta) {
+  public void dm_inplace_alpha_times_A_times_x_plus_beta_times_y(double[] y, double alpha, DenseMatrix A, double[] x, double beta) { //CSIGNORE
     final double[] ptrA = A.getData();
     final int rows = A.getNumberOfRows();
     final int cols = A.getNumberOfColumns();
@@ -781,7 +781,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
    *{@inheritDoc}
    */
   @Override
-  public void dm_inplace_alpha_times_AT_times_x_plus_beta_times_y(double[] y, double alpha, DenseMatrix A, double[] x, double beta) {
+  public void dm_inplace_alpha_times_AT_times_x_plus_beta_times_y(double[] y, double alpha, DenseMatrix A, double[] x, double beta) { //CSIGNORE
     final int cols = A.getNumberOfColumns();
     for (int i = 0; i < cols; i++) {
       y[i] = beta * y[i];
