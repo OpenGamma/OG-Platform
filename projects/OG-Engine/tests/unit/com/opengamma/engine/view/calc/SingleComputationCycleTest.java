@@ -8,6 +8,7 @@ package com.opengamma.engine.view.calc;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -105,7 +106,7 @@ public class SingleComputationCycleTest {
     }
     
     @Override
-    public Future<CalculationJobResult> execute(DependencyGraph graph, GraphExecutorStatisticsGatherer statistics) {
+    public Future<CalculationJobResult> execute(DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue, GraphExecutorStatisticsGatherer statistics) {
       FutureTask<CalculationJobResult> future = new FutureTask<CalculationJobResult>(new Runnable() {
         @Override
         public void run() {

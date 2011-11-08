@@ -56,7 +56,7 @@ public class CapFloorIborInArrearsGenericReplicationMethod implements PricingMet
     Validate.notNull(cap);
     Validate.notNull(sabrData);
     final CapFloorIbor capStandard = new CapFloorIbor(cap.getCurrency(), cap.getFixingPeriodEndTime(), cap.getFundingCurveName(), cap.getPaymentYearFraction(), cap.getNotional(), cap.getFixingTime(),
-        cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingYearFraction(), cap.getForwardCurveName(), cap.getStrike(), cap.isCap());
+        cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingYearFraction(), cap.getForwardCurveName(), cap.getStrike(), cap.isCap());
     final double beta = sabrData.getCurve(cap.getForwardCurveName()).getDiscountFactor(cap.getFixingPeriodStartTime())
         / sabrData.getCurve(cap.getForwardCurveName()).getDiscountFactor(cap.getFixingPeriodEndTime()) * sabrData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getFixingPeriodEndTime())
         / sabrData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getFixingPeriodStartTime());

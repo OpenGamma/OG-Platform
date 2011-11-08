@@ -81,19 +81,19 @@ public class CapFloorIborLMMDDMethodTest {
 
   private static final CouponIbor COUPON_IBOR_LAST = (CouponIbor) SWAP_PAYER.getSecondLeg().getNthPayment(NB_CPN_IBOR - 1);
   private static final CapFloorIbor CAP_LAST = new CapFloorIbor(CUR, COUPON_IBOR_LAST.getPaymentTime(), COUPON_IBOR_LAST.getFundingCurveName(), COUPON_IBOR_LAST.getPaymentYearFraction(), NOTIONAL,
-      COUPON_IBOR_LAST.getFixingTime(), COUPON_IBOR_LAST.getFixingPeriodStartTime(), COUPON_IBOR_LAST.getFixingPeriodEndTime(), COUPON_IBOR_LAST.getFixingYearFraction(),
+      COUPON_IBOR_LAST.getFixingTime(), IBOR_INDEX, COUPON_IBOR_LAST.getFixingPeriodStartTime(), COUPON_IBOR_LAST.getFixingPeriodEndTime(), COUPON_IBOR_LAST.getFixingYearFraction(),
       COUPON_IBOR_LAST.getForwardCurveName(), STRIKE, IS_CAP);
   private static final CapFloorIbor FLOOR_LAST = new CapFloorIbor(CUR, COUPON_IBOR_LAST.getPaymentTime(), COUPON_IBOR_LAST.getFundingCurveName(), COUPON_IBOR_LAST.getPaymentYearFraction(), NOTIONAL,
-      COUPON_IBOR_LAST.getFixingTime(), COUPON_IBOR_LAST.getFixingPeriodStartTime(), COUPON_IBOR_LAST.getFixingPeriodEndTime(), COUPON_IBOR_LAST.getFixingYearFraction(),
+      COUPON_IBOR_LAST.getFixingTime(), IBOR_INDEX, COUPON_IBOR_LAST.getFixingPeriodStartTime(), COUPON_IBOR_LAST.getFixingPeriodEndTime(), COUPON_IBOR_LAST.getFixingYearFraction(),
       COUPON_IBOR_LAST.getForwardCurveName(), STRIKE, !IS_CAP);
   private static final CapFloorIbor CAP_LAST_SHORT = new CapFloorIbor(CUR, COUPON_IBOR_LAST.getPaymentTime(), COUPON_IBOR_LAST.getFundingCurveName(), COUPON_IBOR_LAST.getPaymentYearFraction(),
-      -NOTIONAL, COUPON_IBOR_LAST.getFixingTime(), COUPON_IBOR_LAST.getFixingPeriodStartTime(), COUPON_IBOR_LAST.getFixingPeriodEndTime(), COUPON_IBOR_LAST.getFixingYearFraction(),
+      -NOTIONAL, COUPON_IBOR_LAST.getFixingTime(), IBOR_INDEX, COUPON_IBOR_LAST.getFixingPeriodStartTime(), COUPON_IBOR_LAST.getFixingPeriodEndTime(), COUPON_IBOR_LAST.getFixingYearFraction(),
       COUPON_IBOR_LAST.getForwardCurveName(), STRIKE, IS_CAP);
 
   private static final CouponIbor COUPON_IBOR_6 = (CouponIbor) SWAP_PAYER.getSecondLeg().getNthPayment(6);
   private static final CapFloorIbor CAP_6 = new CapFloorIbor(CUR, COUPON_IBOR_6.getPaymentTime(), COUPON_IBOR_6.getFundingCurveName(), COUPON_IBOR_6.getPaymentYearFraction(), NOTIONAL,
-      COUPON_IBOR_6.getFixingTime(), COUPON_IBOR_6.getFixingPeriodStartTime(), COUPON_IBOR_6.getFixingPeriodEndTime(), COUPON_IBOR_6.getFixingYearFraction(), COUPON_IBOR_6.getForwardCurveName(),
-      STRIKE, IS_CAP);
+      COUPON_IBOR_6.getFixingTime(), IBOR_INDEX, COUPON_IBOR_6.getFixingPeriodStartTime(), COUPON_IBOR_6.getFixingPeriodEndTime(), COUPON_IBOR_6.getFixingYearFraction(),
+      COUPON_IBOR_6.getForwardCurveName(), STRIKE, IS_CAP);
   // Parameters and methods
   private static final int NB_PATH = 12500;
   private static final LiborMarketModelDisplacedDiffusionParameters PARAMETERS_LMM = LiborMarketModelDisplacedDiffusionTestsDataSet.createLMMParameters(REFERENCE_DATE, SWAP_PAYER_DEFINITION);

@@ -5,13 +5,14 @@
  */
 package com.opengamma.financial.interestrate.swaption.method;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationEngine;
@@ -277,6 +278,125 @@ public class SwaptionPhysicalFixedIborSABRLMMMethod implements PricingMethod {
       // Implementation note: the initial value are chosen to have a 20% Black vol at 5% rate level.
       return result;
     }
+  }
+
+  /**
+   * The method calibrates a LMM on a set of vanilla swaption priced with SABR. The set of vanilla swaptions is given by the CalibrationType.
+   * The curve and SABR sensitivities of the original swaption are calculated with LMM re-calibration.
+   * Used mainly for performance test purposes as the output is hybrid list.
+   * @param swaption The swaption.
+   * @param curves The curves and SABR data.
+   * @return The results (returned as a list of objects) [0] the present value, [1] the present curve sensitivity, [2] the present value SABR sensitivity.
+   */
+  public List<Object> presentValueCurveSABRSensitivity(final SwaptionPhysicalFixedIbor swaption, final SABRInterestRateDataBundle curves) {
+    Validate.notNull(swaption);
+    Validate.notNull(curves);
+    //TODO: Create a way to chose the LMM base parameters (displacement, mean reversion, volatility).
+    LiborMarketModelDisplacedDiffusionParameters lmmParameters = LiborMarketModelDisplacedDiffusionParameters.from(swaption, DEFAULT_DISPLACEMENT, DEFAULT_MEAN_REVERSION, new VolatilityLMMAngle(
+        DEFAULT_ANGLE, DEFAULT_DISPLACEMENT));
+    SwaptionPhysicalLMMDDCalibrationObjective objective = new SwaptionPhysicalLMMDDCalibrationObjective(lmmParameters);
+    SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(objective);
+    //TODO: Create a way to chose the calibration type.
+    SwaptionPhysicalFixedIbor[] swaptionCalibration = swaption.calibrationBasket(SwaptionPhysicalFixedIborCalibrationType.FIXEDLEG_STRIKE);
+    calibrationEngine.addInstrument(swaptionCalibration, METHOD_SWAPTION_SABR);
+    calibrationEngine.calibrate(curves);
+    LiborMarketModelDisplacedDiffusionDataBundle lmmBundle = new LiborMarketModelDisplacedDiffusionDataBundle(lmmParameters, curves);
+    // Risks
+    int nbCal = swaptionCalibration.length;
+    int nbFact = lmmParameters.getNbFactor();
+    List<Integer> instrumentIndex = calibrationEngine.getInstrumentIndex();
+    double[] dPvAmdLambda = new double[nbCal];
+    double[][][] dPvCaldGamma = new double[nbCal][][];
+    double[][] dPvCaldLambda = new double[nbCal][nbCal];
+    PresentValueSABRSensitivityDataBundle[] dPvCaldSABR = new PresentValueSABRSensitivityDataBundle[nbCal];
+    InterestRateCurveSensitivity pvcsCal = METHOD_SWAPTION_LMM.presentValueCurveSensitivity(swaption, lmmBundle);
+    pvcsCal = pvcsCal.clean();
+    double[][] dPvAmdGamma = METHOD_SWAPTION_LMM.presentValueLMMSensitivity(swaption, lmmBundle);
+    for (int loopcal = 0; loopcal < nbCal; loopcal++) {
+      dPvCaldGamma[loopcal] = METHOD_SWAPTION_LMM.presentValueLMMSensitivity(swaptionCalibration[loopcal], lmmBundle);
+    }
+    // Multiplicative-factor sensitivity
+    for (int loopcal = 0; loopcal < nbCal; loopcal++) {
+      for (int loopperiod = instrumentIndex.get(loopcal); loopperiod < instrumentIndex.get(loopcal + 1); loopperiod++) {
+        for (int loopfact = 0; loopfact < nbFact; loopfact++) {
+          dPvAmdLambda[loopcal] += dPvAmdGamma[loopperiod][loopfact] * lmmParameters.getVolatility()[loopperiod][loopfact];
+        }
+      }
+    }
+    for (int loopcal1 = 0; loopcal1 < nbCal; loopcal1++) {
+      for (int loopcal2 = 0; loopcal2 < nbCal; loopcal2++) {
+        for (int loopperiod = instrumentIndex.get(loopcal2); loopperiod < instrumentIndex.get(loopcal2 + 1); loopperiod++) {
+          for (int loopfact = 0; loopfact < nbFact; loopfact++) {
+            dPvCaldLambda[loopcal1][loopcal2] += dPvCaldGamma[loopcal1][loopperiod][loopfact] * lmmParameters.getVolatility()[loopperiod][loopfact];
+          }
+        }
+      }
+    }
+    InterestRateCurveSensitivity[] pvcsCalBase = new InterestRateCurveSensitivity[nbCal];
+    InterestRateCurveSensitivity[] pvcsCalCal = new InterestRateCurveSensitivity[nbCal];
+    InterestRateCurveSensitivity[] pvcsCalDiff = new InterestRateCurveSensitivity[nbCal];
+    for (int loopcal = 0; loopcal < nbCal; loopcal++) {
+      pvcsCalBase[loopcal] = METHOD_SWAPTION_SABR.presentValueSensitivity(swaptionCalibration[loopcal], curves);
+      pvcsCalBase[loopcal] = pvcsCalBase[loopcal].clean();
+      pvcsCalCal[loopcal] = METHOD_SWAPTION_LMM.presentValueCurveSensitivity(swaptionCalibration[loopcal], lmmBundle);
+      pvcsCalCal[loopcal] = pvcsCalCal[loopcal].clean();
+      pvcsCalDiff[loopcal] = pvcsCalBase[loopcal].add(pvcsCalCal[loopcal].multiply(-1));
+      pvcsCalDiff[loopcal] = pvcsCalDiff[loopcal].clean();
+    }
+    CommonsMatrixAlgebra matrix = new CommonsMatrixAlgebra();
+    DoubleMatrix2D dPvCaldLambdaMatrix = new DoubleMatrix2D(dPvCaldLambda);
+    DoubleMatrix2D dPvCaldLambdaMatrixInverse = matrix.getInverse(dPvCaldLambdaMatrix);
+    // SABR sensitivity
+    double[][] dPvCaldAlpha = new double[nbCal][nbCal];
+    double[][] dPvCaldRho = new double[nbCal][nbCal];
+    double[][] dPvCaldNu = new double[nbCal][nbCal];
+    for (int loopcal = 0; loopcal < nbCal; loopcal++) {
+      dPvCaldSABR[loopcal] = METHOD_SWAPTION_SABR.presentValueSABRSensitivity(swaptionCalibration[loopcal], curves);
+      DoublesPair[] keySet = dPvCaldSABR[loopcal].getAlpha().keySet().toArray(new DoublesPair[0]);
+      dPvCaldAlpha[loopcal][loopcal] = dPvCaldSABR[loopcal].getAlpha().get(keySet[0]);
+      dPvCaldRho[loopcal][loopcal] = dPvCaldSABR[loopcal].getRho().get(keySet[0]);
+      dPvCaldNu[loopcal][loopcal] = dPvCaldSABR[loopcal].getNu().get(keySet[0]);
+    }
+    DoubleMatrix1D dPvAmdLambdaMatrix = new DoubleMatrix1D(dPvAmdLambda);
+    DoubleMatrix2D dPvCaldAlphaMatrix = new DoubleMatrix2D(dPvCaldAlpha);
+    DoubleMatrix2D dLambdadAlphaMatrix = (DoubleMatrix2D) matrix.multiply(dPvCaldLambdaMatrixInverse, dPvCaldAlphaMatrix);
+    DoubleMatrix2D dPvAmdAlphaMatrix = (DoubleMatrix2D) matrix.multiply(matrix.getTranspose(dLambdadAlphaMatrix), dPvAmdLambdaMatrix);
+    DoubleMatrix2D dPvCaldRhoMatrix = new DoubleMatrix2D(dPvCaldRho);
+    DoubleMatrix2D dLambdadRhoMatrix = (DoubleMatrix2D) matrix.multiply(dPvCaldLambdaMatrixInverse, dPvCaldRhoMatrix);
+    DoubleMatrix2D dPvAmdRhoMatrix = (DoubleMatrix2D) matrix.multiply(matrix.getTranspose(dLambdadRhoMatrix), dPvAmdLambdaMatrix);
+    DoubleMatrix2D dPvCaldNuMatrix = new DoubleMatrix2D(dPvCaldNu);
+    DoubleMatrix2D dLambdadNuMatrix = (DoubleMatrix2D) matrix.multiply(dPvCaldLambdaMatrixInverse, dPvCaldNuMatrix);
+    DoubleMatrix2D dPvAmdNuMatrix = (DoubleMatrix2D) matrix.multiply(matrix.getTranspose(dLambdadNuMatrix), dPvAmdLambdaMatrix);
+    double[] dPvAmdAlpha = matrix.getTranspose(dPvAmdAlphaMatrix).getData()[0];
+    double[] dPvAmdRho = matrix.getTranspose(dPvAmdRhoMatrix).getData()[0];
+    double[] dPvAmdNu = matrix.getTranspose(dPvAmdNuMatrix).getData()[0];
+    // Storage in PresentValueSABRSensitivityDataBundle
+    PresentValueSABRSensitivityDataBundle pvss = new PresentValueSABRSensitivityDataBundle();
+    for (int loopcal = 0; loopcal < nbCal; loopcal++) {
+      DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopcal].getTimeToExpiry(), swaptionCalibration[loopcal].getMaturityTime());
+      pvss.addAlpha(expiryMaturity, dPvAmdAlpha[loopcal]);
+      pvss.addRho(expiryMaturity, dPvAmdRho[loopcal]);
+      pvss.addNu(expiryMaturity, dPvAmdNu[loopcal]);
+    }
+    // Curve sensitivity
+    InterestRateCurveSensitivity[] dLambdadC = new InterestRateCurveSensitivity[nbCal];
+    for (int loopcal1 = 0; loopcal1 < nbCal; loopcal1++) {
+      dLambdadC[loopcal1] = new InterestRateCurveSensitivity();
+      for (int loopcal2 = 0; loopcal2 <= loopcal1; loopcal2++) {
+        dLambdadC[loopcal1] = dLambdadC[loopcal1].add(pvcsCalDiff[loopcal2].multiply(dPvCaldLambdaMatrixInverse.getEntry(loopcal1, loopcal2)));
+      }
+    }
+    InterestRateCurveSensitivity pvcs = new InterestRateCurveSensitivity();
+    for (int loopcal = 0; loopcal < nbCal; loopcal++) {
+      pvcs = pvcs.add(dLambdadC[loopcal].multiply(dPvAmdLambda[loopcal]));
+    }
+    pvcs = pvcs.add(pvcsCal);
+    pvcs = pvcs.clean();
+    List<Object> results = new ArrayList<Object>();
+    results.add(CurrencyAmount.of(swaption.getCurrency(), METHOD_SWAPTION_LMM.presentValue(swaption, lmmBundle).getAmount()));
+    results.add(pvcs);
+    results.add(pvss);
+    return results;
   }
 
 }

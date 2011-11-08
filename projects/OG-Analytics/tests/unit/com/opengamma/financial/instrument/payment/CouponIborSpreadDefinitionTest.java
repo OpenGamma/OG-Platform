@@ -122,7 +122,7 @@ public class CouponIborSpreadDefinitionTest {
     final String fundingCurve = "Funding";
     final String forwardCurve = "Forward";
     final String[] curves = {fundingCurve, forwardCurve};
-    final CouponIbor couponIbor = new CouponIbor(CUR, paymentTime, fundingCurve, IBOR_COUPON_SPREAD.getPaymentYearFraction(), NOTIONAL, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+    final CouponIbor couponIbor = new CouponIbor(CUR, paymentTime, fundingCurve, IBOR_COUPON_SPREAD.getPaymentYearFraction(), NOTIONAL, fixingTime, INDEX, fixingPeriodStartTime, fixingPeriodEndTime,
         IBOR_COUPON_SPREAD.getFixingPeriodAccrualFactor(), SPREAD, forwardCurve);
     CouponIbor convertedDefinition = (CouponIbor) IBOR_COUPON_SPREAD.toDerivative(REFERENCE_DATE, curves);
     assertEquals(couponIbor, convertedDefinition);

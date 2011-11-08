@@ -14,12 +14,14 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.annuity.AnnuityCapFloorCMSSpreadDefinition;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.instrument.payment.CapFloorCMSSpreadDefinition;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurityVisitor;
 import com.opengamma.id.ExternalId;
@@ -39,15 +41,12 @@ public class CapFloorCMSSpreadSecurityConverter implements CapFloorCMSSpreadSecu
     _conventionSource = conventionSource;
   }
 
-  //TODO too much is being done in this method - should be in the constructor
   @Override
   public FixedIncomeInstrumentDefinition<?> visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity capFloorCMSSpreadSecurity) {
     Validate.notNull(capFloorCMSSpreadSecurity, "cap/floor security");
     final double notional = capFloorCMSSpreadSecurity.getNotional();
-    final ZonedDateTime paymentDate = capFloorCMSSpreadSecurity.getMaturityDate(); //TODO check this
-    final ZonedDateTime accrualStartDate = capFloorCMSSpreadSecurity.getStartDate(); //TODO check this 
-    final ZonedDateTime accrualEndDate = capFloorCMSSpreadSecurity.getMaturityDate(); //TODO check this
-    final double accrualFactor = capFloorCMSSpreadSecurity.getDayCount().getDayCountFraction(accrualStartDate, accrualEndDate);
+    final ZonedDateTime settlementDate = capFloorCMSSpreadSecurity.getStartDate(); 
+    final ZonedDateTime maturityDate = capFloorCMSSpreadSecurity.getMaturityDate(); 
     final double strike = capFloorCMSSpreadSecurity.getStrike();
     final boolean isCap = capFloorCMSSpreadSecurity.isCap();
     final ExternalId longId = capFloorCMSSpreadSecurity.getLongId();
@@ -55,21 +54,25 @@ public class CapFloorCMSSpreadSecurityConverter implements CapFloorCMSSpreadSecu
     final Currency currency = capFloorCMSSpreadSecurity.getCurrency();
     final Frequency tenor = capFloorCMSSpreadSecurity.getFrequency();
     final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, currency);
-    final ConventionBundle longConvention = _conventionSource.getConventionBundle(longId);
+    final ConventionBundle longConvention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
     if (longConvention == null) {
       throw new OpenGammaRuntimeException("Could not get convention for " + longId);
     }
-    final IborIndex iborIndex1 = new IborIndex(currency, getTenor(tenor), longConvention.getSettlementDays(), calendar,
-        longConvention.getDayCount(), longConvention.getBusinessDayConvention(), longConvention.isEOMConvention());
-    final CMSIndex cmsIndex1 = new CMSIndex(longConvention.getPeriod(), longConvention.getDayCount(), iborIndex1, getTenor(tenor));
-    final ConventionBundle shortConvention = _conventionSource.getConventionBundle(longId);
+    final IborIndex iborIndex1 = new IborIndex(currency, getTenor(tenor), longConvention.getSwapFloatingLegSettlementDays(), calendar,
+        longConvention.getSwapFloatingLegDayCount(), longConvention.getSwapFloatingLegBusinessDayConvention(), longConvention.isEOMConvention());
+    final Period period = getTenor(capFloorCMSSpreadSecurity.getFrequency());
+    final CMSIndex cmsIndex1 = new CMSIndex(period, longConvention.getSwapFloatingLegDayCount(), iborIndex1, getTenor(tenor));
+    final ConventionBundle shortConvention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
     if (shortConvention == null) {
       throw new OpenGammaRuntimeException("Could not get convention for " + shortId);
     }
-    final IborIndex iborIndex2 = new IborIndex(currency, getTenor(tenor), shortConvention.getSettlementDays(), calendar,
-        shortConvention.getDayCount(), shortConvention.getBusinessDayConvention(), shortConvention.isEOMConvention());
-    final CMSIndex cmsIndex2 = new CMSIndex(shortConvention.getPeriod(), shortConvention.getDayCount(), iborIndex2, getTenor(tenor));
-    return CapFloorCMSSpreadDefinition.from(paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, cmsIndex1, cmsIndex2, strike, isCap);
+    final IborIndex iborIndex2 = new IborIndex(currency, getTenor(tenor), shortConvention.getSwapFloatingLegSettlementDays(), calendar,
+        shortConvention.getSwapFloatingLegDayCount(), shortConvention.getSwapFloatingLegBusinessDayConvention(), shortConvention.isEOMConvention());
+    final CMSIndex cmsIndex2 = new CMSIndex(period, shortConvention.getSwapFloatingLegDayCount(), iborIndex2, getTenor(tenor));
+    final boolean isPayer = capFloorCMSSpreadSecurity.isPayer();
+    final DayCount dayCount = capFloorCMSSpreadSecurity.getDayCount();
+    final Period paymentPeriod = getTenor(capFloorCMSSpreadSecurity.getFrequency());
+    return AnnuityCapFloorCMSSpreadDefinition.from(settlementDate, maturityDate, notional, cmsIndex1, cmsIndex2, paymentPeriod, dayCount, isPayer, strike, isCap);
   }
 
   // FIXME: convert frequency to period in a better way

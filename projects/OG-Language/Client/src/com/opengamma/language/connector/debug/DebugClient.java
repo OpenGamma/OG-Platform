@@ -6,7 +6,6 @@
 package com.opengamma.language.connector.debug;
 
 import java.net.UnknownHostException;
-import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang.StringUtils;
@@ -53,8 +52,7 @@ public class DebugClient extends Client implements FudgeMessageReceiver, FudgeCo
       final SessionContext session) {
     super(clientContext, inputPipeName, outputPipeName, session);
     
-    Properties systemSettings = getSessionContext().getGlobalContext().getSystemSettings();
-    String connectionString = systemSettings.getProperty(DEBUG_CLIENT_CONNECTION_SETTING);
+    String connectionString = System.getProperty(DEBUG_CLIENT_CONNECTION_SETTING);
     if (StringUtils.isBlank(connectionString)) {
       throwUsageException();
     }

@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.irfutureoption;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,6 +29,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.VegaMatrixHelper;
 import com.opengamma.financial.analytics.volatility.sabr.SABRFittedSurfaces;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
@@ -57,7 +57,6 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
   private static final DoublesPairComparator COMPARATOR = new DoublesPairComparator();
   private static final MatrixAlgebra ALGEBRA = MatrixAlgebraFactory.OG_ALGEBRA;
   private VolatilitySurfaceDefinition<?, ?> _definition;
-  private static final DecimalFormat FORMATTER = new DecimalFormat("##.###");
 
   public InterestRateFutureOptionVegaFunction(String forwardCurveName, String fundingCurveName, final String surfaceName) {
     super(forwardCurveName, fundingCurveName, surfaceName);
@@ -78,12 +77,7 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
   @Override
   protected Set<ComputedValue> getResults(final InterestRateDerivative irFutureOption, final SABRInterestRateDataBundle data, 
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ComputationTarget target) {
-    final String ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
-    final ValueProperties sensitivityProperties = ValueProperties
-        .with(ValuePropertyNames.CURRENCY, ccy)
-        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
-        .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    final ValueProperties sensitivityProperties = getModelSensitivityProperties(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
     final Object alphaSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.getTrade(), sensitivityProperties));
     if (alphaSensitivityObject == null) {
       throw new OpenGammaRuntimeException("Could not get alpha sensitivity");
@@ -98,6 +92,9 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
     }
     final ValueRequirement surfacesRequirement = getSurfaceRequirement(target);
     final Object sabrSurfacesObject = inputs.getValue(surfacesRequirement);
+    if (sabrSurfacesObject == null) {
+      throw new OpenGammaRuntimeException("Could not get SABR fitted surfaces");
+    }
     final SABRFittedSurfaces sabrFittedSurfaces = (SABRFittedSurfaces) sabrSurfacesObject;
     final Map<Double, List<Pair<Double, DoubleMatrix2D>>> inverseJacobians = getMaturityExpiryValueMap(sabrFittedSurfaces.getInverseJacobians());
     if (inverseJacobians.size() != 1) {
@@ -119,18 +116,17 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
     final Map<Double, Interpolator1DDataBundle> rhoDataBundle = (Map<Double, Interpolator1DDataBundle>) rhoSurface.getInterpolatorData();
     final DoublesPair expiryMaturity = DoublesPair.of(expiry, maturity);
     final Map<Double, List<Pair<Double, Double>>> alphaGridNodeSensitivities = getMaturityExpiryValueMap(NODE_SENSITIVITY_CALCULATOR.getNodeSensitivitiesForValue(alphaDataBundle, expiryMaturity));
-    final Map<Double, List<Pair<Double, Double>>> nuGridNodeSensitivities = getMaturityExpiryValueMap(NODE_SENSITIVITY_CALCULATOR.getNodeSensitivitiesForValue(nuDataBundle, expiryMaturity));
-    final Map<Double, List<Pair<Double, Double>>> rhoGridNodeSensitivities = getMaturityExpiryValueMap(NODE_SENSITIVITY_CALCULATOR.getNodeSensitivitiesForValue(rhoDataBundle, expiryMaturity));
     if (alphaGridNodeSensitivities.size() != 1) {
       throw new OpenGammaRuntimeException("Cannot handle volatility cubes");
     }
+    final Map<Double, List<Pair<Double, Double>>> nuGridNodeSensitivities = getMaturityExpiryValueMap(NODE_SENSITIVITY_CALCULATOR.getNodeSensitivitiesForValue(nuDataBundle, expiryMaturity));
+    final Map<Double, List<Pair<Double, Double>>> rhoGridNodeSensitivities = getMaturityExpiryValueMap(NODE_SENSITIVITY_CALCULATOR.getNodeSensitivitiesForValue(rhoDataBundle, expiryMaturity));
     final double[] expiryValues = alphaSurface.getXDataAsPrimitive();
     final DoubleMatrix2D alphaResult = getVegaSurfaceForParameter(alpha, alphaGridNodeSensitivities, inverseJacobians, 0);
     final DoubleMatrix2D nuResult = getVegaSurfaceForParameter(nu, nuGridNodeSensitivities, inverseJacobians, 1);
     final DoubleMatrix2D rhoResult = getVegaSurfaceForParameter(rho, rhoGridNodeSensitivities, inverseJacobians, 2);
     final DoubleMatrix2D result = (DoubleMatrix2D) ALGEBRA.add(alphaResult, ALGEBRA.add(nuResult, rhoResult));
-    final DoubleLabelledMatrix2D formatted = getFormattedMatrix(result, expiryValues);
-    return Collections.singleton(new ComputedValue(getResultSpec(target), formatted));
+    return Collections.singleton(new ComputedValue(getResultSpec(target), VegaMatrixHelper.getVegaIRFutureOptionQuoteMatrixInStandardForm(_definition, result, expiryValues)));
   }
 
   @Override
@@ -141,11 +137,8 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>(super.getRequirements(context, target, desiredValue));
-    final ValueProperties sensitivityProperties = ValueProperties.builder()
-            .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
-            .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
-            .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
-            .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    final String ccyCode = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
+    final ValueProperties sensitivityProperties = getModelSensitivityProperties(ccyCode);
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.getTrade(), sensitivityProperties));
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.getTrade(), sensitivityProperties));
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, target.getTrade(), sensitivityProperties));
@@ -159,6 +152,14 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
             .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
             .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
             .with(ValuePropertyNames.SURFACE, getSurfaceName()).get());
+  }
+  
+  private ValueProperties getModelSensitivityProperties(String ccyCode) {
+    return ValueProperties.builder()
+      .with(ValuePropertyNames.CURRENCY, ccyCode)
+      .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
+      .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
+      .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();    
   }
   
   private DoubleMatrix2D getVegaSurfaceForParameter(final double parameter,
@@ -214,34 +215,5 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
       }
       return Double.compare(p1.second, p2.second);
     }
-  }
-
-  private DoubleLabelledMatrix2D getFormattedMatrix(final DoubleMatrix2D matrix, final double[] expiryValues) {
-    final int columns = matrix.getNumberOfRows();
-    if (columns != expiryValues.length) {
-      throw new OpenGammaRuntimeException("Should never happen");
-    }
-    final int rows = matrix.getNumberOfColumns();
-    final Double[] rowValues = new Double[rows];
-    final Double[] columnValues = new Double[columns];
-    final Object[] rowLabels = new Object[rows];
-    final Object[] columnLabels = new Object[columns];
-    final double[][] values = new double[rows][columns];
-    final Object[] strikes = _definition.getYs();
-    final Object[] nFutureOption = _definition.getXs();
-    for (int i = 0; i < rows; i++) {
-      double strike =  ((Number) strikes[i]).doubleValue();
-      rowValues[i] = strike;
-      rowLabels[i] = FORMATTER.format(strike);
-      for (int j = 0; j < columns; j++) {
-        if (i == 0) {
-          int n = ((Number) nFutureOption[j]).intValue();
-          columnValues[j] = Double.valueOf(n);
-          columnLabels[j] = n;
-        }
-        values[i][j] = matrix.getEntry(j, i);
-      }
-    }
-    return new DoubleLabelledMatrix2D(columnValues, columnLabels, rowValues, rowLabels, values);
   }
 }

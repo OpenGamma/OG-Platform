@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -57,7 +58,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
   }
 
   @Override
-  public Future<CalculationJobResult> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
+  public Future<CalculationJobResult> execute(final DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue, final GraphExecutorStatisticsGatherer statistics) {
     long jobId = JobIdSource.getId();
     CalculationJobSpecification jobSpec = new CalculationJobSpecification(_cycle.getUniqueId(), graph.getCalculationConfigurationName(), _cycle.getValuationTime(), jobId);
 

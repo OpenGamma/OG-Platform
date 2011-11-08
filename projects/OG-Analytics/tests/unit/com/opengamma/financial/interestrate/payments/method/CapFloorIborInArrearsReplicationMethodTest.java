@@ -100,7 +100,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
    * It is suggested not to use the standard SABR method as it can lead to exploding prices for long term contracts.
    */
   public void persentValueSABRExtrapolation() {
-    CapFloorIbor capStandard = new CapFloorIbor(CUR, CAP_LONG.getFixingPeriodEndTime(), FUNDING_CURVE_NAME, CAP_LONG.getPaymentYearFraction(), NOTIONAL, CAP_LONG.getFixingTime(),
+    CapFloorIbor capStandard = new CapFloorIbor(CUR, CAP_LONG.getFixingPeriodEndTime(), FUNDING_CURVE_NAME, CAP_LONG.getPaymentYearFraction(), NOTIONAL, CAP_LONG.getFixingTime(), INDEX,
         CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingYearFraction(), FORWARD_CURVE_NAME, STRIKE, IS_CAP);
     double priceStandard = PVC.visit(capStandard, SABR_BUNDLE);
     double beta = CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodStartTime()) / CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodEndTime())

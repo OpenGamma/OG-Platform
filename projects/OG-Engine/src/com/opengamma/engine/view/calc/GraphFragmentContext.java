@@ -6,6 +6,7 @@
 package com.opengamma.engine.view.calc;
 
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -42,8 +43,9 @@ import com.opengamma.util.Cancelable;
   private Map<ValueSpecification, Boolean> _sharedCacheValues;
   private Map<CalculationJobSpecification, GraphFragment> _job2fragment;
   private volatile boolean _cancelled;
+  private final BlockingQueue<CalculationJobResult> _calcJobResultQueue;
 
-  public GraphFragmentContext(final MultipleNodeExecutor executor, final DependencyGraph graph) {
+  public GraphFragmentContext(final MultipleNodeExecutor executor, final DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue) {
     _executor = executor;
     _graph = graph;
     final int hashSize = (graph.getSize() * 4) / 3;
@@ -54,6 +56,7 @@ import com.opengamma.util.Cancelable;
     }
     _functionCost = executor.getFunctionCosts().getStatistics(graph.getCalculationConfigurationName());
     _functionInitializationTimestamp = executor.getFunctionInitId();
+    _calcJobResultQueue = calcJobResultQueue;
   }
 
   /**
@@ -88,6 +91,10 @@ import com.opengamma.util.Cancelable;
 
   public DependencyGraph getGraph() {
     return _graph;
+  }
+
+  public BlockingQueue<CalculationJobResult> getCalculationJobResultQueue() {
+    return _calcJobResultQueue;
   }
 
   public int nextIdentifier() {
@@ -131,6 +138,8 @@ import com.opengamma.util.Cancelable;
     _cancels.remove(result.getSpecification());
     final GraphFragment fragment = _job2fragment.remove(result.getSpecification());
     if (fragment != null) {
+      // Put result into the queue
+      getCalculationJobResultQueue().offer(result);
       fragment.resultReceived(result);
       // Mark nodes as good or bad
       for (CalculationJobResultItem item : result.getResultItems()) {

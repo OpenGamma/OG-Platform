@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.payments.method;
+package com.opengamma.financial.interestrate.payments.market;
 
 import java.util.ArrayList;
 import java.util.HashMap;

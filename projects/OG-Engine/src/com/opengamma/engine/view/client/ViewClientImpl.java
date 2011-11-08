@@ -13,6 +13,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.time.Instant;
 
+import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +52,8 @@ public class ViewClientImpl implements ViewClient {
   private final EngineResourceRetainer _latestCycleRetainer;
   
   private final AtomicReference<ViewResultMode> _resultMode = new AtomicReference<ViewResultMode>(ViewResultMode.FULL_ONLY);
+  private final AtomicReference<ViewResultMode> _jobResultMode = new AtomicReference<ViewResultMode>(ViewResultMode.FULL_ONLY);
+
   private final AtomicBoolean _isViewCycleAccessSupported = new AtomicBoolean(false);
   private final AtomicBoolean _isAttached = new AtomicBoolean(false);
   private ViewClientState _state = ViewClientState.STARTED;
@@ -130,6 +134,24 @@ public class ViewClientImpl implements ViewClient {
           }
         }
       }
+
+      @Override
+      public void jobResultReceived(ViewResultModel fullResult, ViewDeltaResultModel deltaResult) {
+        ViewComputationResultModel prevResult = _latestResult.get();
+        ViewResultListener listener = _userResultListener.get();
+        if (listener != null) {
+          ViewResultMode resultMode = getResultMode();
+          ViewResultModel userFullResult = isFullResultRequired(resultMode, prevResult == null) ? fullResult : null;
+          ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode, prevResult == null) ? deltaResult : null;
+          if (userFullResult != null || userDeltaResult != null) {
+            listener.jobResultReceived(userFullResult, userDeltaResult);
+          } else if (prevResult == null || resultMode != ViewResultMode.DELTA_ONLY) {
+            // Would expect this if it's the first result and we're in delta only mode, otherwise log a warning
+            s_logger.warn("Ignored CycleCompleted call with no useful results to propagate");
+          }
+        }
+      }
+
 
       @Override
       public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
@@ -289,7 +311,17 @@ public class ViewClientImpl implements ViewClient {
   public void setResultMode(ViewResultMode viewResultMode) {
     _resultMode.set(viewResultMode);
   }
-  
+
+  @Override
+  public ViewResultMode getJobResultMode() {
+    return _jobResultMode.get();
+  }
+
+  @Override
+  public void setJobResultMode(ViewResultMode viewResultMode) {
+    _jobResultMode.set(viewResultMode);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public void pause() {
@@ -485,7 +517,7 @@ public class ViewClientImpl implements ViewClient {
         return false;
     }
   }
-  
+
   private boolean isDeltaResultRequired(ViewResultMode resultMode, boolean isFirstResult) {
     switch (resultMode) {
       case BOTH:

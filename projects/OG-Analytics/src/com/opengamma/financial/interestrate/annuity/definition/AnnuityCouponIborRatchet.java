@@ -78,8 +78,8 @@ public class AnnuityCouponIborRatchet extends GenericAnnuity<Coupon> {
             double cpnFloor = cpn.getFloorCoefficients()[0] * cpnRate[loopcpn - 1] + cpn.getFloorCoefficients()[1] * ibor + cpn.getFloorCoefficients()[2];
             double cpnCap = cpn.getCapCoefficients()[0] * cpnRate[loopcpn - 1] + cpn.getCapCoefficients()[1] * ibor + cpn.getCapCoefficients()[2];
             cpnRate[loopcpn] = Math.min(Math.max(cpnFloor, cpnMain), cpnCap);
-            calibration.add(new CapFloorIbor(cpn.getCurrency(), cpn.getPaymentTime(), cpn.getFundingCurveName(), cpn.getPaymentYearFraction(), cpn.getNotional(), cpn.getFixingTime(), cpn
-                .getFixingPeriodStartTime(), cpn.getFixingPeriodEndTime(), cpn.getFixingYearFraction(), cpn.getForwardCurveName(), cpnRate[loopcpn], true));
+            calibration.add(new CapFloorIbor(cpn.getCurrency(), cpn.getPaymentTime(), cpn.getFundingCurveName(), cpn.getPaymentYearFraction(), cpn.getNotional(), cpn.getFixingTime(), cpn.getIndex(),
+                cpn.getFixingPeriodStartTime(), cpn.getFixingPeriodEndTime(), cpn.getFixingYearFraction(), cpn.getForwardCurveName(), cpnRate[loopcpn], true));
           } else {
             if (getNthPayment(loopcpn) instanceof CouponFixed) {
               CouponFixed cpn = (CouponFixed) getNthPayment(loopcpn);

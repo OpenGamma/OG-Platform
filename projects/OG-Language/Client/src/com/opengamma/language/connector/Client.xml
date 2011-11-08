@@ -9,14 +9,8 @@
 
   <!-- System properties -->
   <bean id="systemSettingsLoader" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="location">
-      <value>classpath:OpenGamma.properties</value>
-    </property>
-  </bean>
-  <bean id="systemSettings" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-    <property name="location">
-      <value>classpath:OpenGamma.properties</value>
-    </property>
+    <property name="location" value="classpath:OpenGamma.properties" />
+    <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
   </bean>
   
   <!-- Base system components -->
@@ -41,7 +35,13 @@
   <bean id="globalContextFactory" class="com.opengamma.language.context.GlobalContextFactoryBean"> <!-- Extension point - GlobalContextFactoryBean -->
     <property name="globalContextEventHandler">
       <bean class="com.opengamma.language.context.DefaultGlobalContextEventHandler">
-        <property name="systemSettings" ref="systemSettings" />
+        <property name="systemSettings">
+          <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <property name="location">
+              <value>classpath:OpenGamma.properties</value>
+            </property>
+          </bean>
+        </property>
        </bean>
     </property>
   </bean>

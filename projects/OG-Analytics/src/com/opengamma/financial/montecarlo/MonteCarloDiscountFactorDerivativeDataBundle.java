@@ -18,20 +18,6 @@ public class MonteCarloDiscountFactorDerivativeDataBundle extends MonteCarloDisc
    */
   private double[][] _impactAmountDerivative;
 
-  //  /**
-  //   * Constructor.
-  //   * @param pathDiscountingFactor The paths discount factors.
-  //   * @param impactAmount The reference amounts at the impact dates.
-  //   * @param pathDiscountingFactorDerivative The derivatives of the paths discount factors.
-  //   * @param impactAmountDerivative The derivatives of the reference amounts at the impact dates.
-  //   */
-  //  public MonteCarloDiscountFactorDerivativeDataBundle(Double[][][] pathDiscountingFactor, double[][] impactAmount, Double[][][] pathDiscountingFactorDerivative, 
-  // double[][] impactAmountDerivative) {
-  //    super(pathDiscountingFactor, impactAmount);
-  //    _pathDiscountingFactorDerivative = pathDiscountingFactorDerivative;
-  //    _impactAmountDerivative = impactAmountDerivative;
-  //  }
-
   /**
    * Constructor.
    * @param pathDiscountingFactor The paths discount factors.

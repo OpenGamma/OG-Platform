@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -102,6 +104,168 @@ public class Functional {
     List<T> list = new ArrayList<T>(c);
     Collections.sort(list);
     return list;
+  }
+
+  public static <T> T head(Iterable<? extends T> i) {
+    final Iterator<? extends T> iter = i.iterator();
+    if (iter.hasNext()) {
+      return iter.next();
+    } else {
+      return null;
+    }
+  }
+
+  public static <T> Iterable<? extends T> tail(Iterable<? extends T> i) {
+    final Iterator<? extends T> iter = i.iterator();
+    if (iter.hasNext()) {
+      iter.next(); // loose the head
+      return new Iterable<T>() {
+        @Override
+        public Iterator<T> iterator() {
+          return new Iterator<T>() {
+            @Override
+            public boolean hasNext() {
+              return iter.hasNext();
+            }
+
+            @Override
+            public T next() {
+              return iter.next();
+            }
+
+            @Override
+            public void remove() {
+              //iter.remove();
+              throw new UnsupportedOperationException("don't mutate");
+            }
+          };
+        }
+      };
+    } else {
+      throw new UnsupportedOperationException("can't get tail of the empty Iterable");
+    }
+  }
+
+  public static <T> boolean empty(Iterable<? extends T> i) {
+    final Iterator<? extends T> iter = i.iterator();
+    return !iter.hasNext();
+  }
+
+  public static final Iterable EMPTY_ITERABLE = new Iterable() {
+    @Override
+    public Iterator iterator() {
+      return new Iterator() {
+        @Override
+        public boolean hasNext() {
+          return false;
+        }
+
+        @Override
+        public Object next() {
+          return null;
+        }
+
+        @Override
+        public void remove() {
+          throw new UnsupportedOperationException("don't mutate");
+        }
+      };
+    }
+  };
+
+  public static <T, S> T reduce(T acc, Iterable<? extends S> c, Function2<T, S, T> reducer) {
+    T result = acc;
+    final Iterator<? extends S> iter = c.iterator();
+    if (iter.hasNext()) {
+      result = reducer.execute(result, iter.next());
+      while (iter.hasNext()) {
+        result = reducer.execute(result, iter.next());
+      }
+    }
+    return result;
+  }
+
+  public static <T> T reduce(Iterable<? extends T> c, Function2<T, T, T> reducer) {
+    T head = head(c);
+    if (head != null) {
+      return reduce(head, tail(c), reducer);
+    } else {
+      return null;
+    }
+  }
+
+  public static <T> Collection<T> filter(Iterable<? extends T> c, final Function1<T, Boolean> predicate) {
+    return reduce(new LinkedList<T>(), c, new Function2<LinkedList<T>, T, LinkedList<T>>() {
+      @Override
+      public LinkedList<T> execute(LinkedList<T> acc, T e) {
+        if(predicate.execute(e)){
+          acc.add(e);
+        }
+        return acc;
+      }
+    });
+  }
+
+  public static <T, S> Collection<T> map(Iterable<? extends S> c, Function1<S, T> mapper) {
+    return map(new LinkedList<T>(), c, mapper);
+  }
+
+  public static <T, S> Collection<T> map(Collection<T> into, Iterable<? extends S> c, Function1<S, T> mapper) {
+    for (S arg : c) {
+      into.add(mapper.execute(arg));
+    }
+    return into;
+  }
+  
+  public static <T, S> Collection<T> flatMap(Iterable<? extends S> c, Function1<S, Collection<T>> mapper) {
+    return flatMap(new LinkedList<T>(), c, mapper);
+  }
+  
+  public static <T, S, X extends Collection<T>> X flatMap(X into, Iterable<? extends S> c, Function1<S, Collection<T>> mapper) {
+    for (S arg : c) {
+      into.addAll(mapper.execute(arg));
+    }
+    return into;
+  }
+
+  public static abstract class Reduce<T, S> extends Function3<T, Iterable<? extends S>, Function2<T, S, T>, T> {
+
+    public abstract T reduce(T acc, S v);
+
+    @Override
+    public T execute(T acc, Iterable<? extends S> c, Function2<T, S, T> reducer) {
+      return Functional.reduce(acc, c, reducer);
+    }
+
+    public T execute(T acc, Iterable<? extends S> c) {
+      return execute(acc, c, new Function2<T, S, T>() {
+        @Override
+        public T execute(T t, S s) {
+          return reduce(t, s);
+        }
+      });
+    }
+
+  }
+
+  public static abstract class ReduceSame<S> extends Function2<Iterable<? extends S>, Function2<S, S, S>, S> {
+
+    public abstract S reduce(S acc, S v);
+
+    @Override
+    public S execute(Iterable<? extends S> c, Function2<S, S, S> reducer) {
+      return Functional.reduce(c, reducer);
+    }
+
+    public S execute(Iterable<? extends S> c) {
+      return execute(c, new Function2<S, S, S>() {
+        @Override
+        public S execute(S a, S b) {
+          return reduce(a, b);
+        }
+      });
+    }
+
   }
 
 }

@@ -10,6 +10,8 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.linearalgebra.DecompositionFactory;
+import com.opengamma.math.linearalgebra.LUDecompositionCommons;
 import com.opengamma.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -129,7 +131,7 @@ public class SABRExtrapolationRightFunction {
     double priceDerivative;
     final double k = option.getStrike();
     if (k <= _cutOffStrike) { // Uses Hagan et al SABR function.
-      final double[] volatilityA = _sabrFunction.getVolatilityAdjointOld(option, _forward, _sabrData);
+      final double[] volatilityA = _sabrFunction.getVolatilityAdjoint(option, _forward, _sabrData);
       final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatilityA[0]);
       pA = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
       priceDerivative = pA[1] + pA[2] * volatilityA[1];
@@ -267,9 +269,9 @@ public class SABRExtrapolationRightFunction {
     final BcFunction toSolveBC = new BcFunction(_priceK, _cutOffStrike, _mu);
     final double absoluteTol = 1E-5;
     final double relativeTol = 1E-5;
-    final int maxSteps = 50;
-    final NewtonDefaultVectorRootFinder finder = new NewtonDefaultVectorRootFinder(absoluteTol, relativeTol, maxSteps);
-    final DoubleMatrix1D startPosition = new DoubleMatrix1D(new double[] {0.1, 0.1 });
+    final int maxSteps = 10000;
+    final NewtonDefaultVectorRootFinder finder = new NewtonDefaultVectorRootFinder(absoluteTol, relativeTol, maxSteps, DecompositionFactory.LU_COMMONS);
+    final DoubleMatrix1D startPosition = new DoubleMatrix1D(new double[] {0.1, 0.1});
     final DoubleMatrix1D ab = finder.getRoot(toSolveBC, startPosition);
     param[1] = ab.getEntry(0);
     param[2] = ab.getEntry(1);
