@@ -10,6 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
@@ -171,10 +172,33 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
     Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     final String fundingCurveName = yieldCurveNames[0];
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+    //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
     if (date.isAfter(getFixingDate()) || date.equals(getFixingDate())) { // The CMS coupon has already fixed, it is now a fixed coupon.
-      final double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+      if (fixedRate == null) {
+        final ZonedDateTime fixingDateAtLiborFixingTime = getFixingDate().withTime(11, 0);
+        fixedRate = indexFixingTimeSeries.getValue(fixingDateAtLiborFixingTime);
+      }
+      if (fixedRate == null) {
+        final ZonedDateTime previousBusinessDay = 
+          BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(getCMSIndex().getIborIndex().getConvention().getWorkingDayCalendar(),
+            getFixingDate().minusDays(1));
+        fixedRate = indexFixingTimeSeries.getValue(previousBusinessDay);
+        //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
+        if (fixedRate == null) {
+          final ZonedDateTime previousBusinessDayAtLiborFixingTime = previousBusinessDay.withTime(11, 0);
+          fixedRate = indexFixingTimeSeries.getValue(previousBusinessDayAtLiborFixingTime);
+        }
+        if (fixedRate == null) {
+          fixedRate = indexFixingTimeSeries.getLatestValue(); //TODO remove me as soon as possible
+          //throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
+        }
+      }
       return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixedRate);
     }
+//    if (date.isAfter(getFixingDate()) || date.equals(getFixingDate())) { // The CMS coupon has already fixed, it is now a fixed coupon.
+//      final double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+//    }
     // CMS is not fixed yet, all the details are required.
     final double fixingTime = TimeCalculator.getTimeBetween(date, getFixingDate());
     final double settlementTime = TimeCalculator.getTimeBetween(date, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());

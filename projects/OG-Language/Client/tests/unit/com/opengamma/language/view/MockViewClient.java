@@ -116,6 +116,16 @@ import com.opengamma.livedata.UserPrincipal;
   }
 
   @Override
+  public ViewResultMode getJobResultMode() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setJobResultMode(ViewResultMode viewResultMode) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public ViewClientState getState() {
     throw new UnsupportedOperationException();
   }

@@ -22,12 +22,11 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
-import com.opengamma.financial.analytics.model.fixedincome.YieldCurveLabelGenerator;
+import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueForexYieldCurveNodeSensitivityCalculator;
@@ -130,18 +129,16 @@ public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends Forex
       throw new OpenGammaRuntimeException("Could not get sensitivities for " + callCurrency + ", " + getCallFundingCurveName() + " and " + 
           getCallForwardCurveName() + ", error was: " + e.getMessage());
     }
-    final DoubleLabelledMatrix1D putFundingResult = getSensitivitiesForCurve(putFundingCurveName, data, 
-        putArrayResult.get(putFundingCurveName), putFundingCurveSpec);
-    final DoubleLabelledMatrix1D putForwardResult = getSensitivitiesForCurve(putForwardCurveName, data, 
-        putArrayResult.get(putForwardCurveName), putForwardCurveSpec);
-    final DoubleLabelledMatrix1D callFundingResult = getSensitivitiesForCurve(callFundingCurveName, data, 
-        callArrayResult.get(callFundingCurveName), callFundingCurveSpec);
-    final DoubleLabelledMatrix1D callForwardResult = getSensitivitiesForCurve(callForwardCurveName, data, 
-        callArrayResult.get(callForwardCurveName), callForwardCurveSpec);
-    return Sets.newHashSet(new ComputedValue(getResultSpecForCurve(target, putCurrency.getCode(), getPutFundingCurveName()), putFundingResult),
-                           new ComputedValue(getResultSpecForCurve(target, putCurrency.getCode(), getPutForwardCurveName()), putForwardResult),
-                           new ComputedValue(getResultSpecForCurve(target, callCurrency.getCode(), getCallFundingCurveName()), callFundingResult),
-                           new ComputedValue(getResultSpecForCurve(target, callCurrency.getCode(), getCallForwardCurveName()), callForwardResult));
+    final Set<ComputedValue> result = new HashSet<ComputedValue>();
+    result.addAll(YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(putFundingCurveName, data, 
+        putArrayResult.get(putFundingCurveName), putFundingCurveSpec, getResultSpecForCurve(target, putCurrency.getCode(), getPutFundingCurveName())));
+    result.addAll(YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(putForwardCurveName, data, 
+        putArrayResult.get(putForwardCurveName), putForwardCurveSpec, getResultSpecForCurve(target, putCurrency.getCode(), getPutForwardCurveName())));
+    result.addAll(YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(callFundingCurveName, data, 
+        callArrayResult.get(callFundingCurveName), callFundingCurveSpec, getResultSpecForCurve(target, callCurrency.getCode(), getCallFundingCurveName())));
+    result.addAll(YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(callForwardCurveName, data, 
+        callArrayResult.get(callForwardCurveName), callForwardCurveSpec, getResultSpecForCurve(target, callCurrency.getCode(), getCallForwardCurveName())));
+    return result;
   }
 
   @Override
@@ -216,19 +213,5 @@ public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends Forex
         .with(ValuePropertyNames.CURRENCY, currency)
         .get();
     return new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
-  }
-
-  private DoubleLabelledMatrix1D getSensitivitiesForCurve(final String curveName,
-      final YieldCurveBundle bundle, final DoubleMatrix1D sensitivities, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec) {
-    final int n = sensitivities.getNumberOfElements();
-    final YieldAndDiscountCurve curve = bundle.getCurve(curveName);
-    final Double[] keys = curve.getCurve().getXData();
-    final double[] values = new double[n];
-    final Object[] labels = YieldCurveLabelGenerator.getLabels(curveSpec);
-    DoubleLabelledMatrix1D labelledMatrix = new DoubleLabelledMatrix1D(keys, labels, values);
-    for (int i = 0; i < n; i++) {
-      labelledMatrix = (DoubleLabelledMatrix1D) labelledMatrix.add(keys[i], labels[i], sensitivities.getEntry(i));
-    }
-    return labelledMatrix;
   }
 }

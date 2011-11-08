@@ -10,6 +10,7 @@
 #include <Util/Library.h>
 #include <Util/Mutex.h>
 #include <Util/Thread.h>
+#include "Settings.h"
 
 /// Maintains an embedded JVM and calls methods on the "Main" class to activate the contained Java stack.
 class CJVM {
@@ -34,6 +35,16 @@ private:
 	/// the same as JVM termination; the JVM may still be running but the OpenGamma stack may wish to
 	/// terminate with one or more non-daemon threads still running elsewhere in the system.
 	bool m_bRunning;
+
+	/// Helper class to set system properties on the JVM
+	class CProperties : public CAbstractSettings::CEnumerator {
+	private:
+		JNIEnv *m_pEnv;
+	public:
+		CProperties (JNIEnv *pEnv) { m_pEnv = pEnv; }
+		void SetProperties (const CSettings *poSettings) const;
+		void Setting (const TCHAR *pszKey, const TCHAR *pszValue) const;
+	};
 
 	CJVM (CLibrary *hModule, JavaVM *pJVM, JNIEnv *pEnv);
 	static bool Invoke (JNIEnv *pEnv, const char *pszMethod, const char *pszSignature, ...);
