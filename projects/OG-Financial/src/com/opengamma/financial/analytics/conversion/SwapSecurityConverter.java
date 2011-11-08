@@ -36,7 +36,6 @@ import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swap.SwapIborIborDefinition;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
-import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
@@ -168,8 +167,8 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     final SwapLeg receiveLeg = swapSecurity.getReceiveLeg();
     final FloatingInterestRateLeg floatPayLeg = (FloatingInterestRateLeg) payLeg;
     final FloatingInterestRateLeg floatReceiveLeg = (FloatingInterestRateLeg) receiveLeg;
-    final boolean payIbor = floatPayLeg.getFloatingRateType() == FloatingRateType.IBOR;
-    final boolean receiveIbor = floatReceiveLeg.getFloatingRateType() == FloatingRateType.IBOR;
+    final boolean payIbor = floatPayLeg.getFloatingRateType().isIbor();
+    final boolean receiveIbor = floatReceiveLeg.getFloatingRateType().isIbor();
     if (receiveIbor == payIbor) {
       throw new OpenGammaRuntimeException("This should never happen");
     }
