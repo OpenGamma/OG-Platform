@@ -10,6 +10,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.math.BigDecimal;
 
@@ -68,7 +69,10 @@ public class MasterPositionSourceTest {
     
     ManageablePortfolioNode manNode = example(false);
     ManageablePortfolio manPrt = new ManageablePortfolio("Hello", manNode);
+    manPrt.addAttribute("A1", "V1");
+    manPrt.addAttribute("A2", "V2");
     manPrt.setUniqueId(UID);
+    
     PortfolioDocument prtDoc = new PortfolioDocument(manPrt);
     
     when(mockPortfolio.get(UID)).thenReturn(prtDoc);
@@ -88,6 +92,11 @@ public class MasterPositionSourceTest {
     assertEquals(UID2, testResult.getRootNode().getChildNodes().get(0).getParentNodeId());
     assertEquals(0, testResult.getRootNode().getChildNodes().get(0).getPositions().size());
     assertEquals(0, testResult.getRootNode().getChildNodes().get(0).getChildNodes().size());
+    
+    assertNotNull(testResult.getAttributes());
+    assertEquals(2, testResult.getAttributes().size());
+    assertEquals("V1", testResult.getAttributes().get("A1"));
+    assertEquals("V2", testResult.getAttributes().get("A2"));
   }
 
   public void test_getPortfolio_UniqueId_instants_children() throws Exception {

@@ -137,10 +137,17 @@
     <replaceregexp file="${basedir}/version.h" match="revision\d+\.\d+\.(\d+)" replace="\1" flags="m" />
   </target>
 
-  <available property="config.ok" file="${basedir}/config/OpenGamma.properties" />
-  <target name="fetch-config" unless="config.ok">
-    <property file="${common.dir}/credentials.properties" />
-    <get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/config/OpenGamma.properties" dest="${basedir}/config/OpenGamma.properties" username="${opengamma.username}" password="${opengamma.password}"/>
+  <target name="make-config">
+    <property file="${common.dir}/tests.properties" />
+    <property name="opengamma.configuration.url" value="http://${opengamma.engine.host}:${opengamma.engine.port}${opengamma.engine.path}jax/configuration/0/" />
+    <property name="opengamma.configuration.failOnInvalid" value="true" />
+    <property name="opengamma.configuration.failOnMissing" value="false" />
+    <echo file="${build.dir}/OpenGamma.properties"># Build system defaults
+
+opengamma.configuration.url=${opengamma.configuration.url}
+opengamma.configuration.failOnInvalid=${opengamma.configuration.failOnInvalid}
+opengamma.configuration.failOnMissing=${opengamma.configuration.failOnMissing}
+    </echo>
   </target>
 
   <target name="compile" depends="unpack-resolve,deploy-jars,set-version" description="Compiles all components">

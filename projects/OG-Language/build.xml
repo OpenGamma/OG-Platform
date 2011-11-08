@@ -22,9 +22,8 @@
 
   <import file="${basedir}/build-suffix.xml" />
 
-  <target name="deploy-jars" depends="build-suffix.deploy-jars,fetch-config">
+  <target name="deploy-jars" depends="build-suffix.deploy-jars,make-config">
     <mkdir dir="${build.dir}/ext" />
-    <copy file="${basedir}/config/OpenGamma.properties" todir="${build.dir}" failonerror="true" />
     <copy file="${basedir}/config/0${ant.project.name}.xml" todir="${build.dir}/ext" failonerror="true" />
     <copy file="${basedir}/config/logback.xml" todir="${build.dir}" failonerror="false" />
   </target>
