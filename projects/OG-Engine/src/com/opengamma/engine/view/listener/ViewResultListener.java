@@ -9,6 +9,8 @@ import javax.time.Instant;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.livedata.UserPrincipal;
@@ -62,6 +64,15 @@ public interface ViewResultListener {
    * @param deltaResult  the delta result representing only the differences since the previous result, not null
    */
   void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Called following single calculation job completion.
+   *
+   * @param fullResult  the result of single calculation job, not null
+   * @param deltaResult  the delta result representing only the differences since the previous cycle, not null
+   */
+  void jobResultReceived(ViewResultModel fullResult, ViewDeltaResultModel deltaResult);
   
   /**
    * Called to indicate that execution of a view cycle failed.

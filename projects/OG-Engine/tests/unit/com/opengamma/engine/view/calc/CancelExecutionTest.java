@@ -14,11 +14,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.time.Instant;
 
+import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.calcnode.CalculationJobResult;
+import com.opengamma.engine.view.listener.ComputationCycleResultListener;
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,6 +119,13 @@ public class CancelExecutionTest {
     }
   }
 
+  private ComputationCycleResultListener computationCycleResultListener = new ComputationCycleResultListener() {
+    @Override
+    public void jobResultReceived(ViewResultModel result) {
+      //ignore
+    }
+  };
+
   private Future<?> executeTestJob(DependencyGraphExecutorFactory<?> factory) {
     final InMemoryLKVMarketDataProvider marketDataProvider = new InMemoryLKVMarketDataProvider();
     final MarketDataProviderResolver marketDataProviderResolver = new SingleMarketDataProviderResolver(new SingletonMarketDataProviderFactory(marketDataProvider));
@@ -180,11 +191,12 @@ public class CancelExecutionTest {
     final SingleComputationCycle cycle = new SingleComputationCycle(
         UniqueId.of("Test", "Cycle1"),
         UniqueId.of("Test", "ViewProcess1"),
+        computationCycleResultListener,
         vpc, 
         viewEvaluationModel, 
         cycleOptions,
         VersionCorrection.of(Instant.ofEpochMillis(1), Instant.ofEpochMillis(1)));
-    return cycle.getDependencyGraphExecutor().execute(graph, cycle.getStatisticsGatherer());
+    return cycle.getDependencyGraphExecutor().execute(graph, new LinkedBlockingQueue<CalculationJobResult>(), cycle.getStatisticsGatherer());
   }
 
   private boolean jobFinished() {

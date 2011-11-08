@@ -47,6 +47,11 @@ public enum ViewExecutionFlags {
   /**
    * Indicates that the view definition should be compiled but not executed.
    */
-  COMPILE_ONLY;
+  COMPILE_ONLY,
+
+  /**
+   * Indicates that the results should be stored in batch database.
+   */
+  BATCH;
     
 }

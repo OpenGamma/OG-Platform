@@ -14,9 +14,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.time.Instant;
 
+import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -157,7 +159,7 @@ public class MultipleNodeExecutorTest {
    */
   public void testMin5() {
     final MultipleNodeExecutor executor = createExecutor(5, Integer.MAX_VALUE, Integer.MAX_VALUE);
-    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, new LinkedBlockingQueue<CalculationJobResult>(), DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     if (PRINT_GRAPHS) {
       System.out.println("testMin5");
       executor.printFragment(root);
@@ -188,7 +190,7 @@ public class MultipleNodeExecutorTest {
    */
   public void testMax1() {
     final MultipleNodeExecutor executor = createExecutor(1, 1, 0);
-    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, new LinkedBlockingQueue<CalculationJobResult>(), DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     if (PRINT_GRAPHS) {
       System.out.println("testMax1");
       executor.printFragment(root);
@@ -258,7 +260,7 @@ public class MultipleNodeExecutorTest {
    */
   public void testMinMax2() {
     final MultipleNodeExecutor executor = createExecutor(2, 2, 0);
-    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, new LinkedBlockingQueue<CalculationJobResult>(), DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     if (PRINT_GRAPHS) {
       System.out.println("testMinMax2");
       executor.printFragment(root);
@@ -311,7 +313,7 @@ public class MultipleNodeExecutorTest {
    */
   public void testMinMax4() {
     final MultipleNodeExecutor executor = createExecutor(3, 4, 0);
-    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, new LinkedBlockingQueue<CalculationJobResult>(), DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     if (PRINT_GRAPHS) {
       System.out.println("testMinMax4");
       executor.printFragment(root);
@@ -353,7 +355,7 @@ public class MultipleNodeExecutorTest {
    */
   public void testThread1() {
     final MultipleNodeExecutor executor = createExecutor(1, 4, 1);
-    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, new LinkedBlockingQueue<CalculationJobResult>(), DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     if (PRINT_GRAPHS) {
       System.out.println("testThread1");
       executor.printFragment(root);
@@ -383,7 +385,7 @@ public class MultipleNodeExecutorTest {
    */
   public void testThread2() {
     final MultipleNodeExecutor executor = createExecutor(1, Integer.MAX_VALUE, 2);
-    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, new LinkedBlockingQueue<CalculationJobResult>(), DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     if (PRINT_GRAPHS) {
       System.out.println("testThread2");
       executor.printFragment(root);
@@ -413,7 +415,7 @@ public class MultipleNodeExecutorTest {
    */
   public void testThread3() {
     final MultipleNodeExecutor executor = createExecutor(1, Integer.MAX_VALUE, 3);
-    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, new LinkedBlockingQueue<CalculationJobResult>(), DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     if (PRINT_GRAPHS) {
       System.out.println("testThread3");
       executor.printFragment(root);
@@ -484,7 +486,7 @@ public class MultipleNodeExecutorTest {
       System.out.println("concurrency 1");
     }
     MultipleNodeExecutor executor = createExecutor(1, 1, 1);
-    RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    RootGraphFragment root = executor.createExecutionPlan(_testGraph, new LinkedBlockingQueue<CalculationJobResult>(), DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     Map<Integer, Collection<DependencyNode>> colours = new HashMap<Integer, Collection<DependencyNode>>();
     extractColours(root, colours);
     if (PRINT_GRAPHS) {
@@ -495,7 +497,7 @@ public class MultipleNodeExecutorTest {
       System.out.println("concurrency 2");
     }
     executor = createExecutor(1, 1, 2);
-    root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    root = executor.createExecutionPlan(_testGraph, new LinkedBlockingQueue<CalculationJobResult>(), DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     colours.clear();
     extractColours(root, colours);
     if (PRINT_GRAPHS) {
@@ -506,7 +508,7 @@ public class MultipleNodeExecutorTest {
       System.out.println("concurrency 3");
     }
     executor = createExecutor(1, 1, 3);
-    root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    root = executor.createExecutionPlan(_testGraph, new LinkedBlockingQueue<CalculationJobResult>(), DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     colours.clear();
     extractColours(root, colours);
     if (PRINT_GRAPHS) {
