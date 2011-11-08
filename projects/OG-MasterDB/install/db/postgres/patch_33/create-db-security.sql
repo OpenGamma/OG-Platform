@@ -116,6 +116,7 @@ CREATE TABLE sec_equity (
     CONSTRAINT sec_fk_equity2exchange FOREIGN KEY (exchange_id) REFERENCES sec_exchange(id),
     CONSTRAINT sec_fk_equity2gics FOREIGN KEY (gicscode_id) REFERENCES sec_gics(id)
 );
+CREATE INDEX ix_sec_equity_security_id ON sec_equity(security_id);
 
 CREATE TABLE sec_equityindexoption (
     id bigint NOT NULL,
@@ -156,6 +157,7 @@ CREATE TABLE sec_equityoption (
     CONSTRAINT sec_fk_equityoption2currency FOREIGN KEY (currency_id) REFERENCES sec_currency (id),
     CONSTRAINT sec_fk_equityoption2exchange FOREIGN KEY (exchange_id) REFERENCES sec_exchange (id)
 );
+CREATE INDEX ix_sec_equityoption_security_id ON sec_equityoption(security_id);
 
 CREATE TABLE sec_fxoption (
     id bigint NOT NULL,
@@ -331,6 +333,7 @@ CREATE TABLE sec_bond (
     CONSTRAINT sec_fk_bond2daycount FOREIGN KEY (daycountconvention_id) REFERENCES sec_daycount (id),
     CONSTRAINT sec_fk_bond2businessdayconvention FOREIGN KEY (businessdayconvention_id) REFERENCES sec_businessdayconvention (id)
 );
+CREATE INDEX ix_sec_bond_security_id ON sec_bond(security_id);
 
 CREATE TABLE sec_future (
     id bigint NOT NULL,
@@ -366,6 +369,7 @@ CREATE TABLE sec_future (
     CONSTRAINT sec_fk_future2commodityfuturetype FOREIGN KEY (commoditytype_id) REFERENCES sec_commodityfuturetype (id),
     CONSTRAINT sec_fk_future2unit FOREIGN KEY (unitname_id) REFERENCES sec_unit (id)
 );
+CREATE INDEX ix_sec_future_security_id ON sec_future(security_id);
 
 CREATE TABLE sec_futurebundle (
     id bigint NOT NULL,
@@ -466,10 +470,10 @@ CREATE TABLE sec_swap (
     receive_rateidentifierscheme varchar(255),
     receive_rateidentifierid varchar(255),
     receive_floating_rate_type varchar(32),
-    
     PRIMARY KEY (id),
     CONSTRAINT sec_fk_swap2sec FOREIGN KEY (security_id) REFERENCES sec_security (id)
 );
+CREATE INDEX ix_sec_swap_security_id ON sec_swap(security_id);
 
 CREATE TABLE sec_raw (
     security_id bigint NOT NULL,
@@ -504,6 +508,7 @@ CREATE TABLE sec_fxforward (
   PRIMARY KEY (id),
   CONSTRAINT sec_fk_fxforward2sec FOREIGN KEY (security_id) REFERENCES sec_security (id)
 );
+CREATE INDEX ix_sec_fxforward_security_id ON sec_fxforward(security_id);
 
 CREATE TABLE sec_capfloor (
   id bigint NOT NULL,
@@ -578,3 +583,21 @@ CREATE TABLE  sec_equity_variance_swap (
   CONSTRAINT sec_fk_equityvarianceswap2currency FOREIGN KEY (currency_id) REFERENCES sec_currency(id),
   CONSTRAINT sec_fk_equityvarianceswap2frequency FOREIGN KEY (observation_frequency_id) REFERENCES sec_frequency (id)
 );
+
+CREATE SEQUENCE sec_security_attr_seq
+    start with 1000 increment by 1 no cycle;
+
+CREATE TABLE sec_security_attribute (
+    id bigint not null,
+    security_id bigint not null,
+    security_oid bigint not null,
+    key varchar(255) not null,
+    value varchar(255) not null,
+    primary key (id),
+    constraint sec_fk_securityattr2security foreign key (security_id) references sec_security (id),
+    constraint sec_chk_uq_security_attribute unique (security_id, key, value)
+);
+-- security_oid is an optimization
+-- sec_security_attribute is fully dependent of sec_security
+CREATE INDEX ix_sec_security_attr_security_oid ON sec_security_attribute(security_oid);
+CREATE INDEX ix_sec_security_attr_key ON sec_security_attribute(key);

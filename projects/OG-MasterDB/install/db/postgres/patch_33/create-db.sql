@@ -280,6 +280,7 @@ CREATE TABLE sec_equity (
     CONSTRAINT sec_fk_equity2exchange FOREIGN KEY (exchange_id) REFERENCES sec_exchange(id),
     CONSTRAINT sec_fk_equity2gics FOREIGN KEY (gicscode_id) REFERENCES sec_gics(id)
 );
+CREATE INDEX ix_sec_equity_security_id ON sec_equity(security_id);
 
 CREATE TABLE sec_equityindexoption (
     id bigint NOT NULL,
@@ -320,6 +321,7 @@ CREATE TABLE sec_equityoption (
     CONSTRAINT sec_fk_equityoption2currency FOREIGN KEY (currency_id) REFERENCES sec_currency (id),
     CONSTRAINT sec_fk_equityoption2exchange FOREIGN KEY (exchange_id) REFERENCES sec_exchange (id)
 );
+CREATE INDEX ix_sec_equityoption_security_id ON sec_equityoption(security_id);
 
 CREATE TABLE sec_fxoption (
     id bigint NOT NULL,
@@ -495,6 +497,7 @@ CREATE TABLE sec_bond (
     CONSTRAINT sec_fk_bond2daycount FOREIGN KEY (daycountconvention_id) REFERENCES sec_daycount (id),
     CONSTRAINT sec_fk_bond2businessdayconvention FOREIGN KEY (businessdayconvention_id) REFERENCES sec_businessdayconvention (id)
 );
+CREATE INDEX ix_sec_bond_security_id ON sec_bond(security_id);
 
 CREATE TABLE sec_future (
     id bigint NOT NULL,
@@ -530,6 +533,7 @@ CREATE TABLE sec_future (
     CONSTRAINT sec_fk_future2commodityfuturetype FOREIGN KEY (commoditytype_id) REFERENCES sec_commodityfuturetype (id),
     CONSTRAINT sec_fk_future2unit FOREIGN KEY (unitname_id) REFERENCES sec_unit (id)
 );
+CREATE INDEX ix_sec_future_security_id ON sec_future(security_id);
 
 CREATE TABLE sec_futurebundle (
     id bigint NOT NULL,
@@ -630,10 +634,10 @@ CREATE TABLE sec_swap (
     receive_rateidentifierscheme varchar(255),
     receive_rateidentifierid varchar(255),
     receive_floating_rate_type varchar(32),
-    
     PRIMARY KEY (id),
     CONSTRAINT sec_fk_swap2sec FOREIGN KEY (security_id) REFERENCES sec_security (id)
 );
+CREATE INDEX ix_sec_swap_security_id ON sec_swap(security_id);
 
 CREATE TABLE sec_raw (
     security_id bigint NOT NULL,
@@ -668,6 +672,7 @@ CREATE TABLE sec_fxforward (
   PRIMARY KEY (id),
   CONSTRAINT sec_fk_fxforward2sec FOREIGN KEY (security_id) REFERENCES sec_security (id)
 );
+CREATE INDEX ix_sec_fxforward_security_id ON sec_fxforward(security_id);
 
 CREATE TABLE sec_capfloor (
   id bigint NOT NULL,
@@ -742,6 +747,24 @@ CREATE TABLE  sec_equity_variance_swap (
   CONSTRAINT sec_fk_equityvarianceswap2currency FOREIGN KEY (currency_id) REFERENCES sec_currency(id),
   CONSTRAINT sec_fk_equityvarianceswap2frequency FOREIGN KEY (observation_frequency_id) REFERENCES sec_frequency (id)
 );
+
+CREATE SEQUENCE sec_security_attr_seq
+    start with 1000 increment by 1 no cycle;
+
+CREATE TABLE sec_security_attribute (
+    id bigint not null,
+    security_id bigint not null,
+    security_oid bigint not null,
+    key varchar(255) not null,
+    value varchar(255) not null,
+    primary key (id),
+    constraint sec_fk_securityattr2security foreign key (security_id) references sec_security (id),
+    constraint sec_chk_uq_security_attribute unique (security_id, key, value)
+);
+-- security_oid is an optimization
+-- sec_security_attribute is fully dependent of sec_security
+CREATE INDEX ix_sec_security_attr_security_oid ON sec_security_attribute(security_oid);
+CREATE INDEX ix_sec_security_attr_key ON sec_security_attribute(key);
 -- create-db-portfolio.sql: Portfolio Master
 
 -- design has one document
@@ -810,6 +833,24 @@ CREATE TABLE prt_position (
 );
 -- prt_position is fully dependent of prt_portfolio
 CREATE INDEX ix_prt_position_node_id ON prt_position(node_id);
+
+CREATE SEQUENCE prt_portfolio_attr_seq
+    start with 1000 increment by 1 no cycle;
+
+CREATE TABLE prt_portfolio_attribute (
+    id bigint not null,
+    portfolio_id bigint not null,
+    portfolio_oid bigint not null,
+    key varchar(255) not null,
+    value varchar(255) not null,
+    primary key (id),
+    constraint prt_fk_prtattr2portfolio foreign key (portfolio_id) references prt_portfolio (id),
+    constraint prt_chk_uq_prt_attribute unique (portfolio_id, key, value)
+);
+-- portfolio_oid is an optimization
+-- prt_portfolio_attribute is fully dependent of prt_portfolio
+CREATE INDEX ix_prt_attr_portfolio_oid ON prt_portfolio_attribute(portfolio_oid);
+CREATE INDEX ix_prt_attr_key ON prt_portfolio_attribute(key);
 -- create-db-position.sql: Position Master
 
 -- design has one document
@@ -865,7 +906,8 @@ CREATE TABLE pos_trade (
     premium_time time,
     premium_zone_offset int,
     PRIMARY KEY (id),
-    CONSTRAINT pos_fk_trade2position FOREIGN KEY (position_id) REFERENCES pos_position (id)
+    CONSTRAINT pos_fk_trade2position FOREIGN KEY (position_id) REFERENCES pos_position (id),
+    CONSTRAINT pos_fk_tradei2tradei FOREIGN KEY (oid) REFERENCES pos_trade(id)
 );
 -- position_oid is an optimization
 -- pos_trade is fully dependent of pos_position
@@ -1187,10 +1229,30 @@ create table rsk_value_name (
     constraint rsk_chk_uq_value_name unique (name)
 );
 
+create table rsk_value_specification (
+    id int not null,
+    synthetic_form varchar(1024) not null,
+
+    primary key (id),
+
+    constraint rsk_chk_uq_value_specification unique (synthetic_form)
+);
+
+create table rsk_value_requirement (
+    id int not null,
+    synthetic_form varchar(1024) not null,
+
+    primary key (id),
+
+    constraint rsk_chk_uq_value_requirement unique (synthetic_form)
+);
+
 create table rsk_value (
     id bigint not null,
     calculation_configuration_id int not null,
     value_name_id int not null,
+    value_requirement_id int not null,
+    value_specification_id int not null,
     function_unique_id int not null,
     computation_target_id int not null,        
     run_id int not null,             	       -- shortcut
@@ -1200,13 +1262,17 @@ create table rsk_value (
     
     primary key (id),
     
-    -- performance implications of these constraints?
+    -- performance implications of these requirement?
     constraint rsk_fk_value2calc_conf
         foreign key (calculation_configuration_id) references rsk_calculation_configuration (id),
     constraint rsk_fk_value2run 
         foreign key (run_id) references rsk_run (id),
     constraint rsk_fk_value2value_name
         foreign key (value_name_id) references rsk_value_name (id),
+    constraint rsk_fk_value2value_requirement
+        foreign key (value_requirement_id) references rsk_value_requirement (id),
+    constraint rsk_fk_value2value_specification
+        foreign key (value_specification_id) references rsk_value_specification (id),
     constraint rsk_fk_value2function_id
         foreign key (function_unique_id) references rsk_function_unique_id (id),
     constraint rsk_fk_value2comp_target
@@ -1214,7 +1280,7 @@ create table rsk_value (
     constraint rsk_fk_value2compute_node
         foreign key (compute_node_id) references rsk_compute_node (id),
         
-    constraint rsk_chk_uq_value unique (calculation_configuration_id, value_name_id, computation_target_id)
+    constraint rsk_chk_uq_value unique (calculation_configuration_id, value_name_id, value_requirement_id, computation_target_id)
 );
 
 
@@ -1235,6 +1301,8 @@ create table rsk_failure (
     id bigint not null,
     calculation_configuration_id int not null,
     value_name_id int not null,
+    value_requirement_id int not null,
+    value_specification_id int not null,
     function_unique_id int not null,
     computation_target_id int not null,
     run_id int not null,             	       -- shortcut
@@ -1249,6 +1317,10 @@ create table rsk_failure (
         foreign key (run_id) references rsk_run (id),
     constraint rsk_fk_failure2value_name
         foreign key (value_name_id) references rsk_value_name (id),
+    constraint rsk_fk_failure2value_requirement
+        foreign key (value_requirement_id) references rsk_value_requirement (id),
+    constraint rsk_fk_failure2value_specification
+        foreign key (value_specification_id) references rsk_value_specification (id),
     constraint rsk_fk_failure2function_id
         foreign key (function_unique_id) references rsk_function_unique_id (id),
     constraint rsk_fk_failure2com_target
@@ -1256,7 +1328,7 @@ create table rsk_failure (
     constraint rsk_fk_failure2node
        foreign key (compute_node_id) references rsk_compute_node (id),
         
-    constraint rsk_chk_uq_failure unique (calculation_configuration_id, value_name_id, computation_target_id)
+    constraint rsk_chk_uq_failure unique (calculation_configuration_id, value_name_id, value_requirement_id, computation_target_id)
 );    
 
 create table rsk_failure_reason (
@@ -1292,13 +1364,17 @@ rsk_observation_datetime.date_part as run_date,
 rsk_observation_time.label as run_time,
 rsk_calculation_configuration.name as calc_conf_name,
 rsk_value_name.name,
+rsk_value_requirement.synthetic_form as requirement_synthetic_form,
+rsk_value_specification.synthetic_form as specification_synthetic_form,
 rsk_function_unique_id.unique_id as function_unique_id,
-rsk_value.value, 
+rsk_value.value,
 rsk_value.eval_instant
 from 
 rsk_value, 
 rsk_calculation_configuration,
 rsk_value_name,
+rsk_value_requirement,
+rsk_value_specification,
 rsk_computation_target,
 rsk_computation_target_type,
 rsk_run,
@@ -1309,6 +1385,8 @@ rsk_function_unique_id
 where
 rsk_value.calculation_configuration_id = rsk_calculation_configuration.id and
 rsk_value.value_name_id = rsk_value_name.id and
+rsk_value.value_requirement_id = rsk_value_requirement.id and
+rsk_value.value_specification_id = rsk_value_specification.id and
 rsk_value.function_unique_id = rsk_function_unique_id.id and
 rsk_value.computation_target_id = rsk_computation_target.id and
 rsk_computation_target.type_id = rsk_computation_target_type.id and
@@ -1329,6 +1407,8 @@ rsk_observation_datetime.date_part as run_date,
 rsk_observation_time.label as run_time,
 rsk_calculation_configuration.name as calc_conf_name,
 rsk_value_name.name,
+rsk_value_requirement.synthetic_form as requirement_synthetic_form,
+rsk_value_specification.synthetic_form as specification_synthetic_form,
 rsk_function_unique_id.unique_id as function_unique_id,
 rsk_failure.eval_instant,
 rsk_compute_failure.function_id as failed_function,
@@ -1339,6 +1419,8 @@ from
 rsk_failure, 
 rsk_calculation_configuration,
 rsk_value_name,
+rsk_value_requirement,
+rsk_value_specification,
 rsk_computation_target,
 rsk_computation_target_type,
 rsk_run,
@@ -1351,6 +1433,8 @@ rsk_compute_failure
 where
 rsk_failure.calculation_configuration_id = rsk_calculation_configuration.id and
 rsk_failure.value_name_id = rsk_value_name.id and
+rsk_failure.value_requirement_id = rsk_value_requirement.id and
+rsk_failure.value_specification_id = rsk_value_specification.id and
 rsk_failure.function_unique_id = rsk_function_unique_id.id and
 rsk_failure.computation_target_id = rsk_computation_target.id and
 rsk_computation_target.type_id = rsk_computation_target_type.id and
