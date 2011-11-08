@@ -16,7 +16,9 @@ import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionResolver;
+import com.opengamma.engine.marketdata.DummyOverrideOperationCompiler;
 import com.opengamma.engine.marketdata.LiveMarketDataSourceRegistry;
+import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
@@ -54,6 +56,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   private DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private GraphExecutorStatisticsGathererProvider _graphExecutionStatistics = new DiscardingGraphStatisticsGathererProvider();
   private ViewPermissionProvider _viewPermissionProvider;
+  private OverrideOperationCompiler _overrideOperationCompiler = new DummyOverrideOperationCompiler();
   
   //-------------------------------------------------------------------------
   public Long getId() {
@@ -176,6 +179,14 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     _viewPermissionProvider = viewPermissionProvider;
   }
 
+  public OverrideOperationCompiler getOverrideOperationCompiler() {
+    return _overrideOperationCompiler;
+  }
+
+  public void setOverrideOperationCompiler(final OverrideOperationCompiler overrideOperationCompiler) {
+    _overrideOperationCompiler = overrideOperationCompiler;
+  }
+
   //-------------------------------------------------------------------------
   protected void checkInjectedInputs() {
     s_logger.debug("Checking injected inputs.");
@@ -216,7 +227,8 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
         getViewProcessorQueryReceiver(),
         getDependencyGraphExecutorFactory(),
         getGraphExecutionStatistics(),
-        getViewPermissionProvider());
+        getViewPermissionProvider(),
+        getOverrideOperationCompiler());
   }
 
 }
