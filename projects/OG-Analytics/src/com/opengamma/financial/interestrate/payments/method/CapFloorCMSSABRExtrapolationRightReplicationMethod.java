@@ -15,7 +15,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.method.PricingMethod;
@@ -124,7 +124,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod implements Prici
    * @param sabrData The SABR data bundle. The SABR function need to be the Hagan function.
    * @return The present value sensitivity to curves.
    */
-  public PresentValueSensitivity presentValueSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
+  public InterestRateCurveSensitivity presentValueSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
     Validate.notNull(cmsCapFloor);
     Validate.notNull(sabrData);
     final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
@@ -175,8 +175,8 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod implements Prici
     list.add(new DoublesPair(cmsCapFloor.getPaymentTime(), sensiDF));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
     resultMap.put(cmsCapFloor.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getFundingCurveName(), list);
-    PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
-    final PresentValueSensitivity forwardDr = new PresentValueSensitivity(PRSC.visit(cmsCapFloor.getUnderlyingSwap(), sabrData));
+    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
+    final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(PRSC.visit(cmsCapFloor.getUnderlyingSwap(), sabrData));
     result = result.add(forwardDr.multiply(deltaS0));
     return result;
 
@@ -290,8 +290,8 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod implements Prici
       final double beta = sabrParameter.getBeta(expiryMaturity);
       final double rho = sabrParameter.getRho(expiryMaturity);
       final double nu = sabrParameter.getNu(expiryMaturity);
-      final SABRFormulaData sabrData = new SABRFormulaData(_forward, alpha, beta, nu, rho);
-      _sabrExtrapolation = new SABRExtrapolationRightFunction(sabrData, cutOffStrike, _timeToExpiry, mu);
+      final SABRFormulaData sabrData = new SABRFormulaData(alpha, beta, rho, nu);
+      _sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrData, cutOffStrike, _timeToExpiry, mu);
       _isCall = cmsCap.isCap();
       _strike = cmsCap.getStrike();
       _factor = g(_forward) / h(_forward);
@@ -375,7 +375,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod implements Prici
       final double hpp = (_eta - 1.0) * _tau * hp / periodFactor;
       final double kp = hp / g - h * gp / (g * g);
       final double kpp = hpp / g - 2 * hp * gp / (g * g) - h * (gpp / (g * g) - 2 * (gp * gp) / (g * g * g));
-      return new double[] {kp, kpp};
+      return new double[] {kp, kpp };
     }
 
     /**

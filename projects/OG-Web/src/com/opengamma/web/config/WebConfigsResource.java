@@ -36,8 +36,9 @@ import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
-import com.opengamma.util.Paging;
-import com.opengamma.util.PagingRequest;
+import com.opengamma.master.config.ConfigSearchSortOrder;
+import com.opengamma.util.paging.Paging;
+import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.web.WebPaging;
 import com.opengamma.web.json.JSONBuilder;
 import com.sun.jersey.api.client.ClientResponse.Status;
@@ -66,12 +67,14 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
       @QueryParam("pgSze") Integer pgSze,
+      @QueryParam("sort") String sort,
       @QueryParam("name") String name,
       @QueryParam("type") String type,
       @QueryParam("configId") List<String> configIdStrs,
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
-    FlexiBean out = search(pr, name, type, configIdStrs, uriInfo);
+    ConfigSearchSortOrder so = buildSortOrder(sort, ConfigSearchSortOrder.NAME_ASC);
+    FlexiBean out = search(pr, so, name, type, configIdStrs, uriInfo);
     return getFreemarker().build("configs/configs.ftl", out);
   }
 
@@ -81,17 +84,20 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
       @QueryParam("pgSze") Integer pgSze,
+      @QueryParam("sort") String sort,
       @QueryParam("name") String name,
       @QueryParam("type") String type,
       @QueryParam("configId") List<String> configIdStrs,
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
-    FlexiBean out = search(pr, name, type, configIdStrs, uriInfo);
+    ConfigSearchSortOrder so = buildSortOrder(sort, ConfigSearchSortOrder.NAME_ASC);
+    FlexiBean out = search(pr, so, name, type, configIdStrs, uriInfo);
     return getFreemarker().build("configs/jsonconfigs.ftl", out);
   }
 
   @SuppressWarnings("unchecked")
-  private FlexiBean search(PagingRequest request, String name, String type, List<String> configIdStrs, UriInfo uriInfo) {
+  private FlexiBean search(PagingRequest request, ConfigSearchSortOrder so, String name,
+      String type, List<String> configIdStrs, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     @SuppressWarnings("rawtypes")
@@ -104,6 +110,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       searchRequest.setType(Object.class);
     }
     searchRequest.setPagingRequest(request);
+    searchRequest.setSortOrder(so);
     searchRequest.setName(StringUtils.trimToNull(name));
     out.put("searchRequest", searchRequest);
     out.put("type", type);
@@ -184,8 +191,9 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     name = StringUtils.trimToNull(name);
     json = StringUtils.trimToNull(json);
     xml = StringUtils.trimToNull(xml);
+    type = StringUtils.trimToNull(type);
     Response result = null;
-    if (isEmptyName(name) || isEmptyConfigData(json, xml)) {
+    if (name == null || type == null || isEmptyConfigData(json, xml)) {
       result = Response.status(Status.BAD_REQUEST).build();
     } else {
       Object configObj = null;
@@ -211,10 +219,6 @@ public class WebConfigsResource extends AbstractWebConfigResource {
 
   private boolean isEmptyConfigData(String json, String xml) {
     return (json == null && xml == null);
-  }
-
-  private boolean isEmptyName(String name) {
-    return name == null;
   }
 
   //-------------------------------------------------------------------------

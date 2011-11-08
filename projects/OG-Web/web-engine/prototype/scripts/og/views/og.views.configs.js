@@ -138,6 +138,8 @@ $.register_module({
                         item: 'history.configs.recent',
                         value: routes.current().hash
                     });
+                // if new page, close south panel
+                check_state({args: args, conditions: [{new_page: og.views.common.layout.inner.close.partial('south')}]});
                     og.views.config_forms[config_type]({
                         is_new: is_new,
                         data: details_json,
@@ -147,12 +149,20 @@ $.register_module({
                         save_new_handler: function (result) {
                             var args = $.extend({}, routes.last().args, {id: result.meta.id});
                             ui.message({location: '.OG-js-details-panel', destroy: true});
-                            if (result.error) return ui.dialog({type: 'error', message: result.message});
+                            if (result.error) {
+                                ui.message({location: '.ui-layout-inner-center', destroy: true});
+                                ui.dialog({type: 'error', message: result.message});
+                                return;
+                            }
                             configs.search(args);
                             routes.go(routes.hash(module.rules.load_configs, args));
                         },
                         save_handler: function (result) {
-                            if (result.error) return ui.dialog({type: 'error', message: result.message});
+                            if (result.error) {
+                                ui.message({location: '.ui-layout-inner-center', destroy: true});
+                                ui.dialog({type: 'error', message: result.message});
+                                return;
+                            }
                             ui.message({location: '.ui-layout-inner-center', message: 'saved'});
                             setTimeout(function () {routes.handler(); details_page(args);}, 300);
                         },
@@ -178,12 +188,11 @@ $.register_module({
                             layout.inner.resizeAll();
                         },
                         selector: '.ui-layout-inner-center .ui-layout-content'
-                    });                        
+                    });
                 };
                 rest_options = {
                     handler: rest_handler,
                     loading: function () {
-                        if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions()}
                         ui.message({
                             location: '.ui-layout-inner-center', message: {0: 'loading...', 3000: 'still loading...'}
                         });

@@ -12,8 +12,8 @@ $.register_module({
         var module = this, Form = og.common.util.ui.Form,
             INDX = '<INDEX>';
         return og.views.config_forms['default'].preload({
-            type: module.name.split('.').pop(),
-            meta: [
+            type: 'com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveDefinition',
+            type_map: [
                 ['0', Form.type.STR],
                 ['name', Form.type.STR],
                 [['target', '0', INDX].join('.'), Form.type.STR],

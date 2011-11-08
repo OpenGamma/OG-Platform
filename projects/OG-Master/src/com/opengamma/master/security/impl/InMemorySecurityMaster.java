@@ -34,7 +34,7 @@ import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.Paging;
+import com.opengamma.util.paging.Paging;
 
 /**
  * A simple, in-memory implementation of {@code SecurityMaster}.

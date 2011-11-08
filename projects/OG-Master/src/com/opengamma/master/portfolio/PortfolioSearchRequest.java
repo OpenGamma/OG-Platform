@@ -58,6 +58,11 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
   @PropertyDefinition
   private String _name;
   /**
+   * The sort order to use.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private PortfolioSearchSortOrder _sortOrder = PortfolioSearchSortOrder.OBJECT_ID_ASC;
+  /**
    * The depth of nodes to return.
    * A value of zero returns the root node, one returns the root node with immediate children, and so on.
    * A negative value, such as -1, returns the full tree.
@@ -181,6 +186,8 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
         return getNodeObjectIds();
       case 3373707:  // name
         return getName();
+      case -26774448:  // sortOrder
+        return getSortOrder();
       case 95472323:  // depth
         return getDepth();
     }
@@ -200,11 +207,20 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
       case 3373707:  // name
         setName((String) newValue);
         return;
+      case -26774448:  // sortOrder
+        setSortOrder((PortfolioSearchSortOrder) newValue);
+        return;
       case 95472323:  // depth
         setDepth((Integer) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_sortOrder, "sortOrder");
+    super.validate();
   }
 
   @Override
@@ -217,6 +233,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
       return JodaBeanUtils.equal(getPortfolioObjectIds(), other.getPortfolioObjectIds()) &&
           JodaBeanUtils.equal(getNodeObjectIds(), other.getNodeObjectIds()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
           JodaBeanUtils.equal(getDepth(), other.getDepth()) &&
           super.equals(obj);
     }
@@ -229,6 +246,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
     hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioObjectIds());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNodeObjectIds());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDepth());
     return hash ^ super.hashCode();
   }
@@ -300,6 +318,32 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the sort order to use.
+   * @return the value of the property, not null
+   */
+  public PortfolioSearchSortOrder getSortOrder() {
+    return _sortOrder;
+  }
+
+  /**
+   * Sets the sort order to use.
+   * @param sortOrder  the new value of the property, not null
+   */
+  public void setSortOrder(PortfolioSearchSortOrder sortOrder) {
+    JodaBeanUtils.notNull(sortOrder, "sortOrder");
+    this._sortOrder = sortOrder;
+  }
+
+  /**
+   * Gets the the {@code sortOrder} property.
+   * @return the property, not null
+   */
+  public final Property<PortfolioSearchSortOrder> sortOrder() {
+    return metaBean().sortOrder().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the depth of nodes to return.
    * A value of zero returns the root node, one returns the root node with immediate children, and so on.
    * A negative value, such as -1, returns the full tree.
@@ -360,6 +404,11 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
         this, "name", PortfolioSearchRequest.class, String.class);
     /**
+     * The meta-property for the {@code sortOrder} property.
+     */
+    private final MetaProperty<PortfolioSearchSortOrder> _sortOrder = DirectMetaProperty.ofReadWrite(
+        this, "sortOrder", PortfolioSearchRequest.class, PortfolioSearchSortOrder.class);
+    /**
      * The meta-property for the {@code depth} property.
      */
     private final MetaProperty<Integer> _depth = DirectMetaProperty.ofReadWrite(
@@ -372,6 +421,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
         "portfolioObjectIds",
         "nodeObjectIds",
         "name",
+        "sortOrder",
         "depth");
 
     /**
@@ -389,6 +439,8 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
           return _nodeObjectIds;
         case 3373707:  // name
           return _name;
+        case -26774448:  // sortOrder
+          return _sortOrder;
         case 95472323:  // depth
           return _depth;
       }
@@ -433,6 +485,14 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<String> name() {
       return _name;
+    }
+
+    /**
+     * The meta-property for the {@code sortOrder} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<PortfolioSearchSortOrder> sortOrder() {
+      return _sortOrder;
     }
 
     /**

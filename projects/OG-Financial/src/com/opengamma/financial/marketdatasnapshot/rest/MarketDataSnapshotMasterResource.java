@@ -118,15 +118,13 @@ public class MarketDataSnapshotMasterResource {
   @POST
   @Path("add")
   public FudgeMsgEnvelope add(final FudgeMsgEnvelope payload) {
-    final FudgeDeserializer deserializer = new FudgeDeserializer(getFudgeContext());
-    final ManageableMarketDataSnapshot snapshotDefinition = deserializer.fieldValueToObject(ManageableMarketDataSnapshot.class, payload.getMessage().getByName("snapshot"));
-
+    final ManageableMarketDataSnapshot snapshotDefinition = getFudgeDeserializer().fieldValueToObject(ManageableMarketDataSnapshot.class, payload.getMessage().getByName("snapshot"));
     MarketDataSnapshotDocument document = new MarketDataSnapshotDocument(snapshotDefinition);
     document = getSnapshotMaster().add(document);
     if (document == null) {
       return null;
     }
-    final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+    final FudgeSerializer serializer = getFudgeSerializer();
     final MutableFudgeMsg resp = serializer.newMessage();
     resp.add("uniqueId", UniqueIdFudgeBuilder.toFudgeMsg(serializer, document.getUniqueId()));
     return new FudgeMsgEnvelope(resp);

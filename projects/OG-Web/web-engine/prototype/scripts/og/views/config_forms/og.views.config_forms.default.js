@@ -5,23 +5,23 @@
 $.register_module({
     name: 'og.views.config_forms.default',
     dependencies: [
-        'og.api',
+        'og.api.rest',
         'og.common.util.ui'
     ],
     obj: function () {
-        var module = this, Form = og.common.util.ui.Form, api = og.api;
+        var module = this, Form = og.common.util.ui.Form, api = og.api.rest;
         return function (config) {
             var load_handler = config.handler || $.noop, selector = config.selector,
                 master = config.data.template_data.configJSON.data, config_type = config.type,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.name, submit_type,
-                resource_id = config.data.template_data.object_id, meta_map = config.meta || {},
+                resource_id = config.data.template_data.object_id, type_map = config.type_map || {},
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler,
                 new_name = '',
-                form = new Form({
+                form = window.temp = new Form({
                     module: 'og.views.forms.config_default',
                     data: {name: null},
-                    meta: meta_map,
+                    type_map: type_map,
                     selector: selector,
                     extras: {name: orig_name, raw: is_new ? '{}' : JSON.stringify(master, null, 2)},
                     processor: function (data) {
@@ -30,7 +30,7 @@ $.register_module({
                         // turn data into parsed object so meta mapping can happen
                         for (key in parsed) data[key] = parsed[key];
                         new_name = data.name;
-                        if (!meta_map.name) delete data.name;
+                        if (!type_map.name) delete data.name;
                     }
                 }),
                 form_id = '#' + form.id,
@@ -38,20 +38,16 @@ $.register_module({
                     var data = result.data, meta = result.meta;
                     if (!deleted && !is_new && as_new && (orig_name === new_name))
                         return window.alert('Please select a new name.');
-                    console.log('data:\n', data, 'meta:\n', meta);
-                    return;
                     api.configs.put({
-                        id: as_new ? undefined : resource_id,
+                        id: as_new ? void 0 : resource_id,
                         name: new_name,
                         json: JSON.stringify({data: data, meta: meta}),
+                        type: config_type,
                         loading: loading,
                         handler: as_new ? save_new_handler : save_handler
                     });
                 };
-            console.log('config:\n', config);
-            og.dev.warn('using default config template for config type: ' + config_type);
-            console.log('meta:\n', config.data.template_data.configJSON.meta);
-            console.log('meta_map:\n', config.meta);
+            og.dev.warn('using default config template for config type:\n' + config_type);
             form.attach([
                 {type: 'form:load', handler: function () {
                     var header = '\
@@ -67,6 +63,9 @@ $.register_module({
                 }},
                 {type: 'keyup', selector: form_id + ' [name=name]', handler: function (e) {
                     $('.ui-layout-inner-center .og-js-name').text($(e.target).val());
+                }},
+                {type: 'click', selector: form_id + ' .og-js-submit', handler: function (e) {
+                    submit_type = $(e.target).val();
                 }},
                 {type: 'form:submit', handler: function (result) {
                     save_resource(result, submit_type === 'save_as_new');

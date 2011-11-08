@@ -4,56 +4,84 @@
  */
 $.register_module({
     name: 'og.views.common.versions',
-    dependencies: ['og.common.util.ui.message'],
+    dependencies: ['og.common.util.ui.message', 'og.views.common.layout'],
     obj: function () {
-        var SELECTOR = '.ui-layout-inner-south .ui-layout-content', versions;
+        var PANEL = '.ui-layout-inner-south',
+            HEADER = PANEL + ' .ui-layout-header',
+            CONTENT = PANEL + ' .ui-layout-content',
+            FOOTER = PANEL + ' .ui-layout-footer',
+            versions;
         return versions = {
             load: function () {
-                var cur = og.common.routes.current(), ui = og.common.util.ui, routes = og.common.routes;
+                versions.setup();
+                var ui = og.common.util.ui, routes = og.common.routes, cur = routes.current();
                 if (!routes.current().args.id) {versions.clear()}
                 og.api.rest[cur.page.substring(1)].get({
                     id: cur.args.id, version: '*',
                     handler: function (r) {
-                        var thead = '<thead><tr>\
-                                       <th>Reference</th><th>Name</th><th>Valid from</th>\
-                                     </tr></thead>',
-                        cols = '<colgroup align="left"></colgroup>\
-                                <colgroup align="left"></colgroup>',
+                        var cols = '<colgroup></colgroup><colgroup></colgroup><colgroup></colgroup>',
                         build_url = function (version) {
-                            var current = routes.current().args,
-                                page = routes.current().page.substring(1);
+                            var current = routes.current().args, page = routes.current().page.substring(1);
                             delete current.node; // not supported yet
                             return routes.hash(
                                 og.views[page].rules['load_' + page], $.extend({}, current, {version: version})
                             );
                         },
+                        format_date = function (timestamp) {
+                            return timestamp;
+                        },
                         $list = $(r.data.data.reduce(function (acc, val, i) {
                             var arr = val.split('|'), cur, sel, ver = routes.current().args.version;
+                            //version_id
                             cur = !i ? '<span> Latest</span>' : '';
                             sel = ver === arr[0] ? ' class="og-selected"' : '';
                             return acc +
                                 '<tr' + sel + '>' +
                                     '<td><a href="#' + build_url(arr[0]) + '">' + arr[0] + '</a>' + cur + '</td>' +
                                     '<td>' + arr[1] + '</td>' +
-                                    '<td>' + arr[2] + '</td>' +
+                                    '<td>' + format_date(arr[2]) + '</td>' +
                                 '</tr>';
-                        }, '<div class="og-container"><table>' + thead) + '</table></div>')
+                        }, '<div class="og-container"><table>' + cols) + '</table></div>')
                         .click(function (e) {
                             var version = $(e.target).parents('tbody tr').find('td:first-child a').text();
                             if (version) routes.go(build_url(version));
                         });
-                        $(SELECTOR).html($list);
+                        $(CONTENT).html($list);
                         ui.message({location: '.ui-layout-inner-south', destroy: true});
+                        og.views.common.layout.main.resizeAll();
                     },
                     loading: function () {
                         ui.message({
                             location: '.ui-layout-inner-south',
+                            css: {bottom: '1px'},
                             message: {0: 'loading...', 3000: 'still loading...'}
                         });
                     }
                 });
+
             },
-            clear: function () {$(SELECTOR).html('History not available for this view')}
+            clear: function () {$(CONTENT).empty()},
+            setup: function () {
+                var layout = og.views.common.layout, routes = og.common.routes,
+                    header_html = '\
+                        <div><header><h2>Version History</h2></header></div>\
+                        <div class="og-version-header">\
+                          <table>\
+                            <colgroup></colgroup><colgroup></colgroup><colgroup></colgroup>\
+                            <thead><tr><th>Reference</th><th>Name</th><th>Valid from</th></tr></thead>\
+                          </table>\
+                        </div>\
+                        <div class="og-divider"></div>'
+                    ;
+                if (!$(HEADER).length || (routes.last() && !routes.last().args.version)) $(PANEL).html( '\
+                    <div class="ui-layout-header">' + header_html + '</div>\
+                    <div class="ui-layout-content"></div>'
+                ).removeClass(function (i , classes) {
+                    var matches = classes.match(/OG-(?:.+)/g) || [];
+                    return matches.join(' ');
+                }).addClass('OG-versions');
+                og.views.common.layout.inner.initContent('south');
+            }
         }
     }
 });

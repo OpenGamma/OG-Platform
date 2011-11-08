@@ -22,7 +22,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponCMSDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
@@ -43,12 +43,13 @@ import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
-public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeInstrumentConverter<?>> {
+public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeInstrumentDefinition<?>> {
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
   private final RegionSource _regionSource;
@@ -63,12 +64,12 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
   }
 
   @Override
-  public FixedIncomeInstrumentConverter<?> visitForwardSwapSecurity(final ForwardSwapSecurity security) {
+  public FixedIncomeInstrumentDefinition<?> visitForwardSwapSecurity(final ForwardSwapSecurity security) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public FixedIncomeInstrumentConverter<?> visitSwapSecurity(final SwapSecurity security) {
+  public FixedIncomeInstrumentDefinition<?> visitSwapSecurity(final SwapSecurity security) {
     Validate.notNull(security, "swap security");
     final InterestRateInstrumentType swapType = SwapSecurityUtils.getSwapType(security);
     switch (swapType) {
@@ -242,7 +243,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     // FIXME: convert frequency to period in a better way
     final Frequency freq = floatLeg.getFrequency();
     final Period tenor = getTenor(freq);
-    final ConventionBundle indexConvention = _conventionSource.getConventionBundle(floatLeg.getFloatingReferenceRateId());
+    final ConventionBundle indexConvention = _conventionSource.getConventionBundle(ExternalIdBundle.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_SWAP"));
     if (indexConvention == null) {
       throw new OpenGammaRuntimeException("Could not get ibor index convention for " + currency);
     }
@@ -250,7 +251,8 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     if (swapRateConvention == null) {
       throw new OpenGammaRuntimeException("Could not get swap rate convention for " + currency);
     }
-    final IborIndex iborIndex = new IborIndex(currency, tenor, indexConvention.getSettlementDays(), calendar, indexConvention.getDayCount(), indexConvention.getBusinessDayConvention(),
+    final IborIndex iborIndex = new IborIndex(currency, tenor, indexConvention.getSwapFloatingLegSettlementDays(), calendar, 
+        indexConvention.getSwapFloatingLegDayCount(), indexConvention.getSwapFloatingLegBusinessDayConvention(),
         indexConvention.isEOMConvention());
     //TODO these next three fields aren't right
     final DayCount fixedLegDayCount = swapRateConvention.getSwapFixedLegDayCount();

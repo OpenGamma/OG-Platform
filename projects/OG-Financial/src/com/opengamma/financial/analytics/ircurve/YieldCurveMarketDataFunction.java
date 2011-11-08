@@ -104,7 +104,7 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
 
     @Override
     public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-      return _helper.canApplyTo(context, target);
+      return _helper.canApplyTo(target);
     }
 
   }

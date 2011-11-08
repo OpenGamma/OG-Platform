@@ -9,8 +9,12 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.calculator.ModifiedDurationFromCurvesCalculator;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -23,17 +27,22 @@ public class BondModifiedDurationFromCurvesFunction extends BondFromCurvesFuncti
   private static final ModifiedDurationFromCurvesCalculator CALCULATOR = ModifiedDurationFromCurvesCalculator.getInstance();
 
   public BondModifiedDurationFromCurvesFunction(final String currency, final String creditCurveName, final String riskFreeCurveName) {
-    super(currency, creditCurveName, riskFreeCurveName, ValueRequirementNames.MODIFIED_DURATION, FROM_CURVES_METHOD);
+    super(currency, creditCurveName, riskFreeCurveName);
   }
 
   public BondModifiedDurationFromCurvesFunction(final Currency currency, final String creditCurveName, final String riskFreeCurveName) {
-    super(currency, creditCurveName, riskFreeCurveName, ValueRequirementNames.MODIFIED_DURATION, FROM_CURVES_METHOD);
+    super(currency, creditCurveName, riskFreeCurveName);
   }
 
   @Override
-  protected Set<ComputedValue> calculate(final BondFixedSecurity bond, final YieldCurveBundle data, final ComputationTarget target) {
+  protected Set<ComputedValue> calculate(final BondFixedSecurity bond, final YieldCurveBundle data, final ComputationTarget target, final FunctionInputs inputs) {
     final Double result = CALCULATOR.visit(bond, data);
     return Sets.newHashSet(new ComputedValue(getResultSpec(target), result));
   }
 
+  @Override
+  protected ValueSpecification getResultSpec(final ComputationTarget target) {
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, FROM_CURVES_METHOD).get();
+    return new ValueSpecification(ValueRequirementNames.MODIFIED_DURATION, target.toSpecification(), properties);
+  }
 }

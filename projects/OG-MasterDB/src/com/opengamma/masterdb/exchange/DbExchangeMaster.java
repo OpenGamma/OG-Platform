@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 
 import org.fudgemsg.FudgeContext;
@@ -19,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
@@ -35,14 +35,15 @@ import com.opengamma.master.exchange.ExchangeHistoryResult;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
+import com.opengamma.master.exchange.ExchangeSearchSortOrder;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.Paging;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbSource;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.paging.Paging;
 
 /**
  * An exchange master implementation using a database for persistence.
@@ -85,14 +86,26 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
    */
   protected static final String FROM =
       "FROM exg_exchange main ";
+  /**
+   * SQL order by.
+   */
+  protected static final EnumMap<ExchangeSearchSortOrder, String> ORDER_BY_MAP = new EnumMap<ExchangeSearchSortOrder, String>(ExchangeSearchSortOrder.class);
+  static {
+    ORDER_BY_MAP.put(ExchangeSearchSortOrder.OBJECT_ID_ASC, "oid ASC");
+    ORDER_BY_MAP.put(ExchangeSearchSortOrder.OBJECT_ID_DESC, "oid DESC");
+    ORDER_BY_MAP.put(ExchangeSearchSortOrder.VERSION_FROM_INSTANT_ASC, "ver_from_instant ASC");
+    ORDER_BY_MAP.put(ExchangeSearchSortOrder.VERSION_FROM_INSTANT_DESC, "ver_from_instant DESC");
+    ORDER_BY_MAP.put(ExchangeSearchSortOrder.NAME_ASC, "name ASC");
+    ORDER_BY_MAP.put(ExchangeSearchSortOrder.NAME_DESC, "name DESC");
+  }
 
   /**
    * Creates an instance.
    * 
-   * @param dbSource  the database source combining all configuration, not null
+   * @param dbConnector  the database connector, not null
    */
-  public DbExchangeMaster(final DbSource dbSource) {
-    super(dbSource, IDENTIFIER_SCHEME_DEFAULT);
+  public DbExchangeMaster(final DbConnector dbConnector) {
+    super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
   }
 
   //-------------------------------------------------------------------------
@@ -113,7 +126,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
-      .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()));
+      .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));
     if (request.getExternalIdSearch() != null) {
       int i = 0;
       for (ExternalId id : request.getExternalIdSearch()) {
@@ -136,7 +149,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
                 "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
     if (request.getName() != null) {
-      where += getDbHelper().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
+      where += getDialect().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
     }
     if (request.getObjectIds() != null) {
       StringBuilder buf = new StringBuilder(request.getObjectIds().size() * 10);
@@ -153,8 +166,9 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     where += sqlAdditionalWhere();
     
     String selectFromWhereInner = "SELECT id FROM exg_exchange " + where;
-    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
-    String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main.id" + sqlAdditionalOrderBy(false);
+    String orderBy = ORDER_BY_MAP.get(request.getSortOrder());
+    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY " + orderBy + " ", request.getPagingRequest());
+    String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main." + orderBy + sqlAdditionalOrderBy(false);
     String count = "SELECT COUNT(*) FROM exg_exchange " + where;
     return new String[] {search, count};
   }
@@ -302,7 +316,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     // the arguments for inserting into the exchange table
     FudgeMsgEnvelope env = FUDGE_CONTEXT.toFudgeMsg(exchange);
     byte[] bytes = FUDGE_CONTEXT.toByteArray(env.getMessage());
-    final MapSqlParameterSource exchangeArgs = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource exchangeArgs = new DbMapSqlParameterSource()
       .addValue("doc_id", docId)
       .addValue("doc_oid", docOid)
       .addTimestamp("ver_from_instant", document.getVersionFromInstant())
@@ -311,7 +325,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
       .addValue("name", document.getName())
       .addValue("time_zone", exchange.getTimeZone() != null ? exchange.getTimeZone().getID() : null)
-      .addValue("detail", new SqlLobValue(bytes, getDbHelper().getLobHandler()), Types.BLOB);
+      .addValue("detail", new SqlLobValue(bytes, getDialect().getLobHandler()), Types.BLOB);
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
     final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
@@ -413,7 +427,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
       final Timestamp versionTo = rs.getTimestamp("VER_TO_INSTANT");
       final Timestamp correctionFrom = rs.getTimestamp("CORR_FROM_INSTANT");
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
-      LobHandler lob = getDbHelper().getLobHandler();
+      LobHandler lob = getDialect().getLobHandler();
       byte[] bytes = lob.getBlobAsBytes(rs, "DETAIL");
       ManageableExchange exchange = FUDGE_CONTEXT.readObject(ManageableExchange.class, new ByteArrayInputStream(bytes));
       

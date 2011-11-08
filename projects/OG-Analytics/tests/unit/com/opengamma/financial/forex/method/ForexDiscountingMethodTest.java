@@ -19,8 +19,8 @@ import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityFore
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
-import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.util.money.Currency;
@@ -52,7 +52,7 @@ public class ForexDiscountingMethodTest {
   private static final ForexDiscountingMethod METHOD = ForexDiscountingMethod.getInstance();
   private static final com.opengamma.financial.interestrate.PresentValueCalculator PVC_IR = com.opengamma.financial.interestrate.PresentValueCalculator.getInstance();
   private static final com.opengamma.financial.forex.calculator.PresentValueForexCalculator PVC_FX = com.opengamma.financial.forex.calculator.PresentValueForexCalculator.getInstance();
-  private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();
+  private static final PresentValueCurveSensitivityCalculator PVSC = PresentValueCurveSensitivityCalculator.getInstance();
   private static final CurrencyExposureForexCalculator CEC_FX = CurrencyExposureForexCalculator.getInstance();
   private static final PresentValueCurveSensitivityForexCalculator PVCSC_FX = PresentValueCurveSensitivityForexCalculator.getInstance();
 
@@ -83,7 +83,7 @@ public class ForexDiscountingMethodTest {
    * Test the present value sensitivity to interest rate.
    */
   public void presentValueCurveSensitivity() {
-    final PresentValueSensitivity pvs = METHOD.presentValueCurveSensitivity(FX, CURVES);
+    final InterestRateCurveSensitivity pvs = METHOD.presentValueCurveSensitivity(FX, CURVES);
     final Map<String, List<DoublesPair>> pvs1 = PVSC.visit(PAY_1, CURVES);
     final Map<String, List<DoublesPair>> pvs2 = PVSC.visit(PAY_2, CURVES);
     assertEquals(pvs1.get(CURVES_NAME[0]), pvs.getSensitivities().get(CURVES_NAME[0]));
@@ -95,8 +95,8 @@ public class ForexDiscountingMethodTest {
    * Test the present value curve sensitivity through the method and through the calculator.
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    final PresentValueSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(FX, CURVES);
-    final PresentValueSensitivity pvcsCalculator = PVCSC_FX.visit(FX, CURVES);
+    final InterestRateCurveSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(FX, CURVES);
+    final InterestRateCurveSensitivity pvcsCalculator = PVCSC_FX.visit(FX, CURVES);
     assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvcsMethod, pvcsCalculator);
   }
 

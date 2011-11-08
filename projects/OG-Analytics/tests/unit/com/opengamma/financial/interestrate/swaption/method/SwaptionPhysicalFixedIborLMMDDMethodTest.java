@@ -27,11 +27,11 @@ import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
@@ -200,7 +200,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
    * Test the present value curvesensitivity.
    */
   public void presentValueCurveSensitivity() {
-    PresentValueSensitivity pvsSwaption = METHOD_LMM.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, BUNDLE_LMM);
+    InterestRateCurveSensitivity pvsSwaption = METHOD_LMM.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, BUNDLE_LMM);
     pvsSwaption = pvsSwaption.clean();
     final double deltaTolerancePrice = 1.0E+2;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
@@ -355,8 +355,23 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     SwaptionPhysicalFixedIborSABRLMMMethod method = new SwaptionPhysicalFixedIborSABRLMMMethod();
     CurrencyAmount pvAmortizedMethod = method.presentValue(swaptionAmortized, sabrBundle);
     assertEquals("LMM Amortized pricing", pvAmortized.getAmount(), pvAmortizedMethod.getAmount(), 1.0E-2);
+
+    // SABR parameters sensitivity in all-in-one method.
+    List<Object> results = method.presentValueCurveSABRSensitivity(swaptionAmortized, sabrBundle);
+    InterestRateCurveSensitivity pvcs1 = (InterestRateCurveSensitivity) results.get(1);
+    PresentValueSABRSensitivityDataBundle pvss1 = (PresentValueSABRSensitivityDataBundle) results.get(2);
+
+    // SABR parameters sensitivity
+    PresentValueSABRSensitivityDataBundle pvss = method.presentValueSABRSensitivity(swaptionAmortized, sabrBundle);
+
+    // SABR parameters sensitivity (all-in-one)
+    for (int loopcal = 0; loopcal < swaptionCalibration.length; loopcal++) {
+      DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopcal].getTimeToExpiry(), swaptionCalibration[loopcal].getMaturityTime());
+      assertEquals("Sensitivity swaption pv to alpha", pvss1.getAlpha().get(expiryMaturity), pvss.getAlpha().get(expiryMaturity), 1E-2);
+      assertEquals("Sensitivity swaption pv to rho", pvss1.getRho().get(expiryMaturity), pvss.getRho().get(expiryMaturity), 1E-2);
+      assertEquals("Sensitivity swaption pv to nu", pvss1.getNu().get(expiryMaturity), pvss.getNu().get(expiryMaturity), 1E-2);
+    }
     // SABR parameters sensitivity (parallel shift check)
-    PresentValueSABRSensitivityDataBundle pvSABRSensiAmortized = method.presentValueSABRSensitivity(swaptionAmortized, sabrBundle);
     SABRInterestRateParameters sabrParameterShift;
     SABRInterestRateDataBundle sabrBundleShift;
     LiborMarketModelDisplacedDiffusionParameters lmmParametersShift = LiborMarketModelDisplacedDiffusionTestsDataSet.createLMMParametersDisplacementAngle(REFERENCE_DATE,
@@ -367,10 +382,10 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     LiborMarketModelDisplacedDiffusionDataBundle lmmBundleShift = new LiborMarketModelDisplacedDiffusionDataBundle(lmmParametersShift, CURVES);
 
     double alphaVegaTotalComputed = 0.0;
-    assertEquals("Number of alpha sensitivity", pvSABRSensiAmortized.getAlpha().keySet().size(), swaptionCalibration.length);
+    assertEquals("Number of alpha sensitivity", pvss.getAlpha().keySet().size(), swaptionCalibration.length);
     for (int loopcal = 0; loopcal < swaptionCalibration.length; loopcal++) {
       DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopcal].getTimeToExpiry(), swaptionCalibration[loopcal].getMaturityTime());
-      alphaVegaTotalComputed += pvSABRSensiAmortized.getAlpha().get(expiryMaturity);
+      alphaVegaTotalComputed += pvss.getAlpha().get(expiryMaturity);
     }
     double shiftAlpha = 0.00001;
     sabrParameterShift = TestsDataSets.createSABR1AlphaBumped(shiftAlpha);
@@ -381,10 +396,10 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     assertEquals("Alpha sensitivity value", alphaVegaTotalExpected, alphaVegaTotalComputed, 1.0E+2);
 
     double rhoVegaTotalComputed = 0.0;
-    assertEquals("Number of alpha sensitivity", pvSABRSensiAmortized.getRho().keySet().size(), swaptionCalibration.length);
+    assertEquals("Number of alpha sensitivity", pvss.getRho().keySet().size(), swaptionCalibration.length);
     for (int loopcal = 0; loopcal < swaptionCalibration.length; loopcal++) {
       DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopcal].getTimeToExpiry(), swaptionCalibration[loopcal].getMaturityTime());
-      rhoVegaTotalComputed += pvSABRSensiAmortized.getRho().get(expiryMaturity);
+      rhoVegaTotalComputed += pvss.getRho().get(expiryMaturity);
     }
     double shiftRho = 0.00001;
     sabrParameterShift = TestsDataSets.createSABR1RhoBumped(shiftRho);
@@ -395,10 +410,10 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     assertEquals("Rho sensitivity value", rhoVegaTotalExpected, rhoVegaTotalComputed, 1.0E+1);
 
     double nuVegaTotalComputed = 0.0;
-    assertEquals("Number of alpha sensitivity", pvSABRSensiAmortized.getNu().keySet().size(), swaptionCalibration.length);
+    assertEquals("Number of alpha sensitivity", pvss.getNu().keySet().size(), swaptionCalibration.length);
     for (int loopcal = 0; loopcal < swaptionCalibration.length; loopcal++) {
       DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopcal].getTimeToExpiry(), swaptionCalibration[loopcal].getMaturityTime());
-      nuVegaTotalComputed += pvSABRSensiAmortized.getNu().get(expiryMaturity);
+      nuVegaTotalComputed += pvss.getNu().get(expiryMaturity);
     }
     double shiftNu = 0.00001;
     sabrParameterShift = TestsDataSets.createSABR1NuBumped(shiftNu);
@@ -407,8 +422,28 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     CurrencyAmount pvAmortizedShiftNu = METHOD_LMM.presentValue(swaptionAmortized, lmmBundleShift);
     double nuVegaTotalExpected = (pvAmortizedShiftNu.getAmount() - pvAmortized.getAmount()) / shiftNu;
     assertEquals("Nu sensitivity value", nuVegaTotalExpected, nuVegaTotalComputed, 1.0E+1);
+
+    // Curve sensitivity
+    InterestRateCurveSensitivity pvcs = method.presentValueCurveSensitivity(swaptionAmortized, sabrBundle);
+    pvcs = pvcs.clean();
+    // Curve sensitivity (all-in-one)
+    final List<DoublesPair> pvcsFwd = pvcs.getSensitivities().get(CURVES_NAME[1]);
+    final List<DoublesPair> pvcsFwd1 = pvcs1.getSensitivities().get(CURVES_NAME[1]);
+    for (int loopnode = 0; loopnode < pvcsFwd.size(); loopnode++) {
+      final DoublesPair pairPvcsFwd = pvcsFwd.get(loopnode);
+      final DoublesPair pairPvcsFwd1 = pvcsFwd1.get(loopnode);
+      assertEquals("Sensitivity swaption pv to forward curve: Node " + loopnode, pairPvcsFwd.first, pairPvcsFwd1.first, 1E-8);
+      assertEquals("Sensitivity finite difference method: node sensitivity " + loopnode, pairPvcsFwd.second, pairPvcsFwd1.second, 1E-2);
+    }
+    final List<DoublesPair> pvcsDsc = pvcs.getSensitivities().get(CURVES_NAME[0]);
+    final List<DoublesPair> pvcsDsc1 = pvcs1.getSensitivities().get(CURVES_NAME[0]);
+    for (int loopnode = 0; loopnode < pvcsDsc.size(); loopnode++) {
+      final DoublesPair pairPvcsDsc = pvcsDsc.get(loopnode);
+      final DoublesPair pairPvcsDsc1 = pvcsDsc1.get(loopnode);
+      assertEquals("Sensitivity swaption pv to forward curve: Node " + loopnode, pairPvcsDsc.first, pairPvcsDsc1.first, 1E-8);
+      assertEquals("Sensitivity finite difference method: node sensitivity " + loopnode, pairPvcsDsc.second, pairPvcsDsc1.second, 1E-2);
+    }
     // Curve sensitivity (parallel shift check)
-    PresentValueSensitivity pvcs = method.presentValueCurveSensitivity(swaptionAmortized, sabrBundle);
     double shiftCurve = 0.0000001;
     YieldAndDiscountCurve curve5Shift = new YieldCurve(ConstantDoublesCurve.from(0.05 + shiftCurve));
     YieldAndDiscountCurve curve4Shift = new YieldCurve(ConstantDoublesCurve.from(0.04 + shiftCurve));

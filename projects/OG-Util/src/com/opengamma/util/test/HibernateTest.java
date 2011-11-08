@@ -10,12 +10,13 @@ import org.hibernate.cfg.Configuration;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
+import com.opengamma.util.db.DbConnectorFactoryBean;
 
 /**
  * DB test involving Hibernate.
  */
-public abstract class HibernateTest extends DBTest {
+public abstract class HibernateTest extends DbTest {
   
   private SessionFactory _sessionFactory;
   
@@ -55,15 +56,11 @@ public abstract class HibernateTest extends DBTest {
   }
 
   @Override
-  public DbSource getDbSource() {
-    DbSource source = super.getDbSource();
-    return new DbSource(
-        source.getName(),
-        source.getDataSource(),
-        source.getDialect(),
-        getSessionFactory(),
-        source.getTransactionDefinition(),
-        source.getTransactionManager());
+  public DbConnector getDbConnector() {
+    DbConnector dbConnector = super.getDbConnector();
+    DbConnectorFactoryBean factory = new DbConnectorFactoryBean(dbConnector);
+    factory.setHibernateSessionFactory(getSessionFactory());
+    return factory.createObject();
   }
 
 }

@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.depgraph.DependencyGraphBuilderPLAT1049.GraphBuildingContext;
+import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -96,6 +96,7 @@ import com.opengamma.engine.value.ValueSpecification;
       synchronized (AbstractResolvedValueProducer.this) {
         assert !_closed;
         _closed = true;
+        _pumped.remove(this);
       }
       release(context);
     }
@@ -174,7 +175,14 @@ import com.opengamma.engine.value.ValueSpecification;
   protected boolean pushResult(final GraphBuildingContext context, final ResolvedValue value) {
     assert value != null;
     assert !_finished;
-    assert getValueRequirement().isSatisfiedBy(value.getValueSpecification());
+    if (!getValueRequirement().isSatisfiedBy(value.getValueSpecification())) {
+      // Happens when a task was selected early on for satisfying the requirement as part of
+      // an aggregation feed. Late resolution then produces different specifications which
+      // would have caused in-line failures, but the delegating subscriber will receive them
+      // as-is. This would be bad.
+      s_logger.debug("Rejecting {} not satisfying {}", value, this);
+      return false;
+    }
     Collection<Callback> pumped = null;
     final ResolvedValue[] newResults;
     synchronized (this) {
@@ -259,7 +267,7 @@ import com.opengamma.engine.value.ValueSpecification;
     }
   }
 
-  protected ResolvedValue[] getResults() {
+  protected synchronized ResolvedValue[] getResults() {
     assert _finished;
     return _results;
   }

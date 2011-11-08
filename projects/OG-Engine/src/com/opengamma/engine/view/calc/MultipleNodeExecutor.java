@@ -17,15 +17,16 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
@@ -97,18 +98,19 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     getCycle().markFailed(node);
   }
 
-  protected RootGraphFragment createExecutionPlan(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
+  protected GraphFragmentContext createContext(DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue) {
+    return new GraphFragmentContext(this, graph, calcJobResultQueue);
+  }
+
+  protected RootGraphFragment createExecutionPlan(final DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue, final GraphExecutorStatisticsGatherer statistics) {
     final OperationTimer timer = new OperationTimer(s_logger, "Creating execution plan for {}", graph);
-    final GraphFragmentContext context = new GraphFragmentContext(this, graph);
+    final GraphFragmentContext context = createContext(graph, calcJobResultQueue);
     // writeGraphForTestingPurposes(graph);
     if (graph.getSize() <= getMinJobItems()) {
       // If the graph is too small, run it as-is
       final RootGraphFragment fragment = new RootGraphFragment(context, statistics, graph.getExecutionOrder());
       statistics.graphProcessed(graph.getCalculationConfigurationName(), 1, graph.getSize(), fragment.getJobInvocationCost(), Double.NaN);
       context.allocateFragmentMap(1);
-      for (ValueSpecification terminalOutput : graph.getTerminalOutputSpecifications()) {
-        context.getSharedCacheValues().put(terminalOutput, Boolean.TRUE);
-      }
       fragment.executeImpl();
       timer.finished();
       return fragment;
@@ -180,7 +182,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
   }
 
   @Override
-  public Future<Object> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
+  public Future<Object> execute(final DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue, final GraphExecutorStatisticsGatherer statistics) {
     final RootGraphFragment execution = _cache.getCachedExecutionPlan(graph);
     if (execution != null) {
       if (execution.getFunctionInitializationTimestamp() != getCycle().getFunctionInitId()) {
@@ -197,7 +199,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
         }
       }
     }
-    return createExecutionPlan(graph, statistics);
+    return createExecutionPlan(graph, calcJobResultQueue, statistics);
   }
 
   public int getMinJobItems() {

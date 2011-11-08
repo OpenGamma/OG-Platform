@@ -14,8 +14,8 @@ $.register_module({
             fields = [SWAP, OPEX, RLST],
             arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
         return og.views.config_forms['default'].preload({
-            type: module.name.split('.').pop(),
-            meta: [
+            type: 'com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition',
+            type_map: [
                 [['0', INDX].join('.'),         Form.type.STR],
                 [[OPEX, EMPT, INDX].join('.'),  Form.type.STR],
                 [[RLST, EMPT, INDX].join('.'),  Form.type.DBL],
@@ -54,7 +54,7 @@ $.register_module({
                         return window.alert('Please select a new name.');
                     delete data.name;
                     api.configs.put({
-                        id: as_new ? undefined : resource_id,
+                        id: as_new ? void 0 : resource_id,
                         name: name,
                         json: JSON.stringify(data),
                         loading: loading,

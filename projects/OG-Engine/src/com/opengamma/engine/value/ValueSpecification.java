@@ -9,8 +9,7 @@ import java.io.Serializable;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang.text.StrBuilder;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -340,7 +339,15 @@ public class ValueSpecification implements Serializable {
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    return new StrBuilder()
+    .append("VSpec[")
+    .append(getValueName())
+    .append(", ")
+    .append(getTargetSpecification())
+    .append(", ")
+    .append(getProperties())
+    .append(']')
+    .toString();
   }
 
 }

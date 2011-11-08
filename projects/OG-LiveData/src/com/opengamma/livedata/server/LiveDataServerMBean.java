@@ -190,7 +190,7 @@ public class LiveDataServerMBean {
   }
 
   
-  @ManagedAttribute(description = "Gets the current snapshot of a security. Will not cause an underlying snapshot.")
+  @ManagedOperation(description = "Gets the current snapshot of a security. Will not cause an underlying snapshot.")
   @ManagedOperationParameters({
        @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
   public String getSnapshot(String securityUniqueId) {
@@ -203,7 +203,7 @@ public class LiveDataServerMBean {
     }
   }
   
-  @ManagedAttribute(description = "Gets the current snapshot of all active securities. Will not cause any underlying snapshots.")
+  @ManagedOperation(description = "Gets the current snapshot of all active securities. Will not cause any underlying snapshots.")
   public String[] getAllSnapshots() {
     try {
       Set<String> activeSubscriptionIds = _server.getActiveSubscriptionIds();
@@ -225,7 +225,7 @@ public class LiveDataServerMBean {
     }
   }
   
-  @ManagedAttribute(description = "Gets the current field history of a security. Will not cause an underlying snapshot.")
+  @ManagedOperation(description = "Gets the current field history of a security. Will not cause an underlying snapshot.")
   @ManagedOperationParameters({ @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
   public String getFieldHistory(String securityUniqueId) {
     try {
@@ -240,7 +240,7 @@ public class LiveDataServerMBean {
     }
   }
 
-  @ManagedAttribute(description = "Gets the current field history of all active securities. Will not cause any underlying snapshots.")
+  @ManagedOperation(description = "Gets the current field history of all active securities. Will not cause any underlying snapshots.")
   public String[] getAllFieldHistories() {
     try {
       Set<String> activeSubscriptionIds = _server.getActiveSubscriptionIds();

@@ -58,10 +58,11 @@ public class PriorityResolvingCombiningLiveDataServerTest {
       assertEquals(AbstractLiveDataServer.ConnectionStatus.NOT_CONNECTED, _combiningServer.getConnectionStatus());
     }
     
-    @Test(expectedExceptions =  Throwable.class)
+    @Test
     public void defaultSubscription() {
       LiveDataSpecification spec = new LiveDataSpecification("No Normalization", ExternalId.of(_domainD, "X"));
-      _combiningServer.subscribe(spec, false);
+      LiveDataSubscriptionResponse subscribe = _combiningServer.subscribe(spec, false);
+      assertEquals(LiveDataSubscriptionResult.NOT_PRESENT, subscribe.getSubscriptionResult());
     }
     
     @Test(expectedExceptions =  Throwable.class)

@@ -9,10 +9,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.time.Instant;
@@ -25,6 +27,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
@@ -39,12 +42,13 @@ import com.opengamma.master.portfolio.PortfolioHistoryResult;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
+import com.opengamma.master.portfolio.PortfolioSearchSortOrder;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.Paging;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
+import com.opengamma.util.paging.Paging;
 import com.opengamma.util.tuple.LongObjectPair;
 
 /**
@@ -84,22 +88,37 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
         "n.tree_right AS tree_right, " +
         "n.name AS node_name, " +
         "p.key_scheme AS pos_key_scheme, " +
-        "p.key_value AS pos_key_value ";
+        "p.key_value AS pos_key_value, " +
+        "prtAttr.key AS prt_attr_key, " +
+        "prtAttr.value AS prt_attr_value ";
   /**
    * SQL from.
    */
   protected static final String FROM =
       "FROM prt_portfolio main " +
         "LEFT JOIN prt_node n ON (n.portfolio_id = main.id) " +
-        "LEFT JOIN prt_position p ON (p.node_id = n.id) ";
+        "LEFT JOIN prt_position p ON (p.node_id = n.id) " +
+        "LEFT JOIN prt_portfolio_attribute prtAttr ON (prtAttr.portfolio_id = main.id) ";
+  /**
+   * SQL order by.
+   */
+  protected static final EnumMap<PortfolioSearchSortOrder, String> ORDER_BY_MAP = new EnumMap<PortfolioSearchSortOrder, String>(PortfolioSearchSortOrder.class);
+  static {
+    ORDER_BY_MAP.put(PortfolioSearchSortOrder.OBJECT_ID_ASC, "oid ASC");
+    ORDER_BY_MAP.put(PortfolioSearchSortOrder.OBJECT_ID_DESC, "oid DESC");
+    ORDER_BY_MAP.put(PortfolioSearchSortOrder.VERSION_FROM_INSTANT_ASC, "ver_from_instant ASC");
+    ORDER_BY_MAP.put(PortfolioSearchSortOrder.VERSION_FROM_INSTANT_DESC, "ver_from_instant DESC");
+    ORDER_BY_MAP.put(PortfolioSearchSortOrder.NAME_ASC, "name ASC");
+    ORDER_BY_MAP.put(PortfolioSearchSortOrder.NAME_DESC, "name DESC");
+  }
 
   /**
    * Creates an instance.
    * 
-   * @param dbSource  the database source combining all configuration, not null
+   * @param dbConnector  the database connector, not null
    */
-  public DbPortfolioMaster(final DbSource dbSource) {
-    super(dbSource, IDENTIFIER_SCHEME_DEFAULT);
+  public DbPortfolioMaster(final DbConnector dbConnector) {
+    super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
   }
 
   //-------------------------------------------------------------------------
@@ -120,7 +139,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
-      .addValue("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
+      .addValue("name", getDialect().sqlWildcardAdjustValue(request.getName()))
       .addValue("depth", request.getDepth());
     searchWithPaging(request.getPagingRequest(), sqlSearch(request), args, new PortfolioDocumentExtractor(true), result);
     return result;
@@ -136,7 +155,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
                 "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
     if (request.getName() != null) {
-      where += getDbHelper().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
+      where += getDialect().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
     }
     if (request.getPortfolioObjectIds() != null) {
       StringBuilder buf = new StringBuilder(request.getPortfolioObjectIds().size() * 10);
@@ -158,12 +177,13 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     }
     
     String selectFromWhereInner = "SELECT id FROM prt_portfolio " + where;
-    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY oid ", request.getPagingRequest());
+    String orderBy = ORDER_BY_MAP.get(request.getSortOrder());
+    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY " + orderBy + " ", request.getPagingRequest());
     String search = SELECT + FROM + "WHERE main.id IN (" + inner + ") ";
     if (request.getDepth() >= 0) {
       search += "AND n.depth <= :depth ";
     }
-    search += "ORDER BY main.oid" + sqlAdditionalOrderBy(false);
+    search += "ORDER BY main." + orderBy + sqlAdditionalOrderBy(false);
     String count = "SELECT COUNT(*) FROM prt_portfolio " + where;
     return new String[] {search, count};
   }
@@ -197,7 +217,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
   protected String[] sqlHistory(AbstractHistoryRequest request) {
     String where = sqlHistoryWhere(request);
     String selectFromWhereInner = "SELECT id FROM " + mainTableName() + " " + where;
-    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY ver_from_instant DESC, corr_from_instant DESC ", request.getPagingRequest());
+    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY ver_from_instant DESC, corr_from_instant DESC ", request.getPagingRequest());
     String search = SELECT + FROM + "WHERE main.id IN (" + inner + ") ";
     if (((PortfolioHistoryRequest) request).getDepth() >= 0) {
       search += "AND n.depth <= :depth ";
@@ -239,9 +259,24 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     insertBuildArgs(portfolioUid, null, document.getPortfolio().getRootNode(), document.getUniqueId() != null,
         portfolioId, portfolioOid, null, null,
         new AtomicInteger(1), 0, nodeList, posList);
+    
+    // the arguments for inserting into the portifolio_attribute table
+    final List<DbMapSqlParameterSource> prtAttrList = Lists.newArrayList();
+    for (Entry<String, String> entry : document.getPortfolio().getAttributes().entrySet()) {
+      final long prtAttrId = nextId("prt_portfolio_attr_seq");
+      final DbMapSqlParameterSource posAttrArgs = new DbMapSqlParameterSource()
+          .addValue("attr_id", prtAttrId)
+          .addValue("portfolio_id", portfolioId)
+          .addValue("portfolio_oid", portfolioOid)
+          .addValue("key", entry.getKey())
+          .addValue("value", entry.getValue());
+      prtAttrList.add(posAttrArgs);
+    }
+    
     getJdbcTemplate().update(sqlInsertPortfolio(), portfolioArgs);
     getJdbcTemplate().batchUpdate(sqlInsertNode(), nodeList.toArray(new DbMapSqlParameterSource[nodeList.size()]));
     getJdbcTemplate().batchUpdate(sqlInsertPosition(), posList.toArray(new DbMapSqlParameterSource[posList.size()]));
+    getJdbcTemplate().batchUpdate(sqlInsertPortfolioAttributes(), prtAttrList.toArray(new DbMapSqlParameterSource[prtAttrList.size()]));
     // set the uniqueId
     document.getPortfolio().setUniqueId(portfolioUid);
     document.setUniqueId(portfolioUid);
@@ -340,6 +375,16 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     return "INSERT INTO prt_position (node_id, key_scheme, key_value) " +
             "VALUES " +
             "(:node_id, :key_scheme, :key_value)";
+  }
+  
+  /**
+   * Gets the SQL for inserting position attributes.
+   * 
+   * @return the SQL, not null.
+   */
+  protected String sqlInsertPortfolioAttributes() {
+    return "INSERT INTO prt_portfolio_attribute (id, portfolio_id, portfolio_oid, key, value) " +
+           "VALUES (:attr_id, :portfolio_id, :portfolio_oid, :key, :value)";
   }
 
   //-------------------------------------------------------------------------
@@ -485,7 +530,15 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
         final String posIdValue = rs.getString("POS_KEY_VALUE");
         if (posIdScheme != null && posIdValue != null) {
           UniqueId id = UniqueId.of(posIdScheme, posIdValue);
-          _node.addPosition(id);
+          if (!_node.getPositionIds().contains(id.getObjectId())) {
+            _node.addPosition(id);
+          }
+        }
+        
+        final String prtAttrKey = rs.getString("PRT_ATTR_KEY");
+        final String prtAttrValue = rs.getString("PRT_ATTR_VALUE");
+        if (prtAttrKey != null && prtAttrValue != null) {
+          _portfolio.addAttribute(prtAttrKey, prtAttrValue);
         }
       }
       return _documents;

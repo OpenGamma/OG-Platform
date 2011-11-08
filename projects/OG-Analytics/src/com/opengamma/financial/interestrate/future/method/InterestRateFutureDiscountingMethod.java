@@ -6,7 +6,7 @@
 package com.opengamma.financial.interestrate.future.method;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -84,7 +84,7 @@ public final class InterestRateFutureDiscountingMethod extends InterestRateFutur
    * @return The price rate sensitivity.
    */
   @Override
-  public PresentValueSensitivity priceCurveSensitivity(final InterestRateFuture future, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity priceCurveSensitivity(final InterestRateFuture future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
@@ -100,7 +100,7 @@ public final class InterestRateFutureDiscountingMethod extends InterestRateFutur
     listForward.add(new DoublesPair(future.getFixingPeriodStartTime(), -future.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
     listForward.add(new DoublesPair(future.getFixingPeriodEndTime(), -future.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
     resultMap.put(future.getForwardCurveName(), listForward);
-    PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
+    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     return result;
   }
 }

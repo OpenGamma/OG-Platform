@@ -211,6 +211,27 @@ const TCHAR *CSettings::GetJvmLibrary () const {
 	return GetJvmLibrary (&g_oJvmLibraryDefault);
 }
 
+/// Returns the minimum heap size for the JVM.
+///
+/// @return the minimum heap size in Mb
+unsigned long CSettings::GetJvmMinHeap () const {
+	return GetJvmMinHeap (256);
+}
+
+/// Returns the maximum heap size for the JVM
+///
+/// @return the maximum heap size in Mb
+unsigned long CSettings::GetJvmMaxHeap () const {
+	return GetJvmMaxHeap (512);
+}
+
+/// Enumerate the system properties to be passed to the JVM.
+///
+/// @param[in] poEnum enumerator to receive the key/value pairs
+void CSettings::GetJvmProperties (const CEnumerator *poEnum) const {
+	Enumerate (SETTINGS_JVM_PROPERTY TEXT ("."), poEnum);
+}
+
 /// Returns the name of the pipe for incoming client connections
 ///
 /// @return the pipe name

@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.depgraph.DependencyGraphBuilderPLAT1049.GraphBuildingContext;
+import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
@@ -80,32 +80,39 @@ import com.opengamma.util.tuple.Pair;
 
   @Override
   protected void run(final GraphBuildingContext context) {
-    if (context.getMarketDataAvailabilityProvider().isAvailable(getValueRequirement())) {
-      s_logger.info("Found live data for {}", getValueRequirement());
-      final MarketDataSourcingFunction function = new MarketDataSourcingFunction(getValueRequirement());
-      final ResolvedValue result = createResult(function.getResult(), new ParameterizedFunction(function, function.getDefaultParameters()), Collections.<ValueSpecification>emptySet(), Collections
-          .singleton(function.getResult()));
-      final LiveDataResolvedValueProducer producer = new LiveDataResolvedValueProducer(getValueRequirement(), result);
-      final ResolvedValueProducer existing = context.declareTaskProducing(function.getResult(), getTask(), producer);
-      if (!pushResult(context, result)) {
-        throw new IllegalStateException(result + " rejected by pushResult");
-      }
-      producer.release(context);
-      existing.release(context);
-      // Leave in current state; will go to finished after being pumped
-    } else {
-      // PLAT-1049
-      final DependencyNode node = new DependencyNode(getComputationTarget());
-      final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = context.getFunctionResolver().resolveFunction(getValueRequirement(), node);
-      //final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = context.getFunctionResolver().resolveFunction(getValueRequirement(), getComputationTarget());
-      if (itr.hasNext()) {
-        s_logger.debug("Found functions for {}", getValueRequirement());
-        setRunnableTaskState(new NextFunctionStep(getTask(), itr), context);
-      } else {
-        s_logger.info("No functions for {}", getValueRequirement());
-        storeFailure(ResolutionFailure.noFunctions(getValueRequirement()));
+    switch (context.getMarketDataAvailabilityProvider().getAvailability(getValueRequirement())) {
+      case AVAILABLE:
+        s_logger.info("Found live data for {}", getValueRequirement());
+        final MarketDataSourcingFunction function = new MarketDataSourcingFunction(getValueRequirement());
+        final ResolvedValue result = createResult(function.getResult(), new ParameterizedFunction(function, function.getDefaultParameters()), Collections.<ValueSpecification>emptySet(), Collections
+            .singleton(function.getResult()));
+        final LiveDataResolvedValueProducer producer = new LiveDataResolvedValueProducer(getValueRequirement(), result);
+        final ResolvedValueProducer existing = context.declareTaskProducing(function.getResult(), getTask(), producer);
+        if (!pushResult(context, result)) {
+          throw new IllegalStateException(result + " rejected by pushResult");
+        }
+        producer.release(context);
+        existing.release(context);
+        // Leave in current state; will go to finished after being pumped
+        break;
+      case NOT_AVAILABLE:
+        final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = context.getFunctionResolver().resolveFunction(getValueRequirement(), getComputationTarget());
+        if (itr.hasNext()) {
+          s_logger.debug("Found functions for {}", getValueRequirement());
+          setRunnableTaskState(new NextFunctionStep(getTask(), itr), context);
+        } else {
+          s_logger.info("No functions for {}", getValueRequirement());
+          storeFailure(ResolutionFailure.noFunctions(getValueRequirement()));
+          setTaskStateFinished(context);
+        }
+        break;
+      case MISSING:
+        s_logger.info("Missing market data for {}", getValueRequirement());
+        storeFailure(ResolutionFailure.marketDataMissing(getValueRequirement()));
         setTaskStateFinished(context);
-      }
+        break;
+      default:
+        throw new IllegalStateException();
     }
   }
 

@@ -162,6 +162,11 @@ public class DependencyNodeFudgeBuilder implements FudgeBuilder<DependencyNode> 
       throw new UnsupportedOperationException();
     }
     
+    @Override
+    public boolean canHandleMissingRequirements() {
+      throw new UnsupportedOperationException();
+    }
+
   }
   
   private static class FunctionDefinitionStub implements FunctionDefinition {

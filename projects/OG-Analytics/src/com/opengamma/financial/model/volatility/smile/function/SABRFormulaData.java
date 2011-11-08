@@ -11,26 +11,23 @@ import org.apache.commons.lang.Validate;
  * 
  */
 public class SABRFormulaData {
+
   private final double _nu;
   private final double _rho;
   private final double _beta;
   private final double _alpha;
-  private final double _forward;
 
   /**
    * 
-   * @param forward The forward value of the underlying 
    * @param alpha The initial value of the stochastic volatility 
    * @param beta The CEV parameter 
-   * @param nu The vol-of-vol
    * @param rho The correlation between the driver of the underlying and the driver of the stochastic volatility 
+   * @param nu The vol-of-vol
    */
-  public SABRFormulaData(final double forward, final double alpha, final double beta, final double nu, final double rho) {
-    Validate.isTrue(forward > 0.0, "f must be > 0.0");
+  public SABRFormulaData(final double alpha, final double beta, final double rho, final double nu) {
     Validate.isTrue(beta >= 0.0, "beta must be >= 0.0");
     Validate.isTrue(nu >= 0.0, "nu must be >= 0.0");
     Validate.isTrue(rho >= -1 && rho <= 1, "rho must be between -1 and 1");
-    _forward = forward;
     _alpha = alpha;
     _beta = beta;
     _rho = rho;
@@ -53,8 +50,20 @@ public class SABRFormulaData {
     return _alpha;
   }
 
-  public double getForward() {
-    return _forward;
+  public SABRFormulaData withAlpha(final double alpha) {
+    return new SABRFormulaData(alpha, _beta, _rho, _nu);
+  }
+
+  public SABRFormulaData withBeta(final double beta) {
+    return new SABRFormulaData(_alpha, beta, _rho, _nu);
+  }
+
+  public SABRFormulaData withNu(final double nu) {
+    return new SABRFormulaData(_alpha, _beta, _rho, nu);
+  }
+
+  public SABRFormulaData withRho(final double rho) {
+    return new SABRFormulaData(_alpha, _beta, rho, _nu);
   }
 
   @Override
@@ -65,8 +74,6 @@ public class SABRFormulaData {
     temp = Double.doubleToLongBits(_alpha);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_beta);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_forward);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_nu);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -93,9 +100,6 @@ public class SABRFormulaData {
     if (Double.doubleToLongBits(_beta) != Double.doubleToLongBits(other._beta)) {
       return false;
     }
-    if (Double.doubleToLongBits(_forward) != Double.doubleToLongBits(other._forward)) {
-      return false;
-    }
     if (Double.doubleToLongBits(_nu) != Double.doubleToLongBits(other._nu)) {
       return false;
     }
@@ -103,6 +107,11 @@ public class SABRFormulaData {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public String toString() {
+    return "SABRFormulaData [alpha=" + _alpha + ", beta=" + _beta + ", nu=" + _nu + ", rho=" + _rho + "]";
   }
 
 }

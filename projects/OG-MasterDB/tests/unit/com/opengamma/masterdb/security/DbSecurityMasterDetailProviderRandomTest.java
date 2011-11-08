@@ -14,12 +14,12 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Test DbSecurityMaster.
  */
-public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements SecurityTestCaseMethods {
+public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements SecurityTestCaseMethods {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMasterDetailProviderRandomTest.class);
@@ -30,7 +30,7 @@ public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements 
    * @param databaseType
    * @param databaseVersion
    */
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbSecurityMasterDetailProviderRandomTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running test for database={} version={}", databaseType, databaseVersion);

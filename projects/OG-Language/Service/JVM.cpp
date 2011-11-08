@@ -8,7 +8,6 @@
 
 #include "JVM.h"
 #include "Service.h"
-#include "Settings.h"
 #include <Util/File.h>
 #include <Util/Library.h>
 
@@ -77,32 +76,6 @@ static CLibrary *_LoadJVMLibrary (const TCHAR *pszLibrary) {
 	CLibrary *po = CLibrary::Create (pszLibrary, pszSearchPath);
 	free (psz);
 	return po;
-}
-
-/// Creates a JVM parameter to describe the Fudge annotation cache path as given in the supplied
-/// settings. The caller must free the allocated memory.
-///
-/// @param[in] pSettings current settings
-/// @return the JVM parameter
-static char *_OptionFudgeAnnotationCache (const CSettings *pSettings) {
-	const TCHAR *pszCache = pSettings->GetAnnotationCache ();
-	if (!pszCache) {
-		LOGWARN (TEXT ("No path for Fudge annotation cache"));
-		return NULL;
-	}
-	size_t cch = 34 + _tcslen (pszCache);
-	char *pszOption = new char[cch];
-	if (!pszOption) {
-		LOGFATAL (TEXT ("Out of memory"));
-		return NULL;
-	}
-#ifdef _UNICODE
-	StringCbPrintfA (pszOption, cch, "-Dfudgemsg.annotationCachePath=%ws", pszCache);
-#else
-	StringCbPrintf (pszOption, cch, "-Dfudgemsg.annotationCachePath=%s", pszCache);
-#endif
-	LOGDEBUG ("Using " << pszOption);
-	return pszOption;
 }
 
 /// Appends a fragment to the classpath buffer.
@@ -253,30 +226,15 @@ static char *_OptionClassPath (const CSettings *pSettings) {
 	return pszOption;
 }
 
-/// Creates a JVM parameter for the base dir to use. This is the JarPath returned by the settings object
-/// used to construct the class path.
-/// 
-/// @param[in] pSettings the current settings
+/// Creates a JVM memory parameter.
+///
+/// @param[in] pszPrefix parameter prefix
+/// @param[in] dwMemory memory limit in Mb
 /// @return the option string
-static char *_OptionBaseDir (const CSettings *pSettings) {
-	const TCHAR *pszPath = pSettings->GetExtPath ();
-	if (!pszPath) {
-		LOGWARN (TEXT ("No JAR folder available"));
-		return NULL;
-	}
-	LOGINFO (TEXT ("Using EXT path ") << pszPath);
-	size_t cchPath = _tcslen (pszPath) + 21;
-	char *pszOption = new char[cchPath];
-	if (!pszOption) {
-		LOGFATAL (TEXT ("Out of memory"));
-		return NULL;
-	}
-#ifdef _UNICODE
-	StringCbPrintfA (pszOption, cchPath, "-Dlanguage.ext.path=%ws", pszPath);
-#else /* ifdef _UNICODE */
-	StringCbPrintf (pszOption, cchPath, "-Dlanguage.ext.path=%s", pszPath);
-#endif /* ifdef _UNICODE */
-	return pszOption;
+static char *_OptionMemory (const char *pszPrefix, unsigned long dwMemory) {
+	char szOption[16];
+	StringCbPrintfA (szOption, sizeof (szOption), "-X%s%dm", pszPrefix, dwMemory);
+	return strdup (szOption);
 }
 
 /// Implementation of the notifyStop method in the Main class.
@@ -301,8 +259,8 @@ static void JNICALL _notifyPause (JNIEnv *pEnv, jclass cls) {
 ///
 /// @return the JVM, or NULL if there was a problem
 CJVM *CJVM::Create () {
-	CSettings settings;
-	const TCHAR *pszLibrary = settings.GetJvmLibrary ();
+	CSettings oSettings;
+	const TCHAR *pszLibrary = oSettings.GetJvmLibrary ();
 	LOGDEBUG (TEXT ("Loading library ") << pszLibrary << TEXT (" and creating JVM"));
 	CLibrary *poLibrary = _LoadJVMLibrary (pszLibrary);
 	if (!poLibrary) {
@@ -320,32 +278,26 @@ CJVM *CJVM::Create () {
 	JavaVMInitArgs args;
 	memset (&args, 0, sizeof (args));
 	args.version = JNI_VERSION_1_6;
-	JavaVMOption option[5];
+	JavaVMOption option[4];
 	memset (&option, 0, sizeof (option));
 	args.options = option;
-	option[args.nOptions++].optionString = _OptionClassPath (&settings);
-	option[args.nOptions++].optionString = _OptionFudgeAnnotationCache (&settings);
-	option[args.nOptions++].optionString = _OptionBaseDir (&settings);
-#ifdef _DEBUG
-	option[args.nOptions++].optionString = (char*)"-Dservice.debug=true";
-#else
-	option[args.nOptions++].optionString = (char*)"-Dservice.ndebug=true";
-#endif
-	option[args.nOptions++].optionString = (char*)"-Dcom.sun.management.jmxremote";
+	if ((option[args.nOptions].optionString = _OptionClassPath (&oSettings)) != NULL) args.nOptions++;
+	if ((option[args.nOptions].optionString = strdup ("-Dcom.sun.management.jmxremote")) != NULL) args.nOptions++;
+	if ((option[args.nOptions].optionString = _OptionMemory ("ms", oSettings.GetJvmMinHeap ())) != NULL) args.nOptions++;
+	if ((option[args.nOptions].optionString = _OptionMemory ("mx", oSettings.GetJvmMaxHeap ())) != NULL) args.nOptions++;
 	// TODO [PLAT-1116] additional option strings from registry
 	LOGDEBUG (TEXT ("Creating JVM"));
 	jint err = procCreateVM (&pJVM, &pEnv, &args);
-	if (option[0].optionString) {
-		delete option[0].optionString;
-	}
-	if (option[1].optionString) {
-		delete option[1].optionString;
+	while (args.nOptions > 0) {
+		free (option[--args.nOptions].optionString);
 	}
 	if (err) {
 		LOGWARN (TEXT ("Couldn't create JVM, error ") << err);
 		delete poLibrary;
 		return NULL;
 	}
+	CProperties oProperties (pEnv);
+	oProperties.SetProperties (&oSettings);
 	CJVM *pJvm = new CJVM (poLibrary, pJVM, pEnv);
 	if (!pJvm) {
 		LOGFATAL (TEXT ("Out of memory"));
@@ -370,6 +322,38 @@ CJVM *CJVM::Create () {
 		return NULL;
 	}
 	return pJvm;
+}
+
+/// Sets the system properties on the JVM using the Main.setProperty method.
+///
+/// @param[in] poSettings settings source
+void CJVM::CProperties::SetProperties (const CSettings *poSettings) const {
+	// Annotation caches
+	const TCHAR *psz = poSettings->GetAnnotationCache ();
+	if (psz) {
+		LOGDEBUG (TEXT ("Using ") << psz << TEXT (" for annotation caches"));
+		Setting (TEXT ("fudgemsg.annotationCachePath"), psz);
+		Setting (TEXT ("language.annotationCachePath"), psz);
+	} else {
+		LOGWARN (TEXT ("No path for annotation caches"));
+	}
+	// Language extension dir
+	psz = poSettings->GetExtPath ();
+	if (psz) {
+		LOGDEBUG (TEXT ("Using ") << psz << TEXT (" for extension folder"));
+		Setting (TEXT ("language.ext.path"), psz);
+	} else {
+		LOGWARN (TEXT ("No extension folder available"));
+	}
+	// Debug flag
+	Setting (
+#ifdef _DEBUG
+		TEXT ("service.debug")
+#else /* ifdef _DEBUG */
+		TEXT ("service.ndebug")
+#endif /* ifdef _DEBUG */
+		, TEXT ("true"));
+	poSettings->GetJvmProperties (this);
 }
 
 /// Calls a static method on the Main class that returns a boolean value
@@ -415,6 +399,45 @@ bool CJVM::Invoke (const char *pszMethodName) {
 	jboolean res = Invoke (pEnv, pszMethodName, "()Z");
 	m_pJVM->DetachCurrentThread ();
 	return res != 0;
+}
+
+#ifdef _UNICODE
+#ifdef _WIN64
+/// Returns the length of a string, truncated gracefully on 64-bit architecture.
+///
+/// @param[in] psz string to measure
+/// @return the length of the string, truncated to a positive integer
+static inline jsize _SafeLen (const TCHAR *psz) {
+	size_t len = wcslen (psz);
+	return (len > MAXINT32) ? MAXINT32 : (jsize)len;
+}
+#else /* ifdef _WIN64 */
+#define _SafeLen wcslen
+#endif /* ifdef _WIN64 */
+#endif /* ifdef _UNICODE */
+
+/// Calls the SetProperty method on the Main class to define a system property. This should be
+/// used in preference to System.setProperty as it includes diagnostic logging and handles
+/// exceptions.
+///
+/// @param[in] pszKey property name to be set, never NULL
+/// @param[in] pszValue property value to set, never NULL
+void CJVM::CProperties::Setting (const TCHAR *pszKey, const TCHAR *pszValue) const {
+	m_pEnv->PushLocalFrame (2);
+#ifdef _UNICODE
+	jstring jsKey = m_pEnv->NewString ((jchar*)pszKey, _SafeLen (pszKey));
+	jstring jsValue = m_pEnv->NewString ((jchar*)pszValue, _SafeLen (pszValue));
+#else /* ifdef _UNICODE */
+	jstring jsKey = m_pEnv->NewStringUTF (pszKey);
+	jstring jsValue = m_pEnv->NewStringUTF (pszValue);
+#endif /* ifdef _UNICODE */
+	bool bResult = Invoke (m_pEnv, "setProperty", "(Ljava/lang/String;Ljava/lang/String;)Z", jsKey, jsValue);
+	m_pEnv->PopLocalFrame (NULL);
+	if (bResult) {
+		LOGDEBUG (TEXT ("Set property ") << pszKey << TEXT (" = ") << pszValue);
+	} else {
+		LOGWARN (TEXT ("Couldn't set property ") << pszKey << TEXT (" = ") << pszValue);
+	}
 }
 
 /// Slave thread for asynchronous Start and Stop calls.
@@ -547,21 +570,6 @@ bool CJVM::IsRunning () const {
 	return bResult;
 }
 
-#ifdef _UNICODE
-#ifdef _WIN64
-/// Returns the length of a string, truncated gracefully on 64-bit architecture.
-///
-/// @param[in] psz string to measure
-/// @return the length of the string, truncated to a positive integer
-static inline jsize _SafeLen (const TCHAR *psz) {
-	size_t len = wcslen (psz);
-	return (len > MAXINT32) ? MAXINT32 : (jsize)len;
-}
-#else /* ifdef _WIN64 */
-#define _SafeLen wcslen
-#endif /* ifdef _WIN64 */
-#endif /* ifdef _UNICODE */
-
 /// Notifies the Java stack of a new user connection.
 ///
 /// @param[in] pszUserName name of the user, never NULL
@@ -571,7 +579,7 @@ static inline jsize _SafeLen (const TCHAR *psz) {
 void CJVM::UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, const TCHAR *pszOutputPipe, const TCHAR *pszLanguageID) {
 	m_oMutex.Enter ();
 	if (m_bRunning) {
-		m_pEnv->PushLocalFrame (3);
+		m_pEnv->PushLocalFrame (4);
 #ifdef _UNICODE
 		jstring jsUserName = m_pEnv->NewString ((jchar*)pszUserName, _SafeLen (pszUserName));
 		jstring jsInputPipe = m_pEnv->NewString ((jchar*)pszInputPipe, _SafeLen (pszInputPipe));

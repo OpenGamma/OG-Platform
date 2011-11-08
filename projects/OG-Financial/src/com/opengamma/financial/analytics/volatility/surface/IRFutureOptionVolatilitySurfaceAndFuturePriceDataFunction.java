@@ -120,8 +120,7 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
   public static Set<ValueRequirement> buildRequirements(final VolatilitySurfaceSpecification volSurfaceSpecification,
                                                         final VolatilitySurfaceDefinition<Object, Object> volSurfaceDefinition,
                                                         final FuturePriceCurveSpecification futurePriceCurveSpecification,
-                                                        final FuturePriceCurveDefinition<Object> futurePriceCurveDefinition,
-                                                        final FunctionCompilationContext context,
+                                                        final FuturePriceCurveDefinition<Object> futurePriceCurveDefinition,                                                        
                                                         final ZonedDateTime atInstant) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     final SurfaceInstrumentProvider<Object, Double> volSurfaceProvider = (SurfaceInstrumentProvider<Object, Double>) volSurfaceSpecification.getSurfaceInstrumentProvider();
@@ -146,7 +145,7 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
     final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
-    final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(_volSurfaceSpecification, _volSurfaceDefinition, _priceCurveSpecification, _priceCurveDefinition, context,
+    final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(_volSurfaceSpecification, _volSurfaceDefinition, _priceCurveSpecification, _priceCurveDefinition,
         atInstant));
     //TODO ENG-252 see MarketInstrumentImpliedYieldCurveFunction; need to work out the expiry more efficiently
     return new AbstractInvokingCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000)) {

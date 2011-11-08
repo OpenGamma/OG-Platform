@@ -968,7 +968,7 @@
         <state line="306" column="37" selection-start="13056" selection-end="13056" vertical-scroll-proportion="0.14553991" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/projects/OG-Util/src/com/opengamma/util/test/DBTool.java">
+    <entry file="file://$PROJECT_DIR$/projects/OG-Util/src/com/opengamma/util/test/DbTool.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="486" column="5" selection-start="14684" selection-end="14684" vertical-scroll-proportion="0.012206573" />
       </provider>

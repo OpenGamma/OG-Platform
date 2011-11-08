@@ -21,6 +21,9 @@
 #else
 #define SETTINGS_JVM_LIBRARY				TEXT ("jvmLibrary")
 #endif
+#define SETTINGS_JVM_MIN_HEAP				TEXT ("jvmMinHeap")
+#define SETTINGS_JVM_MAX_HEAP				TEXT ("jvmMaxHeap")
+#define SETTINGS_JVM_PROPERTY				TEXT ("jvmProperty")
 #define SETTINGS_LOG_CONFIGURATION			TEXT ("serviceLogConfiguration")
 #define SETTINGS_SERVICE_NAME				SERVICE_SETTINGS_SERVICE_NAME
 #ifdef _WIN32
@@ -38,6 +41,9 @@ private:
 	unsigned long GetIdleTimeout (unsigned long dwDefault) const { return Get (SETTINGS_IDLE_TIMEOUT, dwDefault); }
 	const TCHAR *GetJarPath (const CAbstractSettingProvider *poDefault) const { return Get (SETTINGS_JAR_PATH, poDefault); }
 	const TCHAR *GetJvmLibrary (const CAbstractSettingProvider *poDefault) const { return Get (SETTINGS_JVM_LIBRARY, poDefault); }
+	unsigned long GetJvmMinHeap (unsigned long dwDefault) const { return Get (SETTINGS_JVM_MIN_HEAP, dwDefault); }
+	unsigned long GetJvmMaxHeap (unsigned long dwDefault) const { return Get (SETTINGS_JVM_MAX_HEAP, dwDefault); }
+	
 	const TCHAR *GetLogConfiguration (const TCHAR *pszDefault) const { return Get (SETTINGS_LOG_CONFIGURATION, pszDefault); }
 	const TCHAR *GetServiceName (const TCHAR *pszDefault) const { return Get (SETTINGS_SERVICE_NAME, pszDefault); }
 #ifdef _WIN32
@@ -52,6 +58,9 @@ public:
 	unsigned long GetIdleTimeout () const;
 	const TCHAR *GetJarPath () const;
 	const TCHAR *GetJvmLibrary () const;
+	unsigned long GetJvmMinHeap () const;
+	unsigned long GetJvmMaxHeap () const;
+	void GetJvmProperties (const CEnumerator *poEnum) const;
 	const TCHAR *GetLogConfiguration () const;
 	const TCHAR *GetServiceName () const;
 #ifdef _WIN32

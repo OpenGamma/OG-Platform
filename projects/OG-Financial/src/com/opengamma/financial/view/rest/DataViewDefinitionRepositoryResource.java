@@ -16,6 +16,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDefinitionRepository;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -43,7 +44,7 @@ public class DataViewDefinitionRepositoryResource {
   
   @GET
   @Path(PATH_VIEWDEFINITION_GETIDS)
-  public Set<UniqueId> getDefinitionIds() {
+  public Set<ObjectId> getDefinitionIds() {
     return _repository.getDefinitionIds();
   }
   

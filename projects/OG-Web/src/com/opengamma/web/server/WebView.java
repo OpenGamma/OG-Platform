@@ -70,14 +70,14 @@ public class WebView {
   
   private final AtomicInteger _activeDepGraphCount = new AtomicInteger();
 
-  public WebView(final Client local, final Client remote, final ViewClient client, final UniqueId viewDefinition,
+  public WebView(final Client local, final Client remote, final ViewClient client, final UniqueId viewDefinitionId,
       final ViewExecutionOptions executionOptions, final UserPrincipal user, final ExecutorService executorService,
       final ResultConverterCache resultConverterCache) {
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     _local = local;
     _remote = remote;
     _client = client;
-    _viewDefinition = viewDefinition;
+    _viewDefinition = viewDefinitionId;
     _executionOptions = executionOptions;
     _executorService = executorService;
     _resultConverterCache = resultConverterCache;
@@ -115,7 +115,7 @@ public class WebView {
     
     MarketDataSpecification marketDataSpec;
     EnumSet<ViewExecutionFlags> flags;
-    client.attachToViewProcess(viewDefinition.getUniqueId(), executionOptions);
+    client.attachToViewProcess(viewDefinitionId.getUniqueId(), executionOptions);
   }
   
   //-------------------------------------------------------------------------

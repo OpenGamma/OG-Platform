@@ -1,0 +1,43 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.language.config {
+
+  /**
+   * Configuration item representing a property value. Can be used with a view definition to set the default properties.
+   */
+  message ValueProperty extends ConfigurationItem {
+  
+    /**
+     * Calculation configuration name. Omit to apply to all configurations.
+     */
+    optional string configuration = 1;
+
+    /**
+     * Name of the property to set.
+     */
+    required string name = 2;
+
+    /**
+     * Value(s) of the property. If omitted, represents a wild-card.
+     */
+    optional repeated string value = 3;
+
+    /**
+     * Optional flag.
+     */
+    required boolean $optional = 4;
+
+    binding Java {
+      body <<<JAVA
+        @Override
+        public <T> T accept (ConfigurationItemVisitor<T> visitor) { return visitor.visitValueProperty (this); }
+JAVA;
+    }
+  
+  }
+
+}

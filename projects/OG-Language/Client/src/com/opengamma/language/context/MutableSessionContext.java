@@ -5,8 +5,11 @@
  */
 package com.opengamma.language.context;
 
+import java.util.concurrent.ScheduledFuture;
+
 import org.fudgemsg.FudgeMsg;
 
+import com.opengamma.financial.user.rest.RemoteClient;
 import com.opengamma.language.connector.MessageSender;
 import com.opengamma.language.connector.StashMessage;
 import com.opengamma.language.function.AggregatingFunctionProvider;
@@ -18,6 +21,13 @@ import com.opengamma.language.view.SessionViewClients;
  * A mutable version of {@link SessionContext}.
  */
 public class MutableSessionContext extends SessionContext {
+
+  /**
+   * Name under which the session engine client's heartbeat sender is bound. Note that the
+   * heartbeat sender is defined in the mutable context rather than the read-only version
+   * so that only the initializer can access it.
+   */
+  protected static final String CLIENT_HEARTBEAT = "clientHeartbeat";
 
   private final SessionContextEventHandler _eventHandler;
   private boolean _initialized;
@@ -79,6 +89,22 @@ public class MutableSessionContext extends SessionContext {
 
   // Standard context members
 
+  public void setClient(final RemoteClient client) {
+    removeOrReplaceValue(CLIENT, client);
+  }
+
+  public ScheduledFuture<?> getClientHeartbeat() {
+    return getValue(CLIENT_HEARTBEAT);
+  }
+
+  public void setClientHeartbeat(final ScheduledFuture<?> clientHeartbeat) {
+    setValue(CLIENT_HEARTBEAT, clientHeartbeat);
+  }
+
+  public void setDebug() {
+    setValue(DEBUG, Boolean.TRUE);
+  }
+
   public void setStashMessage(final StashMessage stashMessage) {
     setValue(STASH_MESSAGE, stashMessage);
   }
@@ -87,10 +113,6 @@ public class MutableSessionContext extends SessionContext {
     setValue(MESSAGE_SENDER, messageSender);
   }
 
-  public void setDebug() {
-    setValue(DEBUG, Boolean.TRUE);
-  }
-  
   public void setViewClients(final SessionViewClients viewClients) {
     setValue(VIEW_CLIENTS, viewClients);
   }

@@ -33,12 +33,12 @@ public class LocalDateLabelledMatrix1D extends LabelledMatrix1D<LocalDate, Perio
   }
 
   @Override
-  protected LabelledMatrix1D<LocalDate, Period> getMatrix(final LocalDate[] keys, final Object[] labels, final double[] values) {
+  public LabelledMatrix1D<LocalDate, Period> getMatrix(final LocalDate[] keys, final Object[] labels, final double[] values) {
     return new LocalDateLabelledMatrix1D(keys, labels, values);
   }
 
   @Override
-  protected LabelledMatrix1D<LocalDate, Period> getMatrix(final LocalDate[] keys, final double[] values) {
+  public LabelledMatrix1D<LocalDate, Period> getMatrix(final LocalDate[] keys, final double[] values) {
     return new LocalDateLabelledMatrix1D(keys, values);
   }
 

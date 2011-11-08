@@ -5,6 +5,7 @@
  */
 package com.opengamma.examples.marketdata;
 
+import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 
@@ -17,9 +18,9 @@ import com.opengamma.engine.value.ValueRequirement;
 public class MockMarketDataAvailabilityProvider implements MarketDataAvailabilityProvider {
 
   @Override
-  public boolean isAvailable(ValueRequirement requirement) {
+  public MarketDataAvailability getAvailability(final ValueRequirement requirement) {
     MockMarketDataProviderFactoryBean.printWarning();
-    return false;
+    return MarketDataAvailability.NOT_AVAILABLE;
   }
 
 }

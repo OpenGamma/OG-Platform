@@ -9,7 +9,6 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -18,7 +17,8 @@ import java.util.concurrent.TimeUnit;
 import javax.time.Duration;
 import javax.time.Instant;
 
-import org.apache.commons.collections.CollectionUtils;
+import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +32,6 @@ import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.ViewProcessImpl;
@@ -73,7 +72,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private final ViewCycleTrigger _masterCycleTrigger;
   private final FixedTimeTrigger _compilationExpiryCycleTrigger;
   private final boolean _executeCycles;
-  
+
   private int _cycleCount;
   private EngineResourceReference<SingleComputationCycle> _previousCycleReference;
   
@@ -108,11 +107,10 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     _executionOptions = executionOptions;
     _processContext = processContext;
     _cycleManager = cycleManager;
-    
+    _marketDataChanged = !executionOptions.getFlags().contains(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER);
     _compilationExpiryCycleTrigger = new FixedTimeTrigger();
     _masterCycleTrigger = createViewCycleTrigger(executionOptions);
     _executeCycles = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
-    
     updateViewDefinitionIfRequired();
     subscribeToViewDefinition();
   }
@@ -324,6 +322,14 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
   }
 
+  private void jobResultReceived(ViewResultModel result) {
+    try {
+      getViewProcess().jobResultReceived(result);
+    } catch (Exception e) {
+      s_logger.error("Error notifying view process " + getViewProcess() + " of view cycle completion", e);
+    }
+  }
+
   private void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
     try {
       getViewProcess().cycleExecutionFailed(executionOptions, exception);
@@ -501,7 +507,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       throw new OpenGammaRuntimeException("Compiled view definition " + compiledViewDefinition + " not valid for execution options " + executionOptions);
     }
     UniqueId cycleId = getViewProcess().generateCycleId();
-    SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(), getProcessContext(), compiledViewDefinition, executionOptions, versionCorrection);
+    SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(), getViewProcess(), getProcessContext(), compiledViewDefinition, executionOptions, versionCorrection);
     return getCycleManager().manage(cycle);
   }
 
@@ -736,8 +742,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     if (compiledView == null) {
       return;
     }
-    Map<ValueRequirement, ValueSpecification> marketDataRequirements = compiledView.getMarketDataRequirements();
-    if (CollectionUtils.containsAny(marketDataRequirements.keySet(), values)) {
+    //Since this happens for every tick, for every job, we need to use the quick call here 
+    if (compiledView.hasAnyMarketDataRequirements(values)) {
       marketDataChanged();
     }
   }

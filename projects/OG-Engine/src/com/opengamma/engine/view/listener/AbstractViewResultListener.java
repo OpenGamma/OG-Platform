@@ -9,6 +9,8 @@ import javax.time.Instant;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 
@@ -41,4 +43,7 @@ public abstract class AbstractViewResultListener implements ViewResultListener {
   public void processTerminated(boolean executionInterrupted) {
   }
 
+  @Override
+  public void jobResultReceived(ViewResultModel result, ViewDeltaResultModel delta) {
+  }
 }

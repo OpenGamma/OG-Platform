@@ -6,6 +6,7 @@
 package com.opengamma.master.position.impl;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -145,7 +146,18 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     }
     SimplePortfolio prt = new SimplePortfolio(manPrt.getUniqueId(), manPrt.getName());
     convertNode(manPrt.getRootNode(), prt.getRootNode());
+    copyAttributes(manPrt, prt);
     return prt;
+  }
+
+  private void copyAttributes(ManageablePortfolio manPrt, SimplePortfolio prt) {
+    if (manPrt.getAttributes() != null) {
+      for (Entry<String, String> entry : manPrt.getAttributes().entrySet()) {
+        if (entry.getKey() != null && entry.getValue() != null) {
+          prt.addAttribute(entry.getKey(), entry.getValue());
+        }
+      }
+    }
   }
 
   @Override
@@ -160,6 +172,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     }
     SimplePortfolio prt = new SimplePortfolio(manPrt.getUniqueId(), manPrt.getName());
     convertNode(manPrt.getRootNode(), prt.getRootNode());
+    copyAttributes(manPrt, prt);
     return prt;
   }
 

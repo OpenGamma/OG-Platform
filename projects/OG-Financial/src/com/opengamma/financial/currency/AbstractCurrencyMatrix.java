@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.currency;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -16,8 +17,6 @@ import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * A simple base class for a {@link CurrencyMatrix}.
@@ -45,13 +44,11 @@ public abstract class AbstractCurrencyMatrix implements CurrencyMatrix, MutableU
 
   // CurrencyMatrix
 
-  @SuppressWarnings("unchecked")
   @Override
   public Set<Currency> getSourceCurrencies() {
     return Collections.unmodifiableSet(_values.keySet());
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public Set<Currency> getTargetCurrencies() {
     return Collections.unmodifiableSet(_targets.keySet());

@@ -9,14 +9,8 @@
 
   <!-- System properties -->
   <bean id="systemSettingsLoader" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="location">
-      <value>classpath:OpenGamma.properties</value>
-    </property>
-  </bean>
-  <bean id="systemSettings" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-    <property name="location">
-      <value>classpath:OpenGamma.properties</value>
-    </property>
+    <property name="location" value="classpath:OpenGamma.properties" />
+    <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
   </bean>
   
   <!-- Base system components -->
@@ -38,13 +32,19 @@
     </property>
     <property name="maxThreadsPerClient" value="32" />
   </bean>
-	 <bean id="globalContextFactory" class="com.opengamma.language.context.GlobalContextFactoryBean"> <!-- Extension point - GlobalContextFactoryBean -->
-	   <property name="globalContextEventHandler">
-	     <bean class="com.opengamma.language.context.DefaultGlobalContextEventHandler">
-	       <property name="systemSettings" ref="systemSettings" />
-	     </bean>
-	   </property>
-	 </bean>
+  <bean id="globalContextFactory" class="com.opengamma.language.context.GlobalContextFactoryBean"> <!-- Extension point - GlobalContextFactoryBean -->
+    <property name="globalContextEventHandler">
+      <bean class="com.opengamma.language.context.DefaultGlobalContextEventHandler">
+        <property name="systemSettings">
+          <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <property name="location">
+              <value>classpath:OpenGamma.properties</value>
+            </property>
+          </bean>
+        </property>
+       </bean>
+    </property>
+  </bean>
   <bean id="userContextFactory" class="com.opengamma.language.context.UserContextFactoryBean"> <!-- Extension point - UserContextFactoryBean -->
     <property name="userContextEventHandler">
       <bean class="com.opengamma.language.context.DefaultUserContextEventHandler" />
@@ -64,6 +64,12 @@
     <property name="fudgeContext" ref="engineFudgeContext" />
     <property name="failOnInvalidURI" value="${opengamma.configuration.failOnInvalid}" />
     <property name="failOnMissingConfiguration" value="${opengamma.configuration.failOnMissing}" />
+  </bean>
+  
+  <!-- JMS infrastructure -->
+  <bean id="defaultJmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean">
+    <property name="name" value="Language" />
+    <property name="connectionFactory" ref="defaultJmsConnectionFactory" />
   </bean>
   
   <!-- Standard conditionals -->
@@ -87,10 +93,9 @@
           </list>
         </property>
       </bean>
-		</property>
+    </property>
     <property name="condition" ref="isDebugClient" />
   </bean>
-
   <bean id="debugLiveDataLoader" class="com.opengamma.language.livedata.Loader">
     <property name="sessionContextFactory" ref="sessionContextFactory" />
     <property name="liveDataProvider">
@@ -101,7 +106,7 @@
           </list>
         </property>
       </bean>
-		</property>
+    </property>
     <property name="condition" ref="isDebugClient" />
   </bean>
   <bean id="debugProceduresLoader" class="com.opengamma.language.procedure.Loader">
@@ -114,7 +119,7 @@
           </list>
         </property>
       </bean>
-		</property>
+    </property>
     <property name="condition" ref="isDebugClient" />
   </bean>
   
@@ -123,21 +128,24 @@
     <property name="globalContextFactory" ref="globalContextFactory" />
     <property name="functionProviders">
       <list>
+        <bean class="com.opengamma.language.config.ConfigurationFunctionProvider" />
+        <bean class="com.opengamma.language.external.ExternalFunctionProvider" />
         <bean class="com.opengamma.language.identifier.IdentifierFunctionProvider" />
         <bean class="com.opengamma.language.object.ObjectFunctionProvider" />
         <!-- For odd functions, use the provider bean. If a package exports more than a couple, create a provider for it -->
         <bean class="com.opengamma.language.function.FunctionProviderBean">
           <property name="functions">
             <list>
-              <bean class="com.opengamma.language.value.ValueRequirementNamesFunction" />
+              <!-- The next thing to be added to the "value" package should give it a loader -->
               <bean class="com.opengamma.language.value.ExpandComputedValuesFunction" />
+              <bean class="com.opengamma.language.value.MarketDataRequirementNamesFunction" />
+              <bean class="com.opengamma.language.value.ValueRequirementNamesFunction" />
             </list>
           </property>
         </bean>
       </list>
     </property>
   </bean>
-
   <bean id="defaultLiveDataLoader" class="com.opengamma.language.livedata.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
     <property name="liveDataProvider">
@@ -151,7 +159,6 @@
       </bean>
     </property>
   </bean>
-
   <bean id="defaultProceduresLoader" class="com.opengamma.language.procedure.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
     <property name="procedureProvider">
@@ -185,6 +192,17 @@
     </property>
   </bean>
   
+  <!-- Client (shared) -->
+  <bean id="clientLoader" class="com.opengamma.language.client.Loader">
+    <property name="configuration" ref="defaultConfiguration" />
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="housekeepingScheduler">
+      <bean factory-bean="clientContextFactory" factory-method="getHousekeepingScheduler" />
+    </property>
+    <property name="sessionContextFactory" ref="sessionContextFactory" />
+    <property name="userContextFactory" ref="userContextFactory" />
+  </bean>
+  
   <!-- Exchange -->
   <bean id="exchangeLoader" class="com.opengamma.language.exchange.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
@@ -193,6 +211,12 @@
   
   <!-- Holiday -->
   <bean id="holidayLoader" class="com.opengamma.language.holiday.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+  
+  <!-- Market data snapshot -->
+  <bean id="snapshotLoader" class="com.opengamma.language.snapshot.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
     <property name="configuration" ref="defaultConfiguration" />
   </bean>
@@ -227,9 +251,9 @@
     <property name="userContextFactory" ref="userContextFactory" />
     <property name="sessionContextFactory" ref="sessionContextFactory" />
     <property name="configuration" ref="defaultConfiguration" />
-    <property name="connectionFactory" ref="defaultJMSConnectionFactory" />
-    <property name="scheduler">
-      <bean factory-bean="clientContextFactory" factory-method="getScheduler" />
+    <property name="jmsConnector" ref="defaultJmsConnector" />
+    <property name="housekeepingScheduler">
+      <bean factory-bean="clientContextFactory" factory-method="getHousekeepingScheduler" />
     </property>
   </bean>
   

@@ -13,9 +13,7 @@ import java.util.Map;
 import javax.time.Instant;
 
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
-import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.ResolutionRule;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -38,6 +36,7 @@ public class ViewCompilationContext {
   }
 
   // --------------------------------------------------------------------------
+
   public ViewDefinition getViewDefinition() {
     return _viewDefinition;
   }
@@ -53,11 +52,9 @@ public class ViewCompilationContext {
   // --------------------------------------------------------------------------
   private Map<String, DependencyGraphBuilder> generateBuilders(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant valuationTime) {
     Map<String, DependencyGraphBuilder> result = new HashMap<String, DependencyGraphBuilder>();
-    final CompiledFunctionResolver functionResolver = compilationServices.getFunctionResolver().compile(valuationTime);
-    final Collection<ResolutionRule> rules = functionResolver.getAllResolutionRules();
-    final DependencyGraphBuilderFactory builderFactory = new DependencyGraphBuilderFactory();
+    final Collection<ResolutionRule> rules = compilationServices.getFunctionResolver().compile(valuationTime).getAllResolutionRules();
     for (String configName : viewDefinition.getAllCalculationConfigurationNames()) {
-      final DependencyGraphBuilder builder = builderFactory.newInstance();
+      final DependencyGraphBuilder builder = compilationServices.getDependencyGraphBuilder().newInstance();
       builder.setCalculationConfigurationName(configName);
       builder.setMarketDataAvailabilityProvider(compilationServices.getMarketDataAvailabilityProvider());
       builder.setTargetResolver(compilationServices.getComputationTargetResolver());
@@ -65,13 +62,7 @@ public class ViewCompilationContext {
       final ViewCalculationConfiguration calcConfig = viewDefinition.getCalculationConfiguration(configName);
       compilationContext.setViewCalculationConfiguration(calcConfig);
       final Collection<ResolutionRule> transformedRules = calcConfig.getResolutionRuleTransform().transform(rules);
-      if (transformedRules == rules) {
-        // No transformation applied; use the default resolver
-        builder.setFunctionResolver(functionResolver);
-      } else {
-        // Create a new resolver with the transformed rules
-        builder.setFunctionResolver(new DefaultCompiledFunctionResolver(compilationContext, transformedRules));
-      }
+      builder.setFunctionResolver(new DefaultCompiledFunctionResolver(compilationContext, transformedRules));
       builder.setCompilationContext(compilationContext);
       result.put(configName, builder);
     }

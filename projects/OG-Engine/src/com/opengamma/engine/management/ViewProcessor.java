@@ -62,6 +62,12 @@ public final class ViewProcessor implements ViewProcessorMBean {
     return result;
   }
 
+  
+  @Override
+  public int getNumberOfViewProcesses() {
+    return _viewProcessor.getViewProcesses().size(); // == getViewProcesses().size();
+  }
+
   /**
    * Gets the objectName field.
    * 

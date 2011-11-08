@@ -28,10 +28,11 @@ $.register_module({
             INST = 'instrument',
             PRFX = 'prefix',
             INDX = '<INDEX>',
+            config_type = 'com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration',
             arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
         return og.views.config_forms['default'].preload({
-            type: module.name.split('.').pop(),
-            meta: [
+            type: config_type,
+            type_map: [
                 [['0', INDX].join('.'),         Form.type.STR],
                 [['*', '*', '0'].join('.'),     Form.type.STR],
                 [['*', '*', INST].join('.'),    Form.type.STR],
@@ -77,7 +78,7 @@ $.register_module({
                         return window.alert('Please select a new name.');
                     delete data.name;
                     api.configs.put({
-                        id: as_new ? undefined : resource_id,
+                        id: as_new ? void 0 : resource_id,
                         name: name,
                         json: JSON.stringify(data),
                         loading: loading,

@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-import com.opengamma.engine.depgraph.DependencyGraphBuilderPLAT1049.GraphBuildingContext;
+import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.depgraph.ResolveTask.State;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.ParameterizedFunction;
@@ -77,7 +77,7 @@ import com.opengamma.util.tuple.Pair;
       s_logger.debug("Resolved {} to {}", valueRequirement, value);
       _pump = pump;
       if (!pushResult(context, value)) {
-        assert _pump != null;
+        assert _pump == pump;
         _pump = null;
         context.pump(pump);
       }
@@ -145,6 +145,10 @@ import com.opengamma.util.tuple.Pair;
 
     protected ResolutionFailure functionApplication() {
       return ResolutionFailure.functionApplication(getValueRequirement(), getFunction(), getValueSpecification());
+    }
+
+    public boolean canHandleMissingInputs() {
+      return getFunction().getFunction().canHandleMissingRequirements();
     }
 
     public boolean inputsAvailable(final GraphBuildingContext context, final Map<ValueSpecification, ValueRequirement> inputs) {
@@ -280,7 +284,7 @@ import com.opengamma.util.tuple.Pair;
       public final void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
         _pump = pump;
         if (!pushResult(context, resolvedValue)) {
-          assert _pump != null;
+          assert _pump == pump;
           _pump = null;
           context.pump(pump);
         }
@@ -402,7 +406,12 @@ import com.opengamma.util.tuple.Pair;
     }
 
     public void finished(final GraphBuildingContext context) {
-      s_logger.info("Application of {} to produce {} complete; rescheduling for next resolution", getFunction(), getValueSpecification());
+      if (getWorker().getResults().length == 0) {
+        s_logger.info("Application of {} to produce {} failed; rescheduling for next resolution", getFunction(), getValueSpecification());
+        context.discardTaskProducing(getValueSpecification(), getTask());
+      } else {
+        s_logger.info("Application of {} to produce {} complete; rescheduling for next resolution", getFunction(), getValueSpecification());
+      }
       // Become runnable again; the next function will then be considered
       context.run(getTask());
     }

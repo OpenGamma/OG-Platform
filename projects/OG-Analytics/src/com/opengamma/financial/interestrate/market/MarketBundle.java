@@ -28,7 +28,7 @@ public class MarketBundle {
    */
   private final Map<Currency, YieldAndDiscountCurve> _discountingCurves;
   /**
-   * A map with one (forward) curve by Ibor index.
+   * A map with one (forward) curve by Ibor/OIS index.
    */
   private final Map<IndexDeposit, YieldAndDiscountCurve> _forwardCurves;
   /**
@@ -248,9 +248,24 @@ public class MarketBundle {
     Validate.notNull(ccy, "Currency");
     Validate.notNull(curve, "curve");
     if (!_discountingCurves.containsKey(ccy)) {
-      throw new IllegalArgumentException("Currency discounting curve not in set" + ccy);
+      throw new IllegalArgumentException("Currency discounting curve not in set: " + ccy);
     }
     _discountingCurves.put(ccy, curve);
+  }
+
+  /**
+   * Replaces the discounting curve for a price index.
+   * @param index The price index.
+   * @param curve The price curve for the index.
+   *  @throws IllegalArgumentException if curve name NOT already present 
+   */
+  public void replaceCurve(final PriceIndex index, final PriceIndexCurve curve) {
+    Validate.notNull(index, "Price index");
+    Validate.notNull(curve, "curve");
+    if (!_priceIndexCurves.containsKey(index)) {
+      throw new IllegalArgumentException("Price index curve not in set: " + index);
+    }
+    _priceIndexCurves.put(index, curve);
   }
 
 }

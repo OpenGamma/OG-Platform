@@ -7,19 +7,28 @@ package com.opengamma.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import static com.opengamma.financial.interestrate.SimpleInstrumentFactory.*;
+import javax.time.calendar.Period;
 
+import org.testng.annotations.Test;
+
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
@@ -27,10 +36,6 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.money.Currency;
-
-import javax.time.calendar.Period;
-
-import org.testng.annotations.Test;
 
 /**
  * 
@@ -42,6 +47,14 @@ public class ParRateCalculatorTest {
   private static final String ZERO_PC_CURVE_NAME = "0%";
   private static final YieldCurveBundle CURVES;
   private static final Currency CUR = Currency.USD;
+
+  private static final Period TENOR = Period.ofMonths(6);
+  private static final int SETTLEMENT_DAYS = 2;
+  private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
+  private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final boolean IS_EOM = true;
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
 
   static {
     YieldAndDiscountCurve curve = new YieldCurve(ConstantDoublesCurve.from(0.05));
@@ -94,8 +107,8 @@ public class ParRateCalculatorTest {
     final double referencePrice = 0.0; // TODO CASE - Future refactor - referencePrice = 0.0
     final String name = "name";
 
-    final InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice,
-        notional, paymentAccrualFactor, name, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice, notional,
+        paymentAccrualFactor, name, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     final double rate = PRC.visit(ir, CURVES);
     final double price = 1 - rate;
     //final InterestRateFutureTransaction traded = new InterestRateFutureTransaction(ir, 1, price);
@@ -109,16 +122,18 @@ public class ParRateCalculatorTest {
     final int n = 20;
     final double tau = 0.5;
     final double yearFrac = 180 / 365.0;
-
     final double[] yearFracs = new double[n];
     final double[] paymentTimes = new double[n];
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = tau * (i + 1);
       yearFracs[i] = yearFrac;
     }
-    Bond bond = new Bond(CUR, paymentTimes, 0.0, yearFrac, 0.0, FIVE_PC_CURVE_NAME);
+    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, 11, 1, FIVE_PC_CURVE_NAME)});
+    AnnuityCouponFixed coupon = new AnnuityCouponFixed(CUR, new double[] {0.5, 1}, 0.03, FIVE_PC_CURVE_NAME, false);
+    BondFixedSecurity bond = new BondFixedSecurity(nominal, coupon, 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FIVE_PC_CURVE_NAME, "S");
     final double rate = PRC.visit(bond, CURVES);
-    bond = new Bond(CUR, paymentTimes, rate, yearFrac, 0.0, FIVE_PC_CURVE_NAME);
+    coupon = new AnnuityCouponFixed(CUR, new double[] {0.5, 1}, rate, FIVE_PC_CURVE_NAME, false);
+    bond = new BondFixedSecurity(nominal, coupon, 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FIVE_PC_CURVE_NAME, "S");
     assertEquals(1.0, PVC.visit(bond, CURVES), 1e-12);
   }
 
@@ -135,9 +150,9 @@ public class ParRateCalculatorTest {
       floatPaymentTimes[i] = (i + 1) * 0.25;
     }
 
-    Swap<?, ?> swap = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, 0.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
+    Swap<?, ?> swap = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, INDEX, 0.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
     final double rate = PRC.visit(swap, CURVES);
-    swap = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, rate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
+    swap = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, INDEX, rate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
     assertEquals(0.0, PVC.visit(swap, CURVES), 1e-12);
   }
 
@@ -156,8 +171,8 @@ public class ParRateCalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME, true);
-    GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, false);
+    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME, true);
+    GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, false);
 
     Swap<?, ?> swap = new TenorSwap<CouponIbor>(payLeg, receiveLeg);
     final double rate = PRC.visit(swap, CURVES);
@@ -165,7 +180,7 @@ public class ParRateCalculatorTest {
     for (int i = 0; i < n; i++) {
       spreads[i] = rate;
     }
-    receiveLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, false);
+    receiveLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, false);
     swap = new TenorSwap<CouponIbor>(payLeg, receiveLeg);
     assertEquals(0.0, PVC.visit(swap, CURVES), 1e-12);
   }

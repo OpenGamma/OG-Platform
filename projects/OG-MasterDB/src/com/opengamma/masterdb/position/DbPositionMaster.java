@@ -5,6 +5,30 @@
  */
 package com.opengamma.masterdb.position;
 
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.time.Instant;
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.LocalTime;
+import javax.time.calendar.OffsetTime;
+import javax.time.calendar.ZoneOffset;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -27,34 +51,12 @@ import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.Paging;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbSource;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.paging.Paging;
 import com.opengamma.util.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.OffsetTime;
-import javax.time.calendar.ZoneOffset;
-import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 /**
  * A position master implementation using a database for persistence.
@@ -120,26 +122,35 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
           "ta.value AS trade_attr_value, " +
           "psAttr.key AS pos_attr_key, " +
           "psAttr.value AS pos_attr_value ";
+
+  /**
+   * SQL from main.
+   */
+  protected static final String FROM_PREFIX =
+    "FROM pos_position main ";
+  /**
+   * SQL from others.
+   */
+  protected static final String FROM_POSTFIX =
+    "LEFT JOIN pos_position2idkey pi ON (pi.position_id = main.id) " +
+    "LEFT JOIN pos_idkey ps ON (ps.id = pi.idkey_id) " +
+    "LEFT JOIN pos_trade t ON (t.position_id = main.id) " +
+    "LEFT JOIN pos_trade2idkey ti ON (ti.trade_id = t.id) " +
+    "LEFT JOIN pos_idkey ts ON (ts.id = ti.idkey_id) " +
+    "LEFT JOIN pos_trade_attribute ta ON (ta.trade_id = t.id) " +
+    "LEFT JOIN pos_attribute psAttr ON (psAttr.position_id = main.id) ";
   /**
    * SQL from.
    */
-  protected static final String FROM =
-      "FROM pos_position main " +
-          "LEFT JOIN pos_position2idkey pi ON (pi.position_id = main.id) " +
-          "LEFT JOIN pos_idkey ps ON (ps.id = pi.idkey_id) " +
-          "LEFT JOIN pos_trade t ON (t.position_id = main.id) " +
-          "LEFT JOIN pos_trade2idkey ti ON (ti.trade_id = t.id) " +
-          "LEFT JOIN pos_idkey ts ON (ts.id = ti.idkey_id) " +
-          "LEFT JOIN pos_trade_attribute ta ON (ta.trade_id = t.id) " +
-          "LEFT JOIN pos_attribute psAttr ON (psAttr.position_id = main.id) ";
-
+  protected static final String FROM = FROM_PREFIX +  FROM_POSTFIX;
+  
   /**
    * Creates an instance.
    * 
-   * @param dbSource  the database source combining all configuration, not null
+   * @param dbConnector  the database connector, not null
    */
-  public DbPositionMaster(final DbSource dbSource) {
-    super(dbSource, IDENTIFIER_SCHEME_DEFAULT);
+  public DbPositionMaster(final DbConnector dbConnector) {
+    super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
   }
 
   //-------------------------------------------------------------------------
@@ -180,7 +191,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       args.addValue("trade_provider_value", request.getTradeProviderId().getValue());
     }
 
-    args.addValueNullIgnored("key_value", getDbHelper().sqlWildcardAdjustValue(request.getSecurityIdValue()));
+    args.addValueNullIgnored("key_value", getDialect().sqlWildcardAdjustValue(request.getSecurityIdValue()));
 
     searchWithPaging(request.getPagingRequest(), sqlSearchPositions(request), args, new PositionDocumentExtractor(), result);
     return result;
@@ -235,8 +246,12 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     where += sqlAdditionalWhere();
 
     String selectFromWhereInner = "SELECT id FROM pos_position " + where;
-    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY oid ", request.getPagingRequest());
-    String search = SELECT + FROM + "WHERE main.id IN (" + inner + ") ORDER BY main.oid " + sqlAdditionalOrderBy(false);
+    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY oid ", request.getPagingRequest());
+    
+    String cte = "WITH cte_docs AS (" + inner + ") ";
+    String search = cte + SELECT + FROM_PREFIX + "INNER JOIN cte_docs ON main.id = cte_docs.id " + FROM_POSTFIX
+        + "ORDER BY main.id" + sqlAdditionalOrderBy(false);
+    
     String count = "SELECT COUNT(*) FROM pos_position " + where;
     return new String[] {search, count };
   }
@@ -253,7 +268,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         "WHERE position_id = main.id " +
         "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
         "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-        "AND idkey_id IN ( SELECT id FROM pos_idkey WHERE " + getDbHelper().sqlWildcardQuery("UPPER(key_value) ", "UPPER(:key_value)", identifierValue) + ") ";
+        "AND idkey_id IN ( SELECT id FROM pos_idkey WHERE " + getDialect().sqlWildcardQuery("UPPER(key_value) ", "UPPER(:key_value)", identifierValue) + ") ";
     return "AND id IN (" + select + ") ";
   }
 

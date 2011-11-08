@@ -20,6 +20,7 @@ import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
@@ -61,7 +62,7 @@ public class ConfigDbViewDefinitionRepository implements ViewDefinitionRepositor
   }
 
   @Override
-  public Set<UniqueId> getDefinitionIds() {
+  public Set<ObjectId> getDefinitionIds() {
     return _underlyingRepository.getDefinitionIds();
   }
 
@@ -108,8 +109,7 @@ public class ConfigDbViewDefinitionRepository implements ViewDefinitionRepositor
           return;
         }
         ViewDefinition newDefinition = (ViewDefinition) newDocument.getValue();
-        getUnderlyingRepository().addViewDefinition(new AddViewDefinitionRequest(newDefinition));
-        afterId = newDefinition.getUniqueId();
+        afterId = getUnderlyingRepository().addViewDefinition(new AddViewDefinitionRequest(newDefinition));
         break;
       case REMOVED:
         ConfigDocument<?> removedDocument = getConfigMaster().get(event.getBeforeId());

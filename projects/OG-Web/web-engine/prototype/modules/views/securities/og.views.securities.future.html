@@ -2,6 +2,7 @@
   <header class="OG-header-generic">
     <div class="OG-toolbar"></div>
     <h1>${name}</h1>
+    <div class="OG-js-header-links"></div>
   </header>
   <section>
     <div class="og-details-content OG-security OG-js-details-panel">
@@ -21,6 +22,11 @@
               <tr><td><span>Trading Exchange</span></td><td>${tradingExchange}</td></tr>
               <tr><td><span>Settlement Exchange</span></td><td>${settlementExchange}</td></tr>
               <tr><td><span>Redemption Value</span></td><td>${redemptionValue}</td></tr>
+              {{if underlyingBond}}
+                <tr><td style="vertical-align: top"><span>Underlying Bond</span></td><td>
+                  {{each underlyingBond}}${$index}: ${$value} <br />{{/each}}
+                </td></tr>
+              {{/if}}
             </tbody>
           </table>
         </section>

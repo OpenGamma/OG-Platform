@@ -75,6 +75,7 @@ public final class RemoteMarketDataSnapshotMaster implements MarketDataSnapshotM
 
   @Override
   public MarketDataSnapshotHistoryResult history(final MarketDataSnapshotHistoryRequest request) {
+    // TODO: this is wrong; the target path should be snapshots/uniqueId/... with a GET operation
     try {
       final FudgeMsgEnvelope response = getRestClient().post(getTargetBase().resolve("history"), getFudgeSerializer().objectToFudgeMsg(request));
       return getFudgeDeserializer().fudgeMsgToObject(MarketDataSnapshotHistoryResult.class, response.getMessage());
@@ -88,8 +89,9 @@ public final class RemoteMarketDataSnapshotMaster implements MarketDataSnapshotM
     try {
       final FudgeMsgEnvelope response = getRestClient().post(getTargetBase().resolve("add"), getFudgeSerializer().objectToFudgeMsg(document));
       UniqueId snapshotId = getFudgeDeserializer().fieldValueToObject(UniqueId.class, response.getMessage().getByName("uniqueId"));
-      // REVIEW jonathan 2011-09-06 -- why does the remote resource not return the complete added document?
-      return get(snapshotId);
+      document.setUniqueId(snapshotId);
+      document.getSnapshot().setUniqueId(snapshotId);
+      return document;
     } catch (RestRuntimeException ex) {
       throw ex.translate();
     }
@@ -123,12 +125,24 @@ public final class RemoteMarketDataSnapshotMaster implements MarketDataSnapshotM
 
   @Override
   public void remove(final UniqueId uniqueId) {
-    throw new UnsupportedOperationException();
+    try {
+      getRestClient().delete(getTargetBase().resolveBase("snapshots").resolve(uniqueId.toString()));
+    } catch (RestRuntimeException ex) {
+      throw ex.translate();
+    }
   }
 
   @Override
   public MarketDataSnapshotDocument update(final MarketDataSnapshotDocument document) {
-    throw new UnsupportedOperationException();
+    try {
+      final FudgeMsgEnvelope response = getRestClient().put(getTargetBase().resolveBase("snapshots").resolve(document.getUniqueId().toString()),
+          getFudgeSerializer().objectToFudgeMsg(document.getSnapshot()));
+      UniqueId snapshotId = getFudgeDeserializer().fieldValueToObject(UniqueId.class, response.getMessage().getByName("uniqueId"));
+      document.setUniqueId(snapshotId);
+      return document;
+    } catch (RestRuntimeException ex) {
+      throw ex.translate();
+    }
   }
 
   @Override

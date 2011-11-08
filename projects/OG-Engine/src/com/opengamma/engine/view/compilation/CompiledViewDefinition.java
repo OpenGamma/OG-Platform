@@ -60,7 +60,15 @@ public interface CompiledViewDefinition {
    *         {@code null}  
    */
   Map<ValueRequirement, ValueSpecification> getMarketDataRequirements();
-  
+
+  /**
+   * Gets the combined terminal values requirements along with resolved specifications.
+   *
+   * @return a map from the resolved value specification to each stated value requirement which the specification
+   * satisfies for all termianl values, not {@code null}
+   */
+  Map<ValueSpecification, Set<ValueRequirement>> getTerminalValuesRequirements();
+
   /**
    * Gets the combined computation targets across every calculation configuration.
    * 

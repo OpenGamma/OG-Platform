@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.depgraph.DependencyGraphBuilderPLAT1049.GraphBuildingContext;
+import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -124,6 +124,11 @@ import com.opengamma.engine.value.ValueSpecification;
   private volatile State _state;
 
   /**
+   * Flag to mark whether any child production was rejected because of a value requirement loop.
+   */
+  private volatile boolean _recursion;
+
+  /**
    * Resolved target for the value requirement.
    */
   private ComputationTarget _target;
@@ -202,13 +207,6 @@ import com.opengamma.engine.value.ValueSpecification;
     }
   }
 
-  public void printParentTree(final String indent) {
-    System.out.println(indent + toString());
-    if (getParent() != null) {
-      getParent().printParentTree(indent + "  ");
-    }
-  }
-
   // HashCode and Equality are to allow tasks to be considered equal iff they are for the same value requirement and
   // correspond to the same resolution depth (i.e. the sets of parents are equal)
 
@@ -229,8 +227,8 @@ import com.opengamma.engine.value.ValueSpecification;
     if (!getValueRequirement().equals(other.getValueRequirement())) {
       return false;
     }
-    if (other.getParent() == null) {
-      return getParent() == null;
+    if (getParent() == null) {
+      return other.getParent() == null;
     }
     final Set<ValueRequirement> set = new HashSet<ValueRequirement>();
     ResolveTask parent = getParent();
@@ -261,6 +259,20 @@ import com.opengamma.engine.value.ValueSpecification;
     return "ResolveTask" + getObjectId() + "[" + getValueRequirement() + ", " + getState() + "]";
   }
 
+  private void toLongString(final StringBuilder sb) {
+    sb.append(getValueRequirement());
+    if (getParent() != null) {
+      sb.append("->");
+      getParent().toLongString(sb);
+    }
+  }
+
+  public String toLongString() {
+    final StringBuilder sb = new StringBuilder();
+    toLongString(sb);
+    return sb.toString();
+  }
+
   @Override
   public int release(final GraphBuildingContext context) {
     final int count = super.release(context);
@@ -278,6 +290,14 @@ import com.opengamma.engine.value.ValueSpecification;
       }
     }
     return count;
+  }
+
+  public void setRecursionDetected() {
+    _recursion = true;
+  }
+
+  public boolean wasRecursionDetected() {
+    return _recursion;
   }
 
 }

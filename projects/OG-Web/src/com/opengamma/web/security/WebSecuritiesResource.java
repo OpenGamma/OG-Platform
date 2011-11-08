@@ -48,7 +48,8 @@ import com.opengamma.master.security.SecurityMetaDataRequest;
 import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
-import com.opengamma.util.PagingRequest;
+import com.opengamma.master.security.SecuritySearchSortOrder;
+import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.web.WebPaging;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
@@ -76,13 +77,15 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
       @QueryParam("pgSze") Integer pgSze,
+      @QueryParam("sort") String sort,
       @QueryParam("name") String name,
       @QueryParam("identifier") String identifier,
       @QueryParam("type") String type,
       @QueryParam("securityId") List<String> securityIdStrs,
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
-    FlexiBean out = createSearchResultData(pr, name, identifier, type, securityIdStrs, uriInfo);
+    SecuritySearchSortOrder so = buildSortOrder(sort, SecuritySearchSortOrder.OBJECT_ID_ASC);
+    FlexiBean out = createSearchResultData(pr, so, name, identifier, type, securityIdStrs, uriInfo);
     return getFreemarker().build("securities/securities.ftl", out);
   }
 
@@ -92,22 +95,25 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
       @QueryParam("pgSze") Integer pgSze,
+      @QueryParam("sort") String sort,
       @QueryParam("name") String name,
       @QueryParam("identifier") String identifier,
       @QueryParam("type") String type,
       @QueryParam("securityId") List<String> securityIdStrs,
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
-    FlexiBean out = createSearchResultData(pr, name, identifier, type, securityIdStrs, uriInfo);
+    SecuritySearchSortOrder so = buildSortOrder(sort, SecuritySearchSortOrder.OBJECT_ID_ASC);
+    FlexiBean out = createSearchResultData(pr, so, name, identifier, type, securityIdStrs, uriInfo);
     return getFreemarker().build("securities/jsonsecurities.ftl", out);
   }
 
-  private FlexiBean createSearchResultData(PagingRequest pr, String name, String identifier,
+  private FlexiBean createSearchResultData(PagingRequest pr, SecuritySearchSortOrder so, String name, String identifier,
       String type, List<String> securityIdStrs, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();
     searchRequest.setPagingRequest(pr);
+    searchRequest.setSortOrder(so);
     searchRequest.setName(StringUtils.trimToNull(name));
     searchRequest.setExternalIdValue(StringUtils.trimToNull(identifier));
     searchRequest.setSecurityType(StringUtils.trimToNull(type));

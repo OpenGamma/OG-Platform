@@ -33,17 +33,17 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
-public class DbMarketDataSnapshotMasterTest extends DBTest {
+public class DbMarketDataSnapshotMasterTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbMarketDataSnapshotMasterTest.class);
 
   private DbMarketDataSnapshotMaster _snpMaster;
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbMarketDataSnapshotMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -67,7 +67,7 @@ public class DbMarketDataSnapshotMasterTest extends DBTest {
   public void test_basics() throws Exception {
     assertNotNull(_snpMaster);
     assertEquals(true, _snpMaster.getUniqueIdScheme().equals("DbSnp"));
-    assertNotNull(_snpMaster.getDbSource());
+    assertNotNull(_snpMaster.getDbConnector());
     assertNotNull(_snpMaster.getTimeSource());
   }
 

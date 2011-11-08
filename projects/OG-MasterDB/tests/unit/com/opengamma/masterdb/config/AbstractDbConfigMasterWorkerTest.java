@@ -34,12 +34,12 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Base tests for DbConfigMasterWorker via DbConfigMaster.
  */
-public abstract class AbstractDbConfigMasterWorkerTest extends DBTest {
+public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbConfigMasterWorkerTest.class);
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
@@ -81,7 +81,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DBTest {
     byte[] bytes = s_fudgeContext.toByteArray(env.getMessage());
     String cls = ExternalId.class.getName();
     LobHandler lobHandler = new DefaultLobHandler();
-    final SimpleJdbcTemplate template = _cfgMaster.getDbSource().getJdbcTemplate();
+    final SimpleJdbcTemplate template = _cfgMaster.getDbConnector().getJdbcTemplate();
     template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?,?,?)",
         101, 101, toSqlTimestamp(_version1aInstant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1aInstant), MAX_SQL_TIMESTAMP, "TestConfig101", cls,
         new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
@@ -102,7 +102,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DBTest {
     byte[] bytes = s_fudgeContext.toByteArray(env.getMessage());
     String cls = ExternalIdBundle.class.getName();
     LobHandler lobHandler = new DefaultLobHandler();
-    final SimpleJdbcTemplate template = _cfgMaster.getDbSource().getJdbcTemplate();
+    final SimpleJdbcTemplate template = _cfgMaster.getDbConnector().getJdbcTemplate();
     template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?,?,?)",
         301, 301, toSqlTimestamp(_version1aInstant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1aInstant), MAX_SQL_TIMESTAMP, "TestConfig301", cls,
         new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));

@@ -8,7 +8,8 @@ $.register_module({
     name: 'og.common.routes',
     dependencies: ['og.dev'],
     obj: function () {
-        var routes, set_title = function (title) {document.title = 'OpenGamma: ' + title;};
+        var routes, set_title = function (title) {document.title = 'OpenGamma: ' + title;},
+            hash = window.RouteMap.hash;
         return routes = $.extend(true, window.RouteMap, {
             init: function () {
                 var title, go = routes.go;
@@ -25,16 +26,24 @@ $.register_module({
                     title = null;
                 });
                 $(function () { // in addition to binding hash change events to window, also fire it onload
+                    var common = og.views.common;
                     $('.OG-js-loading').hide();
                     $('.ui-layout-container').show();
-                    og.views.common.layout = /^.*\/analytics\.ftl$/.test(window.location.href)
-                        ? og.views.common.layout.analytics()
-                        : og.views.common.layout['default']();
+                    common.layout = /^.*\/analytics\.ftl$/.test(window.location.href) ? common.layout.analytics()
+                        : common.layout['default']();
                     routes.handler();
                     set_title(routes.current().hash);
                 });
                 // IE does not allow deleting from window so set to void 0 if it fails
                 try {delete window.RouteMap;} catch (error) {window.RouteMap = void 0;}
+            },
+            hash: function (rule, params, extras) {
+                var modified_params;
+                if (!extras) return hash(rule, params);
+                modified_params = $.extend({}, params);
+                if (extras.add) $.extend(modified_params, extras.add);
+                if (extras.del) extras.del.forEach(function (param) {delete modified_params[param];});
+                return hash(rule, modified_params);
             },
             post_add: function (compiled) { // add optional debug param to all rules that don't ask for it
                 if (!~compiled.rules.keyvals.map(function (val) {return val.name;}).indexOf('debug'))

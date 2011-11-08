@@ -42,7 +42,7 @@ import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -104,10 +104,10 @@ public class DbMarketDataSnapshotMaster
   /**
    * Creates an instance.
    * 
-   * @param dbSource  the database source combining all configuration, not null
+   * @param dbConnector  the database connector, not null
    */
-  public DbMarketDataSnapshotMaster(DbSource dbSource) {
-    super(dbSource, IDENTIFIER_SCHEME_DEFAULT);
+  public DbMarketDataSnapshotMaster(DbConnector dbConnector) {
+    super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
   }
 
   //-------------------------------------------------------------------------
@@ -123,7 +123,7 @@ public class DbMarketDataSnapshotMaster
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
         .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
         .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
-        .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()));
+        .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));
 
     searchWithPaging(request.getPagingRequest(), sqlSearchMarketDataSnapshots(request), args, new MarketDataSnapshotDocumentExtractor(request.isIncludeData()), result);
     return result;
@@ -139,13 +139,13 @@ public class DbMarketDataSnapshotMaster
     String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant "
         + "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
     if (request.getName() != null) {
-      where += getDbHelper().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
+      where += getDialect().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
     }
 
     where += sqlAdditionalWhere();
 
     String selectFromWhereInner = "SELECT id FROM snp_snapshot " + where;
-    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
+    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
     String search = sqlSelectFrom(request.isIncludeData()) + "WHERE main.id IN (" + inner + ") ORDER BY main.id" + sqlAdditionalOrderBy(false);
     String count = "SELECT COUNT(*) FROM snp_snapshot " + where;
     return new String[] {search, count };
@@ -190,13 +190,13 @@ public class DbMarketDataSnapshotMaster
     // the arguments for inserting into the marketDataSnaphshot table
     FudgeMsgEnvelope env = FUDGE_CONTEXT.toFudgeMsg(marketDataSnaphshot);
     byte[] bytes = FUDGE_CONTEXT.toByteArray(env.getMessage());
-    final MapSqlParameterSource marketDataSnaphshotArgs = new DbMapSqlParameterSource().addValue("doc_id", docId)
+    final DbMapSqlParameterSource marketDataSnaphshotArgs = new DbMapSqlParameterSource().addValue("doc_id", docId)
         .addValue("doc_oid", docOid).addTimestamp("ver_from_instant", document.getVersionFromInstant())
         .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
         .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
         .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
         .addValue("name", document.getName())
-        .addValue("detail", new SqlLobValue(bytes, getDbHelper().getLobHandler()), Types.BLOB);
+        .addValue("detail", new SqlLobValue(bytes, getDialect().getLobHandler()), Types.BLOB);
 
     getJdbcTemplate().update(sqlInsertMarketDataSnapshot(), marketDataSnaphshotArgs);
     return document;
@@ -263,7 +263,7 @@ public class DbMarketDataSnapshotMaster
       ManageableMarketDataSnapshot marketDataSnapshot;
       //PLAT-1378
       if (_includeData) {
-        LobHandler lob = getDbHelper().getLobHandler();
+        LobHandler lob = getDialect().getLobHandler();
         byte[] bytes = lob.getBlobAsBytes(rs, "DETAIL");
         marketDataSnapshot = FUDGE_CONTEXT.readObject(ManageableMarketDataSnapshot.class,
             new ByteArrayInputStream(bytes));

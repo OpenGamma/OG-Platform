@@ -8,6 +8,7 @@ package com.opengamma.web.historicaltimeseries;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -46,7 +47,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
-import com.opengamma.util.PagingRequest;
+import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.web.WebPaging;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
@@ -192,7 +193,25 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
       return Response.ok(html).build();
     }
     
-    URI uri = addTimeSeries(dataProvider, dataField, idScheme, idValue, startDate, endDate);
+    ExternalScheme scheme = ExternalScheme.of(idScheme);
+    Set<ExternalId> identifiers = buildSecurityRequest(scheme, idValue);
+    Map<ExternalId, UniqueId> added = addTimeSeries(dataProvider, dataField, identifiers, startDate, endDate);
+    
+    URI uri = null;
+    if (!identifiers.isEmpty()) {
+      if (identifiers.size() == 1) {
+        ExternalId requestIdentifier = identifiers.iterator().next();
+        UniqueId uniqueId = added.get(requestIdentifier);
+        if (uniqueId != null) {
+          uri = data().getUriInfo().getAbsolutePathBuilder().path(uniqueId.toString()).build();
+        } else {
+          s_logger.warn("No time-series added for {} ", requestIdentifier);
+          uri = uri(data());
+        }
+      } else {
+        uri = uri(data(), identifiers);
+      }
+    } 
     return Response.seeOther(uri).build();
   }
 
@@ -239,35 +258,34 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
       return Response.status(Status.BAD_REQUEST).build();
     }
     
-    URI uri = addTimeSeries(dataProvider, dataField, idScheme, idValue, startDate, endDate);
-    return Response.created(uri).build();
-  }
-
-  private URI addTimeSeries(String dataProvider, String dataField, String idScheme, String idValue, LocalDate startDate, LocalDate endDate) {
     ExternalScheme scheme = ExternalScheme.of(idScheme);
     Set<ExternalId> identifiers = buildSecurityRequest(scheme, idValue);
+    Map<ExternalId, UniqueId> added = addTimeSeries(dataProvider, dataField, identifiers, startDate, endDate);
+    
+    FlexiBean out = createPostJSONOutput(added, idScheme);    
+    return Response.ok(getFreemarker().build("timeseries/jsontimeseries-added.ftl", out)).build();
+  }
+
+  private FlexiBean createPostJSONOutput(Map<ExternalId, UniqueId> added, String idScheme) {
+    Map<String, String> result = new HashMap<String, String>();
+    for (ExternalId externalId : added.keySet()) {
+      UniqueId uniqueId = added.get(externalId);
+      String objectId = uniqueId != null ? uniqueId.getObjectId().toString() : null;
+      result.put(externalId.getValue(), objectId);
+    }
+    FlexiBean out = createRootData();
+    out.put("requestScheme", idScheme);
+    out.put("addedSeries", result);
+    return out;
+  }
+
+  private Map<ExternalId, UniqueId> addTimeSeries(String dataProvider, String dataField, Set<ExternalId> identifiers, LocalDate startDate, LocalDate endDate) {
     HistoricalTimeSeriesLoader loader = data().getHistoricalTimeSeriesLoader();
     Map<ExternalId, UniqueId> added = Maps.newHashMap();
     if (!identifiers.isEmpty()) {
       added = loader.addTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
     }
-    
-    URI result = null;
-    if (!identifiers.isEmpty()) {
-      if (identifiers.size() == 1) {
-        ExternalId requestIdentifier = identifiers.iterator().next();
-        UniqueId uniqueId = added.get(requestIdentifier);
-        if (uniqueId != null) {
-          result = data().getUriInfo().getAbsolutePathBuilder().path(uniqueId.toString()).build();
-        } else {
-          s_logger.warn("No time-series added for {} ", requestIdentifier);
-          result = uri(data());
-        }
-      } else {
-        result = uri(data(), identifiers);
-      }
-    } 
-    return result;
+    return added;
   }
 
   private Set<ExternalId> buildSecurityRequest(final ExternalScheme identificationScheme, final String idValue) {

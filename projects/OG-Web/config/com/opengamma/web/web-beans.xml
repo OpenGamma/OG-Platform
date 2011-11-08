@@ -31,11 +31,15 @@
     <constructor-arg ref="fudgeContext" />
     <property name="underlying" ref="sharedHistoricalTimeSeriesSource" />
   </bean>
+  <bean id="historicalTimeSeriesMasterRestBean" class="com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesMasterService">
+    <constructor-arg ref="fudgeContext" />
+    <property name="underlying" ref="dbHtsMaster" />
+  </bean>
   
   <!-- View processor service -->
   <bean id="viewProcessorRestBean" class="com.opengamma.financial.view.rest.RestViewProcessorFactoryBean">
     <property name="viewProcessor" ref="demoViewProcessor" />
-    <property name="connectionFactory" ref="activeMQConnectionFactory" />
+    <property name="jmsConnector" ref="jmsConnector" />
     <property name="fudgeContext" ref="fudgeContext" />
     <property name="executorService" ref="scheduler" />
   </bean>
@@ -233,6 +237,9 @@
       <map>
         <entry key="0">
           <map>
+            <entry key="activeMQ">
+              <value>${activeMQ.brokerURL}</value>
+            </entry>
             <entry key="adHocBatchDbManager">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/adHocBatchDbManager/" />
@@ -263,6 +270,12 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
+            <entry key="historicalTimeSeriesMaster">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/historicalTimeSeriesMaster/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
             <entry key="historicalTimeSeriesSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/historicalTimeSeriesSource/0/" />
@@ -287,9 +300,39 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
-           <entry key="volatilityCubeDefinitionSource"> 
+            <entry key="marketDataSnapshotMaster">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/marketDataSnapshotMaster/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="marketDataSnapshotSource">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/marketDataSnapshotSource/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="marketDataSnapshotter">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/data/marketDataSnapshotters/Vp~0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="volatilityCubeDefinitionSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/volatilityCubeDefinitionSource/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="portfolioMaster">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/data/portfolios" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="positionMaster">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/data/positions" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
@@ -306,12 +349,19 @@
               </bean>
             </entry>
             <entry key="remoteCalcNode" value-ref="calcNodeSocketConfig" />
+            <entry key="securityMaster">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/securityMaster/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
             <entry key="securitySource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/securitySource/0/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
+            <!-- BEGIN DEPRECATED -->
             <entry key="sharedPositionMaster">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/data/positions" />
@@ -336,12 +386,7 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
-            <entry key="marketDataSnapshotter">
-              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-              <property name="local" value="/jax/data/marketDataSnapshotters/Vp~0/" />
-                <property name="port" value="${jetty.port}" />
-            </bean>
-            </entry>
+            <!-- END DEPRECATED -->
             <entry key="userData">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/data/users/" />
@@ -353,9 +398,6 @@
                 <property name="local" value="/jax/data/viewProcessors/Vp~0/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
-            </entry>
-            <entry key="activeMQ">
-              <value>${activeMQ.brokerURL}</value>
             </entry>
           </map>
         </entry>
@@ -452,4 +494,15 @@
       </map>
     </property>
   </bean>
+  <bean id="snapshotSourceRestBean" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotSourceService">
+    <constructor-arg ref="fudgeContext" />
+    <property name="underlyingMap">
+      <map>
+        <entry key="0" value-ref="combinedSnapshotSource" />
+        <entry key="shared" value-ref="sharedSnapshotSource" />
+        <entry key="user" value-ref="userFinancialSnapshotSource" />
+      </map>
+    </property>
+  </bean>
+  
 </beans>

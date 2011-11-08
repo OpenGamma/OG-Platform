@@ -13,6 +13,7 @@
     </publications>
     <dependencies>
       <dependency name="og-financial" rev="latest.integration" />
+      <dependency org="com.thoughtworks.paranamer" name="paranamer" rev="2.3" />
       <!-- Pull windows binaries for Visual Studio build, posix user can install the libraries more easily -->
       <dependency org="org.fudgemsg" name="fudge-c" rev="0.2" conf="*->Windows" />
       <dependency org="org.apache" name="log4cxx" rev="0.10.0" conf="*->Windows" />

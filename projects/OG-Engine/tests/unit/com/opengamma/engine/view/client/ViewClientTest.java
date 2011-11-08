@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 
+import com.opengamma.engine.view.ViewResultModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -28,6 +29,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
@@ -154,12 +156,19 @@ public class ViewClientTest {
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     ViewComputationResultModel result1 = resultListener.getCycleCompleted(TIMEOUT).getFullResult();
     assertNotNull(result1);
+
+    ViewResultModel jobResult1 = resultListener.getJobResultReceived(TIMEOUT).getFullResult();
+    assertNotNull(jobResult1);
+
+
     Map<ValueRequirement, Object> expected = new HashMap<ValueRequirement, Object>();
     expected.put(env.getPrimitive1(), (byte) 1);
     expected.put(env.getPrimitive2(), (byte) 2);
     assertComputationResult(expected, env.getCalculationResult(result1));
     assertTrue(client.isResultAvailable());
     assertEquals(result1, client.getLatestResult());
+
+    assertComputationResult(expected, env.getCalculationResult(jobResult1));
     
     client.pause();
     
@@ -171,10 +180,16 @@ public class ViewClientTest {
     // Should have been merging results received in the meantime
     client.resume();
     ViewComputationResultModel result2 = resultListener.getCycleCompleted(TIMEOUT).getFullResult();
+
+    ViewResultModel jobResult2 = resultListener.getJobResultReceived(TIMEOUT).getFullResult();
+    assertNotNull(jobResult2);
+
     expected = new HashMap<ValueRequirement, Object>();
     expected.put(env.getPrimitive1(), (byte) 3);
     expected.put(env.getPrimitive2(), (byte) 4);
-    assertComputationResult(expected, env.getCalculationResult(result2));    
+    assertComputationResult(expected, env.getCalculationResult(result2));
+
+    assertComputationResult(expected, env.getCalculationResult(jobResult2));
   }
 
   @Test
@@ -208,10 +223,16 @@ public class ViewClientTest {
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     ViewDeltaResultModel result1 = resultListener.getCycleCompleted(TIMEOUT).getDeltaResult();
     assertNotNull(result1);
+
+    ViewResultModel jobResult1 = resultListener.getJobResultReceived(TIMEOUT).getDeltaResult();
+    assertNotNull(jobResult1);
+
     Map<ValueRequirement, Object> expected = new HashMap<ValueRequirement, Object>();
     expected.put(env.getPrimitive1(), (byte) 1);
     expected.put(env.getPrimitive2(), (byte) 2);
     assertComputationResult(expected, env.getCalculationResult(result1));
+
+    assertComputationResult(expected, env.getCalculationResult(jobResult1));
     
     client.pause();
     
@@ -225,10 +246,14 @@ public class ViewClientTest {
     // Should have been merging results received in the meantime
     client.resume();
     ViewDeltaResultModel result2 = resultListener.getCycleCompleted(TIMEOUT).getDeltaResult();
+
+    ViewResultModel jobResult2 = resultListener.getJobResultReceived(TIMEOUT).getDeltaResult();
+    assertNotNull(jobResult2);
     
     expected = new HashMap<ValueRequirement, Object>();
     expected.put(env.getPrimitive1(), (byte) 3);
-    assertComputationResult(expected, env.getCalculationResult(result2));    
+    assertComputationResult(expected, env.getCalculationResult(result2));
+    assertComputationResult(expected, env.getCalculationResult(jobResult2));
   }
   
   @Test
@@ -554,9 +579,9 @@ public class ViewClientTest {
 
     //-----------------------------------------------------------------------
     @Override
-    public boolean isAvailable(ValueRequirement requirement) {
+    public MarketDataAvailability getAvailability(final ValueRequirement requirement) {
       synchronized (_lastKnownValues) {
-        return _lastKnownValues.containsKey(requirement);        
+        return _lastKnownValues.containsKey(requirement) ? MarketDataAvailability.AVAILABLE : MarketDataAvailability.NOT_AVAILABLE;
       }
     }
 

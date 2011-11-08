@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
@@ -30,6 +29,7 @@ import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.jms.JmsConnector;
 
 /**
  * A JMS LiveData client. This client is implemented using JMS's asynchronous
@@ -47,7 +47,7 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
   
   private static final Logger s_logger = LoggerFactory.getLogger(JmsLiveDataClient.class);
   
-  private final ConnectionFactory _connectionFactory;
+  private final JmsConnector _jmsConnector;
   private volatile Connection _connection;
   
   private final Map<String, MessageConsumer> _messageConsumersBySpec =
@@ -74,34 +74,37 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
   
   public JmsLiveDataClient(FudgeRequestSender subscriptionRequestSender,
       FudgeRequestSender entitlementRequestSender,
-      ConnectionFactory connectionFactory) {
+      JmsConnector jmsConnector) {
     this(subscriptionRequestSender, 
         entitlementRequestSender, 
-        connectionFactory, 
+        jmsConnector, 
         OpenGammaFudgeContext.getInstance(),
         DEFAULT_NUM_SESSIONS);
   }
 
   public JmsLiveDataClient(FudgeRequestSender subscriptionRequestSender,
       FudgeRequestSender entitlementRequestSender,
-      ConnectionFactory connectionFactory, 
+      JmsConnector jmsConnector, 
       FudgeContext fudgeContext,
       int maxSessions) {
     super(subscriptionRequestSender, entitlementRequestSender, fudgeContext);
-    ArgumentChecker.notNull(connectionFactory, "JMS Connection Factory");
-    _connectionFactory = connectionFactory;
+    ArgumentChecker.notNull(jmsConnector, "jmsConnector");
+    _jmsConnector = jmsConnector;
     
     if (maxSessions <= 0) {
       throw new IllegalArgumentException("Max sessions must be positive");
     }
     _maxSessions = maxSessions;
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
-   * @return the connectionFactory
+   * Gets the JMS connector.
+   * 
+   * @return the JMS connector
    */
-  public ConnectionFactory getConnectionFactory() {
-    return _connectionFactory;
+  public JmsConnector getJmsConnector() {
+    return _jmsConnector;
   }
 
   @Override
@@ -169,7 +172,7 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
   @Override
   public synchronized void start() {
     try {
-      _connection = _connectionFactory.createConnection();
+      _connection = _jmsConnector.getConnectionFactory().createConnection();
       _connection.start();
     } catch (JMSException e) {
       throw new OpenGammaRuntimeException("Failed to create JMS connection", e);

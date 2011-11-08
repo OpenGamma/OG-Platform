@@ -26,7 +26,7 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
   
   private final String _name;
   private final Set<ComputationTarget> _computationTargets;
-  private final Set<ValueSpecification> _terminalOutputSpecifications;
+  private final Map<ValueSpecification, Set<ValueRequirement>> _terminalOutputSpecifications;
   private final Map<ValueRequirement, ValueSpecification> _marketDataRequirements;
   
   /**
@@ -38,7 +38,7 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
    * @param marketDataRequirements  the market data requirements, not null
    */
   public CompiledViewCalculationConfigurationImpl(String name, Set<ComputationTarget> computationTargets,
-      Set<ValueSpecification> terminalOutputSpecifications,
+      Map<ValueSpecification, Set<ValueRequirement>> terminalOutputSpecifications,
       Map<ValueRequirement, ValueSpecification> marketDataRequirements) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(computationTargets, "computationTargets");
@@ -66,14 +66,14 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
   }
   
   @Override
-  public Set<ValueSpecification> getTerminalOutputSpecifications() {
-    return Collections.unmodifiableSet(_terminalOutputSpecifications);
+  public Map<ValueSpecification, Set<ValueRequirement>> getTerminalOutputSpecifications() {
+    return Collections.unmodifiableMap(_terminalOutputSpecifications);
   }
   
   @Override
   public Set<Pair<String, ValueProperties>> getTerminalOutputValues() {
     Set<Pair<String, ValueProperties>> valueNames = new HashSet<Pair<String, ValueProperties>>();
-    for (ValueSpecification spec : getTerminalOutputSpecifications()) {
+    for (ValueSpecification spec : getTerminalOutputSpecifications().keySet()) {
       valueNames.add(Pair.of(spec.getValueName(), spec.getProperties()));
     }
     return valueNames;
@@ -100,9 +100,9 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
     return result;
   }
   
-  private static Set<ValueSpecification> processTerminalOutputSpecifications(DependencyGraph dependencyGraph) {
+  private static Map<ValueSpecification, Set<ValueRequirement>> processTerminalOutputSpecifications(DependencyGraph dependencyGraph) {
     ArgumentChecker.notNull(dependencyGraph, "dependencyGraph");
-    return dependencyGraph.getTerminalOutputSpecifications();
+    return dependencyGraph.getTerminalOutputs();
   }
   
   private static Set<ComputationTarget> processComputationTargets(DependencyGraph dependencyGraph) {

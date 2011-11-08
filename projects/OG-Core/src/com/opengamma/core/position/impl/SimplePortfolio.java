@@ -6,7 +6,9 @@
 package com.opengamma.core.position.impl;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
@@ -52,6 +54,11 @@ public class SimplePortfolio extends DirectBean
    */
   @PropertyDefinition(validate = "notNull")
   private SimplePortfolioNode _rootNode;
+  /**
+   * The general purpose portfolio attributes.
+   */
+  @PropertyDefinition
+  private final Map<String, String> _attributes = new HashMap<String, String>();
 
   /**
    * Creates an instance.
@@ -118,6 +125,24 @@ public class SimplePortfolio extends DirectBean
     _name = copyFrom.getName();
     _rootNode = new SimplePortfolioNode(copyFrom.getRootNode());
     _rootNode.setParentNodeId(null);
+    if (copyFrom.getAttributes() != null) {
+      for (Entry<String, String> entry : copyFrom.getAttributes().entrySet()) {
+        addAttribute(entry.getKey(), entry.getValue());
+      }
+    }
+  }
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Adds a key value pair to attributes
+   * 
+   * @param key  the key to add, not null
+   * @param value  the value to add, not null
+   */
+  public void addAttribute(String key, String value) {
+    ArgumentChecker.notNull(key, "key");
+    ArgumentChecker.notNull(value, "value");
+    _attributes.put(key, value);
   }
 
   //-------------------------------------------------------------------------
@@ -202,10 +227,13 @@ public class SimplePortfolio extends DirectBean
         return getName();
       case -167026172:  // rootNode
         return getRootNode();
+      case 405645655:  // attributes
+        return getAttributes();
     }
     return super.propertyGet(propertyName, quiet);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
@@ -217,6 +245,9 @@ public class SimplePortfolio extends DirectBean
         return;
       case -167026172:  // rootNode
         setRootNode((SimplePortfolioNode) newValue);
+        return;
+      case 405645655:  // attributes
+        setAttributes((Map<String, String>) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -310,6 +341,32 @@ public class SimplePortfolio extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the general purpose portfolio attributes.
+   * @return the value of the property
+   */
+  public Map<String, String> getAttributes() {
+    return _attributes;
+  }
+
+  /**
+   * Sets the general purpose portfolio attributes.
+   * @param attributes  the new value of the property
+   */
+  public void setAttributes(Map<String, String> attributes) {
+    this._attributes.clear();
+    this._attributes.putAll(attributes);
+  }
+
+  /**
+   * Gets the the {@code attributes} property.
+   * @return the property, not null
+   */
+  public final Property<Map<String, String>> attributes() {
+    return metaBean().attributes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code SimplePortfolio}.
    */
   public static class Meta extends DirectMetaBean {
@@ -334,13 +391,20 @@ public class SimplePortfolio extends DirectBean
     private final MetaProperty<SimplePortfolioNode> _rootNode = DirectMetaProperty.ofReadWrite(
         this, "rootNode", SimplePortfolio.class, SimplePortfolioNode.class);
     /**
+     * The meta-property for the {@code attributes} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Map<String, String>> _attributes = DirectMetaProperty.ofReadWrite(
+        this, "attributes", SimplePortfolio.class, (Class) Map.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
         this, null,
         "uniqueId",
         "name",
-        "rootNode");
+        "rootNode",
+        "attributes");
 
     /**
      * Restricted constructor.
@@ -357,6 +421,8 @@ public class SimplePortfolio extends DirectBean
           return _name;
         case -167026172:  // rootNode
           return _rootNode;
+        case 405645655:  // attributes
+          return _attributes;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -399,6 +465,14 @@ public class SimplePortfolio extends DirectBean
      */
     public final MetaProperty<SimplePortfolioNode> rootNode() {
       return _rootNode;
+    }
+
+    /**
+     * The meta-property for the {@code attributes} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Map<String, String>> attributes() {
+      return _attributes;
     }
 
   }

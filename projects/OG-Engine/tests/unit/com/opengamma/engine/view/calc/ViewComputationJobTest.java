@@ -28,6 +28,7 @@ import com.opengamma.engine.marketdata.LiveMarketDataSnapshot;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
@@ -80,8 +81,7 @@ public class ViewComputationJobTest {
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
-    client.attachToViewProcess(UniqueId.of("boo", "far"), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
-    //client.attachToViewProcess(client.getViewProcessor().getViewDefinitionRepository().getDefinition("Something random").getUniqueId(), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
+    client.attachToViewProcess(UniqueId.of("not", "here"), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
   }
   
   @Test
@@ -262,7 +262,8 @@ public class ViewComputationJobTest {
     client.setResultListener(resultListener);
     EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().get();
     ViewExecutionOptions viewExecutionOptions = ExecutionOptions.infinite(MarketData.live(), flags);
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), viewExecutionOptions);
+    final UniqueId viewDefinitionId = env.getViewDefinition().getUniqueId();
+    client.attachToViewProcess(viewDefinitionId, viewExecutionOptions);
     
     ViewComputationJob computationJob = env.getCurrentComputationJob(env.getViewProcess(vp, client.getUniqueId()));
     
@@ -270,7 +271,6 @@ public class ViewComputationJobTest {
     resultListener.assertCycleCompleted(TIMEOUT);
     computationJob.triggerCycle();
     resultListener.assertCycleCompleted(TIMEOUT);
-    final UniqueId viewDefinitionId = UniqueId.of("AnyScheme", ViewProcessorTestEnvironment.TEST_VIEW_DEFINITION_NAME);
     env.getViewDefinitionRepository().changeManager().entityChanged(ChangeType.UPDATED, viewDefinitionId, viewDefinitionId, Instant.now());
     computationJob.triggerCycle();
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
@@ -406,10 +406,10 @@ public class ViewComputationJobTest {
     }
 
     @Override
-    public boolean isAvailable(ValueRequirement requirement) {
+    public MarketDataAvailability getAvailability(ValueRequirement requirement) {
       // Want the market data provider to indicate that data is available even before it's really available
-      return requirement.equals(ViewProcessorTestEnvironment.getPrimitive1())
-          || requirement.equals(ViewProcessorTestEnvironment.getPrimitive2());
+      return (requirement.equals(ViewProcessorTestEnvironment.getPrimitive1()) || requirement.equals(ViewProcessorTestEnvironment.getPrimitive2())) ? MarketDataAvailability.AVAILABLE
+          : MarketDataAvailability.NOT_AVAILABLE;
     }
 
     @Override

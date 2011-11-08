@@ -30,6 +30,24 @@ public class Main {
   private static int s_activeConnections;
 
   /**
+   * Sets a system property.
+   * 
+   * @param property key of the property to set, never null
+   * @param value value to set, never null
+   */
+  private static boolean setProperty(final String property, final String value) {
+    try {
+      s_logger.debug("Setting system property {}={}", property, value);
+      System.setProperty(property, value);
+      return true;
+    } catch (Throwable t) {
+      s_logger.error("Couldn't set property {}={}", property, value);
+      s_logger.warn("Exception thrown", t);
+      return false;
+    }
+  }
+
+  /**
    * Debug entry point from the service wrapper tests.
    * 
    * @return true always

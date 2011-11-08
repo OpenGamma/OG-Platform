@@ -33,6 +33,7 @@ import com.opengamma.livedata.UserPrincipal;
   private final UniqueId _identifier;
   private UniqueId _attachedViewDefinitionId;
   private boolean _shutdown;
+  private MarketDataInjector _marketDataInjector;
 
   public MockViewClient(final UniqueId identifier) {
     _identifier = identifier;
@@ -93,7 +94,15 @@ import com.opengamma.livedata.UserPrincipal;
 
   @Override
   public MarketDataInjector getLiveDataOverrideInjector() {
-    throw new UnsupportedOperationException();
+    if (_marketDataInjector != null) {
+      return _marketDataInjector;
+    } else {
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  public void setLiveDataOverrideInjector(final MarketDataInjector marketDataInjector) {
+    _marketDataInjector = marketDataInjector;
   }
 
   @Override
@@ -103,6 +112,16 @@ import com.opengamma.livedata.UserPrincipal;
 
   @Override
   public ViewResultMode getResultMode() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ViewResultMode getJobResultMode() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setJobResultMode(ViewResultMode viewResultMode) {
     throw new UnsupportedOperationException();
   }
 

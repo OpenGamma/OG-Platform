@@ -13,6 +13,7 @@ import javax.time.Instant;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
@@ -26,7 +27,7 @@ import com.opengamma.language.function.PublishedFunction;
 public abstract class ViewClientDescriptorFunction extends AbstractFunctionInvoker implements PublishedFunction {
 
   private static final MetaParameter VIEW_PARAMETER = new MetaParameter("view", JavaTypeInfo.builder(UniqueId.class).get());
-  private static final MetaParameter VALUATION_TIME_PARAMETER = new MetaParameter("valuationTime", JavaTypeInfo.builder(Instant.class).get());
+  private static final MetaParameter DATA_SOURCE_PARAMETER = new MetaParameter("dataSource", JavaTypeInfo.builder(String.class).allowNull().get());
   private static final MetaParameter FIRST_VALUATION_TIME_PARAMETER = new MetaParameter("firstValuationTime", JavaTypeInfo.builder(Instant.class).get());
   private static final MetaParameter LAST_VALUATION_TIME_PARAMETER = new MetaParameter("lastValuationTime", JavaTypeInfo.builder(Instant.class).get());
   private static final MetaParameter SAMPLE_PERIOD_PARAMETER = new MetaParameter("samplePeriod", JavaTypeInfo.builder(Integer.class).defaultValue(ViewClientDescriptor.DEFAULT_SAMPLE_PERIOD).get());
@@ -38,7 +39,7 @@ public abstract class ViewClientDescriptorFunction extends AbstractFunctionInvok
 
   private ViewClientDescriptorFunction(final DefinitionAnnotater info, final String name, final List<MetaParameter> parameters) {
     super(info.annotate(parameters));
-    _meta = info.annotate(new MetaFunction(name, getParameters(), this));
+    _meta = info.annotate(new MetaFunction(Categories.VIEW, name, getParameters(), this));
   }
 
   protected ViewClientDescriptorFunction(final String name, final List<MetaParameter> parameters) {
@@ -50,12 +51,12 @@ public abstract class ViewClientDescriptorFunction extends AbstractFunctionInvok
   private static final class TickingMarketData extends ViewClientDescriptorFunction {
 
     private TickingMarketData() {
-      super("TickingMarketDataViewClient", Arrays.asList(VIEW_PARAMETER));
+      super("TickingMarketDataViewClient", Arrays.asList(VIEW_PARAMETER, DATA_SOURCE_PARAMETER));
     }
 
     @Override
     protected ViewClientDescriptor invokeImpl(final Object[] parameters) {
-      return ViewClientDescriptor.tickingMarketData((UniqueId) parameters[0]);
+      return ViewClientDescriptor.tickingMarketData((UniqueId) parameters[0], (String) parameters[1]);
     }
 
   }
@@ -66,14 +67,14 @@ public abstract class ViewClientDescriptorFunction extends AbstractFunctionInvok
   public static final ViewClientDescriptorFunction TICKING_MARKET_DATA = new TickingMarketData();
 
   private static final class StaticMarketData extends ViewClientDescriptorFunction {
-    
+
     private StaticMarketData() {
-      super("StaticMarketDataViewClient", Arrays.asList(VIEW_PARAMETER, VALUATION_TIME_PARAMETER));
+      super("StaticMarketDataViewClient", Arrays.asList(VIEW_PARAMETER, DATA_SOURCE_PARAMETER));
     }
 
     @Override
     protected ViewClientDescriptor invokeImpl(final Object[] parameters) {
-      return ViewClientDescriptor.staticMarketData((UniqueId) parameters[0], (Instant) parameters[1]);
+      return ViewClientDescriptor.staticMarketData((UniqueId) parameters[0], (String) parameters[1]);
     }
 
   }

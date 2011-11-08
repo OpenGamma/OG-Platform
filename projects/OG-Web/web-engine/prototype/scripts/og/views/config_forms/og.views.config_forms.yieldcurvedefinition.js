@@ -16,7 +16,7 @@ $.register_module({
         return function (config) {
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
-                orig_name = config.data.template_data.configJSON.name, submit_type,
+                orig_name = config.data.template_data.name, submit_type,
                 resource_id = config.data.template_data.object_id,
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler,
                 master = config.data.template_data.configJSON.data, strips,
@@ -24,7 +24,8 @@ $.register_module({
                 CURV = 'CurveSpecificationBuilderConfiguration', INTR = 'interpolatorName',
                 INDX = '<INDEX>',
                 sep = '~',
-                meta_map = [
+                config_type = 'com.opengamma.financial.analytics.ircurve.YieldCurveDefinition',
+                type_map = [
                     [['0', INDX].join('.'),                 Form.type.STR],
                     ['currency',                            Form.type.STR],
                     [INTR,                                  Form.type.STR],
@@ -39,7 +40,7 @@ $.register_module({
                 form = new Form({
                     module: 'og.views.forms.yield-curve-definition',
                     data: master,
-                    meta: meta_map,
+                    type_map: type_map,
                     selector: selector,
                     extras: {
                         name: master.name, currency: master.currency || (master.currency = 'USD'),
@@ -92,13 +93,15 @@ $.register_module({
                         ]
                     });
                 },
-                save_resource = function (data, as_new) {
+                save_resource = function (result, as_new) {
+                    var data = result.data, meta = result.meta;
                     if (as_new && (orig_name === data.name + '_' + data.currency))
                         return window.alert('Please select a new name and/or currency.');
                     api.configs.put({
-                        id: as_new ? undefined : resource_id,
+                        id: as_new ? void 0 : resource_id,
                         name: data.name + '_' + data.currency,
                         json: JSON.stringify({data: data, meta: meta}),
+                        type: config_type,
                         loading: loading,
                         handler: as_new ? save_new_handler : save_handler
                     });
