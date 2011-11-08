@@ -42,9 +42,9 @@ public class InMemoryViewDefinitionRepository implements ManageableViewDefinitio
   private final AtomicLong _viewDefinitionCounter = new AtomicLong();
   private ReentrantReadWriteLock _rwl = new ReentrantReadWriteLock(true);
   
-  private final ConcurrentMap<ObjectId, SortedSet<UniqueId>> _definitionsByObjectId = new ConcurrentSkipListMap<ObjectId, SortedSet<UniqueId>>();
-  private final ConcurrentMap<UniqueId, ViewDefinition> _definitionsByUniqueId = new ConcurrentSkipListMap<UniqueId, ViewDefinition>();
-  private final ConcurrentMap<String, SortedSet<ObjectId>> _definitionsByName = new ConcurrentSkipListMap<String, SortedSet<ObjectId>>();
+  private final Map<ObjectId, SortedSet<UniqueId>> _definitionsByObjectId = new HashMap<ObjectId, SortedSet<UniqueId>>();
+  private final Map<UniqueId, ViewDefinition> _definitionsByUniqueId = new HashMap<UniqueId, ViewDefinition>();
+  private final Map<String, SortedSet<ObjectId>> _definitionsByName = new HashMap<String, SortedSet<ObjectId>>();
   private final ChangeManager _changeManager = new BasicChangeManager();
 
   //-------------------------------------------------------------------------
