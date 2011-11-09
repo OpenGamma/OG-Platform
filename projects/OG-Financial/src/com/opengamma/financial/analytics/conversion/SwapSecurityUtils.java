@@ -52,6 +52,9 @@ public class SwapSecurityUtils {
         }
         return InterestRateInstrumentType.SWAP_IBOR_CMS;
       }
+      if (receiveLeg1.isIbor()) {
+        return InterestRateInstrumentType.SWAP_IBOR_CMS;
+      }
       return InterestRateInstrumentType.SWAP_CMS_CMS;
     }
     throw new OpenGammaRuntimeException(

@@ -36,9 +36,9 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
   private final HolidayType _type;
 
   public HolidaySourceCalendarAdapter(final HolidaySource holidaySource, final Set<Region> region) {
-    Validate.notNull(region);
-    Validate.notNull(holidaySource);
-    Validate.noNullElements(region);
+    Validate.notNull(region, "Region set is null");
+    Validate.notNull(holidaySource, "holiday source is null");
+    Validate.noNullElements(region, "Region set has null elements");
     _holidaySource = holidaySource;
     _regions = region;
     _type = HolidayType.BANK;

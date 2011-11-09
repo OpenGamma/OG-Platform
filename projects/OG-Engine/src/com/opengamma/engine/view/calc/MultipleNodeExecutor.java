@@ -17,9 +17,11 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,9 +98,13 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     getCycle().markFailed(node);
   }
 
-  protected RootGraphFragment createExecutionPlan(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
+  protected GraphFragmentContext createContext(DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue) {
+    return new GraphFragmentContext(this, graph, calcJobResultQueue);
+  }
+
+  protected RootGraphFragment createExecutionPlan(final DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue, final GraphExecutorStatisticsGatherer statistics) {
     final OperationTimer timer = new OperationTimer(s_logger, "Creating execution plan for {}", graph);
-    final GraphFragmentContext context = new GraphFragmentContext(this, graph);
+    final GraphFragmentContext context = createContext(graph, calcJobResultQueue);
     // writeGraphForTestingPurposes(graph);
     if (graph.getSize() <= getMinJobItems()) {
       // If the graph is too small, run it as-is
@@ -176,7 +182,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
   }
 
   @Override
-  public Future<Object> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
+  public Future<Object> execute(final DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue, final GraphExecutorStatisticsGatherer statistics) {
     final RootGraphFragment execution = _cache.getCachedExecutionPlan(graph);
     if (execution != null) {
       if (execution.getFunctionInitializationTimestamp() != getCycle().getFunctionInitId()) {
@@ -193,7 +199,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
         }
       }
     }
-    return createExecutionPlan(graph, statistics);
+    return createExecutionPlan(graph, calcJobResultQueue, statistics);
   }
 
   public int getMinJobItems() {

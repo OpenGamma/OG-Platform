@@ -11,8 +11,10 @@ import javax.time.Instant;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.listener.JobResultReceivedCall;
 import com.opengamma.engine.view.listener.CycleCompletedCall;
 import com.opengamma.engine.view.listener.CycleExecutionFailedCall;
 import com.opengamma.engine.view.listener.ProcessCompletedCall;
@@ -38,6 +40,10 @@ public class TestViewResultListener extends AbstractTestResultListener implement
   
   public CycleCompletedCall getCycleCompleted(long timeoutMillis) throws InterruptedException {
     return expectNextCall(CycleCompletedCall.class, timeoutMillis);
+  }
+
+  public JobResultReceivedCall getJobResultReceived(long timeoutMillis) throws InterruptedException {
+    return expectNextCall(JobResultReceivedCall.class, timeoutMillis);
   }
   
   public ProcessCompletedCall getProcessCompleted(long timeoutMillis) throws InterruptedException {
@@ -121,6 +127,39 @@ public class TestViewResultListener extends AbstractTestResultListener implement
       }
     }
   }
+
+  public void assertJobResultReceived() {
+    assertJobResultReceived(0);
+  }
+
+  public void assertJobResultReceived(long timeoutMillis) {
+    assertJobResultReceived(timeoutMillis, null, null);
+  }
+
+  public void assertJobResultReceived(long timeoutMillis, ViewResultModel expectedFullResult, ViewDeltaResultModel expectedDeltaResult) {
+    JobResultReceivedCall call;
+    try {
+      call = getJobResultReceived(timeoutMillis);
+    } catch (Exception e) {
+      throw new AssertionError("Expected jobResultReceived call error: " + e.getMessage());
+    }
+    if (expectedFullResult != null) {
+      assertEquals(expectedFullResult, call.getFullResult());
+    }
+    if (expectedDeltaResult != null) {
+      assertEquals(expectedDeltaResult, call.getDeltaResult());
+    }
+  }
+
+  public void assertJobResultReceived(int count) {
+    for (int i = 0; i < count; i++) {
+      try {
+        assertJobResultReceived(0);
+      } catch (Exception e) {
+        throw new AssertionError("Expecting " + count + " results but no more found after result " + i);
+      }
+    }
+  }
   
   public void assertProcessCompleted() {
     assertProcessCompleted(0);
@@ -175,6 +214,11 @@ public class TestViewResultListener extends AbstractTestResultListener implement
   @Override
   public void processCompleted() {
     callReceived(new ProcessCompletedCall());
+  }
+
+  @Override
+  public void jobResultReceived(ViewResultModel fullResult, ViewDeltaResultModel deltaResult) {
+    callReceived(new JobResultReceivedCall(fullResult, deltaResult), true);
   }
 
   @Override

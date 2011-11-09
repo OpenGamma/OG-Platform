@@ -5,9 +5,10 @@
  */
 package com.opengamma.financial.view.rest;
 
-import javax.jms.ConnectionFactory;
 import javax.time.Instant;
 
+import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.listener.JobResultReceivedCall;
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,6 +91,11 @@ public class ViewClientJmsResultPublisher extends AbstractJmsResultPublisher imp
   @Override
   public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
     send(new CycleExecutionFailedCall(executionOptions, exception));
+  }
+
+  @Override
+  public void jobResultReceived(ViewResultModel fullResult, ViewDeltaResultModel deltaResult) {
+    send(new JobResultReceivedCall(fullResult, deltaResult));
   }
 
   @Override
