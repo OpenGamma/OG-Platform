@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.batch;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -12,6 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.view.calc.ResultWriter;
 import com.opengamma.engine.view.calc.DependencyGraphExecutor;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
@@ -27,7 +29,7 @@ public class BatchResultWriterExecutor implements DependencyGraphExecutor<Object
   /**
    * The batch result writer.
    */
-  private final BatchResultWriter _writer;
+  private final ResultWriter _writer;
   /**
    * The dependency graph executor.
    */
@@ -44,7 +46,7 @@ public class BatchResultWriterExecutor implements DependencyGraphExecutor<Object
    * @param delegate  the underlying graph executor, not null
    */
   public BatchResultWriterExecutor(
-      BatchResultWriter writer,
+      ResultWriter writer,
       DependencyGraphExecutor<CalculationJobResult> delegate) {
     this(writer,
         delegate,
@@ -59,7 +61,7 @@ public class BatchResultWriterExecutor implements DependencyGraphExecutor<Object
    * @param executor  the executor service to use, not null
    */
   public BatchResultWriterExecutor(
-      BatchResultWriter writer,
+      ResultWriter writer,
       DependencyGraphExecutor<CalculationJobResult> delegate,
       ExecutorService executor) {
     ArgumentChecker.notNull(writer, "Batch result writer");
@@ -72,9 +74,9 @@ public class BatchResultWriterExecutor implements DependencyGraphExecutor<Object
 
   //-------------------------------------------------------------------------
   @Override
-  public Future<Object> execute(DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
+  public Future<Object> execute(DependencyGraph graph, BlockingQueue<CalculationJobResult> calcJobResultQueue, final GraphExecutorStatisticsGatherer statistics) {
     DependencyGraph subGraph = _writer.getGraphToExecute(graph);
-    Future<CalculationJobResult> future = _delegate.execute(subGraph, statistics);
+    Future<CalculationJobResult> future = _delegate.execute(subGraph, calcJobResultQueue, statistics);
     BatchResultWriterCallable callable = new BatchResultWriterCallable(future, subGraph);
     return _executor.submit(callable);
   }

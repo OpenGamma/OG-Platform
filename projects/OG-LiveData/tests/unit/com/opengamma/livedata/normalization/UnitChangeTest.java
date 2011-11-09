@@ -26,7 +26,7 @@ public class UnitChangeTest {
     msg.add("Foo", 2.0);
     msg.add("Bar", "2");
     
-    MutableFudgeMsg normalized = unitChange.apply(msg, new FieldHistoryStore());
+    MutableFudgeMsg normalized = unitChange.apply(msg, "123", new FieldHistoryStore());
     assertEquals(2, normalized.getAllFields().size());
     assertEquals(20.0, normalized.getDouble("Foo"), 0.0001);
   }

@@ -158,8 +158,10 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
     _premiumCurrency = trade.getPremiumCurrency();
     _premiumDate = trade.getPremiumDate();
     _premiumTime = trade.getPremiumTime();
-    for (Entry<String, String> entry : trade.getAttributes().entrySet()) {
-      addAttribute(entry.getKey(), entry.getValue());
+    if (trade.getAttributes() != null) {
+      for (Entry<String, String> entry : trade.getAttributes().entrySet()) {
+        addAttribute(entry.getKey(), entry.getValue());
+      }
     }
   }
 

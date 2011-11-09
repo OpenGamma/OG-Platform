@@ -3,20 +3,20 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.batch;
+package com.opengamma.engine.view.calc;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 
 /**
- * Writes results into batch DB.
+ * Writes results.
  */
-public interface BatchResultWriter {
+public interface ResultWriter {
 
   /**
-   * Writes results into batch DB.
+   * Writes results.
    * 
-   * @param result  the result to save
+   * @param result the result to save
    * @param depGraph  the context information, useful for determining
    *  which results to write and which to skip
    */
@@ -33,7 +33,7 @@ public interface BatchResultWriter {
    *  
    * @param graph  the original graph
    * @return the original graph or, possibly, a sub-graph of the original
-   * graph, if results are already found in batch DB 
+   * graph, if results are already found
    */
   DependencyGraph getGraphToExecute(DependencyGraph graph);
 

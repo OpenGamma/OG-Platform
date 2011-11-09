@@ -59,16 +59,15 @@ public class NormalizationRuleSet {
    * to the raw message. 
    * 
    * @param msg message received from underlying market data API in its native format.
+   * @param securityUniqueId  the data provider's unique ID of the security, not null
    * @param fieldHistory history of field values  
    * @return the normalized message. Null if one of the normalization rules
    * rejected the message.
    */
-  public FudgeMsg getNormalizedMessage(
-      FudgeMsg msg,
-      FieldHistoryStore fieldHistory) {
+  public FudgeMsg getNormalizedMessage(FudgeMsg msg, String securityUniqueId, FieldHistoryStore fieldHistory) {
     MutableFudgeMsg normalizedMsg = OpenGammaFudgeContext.getInstance().newMessage(msg);
     for (NormalizationRule rule : _rules) {
-      normalizedMsg = rule.apply(normalizedMsg, fieldHistory);
+      normalizedMsg = rule.apply(normalizedMsg, securityUniqueId, fieldHistory);
       if (normalizedMsg == null) {
         // One of the rules rejected the message entirely.
         break;

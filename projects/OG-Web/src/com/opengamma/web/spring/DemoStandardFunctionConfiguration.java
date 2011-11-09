@@ -59,6 +59,18 @@ import com.opengamma.financial.analytics.model.bond.BondTenorFunction;
 import com.opengamma.financial.analytics.model.bond.BondYieldFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.BondZSpreadFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
+import com.opengamma.financial.analytics.model.capfloor.CapFloorSABRPresentValueCurveSensitivityFunction;
+import com.opengamma.financial.analytics.model.capfloor.CapFloorSABRPresentValueFunction;
+import com.opengamma.financial.analytics.model.capfloor.CapFloorSABRPresentValueSABRFunction;
+import com.opengamma.financial.analytics.model.capfloor.CapFloorSABRYieldCurveNodeSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.cms.CMSwapSABRPresentValueCurveSensitivityFunction;
+import com.opengamma.financial.analytics.model.cms.CMSwapSABRPresentValueFunction;
+import com.opengamma.financial.analytics.model.cms.CMSwapSABRPresentValueSABRFunction;
+import com.opengamma.financial.analytics.model.cms.CMSwapSABRYieldCurveNodeSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.cmsspread.CapFloorCMSSpreadSABRPresentValueCurveSensitivityFunction;
+import com.opengamma.financial.analytics.model.cmsspread.CapFloorCMSSpreadSABRPresentValueFunction;
+import com.opengamma.financial.analytics.model.cmsspread.CapFloorCMSSpreadSABRPresentValueSABRFunction;
+import com.opengamma.financial.analytics.model.cmsspread.CapFloorCMSSpreadSABRYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaModelPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaModelPositionFunction;
@@ -267,6 +279,9 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addBondFutureCalculators(functionConfigs);
     functionConfigs.add(new ParameterizedFunctionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG")));
     addSwaptionCalculators(functionConfigs);
+    addCMSInstrumentCalculators(functionConfigs);
+    addCapFloorInstrumentCalculators(functionConfigs);
+    addCapFloorCMSSpreadInstrumentCalculators(functionConfigs);
     addForexVanillaOptionCalculators(functionConfigs);
     addForexSingleBarrierOptionCalculators(functionConfigs);
     addForexForwardCalculators(functionConfigs);
@@ -430,7 +445,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_RHO);
     addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_RHO);
     
-
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY)));
+    
     addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_DELTA);
     addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_GAMMA);
     addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_SPEED);
@@ -665,15 +683,33 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private static void addSwaptionCalculators(List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "false", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "false", "FORWARD_3M", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueSABRFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "FORWARD_3M", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "false", "FORWARD_3M", "FUNDING")));
   }
 
+  private static void addCMSInstrumentCalculators(List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(new ParameterizedFunctionConfiguration(CMSwapSABRPresentValueFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "false", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(CMSwapSABRPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "false", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(CMSwapSABRPresentValueSABRFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(CMSwapSABRYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "false", "FORWARD_3M", "FUNDING")));
+  }
+  
+  private static void addCapFloorInstrumentCalculators(List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(new ParameterizedFunctionConfiguration(CapFloorSABRPresentValueFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "false", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(CapFloorSABRPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "false", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(CapFloorSABRPresentValueSABRFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(CapFloorSABRYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "false", "FORWARD_3M", "FUNDING")));
+  }
+
+  private static void addCapFloorCMSSpreadInstrumentCalculators(List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(new ParameterizedFunctionConfiguration(CapFloorCMSSpreadSABRPresentValueFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(CapFloorCMSSpreadSABRPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(CapFloorCMSSpreadSABRPresentValueSABRFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(CapFloorCMSSpreadSABRYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "FORWARD_3M", "FUNDING")));
+  }
+  
   private static void addFixedIncomeInstrumentCalculators(List<FunctionConfiguration> functionConfigs) {
     //forward/funding
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentParRateFunction.class.getName(), Arrays.asList("FORWARD_3M", "FUNDING")));

@@ -41,13 +41,15 @@
     <orderEntry type="module-library" exported="">
       <library name="IvyIDEA-OG-LiveData-default">
         <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.ehcache/ehcache/jars/ehcache-1.6.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/net.sourceforge.ehcache/ehcache/jars/ehcache-core-1.7.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.slf4j/slf4j/jars/slf4j-api-1.5.11.jar!/" />
         </CLASSES>
         <JAVADOC>
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.ehcache/ehcache/javadocs/ehcache-javadoc-1.6.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/net.sourceforge.ehcache/ehcache/javadocs/ehcache-core-1.7.2.zip!/" />
         </JAVADOC>
         <SOURCES>
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.ehcache/ehcache/sources/ehcache-src-1.6.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/net.sourceforge.ehcache/ehcache/sources/ehcache-core-1.7.2.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.slf4j/slf4j/sources/slf4j-api-src-1.5.11.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

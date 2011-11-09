@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.swaption;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -34,15 +32,13 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
-import com.opengamma.financial.analytics.fixedincome.YieldCurveNodeSensitivityDataBundle;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
-import com.opengamma.financial.analytics.model.fixedincome.YieldCurveLabelGenerator;
+import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctionHelper;
 import com.opengamma.financial.analytics.volatility.sabr.SABRFittedSurfaces;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -146,7 +142,7 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
       final SABRInterestRateDataBundle data = getModelData(target, inputs, bundle);
       final DoubleMatrix2D jacobian = new DoubleMatrix2D(FunctionUtils.decodeJacobian(jacobianObject));
       final DoubleMatrix1D result = CALCULATOR.calculateFromPresentValue(swaption, null, data, couponSensitivity, jacobian, _nodeSensitivityCalculator);
-      return getSensitivitiesForSingleCurve(_forwardCurveName, bundle, result, currency, forwardCurveSpec, getForwardResultSpec(target, currency));
+      return YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(_forwardCurveName, bundle, result, forwardCurveSpec, getForwardResultSpec(target, currency));
     }
     final Object fundingCurveObject = inputs.getValue(getFundingCurveRequirement(currency, _forwardCurveName, _fundingCurveName));
     if (fundingCurveObject == null) {
@@ -170,7 +166,8 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
     final Map<String, InterpolatedYieldCurveSpecificationWithSecurities> curveSpecs = new HashMap<String, InterpolatedYieldCurveSpecificationWithSecurities>();
     curveSpecs.put(_fundingCurveName, fundingCurveSpec);
     curveSpecs.put(_forwardCurveName, forwardCurveSpec);
-    return getSensitivitiesForMultipleCurves(target, bundle, result, currency, curveSpecs);
+    return YieldCurveNodeSensitivitiesHelper.getSensitivitiesForMultipleCurves(_forwardCurveName, _fundingCurveName, getForwardResultSpec(target, currency), 
+        getFundingResultSpec(target, currency), bundle, result, curveSpecs);
   }
 
   @Override
@@ -286,34 +283,4 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
         new SABRInterestRateDataBundle(new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, SABR_FUNCTION), bundle);
   }
 
-  private Set<ComputedValue> getSensitivitiesForSingleCurve(final String curveName, final YieldCurveBundle bundle,
-      final DoubleMatrix1D sensitivitiesForCurve, final Currency currency, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec, ValueSpecification resultSpec) {
-    final int n = sensitivitiesForCurve.getNumberOfElements();
-    final YieldAndDiscountCurve curve = bundle.getCurve(curveName);
-    final Double[] keys = curve.getCurve().getXData();
-    final double[] values = new double[n];
-    final Object[] labels = YieldCurveLabelGenerator.getLabels(curveSpec);
-    DoubleLabelledMatrix1D labelledMatrix = new DoubleLabelledMatrix1D(keys, labels, values);
-    for (int i = 0; i < n; i++) {
-      labelledMatrix = (DoubleLabelledMatrix1D) labelledMatrix.add(keys[i], labels[i], sensitivitiesForCurve.getEntry(i));
-    }
-    final YieldCurveNodeSensitivityDataBundle data = new YieldCurveNodeSensitivityDataBundle(currency, labelledMatrix, curveName);
-    return Collections.singleton(new ComputedValue(resultSpec, data.getLabelledMatrix()));
-  }
-
-  //TODO at some point this needs to deal with more than two curves
-  private Set<ComputedValue> getSensitivitiesForMultipleCurves(final ComputationTarget target, final YieldCurveBundle bundle,
-      final DoubleMatrix1D sensitivitiesForCurves, final Currency currency, final Map<String, InterpolatedYieldCurveSpecificationWithSecurities> curveSpecs) {
-    final int nForward = bundle.getCurve(_forwardCurveName).getCurve().size();
-    final int nFunding = bundle.getCurve(_fundingCurveName).getCurve().size();
-    final Map<String, DoubleMatrix1D> sensitivities = new HashMap<String, DoubleMatrix1D>();
-    sensitivities.put(_fundingCurveName, new DoubleMatrix1D(Arrays.copyOfRange(sensitivitiesForCurves.toArray(), 0, nFunding)));
-    sensitivities.put(_forwardCurveName, new DoubleMatrix1D(Arrays.copyOfRange(sensitivitiesForCurves.toArray(), nFunding, nForward + nFunding)));
-    final Set<ComputedValue> results = new HashSet<ComputedValue>();
-    results.addAll(getSensitivitiesForSingleCurve(_fundingCurveName, bundle, sensitivities.get(_fundingCurveName), currency, 
-        curveSpecs.get(_fundingCurveName), getFundingResultSpec(target, currency)));
-    results.addAll(getSensitivitiesForSingleCurve(_forwardCurveName, bundle, sensitivities.get(_forwardCurveName), currency, 
-        curveSpecs.get(_forwardCurveName), getForwardResultSpec(target, currency)));
-    return results;
-  }
 }

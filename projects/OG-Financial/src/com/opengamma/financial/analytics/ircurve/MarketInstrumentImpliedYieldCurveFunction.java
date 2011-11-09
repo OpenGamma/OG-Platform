@@ -181,16 +181,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
 
-  //TODO this normalization should not be happening here
-  private double getNormalizedData(final FixedIncomeStripWithSecurity strip, final Double marketValue) {
-    if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-      return 1 - marketValue / 100;
-    } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
-      return marketValue / 10000;
-    }
-    return marketValue / 100.;
-  }
-
   /**
    * 
    */
@@ -260,7 +250,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (_calculationType.equals(PRESENT_VALUE_STRING)) {
           marketValues[i] = 0;
         } else {
-          marketValues[i] = getNormalizedData(strip, marketValue);
+          marketValues[i] = marketValue;
         }
         derivatives.add(derivative);
         initialRatesGuess[i++] = 0.01;
@@ -286,7 +276,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (_calculationType.equals(PRESENT_VALUE_STRING)) {
           marketValues[i] = 0;
         } else {
-          marketValues[i] = getNormalizedData(strip, marketValue);
+          marketValues[i] = marketValue;
         }
         derivatives.add(derivative);
         initialRatesGuess[i++] = 0.01;
@@ -408,7 +398,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (_calculationType.equals(PRESENT_VALUE_STRING)) {
           marketValues[i] = 0;
         } else {
-          marketValues[i] = getNormalizedData(strip, marketValue);
+          marketValues[i] = marketValue;
         }
         derivatives.add(derivative);
         initialRatesGuess[i] = 0.01;
