@@ -615,6 +615,9 @@ CREATE TABLE sec_swap (
     pay_rateidentifierscheme varchar(255),
     pay_rateidentifierid varchar(255),
     pay_floating_rate_type varchar(32),
+    pay_settlement_days INTEGER,
+    pay_gearing DOUBLE precision,
+    pay_offset_fixing_id bigint,
     receive_legtype varchar(32) NOT NULL,
     receive_daycount_id bigint NOT NULL,
     receive_frequency_id bigint NOT NULL,
@@ -632,8 +635,15 @@ CREATE TABLE sec_swap (
     receive_rateidentifierscheme varchar(255),
     receive_rateidentifierid varchar(255),
     receive_floating_rate_type varchar(32),
+    receive_settlement_days INTEGER,
+    receive_gearing DOUBLE precision,
+    receive_offset_fixing_id bigint,
     PRIMARY KEY (id),
-    CONSTRAINT sec_fk_swap2sec FOREIGN KEY (security_id) REFERENCES sec_security (id)
+    CONSTRAINT sec_fk_swap2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+    CONSTRAINT sec_fk_payfreq2frequency FOREIGN KEY (pay_frequency_id) REFERENCES sec_frequency (id),
+    CONSTRAINT sec_fk_receivefreq2frequency FOREIGN KEY (receive_frequency_id) REFERENCES sec_frequency (id),
+    CONSTRAINT sec_fk_payoffset2frequency FOREIGN KEY (pay_offset_fixing_id) REFERENCES sec_frequency (id),
+    CONSTRAINT sec_fk_recvoffset2frequency FOREIGN KEY (receive_offset_fixing_id) REFERENCES sec_frequency (id)
 );
 CREATE INDEX ix_sec_swap_security_id ON sec_swap(security_id);
 
