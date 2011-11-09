@@ -198,7 +198,7 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
           ValueRequirement requirement = new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), identifier);
           if (inputs.getValue(requirement) != null) {
             final Double futurePrice = (Double) inputs.getValue(requirement);
-            futurePriceValues.put(t, getRate(futurePrice));
+            futurePriceValues.put(t, futurePrice);
           }
           for (final Object y : _volSurfaceDefinition.getYs()) {
             final Double yNum = (Double) y;
@@ -207,7 +207,7 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
             requirement = new ValueRequirement(volSurfaceProvider.getDataFieldName(), identifier);
             if (inputs.getValue(requirement) != null) {
               final Double volatility = (Double) inputs.getValue(requirement);
-              final double k = getRate(yNum);
+              final double k = yNum;
               ts.add(t);
               ks.add(k);
               volatilityValues.put(Pair.of(t, k), volatility / 100);
@@ -242,10 +242,6 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
         final LocalDate thirdWednesday = plusMonths.with(NEXT_EXPIRY_ADJUSTER);
         final LocalDate previousMonday = thirdWednesday.minusDays(2); //TODO this should take a calendar and do two business days and also use a convention for the number of days
         return DateUtils.getDaysBetween(today, previousMonday) / 365.; //TODO or use daycount?
-      }
-
-      private double getRate(final double quote) {
-        return quote / 100.;
       }
     };
   }

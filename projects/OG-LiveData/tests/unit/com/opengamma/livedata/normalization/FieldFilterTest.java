@@ -34,7 +34,7 @@ public class FieldFilterTest {
     msg.add("Bar", 2.0);
     msg.add("Baz", 500);
     
-    MutableFudgeMsg normalized = filter.apply(msg, new FieldHistoryStore());
+    MutableFudgeMsg normalized = filter.apply(msg, "123", new FieldHistoryStore());
     assertEquals("1", normalized.getString("Foo"));
     assertEquals(2.0, normalized.getDouble("Bar"), 0.0001);
     assertNull(normalized.getByName("Baz"));
@@ -50,7 +50,7 @@ public class FieldFilterTest {
     MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add("Foo2", "1");
     
-    MutableFudgeMsg normalized = filter.apply(msg, new FieldHistoryStore());
+    MutableFudgeMsg normalized = filter.apply(msg, "123", new FieldHistoryStore());
     assertNull(normalized);
   }
   
@@ -62,7 +62,7 @@ public class FieldFilterTest {
     MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add("Foo", "1");
     
-    MutableFudgeMsg normalized = filter.apply(msg, new FieldHistoryStore());
+    MutableFudgeMsg normalized = filter.apply(msg, "123", new FieldHistoryStore());
     assertNull(normalized);
   }
   

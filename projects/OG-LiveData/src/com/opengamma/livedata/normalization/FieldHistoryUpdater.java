@@ -11,18 +11,11 @@ import com.opengamma.livedata.server.FieldHistoryStore;
 
 /**
  * Stores the current state of the message normalization pipeline in the history store.
- * Depending on where in the chain of normalization rules this
- * rule is inserted, the message stored in the history could
- * either be completely unnormalized, partially normalized,
- * or fully normalized.   
- *
- * @author pietari
  */
 public class FieldHistoryUpdater implements NormalizationRule {
 
   @Override
-  public MutableFudgeMsg apply(MutableFudgeMsg msg,
-      FieldHistoryStore fieldHistory) {
+  public MutableFudgeMsg apply(MutableFudgeMsg msg, String securityUniqueId, FieldHistoryStore fieldHistory) {
     fieldHistory.liveDataReceived(msg);
     return msg;
   }
