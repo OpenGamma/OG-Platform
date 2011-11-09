@@ -22,6 +22,10 @@ public class CompressedSparseRowFormatMatrixTest {
   int[] expectedRowPtr = {0,2,4,6,7};
   int[] expectedColIdx = {0,1,0,2,1,2,2};
 
+  int [] tupleX = {0,1,0,2,1,2,2};
+  int [] tupleY = {0,0,1,1,2,2,3};
+  double [] tupleV = {1,2,3,4,5,6,7};
+
 //Test constructors
 @Test
 public void testConstructorFromDoubleMatrix2D() {
@@ -44,6 +48,23 @@ public void testConstructorSparseCoordinateFormat() {
 @Test
 public void testConstructorDoubleArrays() {
   CompressedSparseRowFormatMatrix M = new CompressedSparseRowFormatMatrix(data);
+  assertTrue(Arrays.equals(expectedRowPtr,M.getRowPtr()));
+  assertTrue(Arrays.equals(expectedColIdx,M.getColumnIndex()));
+  assertTrue(Arrays.equals(expectedData,M.getNonZeroElements()));
+}
+
+
+@Test
+public void testConstructorTupleComputedDimension(){
+  CompressedSparseRowFormatMatrix M = new CompressedSparseRowFormatMatrix(tupleX, tupleY, tupleV);
+  assertTrue(Arrays.equals(expectedRowPtr,M.getRowPtr()));
+  assertTrue(Arrays.equals(expectedColIdx,M.getColumnIndex()));
+  assertTrue(Arrays.equals(expectedData,M.getNonZeroElements()));
+}
+
+@Test
+public void testConstructorTupleGivenDimension(){
+  CompressedSparseRowFormatMatrix M = new CompressedSparseRowFormatMatrix(tupleX, tupleY, tupleV, 4, 4);
   assertTrue(Arrays.equals(expectedRowPtr,M.getRowPtr()));
   assertTrue(Arrays.equals(expectedColIdx,M.getColumnIndex()));
   assertTrue(Arrays.equals(expectedData,M.getNonZeroElements()));

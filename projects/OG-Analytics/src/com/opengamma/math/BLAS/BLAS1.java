@@ -8,6 +8,8 @@ package com.opengamma.math.BLAS;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.matrix.DoubleMatrix1D;
 
 /**
@@ -343,12 +345,13 @@ public class BLAS1 {
   /** Stateless versions */
 
   /**
-   * DAXPY: returns:=alpha*x
+   * DSCAL: returns:=alpha*x
    * @param alpha double
    * @param x a double[] vector
    * @return tmp a double[] vector
    */
   public static double[] dscal(double alpha, double[] x) {
+    Validate.notNull(x);
     final int n = x.length;
     double[] tmp = new double[n];
     final int extra = n - n % 16;
@@ -380,7 +383,7 @@ public class BLAS1 {
   }
 
   /**
-   * DAXPY: returns:=alpha*x
+   * DSCAL: returns:=alpha*x
    * @param alpha double
    * @param x a DoubleMatrix1D vector
    * @return a double[] vector
@@ -397,6 +400,7 @@ public class BLAS1 {
    * @param x a double[] vector
    */
   public static void dscalInplace(double alpha, double[] x) {
+    Validate.notNull(x);
     final int n = x.length;
     final int extra = n - n % 16;
     final int ub = ((n / 16) * 16) - 1;
@@ -426,7 +430,7 @@ public class BLAS1 {
   }
 
   /**
-   * DAXPY: x:=alpha*x
+   * DSCAL: x:=alpha*x
    * @param alpha double
    * @param x a DoubleMatrix1D vector
    */
@@ -434,6 +438,112 @@ public class BLAS1 {
     dscalInplace(alpha, x.getData());
   }
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////// DSWAP /////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * DSWAP performs the following vector operation
+   *
+   *  x <--> y
+   *
+   *  x and y are vectors.
+   *
+   */
+
+  /**
+   * DSWAP: x <--> y
+   * @param x a double vector
+   * @param y a double vector
+   */
+  public static void dswapInplace(double[] x, double[] y) {
+    Validate.notNull(x);
+    Validate.notNull(y);
+    Validate.isTrue(x.length == y.length);
+    final int n = x.length;
+    double[] tmp = new double[n];
+    System.arraycopy(x, 0, tmp, 0, n);
+    System.arraycopy(y, 0, x, 0, n);
+    System.arraycopy(tmp, 0, y, 0, n);
+  }
+
+  /**
+   * DSWAP: x <--> y
+   * @param x a DoubleMatrix1D vector
+   * @param y a double vector
+   */
+  public static void dswapInplace(DoubleMatrix1D x, double[] y) {
+    dswapInplace(x.getData(), y);
+  }
+
+  /**
+   * DSWAP: x <--> y
+   * @param x a double vector
+   * @param y a DoubleMatrix1D vector
+   */
+  public static void dswapInplace(double[] x, DoubleMatrix1D y) {
+    dswapInplace(x, y.getData());
+  }
+
+  /**
+   * DSWAP: x <--> y
+   * @param x a DoubleMatrix1D vector
+   * @param y a DoubleMatrix1D vector
+   */
+  public static void dswapInplace(DoubleMatrix1D x, DoubleMatrix1D y) {
+    dswapInplace(x.getData(), y.getData());
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////// DCOPY /////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  /**
+   * DCOPY performs the following vector operation
+   *
+   *  x <-- y
+   *
+   *  x and y are vectors.
+   *
+   */
+
+  /**
+   * DCOPY: x <-- y
+   * @param x a vector
+   * @param y a vector
+   */
+  public static void dcopyInplace(double[] x, double[] y) {
+    Validate.notNull(x);
+    Validate.notNull(y);
+    Validate.isTrue(x.length == y.length);
+    System.arraycopy(y, 0, x, 0, x.length);
+  }
+
+  /**
+   * DCOPY: x <-- y
+   * @param x a DoubleMatrix1D
+   * @param y a vector
+   */
+  public static void dcopyInplace(DoubleMatrix1D x, double[] y) {
+    dcopyInplace(x.getData(), y);
+  }
+
+  /**
+   * DCOPY: x <-- y
+   * @param x a vector
+   * @param y a DoubleMatrix1D
+   */
+  public static void dcopyInplace(double[] x, DoubleMatrix1D y) {
+    dcopyInplace(x, y.getData());
+  }
+
+  /**
+   * DCOPY: x <-- y
+   * @param x a DoubleMatrix1D
+   * @param y a DoubleMatrix1D
+   */
+  public static void dcopyInplace(DoubleMatrix1D x, DoubleMatrix1D y) {
+    dcopyInplace(x.getData(), y.getData());
+  }
 
 } // class end
 

@@ -12,7 +12,6 @@ import java.util.Arrays;
 import org.testng.annotations.Test;
 
 import com.opengamma.math.matrix.CompressedSparseRowFormatMatrix;
-import com.opengamma.math.matrix.DenseMatrix;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 
 /**
@@ -51,13 +50,6 @@ public class BLAS2DGEMVCSRMatrixTest {
   double [] x1 = {2};
   double [] y1 = {10};
 
-  // sparse
-  double[][]sparseA4by4 = {{1,2,0,0},{3,0,4,0},{0,5,6,0},{0,0,7,0}};
-  double[][]sparseA5by4 = {{1,2,0,0},{3,0,4,0},{0,5,6,0},{0,0,7,0},{8,0,0,9}};
-  double[][]sparseA4by5 = {{1,2,0,0,0},{0,3,0,4,0},{0,5,6,0,0},{0,0,0,7,0}};
-  double[][]sparseA7by7 = {{1,2,0,0,0,0,0},{3,0,4,0,0,0,0},{0,5,6,0,0,0,0},{0,0,7,0,0,0,0},{0,0,0,8,0,9,10},{0,11,0,0,12,0,13},{0,0,0,0,14,0,0}};
-  double[] x7 = {1,2,3,4,5,6,7};
-
   // the scalings
   double alpha = 7.0;
   double beta = -3.0;
@@ -73,13 +65,11 @@ public class BLAS2DGEMVCSRMatrixTest {
   double [] y19 = {10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190};
 
   // casts to objects for tests
-  DenseMatrix aMatrix5by5 = new DenseMatrix(A5by5);
-  DenseMatrix aMatrix5by4 = new DenseMatrix(A5by4);
-  DenseMatrix aMatrix4by5 = new DenseMatrix(A4by5);
-  DenseMatrix aMatrix1by1 = new DenseMatrix(A1by1);
-  DenseMatrix aMatrix19by17 = new DenseMatrix(A19by17);
-  CompressedSparseRowFormatMatrix csraMatrix4by4 = new CompressedSparseRowFormatMatrix(sparseA4by4);
-  CompressedSparseRowFormatMatrix csrLargeaMatrix7by7 = new CompressedSparseRowFormatMatrix(sparseA7by7);
+  CompressedSparseRowFormatMatrix aMatrix5by5 = new CompressedSparseRowFormatMatrix(A5by5);
+  CompressedSparseRowFormatMatrix aMatrix5by4 = new CompressedSparseRowFormatMatrix(A5by4);
+  CompressedSparseRowFormatMatrix aMatrix4by5 = new CompressedSparseRowFormatMatrix(A4by5);
+  CompressedSparseRowFormatMatrix aMatrix1by1 = new CompressedSparseRowFormatMatrix(A1by1);
+  CompressedSparseRowFormatMatrix aMatrix19by17 = new CompressedSparseRowFormatMatrix(A19by17);
 
   // Answers to Full matrix DGEMV's
   //5x5's
@@ -160,7 +150,7 @@ public class BLAS2DGEMVCSRMatrixTest {
   /* Normal 2 inputs */
 @Test(expectedExceptions = AssertionError.class)
 public void testInputCatcherMatrix() {
-  DenseMatrix NullMat = null;
+  CompressedSparseRowFormatMatrix NullMat = null;
   BLAS2.dgemvInputSanityChecker(NullMat, x5);
 }
 
@@ -178,7 +168,7 @@ public void testInputCatcherSizeWillNotCommute() {
 /* Normal 3 inputs */
 @Test(expectedExceptions = AssertionError.class)
 public void testInputCatcherMatrix3inputs() {
-  DenseMatrix NullMat = null;
+  CompressedSparseRowFormatMatrix NullMat = null;
   BLAS2.dgemvInputSanityChecker(NullMat, x4, y5);
 }
 
@@ -207,7 +197,7 @@ public void testInputCatcherSizeWillNotCommuteWithReturnVector() {
 /* Transpose 2 inputs */
 @Test(expectedExceptions = AssertionError.class)
 public void testTransposeInputCatcherMatrix() {
-  DenseMatrix NullMat = null;
+  CompressedSparseRowFormatMatrix NullMat = null;
   BLAS2.dgemvInputSanityCheckerTransposed(NullMat, x5);
 }
 
@@ -225,7 +215,7 @@ public void testTransposeInputCatcherSizeWillNotCommute() {
 /* Transpose 3 inputs */
 @Test(expectedExceptions = AssertionError.class)
 public void testTransposeInputCatcherMatrix3inputs() {
-  DenseMatrix NullMat = null;
+  CompressedSparseRowFormatMatrix NullMat = null;
   BLAS2.dgemvInputSanityCheckerTransposed(NullMat, x4, y5);
 }
 
@@ -4667,4 +4657,4 @@ BLAS2.dgemvInPlaceTransposed(tmp,alpha,aMatrix19by17,beta,new DoubleMatrix1D(x19
 assertTrue(Arrays.equals(tmp.getData(),tmp_alpha_times_A19x17T_times_x19_plus_beta_times_y17));
 }
 
-}//class end
+}

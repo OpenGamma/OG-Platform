@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.ParallelArrayBinarySort;
+import com.opengamma.math.utilities.Max;
 
 /**
  * Converts, or instantiates, a matrix to Compressed Sparse Row format (CSR). CSR is a near optimal method of storing sparse matrix data.
@@ -130,51 +130,20 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
    * @param y y-coordinates of data points
    * @param values value of data points
    */
-  public CompressedSparseRowFormatMatrix(double[] x, double[] y, double[] values) {
-    Validate.notNull(x);
-    Validate.notNull(y);
-    Validate.notNull(values);
-    assert (x.length == y.length);
-    assert (x.length == values.length);
-    _els = x.length;
-    int[] rowPtrTmp = new int[_els > 1 ? _els : 2];
-    int localmaxEntriesInARow;
-    _maxEntriesInARow = -1; // set max entries in a row negative, so that maximiser will work
-    int ptr = 0;
+  public CompressedSparseRowFormatMatrix(int[] x, int[] y, double[] values) {
+    this(new SparseCoordinateFormatMatrix(x, y, values, (Max.value(y) + 1), (Max.value(x) + 1)));
+  }
 
-    double[] xtmp = Arrays.copyOf(x, x.length);
-    double[] idx = new double[x.length];
-    for (int i = 0; i < x.length; i++) {
-      idx[i] = i;
-    }
-
-    ParallelArrayBinarySort.parallelBinarySort(x, idx);
-
-    double[] idxI = new double[x.length];
-    for (int i = 0; i < x.length; i++) {
-      idx[i] = i;
-    }
-    int i;
-    for (i = 0; i < m.getNumberOfRows(); i++) {
-      rowPtrTmp[i] = ptr;
-      localmaxEntriesInARow = 0;
-      for (int j = 0; j < m.getNumberOfColumns(); j++) {
-        if (Double.doubleToLongBits(m.getEntry(i, j)) != 0L) {
-          localmaxEntriesInARow++;
-          ptr++;
-        }
-      }
-      if (localmaxEntriesInARow > _maxEntriesInARow) { // is the number of entries on this row the largest?
-        _maxEntriesInARow = localmaxEntriesInARow;
-      }
-    }
-    rowPtrTmp[i] = ptr;
-    _values = Arrays.copyOfRange(m.getNonZeroEntries(), 0, ptr);
-    _colIdx = Arrays.copyOfRange(m.getColumnCoordinates(), 0, ptr);
-    _rowPtr = Arrays.copyOfRange(rowPtrTmp, 0, i + 1); // yes, the +1 is correct!
-    _rows = m.getNumberOfRows();
-    _cols = m.getNumberOfColumns();
-
+  /**
+   * Construct from SparseCoordinateFormatMatrix type
+   * @param x x-coordinates of data points
+   * @param y y-coordinates of data points
+   * @param values value of data points
+   * @param m the number of rows the CSR matrix should have
+   * @param n the number of columns the CSR matrix should have
+   */
+  public CompressedSparseRowFormatMatrix(int[] x, int[] y, double[] values, int m, int n) {
+    this(new SparseCoordinateFormatMatrix(x, y, values, m, n));
   }
 
   /* methods */
