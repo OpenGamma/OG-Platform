@@ -81,7 +81,7 @@ public class InMemoryViewDefinitionRepository implements ManageableViewDefinitio
       // Release read lock
       _rwl.readLock().unlock();    
 
-      return getDefinition(matchingUniqueIds.last());
+      return _definitionsByUniqueId.get(matchingUniqueIds.last()); //getDefinition(matchingUniqueIds.last());
     } else {
       // Release read lock
       _rwl.readLock().unlock();    
