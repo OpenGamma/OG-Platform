@@ -80,7 +80,7 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
   public HistoricalTimeSeries getHistoricalTimeSeries(
       ExternalIdBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
     ArgumentChecker.notNull(identifiers, "identifiers");
-    HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, identifierValidityDate, identifiers, dataSource, dataProvider, dataField);
+    HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, null, identifiers, dataSource, dataProvider, dataField);
     UniqueId uniqueId = _metaUniqueIdStore.get(key);
     if (uniqueId == null) {
       return null;

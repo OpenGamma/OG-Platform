@@ -38,7 +38,7 @@ public class CholeskyDecompositionCommonsTest {
     checkEquals(A, a);
   }
 
-  private void checkEquals(final DoubleMatrix2D x, final DoubleMatrix2D y) {
+  public void checkEquals(final DoubleMatrix2D x, final DoubleMatrix2D y) {
     final int n = x.getNumberOfRows();
     final int m = x.getNumberOfColumns();
     assertEquals(n, y.getNumberOfRows());

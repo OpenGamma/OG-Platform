@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.interestrate.payments.method;
 
-import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -47,13 +47,13 @@ public class CouponCMSSABRReplicationMethod {
 
   /**
    * Compute the price of a CMS coupon by replication in SABR framework. 
+   * The CMS coupon is priced as a cap with strike 0.0. The strike 0.0 is used as the rates are always >=0.0 in SABR.
    * @param cmsCoupon The CMS coupon.
    * @param sabrData The SABR and curve data.
    * @return The coupon price.
    */
   public double presentValue(final CouponCMS cmsCoupon, final SABRInterestRateDataBundle sabrData) {
     final CapFloorCMS cap0 = CapFloorCMS.from(cmsCoupon, 0.0, true);
-    // A CMS coupon is priced as a cap with strike 0.
     final CapFloorCMSSABRReplicationMethod method = new CapFloorCMSSABRReplicationMethod(_integrationInterval);
     final double priceCMSCoupon = method.presentValue(cap0, sabrData).getAmount();
     return priceCMSCoupon;

@@ -22,7 +22,6 @@ import com.opengamma.language.error.InvokeInvalidArgumentException;
 import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
-import com.opengamma.util.money.Currency;
 
 /**
  * Updates a "volatility cube" component of a snapshot
@@ -35,6 +34,10 @@ public class SetSnapshotVolatilityCubeFunction extends AbstractFunctionInvoker i
   public static final SetSnapshotVolatilityCubeFunction INSTANCE = new SetSnapshotVolatilityCubeFunction();
 
   private final MetaFunction _meta;
+
+  private static final int SNAPSHOT = 0;
+  private static final int NAME = 1;
+  private static final int CUBE = 2;
 
   private static List<MetaParameter> parameters() {
     return Arrays.asList(
@@ -53,15 +56,12 @@ public class SetSnapshotVolatilityCubeFunction extends AbstractFunctionInvoker i
   }
 
   public static ManageableMarketDataSnapshot invoke(final ManageableMarketDataSnapshot snapshot, final String name, final VolatilityCubeSnapshot cube) {
-    final int underscore = name.indexOf('_');
-    if (underscore <= 0) {
-      throw new InvokeInvalidArgumentException(1, "Invalid cube name");
-    }
-    final String cubeCurrency = name.substring(0, underscore);
-    final String cubeName = name.substring(underscore + 1);
-    final VolatilityCubeKey key = new VolatilityCubeKey(Currency.of(cubeCurrency), cubeName);
     if (snapshot.getVolatilityCubes() == null) {
       snapshot.setVolatilityCubes(new HashMap<VolatilityCubeKey, VolatilityCubeSnapshot>());
+    }
+    final VolatilityCubeKey key = StructuredMarketDataSnapshotUtil.toVolatilityCubeKey(name);
+    if (key == null) {
+      throw new InvokeInvalidArgumentException(NAME, "Invalid cube name");
     }
     if (cube != null) {
       snapshot.getVolatilityCubes().put(key, cube);
@@ -75,7 +75,7 @@ public class SetSnapshotVolatilityCubeFunction extends AbstractFunctionInvoker i
 
   @Override
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
-    return invoke((ManageableMarketDataSnapshot) parameters[0], (String) parameters[1], (VolatilityCubeSnapshot) parameters[2]);
+    return invoke((ManageableMarketDataSnapshot) parameters[SNAPSHOT], (String) parameters[NAME], (VolatilityCubeSnapshot) parameters[CUBE]);
   }
 
   // PublishedFunction

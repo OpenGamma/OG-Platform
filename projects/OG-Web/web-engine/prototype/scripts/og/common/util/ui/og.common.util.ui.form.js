@@ -186,7 +186,7 @@ $.register_module({
             DBL: 'double',
             IND: 'indicator',
             SHR: 'short',
-            STR: 'string',
+            STR: 'string'
         };
         [Form.type.BYT, Form.type.DBL, Form.type.SHR].forEach(function (val, idx) {numbers[val] = null;});
         return Form;

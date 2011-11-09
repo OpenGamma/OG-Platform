@@ -7,7 +7,7 @@ dist/
 doc/
 generated/
 ivy/
-lib/
+/lib/
 temp/
 tests/classes/
 tests/output/

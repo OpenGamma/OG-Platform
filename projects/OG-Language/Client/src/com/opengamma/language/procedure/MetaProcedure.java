@@ -34,14 +34,15 @@ public class MetaProcedure extends Definition {
     throw new NotSerializableException();
   }
 
-  public MetaProcedure(final String name, final List<? extends Parameter> parameters, final ProcedureInvoker invoker) {
+  public MetaProcedure(final String category, final String name, final List<? extends Parameter> parameters, final ProcedureInvoker invoker) {
     super(name);
+    setCategory(category);
     setParameter(parameters);
     _invoker = invoker;
   }
 
-  public MetaProcedure(final String name, final List<? extends Parameter> parameters, final ProcedureInvoker invoker, final int returnCount) {
-    this(name, parameters, invoker);
+  public MetaProcedure(final String category, final String name, final List<? extends Parameter> parameters, final ProcedureInvoker invoker, final int returnCount) {
+    this(category, name, parameters, invoker);
     setReturnCount(returnCount);
   }
 

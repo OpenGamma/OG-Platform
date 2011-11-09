@@ -49,9 +49,9 @@ public class LiveMarketDataProviderTest {
     
     TestLiveDataClient client = new TestLiveDataClient();
     FixedMarketDataAvailabilityProvider availabilityProvider = new FixedMarketDataAvailabilityProvider();
-    availabilityProvider.addRequirement(test1Requirement);
-    availabilityProvider.addRequirement(test2Requirement);
-    availabilityProvider.addRequirement(test3Requirement);
+    availabilityProvider.addAvailableRequirement(test1Requirement);
+    availabilityProvider.addAvailableRequirement(test2Requirement);
+    availabilityProvider.addAvailableRequirement(test3Requirement);
     LiveMarketDataProvider provider = new LiveMarketDataProvider(client, new MockSecuritySource(), availabilityProvider);
     
     provider.subscribe(TEST_USER, test1Requirement);

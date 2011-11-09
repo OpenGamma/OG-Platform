@@ -35,7 +35,7 @@ $.register_module({
                     [['strip', INDX, NUMF].join('.'),       Form.type.BYT],
                     [['strip', INDX, 'tenor'].join('.'),    Form.type.STR],
                     [['strip', INDX, 'type'].join('.'),     Form.type.STR],
-                    ['uniqueId',                            Form.type.STR],
+                    ['uniqueId',                            Form.type.STR]
                 ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {}),
                 form = new Form({
                     module: 'og.views.forms.yield-curve-definition',
