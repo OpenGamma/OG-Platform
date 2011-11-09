@@ -131,10 +131,10 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.mongodb/java-driver/jars/mongo-2.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.scannotation/scannotation/jars/scannotation-1.0.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.hsqldb/hsqldb/jars/hsqldb-2.2.5.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-beans/jars/joda-beans-0.4.5.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-convert/jars/joda-convert-1.1.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.postgresql/postgresql-jdbc/jars/postgresql-jdbc4-9.1-901.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.postgresql/postgresql-jdbc/jars/postgresql-jdbc3-9.1-901.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-beans/jars/joda-beans-0.5.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-convert/jars/joda-convert-1.2.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-lang/javadocs/commons-lang-docs-2.4.jar!/" />
@@ -159,8 +159,8 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.ehcache/ehcache/javadocs/ehcache-javadoc-1.6.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.mockito/mockito/javadocs/javadoc-1.6.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/it.unimi.dsi/fastutil/javadocs/fastutil-javadoc-6.3.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-beans/javadocs/joda-beans-javadoc-0.4.5.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-convert/javadocs/joda-convert-javadoc-1.1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-beans/javadocs/joda-beans-javadoc-0.5.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-convert/javadocs/joda-convert-javadoc-1.2.jar!/" />
         </JAVADOC>
         <SOURCES>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-lang/sources/commons-lang-src-2.4.jar!/" />
@@ -224,9 +224,9 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/it.unimi.dsi/fastutil/sources/fastutil-src-6.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.mongodb/java-driver/sources/mongo-src-2.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.hsqldb/hsqldb/sources/hsqldb-src-2.2.5.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-beans/sources/joda-beans-sources-0.4.5.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-convert/sources/joda-convert-sources-1.1.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.postgresql/postgresql-jdbc/sources/postgresql-9.1-901.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-beans/sources/joda-beans-sources-0.5.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-convert/sources/joda-convert-sources-1.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
