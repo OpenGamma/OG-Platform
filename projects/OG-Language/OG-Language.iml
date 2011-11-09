@@ -26,10 +26,11 @@
       <sourceFolder url="file://$MODULE_DIR$/Client/tests/unit" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/config" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
+      <excludeFolder url="file://$MODULE_DIR$/dist" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />
-    <orderEntry type="module" module-name="OG-Financial" />
+    <orderEntry type="module" module-name="OG-Financial" exported="" />
     <orderEntry type="module-library">
       <library name="config">
         <CLASSES>
@@ -39,7 +40,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library name="IvyIDEA-OG-Language-default">
         <CLASSES>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.thoughtworks.paranamer/paranamer/jars/paranamer-2.3.jar!/" />
