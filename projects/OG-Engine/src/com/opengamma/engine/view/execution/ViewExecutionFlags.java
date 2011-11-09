@@ -52,6 +52,6 @@ public enum ViewExecutionFlags {
   /**
    * Indicates that the results should be stored in batch database.
    */
-  BATCH;
+  BATCH
     
 }
