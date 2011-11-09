@@ -48,6 +48,9 @@
         <property name="scheme" type="string" column="pay_rateidentifierscheme" />
         <property name="identifier" type="string" column="pay_rateidentifierid" />
       </component>
+      <property name="settlementDays" type="integer" column="pay_settlement_days" />
+      <property name="gearing" type="double" column="pay_gearing" />
+      <many-to-one name="offsetFixing" class="com.opengamma.masterdb.security.hibernate.FrequencyBean" column="pay_offset_fixing_id" />
     </component>
     <component name="receiveLeg" class="SwapLegBean">
       <property name="swapLegType" type="com.opengamma.masterdb.security.hibernate.swap.SwapLegTypeUserType" column="receive_legtype" not-null="true" />
@@ -75,6 +78,9 @@
         <property name="scheme" type="string" column="receive_rateidentifierscheme" />
         <property name="identifier" type="string" column="receive_rateidentifierid" />
       </component>
+      <property name="settlementDays" type="integer" column="receive_settlement_days" />
+      <property name="gearing" type="double" column="receive_gearing" />
+      <many-to-one name="offsetFixing" class="com.opengamma.masterdb.security.hibernate.FrequencyBean" column="receive_offset_fixing_id" />
     </component>
   </union-subclass>
 
