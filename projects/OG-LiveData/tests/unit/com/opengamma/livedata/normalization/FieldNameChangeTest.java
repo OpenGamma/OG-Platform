@@ -28,7 +28,7 @@ public class FieldNameChangeTest {
     msg.add("Bar", 2.0);
     msg.add("Baz", 500);
     
-    MutableFudgeMsg normalized = nameChange.apply(msg, new FieldHistoryStore());
+    MutableFudgeMsg normalized = nameChange.apply(msg, "123", new FieldHistoryStore());
     assertEquals(3, normalized.getAllFields().size());
     assertNull(normalized.getByName("Foo"));
     assertEquals(2.0, (Double) normalized.getAllByName("Bar").get(0).getValue(), 0.0001);

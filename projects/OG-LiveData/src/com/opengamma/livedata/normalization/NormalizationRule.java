@@ -8,33 +8,24 @@ package com.opengamma.livedata.normalization;
 import org.fudgemsg.MutableFudgeMsg;
 
 import com.opengamma.livedata.server.FieldHistoryStore;
-import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 
 /**
- * A normalization rule.  
+ * A normalization rule.
+ * <p>
+ * Depending on where in the chain of normalization rules this rule is inserted, the incoming message could be
+ * completely unnormalized, partially normalized, or fully normalized.
  */
 public interface NormalizationRule {
   
   /**
-   * Applies the normalization rule. 
+   * Applies the normalization rule. This method may modify and return the input argument {@code msg}. A null result
+   * is valid and means that the message should not be sent to the client at all.
    * 
-   * @param msg message to normalize. Will already be partially normalized if
-   * this rule is not the first one in the chain. Not null.
-   * @param fieldHistory what is contained in this history
-   * is completely up to the normalization rule(s) applied
-   * by {@code MarketDataDistributor}. For example, one of the
-   * rules may be {@link FieldHistoryUpdater}, which would populate
-   * the store with the current state of the message normalization pipeline. 
-   * There is a separate history store for each {@link MarketDataDistributor},
-   * so you can safely assume histories for different distributors
-   * will not interact. Not null. 
-   * @return the normalized message. The method may modify and 
-   * return the input parameter <code>msg</code> if desired. 
-   * Null is a valid return value and means that the message should
-   * not be sent to the client at all.
+   * @param msg  the message to normalize, not null
+   * @param securityUniqueId  the data provider's unique ID of the security, not null
+   * @param fieldHistory  the distributor-specific field history which the rule may choose to update, not null 
+   * @return the normalized message, or null to prevent the message from being sent to the client
    */
-  MutableFudgeMsg apply(
-      MutableFudgeMsg msg,
-      FieldHistoryStore fieldHistory);
+  MutableFudgeMsg apply(MutableFudgeMsg msg, String securityUniqueId, FieldHistoryStore fieldHistory);
 
 }
