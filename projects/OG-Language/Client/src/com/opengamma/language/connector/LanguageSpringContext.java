@@ -13,7 +13,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -43,7 +42,6 @@ public class LanguageSpringContext {
 
   private static final String CLIENT_FACTORY_CLASS_PROPERTY = "language.client.factory";
   private static final String CLIENT_FACTORY_METHOD = "getFactory";
-  private static final String SYSTEM_SETTINGS = "SystemSettings";
   private static final String SESSION_CONTEXT_FACTORY = "SessionContextFactory";
   private static final String CLIENT_CONTEXT_FACTORY = "ClientContextFactory";
 
@@ -58,8 +56,7 @@ public class LanguageSpringContext {
 
   public LanguageSpringContext() {
     _springContext = createSpringContext();
-    Properties systemSettings = getBean(StringUtils.uncapitalize(SYSTEM_SETTINGS), Properties.class);
-    String clientFactoryClassName = systemSettings.getProperty(CLIENT_FACTORY_CLASS_PROPERTY);
+    final String clientFactoryClassName = System.getProperty(CLIENT_FACTORY_CLASS_PROPERTY);
     if (!StringUtils.isBlank(clientFactoryClassName)) {
       try {
         Class<?> clientFactoryClass = Class.forName(clientFactoryClassName);
@@ -71,7 +68,6 @@ public class LanguageSpringContext {
     } else {
       _clientFactories = ClientFactory.getFactory();
     }
-
     final ClientContextFactory clientContextFactory = getBean(StringUtils.uncapitalize(CLIENT_CONTEXT_FACTORY), ClientContextFactory.class);
     if (clientContextFactory != null) {
       _defaultClientFactory = _clientFactories.createClientFactory(clientContextFactory.createClientContext());

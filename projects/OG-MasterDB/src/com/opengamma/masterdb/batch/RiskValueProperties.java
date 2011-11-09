@@ -101,7 +101,7 @@ public class RiskValueProperties {
           }
           JSONArray values = (JSONArray) property.get("values");
           for (int j = 0; j < values.length(); j++) {
-            String value = (String) values.get(i);
+            String value = (String) values.get(j);
             builder.with(name, value);
           }
         }

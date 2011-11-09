@@ -7,7 +7,6 @@ package com.opengamma.language.context;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 
 import com.opengamma.core.exchange.ExchangeSource;
@@ -142,11 +141,6 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    * Name under which the security source is bound.
    */
   protected static final String SECURITY_SOURCE = "securitySource";
-
-  /**
-   * Name under which the system settings (OpenGamma.properties) are bound. 
-   */
-  protected static final String SYSTEM_SETTINGS = "systemSettings";
 
   /**
    * Name under which a source of type converters is bound.
@@ -346,10 +340,6 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
 
   public SecuritySource getSecuritySource() {
     return getValue(SECURITY_SOURCE);
-  }
-
-  public Properties getSystemSettings() {
-    return getValue(SYSTEM_SETTINGS);
   }
 
   public TypeConverterProvider getTypeConverterProvider() {

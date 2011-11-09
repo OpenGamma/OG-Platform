@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 
+import com.opengamma.engine.view.ViewResultModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -50,6 +51,7 @@ public class RegressionTest {
 
   private final ViewProcessorTestEnvironment _env = new ViewProcessorTestEnvironment();
   private final LinkedBlockingQueue<Object> _results = new LinkedBlockingQueue<Object>();
+  private final LinkedBlockingQueue<Object> _jobResults = new LinkedBlockingQueue<Object>();
 
   private ComputationTarget createDummyTarget() {
     return new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("OpenGamma", "Foo"));
@@ -99,6 +101,12 @@ public class RegressionTest {
       }
 
       @Override
+      public void jobResultReceived(ViewResultModel fullResult, ViewDeltaResultModel deltaResult) {
+        s_logger.info("Job result received");
+        postJobResult(fullResult);
+      }
+
+      @Override
       public void cycleExecutionFailed(final ViewCycleExecutionOptions executionOptions, final Exception exception) {
         s_logger.warn("Cycle execution failed", exception);
         postResult(exception);
@@ -123,6 +131,12 @@ public class RegressionTest {
     s_logger.debug("Post result {}", result);
     _results.add(result);
   }
+
+  private void postJobResult(final Object result) {
+    s_logger.debug("Post job result {}", result);
+    _jobResults.add(result);
+  }
+
 
   private Object getResult() {
     try {

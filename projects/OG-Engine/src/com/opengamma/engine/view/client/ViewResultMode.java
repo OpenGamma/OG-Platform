@@ -28,6 +28,10 @@ public enum ViewResultMode {
   /**
    * Both full and delta results will be propagated to the listener.
    */
-  BOTH
-  
+  BOTH,
+
+  /**
+   * Neither full nor delta results will be propagated to the listener.
+   */
+  NONE
 }

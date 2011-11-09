@@ -21,6 +21,7 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.financial.analytics.MarketDataNormalizationUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
@@ -230,11 +231,11 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   }
 
   private CashSecurity getCash(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<ExternalId, Double> marketValues) {
-    final Double rate = marketValues.get(strip.getSecurity());
+    final Double rate = MarketDataNormalizationUtils.normalizeRateForFixedIncomeStrip(strip.getInstrumentType(), marketValues.get(strip.getSecurity()));
     if (rate == null) {
       throw new OpenGammaRuntimeException("No market data for " + strip.getSecurity());
     }
-    final CashSecurity sec = new CashSecurity(spec.getCurrency(), spec.getRegion(), spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC), rate / 100, 1.0d);
+    final CashSecurity sec = new CashSecurity(spec.getCurrency(), spec.getRegion(), spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC), rate, 1.0d);
     sec.setExternalIdBundle(ExternalIdBundle.of(strip.getSecurity()));
     return sec;
   }
@@ -256,7 +257,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final ExternalId underlyingIdentifier = strip.getSecurity();
     //TODO this normalization should not be done here
     return new FRASecurity(spec.getCurrency(), spec.getRegion(), startDate.atTime(11, 00).atZone(TimeZone.UTC), endDate.atTime(11, 00).atZone(TimeZone.UTC),
-        marketValues.get(strip.getSecurity()) / 100, 1.0d, underlyingIdentifier);
+        MarketDataNormalizationUtils.normalizeRateForFixedIncomeStrip(strip.getInstrumentType(), marketValues.get(strip.getSecurity())), 1.0d, underlyingIdentifier);
   }
 
   private FutureSecurity getFuture(final FixedIncomeStripWithIdentifier strip) {
@@ -292,7 +293,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     if (rate == null) {
       throw new OpenGammaRuntimeException("rate was null on " + strip + " from " + spec);
     }
-    final double fixedRate = rate / 100;
+    final double fixedRate = MarketDataNormalizationUtils.normalizeRateForFixedIncomeStrip(strip.getInstrumentType(), rate);
     // REVIEW: jim 25-Aug-2010 -- we need to change the swap to take settlement days.
     final SwapSecurity swap = new SwapSecurity(tradeDate, effectiveDate, maturityDate, counterparty, new FloatingInterestRateLeg(convention.getSwapFloatingLegDayCount(),
         convention.getSwapFloatingLegFrequency(), convention.getSwapFloatingLegRegion(), convention.getSwapFloatingLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1),
@@ -319,8 +320,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     if (rate == null) {
       throw new OpenGammaRuntimeException("Could not get spread; was trying " + swapIdentifier);
     }
-    final double spread = rate / 10000; //TODO this conversion should not be done here
-    //double fixedRate = rate;
+    final double spread = MarketDataNormalizationUtils.normalizeRateForFixedIncomeStrip(strip.getInstrumentType(), rate); 
     // REVIEW: jim 25-Aug-2010 -- we need to change the swap to take settlement days.
     final SwapSecurity swap = new SwapSecurity(tradeDate, effectiveDate, maturityDate, counterparty, new FloatingInterestRateLeg(convention.getBasisSwapPayFloatingLegDayCount(),
         convention.getBasisSwapPayFloatingLegFrequency(), convention.getBasisSwapPayFloatingLegRegion(), convention.getBasisSwapPayFloatingLegBusinessDayConvention(), new InterestRateNotional(
@@ -337,7 +337,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final ZonedDateTime maturity = spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
     final Currency currency = spec.getCurrency();
     final ExternalId region = spec.getRegion();
-    final CashSecurity cash = new CashSecurity(currency, region, maturity, rate / 100, 1);
+    final CashSecurity cash = new CashSecurity(currency, region, maturity, MarketDataNormalizationUtils.normalizeRateForFixedIncomeStrip(strip.getInstrumentType(), rate), 1);
     cash.setExternalIdBundle(ExternalIdBundle.of(identifier));
     return cash;
   }
@@ -364,7 +364,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     if (rate == null) {
       throw new OpenGammaRuntimeException("rate was null on " + strip + " from " + spec);
     }
-    final double fixedRate = rate / 100;
+    final double fixedRate = MarketDataNormalizationUtils.normalizeRateForFixedIncomeStrip(strip.getInstrumentType(), rate);
     // REVIEW: jim 25-Aug-2010 -- we need to change the swap to take settlement days.
     final SwapSecurity swap = new SwapSecurity(tradeDate, effectiveDate, maturityDate, counterparty, new FloatingInterestRateLeg(convention.getSwapFloatingLegDayCount(),
         convention.getSwapFloatingLegFrequency(), convention.getSwapFloatingLegRegion(), convention.getSwapFloatingLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1),

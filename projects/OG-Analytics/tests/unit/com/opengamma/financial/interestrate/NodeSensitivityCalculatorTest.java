@@ -14,8 +14,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.time.calendar.Period;
+
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -43,6 +52,14 @@ public abstract class NodeSensitivityCalculatorTest {
   protected static final YieldAndDiscountCurve LIBOR_CURVE;
   protected static final Currency CUR = Currency.USD;
 
+  private static final Period TENOR = Period.ofMonths(6);
+  private static final int SETTLEMENT_DAYS = 2;
+  private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
+  private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final boolean IS_EOM = true;
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+
   static {
     final double[] fixedPaymentTimes = new double[] {1, 2, 3, 4, 5};
     final double[] floatingPaymentTimes = new double[] {0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5};
@@ -52,8 +69,7 @@ public abstract class NodeSensitivityCalculatorTest {
     final double[] liborCurveNodes = new double[] {1, 1.5, 1.9, 3., 4.0, 6.0};
     final double[] liborCurveYields = new double[] {0.041, 0.043, 0.048, 0.41, 0.0362, 0.032};
 
-    CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
-        LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
+    CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
 
     FUNDING_CURVE = new YieldCurve(InterpolatedDoublesCurve.fromSorted(fundingCurveNodes, fundingCurveYields, extrapolator));
     extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
@@ -65,7 +81,7 @@ public abstract class NodeSensitivityCalculatorTest {
     INTERPOLATED_CURVES = new YieldCurveBundle(curves);
 
     final double couponRate = 0.07;
-    IRD = new FixedFloatSwap(CUR, fixedPaymentTimes, floatingPaymentTimes, couponRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
+    IRD = new FixedFloatSwap(CUR, fixedPaymentTimes, floatingPaymentTimes, INDEX, couponRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
 
   }
 

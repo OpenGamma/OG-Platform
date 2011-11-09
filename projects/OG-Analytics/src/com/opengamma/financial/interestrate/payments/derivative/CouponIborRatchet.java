@@ -77,7 +77,7 @@ public class CouponIborRatchet extends CouponIbor {
    */
   public CouponIborRatchet(Currency currency, double paymentTime, String discountingCurveName, double paymentYearFraction, double notional, double fixingTime, double fixingPeriodStartTime,
       double fixingPeriodEndTime, double fixingYearFraction, String forwardCurveName, IborIndex index, double[] mainCoefficients, double[] floorCoefficients, double[] capCoefficients) {
-    super(currency, paymentTime, discountingCurveName, paymentYearFraction, notional, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, 0.0, forwardCurveName);
+    super(currency, paymentTime, discountingCurveName, paymentYearFraction, notional, fixingTime, index, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, 0.0, forwardCurveName);
     Validate.notNull(index, "Index");
     Validate.notNull(mainCoefficients, "Main coefficients");
     Validate.notNull(floorCoefficients, "Floor coefficients");

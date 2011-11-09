@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.view.calc.ResultWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -32,7 +33,6 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.InvocationResult;
 import com.opengamma.engine.view.calcnode.MissingInput;
-import com.opengamma.financial.batch.BatchResultWriter;
 import com.opengamma.financial.conversion.ResultConverter;
 import com.opengamma.financial.conversion.ResultConverterCache;
 import com.opengamma.util.ArgumentChecker;
@@ -47,11 +47,11 @@ import com.opengamma.util.db.DbConnector;
  * <p>
  * Because of this, clients of this writer MUST collect
  * all results pertaining to a single computation target together and then call 
- * {@link BatchResultWriter#write(CalculationJobResult, DependencyGraph)}
+ * {@link com.opengamma.engine.view.calc.ResultWriter#write(CalculationJobResult, DependencyGraph)}
  * with the entire set of results for that computation target.
  * <p>
  * A call to
- * {@link BatchResultWriter#write(CalculationJobResult, DependencyGraph)} 
+ * {@link com.opengamma.engine.view.calc.ResultWriter#write(CalculationJobResult, DependencyGraph)}
  * can include results for multiple computation targets, as long as it
  * is still true that results for the <i>same</i> target are not scattered across
  * multiple calls. 
@@ -60,7 +60,7 @@ import com.opengamma.util.db.DbConnector;
  * shows how to guarantee this in practice by using {@link com.opengamma.engine.view.calc.BatchExecutor}.
  *  
  */
-public class CommandLineBatchResultWriter extends AbstractBatchResultWriter implements BatchResultWriter {
+public class CommandLineBatchResultWriter extends AbstractBatchResultWriter implements ResultWriter {
   
   private static final Logger s_logger = LoggerFactory.getLogger(CommandLineBatchResultWriter.class);
   
