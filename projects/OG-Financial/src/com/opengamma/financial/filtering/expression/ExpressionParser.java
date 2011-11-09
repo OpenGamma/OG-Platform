@@ -20,7 +20,10 @@ import com.opengamma.OpenGammaRuntimeException;
 /**
  * Parses a user expression into an AST. User expressions are a VB/Excel style function syntax to allow
  * custom code to be executed within the Java stack. For example portolfio filtering and aggregation.
+ * 
+ * @deprecated Use com.opengamma.financial.expression.UserExpressionParser instead
  */
+@Deprecated
 public final class ExpressionParser {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ExpressionParser.class);

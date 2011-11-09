@@ -7,7 +7,10 @@ package com.opengamma.financial.filtering.expression;
 
 /**
  * AST representation of a user expression.
+ * 
+ * @deprecated Use com.opengamma.financial.expression.UserExpression instead
  */
+@Deprecated
 public abstract class UserExpression {
 
   /* package */UserExpression() {
