@@ -86,7 +86,7 @@ public class MarketDataELCompilerTest {
     securities.addSecurity(sec3);
     final MarketDataELCompiler compiler = new MarketDataELCompiler(securities);
     final OverrideOperation operation = compiler
-        .compile("if (security.type == \"EQUITY\" || security.name == \"Foo\") x * 0.9; if (security.type == \"EQUITY\") x * 1.1; if (security.cow == 42) x * 0");
+        .compile("if (security.type == \"EQUITY\" && security.name == \"Foo\") x * 0.9; if (security.type == \"EQUITY\") x * 1.1; if (security.cow == 42) x * 0");
     assertNotNull(operation);
     // First rule should match
     Object result = operation.apply(new ValueRequirement("Foo", new ComputationTargetSpecification(sec1)), 42d);

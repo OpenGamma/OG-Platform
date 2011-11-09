@@ -48,8 +48,8 @@ public class ELExpressionParser extends UserExpressionParser {
     return _context;
   }
 
-  // TODO: need functions such as "security(...)" that can resolve identifiers using the
-  // security source to allow e.g. if (security(S.underlying).type == "EQUITY") ...
+  // TODO: need functions such as "getSecurity(...)" that can resolve identifiers using the
+  // security source to allow e.g. if (getSecurity(security.underlying).type == "EQUITY") ...
 
   @Override
   public void setConstant(final String name, final Object value) {
@@ -161,7 +161,7 @@ public class ELExpressionParser extends UserExpressionParser {
   private Pair<UserExpression, String> ueParse(final String source) {
     final Matcher m = s_if.matcher(source);
     if (m.find()) {
-      final int openBracket = m.end();
+      final int openBracket = m.end() - 1;
       final int closeBracket = findCloseBracket(source, openBracket + 1);
       if (closeBracket < 0) {
         throw new IllegalArgumentException("No closing bracket for IF construct in " + source);
@@ -179,7 +179,12 @@ public class ELExpressionParser extends UserExpressionParser {
       }
       return Pair.<UserExpression, String>of(new IfExpression(condition, operation), tail);
     } else {
-      return Pair.of(elParse(source), "");
+      final int semiColon = findSemiColon(source, 0);
+      if (semiColon == -1) {
+        return Pair.of(elParse(source), "");
+      } else {
+        return Pair.of(elParse(source.substring(0, semiColon)), source.substring(semiColon + 1));
+      }
     }
   }
 

@@ -48,7 +48,7 @@ public abstract class UserExpression {
     public Object getVariable(final String var) {
       assert var != null;
       if (_variables == null) {
-        return null;
+        return NA;
       }
       final Object result = _variables.get(var);
       if ((result == null) && !_variables.containsKey(var)) {
