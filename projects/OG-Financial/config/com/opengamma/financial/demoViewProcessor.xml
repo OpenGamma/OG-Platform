@@ -323,7 +323,9 @@
       <bean class="com.opengamma.engine.view.permission.DefaultViewPermissionProvider" />
     </property>
     <property name="overrideOperationCompiler">
-      <bean clas="com.opengamma.financial.marketdata.MarketDataHackedExpressionCompiler" />
+      <bean class="com.opengamma.financial.marketdata.MarketDataHackedExpressionCompiler">
+        <constructor-arg ref="combinedSecuritySource" />
+      </bean>
     </property>
   </bean>
   
