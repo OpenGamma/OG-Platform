@@ -378,10 +378,18 @@ import com.opengamma.financial.expression.UserExpression;
       return evaluateTradeIdentifier(identifier, position);
     }
 
+    private static Object nullForNA(final Object v) {
+      if (v == NA) {
+        return null;
+      } else {
+        return v;
+      }
+    }
+
     @Override
     protected Object evaluate(final Evaluator evaluator) {
-      Position position = (Position) evaluator.getVariable("position");
-      NavigablePortfolioNode node = (NavigablePortfolioNode) evaluator.getVariable("node");
+      Position position = (Position) nullForNA(evaluator.getVariable("position"));
+      NavigablePortfolioNode node = (NavigablePortfolioNode) nullForNA(evaluator.getVariable("node"));
       if ("isNode".equals(_text)) {
         return (position == null);
       } else if ("isPosition".equals(_text)) {
