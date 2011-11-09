@@ -31,6 +31,7 @@
     <fragment>/styles/common/og.common.data.editable.css</fragment>
     <fragment>/styles/common/og.common.OG-versions.css</fragment>
     <fragment>/styles/common/og.common.OG-sync.css</fragment>
+    <fragment>/styles/common/og.common.OG-table.css</fragment>
   </bundle>
   <bundle id="common.util.css">
     <fragment>/styles/common/util/og.common.util.OG-clearFix.css</fragment>
@@ -167,6 +168,7 @@
     <fragment>/scripts/lib/jquery/slick_grid/slick.rowselectionmodel.js</fragment>
     <fragment>/scripts/lib/routemap.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.layout.js</fragment>
+    <fragment>/scripts/lib/jquery/jquery.awesometable.js</fragment>
   </bundle>
   <bundle id="api.js">
     <fragment>/scripts/og/common/og.common.core.js</fragment>
@@ -197,7 +199,6 @@
     <fragment>/scripts/og/common/slickgrid/formatters/og.common.slickgrid.formatters.positions.js</fragment>
     <fragment>/scripts/og/common/slickgrid/og.common.slickgrid.manager.js</fragment>
     <fragment>/scripts/og/common/masthead/og.common.masthead.menu.js</fragment>
-    <fragment>/scripts/og/common/details/og.common.details.timeseries_functions.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.region_functions.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.batch_functions.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.favorites.js</fragment>

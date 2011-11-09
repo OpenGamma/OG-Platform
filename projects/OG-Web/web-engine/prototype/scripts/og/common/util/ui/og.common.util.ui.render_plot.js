@@ -28,7 +28,7 @@ $.register_module({
                 tenor = selector + ' .og-tenor',
                 plot_selector = selector + ' .og-plot-header',
                 $legend, panning, hover_pos = null,
-                x_max, y_min, y_max, initial_preset, reset_options,
+                x_max, initial_preset, reset_options,
                 load_plots, empty_plots, update_legend, rescale_yaxis, calculate_y_values, data_points, get_legend;
             $(selector).html('\
               <div class="og-flot-top"></div>\
@@ -177,8 +177,8 @@ $.register_module({
                 });
                 (check_meta = function () { // load empty data points table(s)
                     var diff;
-                    if (!meta) setTimeout(check_meta, 25);
-                    else if (diff = Object.keys(meta[state.field]).length - data_arr.length)
+                    if (!meta) return setTimeout(check_meta, 25);
+                    if (diff = Object.keys(meta[state.field]).length - data_arr.length)
                         while (diff--) $(empty_tmpl).appendTo($template);
                 })();
             };

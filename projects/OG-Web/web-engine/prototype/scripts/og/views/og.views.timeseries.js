@@ -163,8 +163,7 @@ $.register_module({
                 api.rest.timeseries.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        var f = details.timeseries_functions,
-                            json = result.data;
+                        var json = result.data;
                         history.put({
                             name: json.template_data.object_id,
                             item: 'history.timeseries.recent',
