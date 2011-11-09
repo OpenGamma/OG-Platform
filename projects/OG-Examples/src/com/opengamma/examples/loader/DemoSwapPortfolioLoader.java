@@ -266,8 +266,8 @@ public class DemoSwapPortfolioLoader {
     ExternalId floatingReferenceRateIdentifier = ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, floatingReferenceRate);
     double floatingInitialRate = Double.parseDouble(getWithException(swapDetails, FLOATING_LEG_RATE));
     FloatingInterestRateLeg floatingLeg = new FloatingInterestRateLeg(floatingDayCount, floatingFrequency,
-        floatingRegionIdentifier, floatingBusinessDayConvention, floatingNotional, false, floatingReferenceRateIdentifier,
-        floatingInitialRate, 0.0, FloatingRateType.IBOR);
+        floatingRegionIdentifier, floatingBusinessDayConvention, floatingNotional, false, floatingReferenceRateIdentifier, FloatingRateType.IBOR);
+    floatingLeg.setInitialFloatingRate(floatingInitialRate);
     
     LocalDateTime tradeDate = LocalDateTime.of(LocalDate.parse(getWithException(swapDetails, TRADE_DATE), CSV_DATE_FORMATTER), LocalTime.MIDNIGHT);
     LocalDateTime effectiveDate = LocalDateTime.of(LocalDate.parse(getWithException(swapDetails, EFFECTIVE_DATE), CSV_DATE_FORMATTER), LocalTime.MIDNIGHT);

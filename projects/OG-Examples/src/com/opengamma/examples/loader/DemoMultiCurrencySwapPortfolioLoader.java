@@ -178,9 +178,6 @@ public class DemoMultiCurrencySwapPortfolioLoader {
     if (liborIdentifier == null) {
       throw new OpenGammaRuntimeException("No synthetic ticker set up for " + swapConvention.getName());
     }
-    
-    // look up the value on our chosen trade date
-    Double initialRate = getInitialRate(tradeDate, liborIdentifier);
       
     Tenor maturity = s_tenors[random.nextInt(s_tenors.length)];
     // get the identifier for the swap rate for the maturity we're interested in (assuming the fixed rate will be =~ swap rate)
@@ -198,14 +195,16 @@ public class DemoMultiCurrencySwapPortfolioLoader {
         new InterestRateNotional(ccy, notional), 
         false, fixedRate);
     
-    SwapLeg floatingLeg = new FloatingInterestRateLeg(swapConvention.getSwapFloatingLegDayCount(), 
+    FloatingInterestRateLeg floatingLeg = new FloatingInterestRateLeg(swapConvention.getSwapFloatingLegDayCount(), 
         swapConvention.getSwapFloatingLegFrequency(), 
         swapConvention.getSwapFloatingLegRegion(), 
         swapConvention.getSwapFloatingLegBusinessDayConvention(), 
         new InterestRateNotional(ccy, notional), 
         false, ExternalId.of(liborIdentifier.getScheme().toString(), liborIdentifier.getValue()), 
-        initialRate, 
-        0.0, FloatingRateType.IBOR);
+        FloatingRateType.IBOR);
+    // look up the value on our chosen trade date
+    Double initialRate = getInitialRate(tradeDate, liborIdentifier);
+    floatingLeg.setInitialFloatingRate(initialRate);
     
     String fixedLegDescription = PortfolioLoaderHelper.RATE_FORMATTER.format(fixedRate);
     String floatingLegDescription = swapConvention.getSwapFloatingLegInitialRate().getValue();
