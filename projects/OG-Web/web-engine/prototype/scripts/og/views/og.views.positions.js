@@ -132,6 +132,7 @@ $.register_module({
                             acc.push(start, fields.map(function (field) {return trade[field];}).join('</td><td>'), end);
                             return acc;
                         }, []).join(''));
+                        $('.OG-js-details-panel .og-js-trades-table').awesometable({height: 300});
                     },
                     setup_header_links = function () {
                         var $version_link,
