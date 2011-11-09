@@ -35,7 +35,7 @@ public class NormalizationRuleSetTest {
     msg.add("Bar", 2.0);
     msg.add("Baz", 500);
     
-    FudgeMsg normalizedMsg = ruleSet.getNormalizedMessage(msg, new FieldHistoryStore());
+    FudgeMsg normalizedMsg = ruleSet.getNormalizedMessage(msg, "123", new FieldHistoryStore());
     assertNull(normalizedMsg);
   }
 }

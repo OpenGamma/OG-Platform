@@ -50,7 +50,7 @@ public class DoubleMatrix2D implements Matrix<Double> {
       _columns = data[0].length;
       _data = new double[_rows][_columns];
       for (int i = 0; i < _rows; i++) {
-        Validate.isTrue(data[i].length == _columns, "Number of columns did not match that in first row");
+        Validate.isTrue(data[i].length == _columns, "Number of columns did not match that in first row: " + _columns + " expected but " + data[i].length + " found in row " + i);
         for (int j = 0; j < _columns; j++) {
           _data[i][j] = data[i][j];
         }

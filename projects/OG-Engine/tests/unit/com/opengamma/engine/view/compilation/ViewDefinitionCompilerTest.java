@@ -299,7 +299,7 @@ public class ViewDefinitionCompilerTest {
 
     // Turning off security outputs, even if all primitive outputs are enabled, should allow the dep graph to be
     // pruned completely, since the only *terminal* output is the security output.
-    viewDefinition.getResultModelDefinition().setPrimitiveOutputMode(ResultOutputMode.ALL);
+    viewDefinition.getResultModelDefinition().setPrimitiveOutputMode(ResultOutputMode.TERMINAL_OUTPUTS);
     viewDefinition.getResultModelDefinition().setSecurityOutputMode(ResultOutputMode.NONE);
     compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now(), VersionCorrection.LATEST);
     assertTargets(compiledViewDefinition);

@@ -29,7 +29,7 @@ public class ImpliedVolatilityCalculatorTest {
     FieldHistoryStore store = new FieldHistoryStore();
     store.liveDataReceived(msg);
     
-    MutableFudgeMsg normalized = _calculator.apply(msg, store);
+    MutableFudgeMsg normalized = _calculator.apply(msg, "123", store);
     assertEquals(3, normalized.getAllFields().size());
     assertEquals(50.80, normalized.getDouble(MarketDataRequirementNames.IMPLIED_VOLATILITY), 0.0001);
   }
@@ -43,7 +43,7 @@ public class ImpliedVolatilityCalculatorTest {
     FieldHistoryStore store = new FieldHistoryStore();
     store.liveDataReceived(msg);
     
-    MutableFudgeMsg normalized = _calculator.apply(msg, store);
+    MutableFudgeMsg normalized = _calculator.apply(msg, "123", store);
     assertEquals(3, normalized.getAllFields().size());
     assertEquals(50.80, normalized.getDouble(MarketDataRequirementNames.IMPLIED_VOLATILITY), 0.0001);
   }
@@ -58,7 +58,7 @@ public class ImpliedVolatilityCalculatorTest {
     FieldHistoryStore store = new FieldHistoryStore();
     store.liveDataReceived(msg);
     
-    MutableFudgeMsg normalized = _calculator.apply(msg, store);
+    MutableFudgeMsg normalized = _calculator.apply(msg, "123", store);
     assertEquals(4, normalized.getAllFields().size());
     assertEquals(50.80, normalized.getDouble(MarketDataRequirementNames.IMPLIED_VOLATILITY), 0.0001);
   }
@@ -72,7 +72,7 @@ public class ImpliedVolatilityCalculatorTest {
     FieldHistoryStore store = new FieldHistoryStore();
     store.liveDataReceived(msg);
     
-    MutableFudgeMsg normalized = _calculator.apply(msg, store);
+    MutableFudgeMsg normalized = _calculator.apply(msg, "123", store);
     assertEquals(3, normalized.getAllFields().size());
     assertEquals(50.815, normalized.getDouble(MarketDataRequirementNames.IMPLIED_VOLATILITY), 0.0001);
   }
@@ -85,7 +85,7 @@ public class ImpliedVolatilityCalculatorTest {
     FieldHistoryStore store = new FieldHistoryStore();
     store.liveDataReceived(msg);
     
-    MutableFudgeMsg normalized = _calculator.apply(FudgeContext.GLOBAL_DEFAULT.newMessage(), store);
+    MutableFudgeMsg normalized = _calculator.apply(FudgeContext.GLOBAL_DEFAULT.newMessage(), "123", store);
     assertEquals(1, normalized.getAllFields().size());
     assertEquals(50.80, normalized.getDouble(MarketDataRequirementNames.IMPLIED_VOLATILITY), 0.0001);
   }

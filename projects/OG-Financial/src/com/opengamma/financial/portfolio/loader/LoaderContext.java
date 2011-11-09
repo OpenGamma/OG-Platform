@@ -5,11 +5,13 @@
  */
 package com.opengamma.financial.portfolio.loader;
 
+import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityLoader;
@@ -45,6 +47,10 @@ public class LoaderContext {
    */
   private HistoricalTimeSeriesSource _historicalTimeSeriesSource;
   /**
+   * The historical time-series master.
+   */
+  private HistoricalTimeSeriesMaster _historicalTimeSeriesMaster;
+  /**
    * The convention bundle source.
    */
   private ConventionBundleSource _conventionBundleSource;
@@ -56,6 +62,10 @@ public class LoaderContext {
    * The security source.
    */
   private SecuritySource _securitySource;
+  /**
+   * The exchange source.
+   */
+  private ExchangeSource _exchangeSource;
   
   //-------------------------------------------------------------------------
   /**
@@ -155,6 +165,22 @@ public class LoaderContext {
   }
   
   /**
+   * Gets the historicalTimeSeriesMaster field.
+   * @return the historicalTimeSeriesMaster
+   */
+  public HistoricalTimeSeriesMaster getHistoricalTimeSeriesMaster() {
+    return _historicalTimeSeriesMaster;
+  }
+
+  /**
+   * Sets the historicalTimeSeriesMaster field.
+   * @param historicalTimeSeriesMaster  the historicalTimeSeriesMaster
+   */
+  public void setHistoricalTimeSeriesMaster(HistoricalTimeSeriesMaster historicalTimeSeriesMaster) {
+    _historicalTimeSeriesMaster = historicalTimeSeriesMaster;
+  }
+
+  /**
    * Sets the convention bundle source
    * @param conventionBundleSource the source, not null
    */
@@ -200,6 +226,22 @@ public class LoaderContext {
    */
   public void setSecuritySource(final SecuritySource securitySource) {
     _securitySource = securitySource;
+  }
+
+  /**
+   * Gets the exchangeSource field.
+   * @return the exchangeSource
+   */
+  public ExchangeSource getExchangeSource() {
+    return _exchangeSource;
+  }
+
+  /**
+   * Sets the exchangeSource field.
+   * @param exchangeSource  the exchangeSource
+   */
+  public void setExchangeSource(ExchangeSource exchangeSource) {
+    _exchangeSource = exchangeSource;
   }
   
 }
