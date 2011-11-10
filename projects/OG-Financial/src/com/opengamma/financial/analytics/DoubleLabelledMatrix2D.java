@@ -20,6 +20,16 @@ public class DoubleLabelledMatrix2D extends LabelledMatrix2D<Double, Double> {
   public DoubleLabelledMatrix2D(final Double[] xKeys, final Object[] xLabels, final Double[] yKeys, final Object[] yLabels, final double[][] values) {
     super(xKeys, xLabels, yKeys, yLabels, values);
   }
+  
+  public DoubleLabelledMatrix2D(final Double[] xKeys, final Object[] xLabels, final String xTitle,
+      final Double[] yKeys, final Object[] yLabels, final String yTitle, final double[][] values, final String valuesTitle) {
+    super(xKeys, xLabels, xTitle, yKeys, yLabels, yTitle, values, valuesTitle);
+  }
+  
+  @Override
+  public LabelledMatrix2D<Double, Double> getMatrix(Double[] xKeys, Object[] xLabels, String xTitle, Double[] yKeys, Object[] yLabels, String yTitle, double[][] values, String valuesTitle) {
+    return new DoubleLabelledMatrix2D(xKeys, xLabels, xTitle, yKeys, yLabels, yTitle, values, valuesTitle);
+  }
 
   @Override
   public LabelledMatrix2D<Double, Double> getMatrix(final Double[] xKeys, final Object[] xLabels, final Double[] yKeys, final Object[] yLabels, final double[][] values) {

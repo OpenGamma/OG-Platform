@@ -21,6 +21,10 @@ public class LocalDateLabelledMatrix1D extends LabelledMatrix1D<LocalDate, Perio
   public LocalDateLabelledMatrix1D(final LocalDate[] keys, final Object[] labels, final double[] values) {
     super(keys, labels, values, TOLERANCE);
   }
+  
+  public LocalDateLabelledMatrix1D(final LocalDate[] keys, final Object[] labels, final String labelsTitle, final double[] values, final String valuesTitle) {
+    super(keys, labels, labelsTitle, values, valuesTitle, TOLERANCE);
+  }
 
   @Override
   public int compare(final LocalDate d1, final LocalDate d2, final Period tolerance) {
@@ -32,6 +36,11 @@ public class LocalDateLabelledMatrix1D extends LabelledMatrix1D<LocalDate, Perio
     return d1.isBefore(d2) ? -1 : 1;
   }
 
+  @Override
+  public LabelledMatrix1D<LocalDate, Period> getMatrix(final LocalDate[] keys, final Object[] labels, final String labelsTitle, final double[] values, final String valuesTitle) {
+    return new LocalDateLabelledMatrix1D(keys, labels, labelsTitle, values, valuesTitle);
+  }
+  
   @Override
   public LabelledMatrix1D<LocalDate, Period> getMatrix(final LocalDate[] keys, final Object[] labels, final double[] values) {
     return new LocalDateLabelledMatrix1D(keys, labels, values);
