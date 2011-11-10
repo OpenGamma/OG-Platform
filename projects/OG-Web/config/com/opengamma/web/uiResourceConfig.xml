@@ -66,17 +66,10 @@
     <fragment>/styles/common/search/og.common.search.OG-search.css</fragment>
   </bundle>
   <bundle id="common.details.css">
-    <fragment>/styles/common/details/og.common.OG-details.css</fragment>
-    <fragment>/styles/common/details/og.common.OG-details.OG-security.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-timeseries.css</fragment>
-    <fragment>/styles/common/details/og.common.OG-details.OG-position.css</fragment>
-    <fragment>/styles/common/details/og.common.OG-details.OG-portfolio.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-holiday.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-region.css</fragment>
-    <fragment>/styles/common/details/og.common.OG-details.OG-exchange.css</fragment>
-    <fragment>/styles/common/details/og.common.OG-details.OG-batch.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-config.css</fragment>
-    <fragment>/styles/common/details/og.common.OG-details.OG-default.css</fragment>
   </bundle>
   <bundle id="common.forms.css">
     <fragment>/styles/common/forms/og.common.forms.OG-grid-box.css</fragment>
@@ -204,7 +197,6 @@
     <fragment>/scripts/og/common/details/og.common.details.favorites.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.calendar_ui_changes.js</fragment>
     <fragment>/scripts/og/common/search_results/og.common.search.filter.js</fragment>
-    <fragment>/scripts/og/common/search_results/og.common.search_results.minimize.js</fragment>
     <fragment>/scripts/og/common/search_results/og.common.search_results.core.js</fragment>
   </bundle>
   <bundle id="views_common.js">
