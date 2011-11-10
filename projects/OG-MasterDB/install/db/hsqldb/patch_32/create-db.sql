@@ -278,6 +278,7 @@ CREATE TABLE sec_equity (
     CONSTRAINT sec_fk_equity2exchange FOREIGN KEY (exchange_id) REFERENCES sec_exchange(id),
     CONSTRAINT sec_fk_equity2gics FOREIGN KEY (gicscode_id) REFERENCES sec_gics(id)
 );
+CREATE INDEX ix_sec_equity_security_id ON sec_equity(security_id);
 
 CREATE TABLE sec_equityindexoption (
     id bigint NOT NULL,
@@ -318,6 +319,7 @@ CREATE TABLE sec_equityoption (
     CONSTRAINT sec_fk_equityoption2currency FOREIGN KEY (currency_id) REFERENCES sec_currency (id),
     CONSTRAINT sec_fk_equityoption2exchange FOREIGN KEY (exchange_id) REFERENCES sec_exchange (id)
 );
+CREATE INDEX ix_sec_equityoption_security_id ON sec_equityoption(security_id);
 
 CREATE TABLE sec_fxoption (
     id bigint NOT NULL,
@@ -493,6 +495,7 @@ CREATE TABLE sec_bond (
     CONSTRAINT sec_fk_bond2daycount FOREIGN KEY (daycountconvention_id) REFERENCES sec_daycount (id),
     CONSTRAINT sec_fk_bond2businessdayconvention FOREIGN KEY (businessdayconvention_id) REFERENCES sec_businessdayconvention (id)
 );
+CREATE INDEX ix_sec_bond_security_id ON sec_bond(security_id);
 
 CREATE TABLE sec_future (
     id bigint NOT NULL,
@@ -528,6 +531,7 @@ CREATE TABLE sec_future (
     CONSTRAINT sec_fk_future2commodityfuturetype FOREIGN KEY (commoditytype_id) REFERENCES sec_commodityfuturetype (id),
     CONSTRAINT sec_fk_future2unit FOREIGN KEY (unitname_id) REFERENCES sec_unit (id)
 );
+CREATE INDEX ix_sec_future_security_id ON sec_future(security_id);
 
 CREATE TABLE sec_futurebundle (
     id bigint NOT NULL,
@@ -629,6 +633,7 @@ CREATE TABLE sec_swap (
     PRIMARY KEY (id),
     CONSTRAINT sec_fk_swap2sec FOREIGN KEY (security_id) REFERENCES sec_security (id)
 );
+CREATE INDEX ix_sec_swap_security_id ON sec_swap(security_id);
 
 CREATE TABLE sec_raw (
     security_id bigint NOT NULL,
@@ -663,6 +668,7 @@ CREATE TABLE sec_fxforward (
   PRIMARY KEY (id),
   CONSTRAINT sec_fk_fxforward2sec FOREIGN KEY (security_id) REFERENCES sec_security (id)
 );
+CREATE INDEX ix_sec_fxforward_security_id ON sec_fxforward(security_id);
 
 CREATE TABLE sec_capfloor (
   id bigint NOT NULL,

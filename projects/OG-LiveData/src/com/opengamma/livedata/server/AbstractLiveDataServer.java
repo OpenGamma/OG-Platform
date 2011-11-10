@@ -563,7 +563,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       
       DistributionSpecification distributionSpec = getDistributionSpecificationResolver()
         .resolve(liveDataSpecFromClient);
-      FudgeMsg normalizedMsg = distributionSpec.getNormalizedMessage(msg);
+      FudgeMsg normalizedMsg = distributionSpec.getNormalizedMessage(msg, securityUniqueId);
       if (normalizedMsg == null) {
         responses.add(getErrorResponse(
             liveDataSpecFromClient,

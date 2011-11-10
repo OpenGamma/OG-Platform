@@ -6,9 +6,7 @@
 --
 -- Please do not modify it - modify the originals and recreate this using 'ant create-db-sql'.
 
-
     create sequence hibernate_sequence start with 1 increment by 1;
-
 -- create-db-config.sql: Config Master
 
 -- design has one document
@@ -38,7 +36,6 @@ create table cfg_config (
 
 create index ix_cfg_config_oid on cfg_config(oid);
 create index ix_cfg_config_config_type on cfg_config(config_type);
-
 
 -- create-db-refdata.sql
 
@@ -128,7 +125,6 @@ create table exg_exchange2idkey (
 
 create index ix_exg_exchange_oid on exg_exchange(oid);
 
-
 -- create-db-engine.sql: Config Master
 
 create table eng_functioncosts (
@@ -140,7 +136,6 @@ create table eng_functioncosts (
     data_output_cost decimal(31,8) not null,
     primary key (configuration, function, version_instant)
 );
-
 
 -- create-db-security.sql: Security Master
 
@@ -505,7 +500,6 @@ create table sec_swap (
     primary key (id),
     constraint sec_fk_swap2sec foreign key (security_id) references sec_security (id)
 );
-
 -- create-db-position.sql: Position Master
 
 -- design has two documents
@@ -610,7 +604,6 @@ create table pos_trade2idkey (
     constraint pos_fk_tradeidkey2trade foreign key (trade_id) references pos_trade (id),
     constraint pos_fk_tradeidkey2idkey foreign key (idkey_id) references pos_idkey (id)
 );
-
 -------------------------------------
 -- Static data
 -------------------------------------
@@ -1155,5 +1148,3 @@ CREATE TABLE tss_identifier (
 );
 CREATE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
 CREATE INDEX idx_identifier_value ON tss_identifier(identifier_value);
-
-

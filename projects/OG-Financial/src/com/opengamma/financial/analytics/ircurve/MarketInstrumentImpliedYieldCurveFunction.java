@@ -41,7 +41,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.MarketDataNormalizationUtils;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateInstrumentTradeOrSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
@@ -251,7 +250,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (_calculationType.equals(PRESENT_VALUE_STRING)) {
           marketValues[i] = 0;
         } else {
-          marketValues[i] = MarketDataNormalizationUtils.normalizeRateForFixedIncomeStrip(strip.getInstrumentType(), marketValue);
+          marketValues[i] = marketValue;
         }
         derivatives.add(derivative);
         initialRatesGuess[i++] = 0.01;
@@ -277,7 +276,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (_calculationType.equals(PRESENT_VALUE_STRING)) {
           marketValues[i] = 0;
         } else {
-          marketValues[i] = MarketDataNormalizationUtils.normalizeRateForFixedIncomeStrip(strip.getInstrumentType(), marketValue);
+          marketValues[i] = marketValue;
         }
         derivatives.add(derivative);
         initialRatesGuess[i++] = 0.01;
@@ -399,7 +398,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (_calculationType.equals(PRESENT_VALUE_STRING)) {
           marketValues[i] = 0;
         } else {
-          marketValues[i] = MarketDataNormalizationUtils.normalizeRateForFixedIncomeStrip(strip.getInstrumentType(), marketValue);
+          marketValues[i] = marketValue;
         }
         derivatives.add(derivative);
         initialRatesGuess[i] = 0.01;

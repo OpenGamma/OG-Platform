@@ -41,6 +41,11 @@ import com.opengamma.core.position.Trade;
   public Map<String, String> getAttributes() {
     return _attributes;
   }
+  
+  @Override
+  public String toString() {
+    return "PositionInfo[quantity=" + getQuantity() + ", security=" + getSecurity() + ", trades=" + getTrades() + ", attributes=" + getAttributes() + "]";
+  }
 
   @Override
   public boolean equals(final Object o) {

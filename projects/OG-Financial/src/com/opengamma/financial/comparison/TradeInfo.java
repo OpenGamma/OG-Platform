@@ -57,6 +57,13 @@ import com.opengamma.util.money.Currency;
   public Map<String, String> getAttributes() {
     return _attributes;
   }
+  
+  @Override
+  public String toString() {
+    return "TradeInfo[quantity=" + getQuantity() + ", security=" + getSecurity() + ", counterparty=" +
+        getCounterparty() + ", tradeDate=" + getTradeDate() + ", tradeTime=" + getTradeTime() + ", premium=" + getPremium() +
+        ", premiumCurrency=" + getPremiumCurrency() + ", premiumDate=" + getPremiumDate() + ", premiumTime=" + getPremiumTime() + ", attributes=" + getAttributes() + "]";
+  }
 
   @Override
   public boolean equals(final Object o) {

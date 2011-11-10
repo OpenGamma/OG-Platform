@@ -72,14 +72,14 @@ public class DistributionSpecification {
   /**
    * Gets a normalized message.
    * 
-   * @param msg message received from underlying market data API in its native format.
-   * @param history history of field values  
+   * @param msg  message received from underlying market data API in its native format.
+   * @param securityUniqueId  data provider's unique security ID 
+   * @param history  history of field values  
    * @return the normalized message. Null if in the process of normalization,
    * the message became empty and therefore should not be sent.
    */
-  public FudgeMsg getNormalizedMessage(FudgeMsg msg, FieldHistoryStore history) {
-    FudgeMsg normalizedMsg = _normalizationRuleSet.getNormalizedMessage(msg,
-        history);
+  public FudgeMsg getNormalizedMessage(FudgeMsg msg, String securityUniqueId, FieldHistoryStore history) {
+    FudgeMsg normalizedMsg = _normalizationRuleSet.getNormalizedMessage(msg, securityUniqueId, history);
     
     if (normalizedMsg == null) {
       return null;
@@ -93,11 +93,12 @@ public class DistributionSpecification {
   
   /**
    * @param msg Message received from underlying market data API in its native format.
+   * @param securityUniqueId  the data provider's unique ID of the security, not null
    * @return A normalized message, calculated assuming there is no market data history.
    */
-  public FudgeMsg getNormalizedMessage(FudgeMsg msg) {
+  public FudgeMsg getNormalizedMessage(FudgeMsg msg, String securityUniqueId) {
     FieldHistoryStore history = new FieldHistoryStore();
-    return getNormalizedMessage(msg, history);  
+    return getNormalizedMessage(msg, securityUniqueId, history);  
   }
   
   @Override

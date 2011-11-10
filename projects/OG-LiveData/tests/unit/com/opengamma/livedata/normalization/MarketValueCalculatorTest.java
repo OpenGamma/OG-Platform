@@ -30,7 +30,7 @@ public class MarketValueCalculatorTest {
     FieldHistoryStore store = new FieldHistoryStore();
     store.liveDataReceived(msg);
     
-    MutableFudgeMsg normalized = calculator.apply(msg, store);
+    MutableFudgeMsg normalized = calculator.apply(msg, "123", store);
     assertEquals(4, normalized.getAllFields().size());
     assertEquals(50.85, normalized.getDouble(MarketDataRequirementNames.MARKET_VALUE), 0.0001);
   }
@@ -46,7 +46,7 @@ public class MarketValueCalculatorTest {
     FieldHistoryStore store = new FieldHistoryStore();
     store.liveDataReceived(msg);
     
-    MutableFudgeMsg normalized = calculator.apply(msg, store);
+    MutableFudgeMsg normalized = calculator.apply(msg, "123", store);
     assertEquals(3, normalized.getAllFields().size());
     assertEquals(50.85, normalized.getDouble(MarketDataRequirementNames.MARKET_VALUE), 0.0001);
   }
@@ -61,7 +61,7 @@ public class MarketValueCalculatorTest {
     FieldHistoryStore store = new FieldHistoryStore();
     store.liveDataReceived(msg);
     
-    MutableFudgeMsg normalized = calculator.apply(msg, store);
+    MutableFudgeMsg normalized = calculator.apply(msg, "123", store);
     assertEquals(2, normalized.getAllFields().size());
     assertEquals(50.89, normalized.getDouble(MarketDataRequirementNames.MARKET_VALUE), 0.0001);
   }
@@ -78,7 +78,7 @@ public class MarketValueCalculatorTest {
     FieldHistoryStore store = new FieldHistoryStore();
     store.liveDataReceived(msg);
     
-    MutableFudgeMsg normalized = calculator.apply(msg, store);
+    MutableFudgeMsg normalized = calculator.apply(msg, "123", store);
     assertEquals(4, normalized.getAllFields().size());
     assertEquals(55.12, normalized.getDouble(MarketDataRequirementNames.MARKET_VALUE), 0.0001);
   }
@@ -97,7 +97,7 @@ public class MarketValueCalculatorTest {
     msg.add(MarketDataRequirementNames.BID, 50.0);
     msg.add(MarketDataRequirementNames.ASK, 100.0);
     
-    MutableFudgeMsg normalized = calculator.apply(msg, store);
+    MutableFudgeMsg normalized = calculator.apply(msg, "123", store);
     assertEquals(3, normalized.getAllFields().size());
     assertEquals(50.52, normalized.getDouble(MarketDataRequirementNames.MARKET_VALUE), 0.0001);
   }
@@ -114,7 +114,7 @@ public class MarketValueCalculatorTest {
     FieldHistoryStore store = new FieldHistoryStore();
     store.liveDataReceived(msg);
     
-    MutableFudgeMsg normalized = calculator.apply(msg, store);
+    MutableFudgeMsg normalized = calculator.apply(msg, "123", store);
     assertEquals(4, normalized.getAllFields().size());
     assertEquals(50.0, normalized.getDouble(MarketDataRequirementNames.MARKET_VALUE), 0.0001);
   }
@@ -131,7 +131,7 @@ public class MarketValueCalculatorTest {
     FieldHistoryStore store = new FieldHistoryStore();
     store.liveDataReceived(msg);
     
-    MutableFudgeMsg normalized = calculator.apply(msg, store);
+    MutableFudgeMsg normalized = calculator.apply(msg, "123", store);
     assertEquals(4, normalized.getAllFields().size());
     assertEquals(100.0, normalized.getDouble(MarketDataRequirementNames.MARKET_VALUE), 0.0001);
   }
@@ -151,7 +151,7 @@ public class MarketValueCalculatorTest {
     MutableFudgeMsg newMsg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     newMsg.add(MarketDataRequirementNames.LAST, 50.89);
     
-    MutableFudgeMsg normalized = calculator.apply(newMsg, store);
+    MutableFudgeMsg normalized = calculator.apply(newMsg, "123", store);
     assertEquals(2, normalized.getAllFields().size());
     assertEquals(50.5, normalized.getDouble(MarketDataRequirementNames.MARKET_VALUE), 0.0001);
   }
@@ -168,7 +168,7 @@ public class MarketValueCalculatorTest {
     
     MutableFudgeMsg newMsg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     
-    MutableFudgeMsg normalized = calculator.apply(newMsg, store);
+    MutableFudgeMsg normalized = calculator.apply(newMsg, "123", store);
     assertEquals(1, normalized.getAllFields().size());
     assertEquals(50.52, normalized.getDouble(MarketDataRequirementNames.MARKET_VALUE), 0.0001);
   }
@@ -181,7 +181,7 @@ public class MarketValueCalculatorTest {
     
     MutableFudgeMsg newMsg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     
-    MutableFudgeMsg normalized = calculator.apply(newMsg, store);
+    MutableFudgeMsg normalized = calculator.apply(newMsg, "123", store);
     assertEquals(0, normalized.getAllFields().size());
   }
   
@@ -197,7 +197,7 @@ public class MarketValueCalculatorTest {
     FieldHistoryStore store = new FieldHistoryStore();
     store.liveDataReceived(msg);
     
-    MutableFudgeMsg normalized = calculator.apply(msg, store);
+    MutableFudgeMsg normalized = calculator.apply(msg, "123", store);
     assertEquals(4, normalized.getAllFields().size());
     assertEquals(0.5, normalized.getDouble(MarketDataRequirementNames.MARKET_VALUE), 0.0001);
   }

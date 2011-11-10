@@ -20,11 +20,11 @@ tokens {
 }
 
 @header {
-package com.opengamma.financial.filtering.expression;
+package com.opengamma.financial.expression.deprecated;
 //CSOFF
 }
 @lexer::header {
-package com.opengamma.financial.filtering.expression;
+package com.opengamma.financial.expression.deprecated;
 //CSOFF
 }
 
