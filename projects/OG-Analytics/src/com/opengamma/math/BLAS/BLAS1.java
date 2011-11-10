@@ -647,7 +647,49 @@ public class BLAS1 {
     return dnrm2(x.getData());
   }
   
-
+  
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////// DASUM /////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  /**
+   * DASUM performs the following vector operation
+   *
+   *  asum <-- ||x||_1
+   *
+   *  which is effectively
+   *
+   *  asum2 <-- x[0]+x[1]+x[2]+...+x[n]
+   *
+   *  x is vector.
+   *  This is the reduction of a vector.
+   *
+   */
+  
+  /**
+   * DASUM: asum <-- ||x||_1
+   * @param x a vector
+   * @return tmp the vector reduction (sum) of x.
+   */
+  public static double dasum(double[] x) {
+    Validate.notNull(x);
+    final int n = x.length;
+    double tmp = 0d;
+    for (int i = 0; i < n; i++) {
+      tmp += x[i];
+    }
+    return tmp;
+  }  
+  
+  /**
+   * DASUM: asum <-- ||x||_1
+   * @param x DoubleMatrix1D
+   * @return the vector reduction (sum) of x.
+   */
+  public static double dasum(DoubleMatrix1D x) {
+    return dasum(x.getData());
+  }
+  
+  
   ///////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////// IDMAX /////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////////////////////
