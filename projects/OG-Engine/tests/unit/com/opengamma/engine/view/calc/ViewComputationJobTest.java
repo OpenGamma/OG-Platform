@@ -17,6 +17,7 @@ import java.util.Set;
 import javax.time.Duration;
 import javax.time.Instant;
 
+import com.opengamma.engine.view.listener.JobResultReceivedCall;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -102,6 +103,7 @@ public class ViewComputationJobTest {
     
     // Consume the initial result
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
+    resultListener.assertJobResultReceived(TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT); 
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
@@ -146,7 +148,7 @@ public class ViewComputationJobTest {
     underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 123d);
     underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), 456d);
     recalcThread.join();
-    
+    resultListener.assertJobResultReceived(TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
     
     Map<String, Object> resultValues = new HashMap<String, Object>();
@@ -184,6 +186,7 @@ public class ViewComputationJobTest {
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
+    resultListener.expectNextCall(JobResultReceivedCall.class, TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
     resultListener.assertProcessCompleted(TIMEOUT);
     
@@ -216,9 +219,11 @@ public class ViewComputationJobTest {
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
+    resultListener.expectNextCall(JobResultReceivedCall.class, TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     // Change of market data provider should cause a further compilation
+    resultListener.expectNextCall(JobResultReceivedCall.class, TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
     resultListener.assertProcessCompleted(TIMEOUT);
   }
@@ -241,8 +246,10 @@ public class ViewComputationJobTest {
     ViewComputationJob computationJob = env.getCurrentComputationJob(env.getViewProcess(vp, client.getUniqueId()));
     
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
+    resultListener.assertJobResultReceived(TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
     computationJob.triggerCycle();
+    resultListener.assertJobResultReceived(TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
     
     client.shutdown();
@@ -268,14 +275,18 @@ public class ViewComputationJobTest {
     ViewComputationJob computationJob = env.getCurrentComputationJob(env.getViewProcess(vp, client.getUniqueId()));
     
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
+    resultListener.assertJobResultReceived(TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
     computationJob.triggerCycle();
+    resultListener.assertJobResultReceived(TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
     env.getViewDefinitionRepository().changeManager().entityChanged(ChangeType.UPDATED, viewDefinitionId, viewDefinitionId, Instant.now());
     computationJob.triggerCycle();
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
+    resultListener.assertJobResultReceived(TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
     computationJob.triggerCycle();
+    resultListener.assertJobResultReceived(TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
     
     client.shutdown();

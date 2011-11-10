@@ -307,7 +307,7 @@ public class FixedIncomeConverterDataProvider {
   }
   
   private ExternalIdBundle getIndexIdForSwap(final FloatingInterestRateLeg floatingLeg) {
-    if (floatingLeg.isIbor()) {
+    if (floatingLeg.getFloatingRateType().isIbor()) {
       final ExternalId indexId = floatingLeg.getFloatingReferenceRateId();
       ConventionBundle indexConvention = _conventionSource.getConventionBundle(indexId);
       if (indexConvention == null) {
