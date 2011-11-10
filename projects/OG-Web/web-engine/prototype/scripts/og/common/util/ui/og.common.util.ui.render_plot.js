@@ -85,7 +85,6 @@ $.register_module({
                     },
                     selection: {mode: 'x', color: '#ddd'}
                 };
-                calculate_y_values();
             };
             empty_plots = function () {
                 var d = ['1', '2'], $p1, $p2, disabled_options,
