@@ -5,7 +5,10 @@
  */
 package com.opengamma.web.config;
 
+import java.lang.reflect.Field;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -26,8 +29,10 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.google.common.collect.BiMap;
+import com.google.common.collect.ImmutableList;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.fudgemsg.CurveSpecificationBuilderConfigurationFudgeBuilder;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
@@ -51,6 +56,8 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 @Path("/configs")
 public class WebConfigsResource extends AbstractWebConfigResource {
+  
+  private static final List<String> s_curveSpecNames = getCurveSpecBuilderConfigurationNames();
 
   /**
    * Creates the resource.
@@ -58,6 +65,22 @@ public class WebConfigsResource extends AbstractWebConfigResource {
    */
   public WebConfigsResource(final ConfigMaster configMaster) {
     super(configMaster);
+  }
+
+  private static List<String> getCurveSpecBuilderConfigurationNames() {
+    final List<String> list = new ArrayList<String>();
+    for (Field field : CurveSpecificationBuilderConfigurationFudgeBuilder.class.getDeclaredFields()) {
+      if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+        field.setAccessible(true);
+        try {
+          list.add((String) field.get(null));
+        } catch (Exception ex) {
+          // Ignore
+        }
+      }
+    }
+    Collections.sort(list, String.CASE_INSENSITIVE_ORDER);
+    return ImmutableList.copyOf(list);
   }
 
   //-------------------------------------------------------------------------
@@ -227,6 +250,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   @Produces(MediaType.APPLICATION_JSON)
   public String getMetaDataJSON() {
     FlexiBean out = createRootData();
+    out.put("curveSpecs", s_curveSpecNames);
     return getFreemarker().build("configs/jsonmetadata.ftl", out);
   }
   
