@@ -40,7 +40,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
   @Override
   public String toJSON(final ViewDefinition viewDefinition) {
     ArgumentChecker.notNull(viewDefinition, "viewDefinition");
-    return toJSON(viewDefinition, ViewDefinition.class);
+    return fudgeToJson(viewDefinition);
   }
   
   private static String createTemplate() {
