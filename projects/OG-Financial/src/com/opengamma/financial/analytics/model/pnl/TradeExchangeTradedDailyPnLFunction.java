@@ -11,7 +11,6 @@ import javax.time.calendar.LocalDate;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.PositionOrTrade;
-import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -23,14 +22,16 @@ import com.opengamma.id.ExternalIdBundle;
 /**
  * 
  */
-public class TradeExchangeTradedPnLFunction extends AbstractTradeOrDailyPositionPnLFunction {
+public class TradeExchangeTradedDailyPnLFunction extends AbstractTradeOrDailyPositionPnLFunction {
+  
+  private static final long MAX_DAYS_OLD = 7;
   
   /**
    * @param resolutionKey the resolution key, not-null
    * @param markDataField the mark to market data field name, not-null
    * @param costOfCarryField the cost of carry field name, not-null
    */
-  public TradeExchangeTradedPnLFunction(String resolutionKey, String markDataField, String costOfCarryField) {
+  public TradeExchangeTradedDailyPnLFunction(String resolutionKey, String markDataField, String costOfCarryField) {
     super(resolutionKey, markDataField, costOfCarryField);
   }
 
@@ -42,7 +43,7 @@ public class TradeExchangeTradedPnLFunction extends AbstractTradeOrDailyPosition
 
   @Override
   public String getShortName() {
-    return "TradePnL";
+    return "TradeDailyPnL";
   }
 
   @Override
@@ -52,28 +53,31 @@ public class TradeExchangeTradedPnLFunction extends AbstractTradeOrDailyPosition
 
   @Override
   protected LocalDate getPreferredTradeDate(Clock valuationClock, PositionOrTrade positionOrTrade) {
-    return ((Trade) positionOrTrade).getTradeDate();
+    return valuationClock.yesterday();
   }
 
   @Override
   protected HistoricalTimeSeries getMarkToMarketSeries(HistoricalTimeSeriesSource historicalSource, String fieldName, ExternalIdBundle bundle, String resolutionKey, LocalDate tradeDate) {
-    return historicalSource.getHistoricalTimeSeries(fieldName, bundle, resolutionKey, tradeDate, true, tradeDate, true);
+    return historicalSource.getHistoricalTimeSeries(fieldName, bundle, resolutionKey,
+                                                    tradeDate.minusDays(MAX_DAYS_OLD), true, tradeDate, true);
   }
 
   @Override
-  protected LocalDate checkAvailableData(LocalDate originalTradeDate, HistoricalTimeSeries markToMarketSeries, Security security, 
-                                         String markDataField, String resolutionKey) {
-    if (markToMarketSeries.getTimeSeries().isEmpty() || markToMarketSeries.getTimeSeries().getValue(originalTradeDate) == null) {
+  protected LocalDate checkAvailableData(LocalDate originalTradeDate, HistoricalTimeSeries markToMarketSeries, Security security, String markDataField, String resolutionKey) {
+    if (markToMarketSeries.getTimeSeries().isEmpty() || markToMarketSeries.getTimeSeries().getLatestValue() == null) {
       throw new NullPointerException("Could not get mark to market value for security " + 
-          security.getExternalIdBundle() + " for " + markDataField + " using " + resolutionKey + " for " + originalTradeDate);
+          security.getExternalIdBundle() + " for " + markDataField + " using " + resolutionKey + " for " + MAX_DAYS_OLD + " back from " + originalTradeDate);          
+    } else {
+      return markToMarketSeries.getTimeSeries().getLatestTime();
     }
-    return originalTradeDate;
   }
+
 
   @Override
   protected String getResultValueRequirementName() {
-    return ValueRequirementNames.PNL;
+    return ValueRequirementNames.DAILY_PNL;
   }
+
 
 
 }

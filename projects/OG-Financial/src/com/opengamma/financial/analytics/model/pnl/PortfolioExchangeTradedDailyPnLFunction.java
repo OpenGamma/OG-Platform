@@ -20,7 +20,7 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 /**
  * 
  */
-public class PortfolioExchangeTradedPnLFunction extends AbstractPortfolioPnLFunction {
+public class PortfolioExchangeTradedDailyPnLFunction extends AbstractPortfolioDailyPnLFunction {
   
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
@@ -29,14 +29,7 @@ public class PortfolioExchangeTradedPnLFunction extends AbstractPortfolioPnLFunc
       final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
       for (Position position : allPositions) {
         Security positionSecurity = position.getSecurity();
-        if (FinancialSecurityUtils.isExchangedTraded(positionSecurity)) {
-          for (Trade trade : position.getTrades()) {
-            Security tradeSecurity = trade.getSecurity();
-            if (!FinancialSecurityUtils.isExchangedTraded(tradeSecurity)) {
-              return false;
-            }
-          }
-        } else {
+        if (!FinancialSecurityUtils.isExchangedTraded(positionSecurity)) {
           return false;
         }
       }
@@ -47,7 +40,7 @@ public class PortfolioExchangeTradedPnLFunction extends AbstractPortfolioPnLFunc
   
   @Override
   public String getShortName() {
-    return "PortfolioEquityPnL";
+    return "PortfolioDailyEquityPnL";
   }
   
 }
