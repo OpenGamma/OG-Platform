@@ -39,15 +39,13 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFilter;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.OverrideOperation;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -63,7 +61,6 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImp
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -349,27 +346,33 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     _state = ViewCycleState.EXECUTED;
   }
 
-  // 2011-08-15 Andrew -- temporary hack to allow calc configurations to shift market data
-  // Map contains computation cache and NULL for no shift or the number to multiple the raw amount by
-  private Map<ViewComputationCache, Double> getCacheMarketDataInfo() {
-    final Map<ViewComputationCache, Double> shifts = new HashMap<ViewComputationCache, Double>();
+  /**
+   * Creates a map containing the "shift" operations to apply to market data or each
+   * calculation configuration. If there is no operation to apply, the map contains
+   * null for that configuration.
+   * 
+   * @return the map of computation cache to shift operations 
+   */
+  private Map<ViewComputationCache, OverrideOperation> getCacheMarketDataOperation() {
+    final Map<ViewComputationCache, OverrideOperation> shifts = new HashMap<ViewComputationCache, OverrideOperation>();
     for (ViewCalculationConfiguration calcConfig : getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurations()) {
-      Double shift = null;
       final Set<String> marketDataShift = calcConfig.getDefaultProperties().getValues("MARKET_DATA_SHIFT");
+      OverrideOperation operation = null;
       if (marketDataShift != null) {
         if (marketDataShift.size() != 1) {
           // This doesn't really mean much
           s_logger.error("Market data shift for {} not valid - {}", calcConfig.getName(), marketDataShift);
         } else {
-          final String shiftString = marketDataShift.iterator().next();
+          final String shiftExpr = marketDataShift.iterator().next();
           try {
-            shift = Double.parseDouble(shiftString);
-          } catch (NumberFormatException e) {
-            s_logger.error("Market data shift for {} not valid - {}", calcConfig.getName(), shiftString);
+            operation = getViewProcessContext().getOverrideOperationCompiler().compile(shiftExpr);
+          } catch (IllegalArgumentException e) {
+            s_logger.error("Market data shift for  {} not valid - {}", calcConfig.getName(), shiftExpr);
+            s_logger.info("Invalid market data shift", e);
           }
         }
       }
-      shifts.put(getComputationCache(calcConfig.getName()), shift);
+      shifts.put(getComputationCache(calcConfig.getName()), operation);
     }
     return shifts;
   }
@@ -378,17 +381,15 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     Set<ValueSpecification> missingMarketData = new HashSet<ValueSpecification>();
     Map<ValueRequirement, ValueSpecification> marketDataRequirements = getCompiledViewDefinition().getMarketDataRequirements();
     s_logger.debug("Populating {} market data items using snapshot {}", marketDataRequirements.size(), snapshot);
-    // 2011-08-15 Andrew -- temporary hack to allow calc configurations to shift market data
-    Map<ViewComputationCache, Double> cacheMarketDataInfo = getCacheMarketDataInfo();
+    Map<ViewComputationCache, OverrideOperation> cacheMarketDataOperation = getCacheMarketDataOperation();
     for (Map.Entry<ValueRequirement, ValueSpecification> marketDataRequirement : marketDataRequirements.entrySet()) {
       // REVIEW 2010-10-22 Andrew
       // If we're asking the snapshot for a "requirement" then it should give back a more detailed "specification" with the data (i.e. a
       // ComputedValue instance where the specification satisfies the requirement). Functions should then declare their requirements and
       // not the exact specification they want for market data. Alternatively, if the snapshot will give us the exact value we ask for then
       // we should be querying with a "specification" and not a requirement.
-      Object data = snapshot.query(marketDataRequirement.getKey());
-      ComputedValue dataAsValue;
-
+      final Object data = snapshot.query(marketDataRequirement.getKey());
+      final ComputedValue dataAsValue;
       if (data == null) {
         s_logger.debug("Unable to load market data value for {} from snapshot {}", marketDataRequirement, getValuationTime());
         missingMarketData.add(marketDataRequirement.getValue());
@@ -397,7 +398,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         dataAsValue = new ComputedValue(marketDataRequirement.getValue(), data);
         getResultModel().addMarketData(dataAsValue);
       }
-      addToAllCaches(dataAsValue, cacheMarketDataInfo);
+      addToAllCaches(marketDataRequirement.getKey(), dataAsValue, cacheMarketDataOperation);
     }
     if (!missingMarketData.isEmpty()) {
       s_logger.warn("Missing {} market data elements: {}", missingMarketData.size(), formatMissingLiveData(missingMarketData));
@@ -428,47 +429,22 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
   }
 
-  /**
-   * @param dataAsValue
-   */
-  private void addToAllCaches(final ComputedValue dataAsValue, final Map<ViewComputationCache, Double> cacheMarketDataInfo) {
-    for (Map.Entry<ViewComputationCache, Double> cacheMarketData : cacheMarketDataInfo.entrySet()) {
+  private void addToAllCaches(final ValueRequirement valueRequirement, final ComputedValue dataAsValue, final Map<ViewComputationCache, OverrideOperation> cacheMarketDataInfo) {
+    for (Map.Entry<ViewComputationCache, OverrideOperation> cacheMarketData : cacheMarketDataInfo.entrySet()) {
       final ViewComputationCache cache = cacheMarketData.getKey();
       final ComputedValue cacheValue;
       if (cacheMarketData.getValue() == null) {
         cacheValue = dataAsValue;
       } else {
-        if (shouldShiftData(dataAsValue.getSpecification())) {
-          if (dataAsValue.getValue() instanceof Double) {
-            final Double value = (Double) dataAsValue.getValue();
-            cacheValue = new ComputedValue(dataAsValue.getSpecification(), value * cacheMarketData.getValue());
-          } else {
-            s_logger.warn("Can't shift market data {} - not a double", dataAsValue);
-            cacheValue = dataAsValue;
-          }
+        final Object newValue = cacheMarketData.getValue().apply(valueRequirement, dataAsValue.getValue());
+        if (newValue != dataAsValue.getValue()) {
+          cacheValue = new ComputedValue(dataAsValue.getSpecification(), newValue);
         } else {
           cacheValue = dataAsValue;
         }
       }
       cache.putSharedValue(cacheValue);
     }
-  }
-
-  private boolean shouldShiftData(final ValueSpecification valueSpec) {
-    final ComputationTargetSpecification targetSpec = valueSpec.getTargetSpecification();
-    if ((targetSpec.getType() == ComputationTargetType.SECURITY) && MarketDataRequirementNames.MARKET_VALUE.equals(valueSpec.getValueName())) {
-      final Security security;
-      try {
-        security = getViewProcessContext().getSecuritySource().getSecurity(targetSpec.getUniqueId());
-      } catch (DataNotFoundException ex) {
-        return false;
-      }
-      // Hack to only shift equities
-      if (security.getExternalIdBundle().getValue(SecurityUtils.BLOOMBERG_TICKER).contains("Equity")) {
-        return true;
-      }
-    }
-    return false;
   }
 
   private ViewComputationCache getComputationCache(String calcConfigName) {

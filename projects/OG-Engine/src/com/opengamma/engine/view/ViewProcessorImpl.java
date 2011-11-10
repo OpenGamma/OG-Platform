@@ -33,6 +33,7 @@ import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.LiveMarketDataSourceRegistry;
 import com.opengamma.engine.marketdata.MarketDataInjector;
+import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
@@ -92,6 +93,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private final DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private final GraphExecutorStatisticsGathererProvider _graphExecutionStatistics;
   private final ViewPermissionProvider _viewPermissionProvider;
+  private final OverrideOperationCompiler _overrideOperationCompiler;
   
   // State
   /**
@@ -112,6 +114,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private boolean _isStarted;
   private boolean _isSuspended;
   
+  // TODO: would it be easier to pass in a ViewProcessContext to this constructor ?
+
   public ViewProcessorImpl(
       UniqueId uniqueId,
       ViewDefinitionRepository viewDefinitionRepository,
@@ -127,7 +131,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       ViewProcessorQueryReceiver viewProcessorQueryReceiver,
       DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory,
       GraphExecutorStatisticsGathererProvider graphExecutionStatisticsProvider,
-      ViewPermissionProvider viewPermissionProvider) {
+      ViewPermissionProvider viewPermissionProvider,
+      OverrideOperationCompiler overrideOperationCompiler) {
     _uniqueId = uniqueId;
     _viewDefinitionRepository = viewDefinitionRepository;
     _liveMarketDataSourceRegistry = liveMarketDataSourceRegistry;
@@ -143,6 +148,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
     _graphExecutionStatistics = graphExecutionStatisticsProvider;
     _viewPermissionProvider = viewPermissionProvider;
+    _overrideOperationCompiler = overrideOperationCompiler;
   }
 
   //-------------------------------------------------------------------------
@@ -539,7 +545,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         _computationJobDispatcher,
         _viewProcessorQueryReceiver,
         _dependencyGraphExecutorFactory,
-        _graphExecutionStatistics);
+        _graphExecutionStatistics,
+        _overrideOperationCompiler);
   }
   
   private String generateIdValue(AtomicLong source) {
