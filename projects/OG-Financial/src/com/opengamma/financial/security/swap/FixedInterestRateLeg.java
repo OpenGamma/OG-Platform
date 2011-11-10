@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.security.swap;
 
+
 import java.util.Map;
 
 import org.joda.beans.BeanBuilder;
@@ -51,12 +52,14 @@ public class FixedInterestRateLeg extends InterestRateLeg {
    * @param regionIdentifier  the region, not null
    * @param businessDayConvention  the business day convention, not null
    * @param notional  the notional, not null
+   * @param eom  whether this is EOM
    * @param rate  the rate, not null
    */
   public FixedInterestRateLeg(DayCount dayCount, Frequency frequency, ExternalId regionIdentifier, BusinessDayConvention businessDayConvention,
-      Notional notional, double rate) {
+      Notional notional, boolean eom, double rate) {
     super(dayCount, frequency, regionIdentifier, businessDayConvention, notional);
     setRate(rate);
+    setEom(eom);
   }
 
   //-------------------------------------------------------------------------

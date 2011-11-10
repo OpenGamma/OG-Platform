@@ -58,6 +58,11 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
    */
   @PropertyDefinition(validate = "notNull")
   private Notional _notional;
+  /**
+   * The EOM flag.
+   */
+  @PropertyDefinition
+  private boolean _eom;
 
   /**
    * Creates an instance.
@@ -73,13 +78,15 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
    * @param regionId  the region, not null
    * @param businessDayConvention  the business day convention, not null
    * @param notional  the notional, not null
+   * @param eom  whether this is EOM 
    */
-  protected SwapLeg(DayCount dayCount, Frequency frequency, ExternalId regionId, BusinessDayConvention businessDayConvention, Notional notional) {
+  protected SwapLeg(DayCount dayCount, Frequency frequency, ExternalId regionId, BusinessDayConvention businessDayConvention, Notional notional, boolean eom) {
     setDayCount(dayCount);
     setFrequency(frequency);
     setRegionId(regionId);
     setBusinessDayConvention(businessDayConvention);
     setNotional(notional);
+    setEom(eom);
   }
 
   //-------------------------------------------------------------------------
@@ -123,6 +130,8 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
         return getBusinessDayConvention();
       case 1585636160:  // notional
         return getNotional();
+      case 100611:  // eom
+        return isEom();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -144,6 +153,9 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
         return;
       case 1585636160:  // notional
         setNotional((Notional) newValue);
+        return;
+      case 100611:  // eom
+        setEom((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -170,7 +182,8 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
           JodaBeanUtils.equal(getFrequency(), other.getFrequency()) &&
           JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
           JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional());
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          JodaBeanUtils.equal(isEom(), other.isEom());
     }
     return false;
   }
@@ -183,6 +196,7 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isEom());
     return hash;
   }
 
@@ -318,6 +332,31 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the EOM flag.
+   * @return the value of the property
+   */
+  public boolean isEom() {
+    return _eom;
+  }
+
+  /**
+   * Sets the EOM flag.
+   * @param eom  the new value of the property
+   */
+  public void setEom(boolean eom) {
+    this._eom = eom;
+  }
+
+  /**
+   * Gets the the {@code eom} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> eom() {
+    return metaBean().eom().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code SwapLeg}.
    */
   public static class Meta extends DirectMetaBean {
@@ -352,6 +391,11 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
     private final MetaProperty<Notional> _notional = DirectMetaProperty.ofReadWrite(
         this, "notional", SwapLeg.class, Notional.class);
     /**
+     * The meta-property for the {@code eom} property.
+     */
+    private final MetaProperty<Boolean> _eom = DirectMetaProperty.ofReadWrite(
+        this, "eom", SwapLeg.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
@@ -360,7 +404,8 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
         "frequency",
         "regionId",
         "businessDayConvention",
-        "notional");
+        "notional",
+        "eom");
 
     /**
      * Restricted constructor.
@@ -381,6 +426,8 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
           return _businessDayConvention;
         case 1585636160:  // notional
           return _notional;
+        case 100611:  // eom
+          return _eom;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -439,6 +486,14 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
      */
     public final MetaProperty<Notional> notional() {
       return _notional;
+    }
+
+    /**
+     * The meta-property for the {@code eom} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> eom() {
+      return _eom;
     }
 
   }

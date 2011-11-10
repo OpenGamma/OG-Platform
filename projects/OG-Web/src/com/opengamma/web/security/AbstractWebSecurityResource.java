@@ -30,7 +30,9 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
@@ -217,6 +219,16 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
     @Override
     public String visitFloatingInterestRateLeg(FloatingInterestRateLeg swapLeg) {
       return "FloatingInterestRateLeg";
+    }
+
+    @Override
+    public String visitFloatingSpreadIRLeg(FloatingSpreadIRLeg swapLeg) {
+      return "FloatingSpreadInterestRateLeg";
+    }
+
+    @Override
+    public String visitFloatingGearingIRLeg(FloatingGearingIRLeg swapLeg) {
+      return "FloatingGearingInterestRateLeg";
     }
   }
   

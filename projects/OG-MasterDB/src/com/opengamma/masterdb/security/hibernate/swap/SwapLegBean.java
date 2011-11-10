@@ -6,6 +6,7 @@
 
 package com.opengamma.masterdb.security.hibernate.swap;
 
+import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.masterdb.security.hibernate.BusinessDayConventionBean;
 import com.opengamma.masterdb.security.hibernate.DayCountBean;
@@ -24,153 +25,210 @@ public class SwapLegBean {
   private ExternalIdBean _region;
   private BusinessDayConventionBean _businessDayConvention;
   private NotionalBean _notional;
-  private double _rate;
-  private double _spread;
+  private Double _rate;
+  private Double _spread;
   private ExternalIdBean _rateIdentifier;
-  private Boolean _ibor;
-
+  private boolean _eom;
+  private FloatingRateType _floatingRateType;
+  private Integer _settlementDays;
+  private FrequencyBean _offsetFixing;
+  private Double _gearing;
+  
+  /**
+   * Gets the swapLegType.
+   * @return the swapLegType
+   */
   public SwapLegType getSwapLegType() {
     return _swapLegType;
   }
-
-  public void setSwapLegType(final SwapLegType swapLegType) {
+  /**
+   * Sets the swapLegType.
+   * @param swapLegType  the swapLegType
+   */
+  public void setSwapLegType(SwapLegType swapLegType) {
     _swapLegType = swapLegType;
   }
-
   /**
-   * Gets the dayCount field.
+   * Gets the dayCount.
    * @return the dayCount
    */
   public DayCountBean getDayCount() {
     return _dayCount;
   }
-
   /**
-   * Sets the dayCount field.
+   * Sets the dayCount.
    * @param dayCount  the dayCount
    */
   public void setDayCount(DayCountBean dayCount) {
     _dayCount = dayCount;
   }
-
   /**
-   * Gets the frequency field.
+   * Gets the frequency.
    * @return the frequency
    */
   public FrequencyBean getFrequency() {
     return _frequency;
   }
-
   /**
-   * Sets the frequency field.
+   * Sets the frequency.
    * @param frequency  the frequency
    */
   public void setFrequency(FrequencyBean frequency) {
     _frequency = frequency;
   }
-
   /**
-   * Gets the region field.
+   * Gets the region.
    * @return the region
    */
   public ExternalIdBean getRegion() {
     return _region;
   }
-
   /**
-   * Sets the region field.
+   * Sets the region.
    * @param region  the region
    */
   public void setRegion(ExternalIdBean region) {
     _region = region;
   }
-
   /**
-   * Gets the businessDayConvention field.
+   * Gets the businessDayConvention.
    * @return the businessDayConvention
    */
   public BusinessDayConventionBean getBusinessDayConvention() {
     return _businessDayConvention;
   }
-
   /**
-   * Sets the businessDayConvention field.
+   * Sets the businessDayConvention.
    * @param businessDayConvention  the businessDayConvention
    */
   public void setBusinessDayConvention(BusinessDayConventionBean businessDayConvention) {
     _businessDayConvention = businessDayConvention;
   }
-
   /**
-   * Gets the notional field.
+   * Gets the notional.
    * @return the notional
    */
   public NotionalBean getNotional() {
     return _notional;
   }
-
   /**
-   * Sets the notional field.
+   * Sets the notional.
    * @param notional  the notional
    */
   public void setNotional(NotionalBean notional) {
     _notional = notional;
   }
-
   /**
-   * Gets the rate field.
+   * Gets the rate.
    * @return the rate
    */
-  public double getRate() {
+  public Double getRate() {
     return _rate;
   }
-
   /**
-   * Sets the rate field.
+   * Sets the rate.
    * @param rate  the rate
    */
-  public void setRate(double rate) {
+  public void setRate(Double rate) {
     _rate = rate;
   }
-
   /**
-   * Gets the spread field.
+   * Gets the spread.
    * @return the spread
    */
-  public double getSpread() {
+  public Double getSpread() {
     return _spread;
   }
-
   /**
-   * Sets the spread field.
+   * Sets the spread.
    * @param spread  the spread
    */
-  public void setSpread(double spread) {
+  public void setSpread(Double spread) {
     _spread = spread;
   }
-
   /**
-   * Gets the rateIdentifier field.
+   * Gets the rateIdentifier.
    * @return the rateIdentifier
    */
   public ExternalIdBean getRateIdentifier() {
     return _rateIdentifier;
   }
-
   /**
-   * Sets the rateIdentifier field.
+   * Sets the rateIdentifier.
    * @param rateIdentifier  the rateIdentifier
    */
   public void setRateIdentifier(ExternalIdBean rateIdentifier) {
     _rateIdentifier = rateIdentifier;
   }
-  
-  public Boolean isIBOR() {
-    return _ibor;
+  /**
+   * Gets the eom.
+   * @return the eom
+   */
+  public boolean isEom() {
+    return _eom;
   }
-  
-  public void setIBOR(final Boolean ibor) {
-    _ibor = ibor;
+  /**
+   * Sets the eom.
+   * @param eom  the eom
+   */
+  public void setEom(boolean eom) {
+    _eom = eom;
+  }
+  /**
+   * Gets the floatingRateType.
+   * @return the floatingRateType
+   */
+  public FloatingRateType getFloatingRateType() {
+    return _floatingRateType;
+  }
+  /**
+   * Sets the floatingRateType.
+   * @param floatingRateType  the floatingRateType
+   */
+  public void setFloatingRateType(FloatingRateType floatingRateType) {
+    _floatingRateType = floatingRateType;
+  }
+  /**
+   * Gets the settlementDays.
+   * @return the settlementDays
+   */
+  public Integer getSettlementDays() {
+    return _settlementDays;
+  }
+  /**
+   * Sets the settlementDays.
+   * @param settlementDays  the settlementDays
+   */
+  public void setSettlementDays(Integer settlementDays) {
+    _settlementDays = settlementDays;
+  }
+  /**
+   * Gets the offsetFixing.
+   * @return the offsetFixing
+   */
+  public FrequencyBean getOffsetFixing() {
+    return _offsetFixing;
+  }
+  /**
+   * Sets the offsetFixing.
+   * @param offsetFixing  the offsetFixing
+   */
+  public void setOffsetFixing(FrequencyBean offsetFixing) {
+    _offsetFixing = offsetFixing;
+  }
+  /**
+   * Gets the gearing.
+   * @return the gearing
+   */
+  public Double getGearing() {
+    return _gearing;
+  }
+  /**
+   * Sets the gearing.
+   * @param gearing  the gearing
+   */
+  public void setGearing(Double gearing) {
+    _gearing = gearing;
   }
   
 }
