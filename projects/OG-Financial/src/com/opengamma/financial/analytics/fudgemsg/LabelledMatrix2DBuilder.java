@@ -25,6 +25,9 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
  */
 final class LabelledMatrix2DBuilder {
   private static final String MATRIX_FIELD = "matrix";
+  private static final String X_TITLE_FIELD = "xTitle";
+  private static final String Y_TITLE_FIELD = "yTitle";
+  private static final String VALUES_TITLE_FIELD = "valuesTitle";
   private static final int X_LABEL_TYPE_ORDINAL = 0;
   private static final int X_KEY_ORDINAL = 1;
   private static final int X_LABEL_ORDINAL = 2;
@@ -39,6 +42,42 @@ final class LabelledMatrix2DBuilder {
   @FudgeBuilderFor(DoubleLabelledMatrix2D.class)
   public static final class DoubleLabelledMatrix2DBuilder extends AbstractFudgeBuilder<DoubleLabelledMatrix2D> {
 
+    @Override
+    protected void buildMessage(FudgeSerializer serializer, MutableFudgeMsg message, DoubleLabelledMatrix2D object) {
+      MutableFudgeMsg msg = serializer.newMessage();
+
+      Double[] xKeys = object.getXKeys();
+      Object[] xLabels = object.getXLabels();
+      Double[] yKeys = object.getYKeys();
+      Object[] yLabels = object.getYLabels();
+      double[][] values = object.getValues();
+      int n = yKeys.length;
+      int m = xKeys.length;
+      for (int i = 0; i < n; i++) {
+        msg.add(Y_LABEL_TYPE_ORDINAL, yLabels[i].getClass().getName());
+        msg.add(Y_KEY_ORDINAL, yKeys[i]);
+        serializer.addToMessage(msg, null, Y_LABEL_ORDINAL, yLabels[i]);
+        for (int j = 0; j < m; j++) {
+          if (i == 0) {
+            msg.add(X_LABEL_TYPE_ORDINAL, xLabels[j].getClass().getName());
+            msg.add(X_KEY_ORDINAL, xKeys[j]);
+            serializer.addToMessage(msg, null, X_LABEL_ORDINAL, xLabels[j]);
+          }
+          msg.add(VALUE_ORDINAL, values[i][j]);
+        }
+      }
+      message.add(MATRIX_FIELD, msg);
+      if (object.getXTitle() != null) {
+        message.add(X_TITLE_FIELD, object.getXTitle());
+      }
+      if (object.getYTitle() != null) {
+        message.add(Y_TITLE_FIELD, object.getYTitle());
+      }
+      if (object.getValuesTitle() != null) {
+        message.add(VALUES_TITLE_FIELD, object.getValuesTitle());
+      }
+    }
+    
     @Override
     public DoubleLabelledMatrix2D buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
       FudgeMsg msg = message.getMessage(MATRIX_FIELD);
@@ -117,6 +156,11 @@ final class LabelledMatrix2DBuilder {
           yLabels.add(label);
         }
       }
+      
+      final String xTitle = message.getString(X_TITLE_FIELD);
+      final String yTitle = message.getString(Y_TITLE_FIELD);
+      final String valuesTitle = message.getString(VALUES_TITLE_FIELD);
+      
       final int matrixRowSize = yKeys.size();
       final int matrixColumnSize = xKeys.size();
       final Double[] xKeysArray = new Double[matrixColumnSize];
@@ -135,34 +179,7 @@ final class LabelledMatrix2DBuilder {
           valuesArray[i][j] = values.get(i).get(j);
         }
       }
-      return new DoubleLabelledMatrix2D(xKeysArray, xLabelsArray, yKeysArray, yLabelsArray, valuesArray);
-    }
-
-    @Override
-    protected void buildMessage(FudgeSerializer serializer, MutableFudgeMsg message, DoubleLabelledMatrix2D object) {
-      MutableFudgeMsg msg = serializer.newMessage();
-
-      Double[] xKeys = object.getXKeys();
-      Object[] xLabels = object.getXLabels();
-      Double[] yKeys = object.getYKeys();
-      Object[] yLabels = object.getYLabels();
-      double[][] values = object.getValues();
-      int n = yKeys.length;
-      int m = xKeys.length;
-      for (int i = 0; i < n; i++) {
-        msg.add(Y_LABEL_TYPE_ORDINAL, yLabels[i].getClass().getName());
-        msg.add(Y_KEY_ORDINAL, yKeys[i]);
-        serializer.addToMessage(msg, null, Y_LABEL_ORDINAL, yLabels[i]);
-        for (int j = 0; j < m; j++) {
-          if (i == 0) {
-            msg.add(X_LABEL_TYPE_ORDINAL, xLabels[j].getClass().getName());
-            msg.add(X_KEY_ORDINAL, xKeys[j]);
-            serializer.addToMessage(msg, null, X_LABEL_ORDINAL, xLabels[j]);
-          }
-          msg.add(VALUE_ORDINAL, values[i][j]);
-        }
-      }
-      message.add(MATRIX_FIELD, msg);
+      return new DoubleLabelledMatrix2D(xKeysArray, xLabelsArray, xTitle, yKeysArray, yLabelsArray, yTitle, valuesArray, valuesTitle);
     }
 
   }

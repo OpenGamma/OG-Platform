@@ -42,7 +42,7 @@ public final class VolatilitySurfaceSpecificationJSONBuilder extends AbstractJSO
   @Override
   public String toJSON(VolatilitySurfaceSpecification object) {
     ArgumentChecker.notNull(object, "VolatilitySurfaceSpecification");
-    return toJSON(object, VolatilitySurfaceSpecification.class);
+    return fudgeToJson(object);
   }
 
   @Override

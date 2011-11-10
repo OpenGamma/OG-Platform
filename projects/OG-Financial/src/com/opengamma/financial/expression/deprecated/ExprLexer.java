@@ -1,18 +1,13 @@
-// $ANTLR 3.2 Fedora release 12 (Constantine) Thu Apr 29 14:41:02 UTC 2010 com/opengamma/financial/filtering/expression/Expr.g 2011-09-01 10:53:36
+// $ANTLR 3.2 Fedora release 15 (Rawhide) Tue Feb  8 02:02:23 UTC 2011 com/opengamma/financial/expression/deprecated/Expr.g 2011-11-09 15:09:05
 
-package com.opengamma.financial.filtering.expression;
+package com.opengamma.financial.expression.deprecated;
 //CSOFF
 
 
-import org.antlr.runtime.BaseRecognizer;
-import org.antlr.runtime.CharStream;
-import org.antlr.runtime.DFA;
-import org.antlr.runtime.EarlyExitException;
-import org.antlr.runtime.Lexer;
-import org.antlr.runtime.MismatchedSetException;
-import org.antlr.runtime.NoViableAltException;
-import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.RecognizerSharedState;
+import org.antlr.runtime.*;
+import java.util.Stack;
+import java.util.List;
+import java.util.ArrayList;
 
 public class ExprLexer extends Lexer {
     public static final int INTEGER=19;
@@ -47,15 +42,15 @@ public class ExprLexer extends Lexer {
         super(input,state);
 
     }
-    public String getGrammarFileName() { return "com/opengamma/financial/filtering/expression/Expr.g"; }
+    public String getGrammarFileName() { return "com/opengamma/financial/expression/deprecated/Expr.g"; }
 
     // $ANTLR start "LT"
     public final void mLT() throws RecognitionException {
         try {
             int _type = LT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // com/opengamma/financial/filtering/expression/Expr.g:8:4: ( '<' )
-            // com/opengamma/financial/filtering/expression/Expr.g:8:6: '<'
+            // com/opengamma/financial/expression/deprecated/Expr.g:8:4: ( '<' )
+            // com/opengamma/financial/expression/deprecated/Expr.g:8:6: '<'
             {
             match('<'); 
 
@@ -74,8 +69,8 @@ public class ExprLexer extends Lexer {
         try {
             int _type = LTE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // com/opengamma/financial/filtering/expression/Expr.g:9:5: ( '<=' )
-            // com/opengamma/financial/filtering/expression/Expr.g:9:7: '<='
+            // com/opengamma/financial/expression/deprecated/Expr.g:9:5: ( '<=' )
+            // com/opengamma/financial/expression/deprecated/Expr.g:9:7: '<='
             {
             match("<="); 
 
@@ -95,8 +90,8 @@ public class ExprLexer extends Lexer {
         try {
             int _type = GT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // com/opengamma/financial/filtering/expression/Expr.g:10:4: ( '>' )
-            // com/opengamma/financial/filtering/expression/Expr.g:10:6: '>'
+            // com/opengamma/financial/expression/deprecated/Expr.g:10:4: ( '>' )
+            // com/opengamma/financial/expression/deprecated/Expr.g:10:6: '>'
             {
             match('>'); 
 
@@ -115,8 +110,8 @@ public class ExprLexer extends Lexer {
         try {
             int _type = GTE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // com/opengamma/financial/filtering/expression/Expr.g:11:5: ( '>=' )
-            // com/opengamma/financial/filtering/expression/Expr.g:11:7: '>='
+            // com/opengamma/financial/expression/deprecated/Expr.g:11:5: ( '>=' )
+            // com/opengamma/financial/expression/deprecated/Expr.g:11:7: '>='
             {
             match(">="); 
 
@@ -136,8 +131,8 @@ public class ExprLexer extends Lexer {
         try {
             int _type = EQ;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // com/opengamma/financial/filtering/expression/Expr.g:12:4: ( '=' )
-            // com/opengamma/financial/filtering/expression/Expr.g:12:6: '='
+            // com/opengamma/financial/expression/deprecated/Expr.g:12:4: ( '=' )
+            // com/opengamma/financial/expression/deprecated/Expr.g:12:6: '='
             {
             match('='); 
 
@@ -156,8 +151,8 @@ public class ExprLexer extends Lexer {
         try {
             int _type = NEQ;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // com/opengamma/financial/filtering/expression/Expr.g:13:5: ( '<>' )
-            // com/opengamma/financial/filtering/expression/Expr.g:13:7: '<>'
+            // com/opengamma/financial/expression/deprecated/Expr.g:13:5: ( '<>' )
+            // com/opengamma/financial/expression/deprecated/Expr.g:13:7: '<>'
             {
             match("<>"); 
 
@@ -177,8 +172,8 @@ public class ExprLexer extends Lexer {
         try {
             int _type = T__21;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // com/opengamma/financial/filtering/expression/Expr.g:14:7: ( '(' )
-            // com/opengamma/financial/filtering/expression/Expr.g:14:9: '('
+            // com/opengamma/financial/expression/deprecated/Expr.g:14:7: ( '(' )
+            // com/opengamma/financial/expression/deprecated/Expr.g:14:9: '('
             {
             match('('); 
 
@@ -197,8 +192,8 @@ public class ExprLexer extends Lexer {
         try {
             int _type = T__22;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // com/opengamma/financial/filtering/expression/Expr.g:15:7: ( ')' )
-            // com/opengamma/financial/filtering/expression/Expr.g:15:9: ')'
+            // com/opengamma/financial/expression/deprecated/Expr.g:15:7: ( ')' )
+            // com/opengamma/financial/expression/deprecated/Expr.g:15:9: ')'
             {
             match(')'); 
 
@@ -217,8 +212,8 @@ public class ExprLexer extends Lexer {
         try {
             int _type = AND;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // com/opengamma/financial/filtering/expression/Expr.g:32:5: ( ( 'a' | 'A' ) ( 'n' | 'N' ) ( 'd' | 'D' ) )
-            // com/opengamma/financial/filtering/expression/Expr.g:32:7: ( 'a' | 'A' ) ( 'n' | 'N' ) ( 'd' | 'D' )
+            // com/opengamma/financial/expression/deprecated/Expr.g:32:5: ( ( 'a' | 'A' ) ( 'n' | 'N' ) ( 'd' | 'D' ) )
+            // com/opengamma/financial/expression/deprecated/Expr.g:32:7: ( 'a' | 'A' ) ( 'n' | 'N' ) ( 'd' | 'D' )
             {
             if ( input.LA(1)=='A'||input.LA(1)=='a' ) {
                 input.consume();
@@ -263,8 +258,8 @@ public class ExprLexer extends Lexer {
         try {
             int _type = NOT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // com/opengamma/financial/filtering/expression/Expr.g:33:5: ( ( 'n' | 'N' ) ( 'o' | 'O' ) ( 't' | 'T' ) )
-            // com/opengamma/financial/filtering/expression/Expr.g:33:7: ( 'n' | 'N' ) ( 'o' | 'O' ) ( 't' | 'T' )
+            // com/opengamma/financial/expression/deprecated/Expr.g:33:5: ( ( 'n' | 'N' ) ( 'o' | 'O' ) ( 't' | 'T' ) )
+            // com/opengamma/financial/expression/deprecated/Expr.g:33:7: ( 'n' | 'N' ) ( 'o' | 'O' ) ( 't' | 'T' )
             {
             if ( input.LA(1)=='N'||input.LA(1)=='n' ) {
                 input.consume();
@@ -309,8 +304,8 @@ public class ExprLexer extends Lexer {
         try {
             int _type = OR;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // com/opengamma/financial/filtering/expression/Expr.g:34:4: ( ( 'o' | 'O' ) ( 'r' | 'R' ) )
-            // com/opengamma/financial/filtering/expression/Expr.g:34:6: ( 'o' | 'O' ) ( 'r' | 'R' )
+            // com/opengamma/financial/expression/deprecated/Expr.g:34:4: ( ( 'o' | 'O' ) ( 'r' | 'R' ) )
+            // com/opengamma/financial/expression/deprecated/Expr.g:34:6: ( 'o' | 'O' ) ( 'r' | 'R' )
             {
             if ( input.LA(1)=='O'||input.LA(1)=='o' ) {
                 input.consume();
@@ -346,8 +341,8 @@ public class ExprLexer extends Lexer {
         try {
             int _type = TRUE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // com/opengamma/financial/filtering/expression/Expr.g:35:6: ( ( 't' | 'T' ) ( 'r' | 'R' ) ( 'u' | 'U' ) ( 'e' | 'E' ) )
-            // com/opengamma/financial/filtering/expression/Expr.g:35:8: ( 't' | 'T' ) ( 'r' | 'R' ) ( 'u' | 'U' ) ( 'e' | 'E' )
+            // com/opengamma/financial/expression/deprecated/Expr.g:35:6: ( ( 't' | 'T' ) ( 'r' | 'R' ) ( 'u' | 'U' ) ( 'e' | 'E' ) )
+            // com/opengamma/financial/expression/deprecated/Expr.g:35:8: ( 't' | 'T' ) ( 'r' | 'R' ) ( 'u' | 'U' ) ( 'e' | 'E' )
             {
             if ( input.LA(1)=='T'||input.LA(1)=='t' ) {
                 input.consume();
@@ -401,8 +396,8 @@ public class ExprLexer extends Lexer {
         try {
             int _type = FALSE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // com/opengamma/financial/filtering/expression/Expr.g:36:7: ( ( 'f' | 'F' ) ( 'a' | 'A' ) ( 'l' | 'L' ) ( 's' | 'S' ) ( 'e' | 'E' ) )
-            // com/opengamma/financial/filtering/expression/Expr.g:36:9: ( 'f' | 'F' ) ( 'a' | 'A' ) ( 'l' | 'L' ) ( 's' | 'S' ) ( 'e' | 'E' )
+            // com/opengamma/financial/expression/deprecated/Expr.g:36:7: ( ( 'f' | 'F' ) ( 'a' | 'A' ) ( 'l' | 'L' ) ( 's' | 'S' ) ( 'e' | 'E' ) )
+            // com/opengamma/financial/expression/deprecated/Expr.g:36:9: ( 'f' | 'F' ) ( 'a' | 'A' ) ( 'l' | 'L' ) ( 's' | 'S' ) ( 'e' | 'E' )
             {
             if ( input.LA(1)=='F'||input.LA(1)=='f' ) {
                 input.consume();
@@ -465,8 +460,8 @@ public class ExprLexer extends Lexer {
         try {
             int _type = IDENTIFIER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // com/opengamma/financial/filtering/expression/Expr.g:37:12: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '.' )* )
-            // com/opengamma/financial/filtering/expression/Expr.g:37:14: ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '.' )*
+            // com/opengamma/financial/expression/deprecated/Expr.g:37:12: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '.' )* )
+            // com/opengamma/financial/expression/deprecated/Expr.g:37:14: ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '.' )*
             {
             if ( (input.LA(1)>='A' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z') ) {
                 input.consume();
@@ -477,7 +472,7 @@ public class ExprLexer extends Lexer {
                 recover(mse);
                 throw mse;}
 
-            // com/opengamma/financial/filtering/expression/Expr.g:37:37: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '.' )*
+            // com/opengamma/financial/expression/deprecated/Expr.g:37:37: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '.' )*
             loop1:
             do {
                 int alt1=2;
@@ -490,7 +485,7 @@ public class ExprLexer extends Lexer {
 
                 switch (alt1) {
             	case 1 :
-            	    // com/opengamma/financial/filtering/expression/Expr.g:
+            	    // com/opengamma/financial/expression/deprecated/Expr.g:
             	    {
             	    if ( input.LA(1)=='.'||(input.LA(1)>='0' && input.LA(1)<='9')||(input.LA(1)>='A' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z') ) {
             	        input.consume();
@@ -526,11 +521,11 @@ public class ExprLexer extends Lexer {
         try {
             int _type = STRING;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // com/opengamma/financial/filtering/expression/Expr.g:38:8: ( '\"' ( options {greedy=false; } : ( '\\\\' . | . ) )* '\"' )
-            // com/opengamma/financial/filtering/expression/Expr.g:38:10: '\"' ( options {greedy=false; } : ( '\\\\' . | . ) )* '\"'
+            // com/opengamma/financial/expression/deprecated/Expr.g:38:8: ( '\"' ( options {greedy=false; } : ( '\\\\' . | . ) )* '\"' )
+            // com/opengamma/financial/expression/deprecated/Expr.g:38:10: '\"' ( options {greedy=false; } : ( '\\\\' . | . ) )* '\"'
             {
             match('\"'); 
-            // com/opengamma/financial/filtering/expression/Expr.g:38:14: ( options {greedy=false; } : ( '\\\\' . | . ) )*
+            // com/opengamma/financial/expression/deprecated/Expr.g:38:14: ( options {greedy=false; } : ( '\\\\' . | . ) )*
             loop3:
             do {
                 int alt3=2;
@@ -546,9 +541,9 @@ public class ExprLexer extends Lexer {
 
                 switch (alt3) {
             	case 1 :
-            	    // com/opengamma/financial/filtering/expression/Expr.g:38:46: ( '\\\\' . | . )
+            	    // com/opengamma/financial/expression/deprecated/Expr.g:38:46: ( '\\\\' . | . )
             	    {
-            	    // com/opengamma/financial/filtering/expression/Expr.g:38:46: ( '\\\\' . | . )
+            	    // com/opengamma/financial/expression/deprecated/Expr.g:38:46: ( '\\\\' . | . )
             	    int alt2=2;
             	    int LA2_0 = input.LA(1);
 
@@ -582,7 +577,7 @@ public class ExprLexer extends Lexer {
             	    }
             	    switch (alt2) {
             	        case 1 :
-            	            // com/opengamma/financial/filtering/expression/Expr.g:38:47: '\\\\' .
+            	            // com/opengamma/financial/expression/deprecated/Expr.g:38:47: '\\\\' .
             	            {
             	            match('\\'); 
             	            matchAny(); 
@@ -590,7 +585,7 @@ public class ExprLexer extends Lexer {
             	            }
             	            break;
             	        case 2 :
-            	            // com/opengamma/financial/filtering/expression/Expr.g:38:53: .
+            	            // com/opengamma/financial/expression/deprecated/Expr.g:38:53: .
             	            {
             	            matchAny(); 
 
@@ -625,12 +620,12 @@ public class ExprLexer extends Lexer {
         try {
             int _type = STRING_IDENTIFIER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // com/opengamma/financial/filtering/expression/Expr.g:39:19: ( '$\"' ( options {greedy=false; } : ( '\\\\' . | . ) )* '\"' )
-            // com/opengamma/financial/filtering/expression/Expr.g:39:21: '$\"' ( options {greedy=false; } : ( '\\\\' . | . ) )* '\"'
+            // com/opengamma/financial/expression/deprecated/Expr.g:39:19: ( '$\"' ( options {greedy=false; } : ( '\\\\' . | . ) )* '\"' )
+            // com/opengamma/financial/expression/deprecated/Expr.g:39:21: '$\"' ( options {greedy=false; } : ( '\\\\' . | . ) )* '\"'
             {
             match("$\""); 
 
-            // com/opengamma/financial/filtering/expression/Expr.g:39:26: ( options {greedy=false; } : ( '\\\\' . | . ) )*
+            // com/opengamma/financial/expression/deprecated/Expr.g:39:26: ( options {greedy=false; } : ( '\\\\' . | . ) )*
             loop5:
             do {
                 int alt5=2;
@@ -646,9 +641,9 @@ public class ExprLexer extends Lexer {
 
                 switch (alt5) {
             	case 1 :
-            	    // com/opengamma/financial/filtering/expression/Expr.g:39:58: ( '\\\\' . | . )
+            	    // com/opengamma/financial/expression/deprecated/Expr.g:39:58: ( '\\\\' . | . )
             	    {
-            	    // com/opengamma/financial/filtering/expression/Expr.g:39:58: ( '\\\\' . | . )
+            	    // com/opengamma/financial/expression/deprecated/Expr.g:39:58: ( '\\\\' . | . )
             	    int alt4=2;
             	    int LA4_0 = input.LA(1);
 
@@ -682,7 +677,7 @@ public class ExprLexer extends Lexer {
             	    }
             	    switch (alt4) {
             	        case 1 :
-            	            // com/opengamma/financial/filtering/expression/Expr.g:39:59: '\\\\' .
+            	            // com/opengamma/financial/expression/deprecated/Expr.g:39:59: '\\\\' .
             	            {
             	            match('\\'); 
             	            matchAny(); 
@@ -690,7 +685,7 @@ public class ExprLexer extends Lexer {
             	            }
             	            break;
             	        case 2 :
-            	            // com/opengamma/financial/filtering/expression/Expr.g:39:65: .
+            	            // com/opengamma/financial/expression/deprecated/Expr.g:39:65: .
             	            {
             	            matchAny(); 
 
@@ -725,10 +720,10 @@ public class ExprLexer extends Lexer {
         try {
             int _type = WHITESPACE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // com/opengamma/financial/filtering/expression/Expr.g:40:12: ( ( ' ' | '\\t' | '\\r' | '\\n' )+ )
-            // com/opengamma/financial/filtering/expression/Expr.g:40:14: ( ' ' | '\\t' | '\\r' | '\\n' )+
+            // com/opengamma/financial/expression/deprecated/Expr.g:40:12: ( ( ' ' | '\\t' | '\\r' | '\\n' )+ )
+            // com/opengamma/financial/expression/deprecated/Expr.g:40:14: ( ' ' | '\\t' | '\\r' | '\\n' )+
             {
-            // com/opengamma/financial/filtering/expression/Expr.g:40:14: ( ' ' | '\\t' | '\\r' | '\\n' )+
+            // com/opengamma/financial/expression/deprecated/Expr.g:40:14: ( ' ' | '\\t' | '\\r' | '\\n' )+
             int cnt6=0;
             loop6:
             do {
@@ -742,7 +737,7 @@ public class ExprLexer extends Lexer {
 
                 switch (alt6) {
             	case 1 :
-            	    // com/opengamma/financial/filtering/expression/Expr.g:
+            	    // com/opengamma/financial/expression/deprecated/Expr.g:
             	    {
             	    if ( (input.LA(1)>='\t' && input.LA(1)<='\n')||input.LA(1)=='\r'||input.LA(1)==' ' ) {
             	        input.consume();
@@ -783,10 +778,10 @@ public class ExprLexer extends Lexer {
         try {
             int _type = INTEGER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // com/opengamma/financial/filtering/expression/Expr.g:41:9: ( ( '+' | '-' )? ( '0' .. '9' )+ )
-            // com/opengamma/financial/filtering/expression/Expr.g:41:11: ( '+' | '-' )? ( '0' .. '9' )+
+            // com/opengamma/financial/expression/deprecated/Expr.g:41:9: ( ( '+' | '-' )? ( '0' .. '9' )+ )
+            // com/opengamma/financial/expression/deprecated/Expr.g:41:11: ( '+' | '-' )? ( '0' .. '9' )+
             {
-            // com/opengamma/financial/filtering/expression/Expr.g:41:11: ( '+' | '-' )?
+            // com/opengamma/financial/expression/deprecated/Expr.g:41:11: ( '+' | '-' )?
             int alt7=2;
             int LA7_0 = input.LA(1);
 
@@ -795,7 +790,7 @@ public class ExprLexer extends Lexer {
             }
             switch (alt7) {
                 case 1 :
-                    // com/opengamma/financial/filtering/expression/Expr.g:
+                    // com/opengamma/financial/expression/deprecated/Expr.g:
                     {
                     if ( input.LA(1)=='+'||input.LA(1)=='-' ) {
                         input.consume();
@@ -812,7 +807,7 @@ public class ExprLexer extends Lexer {
 
             }
 
-            // com/opengamma/financial/filtering/expression/Expr.g:41:22: ( '0' .. '9' )+
+            // com/opengamma/financial/expression/deprecated/Expr.g:41:22: ( '0' .. '9' )+
             int cnt8=0;
             loop8:
             do {
@@ -826,7 +821,7 @@ public class ExprLexer extends Lexer {
 
                 switch (alt8) {
             	case 1 :
-            	    // com/opengamma/financial/filtering/expression/Expr.g:41:22: '0' .. '9'
+            	    // com/opengamma/financial/expression/deprecated/Expr.g:41:22: '0' .. '9'
             	    {
             	    matchRange('0','9'); 
 
@@ -858,10 +853,10 @@ public class ExprLexer extends Lexer {
         try {
             int _type = FLOAT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // com/opengamma/financial/filtering/expression/Expr.g:42:7: ( ( '+' | '-' )? ( '0' .. '9' )* '.' ( '0' .. '9' )+ ( ( 'e' | 'E' ) ( '+' | '-' )? ( '0' .. '9' )+ )? ( 'f' )? )
-            // com/opengamma/financial/filtering/expression/Expr.g:42:9: ( '+' | '-' )? ( '0' .. '9' )* '.' ( '0' .. '9' )+ ( ( 'e' | 'E' ) ( '+' | '-' )? ( '0' .. '9' )+ )? ( 'f' )?
+            // com/opengamma/financial/expression/deprecated/Expr.g:42:7: ( ( '+' | '-' )? ( '0' .. '9' )* '.' ( '0' .. '9' )+ ( ( 'e' | 'E' ) ( '+' | '-' )? ( '0' .. '9' )+ )? ( 'f' )? )
+            // com/opengamma/financial/expression/deprecated/Expr.g:42:9: ( '+' | '-' )? ( '0' .. '9' )* '.' ( '0' .. '9' )+ ( ( 'e' | 'E' ) ( '+' | '-' )? ( '0' .. '9' )+ )? ( 'f' )?
             {
-            // com/opengamma/financial/filtering/expression/Expr.g:42:9: ( '+' | '-' )?
+            // com/opengamma/financial/expression/deprecated/Expr.g:42:9: ( '+' | '-' )?
             int alt9=2;
             int LA9_0 = input.LA(1);
 
@@ -870,7 +865,7 @@ public class ExprLexer extends Lexer {
             }
             switch (alt9) {
                 case 1 :
-                    // com/opengamma/financial/filtering/expression/Expr.g:
+                    // com/opengamma/financial/expression/deprecated/Expr.g:
                     {
                     if ( input.LA(1)=='+'||input.LA(1)=='-' ) {
                         input.consume();
@@ -887,7 +882,7 @@ public class ExprLexer extends Lexer {
 
             }
 
-            // com/opengamma/financial/filtering/expression/Expr.g:42:20: ( '0' .. '9' )*
+            // com/opengamma/financial/expression/deprecated/Expr.g:42:20: ( '0' .. '9' )*
             loop10:
             do {
                 int alt10=2;
@@ -900,7 +895,7 @@ public class ExprLexer extends Lexer {
 
                 switch (alt10) {
             	case 1 :
-            	    // com/opengamma/financial/filtering/expression/Expr.g:42:21: '0' .. '9'
+            	    // com/opengamma/financial/expression/deprecated/Expr.g:42:21: '0' .. '9'
             	    {
             	    matchRange('0','9'); 
 
@@ -913,7 +908,7 @@ public class ExprLexer extends Lexer {
             } while (true);
 
             match('.'); 
-            // com/opengamma/financial/filtering/expression/Expr.g:42:36: ( '0' .. '9' )+
+            // com/opengamma/financial/expression/deprecated/Expr.g:42:36: ( '0' .. '9' )+
             int cnt11=0;
             loop11:
             do {
@@ -927,7 +922,7 @@ public class ExprLexer extends Lexer {
 
                 switch (alt11) {
             	case 1 :
-            	    // com/opengamma/financial/filtering/expression/Expr.g:42:37: '0' .. '9'
+            	    // com/opengamma/financial/expression/deprecated/Expr.g:42:37: '0' .. '9'
             	    {
             	    matchRange('0','9'); 
 
@@ -943,7 +938,7 @@ public class ExprLexer extends Lexer {
                 cnt11++;
             } while (true);
 
-            // com/opengamma/financial/filtering/expression/Expr.g:42:48: ( ( 'e' | 'E' ) ( '+' | '-' )? ( '0' .. '9' )+ )?
+            // com/opengamma/financial/expression/deprecated/Expr.g:42:48: ( ( 'e' | 'E' ) ( '+' | '-' )? ( '0' .. '9' )+ )?
             int alt14=2;
             int LA14_0 = input.LA(1);
 
@@ -952,7 +947,7 @@ public class ExprLexer extends Lexer {
             }
             switch (alt14) {
                 case 1 :
-                    // com/opengamma/financial/filtering/expression/Expr.g:42:50: ( 'e' | 'E' ) ( '+' | '-' )? ( '0' .. '9' )+
+                    // com/opengamma/financial/expression/deprecated/Expr.g:42:50: ( 'e' | 'E' ) ( '+' | '-' )? ( '0' .. '9' )+
                     {
                     if ( input.LA(1)=='E'||input.LA(1)=='e' ) {
                         input.consume();
@@ -963,7 +958,7 @@ public class ExprLexer extends Lexer {
                         recover(mse);
                         throw mse;}
 
-                    // com/opengamma/financial/filtering/expression/Expr.g:42:60: ( '+' | '-' )?
+                    // com/opengamma/financial/expression/deprecated/Expr.g:42:60: ( '+' | '-' )?
                     int alt12=2;
                     int LA12_0 = input.LA(1);
 
@@ -972,7 +967,7 @@ public class ExprLexer extends Lexer {
                     }
                     switch (alt12) {
                         case 1 :
-                            // com/opengamma/financial/filtering/expression/Expr.g:
+                            // com/opengamma/financial/expression/deprecated/Expr.g:
                             {
                             if ( input.LA(1)=='+'||input.LA(1)=='-' ) {
                                 input.consume();
@@ -989,7 +984,7 @@ public class ExprLexer extends Lexer {
 
                     }
 
-                    // com/opengamma/financial/filtering/expression/Expr.g:42:71: ( '0' .. '9' )+
+                    // com/opengamma/financial/expression/deprecated/Expr.g:42:71: ( '0' .. '9' )+
                     int cnt13=0;
                     loop13:
                     do {
@@ -1003,7 +998,7 @@ public class ExprLexer extends Lexer {
 
                         switch (alt13) {
                     	case 1 :
-                    	    // com/opengamma/financial/filtering/expression/Expr.g:42:72: '0' .. '9'
+                    	    // com/opengamma/financial/expression/deprecated/Expr.g:42:72: '0' .. '9'
                     	    {
                     	    matchRange('0','9'); 
 
@@ -1025,7 +1020,7 @@ public class ExprLexer extends Lexer {
 
             }
 
-            // com/opengamma/financial/filtering/expression/Expr.g:42:86: ( 'f' )?
+            // com/opengamma/financial/expression/deprecated/Expr.g:42:86: ( 'f' )?
             int alt15=2;
             int LA15_0 = input.LA(1);
 
@@ -1034,7 +1029,7 @@ public class ExprLexer extends Lexer {
             }
             switch (alt15) {
                 case 1 :
-                    // com/opengamma/financial/filtering/expression/Expr.g:42:86: 'f'
+                    // com/opengamma/financial/expression/deprecated/Expr.g:42:86: 'f'
                     {
                     match('f'); 
 
@@ -1055,138 +1050,138 @@ public class ExprLexer extends Lexer {
     // $ANTLR end "FLOAT"
 
     public void mTokens() throws RecognitionException {
-        // com/opengamma/financial/filtering/expression/Expr.g:1:8: ( LT | LTE | GT | GTE | EQ | NEQ | T__21 | T__22 | AND | NOT | OR | TRUE | FALSE | IDENTIFIER | STRING | STRING_IDENTIFIER | WHITESPACE | INTEGER | FLOAT )
+        // com/opengamma/financial/expression/deprecated/Expr.g:1:8: ( LT | LTE | GT | GTE | EQ | NEQ | T__21 | T__22 | AND | NOT | OR | TRUE | FALSE | IDENTIFIER | STRING | STRING_IDENTIFIER | WHITESPACE | INTEGER | FLOAT )
         int alt16=19;
         alt16 = dfa16.predict(input);
         switch (alt16) {
             case 1 :
-                // com/opengamma/financial/filtering/expression/Expr.g:1:10: LT
+                // com/opengamma/financial/expression/deprecated/Expr.g:1:10: LT
                 {
                 mLT(); 
 
                 }
                 break;
             case 2 :
-                // com/opengamma/financial/filtering/expression/Expr.g:1:13: LTE
+                // com/opengamma/financial/expression/deprecated/Expr.g:1:13: LTE
                 {
                 mLTE(); 
 
                 }
                 break;
             case 3 :
-                // com/opengamma/financial/filtering/expression/Expr.g:1:17: GT
+                // com/opengamma/financial/expression/deprecated/Expr.g:1:17: GT
                 {
                 mGT(); 
 
                 }
                 break;
             case 4 :
-                // com/opengamma/financial/filtering/expression/Expr.g:1:20: GTE
+                // com/opengamma/financial/expression/deprecated/Expr.g:1:20: GTE
                 {
                 mGTE(); 
 
                 }
                 break;
             case 5 :
-                // com/opengamma/financial/filtering/expression/Expr.g:1:24: EQ
+                // com/opengamma/financial/expression/deprecated/Expr.g:1:24: EQ
                 {
                 mEQ(); 
 
                 }
                 break;
             case 6 :
-                // com/opengamma/financial/filtering/expression/Expr.g:1:27: NEQ
+                // com/opengamma/financial/expression/deprecated/Expr.g:1:27: NEQ
                 {
                 mNEQ(); 
 
                 }
                 break;
             case 7 :
-                // com/opengamma/financial/filtering/expression/Expr.g:1:31: T__21
+                // com/opengamma/financial/expression/deprecated/Expr.g:1:31: T__21
                 {
                 mT__21(); 
 
                 }
                 break;
             case 8 :
-                // com/opengamma/financial/filtering/expression/Expr.g:1:37: T__22
+                // com/opengamma/financial/expression/deprecated/Expr.g:1:37: T__22
                 {
                 mT__22(); 
 
                 }
                 break;
             case 9 :
-                // com/opengamma/financial/filtering/expression/Expr.g:1:43: AND
+                // com/opengamma/financial/expression/deprecated/Expr.g:1:43: AND
                 {
                 mAND(); 
 
                 }
                 break;
             case 10 :
-                // com/opengamma/financial/filtering/expression/Expr.g:1:47: NOT
+                // com/opengamma/financial/expression/deprecated/Expr.g:1:47: NOT
                 {
                 mNOT(); 
 
                 }
                 break;
             case 11 :
-                // com/opengamma/financial/filtering/expression/Expr.g:1:51: OR
+                // com/opengamma/financial/expression/deprecated/Expr.g:1:51: OR
                 {
                 mOR(); 
 
                 }
                 break;
             case 12 :
-                // com/opengamma/financial/filtering/expression/Expr.g:1:54: TRUE
+                // com/opengamma/financial/expression/deprecated/Expr.g:1:54: TRUE
                 {
                 mTRUE(); 
 
                 }
                 break;
             case 13 :
-                // com/opengamma/financial/filtering/expression/Expr.g:1:59: FALSE
+                // com/opengamma/financial/expression/deprecated/Expr.g:1:59: FALSE
                 {
                 mFALSE(); 
 
                 }
                 break;
             case 14 :
-                // com/opengamma/financial/filtering/expression/Expr.g:1:65: IDENTIFIER
+                // com/opengamma/financial/expression/deprecated/Expr.g:1:65: IDENTIFIER
                 {
                 mIDENTIFIER(); 
 
                 }
                 break;
             case 15 :
-                // com/opengamma/financial/filtering/expression/Expr.g:1:76: STRING
+                // com/opengamma/financial/expression/deprecated/Expr.g:1:76: STRING
                 {
                 mSTRING(); 
 
                 }
                 break;
             case 16 :
-                // com/opengamma/financial/filtering/expression/Expr.g:1:83: STRING_IDENTIFIER
+                // com/opengamma/financial/expression/deprecated/Expr.g:1:83: STRING_IDENTIFIER
                 {
                 mSTRING_IDENTIFIER(); 
 
                 }
                 break;
             case 17 :
-                // com/opengamma/financial/filtering/expression/Expr.g:1:101: WHITESPACE
+                // com/opengamma/financial/expression/deprecated/Expr.g:1:101: WHITESPACE
                 {
                 mWHITESPACE(); 
 
                 }
                 break;
             case 18 :
-                // com/opengamma/financial/filtering/expression/Expr.g:1:112: INTEGER
+                // com/opengamma/financial/expression/deprecated/Expr.g:1:112: INTEGER
                 {
                 mINTEGER(); 
 
                 }
                 break;
             case 19 :
-                // com/opengamma/financial/filtering/expression/Expr.g:1:120: FLOAT
+                // com/opengamma/financial/expression/deprecated/Expr.g:1:120: FLOAT
                 {
                 mFLOAT(); 
 
