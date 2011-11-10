@@ -82,6 +82,10 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
     final Set<String> defaults = getDefaultValue(context, target, desiredValue);
+    if (defaults == null) {
+      // If canApplyTo is overloaded, we can't assert that gDV returns non-null so check
+      return null;
+    }
     final ValueProperties.Builder constraints = desiredValue.getConstraints().copy();
     if (defaults.isEmpty()) {
       constraints.withAny(getPropertyName());
