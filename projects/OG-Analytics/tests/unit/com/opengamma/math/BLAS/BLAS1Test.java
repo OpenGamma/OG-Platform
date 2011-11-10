@@ -44,9 +44,12 @@ public class BLAS1Test {
   double[] alpha_times_x37_plus_y37 = {17, 34, 51, 68, 85, 102, 119, 136, 153, 170, 187, 204, 221, 238, 255, 272, 289, 306, 323, 340, 357, 374, 391, 408, 425, 442, 459, 476, 493, 510, 527, 544, 561,
       578, 595, 612, 629 };
   double[] alpha_times_x37 = {7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91, 98, 105, 112, 119, 126, 133, 140, 147, 154, 161, 168, 175, 182, 189, 196, 203, 210, 217, 224, 231, 238, 245, 252, 259 };
-
+ 
   // scalar
   double alpha = 7;
+  
+  // for idx search and sum
+  double[] xSS = {13,1,5,19,4,5,19,7,8};
 
   BLAS1 blas1 = new BLAS1();
 
@@ -693,6 +696,75 @@ public class BLAS1Test {
     assertTrue(Arrays.equals(tmpY.getData(), y37));
   }
 
+  
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////// DDOT /////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testDDOT_nullX() {
+    BLAS1.ddot(xnull, y1);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testDDOT_nullY() {
+    BLAS1.ddot(xnull, y1);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testDDOT_badLengths() {
+    BLAS1.ddot(x1, y16);
+  }
+
+  @Test
+  public void testDDOT_x37_dot_y37() {
+    assertTrue(BLAS1.ddot(x37, y37)==175750);
+  }
+
+  @Test
+  public void testDDOT_D1D_x37_dot_y37() {
+    assertTrue(BLAS1.ddot(new DoubleMatrix1D(x37).getData(), y37)==175750);
+  }
+
+  @Test
+  public void testDDOT_x37_dot_D1D_y37() {
+    assertTrue(BLAS1.ddot(x37, new DoubleMatrix1D(y37).getData())==175750);
+  }
+
+  @Test
+  public void testDDOT_D1D_x37_dot_D1D__y37() {
+    assertTrue(BLAS1.ddot(new DoubleMatrix1D(x37).getData(), new DoubleMatrix1D(y37).getData())==175750);
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////// DNRM2 /////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testDNRM2_nullX(){
+    BLAS1.dnrm2(xnull);
+  }
+
+  @Test
+  public void testDNRM2_x16(){
+    assertTrue(Math.abs(Math.pow(BLAS1.dnrm2(x16),2)-1496)<1e-16);
+  }
+
+  @Test
+  public void testDNRM2_D1D_x16(){
+    assertTrue(Math.abs(Math.pow(BLAS1.dnrm2(new DoubleMatrix1D(x16).getData()),2)-1496)<1e-16);
+  }  
+  
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////// IDMAX /////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  public void testIDMAX() {
+    assertTrue(BLAS1.idmax(xSS)==3);
+  }
+
+  public void testIDMAX_D1D() {
+    assertTrue(BLAS1.idmax(new DoubleMatrix1D(xSS).getData())==3);
+  }  
+  
   ///////////////////////////////////////////////////////////////////////////////////////////////
   /* HELPERS *//* HELPERS *//* HELPERS *//* HELPERS *//* HELPERS *//* HELPERS *//* HELPERS */
   ///////////////////////////////////////////////////////////////////////////////////////////////

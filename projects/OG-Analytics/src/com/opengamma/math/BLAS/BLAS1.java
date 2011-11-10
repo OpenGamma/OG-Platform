@@ -544,6 +544,153 @@ public class BLAS1 {
   public static void dcopyInplace(DoubleMatrix1D x, DoubleMatrix1D y) {
     dcopyInplace(x.getData(), y.getData());
   }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////// DDOT /////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  /**
+   * DDOT performs the following vector operation
+   *
+   *  dot <-- (x^T)y
+   *
+   *  x and y are vectors. ^T denotes transpose.
+   *  This is the classic dot (inner) product of two vectors.
+   *
+   */
+
+  /**
+   * DDOT: dot <-- (x^T)y
+   * @param x a vector
+   * @param y a vector
+   * @return tmp the dot product of x and y.
+   */
+  public static double ddot(double[] x, double[] y) {
+    Validate.notNull(x);
+    Validate.notNull(y);
+    Validate.isTrue(x.length == y.length);
+    final int n = x.length;
+    double tmp = 0d;
+    for (int i = 0; i < n; i++) {
+      tmp += x[i] * y[i];
+    }
+    return tmp;
+  }
+
+  /**
+   * DDOT: dot <-- (x^T)y
+   * @param x a DoubleMatrix1D
+   * @param y a vector
+   * @return tmp the dot product of x and y.
+   */
+  public static double ddot(DoubleMatrix1D x, double[] y) {
+    return ddot(x.getData(), y);
+  }
+
+  /**
+   * DDOT: dot <-- (x^T)y
+   * @param x a vector
+   * @param y a DoubleMatrix1D
+   * @return tmp the dot product of x and y.
+   */
+  public static double ddot(double[] x, DoubleMatrix1D y) {
+    return ddot(x, y.getData());
+  }
+
+  /**
+   * DDOT: dot <-- (x^T)y
+   * @param x a DoubleMatrix1D
+   * @param y a DoubleMatrix1D
+   * @return tmp the dot product of x and y.
+   */
+  public static double ddot(DoubleMatrix1D x, DoubleMatrix1D y) {
+    return ddot(x.getData(), y.getData());
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////// DNRM2 /////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  /**
+   * DNRM2 performs the following vector operation
+   *
+   *  nrm2 <-- ||x||_2
+   *
+   *  which is effectively
+   *
+   *  nrm2 <-- sqrt(x[0]*x[0]+x[1]*x[1]+...+x[n]*x[n])
+   *
+   *  x is vector.
+   *  This is the classic 2-norm (L2 norm, Euclidean norm) of a vector.
+   *
+   */
+
+  /**
+   * DNRM2: nrm2 <-- ||x||_2
+   * @param x a vector
+   * @return tmp the 2-norm of x.
+   */
+  public static double dnrm2(double[] x) {
+    Validate.notNull(x);
+    final int n = x.length;
+    double tmp = 0d;
+    for (int i = 0; i < n; i++) {
+      tmp += x[i] * x[i];
+    }
+    return Math.sqrt(tmp);
+  }
+
+  /**
+   * DNRM2: nrm2 <-- ||x||_2
+   * @param x a DoubleMatrix1D
+   * @return tmp the 2-norm of x.
+   */
+  public static double dnrm2(DoubleMatrix1D x) {
+    return dnrm2(x.getData());
+  }
+  
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////// IDMAX /////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  /**
+   * IDMAX performs the following scalar operation
+   *
+   *  amax <-- 1st k where |Re{x_k}| == max(Re{x_i})
+   *  
+   *  Basically looks through the vector and returns the index of the first value that equals the absolute maximum 
+   *
+   *  x is a vector.
+   *
+   */
+
+  /**
+   * IDMAX: amax <-- 1st k where |Re{x_k}| == max(Re{x_i})
+   * Finds the index of the first value that equals the absolute maximum.
+   * @param x a vector
+   * @return idx the first index at which the maximum value occurs 
+   */
+  public static int idmax(double[] x) {
+    Validate.notNull(x);
+    double max = Double.MIN_VALUE;
+    int idx = -1;
+    final int n = x.length;
+    for (int i = 0; i < n; i++) {
+      if (x[i] > max) {
+        max = x[i];
+        idx = i;
+      }
+    }
+    return idx;
+  }
+  
+  /**
+   * IDMAX: amax <-- 1st k where |Re{x_k}| == max(Re{x_i})
+   * Finds the index of the first value that equals the absolute maximum.
+   * @param x a vector
+   * @return idx the first index at which the maximum value occurs 
+   */
+  public static int idmax(DoubleMatrix1D x) {
+    return idmax(x.getData());
+  }
 
 } // class end
 
