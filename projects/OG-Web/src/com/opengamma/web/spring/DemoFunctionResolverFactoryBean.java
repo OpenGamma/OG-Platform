@@ -19,7 +19,7 @@ import com.opengamma.financial.analytics.model.bond.BondPresentValueCountryCurve
 import com.opengamma.financial.analytics.model.bond.BondPresentValueCurrencyCurveFunction;
 import com.opengamma.financial.currency.CurrencyConversionFunction;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
-import com.opengamma.financial.currency.DefaultCurrencyFunction;
+import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.SingletonFactoryBean;
 
 /**
@@ -44,8 +44,8 @@ public class DemoFunctionResolverFactoryBean extends SingletonFactoryBean<Functi
         if (function instanceof CurrencyConversionFunction) {
           return Integer.MIN_VALUE;
         }
-        if (function instanceof DefaultCurrencyFunction) {
-          if (((DefaultCurrencyFunction) function).hasValueName(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)) {
+        if (function instanceof DefaultPropertyFunction) {
+          if (((DefaultPropertyFunction) function).hasValueName(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)) {
             // YCNS currency injection must be below the filtering summing function priority, or the filter may never
             // be applied.
             return -2;

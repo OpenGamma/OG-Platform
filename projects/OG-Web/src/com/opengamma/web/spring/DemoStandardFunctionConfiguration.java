@@ -42,7 +42,9 @@ import com.opengamma.financial.analytics.PositionWeightFromNAVFunction;
 import com.opengamma.financial.analytics.SummingFunction;
 import com.opengamma.financial.analytics.UnitPositionScalingFunction;
 import com.opengamma.financial.analytics.UnitPositionTradeScalingFunction;
+import com.opengamma.financial.analytics.ircurve.DefaultYieldCurveShiftFunction;
 import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.ircurve.YieldCurveShiftFunction;
 import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromYieldFunction;
 import com.opengamma.financial.analytics.model.bond.BondCouponPaymentDiaryFunction;
@@ -133,8 +135,10 @@ import com.opengamma.financial.analytics.model.var.PortfolioHistoricalVaRCalcula
 import com.opengamma.financial.analytics.model.var.PositionHistoricalVaRCalculatorFunction;
 import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.financial.analytics.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceFunction;
+import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySurfaceShiftFunction;
 import com.opengamma.financial.analytics.volatility.surface.SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction;
 import com.opengamma.financial.analytics.volatility.surface.SABRNonLinearLeastSquaresSwaptionCubeFittingFunction;
+import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.DefaultCurrencyInjectionFunction;
@@ -474,6 +478,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(BottomPositionValues.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(SortedPositionValues.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(TopPositionValues.class.getName()));
+    
+    functionConfigs.add(new StaticFunctionConfiguration(VolatilitySurfaceShiftFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(DefaultVolatilitySurfaceShiftFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(YieldCurveShiftFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(DefaultYieldCurveShiftFunction.class.getName()));
     
     // Historical data functions.
     addDummyFunction(functionConfigs, ValueRequirementNames.DAILY_VOLUME);

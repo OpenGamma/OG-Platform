@@ -19,6 +19,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 //TODO need to test for uniqueness of keys and labels
 public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
+  private final String _labelsTitle;
+  private final String _valuesTitle;
   private final S[] _keys;
   private final Object[] _labels;
   private final double[] _values;
@@ -36,8 +38,16 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
   public LabelledMatrix1D(final S[] keys, final double[] values, final T defaultTolerance) {
     this(keys, toString(keys), values, defaultTolerance);
   }
-
+  
   public LabelledMatrix1D(final S[] keys, final Object[] labels, final double[] values, final T defaultTolerance) {
+    this(keys, labels, null, values, null, defaultTolerance);
+  }
+  
+  public LabelledMatrix1D(final S[] keys, final String labelsTitle, final double[] values, final String valuesTitle, final T defaultTolerance) {
+    this(keys, toString(keys), labelsTitle, values, valuesTitle, defaultTolerance);
+  }
+
+  public LabelledMatrix1D(final S[] keys, final Object[] labels, final String labelsTitle, final double[] values, final String valuesTitle, final T defaultTolerance) {
     Validate.notNull(keys, "labels");
     Validate.notNull(labels, "label names");
     Validate.notNull(values, "values");
@@ -46,7 +56,9 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
     Validate.isTrue(n == values.length, "length of keys array must match length of values array");
     _keys = Arrays.copyOf(keys, n);
     _labels = Arrays.copyOf(labels, n);
+    _labelsTitle = labelsTitle;
     _values = Arrays.copyOf(values, n);
+    _valuesTitle = valuesTitle;
     _defaultTolerance = defaultTolerance;
     quickSort();
   }
@@ -58,9 +70,17 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
   public Object[] getLabels() {
     return _labels;
   }
+  
+  public String getLabelsTitle() {
+    return _labelsTitle;
+  }
 
   public double[] getValues() {
     return _values;
+  }
+  
+  public String getValuesTitle() {
+    return _valuesTitle;
   }
 
   public int size() {
@@ -217,7 +237,7 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
         newValues[j] = otherValues[i];
       }
     }
-    return getMatrix(Arrays.copyOf(newKeys, count), Arrays.copyOf(newLabels, count), Arrays.copyOf(newValues, count));
+    return getMatrix(Arrays.copyOf(newKeys, count), Arrays.copyOf(newLabels, count), getLabelsTitle(), Arrays.copyOf(newValues, count), getValuesTitle());
   }
 
   protected LabelledMatrix1D<S, T> add(final S key, final Object label, final double value, final T tolerance, final boolean ignoreLabel) {
@@ -236,7 +256,7 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
       final Object[] newLabels = Arrays.copyOf(originalLabels, n);
       final double[] newValues = Arrays.copyOf(originalValues, n);
       newValues[index] += value;
-      return getMatrix(newKeys, newLabels, newValues);
+      return getMatrix(newKeys, newLabels, getLabelsTitle(), newValues, getValuesTitle());
     }
     final S[] newKeys = Arrays.copyOf(originalKeys, n + 1);
     final Object[] newLabels = Arrays.copyOf(originalLabels, n + 1);
@@ -275,6 +295,8 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
   public int compare(final S key1, final S key2) {
     return compare(key1, key2, getDefaultTolerance());
   }
+  
+  public abstract LabelledMatrix1D<S, T> getMatrix(S[] keys, Object[] labels, String labelsTitle, double[] values, String valuesTitle);
 
   public abstract LabelledMatrix1D<S, T> getMatrix(S[] keys, Object[] labels, double[] values);
 
@@ -316,18 +338,22 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
     return -(low + 1);
   }
 
+
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + Arrays.hashCode(_keys);
     result = prime * result + Arrays.hashCode(_labels);
+    result = prime * result + ((_labelsTitle == null) ? 0 : _labelsTitle.hashCode());
     result = prime * result + Arrays.hashCode(_values);
+    result = prime * result + ((_valuesTitle == null) ? 0 : _valuesTitle.hashCode());
     return result;
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -344,6 +370,23 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
     if (!Arrays.equals(_labels, other._labels)) {
       return false;
     }
-    return Arrays.equals(_values, other._values);
+    if (_labelsTitle == null) {
+      if (other._labelsTitle != null) {
+        return false;
+      }
+    } else if (!_labelsTitle.equals(other._labelsTitle)) {
+      return false;
+    }
+    if (!Arrays.equals(_values, other._values)) {
+      return false;
+    }
+    if (_valuesTitle == null) {
+      if (other._valuesTitle != null) {
+        return false;
+      }
+    } else if (!_valuesTitle.equals(other._valuesTitle)) {
+      return false;
+    }
+    return true;
   }
 }

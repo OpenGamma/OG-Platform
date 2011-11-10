@@ -31,7 +31,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
@@ -52,11 +51,6 @@ import com.opengamma.util.time.Expiry;
 public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BlackScholesMertonImpliedVolatilitySurfaceFunction.class);
-
-  /**
-   * Hack property for shifting the volatility surface. A better implementation would use function parameters for this.
-   */
-  private static final String VOLATILITY_SURFACE_SHIFT = "VOLATILITY_SURFACE_SHIFT";
 
   private final BlackScholesMertonImpliedVolatilitySurfaceModel _volatilitySurfaceModel;
 
@@ -106,16 +100,6 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
       return null;
     }
     final ValueProperties.Builder props = createValueProperties((EquityOptionSecurity) target.getSecurity());
-    final ViewCalculationConfiguration calcConfig = context.getViewCalculationConfiguration();
-    final Set<String> shifts = calcConfig == null ? null : calcConfig.getDefaultProperties().getValues(VOLATILITY_SURFACE_SHIFT);
-    if (shifts != null) {
-      if (shifts.size() != 1) {
-        // This doesn't really mean much
-        s_logger.error("Volatility surface shift for {} not valid - {}", calcConfig.getName(), shifts);
-      } else {
-        props.with(VOLATILITY_SURFACE_SHIFT, shifts.iterator().next());
-      }
-    }
     return Collections.singleton(createResultSpecification(target.toSpecification(), props));
   }
 
@@ -150,24 +134,10 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     final OptionDefinition europeanVanillaOptionDefinition = new EuropeanVanillaOptionDefinition(optionSec.getStrike(), expiry, (optionSec.getOptionType() == OptionType.CALL));
     final Map<OptionDefinition, Double> prices = new HashMap<OptionDefinition, Double>();
     prices.put(europeanVanillaOptionDefinition, optionPrice);
-    VolatilitySurface volatilitySurface = _volatilitySurfaceModel.getSurface(prices, new StandardOptionDataBundle(discountCurve, b, null, underlyingPrice, today));
-    
-    // Hack to "shift" the surface. This is either in the wrong place, or should be implemented with function parameters
-    // and not properties.
-    final ValueProperties.Builder props = createValueProperties(optionSec);
-    final String shift = desiredValues.iterator().next().getConstraint(VOLATILITY_SURFACE_SHIFT);
-    if (shift != null) {
-      props.with(VOLATILITY_SURFACE_SHIFT, shift);
-      try {
-        final double shiftAmount = Double.parseDouble(shift);
-        volatilitySurface = volatilitySurface.withParallelShift(shiftAmount);
-      } catch (NumberFormatException e) {
-        s_logger.error("Volatility surface shift not valid - {}", shift);
-      }
-    }
+    final VolatilitySurface volatilitySurface = _volatilitySurfaceModel.getSurface(prices, new StandardOptionDataBundle(discountCurve, b, null, underlyingPrice, today));
     
     // Package the result
-    final ValueSpecification resultSpec = createResultSpecification(target.toSpecification(), props);
+    final ValueSpecification resultSpec = createResultSpecification(target.toSpecification(), createValueProperties(optionSec));
     final ComputedValue resultValue = new ComputedValue(resultSpec, volatilitySurface);
     return Collections.singleton(resultValue);
   }
