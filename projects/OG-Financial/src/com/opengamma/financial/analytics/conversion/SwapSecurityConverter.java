@@ -96,7 +96,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     final SwapLeg payLeg = swapSecurity.getPayLeg();
     final SwapLeg receiveLeg = swapSecurity.getReceiveLeg();
     final FixedInterestRateLeg fixedLeg = (FixedInterestRateLeg) (payFixed ? payLeg : receiveLeg);
-    final FloatingSpreadIRLeg floatLeg = (FloatingSpreadIRLeg) (payFixed ? receiveLeg : payLeg);
+    final FloatingInterestRateLeg floatLeg = (FloatingInterestRateLeg) (payFixed ? receiveLeg : payLeg);
     final ExternalId regionId = payLeg.getRegionId();
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
     final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
@@ -106,9 +106,10 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
       throw new OpenGammaRuntimeException("Could not get convention for " + swapSecurity);
     }
     final AnnuityCouponFixedDefinition fixedLegDefinition = getFixedSwapLegDefinition(effectiveDate, maturityDate, fixedLeg, calendar, conventions, payFixed);
-
-    final AnnuityDefinition<? extends PaymentDefinition> floatingLegDefinition = hasSpread ? getIborSwapLegWithSpreadDefinition(effectiveDate, maturityDate, floatLeg, calendar, currency, !payFixed)
-        : getIborSwapLegDefinition(effectiveDate, maturityDate, floatLeg, calendar, currency, !payFixed);
+    
+    final AnnuityDefinition<? extends PaymentDefinition> floatingLegDefinition = hasSpread ? 
+        getIborSwapLegWithSpreadDefinition(effectiveDate, maturityDate, (FloatingSpreadIRLeg) floatLeg, calendar, currency, !payFixed) : 
+          getIborSwapLegDefinition(effectiveDate, maturityDate, floatLeg, calendar, currency, !payFixed);
     return new SwapFixedIborDefinition(fixedLegDefinition, floatingLegDefinition);
   }
 

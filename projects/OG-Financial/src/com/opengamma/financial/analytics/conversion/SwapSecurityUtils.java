@@ -9,6 +9,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -25,24 +26,38 @@ public class SwapSecurityUtils {
     if (!payLeg.getRegionId().equals(receiveLeg.getRegionId())) {
       throw new OpenGammaRuntimeException("Pay and receive legs must be from same region");
     }
-    if (payLeg instanceof FixedInterestRateLeg && receiveLeg instanceof FloatingSpreadIRLeg) {
-      final FloatingSpreadIRLeg floatingLeg = (FloatingSpreadIRLeg) receiveLeg;
-      if (Double.doubleToLongBits(floatingLeg.getSpread()) == 0) {
-        if (floatingLeg.getFloatingRateType().isIbor()) {
-          return InterestRateInstrumentType.SWAP_FIXED_IBOR;
+    if (payLeg instanceof FixedInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg) {
+      
+      final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) receiveLeg;
+      if (floatingLeg instanceof FloatingSpreadIRLeg) {
+        return InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD;
+      } else {
+        FloatingRateType floatingRateType = floatingLeg.getFloatingRateType();
+        switch (floatingRateType) {
+          case IBOR:
+            return InterestRateInstrumentType.SWAP_FIXED_IBOR;
+          case CMS:
+            return InterestRateInstrumentType.SWAP_FIXED_CMS;
+          default:
+            throw new OpenGammaRuntimeException("Unsupported Floating rate type: " + floatingRateType);
         }
-        return InterestRateInstrumentType.SWAP_FIXED_CMS;
       }
-      return InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD;
-    } else if (payLeg instanceof FloatingSpreadIRLeg && receiveLeg instanceof FixedInterestRateLeg) {
-      final FloatingSpreadIRLeg floatingLeg = (FloatingSpreadIRLeg) payLeg;
-      if (Double.doubleToLongBits(floatingLeg.getSpread()) == 0) {
-        if (floatingLeg.getFloatingRateType().isIbor()) {
-          return InterestRateInstrumentType.SWAP_FIXED_IBOR;
+    } else if (payLeg instanceof FloatingInterestRateLeg && receiveLeg instanceof FixedInterestRateLeg) {
+      final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) payLeg;
+      
+      if (floatingLeg instanceof FloatingSpreadIRLeg) {
+        return InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD;
+      } else {
+        FloatingRateType floatingRateType = floatingLeg.getFloatingRateType();
+        switch (floatingRateType) {
+          case IBOR:
+            return InterestRateInstrumentType.SWAP_FIXED_IBOR;
+          case CMS:
+            return InterestRateInstrumentType.SWAP_FIXED_CMS;
+          default:
+            throw new OpenGammaRuntimeException("Unsupported Floating rate type: " + floatingRateType);
         }
-        return InterestRateInstrumentType.SWAP_FIXED_CMS;
       }
-      return InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD;
     }
     if (payLeg instanceof FloatingInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg payLeg1 = (FloatingInterestRateLeg) payLeg;
@@ -58,8 +73,7 @@ public class SwapSecurityUtils {
       }
       return InterestRateInstrumentType.SWAP_CMS_CMS;
     }
-    throw new OpenGammaRuntimeException(
-        "Can only handle fixed-floating (pay and receive) swaps and floating-floating swaps");
+    throw new OpenGammaRuntimeException("Can only handle fixed-floating (pay and receive) swaps and floating-floating swaps");
   }
 
   public static boolean payFixed(final SwapSecurity security) {
