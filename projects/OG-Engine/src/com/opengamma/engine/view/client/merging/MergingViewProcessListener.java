@@ -15,6 +15,7 @@ import javax.time.Instant;
 import com.google.common.base.Function;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.EngineResourceManagerInternal;
 import com.opengamma.engine.view.calc.EngineResourceRetainer;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -235,6 +236,20 @@ public class MergingViewProcessListener implements ViewResultListener {
         getUnderlying().cycleExecutionFailed(executionOptions, exception);
       } else {
         _callQueue.add(new CycleExecutionFailedCall(executionOptions, exception));
+      }
+    } finally {
+      _mergerLock.unlock();
+    }
+  }
+
+  @Override
+  public void jobResultReceived(ViewResultModel result, ViewDeltaResultModel delta) {
+    _mergerLock.lock();
+    try {
+      if (isPassThrough()) {
+        getUnderlying().jobResultReceived(result, delta);
+      } else {
+        _callQueue.add(new ProcessCompletedCall());
       }
     } finally {
       _mergerLock.unlock();

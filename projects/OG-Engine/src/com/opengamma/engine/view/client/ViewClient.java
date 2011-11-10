@@ -187,6 +187,20 @@ public interface ViewClient extends UniqueIdentifiable {
    */
   void setResultMode(ViewResultMode viewResultMode);
 
+  /**
+   * Gets the job result mode in which this view client is operating. Defaults to {@link ViewResultMode#FULL_ONLY}.
+   *
+   * @return the result mode, not null
+   */
+  ViewResultMode getJobResultMode();
+
+  /**
+   * Sets the job result mode in which this view client should operate.
+   *
+   * @param viewResultMode  the result mode, not null
+   */
+  void setJobResultMode(ViewResultMode viewResultMode);
+
   //-------------------------------------------------------------------------
   /**
    * Pauses the flow of results exposed through this client. They continue to be received internally, and these are

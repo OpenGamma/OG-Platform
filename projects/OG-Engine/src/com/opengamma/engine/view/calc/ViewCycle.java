@@ -8,10 +8,13 @@ package com.opengamma.engine.view.calc;
 import javax.time.Duration;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicAPI;
+
+import java.util.concurrent.BlockingQueue;
 
 /**
  * Represents a single execution pass on a view definition with a particular processing context.
@@ -61,7 +64,7 @@ public interface ViewCycle extends UniqueIdentifiable {
    * @return the output of the view cycle, not null
    */
   ViewComputationResultModel getResultModel();
-  
+
   /**
    * Queries the view cycle for values.
    * <p>

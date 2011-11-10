@@ -10,6 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
@@ -250,7 +251,28 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
     final String fundingCurveName = yieldCurveNames[0];
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     if (date.isAfter(getFixingDate()) || date.equals(getFixingDate())) { // The CMS coupon has already fixed, it is now a fixed coupon.
-      final double fixedRate = data.getValue(getFixingDate());
+      Double fixedRate = data.getValue(getFixingDate());
+      //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
+      if (fixedRate == null) {
+        final ZonedDateTime fixingDateAtLiborFixingTime = getFixingDate().withTime(11, 0);
+        fixedRate = data.getValue(fixingDateAtLiborFixingTime);
+      }
+      if (fixedRate == null) {
+        final ZonedDateTime previousBusinessDay = 
+          BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(getCmsIndex1().getIborIndex().getConvention().getWorkingDayCalendar(),
+            getFixingDate().minusDays(1));
+        fixedRate = data.getValue(previousBusinessDay);
+        //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
+        if (fixedRate == null) {
+          final ZonedDateTime previousBusinessDayAtLiborFixingTime = previousBusinessDay.withTime(11, 0);
+          fixedRate = data.getValue(previousBusinessDayAtLiborFixingTime);
+        }
+        if (fixedRate == null) {
+          fixedRate = data.getLatestValue(); //TODO remove me as soon as possible
+          //throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
+        }
+      }
+
       return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(fixedRate));
     }
     // CMS spread is not fixed yet, all the details are required.
