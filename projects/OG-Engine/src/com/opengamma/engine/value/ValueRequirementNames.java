@@ -250,7 +250,8 @@ public final class ValueRequirementNames {
   
   //Equity values
   public static final String DIVIDEND_YIELD = "Dividend Yield";
-  
+  public static final String SECURITY_MARKET_PRICE = "Security Market Price";
+
   //CAPM equity model
   public static final String CAPM_BETA = "CAPM Beta";
 
@@ -324,5 +325,6 @@ public final class ValueRequirementNames {
   
   public static final String DAILY_APPLIED_BETA = "Last Raw Beta";
   public static final String DAILY_MARKET_CAP = "Last Market Cap";
+  
   //CSON
 }

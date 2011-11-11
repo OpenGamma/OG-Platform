@@ -42,6 +42,7 @@ import com.opengamma.financial.analytics.PositionWeightFromNAVFunction;
 import com.opengamma.financial.analytics.SummingFunction;
 import com.opengamma.financial.analytics.UnitPositionScalingFunction;
 import com.opengamma.financial.analytics.UnitPositionTradeScalingFunction;
+import com.opengamma.financial.analytics.equity.SecurityMarketPriceFunction;
 import com.opengamma.financial.analytics.ircurve.DefaultYieldCurveShiftFunction;
 import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveShiftFunction;
@@ -205,6 +206,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   public static RepositoryConfiguration constructRepositoryConfiguration() {
     List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
 
+    functionConfigs.add(new StaticFunctionConfiguration(SecurityMarketPriceFunction.class.getName()));
+    
     functionConfigs.add(new StaticFunctionConfiguration(BondTenorFunction.class.getName()));
 
     // options
