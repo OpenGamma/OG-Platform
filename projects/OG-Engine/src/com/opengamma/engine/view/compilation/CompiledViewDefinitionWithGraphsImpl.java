@@ -75,7 +75,7 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
    * Gets the dependency graph for a specified calculation configuration.
    * 
    * @param calcConfigName  the calculation configuration name, not null
-   * @return the dependency graph for the specified calculation configuration, or {@code null} if no dependency graph
+   * @return the dependency graph for the specified calculation configuration, or null if no dependency graph
    *         was found.
    */
   public DependencyGraph getDependencyGraph(String calcConfigName) {

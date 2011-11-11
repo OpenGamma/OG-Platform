@@ -50,6 +50,7 @@ public class ViewComputationResultModelFudgeBuilder extends ViewResultModelFudge
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public ViewComputationResultModel buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     InMemoryViewComputationResultModel resultModel = (InMemoryViewComputationResultModel) bootstrapCommonDataFromMessage(deserializer, message);
     

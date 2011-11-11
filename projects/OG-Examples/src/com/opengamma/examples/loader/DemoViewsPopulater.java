@@ -23,7 +23,6 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigDocument;
@@ -54,7 +53,7 @@ public class DemoViewsPopulater {
     _loaderContext = loaderContext;
   }
 
-  private ObjectId getPortfolioObjectId(String portfolioName) {
+  private UniqueId getPortfolioId(String portfolioName) {
     PortfolioSearchRequest searchRequest = new PortfolioSearchRequest();
     searchRequest.setName(portfolioName);
     PortfolioSearchResult searchResult = _loaderContext.getPortfolioMaster().search(searchRequest);
@@ -62,7 +61,7 @@ public class DemoViewsPopulater {
       s_logger.error("Couldn't find portfolio {}", portfolioName);
       throw new OpenGammaRuntimeException("Couldn't find portfolio" + portfolioName);
     }
-    return searchResult.getFirstPortfolio().getUniqueId().getObjectId();
+    return searchResult.getFirstPortfolio().getUniqueId();
   }
 
   public void persistViewDefinitions() {
@@ -72,8 +71,8 @@ public class DemoViewsPopulater {
   }
 
   private ViewDefinition makeEquityViewDefinition(String portfolioName) {
-    ObjectId portfolioOid = getPortfolioObjectId(portfolioName);
-    ViewDefinition equityViewDefinition = new ViewDefinition(portfolioName + " View", portfolioOid, UserPrincipal.getTestUser());
+    UniqueId portfolioId = getPortfolioId(portfolioName);
+    ViewDefinition equityViewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
     equityViewDefinition.setDefaultCurrency(Currency.USD);
     equityViewDefinition.setMaxFullCalculationPeriod(30000L);
     equityViewDefinition.setMinFullCalculationPeriod(500L);
@@ -100,8 +99,8 @@ public class DemoViewsPopulater {
   }
 
   private ViewDefinition makeSwapViewDefinition(String portfolioName) {
-    ObjectId portfolioOid = getPortfolioObjectId(portfolioName);
-    ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioOid, UserPrincipal.getTestUser());
+    UniqueId portfolioId = getPortfolioId(portfolioName);
+    ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
     viewDefinition.setMaxFullCalculationPeriod(500L);
@@ -131,8 +130,8 @@ public class DemoViewsPopulater {
   }
 
   private ViewDefinition getMultiCurrencySwapViewDefinition() {
-    ObjectId portfolioOid = getPortfolioObjectId(DemoMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME);
-    ViewDefinition viewDefinition = new ViewDefinition(DemoMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME + " View", portfolioOid, UserPrincipal.getTestUser());
+    UniqueId portfolioId = getPortfolioId(DemoMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME);
+    ViewDefinition viewDefinition = new ViewDefinition(DemoMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME + " View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
     viewDefinition.setMaxFullCalculationPeriod(500L);
