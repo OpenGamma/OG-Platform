@@ -202,11 +202,13 @@ import com.opengamma.util.tuple.Pair;
       }
       if (resolvedOutput.equals(getValueSpecification())) {
         // The resolved output has not changed
+        s_logger.debug("Resolve output correct");
         return getAdditionalRequirementsAndPushResults(context, null, inputs, resolvedOutput, resolvedOutputValues);
       }
       // Has the resolved output now reduced this to something already produced elsewhere
       final Map<ResolveTask, ResolvedValueProducer> reducingTasks = context.getTasksProducing(resolvedOutput);
       if (reducingTasks.isEmpty()) {
+        s_logger.debug("Resolved output not produced elsewhere");
         return produceSubstitute(context, inputs, resolvedOutput, resolvedOutputValues);
       }
       final AggregateResolvedValueProducer aggregate = new AggregateResolvedValueProducer(getValueRequirement());
@@ -283,6 +285,7 @@ import com.opengamma.util.tuple.Pair;
       @Override
       public final void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
         _pump = pump;
+        getWorker().pushResult(context, resolvedValue);
         if (!pushResult(context, resolvedValue)) {
           assert _pump == pump;
           _pump = null;
@@ -307,6 +310,11 @@ import com.opengamma.util.tuple.Pair;
       protected final boolean isActive() {
         // Only active if a resolve has been received, and there is no failure (i.e. it is waiting on the task to pump it)
         return _pump == null;
+      }
+
+      @Override
+      protected final void onDiscard(final GraphBuildingContext context) {
+        getWorker().abort(context);
       }
 
       @Override

@@ -115,7 +115,7 @@ public final class DependencyGraphBuilder {
           // Only create a fallback if none of the others ran to completion without hitting a recursion constraint.
           useFallback = true;
           for (ResolveTask task : _tasks) {
-            if (!task.wasRecursionDetected() && task.isFinished()) {
+            if (!task.wasRecursionDetected()) {
               useFallback = false;
               break;
             }

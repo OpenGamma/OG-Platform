@@ -107,6 +107,15 @@ import com.opengamma.engine.value.ValueSpecification;
      */
     protected abstract boolean isActive();
 
+    /**
+     * Called when the parent task is discarded.
+     * 
+     * @param context the graph building context, not null
+     */
+    protected void onDiscard(final GraphBuildingContext context) {
+      // No-op
+    }
+
   }
 
   /**
@@ -283,14 +292,19 @@ import com.opengamma.engine.value.ValueSpecification;
     if (getState() != null) {
       if (count == 2) {
         // References held from the cache and the simulated one from our state
-        if (!getState().isActive()) {
+        final State state = getState();
+        if (!state.isActive()) {
           s_logger.debug("Remove unfinished {} from the cache", this);
           context.discardTask(this);
         }
-      }
-    } else {
-      if (count == 0) {
-        s_logger.debug("Leave finished {} in the cache", this);
+      } else if (count == 1) {
+        // Simulated reference held from our state only
+        final State state = getState();
+        if (!state.isActive()) {
+          s_logger.debug("Discarding state for unfinished {}", this);
+          state.onDiscard(context);
+          _state = null;
+        }
       }
     }
     return count;
