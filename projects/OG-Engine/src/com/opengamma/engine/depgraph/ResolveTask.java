@@ -285,7 +285,7 @@ import com.opengamma.engine.value.ValueSpecification;
         // References held from the cache and the simulated one from our state
         if (!getState().isActive()) {
           s_logger.debug("Remove unfinished {} from the cache", this);
-          context.discardUnfinishedTask(this);
+          context.discardTask(this);
         }
       }
     } else {
