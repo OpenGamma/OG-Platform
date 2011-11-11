@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,6 +15,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
@@ -100,7 +100,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
       return null;
     }
     final ValueProperties.Builder props = createValueProperties((EquityOptionSecurity) target.getSecurity());
-    return Collections.singleton(createResultSpecification(target.toSpecification(), props));
+    return Sets.newHashSet(createResultSpecification(target.toSpecification(), props), createImpliedVolResultSpecification(target.toSpecification(), props));
   }
 
   @Override
@@ -136,10 +136,16 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     prices.put(europeanVanillaOptionDefinition, optionPrice);
     final VolatilitySurface volatilitySurface = _volatilitySurfaceModel.getSurface(prices, new StandardOptionDataBundle(discountCurve, b, null, underlyingPrice, today));
     
+    //This is so cheap no need to check desired values
+    final double impliedVol = volatilitySurface.getVolatility(0.0, 0.0); //This surface is constant
+    
     // Package the result
     final ValueSpecification resultSpec = createResultSpecification(target.toSpecification(), createValueProperties(optionSec));
     final ComputedValue resultValue = new ComputedValue(resultSpec, volatilitySurface);
-    return Collections.singleton(resultValue);
+    
+    final ValueSpecification impliedResultSpec = createImpliedVolResultSpecification(target.toSpecification(), createValueProperties(optionSec));
+    final ComputedValue impliedResultValue = new ComputedValue(impliedResultSpec, impliedVol);
+    return Sets.newHashSet(resultValue, impliedResultValue);
   }
 
   protected ValueProperties.Builder createValueProperties(final EquityOptionSecurity targetSecurity) {
@@ -150,6 +156,9 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     return new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE, target, props.get());
   }
 
+  protected ValueSpecification createImpliedVolResultSpecification(final ComputationTargetSpecification target, ValueProperties.Builder props) {
+    return new ValueSpecification(ValueRequirementNames.SECURITY_IMPLIED_VOLATLITY, target, props.get());
+  }
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.SECURITY;

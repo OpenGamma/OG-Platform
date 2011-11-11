@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.time.Duration;
+import javax.time.Instant;
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
@@ -44,6 +46,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MoneyCalculationUtils;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Triple;
 
 /**
  * 
@@ -53,6 +56,8 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractTradeOrDailyPositionPnLFunction.class);
 
   private static final Double UN_AVAILABLE_COST = Double.NaN;
+  
+  private static final Duration CACHE_LIFETIME = Duration.ofStandardHours(6);
 
   private final String _markDataField;
   private final String _costOfCarryField;
@@ -60,6 +65,8 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
   
   
   private final Map<Pair<ExternalIdBundle, LocalDate>, Double> _costOfCarryCache = new ConcurrentHashMap<Pair<ExternalIdBundle, LocalDate>, Double>();
+  // Instant is time of entry, LocalDate is date of mark, and Double is value of mark.
+  private final Map<ExternalIdBundle, Triple<Instant, LocalDate, Double>> _markCache = new ConcurrentHashMap<ExternalIdBundle, Triple<Instant, LocalDate, Double>>();
 
   /**
    * @param resolutionKey the resolution key, not-null
@@ -87,43 +94,60 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
   
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
-    final PositionOrTrade trade = target.getPositionOrTrade();
-    final Object currentTradeValue = inputs.getValue(new ValueRequirement(getValueRequirementName(), ComputationTargetType.SECURITY, trade.getSecurity().getUniqueId()));
+    final PositionOrTrade positionOrTrade = target.getPositionOrTrade();
+    final Object currentTradeValue = inputs.getValue(new ValueRequirement(getValueRequirementName(), ComputationTargetType.SECURITY, positionOrTrade.getSecurity().getUniqueId()));
     if (currentTradeValue != null) {
       final Double tradeValue = (Double) currentTradeValue;
-      final Security security = trade.getSecurity();
+      final Security security = positionOrTrade.getSecurity();
       
-      LocalDate tradeDate = getPreferredTradeDate(executionContext.getValuationClock(), trade);
-
-      final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-      final HistoricalTimeSeries markToMarketSeries = getMarkToMarketSeries(historicalSource, _markDataField, security.getExternalIdBundle(), _resolutionKey, tradeDate);
-
-      if (markToMarketSeries == null || markToMarketSeries.getTimeSeries() == null) {
-        s_logger.warn("Could not get identifier / mark to market series pair for security " + security.getExternalIdBundle() + " for " + _markDataField + " using " + _resolutionKey);
+      LocalDate tradeDate = getPreferredTradeDate(executionContext.getValuationClock(), positionOrTrade);
+      HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+      
+      Double markToMarket = getMark(executionContext.getValuationTime(), security, tradeDate, historicalSource);
+      if (markToMarket == null) {
         return Collections.emptySet();
       }
-      
-      tradeDate = checkAvailableData(tradeDate, markToMarketSeries, security, _markDataField, _resolutionKey);
-
-      final Currency ccy = FinancialSecurityUtils.getCurrency(trade.getSecurity());
+      final Currency ccy = FinancialSecurityUtils.getCurrency(positionOrTrade.getSecurity());
       final String valueRequirementName = getResultValueRequirementName();
       final ValueSpecification valueSpecification;
       if (ccy == null) {
-        valueSpecification = new ValueSpecification(new ValueRequirement(valueRequirementName, trade), getUniqueId());
+        valueSpecification = new ValueSpecification(new ValueRequirement(valueRequirementName, positionOrTrade), getUniqueId());
       } else {
-        valueSpecification = new ValueSpecification(new ValueRequirement(valueRequirementName, trade, ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get()), getUniqueId());
+        valueSpecification = new ValueSpecification(new ValueRequirement(valueRequirementName, positionOrTrade, ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get()), getUniqueId());
       }
 
       double costOfCarry = getCostOfCarry(security, tradeDate, historicalSource);
-      Double markToMarket = markToMarketSeries.getTimeSeries().getValue(tradeDate);
 
-      BigDecimal dailyPnL = trade.getQuantity().multiply(new BigDecimal(String.valueOf(tradeValue - markToMarket - costOfCarry)));
+      BigDecimal dailyPnL = positionOrTrade.getQuantity().multiply(new BigDecimal(String.valueOf(tradeValue - markToMarket - costOfCarry)));
       s_logger.debug("{}  security: {} quantity: {} fairValue: {} markToMarket: {} costOfCarry: {} dailyPnL: {}",
-          new Object[] {trade.getUniqueId(), trade.getSecurity().getExternalIdBundle(), trade.getQuantity(), tradeValue, markToMarket, costOfCarry, dailyPnL });
+          new Object[] {positionOrTrade.getUniqueId(), positionOrTrade.getSecurity().getExternalIdBundle(), positionOrTrade.getQuantity(), tradeValue, markToMarket, costOfCarry, dailyPnL });
       final ComputedValue result = new ComputedValue(valueSpecification, MoneyCalculationUtils.rounded(dailyPnL).doubleValue());
       return Sets.newHashSet(result);
     }
     return null;
+  }
+  
+  private Double getMark(final Instant now, final Security security, LocalDate tradeDate, final HistoricalTimeSeriesSource historicalSource) {
+    if (_markCache.containsKey(security.getExternalIdBundle())) {
+      Triple<Instant, LocalDate, Double> cacheEntry = _markCache.get(Pair.of(tradeDate, security.getExternalIdBundle()));
+      if (cacheEntry.getFirst().plus(CACHE_LIFETIME).plus(Duration.ofStandardMinutes((long) (Math.random() * 60d))).isAfter(now)) {
+        // expire cache entry
+        _markCache.remove(security.getExternalIdBundle());
+      }
+      return cacheEntry.getThird();
+    }
+    final HistoricalTimeSeries markToMarketSeries = getMarkToMarketSeries(historicalSource, _markDataField, security.getExternalIdBundle(), _resolutionKey, tradeDate);
+
+    if (markToMarketSeries == null || markToMarketSeries.getTimeSeries() == null) {
+      s_logger.warn("Could not get identifier / mark to market series pair for security " + security.getExternalIdBundle() + " for " + _markDataField + " using " + _resolutionKey);
+      _markCache.put(security.getExternalIdBundle(), Triple.of(now, tradeDate, (Double) null));
+      return null;
+    }
+    
+    tradeDate = checkAvailableData(tradeDate, markToMarketSeries, security, _markDataField, _resolutionKey);
+    double value = markToMarketSeries.getTimeSeries().getValue(tradeDate);
+    _markCache.put(security.getExternalIdBundle(), Triple.of(now, tradeDate, value));
+    return value;
   }
 
   private double getCostOfCarry(final Security security, LocalDate tradeDate, final HistoricalTimeSeriesSource historicalSource) {
