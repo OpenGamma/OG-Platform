@@ -251,6 +251,7 @@ public final class ValueRequirementNames {
   //Equity values
   public static final String DIVIDEND_YIELD = "Dividend Yield";
   public static final String SECURITY_MARKET_PRICE = "Security Market Price";
+  public static final String SECURITY_IMPLIED_VOLATLITY = "Security Implied Volatility";
 
   //CAPM equity model
   public static final String CAPM_BETA = "CAPM Beta";
