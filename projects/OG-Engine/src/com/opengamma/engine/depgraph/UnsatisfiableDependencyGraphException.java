@@ -30,7 +30,7 @@ public final class UnsatisfiableDependencyGraphException extends OpenGammaRuntim
   /**
    * Creates an instance based on a resolution failure
    * 
-   * @param failure the failure, not {@code null}
+   * @param failure the failure, not null
    */
   protected UnsatisfiableDependencyGraphException(final ResolutionFailure failure) {
     super(failure.getValueRequirement().toString());
@@ -40,7 +40,7 @@ public final class UnsatisfiableDependencyGraphException extends OpenGammaRuntim
   /**
    * Creates an instance based on a value requirement.
    * 
-   * @param requirement the value requirement, not {@code null}
+   * @param requirement the value requirement, not null
    */
   public UnsatisfiableDependencyGraphException(final ValueRequirement requirement) {
     this(ResolutionFailure.unsatisfied(requirement));

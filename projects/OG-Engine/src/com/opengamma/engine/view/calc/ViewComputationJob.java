@@ -17,8 +17,6 @@ import java.util.concurrent.TimeUnit;
 import javax.time.Duration;
 import javax.time.Instant;
 
-import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +33,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.ViewProcessImpl;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.trigger.CombinedViewCycleTrigger;
 import com.opengamma.engine.view.calc.trigger.FixedTimeTrigger;
 import com.opengamma.engine.view.calc.trigger.RecomputationPeriodTrigger;
@@ -507,7 +506,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       throw new OpenGammaRuntimeException("Compiled view definition " + compiledViewDefinition + " not valid for execution options " + executionOptions);
     }
     UniqueId cycleId = getViewProcess().generateCycleId();
-    SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(), getViewProcess(), getProcessContext(), compiledViewDefinition, executionOptions, versionCorrection);
+    SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(),
+        getViewProcess(), getProcessContext(), compiledViewDefinition, executionOptions, versionCorrection);
     return getCycleManager().manage(cycle);
   }
 
@@ -573,7 +573,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
    * <p>
    * External visibility for tests.
    * 
-   * @return the cached compiled view definition, or {@code null} if nothing is currently cached
+   * @return the cached compiled view definition, or null if nothing is currently cached
    */
   public CompiledViewDefinitionWithGraphsImpl getCachedCompiledViewDefinition() {
     return _latestCompiledViewDefinition;
@@ -588,7 +588,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
    * <p>
    * External visibility for tests.
    * 
-   * @param latestCompiledViewDefinition  the compiled view definition, may be {@code null}
+   * @param latestCompiledViewDefinition  the compiled view definition, may be null
    */
   public void setCachedCompiledViewDefinition(CompiledViewDefinitionWithGraphsImpl latestCompiledViewDefinition) {
     _latestCompiledViewDefinition = latestCompiledViewDefinition;
@@ -597,7 +597,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   /**
    * Gets the view definition currently in use by the computation job.
    * 
-   * @return the view definition, not {@code null}
+   * @return the view definition, not null
    */
   public ViewDefinition getViewDefinition() {
     return _viewDefinition;

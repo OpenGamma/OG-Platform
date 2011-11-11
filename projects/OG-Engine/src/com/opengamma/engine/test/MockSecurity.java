@@ -6,7 +6,6 @@
 package com.opengamma.engine.test;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.google.common.base.Objects;

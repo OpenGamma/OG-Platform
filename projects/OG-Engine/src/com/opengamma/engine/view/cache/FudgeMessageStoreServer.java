@@ -113,7 +113,7 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
   /**
    * Asynchronously sends a message to all open connections.
    * 
-   * @param message the message to send, not {@code null}.
+   * @param message the message to send, not null.
    */
   protected void broadcast(final CacheMessage message) {
     final MutableFudgeMsg msg = getUnderlying().getFudgeContext().newMessage();
