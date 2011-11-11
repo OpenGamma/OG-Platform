@@ -5,8 +5,12 @@
  */
 package com.opengamma.web.position;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
+
+import org.joda.beans.PropertyDefinition;
 
 import com.google.common.collect.Maps;
 import com.opengamma.id.UniqueId;
@@ -20,8 +24,14 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class TradeAttributesModel {
 
+  @PropertyDefinition
   private Map<UniqueId, Map<String, Map<String, String>>> _attrMap = Maps.newHashMap();
-  
+   
+  /**
+   * Creates an instance 
+   * 
+   * @param position the position, not null
+   */
   public TradeAttributesModel(final ManageablePosition position) {
     ArgumentChecker.notNull(position, "position");
     initialize(position);
@@ -29,14 +39,9 @@ public class TradeAttributesModel {
 
   private void initialize(final ManageablePosition position) {
     for (ManageableTrade trade : position.getTrades()) {
-      Map<String, Map<String, String>> tradeAttr = Maps.newHashMap();
       
-      Map<String, String> dealAttr = Maps.newHashMap();
-      Map<String, String> userAttr = Maps.newHashMap();
-      tradeAttr.put("deal", dealAttr);
-      tradeAttr.put("user", userAttr);
-      
-      _attrMap.put(trade.getUniqueId(), tradeAttr);
+      Map<String, String> dealAttr = new TreeMap<String, String>();
+      Map<String, String> userAttr = new TreeMap<String, String>();
       
       for (Entry<String, String> entry : trade.getAttributes().entrySet()) {
         String key = entry.getKey();
@@ -47,6 +52,11 @@ public class TradeAttributesModel {
           userAttr.put(key, value);
         }
       }
+      
+      Map<String, Map<String, String>> tradeAttr = Maps.newHashMap();
+      tradeAttr.put("deal", dealAttr);
+      tradeAttr.put("user", userAttr);
+      _attrMap.put(trade.getUniqueId(), tradeAttr);
     }
   }
 
@@ -57,13 +67,12 @@ public class TradeAttributesModel {
    * @return the deal attributes, not null
    */
   public Map<String, String> getDealAttributes(UniqueId tradeId) {
-    Map<String, String> result = Maps.newHashMap();
-    
+    Map<String, String> result = new TreeMap<String, String>();
     Map<String, Map<String, String>> attributes = _attrMap.get(tradeId);
     if (attributes != null) {
       result = attributes.get("deal");
     } 
-    return result;
+    return Collections.unmodifiableMap(result);
   }
   
   /**
@@ -73,11 +82,12 @@ public class TradeAttributesModel {
    * @return the user attributes, not null
    */
   public Map<String, String> getUserAttributes(UniqueId tradeId) {
-    Map<String, String> result = Maps.newHashMap();
+    Map<String, String> result = new TreeMap<String, String>();
     Map<String, Map<String, String>> attributes = _attrMap.get(tradeId);
     if (attributes != null) {
       result = attributes.get("user");
     } 
-    return result;
+    return Collections.unmodifiableMap(result);
   }
+  
 }
