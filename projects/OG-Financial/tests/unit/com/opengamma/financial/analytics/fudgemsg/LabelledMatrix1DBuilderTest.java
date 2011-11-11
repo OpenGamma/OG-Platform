@@ -34,6 +34,9 @@ public class LabelledMatrix1DBuilderTest extends AnalyticsTestBase {
     final DoubleLabelledMatrix1D m5 = new DoubleLabelledMatrix1D(keys, keys, values);
     final DoubleLabelledMatrix1D m6 = cycleObject(DoubleLabelledMatrix1D.class, m5);
     assertEquals(m5, m6);
+    final DoubleLabelledMatrix1D m7 = new DoubleLabelledMatrix1D(keys, labels, "labels", values, "values");
+    final DoubleLabelledMatrix1D m8 = cycleObject(DoubleLabelledMatrix1D.class, m7);
+    assertEquals(m7, m8);
   }
 
   @Test
@@ -50,6 +53,9 @@ public class LabelledMatrix1DBuilderTest extends AnalyticsTestBase {
     final LocalDateLabelledMatrix1D m5 = new LocalDateLabelledMatrix1D(keys, keys, values);
     final LocalDateLabelledMatrix1D m6 = cycleObject(LocalDateLabelledMatrix1D.class, m5);
     assertEquals(m5, m6);
+    final LocalDateLabelledMatrix1D m7 = new LocalDateLabelledMatrix1D(keys, labels, "labels", values, "values");
+    final LocalDateLabelledMatrix1D m8 = cycleObject(LocalDateLabelledMatrix1D.class, m7);
+    assertEquals(m7, m8);
   }
 
   @Test
@@ -59,5 +65,8 @@ public class LabelledMatrix1DBuilderTest extends AnalyticsTestBase {
     final StringLabelledMatrix1D m1 = new StringLabelledMatrix1D(keys, values);
     final StringLabelledMatrix1D m2 = cycleObject(StringLabelledMatrix1D.class, m1);
     assertEquals(m1, m2);
+    final StringLabelledMatrix1D m3 = new StringLabelledMatrix1D(keys, "labels", values, "values");
+    final StringLabelledMatrix1D m4 = cycleObject(StringLabelledMatrix1D.class, m3);
+    assertEquals(m3, m4);
   }
 }

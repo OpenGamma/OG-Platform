@@ -15,5 +15,9 @@ public interface SwapLegVisitor<T> {
   T visitFixedInterestRateLeg(FixedInterestRateLeg swapLeg);
 
   T visitFloatingInterestRateLeg(FloatingInterestRateLeg swapLeg);
+  
+  T visitFloatingSpreadIRLeg(FloatingSpreadIRLeg swapLeg);
+  
+  T visitFloatingGearingIRLeg(FloatingGearingIRLeg swapLeg);
 
 }

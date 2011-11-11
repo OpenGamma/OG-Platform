@@ -102,7 +102,7 @@ public class VolatilityCubeFunction extends AbstractFunction {
           if (atmStrikes.containsKey(Pair.of(swapTenor, swaptionExpiry))) {
             final Pair<Tenor, Tenor> tenorPair = Pair.of(swapTenor, swaptionExpiry);
             final double absoluteStrike = atmStrikes.get(tenorPair) / 100 + relativeStrike / 10000;
-            final double vol = entry.getValue() / 100;
+            final double vol = entry.getValue();
             final VolatilityPoint newPoint = new VolatilityPoint(swapTenor, swaptionExpiry, absoluteStrike);
             normalizedATMStrikes.put(tenorPair, absoluteStrike);
             normalizedATMVols.put(tenorPair, vol);

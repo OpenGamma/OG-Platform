@@ -68,7 +68,11 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
   }
 
   public FixedIncomeInstrumentDefinition<?> visitBondSecurity(final BondSecurity security, final ConventionBundle convention) {
-    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, RegionUtils.financialRegionId(security.getIssuerDomicile()));
+    final ExternalId regionId = RegionUtils.financialRegionId(security.getIssuerDomicile());
+    if (regionId == null) {
+      throw new OpenGammaRuntimeException("Could not find region for " + security.getIssuerDomicile());
+    }
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
     final Currency currency = security.getCurrency();
     final ZonedDateTime firstAccrualDate = security.getInterestAccrualDate();
     final ZonedDateTime maturityDate = security.getLastTradeDate().getExpiry();

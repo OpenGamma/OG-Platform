@@ -39,7 +39,7 @@ public class ViewDefinitionBuilderTest {
     ViewDefinition viewDef = new ViewDefinition("Test View", ObjectId.of("Test Scheme", "Port1"), "someuser");
     viewDef.setMaxDeltaCalculationPeriod(1000L);
     viewDef.setMaxFullCalculationPeriod(60000L);
-    viewDef.getResultModelDefinition().setAggregatePositionOutputMode(ResultOutputMode.ALL);
+    viewDef.getResultModelDefinition().setAggregatePositionOutputMode(ResultOutputMode.TERMINAL_OUTPUTS);
     
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDef, "Test config");
     calcConfig.addPortfolioRequirementName("SecType", "Req1");

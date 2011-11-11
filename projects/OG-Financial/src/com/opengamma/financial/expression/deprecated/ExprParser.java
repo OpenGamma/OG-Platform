@@ -1,20 +1,16 @@
-// $ANTLR 3.2 Fedora release 12 (Constantine) Thu Apr 29 14:41:02 UTC 2010 com/opengamma/financial/filtering/expression/Expr.g 2011-09-01 10:53:36
+// $ANTLR 3.2 Fedora release 15 (Rawhide) Tue Feb  8 02:02:23 UTC 2011 com/opengamma/financial/expression/deprecated/Expr.g 2011-11-09 15:09:05
 
-package com.opengamma.financial.filtering.expression;
+package com.opengamma.financial.expression.deprecated;
 //CSOFF
 
 
-import org.antlr.runtime.BitSet;
-import org.antlr.runtime.MismatchedSetException;
-import org.antlr.runtime.NoViableAltException;
-import org.antlr.runtime.Parser;
-import org.antlr.runtime.ParserRuleReturnScope;
-import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.RecognizerSharedState;
-import org.antlr.runtime.Token;
-import org.antlr.runtime.TokenStream;
-import org.antlr.runtime.tree.CommonTreeAdaptor;
-import org.antlr.runtime.tree.TreeAdaptor;
+import org.antlr.runtime.*;
+import java.util.Stack;
+import java.util.List;
+import java.util.ArrayList;
+
+
+import org.antlr.runtime.tree.*;
 
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
@@ -68,7 +64,7 @@ public class ExprParser extends Parser {
     }
 
     public String[] getTokenNames() { return ExprParser.tokenNames; }
-    public String getGrammarFileName() { return "com/opengamma/financial/filtering/expression/Expr.g"; }
+    public String getGrammarFileName() { return "com/opengamma/financial/expression/deprecated/Expr.g"; }
 
 
     public static class variable_return extends ParserRuleReturnScope {
@@ -77,7 +73,7 @@ public class ExprParser extends Parser {
     };
 
     // $ANTLR start "variable"
-    // com/opengamma/financial/filtering/expression/Expr.g:44:1: variable : ( IDENTIFIER | STRING_IDENTIFIER );
+    // com/opengamma/financial/expression/deprecated/Expr.g:44:1: variable : ( IDENTIFIER | STRING_IDENTIFIER );
     public final ExprParser.variable_return variable() throws RecognitionException {
         ExprParser.variable_return retval = new ExprParser.variable_return();
         retval.start = input.LT(1);
@@ -89,8 +85,8 @@ public class ExprParser extends Parser {
         Object set1_tree=null;
 
         try {
-            // com/opengamma/financial/filtering/expression/Expr.g:45:3: ( IDENTIFIER | STRING_IDENTIFIER )
-            // com/opengamma/financial/filtering/expression/Expr.g:
+            // com/opengamma/financial/expression/deprecated/Expr.g:45:3: ( IDENTIFIER | STRING_IDENTIFIER )
+            // com/opengamma/financial/expression/deprecated/Expr.g:
             {
             root_0 = (Object)adaptor.nil();
 
@@ -132,7 +128,7 @@ public class ExprParser extends Parser {
     };
 
     // $ANTLR start "literal"
-    // com/opengamma/financial/filtering/expression/Expr.g:49:1: literal : ( FALSE | FLOAT | INTEGER | STRING | TRUE );
+    // com/opengamma/financial/expression/deprecated/Expr.g:49:1: literal : ( FALSE | FLOAT | INTEGER | STRING | TRUE );
     public final ExprParser.literal_return literal() throws RecognitionException {
         ExprParser.literal_return retval = new ExprParser.literal_return();
         retval.start = input.LT(1);
@@ -144,8 +140,8 @@ public class ExprParser extends Parser {
         Object set2_tree=null;
 
         try {
-            // com/opengamma/financial/filtering/expression/Expr.g:50:3: ( FALSE | FLOAT | INTEGER | STRING | TRUE )
-            // com/opengamma/financial/filtering/expression/Expr.g:
+            // com/opengamma/financial/expression/deprecated/Expr.g:50:3: ( FALSE | FLOAT | INTEGER | STRING | TRUE )
+            // com/opengamma/financial/expression/deprecated/Expr.g:
             {
             root_0 = (Object)adaptor.nil();
 
@@ -187,7 +183,7 @@ public class ExprParser extends Parser {
     };
 
     // $ANTLR start "value_expr"
-    // com/opengamma/financial/filtering/expression/Expr.g:57:1: value_expr : ( variable | literal | '(' expr ')' );
+    // com/opengamma/financial/expression/deprecated/Expr.g:57:1: value_expr : ( variable | literal | '(' expr ')' );
     public final ExprParser.value_expr_return value_expr() throws RecognitionException {
         ExprParser.value_expr_return retval = new ExprParser.value_expr_return();
         retval.start = input.LT(1);
@@ -207,7 +203,7 @@ public class ExprParser extends Parser {
         Object char_literal7_tree=null;
 
         try {
-            // com/opengamma/financial/filtering/expression/Expr.g:58:3: ( variable | literal | '(' expr ')' )
+            // com/opengamma/financial/expression/deprecated/Expr.g:58:3: ( variable | literal | '(' expr ')' )
             int alt1=3;
             switch ( input.LA(1) ) {
             case IDENTIFIER:
@@ -239,7 +235,7 @@ public class ExprParser extends Parser {
 
             switch (alt1) {
                 case 1 :
-                    // com/opengamma/financial/filtering/expression/Expr.g:58:5: variable
+                    // com/opengamma/financial/expression/deprecated/Expr.g:58:5: variable
                     {
                     root_0 = (Object)adaptor.nil();
 
@@ -253,7 +249,7 @@ public class ExprParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // com/opengamma/financial/filtering/expression/Expr.g:59:5: literal
+                    // com/opengamma/financial/expression/deprecated/Expr.g:59:5: literal
                     {
                     root_0 = (Object)adaptor.nil();
 
@@ -267,7 +263,7 @@ public class ExprParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // com/opengamma/financial/filtering/expression/Expr.g:60:5: '(' expr ')'
+                    // com/opengamma/financial/expression/deprecated/Expr.g:60:5: '(' expr ')'
                     {
                     root_0 = (Object)adaptor.nil();
 
@@ -308,7 +304,7 @@ public class ExprParser extends Parser {
     };
 
     // $ANTLR start "cmp_expr"
-    // com/opengamma/financial/filtering/expression/Expr.g:63:1: cmp_expr : ( value_expr ( ( EQ | GT | GTE | LT | LTE | NEQ ) cmp_expr )? | NOT cmp_expr );
+    // com/opengamma/financial/expression/deprecated/Expr.g:63:1: cmp_expr : ( value_expr ( ( EQ | GT | GTE | LT | LTE | NEQ ) cmp_expr )? | NOT cmp_expr );
     public final ExprParser.cmp_expr_return cmp_expr() throws RecognitionException {
         ExprParser.cmp_expr_return retval = new ExprParser.cmp_expr_return();
         retval.start = input.LT(1);
@@ -338,7 +334,7 @@ public class ExprParser extends Parser {
         Object NOT16_tree=null;
 
         try {
-            // com/opengamma/financial/filtering/expression/Expr.g:64:3: ( value_expr ( ( EQ | GT | GTE | LT | LTE | NEQ ) cmp_expr )? | NOT cmp_expr )
+            // com/opengamma/financial/expression/deprecated/Expr.g:64:3: ( value_expr ( ( EQ | GT | GTE | LT | LTE | NEQ ) cmp_expr )? | NOT cmp_expr )
             int alt4=2;
             int LA4_0 = input.LA(1);
 
@@ -356,7 +352,7 @@ public class ExprParser extends Parser {
             }
             switch (alt4) {
                 case 1 :
-                    // com/opengamma/financial/filtering/expression/Expr.g:64:5: value_expr ( ( EQ | GT | GTE | LT | LTE | NEQ ) cmp_expr )?
+                    // com/opengamma/financial/expression/deprecated/Expr.g:64:5: value_expr ( ( EQ | GT | GTE | LT | LTE | NEQ ) cmp_expr )?
                     {
                     root_0 = (Object)adaptor.nil();
 
@@ -366,7 +362,7 @@ public class ExprParser extends Parser {
                     state._fsp--;
 
                     adaptor.addChild(root_0, value_expr8.getTree());
-                    // com/opengamma/financial/filtering/expression/Expr.g:64:16: ( ( EQ | GT | GTE | LT | LTE | NEQ ) cmp_expr )?
+                    // com/opengamma/financial/expression/deprecated/Expr.g:64:16: ( ( EQ | GT | GTE | LT | LTE | NEQ ) cmp_expr )?
                     int alt3=2;
                     int LA3_0 = input.LA(1);
 
@@ -375,9 +371,9 @@ public class ExprParser extends Parser {
                     }
                     switch (alt3) {
                         case 1 :
-                            // com/opengamma/financial/filtering/expression/Expr.g:64:17: ( EQ | GT | GTE | LT | LTE | NEQ ) cmp_expr
+                            // com/opengamma/financial/expression/deprecated/Expr.g:64:17: ( EQ | GT | GTE | LT | LTE | NEQ ) cmp_expr
                             {
-                            // com/opengamma/financial/filtering/expression/Expr.g:64:17: ( EQ | GT | GTE | LT | LTE | NEQ )
+                            // com/opengamma/financial/expression/deprecated/Expr.g:64:17: ( EQ | GT | GTE | LT | LTE | NEQ )
                             int alt2=6;
                             switch ( input.LA(1) ) {
                             case EQ:
@@ -419,7 +415,7 @@ public class ExprParser extends Parser {
 
                             switch (alt2) {
                                 case 1 :
-                                    // com/opengamma/financial/filtering/expression/Expr.g:64:18: EQ
+                                    // com/opengamma/financial/expression/deprecated/Expr.g:64:18: EQ
                                     {
                                     EQ9=(Token)match(input,EQ,FOLLOW_EQ_in_cmp_expr567); 
                                     EQ9_tree = (Object)adaptor.create(EQ9);
@@ -429,7 +425,7 @@ public class ExprParser extends Parser {
                                     }
                                     break;
                                 case 2 :
-                                    // com/opengamma/financial/filtering/expression/Expr.g:64:24: GT
+                                    // com/opengamma/financial/expression/deprecated/Expr.g:64:24: GT
                                     {
                                     GT10=(Token)match(input,GT,FOLLOW_GT_in_cmp_expr572); 
                                     GT10_tree = (Object)adaptor.create(GT10);
@@ -439,7 +435,7 @@ public class ExprParser extends Parser {
                                     }
                                     break;
                                 case 3 :
-                                    // com/opengamma/financial/filtering/expression/Expr.g:64:30: GTE
+                                    // com/opengamma/financial/expression/deprecated/Expr.g:64:30: GTE
                                     {
                                     GTE11=(Token)match(input,GTE,FOLLOW_GTE_in_cmp_expr577); 
                                     GTE11_tree = (Object)adaptor.create(GTE11);
@@ -449,7 +445,7 @@ public class ExprParser extends Parser {
                                     }
                                     break;
                                 case 4 :
-                                    // com/opengamma/financial/filtering/expression/Expr.g:64:37: LT
+                                    // com/opengamma/financial/expression/deprecated/Expr.g:64:37: LT
                                     {
                                     LT12=(Token)match(input,LT,FOLLOW_LT_in_cmp_expr582); 
                                     LT12_tree = (Object)adaptor.create(LT12);
@@ -459,7 +455,7 @@ public class ExprParser extends Parser {
                                     }
                                     break;
                                 case 5 :
-                                    // com/opengamma/financial/filtering/expression/Expr.g:64:43: LTE
+                                    // com/opengamma/financial/expression/deprecated/Expr.g:64:43: LTE
                                     {
                                     LTE13=(Token)match(input,LTE,FOLLOW_LTE_in_cmp_expr587); 
                                     LTE13_tree = (Object)adaptor.create(LTE13);
@@ -469,7 +465,7 @@ public class ExprParser extends Parser {
                                     }
                                     break;
                                 case 6 :
-                                    // com/opengamma/financial/filtering/expression/Expr.g:64:50: NEQ
+                                    // com/opengamma/financial/expression/deprecated/Expr.g:64:50: NEQ
                                     {
                                     NEQ14=(Token)match(input,NEQ,FOLLOW_NEQ_in_cmp_expr592); 
                                     NEQ14_tree = (Object)adaptor.create(NEQ14);
@@ -497,7 +493,7 @@ public class ExprParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // com/opengamma/financial/filtering/expression/Expr.g:65:5: NOT cmp_expr
+                    // com/opengamma/financial/expression/deprecated/Expr.g:65:5: NOT cmp_expr
                     {
                     root_0 = (Object)adaptor.nil();
 
@@ -540,7 +536,7 @@ public class ExprParser extends Parser {
     };
 
     // $ANTLR start "and_expr"
-    // com/opengamma/financial/filtering/expression/Expr.g:68:1: and_expr : cmp_expr ( AND and_expr )? ;
+    // com/opengamma/financial/expression/deprecated/Expr.g:68:1: and_expr : cmp_expr ( AND and_expr )? ;
     public final ExprParser.and_expr_return and_expr() throws RecognitionException {
         ExprParser.and_expr_return retval = new ExprParser.and_expr_return();
         retval.start = input.LT(1);
@@ -556,8 +552,8 @@ public class ExprParser extends Parser {
         Object AND19_tree=null;
 
         try {
-            // com/opengamma/financial/filtering/expression/Expr.g:68:10: ( cmp_expr ( AND and_expr )? )
-            // com/opengamma/financial/filtering/expression/Expr.g:68:12: cmp_expr ( AND and_expr )?
+            // com/opengamma/financial/expression/deprecated/Expr.g:68:10: ( cmp_expr ( AND and_expr )? )
+            // com/opengamma/financial/expression/deprecated/Expr.g:68:12: cmp_expr ( AND and_expr )?
             {
             root_0 = (Object)adaptor.nil();
 
@@ -567,7 +563,7 @@ public class ExprParser extends Parser {
             state._fsp--;
 
             adaptor.addChild(root_0, cmp_expr18.getTree());
-            // com/opengamma/financial/filtering/expression/Expr.g:68:21: ( AND and_expr )?
+            // com/opengamma/financial/expression/deprecated/Expr.g:68:21: ( AND and_expr )?
             int alt5=2;
             int LA5_0 = input.LA(1);
 
@@ -576,7 +572,7 @@ public class ExprParser extends Parser {
             }
             switch (alt5) {
                 case 1 :
-                    // com/opengamma/financial/filtering/expression/Expr.g:68:22: AND and_expr
+                    // com/opengamma/financial/expression/deprecated/Expr.g:68:22: AND and_expr
                     {
                     AND19=(Token)match(input,AND,FOLLOW_AND_in_and_expr621); 
                     AND19_tree = (Object)adaptor.create(AND19);
@@ -621,7 +617,7 @@ public class ExprParser extends Parser {
     };
 
     // $ANTLR start "or_expr"
-    // com/opengamma/financial/filtering/expression/Expr.g:70:1: or_expr : and_expr ( OR or_expr )? ;
+    // com/opengamma/financial/expression/deprecated/Expr.g:70:1: or_expr : and_expr ( OR or_expr )? ;
     public final ExprParser.or_expr_return or_expr() throws RecognitionException {
         ExprParser.or_expr_return retval = new ExprParser.or_expr_return();
         retval.start = input.LT(1);
@@ -637,8 +633,8 @@ public class ExprParser extends Parser {
         Object OR22_tree=null;
 
         try {
-            // com/opengamma/financial/filtering/expression/Expr.g:70:9: ( and_expr ( OR or_expr )? )
-            // com/opengamma/financial/filtering/expression/Expr.g:70:11: and_expr ( OR or_expr )?
+            // com/opengamma/financial/expression/deprecated/Expr.g:70:9: ( and_expr ( OR or_expr )? )
+            // com/opengamma/financial/expression/deprecated/Expr.g:70:11: and_expr ( OR or_expr )?
             {
             root_0 = (Object)adaptor.nil();
 
@@ -648,7 +644,7 @@ public class ExprParser extends Parser {
             state._fsp--;
 
             adaptor.addChild(root_0, and_expr21.getTree());
-            // com/opengamma/financial/filtering/expression/Expr.g:70:20: ( OR or_expr )?
+            // com/opengamma/financial/expression/deprecated/Expr.g:70:20: ( OR or_expr )?
             int alt6=2;
             int LA6_0 = input.LA(1);
 
@@ -657,7 +653,7 @@ public class ExprParser extends Parser {
             }
             switch (alt6) {
                 case 1 :
-                    // com/opengamma/financial/filtering/expression/Expr.g:70:21: OR or_expr
+                    // com/opengamma/financial/expression/deprecated/Expr.g:70:21: OR or_expr
                     {
                     OR22=(Token)match(input,OR,FOLLOW_OR_in_or_expr638); 
                     OR22_tree = (Object)adaptor.create(OR22);
@@ -702,7 +698,7 @@ public class ExprParser extends Parser {
     };
 
     // $ANTLR start "expr"
-    // com/opengamma/financial/filtering/expression/Expr.g:72:1: expr : or_expr ;
+    // com/opengamma/financial/expression/deprecated/Expr.g:72:1: expr : or_expr ;
     public final ExprParser.expr_return expr() throws RecognitionException {
         ExprParser.expr_return retval = new ExprParser.expr_return();
         retval.start = input.LT(1);
@@ -714,8 +710,8 @@ public class ExprParser extends Parser {
 
 
         try {
-            // com/opengamma/financial/filtering/expression/Expr.g:72:6: ( or_expr )
-            // com/opengamma/financial/filtering/expression/Expr.g:72:8: or_expr
+            // com/opengamma/financial/expression/deprecated/Expr.g:72:6: ( or_expr )
+            // com/opengamma/financial/expression/deprecated/Expr.g:72:8: or_expr
             {
             root_0 = (Object)adaptor.nil();
 
@@ -752,7 +748,7 @@ public class ExprParser extends Parser {
     };
 
     // $ANTLR start "root"
-    // com/opengamma/financial/filtering/expression/Expr.g:74:1: root : expr EOF ;
+    // com/opengamma/financial/expression/deprecated/Expr.g:74:1: root : expr EOF ;
     public final ExprParser.root_return root() throws RecognitionException {
         ExprParser.root_return retval = new ExprParser.root_return();
         retval.start = input.LT(1);
@@ -766,8 +762,8 @@ public class ExprParser extends Parser {
         Object EOF26_tree=null;
 
         try {
-            // com/opengamma/financial/filtering/expression/Expr.g:74:6: ( expr EOF )
-            // com/opengamma/financial/filtering/expression/Expr.g:74:8: expr EOF
+            // com/opengamma/financial/expression/deprecated/Expr.g:74:6: ( expr EOF )
+            // com/opengamma/financial/expression/deprecated/Expr.g:74:8: expr EOF
             {
             root_0 = (Object)adaptor.nil();
 

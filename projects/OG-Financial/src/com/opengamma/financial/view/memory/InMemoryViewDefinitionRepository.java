@@ -22,6 +22,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.time.Instant;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeType;
@@ -81,7 +82,7 @@ public class InMemoryViewDefinitionRepository implements ManageableViewDefinitio
       // Release read lock
       _rwl.readLock().unlock();    
 
-      return getDefinition(matchingUniqueIds.last());
+      return _definitionsByUniqueId.get(matchingUniqueIds.last()); //getDefinition(matchingUniqueIds.last());
     } else {
       // Release read lock
       _rwl.readLock().unlock();    
@@ -175,10 +176,13 @@ public class InMemoryViewDefinitionRepository implements ManageableViewDefinitio
     _rwl.writeLock().lock();
     
     final ViewDefinition viewDefinition = request.getViewDefinition();
-    
-    // Create a new UniqueId if none was passed in the request     // or if the passed UniqueId was not of the right scheme
-    if (viewDefinition.getUniqueId() == null) {                   // || viewDefinition.getUniqueId().getScheme() != UID_SCHEME)
+         
+    if (viewDefinition.getUniqueId() == null) {
+      // Create a new UniqueId if none was passed in the request
       viewDefinition.setUniqueId(UniqueId.of(UID_SCHEME, Long.toString(_viewDefinitionCounter.incrementAndGet()), "1"));
+    } else if (!viewDefinition.getUniqueId().isVersioned()) {
+      // The unique id cannot be unversioned
+      throw new OpenGammaRuntimeException("Cannot add unversioned view definition" + viewDefinition.getUniqueId());
     }
 
     // Fetch set of matching unique ids

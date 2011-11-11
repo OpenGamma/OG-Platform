@@ -33,15 +33,14 @@ public class MarketValueCalculator implements NormalizationRule {
    * <p>
    * If no BID and ASK are available, LAST is used.
    * 
-   * @param msg message to normalize
-   * @param fieldHistory field history
+   * @param msg  the message to normalize, not null
+   * @param securityUniqueId  the data provider's unique ID of the security, not null
+   * @param fieldHistory  the distributor-specific field history which the rule may choose to update, not null 
    * @return {@code msg} with {@link MarketDataRequirementNames#MARKET_VALUE} added,
    * with the value calculated as described above
    */
   @Override
-  public MutableFudgeMsg apply(
-      MutableFudgeMsg msg,
-      FieldHistoryStore fieldHistory) {
+  public MutableFudgeMsg apply(MutableFudgeMsg msg, String securityUniqueId, FieldHistoryStore fieldHistory) {
     
     FudgeMsg lkv = fieldHistory.getLastKnownValues();
     
