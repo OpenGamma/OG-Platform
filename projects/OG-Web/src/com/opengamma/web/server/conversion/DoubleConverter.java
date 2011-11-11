@@ -51,9 +51,11 @@ public class DoubleConverter implements ResultConverter<Object> {
     addConversion(ValueRequirementNames.FAIR_VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     addConversion(ValueRequirementNames.POSITION_FAIR_VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     addConversion(ValueRequirementNames.VALUE_FAIR_VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    addConversion(ValueRequirementNames.SECURITY_MARKET_PRICE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     
     // PnL
     addConversion(ValueRequirementNames.PNL, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    addConversion(ValueRequirementNames.DAILY_PNL, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
 
     // Greeks
     addConversion(ValueRequirementNames.DELTA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
