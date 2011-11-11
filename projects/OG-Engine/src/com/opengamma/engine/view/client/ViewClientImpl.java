@@ -13,8 +13,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.time.Instant;
 
-import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +21,7 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcessorImpl;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.EngineResourceRetainer;
 import com.opengamma.engine.view.calc.ViewCycle;

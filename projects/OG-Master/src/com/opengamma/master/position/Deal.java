@@ -19,18 +19,16 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 public interface Deal extends Bean {
-
-  /**
-   * Deal Classname key
-   */
-  String DEAL_CLASSNAME = "Deal~JavaClass";
-  /**
-   * Deal type key
-   */
-  String DEAL_TYPE = "Deal~dealType";
   /**
    * Deal prefix key
    */
   String DEAL_PREFIX = "Deal~";
-  
+  /**
+   * Deal Classname key
+   */
+  String DEAL_CLASSNAME = DEAL_PREFIX + "JavaClass";
+  /**
+   * Deal type key
+   */
+  String DEAL_TYPE = DEAL_PREFIX + "dealType";
 }

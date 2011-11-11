@@ -24,14 +24,16 @@
         }<#if item_has_next>,</#if></#list>
     ],
     "trades": [
-        <#list position.trades as item>{
-            "id": "${item.uniqueId.objectId}",
-            "quantity": "${item.quantity}",
-            "counterParty": "${item.counterpartyExternalId}",
-            "date": "${item.tradeDate}",
-            <#assign tradeAttr = item.attributes>
-            "attributes":{<#list tradeAttr?keys as key>"${key}":"${tradeAttr[key]}"<#if key_has_next>,</#if></#list>}
-        }<#if item_has_next>,</#if></#list>
+        <#list position.trades as trade>{
+            "id": "${trade.uniqueId.objectId}",
+            "quantity": "${trade.quantity}",
+            "counterParty": "${trade.counterpartyExternalId}",
+            "date": "${trade.tradeDate}",
+            <#assign dealAttr = tradeAttrModel.getDealAttributes(trade.uniqueId)>
+            <#assign userAttr = tradeAttrModel.getUserAttributes(trade.uniqueId)>
+            "attributes":{"dealAttributes" : {<#list dealAttr?keys as key>"${key}":"${dealAttr[key]}"<#if key_has_next>,</#if></#list>}, 
+                          "userAttributes" : {<#list userAttr?keys as key>"${key}":"${userAttr[key]}"<#if key_has_next>,</#if></#list>}}
+        }<#if trade_has_next>,</#if></#list>
     ]
 }
 </#escape>

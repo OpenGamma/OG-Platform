@@ -92,7 +92,7 @@ public final class ExecutionFlags {
   /**
    * Gets an {@link EnumSet} corresponding to the flags that have been added.
    * 
-   * @return the set of flags, not {@code null}
+   * @return the set of flags, not null
    */
   public EnumSet<ViewExecutionFlags> get() {
     return _flags;
@@ -101,7 +101,7 @@ public final class ExecutionFlags {
   /**
    * Gets a builder starting with the empty set of flags.
    * 
-   * @return a builder starting with the empty set of flags, not {@code null}
+   * @return a builder starting with the empty set of flags, not null
    */
   public static ExecutionFlags none() {
     return new ExecutionFlags();
@@ -110,7 +110,7 @@ public final class ExecutionFlags {
   /**
    * Gets a builder starting with all trigger-related flags.
    * 
-   * @return a builder starting with all trigger-related flags, not {@code null}
+   * @return a builder starting with all trigger-related flags, not null
    */
   public static ExecutionFlags triggersEnabled() {
     return none().triggerOnMarketData().triggerOnTimeElapsed();
