@@ -19,11 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.PositionOrTrade;
-import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -99,7 +97,8 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
       final HistoricalTimeSeries markToMarketSeries = getMarkToMarketSeries(historicalSource, _markDataField, security.getExternalIdBundle(), _resolutionKey, tradeDate);
 
       if (markToMarketSeries == null || markToMarketSeries.getTimeSeries() == null) {
-        s_logger.warn("Could not get identifier / mark to market series pair for security " + security.getExternalIdBundle() + " for " + _markDataField + " using " + _resolutionKey);
+        s_logger.debug("Could not get identifier / mark to market series pair for security {} for {} using {}",
+            new Object[]{security.getExternalIdBundle(), _markDataField, _resolutionKey});
         return Collections.emptySet();
       }
       
