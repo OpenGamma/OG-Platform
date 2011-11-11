@@ -7,7 +7,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.money.Currency;
@@ -22,7 +21,7 @@ public final class TestViewDefinitionProvider {
 
   private static final String TEST_VIEW_DEFINITION_NAME = "Test View";
 
-  private static final ObjectId TEST_PORTFOLIO_OBJECT_ID = ObjectId.of("A", "B");
+  private static final UniqueId TEST_PORTFOLIO_ID = UniqueId.of("A", "B");
 
   private static final UniqueId FUNCTION_ID = UniqueId.of("AFunc", "B");
 
@@ -41,7 +40,7 @@ public final class TestViewDefinitionProvider {
     ValueProperties noConstraints = ValueProperties.none();
     ValueProperties nearlyAllConstraints = ValueProperties.all().withoutAny("SomePropName");
 
-    final ViewDefinition viewDefinition = new ViewDefinition(TEST_VIEW_DEFINITION_NAME, TEST_PORTFOLIO_OBJECT_ID, TEST_USER, new ResultModelDefinition());
+    final ViewDefinition viewDefinition = new ViewDefinition(TEST_VIEW_DEFINITION_NAME, TEST_PORTFOLIO_ID, TEST_USER, new ResultModelDefinition());
     final ViewCalculationConfiguration calcConfig1 = new ViewCalculationConfiguration(viewDefinition, "1");
     calcConfig1.addSpecificRequirement(new ValueRequirement("Value1", UniqueId.of("Test", "Foo")));
     calcConfig1.addSpecificRequirement(new ValueRequirement("Value1", UniqueId.of("Test", "Bar"), constraints));

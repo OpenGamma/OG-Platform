@@ -52,7 +52,7 @@ public class DeferredInvocationStatistics {
 
   /**
    * 
-   * @param bytes size of output sample, or {@code null} if no size available
+   * @param bytes size of output sample, or null if no size available
    * @return true if this was the last one expected, false if expecting more
    */
   public boolean addDataOutputBytes(final Integer bytes) {

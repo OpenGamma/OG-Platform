@@ -63,7 +63,8 @@ public abstract class ViewResultModelFudgeBuilder {
     final UniqueId viewCycleId = message.getValue(UniqueId.class, FIELD_VIEWCYCLEID);
     final Instant valuationTime = message.getFieldValue(Instant.class, message.getByName(FIELD_VALUATION_TIME));
     final Instant calculationTime = message.getFieldValue(Instant.class, message.getByName(FIELD_CALCULATION_TIME));
-    final Duration calculationDuration = deserializer.fieldValueToObject(Duration.class, message.getByName(FIELD_CALCULATION_DURATION));
+    FudgeField durationField = message.getByName(FIELD_CALCULATION_DURATION);
+    final Duration calculationDuration = durationField != null ? deserializer.fieldValueToObject(Duration.class, durationField) : null;
     final VersionCorrection versionCorrection = deserializer.fieldValueToObject(VersionCorrection.class, message.getByName(FIELD_VERSION_CORRECTION));
     final Map<String, ViewCalculationResultModel> configurationMap = new HashMap<String, ViewCalculationResultModel>();
     final Queue<String> keys = new LinkedList<String>();
