@@ -42,7 +42,8 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
   private final FunctionCompilationContext _functionCompilationContext;
   private Set<Capability> _capabilitiesToAdd;
 
-  public RemoteNodeServer(final JobInvokerRegister jobInvokerRegister, final IdentifierMap identifierMap, final FunctionCosts functionCosts, final FunctionCompilationContext functionCompilationContext) {
+  public RemoteNodeServer(final JobInvokerRegister jobInvokerRegister, final IdentifierMap identifierMap,
+      final FunctionCosts functionCosts, final FunctionCompilationContext functionCompilationContext) {
     _jobInvokerRegister = jobInvokerRegister;
     _identifierMap = identifierMap;
     _functionCosts = functionCosts;

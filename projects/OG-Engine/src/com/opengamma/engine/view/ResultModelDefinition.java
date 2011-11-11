@@ -41,6 +41,8 @@ import com.opengamma.util.PublicAPI;
 @BeanDefinition
 public class ResultModelDefinition extends DirectBean implements Serializable {
 
+  private static final long serialVersionUID = 1L;
+  
   /**
    * The aggregate position output mode (portfolio nodes).
    * <p>

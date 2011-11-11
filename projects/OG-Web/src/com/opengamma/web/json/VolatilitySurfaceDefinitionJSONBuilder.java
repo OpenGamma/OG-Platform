@@ -39,7 +39,7 @@ public final class VolatilitySurfaceDefinitionJSONBuilder extends AbstractJSONBu
 
   @Override
   public String toJSON(VolatilitySurfaceDefinition object) {
-    return toJSON(object, VolatilitySurfaceDefinition.class);
+    return fudgeToJson(object);
   }
 
   @Override

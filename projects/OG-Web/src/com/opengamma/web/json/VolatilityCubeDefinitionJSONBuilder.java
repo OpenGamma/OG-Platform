@@ -42,7 +42,7 @@ public final class VolatilityCubeDefinitionJSONBuilder extends AbstractJSONBuild
   @Override
   public String toJSON(VolatilityCubeDefinition volatilityCubeDefinition) {
     ArgumentChecker.notNull(volatilityCubeDefinition, "volatilityCubeDefinition");
-    return toJSON(volatilityCubeDefinition, VolatilityCubeDefinition.class);
+    return fudgeToJson(volatilityCubeDefinition);
   }
 
   @Override

@@ -60,7 +60,7 @@ public class DependencyNode {
   /**
    * Creates a new node.
    * 
-   * @param target the computation target, not {@code null}
+   * @param target the computation target, not null
    */
   public DependencyNode(ComputationTarget target) {
     ArgumentChecker.notNull(target, "Computation Target");
@@ -71,7 +71,7 @@ public class DependencyNode {
    * Adds a set of nodes as inputs to this node. The nodes added are updated to include this node in their
    * dependent node set.
    * 
-   * @param inputNodes nodes to add, not {@code null} and not containing {@code null}
+   * @param inputNodes nodes to add, not null and not containing null
    */
   public void addInputNodes(Set<DependencyNode> inputNodes) {
     for (DependencyNode inputNode : inputNodes) {
@@ -83,7 +83,7 @@ public class DependencyNode {
    * Adds a node as input to this node. The node added is updated to include this node in its dependent node
    * set.
    * 
-   * @param inputNode node to add, not {@code null}
+   * @param inputNode node to add, not null
    */
   public void addInputNode(DependencyNode inputNode) {
     ArgumentChecker.notNull(inputNode, "Input Node");
@@ -109,7 +109,7 @@ public class DependencyNode {
   /**
    * Returns the dependent node. This call is only valid if there is a single (or no) dependent node.
    * 
-   * @return the node, or {@code null} if there are no dependent nodes
+   * @return the node, or null if there are no dependent nodes
    * @throws IllegalStateException if there are multiple dependent nodes
    */
   public DependencyNode getDependentNode() {
@@ -137,7 +137,7 @@ public class DependencyNode {
    * This will later be pruned to remove any values not required as inputs to other nodes and not specified as terminal outputs
    * of the graph.
    * 
-   * @param outputValues the output values produced by this node, not {@code null}
+   * @param outputValues the output values produced by this node, not null
    */
   public void addOutputValues(Set<ValueSpecification> outputValues) {
     for (ValueSpecification outputValue : outputValues) {
@@ -150,7 +150,7 @@ public class DependencyNode {
    * This will later be pruned to remove any values not required as inputs to other nodes and not specified as terminal outputs
    * of the graph.
    * 
-   * @param outputValue an output value produced by this node, not {@code null}
+   * @param outputValue an output value produced by this node, not null
    */
   public void addOutputValue(ValueSpecification outputValue) {
     ArgumentChecker.notNull(outputValue, "Output value");

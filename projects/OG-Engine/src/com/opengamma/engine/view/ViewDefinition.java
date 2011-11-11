@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -21,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.livedata.UserPrincipal;
@@ -43,7 +43,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
 
   private UniqueId _uniqueIdentifier;
   private final String _name;
-  private final ObjectId _portfolioOid;
+  private final UniqueId _portfolioId;
   private final UserPrincipal _marketDataUser;
 
   private final ResultModelDefinition _resultModelDefinition;
@@ -68,13 +68,13 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * Constructs an instance, including a reference portfolio.
    * 
    * @param name  the name of the view definition
-   * @param portfolioOid  the object identifier of the portfolio referenced by this view definition, null if no
-   *                           portfolio reference is required
+   * @param portfolioId the unique identifier of the portfolio referenced by this view definition, null if
+   *                    no portfolio reference is required
    * @param userName  the name of the user who owns the view definition
    */
 
-  public ViewDefinition(String name, ObjectId portfolioOid, String userName) {
-    this(null, name, portfolioOid, userName);
+  public ViewDefinition(String name, UniqueId portfolioId, String userName) {
+    this(null, name, portfolioId, userName);
   }
 
   /**
@@ -115,27 +115,27 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * Constructs an instance
    * 
    * @param name  the name of the view definition
-   * @param portfolioOid  the object identifier of the portfolio referenced by this view definition, null if no
-   *                           portfolio reference is required
+   * @param portfolioId the unique identifier of the portfolio referenced by this view definition, null if
+   *                    no portfolio reference is required
    * @param marketDataUser  the user who owns the view definition
    */
 
-  public ViewDefinition(String name, ObjectId portfolioOid, UserPrincipal marketDataUser) {
-    this(null, name, portfolioOid, marketDataUser);
+  public ViewDefinition(String name, UniqueId portfolioId, UserPrincipal marketDataUser) {
+    this(null, name, portfolioId, marketDataUser);
   }
 
   /**
    * Constructs an instance
    * 
    * @param name  the name of the view definition, cannot be null
-   * @param portfolioOid  the object identifier of the portfolio referenced by this view definition, null if
-   *                           no portfolio reference is required
+   * @param portfolioId the unique identifier of the portfolio referenced by this view definition, null if
+   *                    no portfolio reference is required
    * @param marketDataUser  the user who owns the view definition, cannot be null
    * @param resultModelDefinition  configuration of the results from the view, cannot be null
    */
 
-  public ViewDefinition(String name, ObjectId portfolioOid, UserPrincipal marketDataUser, ResultModelDefinition resultModelDefinition) {
-    this(null, name, portfolioOid, marketDataUser, resultModelDefinition);
+  public ViewDefinition(String name, UniqueId portfolioId, UserPrincipal marketDataUser, ResultModelDefinition resultModelDefinition) {
+    this(null, name, portfolioId, marketDataUser, resultModelDefinition);
   }
 
   // --------------------------------------------------------------------------
@@ -144,12 +144,12 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * 
    * @param uniqueId  the unique id of the view definition
    * @param name  the name of the view definition
-   * @param portfolioOid  the object identifier of the portfolio referenced by this view definition, null if no
-   *                           portfolio reference is required
+   * @param portfolioId the unique identifier of the portfolio referenced by this view definition, null if
+   *                    no portfolio reference is required
    * @param userName  the name of the user who owns the view definition
    */
-  public ViewDefinition(UniqueId uniqueId, String name, ObjectId portfolioOid, String userName) {
-    this(uniqueId, name, portfolioOid, UserPrincipal.getLocalUser(userName), new ResultModelDefinition());
+  public ViewDefinition(UniqueId uniqueId, String name, UniqueId portfolioId, String userName) {
+    this(uniqueId, name, portfolioId, UserPrincipal.getLocalUser(userName), new ResultModelDefinition());
   }
 
   /**
@@ -191,12 +191,12 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * 
    * @param uniqueId  the unique id of the view definition
    * @param name  the name of the view definition
-   * @param portfolioOid  the object identifier of the portfolio referenced by this view definition, null if no
-   *                           portfolio reference is required
+   * @param portfolioId the unique identifier of the portfolio referenced by this view definition, null if
+   *                    no portfolio reference is required
    * @param marketDataUser  the user who owns the view definition
    */
-  public ViewDefinition(UniqueId uniqueId, String name, ObjectId portfolioOid, UserPrincipal marketDataUser) {
-    this(uniqueId, name, portfolioOid, marketDataUser, new ResultModelDefinition());
+  public ViewDefinition(UniqueId uniqueId, String name, UniqueId portfolioId, UserPrincipal marketDataUser) {
+    this(uniqueId, name, portfolioId, marketDataUser, new ResultModelDefinition());
   }
 
   /**
@@ -204,18 +204,18 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * 
    * @param uniqueId  the unique id of the view definition
    * @param name  the name of the view definition, cannot be null
-   * @param portfolioOid  the object identifier of the portfolio referenced by this view definition, null if
-   *                           no portfolio reference is required
+   * @param portfolioId the unique identifier of the portfolio referenced by this view definition, null if
+   *                    no portfolio reference is required
    * @param marketDataUser  the user who owns the view definition, cannot be null
    * @param resultModelDefinition  configuration of the results from the view, cannot be null
    */
-  public ViewDefinition(UniqueId uniqueId, String name, ObjectId portfolioOid, UserPrincipal marketDataUser, ResultModelDefinition resultModelDefinition) {
+  public ViewDefinition(UniqueId uniqueId, String name, UniqueId portfolioId, UserPrincipal marketDataUser, ResultModelDefinition resultModelDefinition) {
     ArgumentChecker.notNull(name, "View name");
     ArgumentChecker.notNull(marketDataUser, "User name");
     ArgumentChecker.notNull(resultModelDefinition, "Result model definition");
 
     _name = name;
-    _portfolioOid = portfolioOid;
+    _portfolioId = portfolioId;
     _marketDataUser = marketDataUser;
     _resultModelDefinition = resultModelDefinition;
 
@@ -248,14 +248,14 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
   }
 
   /**
-   * Gets the object identifier of the portfolio referenced by this view definition. This is the portfolio on which
+   * Gets the unique identifier of the portfolio referenced by this view definition. This is the portfolio on which
    * position-level calculations should be performed. 
    * 
-   * @return  the object identifier of the portfolio referenced by this view definition, null if no portfolio is
+   * @return  the unique identifier of the portfolio referenced by this view definition, null if no portfolio is
    *          referenced
    */
-  public ObjectId getPortfolioOid() {
-    return _portfolioOid;
+  public UniqueId getPortfolioId() {
+    return _portfolioId;
   }
 
   /**
@@ -510,7 +510,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
     final int prime = 31;
     int result = 1;
     result = prime * result + ObjectUtils.hashCode(getName());
-    result = prime * result + ObjectUtils.hashCode(getPortfolioOid());
+    result = prime * result + ObjectUtils.hashCode(getPortfolioId());
     result = prime * result + ObjectUtils.hashCode(getMarketDataUser());
     return result;
   }
@@ -526,7 +526,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
     }
 
     ViewDefinition other = (ViewDefinition) obj;
-    boolean basicPropertiesEqual = ObjectUtils.equals(getName(), other.getName()) && ObjectUtils.equals(getPortfolioOid(), other.getPortfolioOid())
+    boolean basicPropertiesEqual = ObjectUtils.equals(getName(), other.getName()) && ObjectUtils.equals(getPortfolioId(), other.getPortfolioId())
         && ObjectUtils.equals(getResultModelDefinition(), other.getResultModelDefinition()) && ObjectUtils.equals(getMarketDataUser(), other.getMarketDataUser())
         && ObjectUtils.equals(_minDeltaCalculationPeriod, other._minDeltaCalculationPeriod) && ObjectUtils.equals(_maxDeltaCalculationPeriod, other._maxDeltaCalculationPeriod)
         && ObjectUtils.equals(_minFullCalculationPeriod, other._minFullCalculationPeriod) && ObjectUtils.equals(_maxFullCalculationPeriod, other._maxFullCalculationPeriod)

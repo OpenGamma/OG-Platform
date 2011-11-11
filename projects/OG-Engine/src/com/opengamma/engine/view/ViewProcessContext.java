@@ -99,7 +99,7 @@ public class ViewProcessContext {
   /**
    * Gets the view definition repository
    * 
-   * @return the view definition repository, not {@code null}
+   * @return the view definition repository, not null
    */
   public ViewDefinitionRepository getViewDefinitionRepository() {
     return _viewDefinitionRepository;
@@ -117,7 +117,7 @@ public class ViewProcessContext {
   /**
    * Gets the market data provider resolver.
    * 
-   * @return the market data provider resolver, not {@code null}
+   * @return the market data provider resolver, not null
    */
   public MarketDataProviderResolver getMarketDataProviderResolver() {
     return _marketDataProviderResolver;
@@ -126,7 +126,7 @@ public class ViewProcessContext {
   /**
    * Gets the live data override injector.
    * 
-   * @return the live data override injector, not {@code null}
+   * @return the live data override injector, not null
    */
   public MarketDataInjector getLiveDataOverrideInjector() {
     return _liveDataOverrideInjector;
@@ -221,8 +221,8 @@ public class ViewProcessContext {
   /**
    * Uses this context to form a {@code ViewCompliationServices} instance.
    * 
-   * @param marketDataAvailabilityProvider  the availability provider corresponding to the desired source of market data, not {@code null}
-   * @return the services, not {@code null}
+   * @param marketDataAvailabilityProvider  the availability provider corresponding to the desired source of market data, not null
+   * @return the services, not null
    */
   public ViewCompilationServices asCompilationServices(MarketDataAvailabilityProvider marketDataAvailabilityProvider) {
     return new ViewCompilationServices(marketDataAvailabilityProvider, getFunctionResolver(), getFunctionCompilationService().getFunctionCompilationContext(), getComputationTargetResolver(),

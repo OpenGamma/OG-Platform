@@ -199,7 +199,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
 
   }
 
-  private class AtomicExecutorCallable implements Callable<CalculationJobResult> {
+  private final class AtomicExecutorCallable implements Callable<CalculationJobResult> {
     private RuntimeException _exception;
     private CalculationJobResult _result;
     private final BlockingQueue<CalculationJobResult> _calcJobResultQueue;

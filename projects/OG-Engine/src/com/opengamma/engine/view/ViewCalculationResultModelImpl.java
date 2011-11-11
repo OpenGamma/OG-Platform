@@ -19,6 +19,8 @@ import com.opengamma.util.tuple.Pair;
  */
 public class ViewCalculationResultModelImpl extends AbstractResultModel<ComputationTargetSpecification> implements ViewCalculationResultModel {
 
+  private static final long serialVersionUID = 1L;
+  
   private DependencyGraphBuilder _dependencyGraphModel;
 
   public void setDependencyGraphModel(DependencyGraphBuilder dependencyGraphModel) {
