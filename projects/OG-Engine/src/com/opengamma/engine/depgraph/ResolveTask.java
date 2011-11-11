@@ -5,10 +5,12 @@
  */
 package com.opengamma.engine.depgraph;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,6 +116,11 @@ import com.opengamma.engine.value.ValueSpecification;
   private final ResolveTask _parent;
 
   /**
+   * Parent value requirements.
+   */
+  private final Set<ValueRequirement> _parentRequirements;
+
+  /**
    * Pre-calculated hashcode.
    */
   private final int _hashCode;
@@ -136,7 +143,18 @@ import com.opengamma.engine.value.ValueSpecification;
   public ResolveTask(final ValueRequirement valueRequirement, final ResolveTask parent) {
     super(valueRequirement);
     _parent = parent;
-    _hashCode = (parent != null) ? valueRequirement.hashCode() * 31 + parent.hashCode() : valueRequirement.hashCode();
+    if (parent != null) {
+      if (parent.getParentValueRequirements() != null) {
+        _parentRequirements = new HashSet<ValueRequirement>(parent.getParentValueRequirements());
+        _parentRequirements.add(parent.getValueRequirement());
+      } else {
+        _parentRequirements = Collections.singleton(parent.getValueRequirement());
+      }
+      _hashCode = valueRequirement.hashCode() * 31 + _parentRequirements.hashCode();
+    } else {
+      _parentRequirements = null;
+      _hashCode = valueRequirement.hashCode();
+    }
     setState(new ResolveTargetStep(this));
   }
 
@@ -154,7 +172,7 @@ import com.opengamma.engine.value.ValueSpecification;
     _state = state;
   }
 
-  protected boolean isFinished() {
+  public boolean isFinished() {
     return _state == null;
   }
 
@@ -187,6 +205,10 @@ import com.opengamma.engine.value.ValueSpecification;
     return _parent;
   }
 
+  private Set<ValueRequirement> getParentValueRequirements() {
+    return _parentRequirements;
+  }
+
   public boolean hasParent(final ResolveTask task) {
     if (task == this) {
       return true;
@@ -200,10 +222,10 @@ import com.opengamma.engine.value.ValueSpecification;
   public boolean hasParent(final ValueRequirement valueRequirement) {
     if (valueRequirement.equals(getValueRequirement())) {
       return true;
-    } else if (getParent() == null) {
+    } else if (getParentValueRequirements() == null) {
       return false;
     } else {
-      return getParent().hasParent(valueRequirement);
+      return getParentValueRequirements().contains(valueRequirement);
     }
   }
 
@@ -227,25 +249,7 @@ import com.opengamma.engine.value.ValueSpecification;
     if (!getValueRequirement().equals(other.getValueRequirement())) {
       return false;
     }
-    if (getParent() == null) {
-      return other.getParent() == null;
-    }
-    final Set<ValueRequirement> set = new HashSet<ValueRequirement>();
-    ResolveTask parent = getParent();
-    while (parent != null) {
-      set.add(parent.getValueRequirement());
-      parent = parent.getParent();
-    }
-    parent = other.getParent();
-    while (parent != null) {
-      if (!set.remove(parent.getValueRequirement())) {
-        // Other has a parent we don't have
-        return false;
-      }
-      parent = parent.getParent();
-    }
-    // Set is empty if all parents matched
-    return set.isEmpty();
+    return ObjectUtils.equals(getParentValueRequirements(), other.getParentValueRequirements());
   }
 
   @Override
