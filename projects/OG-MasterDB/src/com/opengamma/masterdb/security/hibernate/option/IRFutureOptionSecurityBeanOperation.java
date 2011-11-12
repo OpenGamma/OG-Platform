@@ -56,7 +56,7 @@ public final class IRFutureOptionSecurityBeanOperation  extends AbstractSecurity
         exerciseType, 
         externalIdBeanToExternalId(bean.getUnderlying()), 
         bean.getPointValue(), 
-        bean.isMargined(), 
+        bean.getMargined(), 
         currencyBeanToCurrency(bean.getCurrency()), 
         bean.getStrike(), bean.getOptionType());
     return sec;
