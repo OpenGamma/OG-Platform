@@ -471,6 +471,18 @@
   <bean id="webInterfaceBean" class="com.opengamma.web.server.LiveResultsServiceBean">
     <property name="user" ref="testUser" />
     <property name="viewProcessor" ref="demoViewProcessor" />
+    <property name="positionSource" ref="combinedPositionSource" />
+    <property name="securitySource" ref="combinedSecuritySource" />
+    <property name="userPortfolioMaster" ref="userFinancialPortfolioMaster" />
+    <property name="userPositionMaster" ref="userFinancialPositionMaster" />
+    <property name="userViewDefinitionRepository" ref="userViewDefinitionRepository" />
+    <property name="portfolioAggregators">
+      <list>
+        <!-- TODO: shared aggregation function config -->
+        <bean class="com.opengamma.financial.aggregation.AssetClassAggregationFunction" />
+        <bean class="com.opengamma.financial.aggregation.CurrencyAggregationFunction" />
+      </list>
+    </property>
     <property name="snapshotMaster" ref="dbSnapshotMaster" />
     <property name="executorService">
       <bean class="com.opengamma.util.ExecutorServiceFactoryBean">
