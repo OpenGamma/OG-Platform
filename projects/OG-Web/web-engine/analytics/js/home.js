@@ -6,8 +6,6 @@
   
   var _init = false;
   var _isRunning = false;
-  var _statusTitle = '';
-  var _resultTitle = '';
   
   var _userConfig;
   var _resultsViewer = null;
@@ -115,7 +113,7 @@
   
   function onInitDataReceived(initData) {
     if (_init) {
-      updateViewList(initData.viewNames);
+      updateList($("#viewlist"), initData.viewNames);
     } else {
       initControls(initData);
     }
@@ -127,12 +125,18 @@
     viewList = initData.viewNames;
     var $views = $('#views');
     var $backingViewList = $("<select id='viewlist'></select>").appendTo($views);
+    var $backingAggregatorsList = $("<select id='aggregatorslist'></select>");
     var $backingSnapshotList = $("<select id='snapshotlist'></select>")
 
-    updateViewList(initData.viewNames);
+    updateList($backingViewList, initData.viewNames);
     $backingViewList.combobox({
       change: function(item) { populateSnapshots($backingSnapshotList, initData.liveSources, initData.snapshots, $(item).val()); }
     });
+    
+    $("<span class='viewlabel'>aggregated by</span>").appendTo($views);
+    $backingAggregatorsList.appendTo($views);
+    $backingAggregatorsList.combobox();
+    populateAggregators($backingAggregatorsList, initData.aggregatorNames);
 
     $("<span class='viewlabel'>using</span>").appendTo($views);
     $backingSnapshotList.appendTo($views);
@@ -169,14 +173,28 @@
     _init = true;
   }
   
-  function updateViewList(viewList) {
-    var $backingViewList = $("#viewlist")
-    $backingViewList.empty();
-    $('<option value=""></option>').appendTo($backingViewList);
-    $.each(viewList, function() {
+  function updateList($backingList, contents) {
+    $backingList.empty();
+    $('<option value=""></option>').appendTo($backingList);
+    $.each(contents, function() {
       var $opt = $('<option value="' + this + '">' + this + '</option>');
-      $opt.appendTo($backingViewList);
+      $opt.appendTo($backingList);
     });
+  }
+  
+  function populateAggregators($aggregatorsSelect, aggregators) {
+    $aggregatorsSelect.empty();
+    $('<option value=""></option>').appendTo($aggregatorsSelect);
+    $('<option>Default Aggregation</option>').addClass("standard-entry").addClass("autocomplete-divider")
+        .appendTo($aggregatorsSelect);
+    $.each(aggregators, function(idx, aggregator) {
+      $('<option value="' + aggregator + '">' + aggregator + '</option>').appendTo($aggregatorsSelect);
+    });
+    
+    var $input = $aggregatorsSelect.next();
+    $input.width(Math.min(250, $aggregatorsSelect.width() + 15));
+    $input.val($aggregatorsSelect.children()[1].text);
+    $aggregatorsSelect.children()[1].selected = true;
   }
   
   function populateSnapshots($snapshotSelect, liveSources, snapshots, selectedView) {
@@ -192,7 +210,7 @@
       var $liveMarketData;
       $.each(liveSources, function(idx, liveSource) {
         $liveMarketData = $('<option value="' + liveSource + '">Live market data (' + liveSource + ')</option>')
-          .addClass("live-market-data");
+          .addClass("standard-entry");
         $liveMarketData.appendTo($snapshotSelect);
       });
     }
@@ -256,7 +274,7 @@
     
     var $selectedMarketData = $('#snapshotlist option:selected');
     var marketDataId = $selectedMarketData.attr('value');
-    var isLive = $selectedMarketData.hasClass('live-market-data');
+    var isLive = $selectedMarketData.hasClass('standard-entry');
     var marketDataSpecification = {};
     if (isLive) {
       marketDataSpecification.marketDataType = "live";
@@ -288,9 +306,6 @@
       });
       $resultsViewerContainer.append($loadingDots);
     }
-    setStatusTitle('Loading');
-    setResultTitle('initializing view');
-    updateStatusText();
     _isRunning = false;
     disablePauseResumeButtons();
   }
@@ -311,42 +326,12 @@
   // Status
   
   function onStatusUpdateReceived(update) {
-    setStatusTitle(update.status);
-    updateStatusText();
-
     var isRunning = update.isRunning;
     if (_isRunning == isRunning) {
       return;
     }
     _isRunning = isRunning;
     togglePauseResumeButtons(isRunning);
-  }
-  
-  function afterUpdateReceived(update) {
-    var valuationDate = new Date(update.valuationTime);
-    var resultTitle = "valued at " + valuationDate.toUTCString() + ", calculated in " + update.calculationDuration + " ms";
-    setResultTitle(resultTitle);
-    updateStatusText();
-  }
-  
-  function setStatusTitle(statusTitle) {
-    _statusTitle = statusTitle;
-  }
-  
-  function getStatusTitle() {
-    return _statusTitle;
-  }
-  
-  function setResultTitle(resultTitle) {
-    _resultTitle = resultTitle;
-  }
-  
-  function getResultTitle() {
-    return _resultTitle;
-  }
-  
-  function updateStatusText() {
-    $('#viewstatus').html("<p><span class='statustitle'>" + getStatusTitle() + ": </span> " + getResultTitle() + "</p>");
   }
   
   //-----------------------------------------------------------------------
@@ -410,7 +395,6 @@
     _liveResultsClient.onInitDataReceived.subscribe(onInitDataReceived);
     _liveResultsClient.onViewInitialized.subscribe(onViewInitialized);
     _liveResultsClient.onStatusUpdateReceived.subscribe(onStatusUpdateReceived);
-    _liveResultsClient.afterUpdateReceived.subscribe(afterUpdateReceived);
     
     // Disconnect when the page unloads (client needs to time out on the server if this call is not made) 
     $(window).unload(function() {
