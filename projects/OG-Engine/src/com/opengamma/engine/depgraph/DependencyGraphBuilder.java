@@ -618,7 +618,7 @@ public final class DependencyGraphBuilder {
     }
 
     private synchronized void discardIntermediateState() {
-      reportStateSize();
+      s_loggerContext.debug("Discarding intermediate state {} requirements, {} specifications", _requirements.size(), _specifications.size());
       _requirements.clear();
       _specifications.clear();
     }
