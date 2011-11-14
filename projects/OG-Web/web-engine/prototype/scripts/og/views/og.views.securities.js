@@ -183,8 +183,8 @@ $.register_module({
                             $('.ui-layout-inner-center .ui-layout-content').html(content);
                             for (id in json_id) {
                                 if (json_id.hasOwnProperty(id)) {
-                                    html.push('<tr><td><span>', json_id[id].split('-')[0],
-                                              '<span></td><td>', json_id[id].split('-')[1], '</td></tr>');
+                                    html.push('<tr><td><span>', id,
+                                              '<span></td><td>', json_id[id].replace(id + '-', ''), '</td></tr>');
                                 }
                                 $('.ui-layout-inner-center .og-js-identifiers').html(html.join(''));
                             }
