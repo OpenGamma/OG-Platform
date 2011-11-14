@@ -29,8 +29,8 @@ public interface DependencyGraphExplorer {
    * properties will uniquely identify the subgraph which produced the output; otherwise, the subgraph returned may
    * represent one of several producing the given output.
    * 
-   * @param output  the output, not {@code null}
-   * @return  a subgraph producing the output, or {@code null} if no such subgraph exists
+   * @param output  the output, not null
+   * @return  a subgraph producing the output, or null if no such subgraph exists
    */
   DependencyGraph getSubgraphProducing(ValueSpecification output);  
 }

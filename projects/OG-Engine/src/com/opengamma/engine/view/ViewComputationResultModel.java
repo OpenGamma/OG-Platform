@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,7 +12,6 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.PublicAPI;
-
 
 /**
  * The data model represents the sum total of analytic functions applied to positions

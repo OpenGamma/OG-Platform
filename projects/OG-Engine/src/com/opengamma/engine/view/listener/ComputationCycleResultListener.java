@@ -5,15 +5,8 @@
  */
 package com.opengamma.engine.view.listener;
 
-import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
-import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
-
-import javax.time.Instant;
 
 /**
  * A listener to the output of a view cycle. Calls to the listener are always made in the sequence in which they

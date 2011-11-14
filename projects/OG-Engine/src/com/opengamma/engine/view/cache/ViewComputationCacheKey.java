@@ -33,7 +33,7 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * Gets the unique identifer of the view cycle.
    * 
-   * @return the unique identifier of the view cycle, not {@code null}
+   * @return the unique identifier of the view cycle, not null
    */
   public UniqueId getViewCycleId() {
     return _viewCycleId;
@@ -42,7 +42,7 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * Gets the calculation configuration name.
    * 
-   * @return the calculation configuration name, not {@code null}
+   * @return the calculation configuration name, not null
    */
   public String getCalculationConfigurationName() {
     return _calculationConfigurationName;

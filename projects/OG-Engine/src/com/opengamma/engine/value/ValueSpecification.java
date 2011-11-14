@@ -34,6 +34,8 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public class ValueSpecification implements Serializable {
 
+  private static final long serialVersionUID = 1L;
+  
   /**
    * The name of the value being requested.
    * This matches that of a {@link ValueRequirement} satisfied by this specification.
@@ -340,14 +342,14 @@ public class ValueSpecification implements Serializable {
   @Override
   public String toString() {
     return new StrBuilder()
-    .append("VSpec[")
-    .append(getValueName())
-    .append(", ")
-    .append(getTargetSpecification())
-    .append(", ")
-    .append(getProperties())
-    .append(']')
-    .toString();
+      .append("VSpec[")
+      .append(getValueName())
+      .append(", ")
+      .append(getTargetSpecification())
+      .append(", ")
+      .append(getProperties())
+      .append(']')
+      .toString();
   }
 
 }

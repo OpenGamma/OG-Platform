@@ -5,10 +5,9 @@
  */
 package com.opengamma.engine.view.calc;
 
-import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.ehcache.EHCacheUtils;
 import org.springframework.beans.factory.InitializingBean;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -23,9 +22,9 @@ public class MultipleNodeBatchExecutorFactory extends MultipleNodeExecutorFactor
   @Override
   public MultipleNodeExecutor createExecutor(final SingleComputationCycle cycle) {
     ArgumentChecker.notNull(cycle, "cycle");
-    return new MultipleNodeBatchExecutor(cycle, getMinimumJobItems(), getMaximumJobItems(), getMinimumJobCost(), getMaximumJobCost(), getMaximumConcurrency(), getFunctionCosts(), _executionPlanCache, getResultWriterFactory());
+    return new MultipleNodeBatchExecutor(cycle, getMinimumJobItems(), getMaximumJobItems(), getMinimumJobCost(),
+        getMaximumJobCost(), getMaximumConcurrency(), getFunctionCosts(), getExecutionPlanCache(), getResultWriterFactory());
   }
-
 
   public ResultWriterFactory getResultWriterFactory() {
     return _resultWriterFactory;
@@ -34,4 +33,5 @@ public class MultipleNodeBatchExecutorFactory extends MultipleNodeExecutorFactor
   public void setResultWriterFactory(ResultWriterFactory resultWriterFactory) {
     this._resultWriterFactory = resultWriterFactory;
   }
+  
 }

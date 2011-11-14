@@ -4,6 +4,7 @@
   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.masterdb.security.hibernate.option">
   <union-subclass name="FXOptionSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_fxoption">
+    <property name="optionExerciseType" column="option_exercise_type" type="com.opengamma.masterdb.security.hibernate.option.OptionExerciseTypeUserType" not-null="true" />
     <property name="callAmount" column="call_amount" type="double" not-null="true" />
     <property name="putAmount" column="put_amount" type="double" not-null="true" />
     <component name="expiry" class="com.opengamma.masterdb.security.hibernate.ExpiryBean">

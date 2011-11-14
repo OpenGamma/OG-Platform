@@ -47,7 +47,7 @@ public class PortfolioExchangeTradedPnLFunction extends AbstractPortfolioPnLFunc
   
   @Override
   public String getShortName() {
-    return "PortfolioDailyEquityPnL";
+    return "PortfolioEquityPnL";
   }
   
 }

@@ -253,22 +253,22 @@ import com.opengamma.engine.value.ValueSpecification;
     if (failure != null) {
       synchronized (this) {
         if (_failure == null) {
-          if (_results.length == 0) {
-            _failure = (ResolutionFailure) failure.clone();
-            return;
-          }
-          _failure = ResolutionFailure.resolvedValue(getValueRequirement(), _results[0]);
-        }
-        while (_failure.getResultCount() < _results.length) {
-          _failure.resolvedValue(_results[_failure.getResultCount()]);
+          _failure = (ResolutionFailure) failure.clone();
+          return;
         }
         _failure.merge(failure);
       }
     }
   }
 
+  /**
+   * Returns the current results in the order they were produced. If the producer is not
+   * in a "finished" state, the results are the current intermediate values. The caller
+   * must not modify the content of the array.
+   * 
+   * @return the current results
+   */
   protected synchronized ResolvedValue[] getResults() {
-    assert _finished;
     return _results;
   }
 

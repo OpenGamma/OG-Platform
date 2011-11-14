@@ -8,6 +8,8 @@ package com.opengamma.masterdb.security.hibernate.capfloor;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.PropertyDefinition;
 
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
@@ -16,198 +18,42 @@ import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.FrequencyBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
+import java.util.Map;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * A bean representation of {@link CapFloorSecurity}.
  */
+@BeanDefinition
 public class CapFloorSecurityBean extends SecurityBean {
+  @PropertyDefinition
   private CurrencyBean _currency;
+  @PropertyDefinition
   private DayCountBean _dayCount;
+  @PropertyDefinition
   private FrequencyBean _frequency;
-  private boolean _isCap;
-  private boolean _isIbor;
-  private boolean _isPayer;
+  @PropertyDefinition
+  private boolean _cap;
+  @PropertyDefinition
+  private boolean _ibor;
+  @PropertyDefinition
+  private boolean _payer;
+  @PropertyDefinition
   private ZonedDateTimeBean _maturityDate;
+  @PropertyDefinition
   private double _notional;
+  @PropertyDefinition
   private ZonedDateTimeBean _startDate;
+  @PropertyDefinition
   private double _strike;
+  @PropertyDefinition
   private ExternalIdBean _underlyingIdentifier;
-  
-  /**
-   * Gets the currency.
-   * @return the currency
-   */
-  public CurrencyBean getCurrency() {
-    return _currency;
-  }
-
-  /**
-   * Sets the currency.
-   * @param currency  the currency
-   */
-  public void setCurrency(CurrencyBean currency) {
-    _currency = currency;
-  }
-
-  /**
-   * Gets the dayCount.
-   * @return the dayCount
-   */
-  public DayCountBean getDayCount() {
-    return _dayCount;
-  }
-
-  /**
-   * Sets the dayCount.
-   * @param dayCount  the dayCount
-   */
-  public void setDayCount(DayCountBean dayCount) {
-    _dayCount = dayCount;
-  }
-
-  /**
-   * Gets the frequency.
-   * @return the frequency
-   */
-  public FrequencyBean getFrequency() {
-    return _frequency;
-  }
-
-  /**
-   * Sets the frequency.
-   * @param frequency  the frequency
-   */
-  public void setFrequency(FrequencyBean frequency) {
-    _frequency = frequency;
-  }
-
-  /**
-   * Gets the isCap.
-   * @return the isCap
-   */
-  public boolean isCap() {
-    return _isCap;
-  }
-
-  /**
-   * Sets the isCap.
-   * @param isCap  the isCap
-   */
-  public void setCap(boolean isCap) {
-    _isCap = isCap;
-  }
-
-  /**
-   * Gets the isIbor.
-   * @return the isIbor
-   */
-  public boolean isIbor() {
-    return _isIbor;
-  }
-
-  /**
-   * Sets the isIbor.
-   * @param isIbor  the isIbor
-   */
-  public void setIbor(boolean isIbor) {
-    _isIbor = isIbor;
-  }
-
-  /**
-   * Gets the isPayer.
-   * @return the isPayer
-   */
-  public boolean isPayer() {
-    return _isPayer;
-  }
-
-  /**
-   * Sets the isPayer.
-   * @param isPayer  the isPayer
-   */
-  public void setPayer(boolean isPayer) {
-    _isPayer = isPayer;
-  }
-
-  /**
-   * Gets the maturityDate.
-   * @return the maturityDate
-   */
-  public ZonedDateTimeBean getMaturityDate() {
-    return _maturityDate;
-  }
-
-  /**
-   * Sets the maturityDate.
-   * @param maturityDate  the maturityDate
-   */
-  public void setMaturityDate(ZonedDateTimeBean maturityDate) {
-    _maturityDate = maturityDate;
-  }
-
-  /**
-   * Gets the notional.
-   * @return the notional
-   */
-  public double getNotional() {
-    return _notional;
-  }
-
-  /**
-   * Sets the notional.
-   * @param notional  the notional
-   */
-  public void setNotional(double notional) {
-    _notional = notional;
-  }
-
-  /**
-   * Gets the startDate.
-   * @return the startDate
-   */
-  public ZonedDateTimeBean getStartDate() {
-    return _startDate;
-  }
-
-  /**
-   * Sets the startDate.
-   * @param startDate  the startDate
-   */
-  public void setStartDate(ZonedDateTimeBean startDate) {
-    _startDate = startDate;
-  }
-
-  /**
-   * Gets the strike.
-   * @return the strike
-   */
-  public double getStrike() {
-    return _strike;
-  }
-
-  /**
-   * Sets the strike.
-   * @param strike  the strike
-   */
-  public void setStrike(double strike) {
-    _strike = strike;
-  }
-
-  /**
-   * Gets the underlyingIdentifier.
-   * @return the underlyingIdentifier
-   */
-  public ExternalIdBean getUnderlyingIdentifier() {
-    return _underlyingIdentifier;
-  }
-
-  /**
-   * Sets the underlyingIdentifier.
-   * @param underlyingIdentifier  the underlyingIdentifier
-   */
-  public void setUnderlyingIdentifier(ExternalIdBean underlyingIdentifier) {
-    _underlyingIdentifier = underlyingIdentifier;
-  }
 
   @Override
   public boolean equals(final Object other) {
@@ -248,4 +94,591 @@ public class CapFloorSecurityBean extends SecurityBean {
         .toHashCode();
   }
 
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code CapFloorSecurityBean}.
+   * @return the meta-bean, not null
+   */
+  public static CapFloorSecurityBean.Meta meta() {
+    return CapFloorSecurityBean.Meta.INSTANCE;
+  }
+  static {
+    JodaBeanUtils.registerMetaBean(CapFloorSecurityBean.Meta.INSTANCE);
+  }
+
+  @Override
+  public CapFloorSecurityBean.Meta metaBean() {
+    return CapFloorSecurityBean.Meta.INSTANCE;
+  }
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 575402001:  // currency
+        return getCurrency();
+      case 1905311443:  // dayCount
+        return getDayCount();
+      case -70023844:  // frequency
+        return getFrequency();
+      case 98258:  // cap
+        return isCap();
+      case 3225788:  // ibor
+        return isIbor();
+      case 106443605:  // payer
+        return isPayer();
+      case -414641441:  // maturityDate
+        return getMaturityDate();
+      case 1585636160:  // notional
+        return getNotional();
+      case -2129778896:  // startDate
+        return getStartDate();
+      case -891985998:  // strike
+        return getStrike();
+      case 368639974:  // underlyingIdentifier
+        return getUnderlyingIdentifier();
+    }
+    return super.propertyGet(propertyName, quiet);
+  }
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 575402001:  // currency
+        setCurrency((CurrencyBean) newValue);
+        return;
+      case 1905311443:  // dayCount
+        setDayCount((DayCountBean) newValue);
+        return;
+      case -70023844:  // frequency
+        setFrequency((FrequencyBean) newValue);
+        return;
+      case 98258:  // cap
+        setCap((Boolean) newValue);
+        return;
+      case 3225788:  // ibor
+        setIbor((Boolean) newValue);
+        return;
+      case 106443605:  // payer
+        setPayer((Boolean) newValue);
+        return;
+      case -414641441:  // maturityDate
+        setMaturityDate((ZonedDateTimeBean) newValue);
+        return;
+      case 1585636160:  // notional
+        setNotional((Double) newValue);
+        return;
+      case -2129778896:  // startDate
+        setStartDate((ZonedDateTimeBean) newValue);
+        return;
+      case -891985998:  // strike
+        setStrike((Double) newValue);
+        return;
+      case 368639974:  // underlyingIdentifier
+        setUnderlyingIdentifier((ExternalIdBean) newValue);
+        return;
+    }
+    super.propertySet(propertyName, newValue, quiet);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the currency.
+   * @return the value of the property
+   */
+  public CurrencyBean getCurrency() {
+    return _currency;
+  }
+
+  /**
+   * Sets the currency.
+   * @param currency  the new value of the property
+   */
+  public void setCurrency(CurrencyBean currency) {
+    this._currency = currency;
+  }
+
+  /**
+   * Gets the the {@code currency} property.
+   * @return the property, not null
+   */
+  public final Property<CurrencyBean> currency() {
+    return metaBean().currency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the dayCount.
+   * @return the value of the property
+   */
+  public DayCountBean getDayCount() {
+    return _dayCount;
+  }
+
+  /**
+   * Sets the dayCount.
+   * @param dayCount  the new value of the property
+   */
+  public void setDayCount(DayCountBean dayCount) {
+    this._dayCount = dayCount;
+  }
+
+  /**
+   * Gets the the {@code dayCount} property.
+   * @return the property, not null
+   */
+  public final Property<DayCountBean> dayCount() {
+    return metaBean().dayCount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the frequency.
+   * @return the value of the property
+   */
+  public FrequencyBean getFrequency() {
+    return _frequency;
+  }
+
+  /**
+   * Sets the frequency.
+   * @param frequency  the new value of the property
+   */
+  public void setFrequency(FrequencyBean frequency) {
+    this._frequency = frequency;
+  }
+
+  /**
+   * Gets the the {@code frequency} property.
+   * @return the property, not null
+   */
+  public final Property<FrequencyBean> frequency() {
+    return metaBean().frequency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the cap.
+   * @return the value of the property
+   */
+  public boolean isCap() {
+    return _cap;
+  }
+
+  /**
+   * Sets the cap.
+   * @param cap  the new value of the property
+   */
+  public void setCap(boolean cap) {
+    this._cap = cap;
+  }
+
+  /**
+   * Gets the the {@code cap} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> cap() {
+    return metaBean().cap().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the ibor.
+   * @return the value of the property
+   */
+  public boolean isIbor() {
+    return _ibor;
+  }
+
+  /**
+   * Sets the ibor.
+   * @param ibor  the new value of the property
+   */
+  public void setIbor(boolean ibor) {
+    this._ibor = ibor;
+  }
+
+  /**
+   * Gets the the {@code ibor} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> ibor() {
+    return metaBean().ibor().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the payer.
+   * @return the value of the property
+   */
+  public boolean isPayer() {
+    return _payer;
+  }
+
+  /**
+   * Sets the payer.
+   * @param payer  the new value of the property
+   */
+  public void setPayer(boolean payer) {
+    this._payer = payer;
+  }
+
+  /**
+   * Gets the the {@code payer} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> payer() {
+    return metaBean().payer().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the maturityDate.
+   * @return the value of the property
+   */
+  public ZonedDateTimeBean getMaturityDate() {
+    return _maturityDate;
+  }
+
+  /**
+   * Sets the maturityDate.
+   * @param maturityDate  the new value of the property
+   */
+  public void setMaturityDate(ZonedDateTimeBean maturityDate) {
+    this._maturityDate = maturityDate;
+  }
+
+  /**
+   * Gets the the {@code maturityDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTimeBean> maturityDate() {
+    return metaBean().maturityDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the notional.
+   * @return the value of the property
+   */
+  public double getNotional() {
+    return _notional;
+  }
+
+  /**
+   * Sets the notional.
+   * @param notional  the new value of the property
+   */
+  public void setNotional(double notional) {
+    this._notional = notional;
+  }
+
+  /**
+   * Gets the the {@code notional} property.
+   * @return the property, not null
+   */
+  public final Property<Double> notional() {
+    return metaBean().notional().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the startDate.
+   * @return the value of the property
+   */
+  public ZonedDateTimeBean getStartDate() {
+    return _startDate;
+  }
+
+  /**
+   * Sets the startDate.
+   * @param startDate  the new value of the property
+   */
+  public void setStartDate(ZonedDateTimeBean startDate) {
+    this._startDate = startDate;
+  }
+
+  /**
+   * Gets the the {@code startDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTimeBean> startDate() {
+    return metaBean().startDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the strike.
+   * @return the value of the property
+   */
+  public double getStrike() {
+    return _strike;
+  }
+
+  /**
+   * Sets the strike.
+   * @param strike  the new value of the property
+   */
+  public void setStrike(double strike) {
+    this._strike = strike;
+  }
+
+  /**
+   * Gets the the {@code strike} property.
+   * @return the property, not null
+   */
+  public final Property<Double> strike() {
+    return metaBean().strike().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the underlyingIdentifier.
+   * @return the value of the property
+   */
+  public ExternalIdBean getUnderlyingIdentifier() {
+    return _underlyingIdentifier;
+  }
+
+  /**
+   * Sets the underlyingIdentifier.
+   * @param underlyingIdentifier  the new value of the property
+   */
+  public void setUnderlyingIdentifier(ExternalIdBean underlyingIdentifier) {
+    this._underlyingIdentifier = underlyingIdentifier;
+  }
+
+  /**
+   * Gets the the {@code underlyingIdentifier} property.
+   * @return the property, not null
+   */
+  public final Property<ExternalIdBean> underlyingIdentifier() {
+    return metaBean().underlyingIdentifier().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code CapFloorSecurityBean}.
+   */
+  public static class Meta extends SecurityBean.Meta {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<CurrencyBean> _currency = DirectMetaProperty.ofReadWrite(
+        this, "currency", CapFloorSecurityBean.class, CurrencyBean.class);
+    /**
+     * The meta-property for the {@code dayCount} property.
+     */
+    private final MetaProperty<DayCountBean> _dayCount = DirectMetaProperty.ofReadWrite(
+        this, "dayCount", CapFloorSecurityBean.class, DayCountBean.class);
+    /**
+     * The meta-property for the {@code frequency} property.
+     */
+    private final MetaProperty<FrequencyBean> _frequency = DirectMetaProperty.ofReadWrite(
+        this, "frequency", CapFloorSecurityBean.class, FrequencyBean.class);
+    /**
+     * The meta-property for the {@code cap} property.
+     */
+    private final MetaProperty<Boolean> _cap = DirectMetaProperty.ofReadWrite(
+        this, "cap", CapFloorSecurityBean.class, Boolean.TYPE);
+    /**
+     * The meta-property for the {@code ibor} property.
+     */
+    private final MetaProperty<Boolean> _ibor = DirectMetaProperty.ofReadWrite(
+        this, "ibor", CapFloorSecurityBean.class, Boolean.TYPE);
+    /**
+     * The meta-property for the {@code payer} property.
+     */
+    private final MetaProperty<Boolean> _payer = DirectMetaProperty.ofReadWrite(
+        this, "payer", CapFloorSecurityBean.class, Boolean.TYPE);
+    /**
+     * The meta-property for the {@code maturityDate} property.
+     */
+    private final MetaProperty<ZonedDateTimeBean> _maturityDate = DirectMetaProperty.ofReadWrite(
+        this, "maturityDate", CapFloorSecurityBean.class, ZonedDateTimeBean.class);
+    /**
+     * The meta-property for the {@code notional} property.
+     */
+    private final MetaProperty<Double> _notional = DirectMetaProperty.ofReadWrite(
+        this, "notional", CapFloorSecurityBean.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code startDate} property.
+     */
+    private final MetaProperty<ZonedDateTimeBean> _startDate = DirectMetaProperty.ofReadWrite(
+        this, "startDate", CapFloorSecurityBean.class, ZonedDateTimeBean.class);
+    /**
+     * The meta-property for the {@code strike} property.
+     */
+    private final MetaProperty<Double> _strike = DirectMetaProperty.ofReadWrite(
+        this, "strike", CapFloorSecurityBean.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code underlyingIdentifier} property.
+     */
+    private final MetaProperty<ExternalIdBean> _underlyingIdentifier = DirectMetaProperty.ofReadWrite(
+        this, "underlyingIdentifier", CapFloorSecurityBean.class, ExternalIdBean.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "currency",
+        "dayCount",
+        "frequency",
+        "cap",
+        "ibor",
+        "payer",
+        "maturityDate",
+        "notional",
+        "startDate",
+        "strike",
+        "underlyingIdentifier");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          return _currency;
+        case 1905311443:  // dayCount
+          return _dayCount;
+        case -70023844:  // frequency
+          return _frequency;
+        case 98258:  // cap
+          return _cap;
+        case 3225788:  // ibor
+          return _ibor;
+        case 106443605:  // payer
+          return _payer;
+        case -414641441:  // maturityDate
+          return _maturityDate;
+        case 1585636160:  // notional
+          return _notional;
+        case -2129778896:  // startDate
+          return _startDate;
+        case -891985998:  // strike
+          return _strike;
+        case 368639974:  // underlyingIdentifier
+          return _underlyingIdentifier;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends CapFloorSecurityBean> builder() {
+      return new DirectBeanBuilder<CapFloorSecurityBean>(new CapFloorSecurityBean());
+    }
+
+    @Override
+    public Class<? extends CapFloorSecurityBean> beanType() {
+      return CapFloorSecurityBean.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CurrencyBean> currency() {
+      return _currency;
+    }
+
+    /**
+     * The meta-property for the {@code dayCount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<DayCountBean> dayCount() {
+      return _dayCount;
+    }
+
+    /**
+     * The meta-property for the {@code frequency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<FrequencyBean> frequency() {
+      return _frequency;
+    }
+
+    /**
+     * The meta-property for the {@code cap} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> cap() {
+      return _cap;
+    }
+
+    /**
+     * The meta-property for the {@code ibor} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> ibor() {
+      return _ibor;
+    }
+
+    /**
+     * The meta-property for the {@code payer} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> payer() {
+      return _payer;
+    }
+
+    /**
+     * The meta-property for the {@code maturityDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTimeBean> maturityDate() {
+      return _maturityDate;
+    }
+
+    /**
+     * The meta-property for the {@code notional} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> notional() {
+      return _notional;
+    }
+
+    /**
+     * The meta-property for the {@code startDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTimeBean> startDate() {
+      return _startDate;
+    }
+
+    /**
+     * The meta-property for the {@code strike} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> strike() {
+      return _strike;
+    }
+
+    /**
+     * The meta-property for the {@code underlyingIdentifier} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalIdBean> underlyingIdentifier() {
+      return _underlyingIdentifier;
+    }
+
+  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }
