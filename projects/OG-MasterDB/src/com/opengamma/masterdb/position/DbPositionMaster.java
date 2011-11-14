@@ -462,7 +462,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
           .addValue("position_oid", positionOid)
           .addValue("quantity", trade.getQuantity())
           .addDate("trade_date", trade.getTradeDate())
-          .addTimeNullIgnored("trade_time", trade.getTradeTime() != null ? trade.getTradeTime().toLocalTime() : null)
+          .addTimeAllowNull("trade_time", trade.getTradeTime() != null ? trade.getTradeTime().toLocalTime() : null)
           .addValue("zone_offset", (trade.getTradeTime() != null ? trade.getTradeTime().getOffset().getAmountSeconds() : null))
           .addValue("cparty_scheme", counterpartyId.getScheme().getName())
           .addValue("cparty_value", counterpartyId.getValue())
@@ -470,8 +470,8 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
           .addValue("provider_value", (position.getProviderId() != null ? position.getProviderId().getValue() : null))
           .addValue("premium_value", (trade.getPremium() != null ? trade.getPremium() : null))
           .addValue("premium_currency", (trade.getPremiumCurrency() != null ? trade.getPremiumCurrency().getCode() : null))
-          .addDateNullIgnored("premium_date", trade.getPremiumDate())
-          .addTimeNullIgnored("premium_time", (trade.getPremiumTime() != null ? trade.getPremiumTime().toLocalTime() : null))
+          .addDateAllowNull("premium_date", trade.getPremiumDate())
+          .addTimeAllowNull("premium_time", (trade.getPremiumTime() != null ? trade.getPremiumTime().toLocalTime() : null))
           .addValue("premium_zone_offset", (trade.getPremiumTime() != null ? trade.getPremiumTime().getOffset().getAmountSeconds() : null));
       tradeList.add(tradeArgs);
       
