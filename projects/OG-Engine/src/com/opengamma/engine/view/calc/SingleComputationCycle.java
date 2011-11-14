@@ -81,6 +81,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private final ViewProcessContext _viewProcessContext;
   private final CompiledViewDefinitionWithGraphsImpl _compiledViewDefinition;
   private final ViewCycleExecutionOptions _executionOptions;
+  private final VersionCorrection _versionCorrection;
   
   private final ComputationCycleResultListener _computationCycleResultListener;
   private final DependencyGraphExecutor<?> _dependencyGraphExecutor;
@@ -99,7 +100,6 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private final InMemoryViewComputationResultModel _resultModel;
 
   public SingleComputationCycle(UniqueId cycleId, UniqueId viewProcessId, ComputationCycleResultListener computationCycleResultListener,
-
       ViewProcessContext viewProcessContext, CompiledViewDefinitionWithGraphsImpl compiledViewDefinition,
       ViewCycleExecutionOptions executionOptions, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(cycleId, "cycleId");
@@ -118,24 +118,30 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     _computationCycleResultListener = computationCycleResultListener;
 
     _executionOptions = executionOptions;
+    _versionCorrection = versionCorrection;
 
-    _resultModel = new InMemoryViewComputationResultModel();
-    _resultModel.setCalculationConfigurationNames(getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurationNames());
-    if (getCompiledViewDefinition().getPortfolio() != null) {
-      _resultModel.setPortfolio(getCompiledViewDefinition().getPortfolio());
-    }
-    _resultModel.setViewCycleId(cycleId);
-    _resultModel.setViewProcessId(getViewProcessId());
-    _resultModel.setValuationTime(executionOptions.getValuationTime());
-    _resultModel.setVersionCorrection(versionCorrection);
+    _resultModel = constructTemplateResultModel();
 
     _dependencyGraphExecutor = getViewProcessContext().getDependencyGraphExecutorFactory().createExecutor(this);
     _statisticsGatherer = getViewProcessContext().getGraphExecutorStatisticsGathererProvider().getStatisticsGatherer(getViewProcessId());
   }
 
+  private InMemoryViewComputationResultModel constructTemplateResultModel() {
+    InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
+    result.setCalculationConfigurationNames(getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurationNames());
+    if (getCompiledViewDefinition().getPortfolio() != null) {
+      result.setPortfolio(getCompiledViewDefinition().getPortfolio());
+    }
+    result.setViewCycleId(getCycleId());
+    result.setViewProcessId(getViewProcessId());
+    result.setValuationTime(getExecutionOptions().getValuationTime());
+    result.setVersionCorrection(getVersionCorrection());
+    return result;
+  }
+
   //-------------------------------------------------------------------------
   public Instant getValuationTime() {
-    return _executionOptions.getValuationTime();
+    return getExecutionOptions().getValuationTime();
   }
 
   public long getFunctionInitId() {
@@ -185,6 +191,19 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   public Set<String> getAllCalculationConfigurationNames() {
     return new HashSet<String>(getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurationNames());
+  }
+  
+  //-------------------------------------------------------------------------
+  private UniqueId getCycleId() {
+    return _cycleId;
+  }
+  
+  private VersionCorrection getVersionCorrection() {
+    return _versionCorrection;
+  }
+  
+  private ViewCycleExecutionOptions getExecutionOptions() {
+    return _executionOptions;
   }
 
   //-------------------------------------------------------------------------
@@ -272,7 +291,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     // the job results are streamed to the ViewProcesor without waitout waiting for the current cycle to complete
     final BlockingQueue<CalculationJobResult> calcJobResultQueue = new LinkedBlockingQueue<CalculationJobResult>();
     class StreamCalculationJobResultConsumer extends TerminatableJob {
-      volatile private boolean _completeAndExit;
+      private volatile boolean _completeAndExit;
       @Override
       protected void runOneCycle() {
         try {
@@ -528,7 +547,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   }
   
   private ViewComputationResultModel populateResultModel(CalculationJobResult calculationJobResult) {
-    InMemoryViewComputationResultModel resultModel = new InMemoryViewComputationResultModel();
+    InMemoryViewComputationResultModel resultModel = constructTemplateResultModel();
     String calcConfigurationName = calculationJobResult.getSpecification().getCalcConfigName();
     DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
 
