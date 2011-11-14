@@ -21,11 +21,12 @@ $.register_module({
         ',
         attributes = '\
           <tr class="og-js-attribute">\
-            <td colspan="4">\
+            <td colspan="4" style="padding-left: 15px">\
               <table class="og-sub-list">{TBODY}</table>\
             </td>\
           </tr>\
-        ';
+        ',
+        sub_head = '<tbody><tr><td class="og-header" colspan="2">{ATTRIBUTES}</td></tr></tbody>';
         return function (config) {
             var trades = config.trades, selector = config.selector, tbody,
                 fields = ['id', 'quantity', 'counterParty', 'date'], start = '<tr><td>', end = '</td></tr>';
@@ -33,13 +34,19 @@ $.register_module({
             tbody = trades.reduce(function (acc, trade) {
                 acc.push(start, fields.map(function (field) {return trade[field];}).join('</td><td>'), end);
                 (function () { // attributes
-                    var attr = [], key,
-                        sub_head = '<tbody><tr><td class="og-header" colspan="2">Attributes</td></tr></tbody>';
+                    var attr = [], attr_type, attr_obj, key;
                     if (!Object.keys(trade['attributes']).length) return;
-                    for (key in trade['attributes']) attr.push(start, key, '</td><td>', trade['attributes'][key], end);
-                    acc.push(attributes.replace('{TBODY}',
-                        [sub_head, '<tbody class="OG-background-01">' + attr.join('') + '</tbody>'].join('')
-                    ));
+                    for (attr_type in trade['attributes']) {
+                        attr_obj = trade['attributes'][attr_type];
+                        if (!Object.keys(attr_obj).length) continue;
+                        for (key in attr_obj)
+                            attr.push(start, key.replace(/.+~(.+)/, '$1'), ':</td><td>', attr_obj[key], end);
+                        acc.push(attributes.replace('{TBODY}',
+                            [sub_head.replace('{ATTRIBUTES}', attr_type.replace(/(.+)(Attributes)/, '$1 $2')),
+                                '<tbody class="OG-background-01">' + attr.join('') + '</tbody>'
+                            ].join('')
+                        ));
+                    }
                 }());
                 return acc;
             }, []).join('');
