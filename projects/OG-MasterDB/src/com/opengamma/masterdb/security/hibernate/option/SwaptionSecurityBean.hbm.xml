@@ -17,8 +17,14 @@
     </component>
     <property name="cashSettled" column="cash_settled" type="boolean" not-null="true" />
     <property name="payer" column="is_payer" type="boolean" not-null="true" />
-    <property name="long" column="is_long" type="boolean" not-null="true" />
+    <property name="longShort" column="is_long" type="boolean" not-null="true" />
     <many-to-one name="currency" column="currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true"/>
+    <property name="notional" type="double" />
+    <property name="optionExerciseType" column="option_exercise_type" type="com.opengamma.masterdb.security.hibernate.option.OptionExerciseTypeUserType" />
+    <component name="settlementDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="settlement_date" type="timestamp" />
+      <property name="zone" column="settlement_zone" type="string" />
+    </component>
   </union-subclass>
 
   <query name="SwaptionSecurityBean.one.bySecurityId"><![CDATA[

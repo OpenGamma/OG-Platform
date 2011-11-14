@@ -11,7 +11,7 @@
     <property name="callAmount" column="call_amount" type="double" not-null="true" />
     <property name="putAmount" column="put_amount" type="double" not-null="true" />
     <property name="barrierLevel" column="barrier_level" type="double" not-null="true" />
-    <property name="long" column="is_long" type="boolean" not-null="true"></property>
+    <property name="longShort" column="is_long" type="boolean" not-null="true"></property>
     <component name="expiry" class="com.opengamma.masterdb.security.hibernate.ExpiryBean">
       <component name="expiry" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
         <property name="date" column="expiry_date" type="timestamp" not-null="true" />
