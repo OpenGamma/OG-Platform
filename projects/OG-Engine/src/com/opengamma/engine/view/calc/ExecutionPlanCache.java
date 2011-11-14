@@ -52,6 +52,8 @@ import com.opengamma.util.ehcache.EHCacheUtils;
     }
   }
 
+  // TODO: should store meta-data about the fragments, not the fragments themselves
+
   public synchronized void cacheExecutionPlan(final DependencyGraph graph, final RootGraphFragment plan) {
     if (_cache != null) {
       _cache.put(new Element(graph.getDependencyNodes(), plan));
