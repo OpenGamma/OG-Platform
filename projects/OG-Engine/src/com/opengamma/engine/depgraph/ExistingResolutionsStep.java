@@ -29,6 +29,7 @@ import com.opengamma.util.tuple.Pair;
 
   @Override
   public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
+    s_logger.debug("Failed to resolve {} from {}", value, this);
     storeFailure(failure);
     synchronized (this) {
       _pump = null;
@@ -39,6 +40,7 @@ import com.opengamma.util.tuple.Pair;
 
   @Override
   public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue value, final ResolutionPump pump) {
+    s_logger.debug("Resolved {} from {}", value, this);
     synchronized (this) {
       _pump = pump;
     }
