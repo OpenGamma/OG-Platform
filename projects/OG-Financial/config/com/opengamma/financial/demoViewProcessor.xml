@@ -322,6 +322,11 @@
     <property name="viewPermissionProvider">
       <bean class="com.opengamma.engine.view.permission.DefaultViewPermissionProvider" />
     </property>
+    <property name="overrideOperationCompiler">
+      <bean class="com.opengamma.financial.marketdata.MarketDataHackedExpressionCompiler">
+        <constructor-arg ref="combinedSecuritySource" />
+      </bean>
+    </property>
   </bean>
   
   <bean id="viewProcessorManager" class="com.opengamma.financial.view.ViewProcessorManager" init-method="start">

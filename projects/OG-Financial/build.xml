@@ -97,7 +97,8 @@
     <exec executable="antlr3" dir="src">
       <arg value="-o" />
       <arg value="." />
-      <arg value="com/opengamma/financial/filtering/expression/Expr.g" />
+      <arg value="com/opengamma/financial/expression/deprecated/Expr.g" />
     </exec>
   </target>
+
 </project>

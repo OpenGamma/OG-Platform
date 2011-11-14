@@ -8,6 +8,8 @@ package com.opengamma.masterdb.security.hibernate.equity;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.PropertyDefinition;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
@@ -15,200 +17,43 @@ import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.FrequencyBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
+import java.util.Map;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * A concrete, JavaBean-based implementation of {@link Security}. 
  */
+@BeanDefinition
 public class EquityVarianceSwapSecurityBean extends SecurityBean {
-
+  @PropertyDefinition
   private double _annualizationFactor;
+  @PropertyDefinition
   private CurrencyBean _currency;
+  @PropertyDefinition
   private ZonedDateTimeBean _firstObservationDate;
+  @PropertyDefinition
   private ZonedDateTimeBean _lastObservationDate;
+  @PropertyDefinition
   private double _notional;
+  @PropertyDefinition
   private FrequencyBean _observationFrequency;
+  @PropertyDefinition
   private boolean _parameterisedAsVariance;
+  @PropertyDefinition
   private ExternalIdBean _region;
+  @PropertyDefinition
   private ZonedDateTimeBean _settlementDate;
+  @PropertyDefinition
   private ExternalIdBean _spotUnderlyingIdentifier;
+  @PropertyDefinition
   private double _strike;
  
-  /**
-   * Gets the annualizationFactor.
-   * @return the annualizationFactor
-   */
-  public double getAnnualizationFactor() {
-    return _annualizationFactor;
-  }
-
-  /**
-   * Sets the annualizationFactor.
-   * @param annualizationFactor  the annualizationFactor
-   */
-  public void setAnnualizationFactor(double annualizationFactor) {
-    _annualizationFactor = annualizationFactor;
-  }
-
-  /**
-   * Gets the currency.
-   * @return the currency
-   */
-  public CurrencyBean getCurrency() {
-    return _currency;
-  }
-
-  /**
-   * Sets the currency.
-   * @param currency  the currency
-   */
-  public void setCurrency(CurrencyBean currency) {
-    _currency = currency;
-  }
-
-  /**
-   * Gets the firstObservationDate.
-   * @return the firstObservationDate
-   */
-  public ZonedDateTimeBean getFirstObservationDate() {
-    return _firstObservationDate;
-  }
-
-  /**
-   * Sets the firstObservationDate.
-   * @param firstObservationDate  the firstObservationDate
-   */
-  public void setFirstObservationDate(ZonedDateTimeBean firstObservationDate) {
-    _firstObservationDate = firstObservationDate;
-  }
-
-  /**
-   * Gets the lastObservationDate.
-   * @return the lastObservationDate
-   */
-  public ZonedDateTimeBean getLastObservationDate() {
-    return _lastObservationDate;
-  }
-
-  /**
-   * Sets the lastObservationDate.
-   * @param lastObservationDate  the lastObservationDate
-   */
-  public void setLastObservationDate(ZonedDateTimeBean lastObservationDate) {
-    _lastObservationDate = lastObservationDate;
-  }
-
-  /**
-   * Gets the notional.
-   * @return the notional
-   */
-  public double getNotional() {
-    return _notional;
-  }
-
-  /**
-   * Sets the notional.
-   * @param notional  the notional
-   */
-  public void setNotional(double notional) {
-    _notional = notional;
-  }
-
-  /**
-   * Gets the observationFrequency.
-   * @return the observationFrequency
-   */
-  public FrequencyBean getObservationFrequency() {
-    return _observationFrequency;
-  }
-
-  /**
-   * Sets the observationFrequency.
-   * @param observationFrequency  the observationFrequency
-   */
-  public void setObservationFrequency(FrequencyBean observationFrequency) {
-    _observationFrequency = observationFrequency;
-  }
-
-  /**
-   * Gets the parameterisedAsVariance.
-   * @return the parameterisedAsVariance
-   */
-  public boolean isParameterisedAsVariance() {
-    return _parameterisedAsVariance;
-  }
-
-  /**
-   * Sets the parameterisedAsVariance.
-   * @param parameterisedAsVariance  the parameterisedAsVariance
-   */
-  public void setParameterisedAsVariance(boolean parameterisedAsVariance) {
-    _parameterisedAsVariance = parameterisedAsVariance;
-  }
-
-  /**
-   * Gets the region.
-   * @return the region
-   */
-  public ExternalIdBean getRegion() {
-    return _region;
-  }
-
-  /**
-   * Sets the region.
-   * @param region  the region
-   */
-  public void setRegion(ExternalIdBean region) {
-    _region = region;
-  }
-
-  /**
-   * Gets the settlementDate.
-   * @return the settlementDate
-   */
-  public ZonedDateTimeBean getSettlementDate() {
-    return _settlementDate;
-  }
-
-  /**
-   * Sets the settlementDate.
-   * @param settlementDate  the settlementDate
-   */
-  public void setSettlementDate(ZonedDateTimeBean settlementDate) {
-    _settlementDate = settlementDate;
-  }
-
-  /**
-   * Gets the spotUnderlyingIdentifier.
-   * @return the spotUnderlyingIdentifier
-   */
-  public ExternalIdBean getSpotUnderlyingIdentifier() {
-    return _spotUnderlyingIdentifier;
-  }
-
-  /**
-   * Sets the spotUnderlyingIdentifier.
-   * @param spotUnderlyingIdentifier  the spotUnderlyingIdentifier
-   */
-  public void setSpotUnderlyingIdentifier(ExternalIdBean spotUnderlyingIdentifier) {
-    _spotUnderlyingIdentifier = spotUnderlyingIdentifier;
-  }
-
-  /**
-   * Gets the strike.
-   * @return the strike
-   */
-  public double getStrike() {
-    return _strike;
-  }
-
-  /**
-   * Sets the strike.
-   * @param strike  the strike
-   */
-  public void setStrike(double strike) {
-    _strike = strike;
-  }
-
   public boolean equals(Object other) {
     if (!(other instanceof EquityVarianceSwapSecurityBean)) {
       return false;
@@ -249,4 +94,591 @@ public class EquityVarianceSwapSecurityBean extends SecurityBean {
   public String toString() {
     return ToStringBuilder.reflectionToString(this);
   }
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code EquityVarianceSwapSecurityBean}.
+   * @return the meta-bean, not null
+   */
+  public static EquityVarianceSwapSecurityBean.Meta meta() {
+    return EquityVarianceSwapSecurityBean.Meta.INSTANCE;
+  }
+  static {
+    JodaBeanUtils.registerMetaBean(EquityVarianceSwapSecurityBean.Meta.INSTANCE);
+  }
+
+  @Override
+  public EquityVarianceSwapSecurityBean.Meta metaBean() {
+    return EquityVarianceSwapSecurityBean.Meta.INSTANCE;
+  }
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 663363412:  // annualizationFactor
+        return getAnnualizationFactor();
+      case 575402001:  // currency
+        return getCurrency();
+      case -1644595926:  // firstObservationDate
+        return getFirstObservationDate();
+      case -1362285436:  // lastObservationDate
+        return getLastObservationDate();
+      case 1585636160:  // notional
+        return getNotional();
+      case -213041520:  // observationFrequency
+        return getObservationFrequency();
+      case -752533291:  // parameterisedAsVariance
+        return isParameterisedAsVariance();
+      case -934795532:  // region
+        return getRegion();
+      case -295948169:  // settlementDate
+        return getSettlementDate();
+      case -714106872:  // spotUnderlyingIdentifier
+        return getSpotUnderlyingIdentifier();
+      case -891985998:  // strike
+        return getStrike();
+    }
+    return super.propertyGet(propertyName, quiet);
+  }
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 663363412:  // annualizationFactor
+        setAnnualizationFactor((Double) newValue);
+        return;
+      case 575402001:  // currency
+        setCurrency((CurrencyBean) newValue);
+        return;
+      case -1644595926:  // firstObservationDate
+        setFirstObservationDate((ZonedDateTimeBean) newValue);
+        return;
+      case -1362285436:  // lastObservationDate
+        setLastObservationDate((ZonedDateTimeBean) newValue);
+        return;
+      case 1585636160:  // notional
+        setNotional((Double) newValue);
+        return;
+      case -213041520:  // observationFrequency
+        setObservationFrequency((FrequencyBean) newValue);
+        return;
+      case -752533291:  // parameterisedAsVariance
+        setParameterisedAsVariance((Boolean) newValue);
+        return;
+      case -934795532:  // region
+        setRegion((ExternalIdBean) newValue);
+        return;
+      case -295948169:  // settlementDate
+        setSettlementDate((ZonedDateTimeBean) newValue);
+        return;
+      case -714106872:  // spotUnderlyingIdentifier
+        setSpotUnderlyingIdentifier((ExternalIdBean) newValue);
+        return;
+      case -891985998:  // strike
+        setStrike((Double) newValue);
+        return;
+    }
+    super.propertySet(propertyName, newValue, quiet);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the annualizationFactor.
+   * @return the value of the property
+   */
+  public double getAnnualizationFactor() {
+    return _annualizationFactor;
+  }
+
+  /**
+   * Sets the annualizationFactor.
+   * @param annualizationFactor  the new value of the property
+   */
+  public void setAnnualizationFactor(double annualizationFactor) {
+    this._annualizationFactor = annualizationFactor;
+  }
+
+  /**
+   * Gets the the {@code annualizationFactor} property.
+   * @return the property, not null
+   */
+  public final Property<Double> annualizationFactor() {
+    return metaBean().annualizationFactor().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the currency.
+   * @return the value of the property
+   */
+  public CurrencyBean getCurrency() {
+    return _currency;
+  }
+
+  /**
+   * Sets the currency.
+   * @param currency  the new value of the property
+   */
+  public void setCurrency(CurrencyBean currency) {
+    this._currency = currency;
+  }
+
+  /**
+   * Gets the the {@code currency} property.
+   * @return the property, not null
+   */
+  public final Property<CurrencyBean> currency() {
+    return metaBean().currency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the firstObservationDate.
+   * @return the value of the property
+   */
+  public ZonedDateTimeBean getFirstObservationDate() {
+    return _firstObservationDate;
+  }
+
+  /**
+   * Sets the firstObservationDate.
+   * @param firstObservationDate  the new value of the property
+   */
+  public void setFirstObservationDate(ZonedDateTimeBean firstObservationDate) {
+    this._firstObservationDate = firstObservationDate;
+  }
+
+  /**
+   * Gets the the {@code firstObservationDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTimeBean> firstObservationDate() {
+    return metaBean().firstObservationDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the lastObservationDate.
+   * @return the value of the property
+   */
+  public ZonedDateTimeBean getLastObservationDate() {
+    return _lastObservationDate;
+  }
+
+  /**
+   * Sets the lastObservationDate.
+   * @param lastObservationDate  the new value of the property
+   */
+  public void setLastObservationDate(ZonedDateTimeBean lastObservationDate) {
+    this._lastObservationDate = lastObservationDate;
+  }
+
+  /**
+   * Gets the the {@code lastObservationDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTimeBean> lastObservationDate() {
+    return metaBean().lastObservationDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the notional.
+   * @return the value of the property
+   */
+  public double getNotional() {
+    return _notional;
+  }
+
+  /**
+   * Sets the notional.
+   * @param notional  the new value of the property
+   */
+  public void setNotional(double notional) {
+    this._notional = notional;
+  }
+
+  /**
+   * Gets the the {@code notional} property.
+   * @return the property, not null
+   */
+  public final Property<Double> notional() {
+    return metaBean().notional().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the observationFrequency.
+   * @return the value of the property
+   */
+  public FrequencyBean getObservationFrequency() {
+    return _observationFrequency;
+  }
+
+  /**
+   * Sets the observationFrequency.
+   * @param observationFrequency  the new value of the property
+   */
+  public void setObservationFrequency(FrequencyBean observationFrequency) {
+    this._observationFrequency = observationFrequency;
+  }
+
+  /**
+   * Gets the the {@code observationFrequency} property.
+   * @return the property, not null
+   */
+  public final Property<FrequencyBean> observationFrequency() {
+    return metaBean().observationFrequency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the parameterisedAsVariance.
+   * @return the value of the property
+   */
+  public boolean isParameterisedAsVariance() {
+    return _parameterisedAsVariance;
+  }
+
+  /**
+   * Sets the parameterisedAsVariance.
+   * @param parameterisedAsVariance  the new value of the property
+   */
+  public void setParameterisedAsVariance(boolean parameterisedAsVariance) {
+    this._parameterisedAsVariance = parameterisedAsVariance;
+  }
+
+  /**
+   * Gets the the {@code parameterisedAsVariance} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> parameterisedAsVariance() {
+    return metaBean().parameterisedAsVariance().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the region.
+   * @return the value of the property
+   */
+  public ExternalIdBean getRegion() {
+    return _region;
+  }
+
+  /**
+   * Sets the region.
+   * @param region  the new value of the property
+   */
+  public void setRegion(ExternalIdBean region) {
+    this._region = region;
+  }
+
+  /**
+   * Gets the the {@code region} property.
+   * @return the property, not null
+   */
+  public final Property<ExternalIdBean> region() {
+    return metaBean().region().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the settlementDate.
+   * @return the value of the property
+   */
+  public ZonedDateTimeBean getSettlementDate() {
+    return _settlementDate;
+  }
+
+  /**
+   * Sets the settlementDate.
+   * @param settlementDate  the new value of the property
+   */
+  public void setSettlementDate(ZonedDateTimeBean settlementDate) {
+    this._settlementDate = settlementDate;
+  }
+
+  /**
+   * Gets the the {@code settlementDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTimeBean> settlementDate() {
+    return metaBean().settlementDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the spotUnderlyingIdentifier.
+   * @return the value of the property
+   */
+  public ExternalIdBean getSpotUnderlyingIdentifier() {
+    return _spotUnderlyingIdentifier;
+  }
+
+  /**
+   * Sets the spotUnderlyingIdentifier.
+   * @param spotUnderlyingIdentifier  the new value of the property
+   */
+  public void setSpotUnderlyingIdentifier(ExternalIdBean spotUnderlyingIdentifier) {
+    this._spotUnderlyingIdentifier = spotUnderlyingIdentifier;
+  }
+
+  /**
+   * Gets the the {@code spotUnderlyingIdentifier} property.
+   * @return the property, not null
+   */
+  public final Property<ExternalIdBean> spotUnderlyingIdentifier() {
+    return metaBean().spotUnderlyingIdentifier().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the strike.
+   * @return the value of the property
+   */
+  public double getStrike() {
+    return _strike;
+  }
+
+  /**
+   * Sets the strike.
+   * @param strike  the new value of the property
+   */
+  public void setStrike(double strike) {
+    this._strike = strike;
+  }
+
+  /**
+   * Gets the the {@code strike} property.
+   * @return the property, not null
+   */
+  public final Property<Double> strike() {
+    return metaBean().strike().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code EquityVarianceSwapSecurityBean}.
+   */
+  public static class Meta extends SecurityBean.Meta {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code annualizationFactor} property.
+     */
+    private final MetaProperty<Double> _annualizationFactor = DirectMetaProperty.ofReadWrite(
+        this, "annualizationFactor", EquityVarianceSwapSecurityBean.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<CurrencyBean> _currency = DirectMetaProperty.ofReadWrite(
+        this, "currency", EquityVarianceSwapSecurityBean.class, CurrencyBean.class);
+    /**
+     * The meta-property for the {@code firstObservationDate} property.
+     */
+    private final MetaProperty<ZonedDateTimeBean> _firstObservationDate = DirectMetaProperty.ofReadWrite(
+        this, "firstObservationDate", EquityVarianceSwapSecurityBean.class, ZonedDateTimeBean.class);
+    /**
+     * The meta-property for the {@code lastObservationDate} property.
+     */
+    private final MetaProperty<ZonedDateTimeBean> _lastObservationDate = DirectMetaProperty.ofReadWrite(
+        this, "lastObservationDate", EquityVarianceSwapSecurityBean.class, ZonedDateTimeBean.class);
+    /**
+     * The meta-property for the {@code notional} property.
+     */
+    private final MetaProperty<Double> _notional = DirectMetaProperty.ofReadWrite(
+        this, "notional", EquityVarianceSwapSecurityBean.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code observationFrequency} property.
+     */
+    private final MetaProperty<FrequencyBean> _observationFrequency = DirectMetaProperty.ofReadWrite(
+        this, "observationFrequency", EquityVarianceSwapSecurityBean.class, FrequencyBean.class);
+    /**
+     * The meta-property for the {@code parameterisedAsVariance} property.
+     */
+    private final MetaProperty<Boolean> _parameterisedAsVariance = DirectMetaProperty.ofReadWrite(
+        this, "parameterisedAsVariance", EquityVarianceSwapSecurityBean.class, Boolean.TYPE);
+    /**
+     * The meta-property for the {@code region} property.
+     */
+    private final MetaProperty<ExternalIdBean> _region = DirectMetaProperty.ofReadWrite(
+        this, "region", EquityVarianceSwapSecurityBean.class, ExternalIdBean.class);
+    /**
+     * The meta-property for the {@code settlementDate} property.
+     */
+    private final MetaProperty<ZonedDateTimeBean> _settlementDate = DirectMetaProperty.ofReadWrite(
+        this, "settlementDate", EquityVarianceSwapSecurityBean.class, ZonedDateTimeBean.class);
+    /**
+     * The meta-property for the {@code spotUnderlyingIdentifier} property.
+     */
+    private final MetaProperty<ExternalIdBean> _spotUnderlyingIdentifier = DirectMetaProperty.ofReadWrite(
+        this, "spotUnderlyingIdentifier", EquityVarianceSwapSecurityBean.class, ExternalIdBean.class);
+    /**
+     * The meta-property for the {@code strike} property.
+     */
+    private final MetaProperty<Double> _strike = DirectMetaProperty.ofReadWrite(
+        this, "strike", EquityVarianceSwapSecurityBean.class, Double.TYPE);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "annualizationFactor",
+        "currency",
+        "firstObservationDate",
+        "lastObservationDate",
+        "notional",
+        "observationFrequency",
+        "parameterisedAsVariance",
+        "region",
+        "settlementDate",
+        "spotUnderlyingIdentifier",
+        "strike");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 663363412:  // annualizationFactor
+          return _annualizationFactor;
+        case 575402001:  // currency
+          return _currency;
+        case -1644595926:  // firstObservationDate
+          return _firstObservationDate;
+        case -1362285436:  // lastObservationDate
+          return _lastObservationDate;
+        case 1585636160:  // notional
+          return _notional;
+        case -213041520:  // observationFrequency
+          return _observationFrequency;
+        case -752533291:  // parameterisedAsVariance
+          return _parameterisedAsVariance;
+        case -934795532:  // region
+          return _region;
+        case -295948169:  // settlementDate
+          return _settlementDate;
+        case -714106872:  // spotUnderlyingIdentifier
+          return _spotUnderlyingIdentifier;
+        case -891985998:  // strike
+          return _strike;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends EquityVarianceSwapSecurityBean> builder() {
+      return new DirectBeanBuilder<EquityVarianceSwapSecurityBean>(new EquityVarianceSwapSecurityBean());
+    }
+
+    @Override
+    public Class<? extends EquityVarianceSwapSecurityBean> beanType() {
+      return EquityVarianceSwapSecurityBean.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code annualizationFactor} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> annualizationFactor() {
+      return _annualizationFactor;
+    }
+
+    /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CurrencyBean> currency() {
+      return _currency;
+    }
+
+    /**
+     * The meta-property for the {@code firstObservationDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTimeBean> firstObservationDate() {
+      return _firstObservationDate;
+    }
+
+    /**
+     * The meta-property for the {@code lastObservationDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTimeBean> lastObservationDate() {
+      return _lastObservationDate;
+    }
+
+    /**
+     * The meta-property for the {@code notional} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> notional() {
+      return _notional;
+    }
+
+    /**
+     * The meta-property for the {@code observationFrequency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<FrequencyBean> observationFrequency() {
+      return _observationFrequency;
+    }
+
+    /**
+     * The meta-property for the {@code parameterisedAsVariance} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> parameterisedAsVariance() {
+      return _parameterisedAsVariance;
+    }
+
+    /**
+     * The meta-property for the {@code region} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalIdBean> region() {
+      return _region;
+    }
+
+    /**
+     * The meta-property for the {@code settlementDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTimeBean> settlementDate() {
+      return _settlementDate;
+    }
+
+    /**
+     * The meta-property for the {@code spotUnderlyingIdentifier} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalIdBean> spotUnderlyingIdentifier() {
+      return _spotUnderlyingIdentifier;
+    }
+
+    /**
+     * The meta-property for the {@code strike} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> strike() {
+      return _strike;
+    }
+
+  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }

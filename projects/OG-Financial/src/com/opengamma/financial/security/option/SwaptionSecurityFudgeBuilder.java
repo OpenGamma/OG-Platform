@@ -18,6 +18,7 @@ import com.opengamma.id.ExternalIdFudgeBuilder;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.ExpiryFudgeBuilder;
+import com.opengamma.util.time.ZonedDateTimeFudgeBuilder;
 
 /**
  * A Fudge builder for {@code SwaptionSecurity}.
@@ -37,6 +38,13 @@ public class SwaptionSecurityFudgeBuilder extends AbstractFudgeBuilder implement
   public static final String IS_CASH_SETTLED_FIELD_NAME = "isCashSettled";
   /** Field name. */
   public static final String CURRENCY_FIELD_NAME = "currency";
+  /** Field name. */
+  public static final String EXERCISE_TYPE_FIELD_NAME = "exerciseType";
+  /** Field name. */
+  public static final String NOTIONAL_FIELD_NAME = "notional";
+  /** Field name. */
+  public static final String SETTLEMENT_DATE_FIELD_NAME = "settlementDate";
+  
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, SwaptionSecurity object) {
@@ -53,6 +61,15 @@ public class SwaptionSecurityFudgeBuilder extends AbstractFudgeBuilder implement
     addToMessage(msg, EXPIRY_FIELD_NAME, ExpiryFudgeBuilder.toFudgeMsg(serializer, object.getExpiry()));
     addToMessage(msg, IS_CASH_SETTLED_FIELD_NAME, object.isCashSettled());
     addToMessage(msg, CURRENCY_FIELD_NAME, object.getCurrency());
+    if (object.getExerciseType() != null) {
+      addToMessage(msg, EXERCISE_TYPE_FIELD_NAME, ExerciseTypeFudgeBuilder.toFudgeMsg(serializer, object.getExerciseType()));
+    }
+    if (object.getSettlementDate() != null) {
+      addToMessage(msg, SETTLEMENT_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getSettlementDate()));
+    }
+    if (object.getNotional() != null) {
+      addToMessage(msg, NOTIONAL_FIELD_NAME, object.getNotional());
+    }
   }
 
   @Override
@@ -70,6 +87,15 @@ public class SwaptionSecurityFudgeBuilder extends AbstractFudgeBuilder implement
     object.setExpiry(ExpiryFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_FIELD_NAME)));
     object.setCashSettled(msg.getBoolean(IS_CASH_SETTLED_FIELD_NAME));
     object.setCurrency(msg.getValue(Currency.class, CURRENCY_FIELD_NAME));
+    if (msg.hasField(EXERCISE_TYPE_FIELD_NAME)) {
+      object.setExerciseType(ExerciseTypeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXERCISE_TYPE_FIELD_NAME)));
+    }
+    if (msg.hasField(SETTLEMENT_DATE_FIELD_NAME)) {
+      object.setSettlementDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(SETTLEMENT_DATE_FIELD_NAME)));
+    }
+    if (msg.hasField(NOTIONAL_FIELD_NAME)) {
+      object.setNotional(msg.getDouble(NOTIONAL_FIELD_NAME));
+    }
   }
 
 }

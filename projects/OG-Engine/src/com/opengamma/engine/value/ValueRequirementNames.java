@@ -201,6 +201,7 @@ public final class ValueRequirementNames {
   public static final String RETURN_SERIES = "Return Series";
   public static final String PNL_SERIES = "P&L Series";
   public static final String PNL = "PnL";
+  public static final String DAILY_PNL = "Daily PnL";
   public static final String UNDERLYING_RETURN_SERIES = "Underlying Return Series";
   public static final String SKEW = "Skew";
   public static final String FISHER_KURTOSIS = "Fisher Kurtosis";
@@ -249,7 +250,9 @@ public final class ValueRequirementNames {
   
   //Equity values
   public static final String DIVIDEND_YIELD = "Dividend Yield";
-  
+  public static final String SECURITY_MARKET_PRICE = "Security Market Price";
+  public static final String SECURITY_IMPLIED_VOLATLITY = "Security Implied Volatility";
+
   //CAPM equity model
   public static final String CAPM_BETA = "CAPM Beta";
 
@@ -323,5 +326,6 @@ public final class ValueRequirementNames {
   
   public static final String DAILY_APPLIED_BETA = "Last Raw Beta";
   public static final String DAILY_MARKET_CAP = "Last Market Cap";
+  
   //CSON
 }

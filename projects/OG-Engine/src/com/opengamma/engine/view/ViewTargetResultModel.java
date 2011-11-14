@@ -19,15 +19,15 @@ public interface ViewTargetResultModel {
   /**
    * Gets the configuration names for which results for this target were requested. 
    * 
-   * @return the configuration names, not {@code null}
+   * @return the configuration names, not null
    */
   Collection<String> getCalculationConfigurationNames();
 
   /**
    * Gets all of the values calculated for this target, for a given configuration.
    * 
-   * @param calcConfigurationName the calculation configuration name, not {@code null}
-   * @return the computed values, or {@code null} if the configuration name is unknown
+   * @param calcConfigurationName the calculation configuration name, not null
+   * @return the computed values, or null if the configuration name is unknown
    */
   Collection<ComputedValue> getAllValues(String calcConfigurationName);
 

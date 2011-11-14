@@ -57,11 +57,11 @@ public final class AvailableOutputImpl implements AvailableOutput {
   }
 
   /**
-   * Returns the indicator used to indicate a property can take any value in addition to the listed ones. {@code null} if no
-   * explicit indicator has been used. When there is no indicator, the set of property values may be incomplete - wild-card values
-   * may be available.
+   * Returns the indicator used to indicate a property can take any value in addition to the listed ones, null if no
+   * explicit indicator has been used. When there is no indicator, the set of property values may be incomplete -
+   * wild-card values may be available.
    * 
-   * @return the indicator string, or {@code null} if none
+   * @return the indicator string, or null if none
    */
   public String getAnyValue() {
     return _anyValue;
@@ -96,8 +96,8 @@ public final class AvailableOutputImpl implements AvailableOutput {
    * <p>
    * This is a commutative operation; i.e. merge(A, B) gives the same result as merge(B, A).
    * 
-   * @param left left component of merge, not {@code null}
-   * @param right right component of merge, not {@code null}
+   * @param left left component of merge, not null
+   * @param right right component of merge, not null
    * @return the merged properties
    */
   private ValueProperties merge(final ValueProperties left, final ValueProperties right) {

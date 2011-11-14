@@ -5,7 +5,8 @@
  */
 package com.opengamma.web.config;
 
-import java.io.StringWriter;
+import static com.opengamma.web.json.AbstractJSONBuilder.fudgeToJson;
+
 import java.net.URI;
 
 import javax.ws.rs.Consumes;
@@ -25,14 +26,11 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.fudgemsg.FudgeMsg;
 import org.joda.beans.impl.flexi.FlexiBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.web.json.FudgeMsgJSONWriter;
+import com.opengamma.web.json.JSONBuilder;
 
 /**
  * RESTful resource for a configuration document.
@@ -40,9 +38,7 @@ import com.opengamma.web.json.FudgeMsgJSONWriter;
  */
 @Path("/configs/{configId}")
 public class WebConfigResource extends AbstractWebConfigResource {
-  
-  private static final Logger s_logger = LoggerFactory.getLogger(WebConfigResource.class);
-  
+    
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
@@ -71,7 +67,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
     }
     FlexiBean out = createRootData();
     ConfigDocument<?> doc = data().getConfig();
-    String jsonConfig = StringUtils.stripToNull(toJSON(doc.getValue()));
+    String jsonConfig = StringUtils.stripToNull(toJSON(doc.getValue(), doc.getType()));
     if (jsonConfig != null) {
       out.put("configJSON", jsonConfig);
     } else {
@@ -82,18 +78,15 @@ public class WebConfigResource extends AbstractWebConfigResource {
     return Response.ok(json).tag(etag).build();
   }
   
-  private String toJSON(final Object configObj) {
-    s_logger.debug("converting {} to JSON", configObj);
-        
-    FudgeMsg fudgeMsg = getFudgeContext().toFudgeMsg(configObj).getMessage();    
-    s_logger.debug("to fudgeMsg: {}", fudgeMsg);
-    
-    StringWriter sw = new StringWriter();
-    FudgeMsgJSONWriter fudgeJSONWriter = new FudgeMsgJSONWriter(getFudgeContext(), sw);
-    fudgeJSONWriter.writeMessage(fudgeMsg);
-    
-    String result = sw.toString();
-    s_logger.debug("to JSON: {}", result);
+  @SuppressWarnings("unchecked")
+  private <T> String toJSON(final Object configObj, final Class<T> configType) {
+    JSONBuilder<T> jsonBuilder = (JSONBuilder<T>) data().getJsonBuilderMap().get(configType);
+    String result = null;
+    if (jsonBuilder != null) {
+      result = jsonBuilder.toJSON((T) configObj);
+    } else {
+      result = fudgeToJson(configObj);
+    }
     return result;
   }
   

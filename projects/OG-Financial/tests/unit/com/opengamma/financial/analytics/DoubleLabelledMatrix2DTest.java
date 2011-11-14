@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
@@ -22,12 +23,15 @@ public class DoubleLabelledMatrix2DTest {
   private static final Object[] SORTED_Y_LABELS2 = new String[] {"A", "B", "C"};
   private static final double[][] SORTED_VALUES = new double[][] {new double[] {1, 2, 3, 4, 5}, new double[] {2, 4, 6, 8, 10}, new double[] {3, 6, 9, 12, 15}};
   private static final Double[] X_KEYS = new Double[] {2., 1., 3., 5., 4.};
+  private static final String X_TITLE = "x";
   private static final Double[] Y_KEYS = new Double[] {2., 3., 1.};
+  private static final String Y_TITLE = "y";
   private static final Object[] X_LABELS1 = new Object[] {"2.0", "1.0", "3.0", "5.0", "4.0"};
   private static final Object[] Y_LABELS1 = new Object[] {"2.0", "3.0", "1.0"};
   private static final Object[] X_LABELS2 = new Object[] {"B", "A", "C", "E", "D"};
   private static final Object[] Y_LABELS2 = new Object[] {"B", "C", "A"};
   private static final double[][] VALUES = new double[][] {new double[] {4, 2, 6, 10, 8}, new double[] {6, 3, 9, 15, 12}, new double[] {2, 1, 3, 5, 4}};
+  private static final String VALUES_TITLE = "values";
 
   @Test
   public void test() {
@@ -37,6 +41,16 @@ public class DoubleLabelledMatrix2DTest {
     testResult(result, SORTED_X_LABELS1, SORTED_Y_LABELS1);
     result = new DoubleLabelledMatrix2D(X_KEYS, X_LABELS2, Y_KEYS, Y_LABELS2, VALUES);
     testResult(result, SORTED_X_LABELS2, SORTED_Y_LABELS2);
+  }
+  
+  @Test
+  public void testTitles() {
+    DoubleLabelledMatrix2D withTitles = new DoubleLabelledMatrix2D(X_KEYS, X_LABELS1, X_TITLE, Y_KEYS, Y_LABELS1, Y_TITLE, VALUES, VALUES_TITLE);
+    assertEquals(X_TITLE, withTitles.getXTitle());
+    assertEquals(Y_TITLE, withTitles.getYTitle());
+    assertEquals(VALUES_TITLE, withTitles.getValuesTitle());
+    DoubleLabelledMatrix2D withoutTitles = new DoubleLabelledMatrix2D(X_KEYS, X_LABELS1, Y_KEYS, Y_LABELS1, VALUES);
+    assertFalse(withTitles.equals(withoutTitles));
   }
 
   @Test
@@ -153,6 +167,16 @@ public class DoubleLabelledMatrix2DTest {
     }
   }
 
+  @Test
+  public void testAddTitlesPreserved() {
+    DoubleLabelledMatrix2D base = new DoubleLabelledMatrix2D(X_KEYS, X_LABELS1, X_TITLE, Y_KEYS, Y_LABELS1, Y_TITLE, VALUES, VALUES_TITLE);
+    DoubleLabelledMatrix2D operand = new DoubleLabelledMatrix2D(X_KEYS, Y_KEYS, VALUES);
+    LabelledMatrix2D<Double, Double> result = base.add(operand, 0.0001, 0.0001);
+    assertEquals(X_TITLE, result.getXTitle());
+    assertEquals(Y_TITLE, result.getYTitle());
+    assertEquals(VALUES_TITLE, result.getValuesTitle());
+  }
+  
   private void testResult(final DoubleLabelledMatrix2D result, final Object[] xLabels, final Object[] yLabels) {
     final Double[] xKeysResult = result.getXKeys();
     assertArrayEquals(SORTED_X_KEYS, xKeysResult);

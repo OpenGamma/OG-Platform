@@ -54,7 +54,13 @@ public class WebPositionResource extends AbstractWebPositionResource {
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON() {
     FlexiBean out = createRootData();
+    createTradeAttributes(out);
     return getFreemarker().build("positions/jsonposition.ftl", out);
+  }
+
+  private void createTradeAttributes(FlexiBean out) {
+    PositionDocument doc = data().getPosition();
+    out.put("tradeAttrModel", new TradeAttributesModel(doc.getPosition()));
   }
 
   //-------------------------------------------------------------------------
@@ -178,5 +184,5 @@ public class WebPositionResource extends AbstractWebPositionResource {
     String positionId = data.getBestPositionUriId(overridePositionId);
     return data.getUriInfo().getBaseUriBuilder().path(WebPositionResource.class).build(positionId);
   }
-
+ 
 }

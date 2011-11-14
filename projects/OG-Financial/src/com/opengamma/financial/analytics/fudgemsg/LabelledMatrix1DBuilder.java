@@ -37,6 +37,8 @@ final class LabelledMatrix1DBuilder {
 
   /** Field name. */
   private static final String MATRIX_FIELD_NAME = "matrix";
+  private static final String LABELS_TITLE_FIELD_NAME = "labelsTitle";
+  private static final String VALUES_TITLE_FIELD_NAME = "valuesTitle";
 
   private static final int LABEL_TYPE_ORDINAL = 0;
   private static final int KEY_ORDINAL = 1;
@@ -62,7 +64,6 @@ final class LabelledMatrix1DBuilder {
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final DoubleLabelledMatrix1D object) {
       final MutableFudgeMsg msg = serializer.newMessage();
-
       final Double[] keys = object.getKeys();
       final Object[] labels = object.getLabels();
       final double[] values = object.getValues();
@@ -72,8 +73,13 @@ final class LabelledMatrix1DBuilder {
         serializer.addToMessage(msg, null, LABEL_ORDINAL, labels[i]);
         msg.add(VALUE_ORDINAL, values[i]);
       }
-
       message.add(MATRIX_FIELD_NAME, msg);
+      if (object.getLabelsTitle() != null) {
+        message.add(LABELS_TITLE_FIELD_NAME, object.getLabelsTitle());
+      }
+      if (object.getValuesTitle() != null) {
+        message.add(VALUES_TITLE_FIELD_NAME, object.getValuesTitle());
+      }
     }
 
     @SuppressWarnings("synthetic-access")
@@ -118,6 +124,9 @@ final class LabelledMatrix1DBuilder {
           labels.add(label);
         }
       }
+      
+      final String labelsTitle = message.getString(LABELS_TITLE_FIELD_NAME);
+      final String valuesTitle = message.getString(VALUES_TITLE_FIELD_NAME);
 
       final int matrixSize = keys.size();
       final Double[] keysArray = new Double[matrixSize];
@@ -125,7 +134,7 @@ final class LabelledMatrix1DBuilder {
       final Object[] labelsArray = new Object[matrixSize];
       labels.toArray(labelsArray);
       final double[] valuesArray = Doubles.toArray(values);
-      return new DoubleLabelledMatrix1D(keysArray, labelsArray, valuesArray);
+      return new DoubleLabelledMatrix1D(keysArray, labelsArray, labelsTitle, valuesArray, valuesTitle);
     }
     private final Map<String, Class<?>> _loadedClasses = new ConcurrentHashMap<String, Class<?>>(); //TODO: This should be expired at some point, but it's an insignificant leak at the moment
   }
@@ -146,8 +155,13 @@ final class LabelledMatrix1DBuilder {
         serializer.addToMessage(msg, null, LABEL_ORDINAL, labels[i]);
         msg.add(VALUE_ORDINAL, values[i]);
       }
-
       message.add(MATRIX_FIELD_NAME, msg);
+      if (object.getLabelsTitle() != null) {
+        message.add(LABELS_TITLE_FIELD_NAME, object.getLabelsTitle());
+      }
+      if (object.getValuesTitle() != null) {
+        message.add(VALUES_TITLE_FIELD_NAME, object.getValuesTitle());
+      }
     }
 
     @Override
@@ -186,6 +200,9 @@ final class LabelledMatrix1DBuilder {
           labels.add(label);
         }
       }
+      
+      final String labelsTitle = message.getString(LABELS_TITLE_FIELD_NAME);
+      final String valuesTitle = message.getString(VALUES_TITLE_FIELD_NAME);
 
       final int matrixSize = keys.size();
       final LocalDate[] keysArray = new LocalDate[matrixSize];
@@ -193,7 +210,7 @@ final class LabelledMatrix1DBuilder {
       final Object[] labelsArray = new Object[matrixSize];
       labels.toArray(labelsArray);
       final double[] valuesArray = Doubles.toArray(values);
-      return new LocalDateLabelledMatrix1D(keysArray, labelsArray, valuesArray);
+      return new LocalDateLabelledMatrix1D(keysArray, labelsArray, labelsTitle, valuesArray, valuesTitle);
     }
 
     @SuppressWarnings("synthetic-access")
@@ -227,8 +244,13 @@ final class LabelledMatrix1DBuilder {
         serializer.addToMessage(msg, null, LABEL_ORDINAL, labels[i]);
         msg.add(VALUE_ORDINAL, values[i]);
       }
-
       message.add(MATRIX_FIELD_NAME, msg);
+      if (object.getLabelsTitle() != null) {
+        message.add(LABELS_TITLE_FIELD_NAME, object.getLabelsTitle());
+      }
+      if (object.getValuesTitle() != null) {
+        message.add(VALUES_TITLE_FIELD_NAME, object.getValuesTitle());
+      }
     }
 
     @SuppressWarnings("synthetic-access")
@@ -274,6 +296,9 @@ final class LabelledMatrix1DBuilder {
           labels.add(label);
         }
       }
+      
+      final String labelsTitle = message.getString(LABELS_TITLE_FIELD_NAME);
+      final String valuesTitle = message.getString(VALUES_TITLE_FIELD_NAME);
 
       final int matrixSize = keys.size();
       final Currency[] keysArray = new Currency[matrixSize];
@@ -281,7 +306,7 @@ final class LabelledMatrix1DBuilder {
       final Object[] labelsArray = new Object[matrixSize];
       labels.toArray(labelsArray);
       final double[] valuesArray = Doubles.toArray(values);
-      return new CurrencyLabelledMatrix1D(keysArray, labelsArray, valuesArray);
+      return new CurrencyLabelledMatrix1D(keysArray, labelsArray, labelsTitle, valuesArray, valuesTitle);
     }
     private final Map<String, Class<?>> _loadedClasses = new ConcurrentHashMap<String, Class<?>>(); //TODO: This should be expired at some point, but it's an insignificant leak at the moment
   }
@@ -299,6 +324,12 @@ final class LabelledMatrix1DBuilder {
         msg.add(VALUE_ORDINAL, values[i]);
       }
       message.add(MATRIX_FIELD_NAME, msg);
+      if (object.getLabelsTitle() != null) {
+        message.add(LABELS_TITLE_FIELD_NAME, object.getLabelsTitle());
+      }
+      if (object.getValuesTitle() != null) {
+        message.add(VALUES_TITLE_FIELD_NAME, object.getValuesTitle());
+      }
     }
 
     @Override
@@ -316,9 +347,11 @@ final class LabelledMatrix1DBuilder {
             break;
         }
       }
+      final String labelsTitle = message.getString(LABELS_TITLE_FIELD_NAME);
+      final String valuesTitle = message.getString(VALUES_TITLE_FIELD_NAME);
       String[] keysArray = keys.toArray(ArrayUtils.EMPTY_STRING_ARRAY);
       final double[] valuesArray = Doubles.toArray(values);
-      return new StringLabelledMatrix1D(keysArray, valuesArray);
+      return new StringLabelledMatrix1D(keysArray, keysArray, labelsTitle, valuesArray, valuesTitle);
     }
   }
 
