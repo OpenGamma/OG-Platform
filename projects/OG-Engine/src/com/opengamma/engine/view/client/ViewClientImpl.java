@@ -51,7 +51,7 @@ public class ViewClientImpl implements ViewClient {
   private final EngineResourceRetainer _latestCycleRetainer;
 
   private final AtomicReference<ViewResultMode> _resultMode = new AtomicReference<ViewResultMode>(ViewResultMode.FULL_ONLY);
-  private final AtomicReference<ViewResultMode> _jobResultMode = new AtomicReference<ViewResultMode>(ViewResultMode.FULL_ONLY);
+  private final AtomicReference<ViewResultMode> _jobResultMode = new AtomicReference<ViewResultMode>(ViewResultMode.NONE);
 
   private final AtomicBoolean _isViewCycleAccessSupported = new AtomicBoolean(false);
   private final AtomicBoolean _isAttached = new AtomicBoolean(false);
