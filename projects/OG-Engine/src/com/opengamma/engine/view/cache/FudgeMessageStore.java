@@ -21,7 +21,7 @@ public interface FudgeMessageStore {
 
   /**
    * Obtain the current data associated with the identifier.
-   * This method will return {@code null} if there is no data with
+   * This method will return null if there is no data with
    * the specified identifier.
    * 
    * @param identifier The identifier to obtain data for

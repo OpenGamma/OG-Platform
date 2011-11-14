@@ -6,9 +6,7 @@
 package com.opengamma.financial.analytics.timeseries.sampling;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 
@@ -19,7 +17,7 @@ import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * 
+ * Pad with previous value, pad with first value in series if there is insufficient data
  */
 public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunction implements TimeSeriesSamplingFunction {
 
@@ -29,34 +27,39 @@ public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunction implements T
     Validate.notNull(schedule, "schedule");
     final LocalDateDoubleTimeSeries localDateTS = ts.toLocalDateDoubleTimeSeries();
     final List<LocalDate> tsDates = localDateTS.times();
-    final Set<LocalDate> tsDatesSet = new HashSet<LocalDate>(tsDates);
+    double[] values = localDateTS.valuesArrayFast();
     
-    final List<LocalDate> scheduledDates = new ArrayList<LocalDate>();
-    final List<Double> scheduledData = new ArrayList<Double>();
-    final double firstValue = localDateTS.getEarliestValue();
-    final LocalDate firstDate = localDateTS.getEarliestTime();
-    for (final LocalDate localDate : schedule) {
+    
+    final List<LocalDate> scheduledDates = new ArrayList<LocalDate>(schedule.length);
+    final List<Double> scheduledData = new ArrayList<Double>(schedule.length);
+    
+    int j = 0;
+    for (int i = 0; i < schedule.length; i++) {
+      LocalDate localDate = schedule[i];
       scheduledDates.add(localDate);
-      if (tsDatesSet.contains(localDate)) {
-        scheduledData.add(localDateTS.getValue(localDate));
-      } else if (firstDate.isAfter(localDate)) {
-        scheduledData.add(firstValue);
-      } else {
-        LocalDate temp = localDate.minusDays(1);
-        if (firstDate.isAfter(temp)) {
-          scheduledData.add(firstValue);
-        } else {
-          while (!tsDatesSet.contains(temp)) {
-            temp = temp.minusDays(1);
-            if (temp.isBefore(schedule[0].toLocalDate()) || temp.isBefore(tsDates.get(0))) {
-              scheduledData.add(firstValue);
-              break;
-            }
-          }
+      
+      if (j < tsDates.size()) { //TODO break out
+        if (tsDates.get(j).equals(localDate)) {
+          scheduledData.add(values[j]);
+          j++;
+          continue;
         }
-        scheduledData.add(localDateTS.getValue(temp));
+        while (j < tsDates.size() && tsDates.get(j).isBefore(localDate)) {
+          j++;
+        }
+        if (j < tsDates.size() && tsDates.get(j).equals(localDate)) {
+          scheduledData.add(values[j]);
+          j++;
+          continue;
+        }
+      }
+      if (j > 0) {
+        scheduledData.add(values[j - 1]); //Should never go too high
+      } else {
+        scheduledData.add(values[0]);
       }
     }
+    
     return new ArrayLocalDateDoubleTimeSeries(scheduledDates, scheduledData);
   }
 }

@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.pnl;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -21,7 +22,6 @@ import com.google.common.collect.Sets;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.PositionOrTrade;
-import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -97,7 +97,9 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
       final HistoricalTimeSeries markToMarketSeries = getMarkToMarketSeries(historicalSource, _markDataField, security.getExternalIdBundle(), _resolutionKey, tradeDate);
 
       if (markToMarketSeries == null || markToMarketSeries.getTimeSeries() == null) {
-        throw new NullPointerException("Could not get identifier / mark to market series pair for security " + security.getExternalIdBundle() + " for " + _markDataField + " using " + _resolutionKey);
+        s_logger.debug("Could not get identifier / mark to market series pair for security {} for {} using {}",
+            new Object[]{security.getExternalIdBundle(), _markDataField, _resolutionKey});
+        return Collections.emptySet();
       }
       
       tradeDate = checkAvailableData(tradeDate, markToMarketSeries, security, _markDataField, _resolutionKey);

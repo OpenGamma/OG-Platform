@@ -25,7 +25,6 @@ import com.opengamma.engine.view.DeltaDefinition;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.money.Currency;
@@ -39,7 +38,7 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
 
 //  private static final String UNIQUE_ID_FIELD = "uniqueId";
   private static final String NAME_FIELD = "name";
-  private static final String PORTFOLIO_OBJECT_ID_FIELD = "identifier";
+  private static final String PORTFOLIO_ID_FIELD = "identifier";
   private static final String USER_FIELD = "user";
   private static final String MIN_DELTA_CALC_PERIOD_FIELD = "minDeltaCalcPeriod";
   private static final String MAX_DELTA_CALC_PERIOD_FIELD = "maxDeltaCalcPeriod";
@@ -68,7 +67,7 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
     MutableFudgeMsg message = serializer.newMessage();
 //    message.add(UNIQUE_ID_FIELD, null, viewDefinition.getUniqueId());
     message.add(NAME_FIELD, null, viewDefinition.getName());
-    serializer.addToMessage(message, PORTFOLIO_OBJECT_ID_FIELD, null, viewDefinition.getPortfolioOid());
+    serializer.addToMessage(message, PORTFOLIO_ID_FIELD, null, viewDefinition.getPortfolioId());
     serializer.addToMessage(message, USER_FIELD, null, viewDefinition.getMarketDataUser());
     serializer.addToMessage(message, RESULT_MODEL_DEFINITION_FIELD, null, viewDefinition.getResultModelDefinition());
 
@@ -120,14 +119,14 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
   @Override
   public ViewDefinition buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     
-    final FudgeField portfolioOidField = message.getByName(PORTFOLIO_OBJECT_ID_FIELD);
-    final ObjectId portfolioOid = portfolioOidField == null ? null : deserializer.fieldValueToObject(ObjectId.class, portfolioOidField);
+    final FudgeField portfolioIdField = message.getByName(PORTFOLIO_ID_FIELD);
+    final UniqueId portfolioId = portfolioIdField == null ? null : deserializer.fieldValueToObject(UniqueId.class, portfolioIdField);
     final String name = message.getFieldValue(String.class, message.getByName(NAME_FIELD));
     final UserPrincipal user = deserializer.fieldValueToObject(UserPrincipal.class, message.getByName(USER_FIELD));
     final ResultModelDefinition model = deserializer.fieldValueToObject(ResultModelDefinition.class, message.getByName(RESULT_MODEL_DEFINITION_FIELD)); 
     ViewDefinition viewDefinition = new ViewDefinition(
         name,
-        portfolioOid,
+        portfolioId,
         user,
         model);
 

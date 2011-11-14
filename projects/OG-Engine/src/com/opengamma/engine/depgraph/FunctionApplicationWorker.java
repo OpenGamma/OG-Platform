@@ -194,6 +194,20 @@ import com.opengamma.engine.value.ValueSpecification;
     inputsAvailable(context, state, resolvedValues);
   }
 
+  protected void abort(final GraphBuildingContext context) {
+    final FunctionApplicationStep.PumpingState state;
+    synchronized (this) {
+      state = _taskState;
+      _taskState = null;
+    }
+    if (state != null) {
+      s_logger.debug("Aborting worker", this);
+      finished(context);
+    } else {
+      s_logger.debug("Ignoring abort call", this);
+    }
+  }
+
   @Override
   public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
     s_logger.debug("Resolution complete at {}", this);

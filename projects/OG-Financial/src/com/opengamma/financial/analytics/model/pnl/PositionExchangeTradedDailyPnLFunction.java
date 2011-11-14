@@ -8,6 +8,9 @@ package com.opengamma.financial.analytics.model.pnl;
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.PositionOrTrade;
@@ -23,8 +26,8 @@ import com.opengamma.id.ExternalIdBundle;
  * 
  */
 public class PositionExchangeTradedDailyPnLFunction extends AbstractTradeOrDailyPositionPnLFunction {
-  
-  private static final long MAX_DAYS_OLD = 7;
+  private static final Logger s_logger = LoggerFactory.getLogger(PositionExchangeTradedDailyPnLFunction.class);
+  private static final long MAX_DAYS_OLD = 70;
   
   /**
    * @param resolutionKey the resolution key, not-null
@@ -37,7 +40,7 @@ public class PositionExchangeTradedDailyPnLFunction extends AbstractTradeOrDaily
 
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    Security security = target.getTrade().getSecurity();
+    Security security = target.getPositionOrTrade().getSecurity();
     return (target.getType() == ComputationTargetType.POSITION && FinancialSecurityUtils.isExchangedTraded(security));
   }
 
@@ -58,8 +61,14 @@ public class PositionExchangeTradedDailyPnLFunction extends AbstractTradeOrDaily
 
   @Override
   protected HistoricalTimeSeries getMarkToMarketSeries(HistoricalTimeSeriesSource historicalSource, String fieldName, ExternalIdBundle bundle, String resolutionKey, LocalDate tradeDate) {
-    return historicalSource.getHistoricalTimeSeries(fieldName, bundle, resolutionKey,
-                                                    tradeDate.minusDays(MAX_DAYS_OLD), true, tradeDate, true);
+    LocalDate from = tradeDate.minusDays(MAX_DAYS_OLD);
+    HistoricalTimeSeries hts = historicalSource.getHistoricalTimeSeries(fieldName, bundle, resolutionKey,
+                                                    from, true, tradeDate, true);
+    if (hts == null || hts.getTimeSeries() == null) {
+      s_logger.debug("Could not get identifier / mark to market series pair for security {} for {}  using {} from {} to {}",
+                    new Object[] {bundle, fieldName, resolutionKey, from, tradeDate});
+    }
+    return hts;
   }
 
   @Override

@@ -253,14 +253,8 @@ import com.opengamma.engine.value.ValueSpecification;
     if (failure != null) {
       synchronized (this) {
         if (_failure == null) {
-          if (_results.length == 0) {
-            _failure = (ResolutionFailure) failure.clone();
-            return;
-          }
-          _failure = ResolutionFailure.resolvedValue(getValueRequirement(), _results[0]);
-        }
-        while (_failure.getResultCount() < _results.length) {
-          _failure.resolvedValue(_results[_failure.getResultCount()]);
+          _failure = (ResolutionFailure) failure.clone();
+          return;
         }
         _failure.merge(failure);
       }
