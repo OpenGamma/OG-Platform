@@ -74,6 +74,11 @@ public class FXOptionSecurity extends FinancialSecurity {
    */
   @PropertyDefinition(validate = "notNull")
   private LongShort _longShort = LongShort.LONG;
+  /**
+   * The exercise type.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ExerciseType _exerciseType;
 
   /**
    * Creates an empty instance.
@@ -84,7 +89,7 @@ public class FXOptionSecurity extends FinancialSecurity {
   }
 
   public FXOptionSecurity(Currency putCurrency, Currency callCurrency, double putAmount, double callAmount, Expiry expiry,
-      ZonedDateTime settlementDate, boolean isLong) {
+      ZonedDateTime settlementDate, boolean isLong, ExerciseType exerciseType) {
     super(SECURITY_TYPE);
     setPutCurrency(putCurrency);
     setCallCurrency(callCurrency);
@@ -93,6 +98,7 @@ public class FXOptionSecurity extends FinancialSecurity {
     setExpiry(expiry);
     setSettlementDate(settlementDate);
     setLongShort(LongShort.ofLong(isLong));
+    setExerciseType(exerciseType);
   }
 
   //-------------------------------------------------------------------------
@@ -166,6 +172,8 @@ public class FXOptionSecurity extends FinancialSecurity {
         return getSettlementDate();
       case 116685664:  // longShort
         return getLongShort();
+      case -466331342:  // exerciseType
+        return getExerciseType();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -194,6 +202,9 @@ public class FXOptionSecurity extends FinancialSecurity {
       case 116685664:  // longShort
         setLongShort((LongShort) newValue);
         return;
+      case -466331342:  // exerciseType
+        setExerciseType((ExerciseType) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -207,6 +218,7 @@ public class FXOptionSecurity extends FinancialSecurity {
     JodaBeanUtils.notNull(_expiry, "expiry");
     JodaBeanUtils.notNull(_settlementDate, "settlementDate");
     JodaBeanUtils.notNull(_longShort, "longShort");
+    JodaBeanUtils.notNull(_exerciseType, "exerciseType");
     super.validate();
   }
 
@@ -224,6 +236,7 @@ public class FXOptionSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
           JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
           JodaBeanUtils.equal(getLongShort(), other.getLongShort()) &&
+          JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
           super.equals(obj);
     }
     return false;
@@ -239,6 +252,7 @@ public class FXOptionSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLongShort());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
     return hash ^ super.hashCode();
   }
 
@@ -426,6 +440,32 @@ public class FXOptionSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the exercise type.
+   * @return the value of the property, not null
+   */
+  public ExerciseType getExerciseType() {
+    return _exerciseType;
+  }
+
+  /**
+   * Sets the exercise type.
+   * @param exerciseType  the new value of the property, not null
+   */
+  public void setExerciseType(ExerciseType exerciseType) {
+    JodaBeanUtils.notNull(exerciseType, "exerciseType");
+    this._exerciseType = exerciseType;
+  }
+
+  /**
+   * Gets the the {@code exerciseType} property.
+   * @return the property, not null
+   */
+  public final Property<ExerciseType> exerciseType() {
+    return metaBean().exerciseType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code FXOptionSecurity}.
    */
   public static class Meta extends FinancialSecurity.Meta {
@@ -470,6 +510,11 @@ public class FXOptionSecurity extends FinancialSecurity {
     private final MetaProperty<LongShort> _longShort = DirectMetaProperty.ofReadWrite(
         this, "longShort", FXOptionSecurity.class, LongShort.class);
     /**
+     * The meta-property for the {@code exerciseType} property.
+     */
+    private final MetaProperty<ExerciseType> _exerciseType = DirectMetaProperty.ofReadWrite(
+        this, "exerciseType", FXOptionSecurity.class, ExerciseType.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
@@ -480,7 +525,8 @@ public class FXOptionSecurity extends FinancialSecurity {
         "callAmount",
         "expiry",
         "settlementDate",
-        "longShort");
+        "longShort",
+        "exerciseType");
 
     /**
      * Restricted constructor.
@@ -505,6 +551,8 @@ public class FXOptionSecurity extends FinancialSecurity {
           return _settlementDate;
         case 116685664:  // longShort
           return _longShort;
+        case -466331342:  // exerciseType
+          return _exerciseType;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -579,6 +627,14 @@ public class FXOptionSecurity extends FinancialSecurity {
      */
     public final MetaProperty<LongShort> longShort() {
       return _longShort;
+    }
+
+    /**
+     * The meta-property for the {@code exerciseType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExerciseType> exerciseType() {
+      return _exerciseType;
     }
 
   }
