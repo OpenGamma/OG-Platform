@@ -623,13 +623,11 @@ public final class DependencyGraphBuilder {
   private final AtomicInteger _activeJobCount = new AtomicInteger();
   private final Set<Job> _activeJobs = new HashSet<Job>();
   private final Queue<ContextRunnable> _runQueue = new ConcurrentLinkedQueue<ContextRunnable>();
-  private final Set<DependencyNode> _graphNodes = Collections.synchronizedSet(new HashSet<DependencyNode>());
-  private final Map<ValueRequirement, ValueSpecification> _terminalOutputs = new ConcurrentHashMap<ValueRequirement, ValueSpecification>();
   private final GraphBuildingContext _context = new GraphBuildingContext();
   private final AtomicLong _completedSteps = new AtomicLong();
   private final AtomicLong _scheduledSteps = new AtomicLong();
-  private final GetTerminalValuesCallback _getTerminalValuesCallback = new GetTerminalValuesCallback(_graphNodes, _terminalOutputs,
-      DEBUG_DUMP_FAILURE_INFO ? new ResolutionFailurePrinter(openDebugStream("resolutionFailure")) : ResolutionFailureVisitor.DEFAULT_INSTANCE);
+  private final GetTerminalValuesCallback _getTerminalValuesCallback = new GetTerminalValuesCallback(DEBUG_DUMP_FAILURE_INFO ? new ResolutionFailurePrinter(openDebugStream("resolutionFailure"))
+      : ResolutionFailureVisitor.DEFAULT_INSTANCE);
   private final Executor _executor;
 
   /**
@@ -1136,10 +1134,10 @@ public final class DependencyGraphBuilder {
   protected DependencyGraph createDependencyGraph() {
     final DependencyGraph graph = new DependencyGraph(getCalculationConfigurationName());
     s_loggerBuilder.debug("Converting internal representation to dependency graph");
-    for (DependencyNode node : _graphNodes) {
+    for (DependencyNode node : _getTerminalValuesCallback.getGraphNodes()) {
       graph.addDependencyNode(node);
     }
-    for (Map.Entry<ValueRequirement, ValueSpecification> terminalOutput : _terminalOutputs.entrySet()) {
+    for (Map.Entry<ValueRequirement, ValueSpecification> terminalOutput : _getTerminalValuesCallback.getTerminalValues().entrySet()) {
       graph.addTerminalOutput(terminalOutput.getKey(), terminalOutput.getValue());
     }
     //graph.dumpStructureASCII(System.out);
@@ -1169,7 +1167,7 @@ public final class DependencyGraphBuilder {
    * @return the map of requirements to value specifications, not null
    */
   public Map<ValueRequirement, ValueSpecification> getValueRequirementMapping() {
-    return new HashMap<ValueRequirement, ValueSpecification>(_terminalOutputs);
+    return _getTerminalValuesCallback.getTerminalValues();
   }
 
   /**

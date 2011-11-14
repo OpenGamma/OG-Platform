@@ -221,10 +221,8 @@ import com.opengamma.engine.value.ValueSpecification;
   public boolean hasParent(final ResolveTask task) {
     if (task == this) {
       return true;
-    } else if (getParent() == null) {
-      return false;
     } else {
-      return getParent().hasParent(task);
+      return hasParent(task.getValueRequirement());
     }
   }
 
@@ -309,6 +307,11 @@ import com.opengamma.engine.value.ValueSpecification;
     }
     return count;
   }
+
+  // TODO: The recursion logic isn't entirely correct. A resolve task may end up working from
+  // a substitute/delegate (see FunctionApplicationStep) that encountered recursion causing a
+  // failure. This will not be flagged using the current mechanism preventing complete state
+  // exploration.
 
   public void setRecursionDetected() {
     _recursion = true;
