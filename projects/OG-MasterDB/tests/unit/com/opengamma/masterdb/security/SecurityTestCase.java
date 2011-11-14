@@ -8,8 +8,15 @@ package com.opengamma.masterdb.security;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.DateProvider;
