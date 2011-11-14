@@ -272,13 +272,10 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     // the job results are streamed to the ViewProcesor without waitout waiting for the current cycle to complete
     final BlockingQueue<CalculationJobResult> calcJobResultQueue = new LinkedBlockingQueue<CalculationJobResult>();
     class StreamCalculationJobResultConsumer extends TerminatableJob {
-      private boolean _completeAndExit;
+      volatile private boolean _completeAndExit;
       @Override
       protected void runOneCycle() {
         try {
-          if (_completeAndExit) {
-
-          }
           CalculationJobResult jobResult = calcJobResultQueue.poll(50, TimeUnit.MILLISECONDS);
           if (jobResult != null) {
             _computationCycleResultListener.jobResultReceived(populateResultModel(jobResult));
