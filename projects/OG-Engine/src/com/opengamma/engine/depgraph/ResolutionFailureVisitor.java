@@ -50,10 +50,6 @@ public abstract class ResolutionFailureVisitor {
     s_logger.info("Market data missing to satisfy requirement {}", valueRequirement);
   }
 
-  protected synchronized void visitResolvedValue(final ValueRequirement valueRequirement, final ResolvedValue value) {
-    s_logger.info("Resolved {} to {}", valueRequirement, value);
-  }
-
   protected synchronized void visitSuccessfulFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> satisfied) {
     s_logger.info("Applied {} for {}", function, valueRequirement);

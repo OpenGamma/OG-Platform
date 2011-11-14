@@ -16,13 +16,17 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
+import com.opengamma.util.money.Currency;
 
 
 /**
@@ -66,7 +70,15 @@ public class SecurityMarketPriceFunction extends AbstractFunction.NonCompiledInv
   }
 
   private ValueSpecification getSpecification(ComputationTarget target) {
-    return new ValueSpecification(new ValueRequirement(ValueRequirementNames.SECURITY_MARKET_PRICE, target.getPosition()), getUniqueId());
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getPosition().getSecurity());
+    ValueProperties valueProperties;
+    if (ccy == null) {
+      valueProperties = ValueProperties.none();
+    } else {
+      valueProperties = ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
+    }
+    return new ValueSpecification(new ValueRequirement(ValueRequirementNames.SECURITY_MARKET_PRICE,
+        target.getPosition(), valueProperties), getUniqueId());
   }
   
   private ValueRequirement getRequirement(ComputationTarget target) {

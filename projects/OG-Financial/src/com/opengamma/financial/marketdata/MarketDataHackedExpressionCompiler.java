@@ -17,6 +17,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.marketdata.OverrideOperation;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.ArgumentChecker;
@@ -60,6 +61,8 @@ public class MarketDataHackedExpressionCompiler implements OverrideOperationComp
       }
       if (value instanceof Number) {
         return ((Number) value).doubleValue() * _shift;
+      } else if (value instanceof MissingMarketDataSentinel) {
+        return value;
       } else {
         s_logger.warn("Can't shift market data {} - not a number", value);
       }
