@@ -7,6 +7,8 @@ package com.opengamma.financial.security.option;
 
 import java.util.Map;
 
+import javax.time.calendar.ZonedDateTime;
+
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -68,6 +70,21 @@ public class SwaptionSecurity extends FinancialSecurity {
    */
   @PropertyDefinition(validate = "notNull")
   private Currency _currency;
+  /**
+   * The notional.
+   */
+  @PropertyDefinition
+  private Double _notional;
+  /**
+   * The exercise type.
+   */
+  @PropertyDefinition
+  private ExerciseType _exerciseType;
+  /**
+   * The settlement date.
+   */
+  @PropertyDefinition
+  private ZonedDateTime _settlementDate;
 
   /**
    * Creates an empty instance.
@@ -78,6 +95,11 @@ public class SwaptionSecurity extends FinancialSecurity {
   }
 
   public SwaptionSecurity(boolean payer, ExternalId underlyingIdentifier, boolean isLong, Expiry expiry, boolean cashSettled, Currency currency) {
+    this(payer, underlyingIdentifier, isLong, expiry, cashSettled, currency, null, null, null);
+  }
+  
+  public SwaptionSecurity(boolean payer, ExternalId underlyingIdentifier, boolean isLong, 
+      Expiry expiry, boolean cashSettled, Currency currency, Double notional, ExerciseType exerciseType, ZonedDateTime settlementDate) {
     super(SECURITY_TYPE);
     setPayer(payer);
     setUnderlyingId(underlyingIdentifier);
@@ -85,8 +107,11 @@ public class SwaptionSecurity extends FinancialSecurity {
     setExpiry(expiry);
     setCashSettled(cashSettled);
     setCurrency(currency);
+    setNotional(notional);
+    setExerciseType(exerciseType);
+    setSettlementDate(settlementDate);
   }
-
+  
   //-------------------------------------------------------------------------
   @Override
   public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
@@ -156,6 +181,12 @@ public class SwaptionSecurity extends FinancialSecurity {
         return isCashSettled();
       case 575402001:  // currency
         return getCurrency();
+      case 1585636160:  // notional
+        return getNotional();
+      case -466331342:  // exerciseType
+        return getExerciseType();
+      case -295948169:  // settlementDate
+        return getSettlementDate();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -180,6 +211,15 @@ public class SwaptionSecurity extends FinancialSecurity {
         return;
       case 575402001:  // currency
         setCurrency((Currency) newValue);
+        return;
+      case 1585636160:  // notional
+        setNotional((Double) newValue);
+        return;
+      case -466331342:  // exerciseType
+        setExerciseType((ExerciseType) newValue);
+        return;
+      case -295948169:  // settlementDate
+        setSettlementDate((ZonedDateTime) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -207,6 +247,9 @@ public class SwaptionSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
           JodaBeanUtils.equal(isCashSettled(), other.isCashSettled()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
+          JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
           super.equals(obj);
     }
     return false;
@@ -221,6 +264,9 @@ public class SwaptionSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
     hash += hash * 31 + JodaBeanUtils.hashCode(isCashSettled());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
     return hash ^ super.hashCode();
   }
 
@@ -380,6 +426,81 @@ public class SwaptionSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the notional.
+   * @return the value of the property
+   */
+  public Double getNotional() {
+    return _notional;
+  }
+
+  /**
+   * Sets the notional.
+   * @param notional  the new value of the property
+   */
+  public void setNotional(Double notional) {
+    this._notional = notional;
+  }
+
+  /**
+   * Gets the the {@code notional} property.
+   * @return the property, not null
+   */
+  public final Property<Double> notional() {
+    return metaBean().notional().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the exercise type.
+   * @return the value of the property
+   */
+  public ExerciseType getExerciseType() {
+    return _exerciseType;
+  }
+
+  /**
+   * Sets the exercise type.
+   * @param exerciseType  the new value of the property
+   */
+  public void setExerciseType(ExerciseType exerciseType) {
+    this._exerciseType = exerciseType;
+  }
+
+  /**
+   * Gets the the {@code exerciseType} property.
+   * @return the property, not null
+   */
+  public final Property<ExerciseType> exerciseType() {
+    return metaBean().exerciseType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the settlement date.
+   * @return the value of the property
+   */
+  public ZonedDateTime getSettlementDate() {
+    return _settlementDate;
+  }
+
+  /**
+   * Sets the settlement date.
+   * @param settlementDate  the new value of the property
+   */
+  public void setSettlementDate(ZonedDateTime settlementDate) {
+    this._settlementDate = settlementDate;
+  }
+
+  /**
+   * Gets the the {@code settlementDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> settlementDate() {
+    return metaBean().settlementDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code SwaptionSecurity}.
    */
   public static class Meta extends FinancialSecurity.Meta {
@@ -419,6 +540,21 @@ public class SwaptionSecurity extends FinancialSecurity {
     private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
         this, "currency", SwaptionSecurity.class, Currency.class);
     /**
+     * The meta-property for the {@code notional} property.
+     */
+    private final MetaProperty<Double> _notional = DirectMetaProperty.ofReadWrite(
+        this, "notional", SwaptionSecurity.class, Double.class);
+    /**
+     * The meta-property for the {@code exerciseType} property.
+     */
+    private final MetaProperty<ExerciseType> _exerciseType = DirectMetaProperty.ofReadWrite(
+        this, "exerciseType", SwaptionSecurity.class, ExerciseType.class);
+    /**
+     * The meta-property for the {@code settlementDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _settlementDate = DirectMetaProperty.ofReadWrite(
+        this, "settlementDate", SwaptionSecurity.class, ZonedDateTime.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
@@ -428,7 +564,10 @@ public class SwaptionSecurity extends FinancialSecurity {
         "longShort",
         "expiry",
         "cashSettled",
-        "currency");
+        "currency",
+        "notional",
+        "exerciseType",
+        "settlementDate");
 
     /**
      * Restricted constructor.
@@ -451,6 +590,12 @@ public class SwaptionSecurity extends FinancialSecurity {
           return _cashSettled;
         case 575402001:  // currency
           return _currency;
+        case 1585636160:  // notional
+          return _notional;
+        case -466331342:  // exerciseType
+          return _exerciseType;
+        case -295948169:  // settlementDate
+          return _settlementDate;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -517,6 +662,30 @@ public class SwaptionSecurity extends FinancialSecurity {
      */
     public final MetaProperty<Currency> currency() {
       return _currency;
+    }
+
+    /**
+     * The meta-property for the {@code notional} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> notional() {
+      return _notional;
+    }
+
+    /**
+     * The meta-property for the {@code exerciseType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExerciseType> exerciseType() {
+      return _exerciseType;
+    }
+
+    /**
+     * The meta-property for the {@code settlementDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> settlementDate() {
+      return _settlementDate;
     }
 
   }

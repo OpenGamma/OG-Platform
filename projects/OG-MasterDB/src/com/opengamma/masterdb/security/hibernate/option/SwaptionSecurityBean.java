@@ -15,6 +15,8 @@ import com.opengamma.masterdb.security.hibernate.CurrencyBean;
 import com.opengamma.masterdb.security.hibernate.ExpiryBean;
 import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
+import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
+
 import java.util.Map;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
@@ -31,16 +33,30 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 public class SwaptionSecurityBean extends SecurityBean {
   @PropertyDefinition
   private ExpiryBean _expiry;
+  
   @PropertyDefinition
   private ExternalIdBean _underlying;
+  
   @PropertyDefinition
   private Boolean _cashSettled;
+  
   @PropertyDefinition
   private Boolean _longShort;
+  
   @PropertyDefinition
   private Boolean _payer;
+  
   @PropertyDefinition
   private CurrencyBean _currency;
+  
+  @PropertyDefinition
+  private Double _notional;
+  
+  @PropertyDefinition
+  private OptionExerciseType _optionExerciseType;
+  
+  @PropertyDefinition
+  private ZonedDateTimeBean _settlementDate;
   
   public SwaptionSecurityBean() {
     super();
@@ -116,6 +132,12 @@ public class SwaptionSecurityBean extends SecurityBean {
         return getPayer();
       case 575402001:  // currency
         return getCurrency();
+      case 1585636160:  // notional
+        return getNotional();
+      case -266326457:  // optionExerciseType
+        return getOptionExerciseType();
+      case -295948169:  // settlementDate
+        return getSettlementDate();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -140,6 +162,15 @@ public class SwaptionSecurityBean extends SecurityBean {
         return;
       case 575402001:  // currency
         setCurrency((CurrencyBean) newValue);
+        return;
+      case 1585636160:  // notional
+        setNotional((Double) newValue);
+        return;
+      case -266326457:  // optionExerciseType
+        setOptionExerciseType((OptionExerciseType) newValue);
+        return;
+      case -295948169:  // settlementDate
+        setSettlementDate((ZonedDateTimeBean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -297,6 +328,81 @@ public class SwaptionSecurityBean extends SecurityBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the notional.
+   * @return the value of the property
+   */
+  public Double getNotional() {
+    return _notional;
+  }
+
+  /**
+   * Sets the notional.
+   * @param notional  the new value of the property
+   */
+  public void setNotional(Double notional) {
+    this._notional = notional;
+  }
+
+  /**
+   * Gets the the {@code notional} property.
+   * @return the property, not null
+   */
+  public final Property<Double> notional() {
+    return metaBean().notional().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the optionExerciseType.
+   * @return the value of the property
+   */
+  public OptionExerciseType getOptionExerciseType() {
+    return _optionExerciseType;
+  }
+
+  /**
+   * Sets the optionExerciseType.
+   * @param optionExerciseType  the new value of the property
+   */
+  public void setOptionExerciseType(OptionExerciseType optionExerciseType) {
+    this._optionExerciseType = optionExerciseType;
+  }
+
+  /**
+   * Gets the the {@code optionExerciseType} property.
+   * @return the property, not null
+   */
+  public final Property<OptionExerciseType> optionExerciseType() {
+    return metaBean().optionExerciseType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the settlementDate.
+   * @return the value of the property
+   */
+  public ZonedDateTimeBean getSettlementDate() {
+    return _settlementDate;
+  }
+
+  /**
+   * Sets the settlementDate.
+   * @param settlementDate  the new value of the property
+   */
+  public void setSettlementDate(ZonedDateTimeBean settlementDate) {
+    this._settlementDate = settlementDate;
+  }
+
+  /**
+   * Gets the the {@code settlementDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTimeBean> settlementDate() {
+    return metaBean().settlementDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code SwaptionSecurityBean}.
    */
   public static class Meta extends SecurityBean.Meta {
@@ -336,6 +442,21 @@ public class SwaptionSecurityBean extends SecurityBean {
     private final MetaProperty<CurrencyBean> _currency = DirectMetaProperty.ofReadWrite(
         this, "currency", SwaptionSecurityBean.class, CurrencyBean.class);
     /**
+     * The meta-property for the {@code notional} property.
+     */
+    private final MetaProperty<Double> _notional = DirectMetaProperty.ofReadWrite(
+        this, "notional", SwaptionSecurityBean.class, Double.class);
+    /**
+     * The meta-property for the {@code optionExerciseType} property.
+     */
+    private final MetaProperty<OptionExerciseType> _optionExerciseType = DirectMetaProperty.ofReadWrite(
+        this, "optionExerciseType", SwaptionSecurityBean.class, OptionExerciseType.class);
+    /**
+     * The meta-property for the {@code settlementDate} property.
+     */
+    private final MetaProperty<ZonedDateTimeBean> _settlementDate = DirectMetaProperty.ofReadWrite(
+        this, "settlementDate", SwaptionSecurityBean.class, ZonedDateTimeBean.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
@@ -345,7 +466,10 @@ public class SwaptionSecurityBean extends SecurityBean {
         "cashSettled",
         "longShort",
         "payer",
-        "currency");
+        "currency",
+        "notional",
+        "optionExerciseType",
+        "settlementDate");
 
     /**
      * Restricted constructor.
@@ -368,6 +492,12 @@ public class SwaptionSecurityBean extends SecurityBean {
           return _payer;
         case 575402001:  // currency
           return _currency;
+        case 1585636160:  // notional
+          return _notional;
+        case -266326457:  // optionExerciseType
+          return _optionExerciseType;
+        case -295948169:  // settlementDate
+          return _settlementDate;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -434,6 +564,30 @@ public class SwaptionSecurityBean extends SecurityBean {
      */
     public final MetaProperty<CurrencyBean> currency() {
       return _currency;
+    }
+
+    /**
+     * The meta-property for the {@code notional} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> notional() {
+      return _notional;
+    }
+
+    /**
+     * The meta-property for the {@code optionExerciseType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<OptionExerciseType> optionExerciseType() {
+      return _optionExerciseType;
+    }
+
+    /**
+     * The meta-property for the {@code settlementDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTimeBean> settlementDate() {
+      return _settlementDate;
     }
 
   }

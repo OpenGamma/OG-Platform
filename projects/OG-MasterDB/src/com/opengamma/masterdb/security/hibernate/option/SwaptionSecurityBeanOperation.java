@@ -11,8 +11,13 @@ import static com.opengamma.masterdb.security.hibernate.Converters.expiryToExpir
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 
+import javax.time.calendar.ZonedDateTime;
+
+import com.opengamma.financial.security.option.ExerciseType;
+import com.opengamma.financial.security.option.ExerciseTypeVisitorImpl;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.Converters;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
 
@@ -39,17 +44,28 @@ public final class SwaptionSecurityBeanOperation extends AbstractSecurityBeanOpe
     bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlyingId()));
     bean.setPayer(security.isPayer());
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
+    bean.setNotional(security.getNotional());
+    bean.setSettlementDate(Converters.dateTimeWithZoneToZonedDateTimeBean(security.getSettlementDate()));
+    bean.setOptionExerciseType(OptionExerciseType.identify(security.getExerciseType()));
     return bean;
   }
 
   @Override
   public SwaptionSecurity createSecurity(OperationContext context, SwaptionSecurityBean bean) {
-    return new SwaptionSecurity(bean.getPayer(), 
+    SwaptionSecurity swaptionSecurity = new SwaptionSecurity(bean.getPayer(), 
         externalIdBeanToExternalId(bean.getUnderlying()), 
         bean.getLongShort(), 
         expiryBeanToExpiry(bean.getExpiry()), 
         bean.getCashSettled(), 
         currencyBeanToCurrency(bean.getCurrency()));
+    if (bean.getOptionExerciseType() != null) {
+      final ExerciseType exerciseType = bean.getOptionExerciseType().accept(new ExerciseTypeVisitorImpl());
+      swaptionSecurity.setExerciseType(exerciseType);
+    }
+    final ZonedDateTime settlementDate = Converters.zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate());
+    swaptionSecurity.setSettlementDate(settlementDate);
+    swaptionSecurity.setNotional(bean.getNotional());
+    return swaptionSecurity;
   }
 
 }
