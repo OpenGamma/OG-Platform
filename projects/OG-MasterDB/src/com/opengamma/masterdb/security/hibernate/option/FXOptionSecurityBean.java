@@ -53,7 +53,7 @@ public class FXOptionSecurityBean extends SecurityBean {
   private Boolean _isLong;
   
   @PropertyDefinition
-  private OptionExerciseType _exerciseType;
+  private OptionExerciseType _optionExerciseType;
 
   public FXOptionSecurityBean() {
     super();
@@ -134,8 +134,8 @@ public class FXOptionSecurityBean extends SecurityBean {
         return getSettlementDate();
       case -1180327226:  // isLong
         return getIsLong();
-      case -466331342:  // exerciseType
-        return getExerciseType();
+      case -266326457:  // optionExerciseType
+        return getOptionExerciseType();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -164,8 +164,8 @@ public class FXOptionSecurityBean extends SecurityBean {
       case -1180327226:  // isLong
         setIsLong((Boolean) newValue);
         return;
-      case -466331342:  // exerciseType
-        setExerciseType((OptionExerciseType) newValue);
+      case -266326457:  // optionExerciseType
+        setOptionExerciseType((OptionExerciseType) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -348,27 +348,27 @@ public class FXOptionSecurityBean extends SecurityBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the exerciseType.
+   * Gets the optionExerciseType.
    * @return the value of the property
    */
-  public OptionExerciseType getExerciseType() {
-    return _exerciseType;
+  public OptionExerciseType getOptionExerciseType() {
+    return _optionExerciseType;
   }
 
   /**
-   * Sets the exerciseType.
-   * @param exerciseType  the new value of the property
+   * Sets the optionExerciseType.
+   * @param optionExerciseType  the new value of the property
    */
-  public void setExerciseType(OptionExerciseType exerciseType) {
-    this._exerciseType = exerciseType;
+  public void setOptionExerciseType(OptionExerciseType optionExerciseType) {
+    this._optionExerciseType = optionExerciseType;
   }
 
   /**
-   * Gets the the {@code exerciseType} property.
+   * Gets the the {@code optionExerciseType} property.
    * @return the property, not null
    */
-  public final Property<OptionExerciseType> exerciseType() {
-    return metaBean().exerciseType().createProperty(this);
+  public final Property<OptionExerciseType> optionExerciseType() {
+    return metaBean().optionExerciseType().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -417,10 +417,10 @@ public class FXOptionSecurityBean extends SecurityBean {
     private final MetaProperty<Boolean> _isLong = DirectMetaProperty.ofReadWrite(
         this, "isLong", FXOptionSecurityBean.class, Boolean.class);
     /**
-     * The meta-property for the {@code exerciseType} property.
+     * The meta-property for the {@code optionExerciseType} property.
      */
-    private final MetaProperty<OptionExerciseType> _exerciseType = DirectMetaProperty.ofReadWrite(
-        this, "exerciseType", FXOptionSecurityBean.class, OptionExerciseType.class);
+    private final MetaProperty<OptionExerciseType> _optionExerciseType = DirectMetaProperty.ofReadWrite(
+        this, "optionExerciseType", FXOptionSecurityBean.class, OptionExerciseType.class);
     /**
      * The meta-properties.
      */
@@ -433,7 +433,7 @@ public class FXOptionSecurityBean extends SecurityBean {
         "callCurrency",
         "settlementDate",
         "isLong",
-        "exerciseType");
+        "optionExerciseType");
 
     /**
      * Restricted constructor.
@@ -458,8 +458,8 @@ public class FXOptionSecurityBean extends SecurityBean {
           return _settlementDate;
         case -1180327226:  // isLong
           return _isLong;
-        case -466331342:  // exerciseType
-          return _exerciseType;
+        case -266326457:  // optionExerciseType
+          return _optionExerciseType;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -537,11 +537,11 @@ public class FXOptionSecurityBean extends SecurityBean {
     }
 
     /**
-     * The meta-property for the {@code exerciseType} property.
+     * The meta-property for the {@code optionExerciseType} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<OptionExerciseType> exerciseType() {
-      return _exerciseType;
+    public final MetaProperty<OptionExerciseType> optionExerciseType() {
+      return _optionExerciseType;
     }
 
   }

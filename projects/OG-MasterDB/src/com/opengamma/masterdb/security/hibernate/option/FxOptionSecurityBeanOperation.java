@@ -45,13 +45,13 @@ public final class FxOptionSecurityBeanOperation extends AbstractSecurityBeanOpe
     bean.setExpiry(expiryToExpiryBean(security.getExpiry()));
     bean.setSettlementDate(Converters.dateTimeWithZoneToZonedDateTimeBean(security.getSettlementDate()));
     bean.setIsLong(security.isLong());
-    bean.setExerciseType(OptionExerciseType.identify(security.getExerciseType()));
+    bean.setOptionExerciseType(OptionExerciseType.identify(security.getExerciseType()));
     return bean;
   }
 
   @Override
   public FXOptionSecurity createSecurity(OperationContext context, FXOptionSecurityBean bean) {
-    final ExerciseType exerciseType = bean.getExerciseType().accept(new ExerciseTypeVisitorImpl());
+    final ExerciseType exerciseType = bean.getOptionExerciseType().accept(new ExerciseTypeVisitorImpl());
     Currency putCurrency = currencyBeanToCurrency(bean.getPutCurrency());
     Currency callCurrency = currencyBeanToCurrency(bean.getCallCurrency());
     Expiry expiry = expiryBeanToExpiry(bean.getExpiry());

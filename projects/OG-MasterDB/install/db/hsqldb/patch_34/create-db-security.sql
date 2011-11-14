@@ -160,7 +160,7 @@ CREATE INDEX ix_sec_equityoption_security_id ON sec_equityoption(security_id);
 CREATE TABLE sec_fxoption (
     id bigint NOT NULL,
     security_id bigint NOT NULL,
-    exercise_type varchar(32) NOT NULL,
+    option_exercise_type varchar(32) NOT NULL,
     put_amount double precision NOT NULL,
     call_amount double precision NOT NULL,
     expiry_date timestamp without time zone NOT NULL,
