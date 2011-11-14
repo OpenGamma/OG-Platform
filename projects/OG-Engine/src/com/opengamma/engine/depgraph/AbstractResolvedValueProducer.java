@@ -261,8 +261,14 @@ import com.opengamma.engine.value.ValueSpecification;
     }
   }
 
+  /**
+   * Returns the current results in the order they were produced. If the producer is not
+   * in a "finished" state, the results are the current intermediate values. The caller
+   * must not modify the content of the array.
+   * 
+   * @return the current results
+   */
   protected synchronized ResolvedValue[] getResults() {
-    assert _finished;
     return _results;
   }
 
