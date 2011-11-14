@@ -22,10 +22,10 @@ public class DefaultVolatilitySurfaceShiftFunction extends DefaultPropertyFuncti
   /**
    * Property to shift all volatility surfaces.
    */
-  protected static final String VOLATILITY_SURFACE_SHIFT = "VOLATILITY_SURFACE" + VolatilitySurfaceShiftFunction.SHIFT;
+  protected static final String VOLATILITY_SURFACE_SHIFT = "VOLATILITY_SURFACE_" + VolatilitySurfaceShiftFunction.SHIFT;
 
   public DefaultVolatilitySurfaceShiftFunction() {
-    super(ComputationTargetType.SECURITY, VOLATILITY_SURFACE_SHIFT, ValueRequirementNames.VOLATILITY_SURFACE);
+    super(ComputationTargetType.SECURITY, VolatilitySurfaceShiftFunction.SHIFT, ValueRequirementNames.VOLATILITY_SURFACE);
   }
 
   @Override

@@ -18,6 +18,9 @@ namespace com.opengamma.financial.security.option {
     required util.time.Expiry expiry;
     required boolean isCashSettled;
     required com.opengamma.util.money.Currency currency;
+    optional double notional;
+    optional ExerciseType exerciseType;
+    optional javax.time.calendar.ZonedDateTime settlementDate;
   }
 
 }

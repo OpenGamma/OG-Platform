@@ -56,7 +56,7 @@ public final class EquitySecurityBeanOperation extends AbstractSecurityBeanOpera
     equity.setExchange(exchange);
     equity.setCompanyName(companyName);
     equity.setCurrency(currency);
-    equity.setGICSCode(gicsCode);
+    equity.setGicsCode(gicsCode);
     return equity;
   }
 
@@ -72,7 +72,7 @@ public final class EquitySecurityBeanOperation extends AbstractSecurityBeanOpera
   public EquitySecurity createSecurity(final OperationContext context, final EquitySecurityBean bean) {
     final EquitySecurity security = new EquitySecurity(bean.getExchange().getDescription(), bean.getExchange().getName(), bean.getCompanyName(), currencyBeanToCurrency(bean.getCurrency()));
     security.setShortName(bean.getShortName());
-    security.setGicsCode(gicsCodeBeanToGICSCode(bean.getGICSCode()));
+    security.setGicsCode(gicsCodeBeanToGICSCode(bean.getGicsCode()));
     return security;
   }
 
