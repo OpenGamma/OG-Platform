@@ -10,7 +10,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.util.tuple.Pair;
 import org.fudgemsg.FudgeContext;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;

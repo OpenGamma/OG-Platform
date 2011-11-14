@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.batch;
 
+import static com.opengamma.util.functional.Functional.merge;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,8 +19,6 @@ import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueSpecification;
 import net.sf.ehcache.CacheManager;
 
 import org.slf4j.Logger;
@@ -34,12 +34,14 @@ import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.marketdata.DefaultLiveMarketDataSourceRegistry;
+import com.opengamma.engine.marketdata.DummyOverrideOperationCompiler;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolver;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
@@ -72,8 +74,6 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.tuple.Pair;
-
-import static com.opengamma.util.functional.Functional.merge;
 
 /**
  * A batch run started from the command line. 
@@ -378,7 +378,8 @@ public class CommandLineBatchJobRun extends BatchJobRun {
         viewProcessorQueryReceiver,
         dependencyGraphExecutorFactory,
         new DiscardingGraphStatisticsGathererProvider(),
-        new PermissiveViewPermissionProvider());
+        new PermissiveViewPermissionProvider(),
+        new DummyOverrideOperationCompiler());
         
     setViewProcessor(viewProcessor);
 

@@ -246,7 +246,7 @@ public class BatchJobTest {
     cfgDocument.setUniqueId(UniqueId.of("BatchJobTest", "1"));
     cfgDocument.setName("MyView");
     
-    ViewDefinition viewDefinition = new ViewDefinition("mock_view", ObjectId.of("Port", "Test"), "ViewTestUser");
+    ViewDefinition viewDefinition = new ViewDefinition("mock_view", UniqueId.of("Port", "Test"), "ViewTestUser");
     cfgDocument.setValue(viewDefinition);
     MockConfigSource cfgSource = new MockConfigSource();
     cfgSource.add(cfgDocument);

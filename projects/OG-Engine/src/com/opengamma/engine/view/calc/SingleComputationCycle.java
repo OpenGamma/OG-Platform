@@ -5,10 +5,12 @@
  */
 package com.opengamma.engine.view.calc;
 
+import static com.opengamma.util.functional.Functional.flatMap;
+import static com.opengamma.util.functional.Functional.submapByKeySet;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.AbstractQueue;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,48 +30,41 @@ import java.util.concurrent.TimeoutException;
 import javax.time.Duration;
 import javax.time.Instant;
 
-import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
-import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
-import com.opengamma.engine.view.listener.ComputationCycleResultListener;
-import com.opengamma.util.TerminatableJob;
-import com.opengamma.util.functional.Function1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFilter;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.OverrideOperation;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
+import com.opengamma.engine.view.calcnode.CalculationJobResult;
+import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.listener.ComputationCycleResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.TerminatableJob;
+import com.opengamma.util.functional.Function1;
 import com.opengamma.util.tuple.Pair;
-
-import static com.opengamma.util.functional.Functional.flatMap;
-import static com.opengamma.util.functional.Functional.map;
-import static com.opengamma.util.functional.Functional.submapByKeySet;
 
 /**
  * Holds all data and actions for a single computation pass. The view cycle may be executed at most once.
@@ -86,6 +81,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private final ViewProcessContext _viewProcessContext;
   private final CompiledViewDefinitionWithGraphsImpl _compiledViewDefinition;
   private final ViewCycleExecutionOptions _executionOptions;
+  private final VersionCorrection _versionCorrection;
   
   private final ComputationCycleResultListener _computationCycleResultListener;
   private final DependencyGraphExecutor<?> _dependencyGraphExecutor;
@@ -104,7 +100,6 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private final InMemoryViewComputationResultModel _resultModel;
 
   public SingleComputationCycle(UniqueId cycleId, UniqueId viewProcessId, ComputationCycleResultListener computationCycleResultListener,
-
       ViewProcessContext viewProcessContext, CompiledViewDefinitionWithGraphsImpl compiledViewDefinition,
       ViewCycleExecutionOptions executionOptions, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(cycleId, "cycleId");
@@ -123,24 +118,30 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     _computationCycleResultListener = computationCycleResultListener;
 
     _executionOptions = executionOptions;
+    _versionCorrection = versionCorrection;
 
-    _resultModel = new InMemoryViewComputationResultModel();
-    _resultModel.setCalculationConfigurationNames(getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurationNames());
-    if (getCompiledViewDefinition().getPortfolio() != null) {
-      _resultModel.setPortfolio(getCompiledViewDefinition().getPortfolio());
-    }
-    _resultModel.setViewCycleId(cycleId);
-    _resultModel.setViewProcessId(getViewProcessId());
-    _resultModel.setValuationTime(executionOptions.getValuationTime());
-    _resultModel.setVersionCorrection(versionCorrection);
+    _resultModel = constructTemplateResultModel();
 
     _dependencyGraphExecutor = getViewProcessContext().getDependencyGraphExecutorFactory().createExecutor(this);
     _statisticsGatherer = getViewProcessContext().getGraphExecutorStatisticsGathererProvider().getStatisticsGatherer(getViewProcessId());
   }
 
+  private InMemoryViewComputationResultModel constructTemplateResultModel() {
+    InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
+    result.setCalculationConfigurationNames(getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurationNames());
+    if (getCompiledViewDefinition().getPortfolio() != null) {
+      result.setPortfolio(getCompiledViewDefinition().getPortfolio());
+    }
+    result.setViewCycleId(getCycleId());
+    result.setViewProcessId(getViewProcessId());
+    result.setValuationTime(getExecutionOptions().getValuationTime());
+    result.setVersionCorrection(getVersionCorrection());
+    return result;
+  }
+
   //-------------------------------------------------------------------------
   public Instant getValuationTime() {
-    return _executionOptions.getValuationTime();
+    return getExecutionOptions().getValuationTime();
   }
 
   public long getFunctionInitId() {
@@ -190,6 +191,19 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   public Set<String> getAllCalculationConfigurationNames() {
     return new HashSet<String>(getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurationNames());
+  }
+  
+  //-------------------------------------------------------------------------
+  private UniqueId getCycleId() {
+    return _cycleId;
+  }
+  
+  private VersionCorrection getVersionCorrection() {
+    return _versionCorrection;
+  }
+  
+  private ViewCycleExecutionOptions getExecutionOptions() {
+    return _executionOptions;
   }
 
   //-------------------------------------------------------------------------
@@ -277,17 +291,14 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     // the job results are streamed to the ViewProcesor without waitout waiting for the current cycle to complete
     final BlockingQueue<CalculationJobResult> calcJobResultQueue = new LinkedBlockingQueue<CalculationJobResult>();
     class StreamCalculationJobResultConsumer extends TerminatableJob {
-      boolean completeAndExit = false;
+      private volatile boolean _completeAndExit;
       @Override
       protected void runOneCycle() {
         try {
-          if(completeAndExit){
-
-          }
           CalculationJobResult jobResult = calcJobResultQueue.poll(50, TimeUnit.MILLISECONDS);
-          if(jobResult != null){
+          if (jobResult != null) {
             _computationCycleResultListener.jobResultReceived(populateResultModel(jobResult));
-          }else if(completeAndExit){
+          } else if (_completeAndExit) {
             this.terminate();
           }
         } catch (InterruptedException e) {
@@ -295,8 +306,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         }
       }
 
-      public void completeAndExit(){
-        completeAndExit = true;
+      public void completeAndExit() {
+        _completeAndExit = true;
       }
     }
     StreamCalculationJobResultConsumer streamCalculationJobResultConsumer =  new StreamCalculationJobResultConsumer();
@@ -349,27 +360,33 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     _state = ViewCycleState.EXECUTED;
   }
 
-  // 2011-08-15 Andrew -- temporary hack to allow calc configurations to shift market data
-  // Map contains computation cache and NULL for no shift or the number to multiple the raw amount by
-  private Map<ViewComputationCache, Double> getCacheMarketDataInfo() {
-    final Map<ViewComputationCache, Double> shifts = new HashMap<ViewComputationCache, Double>();
+  /**
+   * Creates a map containing the "shift" operations to apply to market data or each
+   * calculation configuration. If there is no operation to apply, the map contains
+   * null for that configuration.
+   * 
+   * @return the map of computation cache to shift operations 
+   */
+  private Map<ViewComputationCache, OverrideOperation> getCacheMarketDataOperation() {
+    final Map<ViewComputationCache, OverrideOperation> shifts = new HashMap<ViewComputationCache, OverrideOperation>();
     for (ViewCalculationConfiguration calcConfig : getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurations()) {
-      Double shift = null;
       final Set<String> marketDataShift = calcConfig.getDefaultProperties().getValues("MARKET_DATA_SHIFT");
+      OverrideOperation operation = null;
       if (marketDataShift != null) {
         if (marketDataShift.size() != 1) {
           // This doesn't really mean much
           s_logger.error("Market data shift for {} not valid - {}", calcConfig.getName(), marketDataShift);
         } else {
-          final String shiftString = marketDataShift.iterator().next();
+          final String shiftExpr = marketDataShift.iterator().next();
           try {
-            shift = Double.parseDouble(shiftString);
-          } catch (NumberFormatException e) {
-            s_logger.error("Market data shift for {} not valid - {}", calcConfig.getName(), shiftString);
+            operation = getViewProcessContext().getOverrideOperationCompiler().compile(shiftExpr);
+          } catch (IllegalArgumentException e) {
+            s_logger.error("Market data shift for  {} not valid - {}", calcConfig.getName(), shiftExpr);
+            s_logger.info("Invalid market data shift", e);
           }
         }
       }
-      shifts.put(getComputationCache(calcConfig.getName()), shift);
+      shifts.put(getComputationCache(calcConfig.getName()), operation);
     }
     return shifts;
   }
@@ -378,17 +395,15 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     Set<ValueSpecification> missingMarketData = new HashSet<ValueSpecification>();
     Map<ValueRequirement, ValueSpecification> marketDataRequirements = getCompiledViewDefinition().getMarketDataRequirements();
     s_logger.debug("Populating {} market data items using snapshot {}", marketDataRequirements.size(), snapshot);
-    // 2011-08-15 Andrew -- temporary hack to allow calc configurations to shift market data
-    Map<ViewComputationCache, Double> cacheMarketDataInfo = getCacheMarketDataInfo();
+    Map<ViewComputationCache, OverrideOperation> cacheMarketDataOperation = getCacheMarketDataOperation();
     for (Map.Entry<ValueRequirement, ValueSpecification> marketDataRequirement : marketDataRequirements.entrySet()) {
       // REVIEW 2010-10-22 Andrew
       // If we're asking the snapshot for a "requirement" then it should give back a more detailed "specification" with the data (i.e. a
       // ComputedValue instance where the specification satisfies the requirement). Functions should then declare their requirements and
       // not the exact specification they want for market data. Alternatively, if the snapshot will give us the exact value we ask for then
       // we should be querying with a "specification" and not a requirement.
-      Object data = snapshot.query(marketDataRequirement.getKey());
-      ComputedValue dataAsValue;
-
+      final Object data = snapshot.query(marketDataRequirement.getKey());
+      final ComputedValue dataAsValue;
       if (data == null) {
         s_logger.debug("Unable to load market data value for {} from snapshot {}", marketDataRequirement, getValuationTime());
         missingMarketData.add(marketDataRequirement.getValue());
@@ -397,7 +412,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         dataAsValue = new ComputedValue(marketDataRequirement.getValue(), data);
         getResultModel().addMarketData(dataAsValue);
       }
-      addToAllCaches(dataAsValue, cacheMarketDataInfo);
+      addToAllCaches(marketDataRequirement.getKey(), dataAsValue, cacheMarketDataOperation);
     }
     if (!missingMarketData.isEmpty()) {
       s_logger.warn("Missing {} market data elements: {}", missingMarketData.size(), formatMissingLiveData(missingMarketData));
@@ -428,47 +443,22 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
   }
 
-  /**
-   * @param dataAsValue
-   */
-  private void addToAllCaches(final ComputedValue dataAsValue, final Map<ViewComputationCache, Double> cacheMarketDataInfo) {
-    for (Map.Entry<ViewComputationCache, Double> cacheMarketData : cacheMarketDataInfo.entrySet()) {
+  private void addToAllCaches(final ValueRequirement valueRequirement, final ComputedValue dataAsValue, final Map<ViewComputationCache, OverrideOperation> cacheMarketDataInfo) {
+    for (Map.Entry<ViewComputationCache, OverrideOperation> cacheMarketData : cacheMarketDataInfo.entrySet()) {
       final ViewComputationCache cache = cacheMarketData.getKey();
       final ComputedValue cacheValue;
       if (cacheMarketData.getValue() == null) {
         cacheValue = dataAsValue;
       } else {
-        if (shouldShiftData(dataAsValue.getSpecification())) {
-          if (dataAsValue.getValue() instanceof Double) {
-            final Double value = (Double) dataAsValue.getValue();
-            cacheValue = new ComputedValue(dataAsValue.getSpecification(), value * cacheMarketData.getValue());
-          } else {
-            s_logger.warn("Can't shift market data {} - not a double", dataAsValue);
-            cacheValue = dataAsValue;
-          }
+        final Object newValue = cacheMarketData.getValue().apply(valueRequirement, dataAsValue.getValue());
+        if (newValue != dataAsValue.getValue()) {
+          cacheValue = new ComputedValue(dataAsValue.getSpecification(), newValue);
         } else {
           cacheValue = dataAsValue;
         }
       }
       cache.putSharedValue(cacheValue);
     }
-  }
-
-  private boolean shouldShiftData(final ValueSpecification valueSpec) {
-    final ComputationTargetSpecification targetSpec = valueSpec.getTargetSpecification();
-    if ((targetSpec.getType() == ComputationTargetType.SECURITY) && MarketDataRequirementNames.MARKET_VALUE.equals(valueSpec.getValueName())) {
-      final Security security;
-      try {
-        security = getViewProcessContext().getSecuritySource().getSecurity(targetSpec.getUniqueId());
-      } catch (DataNotFoundException ex) {
-        return false;
-      }
-      // Hack to only shift equities
-      if (security.getExternalIdBundle().getValue(SecurityUtils.BLOOMBERG_TICKER).contains("Equity")) {
-        return true;
-      }
-    }
-    return false;
   }
 
   private ViewComputationCache getComputationCache(String calcConfigName) {
@@ -557,21 +547,22 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   }
   
   private ViewComputationResultModel populateResultModel(CalculationJobResult calculationJobResult) {
-    InMemoryViewComputationResultModel resultModel = new InMemoryViewComputationResultModel();
+    InMemoryViewComputationResultModel resultModel = constructTemplateResultModel();
     String calcConfigurationName = calculationJobResult.getSpecification().getCalcConfigName();
     DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
 
     ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
 
     //extracts set of ValueSpecification out of calculation job result items.
-    Set<ValueSpecification> specifications = flatMap(new HashSet<ValueSpecification>(), calculationJobResult.getResultItems(), new Function1<CalculationJobResultItem, Collection<ValueSpecification>>() {
-      @Override
-      public Set<ValueSpecification> execute(CalculationJobResultItem calculationJobResultItem) {
-        calculationJobResultItem.getItem().getDesiredValues();
-        calculationJobResultItem.getItem().getDesiredValues();
-        return calculationJobResultItem.getOutputs();
-      }
-    });
+    Set<ValueSpecification> specifications = flatMap(new HashSet<ValueSpecification>(),
+        calculationJobResult.getResultItems(), new Function1<CalculationJobResultItem, Collection<ValueSpecification>>() {
+          @Override
+          public Set<ValueSpecification> execute(CalculationJobResultItem calculationJobResultItem) {
+            calculationJobResultItem.getItem().getDesiredValues();
+            calculationJobResultItem.getItem().getDesiredValues();
+            return calculationJobResultItem.getOutputs();
+          }
+        });
     
     for (Pair<ValueSpecification, Object> value : computationCache.getValues(specifications, CacheSelectHint.allShared())) {
       if (value.getValue() == null) {
@@ -605,7 +596,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   /**
    * @param calcConfName  calculation configuration name
-   * @return a dependency graph with any nodes which have already been satisfied filtered out, not {@code null}
+   * @return a dependency graph with any nodes which have already been satisfied filtered out, not null
    * See {@link #computeDelta} and how it calls {@link #markExecuted}.
    */
   protected DependencyGraph getExecutableDependencyGraph(String calcConfName) {

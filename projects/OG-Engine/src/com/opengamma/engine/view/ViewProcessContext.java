@@ -12,6 +12,7 @@ import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataInjector;
+import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolverWithOverride;
@@ -43,6 +44,7 @@ public class ViewProcessContext {
   private final GraphExecutorStatisticsGathererProvider _graphExecutorStatisticsGathererProvider;
   private final MarketDataInjector _liveDataOverrideInjector;
   private final MarketDataProviderResolver _marketDataProviderResolver;
+  private final OverrideOperationCompiler _overrideOperationCompiler;
 
   public ViewProcessContext(
       ViewDefinitionRepository viewDefinitionRepository,
@@ -57,7 +59,8 @@ public class ViewProcessContext {
       JobDispatcher computationJobDispatcher,
       ViewProcessorQueryReceiver viewProcessorQueryReceiver,
       DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory,
-      GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider) {
+      GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider,
+      OverrideOperationCompiler overrideOperationCompiler) {
     ArgumentChecker.notNull(viewDefinitionRepository, "viewDefinitionRepository");
     ArgumentChecker.notNull(viewPermissionProvider, "viewPermissionProvider");
     ArgumentChecker.notNull(marketDataProviderResolver, "marketDataSnapshotProviderResolver");
@@ -70,6 +73,7 @@ public class ViewProcessContext {
     ArgumentChecker.notNull(viewProcessorQueryReceiver, "viewProcessorQueryReceiver");
     ArgumentChecker.notNull(dependencyGraphExecutorFactory, "dependencyGraphExecutorFactory");
     ArgumentChecker.notNull(graphExecutorStatisticsProvider, "graphExecutorStatisticsProvider");
+    ArgumentChecker.notNull(overrideOperationCompiler, "overrideOperationCompiler");
 
     _viewDefinitionRepository = viewDefinitionRepository;
     _viewPermissionProvider = viewPermissionProvider;
@@ -88,13 +92,14 @@ public class ViewProcessContext {
     _viewProcessorQueryReceiver = viewProcessorQueryReceiver;
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
     _graphExecutorStatisticsGathererProvider = graphExecutorStatisticsProvider;
+    _overrideOperationCompiler = overrideOperationCompiler;
   }
 
   // -------------------------------------------------------------------------
   /**
    * Gets the view definition repository
    * 
-   * @return the view definition repository, not {@code null}
+   * @return the view definition repository, not null
    */
   public ViewDefinitionRepository getViewDefinitionRepository() {
     return _viewDefinitionRepository;
@@ -112,7 +117,7 @@ public class ViewProcessContext {
   /**
    * Gets the market data provider resolver.
    * 
-   * @return the market data provider resolver, not {@code null}
+   * @return the market data provider resolver, not null
    */
   public MarketDataProviderResolver getMarketDataProviderResolver() {
     return _marketDataProviderResolver;
@@ -121,7 +126,7 @@ public class ViewProcessContext {
   /**
    * Gets the live data override injector.
    * 
-   * @return the live data override injector, not {@code null}
+   * @return the live data override injector, not null
    */
   public MarketDataInjector getLiveDataOverrideInjector() {
     return _liveDataOverrideInjector;
@@ -208,12 +213,16 @@ public class ViewProcessContext {
     return _graphExecutorStatisticsGathererProvider;
   }
 
+  public OverrideOperationCompiler getOverrideOperationCompiler() {
+    return _overrideOperationCompiler;
+  }
+
   // -------------------------------------------------------------------------
   /**
    * Uses this context to form a {@code ViewCompliationServices} instance.
    * 
-   * @param marketDataAvailabilityProvider  the availability provider corresponding to the desired source of market data, not {@code null}
-   * @return the services, not {@code null}
+   * @param marketDataAvailabilityProvider  the availability provider corresponding to the desired source of market data, not null
+   * @return the services, not null
    */
   public ViewCompilationServices asCompilationServices(MarketDataAvailabilityProvider marketDataAvailabilityProvider) {
     return new ViewCompilationServices(marketDataAvailabilityProvider, getFunctionResolver(), getFunctionCompilationService().getFunctionCompilationContext(), getComputationTargetResolver(),

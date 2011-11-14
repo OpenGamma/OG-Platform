@@ -66,7 +66,7 @@ public class TotallingGraphStatisticsGathererProvider extends PerViewStatisticsG
       final Iterator<Map.Entry<String, GraphExecutionStatistics>> iterator = _statistics.entrySet().iterator();
       while (iterator.hasNext()) {
         final Map.Entry<String, GraphExecutionStatistics> entry = iterator.next();
-        if (entry.getValue().getLastProcessedTime().isBefore(dropBefore)) {
+        if (entry.getValue().getLastProcessedTime() != null && entry.getValue().getLastProcessedTime().isBefore(dropBefore)) {
           iterator.remove();
         }
       }

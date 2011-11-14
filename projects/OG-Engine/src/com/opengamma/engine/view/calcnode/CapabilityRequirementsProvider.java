@@ -20,7 +20,7 @@ public interface CapabilityRequirementsProvider {
    * jobs.
    * 
    * @param jobs job details
-   * @return the requirements, not {@code null}.
+   * @return the requirements, not null.
    */
   CapabilityRequirements getCapabilityRequirements(Collection<CalculationJob> jobs);
 
