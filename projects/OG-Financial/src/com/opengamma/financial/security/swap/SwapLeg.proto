@@ -15,6 +15,7 @@ namespace com.opengamma.financial.security.swap {
     required readonly id.ExternalId regionIdentifier;
     required readonly com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention;
     required readonly Notional notional;
+    required readonly boolean isEOM;
   }
 
   /**
@@ -23,7 +24,7 @@ namespace com.opengamma.financial.security.swap {
   abstract message InterestRateLeg extends SwapLeg {
   }
 
-  /**
+  /**FloatingInterestRateLeg.java
    * A fixed interest rate leg of a swap.
    */
   message FixedInterestRateLeg extends InterestRateLeg {
@@ -37,7 +38,7 @@ namespace com.opengamma.financial.security.swap {
     required readonly id.ExternalId floatingReferenceRateIdentifier;
     optional readonly double initialFloatingRate;
     required readonly double spread;
-    required readonly boolean isIBOR;
+    required readonly FloatingRateType floatingRateType;
   }
 
 }

@@ -92,8 +92,10 @@ $.register_module({
                     type_map: type_map,
                     selector: selector,
                     extras: {name: master.name},
-                    processor: function (data) { // remove undefineds that we added
+                    processor: function (data) {
+                        if (!data.identifier) delete data.identifier; // remove identifier if a portfolio is not picked
                         if (!data[SETS]) return;
+                        // remove undefineds that we added
                         data[SETS] = data[SETS].filter(function (set) {return set !== undefined;});
                         data[SETS].forEach(function (set, set_idx) {
                             if (set[COLS]) {
@@ -387,7 +389,7 @@ $.register_module({
                                         children: [
                                             new forms.Dropdown({
                                                 form: form, resource: 'valuerequirementnames', index: sel_name,
-                                                value: req[REQO], rest_options: {meta: true},
+                                                value: req[REQO], rest_options: {meta: true, page: 'all'},
                                                 classes: 'og-js-collapse-element',
                                                 placeholder: 'Please select...'
                                             }),

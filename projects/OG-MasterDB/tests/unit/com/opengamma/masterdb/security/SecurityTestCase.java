@@ -90,7 +90,9 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.option.VanillaPayoffStyle;
 import com.opengamma.financial.security.swap.CommodityNotional;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.Notional;
@@ -425,6 +427,8 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
     s_dataProviders.put(SwapLeg.class, new TestDataProvider<SwapLeg>() {
       @Override
       public void getValues(final Collection<SwapLeg> values) {
+        values.addAll(permuteTestObjects(FloatingSpreadIRLeg.class));
+        values.addAll(permuteTestObjects(FloatingGearingIRLeg.class));
         values.addAll(permuteTestObjects(FixedInterestRateLeg.class));
         values.addAll(permuteTestObjects(FloatingInterestRateLeg.class));
       }

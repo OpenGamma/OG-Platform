@@ -38,6 +38,7 @@ import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -177,9 +178,6 @@ public class DemoMultiCurrencySwapPortfolioLoader {
     if (liborIdentifier == null) {
       throw new OpenGammaRuntimeException("No synthetic ticker set up for " + swapConvention.getName());
     }
-    
-    // look up the value on our chosen trade date
-    Double initialRate = getInitialRate(tradeDate, liborIdentifier);
       
     Tenor maturity = s_tenors[random.nextInt(s_tenors.length)];
     // get the identifier for the swap rate for the maturity we're interested in (assuming the fixed rate will be =~ swap rate)
@@ -195,16 +193,18 @@ public class DemoMultiCurrencySwapPortfolioLoader {
         swapConvention.getSwapFixedLegRegion(), 
         swapConvention.getSwapFixedLegBusinessDayConvention(), 
         new InterestRateNotional(ccy, notional), 
-        fixedRate);
+        false, fixedRate);
     
-    SwapLeg floatingLeg = new FloatingInterestRateLeg(swapConvention.getSwapFloatingLegDayCount(), 
+    FloatingInterestRateLeg floatingLeg = new FloatingInterestRateLeg(swapConvention.getSwapFloatingLegDayCount(), 
         swapConvention.getSwapFloatingLegFrequency(), 
         swapConvention.getSwapFloatingLegRegion(), 
         swapConvention.getSwapFloatingLegBusinessDayConvention(), 
         new InterestRateNotional(ccy, notional), 
-        ExternalId.of(liborIdentifier.getScheme().toString(), liborIdentifier.getValue()), 
-        initialRate, 
-        0.0, true);
+        false, ExternalId.of(liborIdentifier.getScheme().toString(), liborIdentifier.getValue()), 
+        FloatingRateType.IBOR);
+    // look up the value on our chosen trade date
+    Double initialRate = getInitialRate(tradeDate, liborIdentifier);
+    floatingLeg.setInitialFloatingRate(initialRate);
     
     String fixedLegDescription = PortfolioLoaderHelper.RATE_FORMATTER.format(fixedRate);
     String floatingLegDescription = swapConvention.getSwapFloatingLegInitialRate().getValue();
