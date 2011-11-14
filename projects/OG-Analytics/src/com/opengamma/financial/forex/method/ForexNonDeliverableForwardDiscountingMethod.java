@@ -55,7 +55,7 @@ public final class ForexNonDeliverableForwardDiscountingMethod implements ForexP
   public MultipleCurrencyAmount presentValue(final ForexNonDeliverableForward ndf, final YieldCurveWithFXBundle curves) {
     double df2 = curves.getCurve(ndf.getDiscountingCurve2Name()).getDiscountFactor(ndf.getPaymentTime());
     double df1 = curves.getCurve(ndf.getDiscountingCurve1Name()).getDiscountFactor(ndf.getPaymentTime());
-    double spot = curves.getSpot();
+    double spot = curves.getFxRate(ndf.getCurrency2(), ndf.getCurrency1());
     double pv2 = ndf.getNotional() * (df2 - ndf.getExchangeRate() / spot * df1);
     return MultipleCurrencyAmount.of(ndf.getCurrency2(), pv2);
   }
@@ -99,7 +99,7 @@ public final class ForexNonDeliverableForwardDiscountingMethod implements ForexP
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final ForexNonDeliverableForward ndf, final YieldCurveWithFXBundle curves) {
     double df2 = curves.getCurve(ndf.getDiscountingCurve2Name()).getDiscountFactor(ndf.getPaymentTime());
     double df1 = curves.getCurve(ndf.getDiscountingCurve1Name()).getDiscountFactor(ndf.getPaymentTime());
-    double spot = curves.getSpot();
+    double spot = curves.getFxRate(ndf.getCurrency2(), ndf.getCurrency1());
     //    double pv2 = ndf.getNotional() * (df2 - ndf.getExchangeRate() / spot * df1);
     // Backward sweep
     double pvBar = 1.0;
