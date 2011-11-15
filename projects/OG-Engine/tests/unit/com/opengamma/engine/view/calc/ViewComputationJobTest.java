@@ -96,7 +96,6 @@ public class ViewComputationJobTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.setJobResultMode(ViewResultMode.FULL_ONLY);
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
@@ -131,7 +130,6 @@ public class ViewComputationJobTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.setJobResultMode(ViewResultMode.FULL_ONLY);
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
     ViewCycleExecutionOptions cycleExecutionOptions = new ViewCycleExecutionOptions(Instant.now(), MarketData.live());
@@ -177,7 +175,6 @@ public class ViewComputationJobTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.setJobResultMode(ViewResultMode.FULL_ONLY);
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
     ViewCycleExecutionOptions cycleExecutionOptions = new ViewCycleExecutionOptions(Instant.now(), MarketData.live());
@@ -208,7 +205,6 @@ public class ViewComputationJobTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.setJobResultMode(ViewResultMode.FULL_ONLY);
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
     Instant valuationTime = Instant.now();
@@ -241,7 +237,6 @@ public class ViewComputationJobTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.setJobResultMode(ViewResultMode.FULL_ONLY);
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
     Instant valuationTime = Instant.now();
@@ -268,7 +263,6 @@ public class ViewComputationJobTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.setJobResultMode(ViewResultMode.FULL_ONLY);
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
     EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().get();
@@ -295,7 +289,6 @@ public class ViewComputationJobTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.setJobResultMode(ViewResultMode.FULL_ONLY);
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
     EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().get();
