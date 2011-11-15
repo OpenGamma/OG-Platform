@@ -27,7 +27,7 @@ import com.opengamma.math.minimization.DoubleRangeLimitTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.math.minimization.SingleRangeLimitTransform;
-import com.opengamma.math.minimization.TransformParameters;
+import com.opengamma.math.minimization.UncoupledParameterTransforms;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 
@@ -102,7 +102,7 @@ public class HestonFFTSmileFitter extends LeastSquareSmileFitter {
     final double limitSigma = (blackVols[0] + blackVols[n - 1]) / 2.0;
     final double lowestStrike = strikes[0];
     final double highestStrike = strikes[n - 1];
-    final TransformParameters transforms = new TransformParameters(new DoubleMatrix1D(initialFitParameters), _transforms, fixed);
+    final UncoupledParameterTransforms transforms = new UncoupledParameterTransforms(new DoubleMatrix1D(initialFitParameters), _transforms, fixed);
 
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> hestonVols = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
@@ -182,7 +182,7 @@ public class HestonFFTSmileFitter extends LeastSquareSmileFitter {
    * @param fp
    * @return
    */
-  MartingaleCharacteristicExponent getCharacteristicExponent(final TransformParameters transforms, final DoubleMatrix1D fp) {
+  MartingaleCharacteristicExponent getCharacteristicExponent(final UncoupledParameterTransforms transforms, final DoubleMatrix1D fp) {
     final DoubleMatrix1D mp = transforms.inverseTransform(fp);
     final double kappa = mp.getEntry(0);
     final double theta = mp.getEntry(1);

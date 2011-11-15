@@ -398,7 +398,8 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
       final Function1D<SABRFormulaData, Double> funcSabr = _sabrFunction.getVolatilityFunction(option, _forward);
       final double volatility = funcSabr.evaluate(_sabrData);
       final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility);
-      final Function1D<BlackFunctionData, Double> func = _blackFunction.getPriceFunction(option);
+      Function1D<BlackFunctionData, Double> func = null;
+      func = _blackFunction.getPriceFunction(option);
       return func.evaluate(dataBlack);
     }
 

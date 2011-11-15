@@ -131,9 +131,18 @@
 	        <#break>
 	        <#case "FloatingInterestRateLeg">
               "floatingReferenceRateId":"${security.payLeg.floatingReferenceRateId}",
+              "initialFloatingRate":"${security.payLeg.initialFloatingRate}"
+	        <#break>
+	        <#case "FloatingSpreadInterestRateLeg">
+              "floatingReferenceRateId":"${security.payLeg.floatingReferenceRateId}",
               "initialFloatingRate":"${security.payLeg.initialFloatingRate}",
               "spread":"${security.payLeg.spread}"
-	        <#break>
+          <#break>
+          <#case "FloatingGearingInterestRateLeg">
+              "floatingReferenceRateId":"${security.payLeg.floatingReferenceRateId}",
+              "initialFloatingRate":"${security.payLeg.initialFloatingRate}",
+              "gearing":"${security.payLeg.gearing}"
+          <#break>
 	      </#switch>
         },
         "receiveLeg":{
@@ -154,8 +163,17 @@
             <#break>
             <#case "FloatingInterestRateLeg">
               "floatingReferenceRateId":"${security.receiveLeg.floatingReferenceRateId}",
+              "initialFloatingRate":"${security.receiveLeg.initialFloatingRate}"
+            <#break>
+            <#case "FloatingSpreadInterestRateLeg">
+              "floatingReferenceRateId":"${security.receiveLeg.floatingReferenceRateId}",
               "initialFloatingRate":"${security.receiveLeg.initialFloatingRate}",
               "spread":"${security.receiveLeg.spread}"
+            <#break>
+            <#case "FloatingGearingInterestRateLeg">
+              "floatingReferenceRateId":"${security.receiveLeg.floatingReferenceRateId}",
+              "initialFloatingRate":"${security.receiveLeg.initialFloatingRate}",
+              "gearing":"${security.receiveLeg.gearing}"
             <#break>
           </#switch>
         },

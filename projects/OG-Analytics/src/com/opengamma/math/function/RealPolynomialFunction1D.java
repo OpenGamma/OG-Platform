@@ -29,7 +29,7 @@ public class RealPolynomialFunction1D extends DoubleFunction1D {
    * is {@latex.inline $\\{a_0, a_1, a_2, ..., a_{n-1}\\}$}.
    * @param coefficients The array of coefficients, not null or empty
    */
-  public RealPolynomialFunction1D(final double[] coefficients) {
+  public RealPolynomialFunction1D(final double... coefficients) {
     Validate.notNull(coefficients);
     Validate.isTrue(coefficients.length > 0, "coefficients length must be greater than zero");
     _coefficients = coefficients;

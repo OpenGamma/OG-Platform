@@ -15,12 +15,12 @@ import org.testng.annotations.Test;
 public class OGMatrixAlgebraTest {
 
   private static final MatrixAlgebra ALGEBRA = MatrixAlgebraFactory.getMatrixAlgebra("OG");
-  private static final DoubleMatrix2D A = new DoubleMatrix2D(new double[][] { {1., 2., 3.}, {-1., 1., 0.}, {-2., 1., -2.}});
-  private static final DoubleMatrix2D B = new DoubleMatrix2D(new double[][] { {1, 1}, {2, -2}, {3, 1}});
-  private static final DoubleMatrix2D C = new DoubleMatrix2D(new double[][] { {14, 0}, {1, -3}, {-6, -6}});
-  private static final DoubleMatrix1D D = new DoubleMatrix1D(new double[] {1, 1, 1});
-  private static final DoubleMatrix1D E = new DoubleMatrix1D(new double[] {-1, 2, 3});
-  private static final DoubleMatrix1D F = new DoubleMatrix1D(new double[] {2, -2, 1});
+  private static final DoubleMatrix2D A = new DoubleMatrix2D(new double[][] { {1., 2., 3. }, {-1., 1., 0. }, {-2., 1., -2. } });
+  private static final DoubleMatrix2D B = new DoubleMatrix2D(new double[][] { {1, 1 }, {2, -2 }, {3, 1 } });
+  private static final DoubleMatrix2D C = new DoubleMatrix2D(new double[][] { {14, 0 }, {1, -3 }, {-6, -6 } });
+  private static final DoubleMatrix1D D = new DoubleMatrix1D(new double[] {1, 1, 1 });
+  private static final DoubleMatrix1D E = new DoubleMatrix1D(new double[] {-1, 2, 3 });
+  private static final DoubleMatrix1D F = new DoubleMatrix1D(new double[] {2, -2, 1 });
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testMatrixSizeMismatch() {
@@ -65,6 +65,17 @@ public class OGMatrixAlgebraTest {
     assertEquals(6, d.getEntry(0), 1e-15);
     assertEquals(0, d.getEntry(1), 1e-15);
     assertEquals(-3, d.getEntry(2), 1e-15);
+  }
+
+  @Test
+  public void testTranspose() {
+    final DoubleMatrix2D a = new DoubleMatrix2D(new double[][] { {1, 2 }, {3, 4 }, {5, 6 } });
+    assertEquals(3, a.getNumberOfRows());
+    assertEquals(2, a.getNumberOfColumns());
+    DoubleMatrix2D aT = ALGEBRA.getTranspose(a);
+    assertEquals(2, aT.getNumberOfRows());
+    assertEquals(3, aT.getNumberOfColumns());
+    
   }
 
 }
