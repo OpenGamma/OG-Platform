@@ -27,6 +27,7 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.AbstractPortfolioNodeTraversalCallback;
 import com.opengamma.core.position.impl.PortfolioNodeTraverser;
+import com.opengamma.core.security.AbstractSecuritySource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
 import com.opengamma.core.security.SecuritySource;
@@ -282,7 +283,7 @@ public final class SecurityLinkResolver {
    * This is designed to be used by a single resolution pass, for the efficiency of
    * resolving the same security multiple times.
    */
-  static class CachedSecuritySource implements SecuritySource {
+  static class CachedSecuritySource extends AbstractSecuritySource implements SecuritySource {
     private final SecuritySource _underlying;
     private final ConcurrentMap<ObjectId, Security> _objectIdCache = new ConcurrentHashMap<ObjectId, Security>();
     private final ConcurrentMap<ExternalIdBundle, Security> _weakIdCache = new ConcurrentHashMap<ExternalIdBundle, Security>();

@@ -14,6 +14,7 @@ import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
+import com.opengamma.core.security.AbstractSecuritySource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalId;
@@ -31,7 +32,7 @@ import com.opengamma.util.ArgumentChecker;
  * This class is intended for testing scenarios.
  * It is not thread-safe and must not be used in production.
  */
-public class MockSecuritySource implements SecuritySource {
+public class MockSecuritySource extends AbstractSecuritySource implements SecuritySource {
 
   /**
    * The securities keyed by identifier.

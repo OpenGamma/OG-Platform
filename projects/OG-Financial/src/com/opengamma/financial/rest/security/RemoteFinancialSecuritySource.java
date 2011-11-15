@@ -10,12 +10,16 @@ import static com.opengamma.financial.rest.security.SecuritySourceServiceNames.S
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
@@ -27,6 +31,8 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.ObjectsPairFudgeBuilder;
 
 /**
  * An implementation of {@code FinancialSecuritySource} client that calls a remote data source.
@@ -183,6 +189,28 @@ public class RemoteFinancialSecuritySource implements FinancialSecuritySource {
   @Override
   public ChangeManager changeManager() {
     return _changeManager;
+  }
+
+  @Override
+  public Map<UniqueId, Security> getSecurity(Collection<UniqueId> uniqueIds) {
+    ArgumentChecker.notNull(uniqueIds, "uniqueIds");
+    List<String> uniqueIdStr = Lists.newArrayList();
+    
+    final RestTarget target = _targetBase.resolveBase("securities").resolve("uid")
+        .resolveQuery("uids", uniqueIdStr);
+    final FudgeMsg message = getRestClient().getMsg(target);
+    final FudgeDeserializer deserializer = getRestClient().getFudgeDeserializer();
+    
+    Map<UniqueId, Security> result = Maps.newHashMap();
+    for (FudgeField fudgeField : message) {
+      if (SECURITYSOURCE_SECURITY.equals(fudgeField.getName())) {
+        ObjectsPair<UniqueId, Security> objectsPair = ObjectsPairFudgeBuilder.buildObject(deserializer, (FudgeMsg) fudgeField.getValue(), UniqueId.class, Security.class);
+        if (objectsPair != null && objectsPair.getKey() != null) {
+          result.put(objectsPair.getKey(), objectsPair.getValue());
+        }
+      }
+    }
+    return result;
   }
 
 }

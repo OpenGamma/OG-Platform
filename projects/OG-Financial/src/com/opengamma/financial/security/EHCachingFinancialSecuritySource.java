@@ -28,6 +28,7 @@ import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.security.AbstractSecuritySource;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -42,7 +43,7 @@ import com.opengamma.util.tuple.Triple;
  * <p>
  * The cache is implemented using {@code EHCache}.
  */
-public class EHCachingFinancialSecuritySource implements FinancialSecuritySource {
+public class EHCachingFinancialSecuritySource extends AbstractSecuritySource implements FinancialSecuritySource {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(EHCachingFinancialSecuritySource.class);

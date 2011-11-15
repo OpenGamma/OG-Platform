@@ -17,6 +17,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeType;
+import com.opengamma.core.security.AbstractSecuritySource;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.id.ExternalId;
@@ -35,7 +36,7 @@ import com.opengamma.util.RegexUtils;
  * This class is intended for testing scenarios.
  * It is not thread-safe and must not be used in production.
  */
-public class MockFinancialSecuritySource implements FinancialSecuritySource {
+public class MockFinancialSecuritySource extends AbstractSecuritySource implements FinancialSecuritySource {
 
   /**
    * The securities keyed by identifier.
