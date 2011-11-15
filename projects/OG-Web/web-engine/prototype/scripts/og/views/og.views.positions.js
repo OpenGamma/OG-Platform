@@ -120,7 +120,7 @@ $.register_module({
                 var layout = og.views.common.layout,
                     render_identifiers = function (json) {
                         $('.OG-js-details-panel .og-js-identifiers').html(json.reduce(function (acc, val) {
-                            acc.push('<tr><td><span>' + val.scheme + '</span></td><td>' + val.value + '</td></tr>');
+                            acc.push('<tr><td><span>' + val.scheme.lang() + '</span></td><td>' + val.value + '</td></tr>');
                             return acc
                         }, []).join(''));
                     },

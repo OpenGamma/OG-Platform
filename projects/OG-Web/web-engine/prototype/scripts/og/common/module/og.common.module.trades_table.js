@@ -36,7 +36,7 @@ $.register_module({
                 acc.push(start, fields.map(function (field, i) {
                     var expander;
                     i === 0 ? expander = '<span class="OG-icon og-icon-expand"></span>' : expander = '';
-                    return expander + trade[field];
+                    return expander + trade[field].replace(/.*~/, '');
                 }).join('</td><td>'), end);
                 (function () { // display attributes if available
                     var attr, attr_type, attr_obj, key, html = [];
@@ -44,10 +44,11 @@ $.register_module({
                     for (attr_type in trade.attributes) {
                         attr_obj = trade.attributes[attr_type], attr = [];
                         if (!Object.keys(attr_obj).length) continue;
-                        for (key in attr_obj)
-                            attr.push(start, key.replace(/.+~(.+)/, '$1'), ':</td><td>', attr_obj[key], end);
+                        for (key in attr_obj) attr.push(
+                            start, key.replace(/.+~(.+)/, '$1').lang(), ':</td><td>', attr_obj[key].lang(), end
+                        );
                         html.push(
-                            sub_head.replace('{ATTRIBUTES}', attr_type.replace(/(.+)(Attributes)/, '$1 $2')) +
+                            sub_head.replace('{ATTRIBUTES}', attr_type.lang()) +
                             '<tbody class="OG-background-01">' + attr.join('') + '</tbody>'
                         );
                     }
