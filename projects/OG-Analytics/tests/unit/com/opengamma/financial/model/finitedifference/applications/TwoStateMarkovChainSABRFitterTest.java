@@ -151,7 +151,7 @@ public class TwoStateMarkovChainSABRFitterTest {
     PDEUtilityTools.printSurface("dumpSurfaceTest", FunctionalDoublesSurface.from(SABR_VOL_FUNCTION), 0, 5.0, SPOT / 4.0, 4.0 * SPOT);
   }
 
-  @Test(enabled = false)
+  @Test//(enabled = false)
   public void test() {
     final DoubleMatrix1D initialGuess = new DoubleMatrix1D(new double[] {0.2, 0.3, 0.2, 2.0, 0.95, 0.8 });
     final TwoStateMarkovChainFitter fitter = new TwoStateMarkovChainFitter();
@@ -189,7 +189,8 @@ public class TwoStateMarkovChainSABRFitterTest {
   }
 
   //TODO need to have real tests here rather than print a lot of surfaces 
-  @Test(enabled = false)
+  @Test
+  (enabled = false)
   public void localVolFitTest() {
     final DoubleMatrix1D initialGuess = new DoubleMatrix1D(new double[] {0.2, 0.3, 0.2, 2.0, 0.95, 0.8 });
     final TwoStateMarkovChainLocalVolFitter fitter = new TwoStateMarkovChainLocalVolFitter(true);

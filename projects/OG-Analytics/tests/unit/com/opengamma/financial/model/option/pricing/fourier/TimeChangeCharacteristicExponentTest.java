@@ -85,12 +85,12 @@ public class TimeChangeCharacteristicExponentTest {
     }
 
     @Override
-    public ComplexNumber[] getCharacteristicExponentAjoint(ComplexNumber u, double t) {
+    public ComplexNumber[] getCharacteristicExponentAdjoint(ComplexNumber u, double t) {
       throw new NotImplementedException();
     }
 
     @Override
-    public Function1D<ComplexNumber, ComplexNumber[]> getAjointFunction(double t) {
+    public Function1D<ComplexNumber, ComplexNumber[]> getAdjointFunction(double t) {
       throw new NotImplementedException();
     }
 

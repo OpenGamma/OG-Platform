@@ -8,7 +8,6 @@ package com.opengamma.financial.model.option.pricing.analytic.formula;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
-import org.netlib.util.booleanW;
 
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 

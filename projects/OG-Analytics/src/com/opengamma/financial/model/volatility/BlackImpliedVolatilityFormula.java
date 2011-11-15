@@ -8,11 +8,7 @@ package com.opengamma.financial.model.volatility;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
-import com.opengamma.math.rootfinding.BracketRoot;
 
 /**
  * 

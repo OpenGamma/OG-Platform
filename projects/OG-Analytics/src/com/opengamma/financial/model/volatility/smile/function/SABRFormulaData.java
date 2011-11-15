@@ -5,17 +5,32 @@
  */
 package com.opengamma.financial.model.volatility.smile.function;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.Validate;
 
 /**
  * 
  */
-public class SABRFormulaData {
+public class SABRFormulaData implements SmileModelData {
 
-  private final double _nu;
-  private final double _rho;
-  private final double _beta;
-  private final double _alpha;
+  private static final int NUM_PARAMETERS = 4;
+  private final double[] _parameters;
+
+  /**
+   * 
+   * @param parameters Must be 4 parameters in the order alpha, beta, rho, nu
+   */
+  public SABRFormulaData(final double[] parameters) {
+    Validate.notNull(parameters, "parameters are null");
+    Validate.isTrue(parameters.length == NUM_PARAMETERS, "must be " + NUM_PARAMETERS + " parameters");
+    Validate.isTrue(parameters[0] >= 0.0, "alpha must be >= 0.0");
+    Validate.isTrue(parameters[1] >= 0.0, "beta must be >= 0.0");
+    Validate.isTrue(parameters[2] >= -1 && parameters[2] <= 1, "rho must be between -1 and 1");
+    Validate.isTrue(parameters[3] >= 0.0, "nu must be >= 0.0");
+
+    _parameters = parameters;
+  }
 
   /**
    * 
@@ -25,65 +40,75 @@ public class SABRFormulaData {
    * @param nu The vol-of-vol
    */
   public SABRFormulaData(final double alpha, final double beta, final double rho, final double nu) {
-    Validate.isTrue(beta >= 0.0, "beta must be >= 0.0");
-    Validate.isTrue(nu >= 0.0, "nu must be >= 0.0");
-    Validate.isTrue(rho >= -1 && rho <= 1, "rho must be between -1 and 1");
-    _alpha = alpha;
-    _beta = beta;
-    _rho = rho;
-    _nu = nu;
+    this(new double[] {alpha, beta, rho, nu });
   }
 
   public double getNu() {
-    return _nu;
+    return _parameters[3];
   }
 
   public double getRho() {
-    return _rho;
+    return _parameters[2];
   }
 
   public double getBeta() {
-    return _beta;
+    return _parameters[1];
   }
 
   public double getAlpha() {
-    return _alpha;
+    return _parameters[0];
   }
 
   public SABRFormulaData withAlpha(final double alpha) {
-    return new SABRFormulaData(alpha, _beta, _rho, _nu);
+
+    return new SABRFormulaData(alpha, getBeta(), getRho(), getNu());
   }
 
   public SABRFormulaData withBeta(final double beta) {
-    return new SABRFormulaData(_alpha, beta, _rho, _nu);
-  }
-
-  public SABRFormulaData withNu(final double nu) {
-    return new SABRFormulaData(_alpha, _beta, _rho, nu);
+    return new SABRFormulaData(getAlpha(), beta, getRho(), getNu());
   }
 
   public SABRFormulaData withRho(final double rho) {
-    return new SABRFormulaData(_alpha, _beta, rho, _nu);
+    return new SABRFormulaData(getAlpha(), getBeta(), rho, getNu());
+  }
+
+  public SABRFormulaData withNu(final double nu) {
+    return new SABRFormulaData(getAlpha(), getBeta(), getRho(), nu);
+  }
+
+  @Override
+  public int getNumberOfparameters() {
+    return NUM_PARAMETERS;
+  }
+
+  @Override
+  public double getParameter(int index) {
+    return _parameters[index];
+  }
+
+  @Override
+  public SmileModelData with(int index, double value) {
+    double[] temp = new double[NUM_PARAMETERS];
+    System.arraycopy(_parameters, 0, temp, 0, NUM_PARAMETERS);
+    temp[index] = value;
+    return new SABRFormulaData(temp);
+  }
+
+  @Override
+  public String toString() {
+    return "SABRFormulaData [alpha=" + getAlpha() + ", beta=" + getBeta() + ", rho=" + getRho() + ", nu=" + getNu() + "]";
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    long temp;
-    temp = Double.doubleToLongBits(_alpha);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_beta);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_nu);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_rho);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + Arrays.hashCode(_parameters);
     return result;
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -93,25 +118,11 @@ public class SABRFormulaData {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final SABRFormulaData other = (SABRFormulaData) obj;
-    if (Double.doubleToLongBits(_alpha) != Double.doubleToLongBits(other._alpha)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_beta) != Double.doubleToLongBits(other._beta)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_nu) != Double.doubleToLongBits(other._nu)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_rho) != Double.doubleToLongBits(other._rho)) {
+    SABRFormulaData other = (SABRFormulaData) obj;
+    if (!Arrays.equals(_parameters, other._parameters)) {
       return false;
     }
     return true;
-  }
-
-  @Override
-  public String toString() {
-    return "SABRFormulaData [alpha=" + _alpha + ", beta=" + _beta + ", nu=" + _nu + ", rho=" + _rho + "]";
   }
 
 }
