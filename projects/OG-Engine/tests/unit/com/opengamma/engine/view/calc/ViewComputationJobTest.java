@@ -252,11 +252,9 @@ public class ViewComputationJobTest {
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
-    resultListener.expectNextCall(JobResultReceivedCall.class, TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     // Change of market data provider should cause a further compilation
-    resultListener.expectNextCall(JobResultReceivedCall.class, TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
     resultListener.assertProcessCompleted(TIMEOUT);
   }
