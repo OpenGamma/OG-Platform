@@ -18,7 +18,6 @@ import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
-import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivityUtils;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.Currency;
@@ -127,13 +126,16 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
    */
   public void presentValueCurveSensitivity() {
     double tolerance = 1.0E-2;
-    InterestRateCurveSensitivity pvcsNDF = METHOD_NDF.presentValueCurveSensitivity(NDF, CURVESFX);
-    InterestRateCurveSensitivity pvcsFX = METHOD_FX.presentValueCurveSensitivity(FOREX, CURVES);
+    MultipleCurrencyInterestRateCurveSensitivity pvcsNDF = METHOD_NDF.presentValueCurveSensitivity(NDF, CURVESFX);
+    MultipleCurrencyInterestRateCurveSensitivity pvcsFX = METHOD_FX.presentValueCurveSensitivity(FOREX, CURVES);
     assertTrue("Present value curve sensitivity - non-deliverable forward",
-        InterestRateCurveSensitivityUtils.compare(pvcsFX.getSensitivities().get(CURVE_NAMES[1]), pvcsNDF.getSensitivities().get(CURVE_NAMES[1]), tolerance));
+        InterestRateCurveSensitivityUtils.compare(pvcsFX.getSensitivity(USD).getSensitivities().get(CURVE_NAMES[1]), pvcsNDF.getSensitivity(USD).getSensitivities().get(CURVE_NAMES[1]), tolerance));
     // The NDF sensitivity with respect to curve1 is in currency2; the FX sensitivity with respect to curve1 is in currency1; both sensitivity are in line with their respective PV.
-    assertTrue("Present value curve sensitivity - non-deliverable forward", InterestRateCurveSensitivityUtils.compare(
-        InterestRateCurveSensitivityUtils.multiplySensitivity(pvcsFX.getSensitivities().get(CURVE_NAMES[3]), FX_MATRIX.getFxRate(KRW, USD)), pvcsNDF.getSensitivities().get(CURVE_NAMES[3]), tolerance));
+    assertTrue(
+        "Present value curve sensitivity - non-deliverable forward",
+        InterestRateCurveSensitivityUtils.compare(
+            InterestRateCurveSensitivityUtils.multiplySensitivity(pvcsFX.getSensitivity(KRW).getSensitivities().get(CURVE_NAMES[3]), FX_MATRIX.getFxRate(KRW, USD)), pvcsNDF.getSensitivity(USD)
+                .getSensitivities().get(CURVE_NAMES[3]), tolerance));
   }
 
 }

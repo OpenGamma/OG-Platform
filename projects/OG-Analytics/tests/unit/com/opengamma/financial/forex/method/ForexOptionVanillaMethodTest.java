@@ -30,7 +30,6 @@ import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
-import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -288,7 +287,7 @@ public class ForexOptionVanillaMethodTest {
     final ForexOptionVanillaDefinition forexOptionDefinitionCall = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
     final ForexOptionVanilla forexOptionCall = forexOptionDefinitionCall.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final Forex forexForward = forexUnderlyingDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    final InterestRateCurveSensitivity sensi = METHOD_OPTION.presentValueCurveSensitivity(forexOptionCall, SMILE_BUNDLE);
+    final MultipleCurrencyInterestRateCurveSensitivity sensi = METHOD_OPTION.presentValueCurveSensitivity(forexOptionCall, SMILE_BUNDLE);
     final double dfDomestic = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(forexForward.getPaymentTime());
     final double dfForeign = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(forexForward.getPaymentTime());
     final double forward = SPOT * dfForeign / dfDomestic;
@@ -329,8 +328,8 @@ public class ForexOptionVanillaMethodTest {
     dataBlack = new BlackFunctionData(forwardBumped, dfDomestic, volatility);
     final double bumpedPvForeignMinus = func.evaluate(dataBlack) * notional;
     final double resultForeign = (bumpedPvForeignPlus - bumpedPvForeignMinus) / (2 * deltaShift);
-    assertEquals("Forex vanilla option: curve exposure", forexForward.getPaymentTime(), sensi.getSensitivities().get(CURVES_NAME[0]).get(0).first, 1E-2);
-    assertEquals("Forex vanilla option: curve exposure", resultForeign, sensi.getSensitivities().get(CURVES_NAME[0]).get(0).second, 1E-2);
+    assertEquals("Forex vanilla option: curve exposure", forexForward.getPaymentTime(), sensi.getSensitivity(CUR_2).getSensitivities().get(CURVES_NAME[0]).get(0).first, 1E-2);
+    assertEquals("Forex vanilla option: curve exposure", resultForeign, sensi.getSensitivity(CUR_2).getSensitivities().get(CURVES_NAME[0]).get(0).second, 1E-2);
     //Domestic
     yields[0] = curveDomestic.getInterestRate(nodeTimes[0]);
     yields[1] = curveDomestic.getInterestRate(nodeTimes[1]);
@@ -350,8 +349,8 @@ public class ForexOptionVanillaMethodTest {
     dataBlack = new BlackFunctionData(forwardBumped, dfDomesticBumped, volatility);
     final double bumpedPvDomesticMinus = func.evaluate(dataBlack) * notional;
     final double resultDomestic = (bumpedPvDomesticPlus - bumpedPvDomesticMinus) / (2 * deltaShift);
-    assertEquals("Forex vanilla option: curve exposure", forexForward.getPaymentTime(), sensi.getSensitivities().get(CURVES_NAME[1]).get(0).first, 1E-2);
-    assertEquals("Forex vanilla option: curve exposure", resultDomestic, sensi.getSensitivities().get(CURVES_NAME[1]).get(0).second, 1E-2);
+    assertEquals("Forex vanilla option: curve exposure", forexForward.getPaymentTime(), sensi.getSensitivity(CUR_2).getSensitivities().get(CURVES_NAME[1]).get(0).first, 1E-2);
+    assertEquals("Forex vanilla option: curve exposure", resultDomestic, sensi.getSensitivity(CUR_2).getSensitivities().get(CURVES_NAME[1]).get(0).second, 1E-2);
   }
 
   @Test
@@ -359,8 +358,8 @@ public class ForexOptionVanillaMethodTest {
    * Test the present value curve sensitivity through the method and through the calculator.
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    final InterestRateCurveSensitivity pvcsMethod = METHOD_OPTION.presentValueCurveSensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE);
-    final InterestRateCurveSensitivity pvcsCalculator = PVCSC_BLACK.visit(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsMethod = METHOD_OPTION.presentValueCurveSensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsCalculator = PVCSC_BLACK.visit(FOREX_CALL_OPTION, SMILE_BUNDLE);
     assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvcsMethod, pvcsCalculator);
   }
 
