@@ -22,7 +22,7 @@ import com.opengamma.math.minimization.DoubleRangeLimitTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.math.minimization.SingleRangeLimitTransform;
-import com.opengamma.math.minimization.TransformParameters;
+import com.opengamma.math.minimization.UncoupledParameterTransforms;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.CompareUtils;
@@ -39,8 +39,9 @@ public class SABRNonLinearLeastSquareFitter extends LeastSquareSmileFitter {
     TRANSFORMS = new ParameterLimitsTransform[4];
     TRANSFORMS[0] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // alpha > 0
     TRANSFORMS[1] = new DoubleRangeLimitTransform(0, 2.0); // 0 <= beta <= 2
-    TRANSFORMS[2] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // nu > 0
-    TRANSFORMS[3] = new DoubleRangeLimitTransform(-1.0, 1.0); // -1 <= rho <= 1
+    TRANSFORMS[2] = new DoubleRangeLimitTransform(-1.0, 1.0); // -1 <= rho <= 1
+    TRANSFORMS[3] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // nu > 0
+
   }
   private final VolatilityFunctionProvider<SABRFormulaData> _formula;
   private final SABRATMVolatilityCalculator _atmCalculator;
@@ -90,7 +91,7 @@ public class SABRNonLinearLeastSquareFitter extends LeastSquareSmileFitter {
       strikes[i] = options[i].getStrike();
       blackVols[i] = data[i].getBlackVolatility();
     }
-    final TransformParameters transforms = new TransformParameters(new DoubleMatrix1D(initialFitParameters), TRANSFORMS, fixed);
+    final UncoupledParameterTransforms transforms = new UncoupledParameterTransforms(new DoubleMatrix1D(initialFitParameters), TRANSFORMS, fixed);
     final EuropeanVanillaOption atmOption = new EuropeanVanillaOption(forward, maturity, true);
     final ParameterizedFunction<Double, DoubleMatrix1D, Double> function = new ParameterizedFunction<Double, DoubleMatrix1D, Double>() {
 
@@ -100,8 +101,9 @@ public class SABRNonLinearLeastSquareFitter extends LeastSquareSmileFitter {
         final DoubleMatrix1D mp = transforms.inverseTransform(fp);
         double alpha = mp.getEntry(0);
         final double beta = mp.getEntry(1);
-        final double nu = mp.getEntry(2);
-        final double rho = mp.getEntry(3);
+        final double rho = mp.getEntry(2);
+        final double nu = mp.getEntry(3);
+
         final SABRFormulaData sabrFormulaData;
         if (recoverATMVol) {
           alpha = _atmCalculator.calculate(new SABRFormulaData(alpha, beta, rho, nu), atmOption, forward, atmVol);

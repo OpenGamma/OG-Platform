@@ -17,10 +17,10 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVan
  * 
  */
 public abstract class LeastSquareSmileFitterTestCase {
-  protected static final double VARIANCE = 0.3;
+  //  protected static final double VARIANCE = 0.3;
   protected static final double T = 1.3;
-  protected static final double SIGMA = Math.sqrt(VARIANCE / T);
-  protected static final double ERROR = 0.00001;
+  protected static final double SIGMA = 0.3;// Math.sqrt(VARIANCE / T);
+  protected static final double ERROR = 0.00001; //0.1 bps error
   protected static final EuropeanVanillaOption[] OPTIONS;
   protected static final double FORWARD = 100;
   protected static final double DF = 1;
@@ -30,9 +30,9 @@ public abstract class LeastSquareSmileFitterTestCase {
   protected static final double EPS = 1e-3;
 
   static {
-    final int n = 100;
+    final int n = 10;
     final double kStart = 50;
-    final double delta = kStart / n;
+    final double delta = 100 / (n - 1);
     OPTIONS = new EuropeanVanillaOption[n];
     FLAT_DATA = new BlackFunctionData[n];
     ERRORS = new double[n];
@@ -64,12 +64,12 @@ public abstract class LeastSquareSmileFitterTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthData() {
-    getFitter().getFitResult(OPTIONS, new BlackFunctionData[] {new BlackFunctionData(FORWARD, DF, SIGMA)}, ERRORS, getInitialValues(), FIXED);
+    getFitter().getFitResult(OPTIONS, new BlackFunctionData[] {new BlackFunctionData(FORWARD, DF, SIGMA) }, ERRORS, getInitialValues(), FIXED);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthErrors() {
-    getFitter().getFitResult(OPTIONS, FLAT_DATA, new double[] {1, 1, 1, 1}, getInitialValues(), FIXED);
+    getFitter().getFitResult(OPTIONS, FLAT_DATA, new double[] {1, 1, 1, 1 }, getInitialValues(), FIXED);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -79,7 +79,7 @@ public abstract class LeastSquareSmileFitterTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthInitialValues() {
-    getFitter().getFitResult(OPTIONS, FLAT_DATA, ERRORS, new double[] {1, 1, 1, 1, 1, 1, 1}, FIXED);
+    getFitter().getFitResult(OPTIONS, FLAT_DATA, ERRORS, new double[] {1, 1, 1, 1, 1, 1, 1 }, FIXED);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

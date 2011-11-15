@@ -74,9 +74,18 @@ public class WebPositionVersionResource extends AbstractWebPositionResource {
     out.put("position", versionedPosition.getPosition());
     out.put("security", versionedPosition.getPosition().getSecurity());
     out.put("deleted", !latestPositionDoc.isLatest());
+    
+    TradeAttributesModel tradeAttributesModel = getTradeAttributesModel();
+    out.put("tradeAttrModel", tradeAttributesModel);
     return out;
   }
 
+  private TradeAttributesModel getTradeAttributesModel() {
+    PositionDocument doc = data().getVersioned();
+    TradeAttributesModel getTradeAttributesModel = new TradeAttributesModel(doc.getPosition());
+    return getTradeAttributesModel;
+  }
+  
   //-------------------------------------------------------------------------
   /**
    * Builds a URI for this resource.

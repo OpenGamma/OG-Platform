@@ -9,11 +9,13 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexNonDeliverableForwardDefinition;
+import com.opengamma.financial.forex.definition.ForexNonDeliverableOptionDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionSingleBarrierDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
+import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.forex.derivative.ForexSwap;
@@ -90,6 +92,14 @@ public class ForexInstrumentsDescriptionDataSet {
 
   public static ForexNonDeliverableForward createForexNonDeliverableForward() {
     return createForexNonDeliverableForwardDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
+  }
+
+  public static ForexNonDeliverableOptionDefinition createForexNonDeliverableOptionDefinition() {
+    return new ForexNonDeliverableOptionDefinition(createForexNonDeliverableForwardDefinition(), IS_CALL, IS_LONG);
+  }
+
+  public static ForexNonDeliverableOption createForexNonDeliverableOption() {
+    return createForexNonDeliverableOptionDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
   }
 
 }

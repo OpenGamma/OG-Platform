@@ -21,7 +21,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
  * The purpose is to allow an optimiser to work with unconstrained parameters without modifying the function that one wishes to optimise. 
  */
 // TODO not tested
-public class TransformParameters {
+public class UncoupledParameterTransforms implements NonLinearParameterTransforms {
   private final DoubleMatrix1D _startValues;
   private final ParameterLimitsTransform[] _transforms;
   private final BitSet _fixed;
@@ -35,7 +35,7 @@ public class TransformParameters {
    * a constrained function parameter (e.g. must be between -1 and 1) to a unconstrained fit parameter.
    * @param fixed BitSet with an element set to <b>true</b> if that parameter is fixed
    */
-  public TransformParameters(final DoubleMatrix1D startValues, final ParameterLimitsTransform[] transforms, final BitSet fixed) {
+  public UncoupledParameterTransforms(final DoubleMatrix1D startValues, final ParameterLimitsTransform[] transforms, final BitSet fixed) {
     Validate.notNull(startValues, "null start values");
     Validate.notEmpty(transforms, "must specify transforms");
     Validate.notNull(fixed, "must specify what is fixed (even if none)");
@@ -53,7 +53,7 @@ public class TransformParameters {
    * 
    * @return The number of function parameters 
    */
-  public int getNumberOfFunctionParameters() {
+  public int getNumberOfModelParameters() {
     return _nMP;
   }
 
@@ -165,7 +165,7 @@ public class TransformParameters {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final TransformParameters other = (TransformParameters) obj;
+    final UncoupledParameterTransforms other = (UncoupledParameterTransforms) obj;
     if (!ObjectUtils.equals(_fixed, other._fixed)) {
       return false;
     }

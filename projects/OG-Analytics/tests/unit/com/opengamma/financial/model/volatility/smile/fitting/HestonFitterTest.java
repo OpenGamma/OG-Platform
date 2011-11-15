@@ -8,6 +8,7 @@ package com.opengamma.financial.model.volatility.smile.fitting;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Arrays;
 import java.util.BitSet;
 
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import com.opengamma.financial.model.option.pricing.fourier.FourierPricer;
 import com.opengamma.financial.model.option.pricing.fourier.HestonCharacteristicExponent;
 import com.opengamma.financial.model.option.pricing.fourier.MartingaleCharacteristicExponent;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
+import com.opengamma.financial.model.volatility.smile.function.HestonVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -108,9 +110,7 @@ public class HestonFitterTest {
   public void testExactFit() {
 
     double[] errors = new double[N];
-    for (int i = 0; i < N; i++) {
-      errors[i] = 0.0001; //1bps errors 
-    }
+    Arrays.fill(errors, 1e-4);//1bps errors 
 
     assertExactFit(FFT_VOL_FITTER, "FFT vols", errors, true);
     final double[] pErrors = new double[N];
@@ -121,6 +121,24 @@ public class HestonFitterTest {
     assertExactFit(FFT_PRICE_FITTER, "FFT price", pErrors, false); //does not recover starting vols 
     assertExactFit(FOURIER_VOL_FITTER, "Fourier", errors, true);
 
+  }
+
+  @Test(enabled = false)
+  public void testExactFitNewMethod() {
+    double[] errors = new double[N];
+    Arrays.fill(errors, 1e-4);//1bps errors 
+    final double[] strikes = new double[N];
+    final double[] vols = new double[N];
+    for (int i = 0; i < N; i++) {
+      strikes[i] = OPTIONS[i].getStrike();
+      vols[i] = BLACK_VOLS[i].getBlackVolatility();
+    }
+    HestonModelFitter fitter = new HestonModelFitter(FORWARD, strikes, T, vols, errors, new HestonVolatilityFunction());
+    final double[] initial = new double[] {2.0, 0.05, VOL0, 0.2, -0.4 };
+    final BitSet fixed = new BitSet();
+    fixed.set(2);
+    LeastSquareResults res = fitter.solve(new DoubleMatrix1D(initial), fixed);
+    System.out.println(res.getChiSq());
   }
 
   private void assertExactFit(final LeastSquareSmileFitter fitter, final String name, final double[] errors, boolean testParms) {
