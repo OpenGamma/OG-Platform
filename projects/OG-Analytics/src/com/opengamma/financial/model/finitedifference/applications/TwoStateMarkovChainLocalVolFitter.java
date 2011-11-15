@@ -50,16 +50,18 @@ public class TwoStateMarkovChainLocalVolFitter {
 
   /**
    * 
-   * @param forward The forward curve <b>NOTE</b> Anything other than a constant rate will give spurious results because the local vol calculator does not handle time 
-   * varying rates
-   * @param marketVolSurface <b> THIS IS A CHEAT</b> Don't have access to some continuous (twice differentiable in strike and once in time) volatility surface, but have
-   * to approximate it from finite data points (i.e. option prices at gives strike/maturity). We assume for now that this is provided by some magical algorithm 
+   * @param forward The forward curve <b>NOTE</b> Anything other than a constant rate will give spurious results because the local vol calculator
+   * does not handle time varying rates
+   * @param marketVolSurface <b> THIS IS A CHEAT</b> Don't have access to some continuous (twice differentiable in strike and once in time)
+   * volatility surface, but have to approximate it from finite data points (i.e. option prices at gives strike/maturity). We assume for now that 
+   * this is provided by some magical algorithm 
    * @param marketVols Collection of expiry-strike coordinates and the implied volatility at those points  
-   * @param initialGuess Initial guess at the parameters of the Markov chain. these are: CEV vol of normal state; CEV vol of excited state (which must
-   *  be greater than the vol in normal state); transition rate from normal to excited; transition rate from excited to normal; probability of
-   *  starting in normal state; and the CEV parameter, beta  
+   * @param initialGuess Initial guess at the parameters of the Markov chain. these are: CEV vol of normal state; CEV vol of excited state
+   *  (which must be greater than the vol in normal state); transition rate from normal to excited; transition rate from excited to normal;
+   * probability of starting in normal state; and the CEV parameter, beta  
    */
-  public void fit(final ForwardCurve forward, final BlackVolatilitySurface marketVolSurface, final List<Pair<double[], Double>> marketVols, final DoubleMatrix1D initialGuess) {
+  public void fit(final ForwardCurve forward, final BlackVolatilitySurface marketVolSurface, final List<Pair<double[], Double>> marketVols,
+      final DoubleMatrix1D initialGuess) {
 
     final Map<DoublesPair, Double> marketVolsMap = convertFormatt(marketVols);
     final Set<DoublesPair> dataPoints = marketVolsMap.keySet();

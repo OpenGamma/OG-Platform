@@ -36,16 +36,20 @@ public final class PresentValueBlackForexCalculator extends PresentValueForexCal
   private PresentValueBlackForexCalculator() {
   }
 
+  /**
+   * The methods used by the different instruments.
+   */
+  private static final ForexOptionVanillaBlackMethod METHOD_FXOPTION = ForexOptionVanillaBlackMethod.getInstance();
+  private static final ForexOptionSingleBarrierBlackMethod METHOD_FXOPTIONBARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
+
   @Override
   public MultipleCurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
-    final ForexOptionVanillaBlackMethod method = ForexOptionVanillaBlackMethod.getInstance();
-    return method.presentValue(derivative, data);
+    return METHOD_FXOPTION.presentValue(derivative, data);
   }
 
   @Override
   public MultipleCurrencyAmount visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative, final YieldCurveBundle data) {
-    final ForexOptionSingleBarrierBlackMethod method = ForexOptionSingleBarrierBlackMethod.getInstance();
-    return method.presentValue(derivative, data);
+    return METHOD_FXOPTIONBARRIER.presentValue(derivative, data);
   }
 
 }

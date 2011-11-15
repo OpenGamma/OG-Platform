@@ -21,31 +21,31 @@ public class TransformParametersTest {
   private static final DoubleMatrix1D INIT = new DoubleMatrix1D(new double[] {1, 2, 3, 4});
   private static final ParameterLimitsTransform[] NULLS = new ParameterLimitsTransform[] {new NullTransform(), new NullTransform(), new NullTransform(), new NullTransform()};
   private static final BitSet FIXED = new BitSet(4);
-  private static final TransformParameters PARAMS;
+  private static final UncoupledParameterTransforms PARAMS;
 
   static {
     FIXED.set(0);
-    PARAMS = new TransformParameters(INIT, NULLS, FIXED);
+    PARAMS = new UncoupledParameterTransforms(INIT, NULLS, FIXED);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStartValues() {
-    new TransformParameters(null, NULLS, FIXED);
+    new UncoupledParameterTransforms(null, NULLS, FIXED);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTransforms() {
-    new TransformParameters(INIT, null, FIXED);
+    new UncoupledParameterTransforms(INIT, null, FIXED);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyTransforms() {
-    new TransformParameters(INIT, new ParameterLimitsTransform[0], FIXED);
+    new UncoupledParameterTransforms(INIT, new ParameterLimitsTransform[0], FIXED);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBitSet() {
-    new TransformParameters(INIT, NULLS, null);
+    new UncoupledParameterTransforms(INIT, NULLS, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -55,7 +55,7 @@ public class TransformParametersTest {
     allFixed.set(1);
     allFixed.set(2);
     allFixed.set(3);
-    new TransformParameters(INIT, NULLS, allFixed);
+    new UncoupledParameterTransforms(INIT, NULLS, allFixed);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -100,16 +100,16 @@ public class TransformParametersTest {
 
   @Test
   public void test() {
-    assertEquals(PARAMS.getNumberOfFunctionParameters(), 4);
+    assertEquals(PARAMS.getNumberOfModelParameters(), 4);
     assertEquals(PARAMS.getNumberOfFittingParameters(), 3);
-    TransformParameters other = new TransformParameters(INIT, NULLS, FIXED);
+    UncoupledParameterTransforms other = new UncoupledParameterTransforms(INIT, NULLS, FIXED);
     assertEquals(PARAMS, other);
     assertEquals(PARAMS.hashCode(), other.hashCode());
-    other = new TransformParameters(new DoubleMatrix1D(new double[] {1, 2, 4, 5}), NULLS, FIXED);
+    other = new UncoupledParameterTransforms(new DoubleMatrix1D(new double[] {1, 2, 4, 5}), NULLS, FIXED);
     assertFalse(other.equals(PARAMS));
-    other = new TransformParameters(INIT, new ParameterLimitsTransform[] {new DoubleRangeLimitTransform(1, 2), new NullTransform(), new NullTransform(), new NullTransform()}, FIXED);
+    other = new UncoupledParameterTransforms(INIT, new ParameterLimitsTransform[] {new DoubleRangeLimitTransform(1, 2), new NullTransform(), new NullTransform(), new NullTransform()}, FIXED);
     assertFalse(other.equals(PARAMS));
-    other = new TransformParameters(INIT, NULLS, new BitSet(4));
+    other = new UncoupledParameterTransforms(INIT, NULLS, new BitSet(4));
     assertFalse(other.equals(PARAMS));
   }
 

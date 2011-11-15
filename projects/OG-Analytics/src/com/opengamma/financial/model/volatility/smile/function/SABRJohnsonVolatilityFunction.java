@@ -18,7 +18,7 @@ import com.opengamma.util.CompareUtils;
 /**
  * From the paper Johnson & Nonas, Arbitrage-free construction of the swaption cube (2009). <b>Note:</b> truncation weight does not seem to work
  */
-public class SABRJohnsonVolatilityFunction implements VolatilityFunctionProvider<SABRFormulaData> {
+public class SABRJohnsonVolatilityFunction extends VolatilityFunctionProvider<SABRFormulaData> {
   private static final double EPS = 1e-15;
   private static final CEVPriceFunction CEV_FUNCTION = new CEVPriceFunction();
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();

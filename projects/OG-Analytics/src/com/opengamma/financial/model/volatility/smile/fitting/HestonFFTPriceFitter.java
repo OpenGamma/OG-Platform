@@ -15,7 +15,7 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.minimization.TransformParameters;
+import com.opengamma.math.minimization.UncoupledParameterTransforms;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 
 /**
@@ -48,7 +48,7 @@ public class HestonFFTPriceFitter extends HestonFFTSmileFitter {
       strikes[i] = options[i].getStrike();
       prices[i] = BLACK_PRICE_FUNCTION.getPriceFunction(options[i]).evaluate(data[i]);
     }
-    final TransformParameters transforms = new TransformParameters(new DoubleMatrix1D(initialFitParameters), getTransforms(), fixed);
+    final UncoupledParameterTransforms transforms = new UncoupledParameterTransforms(new DoubleMatrix1D(initialFitParameters), getTransforms(), fixed);
     final double lowStrike = strikes[0];
     final double highStrike = strikes[n - 1];
     final double limitSigma = (data[0].getBlackVolatility() + data[n - 1].getBlackVolatility()) / 2.0;

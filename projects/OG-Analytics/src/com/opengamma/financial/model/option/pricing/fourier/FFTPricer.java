@@ -45,9 +45,9 @@ public class FFTPricer {
     Validate.notNull(ce, "characteristic exponent");
     Validate.isTrue(tol > 0.0, "need tol > 0");
     Validate.isTrue(alpha != 0.0 && alpha != -1.0, "alpha cannot be -1 or 0");
-
-    Validate.isTrue(lowestStrike <= forward, "need lowestStrike <= forward");
-    Validate.isTrue(highestStrike >= forward, "need highestStrike >= forward");
+    Validate.isTrue(highestStrike >= lowestStrike, "need highestStrike >= lowestStrike");
+    //   Validate.isTrue(lowestStrike <= forward, "need lowestStrike <= forward");
+    //    Validate.isTrue(highestStrike >= forward, "need highestStrike >= forward");
     Validate.isTrue(limitSigma > 0.0, "need limitSigma > 0");
 
     double kMax;
@@ -80,8 +80,8 @@ public class FFTPricer {
     final double delta = 2 * Math.PI / n / deltaK;
     final int m = (int) (xMax * deltaK * n / 2 / Math.PI);
 
-    final int nLowStrikes = (int) Math.ceil(Math.log(forward / lowestStrike) / deltaK);
-    final int nHighStrikes = (int) Math.ceil(Math.log(highestStrike / forward) / deltaK);
+    final int nLowStrikes = (int) Math.max(0, Math.ceil(Math.log(forward / lowestStrike) / deltaK));
+    final int nHighStrikes = (int) Math.max(0, Math.ceil(Math.log(highestStrike / forward) / deltaK));
 
     return price(forward, discountFactor, t, isCall, ce, nLowStrikes, nHighStrikes, alpha, delta, n, m);
   }
@@ -101,7 +101,7 @@ public class FFTPricer {
    * @param tol Tolerance - smaller values give higher accuracy 
    * @return array of arrays of strikes and prices 
    */
-  public double[][] price(final double forward, final double discountFactor, final double t, final boolean isCall, final MartingaleCharacteristicExponent ce, final int nStrikes, 
+  public double[][] price(final double forward, final double discountFactor, final double t, final boolean isCall, final MartingaleCharacteristicExponent ce, final int nStrikes,
       final double maxDeltaMoneyness,
       final double limitSigma, final double alpha,
       final double tol) {

@@ -29,7 +29,9 @@ public class DoubleQuadraticInterpolator1D extends Interpolator1D {
     final int n = data.size() - 1;
     final double[] xData = data.getKeys();
     final double[] yData = data.getValues();
-    if (low == 0) {
+    if (low == n) {
+      return yData[n];
+    } else if (low == 0) {
       final RealPolynomialFunction1D quadratic = quadraticData.getQuadratic(0);
       final double x = value - xData[1];
       return quadratic.evaluate(x);
@@ -37,8 +39,6 @@ public class DoubleQuadraticInterpolator1D extends Interpolator1D {
       final RealPolynomialFunction1D quadratic = quadraticData.getQuadratic(n - 2);
       final double x = value - xData[n - 1];
       return quadratic.evaluate(x);
-    } else if (low == n) {
-      return yData[n];
     }
     final RealPolynomialFunction1D quadratic1 = quadraticData.getQuadratic(low - 1);
     final RealPolynomialFunction1D quadratic2 = quadraticData.getQuadratic(high - 1);

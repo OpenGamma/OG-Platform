@@ -32,7 +32,7 @@ import com.opengamma.math.minimization.DoubleRangeLimitTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.math.minimization.SingleRangeLimitTransform;
-import com.opengamma.math.minimization.TransformParameters;
+import com.opengamma.math.minimization.UncoupledParameterTransforms;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.tuple.DoublesPair;
@@ -46,7 +46,7 @@ public class TwoStateMarkovChainFitter {
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
   private static final GridInterpolator2D GRID_INTERPOLATOR2D = new GridInterpolator2D(INTERPOLATOR_1D, INTERPOLATOR_1D);
-  private static final TransformParameters TRANSFORMS;
+  private static final UncoupledParameterTransforms TRANSFORMS;
 
   static {
     final ParameterLimitsTransform[] trans = new ParameterLimitsTransform[6];
@@ -61,7 +61,7 @@ public class TwoStateMarkovChainFitter {
     trans[4] = new DoubleRangeLimitTransform(0.0, 1.0);
     trans[5] = new DoubleRangeLimitTransform(0.0, 2.0);
     // trans[6] = new DoubleRangeLimitTransform(0.0, 2.0);
-    TRANSFORMS = new TransformParameters(new DoubleMatrix1D(new double[6]), trans, new BitSet());
+    TRANSFORMS = new UncoupledParameterTransforms(new DoubleMatrix1D(new double[6]), trans, new BitSet());
   }
 
   private final double _theta;
@@ -76,7 +76,7 @@ public class TwoStateMarkovChainFitter {
 
   public LeastSquareResults fit(final ForwardCurve forward, final List<Pair<double[], Double>> marketVols, final DoubleMatrix1D initialGuess) {
 
-    Validate.isTrue(initialGuess.getNumberOfElements() == TRANSFORMS.getNumberOfFunctionParameters());
+    Validate.isTrue(initialGuess.getNumberOfElements() == TRANSFORMS.getNumberOfModelParameters());
     TRANSFORMS.transform(initialGuess);
 
     final int nMarketValues = marketVols.size();
@@ -154,6 +154,7 @@ public class TwoStateMarkovChainFitter {
       @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+//        long timer = System.nanoTime();
         final DoubleMatrix1D y = TRANSFORMS.inverseTransform(x);
         final double vol1 = y.getEntry(0);
         final double deltaVol = y.getEntry(1);
@@ -163,8 +164,13 @@ public class TwoStateMarkovChainFitter {
         final double beta = y.getEntry(5);
         final TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(vol1, vol1 + deltaVol, lambda12, lambda21, p0, beta, beta);
         final TwoStateMarkovChainPricer mc = new TwoStateMarkovChainPricer(forward, chainData);
+//        long timer1 = System.nanoTime();
         final PDEFullResults1D res = mc.solve(grid, _theta);
+//        System.out.println("time1 " + ((System.nanoTime() - timer1)/1e6)+"ms");
+//        long timer2 = System.nanoTime();
         final Map<DoublesPair, Double> data = PDEUtilityTools.priceToImpliedVol(forward, res, minT, maxT, minK, maxK);
+//        System.out.println("time2 " + ((System.nanoTime() - timer2)/1e6)+"ms");
+//        long timer3 = System.nanoTime();
         final Map<Double, Interpolator1DDataBundle> dataBundle = GRID_INTERPOLATOR2D.getDataBundle(data);
         final double[] modVols = new double[nMarketValues];
         for (int i = 0; i < nMarketValues; i++) {
@@ -176,6 +182,8 @@ public class TwoStateMarkovChainFitter {
             System.out.println("arrrgggg");
           }
         }
+//        System.out.println("time3 " + ((System.nanoTime() - timer3)/1e6)+"ms");
+//        System.out.println("time " + ((System.nanoTime() - timer)/1e6)+"ms");
         //debug(DataBundle);
         return new DoubleMatrix1D(modVols);
       }
@@ -242,7 +250,7 @@ public class TwoStateMarkovChainFitter {
             final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
             try {
               final double impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
-              final Pair<double[], Double> pair = new ObjectsPair<double[], Double>(new double[] {prices.getTimeValue(i), prices.getSpaceValue(j)}, impVol);
+              final Pair<double[], Double> pair = new ObjectsPair<double[], Double>(new double[] {prices.getTimeValue(i), prices.getSpaceValue(j) }, impVol);
               out.add(pair);
             } catch (final Exception e) {
               System.out.println("can't find vol for strike: " + prices.getSpaceValue(j) + " and expiry " + prices.getTimeValue(i) + " . Not added to data set");
