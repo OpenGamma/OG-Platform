@@ -46,7 +46,7 @@
         (function () {
             if (table_resizers.length > 1) return;
             var $style = $('<style type="text/css" />').appendTo($('head')),
-                css = '.js-awesometable div table *:before, .js-awesometable div table *:after {display: none}';
+                css = '.js-awesometable div thead *:before, .js-awesometable div thead *:after {display: none}';
             if ($style[0].styleSheet) $style[0].styleSheet.cssText = css; // IE
             else $style[0].appendChild(document.createTextNode(css));
         }());
