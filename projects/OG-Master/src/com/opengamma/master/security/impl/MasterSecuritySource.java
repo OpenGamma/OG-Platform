@@ -6,7 +6,10 @@
 package com.opengamma.master.security.impl;
 
 import java.util.Collection;
+import java.util.Map;
 
+import com.google.common.collect.Maps;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -55,6 +58,20 @@ public class MasterSecuritySource extends AbstractMasterSource<SecurityDocument,
   @Override
   public ManageableSecurity getSecurity(UniqueId uniqueId) {
     return getDocument(uniqueId).getSecurity();
+  }
+  
+  @Override
+  public Map<UniqueId, Security> getSecurity(Collection<UniqueId> uniqueIds) {
+    Map<UniqueId, Security> result = Maps.newHashMap();
+    for (UniqueId uniqueId : uniqueIds) {
+      try {
+        ManageableSecurity security = getSecurity(uniqueId);
+        result.put(uniqueId, security);
+      } catch (DataNotFoundException ex) {
+        // do nothing
+      }
+    }
+    return result;
   }
 
   @Override
