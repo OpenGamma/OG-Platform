@@ -617,6 +617,12 @@ public final class DependencyGraphBuilder {
       //s_loggerContext.info("Used memory = {}M", (double) (rt.totalMemory() - rt.freeMemory()) / 1e6);
     }
 
+    private synchronized void discardIntermediateState() {
+      reportStateSize();
+      _requirements.clear();
+      _specifications.clear();
+    }
+
   };
 
   private final int _objectId = s_nextObjectId.incrementAndGet();
@@ -1146,7 +1152,8 @@ public final class DependencyGraphBuilder {
       graph.dumpStructureASCII(ps);
       ps.close();
     }
-    getContext().reportStateSize();
+    // Clear out the build caches
+    getContext().discardIntermediateState();
     return graph;
   }
 
