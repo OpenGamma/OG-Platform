@@ -5,7 +5,7 @@
 }
 
 .OG-icon.og-icon-collapse:after {
-  background-position: 0 -25px;
+  background-position: -59px -25px;
   background-color: transparent;
   height: 9px;
   width: 9px;
@@ -13,7 +13,7 @@
 }
 
 .OG-icon.og-icon-collapse:hover:after {
-  background-position: -59px -25px;
+  background-position: 0 -25px;
   background-color: transparent;
   height: 9px;
   width: 9px;
