@@ -7,6 +7,7 @@ package com.opengamma.engine.depgraph;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,7 +35,6 @@ import com.opengamma.engine.value.ValueSpecification;
       new HashMap<ParameterizedFunction, Map<ComputationTarget, List<DependencyNode>>>();
   private final Collection<DependencyNode> _graphNodes = new ArrayList<DependencyNode>();
   private final Map<ValueRequirement, ValueSpecification> _resolvedValues = new HashMap<ValueRequirement, ValueSpecification>();
-  private final Set<ValueSpecification> _downstream = new HashSet<ValueSpecification>();
   private ResolutionFailureVisitor _failureVisitor;
 
   public GetTerminalValuesCallback(final ResolutionFailureVisitor failureVisitor) {
@@ -96,16 +96,15 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   // Caller must already hold the monitor
-  private DependencyNode getOrCreateNode(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue) {
+  private DependencyNode getOrCreateNode(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream) {
     s_logger.debug("Resolved {} to {}", valueRequirement, resolvedValue.getValueSpecification());
-    if (!_downstream.add(resolvedValue.getValueSpecification())) {
+    if (downstream.contains(resolvedValue.getValueSpecification())) {
       s_logger.debug("Already have downstream production of {}", resolvedValue.getValueSpecification());
       return null;
     }
     DependencyNode useExisting = _spec2Node.get(resolvedValue.getValueSpecification());
     if (useExisting != null) {
       s_logger.debug("Existing production of {} found in graph set", resolvedValue);
-      _downstream.remove(resolvedValue.getValueSpecification());
       return useExisting;
     }
     final List<DependencyNode> nodes = getOrCreateNodes(resolvedValue.getFunction(), resolvedValue.getComputationTarget());
@@ -131,6 +130,7 @@ import com.opengamma.engine.value.ValueSpecification;
     for (ValueSpecification output : resolvedValue.getFunctionOutputs()) {
       node.addOutputValue(output);
     }
+    Set<ValueSpecification> downstreamCopy = null;
     for (final ValueSpecification input : resolvedValue.getFunctionInputs()) {
       node.addInputValue(input);
       DependencyNode inputNode = _spec2Node.get(input);
@@ -141,31 +141,39 @@ import com.opengamma.engine.value.ValueSpecification;
         s_logger.debug("Finding node productions for {}", input);
         final Map<ResolveTask, ResolvedValueProducer> resolver = context.getTasksProducing(input);
         if (!resolver.isEmpty()) {
+          final Set<ValueSpecification> downstreamFinal;
+          if (downstreamCopy != null) {
+            downstreamFinal = downstreamCopy;
+          } else {
+            downstreamCopy = new HashSet<ValueSpecification>(downstream);
+            downstreamCopy.add(resolvedValue.getValueSpecification());
+            downstreamFinal = downstreamCopy;
+          }
           final ResolvedValueCallback callback = new ResolvedValueCallback() {
-
-            private boolean _resolved;
 
             @Override
             public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
               // This shouldn't happen; if the value we're considering was produced once then at least one producer should be able
               // to produce it again.
-              if (!_resolved) {
-                s_logger.warn("No node production for {}", value);
-              }
+              s_logger.warn("No node production for {}", value);
             }
 
             @Override
             public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
+              boolean callPump = false;
               synchronized (GetTerminalValuesCallback.this) {
-                if (!_resolved) {
-                  final DependencyNode inputNode = getOrCreateNode(context, valueRequirement, resolvedValue);
-                  if (inputNode != null) {
-                    _resolved = true;
-                    node.addInputNode(inputNode);
-                  }
+                final DependencyNode inputNode = getOrCreateNode(context, valueRequirement, resolvedValue, downstreamFinal);
+                if (inputNode != null) {
+                  node.addInputNode(inputNode);
+                } else {
+                  callPump = true;
                 }
               }
-              context.close(pump);
+              if (callPump) {
+                context.pump(pump);
+              } else {
+                context.close(pump);
+              }
             }
 
             @Override
@@ -174,10 +182,20 @@ import com.opengamma.engine.value.ValueSpecification;
             }
 
           };
-          for (Map.Entry<ResolveTask, ResolvedValueProducer> resolvedEntry : resolver.entrySet()) {
-            resolvedEntry.getValue().addCallback(context, callback);
-            // Only the values are ref-counted
-            resolvedEntry.getValue().release(context);
+          if (resolver.size() > 1) {
+            final AggregateResolvedValueProducer aggregate = new AggregateResolvedValueProducer(input.toRequirementSpecification());
+            for (Map.Entry<ResolveTask, ResolvedValueProducer> resolvedEntry : resolver.entrySet()) {
+              aggregate.addProducer(context, resolvedEntry.getValue());
+              // Only the values are ref-counted
+              resolvedEntry.getValue().release(context);
+            }
+            aggregate.addCallback(context, callback);
+            aggregate.start(context);
+            aggregate.release(context);
+          } else {
+            final ResolvedValueProducer valueProducer = resolver.values().iterator().next();
+            valueProducer.addCallback(context, callback);
+            valueProducer.release(context);
           }
         } else {
           s_logger.warn("No registered node production for {}", input);
@@ -189,14 +207,13 @@ import com.opengamma.engine.value.ValueSpecification;
     if (useExisting == null) {
       _graphNodes.add(node);
     }
-    _downstream.remove(resolvedValue.getValueSpecification());
     return node;
   }
 
   @Override
   public synchronized void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
     s_logger.info("Resolved {} to {}", valueRequirement, resolvedValue.getValueSpecification());
-    getOrCreateNode(context, valueRequirement, resolvedValue);
+    getOrCreateNode(context, valueRequirement, resolvedValue, Collections.<ValueSpecification>emptySet());
     _resolvedValues.put(valueRequirement, resolvedValue.getValueSpecification());
     context.close(pump);
   }
