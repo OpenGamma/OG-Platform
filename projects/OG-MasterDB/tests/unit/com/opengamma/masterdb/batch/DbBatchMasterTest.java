@@ -5,6 +5,26 @@
  */
 package com.opengamma.masterdb.batch;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.time.Instant;
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.OffsetTime;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
+
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.impl.MockPositionSource;
@@ -32,7 +52,6 @@ import com.opengamma.financial.batch.CommandLineBatchJob;
 import com.opengamma.financial.batch.CommandLineBatchJobRun;
 import com.opengamma.financial.batch.LiveDataValue;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
@@ -40,24 +59,6 @@ import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TransactionalHibernateTest;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Factory;
-import org.testng.annotations.Test;
-
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertTrue;
 
 /**
  * Test DbBatchMaster.
@@ -91,13 +92,13 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
     _batchJobRun = new CommandLineBatchJobRun(_batchJob);
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
 
-    ObjectId portfolioOid = ObjectId.of("foo", "bar");
+    UniqueId portfolioId = UniqueId.of("foo", "bar", "1");
 
     MockPositionSource positionSource = new MockPositionSource();
-    positionSource.addPortfolio(new SimplePortfolio(portfolioOid.atVersion("1"), "test_portfolio"));
+    positionSource.addPortfolio(new SimplePortfolio(portfolioId, "test_portfolio"));
     env.setPositionSource(positionSource);
 
-    ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioOid, "ViewTestUser");
+    ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId.toLatest(), "ViewTestUser");
     env.setViewDefinition(viewDefinition);
 
     env.init();

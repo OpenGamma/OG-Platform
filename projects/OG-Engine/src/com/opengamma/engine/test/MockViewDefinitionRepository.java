@@ -22,6 +22,9 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
+/**
+ * 
+ */
 public class MockViewDefinitionRepository implements ViewDefinitionRepository, Serializable {
 
   private static final long serialVersionUID = 1L;

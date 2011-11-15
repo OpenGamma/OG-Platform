@@ -61,11 +61,12 @@ public class PositionExchangeTradedDailyPnLFunction extends AbstractTradeOrDaily
 
   @Override
   protected HistoricalTimeSeries getMarkToMarketSeries(HistoricalTimeSeriesSource historicalSource, String fieldName, ExternalIdBundle bundle, String resolutionKey, LocalDate tradeDate) {
+    LocalDate from = tradeDate.minusDays(MAX_DAYS_OLD);
     HistoricalTimeSeries hts = historicalSource.getHistoricalTimeSeries(fieldName, bundle, resolutionKey,
-                                                    tradeDate.minusDays(MAX_DAYS_OLD), true, tradeDate, true);
+                                                    from, true, tradeDate, true);
     if (hts == null || hts.getTimeSeries() == null) {
-      s_logger.warn("Could not get identifier / mark to market series pair for security " + bundle + " for " + fieldName + " using " + resolutionKey + 
-                    " from " + tradeDate.minusDays(MAX_DAYS_OLD) + " to " + tradeDate);
+      s_logger.debug("Could not get identifier / mark to market series pair for security {} for {}  using {} from {} to {}",
+                    new Object[] {bundle, fieldName, resolutionKey, from, tradeDate});
     }
     return hts;
   }

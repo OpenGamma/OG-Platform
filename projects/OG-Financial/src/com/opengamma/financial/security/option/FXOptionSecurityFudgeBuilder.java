@@ -39,6 +39,8 @@ public class FXOptionSecurityFudgeBuilder extends AbstractFudgeBuilder implement
   public static final String SETTLEMENT_DATE_FIELD_NAME = "settlementDate";
   /** Field name. */
   public static final String IS_LONG_FIELD_NAME = "isLong";
+  /** Field name. */
+  public static final String EXERCISE_TYPE_FIELD_NAME = "exerciseType";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, FXOptionSecurity object) {
@@ -56,6 +58,7 @@ public class FXOptionSecurityFudgeBuilder extends AbstractFudgeBuilder implement
     addToMessage(msg, EXPIRY_FIELD_NAME, ExpiryFudgeBuilder.toFudgeMsg(serializer, object.getExpiry()));
     addToMessage(msg, SETTLEMENT_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getSettlementDate()));
     addToMessage(msg, IS_LONG_FIELD_NAME, object.isLong());
+    addToMessage(msg, EXERCISE_TYPE_FIELD_NAME, ExerciseTypeFudgeBuilder.toFudgeMsg(serializer, object.getExerciseType()));
   }
 
   @Override
@@ -74,6 +77,7 @@ public class FXOptionSecurityFudgeBuilder extends AbstractFudgeBuilder implement
     object.setExpiry(ExpiryFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_FIELD_NAME)));
     object.setSettlementDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(SETTLEMENT_DATE_FIELD_NAME)));
     object.setLongShort(LongShort.ofLong(msg.getBoolean(IS_LONG_FIELD_NAME)));
+    object.setExerciseType(ExerciseTypeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXERCISE_TYPE_FIELD_NAME)));
   }
 
 }

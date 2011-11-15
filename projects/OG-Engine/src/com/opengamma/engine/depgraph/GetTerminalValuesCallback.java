@@ -6,7 +6,9 @@
 package com.opengamma.engine.depgraph;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,7 +21,6 @@ import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Handles callback notifications of terminal values to populate a graph set.
@@ -31,15 +32,12 @@ import com.opengamma.util.ArgumentChecker;
   private final Map<ValueSpecification, DependencyNode> _spec2Node = new HashMap<ValueSpecification, DependencyNode>();
   private final Map<ParameterizedFunction, Map<ComputationTarget, List<DependencyNode>>> _func2target2nodes =
       new HashMap<ParameterizedFunction, Map<ComputationTarget, List<DependencyNode>>>();
-  private final Set<DependencyNode> _graphNodes;
-  private final Map<ValueRequirement, ValueSpecification> _resolvedValues;
+  private final Collection<DependencyNode> _graphNodes = new ArrayList<DependencyNode>();
+  private final Map<ValueRequirement, ValueSpecification> _resolvedValues = new HashMap<ValueRequirement, ValueSpecification>();
+  private final Set<ValueSpecification> _downstream = new HashSet<ValueSpecification>();
   private ResolutionFailureVisitor _failureVisitor;
 
-  public GetTerminalValuesCallback(final Set<DependencyNode> graphNodes, final Map<ValueRequirement, ValueSpecification> resolvedValues, final ResolutionFailureVisitor failureVisitor) {
-    ArgumentChecker.notNull(graphNodes, "graphNodes");
-    ArgumentChecker.notNull(resolvedValues, "resolvedValues");
-    _graphNodes = graphNodes;
-    _resolvedValues = resolvedValues;
+  public GetTerminalValuesCallback(final ResolutionFailureVisitor failureVisitor) {
     _failureVisitor = failureVisitor;
   }
 
@@ -100,9 +98,14 @@ import com.opengamma.util.ArgumentChecker;
   // Caller must already hold the monitor
   private DependencyNode getOrCreateNode(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue) {
     s_logger.debug("Resolved {} to {}", valueRequirement, resolvedValue.getValueSpecification());
+    if (!_downstream.add(resolvedValue.getValueSpecification())) {
+      s_logger.debug("Already have downstream production of {}", resolvedValue.getValueSpecification());
+      return null;
+    }
     DependencyNode useExisting = _spec2Node.get(resolvedValue.getValueSpecification());
     if (useExisting != null) {
       s_logger.debug("Existing production of {} found in graph set", resolvedValue);
+      _downstream.remove(resolvedValue.getValueSpecification());
       return useExisting;
     }
     final List<DependencyNode> nodes = getOrCreateNodes(resolvedValue.getFunction(), resolvedValue.getComputationTarget());
@@ -146,15 +149,20 @@ import com.opengamma.util.ArgumentChecker;
             public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
               // This shouldn't happen; if the value we're considering was produced once then at least one producer should be able
               // to produce it again.
+              if (!_resolved) {
+                s_logger.warn("No node production for {}", value);
+              }
             }
 
             @Override
             public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
               synchronized (GetTerminalValuesCallback.this) {
                 if (!_resolved) {
-                  _resolved = true;
                   final DependencyNode inputNode = getOrCreateNode(context, valueRequirement, resolvedValue);
-                  node.addInputNode(inputNode);
+                  if (inputNode != null) {
+                    _resolved = true;
+                    node.addInputNode(inputNode);
+                  }
                 }
               }
               context.close(pump);
@@ -178,7 +186,10 @@ import com.opengamma.util.ArgumentChecker;
     }
     s_logger.debug("Adding {} to graph set", node);
     _spec2Node.put(resolvedValue.getValueSpecification(), node);
-    _graphNodes.add(node);
+    if (useExisting == null) {
+      _graphNodes.add(node);
+    }
+    _downstream.remove(resolvedValue.getValueSpecification());
     return node;
   }
 
@@ -193,6 +204,14 @@ import com.opengamma.util.ArgumentChecker;
   @Override
   public String toString() {
     return "TerminalValueCallback";
+  }
+
+  public synchronized Collection<DependencyNode> getGraphNodes() {
+    return new ArrayList<DependencyNode>(_graphNodes);
+  }
+
+  public synchronized Map<ValueRequirement, ValueSpecification> getTerminalValues() {
+    return new HashMap<ValueRequirement, ValueSpecification>(_resolvedValues);
   }
 
 };

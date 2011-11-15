@@ -31,7 +31,7 @@ public class ViewCycleExecutionOptions {
   /**
    * Constructs an instance, specifying a valuation time.
    * 
-   * @param valuationTimeProvider  the valuation time provider, may be {@code null}
+   * @param valuationTimeProvider  the valuation time provider, may be null
    */
   public ViewCycleExecutionOptions(InstantProvider valuationTimeProvider) {
     setValuationTime(valuationTimeProvider.toInstant());
@@ -40,7 +40,7 @@ public class ViewCycleExecutionOptions {
   /**
    * Constructs an instance, specifying a market data specification.
    * 
-   * @param marketDataSpec  the market data specification, may be {@code null}
+   * @param marketDataSpec  the market data specification, may be null
    */
   public ViewCycleExecutionOptions(MarketDataSpecification marketDataSpec) {
     setMarketDataSpecification(marketDataSpec);
@@ -49,8 +49,8 @@ public class ViewCycleExecutionOptions {
   /**
    * Constructs an instance.
    * 
-   * @param valuationTimeProvider  the valuation time provider, may be {@code null}
-   * @param marketDataSpec  the market data specification, may be {@code null}
+   * @param valuationTimeProvider  the valuation time provider, may be null
+   * @param marketDataSpec  the market data specification, may be null
    */
   public ViewCycleExecutionOptions(InstantProvider valuationTimeProvider, MarketDataSpecification marketDataSpec) {
     setValuationTime(valuationTimeProvider);
@@ -61,7 +61,7 @@ public class ViewCycleExecutionOptions {
    * Gets the valuation time. Normally the valuation time is the timestamp associated with the market data snapshot,
    * but this valuation time will be used instead if specified. 
    * 
-   * @return the valuation time, or {@code null} if not specified
+   * @return the valuation time, or null if not specified
    */
   public Instant getValuationTime() {
     return _valuationTime;
@@ -71,7 +71,7 @@ public class ViewCycleExecutionOptions {
    * Sets the valuation time. Normally the valuation time is the timestamp associated with the market data snapshot,
    * but this valuation time will be used instead if specified.
    * 
-   * @param valuationTimeProvider  the valuation time provider, may be {@code null}
+   * @param valuationTimeProvider  the valuation time provider, may be null
    */
   public void setValuationTime(InstantProvider valuationTimeProvider) {
     _valuationTime = valuationTimeProvider != null ? valuationTimeProvider.toInstant() : null;
@@ -80,7 +80,7 @@ public class ViewCycleExecutionOptions {
   /**
    * Gets the market data specification.
    * 
-   * @return the market data specification, or {@code null} if not specified
+   * @return the market data specification, or null if not specified
    */
   public MarketDataSpecification getMarketDataSpecification() {
     return _marketDataSpecification;
@@ -89,7 +89,7 @@ public class ViewCycleExecutionOptions {
   /**
    * Sets the market data specification.
    * 
-   * @param marketDataSpec  the market data specification, may be {@code null}
+   * @param marketDataSpec  the market data specification, may be null
    */
   public void setMarketDataSpecification(MarketDataSpecification marketDataSpec) {
     _marketDataSpecification = marketDataSpec;

@@ -27,7 +27,7 @@ public final class SpecificRequirementsCompiler {
    * Adds any specific requirements mentioned in the view calculation configurations to the dependency graphs.
    * 
    * @param compilationContext  the context of the view definition compilation
-   * @return the set of target types found in the specific requirements, not {@code null}
+   * @return the set of target types found in the specific requirements, not null
    */
   public static EnumSet<ComputationTargetType> execute(ViewCompilationContext compilationContext) {
     EnumSet<ComputationTargetType> specificTargetTypes = EnumSet.noneOf(ComputationTargetType.class);

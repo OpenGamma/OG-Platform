@@ -11,6 +11,8 @@ import static com.opengamma.masterdb.security.hibernate.Converters.expiryToExpir
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.financial.security.option.ExerciseType;
+import com.opengamma.financial.security.option.ExerciseTypeVisitorImpl;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.Converters;
@@ -43,16 +45,18 @@ public final class FxOptionSecurityBeanOperation extends AbstractSecurityBeanOpe
     bean.setExpiry(expiryToExpiryBean(security.getExpiry()));
     bean.setSettlementDate(Converters.dateTimeWithZoneToZonedDateTimeBean(security.getSettlementDate()));
     bean.setIsLong(security.isLong());
+    bean.setOptionExerciseType(OptionExerciseType.identify(security.getExerciseType()));
     return bean;
   }
 
   @Override
   public FXOptionSecurity createSecurity(OperationContext context, FXOptionSecurityBean bean) {
+    final ExerciseType exerciseType = bean.getOptionExerciseType().accept(new ExerciseTypeVisitorImpl());
     Currency putCurrency = currencyBeanToCurrency(bean.getPutCurrency());
     Currency callCurrency = currencyBeanToCurrency(bean.getCallCurrency());
     Expiry expiry = expiryBeanToExpiry(bean.getExpiry());
     ZonedDateTime settlementDate = Converters.zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate());
-    FXOptionSecurity sec = new FXOptionSecurity(putCurrency, callCurrency, bean.getPutAmount(), bean.getCallAmount(), expiry, settlementDate, bean.getIsLong());
+    FXOptionSecurity sec = new FXOptionSecurity(putCurrency, callCurrency, bean.getPutAmount(), bean.getCallAmount(), expiry, settlementDate, bean.getIsLong(), exerciseType);
     return sec;
   }
 

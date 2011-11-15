@@ -61,7 +61,7 @@ public class ViewProcess implements ViewProcessMBean {
   
   @Override
   public String getPortfolioIdentifier() {
-    return _viewProcess.getLatestViewDefinition().getPortfolioOid().toString();
+    return _viewProcess.getLatestViewDefinition().getPortfolioId().toString();
   }
 
   @Override

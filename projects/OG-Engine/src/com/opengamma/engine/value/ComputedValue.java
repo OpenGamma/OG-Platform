@@ -32,6 +32,8 @@ public class ComputedValue implements Serializable {
   //never actually made use of that functionality. We'll split it if and when we have
   //a compelling reason to do so.
 
+  private static final long serialVersionUID = 1L;
+  
   /**
    * The specification of the value.
    */
