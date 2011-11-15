@@ -25,7 +25,11 @@ public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFacto
   private long _maximumJobCost = Long.MAX_VALUE;
   private int _maximumConcurrency = Integer.MAX_VALUE;
   private FunctionCosts _functionCosts;
-
+  
+  protected ExecutionPlanCache getExecutionPlanCache() {
+    return _executionPlanCache;
+  }
+  
   public void setMinimumJobItems(final int minimumJobItems) {
     _minimumJobItems = minimumJobItems;
     invalidateExecutionPlanCache();

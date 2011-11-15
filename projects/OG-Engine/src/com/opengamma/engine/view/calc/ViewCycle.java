@@ -61,7 +61,7 @@ public interface ViewCycle extends UniqueIdentifiable {
    * @return the output of the view cycle, not null
    */
   ViewComputationResultModel getResultModel();
-  
+
   /**
    * Queries the view cycle for values.
    * <p>

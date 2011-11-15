@@ -53,9 +53,24 @@ public class AbstractExceptionMapper {
       return Response.status(_status)
         .header(ExceptionThrowingClientFilter.EXCEPTION_TYPE, exception.getClass().getName())
         .header(ExceptionThrowingClientFilter.EXCEPTION_MESSAGE, exception.getMessage())
+        .header(ExceptionThrowingClientFilter.EXCEPTION_POINT, packStackTrace(exception))
         .type(MediaType.TEXT_PLAIN_TYPE)
         .entity("Status: " + _status.getStatusCode() + " " + _status.getReasonPhrase() + "; Message: " + exception.getMessage())
         .build();
+    }
+  }
+
+  private String packStackTrace(Throwable exception) {
+    StackTraceElement[] stackTrace = exception.getStackTrace();
+    switch (stackTrace.length) {
+      case 0:
+        return "Unknown";
+      case 1:
+        return stackTrace[0].toString();
+      case 2:
+        return stackTrace[0].toString() + '\n' + stackTrace[1].toString();
+      default:
+        return stackTrace[0].toString() + '\n' + stackTrace[1].toString() + '\n' + stackTrace[2].toString();
     }
   }
 

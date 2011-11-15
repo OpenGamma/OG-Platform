@@ -25,5 +25,10 @@ public class LabelledMatrix2DBuilderTest extends AnalyticsTestBase {
     final double[][] values = new double[][] {new double[] {1, 2, 3, 4, 5}, new double[] {2, 4, 6, 8, 10}, new double[] {3, 6, 9, 12, 15}};
     DoubleLabelledMatrix2D m1 = new DoubleLabelledMatrix2D(xKeys, xLabels, yKeys, yLabels, values);
     assertEquals(m1, cycleObject(DoubleLabelledMatrix2D.class, m1));
+    DoubleLabelledMatrix2D m2 = new DoubleLabelledMatrix2D(xKeys, xLabels, "x", yKeys, yLabels, "y", values, "values");
+    assertEquals(m2, cycleObject(DoubleLabelledMatrix2D.class, m2));
   }
+  
+  
+  
 }

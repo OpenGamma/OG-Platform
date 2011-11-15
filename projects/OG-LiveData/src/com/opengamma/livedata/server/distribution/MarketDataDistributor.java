@@ -148,7 +148,7 @@ public class MarketDataDistributor {
    * the message became empty and therefore should not be sent.
    */
   private FudgeMsg normalize(FudgeMsg msg) {
-    FudgeMsg normalizedMsg = _distributionSpec.getNormalizedMessage(msg, _history);
+    FudgeMsg normalizedMsg = _distributionSpec.getNormalizedMessage(msg, _subscription.getSecurityUniqueId(), _history);
     return normalizedMsg;
   }
   

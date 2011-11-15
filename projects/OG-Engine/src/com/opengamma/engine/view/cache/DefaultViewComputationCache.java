@@ -57,6 +57,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
   /**
    * The size of recent values that have gone into or come out of this cache.
    */
+  @SuppressWarnings({"rawtypes", "unchecked" })
   private final ThreadLocal<Map<ValueSpecification, Integer>> _valueSizeCache = new ThreadLocal(); //NOTE: this being thread local is dangerous, but avoids blocking
 
   private Map<ValueSpecification, Integer> getValueSizeCache() {

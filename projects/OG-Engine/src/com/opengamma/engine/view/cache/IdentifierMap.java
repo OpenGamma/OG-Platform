@@ -39,7 +39,7 @@ public interface IdentifierMap {
    * multiple value requests.
    * 
    * @param specs The specifications to lookup or allocate identifiers for
-   * @return The identifiers, not {@code null}.
+   * @return The identifiers, not null.
    */
   Map<ValueSpecification, Long> getIdentifiers(Collection<ValueSpecification> specs);
   
@@ -47,7 +47,7 @@ public interface IdentifierMap {
    * Inverse of {@link #getIdentifiers}.
    * 
    * @param identifiers The identifiers to look up
-   * @return The specifications, not {@code null}.
+   * @return The specifications, not null.
    */
   Map<Long, ValueSpecification> getValueSpecifications(Collection<Long> identifiers);
 

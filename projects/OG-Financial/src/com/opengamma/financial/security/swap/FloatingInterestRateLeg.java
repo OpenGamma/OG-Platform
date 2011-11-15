@@ -42,15 +42,20 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
   @PropertyDefinition
   private Double _initialFloatingRate;
   /**
-   * The spread.
+   * The floating rate type.
    */
-  @PropertyDefinition
-  private double _spread;
+  @PropertyDefinition(validate = "notNull")
+  private FloatingRateType _floatingRateType;
   /**
-   * The IBOR flag.
+   * The settlement days
    */
   @PropertyDefinition
-  private boolean _ibor;
+  private Integer _settlementDays;
+  /**
+   * The offset fixing frequency.
+   */
+  @PropertyDefinition
+  private Frequency _offsetFixing;
 
   /**
    * Creates an instance.
@@ -66,38 +71,16 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
    * @param regionIdentifier  the region, not null
    * @param businessDayConvention  the business day convention, not null
    * @param notional  the notional, not null
+   * @param eom  whether this is EOM
    * @param floatingReferenceRateId  the reference rate, not null
-   * @param spread  the spread
-   * @param ibor  whether this is IBOR
+   * @param floatingRateType  the floating rate type, not null
    */
   public FloatingInterestRateLeg(DayCount dayCount, Frequency frequency, ExternalId regionIdentifier, BusinessDayConvention businessDayConvention,
-      Notional notional, ExternalId floatingReferenceRateId, double spread, boolean ibor) {
+      Notional notional, boolean eom, ExternalId floatingReferenceRateId, FloatingRateType floatingRateType) {
     super(dayCount, frequency, regionIdentifier, businessDayConvention, notional);
     setFloatingReferenceRateId(floatingReferenceRateId);
-    setSpread(spread);
-    setIbor(ibor);
-  }
-
-  /**
-   * Creates an instance.
-   * 
-   * @param dayCount  the day count, not null
-   * @param frequency  the frequency, not null
-   * @param regionIdentifier  the region, not null
-   * @param businessDayConvention  the business day convention, not null
-   * @param notional  the notional, not null
-   * @param floatingReferenceRateIdentifier  the reference rate, not null
-   * @param initialFloatingRate  the initial floating rate, may be null
-   * @param spread  the spread
-   * @param isIBOR  whether this is IBOR
-   */
-  public FloatingInterestRateLeg(DayCount dayCount, Frequency frequency, ExternalId regionIdentifier, BusinessDayConvention businessDayConvention,
-      Notional notional, ExternalId floatingReferenceRateIdentifier, Double initialFloatingRate, double spread, boolean isIBOR) {
-    super(dayCount, frequency, regionIdentifier, businessDayConvention, notional);
-    setFloatingReferenceRateId(floatingReferenceRateIdentifier);
-    setInitialFloatingRate(initialFloatingRate);
-    setSpread(spread);
-    setIbor(isIBOR);
+    setFloatingRateType(floatingRateType);
+    setEom(eom);
   }
 
   //-------------------------------------------------------------------------
@@ -131,10 +114,12 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
         return getFloatingReferenceRateId();
       case -1216922774:  // initialFloatingRate
         return getInitialFloatingRate();
-      case -895684237:  // spread
-        return getSpread();
-      case 3225788:  // ibor
-        return isIbor();
+      case 1642653280:  // floatingRateType
+        return getFloatingRateType();
+      case -295948000:  // settlementDays
+        return getSettlementDays();
+      case 180579872:  // offsetFixing
+        return getOffsetFixing();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -148,11 +133,14 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
       case -1216922774:  // initialFloatingRate
         setInitialFloatingRate((Double) newValue);
         return;
-      case -895684237:  // spread
-        setSpread((Double) newValue);
+      case 1642653280:  // floatingRateType
+        setFloatingRateType((FloatingRateType) newValue);
         return;
-      case 3225788:  // ibor
-        setIbor((Boolean) newValue);
+      case -295948000:  // settlementDays
+        setSettlementDays((Integer) newValue);
+        return;
+      case 180579872:  // offsetFixing
+        setOffsetFixing((Frequency) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -161,6 +149,7 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_floatingReferenceRateId, "floatingReferenceRateId");
+    JodaBeanUtils.notNull(_floatingRateType, "floatingRateType");
     super.validate();
   }
 
@@ -173,8 +162,9 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
       FloatingInterestRateLeg other = (FloatingInterestRateLeg) obj;
       return JodaBeanUtils.equal(getFloatingReferenceRateId(), other.getFloatingReferenceRateId()) &&
           JodaBeanUtils.equal(getInitialFloatingRate(), other.getInitialFloatingRate()) &&
-          JodaBeanUtils.equal(getSpread(), other.getSpread()) &&
-          JodaBeanUtils.equal(isIbor(), other.isIbor()) &&
+          JodaBeanUtils.equal(getFloatingRateType(), other.getFloatingRateType()) &&
+          JodaBeanUtils.equal(getSettlementDays(), other.getSettlementDays()) &&
+          JodaBeanUtils.equal(getOffsetFixing(), other.getOffsetFixing()) &&
           super.equals(obj);
     }
     return false;
@@ -185,8 +175,9 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getFloatingReferenceRateId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getInitialFloatingRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpread());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIbor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFloatingRateType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOffsetFixing());
     return hash ^ super.hashCode();
   }
 
@@ -243,52 +234,78 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the spread.
-   * @return the value of the property
+   * Gets the floating rate type.
+   * @return the value of the property, not null
    */
-  public double getSpread() {
-    return _spread;
+  public FloatingRateType getFloatingRateType() {
+    return _floatingRateType;
   }
 
   /**
-   * Sets the spread.
-   * @param spread  the new value of the property
+   * Sets the floating rate type.
+   * @param floatingRateType  the new value of the property, not null
    */
-  public void setSpread(double spread) {
-    this._spread = spread;
+  public void setFloatingRateType(FloatingRateType floatingRateType) {
+    JodaBeanUtils.notNull(floatingRateType, "floatingRateType");
+    this._floatingRateType = floatingRateType;
   }
 
   /**
-   * Gets the the {@code spread} property.
+   * Gets the the {@code floatingRateType} property.
    * @return the property, not null
    */
-  public final Property<Double> spread() {
-    return metaBean().spread().createProperty(this);
+  public final Property<FloatingRateType> floatingRateType() {
+    return metaBean().floatingRateType().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the IBOR flag.
+   * Gets the settlement days
    * @return the value of the property
    */
-  public boolean isIbor() {
-    return _ibor;
+  public Integer getSettlementDays() {
+    return _settlementDays;
   }
 
   /**
-   * Sets the IBOR flag.
-   * @param ibor  the new value of the property
+   * Sets the settlement days
+   * @param settlementDays  the new value of the property
    */
-  public void setIbor(boolean ibor) {
-    this._ibor = ibor;
+  public void setSettlementDays(Integer settlementDays) {
+    this._settlementDays = settlementDays;
   }
 
   /**
-   * Gets the the {@code ibor} property.
+   * Gets the the {@code settlementDays} property.
    * @return the property, not null
    */
-  public final Property<Boolean> ibor() {
-    return metaBean().ibor().createProperty(this);
+  public final Property<Integer> settlementDays() {
+    return metaBean().settlementDays().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the offset fixing frequency.
+   * @return the value of the property
+   */
+  public Frequency getOffsetFixing() {
+    return _offsetFixing;
+  }
+
+  /**
+   * Sets the offset fixing frequency.
+   * @param offsetFixing  the new value of the property
+   */
+  public void setOffsetFixing(Frequency offsetFixing) {
+    this._offsetFixing = offsetFixing;
+  }
+
+  /**
+   * Gets the the {@code offsetFixing} property.
+   * @return the property, not null
+   */
+  public final Property<Frequency> offsetFixing() {
+    return metaBean().offsetFixing().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -312,15 +329,20 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
     private final MetaProperty<Double> _initialFloatingRate = DirectMetaProperty.ofReadWrite(
         this, "initialFloatingRate", FloatingInterestRateLeg.class, Double.class);
     /**
-     * The meta-property for the {@code spread} property.
+     * The meta-property for the {@code floatingRateType} property.
      */
-    private final MetaProperty<Double> _spread = DirectMetaProperty.ofReadWrite(
-        this, "spread", FloatingInterestRateLeg.class, Double.TYPE);
+    private final MetaProperty<FloatingRateType> _floatingRateType = DirectMetaProperty.ofReadWrite(
+        this, "floatingRateType", FloatingInterestRateLeg.class, FloatingRateType.class);
     /**
-     * The meta-property for the {@code ibor} property.
+     * The meta-property for the {@code settlementDays} property.
      */
-    private final MetaProperty<Boolean> _ibor = DirectMetaProperty.ofReadWrite(
-        this, "ibor", FloatingInterestRateLeg.class, Boolean.TYPE);
+    private final MetaProperty<Integer> _settlementDays = DirectMetaProperty.ofReadWrite(
+        this, "settlementDays", FloatingInterestRateLeg.class, Integer.class);
+    /**
+     * The meta-property for the {@code offsetFixing} property.
+     */
+    private final MetaProperty<Frequency> _offsetFixing = DirectMetaProperty.ofReadWrite(
+        this, "offsetFixing", FloatingInterestRateLeg.class, Frequency.class);
     /**
      * The meta-properties.
      */
@@ -328,8 +350,9 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "floatingReferenceRateId",
         "initialFloatingRate",
-        "spread",
-        "ibor");
+        "floatingRateType",
+        "settlementDays",
+        "offsetFixing");
 
     /**
      * Restricted constructor.
@@ -344,10 +367,12 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
           return _floatingReferenceRateId;
         case -1216922774:  // initialFloatingRate
           return _initialFloatingRate;
-        case -895684237:  // spread
-          return _spread;
-        case 3225788:  // ibor
-          return _ibor;
+        case 1642653280:  // floatingRateType
+          return _floatingRateType;
+        case -295948000:  // settlementDays
+          return _settlementDays;
+        case 180579872:  // offsetFixing
+          return _offsetFixing;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -385,19 +410,27 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
     }
 
     /**
-     * The meta-property for the {@code spread} property.
+     * The meta-property for the {@code floatingRateType} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Double> spread() {
-      return _spread;
+    public final MetaProperty<FloatingRateType> floatingRateType() {
+      return _floatingRateType;
     }
 
     /**
-     * The meta-property for the {@code ibor} property.
+     * The meta-property for the {@code settlementDays} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> ibor() {
-      return _ibor;
+    public final MetaProperty<Integer> settlementDays() {
+      return _settlementDays;
+    }
+
+    /**
+     * The meta-property for the {@code offsetFixing} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Frequency> offsetFixing() {
+      return _offsetFixing;
     }
 
   }

@@ -8,10 +8,14 @@ package com.opengamma.financial.forex.calculator;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.forex.definition.ForexDefinition;
+import com.opengamma.financial.forex.definition.ForexNonDeliverableForwardDefinition;
+import com.opengamma.financial.forex.definition.ForexNonDeliverableOptionDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionSingleBarrierDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.financial.forex.derivative.Forex;
+import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
+import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.forex.derivative.ForexSwap;
@@ -27,26 +31,31 @@ import com.opengamma.util.time.DateUtils;
  */
 public class ForexInstrumentsDescriptionDataSet {
 
-  private static final Currency CUR_1 = Currency.EUR;
-  private static final Currency CUR_2 = Currency.USD;
+  private static final Currency EUR = Currency.EUR;
+  private static final Currency USD = Currency.USD;
+  private static final Currency KRW = Currency.of("KRW");
   private static final ZonedDateTime NEAR_DATE = DateUtils.getUTCDate(2011, 5, 26);
-  private static final ZonedDateTime FAR_DATE = DateUtils.getUTCDate(2011, 7, 26); // 1m
+  private static final ZonedDateTime FAR_DATE = DateUtils.getUTCDate(2011, 7, 26); // 1 month
+  private static final ZonedDateTime NDF_FIXING_DATE = DateUtils.getUTCDate(2012, 5, 2);
+  private static final ZonedDateTime NDF_PAYMENT_DATE = DateUtils.getUTCDate(2012, 5, 4);
   private static final double NOMINAL_1 = 100000000;
-  private static final double FX_RATE = 1.4177;
+  private static final double FX_RATE_EUR_USD = 1.4177;
+  private static final double FX_RATE_KRW_USD = 1123.45;
   private static final double FORWARD_POINTS = -0.0007;
-  private static final ForexDefinition FX_DEFINITION = new ForexDefinition(CUR_1, CUR_2, FAR_DATE, NOMINAL_1, FX_RATE);
+  private static final ForexDefinition FX_DEFINITION = new ForexDefinition(EUR, USD, FAR_DATE, NOMINAL_1, FX_RATE_EUR_USD);
   private static final boolean IS_CALL = true;
   private static final boolean IS_LONG = true;
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 7, 22);
   private static final String DISCOUNTING_EUR = "Discounting EUR";
   private static final String DISCOUNTING_USD = "Discounting USD";
   private static final String[] CURVES_NAME = new String[] {DISCOUNTING_EUR, DISCOUNTING_USD};
-  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 20);
   private static final ForexOptionVanillaDefinition FX_OPTION_DEFINITION = new ForexOptionVanillaDefinition(FX_DEFINITION, EXPIRATION_DATE, IS_CALL, IS_LONG);
   private static final Barrier BARRIER = new Barrier(KnockType.IN, BarrierType.UP, ObservationType.CONTINUOUS, 1.5);
 
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 20);
+
   public static ForexDefinition createForexDefinition() {
-    return new ForexDefinition(CUR_1, CUR_2, FAR_DATE, NOMINAL_1, FX_RATE);
+    return new ForexDefinition(EUR, USD, FAR_DATE, NOMINAL_1, FX_RATE_EUR_USD);
   }
 
   public static Forex createForex() {
@@ -54,7 +63,7 @@ public class ForexInstrumentsDescriptionDataSet {
   }
 
   public static ForexSwapDefinition createForexSwapDefinition() {
-    return new ForexSwapDefinition(CUR_1, CUR_2, NEAR_DATE, FAR_DATE, NOMINAL_1, FX_RATE, FORWARD_POINTS);
+    return new ForexSwapDefinition(EUR, USD, NEAR_DATE, FAR_DATE, NOMINAL_1, FX_RATE_EUR_USD, FORWARD_POINTS);
   }
 
   public static ForexSwap createForexSwap() {
@@ -76,4 +85,21 @@ public class ForexInstrumentsDescriptionDataSet {
   public static ForexOptionSingleBarrier createForexOptionSingleBarrier() {
     return createForexOptionSingleBarrierDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
   }
+
+  public static ForexNonDeliverableForwardDefinition createForexNonDeliverableForwardDefinition() {
+    return new ForexNonDeliverableForwardDefinition(KRW, USD, NOMINAL_1, FX_RATE_KRW_USD, NDF_FIXING_DATE, NDF_PAYMENT_DATE);
+  }
+
+  public static ForexNonDeliverableForward createForexNonDeliverableForward() {
+    return createForexNonDeliverableForwardDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
+  }
+
+  public static ForexNonDeliverableOptionDefinition createForexNonDeliverableOptionDefinition() {
+    return new ForexNonDeliverableOptionDefinition(createForexNonDeliverableForwardDefinition(), IS_CALL, IS_LONG);
+  }
+
+  public static ForexNonDeliverableOption createForexNonDeliverableOption() {
+    return createForexNonDeliverableOptionDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
+  }
+
 }

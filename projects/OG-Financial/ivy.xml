@@ -14,7 +14,7 @@
         
         <dependency org="org.springframework" name="spring" rev="3.0.4" conf="*->orm"/>
         <dependency org="org.springframework" name="spring-security" rev="2.0.5" conf="*->default"/>  
-        
+        <dependency org="javax.el" name="juel" rev="2.1.3" />
         <dependency org="javax.mail" name="javamail" rev="1.4.3"/>
         
         <exclude org="org.apache.log4j" module="log4j" />

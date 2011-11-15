@@ -21,6 +21,10 @@ public class ZonedDateTimeLabelledMatrix1D extends LabelledMatrix1D<ZonedDateTim
   public ZonedDateTimeLabelledMatrix1D(final ZonedDateTime[] keys, final Object[] labels, final double[] values) {
     super(keys, labels, values, TOLERANCE);
   }
+  
+  public ZonedDateTimeLabelledMatrix1D(final ZonedDateTime[] keys, final Object[] labels, final String labelsTitle, final double[] values, final String valuesTitle) {
+    super(keys, labels, labelsTitle, values, valuesTitle, TOLERANCE);
+  }
 
   @Override
   public int compare(final ZonedDateTime d1, final ZonedDateTime d2, final Period tolerance) {
@@ -33,6 +37,11 @@ public class ZonedDateTimeLabelledMatrix1D extends LabelledMatrix1D<ZonedDateTim
 
   }
 
+  @Override
+  public LabelledMatrix1D<ZonedDateTime, Period> getMatrix(final ZonedDateTime[] keys, final Object[] labels, final String labelsTitle, final double[] values, final String valuesTitle) {
+    return new ZonedDateTimeLabelledMatrix1D(keys, labels, labelsTitle, values, valuesTitle);
+  }
+  
   @Override
   public LabelledMatrix1D<ZonedDateTime, Period> getMatrix(final ZonedDateTime[] keys, final Object[] labels, final double[] values) {
     return new ZonedDateTimeLabelledMatrix1D(keys, labels, values);

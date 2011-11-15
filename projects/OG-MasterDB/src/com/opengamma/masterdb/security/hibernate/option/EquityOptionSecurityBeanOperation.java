@@ -11,13 +11,9 @@ import static com.opengamma.masterdb.security.hibernate.Converters.expiryToExpir
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 
-import com.opengamma.financial.security.option.AmericanExerciseType;
-import com.opengamma.financial.security.option.AsianExerciseType;
-import com.opengamma.financial.security.option.BermudanExerciseType;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
-import com.opengamma.financial.security.option.ExerciseTypeVisitor;
+import com.opengamma.financial.security.option.ExerciseTypeVisitorImpl;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
@@ -52,29 +48,7 @@ public final class EquityOptionSecurityBeanOperation  extends AbstractSecurityBe
 
   @Override
   public EquityOptionSecurity createSecurity(OperationContext context, EquityOptionSecurityBean bean) {
-    final ExerciseType exerciseType = bean.getOptionExerciseType().accept(new ExerciseTypeVisitor<ExerciseType>() {
-
-      @Override
-      public ExerciseType visitAmericanExerciseType(AmericanExerciseType exerciseType) {
-        return new AmericanExerciseType();
-      }
-
-      @Override
-      public ExerciseType visitAsianExerciseType(AsianExerciseType exerciseType) {
-        return new AsianExerciseType();
-      }
-
-      @Override
-      public ExerciseType visitBermudanExerciseType(BermudanExerciseType exerciseType) {
-        return new BermudanExerciseType();
-      }
-
-      @Override
-      public ExerciseType visitEuropeanExerciseType(EuropeanExerciseType exerciseType) {
-        return new EuropeanExerciseType();
-      }
-    });
-    
+    final ExerciseType exerciseType = bean.getOptionExerciseType().accept(new ExerciseTypeVisitorImpl());
 
     EquityOptionSecurity sec = new EquityOptionSecurity(bean.getOptionType(), 
         bean.getStrike(), 

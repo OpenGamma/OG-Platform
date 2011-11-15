@@ -30,7 +30,7 @@ public class StandardRulesTest {
     msg.add("Bar", 2.0);
     msg.add("Baz", 500);
     
-    FudgeMsg normalizedMsg = ruleSet.getNormalizedMessage(msg, _store);
+    FudgeMsg normalizedMsg = ruleSet.getNormalizedMessage(msg, "123", _store);
     assertEquals(msg, normalizedMsg);
   }
   

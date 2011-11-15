@@ -21,8 +21,8 @@ public interface MarketDataAvailabilityProvider {
    * Gets whether an item of market data is available from the owner of this availability provider.
    * 
    * @param requirement  the market data requirement, not null
-   * @return true if the item of market data is available, false otherwise
+   * @return the availability status of the requirement, not null
    */
-  boolean isAvailable(ValueRequirement requirement);
+  MarketDataAvailability getAvailability(ValueRequirement requirement);
 
 }

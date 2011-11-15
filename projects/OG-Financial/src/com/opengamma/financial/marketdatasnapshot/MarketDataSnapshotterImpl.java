@@ -5,13 +5,16 @@
  */
 package com.opengamma.financial.marketdatasnapshot;
 
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.Stack;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableListMultimap;
@@ -19,6 +22,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
@@ -56,6 +60,8 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitio
 public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
   // TODO: reimplement this in a javalike way, transliterating LINQ is dirty.
 
+  private static final Logger s_logger = LoggerFactory.getLogger(MarketDataSnapshotterImpl.class);
+  
   private final VolatilityCubeDefinitionSource _cubeDefinitionSource;
   
   private final YieldCurveSnapper _yieldCurveSnapper = new YieldCurveSnapper();
@@ -159,11 +165,11 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     // Whilst branching factor may be high, only a few of those paths will be to structured nodes, so we don't have to iterate too much
     // Chains from live data to each output are quite short
     
-    Stack<DependencyNode> remainingCandidates = new Stack<DependencyNode>();
-    remainingCandidates.push(node);
+    ArrayDeque<DependencyNode> remainingCandidates = new ArrayDeque<DependencyNode>(); //faster than Stack
+    remainingCandidates.add(node);
     
     while (!remainingCandidates.isEmpty()) {
-      node = remainingCandidates.pop();
+      node = remainingCandidates.remove();
       
       if (isStructuredNode(node)) {
         continue;
@@ -184,15 +190,20 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
   @SuppressWarnings("rawtypes")
   private boolean isStructuredNode(DependencyNode node) {
     Set<ValueSpecification> outputValues = node.getOutputValues();
-    if (outputValues.size() != 1) {
-      return false; //TODO this is a bit fragile, but if this isn't true all sorts of things are broken 
-    }
-    ValueSpecification output = Iterables.get(outputValues, 0);
-    for (StructuredSnapper snapper : _structuredSnappers) {
-      if (output.getValueName() == snapper.getRequirementName()) {
-        return true;
+    
+    for (ValueSpecification output : outputValues) {
+      for (StructuredSnapper snapper : _structuredSnappers) {
+        if (output.getValueName() == snapper.getRequirementName()) {
+          if (outputValues.size() != 1) {
+            //TODO this is a bit fragile, but if this isn't true all sorts of things are broken
+            s_logger.error("Structured market data node produced more than one output {} - {}", node, node.getOutputValues());
+            throw new OpenGammaRuntimeException("Structured market data node produced more than one output");
+          }
+          return true;
+        }
       }
     }
+    
     return false;
   }
 

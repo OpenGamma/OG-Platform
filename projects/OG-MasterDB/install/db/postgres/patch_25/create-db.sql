@@ -6,9 +6,7 @@
 --
 -- Please do not modify it - modify the originals and recreate this using 'ant create-db-sql'.
 
-
 CREATE SEQUENCE hibernate_sequence START WITH 1 INCREMENT BY 1;
-
 -- create-db-config.sql: Config Master
 
 -- design has one document
@@ -44,7 +42,6 @@ CREATE INDEX ix_cfg_config_corr_to_instant ON cfg_config(corr_to_instant);
 CREATE INDEX ix_cfg_config_name ON cfg_config(name);
 CREATE INDEX ix_cfg_config_nameu ON cfg_config(UPPER(name));
 CREATE INDEX ix_cfg_config_config_type ON cfg_config(config_type);
-
 
 -- create-db-refdata.sql
 
@@ -154,7 +151,6 @@ CREATE TABLE exg_exchange2idkey (
 CREATE INDEX ix_exg_exg2idkey_idkey ON exg_exchange2idkey(idkey_id);
 -- exg_exchange2idkey is fully dependent of exg_exchange
 
-
 -- create-db-engine.sql: Config Master
 
 create table eng_functioncosts (
@@ -166,7 +162,6 @@ create table eng_functioncosts (
     data_output_cost decimal(31,8) NOT NULL,
     PRIMARY KEY (configuration, function, version_instant)
 );
-
 
 -- create-db-security.sql: Security Master
 
@@ -744,7 +739,6 @@ CREATE TABLE  sec_equity_variance_swap (
   CONSTRAINT sec_fk_equityvarianceswap2currency FOREIGN KEY (currency_id) REFERENCES sec_currency(id),
   CONSTRAINT sec_fk_equityvarianceswap2frequency FOREIGN KEY (observation_frequency_id) REFERENCES sec_frequency (id)
 );
-
 -- create-db-portfolio.sql: Portfolio Master
 
 -- design has one document
@@ -813,7 +807,6 @@ CREATE TABLE prt_position (
 );
 -- prt_position is fully dependent of prt_portfolio
 CREATE INDEX ix_prt_position_node_id ON prt_position(node_id);
-
 -- create-db-position.sql: Position Master
 
 -- design has one document
@@ -935,7 +928,6 @@ CREATE TABLE pos_trade2idkey (
     CONSTRAINT pos_fk_tradeidkey2idkey FOREIGN KEY (idkey_id) REFERENCES pos_idkey (id)
 );
 CREATE INDEX ix_pos_trd2idkey_idkey ON pos_trade2idkey(idkey_id);
-
 -------------------------------------
 -- Static data
 -------------------------------------
@@ -1495,7 +1487,6 @@ CREATE TABLE hts_point (
 );
 -- null value used to indicate point was deleted
 
-
 -- create-db-marketdatasnapshot.sql
 
 -- MarketDataSnapshotMaster design has one document
@@ -1529,5 +1520,3 @@ CREATE INDEX ix_snp_snapshot_corr_from_instant ON snp_snapshot(corr_from_instant
 CREATE INDEX ix_snp_snapshot_corr_to_instant ON snp_snapshot(corr_to_instant);
 CREATE INDEX ix_snp_snapshot_name ON snp_snapshot(name);
 CREATE INDEX ix_snp_snapshot_nameu ON snp_snapshot(UPPER(name));
-
-

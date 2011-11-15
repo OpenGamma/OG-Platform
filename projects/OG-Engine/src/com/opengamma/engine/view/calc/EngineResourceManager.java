@@ -21,7 +21,7 @@ public interface EngineResourceManager<T extends UniqueIdentifiable> {
    * {@link EngineResourceReference#release()}.
    * 
    * @param uniqueId  the unique identifier of the resource for which a reference is required, not null
-   * @return a reference wrapper to the resource, or {@code null} if the resource was not found
+   * @return a reference wrapper to the resource, or null if the resource was not found
    */
   EngineResourceReference<T> createReference(UniqueId uniqueId);
   

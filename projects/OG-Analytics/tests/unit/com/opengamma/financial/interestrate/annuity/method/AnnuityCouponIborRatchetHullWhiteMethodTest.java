@@ -333,6 +333,15 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " delta Ratchet Ibor Hull-White MC method: " + (endTime - startTime) + " ms");
     // Performance note: HW MC delta (12500 paths): 24-Oct-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1325 ms for 10 Ratchet (20 coupons each).
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pvMC[looptest] = methodMC.presentValue(annuityRatchetIbor20, CUR, CURVES_NAMES[0], BUNDLE_HW);
+      pvcsMC[looptest] = methodMC.presentValueCurveSensitivity(annuityRatchetIbor20, CURVES_NAMES[0], BUNDLE_HW);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " pv/delta Ratchet Ibor Hull-White MC method: " + (endTime - startTime) + " ms");
+    // Performance note: HW MC price (12500 paths) - pv/delta: 31-Oct-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1800 ms for 10 Ratchet (20 coupons each).
   }
 
 }

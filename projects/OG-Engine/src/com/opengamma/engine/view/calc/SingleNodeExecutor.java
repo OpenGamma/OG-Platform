@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -57,7 +58,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
   }
 
   @Override
-  public Future<CalculationJobResult> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
+  public Future<CalculationJobResult> execute(final DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue, final GraphExecutorStatisticsGatherer statistics) {
     long jobId = JobIdSource.getId();
     CalculationJobSpecification jobSpec = new CalculationJobSpecification(_cycle.getUniqueId(), graph.getCalculationConfigurationName(), _cycle.getValuationTime(), jobId);
 
@@ -111,7 +112,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
     s_logger.info("Enqueuing {} to invoke {} functions", new Object[] {jobSpec, items.size()});
     statistics.graphProcessed(graph.getCalculationConfigurationName(), 1, items.size(), Double.NaN, Double.NaN);
 
-    AtomicExecutorCallable runnable = new AtomicExecutorCallable();
+    AtomicExecutorCallable runnable = new AtomicExecutorCallable(calcJobResultQueue);
     AtomicExecutorFuture future = new AtomicExecutorFuture(runnable, graph, item2Node, statistics);
     _executingSpecifications.put(jobSpec, future);
     _cycle.getViewProcessContext().getViewProcessorQueryReceiver().addJob(jobSpec, graph);
@@ -198,9 +199,14 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
 
   }
 
-  private class AtomicExecutorCallable implements Callable<CalculationJobResult> {
+  private final class AtomicExecutorCallable implements Callable<CalculationJobResult> {
     private RuntimeException _exception;
     private CalculationJobResult _result;
+    private final BlockingQueue<CalculationJobResult> _calcJobResultQueue;
+
+    private AtomicExecutorCallable(final BlockingQueue<CalculationJobResult> calcJobResultQueue) {
+      _calcJobResultQueue = calcJobResultQueue;
+    }
 
     @Override
     public CalculationJobResult call() throws Exception {
@@ -210,6 +216,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
       if (_result == null) {
         throw new IllegalStateException("Result is null");
       }
+      _calcJobResultQueue.add(_result);
       return _result;
     }
   }

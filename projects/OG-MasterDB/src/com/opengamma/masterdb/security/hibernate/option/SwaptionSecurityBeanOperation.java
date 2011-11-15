@@ -11,8 +11,13 @@ import static com.opengamma.masterdb.security.hibernate.Converters.expiryToExpir
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 
+import javax.time.calendar.ZonedDateTime;
+
+import com.opengamma.financial.security.option.ExerciseType;
+import com.opengamma.financial.security.option.ExerciseTypeVisitorImpl;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.Converters;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
 
@@ -34,22 +39,33 @@ public final class SwaptionSecurityBeanOperation extends AbstractSecurityBeanOpe
   public SwaptionSecurityBean createBean(final OperationContext context, final HibernateSecurityMasterDao secMasterSession, final SwaptionSecurity security) {
     SwaptionSecurityBean bean = new SwaptionSecurityBean();
     bean.setCashSettled(security.isCashSettled());
-    bean.setLong(security.isLong());
+    bean.setLongShort(security.isLong());
     bean.setExpiry(expiryToExpiryBean(security.getExpiry()));
     bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlyingId()));
     bean.setPayer(security.isPayer());
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
+    bean.setNotional(security.getNotional());
+    bean.setSettlementDate(Converters.dateTimeWithZoneToZonedDateTimeBean(security.getSettlementDate()));
+    bean.setOptionExerciseType(OptionExerciseType.identify(security.getExerciseType()));
     return bean;
   }
 
   @Override
   public SwaptionSecurity createSecurity(OperationContext context, SwaptionSecurityBean bean) {
-    return new SwaptionSecurity(bean.isPayer(), 
+    SwaptionSecurity swaptionSecurity = new SwaptionSecurity(bean.getPayer(), 
         externalIdBeanToExternalId(bean.getUnderlying()), 
-        bean.isLong(), 
+        bean.getLongShort(), 
         expiryBeanToExpiry(bean.getExpiry()), 
-        bean.isCashSettled(), 
+        bean.getCashSettled(), 
         currencyBeanToCurrency(bean.getCurrency()));
+    if (bean.getOptionExerciseType() != null) {
+      final ExerciseType exerciseType = bean.getOptionExerciseType().accept(new ExerciseTypeVisitorImpl());
+      swaptionSecurity.setExerciseType(exerciseType);
+    }
+    final ZonedDateTime settlementDate = Converters.zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate());
+    swaptionSecurity.setSettlementDate(settlementDate);
+    swaptionSecurity.setNotional(bean.getNotional());
+    return swaptionSecurity;
   }
 
 }

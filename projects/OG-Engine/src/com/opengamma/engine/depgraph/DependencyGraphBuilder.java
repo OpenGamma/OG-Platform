@@ -10,7 +10,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -73,11 +72,18 @@ public final class DependencyGraphBuilder {
     return NO_BACKGROUND_THREADS ? 0 : (MAX_ADDITIONAL_THREADS >= 0) ? MAX_ADDITIONAL_THREADS : Runtime.getRuntime().availableProcessors();
   }
 
+  /**
+   * Resolves an individual requirement by aggregating the results of any existing tasks
+   * already resolving that requirement. If these missed an exploration because of a
+   * recursion constraint introduced by their parent tasks, a "fallback" task is created
+   * to finish the job for the caller's parent.
+   */
   private static final class RequirementResolver extends AggregateResolvedValueProducer {
 
     private final ResolveTask _parentTask;
     private final Set<ResolveTask> _tasks = new HashSet<ResolveTask>();
     private ResolveTask _fallback;
+    private ResolvedValue[] _coreResults;
 
     public RequirementResolver(final ValueRequirement valueRequirement, final ResolveTask parentTask) {
       super(valueRequirement);
@@ -106,11 +112,11 @@ public final class DependencyGraphBuilder {
       synchronized (this) {
         fallback = _fallback;
         if (fallback == null) {
+          // Only create a fallback if none of the others ran to completion without hitting a recursion constraint.
+          useFallback = true;
           for (ResolveTask task : _tasks) {
-            if (task.wasRecursionDetected()) {
-              // Only use the fallback task if one of the feeder tasks detected a value requirement loop
-              s_loggerResolver.debug("Using fallback task after recursion failure of {}", task);
-              useFallback = true;
+            if (!task.wasRecursionDetected()) {
+              useFallback = false;
               break;
             }
           }
@@ -129,6 +135,7 @@ public final class DependencyGraphBuilder {
           synchronized (this) {
             assert _fallback == null;
             _fallback = fallback;
+            _coreResults = getResults();
           }
           addProducer(context, fallback);
           return;
@@ -139,9 +146,38 @@ public final class DependencyGraphBuilder {
       }
       super.finished(context);
       if (fallback != null) {
-        // Discard the fallback task if another has produced the same set of results for the requirement
-        s_loggerContext.debug("Discarding finished task {} by {}", fallback, this);
-        context.discardFinishedTask(getResults(), fallback);
+        // Keep any fallback tasks that are recursion free - to prevent future fallbacks for this requirement
+        if (fallback.wasRecursionDetected()) {
+          final ResolvedValue[] fallbackResults = getResults();
+          if (fallbackResults.length == 0) {
+            // Task produced no new results - discard
+            s_loggerResolver.debug("Discarding fallback task {} by {}", fallback, this);
+            context.discardTask(fallback);
+          } else {
+            boolean matched = true;
+            synchronized (this) {
+              for (int i = 0; i < fallbackResults.length; i++) {
+                boolean found = false;
+                for (int j = 0; j < _coreResults.length; j++) {
+                  if (fallbackResults[i].equals(_coreResults[j])) {
+                    found = true;
+                    break;
+                  }
+                }
+                if (!found) {
+                  matched = false;
+                  break;
+                }
+              }
+            }
+            if (matched) {
+              // Task didn't produce any new results - discard
+              context.discardTask(fallback);
+            }
+          }
+        } else {
+          s_loggerResolver.debug("Keeping fallback task {} by {}", fallback, this);
+        }
         fallback.release(context);
       }
       // Release any other tasks
@@ -167,7 +203,7 @@ public final class DependencyGraphBuilder {
         if (fallback != null) {
           // Discard the fallback task
           s_loggerContext.debug("Discarding unfinished fallback task {} by {}", fallback, this);
-          context.discardUnfinishedTask(fallback);
+          context.discardTask(fallback);
           fallback.release(context);
         }
         // Release any other tasks
@@ -195,18 +231,11 @@ public final class DependencyGraphBuilder {
     private CompiledFunctionResolver _functionResolver;
     private FunctionCompilationContext _compilationContext;
 
-    // Note that the requirements and specifications maps could use "soft" or "weak" references; if data is missing then the work
-    // will simply be repeated. This will not be time efficient, but could be useful in low memory situations or for big graphs as
-    // the intermediate resolution fragments for securities that have already been processed and are disjoint from other parts of
-    // the graph will not be needed again.
-
     // The resolve task is ref-counted once for the map (it is being used as a set)
     private final Map<ValueRequirement, Map<ResolveTask, ResolveTask>> _requirements;
 
     // The resolve task is NOT ref-counted (it is only used for parent comparisons), but the value producer is
     private final Map<ValueSpecification, Map<ResolveTask, ResolvedValueProducer>> _specifications;
-
-    private final Set<List<ResolvedValue>> _preferredProducers;
 
     // This data is per-thread
 
@@ -217,7 +246,6 @@ public final class DependencyGraphBuilder {
       s_loggerContext.info("Created new context");
       _requirements = new HashMap<ValueRequirement, Map<ResolveTask, ResolveTask>>();
       _specifications = new HashMap<ValueSpecification, Map<ResolveTask, ResolvedValueProducer>>();
-      _preferredProducers = new HashSet<List<ResolvedValue>>();
     }
 
     private GraphBuildingContext(final GraphBuildingContext copyFrom) {
@@ -228,7 +256,6 @@ public final class DependencyGraphBuilder {
       setCompilationContext(copyFrom.getCompilationContext());
       _requirements = copyFrom._requirements;
       _specifications = copyFrom._specifications;
-      _preferredProducers = copyFrom._preferredProducers;
     }
 
     // Configuration & resources
@@ -474,19 +501,7 @@ public final class DependencyGraphBuilder {
       return result;
     }
 
-    private void discardFinishedTask(final ResolvedValue[] outputs, final ResolveTask task) {
-      final List<ResolvedValue> results = Arrays.asList(outputs);
-      synchronized (_preferredProducers) {
-        if (!_preferredProducers.add(results)) {
-          // This is a unique result
-          return;
-        }
-      }
-      // The produces the same output as another, so it is not preferred and may be discarded
-      discardUnfinishedTask(task);
-    }
-
-    public void discardUnfinishedTask(final ResolveTask task) {
+    public void discardTask(final ResolveTask task) {
       synchronized (_requirements) {
         final Map<ResolveTask, ResolveTask> tasks = _requirements.get(task.getValueRequirement());
         if (tasks.remove(task) == null) {
@@ -563,12 +578,32 @@ public final class DependencyGraphBuilder {
       if (!s_loggerContext.isInfoEnabled()) {
         return;
       }
+      //final List<ResolveTask> discards = new ArrayList<ResolveTask>();
       synchronized (_requirements) {
         int count = 0;
-        for (Map<ResolveTask, ResolveTask> entries : _requirements.values()) {
-          count += entries.size();
+        for (Map.Entry<ValueRequirement, Map<ResolveTask, ResolveTask>> requirements : _requirements.entrySet()) {
+          final Map<ResolveTask, ResolveTask> entries = requirements.getValue();
+          if (!entries.isEmpty()) {
+            /*boolean allFinished = true;
+            for (ResolveTask task : entries.keySet()) {
+              if (!task.isFinished()) {
+                allFinished = false;
+                break;
+              }
+            }
+            if (allFinished) {
+              discards.addAll(entries.keySet());
+              entries.clear();
+            } else {*/
+            count += entries.size();
+            //}
+          }
         }
         s_loggerContext.info("Requirements cache = {} tasks for {} requirements", count, _requirements.size());
+        /*s_loggerContext.info("Discarding {} finished tasks", discards.size());
+        for (ResolveTask discard : discards) {
+          discard.release(this);
+        }*/
       }
       synchronized (_specifications) {
         int count = 0;
@@ -582,19 +617,23 @@ public final class DependencyGraphBuilder {
       //s_loggerContext.info("Used memory = {}M", (double) (rt.totalMemory() - rt.freeMemory()) / 1e6);
     }
 
+    private synchronized void discardIntermediateState() {
+      reportStateSize();
+      _requirements.clear();
+      _specifications.clear();
+    }
+
   };
 
   private final int _objectId = s_nextObjectId.incrementAndGet();
   private final AtomicInteger _activeJobCount = new AtomicInteger();
   private final Set<Job> _activeJobs = new HashSet<Job>();
   private final Queue<ContextRunnable> _runQueue = new ConcurrentLinkedQueue<ContextRunnable>();
-  private final Set<DependencyNode> _graphNodes = Collections.synchronizedSet(new HashSet<DependencyNode>());
-  private final Map<ValueRequirement, ValueSpecification> _terminalOutputs = new ConcurrentHashMap<ValueRequirement, ValueSpecification>();
   private final GraphBuildingContext _context = new GraphBuildingContext();
   private final AtomicLong _completedSteps = new AtomicLong();
   private final AtomicLong _scheduledSteps = new AtomicLong();
-  private final GetTerminalValuesCallback _getTerminalValuesCallback = new GetTerminalValuesCallback(_graphNodes, _terminalOutputs,
-      DEBUG_DUMP_FAILURE_INFO ? new ResolutionFailurePrinter(openDebugStream("resolutionFailure")) : ResolutionFailureVisitor.DEFAULT_INSTANCE);
+  private final GetTerminalValuesCallback _getTerminalValuesCallback = new GetTerminalValuesCallback(DEBUG_DUMP_FAILURE_INFO ? new ResolutionFailurePrinter(openDebugStream("resolutionFailure"))
+      : ResolutionFailureVisitor.DEFAULT_INSTANCE);
   private final Executor _executor;
 
   /**
@@ -884,6 +923,9 @@ public final class DependencyGraphBuilder {
           try {
             jobsLeftToRun = buildGraph(context);
             completed++;
+            /*if ((completed % 500) == 0) {
+              s_loggerBuilder.info("Build fraction = {}", estimateBuildFraction());
+            }*/
           } catch (Throwable t) {
             s_loggerBuilder.warn("Graph builder exception", t);
             _context.exception(t);
@@ -1098,10 +1140,10 @@ public final class DependencyGraphBuilder {
   protected DependencyGraph createDependencyGraph() {
     final DependencyGraph graph = new DependencyGraph(getCalculationConfigurationName());
     s_loggerBuilder.debug("Converting internal representation to dependency graph");
-    for (DependencyNode node : _graphNodes) {
+    for (DependencyNode node : _getTerminalValuesCallback.getGraphNodes()) {
       graph.addDependencyNode(node);
     }
-    for (Map.Entry<ValueRequirement, ValueSpecification> terminalOutput : _terminalOutputs.entrySet()) {
+    for (Map.Entry<ValueRequirement, ValueSpecification> terminalOutput : _getTerminalValuesCallback.getTerminalValues().entrySet()) {
       graph.addTerminalOutput(terminalOutput.getKey(), terminalOutput.getValue());
     }
     //graph.dumpStructureASCII(System.out);
@@ -1110,7 +1152,8 @@ public final class DependencyGraphBuilder {
       graph.dumpStructureASCII(ps);
       ps.close();
     }
-    getContext().reportStateSize();
+    // Clear out the build caches
+    getContext().discardIntermediateState();
     return graph;
   }
 
@@ -1131,7 +1174,7 @@ public final class DependencyGraphBuilder {
    * @return the map of requirements to value specifications, not null
    */
   public Map<ValueRequirement, ValueSpecification> getValueRequirementMapping() {
-    return new HashMap<ValueRequirement, ValueSpecification>(_terminalOutputs);
+    return _getTerminalValuesCallback.getTerminalValues();
   }
 
   /**

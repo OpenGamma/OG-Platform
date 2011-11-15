@@ -9,12 +9,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.time.Instant;
 
+import com.opengamma.engine.view.calc.ResultWriter;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -38,19 +42,23 @@ public class BatchResultWriterExecutorTest {
         Collections.<CalculationJobResultItem>emptyList(),
         "localhost");
 
-    TestDependencyGraphExecutor<CalculationJobResult> delegate = new TestDependencyGraphExecutor<CalculationJobResult>(result);
+    TestDependencyGraphExecutor delegate = new TestDependencyGraphExecutor(result);
     
     DependencyGraph graph = new DependencyGraph("foo");
     
-    BatchResultWriter writer = mock(BatchResultWriter.class);
+    ResultWriter writer = mock(ResultWriter.class);
     when(writer.getGraphToExecute(graph)).thenReturn(graph);
     
     BatchResultWriterExecutor executor = new BatchResultWriterExecutor(writer, delegate);
+
+    BlockingQueue<CalculationJobResult> calcJobResultQueue = new LinkedBlockingDeque<CalculationJobResult>();
     
-    Future<Object> future = executor.execute(graph, null);
+    Future<Object> future = executor.execute(graph, calcJobResultQueue, null);
     assertNotNull(future);
     future.get();
-    
+
+    assertTrue(calcJobResultQueue.size() > 0);
+
     verify(writer).getGraphToExecute(graph);
     verify(writer).write(result, graph);
   }

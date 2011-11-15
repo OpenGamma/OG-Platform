@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.opengamma.language.Data;
 import com.opengamma.language.DataUtils;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.procedure.AbstractProcedureInvoker;
 import com.opengamma.language.procedure.MetaProcedure;
@@ -32,7 +33,7 @@ public class DebugProcedureIncrement implements PublishedProcedure {
   @Override
   public MetaProcedure getMetaProcedure() {
     final List<MetaParameter> args = Collections.emptyList();
-    return new MetaProcedure("DebugProcedureIncrement", args, new AbstractProcedureInvoker.SingleResult(args) {
+    return new MetaProcedure(Categories.DEBUG, "DebugProcedureIncrement", args, new AbstractProcedureInvoker.SingleResult(args) {
       @Override
       protected Object invokeImpl(SessionContext sessionContext, Object[] parameters) {
         return execute();

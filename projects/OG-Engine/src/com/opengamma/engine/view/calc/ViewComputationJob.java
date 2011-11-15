@@ -33,6 +33,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.ViewProcessImpl;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.trigger.CombinedViewCycleTrigger;
 import com.opengamma.engine.view.calc.trigger.FixedTimeTrigger;
 import com.opengamma.engine.view.calc.trigger.RecomputationPeriodTrigger;
@@ -70,7 +71,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private final ViewCycleTrigger _masterCycleTrigger;
   private final FixedTimeTrigger _compilationExpiryCycleTrigger;
   private final boolean _executeCycles;
-  
+
   private int _cycleCount;
   private EngineResourceReference<SingleComputationCycle> _previousCycleReference;
   
@@ -320,6 +321,14 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
   }
 
+  private void jobResultReceived(ViewResultModel result) {
+    try {
+      getViewProcess().jobResultReceived(result);
+    } catch (Exception e) {
+      s_logger.error("Error notifying view process " + getViewProcess() + " of view cycle completion", e);
+    }
+  }
+
   private void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
     try {
       getViewProcess().cycleExecutionFailed(executionOptions, exception);
@@ -497,7 +506,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       throw new OpenGammaRuntimeException("Compiled view definition " + compiledViewDefinition + " not valid for execution options " + executionOptions);
     }
     UniqueId cycleId = getViewProcess().generateCycleId();
-    SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(), getProcessContext(), compiledViewDefinition, executionOptions, versionCorrection);
+    SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(),
+        getViewProcess(), getProcessContext(), compiledViewDefinition, executionOptions, versionCorrection);
     return getCycleManager().manage(cycle);
   }
 
@@ -563,7 +573,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
    * <p>
    * External visibility for tests.
    * 
-   * @return the cached compiled view definition, or {@code null} if nothing is currently cached
+   * @return the cached compiled view definition, or null if nothing is currently cached
    */
   public CompiledViewDefinitionWithGraphsImpl getCachedCompiledViewDefinition() {
     return _latestCompiledViewDefinition;
@@ -578,7 +588,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
    * <p>
    * External visibility for tests.
    * 
-   * @param latestCompiledViewDefinition  the compiled view definition, may be {@code null}
+   * @param latestCompiledViewDefinition  the compiled view definition, may be null
    */
   public void setCachedCompiledViewDefinition(CompiledViewDefinitionWithGraphsImpl latestCompiledViewDefinition) {
     _latestCompiledViewDefinition = latestCompiledViewDefinition;
@@ -587,7 +597,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   /**
    * Gets the view definition currently in use by the computation job.
    * 
-   * @return the view definition, not {@code null}
+   * @return the view definition, not null
    */
   public ViewDefinition getViewDefinition() {
     return _viewDefinition;

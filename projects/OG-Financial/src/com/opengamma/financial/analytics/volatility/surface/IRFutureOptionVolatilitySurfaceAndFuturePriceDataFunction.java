@@ -120,8 +120,7 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
   public static Set<ValueRequirement> buildRequirements(final VolatilitySurfaceSpecification volSurfaceSpecification,
                                                         final VolatilitySurfaceDefinition<Object, Object> volSurfaceDefinition,
                                                         final FuturePriceCurveSpecification futurePriceCurveSpecification,
-                                                        final FuturePriceCurveDefinition<Object> futurePriceCurveDefinition,
-                                                        final FunctionCompilationContext context,
+                                                        final FuturePriceCurveDefinition<Object> futurePriceCurveDefinition,                                                        
                                                         final ZonedDateTime atInstant) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     final SurfaceInstrumentProvider<Object, Double> volSurfaceProvider = (SurfaceInstrumentProvider<Object, Double>) volSurfaceSpecification.getSurfaceInstrumentProvider();
@@ -146,7 +145,7 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
     final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
-    final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(_volSurfaceSpecification, _volSurfaceDefinition, _priceCurveSpecification, _priceCurveDefinition, context,
+    final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(_volSurfaceSpecification, _volSurfaceDefinition, _priceCurveSpecification, _priceCurveDefinition,
         atInstant));
     //TODO ENG-252 see MarketInstrumentImpliedYieldCurveFunction; need to work out the expiry more efficiently
     return new AbstractInvokingCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000)) {
@@ -199,7 +198,7 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
           ValueRequirement requirement = new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), identifier);
           if (inputs.getValue(requirement) != null) {
             final Double futurePrice = (Double) inputs.getValue(requirement);
-            futurePriceValues.put(t, getRate(futurePrice));
+            futurePriceValues.put(t, futurePrice);
           }
           for (final Object y : _volSurfaceDefinition.getYs()) {
             final Double yNum = (Double) y;
@@ -208,7 +207,7 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
             requirement = new ValueRequirement(volSurfaceProvider.getDataFieldName(), identifier);
             if (inputs.getValue(requirement) != null) {
               final Double volatility = (Double) inputs.getValue(requirement);
-              final double k = getRate(yNum);
+              final double k = yNum;
               ts.add(t);
               ks.add(k);
               volatilityValues.put(Pair.of(t, k), volatility / 100);
@@ -243,10 +242,6 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
         final LocalDate thirdWednesday = plusMonths.with(NEXT_EXPIRY_ADJUSTER);
         final LocalDate previousMonday = thirdWednesday.minusDays(2); //TODO this should take a calendar and do two business days and also use a convention for the number of days
         return DateUtils.getDaysBetween(today, previousMonday) / 365.; //TODO or use daycount?
-      }
-
-      private double getRate(final double quote) {
-        return quote / 100.;
       }
     };
   }

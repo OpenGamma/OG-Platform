@@ -42,7 +42,6 @@ import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -88,7 +87,7 @@ public class ViewDefinitionCompilerTest {
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService, securitySource,
         positionSource);
 
-    ViewDefinition viewDefinition = new ViewDefinition("My View", ObjectId.of("FOO", "BAR"), "kirk");
+    ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueId.of("FOO", "BAR"), "kirk");
 
     CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now(), VersionCorrection.LATEST);
 
@@ -137,7 +136,7 @@ public class ViewDefinitionCompilerTest {
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService, securitySource,
         positionSource);
 
-    ViewDefinition viewDefinition = new ViewDefinition("My View", ObjectId.of("FOO", "BAR"), "kirk");
+    ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueId.of("FOO", "BAR"), "kirk");
 
     // We've not provided a function that targets the position level, so we can't ask for it.
     viewDefinition.getResultModelDefinition().setPositionOutputMode(ResultOutputMode.NONE);
@@ -197,7 +196,7 @@ public class ViewDefinitionCompilerTest {
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService, securitySource,
         positionSource);
 
-    ViewDefinition viewDefinition = new ViewDefinition("My View", ObjectId.of("FOO", "BAR"), "kirk");
+    ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueId.of("FOO", "BAR"), "kirk");
     viewDefinition.getResultModelDefinition().setPositionOutputMode(ResultOutputMode.NONE);
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");
     calcConfig.addPortfolioRequirementName("My Sec", "OUTPUT");
@@ -299,7 +298,7 @@ public class ViewDefinitionCompilerTest {
 
     // Turning off security outputs, even if all primitive outputs are enabled, should allow the dep graph to be
     // pruned completely, since the only *terminal* output is the security output.
-    viewDefinition.getResultModelDefinition().setPrimitiveOutputMode(ResultOutputMode.ALL);
+    viewDefinition.getResultModelDefinition().setPrimitiveOutputMode(ResultOutputMode.TERMINAL_OUTPUTS);
     viewDefinition.getResultModelDefinition().setSecurityOutputMode(ResultOutputMode.NONE);
     compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now(), VersionCorrection.LATEST);
     assertTargets(compiledViewDefinition);

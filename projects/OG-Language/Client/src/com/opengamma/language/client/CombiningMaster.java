@@ -51,24 +51,6 @@ public abstract class CombiningMaster<D extends AbstractDocument, M extends Abst
   public static final String GLOBAL_MASTER_DISPLAY_NAME = "shared";
 
   /**
-   * 
-   */
-  public static enum MasterID {
-    /**
-     * The master from the session context's client.
-     */
-    SESSION,
-    /**
-     * The master from the user context's client.
-     */
-    USER,
-    /**
-     * The master from the global context's client.
-     */
-    GLOBAL
-  }
-
-  /**
    * Singleton instance for MarketDataSnapshotMaster.
    */
   public static final CombiningMaster<MarketDataSnapshotDocument, MarketDataSnapshotMaster, CombinedMarketDataSnapshotMaster> MARKET_DATA_SNAPSHOT =

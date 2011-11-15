@@ -5,6 +5,7 @@
  */
 package com.opengamma.language.context;
 
+import java.util.Enumeration;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -25,7 +26,6 @@ public final class DefaultGlobalContextEventHandler implements InitializingBean,
 
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultGlobalContextEventHandler.class);
 
-  private Properties _systemSettings;
   private ExecutorService _saturatingExecutor;
 
   public DefaultGlobalContextEventHandler() {
@@ -36,13 +36,31 @@ public final class DefaultGlobalContextEventHandler implements InitializingBean,
     setSaturatingExecutor(executor);
   }
 
+  /**
+   * Merges user specified settings into the "system" settings. Typically, settings
+   * will be provided by the O/S launcher (e.g. from the registry on Windows). A
+   * properties file can be used for a fallback if the properties aren't defined in
+   * the registry. For example to provide defaults.
+   * 
+   * @param systemSettings the default settings to use
+   */
   public void setSystemSettings(final Properties systemSettings) {
     ArgumentChecker.notNull(systemSettings, "systemSettings");
-    _systemSettings = systemSettings;
-  }
-
-  public Properties getSystemSettings() {
-    return _systemSettings;
+    final Properties existingSettings = System.getProperties();
+    final Enumeration<Object> keys = systemSettings.keys();
+    while (keys.hasMoreElements()) {
+      final Object keyObject = keys.nextElement();
+      if (existingSettings.containsKey(keyObject)) {
+        s_logger.debug("Ignoring {} in favour of system property", keyObject);
+      } else {
+        if (keyObject instanceof String) {
+          final String key = (String) keyObject;
+          final String value = systemSettings.getProperty(key);
+          existingSettings.setProperty(key, value);
+          s_logger.debug("Using {}={}", key, value);
+        }
+      }
+    }
   }
 
   public void setSaturatingExecutor(final ExecutorService saturatingExecutor) {
@@ -59,7 +77,6 @@ public final class DefaultGlobalContextEventHandler implements InitializingBean,
   @Override
   public void initContext(final MutableGlobalContext context) {
     s_logger.info("Initialising global context {}", context);
-    context.setSystemSettings(getSystemSettings());
     context.setSaturatingExecutor(getSaturatingExecutor());
   }
 
@@ -67,7 +84,6 @@ public final class DefaultGlobalContextEventHandler implements InitializingBean,
 
   @Override
   public void afterPropertiesSet() throws Exception {
-    ArgumentChecker.notNull(getSystemSettings(), "systemSettings");
     ArgumentChecker.notNull(getSaturatingExecutor(), "saturatingExecutor");
   }
 

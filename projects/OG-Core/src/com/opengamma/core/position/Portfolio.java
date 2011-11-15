@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.position;
 
+import com.opengamma.core.Attributable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicSPI;
@@ -21,7 +22,7 @@ import com.opengamma.util.PublicSPI;
  * Implementations may be mutable.
  */
 @PublicSPI
-public interface Portfolio extends UniqueIdentifiable {
+public interface Portfolio extends UniqueIdentifiable, Attributable {
 
   /**
    * Gets the unique identifier of the portfolio.

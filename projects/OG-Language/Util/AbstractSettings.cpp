@@ -155,13 +155,42 @@ const TCHAR *CAbstractSettings::CacheGet (const TCHAR *pszKey) const {
 	return NULL;
 }
 
-/// Puts an entry into the cache. The value is duplicated.
+/// Puts an entry into the cache. The value is duplicated. This assumes there
+/// is no matching value already in the cache.
 ///
 /// @param[in] pszKey the key to store a value against, never NULL
 /// @param[in] pszValue the value to store, never NULL
 /// @return the cached value - a copy of the original
 const TCHAR *CAbstractSettings::CachePut (const TCHAR *pszKey, const TCHAR *pszValue) const {
 	struct _setting *pCache = new struct _setting;
+	if (!pCache) {
+		LOGFATAL (TEXT ("Out of memory"));
+		return NULL;
+	} else {
+		pCache->pszKey = _tcsdup (pszKey);
+		pCache->pszValue = _tcsdup (pszValue);
+		pCache->pNext = m_pCache;
+		m_pCache = pCache;
+		return pCache->pszValue;
+	}
+}
+
+/// Replace an entry in the cache. The value is duplicated.
+///
+/// @param[in] pszKey the key to store a value against, never NULL
+/// @param[in] pszValue the value to store, never NULL
+/// @return the cached value - a copy of the original
+const TCHAR *CAbstractSettings::CacheReplace (const TCHAR *pszKey, const TCHAR *pszValue) const {
+	struct _setting *pCache = m_pCache;
+	while (pCache) {
+		if (!_tcscmp (pCache->pszKey, pszKey)) {
+			free (pCache->pszValue);
+			pCache->pszValue = _tcsdup (pszValue);
+			return pCache->pszValue;
+		}
+		pCache = pCache->pNext;
+	}
+	pCache = new struct _setting;
 	if (!pCache) {
 		LOGFATAL (TEXT ("Out of memory"));
 		return NULL;
@@ -205,6 +234,44 @@ PCTSTR CAbstractSettings::RegistryGet (HKEY hkey, PCTSTR pszKey) const {
 		}
 	}
 	return NULL;
+}
+
+/// Enumerates the keys and values in the registry, populating the cache. Note that this
+/// is an expensive operation and should only be performed if the enumeration is necessary.
+/// Normally the RegistryGet function should be used.
+///
+/// @param[in] hkey the settings key to look under, not NULL
+void CAbstractSettings::RegistryEnumerate (HKEY hkey) const {
+	DWORD dwIndex = 0;
+	LONG lResult;
+	do {
+		TCHAR szValueName[256];
+		DWORD cchValueName = sizeof (szValueName) / sizeof (TCHAR);
+		DWORD dwType;
+		union {
+			TCHAR sz[MAX_PATH];
+			DWORD dw;
+		} data;
+		DWORD dwSize = sizeof (data);
+		lResult = RegEnumValue (hkey, dwIndex, szValueName, &cchValueName, NULL, &dwType, (LPBYTE)&data, &dwSize);
+		if (lResult != ERROR_SUCCESS) {
+			LOGINFO (TEXT ("Enumerated ") << dwIndex << TEXT (" registry values"));
+			break;
+		}
+		switch (dwType) {
+		case REG_DWORD :
+			dwSize = data.dw;
+			StringCbPrintf (data.sz, sizeof (data.sz), TEXT ("%d"), dwSize);
+			/* drop through */
+		case REG_SZ :
+			CacheReplace (szValueName, data.sz);
+			break;
+		default :
+			LOGWARN (TEXT ("Unexpected type ") << dwType << TEXT (" in registry value ") << szValueName);
+			break;
+		}
+		dwIndex++;
+	} while (TRUE);
 }
 
 /// Opens a sub-key from the registry.
@@ -289,6 +356,26 @@ const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey, const CAbstractSetting
 int CAbstractSettings::Get (const TCHAR *pszKey, int nDefault) const {
 	const TCHAR * pszValue = Get (pszKey);
 	return pszValue ? _tstoi (pszValue) : nDefault;
+}
+
+/// Enumerates setting keys and values that start with a given prefix. The enumerator receives
+/// the key values WITHOUT the prefix.
+///
+/// @param[in] pszPrefix key prefix
+/// @param[in] poEnum enumerator to receive the settings
+void CAbstractSettings::Enumerate (const TCHAR *pszPrefix, const CEnumerator *poEnum) const {
+	size_t cchPrefix = _tcslen (pszPrefix);
+#ifdef _WIN32
+	RegistryEnumerate (m_hkeyGlobal);
+	RegistryEnumerate (m_hkeyLocal);
+#endif /* ifdef _WIN32 */
+	struct _setting *pSetting = m_pCache;
+	while (pSetting) {
+		if (!_tcsncmp (pszPrefix, pSetting->pszKey, cchPrefix)) {
+			poEnum->Setting (pSetting->pszKey + cchPrefix, pSetting->pszValue);
+		}
+		pSetting = pSetting->pNext;
+	}
 }
 
 /// Returns the location of the settings. This is constructed as the company and product names separated

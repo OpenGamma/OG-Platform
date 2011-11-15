@@ -162,14 +162,23 @@ public class LiveDataServerMBean {
   
   @ManagedOperation(description = "Converts all subscriptions to persistent.")
   public void subscribeAllPersistently() {
+    setPersitenceForAll(true);
+  }
+  
+  @ManagedOperation(description = "Converts all subscriptions to non-persistent.")
+  public void unpersistAllSubscribtions() {
+    setPersitenceForAll(false);
+  }
+
+  private void setPersitenceForAll(boolean persistent) {
     try {
       Set<String> activeSubscriptionIds = _server.getActiveSubscriptionIds();
       for (String string : activeSubscriptionIds) {
         MarketDataDistributor marketDataDistributor = _server.getMarketDataDistributor(string);
-        marketDataDistributor.setPersistent(true);
+        marketDataDistributor.setPersistent(persistent);
       }
     } catch (RuntimeException e) {
-      s_logger.error("subscribeAllPersistently() failed", e);
+      s_logger.error("Setting all susbcriptions to persistent=" + persistent + " failed", e);
       throw new RuntimeException(e.getMessage());
     }
   }

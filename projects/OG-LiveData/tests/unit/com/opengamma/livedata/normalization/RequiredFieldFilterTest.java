@@ -29,7 +29,7 @@ public class RequiredFieldFilterTest {
     msg.add("Bar", 2.0);
     msg.add("Baz", 500);
     
-    MutableFudgeMsg normalized = filter.apply(msg, new FieldHistoryStore());
+    MutableFudgeMsg normalized = filter.apply(msg, "123", new FieldHistoryStore());
     assertNotNull(normalized);
     assertSame(normalized, msg);
   }
@@ -43,7 +43,7 @@ public class RequiredFieldFilterTest {
     msg.add("Bar", 2.0);
     msg.add("Baz", 500);
     
-    MutableFudgeMsg normalized = filter.apply(msg, new FieldHistoryStore());
+    MutableFudgeMsg normalized = filter.apply(msg, "123", new FieldHistoryStore());
     assertNull(normalized);
   }
 
@@ -56,7 +56,7 @@ public class RequiredFieldFilterTest {
     msg.add("Bar", 2.0);
     msg.add("Baz", 500);
     
-    MutableFudgeMsg normalized = filter.apply(msg, new FieldHistoryStore());
+    MutableFudgeMsg normalized = filter.apply(msg, "123", new FieldHistoryStore());
     assertNotNull(normalized);
     assertSame(normalized, msg);
   }

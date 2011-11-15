@@ -21,6 +21,7 @@ import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.function.FunctionProviderBean;
 import com.opengamma.language.object.GetAttributeFunction;
 import com.opengamma.language.object.SetAttributeFunction;
+import com.opengamma.language.procedure.ProcedureProviderBean;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
@@ -104,6 +105,8 @@ public class Loader extends ContextInitializationBean {
             ManageableMarketDataSnapshot.meta().name(),
             new MetaParameter("snapshot", JavaTypeInfo.builder(ManageableMarketDataSnapshot.class).get()).description("The snapshot to update"),
             new MetaParameter("name", JavaTypeInfo.builder(String.class).get()).description("The new basis view name for the snapshot"))));
+    globalContext.getProcedureProvider().addProvider(new ProcedureProviderBean(
+        StoreSnapshotProcedure.INSTANCE));
     // TODO: type converters
   }
 
