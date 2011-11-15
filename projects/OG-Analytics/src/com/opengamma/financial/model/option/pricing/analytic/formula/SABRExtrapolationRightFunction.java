@@ -270,7 +270,7 @@ public class SABRExtrapolationRightFunction {
     final double absoluteTol = 1E-5;
     final double relativeTol = 1E-5;
     final int maxSteps = 10000;
-    final NewtonDefaultVectorRootFinder finder = new NewtonDefaultVectorRootFinder(absoluteTol, relativeTol, maxSteps, DecompositionFactory.LU_COMMONS);
+    final NewtonDefaultVectorRootFinder finder = new NewtonDefaultVectorRootFinder(absoluteTol, relativeTol, maxSteps, DecompositionFactory.SV_COMMONS);
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(new double[] {0.1, 0.1});
     final DoubleMatrix1D ab = finder.getRoot(toSolveBC, startPosition);
     param[1] = ab.getEntry(0);

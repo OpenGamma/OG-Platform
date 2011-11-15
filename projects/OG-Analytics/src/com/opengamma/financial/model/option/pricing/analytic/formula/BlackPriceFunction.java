@@ -27,7 +27,6 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
     final boolean isCall = option.isCall();
     return new Function1D<BlackFunctionData, Double>() {
 
-      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final BlackFunctionData data) {
         Validate.notNull(data, "data");
@@ -211,7 +210,6 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
     final double t = option.getTimeToExpiry();
     return new Function1D<BlackFunctionData, Double>() {
 
-      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final BlackFunctionData data) {
         Validate.notNull(data, "data");
