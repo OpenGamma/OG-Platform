@@ -201,10 +201,10 @@ import com.opengamma.engine.value.ValueSpecification;
       _taskState = null;
     }
     if (state != null) {
-      s_logger.debug("Aborting worker", this);
+      s_logger.debug("Aborting worker {}", this);
       finished(context);
     } else {
-      s_logger.debug("Ignoring abort call", this);
+      s_logger.debug("Ignoring abort call {}", this);
     }
   }
 
@@ -276,6 +276,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   public void start(final GraphBuildingContext context) {
+    s_logger.debug("Starting {}", this);
     FunctionApplicationStep.PumpingState state = null;
     Map<ValueSpecification, ValueRequirement> resolvedValues = null;
     FunctionApplicationStep.PumpingState finished = null;
@@ -321,6 +322,7 @@ import com.opengamma.engine.value.ValueSpecification;
         pumpImpl(context);
       }
     } else if (finished != null) {
+      // TODO: should we call "finished" here ?
       s_logger.debug("Calling finished on {} from {}", finished, this);
       finished.finished(context);
     }
