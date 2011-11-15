@@ -56,8 +56,9 @@ import com.opengamma.util.tuple.Pair;
       setTaskState(state);
       ResolvedValueProducer singleTask = null;
       AggregateResolvedValueProducer aggregate = null;
+      // Must not to introduce a loop (checking parent resolve tasks isn't sufficient) so only use "finished" tasks.
       for (Map.Entry<ResolveTask, ResolvedValueProducer> existingTask : existingTasks.entrySet()) {
-        if (!getTask().hasParent(existingTask.getKey())) {
+        if (existingTask.getKey().isFinished()) {
           // Can use this task without creating a loop
           if (singleTask == null) {
             singleTask = existingTask.getValue();

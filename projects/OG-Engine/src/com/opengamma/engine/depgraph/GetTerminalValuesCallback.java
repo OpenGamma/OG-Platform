@@ -199,6 +199,7 @@ import com.opengamma.engine.value.ValueSpecification;
           }
         } else {
           s_logger.warn("No registered node production for {}", input);
+          return null;
         }
       }
     }
@@ -213,7 +214,10 @@ import com.opengamma.engine.value.ValueSpecification;
   @Override
   public synchronized void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
     s_logger.info("Resolved {} to {}", valueRequirement, resolvedValue.getValueSpecification());
-    getOrCreateNode(context, valueRequirement, resolvedValue, Collections.<ValueSpecification>emptySet());
+    final DependencyNode node = getOrCreateNode(context, valueRequirement, resolvedValue, Collections.<ValueSpecification>emptySet());
+    if (node == null) {
+      s_logger.error("Resolved {} to {} but couldn't create one or more dependency nodes", valueRequirement, resolvedValue.getValueSpecification());
+    }
     _resolvedValues.put(valueRequirement, resolvedValue.getValueSpecification());
     context.close(pump);
   }
