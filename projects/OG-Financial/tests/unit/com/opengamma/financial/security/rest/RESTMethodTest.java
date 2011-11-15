@@ -3,10 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.rest.security;
+package com.opengamma.financial.security.rest;
 
-import static com.opengamma.financial.rest.security.SecuritySourceServiceNames.DEFAULT_SECURITYSOURCE_NAME;
-import static com.opengamma.financial.rest.security.SecuritySourceServiceNames.SECURITYSOURCE_SECURITY;
+import static com.opengamma.financial.security.rest.SecuritySourceServiceNames.DEFAULT_SECURITYSOURCE_NAME;
+import static com.opengamma.financial.security.rest.SecuritySourceServiceNames.SECURITYSOURCE_SECURITY;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
@@ -36,6 +36,8 @@ import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.security.MockFinancialSecuritySource;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.rest.SecuritySourceResource;
+import com.opengamma.financial.security.rest.SecuritySourceService;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
