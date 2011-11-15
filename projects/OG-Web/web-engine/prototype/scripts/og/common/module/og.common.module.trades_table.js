@@ -40,9 +40,9 @@ $.register_module({
                 }).join('</td><td>'), end);
                 (function () { // display attributes if available
                     var attr, attr_type, attr_obj, key, html = [];
-                    if (!Object.keys(trade['attributes']).length) return;
-                    for (attr_type in trade['attributes']) {
-                        attr_obj = trade['attributes'][attr_type], attr = [];
+                    if (!Object.keys(trade.attributes).length) return;
+                    for (attr_type in trade.attributes) {
+                        attr_obj = trade.attributes[attr_type], attr = [];
                         if (!Object.keys(attr_obj).length) continue;
                         for (key in attr_obj)
                             attr.push(start, key.replace(/.+~(.+)/, '$1'), ':</td><td>', attr_obj[key], end);
