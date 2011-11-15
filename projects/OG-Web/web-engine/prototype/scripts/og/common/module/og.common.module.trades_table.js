@@ -20,7 +20,7 @@ $.register_module({
           </table>\
         ',
         attributes = '\
-          <tr class="og-js-attribute">\
+          <tr class="og-js-attribute" style="display: none">\
             <td colspan="4" style="padding-left: 15px">\
               <table class="og-sub-list">{TBODY}</table>\
             </td>\
@@ -30,7 +30,7 @@ $.register_module({
         return function (config) {
             var trades = config.trades, selector = config.selector, tbody,
                 fields = ['id', 'quantity', 'counterParty', 'date'], start = '<tr><td>', end = '</td></tr>';
-            // if (!trades[0]) return $(selector).html('<tr><td colspan="4">No Trades</td></tr>');
+            if (!trades[0]) return $(selector).html(table.replace('{TBODY}', '<tr><td colspan="4">No Trades</td></tr>'));
             tbody = trades.reduce(function (acc, trade) {
                 acc.push(start, fields.map(function (field) {return trade[field];}).join('</td><td>'), end);
                 (function () { // attributes
