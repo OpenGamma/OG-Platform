@@ -291,9 +291,11 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
 
   @Test(enabled = false)
   public void testExtremeParameters2() {
+    @SuppressWarnings("unused")
     double alpha = 0.2 * ALPHA;
     //    double beta = 0.5;
     //    double nu = 0.2;
+    @SuppressWarnings("unused")
     double rho = 1 - 1e-9;
 
     //    double strike = 1e-8;

@@ -11,7 +11,6 @@ import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.util.CompareUtils;
 
 /**
  * 

@@ -20,17 +20,30 @@ public class SVIVolatilityFunctionTest {
   private static final double B = 0.4;
   private static final double RHO = 0.4;
   private static final double SIGMA = 1.5;
-  private static final double M = 3.6;
-  private static final double K = 3;
+  private static final double M = 1.2;
+  private static final double FORWARD = 2.8;
+  private static final double STRIKE = 3;
   private static final double T = 1.5;
-  private static final EuropeanVanillaOption OPTION = new EuropeanVanillaOption(K, T, true);
-  private static final SVIVolatilityFunction F = new SVIVolatilityFunction();
-  private static final Function1D<SVIFormulaData, Double> VOL = F.getVolatilityFunction(OPTION, 0);
+  private static final EuropeanVanillaOption OPTION = new EuropeanVanillaOption(STRIKE, T, true);
+  private static final SVIVolatilityFunction FUNC = new SVIVolatilityFunction();
+  private static final Function1D<SVIFormulaData, Double> VOL = FUNC.getVolatilityFunction(OPTION, FORWARD);
+  private static final Function1D<SVIFormulaData, double[]> VOL_ADJOINT = FUNC.getVolatilityAdjointFunction(OPTION, FORWARD);
+
   private static final double EPS = 1e-12;
+
+  private static final VolatilityFunctionProvider<SVIFormulaData> FUNC_FD = new VolatilityFunctionProvider<SVIFormulaData>() {
+
+    @Override
+    public Function1D<SVIFormulaData, Double> getVolatilityFunction(EuropeanVanillaOption option, double forward) {
+      return FUNC.getVolatilityFunction(option, forward);
+    }
+  };
+
+  private static final Function1D<SVIFormulaData, double[]> VOL_ADJOINT_FD = FUNC_FD.getVolatilityAdjointFunction(OPTION, FORWARD);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOption() {
-    F.getVolatilityFunction(null, 0);
+    FUNC.getVolatilityFunction(null, 0);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -38,27 +51,35 @@ public class SVIVolatilityFunctionTest {
     VOL.evaluate((SVIFormulaData) null);
   }
 
-  //@Test(expected = IllegalArgumentException.class)
-  //TODO fix me
-  @Test
-  public void testNoArbitrageNegativeVerticalSpread() {
-    final double t = 4 / (B * (1 + Math.abs(RHO))) + 10;
-    F.getVolatilityFunction(new EuropeanVanillaOption(K, t, true), 0).evaluate(new SVIFormulaData(A, B, RHO, SIGMA, M));
-  }
-
   @Test
   public void testZeroB() {
-    assertEquals(VOL.evaluate(new SVIFormulaData(A, 0, RHO, SIGMA, M)), Math.sqrt(A / T), EPS);
+    assertEquals(VOL.evaluate(new SVIFormulaData(A, 0, RHO, SIGMA, M)), Math.sqrt(A), EPS);
   }
 
   @Test
-  public void testKEqualsM() {
-    assertEquals(VOL.evaluate(new SVIFormulaData(A, B, RHO, SIGMA, K)), Math.sqrt((A + B * SIGMA) / T), EPS);
+  public void testMEqualsKappa() {
+    double m = Math.log(STRIKE / FORWARD);
+    assertEquals(VOL.evaluate(new SVIFormulaData(A, B, RHO, SIGMA, m)), Math.sqrt((A + B * SIGMA)), EPS);
   }
 
   @Test
   public void testZeroSigma() {
-    assertEquals(VOL.evaluate(new SVIFormulaData(A, B, RHO, 0, M)), Math.sqrt((A + B * ((K - M) * (RHO - 1))) / T), EPS);
+    double kappa = Math.log(STRIKE / FORWARD);
+    assertEquals(VOL.evaluate(new SVIFormulaData(A, B, RHO, 0, M)), Math.sqrt((A + B * (RHO * (kappa - M) + Math.abs(kappa - M)))), EPS);
+  }
+
+  @Test
+  public void testVolAdjoint() {
+    SVIFormulaData data = new SVIFormulaData(0.05, 0.2, -0.4, 0.2, -0.1);
+
+    double[] res = VOL_ADJOINT.evaluate(data);
+    double[] resFD = VOL_ADJOINT_FD.evaluate(data);
+
+    int n = resFD.length;
+    assertEquals(n, res.length);
+    for (int i = 0; i < n; i++) {
+      assertEquals("parameter " + i, resFD[i], res[i], 1e-6);
+    }
   }
 
 }

@@ -81,6 +81,11 @@ public interface LocalDateDoubleTimeSeries extends DoubleTimeSeries<LocalDate>, 
     }
 
     public abstract LocalDateDoubleTimeSeries newInstanceFast(LocalDate[] dateTimes, double[] values);
+    
+    @Override
+    public LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries() {
+      return this;
+    }
   }
 
   //-------------------------------------------------------------------------

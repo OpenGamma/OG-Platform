@@ -9,6 +9,8 @@ import static com.opengamma.math.FunctionUtils.square;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.math.function.Function1D;
@@ -19,14 +21,28 @@ import com.opengamma.util.CompareUtils;
  * <b>DO NOT USE This formulating gives very odd (i.e. wrong) smiles for certain parameters. It is not clear whether this is a problem with the actual paper or the 
  * Implementation.  </b>
  */
-public class SABRPaulotVolatilityFunction implements VolatilityFunctionProvider<SABRFormulaData> {
+public class SABRPaulotVolatilityFunction extends VolatilityFunctionProvider<SABRFormulaData> {
   private static final VolatilityFunctionProvider<SABRFormulaData> HAGAN = new SABRHaganVolatilityFunction();
+
+  private static final Logger s_logger = LoggerFactory.getLogger(SABRPaulotVolatilityFunction.class);
+
+  private static final double CUTOFF_MONEYNESS = 1e-6;
   private static final double EPS = 1e-15;
 
   @Override
   public Function1D<SABRFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option, final double forward) {
     Validate.notNull(option, "option");
-    final double k = option.getStrike();
+    final double strike = option.getStrike();
+
+    final double cutoff = forward * CUTOFF_MONEYNESS;
+    final double k;
+    if (strike < cutoff) {
+      s_logger.info("Given strike of " + strike + " is less than cutoff at " + cutoff + ", therefore the strike is taken as " + cutoff);
+      k = cutoff;
+    } else {
+      k = strike;
+    }
+
     final double t = option.getTimeToExpiry();
     return new Function1D<SABRFormulaData, Double>() {
 

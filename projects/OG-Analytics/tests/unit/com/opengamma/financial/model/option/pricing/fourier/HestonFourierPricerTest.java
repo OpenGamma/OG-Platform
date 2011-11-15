@@ -210,7 +210,7 @@ public class HestonFourierPricerTest {
 
     List<Function1D<Double, Double>> funcs = new ArrayList<Function1D<Double, Double>>(5);
     for (int index = 0; index < 5; index++) {
-      funcs.add(modelGreek.getIntegrandFunction(heston.getAjointFunction(t), alpha, k, index));
+      funcs.add(modelGreek.getIntegrandFunction(heston.getAdjointFunction(t), alpha, k, index));
     }
     for (int i = 0; i < 201; i++) {
       double x = 0.0 + 25.0 * i / 200;
@@ -243,7 +243,7 @@ public class HestonFourierPricerTest {
     for (int i = 0; i < 201; i++) {
       double x = 0.0 + 250.0 * i / 200;
       ComplexNumber z = new ComplexNumber(x, -(1 + alpha));
-      ComplexNumber[] res = heston.getCharacteristicExponentAjoint(z, t);
+      ComplexNumber[] res = heston.getCharacteristicExponentAdjoint(z, t);
       System.out.print(x);
       for (int index = 0; index < res.length; index++) {
         double value = exp(res[index]).getReal();

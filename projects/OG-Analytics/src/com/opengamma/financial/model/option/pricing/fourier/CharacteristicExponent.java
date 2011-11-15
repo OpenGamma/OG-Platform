@@ -51,14 +51,14 @@ public interface CharacteristicExponent {
    * @param t The time that the characteristic exponent is evaluated at
    * @return Array of ComplexNumbers with the first entry being the value of the characteristic exponent, and subsequent entries being derivatives WRT each parameter 
    */
-  ComplexNumber[] getCharacteristicExponentAjoint(final ComplexNumber u, final double t);
+  ComplexNumber[] getCharacteristicExponentAdjoint(final ComplexNumber u, final double t);
 
   /**
    * Returns the characteristic exponent ajoint function
    * @param t The time
    * @return A function to calculate the characteristic exponent
    */
-  Function1D<ComplexNumber, ComplexNumber[]> getAjointFunction(final double t);
+  Function1D<ComplexNumber, ComplexNumber[]> getAdjointFunction(final double t);
 
   /**
    * Returns the largest allowable value of {@latex.inline $\\alpha$}, the contour along which the characteristic function is integrated.
