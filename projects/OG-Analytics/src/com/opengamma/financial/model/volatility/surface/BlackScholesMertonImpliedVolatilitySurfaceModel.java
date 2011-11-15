@@ -46,9 +46,9 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
     final double df2 = Math.exp(-t * optionDataBundle.getCostOfCarry());
     final double forward = optionDataBundle.getSpot() / optionDataBundle.getInterestRateCurve().getDiscountFactor(t) / df2;
     final double intrinsicPrice = Math.max(0, (entry.getKey().isCall() ? 1 : -1) * (forward - k));
-    if (intrinsicPrice > price) {
-      throw new MathException("Option price (" + price + ") less than intrinsic value (" + intrinsicPrice + ")");
-    }
+//    if (intrinsicPrice > price) {
+//      throw new MathException("Option price (" + price + ") less than intrinsic value (" + intrinsicPrice + ")");
+//    }
     final Function1D<StandardOptionDataBundle, Double> pricingFunction = _bsm.getPricingFunction(entry.getKey());
     _rootFinder = new MyBisectionSingleRootFinder(optionDataBundle, price);
     return _rootFinder.getRoot(pricingFunction, optionDataBundle.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(0))),
