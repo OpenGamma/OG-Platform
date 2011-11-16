@@ -6,6 +6,7 @@
 package com.opengamma.financial.forex.method;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -16,12 +17,15 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.forex.calculator.CurrencyExposureBlackForexCalculator;
+import com.opengamma.financial.forex.calculator.PresentValueBlackForexCalculator;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.financial.forex.definition.ForexNonDeliverableOptionDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureParameter;
@@ -30,6 +34,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.TimeCalculator;
+import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -67,6 +72,8 @@ public class ForexNonDeliverableOptionBlackMethodTest {
 
   private static final ForexNonDeliverableOptionBlackMethod METHOD_NDO = ForexNonDeliverableOptionBlackMethod.getInstance();
   private static final ForexOptionVanillaBlackMethod METHOD_FXO = ForexOptionVanillaBlackMethod.getInstance();
+  private static final PresentValueBlackForexCalculator PVC_BLACK = PresentValueBlackForexCalculator.getInstance();
+  private static final CurrencyExposureBlackForexCalculator CE_BLACK = CurrencyExposureBlackForexCalculator.getInstance();
 
   // Smile data
   private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5)};
@@ -98,6 +105,74 @@ public class ForexNonDeliverableOptionBlackMethodTest {
     MultipleCurrencyAmount pvNDO = METHOD_NDO.presentValue(NDO, SMILE_BUNDLE);
     MultipleCurrencyAmount pvFXO = METHOD_FXO.presentValue(FOREX_OPT, SMILE_BUNDLE);
     assertEquals("Forex non-deliverable option: present value", pvFXO, pvNDO);
+  }
+
+  @Test
+  /**
+   * Check the coherence of the present value of NDO in the method and in the calculator.
+   */
+  public void presentValueMethodVsCalculator() {
+    MultipleCurrencyAmount pvMethod = METHOD_NDO.presentValue(NDO, SMILE_BUNDLE);
+    MultipleCurrencyAmount pvCalculator = PVC_BLACK.visit(NDO, SMILE_BUNDLE);
+    assertEquals("Forex non-deliverable option: present value", pvMethod, pvCalculator);
+  }
+
+  @Test
+  /**
+   * Tests the currency exposure against the present value.
+   */
+  public void currencyExposureVsPresentValue() {
+    MultipleCurrencyAmount pv = METHOD_NDO.presentValue(NDO, SMILE_BUNDLE);
+    MultipleCurrencyAmount ce = METHOD_NDO.currencyExposure(NDO, SMILE_BUNDLE);
+    assertEquals("Forex vanilla option: currency exposure vs present value", ce.getAmount(USD) + ce.getAmount(KRW) / USD_KRW, pv.getAmount(USD), 1E-2);
+  }
+
+  @Test
+  /**
+   * Check the coherence of the currency exposure of NDO in the method and in the calculator.
+   */
+  public void currencyExposureMethodVsCalculator() {
+    MultipleCurrencyAmount ceMethod = METHOD_NDO.currencyExposure(NDO, SMILE_BUNDLE);
+    MultipleCurrencyAmount ceCalculator = CE_BLACK.visit(NDO, SMILE_BUNDLE);
+    assertEquals("Forex non-deliverable option: currency exposure", ceMethod, ceCalculator);
+  }
+
+  @Test
+  /**
+   * Tests the present value curve sensitivity of NDO by comparison with vanilla European options.
+   */
+  public void presentValueCurveSensitivity() {
+    double tolerance = 1.0E-2;
+    MultipleCurrencyInterestRateCurveSensitivity pvcsNDO = METHOD_NDO.presentValueCurveSensitivity(NDO, SMILE_BUNDLE);
+    MultipleCurrencyInterestRateCurveSensitivity pvcsFXO = METHOD_FXO.presentValueCurveSensitivity(FOREX_OPT, SMILE_BUNDLE);
+    assertTrue("Forex non-deliverable option: present value curve sensitivity", InterestRateCurveSensitivity.compare(pvcsFXO.getSensitivity(USD), pvcsNDO.getSensitivity(USD), tolerance));
+  }
+
+  @Test
+  /**
+   * Tests the present value curve sensitivity of NDO by comparison with vanilla European options.
+   */
+  public void presentValueVolatilitySensitivity() {
+    double tolerance = 1.0E-2;
+    PresentValueVolatilitySensitivityDataBundle pvvsNDO = METHOD_NDO.presentValueVolatilitySensitivity(NDO, SMILE_BUNDLE);
+    PresentValueVolatilitySensitivityDataBundle pvvsFXO = METHOD_FXO.presentValueVolatilitySensitivity(FOREX_OPT, SMILE_BUNDLE);
+    final DoublesPair point = DoublesPair.of(NDO.getExpiryTime(), NDO.getStrike());
+    assertEquals("Forex non-deliverable option: present value curve sensitivity", pvvsFXO.getVega().get(point), pvvsNDO.getVega().get(point), tolerance);
+  }
+
+  @Test
+  /**
+   * Tests the present value curve sensitivity of NDO by comparison with vanilla European options.
+   */
+  public void presentValueVolatilityNodeSensitivity() {
+    double tolerance = 1.0E-2;
+    PresentValueVolatilityNodeSensitivityDataBundle nsNDO = METHOD_NDO.presentValueVolatilityNodeSensitivity(NDO, SMILE_BUNDLE);
+    PresentValueVolatilityNodeSensitivityDataBundle nsFXO = METHOD_FXO.presentValueVolatilityNodeSensitivity(FOREX_OPT, SMILE_BUNDLE);
+    for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
+      for (int loopstrike = 0; loopstrike < nsNDO.getDelta().getNumberOfElements(); loopstrike++) {
+        assertEquals("Forex non-deliverable option: vega node", nsFXO.getVega().getEntry(loopexp, loopstrike), nsNDO.getVega().getEntry(loopexp, loopstrike), tolerance);
+      }
+    }
   }
 
 }

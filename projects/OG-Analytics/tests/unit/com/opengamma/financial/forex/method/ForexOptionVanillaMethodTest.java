@@ -249,6 +249,16 @@ public class ForexOptionVanillaMethodTest {
 
   @Test
   /**
+   * Tests the currency exposure against the present value.
+   */
+  public void currencyExposureVsPresentValue() {
+    MultipleCurrencyAmount pv = METHOD_OPTION.presentValue(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    MultipleCurrencyAmount ce = METHOD_OPTION.currencyExposure(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    assertEquals("Forex vanilla option: currency exposure vs present value", ce.getAmount(USD) + ce.getAmount(EUR) * SPOT, pv.getAmount(USD), 1E-2);
+  }
+
+  @Test
+  /**
    * Tests a EUR/USD call vs a USD/EUR put.
    */
   public void currencyExposureCallPut() {
@@ -444,6 +454,29 @@ public class ForexOptionVanillaMethodTest {
     final PresentValueVolatilitySensitivityDataBundle pvvsMethod = METHOD_OPTION.presentValueVolatilitySensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE);
     final PresentValueVolatilitySensitivityDataBundle pvvsCalculator = PVVSC_BLACK.visit(FOREX_CALL_OPTION, SMILE_BUNDLE);
     assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvvsMethod, pvvsCalculator);
+  }
+
+  @Test
+  /**
+   * Tests a EUR/USD call vs a USD/EUR put.
+   */
+  public void volatilitySensitivityCallPut() {
+    final double strike = 1.45;
+    final boolean isCall = true;
+    final boolean isLong = true;
+    final double notional = 100000000;
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, BUSINESS_DAY, CALENDAR, Period.ofMonths(9));
+    final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, CALENDAR, -SETTLEMENT_DAYS);
+    final ForexDefinition forexEURUSDDefinition = new ForexDefinition(EUR, USD, payDate, notional, strike);
+    final ForexDefinition forexUSDEURDefinition = new ForexDefinition(USD, EUR, payDate, -notional * strike, 1.0 / strike);
+    final ForexOptionVanillaDefinition callEURUSDDefinition = new ForexOptionVanillaDefinition(forexEURUSDDefinition, expDate, isCall, isLong);
+    final ForexOptionVanillaDefinition putUSDEURDefinition = new ForexOptionVanillaDefinition(forexUSDEURDefinition, expDate, isCall, isLong);
+    final ForexOptionVanilla callEURUSD = callEURUSDDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[1]});
+    final ForexOptionVanilla putUSDEUR = putUSDEURDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[1], CURVES_NAME[0]});
+    PresentValueVolatilitySensitivityDataBundle vsCallEURUSD = METHOD_OPTION.presentValueVolatilitySensitivity(callEURUSD, SMILE_BUNDLE);
+    PresentValueVolatilitySensitivityDataBundle vsPutUSDEUR = METHOD_OPTION.presentValueVolatilitySensitivity(putUSDEUR, SMILE_BUNDLE);
+    final DoublesPair point = DoublesPair.of(callEURUSD.getTimeToExpiry(), strike);
+    assertEquals("Forex vanilla option: volatilityNode", vsCallEURUSD.getVega().get(point) / SPOT, vsPutUSDEUR.getVega().get(point), 1.0E-2);
   }
 
   @Test
