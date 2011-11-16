@@ -611,7 +611,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     if (result == null) {
       throw new DataNotFoundException("Unable to find time-series: " + objectId);
     }
-    if (!toDateInclusive.isBefore(fromDateInclusive)) {
+    if (toDateInclusive == null || fromDateInclusive == null || !toDateInclusive.isBefore(fromDateInclusive)) {
       LocalDateDoubleTimeSeries series = namedJdbc.query(sqlSelectDataPoints(), args, new DataPointsExtractor());
       result.setTimeSeries(series);
     } else {
