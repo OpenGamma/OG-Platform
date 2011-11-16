@@ -37,7 +37,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
  *
  */
 public class StocksPutsCallsAggregationFunction implements AggregationFunction<String> {
-  private static final boolean s_useAttributes = true;
+  private boolean _useAttributes;
     
   private static final String NAME = "Stocks/Puts/Calls";
   private static final String NA = "N/A"; 
@@ -47,12 +47,17 @@ public class StocksPutsCallsAggregationFunction implements AggregationFunction<S
   private SecuritySource _secSource;
   
   public StocksPutsCallsAggregationFunction(SecuritySource secSource) {
+    this(secSource, true);
+  }
+  
+  public StocksPutsCallsAggregationFunction(SecuritySource secSource, boolean useAttributes) {
     _secSource = secSource;
+    _useAttributes = useAttributes;
   }
   
   @Override
   public String classifyPosition(final Position position) {
-    if (s_useAttributes) {
+    if (_useAttributes) {
       Map<String, String> attributes = position.getAttributes();
       if (attributes.containsKey(getName())) {
         return attributes.get(getName());
