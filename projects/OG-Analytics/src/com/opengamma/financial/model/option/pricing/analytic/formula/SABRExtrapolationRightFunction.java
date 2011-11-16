@@ -11,7 +11,6 @@ import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.linearalgebra.DecompositionFactory;
-import com.opengamma.math.linearalgebra.LUDecompositionCommons;
 import com.opengamma.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;

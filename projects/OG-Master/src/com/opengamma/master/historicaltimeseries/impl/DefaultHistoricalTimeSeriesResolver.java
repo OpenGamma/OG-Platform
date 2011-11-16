@@ -67,18 +67,23 @@ public class DefaultHistoricalTimeSeriesResolver implements HistoricalTimeSeries
     searchRequest.setValidityDate(identifierValidityDate);
     searchRequest.setDataField(dataField);
     HistoricalTimeSeriesInfoSearchResult searchResult = _master.search(searchRequest);
-    if (searchResult.getDocuments().isEmpty()) {
-      s_logger.warn("Resolver failed to find any time-series for {} using {}/{}", new Object[] {identifiers, dataField, resolutionKey});
-      return null;
+    List<ManageableHistoricalTimeSeriesInfo> candidates = searchResult.getInfoList();
+    //IGN-139 - avoid rating unless we have to
+    switch (candidates.size()) {
+      case 0:
+        s_logger.warn("Resolver failed to find any time-series for {} using {}/{}", new Object[] {identifiers, dataField, resolutionKey});
+        return null;
+      case 1:
+        return candidates.get(0).getUniqueId();  
+      default:
+        // pick best using rules from configuration
+        HistoricalTimeSeriesRating ruleSet = _configSource.getLatestByName(HistoricalTimeSeriesRating.class, resolutionKey);
+        if (ruleSet == null) {
+          s_logger.warn("Resolver failed to find configuration: {}", resolutionKey);
+          return null;
+        }
+        return bestMatch(candidates, ruleSet);
     }
-    
-    // pick best using rules from configuration
-    HistoricalTimeSeriesRating ruleSet = _configSource.getLatestByName(HistoricalTimeSeriesRating.class, resolutionKey);
-    if (ruleSet == null) {
-      s_logger.warn("Resolver failed to find configuration: {}", resolutionKey);
-      return null;
-    }
-    return bestMatch(searchResult.getInfoList(), ruleSet);
   }
 
   /**

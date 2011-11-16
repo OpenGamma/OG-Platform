@@ -12,10 +12,14 @@ import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBea
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
+import javax.time.calendar.ZonedDateTime;
+
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.id.ExternalId;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
+import com.opengamma.util.money.Currency;
 
 /**
  * Bean/security conversion operations.
@@ -41,14 +45,21 @@ public final class FRASecurityBeanOperation extends AbstractSecurityBeanOperatio
     bean.setRate(security.getRate());
     bean.setAmount(security.getAmount());
     bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlyingId()));
+    bean.setFixingDate(dateTimeWithZoneToZonedDateTimeBean(security.getFixingDate()));
     return bean;
   }
 
   @Override
   public FRASecurity createSecurity(final OperationContext context, FRASecurityBean bean) {
-    return new FRASecurity(currencyBeanToCurrency(bean.getCurrency()), externalIdBeanToExternalId(bean.getRegion()), 
-                           zonedDateTimeBeanToDateTimeWithZone(bean.getStartDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getEndDate()), 
-                           bean.getRate(), bean.getAmount(), externalIdBeanToExternalId(bean.getUnderlying()));
+    Currency currency = currencyBeanToCurrency(bean.getCurrency());
+    ExternalId regionId = externalIdBeanToExternalId(bean.getRegion());
+    ZonedDateTime startDate = zonedDateTimeBeanToDateTimeWithZone(bean.getStartDate());
+    ZonedDateTime endDate = zonedDateTimeBeanToDateTimeWithZone(bean.getEndDate());
+    double rate = bean.getRate();
+    double amount = bean.getAmount();
+    ExternalId underlyingId = externalIdBeanToExternalId(bean.getUnderlying());
+    ZonedDateTime fixingDate = zonedDateTimeBeanToDateTimeWithZone(bean.getFixingDate());
+    return new FRASecurity(currency, regionId, startDate, endDate, rate, amount, underlyingId, fixingDate);
   }
 
 }
