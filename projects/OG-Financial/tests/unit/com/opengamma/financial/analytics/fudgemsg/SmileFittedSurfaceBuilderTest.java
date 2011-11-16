@@ -25,10 +25,10 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public class SABRFittedSurfaceBuilderTest extends AnalyticsTestBase {
+public class SmileFittedSurfaceBuilderTest extends AnalyticsTestBase {
 
   @Test
-  public void test() {
+  public void testSABR() {
     final SABRInterestRateParameters sabrResults = TestsDataSets.createSABR1();
     final VolatilitySurface alphaSurface = sabrResults.getAlphaSurface();
     final VolatilitySurface betaSurface = sabrResults.getBetaSurface();
@@ -42,4 +42,20 @@ public class SABRFittedSurfaceBuilderTest extends AnalyticsTestBase {
     final SABRFittedSurfaces fits = new SABRFittedSurfaces(alphaSurface, betaSurface, nuSurface, rhoSurface, inverseJacobians, currency, dayCount);
     assertEquals(fits, cycleObject(SABRFittedSurfaces.class, fits));
   }
+
+//  @Test
+//  public void testHeston() {
+//    final HestonInterestRateParameters sabrResults = TestsDataSets.createSABR1();
+//    final VolatilitySurface alphaSurface = sabrResults.getAlphaSurface();
+//    final VolatilitySurface betaSurface = sabrResults.getBetaSurface();
+//    final VolatilitySurface nuSurface = sabrResults.getNuSurface();
+//    final VolatilitySurface rhoSurface = sabrResults.getRhoSurface();
+//    final Currency currency = Currency.AUD;
+//    final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+//    final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = new HashMap<DoublesPair, DoubleMatrix2D>();
+//    inverseJacobians.put(new DoublesPair(0, 1), new DoubleMatrix2D(new double[][] { {1, 2}, {3, 4}}));
+//    inverseJacobians.put(new DoublesPair(2, 1), new DoubleMatrix2D(new double[][] { {10, 20}, {30, 40}}));
+//    final SABRFittedSurfaces fits = new SABRFittedSurfaces(alphaSurface, betaSurface, nuSurface, rhoSurface, inverseJacobians, currency, dayCount);
+//    assertEquals(fits, cycleObject(SABRFittedSurfaces.class, fits));
+//  }
 }
