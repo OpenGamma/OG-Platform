@@ -31,7 +31,7 @@ data$Density <- c(Density1, Density2, Density3, Density4)
 
 
 ### @export "plot-data"
-png("dexy--extrapolation-price.png", width=480*2)
+png("dexy--extrapolation-price.png", width=600)
 with(data,
 xyplot(Price ~ Strike, groups=Mu, type="l", lwd=2,
         xlab=list(cex=2), ylab=list(cex=2), scales=list(x=list(cex=2), y=list(cex=2)),
@@ -42,7 +42,7 @@ xyplot(Price ~ Strike, groups=Mu, type="l", lwd=2,
 dev.off()
 
 ### @export "plot-data-pdf"
-pdf("dexy--extrapolation-price.pdf", width=15)
+pdf("dexy--extrapolation-price.pdf", width=1500)
 with(data,
 xyplot(Price ~ Strike, groups=Mu, type="l", lwd=2,
         xlab=list(cex=2), ylab=list(cex=2), scales=list(x=list(cex=2), y=list(cex=2)),
@@ -53,7 +53,7 @@ xyplot(Price ~ Strike, groups=Mu, type="l", lwd=2,
 dev.off()
 
 ### @export "plot-implied-vol"
-png("dexy--extrapolation-smile.png", width=480*2)
+png("dexy--extrapolation-smile.png", width=600)
 with(data,
 xyplot(ImpliedVolPct ~ Strike, groups=Mu, type="l", lwd=2,
         xlab=list(cex=2), ylab=list(cex=2), scales=list(x=list(cex=2), y=list(cex=2)),
@@ -73,7 +73,7 @@ xyplot(ImpliedVolPct ~ Strike, groups=Mu, type="l", lwd=2,
 dev.off()
 
 ### @export "plot-density"
-png("dexy--extrapolation-density.png", width=480*2)
+png("dexy--extrapolation-density.png", width=600)
 with(data,
 xyplot(Density ~ Strike, groups=Mu, type="l", lwd=2, ylim=c(0, 0.5),
         xlab=list(cex=2), ylab=list(cex=2), scales=list(x=list(cex=2), y=list(cex=2)),
