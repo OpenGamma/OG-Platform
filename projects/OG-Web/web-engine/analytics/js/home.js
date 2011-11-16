@@ -126,11 +126,14 @@
     var $views = $('#views');
     var $backingViewList = $("<select id='viewlist'></select>").appendTo($views);
     var $backingAggregatorsList = $("<select id='aggregatorslist'></select>");
-    var $backingSnapshotList = $("<select id='snapshotlist'></select>")
+    var $backingSnapshotList = $("<select id='snapshotlist'></select>");
 
     updateList($backingViewList, initData.viewNames);
     $backingViewList.combobox({
-      change: function(item) { populateSnapshots($backingSnapshotList, initData.liveSources, initData.snapshots, $(item).val()); }
+      change: function(item) {
+        populateSnapshots($backingSnapshotList, initData.liveSources, initData.snapshots, $(item).val());
+        sizeList($backingSnapshotList);
+      }
     });
     
     $("<span class='viewlabel'>aggregated by</span>").appendTo($views);
@@ -169,6 +172,8 @@
     });
     
     $('#viewcontrols').hide().show(500);
+    sizeList($backingAggregatorsList);
+    sizeList($backingSnapshotList);
     $('#loadingviews').remove();
     _init = true;
   }
@@ -192,11 +197,12 @@
     $.each(aggregators, function(idx, aggregator) {
       $('<option value="' + aggregator + '">' + aggregator + '</option>').appendTo($aggregatorsSelect);
     });
-    
-    var $input = $aggregatorsSelect.next();
-    $input.width(Math.min(250, $aggregatorsSelect.width() + 15));
-    $input.val($aggregatorsSelect.children()[1].text);
+    $aggregatorsSelect.next().val($aggregatorsSelect.children()[1].text);
     $aggregatorsSelect.children()[1].selected = true;
+  }
+  
+  function sizeList($backingList) {
+    $backingList.next().width(Math.min(250, $backingList.width() + 15));
   }
   
   function populateSnapshots($snapshotSelect, liveSources, snapshots, selectedView) {
@@ -245,8 +251,7 @@
         });
       });
     }
-        
-    $input.width(Math.min(250, $snapshotSelect.width() + 15));
+    
     if (!currentValExists && $snapshotSelect.children().size() > 1) {
       $input.val($snapshotSelect.children()[1].text);
       $snapshotSelect.children()[1].selected = true;
