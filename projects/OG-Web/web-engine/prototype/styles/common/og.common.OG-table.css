@@ -46,3 +46,26 @@
   content: '';
   border-bottom: 4px solid #f3f3f3;
 }
+
+/* Sub list content */
+
+.OG-table .og-sub-list {
+  width: 100%;
+}
+
+.OG-table .og-sub-list td {
+  background-color: inherit;
+}
+
+.OG-table .og-sub-list tr td:first-child {
+  color: #999;
+}
+
+.OG-table .og-sub-list .og-header {
+  background-color: #fafcfe;
+  border-top: 1px solid #d0e4f1;
+  border-bottom: 1px solid #d0e4f1;
+  color: inherit!important;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}

@@ -120,19 +120,9 @@ $.register_module({
                 var layout = og.views.common.layout,
                     render_identifiers = function (json) {
                         $('.OG-js-details-panel .og-js-identifiers').html(json.reduce(function (acc, val) {
-                            acc.push('<tr><td><span>' + val.scheme + '</span></td><td>' + val.value + '</td></tr>');
+                            acc.push('<tr><td><span>' + val.scheme.lang() + '</span></td><td>' + val.value + '</td></tr>');
                             return acc
                         }, []).join(''));
-                    },
-                    render_trades = function (json) {
-                        var fields = ['id', 'quantity', 'counterParty', 'date'], start = '<tr><td>', end = '</td></tr>',
-                            selector = '.OG-js-details-panel .og-js-trades';
-                        if (!json[0]) return $(selector).html('<tr><td colspan="4">No Trades</td></tr>');
-                        $(selector).html(json.reduce(function (acc, trade) {
-                            acc.push(start, fields.map(function (field) {return trade[field];}).join('</td><td>'), end);
-                            return acc;
-                        }, []).join(''));
-                        $('.OG-js-details-panel .og-js-trades-table').awesometable({height: 300});
                     },
                     setup_header_links = function () {
                         var $version_link,
@@ -190,7 +180,10 @@ $.register_module({
                                 $('.ui-layout-inner-north').empty();
                             }
                             render_identifiers(json.securities);
-                            render_trades(json.trades);
+                            og.common.module.trade_table({
+                                trades: json.trades,
+                                selector: '.og-js-trades-table'
+                            });
                             if (!args.version || args.version === '*') {
                                 ui.content_editable({
                                     attribute: 'data-og-editable',

@@ -21,6 +21,7 @@ import com.opengamma.util.time.TimeCalculator;
  * Class describing a foreign exchange non-deliverable forward transaction.
  * The transaction is XXX/YYY where YYY is the currency for the cash-settlement. A NDF KRW/USD with USD cash settlement is stored with KRW as currency1 and USD as currency2.
  */
+// TODO: Review: Should the transaction be stored as KRW/USD or USD/KRW? 
 public class ForexNonDeliverableForwardDefinition implements ForexConverter<ForexDerivative> {
 
   /**
@@ -36,7 +37,7 @@ public class ForexNonDeliverableForwardDefinition implements ForexConverter<Fore
    */
   private final double _notional;
   /**
-   * The reference exchange rate for the settlement (1 currency2 = _rate currency1).
+   * The reference exchange rate for the settlement (1 currency2 = _rate * currency1).
    */
   private final double _exchangeRate;
   /**
@@ -53,7 +54,7 @@ public class ForexNonDeliverableForwardDefinition implements ForexConverter<Fore
    * @param currency1 First currency of the transaction.
    * @param currency2 Second currency of the transaction. The cash settlement is done in this currency.
    * @param notional Notional of the transaction (in currency2).
-   * @param exchangeRate The reference exchange rate for the settlement (1 currency2 = _rate currency1).
+   * @param exchangeRate The reference exchange rate for the settlement (1 currency2 = _rate * currency1).
    * @param fixingDate The exchange rate fixing date.
    * @param paymentDate The transaction payment or settlement date.
    */

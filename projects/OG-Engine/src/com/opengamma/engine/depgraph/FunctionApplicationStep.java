@@ -531,6 +531,11 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
+  protected void pump(final GraphBuildingContext context) {
+    s_logger.debug("Ignoring pump at {}", this);
+  }
+
+  @Override
   public String toString() {
     return "ApplyFunction" + getObjectId() + "[" + getFunction() + ", " + getResolvedOutput() + "]";
   }
