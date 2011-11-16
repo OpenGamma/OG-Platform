@@ -30,8 +30,6 @@ public class ViewComputationResultModelFudgeBuilder extends ViewResultModelFudge
   
   private static final String FIELD_LIVEDATA = "liveData";
 
-  private static final String FIELD_SPECIFICATIONS = "specifications";
-
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ViewComputationResultModel resultModel) {
     final MutableFudgeMsg message = ViewResultModelFudgeBuilder.createResultModelMessage(serializer, resultModel);
@@ -44,7 +42,6 @@ public class ViewComputationResultModelFudgeBuilder extends ViewResultModelFudge
       serializer.addToMessage(liveDataMsg, null, 1, value);
     }
     message.add(FIELD_LIVEDATA, liveDataMsg);
-    serializer.addToMessage(message, FIELD_SPECIFICATIONS, null, resultModel.getRequirementToSpecificationMapping());
     
     return message;
   }
@@ -58,7 +55,6 @@ public class ViewComputationResultModelFudgeBuilder extends ViewResultModelFudge
       ComputedValue liveData = deserializer.fieldValueToObject(ComputedValue.class, field);
       resultModel.addMarketData(liveData);      
     }
-    resultModel.addRequirements((Map<ValueSpecification, Set<ValueRequirement>>) deserializer.fieldValueToObject(Map.class, message.getByName(FIELD_SPECIFICATIONS)));
     
     return resultModel;
   }

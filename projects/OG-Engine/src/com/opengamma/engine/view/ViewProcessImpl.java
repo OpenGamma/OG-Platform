@@ -9,6 +9,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.EngineResourceManagerInternal;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.engine.view.calc.ViewComputationJob;
@@ -31,6 +32,7 @@ import org.springframework.context.Lifecycle;
 
 import javax.time.Instant;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -248,6 +250,17 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, Computat
     }
   }
 
+  public void cycleInitiated(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping) {
+    // Caller MUST NOT hold the semaphore
+    s_logger.debug("View cycle, with execution options {} initiated on view process {}", viewCycleExecutionOptions, getUniqueId());
+    lock();
+    try {
+      cycleInitiatedCore(viewCycleExecutionOptions, specificationToRequirementMapping);
+    } finally {
+      unlock();
+    }
+  }
+
   public void jobResultReceived(ViewResultModel result) {
     // Caller MUST NOT hold the semaphore
     s_logger.debug("Job result from cycle {} received on view process {}", result.getViewCycleId(), getUniqueId());
@@ -306,6 +319,26 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, Computat
       }
     }
   }
+
+  private void cycleInitiatedCore(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping) {
+    // Caller MUST hold the semaphore
+
+    // [PLAT-1158]
+    // REVIEW kirk 2009-09-24 -- We need to consider this method for background execution
+    // of some kind. It holds the lock and blocks the recalc thread, so a slow
+    // callback implementation (or just the cost of computing the delta model) will
+    // be an unnecessary burden.
+
+    // We swap these first so that in the callback the process is consistent.
+    for (ViewResultListener listener : _listeners) {
+      try {
+        listener.cycleInitiated(viewCycleExecutionOptions, specificationToRequirementMapping);
+      } catch (Exception e) {
+        logListenerError(listener, e);
+      }
+    }
+  }
+
 
   public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
     s_logger.error("Cycle execution failed for " + executionOptions + ": ", exception);

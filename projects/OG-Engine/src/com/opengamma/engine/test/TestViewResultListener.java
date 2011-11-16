@@ -9,11 +9,14 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import javax.time.Instant;
 
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.listener.CycleInitiatedCall;
 import com.opengamma.engine.view.listener.JobResultReceivedCall;
 import com.opengamma.engine.view.listener.CycleCompletedCall;
 import com.opengamma.engine.view.listener.CycleExecutionFailedCall;
@@ -24,6 +27,9 @@ import com.opengamma.engine.view.listener.ViewDefinitionCompiledCall;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.AbstractTestResultListener;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Implementation of {@link ViewResultListener} for use in tests.
@@ -199,6 +205,11 @@ public class TestViewResultListener extends AbstractTestResultListener implement
   @Override
   public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
     callReceived(new ViewDefinitionCompilationFailedCall(valuationTime, exception));
+  }
+
+  @Override
+  public void cycleInitiated(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping) {
+    callReceived(new CycleInitiatedCall(viewCycleExecutionOptions, specificationToRequirementMapping), true);
   }
 
   @Override

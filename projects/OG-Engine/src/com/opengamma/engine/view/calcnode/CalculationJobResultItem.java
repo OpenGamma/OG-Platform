@@ -88,10 +88,6 @@ public class CalculationJobResultItem {
     return _result;
   }
 
-  public Set<ValueSpecification> getOutputs() {
-    return getItem().getOutputs();
-  }
-
   public String getExceptionClass() {
     return _exceptionClass;
   }

@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.view.listener;
 
-import javax.time.Instant;
-
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
@@ -14,6 +14,10 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
+
+import javax.time.Instant;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A listener to the output of a view process. Calls to the listener are always made in the sequence in which they
@@ -63,6 +67,16 @@ public interface ViewResultListener {
    * @param deltaResult  the delta result representing only the differences since the previous result, not null
    */
   void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Called following the initialisation of a computation cycle.
+   *
+   * @param viewCycle  the view cycle, not null
+   */
+  void cycleInitiated(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping);
+
+
 
   //-------------------------------------------------------------------------
   /**

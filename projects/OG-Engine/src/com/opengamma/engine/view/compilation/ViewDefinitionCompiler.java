@@ -87,7 +87,9 @@ public final class ViewDefinitionCompiler {
     if (OUTPUT_FAILURE_REPORTS) {
       outputFailureReports(viewCompilationContext.getBuilders());
     }
-    return new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphsByConfiguration, portfolio, compilationServices.getFunctionCompilationContext().getFunctionInitId());
+    Map<String, Map<ValueRequirement, ValueSpecification>> requirementsWithSpecificationsByConfiguration = new HashMap<String, Map<ValueRequirement, ValueSpecification>>();
+
+    return new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphsByConfiguration, requirementsWithSpecificationsByConfiguration, portfolio, compilationServices.getFunctionCompilationContext().getFunctionInitId());
   }
 
   private static Map<String, DependencyGraph> processDependencyGraphs(ViewCompilationContext context) {

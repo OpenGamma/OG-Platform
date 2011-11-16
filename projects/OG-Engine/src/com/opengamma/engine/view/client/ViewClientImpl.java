@@ -5,18 +5,9 @@
  */
 package com.opengamma.engine.view.client;
 
-import java.util.Timer;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
-
-import javax.time.Instant;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.engine.marketdata.MarketDataInjector;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
@@ -35,6 +26,17 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.time.Instant;
+import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Default implementation of {@link ViewClient}.
@@ -114,6 +116,14 @@ public class ViewClientImpl implements ViewClient {
         ViewResultListener listener = _userResultListener.get();
         if (listener != null) {
           listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
+        }
+      }
+
+      @Override
+      public void cycleInitiated(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping) {
+        ViewResultListener listener = _userResultListener.get();
+        if (listener != null) {
+          listener.cycleInitiated(viewCycleExecutionOptions, specificationToRequirementMapping);
         }
       }
 

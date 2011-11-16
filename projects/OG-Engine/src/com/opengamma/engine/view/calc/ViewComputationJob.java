@@ -15,6 +15,7 @@ import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.ViewProcessImpl;
@@ -38,6 +39,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
+import com.opengamma.util.functional.Function2;
 import com.opengamma.util.monitor.OperationTimer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,12 +49,16 @@ import javax.time.Instant;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import static com.opengamma.util.functional.Functional.reduce;
 
 /**
  * The job which schedules and executes computation cycles for a view process.
@@ -274,6 +280,18 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     
     if (_executeCycles) {
       try {
+        final SingleComputationCycle singleComputationCycle = cycleReference.get();
+        Set<String> configurationNames = singleComputationCycle.getAllCalculationConfigurationNames();
+
+
+        Map<String, Map<ValueSpecification, Set<ValueRequirement>>> mapping = reduce(new HashMap<String, Map<ValueSpecification, Set<ValueRequirement>>>(), configurationNames, new Function2<HashMap<String, Map<ValueSpecification, Set<ValueRequirement>>>, String, HashMap<String, Map<ValueSpecification, Set<ValueRequirement>>>>() {
+          @Override
+          public HashMap<String, Map<ValueSpecification, Set<ValueRequirement>>> execute(HashMap<String, Map<ValueSpecification, Set<ValueRequirement>>> mapping, String configName) {
+            mapping.put(configName, singleComputationCycle.getExecutableDependencyGraph(configName).getTerminalOutputs());
+            return mapping;
+          }
+        });
+        cycleInitiated(singleComputationCycle.getViewCycleExecutionOptions(), mapping);
         executeViewCycle(cycleType, cycleReference, marketDataSnapshot, getViewProcess().getCalcJobResultExecutorService());
       } catch (InterruptedException e) {
         // Execution interrupted - don't propagate as failure
@@ -317,6 +335,14 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       getViewProcess().cycleCompleted(cycle);
     } catch (Exception e) {
       s_logger.error("Error notifying view process " + getViewProcess() + " of view cycle completion", e);
+    }
+  }
+
+  private void cycleInitiated(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping) {
+    try {
+      getViewProcess().cycleInitiated(viewCycleExecutionOptions, specificationToRequirementMapping);
+    } catch (Exception e) {
+      s_logger.error("Error notifying view process " + getViewProcess() + " of view cycle initiation", e);
     }
   }
 

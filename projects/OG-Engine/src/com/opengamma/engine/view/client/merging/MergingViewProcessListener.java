@@ -7,12 +7,16 @@ package com.opengamma.engine.view.client.merging;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.time.Instant;
 
 import com.google.common.base.Function;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
@@ -129,7 +133,22 @@ public class MergingViewProcessListener implements ViewResultListener {
   public UserPrincipal getUser() {
     return getUnderlying().getUser();
   }
-  
+
+
+  @Override
+  public void cycleInitiated(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping) {
+    _mergerLock.lock();
+    try {
+      if (isPassThrough()) {
+        getUnderlying().cycleInitiated(viewCycleExecutionOptions, specificationToRequirementMapping);
+      } else {
+        _callQueue.add(new ProcessCompletedCall());
+      }
+    } finally {
+      _mergerLock.unlock();
+    }
+  }
+
   @Override
   public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
     _mergerLock.lock();

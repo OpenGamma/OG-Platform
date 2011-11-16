@@ -5,13 +5,17 @@
  */
 package com.opengamma.engine.view.listener;
 
-import javax.time.Instant;
-
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+
+import javax.time.Instant;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Implementation of {@link ViewResultListener} which does nothing, designed for overriding specific methods.
@@ -24,6 +28,10 @@ public abstract class AbstractViewResultListener implements ViewResultListener {
 
   @Override
   public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
+  }
+
+  @Override
+  public void cycleInitiated(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping) {
   }
 
   @Override

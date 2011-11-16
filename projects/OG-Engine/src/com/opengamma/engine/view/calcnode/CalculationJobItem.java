@@ -132,14 +132,6 @@ public final class CalculationJobItem {
     return Collections.unmodifiableSet(_desiredValues);
   }
 
-  public Set<ValueSpecification> getOutputs() {
-    Set<ValueSpecification> outputs = new HashSet<ValueSpecification>();
-    for (ValueRequirement requirement : getDesiredValues()) {
-      outputs.add(new ValueSpecification(requirement, getFunctionUniqueIdentifier()));
-    }
-    return outputs;
-  }
-
   @Override
   public String toString() {
     return new ToStringBuilder(this).append("Function unique ID", getFunctionUniqueIdentifier()).append("Computation target", getComputationTargetSpecification()).toString();
