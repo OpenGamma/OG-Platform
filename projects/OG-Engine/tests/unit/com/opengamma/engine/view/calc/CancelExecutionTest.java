@@ -22,7 +22,7 @@ import javax.time.Instant;
 
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
-import com.opengamma.engine.view.listener.ComputationCycleResultListener;
+import com.opengamma.engine.view.listener.RawResultListener;
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,9 +120,9 @@ public class CancelExecutionTest {
     }
   }
 
-  private ComputationCycleResultListener computationCycleResultListener = new ComputationCycleResultListener() {
+  private RawResultListener computationCycleResultListener = new RawResultListener() {
     @Override
-    public void jobResultReceived(ViewResultModel result) {
+    public void resultAvailable(ViewResultModel result) {
       //ignore
     }
   };

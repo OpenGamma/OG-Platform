@@ -112,7 +112,7 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
 
 
     @Override
-    public void jobResultReceived(ViewResultModel fullResult, ViewDeltaResultModel deltaResult) {
+    public void cycleFragmentCompleted(ViewResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
       s_logger.debug("Ignoring partial results.");
     }
 

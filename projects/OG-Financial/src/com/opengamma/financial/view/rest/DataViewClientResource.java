@@ -50,7 +50,7 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   public static final String PATH_DETACH = "detach";
   public static final String PATH_LIVE_DATA_OVERRIDE_INJECTOR = "overrides";
   public static final String PATH_RESULT_MODE = "resultMode";
-  public static final String PATH_JOB_RESULT_MODE = "jobResultMode";
+  public static final String PATH_FRAGMENT_RESULT_MODE = "fragmentResultMode";
   public static final String PATH_RESUME = "resume";
   public static final String PATH_PAUSE = "pause";
   public static final String PATH_COMPLETED = "completed";
@@ -195,17 +195,17 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
 
   //-------------------------------------------------------------------------
   @GET
-  @Path(PATH_JOB_RESULT_MODE)
-  public Response getJobResultMode() {
+  @Path(PATH_FRAGMENT_RESULT_MODE)
+  public Response getFragmentResultMode() {
     updateLastAccessed();
-    return Response.ok(getViewClient().getJobResultMode()).build();
+    return Response.ok(getViewClient().getFragmentResultMode()).build();
   }
 
   @PUT
-  @Path(PATH_JOB_RESULT_MODE)
-  public Response setJobResultMode(ViewResultMode viewResultMode) {
+  @Path(PATH_FRAGMENT_RESULT_MODE)
+  public Response setFragmentResultMode(ViewResultMode viewResultMode) {
     updateLastAccessed();
-    getViewClient().setJobResultMode(viewResultMode);
+    getViewClient().setFragmentResultMode(viewResultMode);
     return Response.ok().build();
   }
 

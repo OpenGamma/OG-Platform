@@ -8,7 +8,7 @@ package com.opengamma.financial.view.rest;
 import javax.time.Instant;
 
 import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.listener.JobResultReceivedCall;
+import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,8 +94,8 @@ public class ViewClientJmsResultPublisher extends AbstractJmsResultPublisher imp
   }
 
   @Override
-  public void jobResultReceived(ViewResultModel fullResult, ViewDeltaResultModel deltaResult) {
-    send(new JobResultReceivedCall(fullResult, deltaResult));
+  public void cycleFragmentCompleted(ViewResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
+    send(new CycleFragmentCompletedCall(fullFragment, deltaFragment));
   }
 
   @Override

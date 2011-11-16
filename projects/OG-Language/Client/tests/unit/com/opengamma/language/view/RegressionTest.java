@@ -101,9 +101,9 @@ public class RegressionTest {
       }
 
       @Override
-      public void jobResultReceived(ViewResultModel fullResult, ViewDeltaResultModel deltaResult) {
-        s_logger.info("Job result received");
-        postJobResult(fullResult);
+      public void cycleFragmentCompleted(ViewResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
+        s_logger.info("Cycle fragment completed");
+        postJobResult(fullFragment);
       }
 
       @Override

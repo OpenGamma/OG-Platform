@@ -29,6 +29,10 @@ public abstract class AbstractViewResultListener implements ViewResultListener {
   @Override
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
   }
+  
+  @Override
+  public void cycleFragmentCompleted(ViewResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
+  }
 
   @Override
   public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
@@ -42,7 +46,4 @@ public abstract class AbstractViewResultListener implements ViewResultListener {
   public void processTerminated(boolean executionInterrupted) {
   }
 
-  @Override
-  public void jobResultReceived(ViewResultModel result, ViewDeltaResultModel delta) {
-  }
 }

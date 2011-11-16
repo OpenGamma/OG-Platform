@@ -37,7 +37,7 @@ public class ViewDeltaResultModelMergerTest {
   private static final String CONFIG_2 = "config2";
   
   public void testMerger() {
-    ViewDeltaResultModelMerger merger = new ViewDeltaResultModelMerger();
+    ViewResultModelMerger merger = new ViewResultModelMerger();
     assertNull(merger.getLatestResult());
     
     InMemoryViewDeltaResultModel deltaResult1 = new InMemoryViewDeltaResultModel();
@@ -78,7 +78,7 @@ public class ViewDeltaResultModelMergerTest {
   }
   
   public void testHandlesPartiallyEmptyModels() {
-    ViewDeltaResultModelMerger merger = new ViewDeltaResultModelMerger();
+    ViewResultModelMerger merger = new ViewResultModelMerger();
     InMemoryViewDeltaResultModel deltaResult = new InMemoryViewDeltaResultModel();
     merger.merge(deltaResult);
     
@@ -95,7 +95,7 @@ public class ViewDeltaResultModelMergerTest {
   }
   
   public void testPassesThroughEmptyDelta() {
-    ViewDeltaResultModelMerger merger = new ViewDeltaResultModelMerger();
+    ViewResultModelMerger merger = new ViewResultModelMerger();
     InMemoryViewDeltaResultModel deltaResult = new InMemoryViewDeltaResultModel();
     merger.merge(deltaResult);
     assertNotNull(merger.getLatestResult());

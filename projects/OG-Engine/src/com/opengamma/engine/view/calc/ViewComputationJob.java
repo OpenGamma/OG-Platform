@@ -5,6 +5,22 @@
  */
 package com.opengamma.engine.view.calc;
 
+import java.text.MessageFormat;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import javax.time.Duration;
+import javax.time.Instant;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
@@ -34,25 +50,12 @@ import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.engine.view.listener.RawResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.monitor.OperationTimer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.time.Duration;
-import javax.time.Instant;
-import java.text.MessageFormat;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * The job which schedules and executes computation cycles for a view process.
@@ -320,11 +323,11 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
   }
 
-  private void jobResultReceived(ViewResultModel result) {
+  private void cycleFragmentCompleted(ViewResultModel result) {
     try {
-      getViewProcess().jobResultReceived(result);
+      getViewProcess().cycleFragmentCompleted(result);
     } catch (Exception e) {
-      s_logger.error("Error notifying view process " + getViewProcess() + " of view cycle completion", e);
+      s_logger.error("Error notifying view process " + getViewProcess() + " of cycle fragment completion", e);
     }
   }
 
@@ -508,8 +511,15 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       throw new OpenGammaRuntimeException("Compiled view definition " + compiledViewDefinition + " not valid for execution options " + executionOptions);
     }
     UniqueId cycleId = getViewProcess().generateCycleId();
+    
+    RawResultListener streamingResultListener = new RawResultListener() {
+      @Override
+      public void resultAvailable(ViewResultModel result) {
+        cycleFragmentCompleted(result);
+      }
+    };
     SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(),
-        getViewProcess(), getProcessContext(), compiledViewDefinition, executionOptions, versionCorrection);
+        streamingResultListener, getProcessContext(), compiledViewDefinition, executionOptions, versionCorrection);
     return getCycleManager().manage(cycle);
   }
 
