@@ -114,6 +114,7 @@ public class ViewCalculationConfiguration implements Serializable {
    */
   public void copyTo(ViewDefinition newOwner) {
     ViewCalculationConfiguration copy = new ViewCalculationConfiguration(newOwner, getName());
+    newOwner.addViewCalculationConfiguration(copy);
     copy.setDefaultProperties(getDefaultProperties());
     copy.addSpecificRequirements(getSpecificRequirements());
     for (Map.Entry<String, Set<Pair<String, ValueProperties>>> requirementEntry : getPortfolioRequirementsBySecurityType().entrySet()) {
