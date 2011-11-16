@@ -30,7 +30,6 @@ import com.opengamma.util.tuple.Pair;
 public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinitionImpl implements CompiledViewDefinitionWithGraphs {
 
   private final Map<String, DependencyGraph> _graphsByConfiguration;
-  private final Map<String, Map<ValueRequirement, ValueSpecification>> _requirementsWithSpecificationsByConfiguration;
   private final long _functionInitId;
 
   /**
@@ -38,29 +37,24 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
    * 
    * @param viewDefinition  the view definition, not null
    * @param graphsByConfiguration  the dependency graphs by calculation configuration name, not null
-   * @param requirementsWithSpecificationsByConfiguration the mapping from value requiremnts to their
-   *        resolved value specifications by calculation configuration name, not null
    * @param portfolio  the portfolio, possibly null
    * @param functionInitId  the function init ID that was used when creating the dependency graphs
    */
   public CompiledViewDefinitionWithGraphsImpl(ViewDefinition viewDefinition,
       Map<String, DependencyGraph> graphsByConfiguration,
-      Map<String, Map<ValueRequirement, ValueSpecification>> requirementsWithSpecificationsByConfiguration,
       Portfolio portfolio, long functionInitId) {
     this(viewDefinition, portfolio, processCompiledCalculationConfigurations(graphsByConfiguration),
-        processValidityRange(graphsByConfiguration), graphsByConfiguration, requirementsWithSpecificationsByConfiguration, functionInitId);
+        processValidityRange(graphsByConfiguration), graphsByConfiguration, functionInitId);
   }
   
   private CompiledViewDefinitionWithGraphsImpl(ViewDefinition viewDefinition, Portfolio portfolio,
       Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations,
       Pair<Instant, Instant> validityRange,
       Map<String, DependencyGraph> graphsByConfiguration,
-      Map<String, Map<ValueRequirement, ValueSpecification>> requirementsWithSpecificationsByConfiguration,
       long functionInitId) {
     super(viewDefinition, portfolio, compiledCalculationConfigurations, validityRange.getFirst(), validityRange.getSecond());
     _functionInitId = functionInitId;
     _graphsByConfiguration = Collections.unmodifiableMap(graphsByConfiguration);
-    _requirementsWithSpecificationsByConfiguration = Collections.unmodifiableMap(requirementsWithSpecificationsByConfiguration);
   }
   
   //--------------------------------------------------------------------------

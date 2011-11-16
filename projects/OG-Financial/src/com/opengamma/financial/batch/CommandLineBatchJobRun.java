@@ -379,7 +379,8 @@ public class CommandLineBatchJobRun extends BatchJobRun {
         dependencyGraphExecutorFactory,
         new DiscardingGraphStatisticsGathererProvider(),
         new PermissiveViewPermissionProvider(),
-        new DummyOverrideOperationCompiler());
+        new DummyOverrideOperationCompiler(),
+        null /*TODO it's temporary hack to make it compile !!!*/);
         
     setViewProcessor(viewProcessor);
 

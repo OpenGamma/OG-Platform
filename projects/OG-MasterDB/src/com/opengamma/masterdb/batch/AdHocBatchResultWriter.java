@@ -69,7 +69,9 @@ public class AdHocBatchResultWriter extends AbstractBatchResultWriter {
     
     int riskRunId = getRiskRunId();
 
-    Map<ValueSpecification, Set<ValueRequirement>> specificationsWithTheirsRequirements = resultModel.getRequirementToSpecificationMapping();
+    // TODO make it compile
+    // Map<ValueSpecification, Set<ValueRequirement>> specificationsWithTheirsRequirements = resultModel.getRequirementToSpecificationMapping();
+    Map<ValueSpecification, Set<ValueRequirement>> specificationsWithTheirsRequirements = null;
     
     for (ViewResultEntry result : resultModel.getAllResults()) {
       ValueSpecification output = result.getComputedValue().getSpecification();

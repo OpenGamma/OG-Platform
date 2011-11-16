@@ -8,10 +8,14 @@ package com.opengamma.language.view;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.time.Instant;
 
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewResultModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -178,6 +182,11 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
     @Override
     public void viewDefinitionCompiled(final CompiledViewDefinition compiledViewDefinition, final boolean hasMarketDataPermissions) {
       // Ignore
+    }
+
+    @Override
+    public void cycleInitiated(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping) {
+      // ignore
     }
 
     // Cancellable

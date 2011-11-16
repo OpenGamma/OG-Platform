@@ -9,6 +9,8 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -98,6 +100,12 @@ public class RegressionTest {
       public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
         s_logger.info("Cycle completed");
         postResult(fullResult);
+      }
+
+      @Override
+      public void cycleInitiated(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping) {
+        s_logger.info("Cycle initiated");
+        postResult("INITIATED");
       }
 
       @Override

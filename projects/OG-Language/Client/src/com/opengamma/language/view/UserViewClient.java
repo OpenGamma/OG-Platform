@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.time.Instant;
 
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
@@ -67,6 +69,13 @@ public final class UserViewClient implements UniqueIdentifiable {
     public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
       for (ViewResultListener listener : _listeners) {
         listener.cycleCompleted(fullResult, deltaResult);
+      }
+    }
+
+    @Override
+    public void cycleInitiated(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping) {
+      for (ViewResultListener listener : _listeners) {
+        listener.cycleInitiated(viewCycleExecutionOptions, specificationToRequirementMapping);
       }
     }
 
