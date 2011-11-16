@@ -481,6 +481,45 @@
         <!-- TODO: shared aggregation function config -->
         <bean class="com.opengamma.financial.aggregation.AssetClassAggregationFunction" />
         <bean class="com.opengamma.financial.aggregation.CurrencyAggregationFunction" />
+        <bean class="com.opengamma.financial.aggregation.DetailedAssetClassAggregationFunction" />
+        <bean class="com.opengamma.financial.aggregation.RegionAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg ref="regionSource" />
+          <constructor-arg ref="sharedExchangeSource" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.UnderlyingAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg value="BLOOMBERG_TICKER" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg value="SECTOR" />        
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg value="INDUSTRY_GROUP" />        
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg value="INDUSTRY" />        
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg value="SUB_INDUSTRY" />        
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.EquityBetaAggregationFunction">
+          <constructor-arg ref="sharedHistoricalTimeSeriesSource" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.CurrentMarketCapAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg ref="sharedHistoricalTimeSeriesSource" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.LiquidityAggregationFunction">
+          <constructor-arg ref="sharedHistoricalTimeSeriesSource" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.LongShortAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+        </bean>
       </list>
     </property>
     <property name="snapshotMaster" ref="dbSnapshotMaster" />

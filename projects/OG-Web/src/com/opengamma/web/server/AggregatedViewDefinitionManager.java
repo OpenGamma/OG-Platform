@@ -93,6 +93,7 @@ public class AggregatedViewDefinitionManager {
         AddViewDefinitionRequest addViewDefinitionRequest = new AddViewDefinitionRequest(aggregatedViewDefinition);
         UniqueId viewDefinitionId = _userViewDefinitionRepository.addViewDefinition(addViewDefinitionRequest);
         aggregatedViewDefinitionReference = new ViewDefinitionReference(viewDefinitionId, aggregatedPortfolioReference);
+        _aggregatedViewDefinitions.put(aggregatedViewDefinitionKey, aggregatedViewDefinitionReference);
       }
       return aggregatedViewDefinitionReference.incrementReferenceCount();
     } finally {

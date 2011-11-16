@@ -174,18 +174,20 @@
   }
   
   function updateList($backingList, contents) {
+    var existingSelection = $backingList.val();
     $backingList.empty();
     $('<option value=""></option>').appendTo($backingList);
     $.each(contents, function() {
       var $opt = $('<option value="' + this + '">' + this + '</option>');
       $opt.appendTo($backingList);
     });
+    $backingList.val(existingSelection);
   }
   
   function populateAggregators($aggregatorsSelect, aggregators) {
     $aggregatorsSelect.empty();
     $('<option value=""></option>').appendTo($aggregatorsSelect);
-    $('<option>Default Aggregation</option>').addClass("standard-entry").addClass("autocomplete-divider")
+    $('<option value="default">Default Aggregation</option>').addClass("standard-entry").addClass("autocomplete-divider")
         .appendTo($aggregatorsSelect);
     $.each(aggregators, function(idx, aggregator) {
       $('<option value="' + aggregator + '">' + aggregator + '</option>').appendTo($aggregatorsSelect);
@@ -272,6 +274,12 @@
       return;
     }
     
+    var $selectedAggregator = $('#aggregatorslist option:selected')
+    var aggregatorName = $selectedAggregator.attr('value');
+    if (!aggregatorName || aggregatorName == "default") {
+      aggregatorName = null;
+    }
+    
     var $selectedMarketData = $('#snapshotlist option:selected');
     var marketDataId = $selectedMarketData.attr('value');
     var isLive = $selectedMarketData.hasClass('standard-entry');
@@ -284,8 +292,8 @@
       marketDataSpecification.snapshotId = marketDataId;
     }
     
-    prepareChangeView();    
-    _liveResultsClient.changeView(view, marketDataSpecification);
+    prepareChangeView();
+    _liveResultsClient.changeView(view, aggregatorName, marketDataSpecification);
   }
   
   function prepareChangeView() {

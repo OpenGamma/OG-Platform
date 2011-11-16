@@ -21,7 +21,7 @@
     var _tabManager;
     
     var _statusTitle = '';
-    var _resultTitle = '';
+    var _resultTitle = 'loading view';
     
     //-----------------------------------------------------------------------
     // Initialization
