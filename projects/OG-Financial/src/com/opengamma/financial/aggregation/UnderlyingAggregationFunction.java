@@ -35,7 +35,7 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  * Abstract aggregation function for bucketing equities and equity options by GICS code of the underlying
  */
 public class UnderlyingAggregationFunction implements AggregationFunction<String> {
-  private static final boolean s_useAttributes = false;
+  private boolean _useAttributes;
   
   private ExternalScheme _preferredScheme;
   private SecuritySource _secSource;;
@@ -45,9 +45,18 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
     this(secSource, ExternalScheme.of(preferredSchemeString));
   }
   
+  public UnderlyingAggregationFunction(SecuritySource secSource, String preferredSchemeString, boolean useAttributes) {
+    this(secSource, ExternalScheme.of(preferredSchemeString), useAttributes);
+  }
+  
   public UnderlyingAggregationFunction(SecuritySource secSource, ExternalScheme preferredScheme) {
+    this(secSource, preferredScheme, true);
+  }
+  
+  public UnderlyingAggregationFunction(SecuritySource secSource, ExternalScheme preferredScheme, boolean useAttributes) {
     _secSource = secSource;
     _preferredScheme = preferredScheme;
+    _useAttributes = useAttributes;
   }
   
   private EquityIndexOptionSecurityVisitor<String> _equityIndexOptionSecurityVisitor = new EquityIndexOptionSecurityVisitor<String>() {
@@ -103,7 +112,7 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   
   @Override
   public String classifyPosition(Position position) {
-    if (s_useAttributes) {
+    if (_useAttributes) {
       Map<String, String> attributes = position.getAttributes();
       if (attributes.containsKey(getName())) {
         return attributes.get(getName());

@@ -3,9 +3,9 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.rest.security;
+package com.opengamma.financial.security.rest;
 
-import static com.opengamma.financial.rest.security.SecuritySourceServiceNames.SECURITYSOURCE_SECURITY;
+import static com.opengamma.financial.security.rest.SecuritySourceServiceNames.SECURITYSOURCE_SECURITY;
 
 import java.util.ArrayList;
 import java.util.Collection;

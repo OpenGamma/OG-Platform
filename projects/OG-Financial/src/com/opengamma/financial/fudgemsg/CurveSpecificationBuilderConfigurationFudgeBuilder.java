@@ -29,6 +29,7 @@ import com.opengamma.util.time.Tenor;
  */
 @FudgeBuilderFor(CurveSpecificationBuilderConfiguration.class)
 public class CurveSpecificationBuilderConfigurationFudgeBuilder implements FudgeBuilder<CurveSpecificationBuilderConfiguration> {
+  
   private static final String CASH = "cashInstrumentProviders";
   private static final String FRA = "fraInstrumentProviders";
   private static final String FRA_3M = "fra3MInstrumentProviders";
