@@ -21,7 +21,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +28,7 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJob;
+import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
@@ -189,7 +189,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
         s_logger.warn("Invalid cached execution plan for {} due to re-initialization", graph);
       } else {
         final Set<GraphFragment> visited = new HashSet<GraphFragment>();
-        if (execution.reset(this, visited)) {
+        if (execution.reset(this, visited, calcJobResultQueue)) {
           s_logger.info("Using cached execution plan for {}", graph);
           visited.clear();
           executeLeafNodes(execution, visited);

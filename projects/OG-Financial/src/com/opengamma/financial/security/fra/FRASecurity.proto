@@ -19,6 +19,7 @@ namespace com.opengamma.financial.security.fra {
     required double rate;
     required double amount;
     required id.ExternalId underlyingIdentifier;
+    required javax.time.calendar.ZonedDateTime fixingDate;
   }
 
 }

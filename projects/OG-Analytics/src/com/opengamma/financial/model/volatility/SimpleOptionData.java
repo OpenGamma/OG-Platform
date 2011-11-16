@@ -86,23 +86,31 @@ public class SimpleOptionData {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     SimpleOptionData other = (SimpleOptionData) obj;
-    if (Double.doubleToLongBits(_df) != Double.doubleToLongBits(other._df))
+    if (Double.doubleToLongBits(_df) != Double.doubleToLongBits(other._df)) {
       return false;
-    if (Double.doubleToLongBits(_f) != Double.doubleToLongBits(other._f))
+    }
+    if (Double.doubleToLongBits(_f) != Double.doubleToLongBits(other._f)) {
       return false;
-    if (_isCall != other._isCall)
+    }
+    if (_isCall != other._isCall) {
       return false;
-    if (Double.doubleToLongBits(_k) != Double.doubleToLongBits(other._k))
+    }
+    if (Double.doubleToLongBits(_k) != Double.doubleToLongBits(other._k)) {
       return false;
-    if (Double.doubleToLongBits(_t) != Double.doubleToLongBits(other._t))
+    }
+    if (Double.doubleToLongBits(_t) != Double.doubleToLongBits(other._t)) {
       return false;
+    }
     return true;
   }
 }

@@ -51,6 +51,7 @@ public class InterestRateFutureOptionPresentValueFunction extends InterestRateFu
             .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
             .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
             .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
-            .with(ValuePropertyNames.SURFACE, getSurfaceName()).get());
+            .with(ValuePropertyNames.SURFACE, getSurfaceName())
+            .with(ValuePropertyNames.SMILE_FITTING_METHOD, "SABR").get());
   }
 }

@@ -5,14 +5,23 @@
  */
 package com.opengamma.core.marketdatasnapshot;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.FirstThenSecondPairComparator;
+import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -23,13 +32,15 @@ import com.opengamma.util.tuple.Pair;
  * @param <Y> Type of the y-data
  */
 public class VolatilitySurfaceData<X, Y> {
-
-  private String _definitionName;
-  private String _specificationName;
-  private UniqueIdentifiable _target;
-  private Map<Pair<X, Y>, Double> _values;
-  private X[] _xs;
-  private Y[] _ys;;
+  private static final Comparator<Pair<?, ?>> COMPARATOR = FirstThenSecondPairComparator.INSTANCE;
+  private final String _definitionName;
+  private final String _specificationName;
+  private final UniqueIdentifiable _target;
+  private final Map<Pair<X, Y>, Double> _values;
+  private final X[] _xs;
+  private final Y[] _ys;
+  private final SortedSet<X> _uniqueXs;
+  private final Map<X, List<ObjectsPair<Y, Double>>> _strips;
 
   public VolatilitySurfaceData(final String definitionName, final String specificationName, final UniqueIdentifiable target,
                                final X[] xs, final Y[] ys, final Map<Pair<X, Y>, Double> values) {
@@ -45,6 +56,18 @@ public class VolatilitySurfaceData<X, Y> {
     _values = new HashMap<Pair<X, Y>, Double>(values);
     _xs = xs;
     _ys = ys;
+    _uniqueXs = new TreeSet<X>(); 
+    _strips = new HashMap<X, List<ObjectsPair<Y, Double>>>();
+    for (Map.Entry<Pair<X, Y>, Double> entries : values.entrySet()) {
+      if (_strips.containsKey(entries.getKey().getFirst())) {
+        _strips.get(entries.getKey().getFirst()).add(Pair.of(entries.getKey().getSecond(), entries.getValue()));
+      } else {
+        _uniqueXs.add(entries.getKey().getFirst());
+        final List<ObjectsPair<Y, Double>> list = new ArrayList<ObjectsPair<Y, Double>>();
+        list.add(Pair.of(entries.getKey().getSecond(), entries.getValue()));
+        _strips.put(entries.getKey().getFirst(), list);
+      }
+    }
   }
 
   public int size() {
@@ -62,7 +85,21 @@ public class VolatilitySurfaceData<X, Y> {
   public Double getVolatility(final X x, final Y y) {
     return _values.get(Pair.of(x, y));
   }
-
+  
+  public SortedSet<X> getUniqueXValues() {
+    return _uniqueXs;
+  }
+  
+  public List<ObjectsPair<Y, Double>> getYValuesForX(final X x) {
+    Validate.notNull(x, "x");
+    if (!_strips.containsKey(x)) {
+      throw new OpenGammaRuntimeException("Could not get strip for x value " + x);
+    }
+    List<ObjectsPair<Y, Double>> result = _strips.get(x);
+    Collections.sort(result, COMPARATOR);
+    return result;
+  }
+  
   public Map<Pair<X, Y>, Double> asMap() {
     return _values;
   }

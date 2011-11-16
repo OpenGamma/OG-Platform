@@ -87,8 +87,10 @@ public class TwoStateMarkovChainPricer {
     final double kMax = grid.getSpaceNode(grid.getNumSpaceNodes() - 1);
 
     final BoundaryCondition upper = new NeumannBoundaryCondition(0, kMax, false);
+   // long timer = System.nanoTime();
     final CoupledFiniteDifference solver = new CoupledFiniteDifference(theta, true);
     final PDEResults1D[] res = solver.solve(_data[0], _data[1], grid, lower1, upper, lower2, upper, null);
+   // System.out.println("time " + ((System.nanoTime() - timer) / 1e6) + "ms");
     final PDEFullResults1D res1 = (PDEFullResults1D) res[0];
     final PDEFullResults1D res2 = (PDEFullResults1D) res[1];
 

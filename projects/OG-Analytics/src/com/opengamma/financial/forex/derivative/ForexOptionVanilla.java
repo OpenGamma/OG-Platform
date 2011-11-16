@@ -11,6 +11,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.ForexDerivativeVisitor;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a vanilla foreign exchange European option. When the option is a call, the option holder has the right to enter into the Forex transaction; 
@@ -58,6 +59,22 @@ public class ForexOptionVanilla extends EuropeanVanillaOption implements ForexDe
    */
   public boolean isLong() {
     return _isLong;
+  }
+
+  /**
+   * Gets the first currency.
+   * @return The currency.
+   */
+  public Currency getCurrency1() {
+    return _underlyingForex.getCurrency1();
+  }
+
+  /**
+   * Gets the second currency.
+   * @return The currency.
+   */
+  public Currency getCurrency2() {
+    return _underlyingForex.getCurrency2();
   }
 
   @Override

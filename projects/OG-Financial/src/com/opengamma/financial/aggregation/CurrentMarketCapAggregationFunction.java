@@ -30,7 +30,7 @@ import com.opengamma.id.ExternalIdBundle;
  */
 public class CurrentMarketCapAggregationFunction implements AggregationFunction<String> {
 
-  private static final boolean s_useAttributes = true;
+  private boolean _useAttributes;
   private static final String NAME = "Market Cap";
   private static final String FIELD = "CUR_MKT_CAP";
   private static final String RESOLUTION_KEY = "DEFAULT_TSS_CONFIG";
@@ -50,10 +50,16 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
 
   private HistoricalTimeSeriesSource _htsSource;
   private SecuritySource _secSource;
-  
-  public CurrentMarketCapAggregationFunction(SecuritySource secSource, HistoricalTimeSeriesSource htsSource) {
+
+  public CurrentMarketCapAggregationFunction(SecuritySource secSource, HistoricalTimeSeriesSource htsSource, boolean useAttributes) {
     _secSource = secSource;
     _htsSource = htsSource;
+    _useAttributes = useAttributes;
+  }
+
+  
+  public CurrentMarketCapAggregationFunction(SecuritySource secSource, HistoricalTimeSeriesSource htsSource) {
+    this(secSource, htsSource, true);
   }
   
   private EquitySecurityVisitor<String> _equitySecurityVisitor = new EquitySecurityVisitor<String>() {
@@ -100,7 +106,7 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
   
   @Override
   public String classifyPosition(Position position) {
-    if (s_useAttributes) {
+    if (_useAttributes) {
       Map<String, String> attributes = position.getAttributes();
       if (attributes.containsKey(getName())) {
         return attributes.get(getName());

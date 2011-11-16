@@ -8,6 +8,8 @@ package com.opengamma.financial.analytics.model.forex;
 import java.util.Collections;
 import java.util.Set;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -18,8 +20,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
-import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -27,7 +30,7 @@ import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDa
 public class ForexVanillaOptionPresentValueCurveSensitivityFunction extends ForexVanillaOptionFunction {
   private static final PresentValueCurveSensitivityBlackForexCalculator CALCULATOR = PresentValueCurveSensitivityBlackForexCalculator.getInstance();
 
-  public ForexVanillaOptionPresentValueCurveSensitivityFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, 
+  public ForexVanillaOptionPresentValueCurveSensitivityFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName,
       final String callForwardCurveName, final String surfaceName) {
     super(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
   }
@@ -35,19 +38,18 @@ public class ForexVanillaOptionPresentValueCurveSensitivityFunction extends Fore
   @Override
   protected Set<ComputedValue> getResult(final ForexDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName(), getPutForwardCurveName())
-                                                              .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName())
-                                                              .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+        .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName()).with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.toSpecification(), properties);
-    final InterestRateCurveSensitivity result = CALCULATOR.visit(fxOption, data);
-    return Collections.singleton(new ComputedValue(spec, result));
+    final MultipleCurrencyInterestRateCurveSensitivity result = CALCULATOR.visit(fxOption, data);
+    Validate.isTrue(result.getCurrencies().size() == 1, "Only one currency");
+    final Currency ccy = result.getCurrencies().iterator().next();
+    return Collections.singleton(new ComputedValue(spec, result.getSensitivity(ccy)));
   }
-  
+
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName(), getPutForwardCurveName())
-                                                              .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName())
-                                                              .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.toSpecification(),
-        properties));
+        .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName()).with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.toSpecification(), properties));
   }
 }

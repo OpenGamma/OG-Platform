@@ -9,6 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
+import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.forex.derivative.ForexSwap;
@@ -91,6 +92,16 @@ public class AbstractForexDerivativeVisitor<S, T> implements ForexDerivativeVisi
   @Override
   public T visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexNonDeliverableForward()");
+  }
+
+  @Override
+  public T visitForexNonDeliverableOption(final ForexNonDeliverableOption derivative, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexNonDeliverableOption()");
+  }
+
+  @Override
+  public T visitForexNonDeliverableOption(final ForexNonDeliverableOption derivative) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexNonDeliverableOption()");
   }
 
 }

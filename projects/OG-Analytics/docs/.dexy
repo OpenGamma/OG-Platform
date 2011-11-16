@@ -1,33 +1,45 @@
 {
-        "index.html|hd|ft|jinja|split" : {
-            "allinputs" : true
+        "api.html|hd|ft|jinja|split" : {
+            "inputs" : ["javadoc-data.json|javadocs", "_header.html", "_footer.html"],
+            "canonical-name" : "index.html"
+        },
+        "@list-files.sh|jinja|sh" : { "propagate" : true, "contents" : "cd ../{{ s.canonical_dir() }}; tree -a -i -f -n --noreport" },
+        "writing-docs.tex|hd|ft|jinja|latex" : {
+            "title" : "Writing OpenGamma Examples",
+            "allinputs" : true,
+            "priority" : 10
         },
         "og_docs_yield_curve_maths.tex|hd|ft|jinja|latex" : {
+            "disabled" : true,
             "allinputs" : true,
-            "title" : "Yield Curve Maths"
+            "title" : "Yield Curve Maths",
+            "priority" : 10
         },
         "og_docs_true_primitives.tex|hd|ft|jinja|latex" : {
-            "allinputs" : true
+            "disabled" : true,
+            "allinputs" : true,
+            "priority" : 10
         },
         "*.md|fn|markdown|hd|ft|jinja" : {
             "allinputs" : true,
-            "inputs" : [
-              "og_docs_true_primitives.tex|hd|ft|jinja|latex",
-              "og_docs_yield_curve_maths.tex|hd|ft|jinja|latex"
-            ]
+            "priority" : 100
         },
         "sync.sh|jinja" : {},
         "debug.txt|jinja" : { "allinputs" : true },
         "javadoc-data.json|javadocs" : {},
-        "_*.html|dexy" : {},
-        "_*.tex|dexy" : {},
-        "*.jpg|cp" : {},
-        "*.png|cp" : {},
-        "*.css|cp" : {},
-        "*.svg|cp" : {},
-        "*.eot|cp" : {},
-        "*.ttf|cp" : {},
-        "*.woff|cp" : {},
-        "*.tex|pyg|l" : {}
+        "javadoc-data.json|ppjson" : {},
+        "_*.html" : {},
+        "_*.tex" : {},
+        "*.jpg" : {},
+        "*.png" : {},
+        "*.css" : {},
+        "*.svg" : {},
+        "*.eot" : {},
+        "*.ttf" : {},
+        "*.woff" : {},
+        "*.tex|pyg|l" : {},
+        "*.tex|idio|l" : {},
+        "*.py|pyg|l" : {},
+        ".dexy|ppjson|pyg|l" : {}
 }
 

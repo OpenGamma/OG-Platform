@@ -6,18 +6,18 @@
 package com.opengamma.financial.forex.calculator;
 
 import com.opengamma.financial.forex.derivative.Forex;
-import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.financial.forex.derivative.ForexSwap;
 import com.opengamma.financial.forex.method.ForexDiscountingMethod;
-import com.opengamma.financial.forex.method.ForexOptionVanillaBlackMethod;
+import com.opengamma.financial.forex.method.ForexNonDeliverableForwardDiscountingMethod;
 import com.opengamma.financial.forex.method.ForexSwapDiscountingMethod;
-import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 
 /**
  * Calculator of the present value curve sensitivity for Forex derivatives.
  */
-public class PresentValueCurveSensitivityForexCalculator extends AbstractForexDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> {
+public class PresentValueCurveSensitivityForexCalculator extends AbstractForexDerivativeVisitor<YieldCurveBundle, MultipleCurrencyInterestRateCurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -38,22 +38,26 @@ public class PresentValueCurveSensitivityForexCalculator extends AbstractForexDe
   PresentValueCurveSensitivityForexCalculator() {
   }
 
+  /**
+   * The methods used by the different instruments.
+   */
+  private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
+  private static final ForexSwapDiscountingMethod METHOD_FXSWAP = ForexSwapDiscountingMethod.getInstance();
+  private static final ForexNonDeliverableForwardDiscountingMethod METHOD_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
+
   @Override
-  public InterestRateCurveSensitivity visitForex(final Forex derivative, final YieldCurveBundle data) {
-    final ForexDiscountingMethod method = ForexDiscountingMethod.getInstance();
-    return method.presentValueCurveSensitivity(derivative, data);
+  public MultipleCurrencyInterestRateCurveSensitivity visitForex(final Forex derivative, final YieldCurveBundle data) {
+    return METHOD_FOREX.presentValueCurveSensitivity(derivative, data);
   }
 
   @Override
-  public InterestRateCurveSensitivity visitForexSwap(final ForexSwap derivative, final YieldCurveBundle data) {
-    final ForexSwapDiscountingMethod method = ForexSwapDiscountingMethod.getInstance();
-    return method.presentValueCurveSensitivity(derivative, data);
+  public MultipleCurrencyInterestRateCurveSensitivity visitForexSwap(final ForexSwap derivative, final YieldCurveBundle data) {
+    return METHOD_FXSWAP.presentValueCurveSensitivity(derivative, data);
   }
 
   @Override
-  public InterestRateCurveSensitivity visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
-    final ForexOptionVanillaBlackMethod method = ForexOptionVanillaBlackMethod.getInstance();
-    return method.presentValueCurveSensitivity(derivative, data);
+  public MultipleCurrencyInterestRateCurveSensitivity visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative, final YieldCurveBundle data) {
+    return METHOD_NDF.presentValueCurveSensitivity(derivative, data);
   }
 
 }
