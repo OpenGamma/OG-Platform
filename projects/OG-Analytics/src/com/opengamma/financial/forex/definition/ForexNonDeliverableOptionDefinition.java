@@ -42,7 +42,8 @@ public class ForexNonDeliverableOptionDefinition implements ForexConverter<Forex
   /**
    * Constructor from the details.
    * @param forex The underlying Forex transaction.
-   * @param isCall The call (true) / put (false) flag.
+   * @param isCall The call (true) / put (false) flag. When the option is a call, the option holder has the right to enter into the Forex NDF; when the option is a put, 
+   * the option holder has the right to enter into a NDF transaction equal to the underlying but with opposite signs.
    * @param isLong The long (true) / short (false) flag.
    */
   public ForexNonDeliverableOptionDefinition(final ForexNonDeliverableForwardDefinition forex, final boolean isCall, boolean isLong) {

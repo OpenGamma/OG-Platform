@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.server;
 
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -25,12 +24,10 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.id.UniqueId;
@@ -51,7 +48,9 @@ public class WebView {
   private final Client _local;
   private final Client _remote;
   private final ViewClient _client;
-  private final UniqueId _viewDefinition;
+  private final UniqueId _baseViewDefinitionId;
+  private final String _aggregatorName;
+  private final UniqueId _viewDefinitionId;
   private final ViewExecutionOptions _executionOptions;
   private final ExecutorService _executorService;
   private final ResultConverterCache _resultConverterCache;
@@ -70,14 +69,16 @@ public class WebView {
   
   private final AtomicInteger _activeDepGraphCount = new AtomicInteger();
 
-  public WebView(final Client local, final Client remote, final ViewClient client, final UniqueId viewDefinitionId,
-      final ViewExecutionOptions executionOptions, final UserPrincipal user, final ExecutorService executorService,
-      final ResultConverterCache resultConverterCache) {
+  public WebView(final Client local, final Client remote, final ViewClient client, final UniqueId baseViewDefinitionId,
+      final String aggregatorName, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions,
+      final UserPrincipal user, final ExecutorService executorService, final ResultConverterCache resultConverterCache) {
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     _local = local;
     _remote = remote;
     _client = client;
-    _viewDefinition = viewDefinitionId;
+    _baseViewDefinitionId = baseViewDefinitionId;
+    _aggregatorName = aggregatorName;
+    _viewDefinitionId = viewDefinitionId;
     _executionOptions = executionOptions;
     _executorService = executorService;
     _resultConverterCache = resultConverterCache;
@@ -113,9 +114,7 @@ public class WebView {
 
     });
     
-    MarketDataSpecification marketDataSpec;
-    EnumSet<ViewExecutionFlags> flags;
-    client.attachToViewProcess(viewDefinitionId.getUniqueId(), executionOptions);
+    client.attachToViewProcess(viewDefinitionId, executionOptions);
   }
   
   //-------------------------------------------------------------------------
@@ -171,16 +170,25 @@ public class WebView {
     getViewClient().shutdown();
   }
   
+  public UniqueId getBaseViewDefinitionId() {
+    return _baseViewDefinitionId;
+  }
+  
+  public String getAggregatorName() {
+    return _aggregatorName;
+  }
+  
   public UniqueId getViewDefinitionId() {
-    return _viewDefinition;
+    return _viewDefinitionId;
   }
   
   public ViewExecutionOptions getExecutionOptions() {
     return _executionOptions;
   }
   
-  public boolean matches(UniqueId viewDefinitionId, ViewExecutionOptions executionOptions) {
-    return getViewDefinitionId().equals(viewDefinitionId) && ObjectUtils.equals(getExecutionOptions(), executionOptions);
+  public boolean matches(UniqueId baseViewDefinitionId, String aggregatorName, ViewExecutionOptions executionOptions) {
+    return getBaseViewDefinitionId().equals(baseViewDefinitionId)
+        && ObjectUtils.equals(getAggregatorName(), aggregatorName) && ObjectUtils.equals(getExecutionOptions(), executionOptions);
   }
   
   public WebViewGrid getGridByName(String name) {

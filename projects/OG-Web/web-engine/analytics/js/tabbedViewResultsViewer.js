@@ -20,6 +20,9 @@
     var _$layout;
     var _tabManager;
     
+    var _statusTitle = '';
+    var _resultTitle = 'loading view';
+    
     //-----------------------------------------------------------------------
     // Initialization
     
@@ -55,13 +58,15 @@
       });
       
       _tabManager = new TabManager();
+      _$tabsList = $("<ul></ul>");
       _$tabsContainer = $("<div id='tabs'></div>")
-        .append("<ul></ul>");
+        .append(_$tabsList);
       $mainContentContainer.append(_$tabsContainer);
       _$tabsContainer.tabs({
         select : _tabManager.onSelectTab,
         show : _tabManager.onShowTab
       });
+      
       
       var portfolioDetails = _gridStructures.portfolio;
       if (portfolioDetails) {
@@ -80,10 +85,47 @@
         _tabManager.registerTab("primitives", _primitives);
         _$tabsContainer.tabs("add", "#primitives", "Primitives");
       }
+      
+      _$tabsList.append("<li id='viewstatus'/>")
+      
+      _liveResultsClient.onStatusUpdateReceived.subscribe(onStatusUpdateReceived);
+      _liveResultsClient.afterUpdateReceived.subscribe(afterUpdateReceived);
     }
     
     function handleCenterResized() {
       _tabManager.onTabContainerResized();
+    }
+    
+    function onStatusUpdateReceived(update) {
+      setStatusTitle(update.status);
+      updateStatusText();
+    }
+    
+    function afterUpdateReceived(update) {
+      var valuationDate = new Date(update.valuationTime);
+      var resultTitle = "valued at " + valuationDate.toUTCString() + ", calculated in " + update.calculationDuration + " ms";
+      setResultTitle(resultTitle);
+      updateStatusText();
+    }
+    
+    function setStatusTitle(statusTitle) {
+      _statusTitle = statusTitle;
+    }
+    
+    function getStatusTitle() {
+      return _statusTitle;
+    }
+    
+    function setResultTitle(resultTitle) {
+      _resultTitle = resultTitle;
+    }
+    
+    function getResultTitle() {
+      return _resultTitle;
+    }
+    
+    function updateStatusText() {
+      $('#viewstatus').html("<p><span class='statustitle'>" + getStatusTitle() + ": </span> " + getResultTitle() + "</p>");
     }
 
     //-----------------------------------------------------------------------
@@ -97,6 +139,8 @@
       _$tabsContainer.empty();
       _liveResultsClient.setPrimitivesEventHandler(null);
       _liveResultsClient.setPortfolioEventHandler(null);
+      _liveResultsClient.onStatusUpdateReceived.unsubscribe(onStatusUpdateReceived);
+      _liveResultsClient.afterUpdateReceived.unsubscribe(afterUpdateReceived);
     }
     
     //-----------------------------------------------------------------------

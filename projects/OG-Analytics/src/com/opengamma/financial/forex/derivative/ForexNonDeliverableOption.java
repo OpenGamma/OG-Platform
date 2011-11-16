@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.ForexDerivativeVisitor;
+import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a non-deliverable foreign exchange European option. The option exercise date is the underlying NDF fixing date.
@@ -70,6 +71,38 @@ public class ForexNonDeliverableOption implements ForexDerivative {
    */
   public boolean isLong() {
     return _isLong;
+  }
+
+  /**
+   * Gets the first currency.
+   * @return The currency.
+   */
+  public Currency getCurrency1() {
+    return _underlyingNDF.getCurrency1();
+  }
+
+  /**
+   * Gets the second currency.
+   * @return The currency.
+   */
+  public Currency getCurrency2() {
+    return _underlyingNDF.getCurrency2();
+  }
+
+  /**
+   * Gets the option strike.
+   * @return The strike.
+   */
+  public double getStrike() {
+    return _underlyingNDF.getExchangeRate();
+  }
+
+  /**
+   * Gets the option time to expiration.
+   * @return The time to expiration.
+   */
+  public double getExpiryTime() {
+    return _underlyingNDF.getFixingTime();
   }
 
   @Override

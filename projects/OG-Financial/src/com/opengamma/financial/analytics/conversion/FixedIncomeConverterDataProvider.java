@@ -141,7 +141,7 @@ public class FixedIncomeConverterDataProvider {
     if (length == 0) {
       throw new OpenGammaRuntimeException("Price time series for " + security.getUnderlyingId() + " was empty");
     }
-    final double lastMarginPrice = ts.getTimeSeries().getValueAt(length - 1);
+    final double lastMarginPrice = 1 - ts.getTimeSeries().getValueAt(length - 1) / 100;
     return definition.toDerivative(now, lastMarginPrice, curveNames);
   }
 
