@@ -176,4 +176,46 @@ public class InterestRateCurveSensitivityUtils {
     return curveSensi;
   }
 
+  /**
+   * Compare two lists of sensitivities with a given tolerance. The tolerance is used for both the time and the value. The two sensitivities are suppose to be in the same time order.
+   * @param sensi1 The first sensitivity (as a list).
+   * @param sensi2 The second sensitivity (as a list).
+   * @param tolerance The tolerance.
+   * @return True if the difference is below the tolerance and False if not.
+   */
+  public static boolean compare(final List<DoublesPair> sensi1, final List<DoublesPair> sensi2, double tolerance) {
+    for (int looptime = 0; looptime < sensi1.size(); looptime++) {
+      if ((Math.abs(sensi1.get(looptime).first - sensi2.get(looptime).first) > tolerance) || (Math.abs(sensi1.get(looptime).second - sensi2.get(looptime).second) >= tolerance)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Compare two maps of sensitivities with a given tolerance. The tolerance is used for both the time and the value. The two sensitivities are suppose to be in the same time order.
+   * @param sensi1 The first sensitivity (as a map).
+   * @param sensi2 The second sensitivity (as a map).
+   * @param tolerance The tolerance.
+   * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
+   */
+  public static boolean compare(final Map<String, List<DoublesPair>> sensi1, final Map<String, List<DoublesPair>> sensi2, double tolerance) {
+    Validate.notNull(sensi1, "sensitivity");
+    Validate.notNull(sensi2, "sensitivity");
+    for (final String name : sensi1.keySet()) {
+      if (sensi2.containsKey(name)) {
+        if (!compare(sensi1.get(name), sensi2.get(name), tolerance)) {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+    for (final String name : sensi2.keySet()) {
+      if (!(sensi1.containsKey(name))) {
+        return false;
+      }
+    }
+    return true;
+  }
 }

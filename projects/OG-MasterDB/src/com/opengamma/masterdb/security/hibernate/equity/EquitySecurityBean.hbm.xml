@@ -8,7 +8,7 @@
     <many-to-one name="exchange" column="exchange_id" class="com.opengamma.masterdb.security.hibernate.ExchangeBean" not-null="true"/>  
     <property name="companyName" type="string" not-null="true"/>
     <many-to-one name="currency" column="currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true"/>
-    <many-to-one name="GICSCode" column="gicscode_id" class="GICSCodeBean" not-null="false"/>
+    <many-to-one name="gicsCode" column="gicscode_id" class="GICSCodeBean" not-null="false"/>
   </union-subclass>
 
   <query name="EquitySecurityBean.one.bySecurityId"><![CDATA[

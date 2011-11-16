@@ -16,6 +16,7 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.SingleRootFinder;
 import com.opengamma.math.surface.ConstantDoublesSurface;
@@ -40,6 +41,14 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
     }
     final Map.Entry<OptionDefinition, Double> entry = optionPrices.entrySet().iterator().next();
     final Double price = entry.getValue();
+    final double k = entry.getKey().getStrike();
+    final double t = entry.getKey().getTimeToExpiry(optionDataBundle.getDate());
+    final double df2 = Math.exp(-t * optionDataBundle.getCostOfCarry());
+    final double forward = optionDataBundle.getSpot() / optionDataBundle.getInterestRateCurve().getDiscountFactor(t) / df2;
+    final double intrinsicPrice = Math.max(0, (entry.getKey().isCall() ? 1 : -1) * (forward - k));
+//    if (intrinsicPrice > price) {
+//      throw new MathException("Option price (" + price + ") less than intrinsic value (" + intrinsicPrice + ")");
+//    }
     final Function1D<StandardOptionDataBundle, Double> pricingFunction = _bsm.getPricingFunction(entry.getKey());
     _rootFinder = new MyBisectionSingleRootFinder(optionDataBundle, price);
     return _rootFinder.getRoot(pricingFunction, optionDataBundle.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(0))),
@@ -51,7 +60,6 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
     private final double _price;
     private final DoublesPair _origin = DoublesPair.of(0., 0.);
     private static final double ACCURACY = 1e-12;
-    private static final double ZERO = 1e-16;
     private static final int MAX_ATTEMPTS = 10000;
 
     public MyBisectionSingleRootFinder(final StandardOptionDataBundle data, final double price) {
@@ -90,7 +98,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
         if (highPrice <= 0) {
           rootVol = midVol;
         }
-        if (Math.abs(dVol) < ACCURACY || Math.abs(highVol) < ZERO) {
+        if (Math.abs(dVol) < ACCURACY) {
           return _data.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from((midVol))));
         }
       }

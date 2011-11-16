@@ -6,13 +6,12 @@
 package com.opengamma.engine.view.listener;
 
 import com.google.common.base.Function;
-import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.client.merging.ViewDeltaResultModelMerger;
 
 /**
- * Represents a call to {@link com.opengamma.engine.view.listener.ViewResultListener#cycleCompleted(com.opengamma.engine.view.ViewComputationResultModel, com.opengamma.engine.view.ViewDeltaResultModel)}
+ * Represents a call to {@link ViewResultListener#jobResultReceived(ViewResultModel, ViewDeltaResultModel)}
  */
 public class JobResultReceivedCall implements Function<ViewResultListener, Object> {
 

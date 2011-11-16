@@ -8,6 +8,8 @@ package com.opengamma.masterdb.security.hibernate.future;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.PropertyDefinition;
 
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
 import com.opengamma.masterdb.security.hibernate.ExchangeBean;
@@ -15,249 +17,57 @@ import com.opengamma.masterdb.security.hibernate.ExpiryBean;
 import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
+import java.util.Map;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Hibernate bean for storage.
  */
+@BeanDefinition
 public class FutureSecurityBean extends SecurityBean {
 
-  private FutureType _futureType; // TODO 2011-06-01 Case - Describe FutureSecurityBean members.
+  //TODO 2011-06-01 Case - Describe FutureSecurityBean members.
+  @PropertyDefinition
+  private FutureType _futureType; 
+  @PropertyDefinition
   private ExpiryBean _expiry;
+  @PropertyDefinition
   private ExchangeBean _tradingExchange;
+  @PropertyDefinition
   private ExchangeBean _settlementExchange;
+  @PropertyDefinition
   private CurrencyBean _currency1;
+  @PropertyDefinition
   private CurrencyBean _currency2;
+  @PropertyDefinition
   private CurrencyBean _currency3;
+  @PropertyDefinition
   private BondFutureTypeBean _bondType;
+  @PropertyDefinition
   private CommodityFutureTypeBean _commodityType;
+  @PropertyDefinition
   private Double _unitAmount;
+  @PropertyDefinition
   private UnitBean _unitName;
+  @PropertyDefinition
   private Double _unitNumber;
+  @PropertyDefinition
   private ExternalIdBean _underlying;
+  @PropertyDefinition
   private Set<FutureBundleBean> _basket;
+  @PropertyDefinition
   private ZonedDateTimeBean _firstDeliveryDate;
+  @PropertyDefinition
   private ZonedDateTimeBean _lastDeliveryDate;
 
   public FutureSecurityBean() {
     super();
-  }
-
-  /**
-   * @return the future type
-   */
-  public FutureType getFutureType() {
-    return _futureType;
-  }
-
-  /**
-   * @return the expiry
-   */
-  public ExpiryBean getExpiry() {
-    return _expiry;
-  }
-
-  /**
-   * @param expiry the expiry to set
-   */
-  public void setExpiry(ExpiryBean expiry) {
-    _expiry = expiry;
-  }
-
-  /**
-   * @return the first delivery date (bond futures only)
-   */
-  public ZonedDateTimeBean getFirstDeliveryDate() {
-    return _firstDeliveryDate;
-  }
-
-  /**
-   * @param firstDeliveryDate the first delivery date (bond futures only)
-   */
-  public void setFirstDeliveryDate(ZonedDateTimeBean firstDeliveryDate) {
-    _firstDeliveryDate = firstDeliveryDate;
-  }
-
-  /**
-   * @return the last delivery date (bond futures only)
-   */
-  public ZonedDateTimeBean getLastDeliveryDate() {
-    return _lastDeliveryDate;
-  }
-
-  /**
-   * @param lastDeliveryDate the last delivery date (bond futures only)
-   */
-  public void setLastDeliveryDate(ZonedDateTimeBean lastDeliveryDate) {
-    _lastDeliveryDate = lastDeliveryDate;
-  }
-
-  /**
-   * @return the tradingExchange
-   */
-  public ExchangeBean getTradingExchange() {
-    return _tradingExchange;
-  }
-
-  /**
-   * @param tradingExchange the tradingExchange to set
-   */
-  public void setTradingExchange(ExchangeBean tradingExchange) {
-    _tradingExchange = tradingExchange;
-  }
-
-  /**
-   * @return the settlementExchange
-   */
-  public ExchangeBean getSettlementExchange() {
-    return _settlementExchange;
-  }
-
-  /**
-   * @param settlementExchange the settlementExchange to set
-   */
-  public void setSettlementExchange(ExchangeBean settlementExchange) {
-    _settlementExchange = settlementExchange;
-  }
-
-  /**
-   * @return the currency1
-   */
-  public CurrencyBean getCurrency1() {
-    return _currency1;
-  }
-
-  /**
-   * @param currency1 the currency1 to set
-   */
-  public void setCurrency1(CurrencyBean currency1) {
-    _currency1 = currency1;
-  }
-
-  /**
-   * @return the currency2
-   */
-  public CurrencyBean getCurrency2() {
-    return _currency2;
-  }
-
-  /**
-   * @param currency2 the currency2 to set
-   */
-  public void setCurrency2(CurrencyBean currency2) {
-    _currency2 = currency2;
-  }
-
-  /**
-   * @return the commodityType
-   */
-  public CommodityFutureTypeBean getCommodityType() {
-    return _commodityType;
-  }
-
-  /**
-   * @param commodityType the commodityType to set
-   */
-  public void setCommodityType(CommodityFutureTypeBean commodityType) {
-    _commodityType = commodityType;
-  }
-
-  /**
-   * @param unitAmount the unitAmount to set
-   */
-  public void setUnitAmount(Double unitAmount) {
-    _unitAmount = unitAmount;
-  }
-
-  /**
-   * @return the unitAmount
-   */
-  public Double getUnitAmount() {
-    return _unitAmount;
-  }
-
-  /**
-   * @return the unitName
-   */
-  public UnitBean getUnitName() {
-    return _unitName;
-  }
-
-  /**
-   * @param unitName the unitName to set
-   */
-  public void setUnitName(UnitBean unitName) {
-    _unitName = unitName;
-  }
-
-  /**
-   * @return the unitNumber
-   */
-  public Double getUnitNumber() {
-    return _unitNumber;
-  }
-
-  /**
-   * @param unitNumber the unitNumber to set
-   */
-  public void setUnitNumber(Double unitNumber) {
-    _unitNumber = unitNumber;
-  }
-
-  /**
-   * @param futureType the futureType to set
-   */
-  public void setFutureType(FutureType futureType) {
-    _futureType = futureType;
-  }
-
-  /**
-   * @return the bondType
-   */
-  public BondFutureTypeBean getBondType() {
-    return _bondType;
-  }
-
-  /**
-   * @param bondType the bondType to set
-   */
-  public void setBondType(BondFutureTypeBean bondType) {
-    _bondType = bondType;
-  }
-
-  /**
-   * @return the basket
-   */
-  public Set<FutureBundleBean> getBasket() {
-    return _basket;
-  }
-
-  /**
-   * @param basket the basket to set
-   */
-  public void setBasket(Set<FutureBundleBean> basket) {
-    _basket = basket;
-  }
-
-  public ExternalIdBean getUnderlying() {
-    return _underlying;
-  }
-
-  public void setUnderlying(final ExternalIdBean underlying) {
-    _underlying = underlying;
-  }
-
-  /**
-   * @param currency the currency to set
-   */
-  public void setCurrency3(CurrencyBean currency) {
-    _currency3 = currency;
-  }
-
-  /**
-   * @return the currency3
-   */
-  public CurrencyBean getCurrency3() {
-    return _currency3;
   }
 
   @Override
@@ -265,4 +75,873 @@ public class FutureSecurityBean extends SecurityBean {
     return ToStringBuilder.reflectionToString(this);
   }
 
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code FutureSecurityBean}.
+   * @return the meta-bean, not null
+   */
+  public static FutureSecurityBean.Meta meta() {
+    return FutureSecurityBean.Meta.INSTANCE;
+  }
+  static {
+    JodaBeanUtils.registerMetaBean(FutureSecurityBean.Meta.INSTANCE);
+  }
+
+  @Override
+  public FutureSecurityBean.Meta metaBean() {
+    return FutureSecurityBean.Meta.INSTANCE;
+  }
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 537589661:  // futureType
+        return getFutureType();
+      case -1289159373:  // expiry
+        return getExpiry();
+      case -661485980:  // tradingExchange
+        return getTradingExchange();
+      case 389497452:  // settlementExchange
+        return getSettlementExchange();
+      case 657592896:  // currency1
+        return getCurrency1();
+      case 657592897:  // currency2
+        return getCurrency2();
+      case 657592898:  // currency3
+        return getCurrency3();
+      case 1969562781:  // bondType
+        return getBondType();
+      case 1479195655:  // commodityType
+        return getCommodityType();
+      case 1673913084:  // unitAmount
+        return getUnitAmount();
+      case -292854225:  // unitName
+        return getUnitName();
+      case 2053402093:  // unitNumber
+        return getUnitNumber();
+      case -1770633379:  // underlying
+        return getUnderlying();
+      case -1396196922:  // basket
+        return getBasket();
+      case 1755448466:  // firstDeliveryDate
+        return getFirstDeliveryDate();
+      case -233366664:  // lastDeliveryDate
+        return getLastDeliveryDate();
+    }
+    return super.propertyGet(propertyName, quiet);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 537589661:  // futureType
+        setFutureType((FutureType) newValue);
+        return;
+      case -1289159373:  // expiry
+        setExpiry((ExpiryBean) newValue);
+        return;
+      case -661485980:  // tradingExchange
+        setTradingExchange((ExchangeBean) newValue);
+        return;
+      case 389497452:  // settlementExchange
+        setSettlementExchange((ExchangeBean) newValue);
+        return;
+      case 657592896:  // currency1
+        setCurrency1((CurrencyBean) newValue);
+        return;
+      case 657592897:  // currency2
+        setCurrency2((CurrencyBean) newValue);
+        return;
+      case 657592898:  // currency3
+        setCurrency3((CurrencyBean) newValue);
+        return;
+      case 1969562781:  // bondType
+        setBondType((BondFutureTypeBean) newValue);
+        return;
+      case 1479195655:  // commodityType
+        setCommodityType((CommodityFutureTypeBean) newValue);
+        return;
+      case 1673913084:  // unitAmount
+        setUnitAmount((Double) newValue);
+        return;
+      case -292854225:  // unitName
+        setUnitName((UnitBean) newValue);
+        return;
+      case 2053402093:  // unitNumber
+        setUnitNumber((Double) newValue);
+        return;
+      case -1770633379:  // underlying
+        setUnderlying((ExternalIdBean) newValue);
+        return;
+      case -1396196922:  // basket
+        setBasket((Set<FutureBundleBean>) newValue);
+        return;
+      case 1755448466:  // firstDeliveryDate
+        setFirstDeliveryDate((ZonedDateTimeBean) newValue);
+        return;
+      case -233366664:  // lastDeliveryDate
+        setLastDeliveryDate((ZonedDateTimeBean) newValue);
+        return;
+    }
+    super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FutureSecurityBean other = (FutureSecurityBean) obj;
+      return JodaBeanUtils.equal(getFutureType(), other.getFutureType()) &&
+          JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
+          JodaBeanUtils.equal(getTradingExchange(), other.getTradingExchange()) &&
+          JodaBeanUtils.equal(getSettlementExchange(), other.getSettlementExchange()) &&
+          JodaBeanUtils.equal(getCurrency1(), other.getCurrency1()) &&
+          JodaBeanUtils.equal(getCurrency2(), other.getCurrency2()) &&
+          JodaBeanUtils.equal(getCurrency3(), other.getCurrency3()) &&
+          JodaBeanUtils.equal(getBondType(), other.getBondType()) &&
+          JodaBeanUtils.equal(getCommodityType(), other.getCommodityType()) &&
+          JodaBeanUtils.equal(getUnitAmount(), other.getUnitAmount()) &&
+          JodaBeanUtils.equal(getUnitName(), other.getUnitName()) &&
+          JodaBeanUtils.equal(getUnitNumber(), other.getUnitNumber()) &&
+          JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
+          JodaBeanUtils.equal(getBasket(), other.getBasket()) &&
+          JodaBeanUtils.equal(getFirstDeliveryDate(), other.getFirstDeliveryDate()) &&
+          JodaBeanUtils.equal(getLastDeliveryDate(), other.getLastDeliveryDate()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTradingExchange());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementExchange());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency1());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency2());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency3());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBondType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCommodityType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitAmount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitNumber());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBasket());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstDeliveryDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLastDeliveryDate());
+    return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the futureType.
+   * @return the value of the property
+   */
+  public FutureType getFutureType() {
+    return _futureType;
+  }
+
+  /**
+   * Sets the futureType.
+   * @param futureType  the new value of the property
+   */
+  public void setFutureType(FutureType futureType) {
+    this._futureType = futureType;
+  }
+
+  /**
+   * Gets the the {@code futureType} property.
+   * @return the property, not null
+   */
+  public final Property<FutureType> futureType() {
+    return metaBean().futureType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the expiry.
+   * @return the value of the property
+   */
+  public ExpiryBean getExpiry() {
+    return _expiry;
+  }
+
+  /**
+   * Sets the expiry.
+   * @param expiry  the new value of the property
+   */
+  public void setExpiry(ExpiryBean expiry) {
+    this._expiry = expiry;
+  }
+
+  /**
+   * Gets the the {@code expiry} property.
+   * @return the property, not null
+   */
+  public final Property<ExpiryBean> expiry() {
+    return metaBean().expiry().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the tradingExchange.
+   * @return the value of the property
+   */
+  public ExchangeBean getTradingExchange() {
+    return _tradingExchange;
+  }
+
+  /**
+   * Sets the tradingExchange.
+   * @param tradingExchange  the new value of the property
+   */
+  public void setTradingExchange(ExchangeBean tradingExchange) {
+    this._tradingExchange = tradingExchange;
+  }
+
+  /**
+   * Gets the the {@code tradingExchange} property.
+   * @return the property, not null
+   */
+  public final Property<ExchangeBean> tradingExchange() {
+    return metaBean().tradingExchange().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the settlementExchange.
+   * @return the value of the property
+   */
+  public ExchangeBean getSettlementExchange() {
+    return _settlementExchange;
+  }
+
+  /**
+   * Sets the settlementExchange.
+   * @param settlementExchange  the new value of the property
+   */
+  public void setSettlementExchange(ExchangeBean settlementExchange) {
+    this._settlementExchange = settlementExchange;
+  }
+
+  /**
+   * Gets the the {@code settlementExchange} property.
+   * @return the property, not null
+   */
+  public final Property<ExchangeBean> settlementExchange() {
+    return metaBean().settlementExchange().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the currency1.
+   * @return the value of the property
+   */
+  public CurrencyBean getCurrency1() {
+    return _currency1;
+  }
+
+  /**
+   * Sets the currency1.
+   * @param currency1  the new value of the property
+   */
+  public void setCurrency1(CurrencyBean currency1) {
+    this._currency1 = currency1;
+  }
+
+  /**
+   * Gets the the {@code currency1} property.
+   * @return the property, not null
+   */
+  public final Property<CurrencyBean> currency1() {
+    return metaBean().currency1().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the currency2.
+   * @return the value of the property
+   */
+  public CurrencyBean getCurrency2() {
+    return _currency2;
+  }
+
+  /**
+   * Sets the currency2.
+   * @param currency2  the new value of the property
+   */
+  public void setCurrency2(CurrencyBean currency2) {
+    this._currency2 = currency2;
+  }
+
+  /**
+   * Gets the the {@code currency2} property.
+   * @return the property, not null
+   */
+  public final Property<CurrencyBean> currency2() {
+    return metaBean().currency2().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the currency3.
+   * @return the value of the property
+   */
+  public CurrencyBean getCurrency3() {
+    return _currency3;
+  }
+
+  /**
+   * Sets the currency3.
+   * @param currency3  the new value of the property
+   */
+  public void setCurrency3(CurrencyBean currency3) {
+    this._currency3 = currency3;
+  }
+
+  /**
+   * Gets the the {@code currency3} property.
+   * @return the property, not null
+   */
+  public final Property<CurrencyBean> currency3() {
+    return metaBean().currency3().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the bondType.
+   * @return the value of the property
+   */
+  public BondFutureTypeBean getBondType() {
+    return _bondType;
+  }
+
+  /**
+   * Sets the bondType.
+   * @param bondType  the new value of the property
+   */
+  public void setBondType(BondFutureTypeBean bondType) {
+    this._bondType = bondType;
+  }
+
+  /**
+   * Gets the the {@code bondType} property.
+   * @return the property, not null
+   */
+  public final Property<BondFutureTypeBean> bondType() {
+    return metaBean().bondType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the commodityType.
+   * @return the value of the property
+   */
+  public CommodityFutureTypeBean getCommodityType() {
+    return _commodityType;
+  }
+
+  /**
+   * Sets the commodityType.
+   * @param commodityType  the new value of the property
+   */
+  public void setCommodityType(CommodityFutureTypeBean commodityType) {
+    this._commodityType = commodityType;
+  }
+
+  /**
+   * Gets the the {@code commodityType} property.
+   * @return the property, not null
+   */
+  public final Property<CommodityFutureTypeBean> commodityType() {
+    return metaBean().commodityType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the unitAmount.
+   * @return the value of the property
+   */
+  public Double getUnitAmount() {
+    return _unitAmount;
+  }
+
+  /**
+   * Sets the unitAmount.
+   * @param unitAmount  the new value of the property
+   */
+  public void setUnitAmount(Double unitAmount) {
+    this._unitAmount = unitAmount;
+  }
+
+  /**
+   * Gets the the {@code unitAmount} property.
+   * @return the property, not null
+   */
+  public final Property<Double> unitAmount() {
+    return metaBean().unitAmount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the unitName.
+   * @return the value of the property
+   */
+  public UnitBean getUnitName() {
+    return _unitName;
+  }
+
+  /**
+   * Sets the unitName.
+   * @param unitName  the new value of the property
+   */
+  public void setUnitName(UnitBean unitName) {
+    this._unitName = unitName;
+  }
+
+  /**
+   * Gets the the {@code unitName} property.
+   * @return the property, not null
+   */
+  public final Property<UnitBean> unitName() {
+    return metaBean().unitName().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the unitNumber.
+   * @return the value of the property
+   */
+  public Double getUnitNumber() {
+    return _unitNumber;
+  }
+
+  /**
+   * Sets the unitNumber.
+   * @param unitNumber  the new value of the property
+   */
+  public void setUnitNumber(Double unitNumber) {
+    this._unitNumber = unitNumber;
+  }
+
+  /**
+   * Gets the the {@code unitNumber} property.
+   * @return the property, not null
+   */
+  public final Property<Double> unitNumber() {
+    return metaBean().unitNumber().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the underlying.
+   * @return the value of the property
+   */
+  public ExternalIdBean getUnderlying() {
+    return _underlying;
+  }
+
+  /**
+   * Sets the underlying.
+   * @param underlying  the new value of the property
+   */
+  public void setUnderlying(ExternalIdBean underlying) {
+    this._underlying = underlying;
+  }
+
+  /**
+   * Gets the the {@code underlying} property.
+   * @return the property, not null
+   */
+  public final Property<ExternalIdBean> underlying() {
+    return metaBean().underlying().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the basket.
+   * @return the value of the property
+   */
+  public Set<FutureBundleBean> getBasket() {
+    return _basket;
+  }
+
+  /**
+   * Sets the basket.
+   * @param basket  the new value of the property
+   */
+  public void setBasket(Set<FutureBundleBean> basket) {
+    this._basket = basket;
+  }
+
+  /**
+   * Gets the the {@code basket} property.
+   * @return the property, not null
+   */
+  public final Property<Set<FutureBundleBean>> basket() {
+    return metaBean().basket().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the firstDeliveryDate.
+   * @return the value of the property
+   */
+  public ZonedDateTimeBean getFirstDeliveryDate() {
+    return _firstDeliveryDate;
+  }
+
+  /**
+   * Sets the firstDeliveryDate.
+   * @param firstDeliveryDate  the new value of the property
+   */
+  public void setFirstDeliveryDate(ZonedDateTimeBean firstDeliveryDate) {
+    this._firstDeliveryDate = firstDeliveryDate;
+  }
+
+  /**
+   * Gets the the {@code firstDeliveryDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTimeBean> firstDeliveryDate() {
+    return metaBean().firstDeliveryDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the lastDeliveryDate.
+   * @return the value of the property
+   */
+  public ZonedDateTimeBean getLastDeliveryDate() {
+    return _lastDeliveryDate;
+  }
+
+  /**
+   * Sets the lastDeliveryDate.
+   * @param lastDeliveryDate  the new value of the property
+   */
+  public void setLastDeliveryDate(ZonedDateTimeBean lastDeliveryDate) {
+    this._lastDeliveryDate = lastDeliveryDate;
+  }
+
+  /**
+   * Gets the the {@code lastDeliveryDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTimeBean> lastDeliveryDate() {
+    return metaBean().lastDeliveryDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code FutureSecurityBean}.
+   */
+  public static class Meta extends SecurityBean.Meta {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code futureType} property.
+     */
+    private final MetaProperty<FutureType> _futureType = DirectMetaProperty.ofReadWrite(
+        this, "futureType", FutureSecurityBean.class, FutureType.class);
+    /**
+     * The meta-property for the {@code expiry} property.
+     */
+    private final MetaProperty<ExpiryBean> _expiry = DirectMetaProperty.ofReadWrite(
+        this, "expiry", FutureSecurityBean.class, ExpiryBean.class);
+    /**
+     * The meta-property for the {@code tradingExchange} property.
+     */
+    private final MetaProperty<ExchangeBean> _tradingExchange = DirectMetaProperty.ofReadWrite(
+        this, "tradingExchange", FutureSecurityBean.class, ExchangeBean.class);
+    /**
+     * The meta-property for the {@code settlementExchange} property.
+     */
+    private final MetaProperty<ExchangeBean> _settlementExchange = DirectMetaProperty.ofReadWrite(
+        this, "settlementExchange", FutureSecurityBean.class, ExchangeBean.class);
+    /**
+     * The meta-property for the {@code currency1} property.
+     */
+    private final MetaProperty<CurrencyBean> _currency1 = DirectMetaProperty.ofReadWrite(
+        this, "currency1", FutureSecurityBean.class, CurrencyBean.class);
+    /**
+     * The meta-property for the {@code currency2} property.
+     */
+    private final MetaProperty<CurrencyBean> _currency2 = DirectMetaProperty.ofReadWrite(
+        this, "currency2", FutureSecurityBean.class, CurrencyBean.class);
+    /**
+     * The meta-property for the {@code currency3} property.
+     */
+    private final MetaProperty<CurrencyBean> _currency3 = DirectMetaProperty.ofReadWrite(
+        this, "currency3", FutureSecurityBean.class, CurrencyBean.class);
+    /**
+     * The meta-property for the {@code bondType} property.
+     */
+    private final MetaProperty<BondFutureTypeBean> _bondType = DirectMetaProperty.ofReadWrite(
+        this, "bondType", FutureSecurityBean.class, BondFutureTypeBean.class);
+    /**
+     * The meta-property for the {@code commodityType} property.
+     */
+    private final MetaProperty<CommodityFutureTypeBean> _commodityType = DirectMetaProperty.ofReadWrite(
+        this, "commodityType", FutureSecurityBean.class, CommodityFutureTypeBean.class);
+    /**
+     * The meta-property for the {@code unitAmount} property.
+     */
+    private final MetaProperty<Double> _unitAmount = DirectMetaProperty.ofReadWrite(
+        this, "unitAmount", FutureSecurityBean.class, Double.class);
+    /**
+     * The meta-property for the {@code unitName} property.
+     */
+    private final MetaProperty<UnitBean> _unitName = DirectMetaProperty.ofReadWrite(
+        this, "unitName", FutureSecurityBean.class, UnitBean.class);
+    /**
+     * The meta-property for the {@code unitNumber} property.
+     */
+    private final MetaProperty<Double> _unitNumber = DirectMetaProperty.ofReadWrite(
+        this, "unitNumber", FutureSecurityBean.class, Double.class);
+    /**
+     * The meta-property for the {@code underlying} property.
+     */
+    private final MetaProperty<ExternalIdBean> _underlying = DirectMetaProperty.ofReadWrite(
+        this, "underlying", FutureSecurityBean.class, ExternalIdBean.class);
+    /**
+     * The meta-property for the {@code basket} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<FutureBundleBean>> _basket = DirectMetaProperty.ofReadWrite(
+        this, "basket", FutureSecurityBean.class, (Class) Set.class);
+    /**
+     * The meta-property for the {@code firstDeliveryDate} property.
+     */
+    private final MetaProperty<ZonedDateTimeBean> _firstDeliveryDate = DirectMetaProperty.ofReadWrite(
+        this, "firstDeliveryDate", FutureSecurityBean.class, ZonedDateTimeBean.class);
+    /**
+     * The meta-property for the {@code lastDeliveryDate} property.
+     */
+    private final MetaProperty<ZonedDateTimeBean> _lastDeliveryDate = DirectMetaProperty.ofReadWrite(
+        this, "lastDeliveryDate", FutureSecurityBean.class, ZonedDateTimeBean.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "futureType",
+        "expiry",
+        "tradingExchange",
+        "settlementExchange",
+        "currency1",
+        "currency2",
+        "currency3",
+        "bondType",
+        "commodityType",
+        "unitAmount",
+        "unitName",
+        "unitNumber",
+        "underlying",
+        "basket",
+        "firstDeliveryDate",
+        "lastDeliveryDate");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 537589661:  // futureType
+          return _futureType;
+        case -1289159373:  // expiry
+          return _expiry;
+        case -661485980:  // tradingExchange
+          return _tradingExchange;
+        case 389497452:  // settlementExchange
+          return _settlementExchange;
+        case 657592896:  // currency1
+          return _currency1;
+        case 657592897:  // currency2
+          return _currency2;
+        case 657592898:  // currency3
+          return _currency3;
+        case 1969562781:  // bondType
+          return _bondType;
+        case 1479195655:  // commodityType
+          return _commodityType;
+        case 1673913084:  // unitAmount
+          return _unitAmount;
+        case -292854225:  // unitName
+          return _unitName;
+        case 2053402093:  // unitNumber
+          return _unitNumber;
+        case -1770633379:  // underlying
+          return _underlying;
+        case -1396196922:  // basket
+          return _basket;
+        case 1755448466:  // firstDeliveryDate
+          return _firstDeliveryDate;
+        case -233366664:  // lastDeliveryDate
+          return _lastDeliveryDate;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends FutureSecurityBean> builder() {
+      return new DirectBeanBuilder<FutureSecurityBean>(new FutureSecurityBean());
+    }
+
+    @Override
+    public Class<? extends FutureSecurityBean> beanType() {
+      return FutureSecurityBean.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code futureType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<FutureType> futureType() {
+      return _futureType;
+    }
+
+    /**
+     * The meta-property for the {@code expiry} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExpiryBean> expiry() {
+      return _expiry;
+    }
+
+    /**
+     * The meta-property for the {@code tradingExchange} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExchangeBean> tradingExchange() {
+      return _tradingExchange;
+    }
+
+    /**
+     * The meta-property for the {@code settlementExchange} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExchangeBean> settlementExchange() {
+      return _settlementExchange;
+    }
+
+    /**
+     * The meta-property for the {@code currency1} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CurrencyBean> currency1() {
+      return _currency1;
+    }
+
+    /**
+     * The meta-property for the {@code currency2} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CurrencyBean> currency2() {
+      return _currency2;
+    }
+
+    /**
+     * The meta-property for the {@code currency3} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CurrencyBean> currency3() {
+      return _currency3;
+    }
+
+    /**
+     * The meta-property for the {@code bondType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<BondFutureTypeBean> bondType() {
+      return _bondType;
+    }
+
+    /**
+     * The meta-property for the {@code commodityType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CommodityFutureTypeBean> commodityType() {
+      return _commodityType;
+    }
+
+    /**
+     * The meta-property for the {@code unitAmount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> unitAmount() {
+      return _unitAmount;
+    }
+
+    /**
+     * The meta-property for the {@code unitName} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<UnitBean> unitName() {
+      return _unitName;
+    }
+
+    /**
+     * The meta-property for the {@code unitNumber} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> unitNumber() {
+      return _unitNumber;
+    }
+
+    /**
+     * The meta-property for the {@code underlying} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalIdBean> underlying() {
+      return _underlying;
+    }
+
+    /**
+     * The meta-property for the {@code basket} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Set<FutureBundleBean>> basket() {
+      return _basket;
+    }
+
+    /**
+     * The meta-property for the {@code firstDeliveryDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTimeBean> firstDeliveryDate() {
+      return _firstDeliveryDate;
+    }
+
+    /**
+     * The meta-property for the {@code lastDeliveryDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTimeBean> lastDeliveryDate() {
+      return _lastDeliveryDate;
+    }
+
+  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }

@@ -16,9 +16,11 @@ import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * 
- *
  */
 public class MissingInputException extends OpenGammaRuntimeException {
+
+  private static final long serialVersionUID = 1L;
+
   private static final String MESSAGE_FORMAT =
     "Unable to load input {0} for invocation on function {1}";
   

@@ -25,9 +25,7 @@ import com.opengamma.livedata.server.FieldHistoryStore;
 public class ImpliedVolatilityCalculator implements NormalizationRule {
   
   @Override
-  public MutableFudgeMsg apply(
-      MutableFudgeMsg msg,
-      FieldHistoryStore fieldHistory) {
+  public MutableFudgeMsg apply(MutableFudgeMsg msg, String securityUniqueId, FieldHistoryStore fieldHistory) {
     
     Double impliedVolatility = msg.getDouble(BEST_IMPLIED_VOLATILITY);
     if (impliedVolatility != null) {

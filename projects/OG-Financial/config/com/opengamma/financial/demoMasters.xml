@@ -126,7 +126,7 @@
     <constructor-arg ref="finDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.holidaymaster.scheme}" />
   </bean>
-  <bean id="sharedHolidaySource" class="com.opengamma.master.holiday.impl.ConcurrentMapCachingMasterHolidaySource">
+  <bean id="sharedHolidaySource" class="com.opengamma.master.holiday.impl.ConcurrentMapCachingMasterHolidaySource" destroy-method="stop" >
     <constructor-arg ref="dbHolidayMaster"/>
   </bean>
 

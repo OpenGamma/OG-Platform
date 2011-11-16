@@ -36,6 +36,7 @@ import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swap.SwapIborIborDefinition;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
@@ -105,9 +106,10 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
       throw new OpenGammaRuntimeException("Could not get convention for " + swapSecurity);
     }
     final AnnuityCouponFixedDefinition fixedLegDefinition = getFixedSwapLegDefinition(effectiveDate, maturityDate, fixedLeg, calendar, conventions, payFixed);
-
-    final AnnuityDefinition<? extends PaymentDefinition> floatingLegDefinition = hasSpread ? getIborSwapLegWithSpreadDefinition(effectiveDate, maturityDate, floatLeg, calendar, currency, !payFixed)
-        : getIborSwapLegDefinition(effectiveDate, maturityDate, floatLeg, calendar, currency, !payFixed);
+    
+    final AnnuityDefinition<? extends PaymentDefinition> floatingLegDefinition = hasSpread ? 
+        getIborSwapLegWithSpreadDefinition(effectiveDate, maturityDate, (FloatingSpreadIRLeg) floatLeg, calendar, currency, !payFixed) : 
+          getIborSwapLegDefinition(effectiveDate, maturityDate, floatLeg, calendar, currency, !payFixed);
     return new SwapFixedIborDefinition(fixedLegDefinition, floatingLegDefinition);
   }
 
@@ -116,8 +118,8 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     final ZonedDateTime maturityDate = swapSecurity.getMaturityDate();
     final SwapLeg payLeg = swapSecurity.getPayLeg();
     final SwapLeg receiveLeg = swapSecurity.getReceiveLeg();
-    final FloatingInterestRateLeg floatPayLeg = (FloatingInterestRateLeg) payLeg;
-    final FloatingInterestRateLeg floatReceiveLeg = (FloatingInterestRateLeg) receiveLeg;
+    final FloatingSpreadIRLeg floatPayLeg = (FloatingSpreadIRLeg) payLeg;
+    final FloatingSpreadIRLeg floatReceiveLeg = (FloatingSpreadIRLeg) receiveLeg;
     final ExternalId regionId = payLeg.getRegionId();
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
     final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
@@ -167,8 +169,9 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     final SwapLeg receiveLeg = swapSecurity.getReceiveLeg();
     final FloatingInterestRateLeg floatPayLeg = (FloatingInterestRateLeg) payLeg;
     final FloatingInterestRateLeg floatReceiveLeg = (FloatingInterestRateLeg) receiveLeg;
-    final boolean payIbor = floatPayLeg.isIbor();
-    if (floatReceiveLeg.isIbor() == payIbor) {
+    final boolean payIbor = floatPayLeg.getFloatingRateType().isIbor();
+    final boolean receiveIbor = floatReceiveLeg.getFloatingRateType().isIbor();
+    if (receiveIbor == payIbor) {
       throw new OpenGammaRuntimeException("This should never happen");
     }
     final FloatingInterestRateLeg iborLeg = payIbor ? floatPayLeg : floatReceiveLeg;
@@ -217,7 +220,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     return AnnuityCouponIborDefinition.from(effectiveDate, maturityDate, notional, index, isPayer);
   }
 
-  private AnnuityCouponIborSpreadDefinition getIborSwapLegWithSpreadDefinition(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final FloatingInterestRateLeg floatLeg,
+  private AnnuityCouponIborSpreadDefinition getIborSwapLegWithSpreadDefinition(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final FloatingSpreadIRLeg floatLeg,
       final Calendar calendar, final Currency currency, final boolean isPayer) {
     final double notional = ((InterestRateNotional) floatLeg.getNotional()).getAmount();
     final double spread = floatLeg.getSpread();

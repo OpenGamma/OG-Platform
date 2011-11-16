@@ -6,6 +6,7 @@
 package com.opengamma.core.security;
 
 import java.util.Collection;
+import java.util.Map;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeProvider;
@@ -39,7 +40,15 @@ public interface SecuritySource extends ChangeProvider {
    * @throws RuntimeException if an error occurs
    */
   Security getSecurity(UniqueId uniqueId);
-
+  
+  /**
+   * Potentially more efficient form of {@link #getSecurity} for multiple lookups.
+   * 
+   * @param uniqueIds the unique identifiers to query, not null
+   * @return map of results. If there is no data for an identifier it will be missing from the map. 
+   */
+  Map<UniqueId, Security> getSecurity(Collection<UniqueId> uniqueIds);
+  
   /**
    * Gets a security by object identifier and version-correction.
    * <p>

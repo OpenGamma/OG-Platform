@@ -11,12 +11,8 @@ import static com.opengamma.masterdb.security.hibernate.Converters.expiryToExpir
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 
-import com.opengamma.financial.security.option.AmericanExerciseType;
-import com.opengamma.financial.security.option.AsianExerciseType;
-import com.opengamma.financial.security.option.BermudanExerciseType;
-import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
-import com.opengamma.financial.security.option.ExerciseTypeVisitor;
+import com.opengamma.financial.security.option.ExerciseTypeVisitorImpl;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
@@ -53,35 +49,14 @@ public final class IRFutureOptionSecurityBeanOperation  extends AbstractSecurity
 
   @Override
   public IRFutureOptionSecurity createSecurity(OperationContext context, IRFutureOptionSecurityBean bean) {
-    final ExerciseType exerciseType = bean.getOptionExerciseType().accept(new ExerciseTypeVisitor<ExerciseType>() {
-
-      @Override
-      public ExerciseType visitAmericanExerciseType(AmericanExerciseType exerciseType) {
-        return new AmericanExerciseType();
-      }
-
-      @Override
-      public ExerciseType visitAsianExerciseType(AsianExerciseType exerciseType) {
-        return new AsianExerciseType();
-      }
-
-      @Override
-      public ExerciseType visitBermudanExerciseType(BermudanExerciseType exerciseType) {
-        return new BermudanExerciseType();
-      }
-
-      @Override
-      public ExerciseType visitEuropeanExerciseType(EuropeanExerciseType exerciseType) {
-        return new EuropeanExerciseType();
-      }
-    });
+    final ExerciseType exerciseType = bean.getOptionExerciseType().accept(new ExerciseTypeVisitorImpl());
     
     IRFutureOptionSecurity sec = new IRFutureOptionSecurity(bean.getExchange().getName(), 
         expiryBeanToExpiry(bean.getExpiry()), 
         exerciseType, 
         externalIdBeanToExternalId(bean.getUnderlying()), 
         bean.getPointValue(), 
-        bean.isMargined(), 
+        bean.getMargined(), 
         currencyBeanToCurrency(bean.getCurrency()), 
         bean.getStrike(), bean.getOptionType());
     return sec;

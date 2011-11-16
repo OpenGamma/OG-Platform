@@ -10,6 +10,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.forex.definition.ForexDefinition;
+import com.opengamma.financial.forex.definition.ForexNonDeliverableForwardDefinition;
+import com.opengamma.financial.forex.definition.ForexNonDeliverableOptionDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionSingleBarrierDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.financial.forex.definition.ForexSwapDefinition;
@@ -23,6 +25,8 @@ public class ForexDefinitionVisitorTest {
   private static final ForexSwapDefinition FX_SWAP_DEFINITION = ForexInstrumentsDescriptionDataSet.createForexSwapDefinition();
   private static final ForexOptionVanillaDefinition FX_OPTION_DEFINITION = ForexInstrumentsDescriptionDataSet.createForexOptionVanillaDefinition();
   private static final ForexOptionSingleBarrierDefinition FX_SINGLE_BARRIER_OPTION_DEFINITION = ForexInstrumentsDescriptionDataSet.createForexOptionSingleBarrierDefinition();
+  private static final ForexNonDeliverableForwardDefinition NDF_DEFINITION = ForexInstrumentsDescriptionDataSet.createForexNonDeliverableForwardDefinition();
+  private static final ForexNonDeliverableOptionDefinition NDO_DEFINITION = ForexInstrumentsDescriptionDataSet.createForexNonDeliverableOptionDefinition();
 
   @SuppressWarnings("synthetic-access")
   private static final MyVisitor<Object, String> VISITOR = new MyVisitor<Object, String>();
@@ -38,6 +42,10 @@ public class ForexDefinitionVisitorTest {
     assertEquals(FX_OPTION_DEFINITION.accept(VISITOR, o), "ForexOptionVanilla2");
     assertEquals(FX_SINGLE_BARRIER_OPTION_DEFINITION.accept(VISITOR, o), "ForexOptionSingleBarrier2");
     assertEquals(FX_SINGLE_BARRIER_OPTION_DEFINITION.accept(VISITOR), "ForexOptionSingleBarrier1");
+    assertEquals(NDF_DEFINITION.accept(VISITOR), "ForexNonDeliverableForwardDefinition1");
+    assertEquals(NDF_DEFINITION.accept(VISITOR, o), "ForexNonDeliverableForwardDefinition2");
+    assertEquals(NDO_DEFINITION.accept(VISITOR), "ForexNonDeliverableOptionDefinition1");
+    assertEquals(NDO_DEFINITION.accept(VISITOR, o), "ForexNonDeliverableOptionDefinition2");
   }
 
   private static class MyVisitor<T, U> implements ForexDefinitionVisitor<T, String> {
@@ -90,6 +98,26 @@ public class ForexDefinitionVisitorTest {
     @Override
     public String visitForexOptionSingleBarrierDefiniton(final ForexOptionSingleBarrierDefinition fx) {
       return "ForexOptionSingleBarrier1";
+    }
+
+    @Override
+    public String visitForexNonDeliverableForwardDefinition(ForexNonDeliverableForwardDefinition ndf, T data) {
+      return "ForexNonDeliverableForwardDefinition2";
+    }
+
+    @Override
+    public String visitForexNonDeliverableForwardDefinition(ForexNonDeliverableForwardDefinition ndf) {
+      return "ForexNonDeliverableForwardDefinition1";
+    }
+
+    @Override
+    public String visitForexNonDeliverableOptionDefinition(ForexNonDeliverableOptionDefinition ndo, T data) {
+      return "ForexNonDeliverableOptionDefinition2";
+    }
+
+    @Override
+    public String visitForexNonDeliverableOptionDefinition(ForexNonDeliverableOptionDefinition ndo) {
+      return "ForexNonDeliverableOptionDefinition1";
     }
 
   }

@@ -31,17 +31,28 @@ import com.opengamma.util.tuple.Triple;
 public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMethod {
 
   /**
-   * The Black function used in the barrier pricing.
+   * The method unique instance.
    */
-  private static final BlackBarrierPriceFunction BLACK_FUNCTION = BlackBarrierPriceFunction.getInstance();
   private static final ForexOptionSingleBarrierBlackMethod INSTANCE = new ForexOptionSingleBarrierBlackMethod();
 
+  /**
+   * Return the unique instance of the class.
+   * @return The instance.
+   */
   public static ForexOptionSingleBarrierBlackMethod getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Private constructor.
+   */
   private ForexOptionSingleBarrierBlackMethod() {
   }
+
+  /**
+   * The Black function used in the barrier pricing.
+   */
+  private static final BlackBarrierPriceFunction BLACK_FUNCTION = BlackBarrierPriceFunction.getInstance();
 
   /**
    * Computes the present value for single barrier Forex option in Black model (log-normal spot rate).
@@ -122,7 +133,7 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @param smile The volatility and curves description.
    * @return The curve sensitivity.
    */
-  public InterestRateCurveSensitivity presentValueCurveSensitivity(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile) {
+  public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smile, "Smile");
     final String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
@@ -155,7 +166,7 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
     final Map<String, List<DoublesPair>> resultDomesticMap = new HashMap<String, List<DoublesPair>>();
     resultDomesticMap.put(domesticCurveName, listDomestic);
     result = result.add(new InterestRateCurveSensitivity(resultDomesticMap));
-    return result;
+    return MultipleCurrencyInterestRateCurveSensitivity.of(optionForex.getUnderlyingOption().getUnderlyingForex().getCurrency2(), result);
   }
 
   /**
@@ -164,7 +175,7 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @param curves The volatility and curves description (SmileDeltaTermStructureDataBundle).
    * @return The curve sensitivity.
    */
-  public InterestRateCurveSensitivity presentValueCurveSensitivity(final ForexDerivative instrument, final YieldCurveBundle curves) {
+  public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final ForexDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ForexOptionSingleBarrier, "Single barrier Forex option");
     Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
     return presentValueCurveSensitivity((ForexOptionSingleBarrier) instrument, (SmileDeltaTermStructureDataBundle) curves);

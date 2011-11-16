@@ -19,7 +19,6 @@ import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityFore
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
-import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
@@ -83,11 +82,11 @@ public class ForexDiscountingMethodTest {
    * Test the present value sensitivity to interest rate.
    */
   public void presentValueCurveSensitivity() {
-    final InterestRateCurveSensitivity pvs = METHOD.presentValueCurveSensitivity(FX, CURVES);
+    final MultipleCurrencyInterestRateCurveSensitivity pvcs = METHOD.presentValueCurveSensitivity(FX, CURVES);
     final Map<String, List<DoublesPair>> pvs1 = PVSC.visit(PAY_1, CURVES);
     final Map<String, List<DoublesPair>> pvs2 = PVSC.visit(PAY_2, CURVES);
-    assertEquals(pvs1.get(CURVES_NAME[0]), pvs.getSensitivities().get(CURVES_NAME[0]));
-    assertEquals(pvs2.get(CURVES_NAME[1]), pvs.getSensitivities().get(CURVES_NAME[1]));
+    assertEquals(pvs1.get(CURVES_NAME[0]), pvcs.getSensitivity(CUR_1).getSensitivities().get(CURVES_NAME[0]));
+    assertEquals(pvs2.get(CURVES_NAME[1]), pvcs.getSensitivity(CUR_2).getSensitivities().get(CURVES_NAME[1]));
   }
 
   @Test
@@ -95,8 +94,8 @@ public class ForexDiscountingMethodTest {
    * Test the present value curve sensitivity through the method and through the calculator.
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    final InterestRateCurveSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(FX, CURVES);
-    final InterestRateCurveSensitivity pvcsCalculator = PVCSC_FX.visit(FX, CURVES);
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(FX, CURVES);
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsCalculator = PVCSC_FX.visit(FX, CURVES);
     assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvcsMethod, pvcsCalculator);
   }
 

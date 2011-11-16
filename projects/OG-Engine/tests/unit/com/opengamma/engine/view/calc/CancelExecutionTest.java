@@ -47,6 +47,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionResolver;
+import com.opengamma.engine.marketdata.DummyOverrideOperationCompiler;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.SingletonMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
@@ -170,7 +171,7 @@ public class CancelExecutionTest {
     
     final ViewProcessContext vpc = new ViewProcessContext(viewDefinitionRepository, viewPermissionProvider, marketDataProviderResolver, compilationService, functionResolver, positionSource, securitySource,
         new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils.createCacheManager()), computationCacheSource, jobDispatcher,
-        viewProcessorQueryReceiver, factory, graphExecutorStatisticsProvider);
+        viewProcessorQueryReceiver, factory, graphExecutorStatisticsProvider, new DummyOverrideOperationCompiler());
     final DependencyGraph graph = new DependencyGraph("Default");
     DependencyNode previous = null;
     for (int i = 0; i < JOB_SIZE; i++) {

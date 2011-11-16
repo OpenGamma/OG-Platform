@@ -23,28 +23,28 @@ public interface AvailableOutputs {
    * Returns a set of outputs that can be asked of positions on the given security type.
    * 
    * @param securityType security type
-   * @return set of outputs, not {@code null}
+   * @return set of outputs, not null
    */
   Set<AvailableOutput> getPositionOutputs(String securityType);
 
   /**
    * Returns a set of outputs that can be asked of portfolio nodes.
    * 
-   * @return set of outputs, not {@code null}
+   * @return set of outputs, not null
    */
   Set<AvailableOutput> getPortfolioNodeOutputs();
 
   /**
    * Returns a set of outputs that can be asked of position nodes.
    * 
-   * @return set of outputs, not {@code null}
+   * @return set of outputs, not null
    */
   Set<AvailableOutput> getPositionOutputs();
 
   /**
    * Returns a set of outputs that can be asked of portfolio or position nodes.
    * 
-   * @return set of outputs, not {@code null}
+   * @return set of outputs, not null
    */
   Set<AvailableOutput> getOutputs();
 

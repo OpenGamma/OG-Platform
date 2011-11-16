@@ -5,20 +5,6 @@
  */
 package com.opengamma.engine.view.calc;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNull;
-
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import javax.time.Duration;
-import javax.time.Instant;
-
-import org.testng.annotations.Test;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.core.security.SecuritySource;
@@ -46,12 +32,14 @@ import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.ViewTargetResultModel;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.engine.view.listener.JobResultReceivedCall;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.LiveDataListener;
@@ -60,6 +48,18 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.test.Timeout;
+import org.testng.annotations.Test;
+
+import javax.time.Duration;
+import javax.time.Instant;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
 
 /**
  * Tests {@link ViewComputationJob}
@@ -146,7 +146,6 @@ public class ViewComputationJobTest {
     underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 123d);
     underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), 456d);
     recalcThread.join();
-    
     resultListener.assertCycleCompleted(TIMEOUT);
     
     Map<String, Object> resultValues = new HashMap<String, Object>();
@@ -194,6 +193,38 @@ public class ViewComputationJobTest {
   
   @Test
   public void testChangeMarketDataProviderBetweenCycles() throws InterruptedException {
+    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    InMemoryLKVMarketDataProvider underlyingProvider1 = new InMemoryLKVMarketDataProvider();
+    MarketDataProvider provider1 = new TestLiveMarketDataProvider(SOURCE_1_NAME, underlyingProvider1);
+    InMemoryLKVMarketDataProvider underlyingProvider2 = new InMemoryLKVMarketDataProvider();
+    MarketDataProvider provider2 = new TestLiveMarketDataProvider(SOURCE_2_NAME, underlyingProvider2);
+    env.setMarketDataProviderResolver(new DualLiveMarketDataProviderResolver(SOURCE_1_NAME, provider1, SOURCE_2_NAME, provider2));
+    env.init();
+    
+    ViewProcessorImpl vp = env.getViewProcessor();
+    vp.start();
+    
+    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    TestViewResultListener resultListener = new TestViewResultListener();
+    client.setResultListener(resultListener);
+    Instant valuationTime = Instant.now();
+    ViewCycleExecutionOptions cycle1 = new ViewCycleExecutionOptions(valuationTime, MarketData.live(SOURCE_1_NAME));
+    ViewCycleExecutionOptions cycle2 = new ViewCycleExecutionOptions(valuationTime, MarketData.live(SOURCE_2_NAME));
+    EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().runAsFastAsPossible().get();
+    ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.of(cycle1, cycle2), flags);
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
+    
+    resultListener.assertViewDefinitionCompiled(TIMEOUT);
+    resultListener.assertCycleCompleted(TIMEOUT);
+    resultListener.assertViewDefinitionCompiled(TIMEOUT);
+    // Change of market data provider should cause a further compilation
+    resultListener.assertCycleCompleted(TIMEOUT);
+    resultListener.assertProcessCompleted(TIMEOUT);
+  }
+  
+  
+  @Test
+  public void testChangeMarketDataProviderBetweenCyclesWithJobResultReceivedCalls() throws InterruptedException {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     InMemoryLKVMarketDataProvider underlyingProvider1 = new InMemoryLKVMarketDataProvider();
     MarketDataProvider provider1 = new TestLiveMarketDataProvider(SOURCE_1_NAME, underlyingProvider1);

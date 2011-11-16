@@ -6,6 +6,8 @@
 package com.opengamma.financial.forex.calculator;
 
 import com.opengamma.financial.forex.derivative.Forex;
+import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
+import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.forex.derivative.ForexSwap;
@@ -40,5 +42,13 @@ public interface ForexDerivativeVisitor<S, T> {
   T visitForexOptionSingleBarrier(ForexOptionSingleBarrier derivative, S data);
 
   T visitForexOptionSingleBarrier(ForexOptionSingleBarrier derivative);
+
+  T visitForexNonDeliverableForward(ForexNonDeliverableForward derivative, S data);
+
+  T visitForexNonDeliverableForward(ForexNonDeliverableForward derivative);
+
+  T visitForexNonDeliverableOption(ForexNonDeliverableOption derivative, S data);
+
+  T visitForexNonDeliverableOption(ForexNonDeliverableOption derivative);
 
 }

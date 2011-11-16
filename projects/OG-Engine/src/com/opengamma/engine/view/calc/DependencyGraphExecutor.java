@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view.calc;
 
-import java.util.AbstractQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
 

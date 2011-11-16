@@ -6,6 +6,8 @@
 package com.opengamma.financial.model.volatility.smile.function;
 
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.math.function.Function1D;
@@ -15,13 +17,17 @@ import com.opengamma.util.CompareUtils;
  * This is the form given in Obloj, Fine-Tune Your Smile (2008), and supposedly corresponds to that given in Hagan, Managing Smile Risk (2002). However it differs from Hagan
  * {@link SABRBerestyckiVolatilityFunction}   
  */
-public class SABRHaganAlternativeVolatilityFunction implements VolatilityFunctionProvider<SABRFormulaData> {
+public class SABRHaganAlternativeVolatilityFunction extends VolatilityFunctionProvider<SABRFormulaData> {
+  private static final Logger s_logger = LoggerFactory.getLogger(SABRHaganAlternativeVolatilityFunction.class);
+
+  private static final double CUTOFF_MONEYNESS = 1e-6;
+
   private static final double EPS = 1e-15;
 
   @Override
   public Function1D<SABRFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option, final double forward) {
     Validate.notNull(option, "option");
-    final double k = option.getStrike();
+    final double strike = option.getStrike();
     final double t = option.getTimeToExpiry();
     return new Function1D<SABRFormulaData, Double>() {
 
@@ -32,6 +38,16 @@ public class SABRHaganAlternativeVolatilityFunction implements VolatilityFunctio
         final double beta = data.getBeta();
         final double rho = data.getRho();
         final double nu = data.getNu();
+
+        final double cutoff = forward * CUTOFF_MONEYNESS;
+        final double k;
+        if (strike < cutoff) {
+          s_logger.info("Given strike of " + strike + " is less than cutoff at " + cutoff + ", therefore the strike is taken as " + cutoff);
+          k = cutoff;
+        } else {
+          k = strike;
+        }
+
         double i0;
         final double beta1 = 1 - beta;
         if (CompareUtils.closeEquals(forward, k, EPS)) {

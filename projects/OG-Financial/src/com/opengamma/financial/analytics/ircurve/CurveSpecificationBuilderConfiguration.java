@@ -6,6 +6,8 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.time.calendar.LocalDate;
 
@@ -379,6 +381,58 @@ public class CurveSpecificationBuilderConfiguration {
    */
   public Map<Tenor, CurveInstrumentProvider> getOISSwapInstrumentProviders() {
     return _oisSwapInstrumentProviders;
+  }
+  
+  /**
+   * Get all available tenors
+   * 
+   * @return the sorted tenors
+   */
+  public SortedSet<Tenor> getAllTenors() {
+    SortedSet<Tenor> allTenors = new TreeSet<Tenor>();
+    if (getBasisSwapInstrumentProviders() != null) {
+      allTenors.addAll(getBasisSwapInstrumentProviders().keySet());
+    }
+    if (getCashInstrumentProviders() != null) {
+      allTenors.addAll(getCashInstrumentProviders().keySet());
+    }
+    if (getCDORInstrumentProviders() != null) {
+      allTenors.addAll(getCDORInstrumentProviders().keySet());
+    }
+    if (getCiborInstrumentProviders() != null) {
+      allTenors.addAll(getCiborInstrumentProviders().keySet());
+    }
+    if (getEuriborInstrumentProviders() != null) {
+      allTenors.addAll(getEuriborInstrumentProviders().keySet());
+    }
+    if (getFra3MInstrumentProviders() != null) {
+      allTenors.addAll(getFra3MInstrumentProviders().keySet());
+    }
+    if (getFra6MInstrumentProviders() != null) {
+      allTenors.addAll(getFra6MInstrumentProviders().keySet());
+    }
+    if (getFutureInstrumentProviders() != null) {
+      allTenors.addAll(getFutureInstrumentProviders().keySet());
+    }
+    if (getLiborInstrumentProviders() != null) {
+      allTenors.addAll(getLiborInstrumentProviders().keySet());
+    }
+    if (getOISSwapInstrumentProviders() != null) {
+      allTenors.addAll(getOISSwapInstrumentProviders().keySet());
+    }
+    if (getStiborInstrumentProviders() != null) {
+      allTenors.addAll(getStiborInstrumentProviders().keySet());
+    }
+    if (getSwap3MInstrumentProviders() != null) {
+      allTenors.addAll(getSwap3MInstrumentProviders().keySet());
+    }
+    if (getSwap6MInstrumentProviders() != null) {
+      allTenors.addAll(getSwap6MInstrumentProviders().keySet());
+    }
+    if (getTenorSwapInstrumentProviders() != null) {
+      allTenors.addAll(getTenorSwapInstrumentProviders().keySet());
+    }
+    return allTenors;
   }
 
   @Override

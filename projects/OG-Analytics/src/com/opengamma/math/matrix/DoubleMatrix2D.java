@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.matrix;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.Validate;
 
 /**
@@ -50,10 +52,8 @@ public class DoubleMatrix2D implements Matrix<Double> {
       _columns = data[0].length;
       _data = new double[_rows][_columns];
       for (int i = 0; i < _rows; i++) {
-        Validate.isTrue(data[i].length == _columns, "Number of columns did not match that in first row");
-        for (int j = 0; j < _columns; j++) {
-          _data[i][j] = data[i][j];
-        }
+        Validate.isTrue(data[i].length == _columns, "Number of columns did not match that in first row: " + _columns + " expected but " + data[i].length + " found in row " + i);
+        _data[i] = Arrays.copyOf(data[i], _columns);
       }
       _elements = _rows * _columns;
     }

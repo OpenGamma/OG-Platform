@@ -125,8 +125,17 @@
 	        <#case "FloatingInterestRateLeg">
               <@rowout label="Floating reference rate id">${security.payLeg.floatingReferenceRateId}</@rowout>
               <@rowout label="Initial floating rate">${security.payLeg.initialFloatingRate}</@rowout>
-              <@rowout label="Spread">${security.payLeg.spread}</@rowout>
 	        <#break>
+	        <#case "FloatingSpreadInterestRateLeg">
+              <@rowout label="Floating reference rate id">${security.payLeg.floatingReferenceRateId}</@rowout>
+              <@rowout label="Initial floating rate">${security.payLeg.initialFloatingRate}</@rowout>
+              <@rowout label="Spread">${security.payLeg.spread}</@rowout>
+          <#break>
+          <#case "FloatingGearingInterestRateLeg">
+              <@rowout label="Floating reference rate id">${security.payLeg.floatingReferenceRateId}</@rowout>
+              <@rowout label="Initial floating rate">${security.payLeg.initialFloatingRate}</@rowout>
+              <@rowout label="Spread">${security.payLeg.gearing}</@rowout>
+          <#break>
 	      </#switch>
         </@subsection>
         <@subsection title="Receive leg">
@@ -142,7 +151,16 @@
             <#case "FloatingInterestRateLeg">
               <@rowout label="Floating reference rate id">${security.receiveLeg.floatingReferenceRateId}</@rowout>
               <@rowout label="Initial floating rate">${security.receiveLeg.initialFloatingRate}</@rowout>
+            <#break>
+            <#case "FloatingSpreadInterestRateLeg">
+              <@rowout label="Floating reference rate id">${security.receiveLeg.floatingReferenceRateId}</@rowout>
+              <@rowout label="Initial floating rate">${security.receiveLeg.initialFloatingRate}</@rowout>
               <@rowout label="Spread">${security.receiveLeg.spread}</@rowout>
+            <#break>
+            <#case "FloatingGearingInterestRateLeg">
+              <@rowout label="Floating reference rate id">${security.receiveLeg.floatingReferenceRateId}</@rowout>
+              <@rowout label="Initial floating rate">${security.receiveLeg.initialFloatingRate}</@rowout>
+              <@rowout label="Spread">${security.receiveLeg.gearing}</@rowout>
             <#break>
           </#switch>
         </@subsection>

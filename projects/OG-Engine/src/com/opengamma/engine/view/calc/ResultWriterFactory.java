@@ -6,8 +6,6 @@
 package com.opengamma.engine.view.calc;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
-import com.opengamma.engine.view.calc.DependencyGraphExecutor;
-import com.opengamma.engine.view.calc.SingleComputationCycle;
 
 /**
  * Creates result writers {@link ResultWriter}

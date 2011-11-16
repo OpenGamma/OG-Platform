@@ -43,7 +43,7 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
   @Override
   public String toJSON(final YieldCurveDefinition object) {
     ArgumentChecker.notNull(object, "yield curve definition");
-    return toJSON(object, YieldCurveDefinition.class);
+    return fudgeToJson(object);
   }
   
   private static String createTemplate() {

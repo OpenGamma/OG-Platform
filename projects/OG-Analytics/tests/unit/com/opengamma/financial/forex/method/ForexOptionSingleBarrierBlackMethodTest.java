@@ -30,7 +30,6 @@ import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
-import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.option.definition.Barrier;
 import com.opengamma.financial.model.option.definition.Barrier.BarrierType;
@@ -240,7 +239,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double payTime = VANILLA_LONG.getUnderlyingForex().getPaymentTime();
     final double rateDomestic = CURVES.getCurve(CURVES_NAME[1]).getInterestRate(payTime);
     final double rateForeign = CURVES.getCurve(CURVES_NAME[0]).getInterestRate(payTime);
-    final InterestRateCurveSensitivity sensi = METHOD_BARRIER.presentValueCurveSensitivity(OPTION_BARRIER, SMILE_BUNDLE);
+    final MultipleCurrencyInterestRateCurveSensitivity sensi = METHOD_BARRIER.presentValueCurveSensitivity(OPTION_BARRIER, SMILE_BUNDLE);
     final double dfDomestic = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(payTime);
     final double dfForeign = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(payTime);
     final double forward = SPOT * dfForeign / dfDomestic;
@@ -251,14 +250,14 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double bumpedPvForeignPlus = BLACK_BARRIER_FUNCTION.getPrice(VANILLA_LONG, BARRIER, rebateByForeignUnit, SPOT, rateForeign + deltaShift, rateDomestic, volatility) * NOTIONAL;
     final double bumpedPvForeignMinus = BLACK_BARRIER_FUNCTION.getPrice(VANILLA_LONG, BARRIER, rebateByForeignUnit, SPOT, rateForeign - deltaShift, rateDomestic, volatility) * NOTIONAL;
     final double resultForeign = (bumpedPvForeignPlus - bumpedPvForeignMinus) / (2 * deltaShift);
-    assertEquals("Forex vanilla option: curve exposure", payTime, sensi.getSensitivities().get(CURVES_NAME[0]).get(0).first, 1E-2);
-    assertEquals("Forex vanilla option: curve exposure", resultForeign, sensi.getSensitivities().get(CURVES_NAME[0]).get(0).second, 1E-2);
+    assertEquals("Forex vanilla option: curve exposure", payTime, sensi.getSensitivity(CUR_2).getSensitivities().get(CURVES_NAME[0]).get(0).first, 1E-2);
+    assertEquals("Forex vanilla option: curve exposure", resultForeign, sensi.getSensitivity(CUR_2).getSensitivities().get(CURVES_NAME[0]).get(0).second, 1E-2);
     //Domestic
     final double bumpedPvDomesticPlus = BLACK_BARRIER_FUNCTION.getPrice(VANILLA_LONG, BARRIER, rebateByForeignUnit, SPOT, rateForeign, rateDomestic + deltaShift, volatility) * NOTIONAL;
     final double bumpedPvDomesticMinus = BLACK_BARRIER_FUNCTION.getPrice(VANILLA_LONG, BARRIER, rebateByForeignUnit, SPOT, rateForeign, rateDomestic - deltaShift, volatility) * NOTIONAL;
     final double resultDomestic = (bumpedPvDomesticPlus - bumpedPvDomesticMinus) / (2 * deltaShift);
-    assertEquals("Forex vanilla option: curve exposure", payTime, sensi.getSensitivities().get(CURVES_NAME[1]).get(0).first, 1E-2);
-    assertEquals("Forex vanilla option: curve exposure", resultDomestic, sensi.getSensitivities().get(CURVES_NAME[1]).get(0).second, 1E-2);
+    assertEquals("Forex vanilla option: curve exposure", payTime, sensi.getSensitivity(CUR_2).getSensitivities().get(CURVES_NAME[1]).get(0).first, 1E-2);
+    assertEquals("Forex vanilla option: curve exposure", resultDomestic, sensi.getSensitivity(CUR_2).getSensitivities().get(CURVES_NAME[1]).get(0).second, 1E-2);
   }
 
   @Test
@@ -266,8 +265,8 @@ public class ForexOptionSingleBarrierBlackMethodTest {
    * Test the present value curve sensitivity through the method and through the calculator.
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    final InterestRateCurveSensitivity pvcsMethod = METHOD_BARRIER.presentValueCurveSensitivity(OPTION_BARRIER, SMILE_BUNDLE);
-    final InterestRateCurveSensitivity pvcsCalculator = PVCSC_BLACK.visit(OPTION_BARRIER, SMILE_BUNDLE);
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsMethod = METHOD_BARRIER.presentValueCurveSensitivity(OPTION_BARRIER, SMILE_BUNDLE);
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsCalculator = PVCSC_BLACK.visit(OPTION_BARRIER, SMILE_BUNDLE);
     assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvcsMethod, pvcsCalculator);
   }
 
@@ -283,9 +282,9 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final MultipleCurrencyAmount ceLong = METHOD_BARRIER.currencyExposure(OPTION_BARRIER, SMILE_BUNDLE);
     assertEquals("Forex single barrier option: currency exposure long/short parity", ceLong.getAmount(CUR_2), -ceShort.getAmount(CUR_2), 1E-2);
     assertEquals("Forex single barrier option: currency exposure long/short parity", ceLong.getAmount(CUR_1), -ceShort.getAmount(CUR_1), 1E-2);
-    final InterestRateCurveSensitivity pvcsShort = METHOD_BARRIER.presentValueCurveSensitivity(BARRIER_SHORT, SMILE_BUNDLE);
-    final InterestRateCurveSensitivity pvcsLong = METHOD_BARRIER.presentValueCurveSensitivity(OPTION_BARRIER, SMILE_BUNDLE);
-    assertEquals("Forex single barrier option: curve sensitivity long/short parity", pvcsLong, pvcsShort.multiply(-1.0));
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsShort = METHOD_BARRIER.presentValueCurveSensitivity(BARRIER_SHORT, SMILE_BUNDLE);
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsLong = METHOD_BARRIER.presentValueCurveSensitivity(OPTION_BARRIER, SMILE_BUNDLE);
+    assertEquals("Forex single barrier option: curve sensitivity long/short parity", pvcsLong.getSensitivity(CUR_2), pvcsShort.getSensitivity(CUR_2).multiply(-1.0));
     final PresentValueVolatilitySensitivityDataBundle pvvsShort = METHOD_BARRIER.presentValueVolatilitySensitivity(BARRIER_SHORT, SMILE_BUNDLE);
     final PresentValueVolatilitySensitivityDataBundle pvvsLong = METHOD_BARRIER.presentValueVolatilitySensitivity(OPTION_BARRIER, SMILE_BUNDLE);
     assertEquals("Forex single barrier option: volatility sensitivity long/short parity", pvvsLong, pvvsShort.multiply(-1.0));

@@ -12,8 +12,6 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Multiplies the value of a {@code Double} field by a constant.
- *
- * @author pietari
  */
 public class UnitChange implements NormalizationRule {
   
@@ -27,18 +25,18 @@ public class UnitChange implements NormalizationRule {
   }
   
   @Override
-  public MutableFudgeMsg apply(
-      MutableFudgeMsg msg,
-      FieldHistoryStore fieldHistory) {
-    
-    Double value = msg.getDouble(_field);
-    if (value != null) {
-      double newValue = value * _multiplier;
-      msg.remove(_field);
-      msg.add(_field, newValue);
-    }
-    return msg;
-    
+  public MutableFudgeMsg apply(MutableFudgeMsg msg, String securityUniqueId, FieldHistoryStore fieldHistory) {
+    return multiplyField(msg, _field, _multiplier);
   }
 
+  /*package*/ static MutableFudgeMsg multiplyField(MutableFudgeMsg msg, String field, double multiplier) {
+    Double value = msg.getDouble(field);
+    if (value != null) {
+      double newValue = value * multiplier;
+      msg.remove(field);
+      msg.add(field, newValue);
+    }
+    return msg;
+  }
+  
 }
