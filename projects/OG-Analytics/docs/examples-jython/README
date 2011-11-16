@@ -1,0 +1,9 @@
+Examples using Jython
+
+Kept in a separate directory since they can't be run on OSX.
+
+Directory is disabled by default, remove the .nodexy file to run this.
+
+The built versions of these docs can be viewed at:
+http://docs-static.opengamma.com/dev/analytics/examples-jython/
+

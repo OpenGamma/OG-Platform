@@ -52,7 +52,8 @@ public class PositionScalingFunction extends PropertyPreservingFunction {
         ValuePropertyNames.CALCULATION_METHOD,
         ValuePropertyNames.SURFACE,
         ValuePropertyNames.PAY_CURVE,
-        ValuePropertyNames.RECEIVE_CURVE);
+        ValuePropertyNames.RECEIVE_CURVE,
+        ValuePropertyNames.SMILE_FITTING_METHOD);
   }
 
   @Override
