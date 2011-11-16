@@ -51,9 +51,9 @@ import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -611,8 +611,13 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     if (result == null) {
       throw new DataNotFoundException("Unable to find time-series: " + objectId);
     }
-    LocalDateDoubleTimeSeries series = namedJdbc.query(sqlSelectDataPoints(), args, new DataPointsExtractor());
-    result.setTimeSeries(series);
+    if (toDateInclusive == null || fromDateInclusive == null || !toDateInclusive.isBefore(fromDateInclusive)) {
+      LocalDateDoubleTimeSeries series = namedJdbc.query(sqlSelectDataPoints(), args, new DataPointsExtractor());
+      result.setTimeSeries(series);
+    } else {
+      //TODO: this is a hack, most of the places that call with this condition want some kind of metadata, which it would be cheaper for us to expose specifically
+      result.setTimeSeries(new ArrayLocalDateDoubleTimeSeries());
+    }
     return result;
   }
 

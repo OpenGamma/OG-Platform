@@ -5,20 +5,6 @@
  */
 package com.opengamma.engine.view.calc;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNull;
-
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import javax.time.Duration;
-import javax.time.Instant;
-
-import org.testng.annotations.Test;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.core.security.SecuritySource;
@@ -62,6 +48,18 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.test.Timeout;
+import org.testng.annotations.Test;
+
+import javax.time.Duration;
+import javax.time.Instant;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
 
 /**
  * Tests {@link ViewComputationJob}
@@ -239,7 +237,6 @@ public class ViewComputationJobTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.setJobResultMode(ViewResultMode.FULL_ONLY);
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
     Instant valuationTime = Instant.now();
@@ -250,11 +247,9 @@ public class ViewComputationJobTest {
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
-    resultListener.expectNextCall(JobResultReceivedCall.class, TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     // Change of market data provider should cause a further compilation
-    resultListener.expectNextCall(JobResultReceivedCall.class, TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
     resultListener.assertProcessCompleted(TIMEOUT);
   }

@@ -11,8 +11,8 @@ import net.sf.ehcache.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.rest.security.RemoteFinancialSecuritySource;
 import com.opengamma.financial.security.EHCachingFinancialSecuritySource;
+import com.opengamma.financial.security.rest.RemoteFinancialSecuritySource;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;

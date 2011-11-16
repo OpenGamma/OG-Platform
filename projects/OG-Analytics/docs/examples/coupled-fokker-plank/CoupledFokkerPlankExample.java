@@ -49,8 +49,7 @@ public class CoupledFokkerPlankExample {
   public static final ExtendedCoupledPDEDataBundle DATA2;
 
   public static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
-  public static final GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle> GRID_INTERPOLATOR2D = 
-      new GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle>(INTERPOLATOR_1D, INTERPOLATOR_1D);
+  public static final GridInterpolator2D GRID_INTERPOLATOR2D = new GridInterpolator2D(INTERPOLATOR_1D, INTERPOLATOR_1D);
 
   static {
 

@@ -20,16 +20,16 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public final class PresentValueForexYieldCurveNodeSensitivityCalculator {
+public final class PresentValueYieldCurveNodeSensitivityForexCalculator {
   private static final MatrixAlgebra MATRIX_ALGEBRA = new CommonsMatrixAlgebra(); //TODO make this a parameter
-  private static final PresentValueForexYieldCurveNodeSensitivityCalculator INSTANCE = new PresentValueForexYieldCurveNodeSensitivityCalculator();
+  private static final PresentValueYieldCurveNodeSensitivityForexCalculator INSTANCE = new PresentValueYieldCurveNodeSensitivityForexCalculator();
   private static final PresentValueNodeSensitivityCalculator NODE_SENSITIVITY_CALCULATOR = PresentValueNodeSensitivityCalculator.getDefaultInstance();
   
-  public static PresentValueForexYieldCurveNodeSensitivityCalculator getInstance() {
+  public static PresentValueYieldCurveNodeSensitivityForexCalculator getInstance() {
     return INSTANCE;
   }
 
-  private PresentValueForexYieldCurveNodeSensitivityCalculator() {
+  private PresentValueYieldCurveNodeSensitivityForexCalculator() {
   }
 
   public Map<String, DoubleMatrix1D> calculate(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves,
