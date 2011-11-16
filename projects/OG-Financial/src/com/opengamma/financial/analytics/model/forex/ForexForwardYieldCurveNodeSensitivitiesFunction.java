@@ -27,7 +27,7 @@ import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCur
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
-import com.opengamma.financial.forex.calculator.PresentValueForexYieldCurveNodeSensitivityCalculator;
+import com.opengamma.financial.forex.calculator.PresentValueYieldCurveNodeSensitivityForexCalculator;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -44,7 +44,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 public class ForexForwardYieldCurveNodeSensitivitiesFunction extends ForexForwardFunction {
-  private static final PresentValueForexYieldCurveNodeSensitivityCalculator CALCULATOR = PresentValueForexYieldCurveNodeSensitivityCalculator.getInstance();
+  private static final PresentValueYieldCurveNodeSensitivityForexCalculator CALCULATOR = PresentValueYieldCurveNodeSensitivityForexCalculator.getInstance();
 
   public ForexForwardYieldCurveNodeSensitivitiesFunction(final String payFundingCurveName, final String payForwardCurveName, final String receiveFundingCurveName,
       final String receiveForwardCurveName) {

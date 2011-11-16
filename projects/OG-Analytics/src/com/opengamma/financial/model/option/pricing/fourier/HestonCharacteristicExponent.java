@@ -17,6 +17,9 @@ import static com.opengamma.math.ComplexMathUtils.subtract;
 import static com.opengamma.math.number.ComplexNumber.I;
 import static com.opengamma.math.number.ComplexNumber.ZERO;
 
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.financial.model.volatility.smile.function.HestonModelData;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.number.ComplexNumber;
 
@@ -60,13 +63,26 @@ public class HestonCharacteristicExponent implements MartingaleCharacteristicExp
    * @param omega volatility-of-volatility
    * @param rho correlation between the spot process and the volatility process
    */
-  //TODO check value of rho?
   public HestonCharacteristicExponent(final double kappa, final double theta, final double vol0, final double omega, final double rho) {
     _kappa = kappa;
     _theta = theta;
     _vol0 = vol0;
     _omega = omega;
     _rho = rho;
+    final double t1 = _omega - 2 * _kappa * _rho;
+    final double rhoStar = 1 - _rho * _rho;
+    final double root = Math.sqrt(t1 * t1 + 4 * _kappa * _kappa * rhoStar);
+    _alphaMin = (t1 - root) / _omega / rhoStar - 1;
+    _alphaMax = (t1 + root) / _omega / rhoStar + 1;
+  }
+
+  public HestonCharacteristicExponent(final HestonModelData data) {
+    Validate.notNull(data, "null data");
+    _kappa = data.getKappa();
+    _theta = data.getTheta();
+    _vol0 = data.getVol0();
+    _omega = data.getOmega();
+    _rho = data.getRho();
     final double t1 = _omega - 2 * _kappa * _rho;
     final double rhoStar = 1 - _rho * _rho;
     final double root = Math.sqrt(t1 * t1 + 4 * _kappa * _kappa * rhoStar);
@@ -107,17 +123,17 @@ public class HestonCharacteristicExponent implements MartingaleCharacteristicExp
   }
 
   @Override
-  public Function1D<ComplexNumber, ComplexNumber[]> getAjointFunction(final double t) {
+  public Function1D<ComplexNumber, ComplexNumber[]> getAdjointFunction(final double t) {
     return new Function1D<ComplexNumber, ComplexNumber[]>() {
       @Override
       public ComplexNumber[] evaluate(final ComplexNumber u) {
-        return getCharacteristicExponentAjoint(u, t);
+        return getCharacteristicExponentAdjoint(u, t);
       }
     };
   }
 
   @Override
-  public ComplexNumber[] getCharacteristicExponentAjoint(final ComplexNumber u, final double t) {
+  public ComplexNumber[] getCharacteristicExponentAdjoint(final ComplexNumber u, final double t) {
     ComplexNumber[] res = new ComplexNumber[6];
 
     final double kto = _kappa * _theta / _omega / _omega;

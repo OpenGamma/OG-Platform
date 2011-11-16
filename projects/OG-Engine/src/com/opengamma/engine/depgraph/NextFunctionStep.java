@@ -54,18 +54,40 @@ import com.opengamma.util.tuple.Pair;
       s_logger.debug("Delegating to existing producers for {} (original={})", resolvedOutput, originalOutput);
       final ExistingResolutionsStep state = new ExistingResolutionsStep(getTask(), getFunctions(), resolvedFunction.getFirst(), originalOutput, resolvedOutput);
       setTaskState(state);
-      final AggregateResolvedValueProducer aggregate = new AggregateResolvedValueProducer(getValueRequirement());
+      ResolvedValueProducer singleTask = null;
+      AggregateResolvedValueProducer aggregate = null;
+      // Must not to introduce a loop (checking parent resolve tasks isn't sufficient) so only use "finished" tasks.
       for (Map.Entry<ResolveTask, ResolvedValueProducer> existingTask : existingTasks.entrySet()) {
-        if (!getTask().hasParent(existingTask.getKey())) {
+        if (existingTask.getKey().isFinished()) {
           // Can use this task without creating a loop
-          aggregate.addProducer(context, existingTask.getValue());
+          if (singleTask == null) {
+            singleTask = existingTask.getValue();
+            singleTask.addRef();
+          } else {
+            if (aggregate == null) {
+              aggregate = new AggregateResolvedValueProducer(getValueRequirement());
+              aggregate.addProducer(context, singleTask);
+              singleTask.release(context);
+              singleTask = null;
+            }
+            aggregate.addProducer(context, existingTask.getValue());
+          }
         }
         // Only the values are ref-counted
         existingTask.getValue().release(context);
       }
-      aggregate.addCallback(context, state);
-      aggregate.start(context);
-      aggregate.release(context);
+      if (aggregate != null) {
+        aggregate.addCallback(context, state);
+        aggregate.start(context);
+        aggregate.release(context);
+      } else {
+        if (singleTask != null) {
+          singleTask.addCallback(context, state);
+          singleTask.release(context);
+        } else {
+          state.failed(context, getValueRequirement(), ResolutionFailure.recursiveRequirement(getValueRequirement()));
+        }
+      }
     }
   }
 

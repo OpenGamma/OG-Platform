@@ -16,7 +16,7 @@ import com.opengamma.financial.model.option.pricing.fourier.MartingaleCharacteri
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.minimization.TransformParameters;
+import com.opengamma.math.minimization.UncoupledParameterTransforms;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.util.CompareUtils;
 
@@ -50,7 +50,7 @@ public class HestonFourierSmileFitter extends HestonFFTSmileFitter {
       strikes[i] = options[i].getStrike();
       blackVols[i] = data[i].getBlackVolatility();
     }
-    final TransformParameters transforms = new TransformParameters(new DoubleMatrix1D(initialFitParameters), getTransforms(), fixed);
+    final UncoupledParameterTransforms transforms = new UncoupledParameterTransforms(new DoubleMatrix1D(initialFitParameters), getTransforms(), fixed);
     final double limitSigma = (blackVols[0] + blackVols[blackVols.length - 1]) / 2.0;
     final BlackFunctionData blackData = new BlackFunctionData(forward, 1, limitSigma);
     final ParameterizedFunction<Double, DoubleMatrix1D, Double> function = new ParameterizedFunction<Double, DoubleMatrix1D, Double>() {

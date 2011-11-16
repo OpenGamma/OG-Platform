@@ -18,7 +18,6 @@ public class SABRFormulaDataTest {
   private static final double RHO = -0.65;
   private static final double BETA = 0.76;
   private static final double ALPHA = 1.4;
-  private static final double F = 103;
   private static final SABRFormulaData DATA = new SABRFormulaData(ALPHA, BETA, RHO, NU);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

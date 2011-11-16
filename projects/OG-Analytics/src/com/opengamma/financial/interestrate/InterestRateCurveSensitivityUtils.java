@@ -194,8 +194,8 @@ public class InterestRateCurveSensitivityUtils {
 
   /**
    * Compare two maps of sensitivities with a given tolerance. The tolerance is used for both the time and the value. The two sensitivities are suppose to be in the same time order.
-   * @param sensi1 The first sensitivity (as a list).
-   * @param sensi2 The second sensitivity (as a list).
+   * @param sensi1 The first sensitivity (as a map).
+   * @param sensi2 The second sensitivity (as a map).
    * @param tolerance The tolerance.
    * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
    */

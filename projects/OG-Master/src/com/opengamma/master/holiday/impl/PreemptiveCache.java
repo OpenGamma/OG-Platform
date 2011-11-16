@@ -102,7 +102,7 @@ public abstract class PreemptiveCache<TKey, TValue> {
     Entry entry = _cache.get(key);
     if (entry == null || !isValid(entry)) {
       if (entry != null) {
-        s_logger.warn("Blocking get to reload {} previous {}", key, entry); //Shouldn't happen
+        s_logger.warn("Blocking get to reload {} previous {}, {} entries in cache", new Object[] {key, entry, _cache.size()}); //Shouldn't happen [PLAT-1718]
       }
       entry = loadKey(key, entry);
     }

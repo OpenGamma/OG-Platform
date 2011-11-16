@@ -18,11 +18,12 @@ import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.MatrixAlgebraFactory;
+import com.opengamma.math.minimization.DoubleRangeLimitTransform;
 import com.opengamma.math.minimization.NullTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.math.minimization.SingleRangeLimitTransform;
-import com.opengamma.math.minimization.TransformParameters;
+import com.opengamma.math.minimization.UncoupledParameterTransforms;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.CompareUtils;
@@ -38,11 +39,11 @@ public class SVINonLinearLeastSquareFitter extends LeastSquareSmileFitter {
 
   static {
     TRANSFORMS = new ParameterLimitsTransform[N_PARAMETERS];
-    TRANSFORMS[0] = new NullTransform();
-    TRANSFORMS[1] = new NullTransform();
-    TRANSFORMS[2] = new NullTransform();
-    TRANSFORMS[3] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN);
-    TRANSFORMS[4] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN);
+    TRANSFORMS[0] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); //a
+    TRANSFORMS[1] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); //b
+    TRANSFORMS[2] = new DoubleRangeLimitTransform(-1.0, 1.0); //rho
+    TRANSFORMS[3] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); //sigma 
+    TRANSFORMS[4] = new NullTransform(); //m
   }
 
   public SVINonLinearLeastSquareFitter() {
@@ -64,18 +65,21 @@ public class SVINonLinearLeastSquareFitter extends LeastSquareSmileFitter {
     testData(options, data, errors, initialFitParameters, fixed, N_PARAMETERS);
     final int n = options.length;
     final double[] strikes = new double[n];
+    final double[] forwards = new double[n];
     final double[] blackVols = new double[n];
     final double maturity = options[0].getTimeToExpiry();
     strikes[0] = options[0].getStrike();
     blackVols[0] = data[0].getBlackVolatility();
+    forwards[0] = data[0].getForward();
     for (int i = 1; i < n; i++) {
       Validate.isTrue(CompareUtils.closeEquals(options[i].getTimeToExpiry(), maturity),
           "All options must have the same maturity " + maturity + "; have one with maturity " + options[i].getTimeToExpiry());
       strikes[i] = options[i].getStrike();
       blackVols[i] = data[i].getBlackVolatility();
+      forwards[i] = data[i].getForward();
     }
     final double forward = data[0].getForward();
-    final TransformParameters transforms = new TransformParameters(new DoubleMatrix1D(initialFitParameters), TRANSFORMS, fixed);
+    final UncoupledParameterTransforms transforms = new UncoupledParameterTransforms(new DoubleMatrix1D(initialFitParameters), TRANSFORMS, fixed);
 
     final ParameterizedFunction<Double, DoubleMatrix1D, Double> function = new ParameterizedFunction<Double, DoubleMatrix1D, Double>() {
       @SuppressWarnings("synthetic-access")

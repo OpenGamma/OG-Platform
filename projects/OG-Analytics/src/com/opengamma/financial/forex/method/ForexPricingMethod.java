@@ -12,7 +12,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Interface for Forex pricing methods.
  */
-//TODO: Class name to change very soon! Pricing method interface should probably be the same for all asset classes.
+//TODO: Class name to be change! Pricing method interface should probably be the same for all asset classes.
 public interface ForexPricingMethod {
 
   /**

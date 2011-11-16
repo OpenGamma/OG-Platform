@@ -3,12 +3,15 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.rest.security;
+package com.opengamma.financial.security.rest;
 
-import static com.opengamma.financial.rest.security.SecuritySourceServiceNames.SECURITYSOURCE_SECURITY;
+import static com.opengamma.financial.security.rest.SecuritySourceServiceNames.SECURITYSOURCE_SECURITY;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -20,6 +23,7 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.google.common.collect.Sets;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecuritySource;
 import com.opengamma.id.ExternalId;
@@ -28,6 +32,8 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.ObjectsPairFudgeBuilder;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * REST resource wrapper for a {@link FinancialSecuritySource}.
@@ -89,6 +95,31 @@ public class SecuritySourceResource {
     final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
     final MutableFudgeMsg msg = serializer.newMessage();
     serializer.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(uid), Security.class);
+    return new FudgeMsgEnvelope(msg);
+  }
+  
+  /**
+   * RESTful method to get bulk securities by unique identifiers
+   * 
+   * @param uidStrs  the unique identifiers from the URI, not null
+   * @return the securities, null if not found
+   */
+  @GET
+  @Path("securities/uid")
+  public FudgeMsgEnvelope getSecurities(@QueryParam("uids") List<String> uidStrs) {
+    ArgumentChecker.notEmpty(uidStrs, "identifiers");
+    Set<UniqueId> uniqueIds = Sets.newHashSet();
+    
+    for (String uidStr : uidStrs) {
+      uniqueIds.add(UniqueId.parse(uidStr));
+    }
+    final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+    final MutableFudgeMsg msg = serializer.newMessage();
+    Map<UniqueId, Security> securityMap = getSecuritySource().getSecurity(uniqueIds);
+    for (Entry<UniqueId, Security> entry : securityMap.entrySet()) {
+      MutableFudgeMsg pairMsg = ObjectsPairFudgeBuilder.buildMessage(serializer, Pair.of(entry.getKey(), entry.getValue()), UniqueId.class, Security.class);
+      serializer.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, pairMsg);
+    }
     return new FudgeMsgEnvelope(msg);
   }
 

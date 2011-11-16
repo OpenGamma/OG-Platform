@@ -74,6 +74,7 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
    * @return The volatility.
    */
   public double getVolatility(double time, double strike, double forward) {
+    // TODO: change the interpolation mechanism to use a CombinedInterpolatorExtrapolator (linear and flat).
     Validate.isTrue(time >= 0, "Positive time");
     int nbVol = _volatilityTerm[0].getVolatility().length;
     int nbTime = _timeToExpiration.length;
@@ -148,7 +149,7 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
     strikesExtra[0] = 0;
     strikesExtra[nbVol + 1] = strikes[nbVol - 1] * 100.0;
     System.arraycopy(strikes, 0, strikesExtra, 1, nbVol);
-    ArrayInterpolator1DDataBundle volatilityInterpolation = new ArrayInterpolator1DDataBundle(strikesExtra, volatilityExtra);    
+    ArrayInterpolator1DDataBundle volatilityInterpolation = new ArrayInterpolator1DDataBundle(strikesExtra, volatilityExtra);
     double volatility = INTERPOLATOR.interpolate(volatilityInterpolation, strike);
     // Backward sweep    
     double volBar = 1.0;

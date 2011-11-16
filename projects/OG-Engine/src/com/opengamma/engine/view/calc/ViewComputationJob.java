@@ -5,21 +5,6 @@
  */
 package com.opengamma.engine.view.calc;
 
-import java.text.MessageFormat;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import javax.time.Duration;
-import javax.time.Instant;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
@@ -54,6 +39,20 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.monitor.OperationTimer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.time.Duration;
+import javax.time.Instant;
+import java.text.MessageFormat;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The job which schedules and executes computation cycles for a view process.
@@ -275,7 +274,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     
     if (_executeCycles) {
       try {
-        executeViewCycle(cycleType, cycleReference, marketDataSnapshot);
+        executeViewCycle(cycleType, cycleReference, marketDataSnapshot, getViewProcess().getCalcJobResultExecutorService());
       } catch (InterruptedException e) {
         // Execution interrupted - don't propagate as failure
         s_logger.info("View cycle execution interrupted for view process {}", getViewProcess());
@@ -409,7 +408,10 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
   }
   
-  private void executeViewCycle(ViewCycleType cycleType, EngineResourceReference<SingleComputationCycle> cycleReference, MarketDataSnapshot marketDataSnapshot) throws Exception {
+  private void executeViewCycle(ViewCycleType cycleType, 
+                                EngineResourceReference<SingleComputationCycle> cycleReference, 
+                                MarketDataSnapshot marketDataSnapshot,
+                                ExecutorService calcJobResultExecutorService) throws Exception {
     SingleComputationCycle deltaCycle;
     if (cycleType == ViewCycleType.FULL) {
       s_logger.info("Performing full computation");
@@ -420,7 +422,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
     
     try {
-      cycleReference.get().execute(deltaCycle, marketDataSnapshot);
+      cycleReference.get().execute(deltaCycle, marketDataSnapshot, calcJobResultExecutorService);
     } catch (InterruptedException e) {
       Thread.interrupted();
       // In reality this means that the job has been terminated, and it will end as soon as we return from this method.
