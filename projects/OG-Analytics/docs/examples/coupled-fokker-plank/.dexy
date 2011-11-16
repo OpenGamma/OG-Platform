@@ -1,5 +1,5 @@
 {
-    "graph-density.R|fn|idio|rint|pyg" : {
+    "graph-density.R|fn|idio|rintbatch|pyg" : {
         "inputs" : ["CoupledFokkerPlankExample.java|fn|java"]
     }
 }

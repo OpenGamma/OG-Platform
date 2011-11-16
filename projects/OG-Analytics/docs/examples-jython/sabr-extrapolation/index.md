@@ -1,7 +1,7 @@
-{% set smile_class = d['javadoc-data.json|javadocs']['packages']['com.opengamma.financial.model.option.pricing.analytic.formula']['classes']['SABRExtrapolationRightFunction'] %}
-{% set sabr_formula_data_class = d['javadoc-data.json|javadocs']['packages']['com.opengamma.financial.model.volatility.smile.function']['classes']['SABRFormulaData'] %}
-{% set constructor = smile_class['constructors']['SABRExtrapolationRightFunction(SABRFormulaData,double,double,double)'] %}
-{% set sabr_constructor = sabr_formula_data_class['constructors']['SABRFormulaData(double,double,double,double,double)'] %}
+{% set smile_class = d['/javadoc-data.json|javadocs']['packages']['com.opengamma.financial.model.option.pricing.analytic.formula']['classes']['SABRExtrapolationRightFunction'] %}
+{% set sabr_formula_data_class = d['/javadoc-data.json|javadocs']['packages']['com.opengamma.financial.model.volatility.smile.function']['classes']['SABRFormulaData'] %}
+{% set constructor = smile_class['constructors']['SABRExtrapolationRightFunction(double,SABRFormulaData,double,double,double)'] %}
+{% set sabr_constructor = sabr_formula_data_class['constructors']['SABRFormulaData(double,double,double,double)'] %}
 
 Let's explore an example of SMILE extrapolation. In this example we want to use the SABRExtrapolationRightFunction to generate some example data.
 
@@ -49,7 +49,7 @@ Now that we have this working, we can construct a table of extrapolated prices f
 
 Here is what the data file generated looks like:
 <pre>
-{% for l in d['sabr-extrapolation-data'].split("\\n")[0:10] -%}
+{% for l in d['sabr-extrapolation-data.txt'].split("\\n")[0:10] -%}
 {{ l }}
 {% endfor -%}
 </pre>
@@ -60,11 +60,11 @@ Now we switch to R where we are going to plot this generated data.
 
 {{ d['smile-multi-mu.R|fn|idio|rint|pyg']['plot-data'] }}
 
-<img src="../../extrapolation-price.png" />
+![Extrapolation Price](extrapolation-price.png)
 
 {{ d['smile-multi-mu.R|fn|idio|rint|pyg']['plot-implied-vol'] }}
 
-<img src="../../extrapolation-smile.png" />
+![Extrapolation Smile](extrapolation-smile.png)
 
 Also we want to calculate the price density:
 
@@ -74,5 +74,5 @@ And graph it:
 
 {{ d['smile-multi-mu.R|fn|idio|rint|pyg']['plot-density'] }}
 
-<img src="../../extrapolation-density.png" />
+![Extrapolation Density](extrapolation-density.png)
 
