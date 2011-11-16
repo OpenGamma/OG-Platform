@@ -114,7 +114,7 @@ $.register_module({
                         config_types = result.data.types.sort().map(function (val) {return {name: val, value: val};});
                         $('.OG-toolbar .og-js-new').removeClass('OG-disabled').click(toolbar_buttons['new']);
                     },
-                    cache_for: 15 * 1000
+                    cache_for: 60 * 60 * 1000 // an hour
                 });
             },
             // toolbar here relies on dynamic data, so it is instantiated with a callback instead of having

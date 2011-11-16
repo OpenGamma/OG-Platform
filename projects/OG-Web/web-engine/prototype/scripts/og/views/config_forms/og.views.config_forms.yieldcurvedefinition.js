@@ -57,7 +57,7 @@ $.register_module({
                         index: ['strip', idx, CONV].join('.'), placeholder: 'Please select...',
                         data_generator: function (handler) {
                             api.configs.get({
-                                page: 'all', name: '*_' + currency, type: CURV, cache_for: 30 * 1000,
+                                page: '*', name: '*_' + currency, type: CURV, cache_for: 30 * 1000,
                                 handler: function (result) {
                                     handler(result.data.data.map(function (val) {
                                         var value = val.split('|')[1].match(/^([^_]+)/)[1];
@@ -168,7 +168,7 @@ $.register_module({
                     },
                     data_generator: function (handler) {
                         api.regions.get({
-                            page: 'all',
+                            page: '*',
                             handler: function (result) {
                                 handler(result.data.data.map(function (region) {
                                     var split = region.split('|');

@@ -20,9 +20,6 @@
   <div class="og-divider"></div>
 </div>
 <div class="ui-layout-content">
-  <!-- ---------- -->
-  <!-- FORM START -->
-  <!-- ---------- -->
   <div class="og-container">
     <form>
     <table>
@@ -50,7 +47,7 @@
           <td>&nbsp;</td>
           <td>${field.fieldName}</td>
           <td>
-            {{if field.selection === 'ogValue'}}<label class="og-recommended">{{else}}<label>{{/if}}
+            {{if field.selection === 'ogValue'}}<label class="og-js-recommended og-recommended">{{else}}<label>{{/if}}
               <input type="radio" name="data.${trade_index}.fields.${field_index}.selection"
                 {{if field.selection === 'ogValue'}}checked="checked"{{/if}}
                 value="ogValue"/>
@@ -58,7 +55,7 @@
             </label>
           </td>
           <td>
-            {{if field.selection === 'dealValue'}}<label class="og-recommended">{{else}}<label>{{/if}}
+            {{if field.selection === 'dealValue'}}<label class="og-js-recommended og-recommended">{{else}}<label>{{/if}}
               <input type="radio" name="data.${trade_index}.fields.${field_index}.selection"
                 {{if field.selection === 'dealValue'}}checked="checked"{{/if}}
                 value="dealValue"/>
@@ -73,9 +70,6 @@
     </table>
     </form>
   </div>
-  <!-- ---------- -->
-  <!--  FORM END  -->
-  <!-- ---------- -->
 </div>
 <div class="ui-layout-footer">
   <button type="submit">Submit Changes</button>
