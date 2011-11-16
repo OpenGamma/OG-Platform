@@ -11,7 +11,6 @@ import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.linearalgebra.DecompositionFactory;
-import com.opengamma.math.linearalgebra.LUDecompositionCommons;
 import com.opengamma.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -270,7 +269,7 @@ public class SABRExtrapolationRightFunction {
     final double absoluteTol = 1E-5;
     final double relativeTol = 1E-5;
     final int maxSteps = 10000;
-    final NewtonDefaultVectorRootFinder finder = new NewtonDefaultVectorRootFinder(absoluteTol, relativeTol, maxSteps, DecompositionFactory.SV_COMMONS);
+    final NewtonDefaultVectorRootFinder finder = new NewtonDefaultVectorRootFinder(absoluteTol, relativeTol, maxSteps, DecompositionFactory.LU_COMMONS);
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(new double[] {0.1, 0.1});
     final DoubleMatrix1D ab = finder.getRoot(toSolveBC, startPosition);
     param[1] = ab.getEntry(0);
