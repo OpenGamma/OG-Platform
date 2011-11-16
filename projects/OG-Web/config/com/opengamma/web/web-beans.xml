@@ -56,7 +56,7 @@
   
   <!-- Security source/master service -->
   <bean id="testSecurityMaster" class="com.opengamma.master.security.impl.InMemorySecurityMaster" />
-  <bean id="securitySourceRestBean" class="com.opengamma.financial.rest.security.SecuritySourceService">
+  <bean id="securitySourceRestBean" class="com.opengamma.financial.security.rest.SecuritySourceService">
     <constructor-arg ref="fudgeContext" />
     <property name="underlyingMap">
       <map>

@@ -43,7 +43,7 @@
   <!-- Security Source -->
   <bean id="securitySource" class="com.opengamma.financial.security.EHCachingFinancialSecuritySource">
     <constructor-arg>
-      <bean class="com.opengamma.financial.rest.security.RemoteFinancialSecuritySource">
+      <bean class="com.opengamma.financial.security.rest.RemoteFinancialSecuritySource">
         <constructor-arg ref="fudgeContext" />
         <constructor-arg>
           <bean class="com.opengamma.transport.jaxrs.RestTarget">

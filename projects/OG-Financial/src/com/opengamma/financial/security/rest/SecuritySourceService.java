@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.rest.security;
+package com.opengamma.financial.security.rest;
 
 import javax.ws.rs.Path;
 
