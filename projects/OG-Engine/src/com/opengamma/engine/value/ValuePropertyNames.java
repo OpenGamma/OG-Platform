@@ -123,4 +123,9 @@ public final class ValuePropertyNames {
    * A general name for a property describing how a value was calculated
    */
   public static final String CALCULATION_METHOD = "CalculationMethod";
+  
+  /**
+   * A general name for a property describing how volatility smiles were modelled (e.g. Heston, SABR)
+   */
+  public static final String SMILE_FITTING_METHOD = "SmileFittingMethod";
 }

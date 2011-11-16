@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.volatility.surface;
+package com.opengamma.financial.analytics.volatility.surface.fitting;
 
 import java.util.HashMap;
 import java.util.HashSet;
