@@ -36,7 +36,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
  *
  */
 public class LongShortAggregationFunction implements AggregationFunction<String> {
-  private static final boolean s_useAttributes = true;
+  private boolean _useAttributes;
     
   private static final String NAME = "Long/Short";
   private static final String NOT_LONG_SHORT = "N/A"; 
@@ -45,12 +45,17 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
   private SecuritySource _secSource;
   
   public LongShortAggregationFunction(SecuritySource secSource) {
+    this(secSource, true);
+  }
+  
+  public LongShortAggregationFunction(SecuritySource secSource, boolean useAttributes) {
     _secSource = secSource;
+    _useAttributes = useAttributes;
   }
   
   @Override
   public String classifyPosition(final Position position) {
-    if (s_useAttributes) {
+    if (_useAttributes) {
       Map<String, String> attributes = position.getAttributes();
       if (attributes.containsKey(getName())) {
         return attributes.get(getName());
