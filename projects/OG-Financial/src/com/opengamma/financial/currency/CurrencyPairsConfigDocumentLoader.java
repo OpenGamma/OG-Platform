@@ -3,8 +3,7 @@ package com.opengamma.financial.currency;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.util.PlatformConfigUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,30 +59,12 @@ public class CurrencyPairsConfigDocumentLoader {
    * master with the same name then it is updated.
    */
   private void savePairs() {
-    ConfigDocument<CurrencyPairs> existingPairs = findExisting();
     Set<CurrencyPair> pairs = loadPairs();
     CurrencyPairs currencyPairs = new CurrencyPairs(pairs);
     ConfigDocument<CurrencyPairs> configDocument = new ConfigDocument<CurrencyPairs>(CurrencyPairs.class);
     configDocument.setName(_configName);
     configDocument.setValue(currencyPairs);
-
-    if (existingPairs == null) {
-      _configMaster.add(configDocument);
-    } else {
-      configDocument.setUniqueId(existingPairs.getUniqueId());
-      _configMaster.update(configDocument);
-    }
-  }
-
-  /**
-   * @return {@link CurrencyPairs} in the config master with a name matching {@link #_configName} or null if there
-   * isn't a match
-   */
-  private ConfigDocument<CurrencyPairs> findExisting() {
-    ConfigSearchRequest<CurrencyPairs> searchRequest = new ConfigSearchRequest<CurrencyPairs>(CurrencyPairs.class);
-    searchRequest.setName(_configName);
-    ConfigSearchResult<CurrencyPairs> searchResult = _configMaster.search(searchRequest);
-    return searchResult.getFirstDocument();
+    ConfigMasterUtils.storeByName(_configMaster, configDocument);
   }
 
   /**
