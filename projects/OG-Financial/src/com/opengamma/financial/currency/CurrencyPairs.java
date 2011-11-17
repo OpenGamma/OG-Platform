@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.currency;
 
 import com.google.common.collect.ImmutableSet;
@@ -15,7 +20,7 @@ public class CurrencyPairs {
 
   private final Set<CurrencyPair> _pairs;
 
-  /* package */ CurrencyPairs(Set<CurrencyPair> pairs) {
+  public CurrencyPairs(Set<CurrencyPair> pairs) {
     ArgumentChecker.notNull(pairs, "pairs");
     _pairs = ImmutableSet.copyOf(pairs);
   }
