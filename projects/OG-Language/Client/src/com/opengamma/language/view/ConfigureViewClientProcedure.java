@@ -153,22 +153,18 @@ public class ConfigureViewClientProcedure extends AbstractProcedureInvoker.NoRes
     int itemsAdded = 0;
     int itemsRemoved = 0;
     if (delta.hasChanged()) {
-      Set<ConfigurationItem> items = delta.getAdded();
-      if (!items.isEmpty()) {
-        final AddConfiguration visitor = new AddConfiguration(viewClient);
-        for (ConfigurationItem item : items) {
-          if (item.accept(visitor) == Boolean.TRUE) {
-            itemsAdded++;
-          }
+      //NOTE: order is important 
+      final RemoveConfiguration removeVisitor = new RemoveConfiguration(viewClient);
+      for (ConfigurationItem item : delta.getRemoved()) {
+        if (item.accept(removeVisitor) == Boolean.TRUE) {
+          itemsRemoved++;
         }
       }
-      items = delta.getRemoved();
-      if (!items.isEmpty()) {
-        final RemoveConfiguration visitor = new RemoveConfiguration(viewClient);
-        for (ConfigurationItem item : items) {
-          if (item.accept(visitor) == Boolean.TRUE) {
-            itemsRemoved++;
-          }
+      
+      final AddConfiguration addVisitor = new AddConfiguration(viewClient);
+      for (ConfigurationItem item : delta.getAdded()) {
+        if (item.accept(addVisitor) == Boolean.TRUE) {
+          itemsAdded++;
         }
       }
     }
