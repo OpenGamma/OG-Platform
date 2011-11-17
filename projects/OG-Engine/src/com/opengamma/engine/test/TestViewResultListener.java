@@ -217,7 +217,7 @@ public class TestViewResultListener extends AbstractTestResultListener implement
   }
 
   @Override
-  public void cycleFragmentCompleted(ViewResultModel fullResult, ViewDeltaResultModel deltaResult) {
+  public void cycleFragmentCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
     callReceived(new CycleFragmentCompletedCall(fullResult, deltaResult), true);
   }
 

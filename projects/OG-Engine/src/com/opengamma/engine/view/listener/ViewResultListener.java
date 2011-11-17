@@ -73,7 +73,7 @@ public interface ViewResultListener {
    * @param fullFragment  the full computation cycle result fragment
    * @param deltaFragment  the delta fragment representing only the differences since the previous cycle
    */
-  void cycleFragmentCompleted(ViewResultModel fullFragment, ViewDeltaResultModel deltaFragment);
+  void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment);
   
   /**
    * Called to indicate that execution of a view cycle failed.

@@ -15,7 +15,6 @@ import javax.time.Instant;
 import com.google.common.base.Function;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.EngineResourceManagerInternal;
 import com.opengamma.engine.view.calc.EngineResourceRetainer;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -194,7 +193,7 @@ public class MergingViewProcessListener implements ViewResultListener {
   }
   
   @Override
-  public void cycleFragmentCompleted(ViewResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
+  public void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
     _mergerLock.lock();
     try {
       if (isPassThrough()) {
@@ -311,7 +310,7 @@ public class MergingViewProcessListener implements ViewResultListener {
     if (_cycleCompletedIndex > fromIndex) {
       _cycleCompletedIndex--;
     } else if (_cycleCompletedIndex == fromIndex) {
-      _cycleCompletedIndex = fromIndex;
+      _cycleCompletedIndex = lastIndex;
     }
     return call;
   }

@@ -14,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 
-import com.opengamma.engine.view.ViewResultModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -101,7 +100,7 @@ public class RegressionTest {
       }
 
       @Override
-      public void cycleFragmentCompleted(ViewResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
+      public void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
         s_logger.info("Cycle fragment completed");
         postJobResult(fullFragment);
       }

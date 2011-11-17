@@ -249,7 +249,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     }
   }
 
-  public void cycleFragmentCompleted(ViewResultModel result) {
+  public void cycleFragmentCompleted(ViewComputationResultModel result) {
     // Caller MUST NOT hold the semaphore
     s_logger.debug("Result fragment from cycle {} received on view process {}", result.getViewCycleId(), getUniqueId());
     lock();
@@ -260,7 +260,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     }
   }
 
-  private void cycleFragmentCompletedCore(ViewResultModel fullFragment) {
+  private void cycleFragmentCompletedCore(ViewComputationResultModel fullFragment) {
     // Caller MUST hold the semaphore
 
     // [PLAT-1158]

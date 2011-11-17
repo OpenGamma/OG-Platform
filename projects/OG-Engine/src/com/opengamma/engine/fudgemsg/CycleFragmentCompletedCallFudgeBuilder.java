@@ -13,8 +13,8 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
 
 /**
@@ -37,7 +37,7 @@ public class CycleFragmentCompletedCallFudgeBuilder implements FudgeBuilder<Cycl
   @Override
   public CycleFragmentCompletedCall buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     FudgeField fullResultField = msg.getByName(FULL_FRAGMENT_FIELD);
-    ViewResultModel fullResult = fullResultField != null ? deserializer.fieldValueToObject(ViewResultModel.class, fullResultField) : null;
+    ViewComputationResultModel fullResult = fullResultField != null ? deserializer.fieldValueToObject(ViewComputationResultModel.class, fullResultField) : null;
     FudgeField deltaResultField = msg.getByName(DELTA_FRAGMENT_FIELD);
     ViewDeltaResultModel deltaResult = deltaResultField != null ? deserializer.fieldValueToObject(ViewDeltaResultModel.class, deltaResultField) : null;
     return new CycleFragmentCompletedCall(fullResult, deltaResult);

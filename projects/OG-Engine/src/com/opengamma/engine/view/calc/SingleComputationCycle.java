@@ -59,7 +59,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
-import com.opengamma.engine.view.listener.RawResultListener;
+import com.opengamma.engine.view.listener.ComputationResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
@@ -83,7 +83,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private final ViewCycleExecutionOptions _executionOptions;
   private final VersionCorrection _versionCorrection;
   
-  private final RawResultListener _cycleFragmentResultListener;
+  private final ComputationResultListener _cycleFragmentResultListener;
   private final DependencyGraphExecutor<?> _dependencyGraphExecutor;
   private final GraphExecutorStatisticsGatherer _statisticsGatherer;
 
@@ -100,7 +100,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private final InMemoryViewComputationResultModel _resultModel;
 
   public SingleComputationCycle(UniqueId cycleId, UniqueId viewProcessId,
-      RawResultListener cycleFragmentResultListener, ViewProcessContext viewProcessContext,
+      ComputationResultListener cycleFragmentResultListener, ViewProcessContext viewProcessContext,
       CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, ViewCycleExecutionOptions executionOptions,
       VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(cycleId, "cycleId");
@@ -129,10 +129,6 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   private InMemoryViewComputationResultModel constructTemplateResultModel() {
     InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
-    result.setCalculationConfigurationNames(getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurationNames());
-    if (getCompiledViewDefinition().getPortfolio() != null) {
-      result.setPortfolio(getCompiledViewDefinition().getPortfolio());
-    }
     result.setViewCycleId(getCycleId());
     result.setViewProcessId(getViewProcessId());
     result.setValuationTime(getExecutionOptions().getValuationTime());
@@ -379,6 +375,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     Map<ValueRequirement, ValueSpecification> marketDataRequirements = getCompiledViewDefinition().getMarketDataRequirements();
     s_logger.debug("Populating {} market data items using snapshot {}", marketDataRequirements.size(), snapshot);
     Map<ViewComputationCache, OverrideOperation> cacheMarketDataOperation = getCacheMarketDataOperation();
+    InMemoryViewComputationResultModel marketDataResultFragment = constructTemplateResultModel();
     for (Map.Entry<ValueRequirement, ValueSpecification> marketDataRequirement : marketDataRequirements.entrySet()) {
       // REVIEW 2010-10-22 Andrew
       // If we're asking the snapshot for a "requirement" then it should give back a more detailed "specification" with the data (i.e. a
@@ -393,13 +390,17 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         dataAsValue = new ComputedValue(marketDataRequirement.getValue(), MissingMarketDataSentinel.getInstance());
       } else {
         dataAsValue = new ComputedValue(marketDataRequirement.getValue(), data);
+        
+        // REVIEW jonathan 2011-11-17 -- do we really need to include all market data in the result by default?
         getResultModel().addMarketData(dataAsValue);
+        addMarketDataToResultFragment(marketDataResultFragment, marketDataRequirement.getValue(), dataAsValue);
       }
       addToAllCaches(marketDataRequirement.getKey(), dataAsValue, cacheMarketDataOperation);
     }
     if (!missingMarketData.isEmpty()) {
       s_logger.warn("Missing {} market data elements: {}", missingMarketData.size(), formatMissingLiveData(missingMarketData));
     }
+    notifyFragmentCompleted(marketDataResultFragment);
   }
 
   private static String formatMissingLiveData(Set<ValueSpecification> missingLiveData) {
@@ -461,7 +462,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     if (previousCycle.getState() != ViewCycleState.EXECUTED) {
       throw new IllegalArgumentException("State of previous cycle must be " + ViewCycleState.EXECUTED);
     }
-
+    InMemoryViewComputationResultModel deltaResultFragment = constructTemplateResultModel();
     for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
       DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
 
@@ -487,15 +488,23 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         }
       }
       if (!specsToCopy.isEmpty()) {
-        copyValues(cache, previousCache, specsToCopy);
+        Set<ComputedValue> valuesCopied = copyValues(cache, previousCache, specsToCopy);
+        for (ComputedValue value : valuesCopied) {
+          if (depGraph.getTerminalOutputSpecifications().contains(value.getSpecification())) {
+            deltaResultFragment.addValue(calcConfigurationName, value);
+          }
+        }
       }
+    }
+    if (!deltaResultFragment.getAllResults().isEmpty()) {
+      notifyFragmentCompleted(deltaResultFragment);
     }
   }
 
-  private void copyValues(ViewComputationCache cache, ViewComputationCache previousCache, Collection<ValueSpecification> specsToCopy) {
+  private Set<ComputedValue> copyValues(ViewComputationCache cache, ViewComputationCache previousCache, Collection<ValueSpecification> specsToCopy) {
     Collection<Pair<ValueSpecification, Object>> valuesToCopy = previousCache.getValues(specsToCopy);
 
-    Collection<ComputedValue> newValues = new HashSet<ComputedValue>();
+    Set<ComputedValue> newValues = new HashSet<ComputedValue>();
     for (Pair<ValueSpecification, Object> pair : valuesToCopy) {
       Object previousValue = pair.getSecond();
       if (previousValue != null) {
@@ -503,6 +512,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       }
     }
     cache.putSharedValues(newValues);
+    return newValues;
   }
 
   private void populateResultModel() {
@@ -531,11 +541,25 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   
   //-------------------------------------------------------------------------
   /*package*/ void calculationJobCompleted(CalculationJobResult result) {
-    _cycleFragmentResultListener.resultAvailable(populateResultModel(result));
+    try {
+      ViewComputationResultModel fragmentResult = generateCycleFragmentResult(result);
+      if (fragmentResult != null) {
+        notifyFragmentCompleted(fragmentResult);
+      }
+    } catch (Exception e) {
+      s_logger.warn("Error forming cycle fragment result after calculation job " + result.getSpecification() + " completed", e);
+    }
   }
   
-  private ViewComputationResultModel populateResultModel(CalculationJobResult calculationJobResult) {
-    InMemoryViewComputationResultModel resultModel = constructTemplateResultModel();
+  private void notifyFragmentCompleted(ViewComputationResultModel fragmentResult) {
+    try {
+      _cycleFragmentResultListener.resultAvailable(fragmentResult);
+    } catch (Exception e) {
+      s_logger.warn("Error notifying listener of cycle fragment completion", e);
+    }
+  }
+  
+  private ViewComputationResultModel generateCycleFragmentResult(CalculationJobResult calculationJobResult) {
     String calcConfigurationName = calculationJobResult.getSpecification().getCalcConfigName();
     DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
 
@@ -547,20 +571,35 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
             return calculationJobResultItem.getOutputs();
           }
         });
+    Map<ValueSpecification, Set<ValueRequirement>> requirements = submapByKeySet(depGraph.getTerminalOutputs(), specifications);
+    if (requirements == null || requirements.isEmpty()) {
+      return null;
+    }
+    InMemoryViewComputationResultModel resultModel = constructTemplateResultModel();
+    resultModel.addRequirements(requirements);
     
     for (Pair<ValueSpecification, Object> value : computationCache.getValues(specifications, CacheSelectHint.allShared())) {
-      if (value.getValue() == null) {
+      ValueSpecification valueSpec = value.getFirst();
+      Object calculatedValue = value.getSecond();
+      if (calculatedValue == null || !requirements.containsKey(valueSpec)) {
+        // Nothing calculated or not a terminal output
         continue;
       }
-      if (value.getSecond() instanceof MissingMarketDataSentinel) {
+      if (calculatedValue instanceof MissingMarketDataSentinel) {
         continue;
       }
-      resultModel.addValue(calcConfigurationName, new ComputedValue(value.getFirst(), value.getSecond()));
+      resultModel.addValue(calcConfigurationName, new ComputedValue(valueSpec, calculatedValue));
     }
-
-    Map<ValueSpecification, Set<ValueRequirement>> requirements = submapByKeySet(depGraph.getTerminalOutputs(), specifications);
-    resultModel.addRequirements(requirements);
     return resultModel;
+  }
+  
+  private void addMarketDataToResultFragment(InMemoryViewComputationResultModel result, ValueSpecification marketDataSpecification, ComputedValue marketData) {
+    result.addMarketData(marketData);
+    for (DependencyGraph depGraph : getCompiledViewDefinition().getAllDependencyGraphs()) {
+      if (depGraph.getTerminalOutputSpecifications().contains(marketDataSpecification)) {
+        result.addValue(depGraph.getCalculationConfigurationName(), marketData);
+      }
+    }
   }
 
   //-------------------------------------------------------------------------

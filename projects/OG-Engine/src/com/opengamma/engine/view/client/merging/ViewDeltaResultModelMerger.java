@@ -21,9 +21,8 @@ public class ViewDeltaResultModelMerger {
       // Start of a new result
       _currentMergedResult = new InMemoryViewDeltaResultModel();
       _currentMergedResult.setPreviousCalculationTime(newResult.getPreviousResultTimestamp());
-      _currentMergedResult.setCalculationConfigurationNames(newResult.getCalculationConfigurationNames());
     }
-    ViewResultModelMerger.merge(newResult, _currentMergedResult);
+    ViewResultModelMergeUtils.merge(newResult, _currentMergedResult);
   }
   
   public ViewDeltaResultModel getLatestResult() {

@@ -31,10 +31,10 @@ import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.ViewProcessImpl;
-import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.trigger.CombinedViewCycleTrigger;
 import com.opengamma.engine.view.calc.trigger.FixedTimeTrigger;
 import com.opengamma.engine.view.calc.trigger.RecomputationPeriodTrigger;
@@ -50,7 +50,7 @@ import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
-import com.opengamma.engine.view.listener.RawResultListener;
+import com.opengamma.engine.view.listener.ComputationResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
@@ -323,7 +323,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
   }
 
-  private void cycleFragmentCompleted(ViewResultModel result) {
+  private void cycleFragmentCompleted(ViewComputationResultModel result) {
     try {
       getViewProcess().cycleFragmentCompleted(result);
     } catch (Exception e) {
@@ -512,9 +512,9 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
     UniqueId cycleId = getViewProcess().generateCycleId();
     
-    RawResultListener streamingResultListener = new RawResultListener() {
+    ComputationResultListener streamingResultListener = new ComputationResultListener() {
       @Override
-      public void resultAvailable(ViewResultModel result) {
+      public void resultAvailable(ViewComputationResultModel result) {
         cycleFragmentCompleted(result);
       }
     };
