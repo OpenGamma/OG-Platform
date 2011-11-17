@@ -63,9 +63,10 @@ public abstract class AbstractPortfolioDailyPnLFunction extends AbstractFunction
     if (canApplyTo(context, target)) {
       final PortfolioNode node = target.getPortfolioNode();
       final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
+      final ValueProperties constraints = extractCurrencyProperty(desiredValue);
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       for (Position position : allPositions) {
-        requirements.add(new ValueRequirement(ValueRequirementNames.DAILY_PNL, ComputationTargetType.POSITION, position.getUniqueId(), extractCurrencyProperty(desiredValue)));
+        requirements.add(new ValueRequirement(ValueRequirementNames.DAILY_PNL, ComputationTargetType.POSITION, position.getUniqueId(), constraints));
       }
       return requirements;
     }
