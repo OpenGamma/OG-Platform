@@ -144,7 +144,7 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(optionForex, dataBlack);
     // Backward sweep
     final double priceBar = 1.0;
-    final double forwardBar = priceAdjoint[1] * dfDomestic;
+    final double forwardBar = priceAdjoint[1] * dfDomestic * priceBar;
     final double dfForeignBar = spot / dfDomestic * forwardBar;
     final double dfDomesticBar = -spot / (dfDomestic * dfDomestic) * dfForeign * forwardBar + priceAdjoint[0] * priceBar;
     final double rForeignBar = -payTime * dfForeign * dfForeignBar;
@@ -194,7 +194,9 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(optionForex, dataBlack);
     final double volatilitySensitivityValue = priceAdjoint[2] * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * (optionForex.isLong() ? 1.0 : -1.0);
-    final DoublesPair point = DoublesPair.of(optionForex.getTimeToExpiry(), optionForex.getStrike());
+    final DoublesPair point = DoublesPair.of(optionForex.getTimeToExpiry(),
+        (optionForex.getCurrency1() == smile.getCurrencyPair().getFirst()) ? optionForex.getStrike() : 1.0 / optionForex.getStrike());
+    // Implementation note: The strike should be in the same currency order as the input data.
     final Map<DoublesPair, Double> result = new HashMap<DoublesPair, Double>();
     result.put(point, volatilitySensitivityValue);
     final PresentValueVolatilitySensitivityDataBundle sensi = new PresentValueVolatilitySensitivityDataBundle(optionForex.getUnderlyingForex().getCurrency1(), optionForex.getUnderlyingForex()
@@ -232,7 +234,8 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
     final double forward = spot * smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime())
         / df;
     smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward, nodeWeight);
-    final DoublesPair point = DoublesPair.of(optionForex.getTimeToExpiry(), optionForex.getStrike());
+    final DoublesPair point = DoublesPair.of(optionForex.getTimeToExpiry(),
+        (optionForex.getCurrency1() == smile.getCurrencyPair().getFirst()) ? optionForex.getStrike() : 1.0 / optionForex.getStrike());
     final double[][] vega = new double[smile.getSmile().getNumberExpiration()][smile.getSmile().getNumberStrike()];
     for (int loopexp = 0; loopexp < smile.getSmile().getNumberExpiration(); loopexp++) {
       for (int loopstrike = 0; loopstrike < smile.getSmile().getNumberStrike(); loopstrike++) {

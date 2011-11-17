@@ -24,6 +24,11 @@
         <webroots>
           <root url="file://$MODULE_DIR$/web-engine" relative="/" />
         </webroots>
+        <sourceRoots>
+          <root url="file://$MODULE_DIR$/src" />
+          <root url="file://$MODULE_DIR$/tests/unit" />
+          <root url="file://$MODULE_DIR$/config" />
+        </sourceRoots>
       </configuration>
     </facet>
     <facet type="web" name="Web2">
@@ -34,6 +39,11 @@
         <webroots>
           <root url="file://$MODULE_DIR$/web-marketdata" relative="/" />
         </webroots>
+        <sourceRoots>
+          <root url="file://$MODULE_DIR$/src" />
+          <root url="file://$MODULE_DIR$/tests/unit" />
+          <root url="file://$MODULE_DIR$/config" />
+        </sourceRoots>
       </configuration>
     </facet>
     <facet type="Spring" name="Spring">

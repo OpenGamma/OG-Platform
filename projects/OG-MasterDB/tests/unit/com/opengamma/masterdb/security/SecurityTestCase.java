@@ -557,10 +557,7 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   }
 
   private static <T extends ManageableSecurity> Collection<T> permuteTestSecurities(final Class<T> clazz) {
-    try {
-      clazz.newInstance();
-    } catch (Exception ex) {
-    }
+    intializeClass(clazz);
     MetaBean mb = JodaBeanUtils.metaBean(clazz);
     List<MetaProperty<Object>> mps = new ArrayList<MetaProperty<Object>>(mb.metaPropertyMap().values());
     
@@ -603,6 +600,31 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
       s_logger.debug("{}", o);
     }
     return objects;
+  }
+
+  private static <T> void intializeClass(final Class<T> clazz) {
+    // call the default constructor to initialize the class
+    try {
+      Constructor<T> defaultConstructor = getDefaultConstructor(clazz);
+      if (defaultConstructor != null) {
+        defaultConstructor.setAccessible(true);
+        defaultConstructor.newInstance();
+      }
+    } catch (Exception ex) {
+    }
+  }
+
+  private static <T> Constructor<T> getDefaultConstructor(final Class<T> clazz) {
+    Constructor<T> defaultConstructor = null;
+    Constructor<?>[] declaredConstructors = clazz.getDeclaredConstructors();
+    for (Constructor<?> constructor : declaredConstructors) {
+      Class<?>[] parameterTypes = constructor.getParameterTypes();
+      if (parameterTypes.length == 0) {
+        defaultConstructor = (Constructor<T>) constructor;
+        break;
+      }
+    }
+    return defaultConstructor;
   }
 
   protected abstract <T extends ManageableSecurity> void assertSecurity(final Class<T> securityClass, final T security);
