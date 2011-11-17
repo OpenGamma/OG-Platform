@@ -10,17 +10,7 @@ $.register_module({
         'og.common.util.ui'
     ],
     obj: function () {
-        var module = this, Form = og.common.util.ui.Form, api = og.api.rest,
-            fields = {
-                BAS: 'basisSwapInstrumentProviders',
-                CAS: 'cashInstrumentProviders',
-                FRA: 'fraInstrumentProviders',
-                FUT: 'futureInstrumentProviders',
-                OIS: 'oisSwapInstrumentProviders',
-                RAT: 'rateInstrumentProviders',
-                SWA: 'swapInstrumentProviders',
-                TSW: 'tenorSwapInstrumentProviders'
-            },
+        var module = this, ui = og.common.util.ui, Form = ui.Form, api = og.api.rest,
             MKTS = 'marketSector',
             CURR = 'ccy',
             SCHM = 'scheme',
@@ -28,59 +18,69 @@ $.register_module({
             INST = 'instrument',
             PRFX = 'prefix',
             INDX = '<INDEX>',
+            INSP = /InstrumentProviders$/,
+            CURV = 'curveSpecificationBuilderConfiguration',
+            field_names = [],
             config_type = 'com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration',
-            arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
-        return og.views.config_forms['default'].preload({
-            type: config_type,
-            type_map: [
+            data_types = {
+                'future': 'com.opengamma.financial.analytics.ircurve.BloombergFutureCurveInstrumentProvider',
+                'static': 'com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider',
+                'synthetic': 'com.opengamma.financial.analytics.ircurve.SyntheticIdentifierCurveInstrumentProvider'
+            },
+            type_map = [
+                ['0',                           Form.type.STR],
                 [['0', INDX].join('.'),         Form.type.STR],
                 [['*', '*', '0'].join('.'),     Form.type.STR],
+                [['*', '*', CURR].join('.'),    Form.type.STR],
                 [['*', '*', INST].join('.'),    Form.type.STR],
+                [['*', '*', MKTS].join('.'),    Form.type.STR],
+                [['*', '*', PRFX].join('.'),    Form.type.STR],
+                [['*', '*', SCHM].join('.'),    Form.type.STR],
+                [['*', '*', STTY].join('.'),    Form.type.STR],
                 [['*', '*', 'type'].join('.'),  Form.type.STR]
-            ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {})
-        });
-        // the following is "dead" code for now until it can be repaired ... for the time being, see above
-        return function (config) {
+            ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {}),
+            arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];},
+            form_builder;
+        form_builder = function (config) {
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.name, submit_type,
                 resource_id = config.data.template_data.object_id,
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler,
-                master = config.data.template_data.configJSON, new_strip_item,
-                transposed = {}, has = 'hasOwnProperty', format,
-                strip_types = ['LIBOR', 'CASH', 'SWAP', 'FUTURE', 'OIS_SWAP', 'FRA', 'TENOR_SWAP', 'BASIS_SWAP'],
-                field_names = ['RAT', 'CAS', 'SWA', 'FUT', 'OIS', 'FRA', 'TSW', 'BAS'],
-                popup_module = 'og.views.forms.curve-specification-builder-popup', update_cell
+                master = config.data.template_data.configJSON.data || {}, new_strip_item,
+                tenors = config.data.template_data.configJSON.tenors || [],
+                transposed = {}, has = 'hasOwnProperty', format, new_name = '',
+                popup_module = 'og.views.forms.curve-specification-builder-popup', update_cell,
                 form = new Form({
                     module: 'og.views.forms.curve-specification-builder',
-                    data: field_names.reduce(function (acc, val) {
-                        return acc[fields[val]] = [], acc;
-                    }, {0: master[0]}),
+                    data: {0: master[0] || config_type},
                     selector: selector,
                     extras: {name: orig_name},
+                    type_map: type_map,
                     processor: function (data) {
+                        (new_name = data.name), delete data.name;
                         $(form_id + ' .og-js-row').each(function (idx, row) {
                             var $row = $(row), tenor = $(row).find('.og-js-tenor').val();
                             if (!tenor) return true; // i.e. continue;
                             $row.find('input[type=hidden]').each(function (idx, val) {
-                                var value = JSON.parse($(val).val()), result = {};
+                                var value = JSON.parse($(val).val());
                                 if (!value) return true; // i.e. continue;
-                                result[tenor] = value;
-                                data[fields[field_names[idx]]].push(result);
+                                value[0] = data_types[value.type.toLowerCase()];
+                                (data[field_names[idx]] || (data[field_names[idx]] = {}))[tenor] = value;
                             });
                         });
                     }
                 }),
                 form_id = '#' + form.id,
-                save_resource = function (data, as_new) {
-                    var name = data.name;
-                    if (!deleted && !is_new && as_new && (orig_name === name))
+                save_resource = function (result, as_new) {
+                    var data = result.data, meta = result.meta;
+                    if (!deleted && !is_new && as_new && (orig_name === new_name))
                         return window.alert('Please select a new name.');
-                    delete data.name;
                     api.configs.put({
                         id: as_new ? void 0 : resource_id,
-                        name: name,
-                        json: JSON.stringify(data),
+                        name: new_name,
+                        json: JSON.stringify({data: data, meta: meta}),
+                        type: config_type,
                         loading: loading,
                         handler: as_new ? save_new_handler : save_handler
                     });
@@ -93,19 +93,21 @@ $.register_module({
                           <div class="OG-toolbar"></div>\
                           <h1 class="og-js-name">' + orig_name + '</h1>\
                           <br />(Curve Specification Builder Configuration)\
-                        </header>\
-                    ';
+                        </header>',
+                        section_width = $(form_id + ' .og-js-cell:first').outerWidth() * (field_names.length + 1);
+                    section_width += 40; // padding + awesome list delete icon
                     $('.ui-layout-inner-center .ui-layout-header').html(header);
                     if (deleted || is_new)
                         $(form_id + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
                     if (is_new) $(form_id + ' .og-js-submit[value=save_as_new]').text('Save');
+                    $(form_id + ' .og-js-section').width(section_width);
                     load_handler();
                 }},
                 {type: 'click', selector: form_id + ' .og-js-submit', handler: function (e) {
                     submit_type = $(e.target).val();
                 }},
                 {type: 'form:submit', handler: function (result) {
-                    save_resource(result.data, submit_type === 'save_as_new');
+                    save_resource(result, submit_type === 'save_as_new');
                 }},
                 {type: 'keydown', selector: form_id + ' .og-js-popup input', handler: function (e) {
                     if ((e.keyCode !== $.ui.keyCode.ESCAPE) &&
@@ -157,7 +159,8 @@ $.register_module({
                             var cell_index = $row.find('.og-js-cell').index($cell),
                                 result = {type: 'Synthetic', scheme: 'OG_SYNTHETIC_TICKER'};
                             result[CURR] = $popup.find('.og-js-currency').val();
-                            result[STTY] = strip_types[cell_index];
+                            result[STTY] = field_names[cell_index].replace(INSP, '') // unCamel + underscore + caps
+                                .replace(/([\d]+[A-Z]|[\d]+|[A-Z])/g, '_$1').toUpperCase();
                             $cell.replaceWith(format(result));
                         }
                     })[data_type]();
@@ -236,26 +239,37 @@ $.register_module({
                 }
             })($('<input type="hidden" />'));
             new_strip_item = function (val, idx) {
-                var key, extras = {tenor: val.tenor};
-                delete val.tenor;
-                for (key in val) if (!val[has](key)) continue; else extras[key] = format(val[key]);
-                return new form.Block({module: 'og.views.forms.curve-specification-builder-strip', extras: extras});
+                return new form.Block({
+                    wrap: '\
+                        <li class="og-js-row">\
+                          <div class="og-del og-js-rem"></div>\
+                          <div class="og-strip">\
+                            <div class="og-input">\
+                                <input value="' + val.tenor + '" class="og-js-tenor" type="text" />\
+                            </div>\
+                            {{html html}}\
+                          </div>\
+                        </li>',
+                    children: field_names.map(function (field) {return format(val[field]);})
+                });
             };
             transposed = field_names.reduce(function (acc, val) {
-                acc[val] = (master[fields[val]] = arr(master[fields[val]])).reduce(function (acc, val) {
+                acc[val] = arr(master[val]).reduce(function (acc, val) {
                     for (var tenor in val) if (val[has](tenor)) acc[tenor] = val[tenor];
                     return acc;
                 }, {});
                 // fill out sparse array, populating nulls
-                (master.tenors = arr(master.tenors)).forEach(function (tenor) {
-                    if (!acc[val][has](tenor)) acc[val][tenor] = null;
-                });
+                tenors.forEach(function (tenor) {if (!acc[val][has](tenor)) acc[val][tenor] = null;});
                 return acc;
             }, {});
             form.children = [
-                new form.Block({
+                new form.Block({ // headers
+                    wrap: '<div class="og-a-list-header og-strip"><div>Tenor</div>{{html html}}</div>',
+                    children: field_names.map(function (val) {return '<div>' + val.replace(INSP, '') + '</div>';})
+                }),
+                new form.Block({ // content
                     wrap: '<ul class="og-awesome-list og-js-strip">{{html html}}</ul>',
-                    children: master.tenors.map(function (tenor) {
+                    children: tenors.map(function (tenor) {
                         return field_names.reduce(function (acc, val) {
                             return (acc[val] = transposed[val][tenor] || null), acc;
                         }, {tenor: tenor});
@@ -263,6 +277,13 @@ $.register_module({
                 })
             ];
             form.dom();
+        };
+        return function (config) {
+            api.configs.get({meta: true, handler: function (result) {
+                if (result.error) return ui.dialog({type: 'error', message: result.message});
+                field_names = result.data[CURV];
+                form_builder(config);
+            }});
         };
     }
 });

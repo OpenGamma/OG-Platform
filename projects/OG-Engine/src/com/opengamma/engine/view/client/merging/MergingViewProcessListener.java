@@ -15,13 +15,13 @@ import javax.time.Instant;
 import com.google.common.base.Function;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.EngineResourceManagerInternal;
 import com.opengamma.engine.view.calc.EngineResourceRetainer;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.CycleCompletedCall;
 import com.opengamma.engine.view.listener.CycleExecutionFailedCall;
+import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
 import com.opengamma.engine.view.listener.ProcessCompletedCall;
 import com.opengamma.engine.view.listener.ProcessTerminatedCall;
 import com.opengamma.engine.view.listener.ViewDefinitionCompilationFailedCall;
@@ -51,9 +51,8 @@ public class MergingViewProcessListener implements ViewResultListener {
   
   private final List<Function<ViewResultListener, ?>> _callQueue = new LinkedList<Function<ViewResultListener, ?>>();
   
-  private int _currentResultCompilationIndex = -1;
-  private int _resultIndex = -1;
-  private int _futureResultCompilationIndex = -1;
+  private int _cycleCompletedIndex = -1;
+  private int _cycleFragmentCompletedIndex = -1;
   
   public MergingViewProcessListener(ViewResultListener underlying, EngineResourceManagerInternal<?> cycleManager) {
     ArgumentChecker.notNull(underlying, "underlying");
@@ -137,11 +136,6 @@ public class MergingViewProcessListener implements ViewResultListener {
       if (isPassThrough()) {
         getUnderlying().viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
       } else {
-        if (_futureResultCompilationIndex != -1) {
-          // Another compilation without a result in the meantime. Perhaps errors are occurring.  
-          _callQueue.remove(_futureResultCompilationIndex);
-        }
-        _futureResultCompilationIndex = _callQueue.size();
         _callQueue.add(new ViewDefinitionCompiledCall(compiledViewDefinition, hasMarketDataPermissions));
       }
       _lastUpdateMillis.set(System.currentTimeMillis());
@@ -178,48 +172,43 @@ public class MergingViewProcessListener implements ViewResultListener {
         // Result merging is the most complicated. It is based on the following rules:
         //  - only one result call in the queue, kept up-to-date by merging new result calls into it 
         //  - the updated result call is repositioned to the end of the queue
-        //  - a compiled view definition is only retained in the queue while it corresponds to the current result or a
-        //    future result; updating the result call could make an old compilation redundant
         
         // Result collapsing
-        if (_resultIndex != -1) {
-          // There's an old result call in the queue - find it and move to end
-          CycleCompletedCall resultCall;
-          int lastIndex = _callQueue.size() - 1;
-          if (_resultIndex == lastIndex) {
-            // Old result is already at end of queue
-            resultCall = (CycleCompletedCall) _callQueue.get(lastIndex);
-          } else {
-            // Old result is elsewhere in queue - pull to end and update indices
-            resultCall = (CycleCompletedCall) _callQueue.remove(_resultIndex);
-            _callQueue.add(resultCall);
-            if (_futureResultCompilationIndex > _resultIndex) {
-              _futureResultCompilationIndex--;
-            }
-            _resultIndex = lastIndex;
-          }
-          
-          // Merge new result into old one
-          resultCall.update(fullResult, deltaResult);
+        if (_cycleCompletedIndex != -1) {
+          // There's an old cycle completed call in the queue - find it and move to end
+          CycleCompletedCall cycleCompletedCall = pullCallToEnd(_cycleCompletedIndex);
+          // Merge new cycle completed call into old one
+          cycleCompletedCall.update(fullResult, deltaResult);
         } else {
-          // No existing result call - add new one
-          CycleCompletedCall resultCall = new CycleCompletedCall(fullResult, deltaResult);
-          _resultIndex = _callQueue.size();
-          _callQueue.add(resultCall);
+          // No existing cycle completed call - add new one
+          CycleCompletedCall cycleCompletedCall = new CycleCompletedCall(fullResult, deltaResult);
+          _cycleCompletedIndex = _callQueue.size();
+          _callQueue.add(cycleCompletedCall);
         }
-
-        // Compilation collapsing
-        if (_futureResultCompilationIndex != -1) {
-          if (_currentResultCompilationIndex != -1) {
-            // No longer interested in the compilation which applied to the result before it was updated
-            _callQueue.remove(_currentResultCompilationIndex);
-            _resultIndex--;
-            _futureResultCompilationIndex--;
-          }
-          
-          // The last compilation now applies to the current result
-          _currentResultCompilationIndex = _futureResultCompilationIndex;
-          _futureResultCompilationIndex = -1;
+      }
+      _lastUpdateMillis.set(System.currentTimeMillis());
+    } finally {
+      _mergerLock.unlock();
+    }
+  }
+  
+  @Override
+  public void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
+    _mergerLock.lock();
+    try {
+      if (isPassThrough()) {
+        getUnderlying().cycleFragmentCompleted(fullFragment, deltaFragment);
+      } else {
+        if (_cycleFragmentCompletedIndex != -1) {
+          // There's an old fragment completed call in the queue - find it and move to end
+          CycleFragmentCompletedCall cycleFragmentCompletedCall = pullCallToEnd(_cycleFragmentCompletedIndex);
+          // Merge new fragment completed call into old one
+          cycleFragmentCompletedCall.update(fullFragment, deltaFragment);
+        } else {
+          // No existing fragment completed call - add new one
+          CycleFragmentCompletedCall cycleFragmentCompletedCall = new CycleFragmentCompletedCall(fullFragment, deltaFragment);
+          _cycleFragmentCompletedIndex = _callQueue.size();
+          _callQueue.add(cycleFragmentCompletedCall);
         }
       }
       _lastUpdateMillis.set(System.currentTimeMillis());
@@ -236,20 +225,6 @@ public class MergingViewProcessListener implements ViewResultListener {
         getUnderlying().cycleExecutionFailed(executionOptions, exception);
       } else {
         _callQueue.add(new CycleExecutionFailedCall(executionOptions, exception));
-      }
-    } finally {
-      _mergerLock.unlock();
-    }
-  }
-
-  @Override
-  public void jobResultReceived(ViewResultModel result, ViewDeltaResultModel delta) {
-    _mergerLock.lock();
-    try {
-      if (isPassThrough()) {
-        getUnderlying().jobResultReceived(result, delta);
-      } else {
-        _callQueue.add(new ProcessCompletedCall());
       }
     } finally {
       _mergerLock.unlock();
@@ -293,9 +268,8 @@ public class MergingViewProcessListener implements ViewResultListener {
         call.apply(getUnderlying());
       }
       _callQueue.clear();
-      _currentResultCompilationIndex = -1;
-      _resultIndex = -1;
-      _futureResultCompilationIndex = -1;
+      _cycleCompletedIndex = -1;
+      _cycleFragmentCompletedIndex = -1;
       
     } finally {
       _mergerLock.unlock();
@@ -309,9 +283,8 @@ public class MergingViewProcessListener implements ViewResultListener {
     _mergerLock.lock();
     try {
       _callQueue.clear();
-      _currentResultCompilationIndex = -1;
-      _resultIndex = -1;
-      _futureResultCompilationIndex = -1;
+      _cycleCompletedIndex = -1;
+      _cycleFragmentCompletedIndex = -1;
       getCycleRetainer().replaceRetainedCycle(null);
     } finally {
       _mergerLock.unlock();
@@ -319,6 +292,29 @@ public class MergingViewProcessListener implements ViewResultListener {
   }
   
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
+  private <T extends Function<ViewResultListener, ?>> T pullCallToEnd(int fromIndex) {
+    int lastIndex = _callQueue.size() - 1;
+    if (fromIndex == lastIndex) {
+      // Call is already at end of queue
+      return (T) _callQueue.get(lastIndex);
+    }
+    // Call is elsewhere in queue - pull to end and update indices
+    T call = (T) _callQueue.remove(fromIndex);
+    _callQueue.add(call);
+    if (_cycleFragmentCompletedIndex > fromIndex) {
+      _cycleFragmentCompletedIndex--;
+    } else if (_cycleFragmentCompletedIndex == fromIndex) {
+      _cycleFragmentCompletedIndex = lastIndex;
+    }
+    if (_cycleCompletedIndex > fromIndex) {
+      _cycleCompletedIndex--;
+    } else if (_cycleCompletedIndex == fromIndex) {
+      _cycleCompletedIndex = lastIndex;
+    }
+    return call;
+  }
+  
   private ViewResultListener getUnderlying() {
     return _underlying;
   }

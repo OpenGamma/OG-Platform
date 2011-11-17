@@ -35,7 +35,7 @@ $.register_module({
                     [['strip', INDX, NUMF].join('.'),       Form.type.BYT],
                     [['strip', INDX, 'tenor'].join('.'),    Form.type.STR],
                     [['strip', INDX, 'type'].join('.'),     Form.type.STR],
-                    ['uniqueId',                            Form.type.STR],
+                    ['uniqueId',                            Form.type.STR]
                 ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {}),
                 form = new Form({
                     module: 'og.views.forms.yield-curve-definition',
@@ -57,7 +57,7 @@ $.register_module({
                         index: ['strip', idx, CONV].join('.'), placeholder: 'Please select...',
                         data_generator: function (handler) {
                             api.configs.get({
-                                page: 'all', name: '*_' + currency, type: CURV, cache_for: 30 * 1000,
+                                page: '*', name: '*_' + currency, type: CURV, cache_for: 30 * 1000,
                                 handler: function (result) {
                                     handler(result.data.data.map(function (val) {
                                         var value = val.split('|')[1].match(/^([^_]+)/)[1];
@@ -168,7 +168,7 @@ $.register_module({
                     },
                     data_generator: function (handler) {
                         api.regions.get({
-                            page: 'all',
+                            page: '*',
                             handler: function (result) {
                                 handler(result.data.data.map(function (region) {
                                     var split = region.split('|');

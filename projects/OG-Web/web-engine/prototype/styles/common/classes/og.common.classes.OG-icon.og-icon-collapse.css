@@ -1,0 +1,23 @@
+.OG-icon.og-icon-collapse {
+  height: 9px;
+  width: 12px;
+  position: relative;
+}
+
+.OG-icon.og-icon-collapse:after {
+  background-position: -59px -25px;
+  background-color: transparent;
+  height: 9px;
+  width: 9px;
+  position: absolute;
+}
+
+.OG-icon.og-icon-collapse:hover:after {
+  background-position: 0 -25px;
+  background-color: transparent;
+  height: 9px;
+  width: 9px;
+  position: absolute;
+  margin-top: 0;
+  margin-left: 0;
+}

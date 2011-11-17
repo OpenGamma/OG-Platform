@@ -10,6 +10,7 @@ import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZ
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
+import static com.opengamma.masterdb.security.hibernate.Converters.validateFrequency;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
 import javax.time.calendar.ZonedDateTime;
@@ -38,6 +39,8 @@ public final class EquityVarianceSwapSecurityBeanOperation extends AbstractSecur
 
   @Override
   public EquityVarianceSwapSecurityBean createBean(OperationContext context, HibernateSecurityMasterDao secMasterSession, EquityVarianceSwapSecurity security) {
+    validateFrequency(security.getObservationFrequency().getConventionName());
+    
     EquityVarianceSwapSecurityBean securityBean = new EquityVarianceSwapSecurityBean();
     securityBean.setAnnualizationFactor(security.getAnnualizationFactor());
     securityBean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));

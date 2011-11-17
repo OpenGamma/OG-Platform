@@ -17,8 +17,11 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
+import com.opengamma.financial.convention.yield.YieldConvention;
+import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.masterdb.security.hibernate.bond.YieldConventionBean;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -119,33 +122,63 @@ public final class Converters {
     if (frequencyBean == null) {
       return null;
     }
-    final Frequency f = SimpleFrequencyFactory.INSTANCE.getFrequency(frequencyBean.getName());
+    validateFrequency(frequencyBean.getName());
+    return SimpleFrequencyFactory.INSTANCE.getFrequency(frequencyBean.getName());
+  }
+
+  public static void validateFrequency(final String name) {
+    final Frequency f = SimpleFrequencyFactory.INSTANCE.getFrequency(name);
     if (f == null) {
-      throw new OpenGammaRuntimeException("Bad value for frequencyBean (" + frequencyBean.getName() + ")");
+      throw new OpenGammaRuntimeException("Bad value for frequency (" + name + ")");
     }
-    return f;
   }
 
   public static DayCount dayCountBeanToDayCount(final DayCountBean dayCountBean) {
     if (dayCountBean == null) {
       return null;
     }
-    final DayCount dc = DayCountFactory.INSTANCE.getDayCount(dayCountBean.getName());
+    validateDayCount(dayCountBean.getName());
+    return DayCountFactory.INSTANCE.getDayCount(dayCountBean.getName());
+  }
+  
+  public static void validateDayCount(final String name) {
+    final DayCount dc = DayCountFactory.INSTANCE.getDayCount(name);
     if (dc == null) {
-      throw new OpenGammaRuntimeException("Bad value for dayCountBean (" + dayCountBean.getName() + ")");
+      throw new OpenGammaRuntimeException("Bad value for dayCount (" + name + ")");
     }
-    return dc;
   }
 
   public static BusinessDayConvention businessDayConventionBeanToBusinessDayConvention(final BusinessDayConventionBean businessDayConventionBean) {
     if (businessDayConventionBean == null) {
       return null;
     }
-    final BusinessDayConvention bdc = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(businessDayConventionBean.getName());
+    validateBusinessDayConvention(businessDayConventionBean.getName());
+    return BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(businessDayConventionBean.getName());
+  }
+  
+  public static void validateBusinessDayConvention(final String name) {
+    final BusinessDayConvention bdc = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(name);
     if (bdc == null) {
-      throw new OpenGammaRuntimeException("Bad value for businessDayConventionBean (" + businessDayConventionBean.getName() + ")");
+      throw new OpenGammaRuntimeException("Bad value for businessDayConvention (" + name + ")");
     }
-    return bdc;
+  }
+  
+  public static YieldConvention yieldConventionBeanToYieldConvention(final YieldConventionBean yieldConventionBean) {
+    if (yieldConventionBean == null) {
+      return null;
+    }
+    final YieldConvention yc = YieldConventionFactory.INSTANCE.getYieldConvention(yieldConventionBean.getName());
+    if (yc == null) {
+      throw new OpenGammaRuntimeException("Bad value for yieldConventionBean (" + yieldConventionBean.getName() + ")");
+    }
+    return yc;
+  }
+  
+  public static void validateYieldConvention(final String name) {
+    final YieldConvention yc = YieldConventionFactory.INSTANCE.getYieldConvention(name);
+    if (yc == null) {
+      throw new OpenGammaRuntimeException("Bad value for yieldConvention (" + name + ")");
+    }
   }
 
 }

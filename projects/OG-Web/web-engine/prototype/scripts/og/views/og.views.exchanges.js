@@ -61,8 +61,9 @@ $.register_module({
             },
             default_details = og.views.common.default_details.partial(page_name, 'Exchanges', options),
             details_page = function(args) {
-                // if new page, close south panel
-                check_state({args: args, conditions: [{new_page: og.views.common.layout.inner.close.partial('south')}]});
+                var layout = og.views.common.layout;
+                layout.inner.options.south.onclose = null;
+                layout.inner.close('south');
                 api.rest.exchanges.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
