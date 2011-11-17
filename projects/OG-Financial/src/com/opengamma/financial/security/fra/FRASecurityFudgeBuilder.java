@@ -38,6 +38,8 @@ public class FRASecurityFudgeBuilder extends AbstractFudgeBuilder implements Fud
   public static final String AMOUNT_FIELD_NAME = "amount";
   /** Field name. */
   public static final String UNDERLYING_IDENTIFIER_FIELD_NAME = "underlyingIdentifier";
+  /** Field name. */
+  public static final String FIXING_DATE_FIELD_NAME = "fixingDate";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, FRASecurity object) {
@@ -55,6 +57,7 @@ public class FRASecurityFudgeBuilder extends AbstractFudgeBuilder implements Fud
     addToMessage(msg, RATE_FIELD_NAME, object.getRate());
     addToMessage(msg, AMOUNT_FIELD_NAME, object.getAmount());
     addToMessage(msg, UNDERLYING_IDENTIFIER_FIELD_NAME, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
+    addToMessage(msg, FIXING_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getFixingDate()));
   }
 
   @Override
@@ -73,6 +76,7 @@ public class FRASecurityFudgeBuilder extends AbstractFudgeBuilder implements Fud
     object.setRate(msg.getDouble(RATE_FIELD_NAME));
     object.setAmount(msg.getDouble(AMOUNT_FIELD_NAME));
     object.setUnderlyingId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_FIELD_NAME)));
+    object.setFixingDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FIXING_DATE_FIELD_NAME)));
   }
 
 }

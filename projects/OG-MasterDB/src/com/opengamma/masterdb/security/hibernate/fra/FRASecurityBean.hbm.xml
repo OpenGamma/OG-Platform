@@ -23,6 +23,10 @@
       <property name="scheme" column="underlying_scheme" type="string" />
       <property name="identifier" column="underlying_identifier" type="string" />
     </component>
+    <component name="fixingDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="fixing_date" type="timestamp" not-null="true" />
+      <property name="zone" column="fixing_zone" type="string" not-null="true" />
+    </component>
   </union-subclass>
 
   <query name="FRASecurityBean.one.bySecurityId"><![CDATA[

@@ -138,7 +138,7 @@ a = \ln(p K^{\mu}) - \frac{b}{K} - \frac{c}{K^2}.
 
 \section{Examples}
 
-Some examples of smile extrapolation are presented. The SABR data used is $\alpha=0.05$, $\beta=0.50$, $\rho=-0.25$ and $\nu=0.50$. The forward is 5\%, the cut-off strike 10\% and the time to expiry 2. 
+Some examples of smile extrapolation are presented. The SABR data used is $\alpha=0.05$, $\beta=0.50$, $\rho=-0.25$ and $\nu=0.50$. The forward is 5\%, the cut-off strike 10\% and the time to expiry 2.
 
 The extrapolation is computed for $\mu=5$, 40, 90 and 150. The choices of the exponents have been exaggerated to obtain clearer pictures.
 
@@ -146,7 +146,7 @@ The extrapolation is computed for $\mu=5$, 40, 90 and 150. The choices of the ex
 
 In Figure~\ref{FigPrice} the tail of the price (not adjusted by the numeraire) is given.
 
-\pgfdeclareimage[height=5.0cm]{extraPrice}{dexy--extrapolation-price.pdf}
+\pgfdeclareimage[height=5.0cm]{extraPrice}{<< a['/examples/sabr-extrapolation/extrapolation-price.pdf'].filename() >>}
 \begin{figure}
 \begin{center}
 \pgfuseimage{extraPrice}
@@ -157,7 +157,7 @@ In Figure~\ref{FigPrice} the tail of the price (not adjusted by the numeraire) i
 
 In Figure~\ref{FigDensity} the tail of the price density is given.
 
-\pgfdeclareimage[height=5.0cm]{extraDensity}{dexy--extrapolation-density.pdf}
+\pgfdeclareimage[height=5.0cm]{extraDensity}{<< a['/examples/sabr-extrapolation/extrapolation-density.pdf'].filename() >>}
 \begin{figure}
 \begin{center}
 \pgfuseimage{extraDensity}
@@ -168,7 +168,7 @@ In Figure~\ref{FigDensity} the tail of the price density is given.
 
 In Figure~\ref{FigSmile} the tail of the smile is given.
 
-\pgfdeclareimage[height=5.0cm]{extraSmile}{dexy--extrapolation-smile.pdf}
+\pgfdeclareimage[height=5.0cm]{extraSmile}{<< a['/examples/sabr-extrapolation/extrapolation-smile.pdf'].filename() >>
 \begin{figure}
 \begin{center}
 \pgfuseimage{extraSmile}
@@ -255,7 +255,7 @@ For the Black formula, the computation time for the three first order derivative
 
 Obviously the implementation with extrapolation will be slower than the implementation without extrapolation. For swaptions, the SABR with extrapolation takes around twice the time for the standard SABR in the extrapolated region.
 
-\bibliography{../bibtex/finance}
+\bibliography{finance}
 \bibliographystyle{apa}
 
 \tableofcontents

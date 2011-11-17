@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.forex;
 
 import static com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -17,6 +18,8 @@ import javax.time.calendar.Period;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
@@ -50,6 +53,7 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(ForexVolatilitySurfaceFunction.class);
   private static final String INSTRUMENT_TYPE = "FX_VANILLA_OPTION";
   private ValueSpecification _result;
   private final String _definitionName;
@@ -108,15 +112,24 @@ public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiled
       if (atm == null) {
         throw new OpenGammaRuntimeException("Could not get ATM volatility data for surface");
       }
-      final double[] deltas = new double[nSmileValues];
-      final double[] riskReversals = new double[nSmileValues];
-      final double[] butterflies = new double[nSmileValues];
+      final DoubleArrayList deltas = new DoubleArrayList();
+      final DoubleArrayList riskReversals = new DoubleArrayList();
+      final DoubleArrayList butterflies = new DoubleArrayList();
       for (int j = 0; j < nSmileValues; j++) {        
-        deltas[j] = deltaValues[j + 1].doubleValue() / 100.;
-        riskReversals[j] = fxVolatilitySurface.getVolatility(tenor, ObjectsPair.of(deltaValues[j + 1], FXVolQuoteType.RISK_REVERSAL));
-        butterflies[j] = fxVolatilitySurface.getVolatility(tenor, ObjectsPair.of(deltaValues[j + 1], FXVolQuoteType.BUTTERFLY));
+        Number delta = deltaValues[j + 1];
+        if (delta != null) {
+          Double rr = fxVolatilitySurface.getVolatility(tenor, ObjectsPair.of(delta, FXVolQuoteType.RISK_REVERSAL));
+          Double butterfly = fxVolatilitySurface.getVolatility(tenor, ObjectsPair.of(delta, FXVolQuoteType.BUTTERFLY));
+          if (rr != null && butterfly != null) {
+            deltas.add(delta.doubleValue() / 100.);        
+            riskReversals.add(rr);
+            butterflies.add(butterfly);            
+          } 
+        } else {
+          s_logger.info("Had a null value for tenor number " + j);
+        }
       }
-      smile[i] = new SmileDeltaParameter(t, atm, deltas, riskReversals, butterflies);
+      smile[i] = new SmileDeltaParameter(t, atm, deltas.toDoubleArray(), riskReversals.toDoubleArray(), butterflies.toDoubleArray());
     }
     final SmileDeltaTermStructureParameter smiles = new SmileDeltaTermStructureParameter(smile);
     return Collections.<ComputedValue>singleton(new ComputedValue(_result, smiles));

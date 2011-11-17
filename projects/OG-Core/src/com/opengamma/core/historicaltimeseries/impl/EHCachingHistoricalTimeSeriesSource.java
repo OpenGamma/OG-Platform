@@ -20,6 +20,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -287,12 +288,13 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     public int hashCode() {
       final int prime = 31;
       int result = 1;
-      result = prime * result + _end.hashCode();
+      result = prime * result + ObjectUtils.hashCode(_end);
       result = prime * result + (_includeEnd ? 1231 : 1237);
       result = prime * result + (_includeStart ? 1231 : 1237);
-      result = prime * result + _start.hashCode();
+      result = prime * result + ObjectUtils.hashCode(_start);
       return result;
     }
+
     @Override
     public boolean equals(Object obj) {
       if (this == obj) {
@@ -308,10 +310,10 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       if (_includeStart != other._includeStart) {
         return false;
       }
-      if (!_end.equals(other._end)) {
+      if (!ObjectUtils.equals(_end, other._end)) {
         return false;
       }
-      if (!_start.equals(other._start)) {
+      if (!ObjectUtils.equals(_start, other._start)) {
         return false;
       }
       return true;

@@ -43,7 +43,7 @@ import com.opengamma.util.Cancelable;
   private Map<ValueSpecification, Boolean> _sharedCacheValues;
   private Map<CalculationJobSpecification, GraphFragment> _job2fragment;
   private volatile boolean _cancelled;
-  private final BlockingQueue<CalculationJobResult> _calcJobResultQueue;
+  private BlockingQueue<CalculationJobResult> _calcJobResultQueue;
 
   public GraphFragmentContext(final MultipleNodeExecutor executor, final DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue) {
     _executor = executor;
@@ -62,7 +62,7 @@ import com.opengamma.util.Cancelable;
   /**
    * Resets state so that the plan can be executed again. This is not valid after a cancellation.
    */
-  public boolean reset(final MultipleNodeExecutor executor) {
+  public boolean reset(final MultipleNodeExecutor executor, final BlockingQueue<CalculationJobResult> calcJobResultQueue) {
     if (_cancelled) {
       s_logger.warn("Was cancelled - can't reset for re-execution");
       return false;
@@ -82,6 +82,7 @@ import com.opengamma.util.Cancelable;
     }
     _executionTime.set(0);
     _executor = executor;
+    _calcJobResultQueue = calcJobResultQueue;
     return true;
   }
 
@@ -95,6 +96,10 @@ import com.opengamma.util.Cancelable;
 
   public BlockingQueue<CalculationJobResult> getCalculationJobResultQueue() {
     return _calcJobResultQueue;
+  }
+
+  public void freeCalculationJobResultQueue() {
+    _calcJobResultQueue = null;
   }
 
   public int nextIdentifier() {

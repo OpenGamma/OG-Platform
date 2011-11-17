@@ -1,4 +1,4 @@
-\documentclass[a4paper]{article}
+\documentclass[a4paper]{amsart}
 
 %\geometry{showframe}% for debugging purposes -- displays the margins
 
@@ -28,7 +28,7 @@
 % The fancyvrb package lets us customize the formatting of verbatim
 % environments.  We use a slightly smaller font.
 \usepackage{fancyvrb}
-\fvset{fontsize=\normalsize}
+\fvset{fontsize=\small}
 
 % Small sections of multiple columns
 \usepackage{multicol}
@@ -37,11 +37,18 @@
 \usepackage{lipsum}
 
 % Syntax highlighting
-\usepackage{../pastie}
+<< pygments['pastie.tex'] >>
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
 
 \begin{document}
-
 \maketitle% this prints the handout title, author, and date
+
+\begin{center}
+\includegraphics[width=6cm]{<< a['/OpenGammaLogo.jpg'].filename() >>}
+\hspace{1cm}
+\end{center}
 
 %\printclassoptions
 
