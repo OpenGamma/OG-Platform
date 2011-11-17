@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -540,14 +541,14 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   }
   
   //-------------------------------------------------------------------------
-  /*package*/ void calculationJobCompleted(CalculationJobResult result) {
+  /*package*/ void calculationJobsCompleted(List<CalculationJobResult> results) {
     try {
-      ViewComputationResultModel fragmentResult = generateCycleFragmentResult(result);
+      ViewComputationResultModel fragmentResult = generateCycleFragmentResult(results);
       if (fragmentResult != null) {
         notifyFragmentCompleted(fragmentResult);
       }
     } catch (Exception e) {
-      s_logger.warn("Error forming cycle fragment result after calculation job " + result.getSpecification() + " completed", e);
+      s_logger.warn("Error forming cycle fragment result after calculation jobs completed: " + results, e);
     }
   }
   
@@ -559,38 +560,40 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
   }
   
-  private ViewComputationResultModel generateCycleFragmentResult(CalculationJobResult calculationJobResult) {
-    String calcConfigurationName = calculationJobResult.getSpecification().getCalcConfigName();
-    DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
-
-    ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
-    Set<ValueSpecification> specifications = flatMap(new HashSet<ValueSpecification>(),
-        calculationJobResult.getResultItems(), new Function1<CalculationJobResultItem, Collection<ValueSpecification>>() {
-          @Override
-          public Set<ValueSpecification> execute(CalculationJobResultItem calculationJobResultItem) {
-            return calculationJobResultItem.getOutputs();
-          }
-        });
-    Map<ValueSpecification, Set<ValueRequirement>> requirements = submapByKeySet(depGraph.getTerminalOutputs(), specifications);
-    if (requirements == null || requirements.isEmpty()) {
-      return null;
-    }
+  private ViewComputationResultModel generateCycleFragmentResult(List<CalculationJobResult> calculationJobResults) {
     InMemoryViewComputationResultModel resultModel = constructTemplateResultModel();
-    resultModel.addRequirements(requirements);
-    
-    for (Pair<ValueSpecification, Object> value : computationCache.getValues(specifications, CacheSelectHint.allShared())) {
-      ValueSpecification valueSpec = value.getFirst();
-      Object calculatedValue = value.getSecond();
-      if (calculatedValue == null || !requirements.containsKey(valueSpec)) {
-        // Nothing calculated or not a terminal output
+    for (CalculationJobResult calculationJobResult : calculationJobResults) {
+      String calcConfigurationName = calculationJobResult.getSpecification().getCalcConfigName();
+      DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
+  
+      ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
+      Set<ValueSpecification> specifications = flatMap(new HashSet<ValueSpecification>(),
+          calculationJobResult.getResultItems(), new Function1<CalculationJobResultItem, Collection<ValueSpecification>>() {
+            @Override
+            public Set<ValueSpecification> execute(CalculationJobResultItem calculationJobResultItem) {
+              return calculationJobResultItem.getOutputs();
+            }
+          });
+      Map<ValueSpecification, Set<ValueRequirement>> requirements = submapByKeySet(depGraph.getTerminalOutputs(), specifications);
+      if (requirements == null || requirements.isEmpty()) {
         continue;
       }
-      if (calculatedValue instanceof MissingMarketDataSentinel) {
-        continue;
+      resultModel.addRequirements(requirements);
+      
+      for (Pair<ValueSpecification, Object> value : computationCache.getValues(specifications, CacheSelectHint.allShared())) {
+        ValueSpecification valueSpec = value.getFirst();
+        Object calculatedValue = value.getSecond();
+        if (calculatedValue == null || !requirements.containsKey(valueSpec)) {
+          // Nothing calculated or not a terminal output
+          continue;
+        }
+        if (calculatedValue instanceof MissingMarketDataSentinel) {
+          continue;
+        }
+        resultModel.addValue(calcConfigurationName, new ComputedValue(valueSpec, calculatedValue));
       }
-      resultModel.addValue(calcConfigurationName, new ComputedValue(valueSpec, calculatedValue));
     }
-    return resultModel;
+    return !resultModel.getAllResults().isEmpty() ? resultModel : null;
   }
   
   private void addMarketDataToResultFragment(InMemoryViewComputationResultModel result, ValueSpecification marketDataSpecification, ComputedValue marketData) {
