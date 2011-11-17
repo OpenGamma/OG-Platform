@@ -96,7 +96,8 @@ import com.opengamma.engine.value.ValueSpecification;
     }
 
     protected void pump(final GraphBuildingContext context) {
-      throw new UnsupportedOperationException("Not pumpable state (" + toString() + ")");
+      // No-op; happens if a worker "finishes" a function application PumpingState and it progresses to the next natural
+      // state in advance of the pump from the abstract value producer
     }
 
     /**

@@ -27,6 +27,6 @@ graph_data_file(
 graph_data_file(
         "dexy--state-2-density.txt",
         "dexy--state-2-plot.png",
-        col="green", phi=15, theta=30
+        col="green", phi=15, theta=5
         )
 

@@ -67,17 +67,17 @@ public class GaussianCharacteristicExponent implements CharacteristicExponent {
   }
 
   @Override
-  public Function1D<ComplexNumber, ComplexNumber[]> getAjointFunction(final double t) {
+  public Function1D<ComplexNumber, ComplexNumber[]> getAdjointFunction(final double t) {
     return new Function1D<ComplexNumber, ComplexNumber[]>() {
       @Override
       public ComplexNumber[] evaluate(ComplexNumber x) {
-        return getCharacteristicExponentAjoint(x, t);
+        return getCharacteristicExponentAdjoint(x, t);
       }
     };
   }
 
   @Override
-  public ComplexNumber[] getCharacteristicExponentAjoint(final ComplexNumber u, final double t) {
+  public ComplexNumber[] getCharacteristicExponentAdjoint(final ComplexNumber u, final double t) {
     final ComplexNumber[] res = new ComplexNumber[3];
     res[0] = getValue(u, t);
     res[1] = multiply(u, new ComplexNumber(0.0, t));

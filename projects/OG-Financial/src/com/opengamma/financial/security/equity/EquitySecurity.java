@@ -66,12 +66,8 @@ public class EquitySecurity extends FinancialSecurity {
   @PropertyDefinition
   private GICSCode _gicsCode;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public EquitySecurity() {
+  EquitySecurity() { //For builder
+    super();
   }
 
   public EquitySecurity(String exchange, String exchangeCode, String companyName, Currency currency) {

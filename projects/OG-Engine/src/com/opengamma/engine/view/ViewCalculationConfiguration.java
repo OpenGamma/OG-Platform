@@ -104,6 +104,30 @@ public class ViewCalculationConfiguration implements Serializable {
     _viewDefinition = definition;
     _name = name;
   }
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Copies this view calculation configuration to a new parent view definition, adding the copy to the new owner.
+   * 
+   * @param newOwner  the new parent view definition, not null
+   * @return
+   */
+  public void copyTo(ViewDefinition newOwner) {
+    ViewCalculationConfiguration copy = new ViewCalculationConfiguration(newOwner, getName());
+    newOwner.addViewCalculationConfiguration(copy);
+    copy.setDefaultProperties(getDefaultProperties());
+    copy.addSpecificRequirements(getSpecificRequirements());
+    for (Map.Entry<String, Set<Pair<String, ValueProperties>>> requirementEntry : getPortfolioRequirementsBySecurityType().entrySet()) {
+      copy.addPortfolioRequirements(requirementEntry.getKey(), requirementEntry.getValue()); 
+    }
+    for (Map.Entry<String, Set<Pair<String, ValueProperties>>> requirementEntry : getTradeRequirementsBySecurityType().entrySet()) {
+      copy.addTradeRequirements(requirementEntry.getKey(), requirementEntry.getValue()); 
+    }
+    
+    // REVIEW jonathan 2011-11-13 -- should really do deep copies of these to avoid references to same objects
+    copy.getDeltaDefinition().setNumberComparer(getDeltaDefinition().getNumberComparer());
+    copy.setResolutionRuleTransform(getResolutionRuleTransform());
+  }
 
   /**
    * @return the parent view definition, not null

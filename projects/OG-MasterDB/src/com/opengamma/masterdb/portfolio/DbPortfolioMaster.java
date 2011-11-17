@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
-import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.time.Instant;
@@ -45,9 +45,9 @@ import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.master.portfolio.PortfolioSearchSortOrder;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.tuple.LongObjectPair;
 
@@ -488,7 +488,8 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
 
   @Override
   protected String sqlAdditionalOrderBy(final boolean orderByPrefix) {
-    return (orderByPrefix ? "ORDER BY " : ", ") + "n.tree_left, p.key_scheme, p.key_value ";
+    //PLAT-1723 need to order sufficiently for stack based tree traversing to work
+    return (orderByPrefix ? "ORDER BY " : ", ") + "main.id, n.tree_left, p.key_scheme, p.key_value ";
   }
 
   @Override

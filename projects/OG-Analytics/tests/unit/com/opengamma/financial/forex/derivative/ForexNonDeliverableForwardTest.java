@@ -67,7 +67,7 @@ public class ForexNonDeliverableForwardTest {
     assertEquals("Forex NDF getter", USD, NDF.getCurrency2());
     assertEquals("Forex NDF getter", FIXING_TIME, NDF.getFixingTime());
     assertEquals("Forex NDF getter", PAYMENT_TIME, NDF.getPaymentTime());
-    assertEquals("Forex NDF getter", NOMINAL_USD, NDF.getNotional());
+    assertEquals("Forex NDF getter", NOMINAL_USD, NDF.getNotionalCurrency2());
     assertEquals("Forex NDF getter", FX_RATE, NDF.getExchangeRate());
   }
 

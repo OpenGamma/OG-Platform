@@ -135,7 +135,7 @@ public class ViewClientTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    
+    client.setJobResultMode(ViewResultMode.FULL_ONLY);
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
     
@@ -196,6 +196,7 @@ public class ViewClientTest {
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     client.setResultMode(ViewResultMode.DELTA_ONLY);
+    client.setJobResultMode(ViewResultMode.FULL_ONLY);
     
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
@@ -253,6 +254,7 @@ public class ViewClientTest {
     vp.start();
     
     ViewClient client1 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    client1.setJobResultMode(ViewResultMode.FULL_ONLY);
     TestViewResultListener client1ResultListener = new TestViewResultListener();
     client1.setResultListener(client1ResultListener);
     
@@ -266,6 +268,7 @@ public class ViewClientTest {
     client1ResultListener.assertCycleCompleted(TIMEOUT);
     
     ViewClient client2 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    client2.setJobResultMode(ViewResultMode.FULL_ONLY);
     TestViewResultListener client2ResultListener = new TestViewResultListener();
     client2.setResultListener(client2ResultListener);
     
@@ -386,7 +389,7 @@ public class ViewClientTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    
+    client.setJobResultMode(ViewResultMode.FULL_ONLY);
     TestViewResultListener resultListener1 = new TestViewResultListener();
     client.setResultListener(resultListener1);
     

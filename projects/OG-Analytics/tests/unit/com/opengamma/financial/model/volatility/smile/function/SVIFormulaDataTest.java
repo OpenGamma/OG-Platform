@@ -27,7 +27,7 @@ public class SVIFormulaDataTest {
     assertEquals(DATA.getB(), B, 0);
     assertEquals(DATA.getM(), M, 0);
     assertEquals(DATA.getRho(), RHO, 0);
-    assertEquals(DATA.getSigma(), SIGMA, 0);
+    assertEquals(DATA.getNu(), SIGMA, 0);
     SVIFormulaData other = new SVIFormulaData(A, B, RHO, SIGMA, M);
     assertEquals(other, DATA);
     assertEquals(other.hashCode(), DATA.hashCode());

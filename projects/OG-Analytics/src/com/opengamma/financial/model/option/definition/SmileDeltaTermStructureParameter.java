@@ -10,7 +10,9 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.volatility.VolatilityModel;
-import com.opengamma.math.interpolation.LinearInterpolator1D;
+import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.util.tuple.Triple;
 
@@ -19,7 +21,13 @@ import com.opengamma.util.tuple.Triple;
  * The delta used is the delta with respect to forward. 
  */
 public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<Double, Double, Double>> {
-  private static final LinearInterpolator1D INTERPOLATOR = new LinearInterpolator1D();
+
+  /**
+   * The interpolator/extrapolator used in the strike dimension.
+   */
+  private static final Interpolator1D INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+
   /**
    * The time to expiration in the term structure.
    */
@@ -66,7 +74,7 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
   }
 
   /**
-   * Get the volatility at a given time/strike/forward from the term structure. The volatility at a given delta are interpolated linearly on the total variance (s^2*t).
+   * Get the volatility at a given time/strike/forward from the term structure. The volatility at a given delta are interpolated linearly on the total variance (s^2*t) and extrapolated flat.
    * The volatility are then linearly interpolated in the strike dimension and extrapolated flat.
    * @param time The time to expiry.
    * @param strike The strike.
@@ -77,50 +85,45 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
     Validate.isTrue(time >= 0, "Positive time");
     int nbVol = _volatilityTerm[0].getVolatility().length;
     int nbTime = _timeToExpiration.length;
-    ArrayInterpolator1DDataBundle interpData = new ArrayInterpolator1DDataBundle(_timeToExpiration, new double[nbTime]);
-    int indexLower = interpData.getLowerBoundIndex(time);
-    double[] variancePeriodT = new double[nbVol];
     double[] volatilityT = new double[nbVol];
-    double[] variancePeriod0 = new double[nbVol];
-    double[] variancePeriod1 = new double[nbVol];
-    if (time < 1.0E-10) {
-      volatilityT = _volatilityTerm[indexLower].getVolatility();
+    if (time <= _timeToExpiration[0]) {
+      volatilityT = _volatilityTerm[0].getVolatility();
     } else {
-      double weight0 = (_timeToExpiration[indexLower + 1] - time) / (_timeToExpiration[indexLower + 1] - _timeToExpiration[indexLower]);
-      // Implementation note: Linear interpolation on variance over the period (s^2*t).
-      for (int loopvol = 0; loopvol < nbVol; loopvol++) {
-        variancePeriod0[loopvol] = _volatilityTerm[indexLower].getVolatility()[loopvol] * _volatilityTerm[indexLower].getVolatility()[loopvol] * _timeToExpiration[indexLower];
-        variancePeriod1[loopvol] = _volatilityTerm[indexLower + 1].getVolatility()[loopvol] * _volatilityTerm[indexLower + 1].getVolatility()[loopvol] * _timeToExpiration[indexLower + 1];
-        variancePeriodT[loopvol] = weight0 * variancePeriod0[loopvol] + (1 - weight0) * variancePeriod1[loopvol];
-        volatilityT[loopvol] = Math.sqrt(variancePeriodT[loopvol] / time);
+      if (time >= _timeToExpiration[nbTime - 1]) {
+        volatilityT = _volatilityTerm[nbTime - 1].getVolatility();
+      } else {
+        ArrayInterpolator1DDataBundle interpData = new ArrayInterpolator1DDataBundle(_timeToExpiration, new double[nbTime]);
+        int indexLower = interpData.getLowerBoundIndex(time);
+        double[] variancePeriodT = new double[nbVol];
+        double[] variancePeriod0 = new double[nbVol];
+        double[] variancePeriod1 = new double[nbVol];
+        double weight0 = (_timeToExpiration[indexLower + 1] - time) / (_timeToExpiration[indexLower + 1] - _timeToExpiration[indexLower]);
+        // Implementation note: Linear interpolation on variance over the period (s^2*t).
+        for (int loopvol = 0; loopvol < nbVol; loopvol++) {
+          variancePeriod0[loopvol] = _volatilityTerm[indexLower].getVolatility()[loopvol] * _volatilityTerm[indexLower].getVolatility()[loopvol] * _timeToExpiration[indexLower];
+          variancePeriod1[loopvol] = _volatilityTerm[indexLower + 1].getVolatility()[loopvol] * _volatilityTerm[indexLower + 1].getVolatility()[loopvol] * _timeToExpiration[indexLower + 1];
+          variancePeriodT[loopvol] = weight0 * variancePeriod0[loopvol] + (1 - weight0) * variancePeriod1[loopvol];
+          volatilityT[loopvol] = Math.sqrt(variancePeriodT[loopvol] / time);
+        }
       }
     }
     SmileDeltaParameter smile = new SmileDeltaParameter(time, _volatilityTerm[0].getDelta(), volatilityT);
     double[] strikes = smile.getStrike(forward);
-    double[] strikesExtra = new double[nbVol + 2]; // Extended strikes for flat extrapolation.
-    strikesExtra[0] = 0;
-    strikesExtra[nbVol + 1] = strikes[nbVol - 1] * 100.0; // TODO: better figure than 100*upper strike?
-    System.arraycopy(strikes, 0, strikesExtra, 1, nbVol);
-    double[] volatilityExtra = new double[nbVol + 2];
-    volatilityExtra[0] = volatilityT[0];
-    volatilityExtra[nbVol + 1] = volatilityT[nbVol - 1];
-    System.arraycopy(volatilityT, 0, volatilityExtra, 1, nbVol);
-    ArrayInterpolator1DDataBundle volatilityInterpolation = new ArrayInterpolator1DDataBundle(strikesExtra, volatilityExtra);
-    LinearInterpolator1D interpolator = new LinearInterpolator1D();
-    double volatility = interpolator.interpolate(volatilityInterpolation, strike);
+    ArrayInterpolator1DDataBundle volatilityInterpolation = new ArrayInterpolator1DDataBundle(strikes, volatilityT);
+    double volatility = INTERPOLATOR.interpolate(volatilityInterpolation, strike);
     return volatility;
   }
 
   /**
    * Computes the volatility and the volatility sensitivity with respect to the volatility data points.
-   * @param time The time to expiry.
+   * @param time The time to expiration.
    * @param strike The strike.
    * @param forward The forward.
    * @param bucketSensitivity The array is changed by the method. The array should have the correct size. After the methods, it contains the volatility sensitivity to the data points. 
    * Only the lines of impacted dates are changed. The input data on the other lines will not be changed.
    * @return The volatility.
    */
-  public double getVolatilityAdjoint(final double time, final double strike, final double forward, double[][] bucketSensitivity) {
+  public double getVolatility(final double time, final double strike, final double forward, double[][] bucketSensitivity) {
     int nbVol = _volatilityTerm[0].getVolatility().length;
     int nbTime = _timeToExpiration.length;
     ArrayInterpolator1DDataBundle interpData = new ArrayInterpolator1DDataBundle(_timeToExpiration, new double[nbTime]);
@@ -139,29 +142,16 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
       volatilityT[loopvol] = Math.sqrt(variancePeriodT[loopvol] / time);
     }
     SmileDeltaParameter smile = new SmileDeltaParameter(time, _volatilityTerm[0].getDelta(), volatilityT);
-    double[] volatilityExtra = new double[nbVol + 2];
-    volatilityExtra[0] = volatilityT[0];
-    volatilityExtra[nbVol + 1] = volatilityT[nbVol - 1];
-    System.arraycopy(volatilityT, 0, volatilityExtra, 1, nbVol);
     double[] strikes = smile.getStrike(forward);
-    double[] strikesExtra = new double[nbVol + 2]; // Extended strikes for flat extrapolation.
-    strikesExtra[0] = 0;
-    strikesExtra[nbVol + 1] = strikes[nbVol - 1] * 100.0;
-    System.arraycopy(strikes, 0, strikesExtra, 1, nbVol);
-    ArrayInterpolator1DDataBundle volatilityInterpolation = new ArrayInterpolator1DDataBundle(strikesExtra, volatilityExtra);    
+    ArrayInterpolator1DDataBundle volatilityInterpolation = new ArrayInterpolator1DDataBundle(strikes, volatilityT);
     double volatility = INTERPOLATOR.interpolate(volatilityInterpolation, strike);
     // Backward sweep    
     double volBar = 1.0;
-    //    double[] strikeExtraBar = ?;
     // FIXME: the strike sensitivity to volatility is missing. The sensitivity to x data in interpolation is required [PLAT-1396]
-    double[] volatilityExtraBar = INTERPOLATOR.getNodeSensitivitiesForValue(volatilityInterpolation, strike);
-    double[] volatilityTBar = new double[nbVol];
+    double[] volatilityTBar = INTERPOLATOR.getNodeSensitivitiesForValue(volatilityInterpolation, strike);
     double[] variancePeriodTBar = new double[nbVol];
     double[] variancePeriod0Bar = new double[nbVol];
     double[] variancePeriod1Bar = new double[nbVol];
-    System.arraycopy(volatilityExtraBar, 1, volatilityTBar, 0, nbVol);
-    volatilityTBar[0] += volatilityExtraBar[0]; // Adding the sensitivity to the artificial initial point.
-    volatilityTBar[nbVol - 1] += volatilityExtraBar[nbVol + 1]; // Adding the sensitivity to the artificial final point.
     for (int loopvol = 0; loopvol < nbVol; loopvol++) {
       volatilityTBar[loopvol] *= volBar;
       variancePeriodTBar[loopvol] = Math.pow(variancePeriodT[loopvol] / time, -0.5) / time / 2 * volatilityTBar[loopvol];

@@ -52,6 +52,19 @@ public class BlackFunctionData {
   }
 
   @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder("BlackFunctionData[");
+    sb.append("f=");
+    sb.append(getForward());
+    sb.append(", numeraire=");
+    sb.append(getDiscountFactor());
+    sb.append(", sigma=");
+    sb.append(getBlackVolatility());
+    sb.append("]");
+    return sb.toString();
+  }
+  
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;

@@ -52,7 +52,7 @@ public class ForexNonDeliverableForward implements ForexDerivative {
   private final String _discountingCurve2Name;
 
   /**
-   * Constructor for non-deliverable forward forex transaction.
+   * Constructor for non-deliverable forward Forex transaction.
    * @param currency1 First currency of the transaction.
    * @param currency2 Second currency of the transaction. The cash settlement is done in this currency.
    * @param notional Notional of the transaction (in currency2).
@@ -97,8 +97,16 @@ public class ForexNonDeliverableForward implements ForexDerivative {
    * Gets the notional of the transaction (in currency2).
    * @return The notional.
    */
-  public double getNotional() {
+  public double getNotionalCurrency2() {
     return _notional;
+  }
+
+  /**
+   * Gets the notional of the transaction (in currency1).
+   * @return The notional.
+   */
+  public double getNotionalCurrency1() {
+    return -_notional * _exchangeRate;
   }
 
   /**

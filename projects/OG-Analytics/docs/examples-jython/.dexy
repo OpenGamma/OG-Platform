@@ -1,0 +1,15 @@
+{
+    "$globals" : {
+        "title" : "Examples",
+        "env" : { "CLASSPATH" : "../../../../lib/classpath.jar" }
+    },
+        "*.py|pyg" : {},
+        "*.java|pyg" : {},
+        "*.py|dexy" : {},
+        "*.java|fn|java" : {},
+        "*.py|idio|jythoni|pyg|l" : {},
+        "*.py|fn|idio|jythoni|pyg" : {},
+        "*.R|fn|idio|rint|pyg" : {
+            "ifinput" : "%.py|fn|idio|jythoni|pyg"
+        }
+}

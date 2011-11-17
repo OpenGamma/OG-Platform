@@ -7,6 +7,7 @@ package com.opengamma.engine.view.calc;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -41,6 +42,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
       notifyAll();
       _statistics.graphExecuted(getContext().getGraph().getCalculationConfigurationName(), getContext().getGraph().getSize(), getContext().getExecutionTime(), System.nanoTime() - _jobStarted);
       getContext().freeSharedCacheValues();
+      getContext().freeCalculationJobResultQueue();
       getContext().getExecutor().getCache().cacheExecutionPlan(getContext().getGraph(), this);
     }
   }
@@ -55,8 +57,8 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
     execute();
   }
 
-  public boolean reset(final MultipleNodeExecutor executor, final Set<GraphFragment> processed) {
-    if (!getContext().reset(executor)) {
+  public boolean reset(final MultipleNodeExecutor executor, final Set<GraphFragment> processed, final BlockingQueue<CalculationJobResult> results) {
+    if (!getContext().reset(executor, results)) {
       return false;
     }
     if (!reset(processed)) {

@@ -30,6 +30,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.forex.calculator.ForexConverter;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
+import com.opengamma.financial.forex.method.FXMatrix;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
@@ -39,6 +40,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -130,12 +132,18 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     final YieldAndDiscountCurve callForwardCurve = (YieldAndDiscountCurve) callForwardCurveObject;
     final YieldAndDiscountCurve[] curves;
     final String[] allCurveNames;
+    final Currency ccy1;
+    final Currency ccy2;
     if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
+      ccy1 = putCurrency;
+      ccy2 = callCurrency;
       curves = new YieldAndDiscountCurve[] {putFundingCurve, putForwardCurve, callFundingCurve, callForwardCurve};
       allCurveNames = new String[] {putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName};
     } else {
       curves = new YieldAndDiscountCurve[] {callFundingCurve, callForwardCurve, putFundingCurve, putForwardCurve};
       allCurveNames = new String[] {callFundingCurveName, callForwardCurveName, putFundingCurveName, putForwardCurveName};
+      ccy1 = callCurrency;
+      ccy2 = putCurrency;
     }
     final ForexDerivative fxOption = definition.toDerivative(now, curveNames);
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
@@ -154,7 +162,7 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
       spot = (Double) spotObject;
     }
     final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, _surfaceName)
-                                                             .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
+        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
     final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(putCurrency, callCurrency);
     final ValueRequirement fxVolatilitySurfaceRequirement = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
     final Object volatilitySurfaceObject = inputs.getValue(fxVolatilitySurfaceRequirement);
@@ -162,7 +170,8 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
       throw new OpenGammaRuntimeException("Could not get " + fxVolatilitySurfaceRequirement);
     }
     final SmileDeltaTermStructureParameter smiles = (SmileDeltaTermStructureParameter) volatilitySurfaceObject;
-    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(smiles, spot, yieldCurves);
+    final FXMatrix fxMatrix = new FXMatrix(ccy1, ccy2, spot);
+    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(yieldCurves, fxMatrix, smiles, Pair.of(ccy1, ccy2));
     return getResult(fxOption, smileBundle, inputs, target);
   }
 

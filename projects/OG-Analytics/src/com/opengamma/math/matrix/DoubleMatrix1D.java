@@ -36,10 +36,7 @@ public class DoubleMatrix1D implements Matrix<Double> {
   public DoubleMatrix1D(final double[] data) {
     Validate.notNull(data);
     _elements = data.length;
-    _data = new double[_elements];
-    for (int i = 0; i < _elements; i++) {
-      _data[i] = data[i];
-    }
+    _data = Arrays.copyOf(data, _elements);
   }
 
   /**

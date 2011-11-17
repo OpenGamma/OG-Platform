@@ -191,7 +191,11 @@ import com.opengamma.util.paging.PagingRequest;
     if (request.isConfigTypes()) {
       List<String> configTypes = getJdbcTemplate().getJdbcOperations().queryForList(SELECT_TYPES + FROM, String.class);
       for (String configType : configTypes) {
-        result.getConfigTypes().add(loadClass(configType));
+        try {
+          result.getConfigTypes().add(loadClass(configType));
+        } catch (ClassNotFoundException ex) {
+          s_logger.warn("Unable to load class", ex);
+        }
       }
     }
     return result;
@@ -324,15 +328,18 @@ import com.opengamma.util.paging.PagingRequest;
    * 
    * @param className  the class name, not null
    * @return the class object, not null
+   * @throws ClassNotFoundException 
+   * 
    */
-  protected Class<?> loadClass(String className) {
-    Class<?> reifiedType = null;
-    try {
-      reifiedType = Thread.currentThread().getContextClassLoader().loadClass(className);
-    } catch (ClassNotFoundException ex) {
-      throw new OpenGammaRuntimeException("Unable to load class", ex);
-    }
-    return reifiedType;
+  protected Class<?> loadClass(String className) throws ClassNotFoundException {
+    return Thread.currentThread().getContextClassLoader().loadClass(className);
+//    Class<?> reifiedType = null;
+//    try {
+//      reifiedType = Thread.currentThread().getContextClassLoader().loadClass(className);
+//    } catch (ClassNotFoundException ex) {
+//      throw new OpenGammaRuntimeException("Unable to load class", ex);
+//    }
+//    return reifiedType;
   }
 
   //-------------------------------------------------------------------------
@@ -366,7 +373,12 @@ import com.opengamma.util.paging.PagingRequest;
       final String configType = rs.getString("CONFIG_TYPE");
       LobHandler lob = getDialect().getLobHandler();
       byte[] bytes = lob.getBlobAsBytes(rs, "CONFIG");
-      Class<?> reifiedType = loadClass(configType);
+      Class<?> reifiedType = null;
+      try {
+        reifiedType = loadClass(configType);
+      } catch (ClassNotFoundException ex) {
+        throw new OpenGammaRuntimeException("Unable to load class", ex);
+      }
       Object value = FUDGE_CONTEXT.readObject(reifiedType, new ByteArrayInputStream(bytes));
       
       ConfigDocument<Object> doc = new ConfigDocument<Object>(reifiedType);
