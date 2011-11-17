@@ -71,7 +71,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
 
   private static final MissHTS MISS = new MissHTS();
-  private static final HistoricalTimeSeriesSummary MISSSummary = new HistoricalTimeSeriesSummary();
+  private static final HistoricalTimeSeriesSummary MISSSUMMARY = new HistoricalTimeSeriesSummary();
 
   /**
    * The underlying source.
@@ -472,7 +472,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     HistoricalTimeSeriesSummary htss = getFromSummaryCache(uniqueId);
     if (htss != null) {
-      if (htss == MISSSummary) {
+      if (htss == MISSSUMMARY) {
         htss = null;
       }
     } else {
@@ -482,13 +482,18 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
         _summaryCache.put(new Element(uniqueId, htss));
       } else {
         s_logger.debug("Caching miss on {} summary", uniqueId);
-        _summaryCache.put(new Element(uniqueId, MISS));
+        _summaryCache.put(new Element(uniqueId, MISSSUMMARY));
       }
     }
     return htss;
 
   }
 
+  /**
+   * Attempt to get a HistoricalTimeSeriesSummary from the cache
+   * @param uniqueId  the unique id of the HTS
+   * @return          the summary information for the HTS
+   */
   private HistoricalTimeSeriesSummary getFromSummaryCache(UniqueId uniqueId) {
     Element element = _summaryCache.get(uniqueId);
     if (element == null) {
@@ -497,9 +502,14 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     }
     s_logger.debug("Cache hit on {} summary", uniqueId);
     return (HistoricalTimeSeriesSummary) element.getValue();
-
   }
 
+  /**
+   * Attempt to get a HistoricalTimeSeriesSummary from the cache
+   * @param objectId  the object id of the HTS
+   * @param VersionCorrection
+   * @return          the summary information for the HTS
+   */
   @Override
   public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
     throw new UnsupportedOperationException("Getting HTS summary by object id and version correction not supported");
