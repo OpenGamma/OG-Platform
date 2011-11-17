@@ -253,12 +253,14 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     } else {
       throw new OpenGammaRuntimeException("Can only handle 3m or 6m FRAs");
     }
-    final LocalDate startDate = curveDate.plus(strip.getMaturity().getPeriod()).minus(Period.ofMonths(offset));
-    final LocalDate endDate = startDate.plus(Period.ofMonths(offset));
+    final ZonedDateTime startDate = curveDate.plus(strip.getMaturity().getPeriod()).minus(Period.ofMonths(offset)).atTime(11, 00).atZone(TimeZone.UTC);
+    final ZonedDateTime endDate = startDate.plus(Period.ofMonths(offset));
+    // REVIEW: yomi 16-Nov-2011 -- fixing date is set to startDate minus 2 days ?
+    final ZonedDateTime fixingDate = startDate.minusDays(2);
     final ExternalId underlyingIdentifier = strip.getSecurity();
     //TODO this normalization should not be done here
-    return new FRASecurity(spec.getCurrency(), spec.getRegion(), startDate.atTime(11, 00).atZone(TimeZone.UTC), endDate.atTime(11, 00).atZone(TimeZone.UTC),
-        marketValues.get(strip.getSecurity()), 1.0d, underlyingIdentifier);
+    return new FRASecurity(spec.getCurrency(), spec.getRegion(), startDate, endDate,
+        marketValues.get(strip.getSecurity()), 1.0d, underlyingIdentifier, fixingDate);
   }
 
   private FutureSecurity getFuture(final FixedIncomeStripWithIdentifier strip) {

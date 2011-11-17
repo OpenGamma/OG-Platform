@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
@@ -18,7 +19,9 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
@@ -69,6 +72,40 @@ import com.opengamma.util.tuple.Pair;
           perPairMessage.add(PAIR_FIELD_NAME, null, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(pair), pair.getClass()));
         }
         message.add(SENSITIVITIES_FIELD_NAME, null, perPairMessage);
+      }
+    }
+  }
+  
+  @FudgeBuilderFor(MultipleCurrencyInterestRateCurveSensitivity.class)
+  public static final class MultipleCurrencyInterestRateCurveSensitivityBuilder extends AbstractFudgeBuilder<MultipleCurrencyInterestRateCurveSensitivity> {
+    private static final String CURRENCY_FIELD_NAME = "Currencies";
+    private static final String SENSITIVITIES_FIELD_NAME = "Sensitivities";
+
+    @Override
+    public MultipleCurrencyInterestRateCurveSensitivity buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final List<FudgeField> currencyNameFields = message.getAllByName(CURRENCY_FIELD_NAME);
+      final List<FudgeField> sensitivitiesFields = message.getAllByName(SENSITIVITIES_FIELD_NAME);
+      MultipleCurrencyInterestRateCurveSensitivity result = null;
+      for (int i = 0; i < currencyNameFields.size(); i++) {
+        final Currency ccy = deserializer.fieldValueToObject(Currency.class, currencyNameFields.get(i));
+        final InterestRateCurveSensitivity sensitivity = deserializer.fieldValueToObject(InterestRateCurveSensitivity.class, sensitivitiesFields.get(i));
+        if (result == null) {
+          result = MultipleCurrencyInterestRateCurveSensitivity.of(ccy, sensitivity);
+        } else {
+          result = result.plus(ccy, sensitivity);
+        }
+      }
+      return result;
+    }
+
+    @Override
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final MultipleCurrencyInterestRateCurveSensitivity object) {
+      final Set<Currency> currencies = object.getCurrencies();
+      for (final Currency ccy : currencies) {
+        serializer.addToMessage(message, CURRENCY_FIELD_NAME, null, ccy);
+        serializer.addToMessage(message, SENSITIVITIES_FIELD_NAME, null, object.getSensitivity(ccy));
+//        message.add(CURRENCY_FIELD_NAME, null, ccy);
+//        message.add(SENSITIVITIES_FIELD_NAME, null, object.getSensitivity(ccy));
       }
     }
   }

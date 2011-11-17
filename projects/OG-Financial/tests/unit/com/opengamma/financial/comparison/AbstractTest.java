@@ -122,8 +122,10 @@ import com.opengamma.util.time.Expiry;
   }
 
   protected Security createFRASecurity(final String name, final Currency currency, final double rate, final ExternalId underlying) {
-    final FRASecurity security = new FRASecurity(currency, ExternalId.of("Region", "US"), ZonedDateTime.of(2010, 10, 10, 12, 0, 0, 0, TimeZone.UTC), ZonedDateTime.of(2012, 10, 10, 12, 0, 0, 0,
-        TimeZone.UTC), rate, 0d, underlying);
+    final ZonedDateTime startDate = ZonedDateTime.of(2010, 10, 10, 12, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime settlementDate = startDate.plusDays(2);
+    final FRASecurity security = new FRASecurity(currency, ExternalId.of("Region", "US"), startDate, ZonedDateTime.of(2012, 10, 10, 12, 0, 0, 0,
+        TimeZone.UTC), rate, 0d, underlying, settlementDate);
     security.setExternalIdBundle(createExternalIdBundle());
     security.setName(name);
     security.setUniqueId(createUniqueId("Security"));

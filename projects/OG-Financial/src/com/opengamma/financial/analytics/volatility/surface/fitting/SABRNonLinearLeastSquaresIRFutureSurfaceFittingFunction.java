@@ -3,14 +3,16 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.volatility.surface;
+package com.opengamma.financial.analytics.volatility.surface.fitting;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.BitSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -30,7 +32,10 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.volatility.sabr.SABRFittedSurfaces;
+import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
+import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveData;
+import com.opengamma.financial.analytics.volatility.surface.IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction;
+import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
@@ -46,9 +51,9 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
-import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * 
@@ -119,10 +124,7 @@ public class SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction extends Abs
     if (volatilitySurfaceData.size() == 0) {
       throw new OpenGammaRuntimeException("Interest rate future option volatility surface definition name=" + _definitionName + " contains no data");
     }
-    final Double[] x = volatilitySurfaceData.getXs();
-    final Double[] y = volatilitySurfaceData.getYs();
-    DoubleArrayList strikeList = new DoubleArrayList();
-    DoubleArrayList volList = new DoubleArrayList();
+    final SortedSet<Double> x = volatilitySurfaceData.getUniqueXValues();
     final DoubleArrayList fittedOptionExpiryList = new DoubleArrayList();
     final DoubleArrayList futureDelayList = new DoubleArrayList();
     final DoubleArrayList alphaList = new DoubleArrayList();
@@ -131,80 +133,29 @@ public class SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction extends Abs
     final DoubleArrayList rhoList = new DoubleArrayList();
     final DoubleArrayList chiSqList = new DoubleArrayList();
     final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = new HashMap<DoublesPair, DoubleMatrix2D>();
-    if (x.length > 0) {
-      if (x[0] != null) {
-        double oldX = x[0];
-        strikeList.add(y[0]);
-        volList.add(volatilitySurfaceData.getVolatility(x[0], y[0]));
-        for (int i = 1; i < x.length; i++) {
-          if (x[i] != null) {
-            @SuppressWarnings("unused")
-            final double temp = x[i];
-            if (!CompareUtils.closeEquals(x[i], oldX)) {
-              final double[] strikes = strikeList.toDoubleArray();
-              final double[] blackVols = volList.toDoubleArray();
-              final int n = strikes.length;
-              if (blackVols.length != n) {
-                throw new OpenGammaRuntimeException("Strike and Black volatility arrays were not the same length; should never happen");
-              }
-              final double[] errors = new double[n];
-              final EuropeanVanillaOption[] options = new EuropeanVanillaOption[n];
-              final BlackFunctionData[] data = new BlackFunctionData[n];
-              final double forward = futurePriceData.getFuturePrice(x[i - 1]);
-              for (int j = 0; j < n; j++) {
-                options[j] = new EuropeanVanillaOption(1 - strikes[j], oldX, true);
-                data[j] = new BlackFunctionData(1 - forward, 1, blackVols[j]);
-                errors[j] = ERROR;
-              }
-              if (options.length > 4) {
-                final LeastSquareResults fittedResult = FITTER.getFitResult(options, data, errors, SABR_INITIAL_VALUES, FIXED, 0, RECOVER_ATM_VOL);
-                final DoubleMatrix1D parameters = fittedResult.getParameters();
-                fittedOptionExpiryList.add(oldX);
-                futureDelayList.add(0);
-                alphaList.add(parameters.getEntry(0));
-                betaList.add(parameters.getEntry(1));
-                nuList.add(parameters.getEntry(2));
-                rhoList.add(parameters.getEntry(3));
-                inverseJacobians.put(DoublesPair.of(oldX, 0.), fittedResult.getInverseJacobian());
-                chiSqList.add(fittedResult.getChiSq());
-              }
-              oldX = x[i];
-              strikeList = new DoubleArrayList();
-              volList = new DoubleArrayList();
-              strikeList.add(y[i]);
-              volList.add(volatilitySurfaceData.getVolatility(x[i], y[i]));
-            } else {
-              strikeList.add(y[i]);
-              volList.add(volatilitySurfaceData.getVolatility(x[i], y[i]));
-            }
-          }
+    for (Double t : x) {
+      List<ObjectsPair<Double, Double>> strip = volatilitySurfaceData.getYValuesForX(t);
+      int n = strip.size();
+      int strikeIndex = 0;
+      double[] errors = new double[n];
+      EuropeanVanillaOption[] options = new EuropeanVanillaOption[n];
+      BlackFunctionData[] data = new BlackFunctionData[n];
+      double forward = futurePriceData.getFuturePrice(t);
+      if (strip.size() > 4) {
+        for (ObjectsPair<Double, Double> value : strip) {          
+          options[strikeIndex] = new EuropeanVanillaOption(1 - value.first / 100, t, true);
+          data[strikeIndex] = new BlackFunctionData(1 - forward, 1, value.second);
+          errors[strikeIndex++] = ERROR;
         }
-      }
-      final double[] strikes = strikeList.toDoubleArray();
-      final double[] blackVols = volList.toDoubleArray();
-      final int n = strikes.length;
-      if (blackVols.length != n) {
-        throw new OpenGammaRuntimeException("Strike and Black volatility arrays were not the same length; should never happen");
-      }
-      final double[] errors = new double[n];
-      final EuropeanVanillaOption[] options = new EuropeanVanillaOption[n];
-      final BlackFunctionData[] data = new BlackFunctionData[n];
-      final double forward = futurePriceData.getFuturePrice(x[x.length - 2]);
-      for (int j = 0; j < n; j++) {
-        options[j] = new EuropeanVanillaOption(1 - strikes[j], x[x.length - 1], true);
-        data[j] = new BlackFunctionData(1 - forward, 1, blackVols[j]);
-        errors[j] = ERROR;
-      }
-      if (options.length > 4) {
         final LeastSquareResults fittedResult = FITTER.getFitResult(options, data, errors, SABR_INITIAL_VALUES, FIXED, 0, RECOVER_ATM_VOL);
         final DoubleMatrix1D parameters = fittedResult.getParameters();
-        fittedOptionExpiryList.add(x[x.length - 1]);
+        fittedOptionExpiryList.add(t);
         futureDelayList.add(0);
         alphaList.add(parameters.getEntry(0));
         betaList.add(parameters.getEntry(1));
         nuList.add(parameters.getEntry(2));
         rhoList.add(parameters.getEntry(3));
-        inverseJacobians.put(new DoublesPair(x[x.length - 1], 0.), fittedResult.getInverseJacobian());
+        inverseJacobians.put(DoublesPair.of(t.doubleValue(), 0.), fittedResult.getInverseJacobian());
         chiSqList.add(fittedResult.getChiSq());
       }
     }

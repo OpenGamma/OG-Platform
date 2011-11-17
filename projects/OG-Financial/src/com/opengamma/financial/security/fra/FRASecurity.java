@@ -59,6 +59,11 @@ public class FRASecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private ZonedDateTime _endDate;
   /**
+   * The settlement date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _fixingDate;
+  /**
    * The rate.
    */
   @PropertyDefinition
@@ -74,15 +79,24 @@ public class FRASecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private ExternalId _underlyingId;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public FRASecurity() {
+
+  FRASecurity() { //For builder
+    super();
   }
 
-  public FRASecurity(Currency currency, ExternalId region, ZonedDateTime startDate, ZonedDateTime endDate, double rate, double amount, ExternalId underlyingIdentifier) {
+  /**
+   * Creates an instance
+   * 
+   * @param currency the currency, not null.
+   * @param region the region identifier, not null
+   * @param startDate the start date, not null
+   * @param endDate the end date, not null
+   * @param rate the rate
+   * @param amount the amount
+   * @param underlyingIdentifier the underlying identifier, not null
+   * @param fixingDate the fixing date, not null
+   */
+  public FRASecurity(Currency currency, ExternalId region, ZonedDateTime startDate, ZonedDateTime endDate, double rate, double amount, ExternalId underlyingIdentifier, ZonedDateTime fixingDate) {
     super(SECURITY_TYPE);
     setCurrency(currency);
     setRegionId(region);
@@ -91,6 +105,7 @@ public class FRASecurity extends FinancialSecurity {
     setRate(rate);
     setAmount(amount);
     setUnderlyingId(underlyingIdentifier);
+    setFixingDate(fixingDate);
   }
 
   //-------------------------------------------------------------------------
@@ -139,6 +154,8 @@ public class FRASecurity extends FinancialSecurity {
         return getStartDate();
       case -1607727319:  // endDate
         return getEndDate();
+      case 1255202043:  // fixingDate
+        return getFixingDate();
       case 3493088:  // rate
         return getRate();
       case -1413853096:  // amount
@@ -164,6 +181,9 @@ public class FRASecurity extends FinancialSecurity {
       case -1607727319:  // endDate
         setEndDate((ZonedDateTime) newValue);
         return;
+      case 1255202043:  // fixingDate
+        setFixingDate((ZonedDateTime) newValue);
+        return;
       case 3493088:  // rate
         setRate((Double) newValue);
         return;
@@ -183,6 +203,7 @@ public class FRASecurity extends FinancialSecurity {
     JodaBeanUtils.notNull(_regionId, "regionId");
     JodaBeanUtils.notNull(_startDate, "startDate");
     JodaBeanUtils.notNull(_endDate, "endDate");
+    JodaBeanUtils.notNull(_fixingDate, "fixingDate");
     JodaBeanUtils.notNull(_underlyingId, "underlyingId");
     super.validate();
   }
@@ -198,6 +219,7 @@ public class FRASecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
           JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
+          JodaBeanUtils.equal(getFixingDate(), other.getFixingDate()) &&
           JodaBeanUtils.equal(getRate(), other.getRate()) &&
           JodaBeanUtils.equal(getAmount(), other.getAmount()) &&
           JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
@@ -213,6 +235,7 @@ public class FRASecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getEndDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAmount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
@@ -325,6 +348,32 @@ public class FRASecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the settlement date.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getFixingDate() {
+    return _fixingDate;
+  }
+
+  /**
+   * Sets the settlement date.
+   * @param fixingDate  the new value of the property, not null
+   */
+  public void setFixingDate(ZonedDateTime fixingDate) {
+    JodaBeanUtils.notNull(fixingDate, "fixingDate");
+    this._fixingDate = fixingDate;
+  }
+
+  /**
+   * Gets the the {@code fixingDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> fixingDate() {
+    return metaBean().fixingDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the rate.
    * @return the value of the property
    */
@@ -430,6 +479,11 @@ public class FRASecurity extends FinancialSecurity {
     private final MetaProperty<ZonedDateTime> _endDate = DirectMetaProperty.ofReadWrite(
         this, "endDate", FRASecurity.class, ZonedDateTime.class);
     /**
+     * The meta-property for the {@code fixingDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _fixingDate = DirectMetaProperty.ofReadWrite(
+        this, "fixingDate", FRASecurity.class, ZonedDateTime.class);
+    /**
      * The meta-property for the {@code rate} property.
      */
     private final MetaProperty<Double> _rate = DirectMetaProperty.ofReadWrite(
@@ -453,6 +507,7 @@ public class FRASecurity extends FinancialSecurity {
         "regionId",
         "startDate",
         "endDate",
+        "fixingDate",
         "rate",
         "amount",
         "underlyingId");
@@ -474,6 +529,8 @@ public class FRASecurity extends FinancialSecurity {
           return _startDate;
         case -1607727319:  // endDate
           return _endDate;
+        case 1255202043:  // fixingDate
+          return _fixingDate;
         case 3493088:  // rate
           return _rate;
         case -1413853096:  // amount
@@ -530,6 +587,14 @@ public class FRASecurity extends FinancialSecurity {
      */
     public final MetaProperty<ZonedDateTime> endDate() {
       return _endDate;
+    }
+
+    /**
+     * The meta-property for the {@code fixingDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> fixingDate() {
+      return _fixingDate;
     }
 
     /**

@@ -11,6 +11,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.ForexDerivativeVisitor;
 import com.opengamma.financial.model.option.definition.Barrier;
+import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a single-barrier FX option. The class wraps a vanilla European FX option ({@code ForexOptionVanilla}) and a {@code BarrierType}.
@@ -79,6 +80,22 @@ public class ForexOptionSingleBarrier implements ForexDerivative {
    */
   public double getRebate() {
     return _rebate;
+  }
+
+  /**
+   * Gets the first currency.
+   * @return The currency.
+   */
+  public Currency getCurrency1() {
+    return _underlyingOption.getCurrency1();
+  }
+
+  /**
+   * Gets the second currency.
+   * @return The currency.
+   */
+  public Currency getCurrency2() {
+    return _underlyingOption.getCurrency2();
   }
 
   @Override

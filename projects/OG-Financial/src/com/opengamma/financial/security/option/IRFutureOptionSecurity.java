@@ -83,12 +83,8 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private OptionType _optionType;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public IRFutureOptionSecurity() {
+  IRFutureOptionSecurity() { //For builder
+    super();
   }
 
   public IRFutureOptionSecurity(String exchange, Expiry expiry, ExerciseType exerciseType, ExternalId underlyingIdentifier,
