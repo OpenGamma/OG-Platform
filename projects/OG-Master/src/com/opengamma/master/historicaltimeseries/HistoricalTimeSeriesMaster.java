@@ -9,6 +9,7 @@ import javax.time.calendar.LocalDate;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeProvider;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -59,8 +60,9 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
   HistoricalTimeSeriesInfoHistoryResult history(HistoricalTimeSeriesInfoHistoryRequest request);
 
   //-------------------------------------------------------------------------
+  
   /**
-   * Gets the time-series data points.
+   * Gets the time-series data points in a ManageableHistoricalTimeSeries object.
    * <p>
    * The main get request returns the document describing the time-series.
    * This method gets the series itself.
@@ -75,7 +77,7 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
   ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive);
 
   /**
-   * Gets the time-series data points.
+   * Gets the time-series data points in a ManageableHistoricalTimeSeries object.
    * <p>
    * The main get request returns the document describing the time-series.
    * This method gets the series itself.
@@ -89,6 +91,27 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
   ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection, LocalDate fromDateInclusive, LocalDate toDateInclusive);
+
+  //-------------------------------------------------------------------------
+  
+  /**
+   * Returns summary information for the specified time series.
+   * The information includes the earliest and latest data points and their dates.
+   * @param uniqueId  the unique id of the historic time series, not null
+   * @return          a HistoricalTimeSeriesSummary filled in with the summary information
+   */
+  HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId);
+  
+  /**
+   * Returns summary information for the specified time series.
+   * The information includes the earliest and latest data points and their dates.
+   * @param objectId  the time-series object identifier, not null
+   * @param versionCorrection  the version-correction locator to search at, not null
+   * @return          a HistoricalTimeSeriesSummary filled in with the summary information
+   */
+  HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection);
+
+  //-------------------------------------------------------------------------
 
   /**
    * Adds to the time-series by appending new data points.
@@ -144,5 +167,81 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
   UniqueId removeTimeSeriesDataPoints(ObjectIdentifiable objectId, LocalDate fromDateInclusive, LocalDate toDateInclusive);
+  
+///**
+//* Fills in and returns a ManageableHistoricalTimeSeries without fetching any data points
+//* 
+//* @param uniqueId  the time-series unique identifier, not null
+//* @return A ManageableHistoricalTimeSeries object, without data points
+//*/
+//ManageableHistoricalTimeSeries getTimeSeriesWithoutDataPoints(UniqueId uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive);
+//
+///**
+//* Fills in and returns a ManageableHistoricalTimeSeries without fetching any data points
+//* 
+//* @param objectId  the time-series object identifier, not null
+//* @param versionCorrection  the version-correction locator to search at, not null
+//* @return the current state of the document, may be an update of the input document, not null
+//* @throws IllegalArgumentException if the identifier is invalid
+//* @throws DataNotFoundException if there is no document with that unique identifier
+//*/
+//ManageableHistoricalTimeSeries getTimeSeriesWithoutDataPoints(ObjectIdentifiable objectId, VersionCorrection versionCorrection, LocalDate fromDateInclusive, LocalDate toDateInclusive);
+//
+///**
+//* Gets the time series data points (without a ManageableHistoricalTimeSeries object)
+//* 
+//* @param uniqueId  the time-series unique identifier, not null
+//* @param fromDateInclusive  the inclusive start date of the points to get, null for far past
+//* @param toDateInclusive  the inclusive end date of the points to get, null for far future
+//* @return a series of data points
+//* @throws IllegalArgumentException if the identifier is invalid
+//* @throws DataNotFoundException if there is no document with that unique identifier
+//*/
+//LocalDateDoubleTimeSeries getTimeSeriesDataPoints(UniqueId uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive);
+//
+///**
+//* Gets the time series data points
+//* 
+//* @param objectId  the time-series object identifier, not null
+//* @param versionCorrection  the version-correction locator to search at, not null
+//* @param fromDateInclusive  the inclusive start date of the points to get, null for far past
+//* @param toDateInclusive  the inclusive end date of the points to get, null for far future
+//* @return A series of data points
+//* @throws IllegalArgumentException if the identifier is invalid
+//* @throws DataNotFoundException if there is no document with that unique identifier
+//*/
+//LocalDateDoubleTimeSeries getTimeSeriesDataPoints(ObjectIdentifiable objectId, VersionCorrection versionCorrection, LocalDate fromDateInclusive, LocalDate toDateInclusive);
+// 
+///**
+//* Gets the latest time-series data point.
+//* 
+//* @param uniqueId  the time-series unique identifier, not null
+//* @return the latest time-series data point.
+//*/
+//Double getLatestValue(UniqueId uniqueId);
+//
+///**
+//* Gets the latest time-series date.
+//* 
+//* @param uniqueId  the time-series unique identifier, not null
+//* @return the latest time-series date.
+//*/
+//LocalDate getLatestDate(UniqueId uniqueId);
+//
+///**
+//* Gets the latest time-series data point.
+//* 
+//* @param uniqueId  the time-series unique identifier, not null
+//* @return the latest time-series data point.
+//*/
+//Double getEarliestValue(UniqueId uniqueId);
+//
+///**
+//* Gets the latest time-series date.
+//* 
+//* @param uniqueId  the time-series unique identifier, not null
+//* @return the latest time-series date.
+//*/
+//LocalDate getEarliestDate(UniqueId uniqueId);
 
 }

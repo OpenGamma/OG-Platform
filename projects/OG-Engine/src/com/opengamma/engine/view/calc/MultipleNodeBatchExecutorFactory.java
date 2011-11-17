@@ -7,12 +7,13 @@ package com.opengamma.engine.view.calc;
 
 import org.springframework.beans.factory.InitializingBean;
 
+import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
-public class MultipleNodeBatchExecutorFactory extends MultipleNodeExecutorFactory implements DependencyGraphExecutorFactory<Object>, InitializingBean {
+public class MultipleNodeBatchExecutorFactory extends MultipleNodeExecutorFactory implements DependencyGraphExecutorFactory<DependencyGraph>, InitializingBean {
 
   /**
    * Used to write stuff to the batch database.

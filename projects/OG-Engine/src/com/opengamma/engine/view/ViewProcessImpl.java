@@ -5,6 +5,21 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
+
+import javax.time.Instant;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.Lifecycle;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
@@ -17,7 +32,6 @@ import com.opengamma.engine.view.client.ViewDeltaResultCalculator;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
-import com.opengamma.engine.view.listener.ComputationCycleResultListener;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.ObjectId;
@@ -25,24 +39,11 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.Lifecycle;
-
-import javax.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Default implementation of {@link ViewProcess}.
  */
-public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ComputationCycleResultListener {
+public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcess.class);
 
@@ -248,18 +249,18 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, Computat
     }
   }
 
-  public void jobResultReceived(ViewResultModel result) {
+  public void cycleFragmentCompleted(ViewComputationResultModel result) {
     // Caller MUST NOT hold the semaphore
-    s_logger.debug("Job result from cycle {} received on view process {}", result.getViewCycleId(), getUniqueId());
+    s_logger.debug("Result fragment from cycle {} received on view process {}", result.getViewCycleId(), getUniqueId());
     lock();
     try {
-      jobResultReceivedCore(result);
+      cycleFragmentCompletedCore(result);
     } finally {
       unlock();
     }
   }
 
-  private void jobResultReceivedCore(ViewResultModel result) {
+  private void cycleFragmentCompletedCore(ViewComputationResultModel fullFragment) {
     // Caller MUST hold the semaphore
 
     // [PLAT-1158]
@@ -272,10 +273,10 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, Computat
     ViewComputationResultModel previousResult = _latestResult.get();
     ViewDefinition latestViewDefinition = getLatestViewDefinition();
 
-    ViewDeltaResultModel deltaResult = ViewDeltaResultCalculator.computeDeltaModel(latestViewDefinition, previousResult, result);
+    ViewDeltaResultModel deltaFragment = ViewDeltaResultCalculator.computeDeltaModel(latestViewDefinition, previousResult, fullFragment);
     for (ViewResultListener listener : _listeners) {
       try {
-        listener.jobResultReceived(result, deltaResult);
+        listener.cycleFragmentCompleted(fullFragment, deltaFragment);
       } catch (Exception e) {
         logListenerError(listener, e);
       }
