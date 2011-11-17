@@ -39,12 +39,8 @@ public class ForwardSwapSecurity extends SwapSecurity {
   @PropertyDefinition(validate = "notNull")
   private ZonedDateTime _forwardStartDate;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public ForwardSwapSecurity() {
+  ForwardSwapSecurity() { //For builder
+    super();
   }
 
   public ForwardSwapSecurity(ZonedDateTime tradeDate, ZonedDateTime effectiveDate, ZonedDateTime maturityDate, String counterparty,

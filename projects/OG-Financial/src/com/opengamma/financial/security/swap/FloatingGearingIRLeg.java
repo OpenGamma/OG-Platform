@@ -39,7 +39,7 @@ public class FloatingGearingIRLeg extends FloatingInterestRateLeg {
   /**
    * Creates an instance.
    */
-  FloatingGearingIRLeg() { // For builder
+  FloatingGearingIRLeg() { //For builder
   }
 
   /**
