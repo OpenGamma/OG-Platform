@@ -16,12 +16,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +32,7 @@ import java.util.concurrent.TimeoutException;
 import javax.time.Duration;
 import javax.time.Instant;
 
+import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -273,7 +276,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
    *                               Execution of any outstanding jobs will be cancelled, but {@link #release()}
    *                               still must be called.
    */
-  public void execute(SingleComputationCycle previousCycle, MarketDataSnapshot marketDataSnapshot) throws InterruptedException {
+  public void execute(SingleComputationCycle previousCycle, MarketDataSnapshot marketDataSnapshot, ExecutorService calcJobResultExecutorService) throws InterruptedException {
     if (_state != ViewCycleState.AWAITING_EXECUTION) {
       throw new IllegalStateException("State must be " + ViewCycleState.AWAITING_EXECUTION);
     }
@@ -290,29 +293,40 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     // This job is consuming calculation jobs from the queue, which are enqueued by dependency graph executor
     // the job results are streamed to the ViewProcesor without waitout waiting for the current cycle to complete
     final BlockingQueue<CalculationJobResult> calcJobResultQueue = new LinkedBlockingQueue<CalculationJobResult>();
+    class PoisonedCalculationJobResult extends CalculationJobResult{
+      PoisonedCalculationJobResult() {
+        super(new CalculationJobSpecification(null, null, null, 0), 0, new LinkedList<CalculationJobResultItem>(), "");
+      }
+    }
     class StreamCalculationJobResultConsumer extends TerminatableJob {
-      private volatile boolean _completeAndExit;
       @Override
       protected void runOneCycle() {
         try {
-          CalculationJobResult jobResult = calcJobResultQueue.poll(50, TimeUnit.MILLISECONDS);
-          if (jobResult != null) {
+          CalculationJobResult jobResult = calcJobResultQueue.take();
+          if (jobResult instanceof PoisonedCalculationJobResult) {
+            //queue is poisoned
+            super.terminate();
+          } else {
             _computationCycleResultListener.jobResultReceived(populateResultModel(jobResult));
-          } else if (_completeAndExit) {
-            this.terminate();
           }
         } catch (InterruptedException e) {
-          this.terminate();
+          Thread.currentThread().interrupt();
         }
       }
 
-      public void completeAndExit() {
-        _completeAndExit = true;
+      public void terminate() {
+        try {
+          //poison the queue
+          calcJobResultQueue.put(new PoisonedCalculationJobResult());
+        } catch (InterruptedException e) {
+          super.terminate();
+        }
       }
     }
+
     StreamCalculationJobResultConsumer streamCalculationJobResultConsumer =  new StreamCalculationJobResultConsumer();
-    Thread streamCalculationJobResultConsumerThread = new Thread(streamCalculationJobResultConsumer, "Computation job for " + this);
-    streamCalculationJobResultConsumerThread.start();
+    //calcJobResultExecutorService.shutdown();
+    Future calcJobResultInProgress = calcJobResultExecutorService.submit(streamCalculationJobResultConsumer);
     // ~
 
     LinkedList<Future<?>> futures = new LinkedList<Future<?>>();
@@ -353,8 +367,13 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
     _endTime = Instant.now();
 
-    streamCalculationJobResultConsumer.completeAndExit();
-    streamCalculationJobResultConsumerThread.join();
+    streamCalculationJobResultConsumer.terminate();
+    //wait for StreamCalculationJobResultConsumer to finish
+    try {
+      calcJobResultInProgress.get();
+    } catch (ExecutionException e) {
+      Thread.currentThread().interrupt();
+    }
 
     populateResultModel();
     _state = ViewCycleState.EXECUTED;

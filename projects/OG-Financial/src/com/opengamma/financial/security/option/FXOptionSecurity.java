@@ -80,12 +80,8 @@ public class FXOptionSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private ExerciseType _exerciseType;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public FXOptionSecurity() {
+  FXOptionSecurity() { //For builder
+    super();
   }
 
   public FXOptionSecurity(Currency putCurrency, Currency callCurrency, double putAmount, double callAmount, Expiry expiry,

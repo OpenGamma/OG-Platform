@@ -76,7 +76,7 @@ public class ForexNonDeliverableForwardDefinitionTest {
 
   @Test
   /**
-   * Tests the class getters.
+   * Tests the class toDerivative method.
    */
   public void toDerivative() {
     ForexNonDeliverableForward ndfConverted = NDF_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAMES);

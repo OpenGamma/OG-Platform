@@ -5,7 +5,12 @@
  */
 package com.opengamma.financial.model.volatility.smile.function;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.math.function.Function1D;
@@ -15,13 +20,26 @@ import com.opengamma.util.CompareUtils;
  *  This is the form given in Obloj (2008), "<i>Fine-Tune Your Smile</i>", and supposedly corresponds to that given in Berestycki (2004), 
  *  "<i>Computing the implied volatility in stochastic volatility models</i>". However, appears to be the same as Hagan's.
  */
-public class SABRBerestyckiVolatilityFunction implements VolatilityFunctionProvider<SABRFormulaData> {
+public class SABRBerestyckiVolatilityFunction extends VolatilityFunctionProvider<SABRFormulaData> {
+  private static final Logger s_logger = LoggerFactory.getLogger(SABRBerestyckiVolatilityFunction.class);
+
+  private static final double CUTOFF_MONEYNESS = 1e-6;
   private static final double EPS = 1e-15;
 
   @Override
   public Function1D<SABRFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option, final double forward) {
     Validate.notNull(option, "option");
-    final double k = option.getStrike();
+    final double strike = option.getStrike();
+
+    final double cutoff = forward * CUTOFF_MONEYNESS;
+    final double k;
+    if (strike < cutoff) {
+      s_logger.info("Given strike of " + strike + " is less than cutoff at " + cutoff + ", therefore the strike is taken as " + cutoff);
+      k = cutoff;
+    } else {
+      k = strike;
+    }
+
     final double t = option.getTimeToExpiry();
     return new Function1D<SABRFormulaData, Double>() {
 
@@ -67,6 +85,28 @@ public class SABRBerestyckiVolatilityFunction implements VolatilityFunctionProvi
         return i0 * (1 + i1 * t);
       }
     };
+  }
+
+  @Override
+  public Function1D<SABRFormulaData, double[]> getVolatilitySetFunction(double forward, double[] strikes, double timeToExpiry) {
+
+    final int n = strikes.length;
+    final List<Function1D<SABRFormulaData, Double>> funcs = new ArrayList<Function1D<SABRFormulaData, Double>>(n);
+    for (int i = 0; i < n; i++) {
+      funcs.add(getVolatilityFunction(new EuropeanVanillaOption(strikes[i], timeToExpiry, true), forward));
+    }
+    return new Function1D<SABRFormulaData, double[]>() {
+      @Override
+      public double[] evaluate(SABRFormulaData data) {
+        final double[] res = new double[n];
+        for (int i = 0; i < n; i++) {
+          res[i] = funcs.get(i).evaluate(data);
+        }
+        return res;
+      }
+
+    };
+
   }
 
 }

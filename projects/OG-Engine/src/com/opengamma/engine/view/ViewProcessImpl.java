@@ -32,6 +32,8 @@ import org.springframework.context.Lifecycle;
 import javax.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -70,6 +72,10 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, Computat
   private final AtomicReference<Pair<CompiledViewDefinitionWithGraphsImpl, MarketDataPermissionProvider>> _latestCompiledViewDefinition =
       new AtomicReference<Pair<CompiledViewDefinitionWithGraphsImpl, MarketDataPermissionProvider>>();
   private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
+
+  private ExecutorService _calcJobResultExecutorService = Executors.newSingleThreadExecutor();
+
+
 
   /**
    * Constructs an instance.
@@ -579,5 +585,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, Computat
     // thread. There is no need to slow things down by waiting for the thread to die.
     setComputationJob(null);
     setComputationThread(null);
+  }
+
+  public ExecutorService getCalcJobResultExecutorService() {
+    return _calcJobResultExecutorService;
   }
 }

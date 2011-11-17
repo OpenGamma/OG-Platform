@@ -62,12 +62,8 @@ public class FXSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private ExternalId _regionId;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public FXSecurity() {
+  FXSecurity() { //For builder
+    super();
   }
 
   public FXSecurity(Currency payCurrency, Currency receiveCurrency, double payAmount, double receiveAmount, ExternalId region) {

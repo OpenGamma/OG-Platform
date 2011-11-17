@@ -11,7 +11,6 @@ import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.util.CompareUtils;
 
 /**
  * 
@@ -27,7 +26,6 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
     final boolean isCall = option.isCall();
     return new Function1D<BlackFunctionData, Double>() {
 
-      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final BlackFunctionData data) {
         Validate.notNull(data, "data");
@@ -211,7 +209,6 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
     final double t = option.getTimeToExpiry();
     return new Function1D<BlackFunctionData, Double>() {
 
-      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final BlackFunctionData data) {
         Validate.notNull(data, "data");

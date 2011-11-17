@@ -54,8 +54,8 @@ public class HestonCharacteristicExponentTest {
     double t = 2.5;
     ComplexNumber z = new ComplexNumber(2.3, -0.6);
     ComplexNumber[] fdSense = finiteDifferenceSensitivity(EXPONENT, z, t);
-    ComplexNumber[] sense = EXPONENT.getCharacteristicExponentAjoint(z, t);
-    ComplexNumber[] senseConj = EXPONENT.getCharacteristicExponentAjoint( multiply(-1.0,conjugate(z)), t);
+    ComplexNumber[] sense = EXPONENT.getCharacteristicExponentAdjoint(z, t);
+    ComplexNumber[] senseConj = EXPONENT.getCharacteristicExponentAdjoint( multiply(-1.0,conjugate(z)), t);
     for (int i = 0; i < 6; i++) {
 //      System.out.println(fdSense[i] + "\t" + sense[i] + "\t"+senseConj[i]);
       assertEquals(fdSense[i].getReal(),sense[i].getReal(),1e-9);

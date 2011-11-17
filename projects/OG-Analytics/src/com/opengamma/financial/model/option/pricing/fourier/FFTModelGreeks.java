@@ -118,7 +118,7 @@ public class FFTModelGreeks {
     Validate.isTrue(m > 0, "need m > 0");
     Validate.isTrue(n >= 2 * m - 1, "need n > 2m-1");
 
-    final Function1D<ComplexNumber, ComplexNumber[]> func = ce.getAjointFunction(t);
+    final Function1D<ComplexNumber, ComplexNumber[]> func = ce.getAdjointFunction(t);
     final int halfN = n % 2 == 0 ? n / 2 : (n + 1) / 2;
     final double a = -(halfN - 1) * delta;
     final ComplexNumber[][] z = getPaddedArrays(alpha, delta, n, m, func, halfN);

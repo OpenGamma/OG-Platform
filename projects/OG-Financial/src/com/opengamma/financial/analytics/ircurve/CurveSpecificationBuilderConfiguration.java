@@ -5,6 +5,10 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -14,7 +18,9 @@ import javax.time.calendar.LocalDate;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.fudgemsg.CurveSpecificationBuilderConfigurationFudgeBuilder;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
@@ -22,6 +28,12 @@ import com.opengamma.util.time.Tenor;
  * 
  */
 public class CurveSpecificationBuilderConfiguration {
+  
+  /**
+   * The names of the curve instrument providers, currently used in CurveSpecificationBuilderConfiguration fudge messages and Web UI
+   */
+  public static final List<String> s_curveSpecNames = getCurveSpecBuilderConfigurationNames();
+  
   private final Map<Tenor, CurveInstrumentProvider> _cashInstrumentProviders;
   private final Map<Tenor, CurveInstrumentProvider> _fra3MInstrumentProviders;
   private final Map<Tenor, CurveInstrumentProvider> _fra6MInstrumentProviders;
@@ -75,6 +87,22 @@ public class CurveSpecificationBuilderConfiguration {
     _basisSwapInstrumentProviders = basisSwapInstrumentProviders;
     _tenorSwapInstrumentProviders = tenorSwapInstrumentProviders;
     _oisSwapInstrumentProviders = oisSwapInstrumentProviders;
+  }
+  
+  private static List<String> getCurveSpecBuilderConfigurationNames() {
+    final List<String> list = new ArrayList<String>();
+    for (Field field : CurveSpecificationBuilderConfigurationFudgeBuilder.class.getDeclaredFields()) {
+      if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+        field.setAccessible(true);
+        try {
+          list.add((String) field.get(null));
+        } catch (Exception ex) {
+          // Ignore
+        }
+      }
+    }
+    Collections.sort(list, String.CASE_INSENSITIVE_ORDER);
+    return ImmutableList.copyOf(list);
   }
 
   private ExternalId getStaticSecurity(final Map<Tenor, CurveInstrumentProvider> instrumentMappers, final LocalDate curveDate, final Tenor tenor) {

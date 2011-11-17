@@ -40,6 +40,7 @@ public abstract class BlackFormulaRepository {
    */
   @ExternalFunction
   public static double price(final double forward, final double strike, final double timeToExpiry, final double lognormalVol, final boolean isCall) {
+    Validate.isTrue(lognormalVol >= 0.0, "negative vol");
     if (strike < SMALL) {
       return isCall ? forward : 0.0;
     }
@@ -109,43 +110,89 @@ public abstract class BlackFormulaRepository {
     Validate.isTrue(strike > 0, "Cannot find an implied volatility when strike is zero as there is no optionality");
     Validate.isTrue(price >= intrinsicPrice, "option price (" + price + ") less than intrinsic value (" + intrinsicPrice
         + ")");
+    if (isCall) {
+      Validate.isTrue(price < forward, "call price must be less than forward");
+    } else {
+      Validate.isTrue(price < strike, "put price must be less than strike");
+    }
 
     if (price == intrinsicPrice) {
       return 0.0;
     }
+
     double sigma = 0.3;
+    double lowerSigma;
+    double upperSigma;
+
+    try {
+      final double[] temp = bracketRoot(price, forward, strike, timeToExpiry, isCall, sigma, 0.1);
+      lowerSigma = temp[0];
+      upperSigma = temp[1];
+    } catch (MathException e) {
+      throw new IllegalArgumentException(e.toString() + " No implied Volatility for this price. [price: " + price + ", forward: " + forward + ", strike: " +
+          strike + ", timeToExpiry: " + timeToExpiry + ", " + (isCall ? "Call" : "put"));
+    }
 
     final double maxChange = 0.5;
 
     double[] pnv = priceAndVega(forward, strike, timeToExpiry, sigma, isCall);
-
+    //TODO check if this is ever called 
     if (pnv[1] == 0 || Double.isNaN(pnv[1])) {
-      return solveByBisection(price, forward, strike, timeToExpiry, isCall, sigma, 0.1);
+      return solveByBisection(price, forward, strike, timeToExpiry, isCall, lowerSigma, upperSigma);
     }
-    double change = (pnv[0] - price) / pnv[1];
+    double diff = pnv[0] - price;
+    boolean above = diff > 0;
+    if (above) {
+      upperSigma = sigma;
+    } else {
+      lowerSigma = sigma;
+    }
 
-    double sign = Math.signum(change);
-    change = sign * Math.min(maxChange, Math.abs(change));
-    if (change > 0 && change > sigma) {
-      change = sigma;
+    double trialChange = -diff / pnv[1];
+    double actChange;
+    if (trialChange > 0.0) {
+      actChange = Math.min(maxChange, Math.min(trialChange, upperSigma - sigma));
+    } else {
+      actChange = Math.max(-maxChange, Math.max(trialChange, lowerSigma - sigma));
     }
+    //
+    //    double sign = Math.signum(trialChange);
+    //    trialChange = sign * Math.min(maxChange, Math.abs(trialChange));
+    //    if (trialChange > 0 && trialChange > sigma) {
+    //      trialChange = sigma;
+    //    }
     int count = 0;
-    while (Math.abs(change) > VOL_TOL) {
-      sigma -= change;
+    while (Math.abs(actChange) > VOL_TOL) {
+      sigma += actChange;
 
       pnv = priceAndVega(forward, strike, timeToExpiry, sigma, isCall);
 
       if (pnv[1] == 0 || Double.isNaN(pnv[1])) {
-        return solveByBisection(price, forward, strike, timeToExpiry, isCall, sigma, 0.01);
+        return solveByBisection(price, forward, strike, timeToExpiry, isCall, lowerSigma, upperSigma);
       }
-      change = (pnv[0] - price) / pnv[1];
-      sign = Math.signum(change);
-      change = sign * Math.min(maxChange, Math.abs(change));
-      if (change > 0 && change > sigma) {
-        change = sigma;
+
+      diff = pnv[0] - price;
+      above = diff > 0;
+      if (above) {
+        upperSigma = sigma;
+      } else {
+        lowerSigma = sigma;
       }
+
+      trialChange = -diff / pnv[1];
+      if (trialChange > 0.0) {
+        actChange = Math.min(maxChange, Math.min(trialChange, upperSigma - sigma));
+      } else {
+        actChange = Math.max(-maxChange, Math.max(trialChange, lowerSigma - sigma));
+      }
+
+      //      sign = Math.signum(trialChange);
+      //      trialChange = sign * Math.min(maxChange, Math.abs(trialChange));
+      //      if (trialChange > 0 && trialChange > sigma) {
+      //        trialChange = sigma;
+      //      }
       if (count++ > MAX_ITERATIONS) {
-        return solveByBisection(price, forward, strike, timeToExpiry, isCall, sigma, change);
+        return solveByBisection(price, forward, strike, timeToExpiry, isCall, lowerSigma, upperSigma);
       }
     }
     return sigma;
@@ -250,9 +297,8 @@ public abstract class BlackFormulaRepository {
     return res;
   }
 
-  private static double solveByBisection(final double forwardPrice, final double forward, final double strike, final double expiry, final boolean isCall, final double sigma, final double change) {
+  private static double[] bracketRoot(final double forwardPrice, final double forward, final double strike, final double expiry, final boolean isCall, final double sigma, final double change) {
     final BracketRoot bracketer = new BracketRoot();
-    final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(EPS);
     final Function1D<Double, Double> func = new Function1D<Double, Double>() {
 
       @SuppressWarnings({"synthetic-access" })
@@ -261,8 +307,29 @@ public abstract class BlackFormulaRepository {
         return price(forward, strike, expiry, volatility, isCall) - forwardPrice;
       }
     };
-    final double[] range = bracketer.getBracketedPoints(func, sigma - Math.abs(change), sigma + Math.abs(change));
-    return rootFinder.getRoot(func, range[0], range[1]);
+    return bracketer.getBracketedPoints(func, sigma - Math.abs(change), sigma + Math.abs(change), 0, Double.POSITIVE_INFINITY);
+  }
+
+  private static double solveByBisection(final double forwardPrice, final double forward, final double strike, final double expiry, final boolean isCall, final double lowerSigma,
+      final double upperSigma) {
+    //    final BracketRoot bracketer = new BracketRoot();
+    final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(1e-6); //0.01bps accuracy 
+    final Function1D<Double, Double> func = new Function1D<Double, Double>() {
+
+      @SuppressWarnings({"synthetic-access" })
+      @Override
+      public Double evaluate(final Double volatility) {
+        return price(forward, strike, expiry, volatility, isCall) - forwardPrice;
+      }
+    };
+    // final double[] range = bracketer.getBracketedPoints(func, sigma - Math.abs(change), sigma + Math.abs(change));
+    //  try {
+    return rootFinder.getRoot(func, lowerSigma, upperSigma);
+    //    } catch (Exception e) {
+    //
+    //      final double[] temp = bracketRoot(forwardPrice, forward, strike, expiry, isCall, 0.3, 0.1);
+    //      return 0.0;
+    //    }
   }
 
   private static double solveByBisection(final SimpleOptionData[] data, final double price, final double sigma, final double change) {

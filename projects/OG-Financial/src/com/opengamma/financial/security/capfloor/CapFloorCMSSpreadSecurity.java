@@ -96,12 +96,8 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
   @PropertyDefinition
   private boolean _cap;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public CapFloorCMSSpreadSecurity() {
+  CapFloorCMSSpreadSecurity() { //For builder
+    super();
   }
 
   public CapFloorCMSSpreadSecurity(ZonedDateTime startDate, ZonedDateTime maturityDate, double notional, ExternalId longIdentifier,

@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.model.forex;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,9 +26,9 @@ import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCur
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
-import com.opengamma.financial.forex.calculator.PresentValueForexYieldCurveNodeSensitivityCalculator;
+import com.opengamma.financial.forex.calculator.PresentValueYieldCurveNodeSensitivityForexCalculator;
 import com.opengamma.financial.forex.derivative.Forex;
-import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -38,13 +37,12 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
  */
 public class ForexForwardYieldCurveNodeSensitivitiesFunction extends ForexForwardFunction {
-  private static final PresentValueForexYieldCurveNodeSensitivityCalculator CALCULATOR = PresentValueForexYieldCurveNodeSensitivityCalculator.getInstance();
+  private static final PresentValueYieldCurveNodeSensitivityForexCalculator CALCULATOR = PresentValueYieldCurveNodeSensitivityForexCalculator.getInstance();
 
   public ForexForwardYieldCurveNodeSensitivitiesFunction(final String payFundingCurveName, final String payForwardCurveName, final String receiveFundingCurveName,
       final String receiveForwardCurveName) {
@@ -113,16 +111,16 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends ForexForwar
         new YieldAndDiscountCurve[] {payFundingCurve, payForwardCurve});
     final YieldCurveBundle receiveCurveBundle = new YieldCurveBundle(new String[] {receiveFundingCurveName, receiveForwardCurveName}, 
         new YieldAndDiscountCurve[] {receiveFundingCurve, receiveForwardCurve});
-    final Map<String, List<DoublesPair>> curveSensitivities = ((InterestRateCurveSensitivity) curveSensitivitiesObject).getSensitivities();
+    final MultipleCurrencyInterestRateCurveSensitivity multipleSensitivity = (MultipleCurrencyInterestRateCurveSensitivity) curveSensitivitiesObject;
     final Map<String, DoubleMatrix1D> payResult, receiveResult;
     try {
-      payResult = CALCULATOR.calculate(curveSensitivities, payCurveBundle, payCouponSensitivity, payJacobian);
+      payResult = CALCULATOR.calculate(multipleSensitivity.getSensitivity(payCurrency).getSensitivities(), payCurveBundle, payCouponSensitivity, payJacobian);
     } catch (Exception e) {
       throw new OpenGammaRuntimeException("Could not get sensitivities for " + payCurrency + ", " + getPayFundingCurveName() + " and " + 
           getPayForwardCurveName() + ", error was: " + e.getMessage());
     }
     try {
-      receiveResult = CALCULATOR.calculate(curveSensitivities, receiveCurveBundle, receiveCouponSensitivity, receiveJacobian);
+      receiveResult = CALCULATOR.calculate(multipleSensitivity.getSensitivity(receiveCurrency).getSensitivities(), receiveCurveBundle, receiveCouponSensitivity, receiveJacobian);
     } catch (Exception e) {
       throw new OpenGammaRuntimeException("Could not get sensitivities for " + receiveCurrency + ", " + getReceiveFundingCurveName() + " and " + 
           getReceiveForwardCurveName() + ", error was: " + e.getMessage());

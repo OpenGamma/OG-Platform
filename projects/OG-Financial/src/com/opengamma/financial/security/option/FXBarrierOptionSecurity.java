@@ -100,12 +100,8 @@ public class FXBarrierOptionSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private LongShort _longShort = LongShort.LONG;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public FXBarrierOptionSecurity() {
+  FXBarrierOptionSecurity() { //For builder
+    super();
   }
 
   public FXBarrierOptionSecurity(Currency putCurrency, Currency callCurrency, double putAmount, double callAmount, Expiry expiry,
