@@ -105,8 +105,9 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.N
         final Sensitivity<?> sensitivity = new ValueGreekSensitivity(valueGreek, position.getUniqueId().toString());
         final Map<UnderlyingType, DoubleTimeSeries<?>> tsReturns = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
         for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
+          LocalDate seriesStartDate = _startDate.minusMonths(1); //Allow fairly old data, but not _really_ old data
           final DoubleTimeSeries<?> timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalSource, _resolutionKey, securitySource, underlyingType,
-              position.getSecurity());
+              position.getSecurity(), seriesStartDate, now);
           final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true, false);
           final DoubleTimeSeries<?> sampledTS = _samplingCalculator.getSampledTimeSeries(timeSeries, schedule);
           tsReturns.put(underlyingType, _returnCalculator.evaluate(sampledTS));

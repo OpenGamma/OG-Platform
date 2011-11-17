@@ -11,7 +11,6 @@ import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.linearalgebra.DecompositionFactory;
-import com.opengamma.math.linearalgebra.LUDecompositionCommons;
 import com.opengamma.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -21,11 +20,9 @@ import com.opengamma.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
 /**
  * Pricing function in the SABR model with Hagan et al. volatility function and controlled extrapolation for large strikes by extrapolation on call prices.
  * The form of the extrapolation as a function of the strike is
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{equation*}
- * f(K) = K^{-\\mu} \\exp\\left( a + \\frac{b}{K} + \\frac{c}{K^2} \\right).
- * \\end{equation*}
- * }
+ * \begin{equation*}
+ * f(K) = K^{-\mu} \exp\left( a + \frac{b}{K} + \frac{c}{K^2} \right).
+ * \end{equation*}
  * Reference: Benaim, S., Dodgson, M., and Kainth, D. (2008). An arbitrage-free method for smile extrapolation. Technical report, Royal Bank of Scotland.
  * OpenGamma implementation note: Smile extrapolation, version 1.2, May 2011.
  */
@@ -270,7 +267,7 @@ public class SABRExtrapolationRightFunction {
     final double absoluteTol = 1E-5;
     final double relativeTol = 1E-5;
     final int maxSteps = 10000;
-    final NewtonDefaultVectorRootFinder finder = new NewtonDefaultVectorRootFinder(absoluteTol, relativeTol, maxSteps, DecompositionFactory.SV_COMMONS);
+    final NewtonDefaultVectorRootFinder finder = new NewtonDefaultVectorRootFinder(absoluteTol, relativeTol, maxSteps, DecompositionFactory.LU_COMMONS);
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(new double[] {0.1, 0.1});
     final DoubleMatrix1D ab = finder.getRoot(toSolveBC, startPosition);
     param[1] = ab.getEntry(0);

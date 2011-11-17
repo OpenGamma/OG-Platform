@@ -75,6 +75,7 @@ public class PortfolioAggregator {
   
   protected void aggregate(SimplePortfolioNode inputNode, List<Position> flattenedPortfolio, Queue<AggregationFunction<?>> functionList) {
     AggregationFunction<?> nextFunction = functionList.remove();
+    s_logger.debug("Aggregating {} positions by {}", flattenedPortfolio, nextFunction);
     Map<String, List<Position>> buckets = new TreeMap<String, List<Position>>();
     for (Object entry : nextFunction.getRequiredEntries()) {
       buckets.put(entry.toString(), new ArrayList<Position>());
@@ -99,12 +100,13 @@ public class PortfolioAggregator {
       newNode.setParentNodeId(inputNode.getUniqueId());
       newNode.setName(bucketName);
       inputNode.addChildNode(newNode);
-      if (functionList.isEmpty()) {
-        for (Position position : buckets.get(bucketName)) {
+      List<Position> bucket = buckets.get(bucketName);
+      if (functionList.isEmpty() || bucket.isEmpty()) { //IGN-138 - don't build huge empty portfolios
+        for (Position position : bucket) {
           newNode.addPosition(position);
         }
       } else {
-        aggregate(newNode, buckets.get(bucketName), new ArrayDeque<AggregationFunction<?>>(functionList)); // make a copy for each bucket.
+        aggregate(newNode, bucket, new ArrayDeque<AggregationFunction<?>>(functionList)); // make a copy for each bucket.
       }
     }
   }

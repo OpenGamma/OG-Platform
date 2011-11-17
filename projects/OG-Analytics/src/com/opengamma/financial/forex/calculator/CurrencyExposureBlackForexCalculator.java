@@ -5,8 +5,10 @@
  */
 package com.opengamma.financial.forex.calculator;
 
+import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.financial.forex.method.ForexNonDeliverableOptionBlackMethod;
 import com.opengamma.financial.forex.method.ForexOptionSingleBarrierBlackMethod;
 import com.opengamma.financial.forex.method.ForexOptionVanillaBlackMethod;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -16,7 +18,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * Calculator of the currency exposure for Forex derivatives in the Black (Garman-Kohlhagen) world. The volatilities are given by delta-smile descriptions.
  * To compute the currency exposure, the Black volatility is kept constant; the volatility is not recomputed for spot and forward changes.
  */
-public class CurrencyExposureBlackForexCalculator extends CurrencyExposureForexCalculator {
+public final class CurrencyExposureBlackForexCalculator extends CurrencyExposureForexCalculator {
 
   /**
    * The unique instance of the calculator.
@@ -34,19 +36,29 @@ public class CurrencyExposureBlackForexCalculator extends CurrencyExposureForexC
   /**
    * Constructor.
    */
-  CurrencyExposureBlackForexCalculator() {
+  private CurrencyExposureBlackForexCalculator() {
   }
+
+  /**
+   * The methods used by the different instruments.
+   */
+  private static final ForexOptionVanillaBlackMethod METHOD_FXOPTION = ForexOptionVanillaBlackMethod.getInstance();
+  private static final ForexOptionSingleBarrierBlackMethod METHOD_FXOPTIONBARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
+  private static final ForexNonDeliverableOptionBlackMethod METHOD_NDO = ForexNonDeliverableOptionBlackMethod.getInstance();
 
   @Override
   public MultipleCurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
-    final ForexOptionVanillaBlackMethod method = ForexOptionVanillaBlackMethod.getInstance();
-    return method.currencyExposure(derivative, data);
+    return METHOD_FXOPTION.currencyExposure(derivative, data);
   }
 
   @Override
   public MultipleCurrencyAmount visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative, final YieldCurveBundle data) {
-    final ForexOptionSingleBarrierBlackMethod method = ForexOptionSingleBarrierBlackMethod.getInstance();
-    return method.currencyExposure(derivative, data);
+    return METHOD_FXOPTIONBARRIER.currencyExposure(derivative, data);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitForexNonDeliverableOption(final ForexNonDeliverableOption derivative, final YieldCurveBundle data) {
+    return METHOD_NDO.currencyExposure(derivative, data);
   }
 
 }
