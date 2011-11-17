@@ -489,7 +489,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addDummyFunction(functionConfigs, ValueRequirementNames.DAILY_APPLIED_BETA);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.DAILY_APPLIED_BETA);
     functionConfigs.add(new ParameterizedFunctionConfiguration(LastHistoricalValueFunction.class.getName(), Collections.singleton(ValueRequirementNames.DAILY_APPLIED_BETA)));
-
+    addDummyFunction(functionConfigs, ValueRequirementNames.DAILY_PRICE);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.DAILY_PRICE);
+    functionConfigs.add(new ParameterizedFunctionConfiguration(LastHistoricalValueFunction.class.getName(), Collections.singleton(ValueRequirementNames.DAILY_PRICE)));
+    
+    
     RepositoryConfiguration repoConfig = new RepositoryConfiguration(functionConfigs);
 
     if (OUTPUT_REPO_CONFIGURATION) {

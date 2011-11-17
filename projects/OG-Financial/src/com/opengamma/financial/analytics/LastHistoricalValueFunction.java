@@ -60,6 +60,7 @@ public class LastHistoricalValueFunction extends PropertyPreservingFunction {
     s_marketDataRequirementNamesMap.put(ValueRequirementNames.DAILY_VOLUME, "VOLUME");
     s_marketDataRequirementNamesMap.put(ValueRequirementNames.DAILY_APPLIED_BETA, "APPLIED_BETA");
     s_marketDataRequirementNamesMap.put(ValueRequirementNames.DAILY_MARKET_CAP, "CUR_MKT_CAP");
+    s_marketDataRequirementNamesMap.put(ValueRequirementNames.DAILY_PRICE, "PX_LAST");   
   }
 
   @Override
