@@ -7,6 +7,7 @@ package com.opengamma.engine.view.calc;
 
 import org.springframework.beans.factory.InitializingBean;
 
+import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -14,7 +15,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 /**
  * 
  */
-public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFactory<Object>, InitializingBean {
+public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFactory<DependencyGraph>, InitializingBean {
   
   private static final int DEFAULT_EXECUTION_PLAN_CACHE = 100;
 

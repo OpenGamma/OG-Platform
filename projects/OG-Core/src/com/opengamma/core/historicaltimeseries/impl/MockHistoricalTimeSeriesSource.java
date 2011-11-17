@@ -14,9 +14,12 @@ import javax.time.calendar.LocalDate;
 import com.google.common.base.Supplier;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSupplier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -205,5 +208,41 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
     LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) hts.getTimeSeries().subSeries(start, inclusiveStart, end, includeEnd);
     return new SimpleHistoricalTimeSeries(hts.getUniqueId(), timeSeries);
   }
+
+  @Override
+  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
+    LocalDateDoubleTimeSeries ts = getHistoricalTimeSeries(uniqueId).getTimeSeries();
+    HistoricalTimeSeriesSummary result = new HistoricalTimeSeriesSummary();
+    result.setEarliestDate(ts.getEarliestTime());
+    result.setLatestDate(ts.getLatestTime());
+    result.setEarliestValue(ts.getEarliestValue());
+    result.setLatestValue(ts.getLatestValue());
+    return result;
+  }
+
+  @Override
+  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    throw new UnsupportedOperationException("Does not support getting summary information by object id and version correction");
+  }
+
+//  @Override
+//  public LocalDate getEarliestDate(UniqueId uniqueId) {
+//    return getHistoricalTimeSeries(uniqueId).getTimeSeries().getEarliestTime();
+//  }
+//
+//  @Override
+//  public LocalDate getLatestDate(UniqueId uniqueId) {
+//    return getHistoricalTimeSeries(uniqueId).getTimeSeries().getLatestTime();
+//  }
+//
+//  @Override
+//  public Double getEarliestValue(UniqueId uniqueId) {
+//    return getHistoricalTimeSeries(uniqueId).getTimeSeries().getEarliestValue();
+//  }
+//
+//  @Override
+//  public Double getLatestValue(UniqueId uniqueId) {
+//    return getHistoricalTimeSeries(uniqueId).getTimeSeries().getLatestValue();
+//  }
 
 }

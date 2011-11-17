@@ -44,14 +44,14 @@ public class SABRExtrapolationRightFunctionTest {
     EuropeanVanillaOption optionIn = new EuropeanVanillaOption(strikeIn, TIME_TO_EXPIRY, true);
     EuropeanVanillaOption optionAt = new EuropeanVanillaOption(strikeAt, TIME_TO_EXPIRY, true);
     EuropeanVanillaOption optionOut = new EuropeanVanillaOption(strikeOut, TIME_TO_EXPIRY, true);
-    Function1D<SABRFormulaData, Double> funcSabrIn = SABR_FUNCTION.getVolatilityFunction(optionIn,FORWARD);
+    Function1D<SABRFormulaData, Double> funcSabrIn = SABR_FUNCTION.getVolatilityFunction(optionIn, FORWARD);
     double volatilityIn = funcSabrIn.evaluate(SABR_DATA);
     BlackFunctionData dataBlackIn = new BlackFunctionData(FORWARD, 1.0, volatilityIn);
     Function1D<BlackFunctionData, Double> funcBlackIn = BLACK_FUNCTION.getPriceFunction(optionIn);
     double priceExpectedIn = funcBlackIn.evaluate(dataBlackIn);
     double priceIn = SABR_EXTRAPOLATION.price(optionIn);
     assertEquals("SABR extrapolation, below cut-off", priceExpectedIn, priceIn, 1E-10);
-    Function1D<SABRFormulaData, Double> funcSabrAt = SABR_FUNCTION.getVolatilityFunction(optionAt,FORWARD);
+    Function1D<SABRFormulaData, Double> funcSabrAt = SABR_FUNCTION.getVolatilityFunction(optionAt, FORWARD);
     double volatilityAt = funcSabrAt.evaluate(SABR_DATA);
     BlackFunctionData dataBlackAt = new BlackFunctionData(FORWARD, 1.0, volatilityAt);
     Function1D<BlackFunctionData, Double> funcBlackAt = BLACK_FUNCTION.getPriceFunction(optionAt);
@@ -75,8 +75,8 @@ public class SABRExtrapolationRightFunctionTest {
     EuropeanVanillaOption optionAt = new EuropeanVanillaOption(strikeAt, TIME_TO_EXPIRY, true);
     EuropeanVanillaOption optionOut = new EuropeanVanillaOption(strikeOut, TIME_TO_EXPIRY, true);
     double shiftF = 0.000001;
-    SABRFormulaData sabrDataFP = new SABRFormulaData( ALPHA, BETA, RHO, NU);
-    SABRExtrapolationRightFunction sabrExtrapolationFP = new SABRExtrapolationRightFunction(FORWARD + shiftF,sabrDataFP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
+    SABRFormulaData sabrDataFP = new SABRFormulaData(ALPHA, BETA, RHO, NU);
+    SABRExtrapolationRightFunction sabrExtrapolationFP = new SABRExtrapolationRightFunction(FORWARD + shiftF, sabrDataFP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
     // Below cut-off strike
     double priceIn = SABR_EXTRAPOLATION.price(optionIn);
     double priceInFP = sabrExtrapolationFP.price(optionIn);
@@ -117,12 +117,12 @@ public class SABRExtrapolationRightFunctionTest {
     EuropeanVanillaOption optionAt = new EuropeanVanillaOption(strikeAt, TIME_TO_EXPIRY, true);
     EuropeanVanillaOption optionOut = new EuropeanVanillaOption(strikeOut, TIME_TO_EXPIRY, true);
     double shift = 0.000001;
-    SABRFormulaData sabrDataAP = new SABRFormulaData( ALPHA + shift, BETA, RHO, NU);
+    SABRFormulaData sabrDataAP = new SABRFormulaData(ALPHA + shift, BETA, RHO, NU);
     SABRFormulaData sabrDataRP = new SABRFormulaData(ALPHA, BETA, RHO + shift, NU);
-    SABRFormulaData sabrDataNP = new SABRFormulaData( ALPHA, BETA, RHO, NU + shift);
-    SABRExtrapolationRightFunction sabrExtrapolationAP = new SABRExtrapolationRightFunction(FORWARD,sabrDataAP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
-    SABRExtrapolationRightFunction sabrExtrapolationRP = new SABRExtrapolationRightFunction(FORWARD,sabrDataRP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
-    SABRExtrapolationRightFunction sabrExtrapolationNP = new SABRExtrapolationRightFunction(FORWARD,sabrDataNP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
+    SABRFormulaData sabrDataNP = new SABRFormulaData(ALPHA, BETA, RHO, NU + shift);
+    SABRExtrapolationRightFunction sabrExtrapolationAP = new SABRExtrapolationRightFunction(FORWARD, sabrDataAP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
+    SABRExtrapolationRightFunction sabrExtrapolationRP = new SABRExtrapolationRightFunction(FORWARD, sabrDataRP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
+    SABRExtrapolationRightFunction sabrExtrapolationNP = new SABRExtrapolationRightFunction(FORWARD, sabrDataNP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
     // Below cut-off strike
     double priceInExpected = SABR_EXTRAPOLATION.price(optionIn);
     double[] priceInPP = new double[3];
@@ -246,7 +246,7 @@ public class SABRExtrapolationRightFunctionTest {
     BlackImpliedVolatilityFormula implied = new BlackImpliedVolatilityFormula();
     BlackFunctionData blackData = new BlackFunctionData(FORWARD, 1.0, 0.0);
     for (int loopmu = 0; loopmu < nbMu; loopmu++) {
-      SABRExtrapolationRightFunction sabrExtra = new SABRExtrapolationRightFunction(FORWARD,SABR_DATA, CUT_OFF_STRIKE, TIME_TO_EXPIRY, mu[loopmu]);
+      SABRExtrapolationRightFunction sabrExtra = new SABRExtrapolationRightFunction(FORWARD, SABR_DATA, CUT_OFF_STRIKE, TIME_TO_EXPIRY, mu[loopmu]);
       for (int looppts = 0; looppts <= nbPts; looppts++) {
         strike[looppts] = CUT_OFF_STRIKE - rangeStrike + looppts * 4.0 * rangeStrike / nbPts;
         EuropeanVanillaOption option = new EuropeanVanillaOption(strike[looppts], TIME_TO_EXPIRY, true);

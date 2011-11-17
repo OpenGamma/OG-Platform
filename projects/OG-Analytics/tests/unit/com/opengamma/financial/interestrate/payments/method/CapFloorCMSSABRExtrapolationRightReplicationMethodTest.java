@@ -30,8 +30,8 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
@@ -291,7 +291,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   /**
    * Tests of performance. "enabled = false" for the standard testing.
    */
-  public void testPerformance() {
+  public void performance() {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
@@ -300,21 +300,23 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       METHOD_STANDARD_CPN.presentValue(CMS_COUPON, sabrBundle);
-      METHOD_STANDARD_CPN.presentValueSensitivity(CMS_COUPON, sabrBundle);
+      METHOD_STANDARD_CPN.presentValueCurveSensitivity(CMS_COUPON, sabrBundle);
+      METHOD_STANDARD_CPN.presentValueSABRSensitivity(CMS_COUPON, sabrBundle);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " CMS coupon by replication SABR standard (price+delta): " + (endTime - startTime) + " ms");
+    System.out.println(nbTest + " CMS coupon by replication SABR standard (price+delta+vega): " + (endTime - startTime) + " ms");
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       METHOD_EXTRAPOLATION_CPN.presentValue(CMS_COUPON, sabrBundle);
-      METHOD_EXTRAPOLATION_CPN.presentValueSensitivity(CMS_COUPON, sabrBundle);
+      METHOD_EXTRAPOLATION_CPN.presentValueCurveSensitivity(CMS_COUPON, sabrBundle);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " CMS coupon by replication SABR with extrapolation (price+delta): " + (endTime - startTime) + " ms");
-    // Performance note: price (standard SABR): 04-May-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 75 ms for 1000 CMS coupon 5Y.
-    // Performance note: price (SABR with extrapolation): 04-May-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 115 ms for 1000 CMS coupon 5Y.
-    // Performance note: price+delta (standard SABR): 04-May-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 455 ms for 1000 CMS coupon 5Y.
-    // Performance note: price+delta (SABR with extrapolation): 04-May-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 550 ms for 1000 CMS coupon 5Y.
+    // Performance note: price (standard SABR): 15-Nov-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 55 ms for 1000 CMS coupon 5Y.
+    // Performance note: price (SABR with extrapolation): 15-Nov-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 80 ms for 1000 CMS coupon 5Y.
+    // Performance note: price+delta (standard SABR): 15-Nov-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 215 ms for 1000 CMS coupon 5Y.
+    // Performance note: price+delta (SABR with extrapolation): 15-Nov-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 455 ms for 1000 CMS coupon 5Y.
+    // Performance note: price+delta+vega (standard SABR): 15-Nov-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 620 ms for 1000 CMS coupon 5Y.
   }
 
 }
