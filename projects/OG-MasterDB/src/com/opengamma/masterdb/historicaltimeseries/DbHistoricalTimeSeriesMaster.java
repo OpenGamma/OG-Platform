@@ -696,13 +696,13 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     
     final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
         
-    Map<String, Object> result;    
+    List<Map<String, Object>> result;    
     try {
-      result = namedJdbc.queryForMap(query, args);
+      result = namedJdbc.queryForList(query, args);
     } catch (Exception e) {
       throw new DataNotFoundException("Unable to fetch earliest/latest date/value from time series " + objectId.getObjectId());
     }
-    return new ObjectsPair<LocalDate, Double>((LocalDate) DbDateUtils.fromSqlDateAllowNull((Date) result.get("point_date")), (Double) result.get("point_value"));
+    return new ObjectsPair<LocalDate, Double>((LocalDate) DbDateUtils.fromSqlDateAllowNull((Date) (result.get(0).get("point_date"))), (Double) (result.get(0).get("point_value")));
   }
   
   @Override
@@ -736,25 +736,31 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
   }
     
   protected String sqlSelectLatest() {
-    return "SELECT DISTINCT doc_oid, point_date, point_value " +
+    return "SELECT doc_oid, point_date, point_value " +
         "FROM hts_point WHERE point_date = " +
         "(SELECT max(point_date) FROM hts_point WHERE doc_oid = :doc_oid " +
           "AND ver_instant <= :version_as_of_instant " +
           "AND corr_instant <= :corrected_to_instant " +
 //          "AND point_date >= :start_date " +
 //          "AND point_date <= :end_date " +
-        ") AND doc_oid=:doc_oid";
+        ") AND doc_oid=:doc_oid " +
+        "AND ver_instant <= :version_as_of_instant " +
+        "AND corr_instant <= :corrected_to_instant " +
+        "ORDER BY ver_instant DESC, corr_instant DESC";
   }
   
   protected String sqlSelectEarliest() {
-    return "SELECT DISTINCT doc_oid, point_date, point_value " +
+    return "SELECT doc_oid, point_date, point_value " +
         "FROM hts_point WHERE point_date = " +
         "(SELECT min(point_date) FROM hts_point WHERE doc_oid = :doc_oid " +
           "AND ver_instant <= :version_as_of_instant " +
           "AND corr_instant <= :corrected_to_instant " +
 //          "AND point_date >= :start_date " +
 //          "AND point_date <= :end_date " +        
-        ") AND doc_oid=:doc_oid";
+        ") AND doc_oid=:doc_oid " +
+        "AND ver_instant <= :version_as_of_instant " +
+        "AND corr_instant <= :corrected_to_instant " +
+        "ORDER BY ver_instant DESC, corr_instant DESC";
   }
   
   //-------------------------------------------------------------------------
