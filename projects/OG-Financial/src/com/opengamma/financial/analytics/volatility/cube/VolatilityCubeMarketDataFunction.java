@@ -68,6 +68,7 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
     _results = Sets.newHashSet(_marketDataResult);
   }
 
+  @SuppressWarnings("synthetic-access")
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
     final Triple<InstantProvider, InstantProvider, VolatilityCubeSpecification> compile = _helper.compile(context, atInstant);
@@ -156,6 +157,7 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
       _strikesById = strikesById;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
         final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
@@ -172,6 +174,7 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
       return null;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
       return _results;
@@ -182,6 +185,7 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
       return ComputationTargetType.PRIMITIVE;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       return _helper.canApplyTo(context, target);

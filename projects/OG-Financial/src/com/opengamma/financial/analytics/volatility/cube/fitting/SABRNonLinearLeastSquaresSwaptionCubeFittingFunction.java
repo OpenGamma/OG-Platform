@@ -11,6 +11,7 @@ import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 
 import javax.time.calendar.Period;
 
@@ -33,7 +34,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctionHelper;
-import com.opengamma.financial.analytics.volatility.sabr.SABRFittedSurfaces;
+import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
@@ -105,7 +106,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
       throw new OpenGammaRuntimeException("Could not get volatility cube data");
     }
     final VolatilityCubeData volatilityCubeData = (VolatilityCubeData) objectCubeData;
-    final Map<Tenor, Map<Tenor, Pair<double[], double[]>>> smiles = volatilityCubeData.getSmiles();
+    final SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> smiles = volatilityCubeData.getSmiles();
     final DoubleArrayList swapMaturitiesList = new DoubleArrayList();
     final DoubleArrayList swaptionExpiriesList = new DoubleArrayList();
     final DoubleArrayList alphaList = new DoubleArrayList();
@@ -114,7 +115,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
     final DoubleArrayList rhoList = new DoubleArrayList();
     final DoubleArrayList chiSqList = new DoubleArrayList();
     final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = new HashMap<DoublesPair, DoubleMatrix2D>();
-    for (final Map.Entry<Tenor, Map<Tenor, Pair<double[], double[]>>> swapMaturityEntry : smiles.entrySet()) {
+    for (final Map.Entry<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> swapMaturityEntry : smiles.entrySet()) {
       final double maturity = getTime(swapMaturityEntry.getKey());
       for (final Map.Entry<Tenor, Pair<double[], double[]>> swaptionExpiryEntry : swapMaturityEntry.getValue().entrySet()) {
         final double swaptionExpiry = getTime(swaptionExpiryEntry.getKey());
@@ -127,7 +128,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
         final EuropeanVanillaOption[] options = new EuropeanVanillaOption[n];
         final BlackFunctionData[] data = new BlackFunctionData[n];
         final double[] errors = new double[n];
-        final Pair<Tenor, Tenor> tenorPair = Pair.of(swapMaturityEntry.getKey(), swaptionExpiryEntry.getKey());
+        final Pair<Tenor, Tenor> tenorPair = Pair.of(swapMaturityEntry.getKey(), swaptionExpiryEntry.getKey()); //TODO here is where you are
         if (volatilityCubeData.getStrikes() != null && volatilityCubeData.getStrikes().containsKey(tenorPair)) {
           final double forward = volatilityCubeData.getStrikes().get(tenorPair);
           final double atmVol = volatilityCubeData.getATMVolatilities().get(tenorPair);

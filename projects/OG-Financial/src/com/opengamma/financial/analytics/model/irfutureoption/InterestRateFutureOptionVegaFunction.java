@@ -30,7 +30,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.VegaMatrixHelper;
-import com.opengamma.financial.analytics.volatility.sabr.SABRFittedSurfaces;
+import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
@@ -53,7 +53,6 @@ import com.opengamma.util.tuple.Pair;
 public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOptionFunction {
   private static final LinearInterpolator1D LINEAR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final GridInterpolator2D NODE_SENSITIVITY_CALCULATOR = new GridInterpolator2D(LINEAR, LINEAR);
-  @SuppressWarnings("synthetic-access")
   private static final DoublesPairComparator COMPARATOR = new DoublesPairComparator();
   private static final MatrixAlgebra ALGEBRA = MatrixAlgebraFactory.OG_ALGEBRA;
   private VolatilitySurfaceDefinition<?, ?> _definition;
@@ -145,7 +144,7 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
     return requirements;
   }
   
-  private ValueSpecification getResultSpec(ComputationTarget target) {
+  private ValueSpecification getResultSpec(final ComputationTarget target) {
     return new ValueSpecification(ValueRequirementNames.VEGA_QUOTE_MATRIX, target.toSpecification(), 
         createValueProperties()
             .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
@@ -207,6 +206,9 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
   }
 
   private static final class DoublesPairComparator implements Comparator<DoublesPair> {
+
+    public DoublesPairComparator() {
+    }
 
     @Override
     public int compare(final DoublesPair p1, final DoublesPair p2) {

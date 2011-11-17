@@ -94,6 +94,7 @@ public class VolatilityCubeFunction extends AbstractFunction {
         final Map<Pair<Tenor, Tenor>, Double> atmStrikes = data.getStrikes();
         final Map<Pair<Tenor, Tenor>, Double> normalizedATMStrikes = new HashMap<Pair<Tenor, Tenor>, Double>();
         final Map<Pair<Tenor, Tenor>, Double> normalizedATMVols = new HashMap<Pair<Tenor, Tenor>, Double>();
+        Map<VolatilityPoint, Double> temp = new HashMap<VolatilityPoint, Double>();
         for (final Map.Entry<VolatilityPoint, Double> entry : volatilityPoints.entrySet()) {
           final VolatilityPoint oldPoint = entry.getKey();
           final Tenor swapTenor = oldPoint.getSwapTenor();
@@ -101,12 +102,15 @@ public class VolatilityCubeFunction extends AbstractFunction {
           final double relativeStrike = oldPoint.getRelativeStrike();
           if (atmStrikes.containsKey(Pair.of(swapTenor, swaptionExpiry))) {
             final Pair<Tenor, Tenor> tenorPair = Pair.of(swapTenor, swaptionExpiry);
-            final double absoluteStrike = atmStrikes.get(tenorPair) / 100 + relativeStrike / 10000;
+            final double absoluteStrike = atmStrikes.get(tenorPair) + relativeStrike / 10000;
             final double vol = entry.getValue();
             final VolatilityPoint newPoint = new VolatilityPoint(swapTenor, swaptionExpiry, absoluteStrike);
             normalizedATMStrikes.put(tenorPair, absoluteStrike);
             normalizedATMVols.put(tenorPair, vol);
-            normalizedVolatilityPoints.put(newPoint, vol); //TODO this normalization should not be performed here
+            normalizedVolatilityPoints.put(newPoint, vol);
+            if (swapTenor.equals(Tenor.ofYears(10))) {
+              temp.put(newPoint, vol);
+            }
           }
         }
         normalizedData.setDataPoints(normalizedVolatilityPoints);
