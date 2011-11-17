@@ -116,7 +116,9 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     OpenGammaExecutionContext.setHolidaySource(context, _holidaySource);
     OpenGammaExecutionContext.setConventionBundleSource(context, _conventionBundleSource);
     OpenGammaExecutionContext.setConfigSource(context, _configSource);
-    OpenGammaExecutionContext.setOverrideOperationCompiler(context, _overrideOperationCompiler);
+    if (_overrideOperationCompiler != null) {
+      OpenGammaExecutionContext.setOverrideOperationCompiler(context, _overrideOperationCompiler);
+    }
     return context;
   }
 
