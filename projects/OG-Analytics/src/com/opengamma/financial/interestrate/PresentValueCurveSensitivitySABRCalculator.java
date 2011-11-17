@@ -96,7 +96,7 @@ public final class PresentValueCurveSensitivitySABRCalculator extends PresentVal
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
       final CouponCMSSABRReplicationMethod replication = CouponCMSSABRReplicationMethod.getDefaultInstance();
-      return replication.presentValueSensitivity(payment, sabrBundle).getSensitivities();
+      return replication.presentValueCurveSensitivity(payment, sabrBundle).getSensitivities();
     }
     throw new UnsupportedOperationException("The PresentValueCurveSensitivitySABRCalculator visitor visitCouponCMS requires a SABRInterestRateDataBundle as data.");
   }

@@ -119,8 +119,7 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
     final double beta1 = 1 - beta;
     if (CompareUtils.closeEquals(forward, k, ATM_EPS)) {
       final double f1 = Math.pow(forward, beta1);
-      vol = alpha * (1 + timeToExpiry * (beta1 * beta1 * alpha * alpha / 24 / f1 / f1 + rho * alpha * beta * nu / 4 / f1
-          + nu * nu * (2 - 3 * rho * rho) / 24)) / f1;
+      vol = alpha * (1 + timeToExpiry * (beta1 * beta1 * alpha * alpha / 24 / f1 / f1 + rho * alpha * beta * nu / 4 / f1 + nu * nu * (2 - 3 * rho * rho) / 24)) / f1;
     } else {
       if (CompareUtils.closeEquals(beta, 0, BETA_EPS)) {
         final double ln = Math.log(forward / k);
@@ -151,8 +150,7 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
   }
 
   @ExternalFunction
-  public double getVolatility(final double forward, final double strike, final double timeToExpiry,
-      final double alpha, final double beta, final double rho, final double nu) {
+  public double getVolatility(final double forward, final double strike, final double timeToExpiry, final double alpha, final double beta, final double rho, final double nu) {
     Validate.isTrue(forward > 0, "Forward must be > 0");
     EuropeanVanillaOption option = new EuropeanVanillaOption(strike, timeToExpiry, true);
     SABRFormulaData data = new SABRFormulaData(alpha, beta, rho, nu);
@@ -273,15 +271,14 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
           zBar = 1 / xz * rzxzBar - xzBar / (xz * xz) * rzxzBar;
         } else {
           xzBar = -z / (xz * xz) * rzxzBar;
-          zBar = 1 / xz * rzxzBar + 1 / ((Math.sqrt(1 - 2 * rho * z + z * z) + z - rho))
-              * (0.5 * Math.pow(1 - 2 * rho * z + z * z, -0.5) * (-2 * rho + 2 * z) + 1) * xzBar;
+          zBar = 1 / xz * rzxzBar + 1 / ((Math.sqrt(1 - 2 * rho * z + z * z) + z - rho)) * (0.5 * Math.pow(1 - 2 * rho * z + z * z, -0.5) * (-2 * rho + 2 * z) + 1) * xzBar;
         }
       }
     }
 
     final double lnrfKBar = sfK * (betaStar * betaStar / 12 * lnrfK + Math.pow(betaStar, 4) / 1920 * 4 * Math.pow(lnrfK, 3)) * sf1Bar + nu / alpha * sfK * zBar;
-    final double sfKBar = nu / alpha * lnrfK * zBar + sf1 / sfK * sf1Bar
-                - (Math.pow(betaStar * alpha, 2) / Math.pow(sfK, 3) / 12 + (rho * beta * nu * alpha) / 4 / (sfK * sfK)) * timeToExpiry * sf2Bar;
+    final double sfKBar = nu / alpha * lnrfK * zBar + sf1 / sfK * sf1Bar - (Math.pow(betaStar * alpha, 2) / Math.pow(sfK, 3) / 12 + (rho * beta * nu * alpha) / 4 / (sfK * sfK)) * timeToExpiry
+        * sf2Bar;
     final double strikeBar = -1 / strike * lnrfKBar + betaStar * sfK / (2 * strike) * sfKBar;
     final double forwardBar = 1 / forward * lnrfKBar + betaStar * sfK / (2 * forward) * sfKBar;
     final double nuBar = 1 / alpha * sfK * lnrfK * zBar + ((rho * beta * alpha) / (4 * sfK) + (2 - 3 * rho * rho) * nu / 12) * timeToExpiry * sf2Bar;
@@ -306,10 +303,9 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
     }
     rhoBar += ((beta * nu * alpha) / (4 * sfK) - rho * nu * nu / 4) * timeToExpiry * sf2Bar;
 
-    final double alphaBar = -nu / (alpha * alpha) * sfK * lnrfK * zBar + ((betaStar * alpha / sfK) * (betaStar / sfK) / 12 + (rho * beta * nu) / (4 * sfK)) * timeToExpiry * sf2Bar + 1 / sf1
-        * rzxz * sf2 * vBar;
-    final double betaBar = -0.5 * Math.log(forward * strike) * sfK * sfKBar
-        - sfK * (betaStar / 12 * (lnrfK * lnrfK) + Math.pow(betaStar, 3) / 480 * Math.pow(lnrfK, 4)) * sf1Bar
+    final double alphaBar = -nu / (alpha * alpha) * sfK * lnrfK * zBar + ((betaStar * alpha / sfK) * (betaStar / sfK) / 12 + (rho * beta * nu) / (4 * sfK)) * timeToExpiry * sf2Bar + 1 / sf1 * rzxz
+        * sf2 * vBar;
+    final double betaBar = -0.5 * Math.log(forward * strike) * sfK * sfKBar - sfK * (betaStar / 12 * (lnrfK * lnrfK) + Math.pow(betaStar, 3) / 480 * Math.pow(lnrfK, 4)) * sf1Bar
         + (-betaStar * alpha * alpha / sfK / sfK / 12 + rho * nu * alpha / 4 / sfK) * timeToExpiry * sf2Bar;
 
     volatilityAdjoint[1] = forwardBar;

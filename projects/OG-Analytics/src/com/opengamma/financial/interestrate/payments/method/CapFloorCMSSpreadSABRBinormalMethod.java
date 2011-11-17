@@ -195,8 +195,8 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
     double cmsCap1PriceBar = 1.0 / cmsCap1PriceNormalDerivative[1] * cmsCap1ImpliedVolatilityBar;
     double cmsCoupon2PriceBar = expectation2Bar / factor;
     double cmsCoupon1PriceBar = expectation1Bar / factor;
-    InterestRateCurveSensitivity cmsCoupon1CurveSensitivity = METHOD_CMS_COUPON.presentValueSensitivity(cmsCoupon1, sabrData);
-    InterestRateCurveSensitivity cmsCoupon2CurveSensitivity = METHOD_CMS_COUPON.presentValueSensitivity(cmsCoupon2, sabrData);
+    InterestRateCurveSensitivity cmsCoupon1CurveSensitivity = METHOD_CMS_COUPON.presentValueCurveSensitivity(cmsCoupon1, sabrData);
+    InterestRateCurveSensitivity cmsCoupon2CurveSensitivity = METHOD_CMS_COUPON.presentValueCurveSensitivity(cmsCoupon2, sabrData);
     InterestRateCurveSensitivity cmsCap1CurveSensitivity = METHOD_CMS_CAP.presentValueSensitivity(cmsCap1, sabrData);
     InterestRateCurveSensitivity cmsCap2CurveSensitivity = METHOD_CMS_CAP.presentValueSensitivity(cmsCap2, sabrData);
     final List<DoublesPair> list = new ArrayList<DoublesPair>();
