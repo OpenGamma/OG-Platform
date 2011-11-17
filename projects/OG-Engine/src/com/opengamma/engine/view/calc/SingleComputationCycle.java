@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -32,7 +31,6 @@ import java.util.concurrent.TimeoutException;
 import javax.time.Duration;
 import javax.time.Instant;
 
-import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +57,7 @@ import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
+import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.ComputationCycleResultListener;
@@ -626,7 +625,6 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         if (node.getFunction().getFunction() instanceof MarketDataSourcingFunction) {
           markExecuted(node);
         }
-
         return !isExecuted(node);
       }
     });

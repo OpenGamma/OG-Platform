@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.marketdata;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.OverrideOperation;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
@@ -20,6 +23,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class MarketDataELCompiler implements OverrideOperationCompiler {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(MarketDataELCompiler.class);
+
   private final class Evaluator implements OverrideOperation {
 
     private final UserExpression _expr;
@@ -34,17 +39,29 @@ public class MarketDataELCompiler implements OverrideOperationCompiler {
 
     @Override
     public Object apply(final ValueRequirement requirement, final Object original) {
+      s_logger.debug("Applying {} to {}", _expr, requirement);
       final UserExpression.Evaluator eval = getExpr().evaluator();
       eval.setVariable("x", original);
       switch (requirement.getTargetSpecification().getType()) {
         case SECURITY:
           eval.setVariable("security", getSecuritySource().getSecurity(requirement.getTargetSpecification().getUniqueId()));
           break;
+        case PRIMITIVE:
+          if (requirement.getTargetSpecification().getIdentifier() != null) {
+            eval.setVariable("externalId", requirement.getTargetSpecification().getIdentifier());
+          }
+          if (requirement.getTargetSpecification().getUniqueId() != null) {
+            eval.setVariable("uniqueId", requirement.getTargetSpecification().getUniqueId());
+          }
+          break;
       }
+      eval.setVariable("value", requirement.getValueName());
       final Object result = eval.evaluate();
       if (result == UserExpression.NA) {
+        s_logger.debug("Evaluation failed - using original {}", original);
         return original;
       } else {
+        s_logger.debug("Evaluation of {} to {}", original, result);
         return result;
       }
     }

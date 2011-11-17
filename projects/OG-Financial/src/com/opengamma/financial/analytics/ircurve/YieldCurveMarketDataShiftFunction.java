@@ -12,12 +12,14 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.marketdata.OverrideOperation;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -26,24 +28,27 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.id.UniqueId;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 
 /**
- * Function to shift a yield curve, implemented using properties and constraints.
+ * Function to shift a yield curve's market data, implemented using properties and constraints.
+ * <p>
+ * The shift expression is applied to each of the market data value lines.
  */
-public class YieldCurveShiftFunction extends AbstractFunction.NonCompiledInvoker {
+public class YieldCurveMarketDataShiftFunction extends AbstractFunction.NonCompiledInvoker {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveShiftFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveMarketDataShiftFunction.class);
 
   /**
-   * Property to shift a yield curve.
+   * Property to shift a yield curve's market data.
    */
   protected static final String SHIFT = "SHIFT";
 
   @Override
   public String getShortName() {
-    return "YieldCurveShift";
+    return "YieldCurveMarketDataShift";
   }
 
   @Override
@@ -58,7 +63,7 @@ public class YieldCurveShiftFunction extends AbstractFunction.NonCompiledInvoker
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.YIELD_CURVE, target.toSpecification(), ValueProperties.all()));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, target.toSpecification(), ValueProperties.all()));
   }
 
   @Override
@@ -87,7 +92,7 @@ public class YieldCurveShiftFunction extends AbstractFunction.NonCompiledInvoker
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ComputedValue input = inputs.getAllValues().iterator().next();
     final ValueSpecification inputSpec = input.getSpecification();
-    final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) input.getValue();
+    final SnapshotDataBundle marketData = (SnapshotDataBundle) input.getValue();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String shift = desiredValue.getConstraint(SHIFT);
     final ValueProperties.Builder properties = createValueProperties(inputSpec).with(SHIFT, shift);
@@ -95,10 +100,18 @@ public class YieldCurveShiftFunction extends AbstractFunction.NonCompiledInvoker
     if (compiler == null) {
       throw new IllegalStateException("No override operation compiler for " + shift + " in execution context");
     }
-    s_logger.debug("Applying {} to yield curve {}", shift, curve);
-    final Object result = compiler.compile(shift).apply(desiredValue, curve);
-    s_logger.debug("Got result {}", result);
-    return Collections.singleton(new ComputedValue(new ValueSpecification(inputSpec.getValueName(), inputSpec.getTargetSpecification(), properties.get()), result));
+    s_logger.debug("Applying {} to {}", shift, marketData);
+    final OverrideOperation operation = compiler.compile(shift);
+    for (Map.Entry<UniqueId, Double> dataPoint : marketData.getDataPoints().entrySet()) {
+      s_logger.debug("Applying to {}", dataPoint);
+      final Object result = operation.apply(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, dataPoint.getKey()), dataPoint.getValue());
+      s_logger.debug("Got result {}", result);
+      if (result instanceof Number) {
+        dataPoint.setValue(((Number) result).doubleValue());
+      } else {
+        s_logger.warn("Result of override operation was not numeric");
+      }
+    }
+    return Collections.singleton(new ComputedValue(new ValueSpecification(inputSpec.getValueName(), inputSpec.getTargetSpecification(), properties.get()), marketData));
   }
-
 }

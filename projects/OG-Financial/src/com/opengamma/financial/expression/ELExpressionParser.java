@@ -98,13 +98,13 @@ public class ELExpressionParser extends UserExpressionParser {
         case ']':
           return j;
         case '(':
-          j = findCloseBracket(str, j);
+          j = findCloseBracket(str, j + 1);
           break;
         case '\"':
-          j = findEndQuote(str, j);
+          j = findEndQuote(str, j + 1);
           break;
         case '\'':
-          j = findEndApostrophe(str, j);
+          j = findEndApostrophe(str, j + 1);
           break;
       }
       if (j == -1) {
@@ -118,18 +118,18 @@ public class ELExpressionParser extends UserExpressionParser {
     for (int j = i; j < str.length(); j++) {
       switch (str.charAt(j)) {
         case '[':
-          j = findCloseSquareBracket(str, j);
+          j = findCloseSquareBracket(str, j + 1);
           break;
         case '(':
-          j = findCloseBracket(str, j);
+          j = findCloseBracket(str, j + 1);
           break;
         case ')':
           return j;
         case '\"':
-          j = findEndQuote(str, j);
+          j = findEndQuote(str, j + 1);
           break;
         case '\'':
-          j = findEndApostrophe(str, j);
+          j = findEndApostrophe(str, j + 1);
           break;
       }
       if (j == -1) {
@@ -145,10 +145,10 @@ public class ELExpressionParser extends UserExpressionParser {
         case ';':
           return j;
         case '\"':
-          j = findEndQuote(str, j);
+          j = findEndQuote(str, j + 1);
           break;
         case '\'':
-          j = findEndApostrophe(str, j);
+          j = findEndApostrophe(str, j + 1);
           break;
       }
       if (j == -1) {
