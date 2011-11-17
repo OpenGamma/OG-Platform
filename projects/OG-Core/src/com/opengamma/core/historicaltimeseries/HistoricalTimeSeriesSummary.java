@@ -14,6 +14,8 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBean;
 
 import com.opengamma.util.PublicSPI;
+
+import java.io.Serializable;
 import java.util.Map;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
@@ -31,7 +33,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  */
 @PublicSPI
 @BeanDefinition
-public class HistoricalTimeSeriesSummary extends DirectBean {
+public class HistoricalTimeSeriesSummary extends DirectBean implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   /**
    * The earliest value of time-series.
