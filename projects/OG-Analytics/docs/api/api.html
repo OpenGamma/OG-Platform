@@ -1,4 +1,4 @@
-{% set javadocs = d['javadoc-data.json|javadocs'] %}
+{% set javadocs = d['/javadoc-data.json|javadocs'] %}
 {% for package_name, package_info in javadocs['packages'].items() %}
 
 <!-- split "{{package_name}}" -->
@@ -73,8 +73,10 @@
 
 {% endfor %}
 
+{% if class_info.has_key('source-html') -%}
 <h3>Full Class Source</h3>
 {{ class_info['source-html'] }}
+{% endif -%}
 
 {% endfor %}
 {% endfor %}
