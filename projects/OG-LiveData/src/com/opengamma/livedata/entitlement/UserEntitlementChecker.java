@@ -60,7 +60,7 @@ public class UserEntitlementChecker extends AbstractEntitlementChecker {
     
     User user = _userManager.getUser(userPrincipal.getUserName());
     if (user == null) {
-      s_logger.debug("User {] does not exist - no permissions are granted", userPrincipal.getUserName());
+      s_logger.debug("User {} does not exist - no permissions are granted", userPrincipal.getUserName());
       for (LiveDataSpecification spec : requestedSpecifications) {
         returnValue.put(spec, false);                
       }
@@ -76,6 +76,7 @@ public class UserEntitlementChecker extends AbstractEntitlementChecker {
         boolean hasPermission = user.hasPermission(permission);
         returnValue.put(requestedSpec, hasPermission);                
       } else {
+        s_logger.debug("Could not resolve live data spec {} - no permissions are granted", userPrincipal.getUserName(), requestedSpec);
         returnValue.put(requestedSpec, false);
       }
     }

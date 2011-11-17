@@ -36,12 +36,7 @@ public class IndexFutureSecurity extends FutureSecurity {
   @PropertyDefinition
   private ExternalId _underlyingId;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public IndexFutureSecurity() {
+  IndexFutureSecurity() { //For builder
     super();
   }
 

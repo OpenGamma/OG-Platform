@@ -8,6 +8,7 @@
     "*.java|pyg" : {},
     "*.java|pyg|l" : {},
     "*.java|fn|java" : {},
+    "*.R|idio|l" : {},
     "*.R|fn|idio|rint|pyg" : {
         "ifinput" : "%.java|fn|java"
     }

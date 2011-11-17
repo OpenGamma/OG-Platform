@@ -53,12 +53,8 @@ public class FXForwardSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private ExternalId _regionId;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public FXForwardSecurity() {
+  FXForwardSecurity() { //For builder
+    super();
   }
 
   public FXForwardSecurity(ExternalId underlyingIdentifier, ZonedDateTime forwardDate, ExternalId region) {

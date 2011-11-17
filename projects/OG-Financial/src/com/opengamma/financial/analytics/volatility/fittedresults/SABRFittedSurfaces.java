@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.volatility.sabr;
+package com.opengamma.financial.analytics.volatility.fittedresults;
 
 import java.util.Map;
 
