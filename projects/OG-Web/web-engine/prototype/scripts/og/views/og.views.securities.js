@@ -141,13 +141,20 @@ $.register_module({
                                 if (!layout.inner.state.south.isClosed && args.version) {
                                     e.preventDefault();
                                     layout.inner.close('south');
-                                    routes.go(routes.hash(rule, args, {del: ['version']}));
                                 } else layout.inner.open('south');
                             });
+                        layout.inner.options.south.onclose = function () {
+                            routes.go(routes.hash(rule, args, {del: ['version']}));
+                        };
                         $('.OG-js-header-links').empty().append($version_link);
                     };
                 // if new page, close south panel
-                check_state({args: args, conditions: [{new_page: layout.inner.close.partial('south')}]});
+                check_state({args: args, conditions: [{
+                    new_page: function () {
+                        layout.inner.options.south.onclose = null;
+                        layout.inner.close.partial('south');
+                    }
+                }]});
                 // load versions
                 if (args.version) {
                     layout.inner.open('south');
