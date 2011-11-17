@@ -39,7 +39,7 @@ public class FloatingSpreadIRLeg extends FloatingInterestRateLeg {
   /**
    * Creates an instance.
    */
-  FloatingSpreadIRLeg() { // For builder
+  FloatingSpreadIRLeg() { //For builder
   }
 
   /**
