@@ -93,7 +93,6 @@ $.register_module({
                     selector: selector,
                     extras: {name: master.name},
                     processor: function (data) {
-                        if (!data.identifier) delete data.identifier; // remove identifier if a portfolio is not picked
                         if (!data[SETS]) return;
                         // remove undefineds that we added
                         data[SETS] = data[SETS].filter(function (set) {return set !== undefined;});
@@ -168,8 +167,8 @@ $.register_module({
                     children: [
                         new forms.Dropdown({
                             form: form, resource: 'portfolios', index: 'identifier', value: master.identifier,
-                            rest_options: {page: 'all'},
-                            placeholder: 'Please choose a portfolio...', fields: [0, 2]
+                            rest_options: {page: '*'}, placeholder: 'Please choose a portfolio...', fields: [0, 2],
+                            processor: function (selector, data) {if (!data.identifier) delete data.identifier;}
                         }),
                         new form.Field({module: 'og.views.forms.currency', generator: function (handler, template) {
                             handler(template);
@@ -389,7 +388,7 @@ $.register_module({
                                         children: [
                                             new forms.Dropdown({
                                                 form: form, resource: 'valuerequirementnames', index: sel_name,
-                                                value: req[REQO], rest_options: {meta: true, page: 'all'},
+                                                value: req[REQO], rest_options: {meta: true, page: '*'},
                                                 classes: 'og-js-collapse-element',
                                                 placeholder: 'Please select...'
                                             }),
