@@ -45,12 +45,7 @@ public class FXFutureSecurity extends FutureSecurity {
   @PropertyDefinition
   private double _multiplicationFactor = 1.0;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public FXFutureSecurity() {
+  FXFutureSecurity() { //For builder
     super();
   }
 

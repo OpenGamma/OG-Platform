@@ -78,12 +78,8 @@ public class EquityOptionSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private String _exchange;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public EquityOptionSecurity() {
+  EquityOptionSecurity() { //For builder
+    super();
   }
 
   public EquityOptionSecurity(OptionType optionType, double strike, Currency currency, ExternalId underlyingIdentifier,

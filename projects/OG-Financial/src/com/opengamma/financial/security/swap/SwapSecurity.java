@@ -67,12 +67,8 @@ public class SwapSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private SwapLeg _receiveLeg;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public SwapSecurity() {
+  SwapSecurity() { //For builder
+    super();
   }
 
   public SwapSecurity(ZonedDateTime tradeDate, ZonedDateTime effectiveDate, ZonedDateTime maturityDate, String counterparty, SwapLeg payLeg, SwapLeg receiveLeg) {
