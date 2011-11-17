@@ -19,6 +19,7 @@ import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.InterestRateLeg;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
+import com.opengamma.masterdb.security.hibernate.Converters;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 
 /**
@@ -30,6 +31,10 @@ public final class SwapLegBeanOperation {
   }
 
   public static SwapLegBean createBean(final HibernateSecurityMasterDao secMasterSession, final SwapLeg swapLeg) {
+    Converters.validateBusinessDayConvention(swapLeg.getBusinessDayConvention().getConventionName());
+    Converters.validateFrequency(swapLeg.getFrequency().getConventionName());
+    Converters.validateDayCount(swapLeg.getDayCount().getConventionName());
+    
     return swapLeg.accept(new SwapLegVisitor<SwapLegBean>() {
 
       private SwapLegBean createSwapLegBean(SwapLeg swapLeg) {
@@ -59,6 +64,7 @@ public final class SwapLegBeanOperation {
           bean.setSettlementDays(swapLeg.getSettlementDays());
         }
         if (swapLeg.getOffsetFixing() != null) {
+          Converters.validateFrequency(swapLeg.getOffsetFixing().getConventionName());
           bean.setOffsetFixing(secMasterSession.getOrCreateFrequencyBean(swapLeg.getOffsetFixing().getConventionName()));
         }
       }
