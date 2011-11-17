@@ -196,6 +196,7 @@ public class ViewProcessTest {
 
     computationJob.marketDataChanged();
     resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
+    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
     assertEquals(time0.plusMillis(10), resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
     resultListener.assertNoCalls(Timeout.standardTimeoutMillis());
 
@@ -211,6 +212,7 @@ public class ViewProcessTest {
 
     // Running at time0 + 20 doesn't require a rebuild - should still use our dummy
     computationJob.marketDataChanged();
+    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
     resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
     assertEquals(time0.plusMillis(20), resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
     resultListener.assertNoCalls();
