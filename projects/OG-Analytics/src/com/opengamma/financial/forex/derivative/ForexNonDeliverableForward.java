@@ -106,7 +106,7 @@ public class ForexNonDeliverableForward implements ForexDerivative {
    * @return The notional.
    */
   public double getNotionalCurrency1() {
-    return _notional * _exchangeRate;
+    return -_notional * _exchangeRate;
   }
 
   /**
