@@ -5,6 +5,16 @@
  */
 package com.opengamma.engine.view.calc;
 
+import static com.opengamma.util.functional.Functional.map;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Future;
+
+import javax.time.Instant;
+
+import com.google.common.util.concurrent.ForwardingBlockingQueue;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -12,23 +22,17 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.cache.ViewComputationCache;
+import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.functional.Function1;
 
-import javax.time.Instant;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-
-import static com.opengamma.util.functional.Functional.map;
-
 /**
  * This DependencyGraphExecutor executes the given dependency graph
  * on a number of calculation nodes.
  */
-public class MultipleNodeBatchExecutor extends MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
+public class MultipleNodeBatchExecutor extends MultipleNodeExecutor {
 
   /**
    * The batch result writer.
@@ -44,7 +48,8 @@ public class MultipleNodeBatchExecutor extends MultipleNodeExecutor implements D
     _cycle = cycle;
   }
 
-  protected GraphFragmentContext createContext(final DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue) {
+  @Override
+  public Future<DependencyGraph> execute(final DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue, final GraphExecutorStatisticsGatherer statistics) {
     
     Set<String> configNames = _cycle.getAllCalculationConfigurationNames();
     Instant valuationTime = _cycle.getValuationTime();
@@ -74,17 +79,21 @@ public class MultipleNodeBatchExecutor extends MultipleNodeExecutor implements D
 
 
     final ResultWriter resultWriter = _resultWriterFactory.createResultWriter(graph);
-    return new GraphFragmentContext(this, graph, calcJobResultQueue) {
+    final BlockingQueue<CalculationJobResult> wrappedResultQueue = new ForwardingBlockingQueue<CalculationJobResult>() {
+
       @Override
-      public void resultReceived(final CalculationJobResult result) {
-        writeResultToBatchDb(result);
-        super.resultReceived(result);
+      public boolean offer(final CalculationJobResult result) {
+        resultWriter.write(result, graph);
+        return super.offer(result);
       }
 
-      private void writeResultToBatchDb(CalculationJobResult result) {
-        resultWriter.write(result, graph);
+      @Override
+      protected BlockingQueue<CalculationJobResult> delegate() {
+        return calcJobResultQueue;
       }
+
     };
+    return super.execute(graph, wrappedResultQueue, statistics);
   }
 
 }

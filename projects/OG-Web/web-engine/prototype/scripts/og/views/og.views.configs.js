@@ -114,7 +114,7 @@ $.register_module({
                         config_types = result.data.types.sort().map(function (val) {return {name: val, value: val};});
                         $('.OG-toolbar .og-js-new').removeClass('OG-disabled').click(toolbar_buttons['new']);
                     },
-                    cache_for: 15 * 1000
+                    cache_for: 60 * 60 * 1000 // an hour
                 });
             },
             // toolbar here relies on dynamic data, so it is instantiated with a callback instead of having
@@ -138,8 +138,6 @@ $.register_module({
                         item: 'history.configs.recent',
                         value: routes.current().hash
                     });
-                // if new page, close south panel
-                check_state({args: args, conditions: [{new_page: og.views.common.layout.inner.close.partial('south')}]});
                     og.views.config_forms[config_type]({
                         is_new: is_new,
                         data: details_json,
@@ -189,7 +187,10 @@ $.register_module({
                         },
                         selector: '.ui-layout-inner-center .ui-layout-content'
                     });
-                };
+                },
+                layout = og.views.common.layout;
+                layout.inner.options.south.onclose = null;
+                layout.inner.close('south');
                 rest_options = {
                     handler: rest_handler,
                     loading: function () {
@@ -247,6 +248,7 @@ $.register_module({
                 if (options.slickgrid.columns[0].name === null) return api.rest.configs.get({
                     meta: true,
                     handler: function (result) {
+                        if (result.error) return ui.dialog({type: 'error', message: result.message});
                         options.slickgrid.columns[0].name = [
                             '<select class="og-js-type-filter" style="width: 80px">',
                             result.data.types.sort().reduce(function (acc, type) {

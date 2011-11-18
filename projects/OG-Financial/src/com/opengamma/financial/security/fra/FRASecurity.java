@@ -79,14 +79,23 @@ public class FRASecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private ExternalId _underlyingId;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public FRASecurity() {
+
+  FRASecurity() { //For builder
+    super();
   }
 
+  /**
+   * Creates an instance
+   * 
+   * @param currency the currency, not null.
+   * @param region the region identifier, not null
+   * @param startDate the start date, not null
+   * @param endDate the end date, not null
+   * @param rate the rate
+   * @param amount the amount
+   * @param underlyingIdentifier the underlying identifier, not null
+   * @param fixingDate the fixing date, not null
+   */
   public FRASecurity(Currency currency, ExternalId region, ZonedDateTime startDate, ZonedDateTime endDate, double rate, double amount, ExternalId underlyingIdentifier, ZonedDateTime fixingDate) {
     super(SECURITY_TYPE);
     setCurrency(currency);

@@ -69,18 +69,31 @@ public class ManageableHistoricalTimeSeries extends DirectBean
    */
   @PropertyDefinition
   private LocalDateDoubleTimeSeries _timeSeries;
-  /**
-   * The earliest date of time-series.
-   * This field is only returned if requested from the master.
-   */
-  @PropertyDefinition
-  private LocalDate _earliest;
-  /**
-   * The latest date of time-series.
-   * This field is only returned if requested from the master.
-   */
-  @PropertyDefinition
-  private LocalDate _latest; 
+
+// KV: These members have been superseded by the HistoricalTimeSeriesSummary class
+//  /**
+//   * The earliest value of time-series.
+//   */
+//  @PropertyDefinition
+//  private double _earliestValue;
+//  /**
+//   * The latest value of time-series.
+//   */
+//  @PropertyDefinition
+//  private double _latestValue;
+//  
+//  /**
+//   * The earliest date of time-series.
+//   * This field is only returned if requested from the master.
+//   */
+//  @PropertyDefinition
+//  private LocalDate _earliestDate;
+//  /**
+//   * The latest date of time-series.
+//   * This field is only returned if requested from the master.
+//   */
+//  @PropertyDefinition
+//  private LocalDate _latestDate; 
 
   /**
    * Creates an instance.
@@ -117,10 +130,6 @@ public class ManageableHistoricalTimeSeries extends DirectBean
         return getCorrectionInstant();
       case 779431844:  // timeSeries
         return getTimeSeries();
-      case -809579181:  // earliest
-        return getEarliest();
-      case -1109880953:  // latest
-        return getLatest();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -140,12 +149,6 @@ public class ManageableHistoricalTimeSeries extends DirectBean
       case 779431844:  // timeSeries
         setTimeSeries((LocalDateDoubleTimeSeries) newValue);
         return;
-      case -809579181:  // earliest
-        setEarliest((LocalDate) newValue);
-        return;
-      case -1109880953:  // latest
-        setLatest((LocalDate) newValue);
-        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -160,9 +163,7 @@ public class ManageableHistoricalTimeSeries extends DirectBean
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getVersionInstant(), other.getVersionInstant()) &&
           JodaBeanUtils.equal(getCorrectionInstant(), other.getCorrectionInstant()) &&
-          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries()) &&
-          JodaBeanUtils.equal(getEarliest(), other.getEarliest()) &&
-          JodaBeanUtils.equal(getLatest(), other.getLatest());
+          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries());
     }
     return false;
   }
@@ -174,8 +175,6 @@ public class ManageableHistoricalTimeSeries extends DirectBean
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersionInstant());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionInstant());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEarliest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLatest());
     return hash;
   }
 
@@ -290,62 +289,6 @@ public class ManageableHistoricalTimeSeries extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the earliest date of time-series.
-   * This field is only returned if requested from the master.
-   * @return the value of the property
-   */
-  public LocalDate getEarliest() {
-    return _earliest;
-  }
-
-  /**
-   * Sets the earliest date of time-series.
-   * This field is only returned if requested from the master.
-   * @param earliest  the new value of the property
-   */
-  public void setEarliest(LocalDate earliest) {
-    this._earliest = earliest;
-  }
-
-  /**
-   * Gets the the {@code earliest} property.
-   * This field is only returned if requested from the master.
-   * @return the property, not null
-   */
-  public final Property<LocalDate> earliest() {
-    return metaBean().earliest().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the latest date of time-series.
-   * This field is only returned if requested from the master.
-   * @return the value of the property
-   */
-  public LocalDate getLatest() {
-    return _latest;
-  }
-
-  /**
-   * Sets the latest date of time-series.
-   * This field is only returned if requested from the master.
-   * @param latest  the new value of the property
-   */
-  public void setLatest(LocalDate latest) {
-    this._latest = latest;
-  }
-
-  /**
-   * Gets the the {@code latest} property.
-   * This field is only returned if requested from the master.
-   * @return the property, not null
-   */
-  public final Property<LocalDate> latest() {
-    return metaBean().latest().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code ManageableHistoricalTimeSeries}.
    */
   public static class Meta extends DirectMetaBean {
@@ -375,16 +318,6 @@ public class ManageableHistoricalTimeSeries extends DirectBean
     private final MetaProperty<LocalDateDoubleTimeSeries> _timeSeries = DirectMetaProperty.ofReadWrite(
         this, "timeSeries", ManageableHistoricalTimeSeries.class, LocalDateDoubleTimeSeries.class);
     /**
-     * The meta-property for the {@code earliest} property.
-     */
-    private final MetaProperty<LocalDate> _earliest = DirectMetaProperty.ofReadWrite(
-        this, "earliest", ManageableHistoricalTimeSeries.class, LocalDate.class);
-    /**
-     * The meta-property for the {@code latest} property.
-     */
-    private final MetaProperty<LocalDate> _latest = DirectMetaProperty.ofReadWrite(
-        this, "latest", ManageableHistoricalTimeSeries.class, LocalDate.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
@@ -392,9 +325,7 @@ public class ManageableHistoricalTimeSeries extends DirectBean
         "uniqueId",
         "versionInstant",
         "correctionInstant",
-        "timeSeries",
-        "earliest",
-        "latest");
+        "timeSeries");
 
     /**
      * Restricted constructor.
@@ -413,10 +344,6 @@ public class ManageableHistoricalTimeSeries extends DirectBean
           return _correctionInstant;
         case 779431844:  // timeSeries
           return _timeSeries;
-        case -809579181:  // earliest
-          return _earliest;
-        case -1109880953:  // latest
-          return _latest;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -467,22 +394,6 @@ public class ManageableHistoricalTimeSeries extends DirectBean
      */
     public final MetaProperty<LocalDateDoubleTimeSeries> timeSeries() {
       return _timeSeries;
-    }
-
-    /**
-     * The meta-property for the {@code earliest} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<LocalDate> earliest() {
-      return _earliest;
-    }
-
-    /**
-     * The meta-property for the {@code latest} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<LocalDate> latest() {
-      return _latest;
     }
 
   }

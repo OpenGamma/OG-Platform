@@ -65,7 +65,7 @@ public class CouponCMSSABRReplicationMethod {
    * @param sabrData The SABR data bundle. The SABR function need to be the Hagan function.
    * @return The present value sensitivity to curves.
    */
-  public InterestRateCurveSensitivity presentValueSensitivity(final CouponCMS cmsCoupon, final SABRInterestRateDataBundle sabrData) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final CouponCMS cmsCoupon, final SABRInterestRateDataBundle sabrData) {
     final CapFloorCMS cap0 = CapFloorCMS.from(cmsCoupon, 0.0, true);
     // A CMS coupon is priced as a cap with strike 0.
     final CapFloorCMSSABRReplicationMethod method = new CapFloorCMSSABRReplicationMethod(_integrationInterval);

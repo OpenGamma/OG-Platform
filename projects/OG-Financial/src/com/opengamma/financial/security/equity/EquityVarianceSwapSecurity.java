@@ -95,12 +95,8 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private Frequency _observationFrequency;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public EquityVarianceSwapSecurity() {
+  EquityVarianceSwapSecurity() { //For builder
+    super();
   }
 
   public EquityVarianceSwapSecurity(ExternalId spotUnderlyingIdentifier, Currency currency, double strike, double notional,

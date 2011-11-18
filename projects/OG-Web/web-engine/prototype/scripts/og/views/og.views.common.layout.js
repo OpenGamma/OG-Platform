@@ -53,12 +53,10 @@ $.register_module({
             south: {
                 paneSelector: '.ui-layout-inner-south',
                 paneClass: 'ui-layout-inner-south',
-                size: 200,
+                size: '50%',
                 initClosed: true,
                 spacing_closed: 0,
-                onclose: function () {
-                    $('.ui-layout-inner-south').empty();
-                }
+                onopen_start: function () {$('.ui-layout-inner-south').empty()}
             }
         },
         analytics = {

@@ -104,6 +104,11 @@
     <constructor-arg ref="fudgeContext" />
     <property name="underlying" ref="sharedCurrencyMatrixSource" />
   </bean>
+
+  <bean id="currencyPairsSourceRestBean" class="com.opengamma.financial.currency.rest.CurrencyPairsSourceService">
+    <constructor-arg ref="fudgeContext" />
+    <property name="underlying" ref="sharedCurrencyPairsSource" />
+  </bean>
   
   <!-- Ad hoc batches -->
   <bean id="adHocBatchRestBean" class="com.opengamma.financial.batch.AdHocBatchDbManagerService">
@@ -255,6 +260,12 @@
             <entry key="currencyMatrixSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/currencyMatrixSource/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="currencyPairsSource">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/currencyPairsSource/0/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>

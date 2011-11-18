@@ -4,18 +4,10 @@
     <h1>${object_id}</h1>
   </header>
   <section>
-    <div class="og-details-content OG-timeseries OG-js-details-panel">
+    <div class="OG-details-content OG-timeseries OG-js-details-panel">
       <div class="OG-c10 og-grid-last OG-max-width-l">
-        <section class="OG-c10 og-grid-last" style="width: 770px;">
-          <div class="og-flot-top"></div>
-          <div class="og-flot-xaxis"></div>
-          <div class="og-timeseriesPlot og-js-timeseriesPlot"></div>
-          <div class="og-plotHeader"></div>
-          <div class="og-plotMeta" style="display: none">
-            Source: <span>${data_source}</span>,
-            Provider: <span>${data_provider}</span>
-          </div>
-        </section>
+        <section class="OG-c10 og-grid-last og-plots"></section>
+        <section class="og-data-points"></section>
         <section class="OG-mod-1 og-style-2 OG-c5" style="width: 360px;">
           <table>
             <col style="width: 40%" />
@@ -27,9 +19,6 @@
             </thead>
             <tbody class="og-js-identifiers og-mod-content"></tbody>
           </table>
-        </section>
-        <section class="OG-mod-1 og-style-2 og-dataPoints">
-          <table class="og-js-table"></table>
         </section>
       </div>
     </div>

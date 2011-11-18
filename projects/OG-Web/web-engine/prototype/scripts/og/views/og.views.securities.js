@@ -141,13 +141,20 @@ $.register_module({
                                 if (!layout.inner.state.south.isClosed && args.version) {
                                     e.preventDefault();
                                     layout.inner.close('south');
-                                    routes.go(routes.hash(rule, args, {del: ['version']}));
                                 } else layout.inner.open('south');
                             });
+                        layout.inner.options.south.onclose = function () {
+                            routes.go(routes.hash(rule, args, {del: ['version']}));
+                        };
                         $('.OG-js-header-links').empty().append($version_link);
                     };
                 // if new page, close south panel
-                check_state({args: args, conditions: [{new_page: layout.inner.close.partial('south')}]});
+                check_state({args: args, conditions: [{
+                    new_page: function () {
+                        layout.inner.options.south.onclose = null;
+                        layout.inner.close.partial('south');
+                    }
+                }]});
                 // load versions
                 if (args.version) {
                     layout.inner.open('south');
@@ -177,6 +184,17 @@ $.register_module({
                                 $html = $.tmpl(template, json.template_data),
                                 layout = og.views.common.layout, header, content,
                                 html = [], id, json_id = json.identifiers;
+                            header = $.outer($html.find('> header')[0]);
+                            content = $.outer($html.find('> section')[0]);
+                            $('.ui-layout-inner-center .ui-layout-header').html(header);
+                            $('.ui-layout-inner-center .ui-layout-content').html(content);
+                            for (id in json_id) {
+                                if (json_id.hasOwnProperty(id)) {
+                                    html.push('<tr><td><span>', id,
+                                              '<span></td><td>', json_id[id].replace(id + '-', ''), '</td></tr>');
+                                }
+                                $('.ui-layout-inner-center .og-js-identifiers').html(html.join(''));
+                            }
                             (function () {
                                 if (json.template_data['underlyingOid']) {
                                     var id = json.template_data['underlyingOid'],
@@ -184,20 +202,9 @@ $.register_module({
                                         hash = routes.hash(rule, routes.current().args, {add: {id: id}}),
                                         text = json.template_data['underlyingExternalId'],
                                         anchor = '<a href="' + routes.prefix() + hash + '">' + text + '</a>';
-                                        $html.find('.OG-js-underlying-id').html(anchor);
+                                        $('.ui-layout-inner-center .OG-js-underlying-id').html(anchor);
                                 }
                             }());
-                            for (id in json_id) {
-                                if (json_id.hasOwnProperty(id)) {
-                                    html.push('<tr><td><span>', json_id[id].split('-')[0],
-                                              '<span></td><td>', json_id[id].split('-')[1], '</td></tr>');
-                                }
-                                $html.find('.og-js-identifiers').html(html.join(''));
-                            }
-                            header = $.outer($html.find('> header')[0]);
-                            content = $.outer($html.find('> section')[0]);
-                            $('.ui-layout-inner-center .ui-layout-header').html(header);
-                            $('.ui-layout-inner-center .ui-layout-content').html(content);
                             setup_header_links();
                             ui.toolbar(options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {
@@ -266,7 +273,6 @@ $.register_module({
                     }}
                 ]});
                 delete args['filter'];
-                securities.search(args);
                 search_filter();
             },
             load_delete: function (args) {securities.search(args), routes.go(routes.hash(module.rules.load, {}));},

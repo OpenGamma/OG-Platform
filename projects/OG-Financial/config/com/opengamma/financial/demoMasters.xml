@@ -225,6 +225,10 @@
   <bean id="sharedCurrencyMatrixSource" class="com.opengamma.financial.currency.ConfigDBCurrencyMatrixSource">
     <constructor-arg ref="sharedConfigSource" />
   </bean>
+
+  <bean id="sharedCurrencyPairsSource" class="com.opengamma.financial.currency.ConfigDBCurrencyPairsSource">
+    <constructor-arg ref="sharedConfigSource" />
+  </bean>
   
   <!-- Batch -->
   <bean id="batchDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
