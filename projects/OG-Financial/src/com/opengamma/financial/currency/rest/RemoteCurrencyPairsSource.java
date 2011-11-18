@@ -14,8 +14,12 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import org.fudgemsg.FudgeContext;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+
 /**
- * Remote source of {@link com.opengamma.financial.currency.CurrencyPairs} backed by a RESTful web service.
+ * Remote source of {@link CurrencyPairs} backed by a RESTful web service.
  */
 public class RemoteCurrencyPairsSource implements CurrencyPairsSource {
 
@@ -29,27 +33,23 @@ public class RemoteCurrencyPairsSource implements CurrencyPairsSource {
     _targetBase = baseTarget;
   }
 
-  protected RestClient getRestClient() {
-    return _restClient;
-  }
-
-  protected RestTarget getTargetBase() {
-    return _targetBase;
-  }
-
   @Override
   public CurrencyPairs getCurrencyPairs(String name) {
     ArgumentChecker.notNull(name, "name");
-    return getRestClient().getSingleValue(CurrencyPairs.class, getTargetBase().resolve(name), "currencyPairs");
-  }
-
-  /*@Override
-  public CurrencyPair getCurrencyPair(Currency currency1, Currency currency2, String name) {
-    throw new UnsupportedOperationException("getCurrencyPair not implemented");
+    // invoke {name}/currencyPairs
+    return _restClient.getSingleValue(CurrencyPairs.class, _targetBase.resolveBase(name).resolve("currencyPairs"), "currencyPairs");
   }
 
   @Override
-  public Double getRate(Currency currency1, double amount1, Currency currency2, double amount2, String name) {
-    throw new UnsupportedOperationException("getRate not implemented");
-  }*/
+  public CurrencyPair getCurrencyPair(Currency currency1, Currency currency2, String name) {
+    ArgumentChecker.notNull(currency1, "currency1");
+    ArgumentChecker.notNull(currency2, "currency2");
+    ArgumentChecker.notNull(name, "name");
+    // invoke {name}/{currency1}/{currency2}
+    return _restClient.getSingleValue(CurrencyPair.class, _targetBase
+        .resolveBase(name)
+        .resolveBase(currency1.getCode())
+        .resolve(currency2.getCode()),
+        "currencyPair");
+  }
 }

@@ -30,11 +30,11 @@ public class ConfigDBCurrencyPairsSource implements CurrencyPairsSource {
 
   @Override
   public CurrencyPairs getCurrencyPairs(String name) {
-    // TODO can name be null? where should the default name be?
+    ArgumentChecker.notNull(name, "name");
     return _configSource.getLatestByName(CurrencyPairs.class, name);
   }
 
-  /*@Override
+  @Override
   public CurrencyPair getCurrencyPair(Currency currency1, Currency currency2, String name) {
     CurrencyPairs currencyPairs = getCurrencyPairs(name);
     if (currencyPairs == null) {
@@ -42,13 +42,4 @@ public class ConfigDBCurrencyPairsSource implements CurrencyPairsSource {
     }
     return currencyPairs.getCurrencyPair(currency1, currency2);
   }
-
-  @Override
-  public Double getRate(Currency currency1, double amount1, Currency currency2, double amount2, String name) {
-    CurrencyPairs currencyPairs = getCurrencyPairs(name);
-    if (currencyPairs == null) {
-      return null;
-    }
-    return currencyPairs.getRate(currency1, amount1, currency2, amount2);
-  }*/
 }
