@@ -143,32 +143,35 @@ $.register_module({
                 });
             };
             form.Block = Block.partial(form);
+            form.compile = function () {
+                var raw = $form.serializeArray(), built_meta, meta_warns = [],
+                    data = form.data ? $.extend(true, {}, form.data) : null, errors = [];
+                if (data) raw.forEach(function (value) {
+                    var hier = value.name.split('.'), last = hier.pop();
+                    try {
+                        hier.reduce(function (acc, level) {
+                            return acc[level] && typeof acc[level] === 'object' ? acc[level] : (acc[level] = {});
+                        }, data)[last] = value.value;
+                    } catch (error) {
+                        data = null;
+                        error = new Error(klass + '#' + self + ': could not drill down to data.' + value.name);
+                        form_events['form:error'].forEach(function (val) {val.handler(error);});
+                    }
+                });
+                form.process(data, errors);
+                built_meta = type_map ? build_meta(data, null, meta_warns) : null;
+                meta_warns = meta_warns.sort().reduce(function (acc, val) {
+                    return acc[acc.length - 1] !== val ? (acc.push(val), acc) : acc;
+                }, []).join('\n');
+                if (meta_warns.length) og.dev.warn(klass + '#build_meta needs these:\n', meta_warns);
+                return {raw: raw, data: data, errors: errors, meta: built_meta};
+            };
+            form.data = config.data;
             form.dom = form.html.partial(function (html) {
                 $root.html($(dummy).append($.tmpl(form_template, {id: form.id, html: html})).html());
                 form_events['form:load'].forEach(function (val) {val.handler();});
                 ($form = $('#' + form.id)).unbind().submit(function (e) {
-                    var self = 'onsubmit', raw = $form.serializeArray(), built_meta, meta_warns = [],
-                        data = config.data ? $.extend(true, {}, config.data) : null, errors = [], result;
-                    if (data) raw.forEach(function (value) {
-                        var hier = value.name.split('.'), last = hier.pop();
-                        try {
-                            hier.reduce(function (acc, level) {
-                                return acc[level] && typeof acc[level] === 'object' ? acc[level] : (acc[level] = {});
-                            }, data)[last] = value.value;
-                        } catch (error) {
-                            data = null;
-                            error = new Error(klass + '#' + self + ': could not drill down to data.' + value.name);
-                            form_events['form:error'].forEach(function (val) {val.handler(error);});
-                        }
-                    });
-                    form.process(data, errors);
-                    built_meta = type_map ? build_meta(data, null, meta_warns) : null;
-                    meta_warns = meta_warns.sort().reduce(function (acc, val) {
-                        return acc[acc.length - 1] !== val ? (acc.push(val), acc) : acc;
-                    }, []).join('\n');
-                    if (meta_warns.length)
-                        return og.dev.warn(klass + '#build_meta needs these:\n', meta_warns), false;
-                    result = {raw: raw, data: data, errors: errors, meta: built_meta};
+                    var self = 'onsubmit', result = form.compile();
                     try {
                         form_events['form:submit'].forEach(function (val) {val.handler(result);});
                     } catch (error) {
