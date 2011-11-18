@@ -3,7 +3,7 @@
             "inputs" : ["javadoc-data.json|javadocs", "_header.html", "_footer.html"],
             "canonical-name" : "index.html"
         },
-        "@list-files.sh|jinja|sh" : { "propagate" : true, "contents" : "cd ../{{ s.canonical_dir() }}; tree -a -i -f -n --noreport" },
+        "@list-files.sh|jinja|sh" : { "propagate" : true, "contents" : "cd ../{{ s.canonical_dir() }}; find ." },
         "writing-docs.tex|hd|ft|jinja|latex" : {
             "title" : "Writing OpenGamma Examples",
             "allinputs" : true,
