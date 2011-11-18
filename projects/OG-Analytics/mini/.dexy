@@ -1,0 +1,10 @@
+{
+    "$globals" : {
+        "env" : { "CLASSPATH" : "../../../../lib/classpath.jar" }
+    },
+    "*.java|fn|java" : {},
+    "*.R|idio|l" : {},
+    "*.R|fn|idio|rint|pyg" : {
+        "ifinput" : "%.java|fn|java"
+    }
+}
