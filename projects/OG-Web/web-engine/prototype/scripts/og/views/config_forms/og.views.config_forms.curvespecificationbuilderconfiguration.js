@@ -93,12 +93,14 @@ $.register_module({
                           <div class="OG-toolbar"></div>\
                           <h1 class="og-js-name">' + orig_name + '</h1>\
                           <br />(Curve Specification Builder Configuration)\
-                        </header>\
-                    ';
+                        </header>',
+                        section_width = $(form_id + ' .og-js-cell:first').outerWidth() * (field_names.length + 1);
+                    section_width += 40; // padding + awesome list delete icon
                     $('.ui-layout-inner-center .ui-layout-header').html(header);
                     if (deleted || is_new)
                         $(form_id + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
                     if (is_new) $(form_id + ' .og-js-submit[value=save_as_new]').text('Save');
+                    $(form_id + ' .og-js-section').width(section_width);
                     load_handler();
                 }},
                 {type: 'click', selector: form_id + ' .og-js-submit', handler: function (e) {

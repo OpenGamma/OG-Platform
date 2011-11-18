@@ -12,7 +12,9 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -202,6 +204,17 @@ public class RemoteHistoricalTimeSeriesMaster implements HistoricalTimeSeriesMas
   }
 
   @Override
+  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
+    throw new OpenGammaRuntimeException("Getting remote HTS summary not yet implemented");
+  }
+
+  @Override
+  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    // TODO: GET request to timeSeriesObject/objectId/...
+    throw new UnsupportedOperationException();    
+  }
+  
+  @Override
   public UniqueId updateTimeSeriesDataPoints(ObjectIdentifiable objectId, LocalDateDoubleTimeSeries series) {
     try {
       final FudgeMsgEnvelope response = getRestClient().post(getTargetBase().resolveBase("timeSeriesObject").resolveBase(objectId.getObjectId().toString()).resolve("update"),
@@ -241,5 +254,6 @@ public class RemoteHistoricalTimeSeriesMaster implements HistoricalTimeSeriesMas
       throw ex.translate();
     }
   }
+
 
 }

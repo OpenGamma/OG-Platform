@@ -14,7 +14,7 @@ import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
-import com.opengamma.engine.view.listener.JobResultReceivedCall;
+import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
 import com.opengamma.engine.view.listener.CycleCompletedCall;
 import com.opengamma.engine.view.listener.CycleExecutionFailedCall;
 import com.opengamma.engine.view.listener.ProcessCompletedCall;
@@ -42,8 +42,8 @@ public class TestViewResultListener extends AbstractTestResultListener implement
     return expectNextCall(CycleCompletedCall.class, timeoutMillis);
   }
 
-  public JobResultReceivedCall getJobResultReceived(long timeoutMillis) throws InterruptedException {
-    return expectNextCall(JobResultReceivedCall.class, timeoutMillis);
+  public CycleFragmentCompletedCall getCycleFragmentCompleted(long timeoutMillis) throws InterruptedException {
+    return expectNextCall(CycleFragmentCompletedCall.class, timeoutMillis);
   }
   
   public ProcessCompletedCall getProcessCompleted(long timeoutMillis) throws InterruptedException {
@@ -128,33 +128,33 @@ public class TestViewResultListener extends AbstractTestResultListener implement
     }
   }
 
-  public void assertJobResultReceived() {
-    assertJobResultReceived(0);
+  public void assertCycleFragmentCompleted() {
+    assertCycleFragmentCompleted(0);
   }
 
-  public void assertJobResultReceived(long timeoutMillis) {
-    assertJobResultReceived(timeoutMillis, null, null);
+  public void assertCycleFragmentCompleted(long timeoutMillis) {
+    assertCycleFragmentCompleted(timeoutMillis, null, null);
   }
 
-  public void assertJobResultReceived(long timeoutMillis, ViewResultModel expectedFullResult, ViewDeltaResultModel expectedDeltaResult) {
-    JobResultReceivedCall call;
+  public void assertCycleFragmentCompleted(long timeoutMillis, ViewResultModel expectedFullResult, ViewDeltaResultModel expectedDeltaResult) {
+    CycleFragmentCompletedCall call;
     try {
-      call = getJobResultReceived(timeoutMillis);
+      call = getCycleFragmentCompleted(timeoutMillis);
     } catch (Exception e) {
-      throw new AssertionError("Expected jobResultReceived call error: " + e.getMessage());
+      throw new AssertionError("Expected cycleFragmentCompleted call error: " + e.getMessage());
     }
     if (expectedFullResult != null) {
-      assertEquals(expectedFullResult, call.getFullResult());
+      assertEquals(expectedFullResult, call.getFullFragment());
     }
     if (expectedDeltaResult != null) {
-      assertEquals(expectedDeltaResult, call.getDeltaResult());
+      assertEquals(expectedDeltaResult, call.getDeltaFragment());
     }
   }
 
-  public void assertJobResultReceived(int count) {
+  public void assertCycleFragmentCompleted(int count) {
     for (int i = 0; i < count; i++) {
       try {
-        assertJobResultReceived(0);
+        assertCycleFragmentCompleted(0);
       } catch (Exception e) {
         throw new AssertionError("Expecting " + count + " results but no more found after result " + i);
       }
@@ -217,8 +217,8 @@ public class TestViewResultListener extends AbstractTestResultListener implement
   }
 
   @Override
-  public void jobResultReceived(ViewResultModel fullResult, ViewDeltaResultModel deltaResult) {
-    callReceived(new JobResultReceivedCall(fullResult, deltaResult), true);
+  public void cycleFragmentCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
+    callReceived(new CycleFragmentCompletedCall(fullResult, deltaResult), true);
   }
 
   @Override
