@@ -12,16 +12,18 @@ $.register_module({
         var module = this, Form = og.common.util.ui.Form, forms = og.views.forms, api = og.api.rest,
             INDX = '<INDEX>', EMPT = '<EMPTY>', SWAP = 'swapTenors', OPEX = 'optionExpiries', RLST = 'relativeStrikes',
             fields = [SWAP, OPEX, RLST],
-            arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
-        return og.views.config_forms['default'].preload({
-            type: 'com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition',
-            type_map: [
+            config_type = 'com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition',
+            type_map = [
                 [['0', INDX].join('.'),         Form.type.STR],
                 [[OPEX, EMPT, INDX].join('.'),  Form.type.STR],
                 [[RLST, EMPT, INDX].join('.'),  Form.type.DBL],
                 [[SWAP, EMPT, INDX].join('.'),  Form.type.STR],
                 ['uniqueId',                    Form.type.STR]
-            ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {})
+            ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {}),
+            arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
+        return og.views.config_forms['default'].preload({
+            type: config_type,
+            type_map: type_map
         });
         /* dead code below, needs to be updated */
         return function (config) {
@@ -35,7 +37,10 @@ $.register_module({
                 form = new Form({
                     module: 'og.views.forms.volatility-cube-definition',
                     extras: {name: orig_name},
-                    data: fields.reduce(function (acc, val) {return acc[val] = [], acc;}, {0: master[0]}),
+                    type_map: type_map,
+                    data: fields.reduce(function (acc, val) {
+                        return acc[val] = [], acc;
+                    }, {0: master[0] || config_type}),
                     selector: selector,
                     processor: function (data) {
                         var $strips = $(form_id + ' .og-js-strips');

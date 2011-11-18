@@ -96,12 +96,8 @@ public class CapFloorSecurity extends FinancialSecurity {
   @PropertyDefinition
   private boolean _ibor;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public CapFloorSecurity() {
+  CapFloorSecurity() { //For builder
+    super();
   }
 
   public CapFloorSecurity(ZonedDateTime startDate, ZonedDateTime maturityDate, double notional, ExternalId underlyingIdentifier, double strike,

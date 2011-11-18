@@ -86,12 +86,8 @@ public class SwaptionSecurity extends FinancialSecurity {
   @PropertyDefinition
   private ZonedDateTime _settlementDate;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public SwaptionSecurity() {
+  SwaptionSecurity() { //For builder
+    super();
   }
 
   public SwaptionSecurity(boolean payer, ExternalId underlyingIdentifier, boolean isLong, Expiry expiry, boolean cashSettled, Currency currency) {

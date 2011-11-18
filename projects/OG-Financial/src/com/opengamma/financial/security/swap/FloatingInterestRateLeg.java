@@ -60,7 +60,7 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
   /**
    * Creates an instance.
    */
-  FloatingInterestRateLeg() { // For builder
+  FloatingInterestRateLeg() { //For builder
   }
 
   /**

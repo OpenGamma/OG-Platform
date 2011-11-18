@@ -9,7 +9,6 @@ import static org.mockito.Mockito.mock;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Timer;
@@ -129,6 +128,7 @@ public class RateLimitingMergingViewProcessListenerTest {
     
     mergingListener.setPaused(false);
     
+    testListener.assertViewDefinitionCompiled(Timeout.standardTimeoutMillis());
     testListener.assertViewDefinitionCompiled(Timeout.standardTimeoutMillis(), preCompilation);
     ViewDeltaResultModel mergedDelta = testListener.getCycleCompleted(Timeout.standardTimeoutMillis()).getDeltaResult();
     
@@ -148,7 +148,6 @@ public class RateLimitingMergingViewProcessListenerTest {
   
   private ViewDeltaResultModel getDeltaResult(int value) {
     InMemoryViewDeltaResultModel deltaResult = new InMemoryViewDeltaResultModel();
-    deltaResult.setCalculationConfigurationNames(Collections.singleton("DEFAULT"));
     deltaResult.addValue("DEFAULT", getComputedValue("value" + value, value));
     return deltaResult;
   }

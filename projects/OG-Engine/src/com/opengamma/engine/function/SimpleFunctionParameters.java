@@ -46,6 +46,22 @@ public class SimpleFunctionParameters implements FunctionParameters {
     return (T) _parameters.get(parameter);
   }
 
+  @Override
+  public boolean equals(final Object o) {
+    if (o == this) {
+      return true;
+    }
+    if (!(o instanceof SimpleFunctionParameters)) {
+      return false;
+    }
+    return _parameters.equals(((SimpleFunctionParameters) o)._parameters);
+  }
+
+  @Override
+  public int hashCode() {
+    return _parameters.hashCode();
+  }
+
   public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg message) {
     for (Map.Entry<String, Object> parameter : _parameters.entrySet()) {
       serializer.addToMessageWithClassHeaders(message, parameter.getKey(), null, parameter.getValue());

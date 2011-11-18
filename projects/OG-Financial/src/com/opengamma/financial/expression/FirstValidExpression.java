@@ -34,4 +34,16 @@ import java.util.List;
     return NA;
   }
 
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder();
+    for (UserExpression expr : _exprs) {
+      if (sb.length() != 0) {
+        sb.append(";\n");
+      }
+      sb.append(expr);
+    }
+    return sb.toString();
+  }
+
 }

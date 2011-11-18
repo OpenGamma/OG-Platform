@@ -11,7 +11,7 @@ $.register_module({
                 data = {length: 0},
                 on_data_loading = new Slick.Event(),
                 on_data_loaded = new Slick.Event(),
-                timer, ensure_data;
+                request, timer, ensure_data;
             /**
              * Fetches the data and populates the data object required for SlickGrid
              */
@@ -89,7 +89,8 @@ $.register_module({
                  * Do rest request
                  */
                 if (!data_already_cached) {
-                    og.api.rest[obj.page_type].get($.extend({
+                    og.api.rest.abort(request);
+                    request = og.api.rest[obj.page_type].get($.extend({
                         handler: handle_data,
                         loading: function () {
                             ui.message({

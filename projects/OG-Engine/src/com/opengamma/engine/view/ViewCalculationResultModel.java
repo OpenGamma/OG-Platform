@@ -15,7 +15,8 @@ import com.opengamma.util.PublicAPI;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * The result of a single configuration of a view calculation. 
+ * A container for the results of calculations performed when executing one cycle of a
+ * {@link ViewCalculationConfiguration} within a {@link ViewDefinition}. 
  */
 @PublicAPI
 public interface ViewCalculationResultModel {

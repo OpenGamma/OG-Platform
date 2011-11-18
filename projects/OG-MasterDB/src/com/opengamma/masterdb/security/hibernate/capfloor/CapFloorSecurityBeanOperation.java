@@ -12,6 +12,8 @@ import static com.opengamma.masterdb.security.hibernate.Converters.dayCountBeanT
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
+import static com.opengamma.masterdb.security.hibernate.Converters.validateDayCount;
+import static com.opengamma.masterdb.security.hibernate.Converters.validateFrequency;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
 import javax.time.calendar.ZonedDateTime;
@@ -41,8 +43,10 @@ public final class CapFloorSecurityBeanOperation extends AbstractSecurityBeanOpe
 
   @Override
   public CapFloorSecurityBean createBean(final OperationContext context, HibernateSecurityMasterDao secMasterSession, CapFloorSecurity security) {
-    final CapFloorSecurityBean bean = new CapFloorSecurityBean();
+    validateDayCount(security.getDayCount().getConventionName());
+    validateFrequency(security.getFrequency().getConventionName());
     
+    final CapFloorSecurityBean bean = new CapFloorSecurityBean();
     bean.setCap(security.isCap());
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
     bean.setDayCount(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getConventionName()));
