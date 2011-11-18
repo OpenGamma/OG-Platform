@@ -9,6 +9,11 @@
             "allinputs" : true,
             "priority" : 10
         },
+        "building-docs.tex|hd|ft|jinja|latex" : {
+            "title" : "Building OpenGamma Static Docs with Dexy",
+            "allinputs" : true,
+            "priority" : 10
+        },
         "og_docs_yield_curve_maths.tex|hd|ft|jinja|latex" : {
             "disabled" : true,
             "allinputs" : true,
@@ -39,6 +44,8 @@
         "*.woff" : {},
         "*.tex|pyg|l" : {},
         "*.tex|idio|l" : {},
+        "*.sh|pyg|l" : {},
+        "*.sh|idio|l" : {},
         "*.py|pyg|l" : {},
         ".dexy|ppjson|pyg|l" : {}
 }
