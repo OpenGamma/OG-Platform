@@ -90,7 +90,7 @@ public class VolatilitySurfaceShiftFunction extends AbstractFunction.NonCompiled
     properties.with(SHIFT, shift);
     try {
       final double shiftAmount = Double.parseDouble(shift);
-      volatilitySurface = volatilitySurface.withParallelShift(shiftAmount);
+      volatilitySurface = volatilitySurface.withConstantMultiplicativeShift(shiftAmount);
     } catch (NumberFormatException e) {
       s_logger.error("Volatility surface shift not valid - {}", shift);
     }

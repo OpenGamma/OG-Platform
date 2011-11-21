@@ -14,7 +14,7 @@ import com.opengamma.math.function.Function;
 /**
  * 
  */
-public class FunctionalSurfaceShiftFunctionTest {
+public class FunctionalSurfaceAdditiveShiftFunctionTest {
   private static final Function<Double, Double> F = new Function<Double, Double>() {
 
     @Override
@@ -24,7 +24,7 @@ public class FunctionalSurfaceShiftFunctionTest {
 
   };
   private static final FunctionalDoublesSurface SURFACE = FunctionalDoublesSurface.from(F, "A");
-  private static final FunctionalSurfaceShiftFunction SHIFT = new FunctionalSurfaceShiftFunction();
+  private static final FunctionalSurfaceAdditiveShiftFunction SHIFT = new FunctionalSurfaceAdditiveShiftFunction();
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void test1() {

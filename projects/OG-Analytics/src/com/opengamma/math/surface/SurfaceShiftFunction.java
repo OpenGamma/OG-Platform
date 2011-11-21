@@ -6,7 +6,7 @@
 package com.opengamma.math.surface;
 
 /**
- * Given a surface and some form of shift, return a shifted surface (where he shift can be defined in several ways).
+ * Given a surface and some form of shift, return a shifted surface (where the shift can be defined in several ways).
  * @param <T> The type of the surface
  */
 public interface SurfaceShiftFunction<T extends Surface<Double, Double, Double>> {

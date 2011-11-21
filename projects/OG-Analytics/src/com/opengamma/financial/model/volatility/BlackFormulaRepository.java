@@ -307,7 +307,6 @@ public abstract class BlackFormulaRepository {
     final BracketRoot bracketer = new BracketRoot();
     final Function1D<Double, Double> func = new Function1D<Double, Double>() {
 
-      @SuppressWarnings({"synthetic-access" })
       @Override
       public Double evaluate(final Double volatility) {
         return price(forward, strike, expiry, volatility, isCall) - forwardPrice;
@@ -322,7 +321,6 @@ public abstract class BlackFormulaRepository {
     final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(1e-6); //0.01bps accuracy 
     final Function1D<Double, Double> func = new Function1D<Double, Double>() {
 
-      @SuppressWarnings({"synthetic-access" })
       @Override
       public Double evaluate(final Double volatility) {
         return price(forward, strike, expiry, volatility, isCall) - forwardPrice;
@@ -344,7 +342,6 @@ public abstract class BlackFormulaRepository {
     final int n = data.length;
     final Function1D<Double, Double> func = new Function1D<Double, Double>() {
 
-      @SuppressWarnings({"synthetic-access" })
       @Override
       public Double evaluate(final Double volatility) {
         double sum = 0.0;
