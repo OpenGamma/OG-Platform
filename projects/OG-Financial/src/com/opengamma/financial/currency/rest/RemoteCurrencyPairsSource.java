@@ -33,18 +33,34 @@ public class RemoteCurrencyPairsSource implements CurrencyPairsSource {
     _targetBase = baseTarget;
   }
 
+  /**
+   * Returns a set of currency pairs with the specified name or null if there are none with a matching name.
+   * If {@code name} is null then the default set are looked up using {@link CurrencyPairs#DEFAULT_CURRENCY_PAIRS} as the name.
+   * @param name The name of the set of currency pairs, null for the default set.
+   * @return The market convention currency pairs with the specified name or null if there are none that match
+   */  
   @Override
   public CurrencyPairs getCurrencyPairs(String name) {
-    ArgumentChecker.notNull(name, "name");
+    if (name == null) {
+      name = CurrencyPairs.DEFAULT_CURRENCY_PAIRS;
+    }
     // invoke {name}/currencyPairs
     return _restClient.getSingleValue(CurrencyPairs.class, _targetBase.resolveBase(name).resolve("currencyPairs"), "currencyPairs");
   }
 
+  /**
+   * Returns the market convention currency pair for the specified currencies using the named set of currency pairs.
+   * If {@code name} is null the default set is looked up using {@link CurrencyPairs#DEFAULT_CURRENCY_PAIRS}.  This
+   * will return null if no currency pairs can be found with the specified name or there is no pair for the
+   * currencies.
+   */
   @Override
   public CurrencyPair getCurrencyPair(Currency currency1, Currency currency2, String name) {
     ArgumentChecker.notNull(currency1, "currency1");
     ArgumentChecker.notNull(currency2, "currency2");
-    ArgumentChecker.notNull(name, "name");
+    if (name == null) {
+      name = CurrencyPairs.DEFAULT_CURRENCY_PAIRS;
+    }
     // invoke {name}/{currency1}/{currency2}
     return _restClient.getSingleValue(CurrencyPair.class, _targetBase
         .resolveBase(name)

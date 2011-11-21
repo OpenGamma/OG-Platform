@@ -18,7 +18,7 @@ import java.util.Set;
  */
 public class CurrencyPairs {
 
-  // TODO not comfortable with hard-coding the name of the default set of currency pairs
+  // TODO not sure about hard-coding the name of the default set of currency pairs
   public static final String DEFAULT_CURRENCY_PAIRS = "DEFAULT";
 
   private final Set<CurrencyPair> _pairs;

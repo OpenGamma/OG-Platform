@@ -6,7 +6,6 @@
 package com.opengamma.language.financial.currency;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyUtils;
 import com.opengamma.language.async.AsynchronousExecution;
@@ -64,9 +63,6 @@ public class FxRateFunction implements PublishedFunction {
     ArgumentChecker.notNull(currency1, "currency1");
     ArgumentChecker.notNull(currency2, "currency2");
     CurrencyPairsSource currencyPairsSource = context.getGlobalContext().getCurrencyPairsSource();
-    if (currencyPairsName == null) {
-      currencyPairsName = CurrencyPairs.DEFAULT_CURRENCY_PAIRS;
-    }
     return CurrencyUtils.getRate(currency1, currency2, amount1, amount2, currencyPairsSource, currencyPairsName);
   }
 

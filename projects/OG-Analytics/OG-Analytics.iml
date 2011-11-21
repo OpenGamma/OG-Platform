@@ -46,7 +46,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/latexlet/latexlet/jars/LaTeXlet-1.11.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-math/jars/commons-math-2.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.json/simple/jars/json-simple-1.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/it.dexy/json-doclet/jars/json-doclet-0.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/it.dexy/json-doclet/jars/json-doclet-0.3.1.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-math/javadocs/commons-math-javadoc-2.1.jar!/" />

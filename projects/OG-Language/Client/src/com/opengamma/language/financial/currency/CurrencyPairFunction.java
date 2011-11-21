@@ -7,7 +7,6 @@ package com.opengamma.language.financial.currency;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.financial.currency.CurrencyPair;
-import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencyPairsSource;
 import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.context.SessionContext;
@@ -51,9 +50,6 @@ public class CurrencyPairFunction implements PublishedFunction {
     ArgumentChecker.notNull(currency1, "currency1");
     ArgumentChecker.notNull(currency2, "currency2");
     CurrencyPairsSource currencyPairsSource = context.getGlobalContext().getCurrencyPairsSource();
-    if (currencyPairsName == null) {
-      currencyPairsName = CurrencyPairs.DEFAULT_CURRENCY_PAIRS;
-    }
     return currencyPairsSource.getCurrencyPair(currency1, currency2, currencyPairsName);
   }
 
