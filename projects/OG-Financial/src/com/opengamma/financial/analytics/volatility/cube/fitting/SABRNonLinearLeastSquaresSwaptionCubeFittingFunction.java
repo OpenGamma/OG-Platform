@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.TreeMap;
 
 import javax.time.calendar.Period;
 
@@ -65,8 +64,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
   private static final DoubleMatrix1D SABR_INITIAL_VALUES = new DoubleMatrix1D(new double[] {0.05, 0.5, 0.7, 0.3});
   private static final LinearInterpolator1D LINEAR = (LinearInterpolator1D) Interpolator1DFactory.getInterpolator(Interpolator1DFactory.LINEAR);
   private static final FlatExtrapolator1D FLAT = new FlatExtrapolator1D();
-  private static final GridInterpolator2D INTERPOLATOR = new GridInterpolator2D(LINEAR, LINEAR,
-      FLAT, FLAT);
+  private static final GridInterpolator2D INTERPOLATOR = new GridInterpolator2D(LINEAR, LINEAR, FLAT, FLAT);
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private final VolatilityCubeFunctionHelper _volCubeHelper;
   private ValueSpecification _sabrSurfacesSpecification;
@@ -149,7 +147,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
             DoublesPair expiryMaturityPair = new DoublesPair(swaptionExpiry, maturity);
             inverseJacobians.put(expiryMaturityPair, fittedResult.getInverseJacobian());
             chiSqList.add(fittedResult.getChiSq());
-            fittedDataIds.put(expiryMaturityPair, externalIds);
+            fittedDataIds.put(DoublesPair.of(maturity, swaptionExpiry), externalIds);
           }
         }
       }

@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.time.InstantProvider;
 
 import com.google.common.collect.Sets;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.engine.ComputationTarget;
@@ -29,6 +30,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
@@ -91,10 +93,11 @@ public class VolatilityCubeFunction extends AbstractFunction {
         final VolatilityCubeData normalizedData = new VolatilityCubeData();
         final Map<VolatilityPoint, Double> volatilityPoints = data.getDataPoints();
         final Map<VolatilityPoint, Double> normalizedVolatilityPoints = new HashMap<VolatilityPoint, Double>();
+        final Map<VolatilityPoint, ExternalId> volatilityPointIds = data.getDataIds();
+        final Map<VolatilityPoint, ExternalId> normalizedVolatilityPointIds = new HashMap<VolatilityPoint, ExternalId>();
         final Map<Pair<Tenor, Tenor>, Double> atmStrikes = data.getStrikes();
         final Map<Pair<Tenor, Tenor>, Double> normalizedATMStrikes = new HashMap<Pair<Tenor, Tenor>, Double>();
         final Map<Pair<Tenor, Tenor>, Double> normalizedATMVols = new HashMap<Pair<Tenor, Tenor>, Double>();
-        Map<VolatilityPoint, Double> temp = new HashMap<VolatilityPoint, Double>();
         for (final Map.Entry<VolatilityPoint, Double> entry : volatilityPoints.entrySet()) {
           final VolatilityPoint oldPoint = entry.getKey();
           final Tenor swapTenor = oldPoint.getSwapTenor();
@@ -104,20 +107,23 @@ public class VolatilityCubeFunction extends AbstractFunction {
             final Pair<Tenor, Tenor> tenorPair = Pair.of(swapTenor, swaptionExpiry);
             final double absoluteStrike = atmStrikes.get(tenorPair) + relativeStrike / 10000;
             final double vol = entry.getValue();
-            final VolatilityPoint newPoint = new VolatilityPoint(swapTenor, swaptionExpiry, absoluteStrike);
-            normalizedATMStrikes.put(tenorPair, absoluteStrike);
-            normalizedATMVols.put(tenorPair, vol);
-            normalizedVolatilityPoints.put(newPoint, vol);
-            if (swapTenor.equals(Tenor.ofYears(10))) {
-              temp.put(newPoint, vol);
+            final VolatilityPoint newPoint = new VolatilityPoint(swapTenor, swaptionExpiry, absoluteStrike);            
+            if (Double.doubleToLongBits(relativeStrike) == 0) {
+              if (normalizedATMStrikes.containsKey(tenorPair)) {
+                throw new OpenGammaRuntimeException("Normalized ATM strike data set already contains value for " + tenorPair);
+              }
+              normalizedATMStrikes.put(tenorPair, atmStrikes.get(tenorPair));
+              normalizedATMVols.put(tenorPair, vol);
             }
+            normalizedVolatilityPoints.put(newPoint, vol);
+            normalizedVolatilityPointIds.put(newPoint, volatilityPointIds.get(oldPoint));
           }
         }
         normalizedData.setDataPoints(normalizedVolatilityPoints);
         normalizedData.setOtherData(data.getOtherData());
         normalizedData.setStrikes(normalizedATMStrikes);
         normalizedData.setATMVolatilities(normalizedATMVols);
-        normalizedData.setDataIds(data.getDataIds());
+        normalizedData.setDataIds(normalizedVolatilityPointIds);
         return Sets.newHashSet(new ComputedValue(_cubeResult, normalizedData));
       }
     };
