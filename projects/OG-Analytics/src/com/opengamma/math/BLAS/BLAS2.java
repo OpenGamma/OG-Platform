@@ -14,8 +14,10 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.BLAS.BLAS2KernelAbstractions.BLAS2DGEMVKernelAbstraction;
+import com.opengamma.math.BLAS.BLAS2KernelImplementations.DGEMVForCSCMatrix;
 import com.opengamma.math.BLAS.BLAS2KernelImplementations.DGEMVForCSRMatrix;
 import com.opengamma.math.BLAS.BLAS2KernelImplementations.DGEMVForDenseMatrix;
+import com.opengamma.math.matrix.CompressedSparseColumnFormatMatrix;
 import com.opengamma.math.matrix.CompressedSparseRowFormatMatrix;
 import com.opengamma.math.matrix.DenseMatrix;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -58,6 +60,7 @@ public class BLAS2 {
   static {
     s_dgemvFunctionPointers.put(DenseMatrix.class, DGEMVForDenseMatrix.getInstance());
     s_dgemvFunctionPointers.put(CompressedSparseRowFormatMatrix.class, DGEMVForCSRMatrix.getInstance());
+    s_dgemvFunctionPointers.put(CompressedSparseColumnFormatMatrix.class, DGEMVForCSCMatrix.getInstance());
   }
 
   /**
