@@ -15,6 +15,7 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.financial.currency.CurrencyPairsSource;
 import com.opengamma.financial.user.rest.RemoteClient;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.function.FunctionDefinitionFilter;
@@ -150,6 +151,10 @@ public class MutableGlobalContext extends GlobalContext {
 
   public void setViewProcessor(final ViewProcessor viewProcessor) {
     removeOrReplaceValue(VIEW_PROCESSOR, viewProcessor);
+  }
+
+  public void setCurrencyPairsSource(final CurrencyPairsSource currencyPairsSource) {
+    removeOrReplaceValue(CURRENCY_PAIRS_SOURCE, currencyPairsSource);
   }
 
   // Arbitrary values

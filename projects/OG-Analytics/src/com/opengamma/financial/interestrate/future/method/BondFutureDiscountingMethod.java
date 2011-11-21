@@ -6,7 +6,7 @@
 package com.opengamma.financial.interestrate.future.method;
 
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
@@ -86,7 +86,7 @@ public final class BondFutureDiscountingMethod extends BondFutureMethod {
   }
 
   @Override
-  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof BondFuture, "Bond future transaction");
     return presentValue((BondFuture) instrument, curves);
   }

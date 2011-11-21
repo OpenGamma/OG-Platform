@@ -6,9 +6,12 @@
 package com.opengamma.financial.marketdata;
 
 import com.opengamma.core.security.Security;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.math.curve.Curve;
+import com.opengamma.math.curve.CurveShiftFunctionFactory;
 
 /**
  * Static functions for the EL compiler.
@@ -21,7 +24,7 @@ public final class MarketDataELFunctions {
 
   private static MarketDataELCompiler s_compiler;
 
-  protected MarketDataELFunctions() {
+  private MarketDataELFunctions() {
   }
 
   protected static MarketDataELCompiler getCompiler() {
@@ -43,6 +46,24 @@ public final class MarketDataELFunctions {
       return (Security) id;
     } else {
       throw new UnsupportedOperationException("Invalid ID - " + id);
+    }
+  }
+
+  public static Object pointShiftCurve(final Object curve, final double x, final double shift) {
+    if (curve instanceof YieldCurve) {
+      final Curve<Double, Double> shifted = CurveShiftFunctionFactory.getShiftedCurve(((YieldCurve) curve).getCurve(), x, shift);
+      return new YieldCurve(shifted);
+    } else {
+      throw new UnsupportedOperationException("Invalid curve - " + curve);
+    }
+  }
+
+  public static Object parallelShiftCurve(final Object curve, final double shift) {
+    if (curve instanceof YieldCurve) {
+      final Curve<Double, Double> shifted = CurveShiftFunctionFactory.getShiftedCurve(((YieldCurve) curve).getCurve(), shift);
+      return new YieldCurve(shifted);
+    } else {
+      throw new UnsupportedOperationException("Invalid curve - " + curve);
     }
   }
 

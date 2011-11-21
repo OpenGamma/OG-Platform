@@ -10,14 +10,14 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a generic payment. The payments can be positive (receiving) or negative (paying).
  */
-public abstract class PaymentDefinition implements FixedIncomeInstrumentDefinition<Payment> {
+public abstract class PaymentDefinition implements InstrumentDefinition<Payment> {
 
   /**
    * The payment currency.

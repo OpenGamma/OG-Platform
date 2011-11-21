@@ -60,10 +60,7 @@ import com.opengamma.util.tuple.Pair;
       pump = _pump;
       _pump = null;
     }
-    if (pump == null) {
-      // Either pump called twice for a resolve, called before the first resolve, or after failed
-      throw new IllegalStateException();
-    } else {
+    if (pump != null) {
       s_logger.debug("Pumping underlying delegate");
       context.pump(pump);
     }

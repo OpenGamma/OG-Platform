@@ -27,7 +27,7 @@ import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundl
 /**
  * Present value sensitivity to SABR parameters calculator for interest rate instruments using SABR volatility formula.
  */
-public final class PresentValueSABRSensitivitySABRCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, PresentValueSABRSensitivityDataBundle> {
+public final class PresentValueSABRSensitivitySABRCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, PresentValueSABRSensitivityDataBundle> {
 
   /**
    * The unique instance of the SABR sensitivity calculator.

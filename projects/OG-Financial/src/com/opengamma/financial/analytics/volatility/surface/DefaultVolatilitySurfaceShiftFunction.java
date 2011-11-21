@@ -23,7 +23,7 @@ public class DefaultVolatilitySurfaceShiftFunction extends DefaultPropertyFuncti
   /**
    * Property to shift all volatility surfaces.
    */
-  protected static final String VOLATILITY_SURFACE_SHIFT = "VOLATILITY_SURFACE_" + VolatilitySurfaceShiftFunction.SHIFT;
+  public static final String VOLATILITY_SURFACE_SHIFT = "VOLATILITY_SURFACE_" + VolatilitySurfaceShiftFunction.SHIFT;
 
   public DefaultVolatilitySurfaceShiftFunction() {
     super(ComputationTargetType.SECURITY, VolatilitySurfaceShiftFunction.SHIFT, ValueRequirementNames.VOLATILITY_SURFACE);
@@ -32,6 +32,7 @@ public class DefaultVolatilitySurfaceShiftFunction extends DefaultPropertyFuncti
   @Override
   protected Set<String> getDefaultValue(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
     final ViewCalculationConfiguration config = context.getViewCalculationConfiguration();
+    // TODO: should probably check the target type (or other properties) so that shifts can be applied more selectively than to all surfaces
     if (config != null) {
       return config.getDefaultProperties().getValues(VOLATILITY_SURFACE_SHIFT);
     } else {

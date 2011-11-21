@@ -18,9 +18,9 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
-import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueForexVegaSensitivityCalculator;
 import com.opengamma.financial.forex.method.PresentValueVolatilityNodeSensitivityDataBundle;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 
 /**
@@ -30,13 +30,13 @@ public class ForexSingleBarrierOptionVegaFunction extends ForexSingleBarrierOpti
   private static final PresentValueForexVegaSensitivityCalculator CALCULATOR = PresentValueForexVegaSensitivityCalculator.getInstance();
   private static final DecimalFormat DELTA_FORMATTER = new DecimalFormat("##");
 
-  public ForexSingleBarrierOptionVegaFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, 
-      final String callForwardCurveName, final String surfaceName) {
+  public ForexSingleBarrierOptionVegaFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName,
+      final String surfaceName) {
     super(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final ForexDerivative fxSingleBarrierOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative fxSingleBarrierOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
     final PresentValueVolatilityNodeSensitivityDataBundle result = CALCULATOR.visit(fxSingleBarrierOption, data);
     final double[] expiries = result.getExpiries().getData();
     final double[] delta = result.getDelta().getData();
@@ -60,8 +60,7 @@ public class ForexSingleBarrierOptionVegaFunction extends ForexSingleBarrierOpti
       }
     }
     final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName(), getPutForwardCurveName())
-                                                              .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName())
-                                                              .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+        .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName()).with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VEGA_MATRIX, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, new DoubleLabelledMatrix2D(rowValues, rowLabels, columnValues, columnLabels, values)));
   }
@@ -69,11 +68,10 @@ public class ForexSingleBarrierOptionVegaFunction extends ForexSingleBarrierOpti
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName(), getPutForwardCurveName())
-                                                              .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName())
-                                                              .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.VEGA_MATRIX, target.toSpecification(), properties));    
+        .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName()).with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.VEGA_MATRIX, target.toSpecification(), properties));
   }
-  
+
   private String getFormattedExpiry(final double expiry) {
     if (expiry < 1. / 54) {
       final int days = (int) Math.ceil((365 * expiry));

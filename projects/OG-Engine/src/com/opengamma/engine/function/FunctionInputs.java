@@ -40,6 +40,15 @@ public interface FunctionInputs {
   Object getValue(ValueRequirement requirement);
   
   /**
+   * Obtain the computed value computed as part of the specified requirement.
+   * This is equivalent to obtaining the embedded {@link ComputedValue}.
+   * 
+   * @param requirement The full requirement desired.
+   * @return The computed value computed for that requirement.
+   */
+  ComputedValue getComputedValue(ValueRequirement requirement);
+  
+  /**
    * Obtain an actual value which has the given requirement name.
    * This is equivalent to obtaining the embedded {@link ComputedValue} and calling
    * its {@link ComputedValue#getValue()} method.

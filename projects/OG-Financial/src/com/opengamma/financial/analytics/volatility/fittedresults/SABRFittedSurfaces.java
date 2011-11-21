@@ -28,10 +28,6 @@ public class SABRFittedSurfaces {
   private final Currency _currency;
   private final DayCount _dayCount;
 
-  public SABRFittedSurfaces(final VolatilitySurface alphaSurface, final VolatilitySurface betaSurface, final VolatilitySurface nuSurface, final VolatilitySurface rhoSurface,
-      final Currency currency, final DayCount dayCount) {
-    this(alphaSurface, betaSurface, nuSurface, rhoSurface, null, currency, dayCount);
-  }
 
   public SABRFittedSurfaces(final VolatilitySurface alphaSurface, final VolatilitySurface betaSurface, final VolatilitySurface nuSurface, final VolatilitySurface rhoSurface,
       final Map<DoublesPair, DoubleMatrix2D> inverseJacobian, final Currency currency, final DayCount dayCount) {
@@ -86,7 +82,7 @@ public class SABRFittedSurfaces {
     result = prime * result + _betaSurface.hashCode();
     result = prime * result + _nuSurface.hashCode();
     result = prime * result + _rhoSurface.hashCode();
-    result = prime * result + (_inverseJacobian == null ? 0 : _inverseJacobian.hashCode());
+    result = prime * result + _inverseJacobian.hashCode();
     result = prime * result + _currency.hashCode();
     result = prime * result + _dayCount.hashCode();
     return result;

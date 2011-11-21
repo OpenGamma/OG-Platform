@@ -7,8 +7,8 @@ package com.opengamma.financial.montecarlo;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.AbstractInterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
@@ -19,7 +19,7 @@ import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysical
  * Computes the instrument price as the average over different paths and the derivative of the output with respect to the inputs. 
  * The data bundle contains the different discount factor paths and the instrument reference amounts. The method set the derivatives to the inputs.
  */
-public class MonteCarloDiscountFactorDerivativeCalculator extends AbstractInterestRateDerivativeVisitor<MonteCarloDiscountFactorDerivativeDataBundle, Double> {
+public class MonteCarloDiscountFactorDerivativeCalculator extends AbstractInstrumentDerivativeVisitor<MonteCarloDiscountFactorDerivativeDataBundle, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -41,7 +41,7 @@ public class MonteCarloDiscountFactorDerivativeCalculator extends AbstractIntere
   }
 
   @Override
-  public Double visit(final InterestRateDerivative derivative, final MonteCarloDiscountFactorDerivativeDataBundle mcResults) {
+  public Double visit(final InstrumentDerivative derivative, final MonteCarloDiscountFactorDerivativeDataBundle mcResults) {
     Validate.notNull(derivative);
     return derivative.accept(this, mcResults);
   }

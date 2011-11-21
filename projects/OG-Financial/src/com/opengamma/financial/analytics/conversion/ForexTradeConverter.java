@@ -14,8 +14,8 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.forex.calculator.ForexConverter;
 import com.opengamma.financial.forex.definition.ForexDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.util.money.Currency;
@@ -34,7 +34,7 @@ public class ForexTradeConverter {
     _regionSource = regionSource;
   }
 
-  public ForexConverter<?> convert(final SimpleTrade trade) {
+  public InstrumentDefinition<?> convert(final SimpleTrade trade) {
     Validate.notNull(trade, "trade");
     Validate.isTrue(trade.getSecurity() instanceof FXSecurity, "Can only handle trades with security type FXSecurity");
     final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getTradeDate().atTime(trade.getTradeTime()), TimeZone.UTC); //TODO need the zone

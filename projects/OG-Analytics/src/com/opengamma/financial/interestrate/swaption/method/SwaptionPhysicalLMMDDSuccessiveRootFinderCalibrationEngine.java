@@ -11,7 +11,7 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationEngine;
@@ -47,7 +47,7 @@ public class SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine extends 
   }
 
   @Override
-  public void addInstrument(final InterestRateDerivative instrument, final PricingMethod method) {
+  public void addInstrument(final InstrumentDerivative instrument, final PricingMethod method) {
     Validate.notNull(instrument, "Instrument");
     Validate.notNull(method, "Method");
     Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Calibration instruments should be swaptions");
@@ -68,7 +68,7 @@ public class SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine extends 
     final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(objective.getFunctionValueAccuracy(), objective.getVariableAbsoluteAccuracy());
     final BracketRoot bracketer = new BracketRoot();
     for (int loopins = 0; loopins < nbInstruments; loopins++) {
-      InterestRateDerivative instrument = getBasket().get(loopins);
+      InstrumentDerivative instrument = getBasket().get(loopins);
       getCalibrationObjective().setInstrument(instrument);
       objective.setStartIndex(_instrumentIndex.get(loopins));
       objective.setEndIndex(_instrumentIndex.get(loopins + 1) - 1);

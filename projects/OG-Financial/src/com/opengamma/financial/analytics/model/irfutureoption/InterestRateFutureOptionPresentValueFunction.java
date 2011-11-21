@@ -18,7 +18,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -34,7 +34,7 @@ public class InterestRateFutureOptionPresentValueFunction extends InterestRateFu
   }
 
   @Override
-  protected Set<ComputedValue> getResults(final InterestRateDerivative irFutureOption, final SABRInterestRateDataBundle data, 
+  protected Set<ComputedValue> getResults(final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data, 
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ComputationTarget target) {
     final double presentValue = CALCULATOR.visit(irFutureOption, data);
     return Collections.singleton(new ComputedValue(getSpecification(target), presentValue));

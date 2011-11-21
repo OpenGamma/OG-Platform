@@ -16,7 +16,8 @@ import javax.el.VariableMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.security.Security;
+import com.google.common.base.Function;
+import com.opengamma.util.tuple.Pair;
 
 import de.odysseus.el.util.SimpleResolver;
 
@@ -96,10 +97,11 @@ import de.odysseus.el.util.SimpleResolver;
           } else {
             return value;
           }
-        } else if (base instanceof Security) {
-          // Synthetic property as security defines "securityType" and not "type"
-          if ("type".equals(property)) {
-            return super.getValue(context, base, "securityType");
+        } else if (property instanceof String) {
+          final Pair<Class<?>, Function<Object, Object>> synthetic = getParser().getSynthetic(base, (String) property);
+          if (synthetic != null) {
+            context.setPropertyResolved(true);
+            return synthetic.getSecond().apply(base);
           } else {
             return super.getValue(context, base, property);
           }
@@ -118,10 +120,11 @@ import de.odysseus.el.util.SimpleResolver;
           } else {
             return value.getClass();
           }
-        } else if (base instanceof Security) {
-          // Synthetic property as security defines "securityType" and not "type"
-          if ("type".equals(property)) {
-            return super.getType(context, base, "securityType");
+        } else if (property instanceof String) {
+          final Pair<Class<?>, Function<Object, Object>> synthetic = getParser().getSynthetic(base, (String) property);
+          if (synthetic != null) {
+            context.setPropertyResolved(true);
+            return synthetic.getFirst();
           } else {
             return super.getType(context, base, property);
           }
@@ -139,7 +142,7 @@ import de.odysseus.el.util.SimpleResolver;
     try {
       return getExpr().getValue((ELContext) getContext(evaluator));
     } catch (PropertyNotFoundException e) {
-      s_logger.warn/*debug*/("Property not found - {}", e.getMessage());
+      s_logger.debug("Property not found - {}", e.getMessage());
     } catch (ELException e) {
       s_logger.warn("EL exception", e);
     }

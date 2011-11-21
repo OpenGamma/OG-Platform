@@ -16,7 +16,7 @@ import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -26,7 +26,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class FRASecurityConverter implements FRASecurityVisitor<FixedIncomeInstrumentDefinition<?>> {
+public class FRASecurityConverter implements FRASecurityVisitor<InstrumentDefinition<?>> {
   private final HolidaySource _holidaySource;
   private final RegionSource _regionSource;
   private final ConventionBundleSource _conventionSource;

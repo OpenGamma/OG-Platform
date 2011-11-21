@@ -7,7 +7,7 @@ package com.opengamma.financial.montecarlo;
 
 import java.util.Arrays;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionDataBundle;
@@ -67,7 +67,7 @@ public class LiborMarketModelMonteCarloMethod extends MonteCarloMethod {
     _maxJump = maxJump;
   }
 
-  public CurrencyAmount presentValue(final InterestRateDerivative instrument, Currency ccy, YieldAndDiscountCurve dsc, final LiborMarketModelDisplacedDiffusionDataBundle lmmData) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, Currency ccy, YieldAndDiscountCurve dsc, final LiborMarketModelDisplacedDiffusionDataBundle lmmData) {
     // The numeraire is the last time in the LMM description.
     DecisionSchedule decision = DC.visit(instrument, lmmData);
     int[][] impactIndex = index(decision.getImpactTime(), lmmData.getLmmParameter());
@@ -106,7 +106,7 @@ public class LiborMarketModelMonteCarloMethod extends MonteCarloMethod {
   }
 
   @Override
-  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
     return null;
   }
 

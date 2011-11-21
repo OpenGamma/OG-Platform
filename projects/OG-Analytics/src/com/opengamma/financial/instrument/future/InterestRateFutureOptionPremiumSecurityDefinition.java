@@ -7,8 +7,8 @@ package com.opengamma.financial.instrument.future;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.util.money.Currency;
@@ -21,7 +21,7 @@ import org.apache.commons.lang.Validate;
 /**
  * Description of an interest rate future option security with premium paid up-front (CME type). The option is of American type.
  */
-public class InterestRateFutureOptionPremiumSecurityDefinition implements FixedIncomeInstrumentDefinition<InterestRateFutureOptionPremiumSecurity> {
+public class InterestRateFutureOptionPremiumSecurityDefinition implements InstrumentDefinition<InterestRateFutureOptionPremiumSecurity> {
 
   /**
    * Underlying future security.
@@ -106,12 +106,12 @@ public class InterestRateFutureOptionPremiumSecurityDefinition implements FixedI
   }
 
   @Override
-  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
     return visitor.visitInterestRateFutureOptionPremiumSecurityDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitInterestRateFutureOptionPremiumSecurityDefinition(this);
   }
 
