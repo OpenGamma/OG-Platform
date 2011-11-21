@@ -5,6 +5,12 @@
  */
 package com.opengamma.financial.interestrate;
 
+import com.opengamma.financial.forex.derivative.Forex;
+import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
+import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
+import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
+import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.financial.forex.derivative.ForexSwap;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
@@ -56,13 +62,13 @@ import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysical
  * @param <S> The type of the data
  * @param <T> The return type of the calculation
  */
-public interface InterestRateDerivativeVisitor<S, T> {
+public interface InstrumentDerivativeVisitor<S, T> {
 
   // Two arguments
 
-  T visit(InterestRateDerivative derivative, S data);
+  T visit(InstrumentDerivative derivative, S data);
 
-  T[] visit(InterestRateDerivative[] derivative, S data);
+  T[] visit(InstrumentDerivative[] derivative, S data);
 
   T visitBondFixedSecurity(BondFixedSecurity bond, S data);
 
@@ -154,9 +160,9 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   // One argument
 
-  T visit(InterestRateDerivative derivative);
+  T visit(InstrumentDerivative derivative);
 
-  T[] visit(InterestRateDerivative[] derivative);
+  T[] visit(InstrumentDerivative[] derivative);
 
   T visitBondFixedSecurity(BondFixedSecurity bond);
 
@@ -246,5 +252,30 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond);
 
-  //TODO cap / floor CMS spread
+  // -----     Forex     -----
+
+  T visitForex(Forex derivative, S data);
+
+  T visitForex(Forex derivative);
+
+  T visitForexSwap(ForexSwap derivative, S data);
+
+  T visitForexSwap(ForexSwap derivative);
+
+  T visitForexOptionVanilla(ForexOptionVanilla derivative, S data);
+
+  T visitForexOptionVanilla(ForexOptionVanilla derivative);
+
+  T visitForexOptionSingleBarrier(ForexOptionSingleBarrier derivative, S data);
+
+  T visitForexOptionSingleBarrier(ForexOptionSingleBarrier derivative);
+
+  T visitForexNonDeliverableForward(ForexNonDeliverableForward derivative, S data);
+
+  T visitForexNonDeliverableForward(ForexNonDeliverableForward derivative);
+
+  T visitForexNonDeliverableOption(ForexNonDeliverableOption derivative, S data);
+
+  T visitForexNonDeliverableOption(ForexNonDeliverableOption derivative);
+
 }

@@ -43,9 +43,9 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctionH
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.InstrumentSensitivityCalculator;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -104,8 +104,8 @@ public class CapFloorCMSSpreadSABRYieldCurveNodeSensitivitiesFunction extends Ab
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final CapFloorCMSSpreadSecurity security = (CapFloorCMSSpreadSecurity) target.getSecurity();
-    final FixedIncomeInstrumentDefinition<?> capFloorDefinition = security.accept(_capFloorVisitor);
-    final InterestRateDerivative capFloor =  _definitionConverter.convert(security, capFloorDefinition, now,
+    final InstrumentDefinition<?> capFloorDefinition = security.accept(_capFloorVisitor);
+    final InstrumentDerivative capFloor =  _definitionConverter.convert(security, capFloorDefinition, now,
         new String[] {_fundingCurveName, _forwardCurveName}, dataSource);
     final Currency currency = security.getCurrency();
     final Object forwardCurveObject = inputs.getValue(getForwardCurveRequirement(currency, _forwardCurveName, _fundingCurveName));

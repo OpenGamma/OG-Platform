@@ -12,12 +12,13 @@ import com.opengamma.financial.forex.method.ForexDiscountingMethod;
 import com.opengamma.financial.forex.method.ForexNonDeliverableForwardDiscountingMethod;
 import com.opengamma.financial.forex.method.ForexSwapDiscountingMethod;
 import com.opengamma.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
+import com.opengamma.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 
 /**
  * Calculator of the present value curve sensitivity for Forex derivatives.
  */
-public class PresentValueCurveSensitivityForexCalculator extends AbstractForexDerivativeVisitor<YieldCurveBundle, MultipleCurrencyInterestRateCurveSensitivity> {
+public class PresentValueCurveSensitivityForexCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, MultipleCurrencyInterestRateCurveSensitivity> {
 
   /**
    * The unique instance of the calculator.

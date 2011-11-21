@@ -13,7 +13,7 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
@@ -26,7 +26,7 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
  * 
  */
 public class InterestRateInstrumentTradeOrSecurityConverter {
-  private final FinancialSecurityVisitor<FixedIncomeInstrumentDefinition<?>> _securityVisitor;
+  private final FinancialSecurityVisitor<InstrumentDefinition<?>> _securityVisitor;
   private final BondFutureTradeConverter _bondFutureConverter;
   private final BondTradeConverter _bondTradeConverter;
   private final InterestRateFutureTradeConverter _interestRateFutureTradeConverter;
@@ -47,7 +47,7 @@ public class InterestRateInstrumentTradeOrSecurityConverter {
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
     final FutureSecurityConverter futureConverter = new FutureSecurityConverter(bondFutureConverter, irFutureConverter);
-    _securityVisitor = FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentDefinition<?>>builder()
+    _securityVisitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
             .cashSecurityVisitor(cashConverter)
             .fraSecurityVisitor(fraConverter)
             .swapSecurityVisitor(swapConverter)
@@ -59,7 +59,7 @@ public class InterestRateInstrumentTradeOrSecurityConverter {
     _interestRateFutureOptionTradeConverter = new InterestRateFutureOptionTradeConverter(irFutureOptionConverter);
   }
 
-  public FixedIncomeInstrumentDefinition<?> visit(final Trade trade) {
+  public InstrumentDefinition<?> visit(final Trade trade) {
     Validate.notNull(trade, "trade");
     final FinancialSecurity security = (FinancialSecurity) trade.getSecurity();
     if (security instanceof BondSecurity) {
@@ -74,7 +74,7 @@ public class InterestRateInstrumentTradeOrSecurityConverter {
     return security.accept(_securityVisitor);
   }
 
-  public FixedIncomeInstrumentDefinition<?> visit(final Security security) {
+  public InstrumentDefinition<?> visit(final Security security) {
     return ((FinancialSecurity) security).accept(_securityVisitor);
   }
 

@@ -10,8 +10,8 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionWithData;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -19,7 +19,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  * Class describing a generic floating payment coupon with a unique fixing date.
  */
-public abstract class CouponFloatingDefinition extends CouponDefinition implements FixedIncomeInstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
+public abstract class CouponFloatingDefinition extends CouponDefinition implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * The coupon fixing date.
@@ -82,12 +82,12 @@ public abstract class CouponFloatingDefinition extends CouponDefinition implemen
   }
 
   @Override
-  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitCouponFloating(this, data);
   }
 
   @Override
-  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitCouponFloating(this);
   }
 

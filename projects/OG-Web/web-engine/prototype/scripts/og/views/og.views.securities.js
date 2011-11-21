@@ -107,17 +107,21 @@ $.register_module({
                 toolbar: {
                     'default': {
                         buttons: [
-                            {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'new', handler: toolbar_buttons['new']}
+                            {id: 'new', name: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', name: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', name: 'Delete', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     },
                     active: {
                         buttons: [
-                            {name: 'delete', handler: toolbar_buttons['delete']},
-                            {name: 'new', handler: toolbar_buttons['new']}
+                            {id: 'new', name: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', name: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', name: 'Delete', handler: toolbar_buttons['delete']}
                         ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     }
                 }
             },

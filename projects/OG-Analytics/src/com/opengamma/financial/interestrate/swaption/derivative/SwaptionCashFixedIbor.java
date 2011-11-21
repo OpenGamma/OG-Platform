@@ -8,8 +8,8 @@ package com.opengamma.financial.interestrate.swaption.derivative;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -18,7 +18,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing a European swaption on a vanilla swap with cash delivery.
  */
-public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implements InterestRateDerivative {
+public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implements InstrumentDerivative {
 
   /**
    * Swap underlying the swaption. The swap should be of vanilla type.
@@ -100,12 +100,12 @@ public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implement
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitSwaptionCashFixedIbor(this, data);
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitSwaptionCashFixedIbor(this);
   }
 

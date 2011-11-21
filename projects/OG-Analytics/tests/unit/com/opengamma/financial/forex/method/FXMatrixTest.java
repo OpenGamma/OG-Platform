@@ -10,6 +10,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Tests related to the FXMatrix.
@@ -113,6 +115,26 @@ public class FXMatrixTest {
     assertEquals("FXMatrix - three pairs", 1.0 / (GBP_EUR * EUR_USD), fxMatrix.getFxRate(USD, GBP), 1.0E-10);
     assertEquals("FXMatrix - three pairs", 1.0 / USD_KRW, fxMatrix.getFxRate(KRW, USD), 1.0E-10);
     assertEquals("FXMatrix - three pairs", GBP_EUR * EUR_USD * USD_KRW, fxMatrix.getFxRate(GBP, KRW), 1.0E-10);
+  }
+
+  @Test
+  /**
+   * Check the conversion of a multiple currency amount.
+   */
+  public void convert() {
+    FXMatrix fxMatrix = new FXMatrix();
+    fxMatrix.addCurrency(EUR, USD, EUR_USD);
+    fxMatrix.addCurrency(GBP, EUR, GBP_EUR);
+    double amountGBP = 1.0;
+    double amountEUR = 2.0;
+    double amountUSD = 3.0;
+    MultipleCurrencyAmount amount = MultipleCurrencyAmount.of(GBP, amountGBP);
+    amount = amount.plus(EUR, amountEUR);
+    amount = amount.plus(USD, amountUSD);
+    CurrencyAmount totalUSDCalculated = fxMatrix.convert(amount, USD);
+    double totalUSDExpected = amountUSD + amountEUR * EUR_USD + amountGBP * GBP_EUR * EUR_USD;
+    assertEquals("FXMatrix - convert", totalUSDExpected, totalUSDCalculated.getAmount(), 1.0E-10);
+    assertEquals("FXMatrix - convert", USD, totalUSDCalculated.getCurrency());
   }
 
   @Test

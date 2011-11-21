@@ -7,14 +7,14 @@ package com.opengamma.financial.interestrate.bond.calculator;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.AbstractInterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 
 /**
  * 
  */
-public final class CleanPriceFromYieldCalculator extends AbstractInterestRateDerivativeVisitor<Double, Double> {
+public final class CleanPriceFromYieldCalculator extends AbstractInstrumentDerivativeVisitor<Double, Double> {
   private static final CleanPriceFromYieldCalculator INSTANCE = new CleanPriceFromYieldCalculator();
 
   public static CleanPriceFromYieldCalculator getInstance() {

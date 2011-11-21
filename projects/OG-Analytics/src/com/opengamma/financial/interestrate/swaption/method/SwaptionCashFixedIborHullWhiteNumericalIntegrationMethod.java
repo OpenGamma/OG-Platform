@@ -8,7 +8,7 @@ package com.opengamma.financial.interestrate.swaption.method;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.CashFlowEquivalentCalculator;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.method.PricingMethod;
@@ -87,7 +87,7 @@ public class SwaptionCashFixedIborHullWhiteNumericalIntegrationMethod implements
   }
 
   @Override
-  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
     Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
     return presentValue(instrument, curves);

@@ -22,7 +22,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponCMSDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
@@ -49,7 +49,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeInstrumentDefinition<?>> {
+public class SwapSecurityConverter implements SwapSecurityVisitor<InstrumentDefinition<?>> {
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
   private final RegionSource _regionSource;
@@ -64,12 +64,12 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
   }
 
   @Override
-  public FixedIncomeInstrumentDefinition<?> visitForwardSwapSecurity(final ForwardSwapSecurity security) {
+  public InstrumentDefinition<?> visitForwardSwapSecurity(final ForwardSwapSecurity security) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public FixedIncomeInstrumentDefinition<?> visitSwapSecurity(final SwapSecurity security) {
+  public InstrumentDefinition<?> visitSwapSecurity(final SwapSecurity security) {
     Validate.notNull(security, "swap security");
     final InterestRateInstrumentType swapType = SwapSecurityUtils.getSwapType(security);
     switch (swapType) {

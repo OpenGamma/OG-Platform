@@ -8,7 +8,6 @@
   border: 2px solid #fff;
   border-radius: 5px;
   position: relative;
-  overflow: visible;
   padding:	10px;
   overflow:	auto;
   -webkit-box-shadow: 0 0 1px 1px #ccc;
@@ -129,8 +128,6 @@
   background: #fff;
   border-radius: 5px;
   position: relative;
-  overflow: visible;
-  overflow:	auto;
   -webkit-box-shadow: 0 0 1px 1px #ccc;
   -moz-box-shadow: 0 0 1px 1px #ccc;
   box-shadow: 0 0 1px 1px #ccc;
@@ -162,7 +159,6 @@
   border: 1px solid #fff;
   border-radius: 5px;
   position: relative;
-  overflow: visible;
   overflow: auto;
   -webkit-box-shadow: 0 0 1px 1px #ccc;
   -moz-box-shadow: 0 0 1px 1px #ccc;
@@ -222,4 +218,63 @@
 
 .ui-layout-inner-south-south .ui-layout-header {
   height: 69px;
+}
+
+.ui-layout-tools {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  background: #fff;
+  border: 1px solid #fff;
+  border-radius: 5px;
+  position: relative;
+  overflow: auto;
+  -webkit-box-shadow: 0 0 1px 1px #ccc;
+  -moz-box-shadow: 0 0 1px 1px #ccc;
+  box-shadow: 0 0 1px 1px #ccc;
+}
+
+.ui-layout-tools {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  background: #fff;
+  border: 2px solid #fff;
+  border-radius: 5px;
+  position: relative;
+  padding:	10px;
+  overflow:	auto;
+  -webkit-box-shadow: 0 0 1px 1px #ccc;
+  -moz-box-shadow: 0 0 1px 1px #ccc;
+  box-shadow: 0 0 1px 1px #ccc;
+}
+
+.ui-layout-east {
+  padding: 5px;
+  background-color: #ebebeb;
+  border: none;
+  overflow: visible;
+}
+
+.ui-layout-east:before {
+  -webkit-border-top-left-radius: 5px;
+  -webkit-border-top-right-radius: 5px;
+  -moz-border-radius-topleft: 5px;
+  -moz-border-radius-topright: 5px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  content: '';
+  background-color: #2b343c;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.ui-layout-east:after {
+  border-top: 1px solid #fff;
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 0;
+  right: 0;
 }

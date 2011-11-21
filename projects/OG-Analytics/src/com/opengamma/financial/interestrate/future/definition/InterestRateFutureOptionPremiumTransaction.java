@@ -8,14 +8,14 @@ package com.opengamma.financial.interestrate.future.definition;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 
 /**
  * Description of transaction on an interest rate future option with up-front margin security.
  */
-public class InterestRateFutureOptionPremiumTransaction implements InterestRateDerivative {
+public class InterestRateFutureOptionPremiumTransaction implements InstrumentDerivative {
 
   /**
    * The underlying option future security.
@@ -124,12 +124,12 @@ public class InterestRateFutureOptionPremiumTransaction implements InterestRateD
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitInterestRateFutureOptionPremiumTransaction(this, data);
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitInterestRateFutureOptionPremiumTransaction(this);
   }
 

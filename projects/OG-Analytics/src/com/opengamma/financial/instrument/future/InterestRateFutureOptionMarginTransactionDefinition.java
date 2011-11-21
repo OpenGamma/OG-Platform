@@ -10,15 +10,15 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionWithData;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
 
 /**
  * Description of transaction on an interest rate future option security with daily margining process (LIFFE and Eurex type).
  */
-public class InterestRateFutureOptionMarginTransactionDefinition implements FixedIncomeInstrumentDefinitionWithData<InterestRateFutureOptionMarginTransaction, Double> {
+public class InterestRateFutureOptionMarginTransactionDefinition implements InstrumentDefinitionWithData<InterestRateFutureOptionMarginTransaction, Double> {
 
   /**
    * The underlying option future security.
@@ -108,12 +108,12 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Fixe
   }
 
   @Override
-  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
     return visitor.visitInterestRateFutureOptionMarginTransactionDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitInterestRateFutureOptionMarginTransactionDefinition(this);
   }
 

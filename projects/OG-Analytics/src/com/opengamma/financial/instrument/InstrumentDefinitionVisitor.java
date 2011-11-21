@@ -5,6 +5,12 @@
  */
 package com.opengamma.financial.instrument;
 
+import com.opengamma.financial.forex.definition.ForexDefinition;
+import com.opengamma.financial.forex.definition.ForexNonDeliverableForwardDefinition;
+import com.opengamma.financial.forex.definition.ForexNonDeliverableOptionDefinition;
+import com.opengamma.financial.forex.definition.ForexOptionSingleBarrierDefinition;
+import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
+import com.opengamma.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
@@ -46,11 +52,11 @@ import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefi
  * @param <T> Type of the data 
  * @param <U> Type of the result
  */
-public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
+public interface InstrumentDefinitionVisitor<T, U> {
 
-  U visit(FixedIncomeInstrumentDefinition<?> definition, T data);
+  U visit(InstrumentDefinition<?> definition, T data);
 
-  U visit(FixedIncomeInstrumentDefinition<?> definition);
+  U visit(InstrumentDefinition<?> definition);
 
   U visitBondFixedSecurityDefinition(BondFixedSecurityDefinition bond, T data);
 
@@ -191,5 +197,31 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
   U visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond, T data);
 
   U visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond);
+
+  // -----     Forex     -----
+
+  U visitForexDefinition(ForexDefinition fx, T data);
+
+  U visitForexDefinition(ForexDefinition fx);
+
+  U visitForexSwapDefinition(ForexSwapDefinition fx, T data);
+
+  U visitForexSwapDefinition(ForexSwapDefinition fx);
+
+  U visitForexOptionVanillaDefinition(ForexOptionVanillaDefinition fx, T data);
+
+  U visitForexOptionVanillaDefinition(ForexOptionVanillaDefinition fx);
+
+  U visitForexOptionSingleBarrierDefiniton(ForexOptionSingleBarrierDefinition fx, T data);
+
+  U visitForexOptionSingleBarrierDefiniton(ForexOptionSingleBarrierDefinition fx);
+
+  U visitForexNonDeliverableForwardDefinition(ForexNonDeliverableForwardDefinition ndf, T data);
+
+  U visitForexNonDeliverableForwardDefinition(ForexNonDeliverableForwardDefinition ndf);
+
+  U visitForexNonDeliverableOptionDefinition(ForexNonDeliverableOptionDefinition ndo, T data);
+
+  U visitForexNonDeliverableOptionDefinition(ForexNonDeliverableOptionDefinition ndo);
 
 }

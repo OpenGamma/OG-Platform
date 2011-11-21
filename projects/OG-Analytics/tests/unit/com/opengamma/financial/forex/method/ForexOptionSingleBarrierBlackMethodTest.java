@@ -19,7 +19,6 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.forex.calculator.CurrencyExposureBlackForexCalculator;
-import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueBlackForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueForexVegaQuoteSensitivityCalculator;
@@ -28,6 +27,7 @@ import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.option.definition.Barrier;
 import com.opengamma.financial.model.option.definition.Barrier.BarrierType;
@@ -156,7 +156,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
    * Tests that the present value given by the method for a generic ForexDerivatrive is the same as for a specific ForexOptionSingleBarrier.
    */
   public void methodForexBarrier() {
-    final ForexDerivative fx = OPTION_BARRIER;
+    final InstrumentDerivative fx = OPTION_BARRIER;
     final YieldCurveBundle curves = SMILE_BUNDLE;
     final MultipleCurrencyAmount priceGeneric = METHOD_BARRIER.presentValue(fx, curves);
     final MultipleCurrencyAmount priceSpecific = METHOD_BARRIER.presentValue(OPTION_BARRIER, SMILE_BUNDLE);
@@ -213,7 +213,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
    * Tests that the currency exposure given by the method for a generic ForexDerivatrive is the same as for a specific ForexOptionSingleBarrier.
    */
   public void currencyExposureDerivative() {
-    final ForexDerivative fx = OPTION_BARRIER;
+    final InstrumentDerivative fx = OPTION_BARRIER;
     final YieldCurveBundle curves = SMILE_BUNDLE;
     final MultipleCurrencyAmount ceGeneric = METHOD_BARRIER.currencyExposure(fx, curves);
     final MultipleCurrencyAmount ceSpecific = METHOD_BARRIER.currencyExposure(OPTION_BARRIER, SMILE_BUNDLE);

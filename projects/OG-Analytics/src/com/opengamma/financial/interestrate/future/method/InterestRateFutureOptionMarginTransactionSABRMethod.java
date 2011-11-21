@@ -7,7 +7,7 @@ package com.opengamma.financial.interestrate.future.method;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -60,7 +60,7 @@ public final class InterestRateFutureOptionMarginTransactionSABRMethod extends I
   }
 
   @Override
-  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof InterestRateFutureOptionMarginTransaction, "Interest rate future option transaction");
     Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "SABR data required");
     return presentValue((InterestRateFutureOptionMarginTransaction) instrument, (SABRInterestRateDataBundle) curves);

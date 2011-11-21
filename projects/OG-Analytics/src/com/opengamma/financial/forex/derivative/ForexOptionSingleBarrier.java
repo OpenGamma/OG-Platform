@@ -8,8 +8,8 @@ package com.opengamma.financial.forex.derivative;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.forex.calculator.ForexDerivative;
-import com.opengamma.financial.forex.calculator.ForexDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.model.option.definition.Barrier;
 import com.opengamma.util.money.Currency;
 
@@ -17,7 +17,7 @@ import com.opengamma.util.money.Currency;
  * Class describing a single-barrier FX option. The class wraps a vanilla European FX option ({@code ForexOptionVanilla}) and a {@code BarrierType}.
  * It is suppose that the barrier has not been activated yet (and thus there is no flag indicated if the activation took place already).
  */
-public class ForexOptionSingleBarrier implements ForexDerivative {
+public class ForexOptionSingleBarrier implements InstrumentDerivative {
 
   /**
    * The underlying vanilla Forex option.
@@ -99,12 +99,12 @@ public class ForexOptionSingleBarrier implements ForexDerivative {
   }
 
   @Override
-  public <S, T> T accept(final ForexDerivativeVisitor<S, T> visitor, final S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitForexOptionSingleBarrier(this, data);
   }
 
   @Override
-  public <T> T accept(final ForexDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitForexOptionSingleBarrier(this);
   }
 

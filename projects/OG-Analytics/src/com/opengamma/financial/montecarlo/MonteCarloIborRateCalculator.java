@@ -7,8 +7,8 @@ package com.opengamma.financial.montecarlo;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.AbstractInterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
@@ -18,7 +18,7 @@ import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysical
  * Computes the instrument price as the average over different paths. The data bundle contains the different Ibor rates paths and the instrument reference amounts.
  * The numeraire is the last time in the LMM description.
  */
-public class MonteCarloIborRateCalculator extends AbstractInterestRateDerivativeVisitor<MonteCarloIborRateDataBundle, Double> {
+public class MonteCarloIborRateCalculator extends AbstractInstrumentDerivativeVisitor<MonteCarloIborRateDataBundle, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -40,7 +40,7 @@ public class MonteCarloIborRateCalculator extends AbstractInterestRateDerivative
   }
 
   @Override
-  public Double visit(final InterestRateDerivative derivative, final MonteCarloIborRateDataBundle mcResults) {
+  public Double visit(final InstrumentDerivative derivative, final MonteCarloIborRateDataBundle mcResults) {
     Validate.notNull(derivative);
     return derivative.accept(this, mcResults);
   }
