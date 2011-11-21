@@ -30,7 +30,9 @@ import com.opengamma.util.db.DbConnector;
  * This is a full implementation of the config master using an SQL database.
  * Full details of the API are in {@link ConfigMaster}.
  * <p>
- * This class uses SQL via JDBC. The SQL may be changed by subclassing the relevant methods.
+ * The SQL is stored externally in {@code DbConfigMaster.extsql}.
+ * Alternate databases or specific SQL requirements can be handled using database
+ * specific overrides, such as {@code DbConfigMaster-MySpecialDB.extsql}.
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  * 
