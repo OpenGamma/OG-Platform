@@ -22,7 +22,6 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.extsql.ExtSqlBundle;
-import com.opengamma.extsql.ExtSqlConfig;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ExternalIdSearchType;
@@ -44,7 +43,6 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.PostgresDbDialect;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.paging.Paging;
 
@@ -75,8 +73,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster2<HolidayDocument> 
    */
   public DbHolidayMaster(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
-    ExtSqlConfig config = (dbConnector.getDialect() instanceof PostgresDbDialect ? ExtSqlConfig.POSTGRES : ExtSqlConfig.HSQL);
-    setExtSqlBundle(ExtSqlBundle.of(config, DbHolidayMaster.class));
+    setExtSqlBundle(ExtSqlBundle.of(dbConnector.getDialect().getExtSqlConfig(), DbHolidayMaster.class));
   }
 
   //-------------------------------------------------------------------------
