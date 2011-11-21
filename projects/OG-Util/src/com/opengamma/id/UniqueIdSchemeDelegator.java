@@ -39,7 +39,7 @@ public class UniqueIdSchemeDelegator<T> {
    * 
    * @param defaultDelegate  the delegate to use when no scheme matches, not null
    */
-  protected UniqueIdSchemeDelegator(final T defaultDelegate) {
+  public UniqueIdSchemeDelegator(final T defaultDelegate) {
     ArgumentChecker.notNull(defaultDelegate, "defaultDelegate");
     _defaultDelegate = defaultDelegate;
   }
@@ -50,7 +50,7 @@ public class UniqueIdSchemeDelegator<T> {
    * @param defaultDelegate  the delegate to use when no scheme matches, not null
    * @param schemePrefixToDelegateMap  the map of delegates by scheme to switch on, not null
    */
-  protected UniqueIdSchemeDelegator(final T defaultDelegate, final Map<String, T> schemePrefixToDelegateMap) {
+  public UniqueIdSchemeDelegator(final T defaultDelegate, final Map<String, T> schemePrefixToDelegateMap) {
     ArgumentChecker.notNull(defaultDelegate, "defaultDelegate");
     ArgumentChecker.notNull(schemePrefixToDelegateMap, "schemePrefixToDelegateMap");
     _defaultDelegate = defaultDelegate;
@@ -65,7 +65,7 @@ public class UniqueIdSchemeDelegator<T> {
    * 
    * @return the default delegate, not null
    */
-  protected T getDefaultDelegate() {
+  public T getDefaultDelegate() {
     return _defaultDelegate;
   }
 
@@ -74,7 +74,7 @@ public class UniqueIdSchemeDelegator<T> {
    * 
    * @return the registered delegates, unmodifiable, not null
    */
-  protected Map<String, T> getDelegates() {
+  public Map<String, T> getDelegates() {
     return Collections.unmodifiableMap(_schemeToDelegateMap);
   }
 
@@ -85,7 +85,7 @@ public class UniqueIdSchemeDelegator<T> {
    * @param scheme  the identifier scheme, not null
    * @return the delegate, not null
    */
-  protected T chooseDelegate(final String scheme) {
+  public T chooseDelegate(final String scheme) {
     ArgumentChecker.notNull(scheme, "scheme");
     String[] schemeParts = StringUtils.split(scheme, "-", 2);
     String schemePrefix = schemeParts[0];

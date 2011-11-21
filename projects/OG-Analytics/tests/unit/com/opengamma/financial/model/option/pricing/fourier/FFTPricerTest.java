@@ -24,7 +24,7 @@ import com.opengamma.math.number.ComplexNumber;
  */
 public class FFTPricerTest {
   private static final Interpolator1D INTERPOLATOR = Interpolator1DFactory.getInterpolator("DoubleQuadratic");
-  private static final double FORWARD = 1;
+  private static final double FORWARD = 100;
   private static final double T = 1 / 52.0;
   private static final double DF = 0.96;
   private static final double SIGMA = 0.2;
@@ -87,12 +87,12 @@ public class FFTPricerTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLowStrike() {
-    PRICER.price(FORWARD, DF, T, true, CEF, FORWARD + 10, 110, 10, SIGMA, ALPHA, TOL);
+    PRICER.price(FORWARD, DF, T, true, CEF, FORWARD + 11, 110, 10, SIGMA, ALPHA, TOL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongHighStrike() {
-    PRICER.price(FORWARD, DF, T, true, CEF, 10, FORWARD, 10, SIGMA, ALPHA, TOL);
+    PRICER.price(FORWARD, DF, T, true, CEF, FORWARD, FORWARD-1, 10, SIGMA, ALPHA, TOL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

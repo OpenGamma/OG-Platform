@@ -13,7 +13,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
@@ -137,7 +137,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
   }
 
   @Override
-  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof CapFloorCMS, "CMS cap/floor");
     Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "Bundle should contain SABR data");
     return presentValue((CapFloorCMS) instrument, (SABRInterestRateDataBundle) curves);
@@ -398,7 +398,8 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
       final Function1D<SABRFormulaData, Double> funcSabr = _sabrFunction.getVolatilityFunction(option, _forward);
       final double volatility = funcSabr.evaluate(_sabrData);
       final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility);
-      final Function1D<BlackFunctionData, Double> func = _blackFunction.getPriceFunction(option);
+      Function1D<BlackFunctionData, Double> func = null;
+      func = _blackFunction.getPriceFunction(option);
       return func.evaluate(dataBlack);
     }
 

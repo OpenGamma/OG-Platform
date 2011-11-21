@@ -30,7 +30,7 @@ import com.opengamma.id.UniqueId;
  *
  */
 public class RegionAggregationFunction implements AggregationFunction<String> {
-  private static final boolean s_useAttributes = true;
+  private boolean _useAttributes;
   
   private static final Logger s_logger = LoggerFactory.getLogger(RegionAggregationFunction.class);
   private static final String NAME = "Region";
@@ -53,9 +53,14 @@ public class RegionAggregationFunction implements AggregationFunction<String> {
   private ExchangeSource _exchangeSource;
     
   public RegionAggregationFunction(SecuritySource secSource, RegionSource regionSource, ExchangeSource exchangeSource) {
+    this(secSource, regionSource, exchangeSource, true);
+  }
+  
+  public RegionAggregationFunction(SecuritySource secSource, RegionSource regionSource, ExchangeSource exchangeSource, boolean useAttributes) {
     _secSource = secSource;
     _regionSource = regionSource;
     _exchangeSource = exchangeSource;
+    _useAttributes = useAttributes;
   }
   
   /**
@@ -68,7 +73,7 @@ public class RegionAggregationFunction implements AggregationFunction<String> {
   
   @Override
   public String classifyPosition(Position position) {
-    if (s_useAttributes) {
+    if (_useAttributes) {
       Map<String, String> attributes = position.getAttributes();
       s_logger.warn("attributes on " + position + " = " + attributes.entrySet());
       if (attributes.containsKey(getName())) {

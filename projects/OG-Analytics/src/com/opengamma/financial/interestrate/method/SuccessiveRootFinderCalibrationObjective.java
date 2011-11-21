@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.interestrate.method;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.math.function.Function1D;
 
@@ -17,7 +17,7 @@ public abstract class SuccessiveRootFinderCalibrationObjective extends Function1
   /**
    * The instrument to be calibrated.
    */
-  private InterestRateDerivative _instrument;
+  private InstrumentDerivative _instrument;
   /**
    * The instrument price.
    */
@@ -45,7 +45,7 @@ public abstract class SuccessiveRootFinderCalibrationObjective extends Function1
    * Sets the instrument to calibrate.
    * @param instrument The instrument.
    */
-  public void setInstrument(InterestRateDerivative instrument) {
+  public void setInstrument(InstrumentDerivative instrument) {
     _instrument = instrument;
   }
 
@@ -69,7 +69,7 @@ public abstract class SuccessiveRootFinderCalibrationObjective extends Function1
    * Gets the instrument.
    * @return The instrument.
    */
-  public InterestRateDerivative getInstrument() {
+  public InstrumentDerivative getInstrument() {
     return _instrument;
   }
 

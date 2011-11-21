@@ -27,11 +27,20 @@ public class Interpolator1DDoubleQuadraticDataBundle implements Interpolator1DDa
     final double[] xData = getKeys();
     final double[] yData = getValues();
     final int n = xData.length - 1;
-    final RealPolynomialFunction1D[] quadratic = new RealPolynomialFunction1D[n - 1];
-    for (int i = 1; i < n; i++) {
-      quadratic[i - 1] = getQuadratic(xData, yData, i);
+    if (n == 0) {
+      final double a = yData[0];
+      return new RealPolynomialFunction1D[] {new RealPolynomialFunction1D(a) };
+    } else if (n == 1) {
+      final double a = yData[1];
+      final double b = (yData[1] - yData[0]) / (xData[1] - xData[0]);
+      return new RealPolynomialFunction1D[] {new RealPolynomialFunction1D(a, b) };
+    } else {
+      final RealPolynomialFunction1D[] quadratic = new RealPolynomialFunction1D[n - 1];
+      for (int i = 1; i < n; i++) {
+        quadratic[i - 1] = getQuadratic(xData, yData, i);
+      }
+      return quadratic;
     }
-    return quadratic;
   }
 
   private RealPolynomialFunction1D getQuadratic(final double[] x, final double[] y, final int index) {
@@ -42,7 +51,7 @@ public class Interpolator1DDoubleQuadraticDataBundle implements Interpolator1DDa
     final double dy2 = y[index + 1] - y[index];
     final double b = (dx1 * dy2 / dx2 + dx2 * dy1 / dx1) / (dx1 + dx2);
     final double c = (dy2 / dx2 - dy1 / dx1) / (dx1 + dx2);
-    return new RealPolynomialFunction1D(new double[] {a, b, c});
+    return new RealPolynomialFunction1D(new double[] {a, b, c });
   }
 
   public RealPolynomialFunction1D getQuadratic(final int index) {

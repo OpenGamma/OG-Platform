@@ -30,9 +30,9 @@ public abstract class NodeSensitivityCalculator {
   /* package */NodeSensitivityCalculator() {
   }
 
-  public abstract DoubleMatrix1D calculateSensitivities(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves);
+  public abstract DoubleMatrix1D calculateSensitivities(final InstrumentDerivative ird, final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves);
 
-  public DoubleMatrix1D calculateSensitivities(final InterestRateDerivative ird, final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> calculator,
+  public DoubleMatrix1D calculateSensitivities(final InstrumentDerivative ird, final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> calculator,
       final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves) {
     Validate.notNull(ird, "null InterestRateDerivative");
     Validate.notNull(calculator, "null calculator");

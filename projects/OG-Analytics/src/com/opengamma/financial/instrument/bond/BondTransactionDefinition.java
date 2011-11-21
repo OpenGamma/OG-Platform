@@ -10,7 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.payment.CouponDefinition;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.interestrate.bond.definition.BondSecurity;
@@ -25,7 +25,7 @@ import com.opengamma.financial.schedule.ScheduleCalculator;
  * @param <C> The coupon type.
  */
 public abstract class BondTransactionDefinition<N extends PaymentDefinition, C extends CouponDefinition> implements
-    FixedIncomeInstrumentDefinition<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>> {
+    InstrumentDefinition<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>> {
 
   /**
    * The bond underlying the transaction.

@@ -43,8 +43,10 @@ import com.opengamma.financial.analytics.SummingFunction;
 import com.opengamma.financial.analytics.UnitPositionScalingFunction;
 import com.opengamma.financial.analytics.UnitPositionTradeScalingFunction;
 import com.opengamma.financial.analytics.equity.SecurityMarketPriceFunction;
+import com.opengamma.financial.analytics.ircurve.DefaultYieldCurveMarketDataShiftFunction;
 import com.opengamma.financial.analytics.ircurve.DefaultYieldCurveShiftFunction;
 import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataShiftFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveShiftFunction;
 import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromYieldFunction;
@@ -101,6 +103,7 @@ import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionVegaQuote
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureGrossBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureNetBasisFromCurvesFunction;
+import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionHestonPresentValueFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionPresentValueFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionSABRSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionVegaFunction;
@@ -126,11 +129,12 @@ import com.opengamma.financial.analytics.model.var.OptionPositionParametricVaRCa
 import com.opengamma.financial.analytics.model.var.PortfolioHistoricalVaRCalculatorFunction;
 import com.opengamma.financial.analytics.model.var.PositionHistoricalVaRCalculatorFunction;
 import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunctionFactory;
-import com.opengamma.financial.analytics.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceFunction;
+import com.opengamma.financial.analytics.volatility.cube.fitting.SABRNonLinearLeastSquaresSwaptionCubeFittingFunction;
 import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySurfaceShiftFunction;
-import com.opengamma.financial.analytics.volatility.surface.SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction;
-import com.opengamma.financial.analytics.volatility.surface.SABRNonLinearLeastSquaresSwaptionCubeFittingFunction;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
+import com.opengamma.financial.analytics.volatility.surface.fitting.BlackScholesMertonImpliedVolatilitySurfaceFunction;
+import com.opengamma.financial.analytics.volatility.surface.fitting.HestonFourierIRFutureSurfaceFittingFunction;
+import com.opengamma.financial.analytics.volatility.surface.fitting.SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.DefaultCurrencyInjectionFunction;
@@ -220,6 +224,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(PositionExchangeTradedPnLFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(PortfolioExchangeTradedPnLFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(PortfolioExchangeTradedDailyPnLFunction.class.getName()));;
+    functionConfigs.add(new ParameterizedFunctionConfiguration(PortfolioNodeDefaultCurrencyFunction.class.getName(), Collections.singleton(ValueRequirementNames.DAILY_PNL)));
 
     String returnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_STRICT;
     String startDate = "2008-09-22";
@@ -475,6 +480,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(DefaultVolatilitySurfaceShiftFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(YieldCurveShiftFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(DefaultYieldCurveShiftFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(YieldCurveMarketDataShiftFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(DefaultYieldCurveMarketDataShiftFunction.class.getName()));
     
     // Historical data functions.
     addDummyFunction(functionConfigs, ValueRequirementNames.DAILY_VOLUME);
@@ -486,7 +493,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addDummyFunction(functionConfigs, ValueRequirementNames.DAILY_APPLIED_BETA);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.DAILY_APPLIED_BETA);
     functionConfigs.add(new ParameterizedFunctionConfiguration(LastHistoricalValueFunction.class.getName(), Collections.singleton(ValueRequirementNames.DAILY_APPLIED_BETA)));
-
+    addDummyFunction(functionConfigs, ValueRequirementNames.DAILY_PRICE);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.DAILY_PRICE);
+    functionConfigs.add(new ParameterizedFunctionConfiguration(LastHistoricalValueFunction.class.getName(), Collections.singleton(ValueRequirementNames.DAILY_PRICE)));
+    
+    
     RepositoryConfiguration repoConfig = new RepositoryConfiguration(functionConfigs);
 
     if (OUTPUT_REPO_CONFIGURATION) {
@@ -681,6 +692,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("FORWARD_3M", "FUNDING", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("FORWARD_6M", "FUNDING", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction.class.getName(), Arrays.asList("USD", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class.getName(), Arrays.asList("USD", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class.getName(), Arrays.asList("FORWARD_3M", "FUNDING", "DEFAULT")));
   }
 
   private static void addSwaptionCalculators(List<FunctionConfiguration> functionConfigs) {

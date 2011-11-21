@@ -32,7 +32,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
   private static final Currency CUR = Currency.AUD;
   private static final String CURVE_NAME1 = "Test1";
   private static final String CURVE_NAME2 = "Test2";
-  private static final List<InterestRateDerivative> DERIVATIVES;
+  private static final List<InstrumentDerivative> DERIVATIVES;
   private static final double[] TIMES1;
   private static final double[] TIMES2;
   private static final double[] PAR_RATES;
@@ -44,7 +44,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
 
   static {
     final int n = 10;
-    DERIVATIVES = new ArrayList<InterestRateDerivative>();
+    DERIVATIVES = new ArrayList<InstrumentDerivative>();
     TIMES1 = new double[n];
     TIMES2 = new double[n];
     PAR_RATES = new double[2 * n];
@@ -100,7 +100,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyDerivatives() {
-    new MultipleYieldCurveFinderDataBundle(new ArrayList<InterestRateDerivative>(), PAR_RATES, null, NODES, INTERPOLATORS, false);
+    new MultipleYieldCurveFinderDataBundle(new ArrayList<InstrumentDerivative>(), PAR_RATES, null, NODES, INTERPOLATORS, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -187,7 +187,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
     MultipleYieldCurveFinderDataBundle other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, false);
     assertEquals(DATA, other);
     assertEquals(DATA.hashCode(), other.hashCode());
-    final List<InterestRateDerivative> derivatives = new ArrayList<InterestRateDerivative>(DERIVATIVES);
+    final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>(DERIVATIVES);
     derivatives.set(0, new Cash(CUR, 1000, 1, 0.05, CURVE_NAME1));
     other = new MultipleYieldCurveFinderDataBundle(derivatives, PAR_RATES, null, NODES, INTERPOLATORS, false);
     assertFalse(other.equals(DATA));

@@ -11,7 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.position.Trade;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
@@ -29,7 +29,7 @@ public class InterestRateFutureOptionTradeConverter {
     _securityConverter = securityConverter;
   }
 
-  public FixedIncomeInstrumentDefinition<?> convert(final Trade trade) {
+  public InstrumentDefinition<?> convert(final Trade trade) {
     Validate.notNull(trade, "trade");
     Validate.isTrue(trade.getSecurity() instanceof IRFutureOptionSecurity,
         "Can only handle trades with security type IRFutureOptionSecurity");
@@ -40,7 +40,7 @@ public class InterestRateFutureOptionTradeConverter {
     //        TimeZone.UTC); //TODO get the real time zone
     final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getTradeDate().atTime(trade.getTradeTime()),
         TimeZone.UTC); //TODO get the real time zone
-    final double tradePrice = trade.getPremium() == null ? 0.5 : trade.getPremium(); //TODO remove the default value and throw an exception
+    final double tradePrice = trade.getPremium() == null ? 1 : trade.getPremium() / 100; //TODO remove the default value and throw an exception
     if (securityDefinition instanceof InterestRateFutureOptionMarginSecurityDefinition) {
       final InterestRateFutureOptionMarginSecurityDefinition underlyingOption = (InterestRateFutureOptionMarginSecurityDefinition) securityDefinition;
       return new InterestRateFutureOptionMarginTransactionDefinition(underlyingOption, quantity, tradeDate, tradePrice);

@@ -58,7 +58,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * format is a map with curve names (String) as keys and List of DoublesPair as the values; each list holds set of time (corresponding to point of the yield curve) and sensitivity pairs 
  * (i.e. dPV/dR at that time). <b>Note:</b> The length of the list is instrument dependent and may have repeated times (with the understanding the sensitivities should be summed).
  */
-public class PresentValueCurveSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> {
+public class PresentValueCurveSensitivityCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> {
   //TODO: Change the output format to PresentValueSensitivity.
   //TODO Rename me to be consistent with descendants and the par rate calculators
 
@@ -77,7 +77,7 @@ public class PresentValueCurveSensitivityCalculator extends AbstractInterestRate
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visit(final InterestRateDerivative instrument, final YieldCurveBundle curves) {
+  public Map<String, List<DoublesPair>> visit(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     return instrument.accept(this, curves);
   }
 

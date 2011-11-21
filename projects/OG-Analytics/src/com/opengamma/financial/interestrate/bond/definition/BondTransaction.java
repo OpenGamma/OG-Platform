@@ -8,14 +8,14 @@ package com.opengamma.financial.interestrate.bond.definition;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.payments.Payment;
 
 /**
  * Describes a transaction on a generic single currency bond issue.
  * @param <B> The underlying bond type.
  */
-public abstract class BondTransaction<B extends BondSecurity<? extends Payment, ? extends Payment>> implements InterestRateDerivative {
+public abstract class BondTransaction<B extends BondSecurity<? extends Payment, ? extends Payment>> implements InstrumentDerivative {
   /**
    * The bond underlying the transaction. All the nominal payment and coupon relevant to the transaction and only them are included in the bond. 
    * The bond may not be suitable for standard price and yield calculation (some coupon may be missing or added). In particular, the bond

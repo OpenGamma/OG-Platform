@@ -55,8 +55,8 @@ public abstract class MeanCorrection implements MartingaleCharacteristicExponent
   }
 
   @Override
-  public Function1D<ComplexNumber, ComplexNumber[]> getAjointFunction(double t) {
-    final Function1D<ComplexNumber, ComplexNumber[]> func = _base.getAjointFunction(t);
+  public Function1D<ComplexNumber, ComplexNumber[]> getAdjointFunction(double t) {
+    final Function1D<ComplexNumber, ComplexNumber[]> func = _base.getAdjointFunction(t);
     final ComplexNumber[] temp = func.evaluate(MINUS_I);
     return new Function1D<ComplexNumber, ComplexNumber[]>() {
 
@@ -74,9 +74,9 @@ public abstract class MeanCorrection implements MartingaleCharacteristicExponent
   }
 
   @Override
-  public ComplexNumber[] getCharacteristicExponentAjoint(ComplexNumber u, double t) {
-    ComplexNumber[] temp = _base.getCharacteristicExponentAjoint(MINUS_I, t);
-    ComplexNumber[] uncorrected = _base.getCharacteristicExponentAjoint(u, t);
+  public ComplexNumber[] getCharacteristicExponentAdjoint(ComplexNumber u, double t) {
+    ComplexNumber[] temp = _base.getCharacteristicExponentAdjoint(MINUS_I, t);
+    ComplexNumber[] uncorrected = _base.getCharacteristicExponentAdjoint(u, t);
     ComplexNumber minusUi = multiply(MINUS_I, u);
     ComplexNumber[] res = new ComplexNumber[temp.length];
     for (int i = 0; i < temp.length; i++) {

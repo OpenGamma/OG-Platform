@@ -10,11 +10,11 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.AbstractInterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.CashFlowEquivalentCalculator;
 import com.opengamma.financial.interestrate.CashFlowEquivalentCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
@@ -24,7 +24,7 @@ import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysical
 /**
  * Calculator of decision schedule for different instruments. Used in particular for Monte Carlo pricing.
  */
-public class DecisionScheduleDerivativeCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, DecisionScheduleDerivative> {
+public class DecisionScheduleDerivativeCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, DecisionScheduleDerivative> {
 
   /**
    * The cash-flow equivalent calculator.
@@ -52,7 +52,7 @@ public class DecisionScheduleDerivativeCalculator extends AbstractInterestRateDe
   }
 
   @Override
-  public DecisionScheduleDerivative visit(final InterestRateDerivative derivative, final YieldCurveBundle curves) {
+  public DecisionScheduleDerivative visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
     Validate.notNull(derivative);
     return derivative.accept(this, curves);
   }

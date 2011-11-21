@@ -54,14 +54,9 @@ public class WebPositionResource extends AbstractWebPositionResource {
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON() {
     FlexiBean out = createRootData();
-    createTradeAttributes(out);
     return getFreemarker().build("positions/jsonposition.ftl", out);
   }
 
-  private void createTradeAttributes(FlexiBean out) {
-    PositionDocument doc = data().getPosition();
-    out.put("tradeAttrModel", new TradeAttributesModel(doc.getPosition()));
-  }
 
   //-------------------------------------------------------------------------
   @PUT
@@ -155,9 +150,19 @@ public class WebPositionResource extends AbstractWebPositionResource {
     out.put("position", doc.getPosition());
     out.put("security", doc.getPosition().getSecurity());
     out.put("deleted", !doc.isLatest());
+    
+    TradeAttributesModel tradeAttributesModel = getTradeAttributesModel();
+    out.put("tradeAttrModel", tradeAttributesModel);
+    
     return out;
   }
 
+  private TradeAttributesModel getTradeAttributesModel() {
+    PositionDocument doc = data().getPosition();
+    TradeAttributesModel getTradeAttributesModel = new TradeAttributesModel(doc.getPosition());
+    return getTradeAttributesModel;
+  }
+  
   //-------------------------------------------------------------------------
   @Path("versions")
   public WebPositionVersionsResource findVersions() {

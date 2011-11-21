@@ -13,8 +13,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionWithData;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -26,7 +26,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * @param <P> The payment type 
  *
  */
-public class AnnuityDefinition<P extends PaymentDefinition> implements FixedIncomeInstrumentDefinitionWithData<GenericAnnuity<? extends Payment>, DoubleTimeSeries<ZonedDateTime>> {
+public class AnnuityDefinition<P extends PaymentDefinition> implements InstrumentDefinitionWithData<GenericAnnuity<? extends Payment>, DoubleTimeSeries<ZonedDateTime>> {
   /** Empty array for array conversion of list */
   protected static final Payment[] EMPTY_ARRAY = new Payment[0];
   /** 
@@ -171,8 +171,8 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements FixedInco
     for (final P payment : _payments) {
       //TODO check this 
       if (!date.isAfter(payment.getPaymentDate())) {
-        if (payment instanceof FixedIncomeInstrumentDefinitionWithData) {
-          resultList.add(((FixedIncomeInstrumentDefinitionWithData<? extends Payment, DoubleTimeSeries<ZonedDateTime>>) payment).toDerivative(date, indexFixingTS, yieldCurveNames));
+        if (payment instanceof InstrumentDefinitionWithData) {
+          resultList.add(((InstrumentDefinitionWithData<? extends Payment, DoubleTimeSeries<ZonedDateTime>>) payment).toDerivative(date, indexFixingTS, yieldCurveNames));
         } else {
           resultList.add(payment.toDerivative(date, yieldCurveNames));
         }
@@ -182,12 +182,12 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements FixedInco
   }
 
   @Override
-  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitAnnuityDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitAnnuityDefinition(this);
   }
 }

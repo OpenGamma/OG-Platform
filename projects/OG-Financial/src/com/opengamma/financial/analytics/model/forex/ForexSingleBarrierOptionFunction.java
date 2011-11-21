@@ -17,7 +17,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
-import com.opengamma.financial.forex.calculator.ForexConverter;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -31,13 +31,13 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  */
 public abstract class ForexSingleBarrierOptionFunction extends ForexOptionFunction {
 
-  public ForexSingleBarrierOptionFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName, 
+  public ForexSingleBarrierOptionFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName,
       final String surfaceName) {
     super(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
   }
 
   @Override
-  protected ForexConverter<?> getDefinition(final FinancialSecurity target) {
+  protected InstrumentDefinition<?> getDefinition(final FinancialSecurity target) {
     final FXBarrierOptionSecurity security = (FXBarrierOptionSecurity) target;
     return getVisitor().visitFXBarrierOptionSecurity(security);
   }
@@ -87,7 +87,7 @@ public abstract class ForexSingleBarrierOptionFunction extends ForexOptionFuncti
     final ValueRequirement callFundingCurve = YieldCurveFunction.getCurveRequirement(fxOption.getCallCurrency(), callFundingCurveName, callForwardCurveName, callFundingCurveName);
     final ValueRequirement callForwardCurve = YieldCurveFunction.getCurveRequirement(fxOption.getCallCurrency(), callForwardCurveName, callForwardCurveName, callFundingCurveName);
     final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, surfaceName)
-                                                             .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
+        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
     final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(fxOption.getPutCurrency(), fxOption.getCallCurrency());
     final ValueRequirement fxVolatilitySurface = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
     final ExternalId spotIdentifier = FXUtils.getSpotIdentifier(fxOption, true);

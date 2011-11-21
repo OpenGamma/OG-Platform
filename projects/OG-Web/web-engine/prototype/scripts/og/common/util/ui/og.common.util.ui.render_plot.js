@@ -12,67 +12,87 @@ $.register_module({
         var api = og.api;
         return function (config) {
             var selector = config.selector, data = config.data, identifier = config.identifier,
-                meta = {}, // object that stores the structure and data of the different plots
+                data_arr = [{
+                    data: data.data.timeseries.data,
+                    label: '0.00',
+                    data_provider: data.data.template_data.data_provider,
+                    data_source: data.data.template_data.data_source,
+                    object_id: data.data.template_data.object_id
+                }],
+                meta, // object that stores the structure and data of the different plots
                 state = {}, // keeps a record of the current active data sets in the plot along with zoom and pan data
-                colors_arr = ['#42669a', '#ff9c00', '#00e13a', '#313b44'], // line colours for the different data sets
+                colors_arr = ['#42669a', '#ff9c00', '#00e13a', '#313b44'], // line colours for plot 1 data sets
+                colors_arr_p2 = ['#ccc', '#b1b1b1', '#969696', '#858585'], // line colours for plot 2 data sets
                 $p1, p1_options, p1_selector = selector + ' .og-js-p1',
                 $p2, p2_options, p2_selector = selector + ' .og-js-p2',
                 tenor = selector + ' .og-tenor',
-                $legend, hover_pos = null,
-                x_max, y_min, y_max, initial_preset, reset_options,
-                $plot_header = $('.OG-timeseries .og-plotHeader'),
-                load_plots, empty_plots, update_legend, rescale_yaxis, get_legend, panning;
-            $(selector).html(
-                '<div class="og-js-p1" style="height: 250px; width: 800px; margin: 0 0 0 -20px"></div>\
-                 <div class="og-js-p2" style="height: 100px; width: 800px; margin: -43px 0 0 -20px"></div>\
-                 <div class="og-tenor" style="margin: 30px 0 0 15px; position: absolute; top: -27px; right: -166px;\
-                     background: #fff"></div>'
+                plot_selector = selector + ' .og-plot-header',
+                $legend, panning, hover_pos = null,
+                x_max, initial_preset, reset_options,
+                load_plots, empty_plots, update_legend, rescale_yaxis, calculate_y_values, data_points, get_legend;
+            $(selector).html('\
+              <div class="og-flot-top"></div>\
+              <div class="og-flot-xaxis"></div>\
+              <div class="og-flot-right-mask"></div>\
+              <div class="og-flot-left-mask"></div>\
+              <div class="og-timeseries-plot og-js-timeseries-plot">\
+                <div class="og-js-p1-crop"><div class="og-js-p1"></div></div>\
+                <div class="og-js-p2-crop"><div class="og-js-p2"></div></div>\
+                <div class="og-tenor"></div>\
+              </div>\
+              <div class="og-plot-header"></div>'
             ).css({position: 'relative'});
+            $(plot_selector).html('<span class="og-checking-related">checking for related timeseries data...</span>');
             get_legend = function () {return $(selector + ' .legend');}; // the legend is often regenerated
             reset_options = function () {
                 p1_options = {
                     colors: colors_arr,
                     series: {shadowSize: 1, threshold: {below: 0, color: '#960505'}},
                     legend: {
-                        show: true, labelBoxBorderColor: 'transparent', position: 'nw', margin: 1, backgroundColor: null                    },
+                        show: true, labelBoxBorderColor: 'transparent', position: 'nw', margin: 1, backgroundColor: null
+                    },
                     crosshair: {mode: 'x', color: '#e5e5e5', lineWidth: '1'},
                     lines: {lineWidth: 1, fill: 1, fillColor: '#f8fbfd'},
                     xaxis: {
-                        ticks: 6, mode: 'time',
-                        min: initial_preset, max: x_max,
-                        tickLength: 0, labelHeight: 26,
-                        color: '#fff', // base color, labels, ticks
-                        tickColor: null // possibly different color of ticks, e.g. "rgba(0,0,0,0.15)"
+                        ticks: 6, mode: 'time', tickLength: 0, labelHeight: 26, color: '#fff', tickColor: null,
+                        min: initial_preset, max: x_max
                     },
                     yaxis: {
                         ticks: 5, position: 'right', panRange: false, tickLength: 'full', tickColor: '#f3f3f3',
-                        labelWidth: 53, reserveSpace: true, min: y_min, max: y_max
+                        labelWidth: 53, reserveSpace: true
                     },
-                    grid: {borderWidth: 1, color: '#999', borderColor: '#e9eaeb', labelMargin: 3,
-                        minBorderMargin: 30, hoverable: true},
-                    selection: {mode: null, color: '#d7e7f2'},
+                    grid: {
+                        borderWidth: 1, color: '#999', borderColor: '#e9eaeb', labelMargin: 3,
+                        minBorderMargin: 29, hoverable: true
+                    },
+                    selection: {mode: null},
                     pan: {interactive: true, cursor: "move", frameRate: 30}
                 };
                 p2_options = {
-                    colors: colors_arr,
+                    colors: colors_arr_p2,
                     series: {shadowSize: 1, threshold: {below: 0, color: '#960505'}},
                     legend: {show: false},
                     lines: {lineWidth: 1, fill: 1, fillColor: '#fafafa'},
-                    xaxis: {ticks: 6, mode: 'time', tickLength: 10, labelHeight: 17},
-                    yaxis: {
-                        show: false, ticks: 1, position: 'right', tickLength: 0, labelWidth: 53,
-                        reserveSpace: true, min: y_min , max: y_max
+                    xaxis: {ticks: 6, mode: 'time'
+                        , tickLength: '0', labelHeight: 55, tickColor: '#fff'
                     },
-                    grid: {borderWidth: 1, color: '#999', borderColor: '#e9eaeb', labelMargin: 3, minBorderMargin: 30},
-                    selection: {mode: 'x', color: '#d7e7f2'}
+                    yaxis: {
+                        show: false, ticks: 1, position: 'right', tickLength: 0, labelWidth: 53, reserveSpace: true
+                    },
+                    grid: {
+                        borderWidth: 1, color: '#999', borderColor: '#e9eaeb',
+                        aboveData: true, labelMargin: -14, minBorderMargin: 43
+                    },
+                    selection: {mode: 'x', color: '#ddd'}
                 };
             };
             empty_plots = function () {
                 var d = ['1', '2'], $p1, $p2, disabled_options,
-                    msg = $('<div>Not enough data to plot</div>').css({
-                        position: 'absolute', color: '#ccc', left: '35px', top: '30px'
+                    msg = $('<div>No data points available</div>').css({
+                        position: 'absolute', color: '#999', left: '35px', top: '30px'
                     });
                 reset_options();
+                data_points();
                 disabled_options = {
                     xaxis: {show: false, panRange: false},
                     yaxis: {show: false, panRange: false},
@@ -80,12 +100,88 @@ $.register_module({
                     pan: {interactive: false}
                 };
                 $(tenor).css({visibility: 'hidden'});
-                console.log('p1_options', p1_options);
                 $p1 = $.plot($(p1_selector), d, $.extend(true, {}, p1_options, disabled_options));
                 $p2 = $.plot($(p2_selector), d, $.extend(true, {}, p2_options, disabled_options));
                 $(p1_selector).append(msg);
+                $('.og-js-timeseries-plot').animate({opacity: '0.5'});
             };
-            load_plots = function (data_arr) {
+            data_points = function () {
+                var $template, render_grid, check_meta,
+                    slick_tmpl = '\
+                        <div>\
+                          <div class="og-data-series">\
+                            <header style="border-bottom: 3px solid ${color}">\
+                              <h3>${time}</h3>\
+                              <span class="OG-link OG-icon og-icon-download og-js-timeseries-csv">download csv</span>\
+                            </header>\
+                            <div class="og-slick og-slick-${index}"><span class="og-loading">Loading...</span></div>\
+                            <footer>Data Source: ${source}<br />Data provider: ${provider}</footer>\
+                          </div>\
+                        </div>',
+                    empty_tmpl = '\
+                        <div class="og-data-series og-data-series-empty">\
+                          <header>\
+                            <h3>empty</h3>\
+                            <span class="og-js-timeseries-csv">download csv</span>\
+                          </header>\
+                        </div>';
+                $('.OG-timeseries .og-data-points').html('<div class="og-container"></div>');
+                $template = $('.OG-timeseries .og-data-points .og-container');
+                if (!data_arr) {
+                    $template.html('<span class="og-no-datapoint">No data points available</span>')
+                        .animate({opacity: '0.5'});
+                    return;
+                }
+                render_grid = function (index) {
+                    var SLICK_SELECTOR = '.OG-timeseries .og-data-points .og-slick-' + index, slick, data,
+                    columns = [
+                        {id: 'time', name: 'Time', field: 'time', width: 160,
+                            formatter: function (row, cell, value, columnDef, dataContext) {
+                                var date = new Date(value);
+                                return date.getDay() + ' / ' + date.getMonth() + ' / ' + date.getFullYear();
+                            }
+                        },
+                        {id: 'value', name: 'Value', field: 'value', width: 160}
+                    ],
+                    options = {
+                        editable: false,
+                        enableAddRow: false,
+                        enableCellNavigation: false,
+                        headerHeight: 11,
+                        showHeaderRow: false,
+                        headerRowHeight: 0
+                    };
+                    data = data_arr[index].data.reduce(function (acc, val) {
+                        return acc.push({time: val[0], value: val[1]}) && acc;
+                    }, []);
+                    $(SLICK_SELECTOR).css({opacity: '0.1'});
+                    try {slick = new Slick.Grid(SLICK_SELECTOR, data, columns, options);}
+                    catch(e) {$(SLICK_SELECTOR + ' .og-loading').html('' + e)}
+                    finally {$(SLICK_SELECTOR).animate({opacity: '1'})}
+                };
+                data_arr.forEach(function (val, i) {
+                    $(slick_tmpl).tmpl({
+                        time: (!meta ? config.init_ob_time : val.label).toLowerCase().replace(/_/g, ' '),
+                        index: i,
+                        color: colors_arr[i],
+                        source: data_arr[i].data_source,
+                        provider: data_arr[i].data_provider
+                    }).find('.og-js-timeseries-csv')
+                      .bind('click', function () {
+                          window.location.href = '/jax/timeseries/' + data_arr[i].object_id + '.csv';
+                      })
+                      .end()
+                      .appendTo($template);
+                    setTimeout(render_grid.partial(i), 0);
+                });
+                (check_meta = function () { // load empty data points table(s)
+                    var diff;
+                    if (!meta) return setTimeout(check_meta, 25);
+                    if (diff = Object.keys(meta[state.field]).length - data_arr.length)
+                        while (diff--) $(empty_tmpl).appendTo($template);
+                })();
+            };
+            load_plots = function () {
                 if (data_arr[0] === void 0 || data_arr[0].data.length < 2) {empty_plots(); return}
                 var d = data_arr, data = data_arr[0].data;
                 (function () { // set up presets
@@ -135,6 +231,7 @@ $.register_module({
                 // in xaxis, min/max sets the pan, from/to sets the selection
                 p1_options.xaxis.min = state.from, p1_options.xaxis.max = state.to;
                 p2_options.xaxis.from = state.from, p1_options.xaxis.to = state.to;
+                if (data_arr.length > 1) p1_options.lines.fill = 0, p2_options.lines.fill = 0;
                 $p1 = $.plot($(p1_selector), d, p1_options);
                 $p2 = $.plot($(p2_selector), d, p2_options);
                 $p2.setSelection({xaxis: {from: state.from, to: state.to}}, true);
@@ -167,20 +264,25 @@ $.register_module({
                     if (!panning) hover_pos = pos, setTimeout(update_legend, 50);
                 });
                 $legend = get_legend(), $legend.css({visibility: 'hidden'});
+                data_points();
                 rescale_yaxis();
+                $('.og-js-timeseries-plot').animate({opacity: '1'});
             };
-            rescale_yaxis = function () {
-                var data_arr = $p1.getData(),
-                    cur, // the current data set
+            calculate_y_values = function () {
+                var cur, // the current data set
                     idx_from, idx_to,// indexes used to slice [cur] to the visible range
                     sliced, // temporary sliced array
-                    max, min, // min and max y values
-                    buffer, i = data_arr.length,
-                    arr = []; // the new array
-                // create an array of the viewable data points of all visible data sets
+                    get_values, // function that takes an array and return the min an max values with a buffer
+                    p1_vals, p2_vals,
+                    i = data_arr.length,
+                    arr_full = [], // the full data set (for p2)
+                    arr_sel = []; // the selection data set (for p1)
+                // create 2 arrays, 1 of the VIEWABLE data points of all visible data sets, for p1,
+                // and the other of the FULL data points of all visible data sets for p2
                 while(i--) {
                     if (!data_arr[i].data.length) continue; // account for threshold data
                     cur = data_arr[i].data;
+                    arr_full = arr_full.concat(cur);
                     // Find closest min / max index in x range, lazy
                     // This only needs to be done for one series
                     if (!idx_from) data_arr[0].data.map(function (v, i) {
@@ -194,14 +296,21 @@ $.register_module({
                         if (idx_from !== 0) --idx_from;
                     }
                     sliced = data_arr[i].data.slice(idx_from, idx_to);
-                    arr = arr.concat(sliced);
+                    arr_sel = arr_sel.concat(sliced);
                 }
-                // find the min and max values, adding a buffer
-                max = (function (arr) {return Math.max.apply(null, arr.map(function (v) {return v[1];}));})(arr);
-                min = (function (arr) {return Math.min.apply(null, arr.map(function (v) {return v[1];}));})(arr);
-                buffer = (max - min) / 10, max += buffer, min -= buffer;
-                // update the plot options
-                p1_options.yaxis.min = min, p1_options.yaxis.max = max;
+                get_values = function (arr) {
+                    var min, max, buffer;
+                    max = (function (arr) {return Math.max.apply(null, arr.map(function (v) {return v[1];}));})(arr);
+                    min = (function (arr) {return Math.min.apply(null, arr.map(function (v) {return v[1];}));})(arr);
+                    buffer = (max - min) / 10, max += buffer, min -= buffer;
+                    return {min: min, max: max}
+                };
+                p1_vals = get_values(arr_sel), p2_vals = get_values(arr_full);
+                p1_options.yaxis.min = p1_vals.min, p1_options.yaxis.max = p1_vals.max;
+                p2_options.yaxis.min = p2_vals.min, p2_options.yaxis.max = p2_vals.max;
+            };
+            rescale_yaxis = function () {
+                calculate_y_values();
                 p1_options.xaxis.min = state.from, p1_options.xaxis.max = state.to;
                 $p1.setSelection({
                     xaxis: {from: state.from, to: state.to},
@@ -223,7 +332,7 @@ $.register_module({
                 }
                 $legends.each(function () {$(this).css('line-height', 0)});
                 $legend.css({
-                    left: hover_pos.pageX - ($(selector).offset().left + 9),
+                    left: hover_pos.pageX - ($(selector).offset().left),
                     visibility: 'visible', position: 'absolute', top: '13px', width: '250px'
                 });
                 while(i--) {
@@ -246,8 +355,8 @@ $.register_module({
                     $legends.eq(i).text(y.toFixed(2));
                 }
             };
-            load_plots([{data: data.data.timeseries.data, label: '0.00'}]);  // yes, I know, lots of data
-            // find all timeseries by the specified identifier
+            load_plots();
+            // find related timeseries and create the menu
             api.rest.timeseries.get({
                 handler: function (r) {
                     // build meta data object and populate it with the initial plot data
@@ -295,19 +404,30 @@ $.register_module({
                                 var meta_sub_obj, data = [], is_select = $(e.target).is('select'),
                                     handler = function (r) {
                                         var td = r.data.template_data, field = td.data_field,
-                                            time = td.observation_time, t;
+                                            time = td.observation_time, t, cached_object;
                                         state.field = field, meta[field][time] = r;
                                         if (is_select) state.time = [time],
-                                                data.push({data: r.data.timeseries.data, label: time});
+                                                data.push({
+                                                    data: r.data.timeseries.data,
+                                                    label: time,
+                                                    data_provider: r.data.template_data.data_provider,
+                                                    data_source: r.data.template_data.data_source,
+                                                    object_id: r.data.template_data.object_id
+                                                });
                                         else for (t in state.time) {
                                             if (!meta[state.field][state.time[t]]) continue;
+                                            cached_object = meta[state.field][state.time[t]].data;
                                             data.push({
-                                                data: meta[state.field][state.time[t]].data.timeseries.data,
-                                                label: state.time[t]
+                                                data: cached_object.timeseries.data,
+                                                label: state.time[t],
+                                                data_provider: cached_object.template_data.data_provider,
+                                                data_source: cached_object.template_data.data_source,
+                                                object_id: cached_object.template_data.object_id
                                             });
                                         }
-                                        load_plots(data);
-                                        $plot_header.html(build_form());
+                                        data_arr = data;
+                                        load_plots();
+                                        $(plot_selector).html(build_form());
                                 };
                                 if (is_select) {
                                     state.from = state.to = void 0;
@@ -325,13 +445,12 @@ $.register_module({
                             });
                             return $form;
                         };
-                        $plot_header.html(build_form());
+                        $(plot_selector).html(build_form());
                     }());
                 },
                 loading: function () {},
                 identifier: identifier
             });
         }
-
     }
 });

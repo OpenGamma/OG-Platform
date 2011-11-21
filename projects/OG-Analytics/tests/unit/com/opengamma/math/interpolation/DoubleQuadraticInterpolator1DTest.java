@@ -52,4 +52,22 @@ public class DoubleQuadraticInterpolator1DTest {
     }
   }
 
+  @Test
+  public void testSingleData() {
+    final double x = 1.4;
+    final double y = 0.34;
+    Interpolator1DDataBundle dataBundle = INTERPOLATOR.getDataBundleFromSortedArrays(new double[] {x }, new double[] {y });
+    double value = INTERPOLATOR.interpolate(dataBundle, x);
+    assertEquals(y, value, 0.0);
+  }
+
+  @Test
+  public void testTwoData() {
+    final double[] x = new double[] {1.4, 1.8 };
+    final double[] y = new double[] {0.34, 0.56 };
+    Interpolator1DDataBundle dataBundle = INTERPOLATOR.getDataBundleFromSortedArrays(x, y);
+    double value = INTERPOLATOR.interpolate(dataBundle, 1.6);
+    assertEquals((y[0] + y[1]) / 2, value, 0.0);
+  }
+
 }

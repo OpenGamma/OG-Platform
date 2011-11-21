@@ -11,10 +11,10 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
@@ -32,7 +32,7 @@ public class SwaptionConverterDataProvider {
   }
 
   @SuppressWarnings("unused")
-  public InterestRateDerivative convert(final SwaptionSecurity security, final FixedIncomeInstrumentDefinition<?> definition, final ZonedDateTime now, final String[] curveNames,
+  public InstrumentDerivative convert(final SwaptionSecurity security, final InstrumentDefinition<?> definition, final ZonedDateTime now, final String[] curveNames,
       final HistoricalTimeSeriesSource dataSource) {
     if (definition instanceof SwaptionCashFixedIborDefinition) {
       final SwaptionCashFixedIborDefinition cashSettled = (SwaptionCashFixedIborDefinition) definition;

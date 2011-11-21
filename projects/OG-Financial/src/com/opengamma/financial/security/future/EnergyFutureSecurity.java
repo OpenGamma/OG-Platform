@@ -36,12 +36,7 @@ public class EnergyFutureSecurity extends CommodityFutureSecurity {
   @PropertyDefinition
   private ExternalId _underlyingId;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public EnergyFutureSecurity() {
+  EnergyFutureSecurity() { //For builder
     super();
   }
 

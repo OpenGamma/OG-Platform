@@ -9,8 +9,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionWithData;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.financial.instrument.inflation.CouponInflationDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
@@ -30,7 +30,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
  * @param <C> Type of inflation coupon. Can be {@link CouponInflationZeroCouponMonthlyGearingDefinition} or {@link CouponInflationZeroCouponInterpolationGearingDefinition}.
  */
 public class BondCapitalIndexedTransactionDefinition<C extends CouponDefinition> extends BondTransactionDefinition<C, C> implements
-    FixedIncomeInstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {
+    InstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * Constructor of a Capital indexed bond transaction from all the transaction details.
@@ -118,12 +118,12 @@ public class BondCapitalIndexedTransactionDefinition<C extends CouponDefinition>
   }
 
   @Override
-  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
     return visitor.visitBondCapitalIndexedTransaction(this, data);
   }
 
   @Override
-  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitBondCapitalIndexedTransaction(this);
   }
 

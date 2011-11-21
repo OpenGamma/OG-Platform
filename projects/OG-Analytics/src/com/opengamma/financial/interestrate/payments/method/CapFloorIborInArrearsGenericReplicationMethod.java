@@ -7,7 +7,7 @@ package com.opengamma.financial.interestrate.payments.method;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
@@ -81,7 +81,7 @@ public class CapFloorIborInArrearsGenericReplicationMethod implements PricingMet
   }
 
   @Override
-  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof CapFloorIbor, "Cap/Floor on Ibor");
     Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "SABR interest rate data bundle required");
     return presentValue((CapFloorIbor) instrument, (SABRInterestRateDataBundle) curves);

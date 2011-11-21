@@ -14,7 +14,12 @@ package com.opengamma.language.definition;
 public final class Categories {
 
   // TODO: add other category dimensions (like the code used to be), so that it can be sliced in whichever way the language binding chooses
-  // (e.g. to group by function, such as database access, rather than by object type) 
+  // (e.g. to group by function, such as database access, rather than by object type)
+
+  /**
+   * Anything concerned with curve objects.
+   */
+  public static final String CURVE = "Curve";
 
   /**
    * Anything for debugging or testing purposes (probably available in debug builds only).

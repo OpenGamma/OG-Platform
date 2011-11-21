@@ -166,8 +166,8 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
       final int cols = data[0].length;
       final double[][] res = new double[cols][rows];
       int i, j;
-      for (i = 0; i < rows; i++) {
-        for (j = 0; j < cols; j++) {
+      for (i = 0; i < cols; i++) {
+        for (j = 0; j < rows; j++) {
           res[i][j] = data[j][i];
         }
       }

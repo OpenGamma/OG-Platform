@@ -17,9 +17,9 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.VegaMatrixHelper;
-import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueForexVegaQuoteSensitivityCalculator;
 import com.opengamma.financial.forex.method.PresentValueVolatilityQuoteSensitivityDataBundle;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 
 /**
@@ -29,26 +29,24 @@ public class ForexSingleBarrierOptionVegaQuoteFunction extends ForexSingleBarrie
 
   private static final PresentValueForexVegaQuoteSensitivityCalculator CALCULATOR = PresentValueForexVegaQuoteSensitivityCalculator.getInstance();
 
-  public ForexSingleBarrierOptionVegaQuoteFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, 
-      final String callForwardCurveName, final String surfaceName) {
+  public ForexSingleBarrierOptionVegaQuoteFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName,
+      final String surfaceName) {
     super(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final ForexDerivative fxSingleBarrierOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative fxSingleBarrierOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
     final PresentValueVolatilityQuoteSensitivityDataBundle result = CALCULATOR.visit(fxSingleBarrierOption, data);
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName())
-                                                              .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
-                                                              .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName()).with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
+        .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VEGA_QUOTE_MATRIX, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, VegaMatrixHelper.getVegaFXQuoteMatrixInStandardForm(result)));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName())
-                                                              .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
-                                                              .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.VEGA_QUOTE_MATRIX, target.toSpecification(), properties));    
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName()).with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
+        .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.VEGA_QUOTE_MATRIX, target.toSpecification(), properties));
   }
 }

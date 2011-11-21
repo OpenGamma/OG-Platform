@@ -12,7 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
@@ -101,7 +101,7 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
   }
 
   @Override
-  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof CapFloorIbor, "Cap/Floor on Ibor");
     Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "SABR interest rate data bundle required");
     return presentValue((CapFloorIbor) instrument, (SABRInterestRateDataBundle) curves);

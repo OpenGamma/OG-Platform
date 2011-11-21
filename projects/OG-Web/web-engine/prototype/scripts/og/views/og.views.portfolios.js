@@ -19,7 +19,7 @@ $.register_module({
         'og.views.common.state',
         'og.views.common.default_details',
         'og.views.common.versions',
-        'og.views.portfolio.sync'
+        'og.views.portfolios_sync'
     ],
     obj: function () {
         var api = og.api,
@@ -99,17 +99,21 @@ $.register_module({
                 toolbar: {
                     'default': {
                         buttons: [
-                            {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'new', handler: toolbar_buttons['new']}
+                            {id: 'new', name: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', name: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', name: 'Delete', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     },
                     active: {
                         buttons: [
-                            {name: 'delete', handler: toolbar_buttons['delete']},
-                            {name: 'new', handler: toolbar_buttons['new']}
+                            {id: 'new', name: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', name: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', name: 'Delete', handler: toolbar_buttons['delete']}
                         ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     }
                 }
             },
@@ -308,9 +312,11 @@ $.register_module({
                                 if (!layout.inner.state.south.isClosed && args.version) {
                                     e.preventDefault();
                                     layout.inner.close('south');
-                                    routes.go(routes.hash(rule, args, {del: ['version', 'node', 'sync']}));
                                 } else layout.inner.open('south');
                             });
+                        layout.inner.options.south.onclose = function () {
+                            routes.go(routes.hash(rule, args, {del: ['version', 'node', 'sync']}));
+                        };
                         sync_href = routes.prefix() + routes.hash(rule, args, {add: {sync: 'true'}});
                         message_obj = {
                             location: '.ui-layout-inner-center .ui-layout-content',
@@ -320,27 +326,32 @@ $.register_module({
                                 This portfolio is out of sync, \
                                 <a href="' + sync_href + '">Click here to Fix...</a>'
                         };
-                        $sync_link = $('<a>check sync status</a>')
-                            .addClass('OG-link-small og-js-sync-link OG-icon og-icon-sync-small')
-                            .attr('href', sync_href)
-                            .unbind('click').bind('click', function (e) {
-                                e.preventDefault();
-                                $(e.target).text('checking sync status...').addClass('og-active');
-                                // TODO: Check if portfolio is out of sync
-                                setTimeout(function () {
-                                    ui.message(message_obj);
-                                    $(e.target).text('check sync status').removeClass('og-active');
-                                }, 2000);
-                            });
+//                        $sync_link = $('<a>check sync status</a>')
+//                            .addClass('OG-link-small og-js-sync-link OG-icon og-icon-sync-small')
+//                            .attr('href', sync_href)
+//                            .unbind('click').bind('click', function (e) {
+//                                e.preventDefault();
+//                                $(e.target).text('checking sync status...').addClass('og-active');
+//                                // TODO: Check if portfolio is out of sync
+//                                setTimeout(function () {
+//                                    ui.message(message_obj);
+//                                    $(e.target).text('check sync status').removeClass('og-active');
+//                                }, 2000);
+//                            });
                         $('.OG-js-header-links').empty().append($version_link);
                     };
                 // if new page, close south panel
-                check_state({args: args, conditions: [{new_page: layout.inner.close.partial('south')}]});
+                check_state({args: args, conditions: [{
+                    new_page: function () {
+                        layout.inner.options.south.onclose = null;
+                        layout.inner.close.partial('south');
+                    }
+                }]});
                 // load versions
                 if (args.version || args.sync) {
                     layout.inner.open('south');
                     if (args.version) og.views.common.versions.load();
-                    if (args.sync) og.views.portfolio.sync.load();
+                    if (args.sync) og.views.portfolios_sync.load(args);
                 } else layout.inner.close('south');
                 api.rest.portfolios.get({
                     handler: function (result) {

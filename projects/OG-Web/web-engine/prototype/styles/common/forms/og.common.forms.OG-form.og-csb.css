@@ -12,14 +12,13 @@
 .OG-form .og-csb .og-strip div {
   border: 1px solid transparent;
   display: inline-block;
-  float: left;
   white-space: nowrap;
   margin: -3px 0 0;
   padding: 5px 4px 4px;
   position: relative;
   text-overflow: ellipsis;
   overflow: hidden;
-  width: 10%;
+  width: 125px;
 }
 
 .OG-form .og-csb .og-strip div:last-child {
