@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.instrument.index.PriceIndex;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflation;
 import com.opengamma.financial.interestrate.payments.Coupon;
@@ -130,12 +130,12 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitBondCapitalIndexedSecurity(this, data);
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitBondCapitalIndexedSecurity(this);
   }
 

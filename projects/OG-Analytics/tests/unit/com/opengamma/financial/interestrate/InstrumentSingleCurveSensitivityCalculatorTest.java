@@ -156,16 +156,16 @@ public class InstrumentSingleCurveSensitivityCalculatorTest extends YieldCurveFi
   public void testBumpedData() {
     final double notional = 10394850;
     final double eps = 1e-3;
-    final InterestRateDerivative libor = makeSingleCurrencyIRD("libor", 1.5, FRQ, CURVE_NAME, CURVE_NAME, 0.04, notional);
+    final InstrumentDerivative libor = makeSingleCurrencyIRD("libor", 1.5, FRQ, CURVE_NAME, CURVE_NAME, 0.04, notional);
     testBumpedDataParRateMethod(libor, eps);
     testBumpedDataPVMethod(libor, eps);
-    InterestRateDerivative swap = makeSingleCurrencyIRD("swap", 13,FRQ, CURVE_NAME, CURVE_NAME, 0.048, notional);
+    InstrumentDerivative swap = makeSingleCurrencyIRD("swap", 13,FRQ, CURVE_NAME, CURVE_NAME, 0.048, notional);
     testBumpedDataParRateMethod(swap, eps);
     testBumpedDataPVMethod(swap, eps);
-    final InterestRateDerivative fra = makeSingleCurrencyIRD("fra", 0.6666, FRQ,CURVE_NAME, CURVE_NAME, 0.02, notional);
+    final InstrumentDerivative fra = makeSingleCurrencyIRD("fra", 0.6666, FRQ,CURVE_NAME, CURVE_NAME, 0.02, notional);
     testBumpedDataParRateMethod(fra, eps);
     testBumpedDataPVMethod(fra, eps);
-    final InterestRateDerivative future = makeSingleCurrencyIRD("fra", 2,FRQ, CURVE_NAME, CURVE_NAME, 0.03, notional);
+    final InstrumentDerivative future = makeSingleCurrencyIRD("fra", 2,FRQ, CURVE_NAME, CURVE_NAME, 0.03, notional);
     testBumpedDataParRateMethod(future, eps);
     testBumpedDataPVMethod(future, eps);
     swap = makeSingleCurrencyIRD("swap", 19,FRQ, CURVE_NAME, CURVE_NAME, 0.05, notional);
@@ -173,7 +173,7 @@ public class InstrumentSingleCurveSensitivityCalculatorTest extends YieldCurveFi
     testBumpedDataPVMethod(swap, eps);
   }
 
-  private void testBumpedDataParRateMethod(final InterestRateDerivative ird, final double eps) {
+  private void testBumpedDataParRateMethod(final InstrumentDerivative ird, final double eps) {
     final DoubleMatrix1D sensitivities = ISC.calculateFromParRate(ird, null, PAR_RATE_CURVES, PAR_RATE_JACOBIAN, PVNS);
     final PresentValueCalculator calculator = PresentValueCalculator.getInstance();
     final double pv1 = calculator.visit(ird, PAR_RATE_ALL_CURVES);
@@ -195,7 +195,7 @@ public class InstrumentSingleCurveSensitivityCalculatorTest extends YieldCurveFi
     }
   }
 
-  private void testBumpedDataPVMethod(final InterestRateDerivative ird, final double eps) {
+  private void testBumpedDataPVMethod(final InstrumentDerivative ird, final double eps) {
     final DoubleMatrix1D sensitivities = ISC.calculateFromPresentValue(ird, null, PV_CURVES, PV_COUPON_SENSITIVITY, PV_JACOBIAN, PVNS);
     final PresentValueCalculator calculator = PresentValueCalculator.getInstance();
     final double pv1 = calculator.visit(ird, PV_ALL_CURVES);
@@ -267,8 +267,8 @@ public class InstrumentSingleCurveSensitivityCalculatorTest extends YieldCurveFi
     return data;
   }
 
-  private static YieldCurveFittingTestDataBundle getSingleCurveSetup(final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator,
-      final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator,
+  private static YieldCurveFittingTestDataBundle getSingleCurveSetup(final InstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator,
+      final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator,
       final Map<String, double[]> maturities, final Map<String, double[]> marketRates, final boolean isPV) {
     final List<String> curveNames = new ArrayList<String>();
     curveNames.add(CURVE_NAME);
@@ -288,8 +288,8 @@ public class InstrumentSingleCurveSensitivityCalculatorTest extends YieldCurveFi
     curveKnots.add(temp);
     // now get market prices
     final double[] marketValues = new double[nNodes];
-    final List<InterestRateDerivative> instruments = new ArrayList<InterestRateDerivative>();
-    InterestRateDerivative ird;
+    final List<InstrumentDerivative> instruments = new ArrayList<InstrumentDerivative>();
+    InstrumentDerivative ird;
     index = 0;
     for (final String name : maturities.keySet()) {
       final double[] times = maturities.get(name);

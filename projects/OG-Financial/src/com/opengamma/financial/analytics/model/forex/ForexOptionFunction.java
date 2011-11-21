@@ -28,9 +28,9 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
-import com.opengamma.financial.forex.calculator.ForexConverter;
-import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.method.FXMatrix;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
@@ -96,7 +96,7 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final ForexConverter<?> definition = getDefinition(security);
+    final InstrumentDefinition<?> definition = getDefinition(security);
     final Currency putCurrency = getPutCurrency(security);
     final Currency callCurrency = getCallCurrency(security);
     final ExternalId spotIdentifier = getSpotIdentifier(security);
@@ -145,7 +145,7 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
       ccy1 = callCurrency;
       ccy2 = putCurrency;
     }
-    final ForexDerivative fxOption = definition.toDerivative(now, curveNames);
+    final InstrumentDerivative fxOption = definition.toDerivative(now, curveNames);
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
     final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
     final Object spotObject = inputs.getValue(spotRequirement);
@@ -179,9 +179,9 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     return _visitor;
   }
 
-  protected abstract Set<ComputedValue> getResult(ForexDerivative forex, SmileDeltaTermStructureDataBundle data, FunctionInputs inputs, ComputationTarget target);
+  protected abstract Set<ComputedValue> getResult(InstrumentDerivative forex, SmileDeltaTermStructureDataBundle data, FunctionInputs inputs, ComputationTarget target);
 
-  protected abstract ForexConverter<?> getDefinition(FinancialSecurity target);
+  protected abstract InstrumentDefinition<?> getDefinition(FinancialSecurity target);
 
   protected abstract Currency getPutCurrency(FinancialSecurity target);
 

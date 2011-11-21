@@ -30,7 +30,7 @@ import com.opengamma.util.money.Currency;
  * The cash-flow equivalent have at most one payment by time and the times are sorted in ascending order.
  * Reference: Henrard, M. The Irony in the derivatives discounting Part II: the crisis. Wilmott Journal, 2010, 2, 301-316
  */
-public class CashFlowEquivalentCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, AnnuityPaymentFixed> {
+public class CashFlowEquivalentCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, AnnuityPaymentFixed> {
 
   /**
    * The unique instance of the calculator.
@@ -52,7 +52,7 @@ public class CashFlowEquivalentCalculator extends AbstractInterestRateDerivative
   }
 
   @Override
-  public AnnuityPaymentFixed visit(final InterestRateDerivative derivative, final YieldCurveBundle curves) {
+  public AnnuityPaymentFixed visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(derivative);
     return derivative.accept(this, curves);

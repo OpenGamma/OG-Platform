@@ -8,9 +8,9 @@ package com.opengamma.financial.interestrate;
 /**
  * 
  */
-public interface InterestRateDerivative {
+public interface InstrumentDerivative {
 
-  <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data);
+  <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data);
 
-  <T> T accept(InterestRateDerivativeVisitor<?, T> visitor);
+  <T> T accept(InstrumentDerivativeVisitor<?, T> visitor);
 }

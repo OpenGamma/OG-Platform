@@ -9,7 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.instrument.inflation.CouponInflationGearing;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.financial.interestrate.market.MarketBundle;
@@ -55,7 +55,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
   }
 
   @Override
-  public CurrencyAmount presentValue(InterestRateDerivative instrument, MarketBundle market) {
+  public CurrencyAmount presentValue(InstrumentDerivative instrument, MarketBundle market) {
     Validate.isTrue(instrument instanceof BondCapitalIndexedSecurity<?>, "Capital inflation indexed bond.");
     return presentValue((BondCapitalIndexedSecurity<?>) instrument, market);
   }

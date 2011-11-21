@@ -13,8 +13,8 @@ import java.util.List;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
 
@@ -23,7 +23,7 @@ import com.opengamma.util.money.Currency;
  * There payments can be known in advance, or depend on the future value of some (possibly several) indices, e.g. the Libor.
  * @param <P> The payment type 
  */
-public class GenericAnnuity<P extends Payment> implements InterestRateDerivative {
+public class GenericAnnuity<P extends Payment> implements InstrumentDerivative {
 
   /**
    * The list of the annuity payments.
@@ -183,12 +183,12 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitGenericAnnuity(this, data);
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitGenericAnnuity(this);
   }
 

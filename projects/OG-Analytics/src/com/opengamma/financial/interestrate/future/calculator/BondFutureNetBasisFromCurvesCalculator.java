@@ -7,7 +7,7 @@ package com.opengamma.financial.interestrate.future.calculator;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.AbstractInterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.method.BondFutureDiscountingMethod;
@@ -15,7 +15,7 @@ import com.opengamma.financial.interestrate.future.method.BondFutureDiscountingM
 /**
  * 
  */
-public final class BondFutureNetBasisFromCurvesCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, double[]> {
+public final class BondFutureNetBasisFromCurvesCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, double[]> {
   private static final BondFutureNetBasisFromCurvesCalculator INSTANCE = new BondFutureNetBasisFromCurvesCalculator();
   private static final BondFutureDiscountingMethod CALCULATOR = BondFutureDiscountingMethod.getInstance();
 

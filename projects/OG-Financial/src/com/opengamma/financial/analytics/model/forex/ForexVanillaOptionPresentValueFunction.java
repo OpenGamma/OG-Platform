@@ -18,8 +18,8 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueBlackForexCalculator;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.money.Currency;
@@ -32,26 +32,24 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 public class ForexVanillaOptionPresentValueFunction extends ForexVanillaOptionFunction {
   private static final PresentValueBlackForexCalculator CALCULATOR = PresentValueBlackForexCalculator.getInstance();
 
-  public ForexVanillaOptionPresentValueFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, 
-      final String callForwardCurveName, final String surfaceName) {
+  public ForexVanillaOptionPresentValueFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName,
+      final String surfaceName) {
     super(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final ForexDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
     final MultipleCurrencyAmount result = CALCULATOR.visit(fxOption, data);
     Validate.isTrue(result.size() == 1);
     CurrencyAmount ca = result.getCurrencyAmounts()[0];
     Currency ccy = ca.getCurrency();
     double amount = ca.getAmount();
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName())
-                                                              .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
-                                                              .with(ValuePropertyNames.SURFACE, getSurfaceName())
-                                                              .with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName()).with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
+        .with(ValuePropertyNames.SURFACE, getSurfaceName()).with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, amount));
   }
-  
+
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     FXOptionSecurity security = (FXOptionSecurity) target.getSecurity();
@@ -63,11 +61,8 @@ public class ForexVanillaOptionPresentValueFunction extends ForexVanillaOptionFu
     } else {
       ccy = putCurrency;
     }
-    final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName())
-        .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
-        .with(ValuePropertyNames.SURFACE, getSurfaceName())
-        .with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName()).with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
+        .with(ValuePropertyNames.SURFACE, getSurfaceName()).with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties));
   }
 }

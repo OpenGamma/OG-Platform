@@ -45,9 +45,9 @@ import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProv
 import com.opengamma.financial.analytics.conversion.InterestRateInstrumentTradeOrSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.LastDateCalculator;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
@@ -96,8 +96,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private final ComputationTargetSpecification _currencySpec;
   private final String _fundingCurveDefinitionName;
   private final String _forwardCurveDefinitionName;
-  private final InterestRateDerivativeVisitor<YieldCurveBundle, Double> _calculator;
-  private final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> _sensitivityCalculator;
+  private final InstrumentDerivativeVisitor<YieldCurveBundle, Double> _calculator;
+  private final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> _sensitivityCalculator;
 
   private ValueSpecification _fundingCurveResult;
   private ValueSpecification _forwardCurveResult;
@@ -222,7 +222,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
       final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpecificationWithSecurities = builder.resolveToSecurity(_fundingCurveSpecification, fundingMarketDataMap);
       final InterpolatedYieldCurveSpecificationWithSecurities forwardCurveSpecificationWithSecurities = builder.resolveToSecurity(_forwardCurveSpecification, forwardMarketDataMap);
-      final List<InterestRateDerivative> derivatives = new ArrayList<InterestRateDerivative>();
+      final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
       final Set<FixedIncomeStrip> fundingStrips = _fundingCurveDefinition.getStrips();
       final Set<FixedIncomeStrip> forwardStrips = _forwardCurveDefinition.getStrips();
       final int nFunding = fundingStrips.size();
@@ -239,10 +239,10 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         }
         final double marketValue = fundingMarketValue;
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
-        InterestRateDerivative derivative;
+        InstrumentDerivative derivative;
         final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper
             .getCurveNamesForFundingCurveInstrument(strip.getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
-        final FixedIncomeInstrumentDefinition<?> definition = _securityConverter.visit(financialSecurity);
+        final InstrumentDefinition<?> definition = _securityConverter.visit(financialSecurity);
         derivative = _definitionConverter.convert(financialSecurity, definition, now, curveNames, dataSource);
         if (derivative == null) {
           throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);
@@ -265,10 +265,10 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         }
         final double marketValue = forwardMarketValue;
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
-        InterestRateDerivative derivative;
+        InstrumentDerivative derivative;
         final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper
             .getCurveNamesForForwardCurveInstrument(strip.getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
-        final FixedIncomeInstrumentDefinition<?> definition = _securityConverter.visit(financialSecurity);
+        final InstrumentDefinition<?> definition = _securityConverter.visit(financialSecurity);
         derivative = _definitionConverter.convert(financialSecurity, definition, now, curveNames, dataSource);
         if (derivative == null) {
           throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);
@@ -333,7 +333,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         final String[] curveNames = new String[] {_forwardCurveDefinitionName, _fundingCurveDefinitionName};
         final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {forwardCurve, fundingCurve};
         final YieldCurveBundle curveBundle = new YieldCurveBundle(curveNames, curves);
-        for (final InterestRateDerivative derivative : derivatives) {
+        for (final InstrumentDerivative derivative : derivatives) {
           couponSensitivities[ii++] = _couponSensitivityCalculator.visit(derivative, curveBundle);
         }
         final ComputedValue couponSensitivitiesValue = new ComputedValue(_couponSensitivityResult, new DoubleMatrix1D(couponSensitivities));
@@ -374,7 +374,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         final HistoricalTimeSeriesSource dataSource) {
       // TODO going to arbitrarily use funding curve - will give the same result as forward curve
       final InterpolatedYieldCurveSpecificationWithSecurities specificationWithSecurities = builder.resolveToSecurity(_fundingCurveSpecification, marketDataMap);
-      final List<InterestRateDerivative> derivatives = new ArrayList<InterestRateDerivative>();
+      final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
       final Set<FixedIncomeStrip> strips = _fundingCurveDefinition.getStrips();
       final int n = strips.size();
       final double[] initialRatesGuess = new double[n];
@@ -386,11 +386,11 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (marketValue == null) {
           throw new NullPointerException("Could not get market data for " + strip);
         }
-        InterestRateDerivative derivative;
+        InstrumentDerivative derivative;
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
         final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper
             .getCurveNamesForFundingCurveInstrument(strip.getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
-        final FixedIncomeInstrumentDefinition<?> definition = _securityConverter.visit(financialSecurity);
+        final InstrumentDefinition<?> definition = _securityConverter.visit(financialSecurity);
         derivative = _definitionConverter.convert(financialSecurity, definition, now, curveNames, dataSource);
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
@@ -450,7 +450,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         final String[] curveNames = new String[] {_forwardCurveDefinitionName, _fundingCurveDefinitionName};
         final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {forwardCurve, fundingCurve};
         final YieldCurveBundle curveBundle = new YieldCurveBundle(curveNames, curves);
-        for (final InterestRateDerivative derivative : derivatives) {
+        for (final InstrumentDerivative derivative : derivatives) {
           couponSensitivities[ii++] = _couponSensitivityCalculator.visit(derivative, curveBundle);
         }
         final ComputedValue couponSensitivitiesValue = new ComputedValue(_couponSensitivityResult, new DoubleMatrix1D(couponSensitivities));

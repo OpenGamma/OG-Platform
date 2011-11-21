@@ -7,9 +7,9 @@ package com.opengamma.financial.instrument.future;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
 
@@ -21,7 +21,7 @@ import org.apache.commons.lang.Validate;
 /**
  * Description of an interest rate future option security with daily margining process (LIFFE and Eurex type). The option is of American type.
  */
-public class InterestRateFutureOptionMarginSecurityDefinition implements FixedIncomeInstrumentDefinition<InterestRateDerivative> {
+public class InterestRateFutureOptionMarginSecurityDefinition implements InstrumentDefinition<InstrumentDerivative> {
 
   /**
    * Underlying future security.
@@ -102,12 +102,12 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements FixedIn
   }
 
   @Override
-  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
     return visitor.visitInterestRateFutureOptionMarginSecurityDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitInterestRateFutureOptionMarginSecurityDefinition(this);
   }
 

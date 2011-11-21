@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.instrument;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -13,12 +13,12 @@ import javax.time.calendar.ZonedDateTime;
  * 
  * @param <T> Type of the InterestRateDerivative that the definition returns
  */
-public interface FixedIncomeInstrumentDefinition<T extends InterestRateDerivative> {
+public interface InstrumentDefinition<T extends InstrumentDerivative> {
 
   T toDerivative(ZonedDateTime date, String... yieldCurveNames);
 
-  <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data);
+  <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data);
 
-  <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor);
+  <V> V accept(InstrumentDefinitionVisitor<?, V> visitor);
 
 }

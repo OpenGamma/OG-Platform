@@ -13,7 +13,6 @@
     </property>
   </bean>
   
-  <import resource="classpath:com/opengamma/financial/common.xml" />
   <import resource="classpath:com/opengamma/financial/demoMasters.xml" />
   
   <!-- User supplied data storage -->

@@ -28,7 +28,7 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
@@ -333,7 +333,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     FixedFloatSwap swapAmortized = new FixedFloatSwap(new AnnuityCouponFixed(cpnFixed), new AnnuityCouponIbor(cpnIbor));
     SwaptionPhysicalFixedIbor swaptionAmortized = SwaptionPhysicalFixedIbor.from(swaptionCalibration[0].getTimeToExpiry(), swapAmortized, swaptionCalibration[0].getSettlementTime(), IS_LONG);
 
-    InterestRateDerivative[] swaptionCalibration2 = swaptionAmortized.calibrationBasket(SwaptionPhysicalFixedIborCalibrationType.FIXEDLEG_STRIKE);
+    InstrumentDerivative[] swaptionCalibration2 = swaptionAmortized.calibrationBasket(SwaptionPhysicalFixedIborCalibrationType.FIXEDLEG_STRIKE);
 
     assertEquals("Calibration basket", swaptionCalibration.length, swaptionCalibration2.length);
     for (int loopcal = 0; loopcal < swaptionCalibration.length; loopcal++) {

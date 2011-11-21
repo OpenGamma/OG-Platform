@@ -12,7 +12,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
@@ -25,7 +25,7 @@ import com.opengamma.id.ExternalIdBundle;
 /**
  * 
  */
-public class SwaptionSecurityConverter implements SwaptionSecurityVisitor<FixedIncomeInstrumentDefinition<?>> {
+public class SwaptionSecurityConverter implements SwaptionSecurityVisitor<InstrumentDefinition<?>> {
   private final SecuritySource _securitySource;
   @SuppressWarnings("unused")
   private final ConventionBundleSource _conventionSource;
@@ -40,11 +40,11 @@ public class SwaptionSecurityConverter implements SwaptionSecurityVisitor<FixedI
   }
 
   @Override
-  public FixedIncomeInstrumentDefinition<?> visitSwaptionSecurity(final SwaptionSecurity swaptionSecurity) {
+  public InstrumentDefinition<?> visitSwaptionSecurity(final SwaptionSecurity swaptionSecurity) {
     Validate.notNull(swaptionSecurity, "swaption security");
     final ExternalId underlyingIdentifier = swaptionSecurity.getUnderlyingId();
     final ZonedDateTime expiry = swaptionSecurity.getExpiry().getExpiry();
-    final FixedIncomeInstrumentDefinition<?> underlyingSwap = ((SwapSecurity) _securitySource.getSecurity(ExternalIdBundle.of(underlyingIdentifier))).accept(_swapConverter);
+    final InstrumentDefinition<?> underlyingSwap = ((SwapSecurity) _securitySource.getSecurity(ExternalIdBundle.of(underlyingIdentifier))).accept(_swapConverter);
     if (!(underlyingSwap instanceof SwapFixedIborDefinition)) {
       throw new OpenGammaRuntimeException("Need a fixed-float swap to create a swaption");
     }

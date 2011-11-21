@@ -10,18 +10,18 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.forex.calculator.ForexConverter;
-import com.opengamma.financial.forex.calculator.ForexDefinitionVisitor;
-import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.derivative.Forex;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a foreign exchange transaction (spot or forward).
  */
-public class ForexDefinition implements ForexConverter<ForexDerivative> {
+public class ForexDefinition implements InstrumentDefinition<InstrumentDerivative> {
 
   /**
    * The payment in the first currency.
@@ -116,12 +116,12 @@ public class ForexDefinition implements ForexConverter<ForexDerivative> {
   }
 
   @Override
-  public <U, V> V accept(final ForexDefinitionVisitor<U, V> visitor, final U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitForexDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(final ForexDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitForexDefinition(this);
   }
 
