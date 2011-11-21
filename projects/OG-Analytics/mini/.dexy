@@ -1,15 +1,15 @@
 {
     "$globals" : {
-        "title" : "Examples",
         "env" : { "CLASSPATH" : "../../../../lib/classpath.jar" }
     },
-    "*.java|idio" : {},
-    "*.java|idio|l" : {},
-    "*.java|pyg" : {},
-    "*.java|pyg|l" : {},
+    "*.jpg" : {},
+    "_*.tex" : {},
+    "*.tex|hd|ft|jinja|latex" : { "allinputs" : true },
     "*.java|fn|java" : {},
+    "*.java|idio|l" : {},
+    "*.java|pyg|l" : {},
     "*.R|idio|l" : {},
-    "*.R|fn|rintbatch|pyg" : {
+    "*.R|fn|idio|rint|pyg" : {
         "ifinput" : "%.java|fn|java"
     }
 }
