@@ -9,7 +9,7 @@
     "*.java|pyg|l" : {},
     "*.java|fn|java" : {},
     "*.R|idio|l" : {},
-    "*.R|fn|idio|rint|pyg" : {
+    "*.R|fn|rintbatch|pyg" : {
         "ifinput" : "%.java|fn|java"
     }
 }

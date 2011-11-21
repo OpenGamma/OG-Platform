@@ -162,6 +162,9 @@
     <property name="holidaySource" ref="sharedHolidaySource" />
     <property name="exchangeSource" ref="sharedExchangeSource" />
   </bean>
+  <bean id="demoOverrideOperationCompiler" class="com.opengamma.financial.marketdata.MarketDataELCompiler">
+    <constructor-arg ref="sharedSecuritySource" />
+  </bean>
   <bean id="demoFunctionExecutionContext" class="com.opengamma.financial.OpenGammaExecutionContextFactoryBean">
     <property name="historicalTimeSeriesSource" ref="sharedHistoricalTimeSeriesSource" />
     <property name="securitySource" ref="combinedSecuritySource" />
@@ -171,6 +174,7 @@
     <property name="holidaySource" ref="sharedHolidaySource"/>
     <property name="conventionBundleSource" ref="conventionBundleSource"/>
     <property name="configSource" ref="sharedConfigSource" />
+    <property name="overrideOperationCompiler" ref="demoOverrideOperationCompiler" />
   </bean>
   <bean id="demoFunctionCompilation" class="com.opengamma.engine.function.CompiledFunctionService">
     <constructor-arg>
@@ -322,11 +326,7 @@
     <property name="viewPermissionProvider">
       <bean class="com.opengamma.engine.view.permission.DefaultViewPermissionProvider" />
     </property>
-    <property name="overrideOperationCompiler">
-      <bean class="com.opengamma.financial.marketdata.MarketDataHackedExpressionCompiler">
-        <constructor-arg ref="combinedSecuritySource" />
-      </bean>
-    </property>
+    <property name="overrideOperationCompiler" ref="demoOverrideOperationCompiler" />
   </bean>
   
   <bean id="viewProcessorManager" class="com.opengamma.financial.view.ViewProcessorManager" init-method="start">

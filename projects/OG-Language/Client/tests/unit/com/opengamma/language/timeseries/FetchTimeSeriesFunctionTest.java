@@ -20,9 +20,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.language.DataUtils;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.convert.Converters;
@@ -100,6 +103,36 @@ public class FetchTimeSeriesFunctionTest {
         boolean inclusiveStart, LocalDate end, boolean inclusiveEnd) {
       throw new UnsupportedOperationException();
     }
+
+    @Override
+    public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+      throw new UnsupportedOperationException();
+    }
+
+//    @Override
+//    public LocalDate getEarliestDate(UniqueId uniqueId) {
+//      throw new UnsupportedOperationException();
+//    }
+//
+//    @Override
+//    public LocalDate getLatestDate(UniqueId uniqueId) {
+//      throw new UnsupportedOperationException();
+//    }
+//
+//    @Override
+//    public Double getEarliestValue(UniqueId uniqueId) {
+//      throw new UnsupportedOperationException();
+//    }
+//
+//    @Override
+//    public Double getLatestValue(UniqueId uniqueId) {
+//      throw new UnsupportedOperationException();
+//    }
 
   }
 

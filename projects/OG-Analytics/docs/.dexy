@@ -3,9 +3,14 @@
             "inputs" : ["javadoc-data.json|javadocs", "_header.html", "_footer.html"],
             "canonical-name" : "index.html"
         },
-        "@list-files.sh|jinja|sh" : { "propagate" : true, "contents" : "cd ../{{ s.canonical_dir() }}; tree -a -i -f -n --noreport" },
+        "@list-files.sh|jinja|sh" : { "propagate" : true, "contents" : "cd ../{{ s.canonical_dir() }}; find ." },
         "writing-docs.tex|hd|ft|jinja|latex" : {
             "title" : "Writing OpenGamma Examples",
+            "allinputs" : true,
+            "priority" : 10
+        },
+        "building-docs.tex|hd|ft|jinja|latex" : {
+            "title" : "Building OpenGamma Static Docs with Dexy",
             "allinputs" : true,
             "priority" : 10
         },
@@ -39,6 +44,8 @@
         "*.woff" : {},
         "*.tex|pyg|l" : {},
         "*.tex|idio|l" : {},
+        "*.sh|pyg|l" : {},
+        "*.sh|idio|l" : {},
         "*.py|pyg|l" : {},
         ".dexy|ppjson|pyg|l" : {}
 }

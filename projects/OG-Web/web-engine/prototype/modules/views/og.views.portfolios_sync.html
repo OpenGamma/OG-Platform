@@ -1,0 +1,81 @@
+<div class="ui-layout-header">
+  <div><header><h2>Synchronize portfolio</h2></header></div>
+  <div class="og-sync-header">
+    <table>
+      <colgroup>
+        <col style="width: ${show_orig_col ? 16 : 20}%" />
+        <col style="width: ${show_orig_col ? 16 : 20}%" />
+        <col style="width: ${show_orig_col ? 16 : 20}%" />
+        <col style="width: ${show_orig_col ? 16 : 20}%" />
+        <col style="width: ${show_orig_col ? 16 : 20}%" />
+        {{if show_orig_col}}<col style="width: 16%" />{{/if}}
+      </colgroup>
+      <thead><tr>
+        <th>Trades</th><th>Asset Class</th><th>Field</th><th>OG Value</th>
+        <th>Provider Value</th>
+        {{if show_orig_col}}<th>Old Provider Value</th>{{/if}}
+      </tr></thead>
+    </table>
+  </div>
+  <div class="og-divider"></div>
+</div>
+<div class="ui-layout-content">
+  <div class="og-container">
+    <form>
+    <table>
+      <colgroup>
+      {{if show_orig_col}}
+        <col style="width: 16%" />
+        <col style="width: 16%" />
+        <col style="width: 16%" />
+        <col style="width: 16%" />
+        <col style="width: 16%" />
+        <col style="width: 16%" />
+      {{else}}
+        <col style="width: 20%" />
+        <col style="width: 20%" />
+        <col style="width: 20%" />
+        <col style="width: 20%" />
+        <col style="width: 20%" />
+      {{/if}}
+      </colgroup>
+      {{each(trade_index, trade) data}}
+      <tbody class="og-new-trades">
+        {{each(field_index, field) trade.fields}}
+        <tr class="og-new-trade">
+          <td>{{if !field_index}}${trade.tradeId}{{else}}&nbsp;{{/if}}</td>
+          <td>&nbsp;</td>
+          <td>${field.fieldName}</td>
+          <td>
+            {{if field.selection === 'ogValue'}}<label class="og-js-recommended og-recommended">{{else}}<label>{{/if}}
+              <input type="radio" name="data.${trade_index}.fields.${field_index}.selection"
+                {{if field.selection === 'ogValue'}}checked="checked"{{/if}}
+                value="ogValue"/>
+              <span>${field.ogValue || '&lt;EMPTY&gt;'}</span>
+            </label>
+          </td>
+          <td>
+            {{if field.selection === 'dealValue'}}<label class="og-js-recommended og-recommended">{{else}}<label>{{/if}}
+              <input type="radio" name="data.${trade_index}.fields.${field_index}.selection"
+                {{if field.selection === 'dealValue'}}checked="checked"{{/if}}
+                value="dealValue"/>
+              <span>${field.dealValue || '&lt;EMPTY&gt;'}</span>
+            </label>
+          </td>
+          {{if show_orig_col}}<td>${field.origDealValue || '&nbsp;'}</td>{{/if}}
+        </tr>
+        {{/each}}
+      </tbody>
+      {{/each}}
+    </table>
+    </form>
+  </div>
+</div>
+<div class="ui-layout-footer">
+  <button type="submit">Submit Changes</button>
+  <a href="#">Clear All</a>
+  <label><input type="checkbox" /><span>Select Recommended</span></label>
+  <label class="og-highlight-recommended og-recommended-active">
+    <input type="checkbox" checked="checked" /><span>Highlight Recommended</span>
+  </label>
+</div>

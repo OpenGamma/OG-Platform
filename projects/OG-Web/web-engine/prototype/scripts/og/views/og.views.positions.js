@@ -120,17 +120,8 @@ $.register_module({
                 var layout = og.views.common.layout,
                     render_identifiers = function (json) {
                         $('.OG-js-details-panel .og-js-identifiers').html(json.reduce(function (acc, val) {
-                            acc.push('<tr><td><span>' + val.scheme + '</span></td><td>' + val.value + '</td></tr>');
+                            acc.push('<tr><td><span>' + val.scheme.lang() + '</span></td><td>' + val.value + '</td></tr>');
                             return acc
-                        }, []).join(''));
-                    },
-                    render_trades = function (json) {
-                        var fields = ['id', 'quantity', 'counterParty', 'date'], start = '<tr><td>', end = '</td></tr>',
-                            selector = '.OG-js-details-panel .og-js-trades';
-                        if (!json[0]) return $(selector).html('<tr><td colspan="4">No Trades</td></tr>');
-                        $(selector).html(json.reduce(function (acc, trade) {
-                            acc.push(start, fields.map(function (field) {return trade[field];}).join('</td><td>'), end);
-                            return acc;
                         }, []).join(''));
                     },
                     setup_header_links = function () {
@@ -144,13 +135,20 @@ $.register_module({
                                 if (!layout.inner.state.south.isClosed && args.version) {
                                     e.preventDefault();
                                     layout.inner.close('south');
-                                    routes.go(routes.hash(rule, args, {del: ['version']}));
                                 } else layout.inner.open('south');
                             });
+                        layout.inner.options.south.onclose = function () {
+                            routes.go(routes.hash(rule, args, {del: ['version']}));
+                        };
                         $('.OG-js-header-links').empty().append($version_link);
                     };
                 // if new page, close south panel
-                check_state({args: args, conditions: [{new_page: layout.inner.close.partial('south')}]});
+                check_state({args: args, conditions: [{
+                    new_page: function () {
+                        layout.inner.options.south.onclose = null;
+                        layout.inner.close.partial('south');
+                    }
+                }]});
                 // load versions
                 if (args.version) {
                     layout.inner.open('south');
@@ -159,7 +157,7 @@ $.register_module({
                 api.rest.positions.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        json = result.data;
+                        var json = result.data;
                         history.put({
                             name: json.template_data.name,
                             item: 'history.positions.recent',
@@ -189,7 +187,10 @@ $.register_module({
                                 $('.ui-layout-inner-north').empty();
                             }
                             render_identifiers(json.securities);
-                            render_trades(json.trades);
+                            og.common.module.trade_table({
+                                trades: json.trades,
+                                selector: '.og-js-trades-table'
+                            });
                             if (!args.version || args.version === '*') {
                                 ui.content_editable({
                                     attribute: 'data-og-editable',
@@ -248,7 +249,7 @@ $.register_module({
                 check_state({args: args, conditions: [
                     {new_page: function () {positions.search(args), masthead.menu.set_tab(page_name);}}
                 ]});
-                if (args.id) return; else default_details();
+                if (!args.id) default_details();
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [

@@ -37,11 +37,15 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestRuntimeException;
 import com.opengamma.transport.jaxrs.RestTarget;
@@ -260,6 +264,7 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     }
   }
 
+  
   //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   @Override
@@ -286,5 +291,35 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     FudgeDeserializer deserializationContext = new FudgeDeserializer(getRestClient().getFudgeContext());
     return deserializationContext.fudgeMsgToObject(Map.class, result.getMessage().getMessage(HISTORICALTIMESERIESSOURCE_TIMESERIES));
   }
+
+  @Override
+  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
+    throw new OpenGammaRuntimeException("Getting remote HTS summary not yet implemented");
+  }
+
+  @Override
+  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    throw new OpenGammaRuntimeException("Getting remote HTS summary not yet implemented");    
+  }
+
+//  @Override
+//  public LocalDate getEarliestDate(UniqueId uniqueId) {
+//    return getHistoricalTimeSeries(uniqueId).getTimeSeries().getEarliestTime();
+//  }
+//
+//  @Override
+//  public LocalDate getLatestDate(UniqueId uniqueId) {
+//    return getHistoricalTimeSeries(uniqueId).getTimeSeries().getLatestTime();
+//  }
+//
+//  @Override
+//  public Double getEarliestValue(UniqueId uniqueId) {
+//    return getHistoricalTimeSeries(uniqueId).getTimeSeries().getEarliestValue();
+//  }
+//
+//  @Override
+//  public Double getLatestValue(UniqueId uniqueId) {
+//    return getHistoricalTimeSeries(uniqueId).getTimeSeries().getLatestValue();
+//  }
 
 }

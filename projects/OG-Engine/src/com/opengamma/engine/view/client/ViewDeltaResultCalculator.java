@@ -44,7 +44,6 @@ public class ViewDeltaResultCalculator {
     if (previousResult != null) {
       deltaModel.setPreviousCalculationTime(previousResult.getCalculationTime());
     }
-    deltaModel.setCalculationConfigurationNames(result.getCalculationConfigurationNames());
     for (ComputationTargetSpecification targetSpec : result.getAllTargets()) {
       computeDeltaModel(viewDefinition, deltaModel, targetSpec, previousResult, result);
     }

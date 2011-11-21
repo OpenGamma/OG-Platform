@@ -5,7 +5,7 @@
     <div class="OG-js-header-links"></div>
   </header>
   <section>
-    <div class="og-details-content OG-security OG-js-details-panel">
+    <div class="OG-details-content OG-security OG-js-details-panel">
       <div class="OG-c10 og-grid-last OG-max-width-l">
         <section class="OG-mod-1 OG-c6">
           <table>
@@ -22,6 +22,7 @@
               <tr><td><span>Trading Exchange</span></td><td>${tradingExchange}</td></tr>
               <tr><td><span>Settlement Exchange</span></td><td>${settlementExchange}</td></tr>
               <tr><td><span>Redemption Value</span></td><td>${redemptionValue}</td></tr>
+              <tr><td><span>Underlying Id</span></td><td>${underlyingId}</td></tr>
               {{if underlyingBond}}
                 <tr><td style="vertical-align: top"><span>Underlying Bond</span></td><td>
                   {{each underlyingBond}}${$index}: ${$value} <br />{{/each}}
