@@ -56,7 +56,7 @@ $.register_module({
                     if (r.error) {
                         ui.message({
                             location: '.OG-js-search',
-                            css: {bottom: '6px'},
+                            css: {bottom: '6px', left: '1px'},
                             message: 'oops, something bad happened (' + r.message + ')'
                         });
                         return;
@@ -95,7 +95,7 @@ $.register_module({
                         loading: function () {
                             ui.message({
                                 location: '.OG-js-search',
-                                css: {bottom: '6px'},
+                                css: {bottom: '6px', left: '1px'},
                                 message: {0: 'loading...', 3000: 'still loading...'}});
                         },
                         page_size: request_page_size,

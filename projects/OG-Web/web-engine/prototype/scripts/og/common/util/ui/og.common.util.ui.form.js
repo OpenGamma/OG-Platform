@@ -129,6 +129,16 @@ $.register_module({
                         if ((result[key] === Form.type.IND) && (data[key] !== null)) result[key] = Form.type.STR;
                     }
                     return result;
+                },
+                submit_handler = function (event, extras) {
+                    var self = 'submit_handler', result = form.compile();
+                    $.extend(true, result.extras, extras);
+                    if (event && event.preventDefault) event.preventDefault();
+                    try {
+                        form_events['form:submit'].forEach(function (val) {val.handler(result);});
+                    } catch (error) {
+                        og.dev.warn(klass + '#' + self + ' a form:submit handler failed with:\n', error);
+                    }
                 };
             form.attach = function (handlers) {
                 var self = 'attach';
@@ -143,42 +153,38 @@ $.register_module({
                 });
             };
             form.Block = Block.partial(form);
+            form.compile = function () {
+                var raw = $form.serializeArray(), built_meta, meta_warns = [],
+                    data = form.data ? $.extend(true, {}, form.data) : null, errors = [];
+                if (data) raw.forEach(function (value) {
+                    var hier = value.name.split('.'), last = hier.pop();
+                    try {
+                        hier.reduce(function (acc, level) {
+                            return acc[level] && typeof acc[level] === 'object' ? acc[level] : (acc[level] = {});
+                        }, data)[last] = value.value;
+                    } catch (error) {
+                        data = null;
+                        error = new Error(klass + '#' + self + ': could not drill down to data.' + value.name);
+                        form_events['form:error'].forEach(function (val) {val.handler(error);});
+                    }
+                });
+                form.process(data, errors);
+                built_meta = type_map ? build_meta(data, null, meta_warns) : null;
+                meta_warns = meta_warns.sort().reduce(function (acc, val) {
+                    return acc[acc.length - 1] !== val ? (acc.push(val), acc) : acc;
+                }, []).join('\n');
+                if (meta_warns.length) og.dev.warn(klass + '#build_meta needs these:\n', meta_warns);
+                return {raw: raw, data: data, errors: errors, meta: built_meta, extras: {}};
+            };
+            form.data = config.data;
             form.dom = form.html.partial(function (html) {
                 $root.html($(dummy).append($.tmpl(form_template, {id: form.id, html: html})).html());
                 form_events['form:load'].forEach(function (val) {val.handler();});
-                ($form = $('#' + form.id)).unbind().submit(function (e) {
-                    var self = 'onsubmit', raw = $form.serializeArray(), built_meta, meta_warns = [],
-                        data = config.data ? $.extend(true, {}, config.data) : null, errors = [], result;
-                    if (data) raw.forEach(function (value) {
-                        var hier = value.name.split('.'), last = hier.pop();
-                        try {
-                            hier.reduce(function (acc, level) {
-                                return acc[level] && typeof acc[level] === 'object' ? acc[level] : (acc[level] = {});
-                            }, data)[last] = value.value;
-                        } catch (error) {
-                            data = null;
-                            error = new Error(klass + '#' + self + ': could not drill down to data.' + value.name);
-                            form_events['form:error'].forEach(function (val) {val.handler(error);});
-                        }
-                    });
-                    form.process(data, errors);
-                    built_meta = type_map ? build_meta(data, null, meta_warns) : null;
-                    meta_warns = meta_warns.sort().reduce(function (acc, val) {
-                        return acc[acc.length - 1] !== val ? (acc.push(val), acc) : acc;
-                    }, []).join('\n');
-                    if (meta_warns.length)
-                        return og.dev.warn(klass + '#build_meta needs these:\n', meta_warns), false;
-                    result = {raw: raw, data: data, errors: errors, meta: built_meta};
-                    try {
-                        form_events['form:submit'].forEach(function (val) {val.handler(result);});
-                    } catch (error) {
-                        og.dev.warn(klass + '#' + self + ' a form:submit handler failed with:\n', error);
-                    }
-                    return false;
-                });
+                ($form = $('#' + form.id)).unbind().submit(submit_handler);
             });
             form.Field = Field.partial(form);
             form.id = 'gen_form_' + id_count++;
+            form.submit = submit_handler.partial(null);
             $root.unbind();
             if (config.handlers) form.attach(config.handlers);
             return form;
