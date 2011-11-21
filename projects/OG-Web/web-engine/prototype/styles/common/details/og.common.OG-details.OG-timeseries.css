@@ -11,42 +11,17 @@
   margin-top: 20px;
 }
 
-.OG-timeseries .og-identifiers {
-  margin: 10px 0 20px 0;
-}
-
-.OG-timeseries .og-identifiers {
-  display: table;
-  font-size: 16px;
-  line-height: 22px;
-}
-
-.OG-timeseries .og-identifiers > div {
-  display: table-row;
-}
-
-.OG-timeseries .og-identifiers div div {
-  display: table-cell;
-  padding-right: 20px;
-}
-
-.OG-timeseries .og-identifiers div span {
-  font-size: 12px;
-  padding-left: 5px;
-}
-
-
 /**
- * Plot
+ * Plot Header
  */
 
-.OG-timeseries .og-plotHeader {
+.OG-timeseries .og-plot-header {
   position: absolute;
   top: -20px;
   left: 3px;
 }
 
-.OG-timeseries .og-plotHeader .og-field {
+.OG-timeseries .og-plot-header .og-field {
   display: inline-block;
   padding: 0 0 0 5px;
   background-color: #e9eaeb;
@@ -59,24 +34,24 @@
   line-height: 18px;
 }
 
-.OG-timeseries .og-plotHeader .og-field span {
+.OG-timeseries .og-plot-header .og-field span {
   vertical-align: middle;
   padding: 0 5px 0 0;
   color: #999;
 }
 
-.OG-timeseries .og-plotHeader select {
+.OG-timeseries .og-plot-header select {
   margin: 0;
   min-width: 100px;
 }
 
-.OG-timeseries .og-plotHeader .og-observation {
+.OG-timeseries .og-plot-header .og-observation {
   height: 17px;
   position: relative;
   margin-top: 2px;
 }
 
-.OG-timeseries .og-plotHeader .og-observation label {
+.OG-timeseries .og-plot-header .og-observation label {
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
   border-radius: 2px;
@@ -86,88 +61,224 @@
   position: relative;
 }
 
-.OG-timeseries .og-plotHeader .og-observation input {
+.OG-timeseries .og-plot-header .og-observation input {
   left: -1px;
   position: absolute;
   top: -1px;
 }
 
-.OG-timeseries .og-plotHeader .og-observation span {
+.OG-timeseries .og-plot-header .og-observation span {
   font-size: 10px;
   padding-left: 19px;
   position: relative;
 }
 
-.OG-timeseries .og-plotMeta {
-  color: #999;
-  margin-top: 10px;
-  position: absolute;
-  top: 0;
-  right: 63px;
-}
+/*
+ * Plots
+ */
 
-.OG-timeseries .og-plotMeta span {
-  color: #ccc;
-}
-
-.OG-timeseries .og-timeseriesPlot {
+.OG-timeseries .og-timeseries-plot {
+  position: relative;
   margin-left: -6px;
   width: 550px;
 }
 
+.OG-timeseries .og-js-p1-crop {
+  width: 750px;
+  height: 226px;
+  overflow: hidden;
+  top: 29px;
+  left: 8px;
+  position: relative;
+  margin-bottom: 55px;
+}
+
+.OG-timeseries .og-js-p1 {
+  height: 270px;
+  width: 800px;
+  margin: 0 0 0 -20px;
+  position: relative;
+  top: -28px;
+  left: -8px;
+}
+
+.OG-timeseries .og-js-p2-crop {
+  position: relative;
+  left: 8px;
+  width: 750px;
+  height: 57px;
+  overflow: hidden;
+  top: -24px;
+}
+
+.OG-timeseries .og-js-p2 {
+  height: 140px;
+  width: 800px;
+  margin: -56px 0 0 -34px;
+  position: relative;
+  top: 14px;
+  left: -8px;
+}
+
+.OG-timeseries .og-tenor {
+  margin: 30px 0 0 15px;
+  position: absolute;
+  top: -27px;
+  right: -166px;
+  background: #fff;
+}
+
 
 /**
- * Flot furniture
+ * Plot furniture
  */
 .OG-timeseries .og-flot-top {
   border-bottom: 3px solid #e9eaeb;
   height: 0;
-  width: 715px;
+  width: 716px;
   position: absolute;
   top: 26px;
-  left: 3px;
+  left: 2px;
 }
 
 .OG-timeseries .og-flot-xaxis {
   border-bottom: 13px solid #c6d1e1;
   height: 0;
-  width: 715px;
+  width: 716px;
   position: absolute;
-  top: 222px;
-  left: 3px;
+  top: 243px;
+  left: 2px;
+}
+
+.OG-timeseries .og-flot-right-mask {
+  background-color: #fff;
+  height: 56px;
+  width: 20px;
+  position: absolute;
+  top: 256px;
+  left: 718px;
+  z-index: 1;
+}
+
+.OG-timeseries .og-flot-left-mask {
+  background-color: #fff;
+  height: 56px;
+  width: 12px;
+  position: absolute;
+  top: 256px;
+  left: -10px;
+  z-index: 1;
 }
 
 /**
- * DataPoints
+ * Data points
  */
 
-.OG-timeseries .og-dataPoints {
+.OG-timeseries .og-data-points {
+  overflow: hidden;
+  overflow-x: auto;
   display: inline-block;
-  margin-top: 20px;
-  width: 360px;
   position: relative;
+  width: 717px;
+  border: 1px solid #e9eaeb;
 }
 
-.OG-timeseries .og-dataPoints tr {
-  height: 30px;
+.OG-timeseries .og-container {
+  min-width: 717px;
+  white-space: nowrap;
+  display: inline-block;
+  background: url(data:image/gif;base64,R0lGODlhAQBAAKIAAAAAAP////b29u7u7ufn5729vf///wAAACH5BAEAAAYALAAAAAABAEAAAAMPKLrc/qLIQIa9+JLNu98JADs=) repeat-x;
+  height: 365px;
+  overflow: hidden;
+  margin-bottom: -5px;
+  background-color: #fff;
 }
 
-.OG-timeseries .og-dataPoints tbody {
-  overflow: scroll;
-}
-
-.OG-timeseries .og-dataPoints h2 {
+.OG-timeseries .og-data-series {
+  width: 358px;
+  display: inline-block;
+  border-right: 1px solid #e9eaeb;
   float: left;
-  line-height: 28px;
+  height: 365px;
 }
 
-.OG-timeseries .og-dataPoints button {
+.OG-timeseries .og-data-series:last-child {
+  border-right: none;
+}
+
+.OG-timeseries .og-data-series header {
+  height: 29px;
+  display: block;
+}
+
+.OG-timeseries .og-data-series footer {
+  height: 40px;
+  color: #999;
+  display: block;
+  padding: 5px;
+  background-color: #f6f6f6;
+}
+
+.OG-timeseries .og-data-series header h3 {
+  float: left;
+  padding: 6px 0 0 5px;
+}
+
+.OG-timeseries .og-data-series header span {
+  float: right;
+  position: relative;
+  top: 7px;
+  right: 15px;
+}
+
+.OG-timeseries .og-data-points .og-js-timeseries-csv {
+  font-size: 10px;
   float: right;
 }
 
-.OG-timeseries .og-js-timeSeriesCsv {
-  font-size: 10px;
-  position: absolute;
-  right: 13px;
-  top: 3px;
+/**
+ * Empty
+ */
+
+.OG-timeseries .og-data-series-empty,
+.OG-timeseries .og-data-series-empty span {
+  color: #d2d2d2;
+}
+
+.OG-timeseries .og-data-series-empty span {
+  top: 5px!important;
+  right: 5px!important;
+  position: relative!important;
+}
+
+.OG-timeseries .og-no-datapoint {
+  padding: 5px;
+  display: inline-block;
+}
+
+/**
+ * Slick grid
+ */
+
+.og-data-points .og-slick {
+  border-top:  1px solid #fff;
+  height: 285px;
+}
+
+.og-data-points .og-slick .og-loading {
+  display: inline-block;
+  padding: 5px;
+  color: #999;
+}
+
+.og-data-points .slick-viewport {
+  overflow-x: hidden!important;
+  height: 254px!important;
+}
+
+.OG-timeseries .og-checking-related {
+  display: inline-block;
+  position: relative;
+  top: 25px;
+  color: #ccc;
 }

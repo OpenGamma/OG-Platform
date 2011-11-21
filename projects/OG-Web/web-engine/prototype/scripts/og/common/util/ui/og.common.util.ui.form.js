@@ -34,18 +34,21 @@ $.register_module({
                     };
                 if (!total) return internal_handler();
                 block.children.forEach(function (val, idx) {
-                    if (typeof val.html === 'function') return val.html(function (html) {
+                    var error_prefix;
+                    if (val.html) return val.html(function (html) {
                         result[idx] = html, (total === ++done) && internal_handler();
                     });
-                    throw new TypeError(klass + '#' + self + ': children[' + idx + '].html is not a function');
+                    if (typeof val === 'string') return result[idx] = val, (total === ++done) && internal_handler();
+                    error_prefix = klass + '#' + self + ': children[' + idx + ']';
+                    throw new TypeError(error_prefix + ' is neither a string nor does it have an html function');
                 });
             };
             block.load = function () {
                 handlers.forEach(function (handler) {if (handler.type === 'form:load') handler.handler();});
-                block.children.forEach(function (child) {child.load();});
+                block.children.forEach(function (child) {if (child.load) child.load();});
             };
             block.process = function (data, errors) {
-                block.children.forEach(function (child) {child.process(data, errors);});
+                block.children.forEach(function (child) {if (child.process) child.process(data, errors);});
                 try {if (processor) processor(data);} catch (error) {errors.push(error);}
             };
             if (url || module) {
@@ -186,7 +189,7 @@ $.register_module({
             DBL: 'double',
             IND: 'indicator',
             SHR: 'short',
-            STR: 'string',
+            STR: 'string'
         };
         [Form.type.BYT, Form.type.DBL, Form.type.SHR].forEach(function (val, idx) {numbers[val] = null;});
         return Form;

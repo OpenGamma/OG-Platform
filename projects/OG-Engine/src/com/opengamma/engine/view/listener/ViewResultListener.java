@@ -59,19 +59,21 @@ public interface ViewResultListener {
   /**
    * Called following the successful completion of a computation cycle.
    * 
-   * @param fullResult  the entire computation cycle result, not null
-   * @param deltaResult  the delta result representing only the differences since the previous result, not null
+   * @param fullResult  the entire computation cycle result
+   * @param deltaResult  the delta result representing only the differences since the previous result
    */
   void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult);
 
-  //-------------------------------------------------------------------------
   /**
-   * Called following single calculation job completion.
+   * Called following the successful completion of a fragment of a computation cycle.
+   * <p>
+   * A computation cycle may be broken into many fragments, each representing internal groups of calculations. This
+   * allows the results to be received as they are calculated, without waiting for the cycle to complete.
    *
-   * @param fullResult  the result of single calculation job, not null
-   * @param deltaResult  the delta result representing only the differences since the previous cycle, not null
+   * @param fullFragment  the full computation cycle result fragment
+   * @param deltaFragment  the delta fragment representing only the differences since the previous cycle
    */
-  void jobResultReceived(ViewResultModel fullResult, ViewDeltaResultModel deltaResult);
+  void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment);
   
   /**
    * Called to indicate that execution of a view cycle failed.

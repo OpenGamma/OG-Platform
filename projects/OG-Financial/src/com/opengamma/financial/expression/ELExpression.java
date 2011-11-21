@@ -146,4 +146,9 @@ import de.odysseus.el.util.SimpleResolver;
     return NA;
   }
 
+  @Override
+  public String toString() {
+    return _expr.getExpressionString();
+  }
+
 }

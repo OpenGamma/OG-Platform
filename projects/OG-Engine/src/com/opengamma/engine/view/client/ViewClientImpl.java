@@ -21,7 +21,6 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcessorImpl;
-import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.EngineResourceRetainer;
 import com.opengamma.engine.view.calc.ViewCycle;
@@ -51,7 +50,7 @@ public class ViewClientImpl implements ViewClient {
   private final EngineResourceRetainer _latestCycleRetainer;
 
   private final AtomicReference<ViewResultMode> _resultMode = new AtomicReference<ViewResultMode>(ViewResultMode.FULL_ONLY);
-  private final AtomicReference<ViewResultMode> _jobResultMode = new AtomicReference<ViewResultMode>(ViewResultMode.NONE);
+  private final AtomicReference<ViewResultMode> _fragmentResultMode = new AtomicReference<ViewResultMode>(ViewResultMode.NONE);
 
   private final AtomicBoolean _isViewCycleAccessSupported = new AtomicBoolean(false);
   private final AtomicBoolean _isAttached = new AtomicBoolean(false);
@@ -137,24 +136,23 @@ public class ViewClientImpl implements ViewClient {
       }
 
       @Override
-      public void jobResultReceived(ViewResultModel fullResult, ViewDeltaResultModel deltaResult) {
+      public void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
         ViewComputationResultModel prevResult = _latestResult.get();
         ViewResultListener listener = _userResultListener.get();
         if (listener != null) {
-          ViewResultMode resultMode = getJobResultMode();
+          ViewResultMode resultMode = getFragmentResultMode();
           if (!resultMode.equals(ViewResultMode.NONE)) {
-            ViewResultModel userFullResult = isFullResultRequired(resultMode, prevResult == null) ? fullResult : null;
-            ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode, prevResult == null) ? deltaResult : null;
+            ViewComputationResultModel userFullResult = isFullResultRequired(resultMode, prevResult == null) ? fullFragment : null;
+            ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode, prevResult == null) ? deltaFragment : null;
             if (userFullResult != null || userDeltaResult != null) {
-              listener.jobResultReceived(userFullResult, userDeltaResult);
+              listener.cycleFragmentCompleted(userFullResult, userDeltaResult);
             } else if (prevResult == null || resultMode != ViewResultMode.DELTA_ONLY) {
               // Would expect this if it's the first result and we're in delta only mode, otherwise log a warning
-              s_logger.warn("Ignored CycleCompleted call with no useful results to propagate");
+              s_logger.warn("Ignored CycleFragmentCompleted call with no useful results to propagate");
             }
           }
         }
       }
-
 
       @Override
       public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
@@ -311,18 +309,18 @@ public class ViewClientImpl implements ViewClient {
   }
 
   @Override
-  public void setResultMode(ViewResultMode viewResultMode) {
-    _resultMode.set(viewResultMode);
+  public void setResultMode(ViewResultMode resultMode) {
+    _resultMode.set(resultMode);
   }
 
   @Override
-  public ViewResultMode getJobResultMode() {
-    return _jobResultMode.get();
+  public ViewResultMode getFragmentResultMode() {
+    return _fragmentResultMode.get();
   }
 
   @Override
-  public void setJobResultMode(ViewResultMode viewResultMode) {
-    _jobResultMode.set(viewResultMode);
+  public void setFragmentResultMode(ViewResultMode fragmentResultMode) {
+    _fragmentResultMode.set(fragmentResultMode);
   }
 
   //-------------------------------------------------------------------------

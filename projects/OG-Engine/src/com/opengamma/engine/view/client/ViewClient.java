@@ -174,32 +174,32 @@ public interface ViewClient extends UniqueIdentifiable {
   void setUpdatePeriod(long periodMillis);
   
   /**
-   * Gets the result mode in which this view client is operating. Defaults to {@link ViewResultMode#FULL_ONLY}.
+   * Gets the result mode for sending full cycle results to the listener. Defaults to {@link ViewResultMode#FULL_ONLY}.
    * 
    * @return the result mode, not null
    */
   ViewResultMode getResultMode();
   
   /**
-   * Sets the result mode in which this view client should operate.
+   * Sets the result mode for sending full cycle results to the listener. Defaults to {@link ViewResultMode#FULL_ONLY}.
    * 
-   * @param viewResultMode  the result mode, not null
+   * @param resultMode  the result mode, not null
    */
-  void setResultMode(ViewResultMode viewResultMode);
+  void setResultMode(ViewResultMode resultMode);
 
   /**
-   * Gets the job result mode in which this view client is operating. Defaults to {@link ViewResultMode#FULL_ONLY}.
+   * Gets the mode for sending cycle fragment results to the listener. Defaults to {@link ViewResultMode#NONE}.
    *
    * @return the result mode, not null
    */
-  ViewResultMode getJobResultMode();
+  ViewResultMode getFragmentResultMode();
 
   /**
-   * Sets the job result mode in which this view client should operate.
+   * Sets the mode for sending cycle fragment results to the listener. Defaults to {@link ViewResultMode#NONE}.
    *
-   * @param viewResultMode  the result mode, not null
+   * @param fragmentResultMode  the result mode, not null
    */
-  void setJobResultMode(ViewResultMode viewResultMode);
+  void setFragmentResultMode(ViewResultMode fragmentResultMode);
 
   //-------------------------------------------------------------------------
   /**
