@@ -133,6 +133,10 @@ $.register_module({
                         item: 'history.configs.recent',
                         value: routes.current().hash
                     });
+                    if (!og.views.config_forms[config_type]) {
+                        ui.message({location: '.ui-layout-inner-center', destroy: true});
+                        return ui.dialog({type: 'error', message: 'There is no template for: ' + config_type});
+                    }
                     og.views.config_forms[config_type]({
                         is_new: is_new,
                         data: details_json,
@@ -144,8 +148,7 @@ $.register_module({
                             ui.message({location: '.OG-js-details-panel', destroy: true});
                             if (result.error) {
                                 ui.message({location: '.ui-layout-inner-center', destroy: true});
-                                ui.dialog({type: 'error', message: result.message});
-                                return;
+                                return ui.dialog({type: 'error', message: result.message});
                             }
                             configs.search(args);
                             routes.go(routes.hash(module.rules.load_configs, args));

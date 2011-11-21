@@ -51,6 +51,7 @@ $.register_module({
             $.each(default_options, function (key) {
                 if (key === obj.type) $.extend(true, default_options[key], default_options.all);
             });
+            delete default_options.error.jquery.buttons['Cancel'];
             /**
              * Create error dialog
              */
