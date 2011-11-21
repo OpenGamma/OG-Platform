@@ -32,8 +32,8 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
@@ -94,12 +94,12 @@ public class YieldCurveBootStrapTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
 
   private static final Interpolator1D EXTRAPOLATOR;
-  private static final InterestRateDerivativeVisitor<YieldCurveBundle, Double> PAR_RATE_CALCULATOR = ParRateCalculator.getInstance();
-  private static final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> PAR_RATE_SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
+  private static final InstrumentDerivativeVisitor<YieldCurveBundle, Double> PAR_RATE_CALCULATOR = ParRateCalculator.getInstance();
+  private static final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> PAR_RATE_SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
   private static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
 
-  private static List<InterestRateDerivative> SINGLE_CURVE_INSTRUMENTS;
-  private static List<InterestRateDerivative> DOUBLE_CURVE_INSTRUMENTS;
+  private static List<InstrumentDerivative> SINGLE_CURVE_INSTRUMENTS;
+  private static List<InstrumentDerivative> DOUBLE_CURVE_INSTRUMENTS;
   private static double[] SWAP_VALUES;
   private static final double[] TIME_GRID;
   private static final double EPS = 1e-8;
@@ -141,8 +141,8 @@ public class YieldCurveBootStrapTest {
     final int n = payments.length;
     TIME_GRID = new double[n];
     SWAP_VALUES = new double[n];
-    SINGLE_CURVE_INSTRUMENTS = new ArrayList<InterestRateDerivative>();
-    DOUBLE_CURVE_INSTRUMENTS = new ArrayList<InterestRateDerivative>();
+    SINGLE_CURVE_INSTRUMENTS = new ArrayList<InstrumentDerivative>();
+    DOUBLE_CURVE_INSTRUMENTS = new ArrayList<InstrumentDerivative>();
     EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
 
     final YieldCurveBundle curveBundle = new YieldCurveBundle();
@@ -151,7 +151,7 @@ public class YieldCurveBootStrapTest {
     curveBundle.setCurve(FUNDING_CURVE_NAME, FUNDING_CURVE);
     curveBundle.setCurve(LIBOR_CURVE_NAME, LIBOR_CURVE);
 
-    InterestRateDerivative instrument;
+    InstrumentDerivative instrument;
     double swapRate;
     for (int i = 0; i < n; i++) {
       instrument = setupSwap(payments[i], FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
@@ -348,13 +348,13 @@ public class YieldCurveBootStrapTest {
     YieldAndDiscountCurve curve;
     final double sigma = 0.03;
     for (int t = 0; t < 100; t++) {
-      final List<InterestRateDerivative> instruments = new ArrayList<InterestRateDerivative>();
+      final List<InstrumentDerivative> instruments = new ArrayList<InstrumentDerivative>();
       for (int i = 0; i < SWAP_VALUES.length; i++) {
         swapRates[i] *= Math.exp(-0.5 * sigma * sigma + sigma * normDist.nextRandom());
         final FixedFloatSwap swap = (FixedFloatSwap) SINGLE_CURVE_INSTRUMENTS.get(i);
         final AnnuityCouponFixed fixedLeg = swap.getFixedLeg();
         final AnnuityCouponFixed newLeg = REPLACE_RATE.visitFixedCouponAnnuity(fixedLeg, swapRates[i]);
-        final InterestRateDerivative ird = new FixedFloatSwap(newLeg, swap.getFloatingLeg());
+        final InstrumentDerivative ird = new FixedFloatSwap(newLeg, swap.getFloatingLeg());
         instruments.add(ird);
       }
       final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(instruments, swapRates, null, unknownCurveNodes, unknownCurveInterpolators, false);

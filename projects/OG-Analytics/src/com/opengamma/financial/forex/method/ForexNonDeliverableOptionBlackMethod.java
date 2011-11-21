@@ -12,8 +12,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
@@ -83,7 +83,7 @@ public final class ForexNonDeliverableOptionBlackMethod implements ForexPricingM
   }
 
   @Override
-  public MultipleCurrencyAmount presentValue(ForexDerivative instrument, YieldCurveBundle curves) {
+  public MultipleCurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ForexNonDeliverableOption, "Forex non-deliverable option");
     Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
     return presentValue((ForexNonDeliverableOption) instrument, (SmileDeltaTermStructureDataBundle) curves);
@@ -122,7 +122,7 @@ public final class ForexNonDeliverableOptionBlackMethod implements ForexPricingM
   }
 
   @Override
-  public MultipleCurrencyAmount currencyExposure(ForexDerivative instrument, YieldCurveBundle curves) {
+  public MultipleCurrencyAmount currencyExposure(InstrumentDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ForexNonDeliverableOption, "Forex non-deliverable option");
     Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
     return currencyExposure((ForexNonDeliverableOption) instrument, (SmileDeltaTermStructureDataBundle) curves);
@@ -180,7 +180,7 @@ public final class ForexNonDeliverableOptionBlackMethod implements ForexPricingM
    * @param curves The volatility and curves description (SmileDeltaTermStructureDataBundle).
    * @return The curve sensitivities.
    */
-  public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final ForexDerivative instrument, final YieldCurveBundle curves) {
+  public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ForexNonDeliverableOption, "Forex non-deliverable option");
     Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
     return presentValueCurveSensitivity((ForexNonDeliverableOption) instrument, (SmileDeltaTermStructureDataBundle) curves);

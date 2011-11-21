@@ -13,7 +13,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -75,7 +75,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
    * @param hwData The Hull-White data (curves and Hull-White parameters).
    * @return The present value.
    */
-  public CurrencyAmount presentValue(final InterestRateDerivative instrument, Currency ccy, final String dscName, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, Currency ccy, final String dscName, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     // TODO: remove currency and dsc curve name (should be available from the instrument)
     YieldAndDiscountCurve dsc = hwData.getCurve(dscName);
     DecisionSchedule decision = DC.visit(instrument, hwData);
@@ -166,7 +166,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
    * @param hwData The Hull-White data (curves and Hull-White parameters).
    * @return The curve sensitivity.
    */
-  public InterestRateCurveSensitivity presentValueCurveSensitivity(final InterestRateDerivative instrument, final String dscName, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final InstrumentDerivative instrument, final String dscName, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     YieldAndDiscountCurve dsc = hwData.getCurve(dscName);
     // TODO: remove dsc curve name
     // Forward sweep
@@ -393,7 +393,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
   }
 
   @Override
-  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
     // TODO: Remove currency and dsc curve name (should be available from the instrument)
     return null;

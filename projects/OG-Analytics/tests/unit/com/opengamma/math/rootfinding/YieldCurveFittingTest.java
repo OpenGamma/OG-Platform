@@ -20,8 +20,8 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
@@ -142,8 +142,8 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
 
     final CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, LINEAR_EXTRAPOLATOR,
         FLAT_EXTRAPOLATOR);
-    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = PresentValueCalculator.getInstance();
-    final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueCurveSensitivityCalculator.getInstance();
+    final InstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator = PresentValueCalculator.getInstance();
+    final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueCurveSensitivityCalculator.getInstance();
     // final InterestRateDerivativeVisitor<Double> calculator = ParRateDifferenceCalculator.getInstance();
     // final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
 
@@ -185,8 +185,8 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
     final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(curveNames.get(0), curve);
 
-    final List<InterestRateDerivative> instruments = new ArrayList<InterestRateDerivative>();
-    InterestRateDerivative ird;
+    final List<InstrumentDerivative> instruments = new ArrayList<InstrumentDerivative>();
+    InstrumentDerivative ird;
     index = 0;
     for (final String name : maturities.keySet()) {
       final double[] times = maturities.get(name);
@@ -222,8 +222,8 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
     final CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, LINEAR_EXTRAPOLATOR,
         FLAT_EXTRAPOLATOR);
 
-    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = ParRateCalculator.getInstance();
-    final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
+    final InstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator = ParRateCalculator.getInstance();
+    final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
 
     final HashMap<String, double[]> fundingMaturities = new LinkedHashMap<String, double[]>();
     final HashMap<String, double[]> liborMaturities = new LinkedHashMap<String, double[]>();
@@ -270,8 +270,8 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
       bundle.setCurve(curveNames.get(1), makeYieldCurve(yields.get(1), curveKnots.get(1), extrapolator));
     }
 
-    final List<InterestRateDerivative> instruments = new ArrayList<InterestRateDerivative>();
-    InterestRateDerivative ird;
+    final List<InstrumentDerivative> instruments = new ArrayList<InstrumentDerivative>();
+    InstrumentDerivative ird;
     index = 0;
     for (final String name : maturities.keySet()) {
       for (final double t : maturities.get(name)) {

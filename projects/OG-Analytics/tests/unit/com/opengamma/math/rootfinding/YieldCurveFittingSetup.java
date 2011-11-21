@@ -28,8 +28,8 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexOIS;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
@@ -91,17 +91,17 @@ public abstract class YieldCurveFittingSetup {
 
   protected abstract int getBenchmarkCycles();
 
-  protected static YieldCurveFittingTestDataBundle getYieldCurveFittingTestDataBundle(final List<InterestRateDerivative> instruments, final YieldCurveBundle knownCurves,
-      final List<String> curveNames, final List<double[]> curvesKnots, final Interpolator1D extrapolator, final InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
-      final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator, final double[] marketRates, final DoubleMatrix1D startPosition,
+  protected static YieldCurveFittingTestDataBundle getYieldCurveFittingTestDataBundle(final List<InstrumentDerivative> instruments, final YieldCurveBundle knownCurves,
+      final List<String> curveNames, final List<double[]> curvesKnots, final Interpolator1D extrapolator, final InstrumentDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
+      final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator, final double[] marketRates, final DoubleMatrix1D startPosition,
       final List<double[]> curveYields) {
     return getYieldCurveFittingTestDataBundle(instruments, knownCurves, curveNames, curvesKnots, extrapolator, marketValueCalculator, marketValueSensitivityCalculator, marketRates, startPosition,
         curveYields, false);
   }
 
-  protected static YieldCurveFittingTestDataBundle getYieldCurveFittingTestDataBundle(final List<InterestRateDerivative> instruments, final YieldCurveBundle knownCurves,
-      final List<String> curveNames, final List<double[]> curvesKnots, final Interpolator1D extrapolator, final InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
-      final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator, final double[] marketRates, final DoubleMatrix1D startPosition,
+  protected static YieldCurveFittingTestDataBundle getYieldCurveFittingTestDataBundle(final List<InstrumentDerivative> instruments, final YieldCurveBundle knownCurves,
+      final List<String> curveNames, final List<double[]> curvesKnots, final Interpolator1D extrapolator, final InstrumentDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
+      final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator, final double[] marketRates, final DoubleMatrix1D startPosition,
       final List<double[]> curveYields, boolean useFiniteDifferenceByDefault) {
 
     Validate.notNull(curveNames);
@@ -252,13 +252,13 @@ public abstract class YieldCurveFittingSetup {
     return new YieldCurve(InterpolatedDoublesCurve.from(times, yields, interpolator));
   }
 
-  protected static MultipleYieldCurveFinderDataBundle updateInstruments(final MultipleYieldCurveFinderDataBundle old, final List<InterestRateDerivative> instruments, final double[] marketRates) {
+  protected static MultipleYieldCurveFinderDataBundle updateInstruments(final MultipleYieldCurveFinderDataBundle old, final List<InstrumentDerivative> instruments, final double[] marketRates) {
     Validate.isTrue(instruments.size() == marketRates.length);
     return new MultipleYieldCurveFinderDataBundle(instruments, marketRates, old.getKnownCurves(), old.getUnknownCurveNodePoints(), old.getUnknownCurveInterpolators(),
         old.useFiniteDifferenceForNodeSensitivities());
   }
 
-  protected static InterestRateDerivative makeSingleCurrencyIRD(final String type, final double maturity, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName,
+  protected static InstrumentDerivative makeSingleCurrencyIRD(final String type, final double maturity, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName,
       final double rate, final double notional) {
     if ("cash".equals(type)) {
       return makeCash(maturity, fundCurveName, rate, notional);
@@ -278,11 +278,11 @@ public abstract class YieldCurveFittingSetup {
     throw new IllegalArgumentException("unknown IRD type " + type);
   }
 
-  protected static InterestRateDerivative makeCash(final double time, final String fundCurveName, final double rate, final double notional) {
+  protected static InstrumentDerivative makeCash(final double time, final String fundCurveName, final double rate, final double notional) {
     return new Cash(DUMMY_CUR, time, notional, rate, fundCurveName);
   }
 
-  protected static InterestRateDerivative makeLibor(final double time, final String indexCurveName, final double rate, final double notional) {
+  protected static InstrumentDerivative makeLibor(final double time, final String indexCurveName, final double rate, final double notional) {
     return new Cash(DUMMY_CUR, time, notional, rate, indexCurveName);
   }
 
@@ -297,13 +297,13 @@ public abstract class YieldCurveFittingSetup {
    * @param notional the notional amount 
    * @return A FRA
    */
-  protected static InterestRateDerivative makeFRA(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName, final double rate,
+  protected static InstrumentDerivative makeFRA(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName, final double rate,
       final double notional) {
     double tau = 1. / paymentFreq.getPeriodsPerYear();
     return new ForwardRateAgreement(DUMMY_CUR, time - tau, fundCurveName, tau, notional, DUMMY_INDEX, time - tau, time - tau, time, tau, rate, indexCurveName);
   }
 
-  protected static InterestRateDerivative makeFuture(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName, final double rate,
+  protected static InstrumentDerivative makeFuture(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName, final double rate,
       final int contracts) {
     final double referencePrice = 0.0; // TODO CASE - Future refactor - Confirm referencePrice
     double tau = 1. / paymentFreq.getPeriodsPerYear();

@@ -30,7 +30,7 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
@@ -165,7 +165,7 @@ public class SwaptionCashFixedIborSABRMethodTest {
     final double premiumAmount = expectedPriceLongPayer / curves.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(SWAPTION_LONG_PAYER.getSettlementTime());
     final PaymentFixedDefinition premiumDefinition = new PaymentFixedDefinition(CUR, SETTLEMENT_DATE, -premiumAmount);
     final PaymentFixed premium = premiumDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    final InterestRateDerivative[] totalSwaption = new InterestRateDerivative[] {premium, SWAPTION_LONG_PAYER};
+    final InstrumentDerivative[] totalSwaption = new InstrumentDerivative[] {premium, SWAPTION_LONG_PAYER};
     final Double[] presentValue = PVC.visit(totalSwaption, sabrBundle);
     assertEquals("swaption present value with premium", -expectedPriceLongPayer, presentValue[0], 1.0E-2);
     assertEquals("swaption present value with premium", expectedPriceLongPayer, presentValue[1], 1.0E-2);

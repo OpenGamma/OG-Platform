@@ -9,15 +9,15 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 
 /**
  * Class describing a Bermuda swaption on vanilla swaps with physical delivery.
  */
-public class SwaptionBermudaFixedIbor implements InterestRateDerivative {
+public class SwaptionBermudaFixedIbor implements InstrumentDerivative {
 
   /**
    * The swaps underlying the swaption. There is one swap for each expiration date. All swaps shoud have the same currency.
@@ -89,12 +89,12 @@ public class SwaptionBermudaFixedIbor implements InterestRateDerivative {
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitSwaptionBermudaFixedIbor(this, data);
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitSwaptionBermudaFixedIbor(this);
   }
 

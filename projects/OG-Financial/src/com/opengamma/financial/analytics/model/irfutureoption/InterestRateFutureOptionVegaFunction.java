@@ -33,7 +33,7 @@ import com.opengamma.financial.analytics.model.VegaMatrixHelper;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.math.interpolation.GridInterpolator2D;
@@ -75,7 +75,7 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
   
   @SuppressWarnings({"unchecked" })
   @Override
-  protected Set<ComputedValue> getResults(final InterestRateDerivative irFutureOption, final SABRInterestRateDataBundle data, 
+  protected Set<ComputedValue> getResults(final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data, 
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ComputationTarget target) {
     final ValueProperties sensitivityProperties = getModelSensitivityProperties(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
     final Object alphaSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.getTrade(), sensitivityProperties));

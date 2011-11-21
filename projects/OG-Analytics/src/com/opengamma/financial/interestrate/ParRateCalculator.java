@@ -39,7 +39,7 @@ import com.opengamma.util.CompareUtils;
  * Get the single fixed rate that makes the PV of the instrument zero. For  fixed-float swaps this is the swap rate, for FRAs it is the forward etc. For instruments that 
  * cannot PV to zero, e.g. bonds, a single payment of -1.0 is assumed at zero (i.e. the bond must PV to 1.0)
  */
-public final class ParRateCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> {
+public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
   /**
@@ -57,7 +57,7 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
   }
 
   @Override
-  public Double visit(final InterestRateDerivative derivative, final YieldCurveBundle curves) {
+  public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(derivative);
     return derivative.accept(this, curves);

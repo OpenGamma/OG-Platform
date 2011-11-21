@@ -7,7 +7,7 @@ package com.opengamma.financial.interestrate.bond.method;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.financial.interestrate.market.MarketBundle;
@@ -42,7 +42,7 @@ public final class BondCapitalIndexedTransactionDiscountingMethod implements Pri
   }
 
   @Override
-  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final MarketBundle market) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final MarketBundle market) {
     Validate.isTrue(instrument instanceof BondCapitalIndexedTransaction<?>, "Capital inflation indexed bond.");
     return presentValue((BondCapitalIndexedTransaction<?>) instrument, market);
   }

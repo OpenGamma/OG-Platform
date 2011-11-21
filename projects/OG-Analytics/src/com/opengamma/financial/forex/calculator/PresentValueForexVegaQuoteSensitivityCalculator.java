@@ -6,12 +6,14 @@
 package com.opengamma.financial.forex.calculator;
 
 import com.opengamma.financial.forex.method.PresentValueVolatilityQuoteSensitivityDataBundle;
+import com.opengamma.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 
 /**
  * 
  */
-public final class PresentValueForexVegaQuoteSensitivityCalculator extends AbstractForexDerivativeVisitor<SmileDeltaTermStructureDataBundle, PresentValueVolatilityQuoteSensitivityDataBundle> {
+public final class PresentValueForexVegaQuoteSensitivityCalculator extends AbstractInstrumentDerivativeVisitor<SmileDeltaTermStructureDataBundle, PresentValueVolatilityQuoteSensitivityDataBundle> {
 
   /**
    * The unique instance of the calculator.
@@ -38,7 +40,7 @@ public final class PresentValueForexVegaQuoteSensitivityCalculator extends Abstr
   private static final PresentValueForexVegaSensitivityCalculator VEGA_CALCULATOR = PresentValueForexVegaSensitivityCalculator.getInstance();
 
   @Override
-  public PresentValueVolatilityQuoteSensitivityDataBundle visit(final ForexDerivative derivative, final SmileDeltaTermStructureDataBundle data) {
+  public PresentValueVolatilityQuoteSensitivityDataBundle visit(final InstrumentDerivative derivative, final SmileDeltaTermStructureDataBundle data) {
     return VEGA_CALCULATOR.visit(derivative, data).quoteSensitivity();
   }
 

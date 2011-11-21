@@ -7,14 +7,14 @@ package com.opengamma.financial.interestrate.swap.definition;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 
 
 /**
  * 
  */
-public class CrossCurrencySwap implements InterestRateDerivative {
+public class CrossCurrencySwap implements InstrumentDerivative {
 
   private final FloatingRateNote _domesticLeg;
   private final FloatingRateNote _foreignLeg;
@@ -53,12 +53,12 @@ public class CrossCurrencySwap implements InterestRateDerivative {
   
   
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitCrossCurrencySwap(this, data);
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitCrossCurrencySwap(this);
   }
 

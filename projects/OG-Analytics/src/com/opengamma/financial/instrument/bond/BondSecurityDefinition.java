@@ -9,7 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.payment.CouponDefinition;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
@@ -23,7 +23,7 @@ import com.opengamma.util.money.Currency;
  * @param <N> The notional type (usually FixedPayment or CouponInflationZeroCoupon).
  * @param <C> The coupon type.
  */
-public abstract class BondSecurityDefinition<N extends PaymentDefinition, C extends CouponDefinition> implements FixedIncomeInstrumentDefinition<BondSecurity<? extends Payment, ? extends Coupon>> {
+public abstract class BondSecurityDefinition<N extends PaymentDefinition, C extends CouponDefinition> implements InstrumentDefinition<BondSecurity<? extends Payment, ? extends Coupon>> {
   /**
    * The notional payments. For bullet bond, it is restricted to a single payment.
    */

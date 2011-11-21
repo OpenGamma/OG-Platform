@@ -8,7 +8,7 @@ package com.opengamma.financial.interestrate.swaption.method;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.CashFlowEquivalentCalculator;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationObjective;
@@ -92,7 +92,7 @@ public class SwaptionPhysicalG2ppCalibrationObjective extends SuccessiveRootFind
   }
 
   @Override
-  public void setInstrument(InterestRateDerivative instrument) {
+  public void setInstrument(InstrumentDerivative instrument) {
     super.setInstrument(instrument);
     Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Instrument should be a physical delivery swaption");
     _cfe = CASH_FLOW_EQUIVALENT_CALCULATOR.visit(((SwaptionPhysicalFixedIbor) instrument).getUnderlyingSwap(), _g2Bundle);

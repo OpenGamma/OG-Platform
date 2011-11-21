@@ -26,7 +26,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
  * Calculates the change in present value (PV) when an instruments fixed payments changes (for bonds this is the coupon rate, for swaps is is then rate on the fixed leg etc) dPV/dC
  * This can be used to convert between sensitivities of PV to the yield curve and sensitivities of Par rate to the yield curve
  */
-public final class PresentValueCouponSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> {
+public final class PresentValueCouponSensitivityCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
   private static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final PresentValueCouponSensitivityCalculator s_instance = new PresentValueCouponSensitivityCalculator();
@@ -39,7 +39,7 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInter
   }
 
   @Override
-  public Double visit(final InterestRateDerivative ird, final YieldCurveBundle curves) {
+  public Double visit(final InstrumentDerivative ird, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(ird);
     return ird.accept(this, curves);
