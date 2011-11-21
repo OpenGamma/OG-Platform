@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.marketdata;
+package com.opengamma.financial.expression;
 
 import com.google.common.base.Function;
 import com.opengamma.core.security.Security;
@@ -16,11 +16,11 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- * Synthetic property functions for the market data expression parsers.
+ * Common synthetic properties for expression evaluation.
  */
-public final class MarketDataSynthetics {
+public final class CommonSynthetics {
 
-  private MarketDataSynthetics() {
+  private CommonSynthetics() {
   }
 
   public static Function<Security, Currency> securityCurrency() {
@@ -66,6 +66,12 @@ public final class MarketDataSynthetics {
       }
 
     };
+  }
+
+  public static void configureParser(final UserExpressionParser parser, final SecuritySource securitySource) {
+    parser.setSynthetic(Security.class, Currency.class, "currency", securityCurrency());
+    parser.setSynthetic(Security.class, String.class, "type", securityType());
+    parser.setSynthetic(ManageableSecurity.class, Security.class, "underlying", securityUnderlying(securitySource));
   }
 
 }
