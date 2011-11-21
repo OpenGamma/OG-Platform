@@ -6,7 +6,7 @@
 package com.opengamma.financial.interestrate.inflation.derivatives;
 
 import com.opengamma.financial.instrument.index.PriceIndex;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.util.money.Currency;
 
@@ -104,12 +104,12 @@ public class CouponInflationZeroCouponMonthly extends CouponInflation {
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitCouponInflationZeroCouponMonthly(this, data);
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitCouponInflationZeroCouponMonthly(this);
   }
 

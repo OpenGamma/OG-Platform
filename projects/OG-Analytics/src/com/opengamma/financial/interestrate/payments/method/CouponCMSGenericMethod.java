@@ -7,7 +7,7 @@ package com.opengamma.financial.interestrate.payments.method;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
@@ -33,7 +33,7 @@ public class CouponCMSGenericMethod implements PricingMethod {
   }
 
   @Override
-  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof CouponCMS, "CMS coupon");
     CouponCMS coupon = (CouponCMS) instrument;
     CapFloorCMS cap0 = CapFloorCMS.from(coupon, 0.0, true);

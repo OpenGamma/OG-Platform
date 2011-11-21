@@ -28,17 +28,21 @@ $.register_module({
                 toolbar: {
                     active: {
                         buttons: [
-                            {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'new', enabled: 'OG-disabled'}
+                            {id: 'new', name: 'New', enabled: 'OG-disabled'},
+                            {id: 'save', name: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', name: 'Delete', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     },
                     'default': {
                         buttons: [
-                            {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'new', enabled: 'OG-disabled'}
+                            {id: 'new', name: 'New', enabled: 'OG-disabled'},
+                            {id: 'save', name: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', name: 'Delete', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     }
                 },
                 slickgrid: {

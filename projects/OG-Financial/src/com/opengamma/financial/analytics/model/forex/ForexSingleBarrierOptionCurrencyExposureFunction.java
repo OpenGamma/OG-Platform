@@ -17,7 +17,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.forex.calculator.CurrencyExposureBlackForexCalculator;
-import com.opengamma.financial.forex.calculator.ForexDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -27,26 +27,24 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 public class ForexSingleBarrierOptionCurrencyExposureFunction extends ForexSingleBarrierOptionFunction {
   private static final CurrencyExposureBlackForexCalculator CALCULATOR = CurrencyExposureBlackForexCalculator.getInstance();
 
-  public ForexSingleBarrierOptionCurrencyExposureFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, 
-      final String callForwardCurveName, final String surfaceName) {
+  public ForexSingleBarrierOptionCurrencyExposureFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName,
+      final String surfaceName) {
     super(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final ForexDerivative fxSingleBarrierOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
-    final MultipleCurrencyAmount result = CALCULATOR.visit(fxSingleBarrierOption, data);    
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName())
-                                                              .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
-                                                              .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+  protected Set<ComputedValue> getResult(final InstrumentDerivative fxSingleBarrierOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
+    final MultipleCurrencyAmount result = CALCULATOR.visit(fxSingleBarrierOption, data);
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName()).with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
+        .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_CURRENCY_EXPOSURE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, ForexUtils.getMultipleCurrencyAmountAsMatrix(result)));
   }
-  
+
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName())
-                                                              .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
-                                                              .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName()).with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
+        .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.FX_CURRENCY_EXPOSURE, target.toSpecification(), properties));
   }
 }

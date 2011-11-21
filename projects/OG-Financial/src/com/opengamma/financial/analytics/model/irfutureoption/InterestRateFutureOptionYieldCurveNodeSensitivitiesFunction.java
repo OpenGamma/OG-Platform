@@ -48,9 +48,9 @@ import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurf
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.InstrumentSensitivityCalculator;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -129,12 +129,12 @@ public class InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction extends
     final InterpolatedYieldCurveSpecificationWithSecurities forwardCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) forwardCurveSpecObject;
     final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpec = fundingCurveSpecObject == null ? forwardCurveSpec
         : (InterpolatedYieldCurveSpecificationWithSecurities) fundingCurveSpecObject;
-    final FixedIncomeInstrumentDefinition<?> definition = _converter.convert(trade);
+    final InstrumentDefinition<?> definition = _converter.convert(trade);
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for trade " + trade + " was null");
     }
     FinancialSecurity security = (FinancialSecurity) trade.getSecurity();
-    final InterestRateDerivative derivative = _dataConverter.convert(security, definition, now, new String[] {_fundingCurveName, _forwardCurveName}, dataSource);
+    final InstrumentDerivative derivative = _dataConverter.convert(security, definition, now, new String[] {_fundingCurveName, _forwardCurveName}, dataSource);
     final double[][] array = FunctionUtils.decodeJacobian(jacobianObject);
     final DoubleMatrix2D jacobian = new DoubleMatrix2D(array);
     DoubleMatrix1D sensitivitiesForCurves;

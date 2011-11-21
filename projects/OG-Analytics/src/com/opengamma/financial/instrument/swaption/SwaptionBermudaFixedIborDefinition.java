@@ -11,8 +11,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -22,7 +22,7 @@ import com.opengamma.util.time.TimeCalculator;
 /**
  * Class describing a Bermuda swaption on vanilla swaps with physical delivery.
  */
-public class SwaptionBermudaFixedIborDefinition implements FixedIncomeInstrumentDefinition<SwaptionBermudaFixedIbor> {
+public class SwaptionBermudaFixedIborDefinition implements InstrumentDefinition<SwaptionBermudaFixedIbor> {
 
   /**
    * The swaps underlying the swaption. There is one swap for each expiration date. 
@@ -115,12 +115,12 @@ public class SwaptionBermudaFixedIborDefinition implements FixedIncomeInstrument
   }
 
   @Override
-  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
     return visitor.visitSwaptionBermudaFixedIborDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitSwaptionBermudaFixedIborDefinition(this);
   }
 

@@ -10,7 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -93,12 +93,12 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
   }
 
   @Override
-  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitBondFixedTransactionDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitBondFixedTransactionDefinition(this);
   }
 

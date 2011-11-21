@@ -11,7 +11,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
@@ -204,12 +204,12 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
   }
 
   @Override
-  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitCouponIbor(this, data);
   }
 
   @Override
-  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitCouponIbor(this);
   }
 

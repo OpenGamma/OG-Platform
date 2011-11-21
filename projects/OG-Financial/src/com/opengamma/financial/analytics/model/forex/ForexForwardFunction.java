@@ -26,8 +26,8 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.forex.calculator.ForexConverter;
 import com.opengamma.financial.forex.derivative.Forex;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -71,7 +71,7 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final FXForwardSecurity security = (FXForwardSecurity) target.getSecurity();
-    final ForexConverter<?> definition = _visitor.visitFXForwardSecurity(security);
+    final InstrumentDefinition<?> definition = _visitor.visitFXForwardSecurity(security);
     final FXSecurity fx = (FXSecurity) _securitySource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
     final Currency payCurrency = fx.getPayCurrency();
     final Currency receiveCurrency = fx.getReceiveCurrency();
@@ -153,5 +153,5 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
   protected String getReceiveForwardCurveName() {
     return _receiveForwardCurveName;
   }
-  
+
 }

@@ -82,7 +82,7 @@ $.register_module({
                     if (deleted || is_new)
                         $(form_id + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
                     if (is_new) $(form_id + ' .og-js-submit[value=save_as_new]').text('Save');
-                    load_handler();
+                    load_handler(form);
                 }},
                 {type: 'click', selector: form_id + ' .og-js-submit', handler: function (e) {
                     submit_type = $(e.target).val();

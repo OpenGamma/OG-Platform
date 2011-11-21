@@ -32,7 +32,7 @@ $.register_module({
         return function (config) {
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
-                orig_name = config.data.template_data.name, submit_type,
+                orig_name = config.data.template_data.name,
                 resource_id = config.data.template_data.object_id,
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler,
                 id_count = 0, prefix = 'viewdef_',
@@ -95,22 +95,23 @@ $.register_module({
                     processor: function (data) {
                         if (!data[SETS]) return;
                         // remove undefineds that we added
-                        data[SETS] = data[SETS].filter(function (set) {return set !== undefined;});
+                        data[SETS] = arr(data[SETS]).filter(function (set) {return set !== undefined;});
                         data[SETS].forEach(function (set, set_idx) {
                             if (set[COLS]) {
-                                set[COLS] = set[COLS].filter(function (col) {return col !== undefined;});
+                                set[COLS] = arr(set[COLS]).filter(function (col) {return col !== undefined;});
                                 set[COLS].forEach(function (col, col_idx) {
                                     if (!col[REQS]) return;
                                     col[REQS] = col[REQS].filter(function (req) {return req !== undefined;});
                                 });
                             }
-                            if (set[SPEC]) set[SPEC] = set[SPEC].filter(function (spec) {return spec !== undefined;});
+                            if (set[SPEC])
+                                set[SPEC] = arr(set[SPEC]).filter(function (spec) {return spec !== undefined;});
                         });
                     }
                 }),
                 form_id = '#' + form.id,
-                save_resource = function (result, as_new) {
-                    var data = result.data, meta = result.meta;
+                save_resource = function (result) {
+                    var data = result.data, meta = result.meta, as_new = result.extras.as_new;
                     if (!deleted && !is_new && as_new && (orig_name === data.name))
                         return window.alert('Please select a new name.');
                     api.configs.put({
@@ -133,17 +134,9 @@ $.register_module({
                         </header>\
                     ';
                     $('.ui-layout-inner-center .ui-layout-header').html(header);
-                    if (deleted || is_new)
-                        $(form_id + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
-                    if (is_new) $(form_id + ' .og-js-submit[value=save_as_new]').text('Save');
-                    load_handler();
+                    load_handler(form);
                 }},
-                {type: 'click', selector: form_id + ' .og-js-submit', handler: function (e) {
-                    submit_type = $(e.target).val();
-                }},
-                {type: 'form:submit', handler: function (result) {
-                    save_resource(result, submit_type === 'save_as_new');
-                }},
+                {type: 'form:submit', handler: save_resource},
                 {type: 'click', selector: form_id + ' .og-js-collapse-handle', handler: function (e) {
                     var $target = $(e.target), $handle = $target.is('.og-js-collapse-handle') ? $target
                             : $target.parents('.og-js-collapse-handle:first'),
@@ -221,11 +214,11 @@ $.register_module({
                                     next = index ? index - 1 : index + 1, is_last = next === length,
                                     $tab = $(form_id + ' .og-js-colset-tab:eq(' + index + ')'),
                                     is_active = $tab.is('.og-active'), $next_tab, $next_set,
-                                    // because there may be previously removed colsets that have been set as undefined
+                                    // because there may be previously removed colsets that have been undefined
                                     // we have to find the rem_idxth not-undefined thing in master[SETS]
                                     set_idx = master[SETS].reduce(function (acc, val, idx) {
                                         if (val) acc.rem_idx--;
-                                        if (!acc.rem_idx) acc.idx = idx;
+                                        if (!acc.rem_idx && acc.idx === null) acc.idx = idx;
                                         return acc;
                                     }, {rem_idx: rem_idx + 1, idx: null}).idx;
                                 master[SETS][set_idx] = undefined;
@@ -323,20 +316,34 @@ $.register_module({
                                     {
                                         type: 'click', selector: '#' + set_id + ' .og-js-col-tab',
                                         handler: function (e) { // switch columns
-                                            var $target = $(e.target),
-                                                $tab = $target.is('.og-js-col-tab') ? $target :
-                                                    $target.parents('.og-js-col-tab:first'),
+                                            e.preventDefault();
+                                            var $target = $(e.target), tab_cl = '.og-js-col-tab',
+                                                $tab = $target.is(tab_cl) ? $target
+                                                    : $target.parents(tab_cl + ':first'),
                                                 active_cl = '.og-active', new_cl = '.og-js-new',
-                                                rem_cl = '.og-js-rem-col', index,
+                                                clone_cl = '.og-js-clone', rem_cl = '.og-js-rem-col', index,
                                                 is_remove = $target.is(rem_cl), is_active = $tab.is(active_cl),
-                                                is_new = $tab.is(new_cl);
+                                                is_new = $tab.is(new_cl), is_clone = $tab.is(clone_cl),
+                                                set_idx, col_idx;
                                             if (is_active) return false;
                                             if (is_remove) return false;
-                                            if (is_new) { // add a column value
+                                            if (is_new || is_clone) { // add a column value
                                                 $('#' + set_id + ' .og-js-empty-cols').hide();
-                                                (function () {
-                                                    var block, col = {}, idx;
-                                                    col[SECU] = '';
+                                                return (function () {
+                                                    var block, col, idx;
+                                                    if (is_new) {
+                                                        col = {}, col[SECU] = '';
+                                                    } else {
+                                                        col_idx = $(form_id + ' ' + tab_cl)
+                                                            .index($(form_id + ' ' + tab_cl + active_cl));
+                                                        set_idx = $(form_id + ' .og-js-colset-tab')
+                                                            .index($(form_id + ' ' + active_cl));
+                                                        if (!~col_idx) return;
+                                                        col = $.extend(true, {},
+                                                            form.compile().data[SETS][set_idx][COLS][col_idx]
+                                                        );
+                                                        if (col[REQS]) col[REQS] = arr(col[REQS]);
+                                                    }
                                                     if (!set[COLS]) set[COLS] = [col]; else set[COLS].push(col);
                                                     idx = set[COLS].length - 1;
                                                     column_set.children.push(block = new_col_val(col, idx));
@@ -353,9 +360,9 @@ $.register_module({
                                                             $col.siblings().hide();
                                                         });
                                                         col_tabs.children.push(tab);
+                                                        block.load();
                                                     });
                                                 })();
-                                                return false;
                                             }
                                             index = $('#' + set_id + ' .og-js-col-tab').index($tab);
                                             $('#' + set_id + ' .og-js-col-holder').each(function (idx, col) {
@@ -363,7 +370,6 @@ $.register_module({
                                             });
                                             $('#' + set_id + ' .og-js-col-tab:eq(' + index + ')').addClass('og-active')
                                                 .siblings().removeClass('og-active');
-                                            return false;
                                         }
                                     }
                                 ]
@@ -545,21 +551,35 @@ $.register_module({
                             }},
                             // switch colsets
                             {type: 'click', selector: form_id + ' .og-js-colset-tab', handler: function (e) {
+                                e.preventDefault();
                                 var $target = $(e.target),
                                     $tab = $target.is('.og-js-colset-tab') ? $target
                                         : $target.parents('.og-js-colset-tab:first'),
-                                    active_cl = '.og-active', new_cl = '.og-js-new', rem_cl = '.og-js-rem-colset',
+                                    active_cl = '.og-active', new_cl = '.og-js-new', tab_cl = '.og-js-colset-tab',
+                                    clone_cl = '.og-js-clone', rem_cl = '.og-js-rem-colset',
                                     is_remove = $target.is(rem_cl) || $target.parent(rem_cl).length,
                                     is_active = $target.is(active_cl) || $target.parent(active_cl).length,
-                                    is_new = $target.is(new_cl) || $target.parent(new_cl).length, index;
+                                    is_clone = $target.is(clone_cl) || $target.parent(clone_cl).length,
+                                    is_new = $target.is(new_cl) || $target.parent(new_cl).length,
+                                    index, active_idx;
                                 if (is_active) return false;
                                 if (is_remove) return false;
-                                if (is_new) { // add a column set
+                                if (is_new || is_clone) { // add a column set
                                     $(form_id + ' .og-js-empty-colsets').hide();
-                                    (function () {
-                                        var $sec = $(form_id + ' section.og-js-colsets'),
-                                            block, set = {name: 'Set ' + (master[SETS].length + 1)};
-                                        set[DEFP] = {};
+                                    return (function () {
+                                        var $sec = $(form_id + ' section.og-js-colsets'), block, set;
+                                        if (is_new) {
+                                            set = {name: 'Set ' + (master[SETS].length + 1)}
+                                            set[DEFP] = {};
+                                        } else {
+                                            active_idx = $(form_id + ' ' + tab_cl).index($(form_id + ' ' + active_cl));
+                                            if (!~active_idx) return;
+                                            set = $.extend(true, {}, form.compile().data[SETS][active_idx]);
+                                            set.name = 'Cloned ' + set.name;
+                                            set[DEFP] = set[DEFP] || {};
+                                            if (set[COLS]) set[COLS] = arr(set[COLS]);
+                                            if (set[SPEC]) set[SPEC] = arr(set[SPEC]);
+                                        }
                                         master[SETS].push(set);
                                         column_sets.children.push(block = new_col_set(set, master[SETS].length - 1));
                                         block.html(function (html) {
@@ -575,15 +595,13 @@ $.register_module({
                                             block.load();
                                         });
                                     })();
-                                    return false;
                                 }
-                                index = $(form_id + ' .og-js-colset-tab').index($tab);
+                                index = $(form_id + ' ' + tab_cl).index($tab);
                                 $(form_id + ' .og-js-colset-holder').each(function (idx, set) {
                                     $(set)[idx === index ? 'show' : 'hide']();
                                 });
                                 $(form_id + ' .og-js-colset-tab').removeClass('og-active');
                                 $tab.addClass('og-active');
-                                return false;
                             }}
                         ]
                     }),

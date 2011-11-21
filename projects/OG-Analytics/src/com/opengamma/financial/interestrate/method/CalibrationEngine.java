@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 
 /**
@@ -21,7 +21,7 @@ public abstract class CalibrationEngine {
   /**
    * The calibration basket.
    */
-  private final List<InterestRateDerivative> _basket;
+  private final List<InstrumentDerivative> _basket;
   /**
    * The method used to compute calibrating prices.
    */
@@ -37,7 +37,7 @@ public abstract class CalibrationEngine {
    * Constructor of the calibration engine. The basket and calculator list are empty.
    */
   public CalibrationEngine() {
-    _basket = new ArrayList<InterestRateDerivative>();
+    _basket = new ArrayList<InstrumentDerivative>();
     _method = new ArrayList<PricingMethod>();
     _calibrationPrice = new ArrayList<Double>();
   }
@@ -47,7 +47,7 @@ public abstract class CalibrationEngine {
    * @param instrument An interest rate derivative.
    * @param method A pricing method.
    */
-  public void addInstrument(final InterestRateDerivative instrument, final PricingMethod method) {
+  public void addInstrument(final InstrumentDerivative instrument, final PricingMethod method) {
     _basket.add(instrument);
     _method.add(method);
     _calibrationPrice.add(0.0);
@@ -58,7 +58,7 @@ public abstract class CalibrationEngine {
    * @param instrument An interest rate derivative array.
    * @param method A pricing method.
    */
-  public void addInstrument(final InterestRateDerivative[] instrument, final PricingMethod method) {
+  public void addInstrument(final InstrumentDerivative[] instrument, final PricingMethod method) {
     Validate.notNull(instrument, "Instrument");
     for (int loopins = 0; loopins < instrument.length; loopins++) {
       addInstrument(instrument[loopins], method);
@@ -87,7 +87,7 @@ public abstract class CalibrationEngine {
    * Gets the instrument basket.
    * @return The basket.
    */
-  public List<InterestRateDerivative> getBasket() {
+  public List<InstrumentDerivative> getBasket() {
     return _basket;
   }
 

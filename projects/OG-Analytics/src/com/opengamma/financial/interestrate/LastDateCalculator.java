@@ -34,7 +34,7 @@ import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixe
 /**
  * Get the last date (time in years from now) on a yield curve for which an instrument will be sensitive - any change in the yield curve behold this point cannot affect the present value
  */
-public final class LastDateCalculator extends AbstractInterestRateDerivativeVisitor<Object, Double> {
+public final class LastDateCalculator extends AbstractInstrumentDerivativeVisitor<Object, Double> {
   private static final LastDateCalculator CALCULATOR = new LastDateCalculator();
 
   public static LastDateCalculator getInstance() {
@@ -45,7 +45,7 @@ public final class LastDateCalculator extends AbstractInterestRateDerivativeVisi
   }
 
   @Override
-  public Double visit(final InterestRateDerivative ird, final Object data) {
+  public Double visit(final InstrumentDerivative ird, final Object data) {
     Validate.notNull(ird, "ird");
     return ird.accept(this);
   }

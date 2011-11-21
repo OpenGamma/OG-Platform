@@ -81,7 +81,7 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
   private static final double[] SINGLE_CURVE_MARKET_RATES = {0.02, 0.0366, 0.04705, 0.04285, 0.03953, 0.03986, 0.040965, 0.042035, 0.04314, 0.044, 0.046045, 0.048085, 0.048925, 0.049155, 0.049195};
   private static final String SINGLE_CURVE_NAME = "single"; 
   private static final ZonedDateTime SWAP_FIXING_DATE = DateUtils.getUTCDate(2010, 12, 30);
-  private static final List<InterestRateDerivative> SINGLE_CURVE_IRD = makeSingleCurveIRD(SINGLE_CURVE_MARKET_RATES);
+  private static final List<InstrumentDerivative> SINGLE_CURVE_IRD = makeSingleCurveIRD(SINGLE_CURVE_MARKET_RATES);
   private static final YieldCurveFittingTestDataBundle SINGLE_CURVE_PAR_RATE_DATA = getSingleCurveSetup(ParRateCalculator.getInstance(), ParRateCurveSensitivityCalculator.getInstance(), SINGLE_CURVE_MARKET_RATES,
       SINGLE_CURVE_IRD, false);
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> SINGLE_CURVE_PAR_RATE_FUNCTION = new MultipleYieldCurveFinderFunction(SINGLE_CURVE_PAR_RATE_DATA, SINGLE_CURVE_PAR_RATE_DATA.getMarketValueCalculator());
@@ -101,7 +101,7 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
   private static final DoubleMatrix1D SINGLE_CURVE_PV_COUPON_SENSITIVITY;
   private static final String[] DOUBLE_CURVE_NAMES = new String[]{"Funding", "Libor"};
   private static double[] DOUBLE_CURVE_MARKET_RATES = new double[28];
-  private static List<InterestRateDerivative> DOUBLE_CURVE_IRD = new ArrayList<InterestRateDerivative>();
+  private static List<InstrumentDerivative> DOUBLE_CURVE_IRD = new ArrayList<InstrumentDerivative>();
   private static List<double[]> DOUBLE_CURVE_NODES = new ArrayList<double[]>();
   private static final YieldCurveFittingTestDataBundle DOUBLE_CURVE_PAR_RATE_DATA;
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> DOUBLE_CURVE_PAR_RATE_FUNCTION;
@@ -232,13 +232,13 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
   public void testSingleCurveWithBumpedData() {
     final double notional = 1.5e7;
     final double eps = 1e-3;
-    final InterestRateDerivative cash = makeCashDefinition(DateUtils.getUTCDate(2013, 6, 1), 0.03445, notional, SINGLE_CURVE_NAME);
+    final InstrumentDerivative cash = makeCashDefinition(DateUtils.getUTCDate(2013, 6, 1), 0.03445, notional, SINGLE_CURVE_NAME);
     testSingleCurveBumpedDataParRateMethod(cash, eps);
     testSingleCurveBumpedDataPVMethod(cash, eps);
-    InterestRateDerivative fra = makeFRADefinition(DateUtils.getUTCDate(2014, 3, 3), DateUtils.getUTCDate(2014, 9, 3), 0.04, notional, SINGLE_CURVE_NAME, SINGLE_CURVE_NAME);
+    InstrumentDerivative fra = makeFRADefinition(DateUtils.getUTCDate(2014, 3, 3), DateUtils.getUTCDate(2014, 9, 3), 0.04, notional, SINGLE_CURVE_NAME, SINGLE_CURVE_NAME);
     testSingleCurveBumpedDataParRateMethod(fra, eps);
     testSingleCurveBumpedDataPVMethod(fra, eps);
-    InterestRateDerivative swap = makeSwapDefinition(DateUtils.getUTCDate(2020, 4, 2), 0.05, notional, SINGLE_CURVE_NAME, SINGLE_CURVE_NAME);
+    InstrumentDerivative swap = makeSwapDefinition(DateUtils.getUTCDate(2020, 4, 2), 0.05, notional, SINGLE_CURVE_NAME, SINGLE_CURVE_NAME);
     testSingleCurveBumpedDataParRateMethod(swap, eps);
     testSingleCurveBumpedDataPVMethod(swap, eps);
   }
@@ -247,13 +247,13 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
   public void testDoubleCurveWithBumpedData() {
     double notional = 2.3e5;
     double eps = 1e-4;
-    InterestRateDerivative cash = makeCashDefinition(DateUtils.getUTCDate(2011, 4, 6), 0.003, notional, DOUBLE_CURVE_NAMES[0]);
+    InstrumentDerivative cash = makeCashDefinition(DateUtils.getUTCDate(2011, 4, 6), 0.003, notional, DOUBLE_CURVE_NAMES[0]);
     testDoubleCurveBumpedDataParRateMethod(cash, eps);
-    InterestRateDerivative libor = makeCashDefinition(DateUtils.getUTCDate(2012, 4, 6), 0.003, notional, DOUBLE_CURVE_NAMES[1]);
+    InstrumentDerivative libor = makeCashDefinition(DateUtils.getUTCDate(2012, 4, 6), 0.003, notional, DOUBLE_CURVE_NAMES[1]);
     testDoubleCurveBumpedDataParRateMethod(libor, eps);
-    InterestRateDerivative fra = makeFRADefinition(DateUtils.getUTCDate(2013, 1, 3), DateUtils.getUTCDate(2013, 10, 3), 0.03, notional, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]);
+    InstrumentDerivative fra = makeFRADefinition(DateUtils.getUTCDate(2013, 1, 3), DateUtils.getUTCDate(2013, 10, 3), 0.03, notional, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]);
     testDoubleCurveBumpedDataParRateMethod(fra, eps);
-    InterestRateDerivative swap = makeSwapDefinition(DateUtils.getUTCDate(2022, 1, 3), 0.05, notional, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]);
+    InstrumentDerivative swap = makeSwapDefinition(DateUtils.getUTCDate(2022, 1, 3), 0.05, notional, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[1]);
     testDoubleCurveBumpedDataParRateMethod(swap, eps);    
     swap = makeSwapDefinition(DateUtils.getUTCDate(2022, 1, 3), 0.05, notional, DOUBLE_CURVE_NAMES[0], DOUBLE_CURVE_NAMES[0]);
     testDoubleCurveBumpedDataParRateMethod(swap, eps);    
@@ -261,13 +261,13 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
     testDoubleCurveBumpedDataParRateMethod(swap, eps);    
   }
 
-  private void testSingleCurveBumpedDataParRateMethod(final InterestRateDerivative ird, final double eps) {
+  private void testSingleCurveBumpedDataParRateMethod(final InstrumentDerivative ird, final double eps) {
     final DoubleMatrix1D sensitivities = ISC.calculateFromParRate(ird, null, SINGLE_CURVE_PAR_RATE_CURVES, SINGLE_CURVE_PAR_RATE_JACOBIAN, PVNS);
     final PresentValueCalculator calculator = PresentValueCalculator.getInstance();
     final double pv1 = calculator.visit(ird, SINGLE_CURVE_PAR_RATE_ALL_CURVES);
     for (int i = 0; i < sensitivities.getNumberOfElements(); i++) {
       double[] bumpedData = getSingleCurveBumpedData(i, eps);
-      List<InterestRateDerivative> bumpedIRD = makeSingleCurveIRD(bumpedData);
+      List<InstrumentDerivative> bumpedIRD = makeSingleCurveIRD(bumpedData);
       final YieldCurveFittingTestDataBundle bumpedDataBundle = getSingleCurveSetup(ParRateCalculator.getInstance(), ParRateCurveSensitivityCalculator.getInstance(), bumpedData, bumpedIRD, false);
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> f = new MultipleYieldCurveFinderFunction(bumpedDataBundle, bumpedDataBundle.getMarketValueCalculator());
       final Function1D<DoubleMatrix1D, DoubleMatrix2D> jf = new MultipleYieldCurveFinderJacobian(bumpedDataBundle, bumpedDataBundle.getMarketValueSensitivityCalculator());
@@ -285,13 +285,13 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
     }
   }
   
-  private void testSingleCurveBumpedDataPVMethod(final InterestRateDerivative ird, final double eps) {
+  private void testSingleCurveBumpedDataPVMethod(final InstrumentDerivative ird, final double eps) {
     final DoubleMatrix1D sensitivities = ISC.calculateFromPresentValue(ird, null, SINGLE_CURVE_PV_CURVES, SINGLE_CURVE_PV_COUPON_SENSITIVITY, SINGLE_CURVE_PV_JACOBIAN, PVNS);
     final PresentValueCalculator calculator = PresentValueCalculator.getInstance();
     final double pv1 = calculator.visit(ird, SINGLE_CURVE_PV_ALL_CURVES);
     for (int i = 0; i < sensitivities.getNumberOfElements(); i++) {
       double[] bumpedData = getSingleCurveBumpedData(i, eps);
-      List<InterestRateDerivative> bumpedIRD = makeSingleCurveIRD(bumpedData);
+      List<InstrumentDerivative> bumpedIRD = makeSingleCurveIRD(bumpedData);
       final YieldCurveFittingTestDataBundle bumpedDataBundle = getSingleCurveSetup(PresentValueCalculator.getInstance(), PresentValueCurveSensitivityCalculator.getInstance(), bumpedData, bumpedIRD, true);
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> f = new MultipleYieldCurveFinderFunction(bumpedDataBundle, bumpedDataBundle.getMarketValueCalculator());
       final Function1D<DoubleMatrix1D, DoubleMatrix2D> jf = new MultipleYieldCurveFinderJacobian(bumpedDataBundle, bumpedDataBundle.getMarketValueSensitivityCalculator());
@@ -309,13 +309,13 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
     }
   }
 
-  private void testDoubleCurveBumpedDataParRateMethod(final InterestRateDerivative ird, final double eps) {
+  private void testDoubleCurveBumpedDataParRateMethod(final InstrumentDerivative ird, final double eps) {
     final DoubleMatrix1D sensitivities = ISC.calculateFromParRate(ird, null, DOUBLE_CURVE_PAR_RATE_CURVES, DOUBLE_CURVE_PAR_RATE_JACOBIAN, PVNS);
     final PresentValueCalculator calculator = PresentValueCalculator.getInstance();
     final double pv1 = calculator.visit(ird, DOUBLE_CURVE_PAR_RATE_ALL_CURVES);
     for (int i = 0; i < sensitivities.getNumberOfElements(); i++) {
       double[] bumpedData = new double[28];
-      List<InterestRateDerivative> bumpedIRD = new ArrayList<InterestRateDerivative>();
+      List<InstrumentDerivative> bumpedIRD = new ArrayList<InstrumentDerivative>();
       initDoubleCurveBumpedCurveData(bumpedData, bumpedIRD, null, i, eps);
       final YieldCurveFittingTestDataBundle bumpedDataBundle = getDoubleCurveSetup(ParRateCalculator.getInstance(), ParRateCurveSensitivityCalculator.getInstance(), bumpedData, bumpedIRD, DOUBLE_CURVE_NODES, false);
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> f = new MultipleYieldCurveFinderFunction(bumpedDataBundle, bumpedDataBundle.getMarketValueCalculator());
@@ -346,9 +346,9 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
     return data;
   }
   
-  private static final YieldCurveFittingTestDataBundle getSingleCurveSetup(final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator,
-      final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator, double[] marketRates,
-      List<InterestRateDerivative> instruments, final boolean isPV) {
+  private static final YieldCurveFittingTestDataBundle getSingleCurveSetup(final InstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator,
+      final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator, double[] marketRates,
+      List<InstrumentDerivative> instruments, final boolean isPV) {
     int nNodes = marketRates.length;
     double[] marketValues = new double[nNodes];
     double[] nodes = new double[nNodes];
@@ -369,9 +369,9 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
     return data; 
   }
   
-  private static final YieldCurveFittingTestDataBundle getDoubleCurveSetup(final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator,
-      final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator, double[] marketRates,
-      List<InterestRateDerivative> instruments, List<double[]> curveKnots, final boolean isPV) {
+  private static final YieldCurveFittingTestDataBundle getDoubleCurveSetup(final InstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator,
+      final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator, double[] marketRates,
+      List<InstrumentDerivative> instruments, List<double[]> curveKnots, final boolean isPV) {
     int nNodes = marketRates.length;
     double[] marketValues = new double[nNodes];
     double[] nodes = new double[nNodes];
@@ -423,9 +423,9 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
        .toDerivative(NOW, new DoubleTimeSeries[]{new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[]{SWAP_FIXING_DATE}, new double[]{rate})}, fundingCurveName, forwardCurveName);
   }
 
-  private static List<InterestRateDerivative> makeSingleCurveIRD(double[] marketRates) {
-    List<InterestRateDerivative> ird = new ArrayList<InterestRateDerivative>();
-    ird = new ArrayList<InterestRateDerivative>();
+  private static List<InstrumentDerivative> makeSingleCurveIRD(double[] marketRates) {
+    List<InstrumentDerivative> ird = new ArrayList<InstrumentDerivative>();
+    ird = new ArrayList<InstrumentDerivative>();
     ird.add(makeCashDefinition(DateUtils.getUTCDate(2011, 4, 3), marketRates[0], 1, SINGLE_CURVE_NAME));
     ird.add(makeFRADefinition(DateUtils.getUTCDate(2011, 4, 3), DateUtils.getUTCDate(2011, 7, 3), marketRates[1], 1, SINGLE_CURVE_NAME, SINGLE_CURVE_NAME));
     ird.add(makeFRADefinition(DateUtils.getUTCDate(2011, 7, 3), DateUtils.getUTCDate(2011, 10, 3), marketRates[2], 1, SINGLE_CURVE_NAME, SINGLE_CURVE_NAME));
@@ -444,18 +444,18 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
     return ird;
   }
     
-  private static void initDoubleCurveMarketCurveData(double[] marketRates, List<InterestRateDerivative> instruments, List<double[]> curveNodes) {
+  private static void initDoubleCurveMarketCurveData(double[] marketRates, List<InstrumentDerivative> instruments, List<double[]> curveNodes) {
     initDoubleCurveBumpedCurveData(marketRates, instruments, curveNodes, 0, 0);
   }
   
-  private static void initDoubleCurveBumpedCurveData(double[] marketRates, List<InterestRateDerivative> instruments, List<double[]> curveNodes, int n, double eps) {
+  private static void initDoubleCurveBumpedCurveData(double[] marketRates, List<InstrumentDerivative> instruments, List<double[]> curveNodes, int n, double eps) {
     @SuppressWarnings("synthetic-access")
     Function1D<Double, Double> dummyCurve = new DummyCurve1();
     @SuppressWarnings("synthetic-access")
     Function1D<Double, Double> spreadCurve = new DummySpreadCurve2();
     double[] fundingNodes = new double[10];
     double[] forwardNodes = new double[18];
-    InterestRateDerivative ird = makeCashDefinition(DateUtils.getUTCDate(2011, 1, 4), 0, 1, DOUBLE_CURVE_NAMES[0]);
+    InstrumentDerivative ird = makeCashDefinition(DateUtils.getUTCDate(2011, 1, 4), 0, 1, DOUBLE_CURVE_NAMES[0]);
     double t = MATURITY_CALCULATOR.visit(ird);
     marketRates[0] = dummyCurve.evaluate(t) + (n == 0 ? eps : 0);
     fundingNodes[0] = t;

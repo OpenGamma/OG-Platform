@@ -90,17 +90,12 @@ $.register_module({
                 toolbar: {
                     'default': {
                         buttons: [
-                            {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'new', handler: toolbar_buttons['new']}
+                            {id: 'new', name: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', name: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', name: 'Delete', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar'
-                    },
-                    active: {
-                        buttons: [
-                            {name: 'delete', handler: toolbar_buttons['delete']},
-                            {name: 'new', handler: toolbar_buttons['new']}
-                        ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     }
                 }
             },
@@ -164,24 +159,38 @@ $.register_module({
                             ui.message({location: '.ui-layout-inner-center', message: 'saved'});
                             setTimeout(function () {routes.handler(); details_page(args);}, 300);
                         },
-                        handler: function () {
+                        handler: function (form) {
                             var json = details_json.template_data,
                                 error_html = '\
                                     <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
                                         This configuration has been deleted\
                                     </section>',
                                 layout = og.views.common.layout;
-                            toolbar('active');
-                            if (json && json.deleted) {
+                            if (json.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);
                                 layout.inner.sizePane('north', '0');
                                 layout.inner.open('north');
-                                $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
                             } else {
-                                if (is_new) $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
                             }
+                            if (is_new || json.deleted) ui.toolbar({
+                                buttons: [
+                                    {id: 'new', name: 'New', handler: toolbar_buttons['new']},
+                                    {id: 'save', name: 'Save', handler: form.submit.partial({as_new: true})},
+                                    {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
+                                    {id: 'delete', name: 'Delete', enabled: 'OG-disabled'}
+                                ],
+                                location: '.OG-tools'
+                            }); else ui.toolbar({
+                                buttons: [
+                                    {id: 'new', name: 'New', handler: toolbar_buttons['new']},
+                                    {id: 'save', name: 'Save', handler: form.submit},
+                                    {id: 'saveas', name: 'Save as', handler: form.submit.partial({as_new: true})},
+                                    {id: 'delete', name: 'Delete', handler: toolbar_buttons['delete']}
+                                ],
+                                location: '.OG-tools'
+                            });
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             layout.inner.resizeAll();
                         },

@@ -14,7 +14,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.CashFlowEquivalentCalculator;
 import com.opengamma.financial.interestrate.CashFlowEquivalentCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
@@ -123,7 +123,7 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
   }
 
   @Override
-  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof SwaptionCashFixedIbor, "Cash delivery swaption");
     Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
     return presentValue((SwaptionCashFixedIbor) instrument, (HullWhiteOneFactorPiecewiseConstantDataBundle) curves);

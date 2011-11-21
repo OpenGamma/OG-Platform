@@ -10,11 +10,11 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.forex.calculator.ForexConverter;
-import com.opengamma.financial.forex.calculator.ForexDefinitionVisitor;
-import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.model.option.definition.Barrier;
 
 /**
@@ -22,7 +22,7 @@ import com.opengamma.financial.model.option.definition.Barrier;
  * {code BarrierType}. 
  * It is suppose that the barrier has not been activated yet (and thus there is no flag indicated if the activation took place already).
  */
-public class ForexOptionSingleBarrierDefinition implements ForexConverter<ForexDerivative> {
+public class ForexOptionSingleBarrierDefinition implements InstrumentDefinition<InstrumentDerivative> {
 
   /**
    * The underlying vanilla Forex option.
@@ -95,12 +95,12 @@ public class ForexOptionSingleBarrierDefinition implements ForexConverter<ForexD
   }
 
   @Override
-  public <U, V> V accept(final ForexDefinitionVisitor<U, V> visitor, final U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitForexOptionSingleBarrierDefiniton(this, data);
   }
 
   @Override
-  public <V> V accept(final ForexDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitForexOptionSingleBarrierDefiniton(this);
   }
 

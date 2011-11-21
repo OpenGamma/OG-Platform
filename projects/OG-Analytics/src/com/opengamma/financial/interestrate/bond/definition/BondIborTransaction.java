@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.interestrate.bond.definition;
 
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 
 /**
  * Describes a transaction on a Ibor floating coupon bond (Floating Rate Note) issue.
@@ -25,12 +25,12 @@ public class BondIborTransaction extends BondTransaction<BondIborSecurity> {
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitBondIborTransaction(this, data);
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitBondIborTransaction(this);
   }
 

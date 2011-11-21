@@ -7,7 +7,7 @@ package com.opengamma.financial.interestrate.swap.definition;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
@@ -58,12 +58,12 @@ public class FloatingRateNote extends Swap<PaymentFixed, CouponIbor> {
   }
 
   @Override
-  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitFloatingRateNote(this, data);
   }
 
   @Override
-  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitFloatingRateNote(this);
   }
 

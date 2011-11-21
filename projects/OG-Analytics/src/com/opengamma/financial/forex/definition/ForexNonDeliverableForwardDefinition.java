@@ -10,10 +10,10 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.forex.calculator.ForexConverter;
-import com.opengamma.financial.forex.calculator.ForexDefinitionVisitor;
-import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.TimeCalculator;
 
@@ -22,7 +22,7 @@ import com.opengamma.util.time.TimeCalculator;
  * The transaction is XXX/YYY where YYY is the currency for the cash-settlement. A NDF KRW/USD with USD cash settlement is stored with KRW as currency1 and USD as currency2.
  */
 // TODO: Review: Should the transaction be stored as KRW/USD or USD/KRW? 
-public class ForexNonDeliverableForwardDefinition implements ForexConverter<ForexDerivative> {
+public class ForexNonDeliverableForwardDefinition implements InstrumentDefinition<InstrumentDerivative> {
 
   /**
    * First currency of the transaction.
@@ -130,12 +130,12 @@ public class ForexNonDeliverableForwardDefinition implements ForexConverter<Fore
   }
 
   @Override
-  public <U, V> V accept(ForexDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
     return visitor.visitForexNonDeliverableForwardDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(ForexDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitForexNonDeliverableForwardDefinition(this);
   }
 

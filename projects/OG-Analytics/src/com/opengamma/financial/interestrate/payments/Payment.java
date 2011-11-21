@@ -8,13 +8,13 @@ package com.opengamma.financial.interestrate.payments;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a generic payment.
  */
-public abstract class Payment implements InterestRateDerivative {
+public abstract class Payment implements InstrumentDerivative {
 
   /**
    * The index currency.

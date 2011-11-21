@@ -12,11 +12,11 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.forex.calculator.ForexConverter;
-import com.opengamma.financial.forex.calculator.ForexDefinitionVisitor;
-import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 
 /**
  * Class describing a vanilla foreign exchange European option. When the option is a call, the option holder has the right to enter into the Forex transaction; 
@@ -25,7 +25,7 @@ import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
  * exchange -(-1.00) EUR = 1.00 EUR and -1.41 EUR; it is thus also the right to call 1.00 EUR and put 1.41 USD. A put on a Forex  USD 1.41 / EUR -1.00 is 
  * also the right to call 1.00 EUR and put 1.41 USD.
  */
-public class ForexOptionVanillaDefinition implements ForexConverter<ForexDerivative> {
+public class ForexOptionVanillaDefinition implements InstrumentDefinition<InstrumentDerivative> {
 
   /**
    * The underlying Forex transaction (the one entered into in case of exercise).
@@ -110,7 +110,7 @@ public class ForexOptionVanillaDefinition implements ForexConverter<ForexDerivat
    * {@inheritDoc}
    */
   @Override
-  public <U, V> V accept(final ForexDefinitionVisitor<U, V> visitor, final U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitForexOptionVanillaDefinition(this, data);
   }
 
@@ -118,7 +118,7 @@ public class ForexOptionVanillaDefinition implements ForexConverter<ForexDerivat
    * {@inheritDoc}
    */
   @Override
-  public <V> V accept(final ForexDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitForexOptionVanillaDefinition(this);
   }
 

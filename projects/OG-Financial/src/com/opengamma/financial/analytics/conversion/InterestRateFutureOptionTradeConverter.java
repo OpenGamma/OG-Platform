@@ -11,7 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.position.Trade;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
@@ -29,7 +29,7 @@ public class InterestRateFutureOptionTradeConverter {
     _securityConverter = securityConverter;
   }
 
-  public FixedIncomeInstrumentDefinition<?> convert(final Trade trade) {
+  public InstrumentDefinition<?> convert(final Trade trade) {
     Validate.notNull(trade, "trade");
     Validate.isTrue(trade.getSecurity() instanceof IRFutureOptionSecurity,
         "Can only handle trades with security type IRFutureOptionSecurity");

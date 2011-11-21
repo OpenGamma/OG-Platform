@@ -15,7 +15,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.CashFlowEquivalentCalculator;
 import com.opengamma.financial.interestrate.CashFlowEquivalentCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
@@ -211,7 +211,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod {
   }
 
   @Override
-  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
     Validate.isTrue(curves instanceof LiborMarketModelDisplacedDiffusionDataBundle, "Bundle should contain LMM data");
     return presentValue((SwaptionPhysicalFixedIbor) instrument, (LiborMarketModelDisplacedDiffusionDataBundle) curves);
