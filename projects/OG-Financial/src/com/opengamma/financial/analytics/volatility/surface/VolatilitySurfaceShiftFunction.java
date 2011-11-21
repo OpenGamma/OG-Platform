@@ -36,7 +36,7 @@ public class VolatilitySurfaceShiftFunction extends AbstractFunction.NonCompiled
   /**
    * Property to shift a volatility surface.
    */
-  protected static final String SHIFT = "SHIFT";
+  public static final String SHIFT = "SHIFT";
 
   @Override
   public String getShortName() {
