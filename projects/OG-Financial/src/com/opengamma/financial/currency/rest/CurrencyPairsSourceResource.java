@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.currency.rest;
@@ -8,11 +8,7 @@ package com.opengamma.financial.currency.rest;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencyPairsSource;
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializer;
 
-import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
@@ -31,28 +27,18 @@ public class CurrencyPairsSourceResource {
     _fudgeContext = fudgeContext;
   }
 
-  protected CurrencyPairsSource getUnderlying() {
-    return _underlying;
-  }
-
-  protected FudgeContext getFudgeContext() {
-    return _fudgeContext;
-  }
-
-  protected FudgeMsgEnvelope pairsToMsgEnvelope(final CurrencyPairs pairs) {
-    if (pairs == null) {
+  /**
+   * @param name The name of a set of market convention currency pairs
+   * @return A REST sub-resource representing a set of currency pairs
+   * @throws WebApplicationException Status 404 if name doesn't correspond to a set of currency pairs in the system
+   */
+  @Path("{name}")
+  public CurrencyPairsResource getPairs(@PathParam("name") String name) {
+    CurrencyPairs currencyPairs = _underlying.getCurrencyPairs(name);
+    if (currencyPairs == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
-    final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
-    final MutableFudgeMsg msg = serializer.newMessage();
-    serializer.addToMessageWithClassHeaders(msg, "currencyPairs", null, pairs, CurrencyPairs.class);
-    return new FudgeMsgEnvelope(msg);
-  }
-
-  @GET
-  @Path("{name}")
-  public FudgeMsgEnvelope getDefinition(@PathParam("name") String name) {
-    return pairsToMsgEnvelope(getUnderlying().getCurrencyPairs(name));
+    return new CurrencyPairsResource(currencyPairs, _fudgeContext);
   }
 
 }

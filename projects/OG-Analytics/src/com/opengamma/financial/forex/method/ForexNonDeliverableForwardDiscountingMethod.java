@@ -12,9 +12,9 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.Currency;
@@ -61,7 +61,7 @@ public final class ForexNonDeliverableForwardDiscountingMethod implements ForexP
   }
 
   @Override
-  public MultipleCurrencyAmount presentValue(ForexDerivative instrument, YieldCurveBundle curves) {
+  public MultipleCurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ForexNonDeliverableForward, "Derivative should be ForexNonDeliverableForward");
     Validate.isTrue(curves instanceof YieldCurveWithFXBundle, "Bundle should contain FX rate");
     return presentValue((ForexNonDeliverableForward) instrument, (YieldCurveWithFXBundle) curves);
@@ -85,7 +85,7 @@ public final class ForexNonDeliverableForwardDiscountingMethod implements ForexP
   }
 
   @Override
-  public MultipleCurrencyAmount currencyExposure(ForexDerivative instrument, YieldCurveBundle curves) {
+  public MultipleCurrencyAmount currencyExposure(InstrumentDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof Forex, "Derivative should be ForexNonDeliverableForward");
     return currencyExposure((ForexNonDeliverableForward) instrument, curves);
   }

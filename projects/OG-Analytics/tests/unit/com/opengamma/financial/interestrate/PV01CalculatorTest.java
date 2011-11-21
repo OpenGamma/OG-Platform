@@ -221,7 +221,7 @@ public class PV01CalculatorTest {
     doTest(swap, CURVES);
   }
 
-  private void doTest(final InterestRateDerivative ird, final YieldCurveBundle curves) {
+  private void doTest(final InstrumentDerivative ird, final YieldCurveBundle curves) {
     final Map<String, Double> ana = PV01.visit(ird, curves);
     final Map<String, Double> fd = finiteDifferancePV01(ird, curves);
     final Set<String> names = curves.getAllNames();
@@ -234,7 +234,7 @@ public class PV01CalculatorTest {
     }
   }
 
-  private Map<String, Double> finiteDifferancePV01(final InterestRateDerivative ird, final YieldCurveBundle curves) {
+  private Map<String, Double> finiteDifferancePV01(final InstrumentDerivative ird, final YieldCurveBundle curves) {
     final Map<String, Double> result = new HashMap<String, Double>();
     final Set<String> names = curves.getAllNames();
     for (final String name : names) {

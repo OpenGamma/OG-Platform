@@ -41,7 +41,7 @@ public final class FixedIncomeCalculatorFactory {
   /** Par rate parallel sensitivity calculator*/
   public static final ParRateParallelSensitivityCalculator PAR_RATE_PARALLEL_SENSITIVITY_CALCULATOR = ParRateParallelSensitivityCalculator.getInstance();
 
-  private static final Map<String, InterestRateDerivativeVisitor<?, ?>> s_instances = new HashMap<String, InterestRateDerivativeVisitor<?, ?>>();
+  private static final Map<String, InstrumentDerivativeVisitor<?, ?>> s_instances = new HashMap<String, InstrumentDerivativeVisitor<?, ?>>();
   private static final Map<Class<?>, String> s_instanceNames = new HashMap<Class<?>, String>();
 
   static {
@@ -64,15 +64,15 @@ public final class FixedIncomeCalculatorFactory {
   private FixedIncomeCalculatorFactory() {
   }
 
-  public static InterestRateDerivativeVisitor<?, ?> getCalculator(final String name) {
-    final InterestRateDerivativeVisitor<?, ?> calculator = s_instances.get(name);
+  public static InstrumentDerivativeVisitor<?, ?> getCalculator(final String name) {
+    final InstrumentDerivativeVisitor<?, ?> calculator = s_instances.get(name);
     if (calculator != null) {
       return calculator;
     }
     throw new IllegalArgumentException("Could not get calculator for " + name);
   }
 
-  public static String getCalculatorName(final InterestRateDerivativeVisitor<?, ?> calculator) {
+  public static String getCalculatorName(final InstrumentDerivativeVisitor<?, ?> calculator) {
     if (calculator == null) {
       return null;
     }

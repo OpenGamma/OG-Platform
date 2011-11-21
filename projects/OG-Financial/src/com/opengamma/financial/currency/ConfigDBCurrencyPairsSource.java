@@ -28,27 +28,28 @@ public class ConfigDBCurrencyPairsSource implements CurrencyPairsSource {
     _configSource = configSource;
   }
 
+  /**
+   * Returns a set of currency pairs with the specified name or null if there are none with a matching name.
+   * If {@code name} is null then the default set are looked up using {@link CurrencyPairs#DEFAULT_CURRENCY_PAIRS} as the name.
+   * @param name The name of the set of currency pairs, null for the default set.
+   * @return The market convention currency pairs with the specified name or null if there are none that match
+   */
   @Override
   public CurrencyPairs getCurrencyPairs(String name) {
-    // TODO can name be null? where should the default name be?
+    if (name == null) {
+      name = CurrencyPairs.DEFAULT_CURRENCY_PAIRS;
+    }
     return _configSource.getLatestByName(CurrencyPairs.class, name);
   }
 
-  /*@Override
+  @Override
   public CurrencyPair getCurrencyPair(Currency currency1, Currency currency2, String name) {
+    ArgumentChecker.notNull(currency1, "currency1");
+    ArgumentChecker.notNull(currency2, "currency2");
     CurrencyPairs currencyPairs = getCurrencyPairs(name);
     if (currencyPairs == null) {
       return null;
     }
     return currencyPairs.getCurrencyPair(currency1, currency2);
   }
-
-  @Override
-  public Double getRate(Currency currency1, double amount1, Currency currency2, double amount2, String name) {
-    CurrencyPairs currencyPairs = getCurrencyPairs(name);
-    if (currencyPairs == null) {
-      return null;
-    }
-    return currencyPairs.getRate(currency1, amount1, currency2, amount2);
-  }*/
 }

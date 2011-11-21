@@ -29,4 +29,9 @@ public class IfExpression extends UserExpression {
     }
   }
 
+  @Override
+  public String toString() {
+    return "if (" + _condition.toString() + ") " + _result.toString();
+  }
+
 }

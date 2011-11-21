@@ -12,7 +12,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Trade;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedTransactionDefinition;
 import com.opengamma.financial.security.bond.BondSecurity;
@@ -32,7 +32,7 @@ public class BondTradeConverter {
     Validate.notNull(trade, "trade");
     Validate.isTrue(trade.getSecurity() instanceof BondSecurity, "Can only handle trades with security type BondSecurity");
     final BondSecurity security = (BondSecurity) trade.getSecurity();
-    final FixedIncomeInstrumentDefinition<?> underlying = security.accept(_securityConverter);
+    final InstrumentDefinition<?> underlying = security.accept(_securityConverter);
     if (!(underlying instanceof BondFixedSecurityDefinition)) {
       throw new OpenGammaRuntimeException("Can only handle fixed coupon bonds");
     }

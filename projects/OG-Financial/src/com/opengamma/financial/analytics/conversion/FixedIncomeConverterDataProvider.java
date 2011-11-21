@@ -20,7 +20,7 @@ import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCapFloorCMSDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCapFloorCMSSpreadDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCapFloorIborDefinition;
@@ -29,7 +29,7 @@ import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.financial.instrument.swap.SwapDefinition;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -61,7 +61,7 @@ public class FixedIncomeConverterDataProvider {
     _conventionSource = conventionSource;
   }
 
-  public InterestRateDerivative convert(final Security security, final FixedIncomeInstrumentDefinition<?> definition,
+  public InstrumentDerivative convert(final Security security, final InstrumentDefinition<?> definition,
       final ZonedDateTime now, final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition to convert was null for security " + security);
@@ -95,7 +95,7 @@ public class FixedIncomeConverterDataProvider {
     return definition.toDerivative(now, curveNames);
   }
 
-  public InterestRateDerivative convert(final InterestRateFutureSecurity security, final InterestRateFutureDefinition definition, final ZonedDateTime now,
+  public InstrumentDerivative convert(final InterestRateFutureSecurity security, final InterestRateFutureDefinition definition, final ZonedDateTime now,
       final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
 
     // Get the time-dependent reference data required to price the Analytics Derivative
@@ -116,7 +116,7 @@ public class FixedIncomeConverterDataProvider {
 
   }
 
-  public InterestRateDerivative convert(final BondFutureSecurity security, final BondFutureDefinition definition, final ZonedDateTime now,
+  public InstrumentDerivative convert(final BondFutureSecurity security, final BondFutureDefinition definition, final ZonedDateTime now,
       final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
 
     // TODO - CASE - Future refactor - See notes in convert(InterestRateFutureSecurity)
@@ -128,7 +128,7 @@ public class FixedIncomeConverterDataProvider {
 
   }
 
-  public InterestRateDerivative convert(final IRFutureOptionSecurity security, final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime now,
+  public InstrumentDerivative convert(final IRFutureOptionSecurity security, final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime now,
         final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
     final ExternalIdBundle id = ExternalIdBundle.of(security.getUnderlyingId());
     final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
@@ -145,7 +145,7 @@ public class FixedIncomeConverterDataProvider {
     return definition.toDerivative(now, lastMarginPrice, curveNames);
   }
 
-  public InterestRateDerivative convert(final FRASecurity security, final ForwardRateAgreementDefinition definition, final ZonedDateTime now,
+  public InstrumentDerivative convert(final FRASecurity security, final ForwardRateAgreementDefinition definition, final ZonedDateTime now,
       final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
     final ExternalId id = security.getUnderlyingId();
     final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
@@ -165,7 +165,7 @@ public class FixedIncomeConverterDataProvider {
     return definition.toDerivative(now, indexTS, curveNames);
   }
 
-  public InterestRateDerivative convert(final CapFloorSecurity security, final AnnuityCapFloorIborDefinition definition, final ZonedDateTime now,
+  public InstrumentDerivative convert(final CapFloorSecurity security, final AnnuityCapFloorIborDefinition definition, final ZonedDateTime now,
       final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
     final ExternalId id = security.getUnderlyingId();
     final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
@@ -185,7 +185,7 @@ public class FixedIncomeConverterDataProvider {
     return definition.toDerivative(now, indexTS, curveNames);
   }
   
-  public InterestRateDerivative convert(final CapFloorSecurity security, final AnnuityCapFloorCMSDefinition definition, final ZonedDateTime now,
+  public InstrumentDerivative convert(final CapFloorSecurity security, final AnnuityCapFloorCMSDefinition definition, final ZonedDateTime now,
       final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
     final ExternalId id = security.getUnderlyingId();
     final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
@@ -205,7 +205,7 @@ public class FixedIncomeConverterDataProvider {
     return definition.toDerivative(now, indexTS, curveNames);
   }
   
-  public InterestRateDerivative convert(final CapFloorCMSSpreadSecurity security, final AnnuityCapFloorCMSSpreadDefinition definition, final ZonedDateTime now,
+  public InstrumentDerivative convert(final CapFloorCMSSpreadSecurity security, final AnnuityCapFloorCMSSpreadDefinition definition, final ZonedDateTime now,
       final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
     final ExternalId longId = security.getLongId();
     final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
@@ -233,7 +233,7 @@ public class FixedIncomeConverterDataProvider {
   }
   
   @SuppressWarnings("unchecked")
-  public InterestRateDerivative convert(final SwapSecurity security, final SwapDefinition definition, final ZonedDateTime now,
+  public InstrumentDerivative convert(final SwapSecurity security, final SwapDefinition definition, final ZonedDateTime now,
       final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
     Validate.notNull(security, "security");
     final SwapLeg payLeg = security.getPayLeg();

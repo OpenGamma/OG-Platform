@@ -5,6 +5,14 @@
  */
 package com.opengamma.financial.interestrate;
 
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.financial.forex.derivative.Forex;
+import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
+import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
+import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
+import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.financial.forex.derivative.ForexSwap;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
@@ -51,35 +59,33 @@ import com.opengamma.financial.interestrate.swaption.derivative.SwaptionBermudaF
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 
-import org.apache.commons.lang.Validate;
-
 /**
  * 
  * @param <S> The type of the data
  * @param <T> The return type of the calculation
  */
-public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements InterestRateDerivativeVisitor<S, T> {
+public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements InstrumentDerivativeVisitor<S, T> {
 
   @Override
-  public T visit(final InterestRateDerivative derivative, final S data) {
+  public T visit(final InstrumentDerivative derivative, final S data) {
     Validate.notNull(derivative, "derivative");
     Validate.notNull(data, "data");
     return derivative.accept(this, data);
   }
 
   @Override
-  public T[] visit(final InterestRateDerivative[] derivative, final S data) {
+  public T[] visit(final InstrumentDerivative[] derivative, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visit(derivative[], data)");
   }
 
   @Override
-  public T visit(final InterestRateDerivative derivative) {
+  public T visit(final InstrumentDerivative derivative) {
     Validate.notNull(derivative, "derivative");
     return derivative.accept(this);
   }
 
   @Override
-  public T[] visit(final InterestRateDerivative[] derivative) {
+  public T[] visit(final InstrumentDerivative[] derivative) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visit(derivative[])");
   }
 
@@ -521,6 +527,68 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   @Override
   public T visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond, S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondCapitalIndexedTransaction()");
+  }
+
+  // -----     Forex     -----
+
+  @Override
+  public T visitForex(final Forex derivative, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForex()");
+  }
+
+  @Override
+  public T visitForex(final Forex derivative) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForex()");
+  }
+
+  @Override
+  public T visitForexSwap(final ForexSwap derivative, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexSwap()");
+  }
+
+  @Override
+  public T visitForexSwap(final ForexSwap derivative) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexSwap()");
+  }
+
+  @Override
+  public T visitForexOptionVanilla(final ForexOptionVanilla derivative, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexOptionVanilla()");
+  }
+
+  @Override
+  public T visitForexOptionVanilla(final ForexOptionVanilla derivative) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexOptionVanilla()");
+  }
+
+  @Override
+  public T visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexOptionSingleBarrier()");
+  }
+
+  @Override
+  public T visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexOptionSingleBarrier()");
+  }
+
+  @Override
+  public T visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexNonDeliverableForward()");
+  }
+
+  @Override
+  public T visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexNonDeliverableForward()");
+  }
+
+  @Override
+  public T visitForexNonDeliverableOption(final ForexNonDeliverableOption derivative, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexNonDeliverableOption()");
+  }
+
+  @Override
+  public T visitForexNonDeliverableOption(final ForexNonDeliverableOption derivative) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexNonDeliverableOption()");
   }
 
 }

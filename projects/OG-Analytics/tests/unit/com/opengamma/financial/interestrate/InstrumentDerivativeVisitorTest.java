@@ -14,6 +14,12 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.forex.derivative.Forex;
+import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
+import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
+import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
+import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.financial.forex.derivative.ForexSwap;
 import com.opengamma.financial.instrument.future.FutureInstrumentsDescriptionDataSet;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swaption.SwaptionInstrumentsDescriptionDataSet;
@@ -67,9 +73,9 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class InterestRateDerivativeVisitorTest {
+public class InstrumentDerivativeVisitorTest {
   private static final String CURVE_NAME = "Test";
-  private static final AbstractInterestRateDerivativeVisitor<Object, Object> ABSTRACT_VISITOR = new AbstractInterestRateDerivativeVisitor<Object, Object>() {
+  private static final AbstractInstrumentDerivativeVisitor<Object, Object> ABSTRACT_VISITOR = new AbstractInstrumentDerivativeVisitor<Object, Object>() {
   };
   private static final Currency CUR = Currency.USD;
   private static final Cash CASH = new Cash(CUR, 1, 1, 0, CURVE_NAME);
@@ -99,15 +105,15 @@ public class InterestRateDerivativeVisitorTest {
   private static final InterestRateFuture IR_FUT_SECURITY = FutureInstrumentsDescriptionDataSet.createInterestRateFutureSecurity();
   private static final BondFuture BNDFUT_SECURITY = FutureInstrumentsDescriptionDataSet.createBondFutureSecurity();
 
-  private static final InterestRateDerivativeVisitor<Object, Class<?>> VISITOR = new InterestRateDerivativeVisitor<Object, Class<?>>() {
+  private static final InstrumentDerivativeVisitor<Object, Class<?>> VISITOR = new InstrumentDerivativeVisitor<Object, Class<?>>() {
 
     @Override
-    public Class<?> visit(final InterestRateDerivative derivative, final Object curves) {
+    public Class<?> visit(final InstrumentDerivative derivative, final Object curves) {
       return derivative.getClass();
     }
 
     @Override
-    public Class<?> visit(final InterestRateDerivative ird) {
+    public Class<?> visit(final InstrumentDerivative ird) {
       return ird.accept(this, null);
     }
 
@@ -287,12 +293,12 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?>[] visit(final InterestRateDerivative[] derivative, final Object data) {
+    public Class<?>[] visit(final InstrumentDerivative[] derivative, final Object data) {
       return visit(derivative, data);
     }
 
     @Override
-    public Class<?>[] visit(final InterestRateDerivative[] derivative) {
+    public Class<?>[] visit(final InstrumentDerivative[] derivative) {
       return visit(derivative);
     }
 
@@ -558,6 +564,66 @@ public class InterestRateDerivativeVisitorTest {
 
     @Override
     public Class<?> visitOISSwap(OISSwap swap) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitForex(Forex derivative, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitForex(Forex derivative) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitForexSwap(ForexSwap derivative, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitForexSwap(ForexSwap derivative) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitForexOptionVanilla(ForexOptionVanilla derivative, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitForexOptionVanilla(ForexOptionVanilla derivative) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitForexOptionSingleBarrier(ForexOptionSingleBarrier derivative, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitForexOptionSingleBarrier(ForexOptionSingleBarrier derivative) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitForexNonDeliverableForward(ForexNonDeliverableForward derivative, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitForexNonDeliverableForward(ForexNonDeliverableForward derivative) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitForexNonDeliverableOption(ForexNonDeliverableOption derivative, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitForexNonDeliverableOption(ForexNonDeliverableOption derivative) {
       return null;
     }
   };

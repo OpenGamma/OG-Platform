@@ -8,7 +8,7 @@ package com.opengamma.financial.interestrate.bond.definition;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -19,7 +19,7 @@ import com.opengamma.util.money.Currency;
  * @param <N> The notional type (usually FixedPayment or CouponInflationZeroCoupon).
  * @param <C> The coupon type.
  */
-public abstract class BondSecurity<N extends Payment, C extends Coupon> implements InterestRateDerivative {
+public abstract class BondSecurity<N extends Payment, C extends Coupon> implements InstrumentDerivative {
   /**
    * The nominal payments. For bullet bond, it is restricted to a single payment.
    */

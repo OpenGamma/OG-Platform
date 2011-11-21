@@ -41,8 +41,8 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.volatility.fittedresults.HestonFittedSurfaces;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
@@ -99,11 +99,11 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final SimpleTrade trade = (SimpleTrade) target.getTrade();
-    final FixedIncomeInstrumentDefinition<InterestRateDerivative> irFutureOptionDefinition = (FixedIncomeInstrumentDefinition<InterestRateDerivative>) _converter.convert(trade);
-    final InterestRateDerivative irFutureOption = _dataConverter.convert(trade.getSecurity(), irFutureOptionDefinition, now, new String[] {_fundingCurveName, _forwardCurveName}, dataSource);
+    final InstrumentDefinition<InstrumentDerivative> irFutureOptionDefinition = (InstrumentDefinition<InstrumentDerivative>) _converter.convert(trade);
+    final InstrumentDerivative irFutureOption = _dataConverter.convert(trade.getSecurity(), irFutureOptionDefinition, now, new String[] {_fundingCurveName, _forwardCurveName}, dataSource);
     final double t, k;
     final boolean isCall;
-    final InterestRateDerivative irFuture;
+    final InstrumentDerivative irFuture;
     if (irFutureOption instanceof InterestRateFutureOptionMarginSecurity) {
       final InterestRateFutureOptionMarginSecurity option = (InterestRateFutureOptionMarginSecurity) irFutureOption; 
       t = option.getExpirationTime();

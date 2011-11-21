@@ -10,8 +10,8 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -22,7 +22,7 @@ import com.opengamma.util.time.TimeCalculator;
 /**
  * Class describing a European swaption on a vanilla swap with physical delivery.
  */
-public final class SwaptionPhysicalFixedIborDefinition implements FixedIncomeInstrumentDefinition<SwaptionPhysicalFixedIbor> {
+public final class SwaptionPhysicalFixedIborDefinition implements InstrumentDefinition<SwaptionPhysicalFixedIbor> {
 
   /**
    * Swap underlying the swaption.
@@ -99,12 +99,12 @@ public final class SwaptionPhysicalFixedIborDefinition implements FixedIncomeIns
   }
 
   @Override
-  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitSwaptionPhysicalFixedIborDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitSwaptionPhysicalFixedIborDefinition(this);
   }
 

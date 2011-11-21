@@ -18,7 +18,7 @@ import com.opengamma.financial.convention.daycount.ActualActualICMA;
 import com.opengamma.financial.convention.daycount.ActualActualICMANormal;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.yield.YieldConvention;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityPaymentFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
@@ -351,12 +351,12 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
   }
 
   @Override
-  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
     return visitor.visitBondFixedSecurityDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitBondFixedSecurityDefinition(this);
   }
 

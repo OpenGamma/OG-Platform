@@ -21,7 +21,7 @@ import com.opengamma.math.interpolation.Interpolator1D;
  * 
  */
 public class MultipleYieldCurveFinderDataBundle {
-  private final List<InterestRateDerivative> _derivatives;
+  private final List<InstrumentDerivative> _derivatives;
   private final double[] _marketValues;
   private final YieldCurveBundle _knownCurves;
   private final LinkedHashMap<String, double[]> _unknownCurveNodePoints;
@@ -35,7 +35,7 @@ public class MultipleYieldCurveFinderDataBundle {
 //    this(derivatives, marketValues, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators, false);
 //  }
   
-  public MultipleYieldCurveFinderDataBundle(final List<InterestRateDerivative> derivatives, final double[] marketValues, final YieldCurveBundle knownCurves,
+  public MultipleYieldCurveFinderDataBundle(final List<InstrumentDerivative> derivatives, final double[] marketValues, final YieldCurveBundle knownCurves,
       final LinkedHashMap<String, double[]> unknownCurveNodePoints, final LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators, boolean useFiniteDifferenceByDefault) {
     Validate.notNull(derivatives);
     Validate.noNullElements(derivatives);
@@ -89,7 +89,7 @@ public class MultipleYieldCurveFinderDataBundle {
     _useFiniteDifferenceByDefault = useFiniteDifferenceByDefault;
   }
 
-  public List<InterestRateDerivative> getDerivatives() {
+  public List<InstrumentDerivative> getDerivatives() {
     return _derivatives;
   }
 
@@ -113,7 +113,7 @@ public class MultipleYieldCurveFinderDataBundle {
     return _totalNodes;
   }
 
-  public InterestRateDerivative getDerivative(final int i) {
+  public InstrumentDerivative getDerivative(final int i) {
     return _derivatives.get(i);
   }
 

@@ -30,6 +30,7 @@ import com.opengamma.engine.value.ValueSpecification;
     assert functionInputs != null;
     assert functionOutputs != null;
     assert functionOutputs.contains(valueSpecification);
+    assert !functionInputs.contains(valueSpecification);
     _valueSpecification = valueSpecification;
     _function = function;
     _target = target;

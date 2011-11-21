@@ -41,8 +41,8 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.LastDateCalculator;
 import com.opengamma.financial.interestrate.NelsonSiegelSvennsonBondCurveModel;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -143,9 +143,9 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
           if (!(ytmObject instanceof Double)) {
             throw new IllegalArgumentException("YTM should be a double");
           }
-          final FixedIncomeInstrumentDefinition<?> definition = converter.visitGovernmentBondSecurity(bondSec);
+          final InstrumentDefinition<?> definition = converter.visitGovernmentBondSecurity(bondSec);
           final String bondStringName = PROPERTY_PREFIX + "_" + _currency.getCode();
-          final InterestRateDerivative bond = definition.toDerivative(now, bondStringName);
+          final InstrumentDerivative bond = definition.toDerivative(now, bondStringName);
           t[i] = LAST_DATE.visit(bond);
           ytm[i++] = ((Double) ytmObject / 100);
         }

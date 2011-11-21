@@ -7,7 +7,7 @@ package com.opengamma.financial.interestrate.bond.calculator;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.AbstractInterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
@@ -15,7 +15,7 @@ import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingM
 /**
  * Calculate Macaulay duration for bonds.
  */
-public final class MacaulayDurationFromCurvesCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> {
+public final class MacaulayDurationFromCurvesCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
 
   /**
    * The calculator instance.

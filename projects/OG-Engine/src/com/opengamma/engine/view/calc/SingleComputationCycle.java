@@ -634,7 +634,6 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         if (node.getFunction().getFunction() instanceof MarketDataSourcingFunction) {
           markExecuted(node);
         }
-
         return !isExecuted(node);
       }
     });

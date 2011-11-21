@@ -40,8 +40,8 @@ import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurf
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -94,12 +94,12 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
     final SimpleTrade trade = (SimpleTrade) target.getTrade();
     final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(target, inputs));
     @SuppressWarnings("unchecked")
-    final FixedIncomeInstrumentDefinition<InterestRateDerivative> irFutureOptionDefinition = (FixedIncomeInstrumentDefinition<InterestRateDerivative>) _converter.convert(trade);
-    final InterestRateDerivative irFutureOption = _dataConverter.convert(trade.getSecurity(), irFutureOptionDefinition, now, new String[] {_fundingCurveName, _forwardCurveName}, dataSource);
+    final InstrumentDefinition<InstrumentDerivative> irFutureOptionDefinition = (InstrumentDefinition<InstrumentDerivative>) _converter.convert(trade);
+    final InstrumentDerivative irFutureOption = _dataConverter.convert(trade.getSecurity(), irFutureOptionDefinition, now, new String[] {_fundingCurveName, _forwardCurveName}, dataSource);
     return getResults(irFutureOption, data, desiredValues, inputs, target);
   }
 
-  protected abstract Set<ComputedValue> getResults(InterestRateDerivative irFutureOption, SABRInterestRateDataBundle data, Set<ValueRequirement> desiredValues,
+  protected abstract Set<ComputedValue> getResults(InstrumentDerivative irFutureOption, SABRInterestRateDataBundle data, Set<ValueRequirement> desiredValues,
       final FunctionInputs inputs, ComputationTarget target);
 
   @Override

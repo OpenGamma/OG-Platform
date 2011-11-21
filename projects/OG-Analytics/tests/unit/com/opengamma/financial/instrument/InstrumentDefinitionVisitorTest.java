@@ -12,12 +12,23 @@ package com.opengamma.financial.instrument;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
+
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.forex.definition.ForexDefinition;
+import com.opengamma.financial.forex.definition.ForexNonDeliverableForwardDefinition;
+import com.opengamma.financial.forex.definition.ForexNonDeliverableOptionDefinition;
+import com.opengamma.financial.forex.definition.ForexOptionSingleBarrierDefinition;
+import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
+import com.opengamma.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponCMSDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
@@ -66,15 +77,10 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
-import org.testng.annotations.Test;
-
 /**
  * Class testing the Fixed income instrument definition visitor.
  */
-public class FixedIncomeInstrumentDefinitionVisitorTest {
+public class InstrumentDefinitionVisitorTest {
   private static final Currency CUR = Currency.USD;
   private static final DayCount DC = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private static final BusinessDayConvention BD = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -106,7 +112,7 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
   private static final SwapFixedIborSpreadDefinition SWAP_FIXED_IBOR_SPREAD = new SwapFixedIborSpreadDefinition(ANNUITY_FIXED, ANNUITY_IBOR_SPREAD_1);
   private static final SwapIborIborDefinition SWAP_IBOR_IBOR = new SwapIborIborDefinition(ANNUITY_IBOR_SPREAD_2, ANNUITY_IBOR_SPREAD_1);
   private static final AnnuityDefinition<PaymentFixedDefinition> GENERAL_ANNUITY = new AnnuityDefinition<PaymentFixedDefinition>(new PaymentFixedDefinition[] {
-      new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2011, 1, 1), 1000), new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2012, 1, 1), 1000) });
+      new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2011, 1, 1), 1000), new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2012, 1, 1), 1000)});
   private static final CouponFloatingDefinition COUPON_FLOATING = new CouponFloatingDefinition(CUR, SETTLE_DATE.plusMonths(3), SETTLE_DATE, SETTLE_DATE.plusMonths(3), 0.25, NOTIONAL, SETTLE_DATE) {
 
     @Override
@@ -121,7 +127,7 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
 
   };
   private static final CouponCMSDefinition COUPON_CMS = CouponCMSDefinition.from(CouponIborDefinition.from(1000, SETTLE_DATE, IBOR_INDEX_1), CMS_INDEX);
-  private static final AnnuityCouponCMSDefinition ANNUITY_COUPON_CMS = new AnnuityCouponCMSDefinition(new CouponCMSDefinition[] {COUPON_CMS });
+  private static final AnnuityCouponCMSDefinition ANNUITY_COUPON_CMS = new AnnuityCouponCMSDefinition(new CouponCMSDefinition[] {COUPON_CMS});
 
   private static final InterestRateFutureDefinition IR_FUT_SECURITY_DEFINITION = FutureInstrumentsDescriptionDataSet.createInterestRateFutureSecurityDefinition();
   private static final BondFutureDefinition BNDFUT_SECURITY_DEFINITION = FutureInstrumentsDescriptionDataSet.createBondFutureSecurityDefinition();
@@ -166,15 +172,15 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     assertEquals(SWAPTION_PHYS.accept(VISITOR, o), "SwaptionPhysicalFixedIbor2");
   }
 
-  private static class MyVisitor<T, U> implements FixedIncomeInstrumentDefinitionVisitor<T, String> {
+  private static class MyVisitor<T, U> implements InstrumentDefinitionVisitor<T, String> {
 
     @Override
-    public String visit(final FixedIncomeInstrumentDefinition<?> definition, final T data) {
+    public String visit(final InstrumentDefinition<?> definition, final T data) {
       return definition.accept(this, data);
     }
 
     @Override
-    public String visit(final FixedIncomeInstrumentDefinition<?> definition) {
+    public String visit(final InstrumentDefinition<?> definition) {
       return definition.accept(this);
     }
 
@@ -525,6 +531,66 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
 
     @Override
     public String visitCouponOIS(CouponOISDefinition payment) {
+      return null;
+    }
+
+    @Override
+    public String visitForexDefinition(ForexDefinition fx, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitForexDefinition(ForexDefinition fx) {
+      return null;
+    }
+
+    @Override
+    public String visitForexSwapDefinition(ForexSwapDefinition fx, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitForexSwapDefinition(ForexSwapDefinition fx) {
+      return null;
+    }
+
+    @Override
+    public String visitForexOptionVanillaDefinition(ForexOptionVanillaDefinition fx, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitForexOptionVanillaDefinition(ForexOptionVanillaDefinition fx) {
+      return null;
+    }
+
+    @Override
+    public String visitForexOptionSingleBarrierDefiniton(ForexOptionSingleBarrierDefinition fx, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitForexOptionSingleBarrierDefiniton(ForexOptionSingleBarrierDefinition fx) {
+      return null;
+    }
+
+    @Override
+    public String visitForexNonDeliverableForwardDefinition(ForexNonDeliverableForwardDefinition ndf, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitForexNonDeliverableForwardDefinition(ForexNonDeliverableForwardDefinition ndf) {
+      return null;
+    }
+
+    @Override
+    public String visitForexNonDeliverableOptionDefinition(ForexNonDeliverableOptionDefinition ndo, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitForexNonDeliverableOptionDefinition(ForexNonDeliverableOptionDefinition ndo) {
       return null;
     }
   }

@@ -8,8 +8,8 @@ package com.opengamma.financial.forex.derivative;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.forex.calculator.ForexDerivative;
-import com.opengamma.financial.forex.calculator.ForexDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -20,7 +20,7 @@ import com.opengamma.util.money.Currency;
  * A put on a Forex on KRW / USD at strike 1124.00 is thus the right to pay 1.00 USD and receive 1124.00 KRW and cash settle the difference in USD at the fixing rate.
  * There is not a full put/call parity in NDO as the two currencies do not have a fully symmetric role.
  */
-public class ForexNonDeliverableOption implements ForexDerivative {
+public class ForexNonDeliverableOption implements InstrumentDerivative {
 
   /**
    * The underlying Forex transaction (the one entered into in case of exercise).
@@ -106,12 +106,12 @@ public class ForexNonDeliverableOption implements ForexDerivative {
   }
 
   @Override
-  public <S, T> T accept(ForexDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitForexNonDeliverableOption(this, data);
   }
 
   @Override
-  public <T> T accept(ForexDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitForexNonDeliverableOption(this);
   }
 

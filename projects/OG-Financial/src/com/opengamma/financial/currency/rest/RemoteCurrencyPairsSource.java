@@ -14,8 +14,12 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import org.fudgemsg.FudgeContext;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+
 /**
- * Remote source of {@link com.opengamma.financial.currency.CurrencyPairs} backed by a RESTful web service.
+ * Remote source of {@link CurrencyPairs} backed by a RESTful web service.
  */
 public class RemoteCurrencyPairsSource implements CurrencyPairsSource {
 
@@ -29,27 +33,39 @@ public class RemoteCurrencyPairsSource implements CurrencyPairsSource {
     _targetBase = baseTarget;
   }
 
-  protected RestClient getRestClient() {
-    return _restClient;
-  }
-
-  protected RestTarget getTargetBase() {
-    return _targetBase;
-  }
-
+  /**
+   * Returns a set of currency pairs with the specified name or null if there are none with a matching name.
+   * If {@code name} is null then the default set are looked up using {@link CurrencyPairs#DEFAULT_CURRENCY_PAIRS} as the name.
+   * @param name The name of the set of currency pairs, null for the default set.
+   * @return The market convention currency pairs with the specified name or null if there are none that match
+   */  
   @Override
   public CurrencyPairs getCurrencyPairs(String name) {
-    ArgumentChecker.notNull(name, "name");
-    return getRestClient().getSingleValue(CurrencyPairs.class, getTargetBase().resolve(name), "currencyPairs");
+    if (name == null) {
+      name = CurrencyPairs.DEFAULT_CURRENCY_PAIRS;
+    }
+    // invoke {name}/currencyPairs
+    return _restClient.getSingleValue(CurrencyPairs.class, _targetBase.resolveBase(name).resolve("currencyPairs"), "currencyPairs");
   }
 
-  /*@Override
-  public CurrencyPair getCurrencyPair(Currency currency1, Currency currency2, String name) {
-    throw new UnsupportedOperationException("getCurrencyPair not implemented");
-  }
-
+  /**
+   * Returns the market convention currency pair for the specified currencies using the named set of currency pairs.
+   * If {@code name} is null the default set is looked up using {@link CurrencyPairs#DEFAULT_CURRENCY_PAIRS}.  This
+   * will return null if no currency pairs can be found with the specified name or there is no pair for the
+   * currencies.
+   */
   @Override
-  public Double getRate(Currency currency1, double amount1, Currency currency2, double amount2, String name) {
-    throw new UnsupportedOperationException("getRate not implemented");
-  }*/
+  public CurrencyPair getCurrencyPair(Currency currency1, Currency currency2, String name) {
+    ArgumentChecker.notNull(currency1, "currency1");
+    ArgumentChecker.notNull(currency2, "currency2");
+    if (name == null) {
+      name = CurrencyPairs.DEFAULT_CURRENCY_PAIRS;
+    }
+    // invoke {name}/{currency1}/{currency2}
+    return _restClient.getSingleValue(CurrencyPair.class, _targetBase
+        .resolveBase(name)
+        .resolveBase(currency1.getCode())
+        .resolve(currency2.getCode()),
+        "currencyPair");
+  }
 }

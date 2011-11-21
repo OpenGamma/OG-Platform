@@ -17,7 +17,7 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -254,7 +254,7 @@ public class BondFutureSecurityDiscountingMethodTest {
     final double pvExpected = (priceFuture - REF_PRICE) * NOTIONAL;
     assertEquals("Bond future Discounting Method: present value currency", CUR, pvComputed.getCurrency());
     assertEquals("Bond future Discounting Method: present value amount", pvExpected, pvComputed.getAmount(), 1.0E-2);
-    final InterestRateDerivative derivative = BOND_FUTURE_DERIV;
+    final InstrumentDerivative derivative = BOND_FUTURE_DERIV;
     final CurrencyAmount pvComputed2 = METHOD.presentValue(derivative, CURVES);
     assertEquals("Bond future Discounting Method: present value", pvComputed, pvComputed2);
     final PresentValueCalculator calculator = PresentValueCalculator.getInstance();

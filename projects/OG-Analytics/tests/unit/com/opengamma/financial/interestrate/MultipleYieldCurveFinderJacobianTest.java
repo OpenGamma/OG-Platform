@@ -39,9 +39,9 @@ public class MultipleYieldCurveFinderJacobianTest {
   private static final Currency CCY = Currency.AUD;
   private static final String FUNDING_CURVE_NAME = "Some funding curve";
   private static final String FORWARD_CURVE_NAME = "Some forward curve";
-  private static final List<InterestRateDerivative> CASH;
-  private static final List<InterestRateDerivative> FRA;
-  private static final List<InterestRateDerivative> MIXED_INSTRUMENT;
+  private static final List<InstrumentDerivative> CASH;
+  private static final List<InstrumentDerivative> FRA;
+  private static final List<InstrumentDerivative> MIXED_INSTRUMENT;
   private static final double[] FORWARD_NODES;
   private static final double[] FUNDING_NODES;
   private static final Interpolator1D EXTRAPOLATOR;
@@ -57,7 +57,7 @@ public class MultipleYieldCurveFinderJacobianTest {
   private static final LinkedHashMap<String, Interpolator1D> CASH_INTERPOLATORS;
   private static final LinkedHashMap<String, Interpolator1D> FRA_INTERPOLATORS;
   private static final LinkedHashMap<String, Interpolator1D> MIXED_INTERPOLATORS;
-  private static final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
+  private static final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
 
   private static final int N = 10;
   private static final int M = 5;
@@ -65,16 +65,16 @@ public class MultipleYieldCurveFinderJacobianTest {
   static {
     final IborIndex index = new IborIndex(CCY, Period.ofMonths(1), 0, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
-    CASH = new ArrayList<InterestRateDerivative>();
-    FRA = new ArrayList<InterestRateDerivative>();
-    MIXED_INSTRUMENT = new ArrayList<InterestRateDerivative>();
+    CASH = new ArrayList<InstrumentDerivative>();
+    FRA = new ArrayList<InstrumentDerivative>();
+    MIXED_INSTRUMENT = new ArrayList<InstrumentDerivative>();
     FORWARD_NODES = new double[N];
     FUNDING_NODES = new double[M];
     final double[] dataN = new double[N];
     final double[] dataM = new double[M];
     final double[] dataNpM = new double[N + M];
     for (int i = 0; i < N; i++) {
-      final InterestRateDerivative ird = new ForwardRateAgreement(CCY, i, FUNDING_CURVE_NAME, 0.5, 1, index, i, i, i + 0.5, 0.5, 0, FORWARD_CURVE_NAME);
+      final InstrumentDerivative ird = new ForwardRateAgreement(CCY, i, FUNDING_CURVE_NAME, 0.5, 1, index, i, i, i + 0.5, 0.5, 0, FORWARD_CURVE_NAME);
       FRA.add(ird);
       MIXED_INSTRUMENT.add(ird);
       FORWARD_NODES[i] = i + 1;
@@ -83,7 +83,7 @@ public class MultipleYieldCurveFinderJacobianTest {
     }
 
     for (int i = 0; i < M; i++) {
-      final InterestRateDerivative ird = new Cash(CCY, i, 1, 0.0, FUNDING_CURVE_NAME);
+      final InstrumentDerivative ird = new Cash(CCY, i, 1, 0.0, FUNDING_CURVE_NAME);
       CASH.add(ird);
       MIXED_INSTRUMENT.add(ird);
       FUNDING_NODES[i] = i;

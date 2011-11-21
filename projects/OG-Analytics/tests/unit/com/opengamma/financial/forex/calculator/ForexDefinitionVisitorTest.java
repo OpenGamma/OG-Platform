@@ -15,6 +15,43 @@ import com.opengamma.financial.forex.definition.ForexNonDeliverableOptionDefinit
 import com.opengamma.financial.forex.definition.ForexOptionSingleBarrierDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.financial.forex.definition.ForexSwapDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
+import com.opengamma.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
+import com.opengamma.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
+import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
+import com.opengamma.financial.instrument.bond.BondFixedTransactionDefinition;
+import com.opengamma.financial.instrument.bond.BondIborSecurityDefinition;
+import com.opengamma.financial.instrument.bond.BondIborTransactionDefinition;
+import com.opengamma.financial.instrument.cash.CashDefinition;
+import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
+import com.opengamma.financial.instrument.future.BondFutureDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
+import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
+import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
+import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
+import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
+import com.opengamma.financial.instrument.payment.CapFloorCMSDefinition;
+import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
+import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.financial.instrument.payment.CouponFloatingDefinition;
+import com.opengamma.financial.instrument.payment.CouponIborDefinition;
+import com.opengamma.financial.instrument.payment.CouponOISDefinition;
+import com.opengamma.financial.instrument.payment.CouponOISSimplifiedDefinition;
+import com.opengamma.financial.instrument.payment.PaymentDefinition;
+import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
+import com.opengamma.financial.instrument.swap.SwapDefinition;
+import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
+import com.opengamma.financial.instrument.swap.SwapFixedIborSpreadDefinition;
+import com.opengamma.financial.instrument.swap.SwapIborIborDefinition;
+import com.opengamma.financial.instrument.swaption.SwaptionBermudaFixedIborDefinition;
+import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
+import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 
 /**
  * Tests the visitor of Forex definitions.
@@ -48,15 +85,15 @@ public class ForexDefinitionVisitorTest {
     assertEquals(NDO_DEFINITION.accept(VISITOR, o), "ForexNonDeliverableOptionDefinition2");
   }
 
-  private static class MyVisitor<T, U> implements ForexDefinitionVisitor<T, String> {
+  private static class MyVisitor<T, U> implements InstrumentDefinitionVisitor<T, String> {
 
     @Override
-    public String visit(final ForexConverter<?> definition, final T data) {
+    public String visit(final InstrumentDefinition<?> definition, final T data) {
       return null;
     }
 
     @Override
-    public String visit(final ForexConverter<?> definition) {
+    public String visit(final InstrumentDefinition<?> definition) {
       return null;
     }
 
@@ -118,6 +155,356 @@ public class ForexDefinitionVisitorTest {
     @Override
     public String visitForexNonDeliverableOptionDefinition(ForexNonDeliverableOptionDefinition ndo) {
       return "ForexNonDeliverableOptionDefinition1";
+    }
+
+    @Override
+    public String visitBondFixedSecurityDefinition(BondFixedSecurityDefinition bond, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFixedSecurityDefinition(BondFixedSecurityDefinition bond) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFixedTransactionDefinition(BondFixedTransactionDefinition bond, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFixedTransactionDefinition(BondFixedTransactionDefinition bond) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFutureSecurityDefinition(BondFutureDefinition bond, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFutureSecurityDefinition(BondFutureDefinition bond) {
+      return null;
+    }
+
+    @Override
+    public String visitBondIborTransactionDefinition(BondIborTransactionDefinition bond, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondIborTransactionDefinition(BondIborTransactionDefinition bond) {
+      return null;
+    }
+
+    @Override
+    public String visitBondIborSecurityDefinition(BondIborSecurityDefinition bond, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondIborSecurityDefinition(BondIborSecurityDefinition bond) {
+      return null;
+    }
+
+    @Override
+    public String visitCashDefinition(CashDefinition cash, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCashDefinition(CashDefinition cash) {
+      return null;
+    }
+
+    @Override
+    public String visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition fra, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition fra) {
+      return null;
+    }
+
+    @Override
+    public String visitInterestRateFutureSecurityDefinition(InterestRateFutureDefinition future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitInterestRateFutureSecurityDefinition(InterestRateFutureDefinition future) {
+      return null;
+    }
+
+    @Override
+    public String visitInterestRateFutureOptionPremiumSecurityDefinition(InterestRateFutureOptionPremiumSecurityDefinition future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitInterestRateFutureOptionPremiumSecurityDefinition(InterestRateFutureOptionPremiumSecurityDefinition future) {
+      return null;
+    }
+
+    @Override
+    public String visitInterestRateFutureOptionPremiumTransactionDefinition(InterestRateFutureOptionPremiumTransactionDefinition future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitInterestRateFutureOptionPremiumTransactionDefinition(InterestRateFutureOptionPremiumTransactionDefinition future) {
+      return null;
+    }
+
+    @Override
+    public String visitInterestRateFutureOptionMarginSecurityDefinition(InterestRateFutureOptionMarginSecurityDefinition future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitInterestRateFutureOptionMarginSecurityDefinition(InterestRateFutureOptionMarginSecurityDefinition future) {
+      return null;
+    }
+
+    @Override
+    public String visitInterestRateFutureOptionMarginTransactionDefinition(InterestRateFutureOptionMarginTransactionDefinition future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitInterestRateFutureOptionMarginTransactionDefinition(InterestRateFutureOptionMarginTransactionDefinition future) {
+      return null;
+    }
+
+    @Override
+    public String visitPaymentFixed(PaymentFixedDefinition payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitPaymentFixed(PaymentFixedDefinition payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponFixed(CouponFixedDefinition payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponFixed(CouponFixedDefinition payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponFloating(CouponFloatingDefinition payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponFloating(CouponFloatingDefinition payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIbor(CouponIborDefinition payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIbor(CouponIborDefinition payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborSpread(CouponIborDefinition payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborSpread(CouponIborDefinition payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponOISSimplified(CouponOISSimplifiedDefinition payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponOISSimplified(CouponOISSimplifiedDefinition payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponOIS(CouponOISDefinition payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponOIS(CouponOISDefinition payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponCMS(CouponCMSDefinition payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponCMS(CouponCMSDefinition payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorCMS(CapFloorCMSDefinition payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorCMS(CapFloorCMSDefinition payment) {
+      return null;
+    }
+
+    @Override
+    public String visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity) {
+      return null;
+    }
+
+    @Override
+    public String visitSwapDefinition(SwapDefinition swap, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitSwapDefinition(SwapDefinition swap) {
+      return null;
+    }
+
+    @Override
+    public String visitSwapFixedIborDefinition(SwapFixedIborDefinition swap, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitSwapFixedIborDefinition(SwapFixedIborDefinition swap) {
+      return null;
+    }
+
+    @Override
+    public String visitSwapFixedIborSpreadDefinition(SwapFixedIborSpreadDefinition swap, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitSwapFixedIborSpreadDefinition(SwapFixedIborSpreadDefinition swap) {
+      return null;
+    }
+
+    @Override
+    public String visitSwapIborIborDefinition(SwapIborIborDefinition swap, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitSwapIborIborDefinition(SwapIborIborDefinition swap) {
+      return null;
+    }
+
+    @Override
+    public String visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption) {
+      return null;
+    }
+
+    @Override
+    public String visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption) {
+      return null;
+    }
+
+    @Override
+    public String visitSwaptionBermudaFixedIborDefinition(SwaptionBermudaFixedIborDefinition swaption, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitSwaptionBermudaFixedIborDefinition(SwaptionBermudaFixedIborDefinition swaption) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponMonthlyDefinition coupon, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponMonthlyDefinition coupon) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolationDefinition coupon, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolationDefinition coupon) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearingDefinition coupon, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearingDefinition coupon) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearingDefinition coupon, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearingDefinition coupon) {
+      return null;
+    }
+
+    @Override
+    public String visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurityDefinition<?> bond, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurityDefinition<?> bond) {
+      return null;
+    }
+
+    @Override
+    public String visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond) {
+      return null;
     }
 
   }

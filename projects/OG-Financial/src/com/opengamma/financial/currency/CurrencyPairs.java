@@ -18,6 +18,9 @@ import java.util.Set;
  */
 public class CurrencyPairs {
 
+  // TODO not sure about hard-coding the name of the default set of currency pairs
+  public static final String DEFAULT_CURRENCY_PAIRS = "DEFAULT";
+
   private final Set<CurrencyPair> _pairs;
 
   public CurrencyPairs(Set<CurrencyPair> pairs) {
@@ -42,35 +45,6 @@ public class CurrencyPairs {
       return inverse;
     }
     return null;
-  }
-
-  /**
-   * Returns the rate required to convert the amounts between the specified currencies using their market
-   * convention currency pair.  The amounts must have opposite signs.
-   * @param currency1 A currency
-   * @param amount1 An amount in {@code currency1}
-   * @param currency2 Another currency
-   * @param amount2 An amount in {@code currency2}
-   * @return The rate to convert between {@code amount1} and {@code amount2} using the market convention currency pair
-   */
-  public Double getRate(Currency currency1, double amount1, Currency currency2, double amount2) {
-    ArgumentChecker.notNull(currency1, "currency1");
-    ArgumentChecker.notNull(currency2, "currency2");
-    if (CompareUtils.closeEquals(amount1, 0) || CompareUtils.closeEquals(amount2, 0)) {
-      throw new IllegalArgumentException("Neither amounts can be zero. amount1: " + amount1 + ", amount2: " + amount2);
-    }
-    if (Math.signum(amount1) == Math.signum(amount2)) {
-      throw new IllegalArgumentException("Amounts must have opposite signs. amount1: " + amount1 + ", amount2: " + amount2);
-    }
-    CurrencyPair pair = getCurrencyPair(currency1, currency2);
-    if (pair == null) {
-      return null;
-    }
-    if (pair.getBase().equals(currency1)) {
-      return -amount2 / amount1;
-    } else {
-      return -amount1 / amount2;
-    }
   }
 
   /* package */ Set<CurrencyPair> getPairs() {

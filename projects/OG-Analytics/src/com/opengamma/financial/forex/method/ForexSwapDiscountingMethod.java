@@ -7,8 +7,8 @@ package com.opengamma.financial.forex.method;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.derivative.ForexSwap;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -53,13 +53,13 @@ public final class ForexSwapDiscountingMethod implements ForexPricingMethod {
   }
 
   @Override
-  public MultipleCurrencyAmount presentValue(final ForexDerivative instrument, final YieldCurveBundle curves) {
+  public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ForexSwap, "Instrument should be ForexSwap");
     return presentValue((ForexSwap) instrument, curves);
   }
 
   @Override
-  public MultipleCurrencyAmount currencyExposure(final ForexDerivative instrument, final YieldCurveBundle curves) {
+  public MultipleCurrencyAmount currencyExposure(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     return presentValue(instrument, curves);
   }
 
