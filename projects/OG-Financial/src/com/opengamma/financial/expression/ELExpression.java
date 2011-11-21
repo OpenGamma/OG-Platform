@@ -17,6 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.Security;
+import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.util.money.Currency;
 
 import de.odysseus.el.util.SimpleResolver;
 
@@ -100,6 +102,10 @@ import de.odysseus.el.util.SimpleResolver;
           // Synthetic property as security defines "securityType" and not "type"
           if ("type".equals(property)) {
             return super.getValue(context, base, "securityType");
+          } else if ("currency".equals(property)) {
+            Currency currency = FinancialSecurityUtils.getCurrency((Security) base);
+            context.setPropertyResolved(true);
+            return currency != null ? currency.getCode() : null;
           } else {
             return super.getValue(context, base, property);
           }
@@ -122,6 +128,8 @@ import de.odysseus.el.util.SimpleResolver;
           // Synthetic property as security defines "securityType" and not "type"
           if ("type".equals(property)) {
             return super.getType(context, base, "securityType");
+          } else if ("currency".equals(property)) {
+            return String.class;
           } else {
             return super.getType(context, base, property);
           }
