@@ -4,6 +4,16 @@
  */
 .OG-table {
   width: 100%;
+  position: relative;
+  top: 10px;
+}
+
+.OG-table:after {
+  clear: both;
+  content: ".";
+  display: block;
+  height: 0;
+  visibility: hidden;
 }
 
 .OG-table th,
