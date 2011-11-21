@@ -196,13 +196,16 @@ The json-doclet project is part of Dexy, and it lets us run a custom Javadoc
 which gathers all the Javadoc information plus extracts source code, and
 writes all this information to a JSON file.
 
+In theory, any element from the \href{http://download.oracle.com/javase/6/docs/jdk/api/javadoc/doclet/index.html}{Doclet API}
+can be made available, although not all elements are implemented yet.
+
 Within our Dexy documents, we can pull information out of this JSON dict. A
 special Dexy filter adds some nice features like syntax highlighting the Java
 source code stored in the dict. You can view the filter reference documentation
 for the \href{http://dexy.it/docs/filters/javadoc}{javadoc filter}.
 
 %%% @export "assign-class-to-local-variable"
-<% set cn_class = d['/javadoc-data.json|javadocs']['packages']['com.opengamma.math.number']['classes']['ComplexNumber'] %>
+<% set cn_class = d['/jsondocs/javadoc-data.json|javadocs']['packages']['com.opengamma.math.number']['classes']['ComplexNumber'] %>
 %%% @end
 
 When working with a class, it can be useful to assign that branch of the dict to a local variable:
@@ -253,23 +256,106 @@ In the previous section, we used the following constructor:
 
 << cn_class['constructors']['ComplexNumber(double,double)']['source-latex'] >>
 
-If we didn't have an imagniary component, we could have used an alternate constructor:
+If we didn't have an imaginary component, we could have used an alternate constructor:
 
 \begin{Verbatim}
 << cn_class['constructors']['ComplexNumber(double)']['comment-text'] >>
 \end{Verbatim}
 << cn_class['constructors']['ComplexNumber(double)']['source-latex'] >>
 
+You can use Python to extract just the first line of the source code:
+
+<< d['writing-docs.tex|idio|l']['extract-first-line-source'] >>
+
+%%% @export "extract-first-line-source"
+<< cn_class['constructors']['ComplexNumber(double)']['source-latex'].splitlines()[0] >>
+<< cn_class['constructors']['ComplexNumber(double)']['source-latex'].splitlines()[1] >>
+<< cn_class['constructors']['ComplexNumber(double)']['source-latex'].splitlines()[-1] >>
+%%% @end
+
+Line 0 will have the opening Verbatim tag, and the final line will have the closing Verbatim tag. Line 1 will have the first line of highlighted code.
+
+Or, use the plain text rather than highlighted version, and add your own Verbatim tags:
+
+<< d['writing-docs.tex|idio|l']['extract-first-line-source-alt1'] >>
+
+%%% @export "extract-first-line-source-alt1"
+\begin{Verbatim}
+<< cn_class['constructors']['ComplexNumber(double)']['source'].splitlines()[0] >>
+\end{Verbatim}
+%%% @end
+
+You can also strip off the curly bracket:
+
+<< d['writing-docs.tex|idio|l']['extract-first-line-source-alt2'] >>
+
+%%% @export "extract-first-line-source-alt2"
+\begin{Verbatim}
+<< cn_class['constructors']['ComplexNumber(double)']['source'].splitlines()[0].rstrip("{ ") >>
+\end{Verbatim}
+%%% @end
+
+Or, you can retrieve the \href{http://download.oracle.com/javase/6/docs/jdk/api/javadoc/doclet/com/sun/javadoc/ExecutableMemberDoc.html#signature()}{signature}:
+
+\begin{Verbatim}
+<< cn_class['constructors']['ComplexNumber(double)']['signature'] >>
+\end{Verbatim}
+
 Here is the source of the \verb|toString()| method:
 
 << cn_class['methods']['toString()']['source-latex'] >>
+
+\subsection{Class Information}
+
+Here are the methods available for this class:
+
+\begin{itemize}
+<% for key, value in cn_class.iteritems() -%>
+\item{<< key >>}
+<% endfor -%>
+\end{itemize}
+
+\subsection{Constructor Information}
+
+<% set cn_constructor = "ComplexNumber(double)" -%>
+
+Here are the methods available for the << cn_constructor >> constructor:
+
+\begin{itemize}
+<% for key, value in cn_class['constructors'][cn_constructor].iteritems() -%>
+\item{<< key >>}
+<% endfor -%>
+\end{itemize}
+
+Here are some examples of what these items return:
+
+<% for key in ["signature", "flat-signature", "modifiers", "qualified-name"] -%>
+\subsubsection{<< key >>}
+
+\begin{Verbatim}
+<< cn_class['constructors'][cn_constructor][key] >>
+\end{Verbatim}
+
+<% endfor -%>
+
+\subsection{Method Information}
+
+<% set cn_method = "toString()" -%>
+
+Here are the methods available for the << cn_method >> method:
+
+\begin{itemize}
+<% for key, value in cn_class['methods'][cn_method].iteritems() -%>
+\item{<< key >>}
+<% endfor -%>
+\end{itemize}
 
 \section{A Real Example}
 
 In this section we discuss writing the SABR extrapolation example. The example
 is adapted from a unit test.
 
-<% set sabr_class = d['/javadoc-data.json|javadocs']['packages']['com.opengamma.financial.model.option.pricing.analytic.formula']['classes']['SABRExtrapolationRightFunction'] %>
+<% set sabr_class = d['/jsondocs/javadoc-data.json|javadocs']['packages']['com.opengamma.financial.model.option.pricing.analytic.formula']['classes']['SABRExtrapolationRightFunction'] %>
 
 First we look at some of the docs and source of the classes we will use in our
 example.
@@ -295,7 +381,7 @@ Then we will use the \verb|price| function.
 
 The other class we use is SABRFormulaData.
 
-<% set sabr_formula_data_class = d['/javadoc-data.json|javadocs']['packages']['com.opengamma.financial.model.volatility.smile.function']['classes']['SABRFormulaData'] %>
+<% set sabr_formula_data_class = d['/jsondocs/javadoc-data.json|javadocs']['packages']['com.opengamma.financial.model.volatility.smile.function']['classes']['SABRFormulaData'] %>
 
 << sabr_formula_data_class['constructors']['SABRFormulaData(double,double,double,double)']['source-latex'] >>
 
