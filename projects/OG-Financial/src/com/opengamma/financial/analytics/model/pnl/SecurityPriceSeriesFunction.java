@@ -104,7 +104,14 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.SECURITY;
+    if (target.getType() != ComputationTargetType.SECURITY) {
+      return false;
+    }
+    try {
+      return FinancialSecurityUtils.getCurrency(target.getSecurity()) != null;
+    } catch (UnsupportedOperationException e) {
+      return false;
+    }
   }
 
   @Override
@@ -114,10 +121,8 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, target.getSecurity(), createValueProperties().with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode()).get()), getUniqueId()));
-    }
-    return null;
+    return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, target.getSecurity(), createValueProperties().with(ValuePropertyNames.CURRENCY,
+        FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode()).get()), getUniqueId()));
   }
 
   @Override
