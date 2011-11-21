@@ -76,9 +76,9 @@ public class EHCachingSecurityMasterDetailProvider implements SecurityMasterDeta
     //TODO cache?
   }
 
-
   @Override
-  public String extendSearch(SecuritySearchRequest request, DbMapSqlParameterSource args, String select, String where) {
-    return _underlying.extendSearch(request, args, select, where);
+  public void extendSearch(SecuritySearchRequest request, DbMapSqlParameterSource args) {
+    _underlying.extendSearch(request, args);
   }
+
 }

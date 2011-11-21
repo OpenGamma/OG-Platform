@@ -240,22 +240,19 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
   }
 
   @Override
-  public String extendSearch(SecuritySearchRequest request, DbMapSqlParameterSource args, String select, String where) {
+  public void extendSearch(SecuritySearchRequest request, DbMapSqlParameterSource args) {
     if (request instanceof BondSecuritySearchRequest) {
       BondSecuritySearchRequest bondRequest = (BondSecuritySearchRequest) request;
       if (bondRequest.getIssuerName() != null || bondRequest.getIssuerType() != null) {
-        select += "LEFT JOIN sec_bond ON (sec_bond.security_id = sec_security.id) ";
+        args.addValue("sql_search_bond_join", Boolean.TRUE);
       }
       if (bondRequest.getIssuerName() != null) {
         args.addValue("bond_issuer_name", getDialect().sqlWildcardAdjustValue(bondRequest.getIssuerName()));
-        where += getDialect().sqlWildcardQuery("AND UPPER(issuername) ", "UPPER(:bond_issuer_name)", bondRequest.getIssuerName());
       }
       if (bondRequest.getIssuerType() != null) {
         args.addValue("bond_issuer_type", getDialect().sqlWildcardAdjustValue(bondRequest.getIssuerName()));
-        where += getDialect().sqlWildcardQuery("AND UPPER(issuertype) ", "UPPER(:bond_issuer_type)", bondRequest.getIssuerName());
       }
     }
-    return select + where;
   }
 
 }
