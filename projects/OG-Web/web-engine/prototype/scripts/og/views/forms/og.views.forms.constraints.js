@@ -16,13 +16,16 @@ $.register_module({
                     row_without: prefix + id_count++
                 },
                 convert = function (datum) {
-                    var length = 0, item;
+                    var length = 0, item, data = [], lcv;
                     if (!datum || typeof datum === 'string') return datum || '';
                     for (item in datum) if (+item + 0 === +item) length += 1;
-                    return Array.prototype.join.call($.extend({length: length}, datum), ', ');
+                    for (lcv = 0; lcv < length; lcv += 1) data.push(datum[lcv]);
+                    return data.map(function (str) {return str.replace(/,/g, '\\,');}).join(', ');
                 },
                 deconvert = function (datum, optional) {
-                    var array = datum ? datum.split(/,\s*/g) : [], result, empty = true;
+                    var array = datum ?
+                        datum.replace(/\\\,/g, '\0').split(/\,\s*/g).map(function (s) {return s.replace(/\0/g, ',');})
+                            : [], result, empty = true;
                     if (!optional && !array.length) return null;
                     result = array.reduce(function (acc, val, idx) {
                         empty = false;
