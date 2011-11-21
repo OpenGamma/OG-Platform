@@ -10,8 +10,6 @@
             table_resizers.forEach(function (val) {val()});
         }, 300);
     });
-    // TODO: if any cell in the header is longer than all of the cells in that col then the header wont match
-    // possibly add a dynamic class with a min-width of the same as the header
     $.fn.awesometable = function(options) {
         if (!this.is('table')) throw new TypeError('$.awesometable: needs to be called on a table element');
         var self = this, cons = arguments.callee, $dup,

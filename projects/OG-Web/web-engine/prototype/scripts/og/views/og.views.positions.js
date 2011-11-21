@@ -102,17 +102,21 @@ $.register_module({
                 toolbar: {
                     'default': {
                         buttons: [
-                            {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'new', handler: toolbar_buttons['new']}
+                            {id: 'new', name: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', name: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', name: 'Delete', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     },
                     active: {
                         buttons: [
-                            {name: 'delete', handler: toolbar_buttons['delete']},
-                            {name: 'new', handler: toolbar_buttons['new']}
+                            {id: 'new', name: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', name: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', name: 'Delete', handler: toolbar_buttons['delete']}
                         ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     }
                 }
             },
@@ -181,7 +185,7 @@ $.register_module({
                                 $('.ui-layout-inner-north').html(error_html);
                                 layout.inner.sizePane('north', '0');
                                 layout.inner.open('north');
-                                $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                                $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
                             } else {
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();

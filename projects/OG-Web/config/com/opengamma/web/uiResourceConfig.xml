@@ -11,7 +11,6 @@
     <fragment>/styles/common/og.common.fonts.css</fragment>
     <fragment>/styles/common/og.common.links.css</fragment>
     <fragment>/styles/common/og.common.buttons.css</fragment>
-    <fragment>/styles/common/og.common.OG-toolbar.css</fragment>
     <fragment>/styles/common/og.common.OG-tabs.css</fragment>
     <fragment>/styles/common/og.common.buttons.OG-smallButton.css</fragment>
     <fragment>/styles/common/og.common.OG-masthead.css</fragment>
@@ -32,6 +31,7 @@
     <fragment>/styles/common/og.common.OG-versions.css</fragment>
     <fragment>/styles/common/og.common.OG-sync.css</fragment>
     <fragment>/styles/common/og.common.OG-table.css</fragment>
+    <fragment>/styles/common/og.common.OG-tools.css</fragment>
   </bundle>
   <bundle id="common.util.css">
     <fragment>/styles/common/util/og.common.util.OG-clearFix.css</fragment>
@@ -47,6 +47,7 @@
     <fragment>/styles/common/classes/og.common.classes.OG-link-cancel.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-expand.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-collapse.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-tools.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-field-box.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-gradient-01.css</fragment>
