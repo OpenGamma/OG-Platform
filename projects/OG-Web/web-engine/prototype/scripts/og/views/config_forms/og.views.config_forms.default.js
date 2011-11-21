@@ -14,11 +14,11 @@ $.register_module({
             var load_handler = config.handler || $.noop, selector = config.selector,
                 master = config.data.template_data.configJSON.data, config_type = config.type,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
-                orig_name = config.data.template_data.name, submit_type,
+                orig_name = config.data.template_data.name,
                 resource_id = config.data.template_data.object_id, type_map = config.type_map || {},
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler,
                 new_name = '',
-                form = window.temp = new Form({
+                form = new Form({
                     module: 'og.views.forms.config_default',
                     data: {name: null},
                     type_map: type_map,
@@ -34,8 +34,8 @@ $.register_module({
                     }
                 }),
                 form_id = '#' + form.id,
-                save_resource = function (result, as_new) {
-                    var data = result.data, meta = result.meta;
+                save_resource = function (result) {
+                    var data = result.data, meta = result.meta, as_new = result.extras.as_new;
                     if (!deleted && !is_new && as_new && (orig_name === new_name))
                         return window.alert('Please select a new name.');
                     api.configs.put({
@@ -56,20 +56,12 @@ $.register_module({
                           <h1 class="og-js-name">' + orig_name + '</h1>\
                         </header>';
                     $('.ui-layout-inner-center .ui-layout-header').html(header);
-                    if (deleted || is_new)
-                        $(form_id + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
-                    if (is_new) $(form_id + ' .og-js-submit[value=save_as_new]').text('Save');
-                    load_handler();
+                    load_handler(form);
                 }},
                 {type: 'keyup', selector: form_id + ' [name=name]', handler: function (e) {
                     $('.ui-layout-inner-center .og-js-name').text($(e.target).val());
                 }},
-                {type: 'click', selector: form_id + ' .og-js-submit', handler: function (e) {
-                    submit_type = $(e.target).val();
-                }},
-                {type: 'form:submit', handler: function (result) {
-                    save_resource(result, submit_type === 'save_as_new');
-                }}
+                {type: 'form:submit', handler: save_resource}
             ]);
             form.dom();
         };
