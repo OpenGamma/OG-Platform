@@ -70,13 +70,23 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
 
   @Override
   public Object getValue(ValueRequirement requirement) {
-    final Pair<String, ComputationTargetSpecification> key = Pair.of(requirement.getValueName(), requirement.getTargetSpecification());
+    ComputedValue cv = getComputedValue(requirement);
+    if (cv != null) {
+      return cv.getValue();
+    }
+    return null;
+  }
+
+  @Override
+  public ComputedValue getComputedValue(ValueRequirement requirement) {
+    final Pair<String, ComputationTargetSpecification> key = Pair.of(requirement.getValueName(),
+        requirement.getTargetSpecification());
     final ComputedValue[] values = _valuesByRequirement.get(key);
     if (values != null) {
       for (ComputedValue value : values) {
         // Shortcut to check the properties as we already know the name and target match  
         if (requirement.getConstraints().isSatisfiedBy(value.getSpecification().getProperties())) {
-          return value.getValue();
+          return value;
         }
       }
     }
