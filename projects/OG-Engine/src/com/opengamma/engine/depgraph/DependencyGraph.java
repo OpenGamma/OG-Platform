@@ -418,17 +418,19 @@ public class DependencyGraph {
    */
   public void addTerminalOutput(ValueRequirement requirement, ValueSpecification specification) {
     // Register it with the node responsible for producing it - informs the node that the output is required
-    _specification2DependencyNode.get(specification).addTerminalOutputValue(specification);
+    final DependencyNode node = _specification2DependencyNode.get(specification);
+    if (node == null) {
+      throw new IllegalArgumentException("No node produces " + specification);
+    }
+    node.addTerminalOutputValue(specification);
     // Maintain a cache of all terminal outputs at the graph level
     _terminalOutputValues.add(specification);
-    synchronized (_terminalOutputs) {
-      Set<ValueRequirement> requirements = _terminalOutputs.get(specification);
-      if (requirements == null) {
-        requirements = new HashSet<ValueRequirement>();
-        _terminalOutputs.put(specification, requirements);
-      }
-      requirements.add(requirement);
+    Set<ValueRequirement> requirements = _terminalOutputs.get(specification);
+    if (requirements == null) {
+      requirements = new HashSet<ValueRequirement>();
+      _terminalOutputs.put(specification, requirements);
     }
+    requirements.add(requirement);
   }
 
   /**
@@ -439,18 +441,19 @@ public class DependencyGraph {
   public void addTerminalOutputs(Map<ValueSpecification, Set<ValueRequirement>> specifications) {
     for (ValueSpecification specification : specifications.keySet()) {
       // Register it with the node responsible for producing it - informs the node that the output is required
-      _specification2DependencyNode.get(specification).addTerminalOutputValue(specification);
+      final DependencyNode node = _specification2DependencyNode.get(specification);
+      if (node == null) {
+        throw new IllegalArgumentException("No node produces " + specification);
+      }
+      node.addTerminalOutputValue(specification);
       // Maintain a cache of all terminal outputs at the graph level
       _terminalOutputValues.add(specification);
-      synchronized (_terminalOutputs) {
-
-        Set<ValueRequirement> requirements = _terminalOutputs.get(specification);
-        if (requirements == null) {
-          requirements = new HashSet<ValueRequirement>();
-          _terminalOutputs.put(specification, requirements);
-        }
-        requirements.addAll(specifications.get(specification));
+      Set<ValueRequirement> requirements = _terminalOutputs.get(specification);
+      if (requirements == null) {
+        requirements = new HashSet<ValueRequirement>();
+        _terminalOutputs.put(specification, requirements);
       }
+      requirements.addAll(specifications.get(specification));
     }
   }
 

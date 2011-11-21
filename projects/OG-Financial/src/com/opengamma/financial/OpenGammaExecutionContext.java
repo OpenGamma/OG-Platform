@@ -12,6 +12,7 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.master.holiday.HolidayMaster;
 
@@ -24,30 +25,36 @@ public final class OpenGammaExecutionContext {
    * The name under which an instance of {@link HistoricalTimeSeriesSource} should be bound.
    */
   public static final String HISTORICAL_TIME_SERIES_SOURCE_NAME = "historicalTimeSeriesSource";
+
   /**
    * The name under which an instance of {@link RegionSource} should be bound.
    */
   public static final String REGION_SOURCE_NAME = "regionSource";
+
   /**
    * The name under which an instance of {@link HolidayMaster} should be bound.
    */
   public static final String HOLIDAY_SOURCE_NAME = "holidaySource";
+
   /**
    * The name under which an instance of {@link ConventionBundleSource} should be bound.
    */
   private static final String CONVENTION_BUNDLE_SOURCE_NAME = "conventionBundleSource";
+
   /**
    * The name under which an instance of {@link ConfigSource} should be bound.
    */
   public static final String CONFIG_SOURCE_NAME = "configSource";
+
   /**
    * The name under which an instance of {@link ExchangeSource} should be bound.
    */
   public static final String EXCHANGE_SOURCE_NAME = "exchangeSource";
 
-  // REVIEW 2010-10-22 Andrew -- A number of things are needed at both execution and compile time. Should the
-  // function execution context reference it's compilation context rather than duplicate the information?
-  // e.g. implement getConfigSource as OpenGammaCompilationContext.getConfigSource (executionContext.getCompilationContext ());
+  /**
+   * The name under which an instance of {@link OverrideOperationCompiler} should be bound.
+   */
+  public static final String OVERRIDE_OPERATION_COMPILER_NAME = "overrideOperationCompiler";
 
   /**
    * Restricted constructor.
@@ -200,6 +207,14 @@ public final class OpenGammaExecutionContext {
    */
   public static void setConfigSource(FunctionExecutionContext context, ConfigSource configSource) {
     context.put(CONFIG_SOURCE_NAME, configSource);
+  }
+
+  public static OverrideOperationCompiler getOverrideOperationCompiler(final FunctionExecutionContext context) {
+    return (OverrideOperationCompiler) context.get(OVERRIDE_OPERATION_COMPILER_NAME);
+  }
+
+  public static void setOverrideOperationCompiler(final FunctionExecutionContext context, final OverrideOperationCompiler overrideOperationCompiler) {
+    context.put(OVERRIDE_OPERATION_COMPILER_NAME, overrideOperationCompiler);
   }
 
 }

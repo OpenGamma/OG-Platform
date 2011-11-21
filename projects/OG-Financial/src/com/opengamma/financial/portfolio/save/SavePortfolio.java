@@ -112,18 +112,6 @@ public class SavePortfolio {
         final ExternalId positionId = position.getUniqueId().toExternalId();
         ObjectId id = s_cache.get(positionId);
         if (id == null) {
-          final PositionSearchRequest searchRequest = new PositionSearchRequest();
-          searchRequest.setPositionProviderId(positionId);
-          final PositionSearchResult searchResult = _positions.search(searchRequest);
-          if (searchResult.getFirstPosition() != null) {
-            id = searchResult.getFirstPosition().getUniqueId().getObjectId();
-            s_logger.debug("Found position {} in master at {}", position, id);
-          }
-          if (id == null) {
-            s_cache.putIfAbsent(positionId, MISSING);
-          } else {
-            s_cache.putIfAbsent(positionId, id);
-          }
           futures.add(_executor.submit(new Callable<Pair<UniqueId, ObjectId>>() {
             @Override
             public Pair<UniqueId, ObjectId> call() throws Exception {
@@ -144,6 +132,9 @@ public class SavePortfolio {
             }
           }));
         } else if (id == MISSING) {
+          _positionMap.put(position.getUniqueId(), null);
+        } else {
+          _positionMap.put(position.getUniqueId(), id);
         }
       }
     }).traverse(node);
@@ -181,6 +172,7 @@ public class SavePortfolio {
         id = _positions.add(new PositionDocument(createManageablePosition(position))).getUniqueId().getObjectId();
       }
       _positionMap.put(position.getUniqueId(), id);
+      s_cache.put(position.getUniqueId().toExternalId(), id);
     } else {
       s_logger.debug("Position {} already in master at {}", position, id);
     }

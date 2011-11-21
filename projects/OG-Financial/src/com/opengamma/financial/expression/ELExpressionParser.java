@@ -5,12 +5,12 @@
  */
 package com.opengamma.financial.expression;
 
+import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.el.ELContext;
 import javax.el.ELException;
 import javax.el.ExpressionFactory;
 
@@ -33,7 +33,7 @@ public class ELExpressionParser extends UserExpressionParser {
   private static final Pattern s_if = Pattern.compile("^\\s*if\\s*\\(");
 
   private final ExpressionFactory _factory;
-  private final ELContext _context;
+  private final SimpleContext _context;
 
   public ELExpressionParser() {
     _factory = new ExpressionFactoryImpl();
@@ -44,16 +44,18 @@ public class ELExpressionParser extends UserExpressionParser {
     return _factory;
   }
 
-  protected ELContext getContext() {
+  protected SimpleContext getContext() {
     return _context;
   }
-
-  // TODO: need functions such as "getSecurity(...)" that can resolve identifiers using the
-  // security source to allow e.g. if (getSecurity(security.underlying).type == "EQUITY") ...
 
   @Override
   public void setConstant(final String name, final Object value) {
     getContext().getVariableMapper().setVariable(name, getFactory().createValueExpression(value, Object.class));
+  }
+
+  @Override
+  public void setFunction(final String object, final String name, final Method method) {
+    getContext().setFunction(object, name, method);
   }
 
   private UserExpression elParse(final String fragment) {
@@ -98,13 +100,13 @@ public class ELExpressionParser extends UserExpressionParser {
         case ']':
           return j;
         case '(':
-          j = findCloseBracket(str, j);
+          j = findCloseBracket(str, j + 1);
           break;
         case '\"':
-          j = findEndQuote(str, j);
+          j = findEndQuote(str, j + 1);
           break;
         case '\'':
-          j = findEndApostrophe(str, j);
+          j = findEndApostrophe(str, j + 1);
           break;
       }
       if (j == -1) {
@@ -118,18 +120,18 @@ public class ELExpressionParser extends UserExpressionParser {
     for (int j = i; j < str.length(); j++) {
       switch (str.charAt(j)) {
         case '[':
-          j = findCloseSquareBracket(str, j);
+          j = findCloseSquareBracket(str, j + 1);
           break;
         case '(':
-          j = findCloseBracket(str, j);
+          j = findCloseBracket(str, j + 1);
           break;
         case ')':
           return j;
         case '\"':
-          j = findEndQuote(str, j);
+          j = findEndQuote(str, j + 1);
           break;
         case '\'':
-          j = findEndApostrophe(str, j);
+          j = findEndApostrophe(str, j + 1);
           break;
       }
       if (j == -1) {
@@ -145,10 +147,10 @@ public class ELExpressionParser extends UserExpressionParser {
         case ';':
           return j;
         case '\"':
-          j = findEndQuote(str, j);
+          j = findEndQuote(str, j + 1);
           break;
         case '\'':
-          j = findEndApostrophe(str, j);
+          j = findEndApostrophe(str, j + 1);
           break;
       }
       if (j == -1) {
