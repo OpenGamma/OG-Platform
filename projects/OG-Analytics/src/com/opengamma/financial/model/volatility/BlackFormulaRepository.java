@@ -14,6 +14,7 @@ import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.CompareUtils;
 
 /**
  * This <b>SHOULD</b> be the repository for Black formulas - i.e. the price, common greeks (delta, gamma, vega) and implied volatility. Other
@@ -108,8 +109,13 @@ public abstract class BlackFormulaRepository {
 
     final double intrinsicPrice = Math.max(0, (isCall ? 1 : -1) * (forward - strike));
     Validate.isTrue(strike > 0, "Cannot find an implied volatility when strike is zero as there is no optionality");
-    Validate.isTrue(price >= intrinsicPrice, "option price (" + price + ") less than intrinsic value (" + intrinsicPrice
-        + ")");
+    boolean test = CompareUtils.closeEquals(price - intrinsicPrice, 0, 1e-9);
+    Validate.isTrue(price > intrinsicPrice || test);
+    if (test) {
+      return 0;
+    }
+    //Validate.isTrue(price >= intrinsicPrice, "option price (" + price + ") less than intrinsic value (" + intrinsicPrice
+    //    + ")");
     if (isCall) {
       Validate.isTrue(price < forward, "call price must be less than forward");
     } else {

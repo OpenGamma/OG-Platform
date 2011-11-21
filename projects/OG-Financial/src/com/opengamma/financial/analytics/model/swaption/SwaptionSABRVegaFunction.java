@@ -31,6 +31,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.SABRVegaCalculationUtils;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
@@ -38,7 +39,12 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.math.interpolation.GridInterpolator2D;
+import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
@@ -48,6 +54,8 @@ import com.opengamma.util.tuple.Pair;
  */
 public class SwaptionSABRVegaFunction extends SwaptionSABRFunction {
   private static final DoublesPairComparator COMPARATOR = new DoublesPairComparator();
+  private static final Interpolator1D INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator("Linear", "FlatExtrapolator", "FlatExtrapolator");
+  private static final GridInterpolator2D NODE_SENSITIVITY_CALCULATOR = new GridInterpolator2D(INTERPOLATOR, INTERPOLATOR);
   private VolatilityCubeDefinition _definition;
 
   public SwaptionSABRVegaFunction(final Currency currency, final String cubeName, final boolean useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
@@ -94,8 +102,30 @@ public class SwaptionSABRVegaFunction extends SwaptionSABRFunction {
       throw new OpenGammaRuntimeException("Could not get SABR fitted surfaces");
     }
     final SABRFittedSurfaces sabrFittedSurfaces = (SABRFittedSurfaces) sabrSurfacesObject;
-    final Map<Double, List<Pair<Double, DoubleMatrix2D>>> inverseJacobians = getMaturityExpiryValueMap(sabrFittedSurfaces.getInverseJacobians());
-    return Collections.singleton(new ComputedValue(getResultSpec(target), new DoubleLabelledMatrix2D(new Double[]{1., 2.}, new Object[]{1., 2.}, 
+    final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = sabrFittedSurfaces.getInverseJacobians();
+    final DoubleLabelledMatrix2D alphaSensitivity = (DoubleLabelledMatrix2D) alphaSensitivityObject;
+    final DoubleLabelledMatrix2D nuSensitivity = (DoubleLabelledMatrix2D) nuSensitivityObject;
+    final DoubleLabelledMatrix2D rhoSensitivity = (DoubleLabelledMatrix2D) rhoSensitivityObject;
+    final double expiry = alphaSensitivity.getXKeys()[0];
+    final double maturity = alphaSensitivity.getYKeys()[0];
+    final double alpha = alphaSensitivity.getValues()[0][0];
+    final double nu = nuSensitivity.getValues()[0][0];
+    final double rho = rhoSensitivity.getValues()[0][0];
+    final InterpolatedDoublesSurface alphaSurface = (InterpolatedDoublesSurface) data.getSABRParameter().getAlphaSurface().getSurface();
+    @SuppressWarnings("unchecked")
+    final Map<Double, Interpolator1DDataBundle> alphaDataBundle = (Map<Double, Interpolator1DDataBundle>) alphaSurface.getInterpolatorData();
+    final InterpolatedDoublesSurface nuSurface = (InterpolatedDoublesSurface) data.getSABRParameter().getNuSurface().getSurface();
+    @SuppressWarnings("unchecked")
+    final Map<Double, Interpolator1DDataBundle> nuDataBundle = (Map<Double, Interpolator1DDataBundle>) nuSurface.getInterpolatorData();
+    final InterpolatedDoublesSurface rhoSurface = (InterpolatedDoublesSurface) data.getSABRParameter().getRhoSurface().getSurface();
+    @SuppressWarnings("unchecked")
+    final Map<Double, Interpolator1DDataBundle> rhoDataBundle = (Map<Double, Interpolator1DDataBundle>) rhoSurface.getInterpolatorData();
+    final DoublesPair expiryMaturity = DoublesPair.of(expiry, maturity);
+    Object temp = inverseJacobians.keySet();
+    final Map<Double, DoubleMatrix2D> result = 
+      SABRVegaCalculationUtils.getVegaCube(alpha, rho, nu, alphaDataBundle, rhoDataBundle, nuDataBundle, inverseJacobians, expiryMaturity, NODE_SENSITIVITY_CALCULATOR);
+    
+    return Collections.singleton(new ComputedValue(getResultSpec(target), new DoubleLabelledMatrix2D(new Double[]{1., 2.}, new Object[]{1., 2.},        
         new Double[]{3., 4.}, new Object[]{3., 4.}, new double[][]{new double[]{0.1, 0.2}, new double[]{0.3, 0.4}})));
   }
 

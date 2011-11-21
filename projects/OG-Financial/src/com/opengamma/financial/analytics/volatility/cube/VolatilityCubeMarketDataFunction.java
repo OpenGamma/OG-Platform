@@ -198,6 +198,7 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
     
     private VolatilityCubeData buildMarketDataMap(final FunctionInputs inputs) {
       final HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
+      final HashMap<VolatilityPoint, ExternalId> dataIds = new HashMap<VolatilityPoint, ExternalId>();
       final HashMap<Pair<Tenor, Tenor>, Double> strikes = new HashMap<Pair<Tenor, Tenor>, Double>();
 
       final HashMap<UniqueId, Double> otherData = new HashMap<UniqueId, Double>();
@@ -210,14 +211,15 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
         final VolatilityPoint volatilityPoint = getVolatilityPoint(value.getSpecification());
         final Pair<Tenor, Tenor> strikePoint = getStrikePoint(value.getSpecification());
         if (volatilityPoint == null && strikePoint == null) {
-
           otherData.put(value.getSpecification().getTargetSpecification().getUniqueId(), dValue);
         } else if (volatilityPoint != null && strikePoint == null) {
           if (volatilityPoint.getRelativeStrike() > -50) {
             final Double previous = dataPoints.put(volatilityPoint, dValue);
+            final ExternalId previousId = dataIds.put(volatilityPoint, value.getSpecification().getTargetSpecification().getIdentifier());
             if (previous != null && previous > dValue) {
               //TODO: this is a hack because we don't understand which tickers are for straddles, so we presume that the straddle has lower vol
               dataPoints.put(volatilityPoint, previous);
+              dataIds.put(volatilityPoint, previousId);
             }
           }
         } else if (volatilityPoint == null && strikePoint != null) {
@@ -235,7 +237,7 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
       final SnapshotDataBundle bundle = new SnapshotDataBundle();
       bundle.setDataPoints(otherData);
       volatilityCubeData.setOtherData(bundle);
-
+      volatilityCubeData.setDataIds(dataIds);
       volatilityCubeData.setStrikes(strikes);
       return volatilityCubeData;
     }

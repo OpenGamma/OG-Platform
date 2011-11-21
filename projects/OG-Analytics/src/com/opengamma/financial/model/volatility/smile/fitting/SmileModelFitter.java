@@ -53,8 +53,8 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
     Validate.notNull(error, "null errors");
     Validate.notNull(model, "null model");
     final int n = strikes.length;
-    Validate.isTrue(n == impliedVols.length, "vols not the same length as marketData");
-    Validate.isTrue(n == error.length, "errors not the same length as marketData");
+    Validate.isTrue(n == impliedVols.length, "vols not the same length as strikes");
+    Validate.isTrue(n == error.length, "errors not the same length as strikes");
 
     _nOptions = n;
     _marketValues = new DoubleMatrix1D(impliedVols);
@@ -76,7 +76,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
     DoubleMatrix1D modelParams = transform.inverseTransform(solRes.getParameters());
     //TODO return the covariance matrix 
     return new LeastSquareResults(solRes.getChiSq(), modelParams,
-        new DoubleMatrix2D(new double[modelParams.getNumberOfElements()][modelParams.getNumberOfElements()]));
+        new DoubleMatrix2D(new double[modelParams.getNumberOfElements()][modelParams.getNumberOfElements()]), solRes.getInverseJacobian());
   }
 
   protected Function1D<DoubleMatrix1D, DoubleMatrix1D> getModelValueFunction() {

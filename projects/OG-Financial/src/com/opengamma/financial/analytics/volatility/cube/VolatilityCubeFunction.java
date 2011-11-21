@@ -117,6 +117,7 @@ public class VolatilityCubeFunction extends AbstractFunction {
         normalizedData.setOtherData(data.getOtherData());
         normalizedData.setStrikes(normalizedATMStrikes);
         normalizedData.setATMVolatilities(normalizedATMVols);
+        normalizedData.setDataIds(data.getDataIds());
         return Sets.newHashSet(new ComputedValue(_cubeResult, normalizedData));
       }
     };
