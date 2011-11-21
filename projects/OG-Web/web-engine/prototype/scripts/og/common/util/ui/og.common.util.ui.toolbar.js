@@ -9,7 +9,7 @@ $.register_module({
         return function (obj) {
             var $new_obj = [], html,
                 toolbar_tmpl = '\
-                    <div class="OG-icon og-icon-tools-${name} og-js-${name} ${enabled}"><span>${name}</span></div>',
+                    <div class="OG-icon og-icon-tools-${id} og-js-${id} ${enabled}"><span>${name}</span></div>',
                 divider = '<div class="og-divider"></div>',
                 buttons = [
                     {name: 'delete', 'level': 'danger'},
@@ -25,7 +25,7 @@ $.register_module({
             $(obj.location).html(html); // Add the buttons to the page
             // Implement handlers
             $.each(($.extend(true, $new_obj, {'buttons': buttons}, obj)).buttons, function (i, val) {
-                $('.' + obj.location + ' .og-js-' + val.name).unbind('mousedown').bind('mousedown', val.handler);
+                $('.' + obj.location + ' .og-js-' + val.id).unbind('mousedown').bind('mousedown', val.handler);
             });
         };
     }
