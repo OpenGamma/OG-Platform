@@ -239,6 +239,10 @@ import com.opengamma.util.tuple.Pair;
 
     private boolean produceSubstitute(final GraphBuildingContext context, final Map<ValueSpecification, ValueRequirement> inputs, final ValueSpecification resolvedOutput,
         final Set<ValueSpecification> resolvedOutputs) {
+      if (inputs.containsKey(resolvedOutput)) {
+        s_logger.debug("Backtracking on identity reduction");
+        return false;
+      }
       final FunctionApplicationWorker newWorker = new FunctionApplicationWorker(getValueRequirement());
       final ResolvedValueProducer producer = context.declareTaskProducing(resolvedOutput, getTask(), newWorker);
       if (producer == newWorker) {
@@ -270,8 +274,6 @@ import com.opengamma.util.tuple.Pair;
       protected ResolutionSubstituteDelegate(final ResolveTask task) {
         super(task);
       }
-
-      // ERROR: Something is signalling failure to here, the task transition goes to "PumpingState". Something then gets it to run. 
 
       @Override
       public final void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {

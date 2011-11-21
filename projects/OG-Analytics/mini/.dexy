@@ -2,7 +2,12 @@
     "$globals" : {
         "env" : { "CLASSPATH" : "../../../../lib/classpath.jar" }
     },
+    "*.jpg" : {},
+    "_*.tex" : {},
+    "*.tex|hd|ft|jinja|latex" : { "allinputs" : true },
     "*.java|fn|java" : {},
+    "*.java|idio|l" : {},
+    "*.java|pyg|l" : {},
     "*.R|idio|l" : {},
     "*.R|fn|idio|rint|pyg" : {
         "ifinput" : "%.java|fn|java"
