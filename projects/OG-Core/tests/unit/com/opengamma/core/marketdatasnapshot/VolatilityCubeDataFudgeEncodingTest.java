@@ -6,13 +6,10 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
-import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
-import com.opengamma.core.marketdatasnapshot.VolatilityCubeDataBuilder;
-import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import com.opengamma.util.time.Tenor;
@@ -74,7 +71,7 @@ public class VolatilityCubeDataFudgeEncodingTest extends AbstractFudgeBuilderTes
   }
 
   private static void checkSimpleData(VolatilityCubeData data) {
-    Map<Tenor, Map<Tenor, Pair<double[], double[]>>> smiles = data.getSmiles();
+    SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> smiles = data.getSmiles();
     assertEquals(2, smiles.size());
     
     assertTrue(smiles.containsKey(Tenor.DAY));
@@ -110,7 +107,7 @@ public class VolatilityCubeDataFudgeEncodingTest extends AbstractFudgeBuilderTes
   }
 
   private static void checkNulldata(VolatilityCubeData data) {
-    Map<Tenor, Map<Tenor, Pair<double[], double[]>>> smiles = data.getSmiles();
+    SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> smiles = data.getSmiles();
     assertEquals(null, smiles);
   }
 

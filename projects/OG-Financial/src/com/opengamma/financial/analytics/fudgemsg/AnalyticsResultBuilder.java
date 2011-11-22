@@ -104,8 +104,6 @@ import com.opengamma.util.tuple.Pair;
       for (final Currency ccy : currencies) {
         serializer.addToMessage(message, CURRENCY_FIELD_NAME, null, ccy);
         serializer.addToMessage(message, SENSITIVITIES_FIELD_NAME, null, object.getSensitivity(ccy));
-//        message.add(CURRENCY_FIELD_NAME, null, ccy);
-//        message.add(SENSITIVITIES_FIELD_NAME, null, object.getSensitivity(ccy));
       }
     }
   }

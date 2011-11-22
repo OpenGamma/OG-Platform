@@ -12,11 +12,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.reflect.Field;
 import java.lang.IllegalAccessException;
+import java.lang.Class;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.Arrays;
-import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 // @export "class-def"
 public class SabrExtrapolationExample {
@@ -61,7 +63,7 @@ public class SabrExtrapolationExample {
                 EuropeanVanillaOption option = new EuropeanVanillaOption(strike, TIME_TO_EXPIRY, true);
                 price = sabrExtra.price(option);
                 impliedVolatilityPct = implied.getImpliedVolatility(blackData, option, price) * 100;
-                data_stream.format("%4.0f\t%.6f\t%.4f\t%2.4f%n", mu, price, strike, impliedVolatilityPct);
+                data_stream.format("%4.0f\t%1.10f\t%1.10f\t%1.10f%n", mu, price, strike, impliedVolatilityPct);
             }
         }
         // @export "save-data"

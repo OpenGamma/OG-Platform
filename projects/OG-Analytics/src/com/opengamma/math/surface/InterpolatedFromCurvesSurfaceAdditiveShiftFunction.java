@@ -13,10 +13,10 @@ import com.opengamma.math.curve.Curve;
 import com.opengamma.math.curve.CurveShiftFunctionFactory;
 
 /**
- * Shifts an {@link InterpolatedFromCurvesSurfaceShiftFunction}. If an <i>x</i> (<i>y</i>) shift does not coincide with the one of the <i>x</i> (<i>y</i>) values 
+ * Shifts an {@link InterpolatedFromCurvesSurfaceAdditiveShiftFunction}. If an <i>x</i> (<i>y</i>) shift does not coincide with the one of the <i>x</i> (<i>y</i>) values 
  * of the intersection of the curves with the axis, an exception is thrown.
  */
-public class InterpolatedFromCurvesSurfaceShiftFunction implements SurfaceShiftFunction<InterpolatedFromCurvesDoublesSurface> {
+public class InterpolatedFromCurvesSurfaceAdditiveShiftFunction implements SurfaceShiftFunction<InterpolatedFromCurvesDoublesSurface> {
 
   /**
    * {@inheritDoc}
