@@ -84,6 +84,8 @@ public class MarketDataELCompiler implements OverrideOperationCompiler {
       _parser.setFunction("Curve", "parallelShift", MarketDataELFunctions.class.getMethod("parallelShiftCurve", Object.class, Double.TYPE));
       _parser.setFunction("Curve", "pointShift", MarketDataELFunctions.class.getMethod("pointShiftCurve", Object.class, Double.TYPE, Double.TYPE));
       _parser.setFunction("Security", "get", MarketDataELFunctions.class.getMethod("getSecurity", Object.class));
+      _parser.setFunction("FX", "isRate", MarketDataELFunctions.class.getMethod("getFXRate", Object.class));
+      _parser.setFunction("FX", "multiplier", MarketDataELFunctions.class.getMethod("getFXMultiplier", Object.class, Double.TYPE));
       CommonSynthetics.configureParser(_parser, securitySource);
     } catch (Exception ex) {
       throw new OpenGammaRuntimeException("Caught", ex);
