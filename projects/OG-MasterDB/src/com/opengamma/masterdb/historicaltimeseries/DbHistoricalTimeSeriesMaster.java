@@ -20,6 +20,7 @@ import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetDateTime;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -32,6 +33,7 @@ import org.springframework.transaction.support.TransactionCallback;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
+import com.opengamma.extsql.ExtSqlBundle;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdSearch;
@@ -50,7 +52,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
-import com.opengamma.masterdb.AbstractDocumentDbMaster;
+import com.opengamma.masterdb.AbstractDocumentDbMaster2;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
@@ -77,7 +79,7 @@ import com.opengamma.util.tuple.Pair;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<HistoricalTimeSeriesInfoDocument> implements HistoricalTimeSeriesMaster {
+public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster2<HistoricalTimeSeriesInfoDocument> implements HistoricalTimeSeriesMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbHistoricalTimeSeriesMaster.class);
@@ -90,47 +92,6 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
    * The prefix used for data point unique identifiers.
    */
   protected static final String DATA_POINT_PREFIX = "DP";
-
-  /**
-   * SQL select.
-   */
-  protected static final String SELECT =
-      "SELECT " +
-        "main.id AS doc_id, " +
-        "main.oid AS doc_oid, " +
-        "main.ver_from_instant AS ver_from_instant, " +
-        "main.ver_to_instant AS ver_to_instant, " +
-        "main.corr_from_instant AS corr_from_instant, " +
-        "main.corr_to_instant AS corr_to_instant, " +
-        "nm.name AS name, " +
-        "df.name AS data_field, " +
-        "ds.name AS data_source, " +
-        "dp.name AS data_provider, " +
-        "ot.name AS observation_time, " +
-        "i.key_scheme AS key_scheme, " +
-        "i.key_value AS key_value, " +
-        "di.valid_from AS key_valid_from, " +
-        "di.valid_to AS key_valid_to ";
-  /**
-   * SQL from main.
-   */
-  protected static final String FROM_PREFIX =
-      "FROM hts_document main ";
-  /**
-   * SQL from others.
-   */
-  protected static final String FROM_POSTFIX =
-      "INNER JOIN hts_name nm ON (main.name_id = nm.id) " +
-      "INNER JOIN hts_data_field df ON (main.data_field_id = df.id) " +
-      "INNER JOIN hts_data_source ds ON (main.data_source_id = ds.id) " +
-      "INNER JOIN hts_data_provider dp ON (main.data_provider_id = dp.id) " +
-      "INNER JOIN hts_observation_time ot ON (main.observation_time_id = ot.id) " +
-      "LEFT JOIN hts_doc2idkey di ON (di.doc_id = main.id) " +
-      "LEFT JOIN hts_idkey i ON (di.idkey_id = i.id) ";
-  /**
-   * SQL from.
-   */
-  protected static final String FROM = FROM_PREFIX +  FROM_POSTFIX;
 
   /**
    * Dimension table.
@@ -160,6 +121,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
    */
   public DbHistoricalTimeSeriesMaster(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
+    setExtSqlBundle(ExtSqlBundle.of(dbConnector.getDialect().getExtSqlConfig(), DbHistoricalTimeSeriesMaster.class));
     _nameTable = new NamedDimensionDbTable(dbConnector, "name", "hts_name", "hts_dimension_seq");
     _dataFieldTable = new NamedDimensionDbTable(dbConnector, "data_field", "hts_data_field", "hts_dimension_seq");
     _dataSourceTable = new NamedDimensionDbTable(dbConnector, "data_source", "hts_data_source", "hts_dimension_seq");
@@ -242,212 +204,74 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     s_logger.debug("search {}", request);
     
     final HistoricalTimeSeriesInfoSearchResult result = new HistoricalTimeSeriesInfoSearchResult();
-    if ((request.getObjectIds() != null && request.getObjectIds().size() == 0) ||
-        (ExternalIdSearch.canMatch(request.getExternalIdSearch()) == false)) {
+    final List<ObjectId> objectIds = request.getObjectIds();
+    final ExternalIdSearch externalIdSearch = request.getExternalIdSearch();
+    if ((objectIds != null && objectIds.size() == 0) ||
+        (ExternalIdSearch.canMatch(externalIdSearch) == false)) {
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
-      .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
-      .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()))
-      .addValueNullIgnored("data_field", getDialect().sqlWildcardAdjustValue(request.getDataField()))
-      .addValueNullIgnored("data_source", getDialect().sqlWildcardAdjustValue(request.getDataSource()))
-      .addValueNullIgnored("data_provider", getDialect().sqlWildcardAdjustValue(request.getDataProvider()))
-      .addValueNullIgnored("observation_time", getDialect().sqlWildcardAdjustValue(request.getObservationTime()))
-      .addDateNullIgnored("id_validity_date", request.getValidityDate())
-      .addValueNullIgnored("key_value", getDialect().sqlWildcardAdjustValue(request.getExternalIdValue()));
-    if (request.getExternalIdSearch() != null) {
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource();
+    args.addTimestamp("version_as_of_instant", vc.getVersionAsOf());
+    args.addTimestamp("corrected_to_instant", vc.getCorrectedTo());
+    args.addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));
+    args.addValueNullIgnored("data_field", getDialect().sqlWildcardAdjustValue(request.getDataField()));
+    args.addValueNullIgnored("data_source", getDialect().sqlWildcardAdjustValue(request.getDataSource()));
+    args.addValueNullIgnored("data_provider", getDialect().sqlWildcardAdjustValue(request.getDataProvider()));
+    args.addValueNullIgnored("observation_time", getDialect().sqlWildcardAdjustValue(request.getObservationTime()));
+    args.addDateNullIgnored("id_validity_date", request.getValidityDate());
+    args.addValueNullIgnored("external_id_value", getDialect().sqlWildcardAdjustValue(request.getExternalIdValue()));
+    if (externalIdSearch != null) {
       int i = 0;
-      for (ExternalId id : request.getExternalIdSearch()) {
+      for (ExternalId id : externalIdSearch) {
         args.addValue("key_scheme" + i, id.getScheme().getName());
         args.addValue("key_value" + i, id.getValue());
         i++;
       }
     }
-    searchWithPaging(request.getPagingRequest(), sqlSearchHistoricalTimeSeries(request), args, new HistoricalTimeSeriesDocumentExtractor(), result);
-    return result;
-  }
-
-  /**
-   * Gets the SQL to search for documents.
-   * 
-   * @param request  the request, not null
-   * @return the SQL search and count, not null
-   */
-  protected String[] sqlSearchHistoricalTimeSeries(final HistoricalTimeSeriesInfoSearchRequest request) {
-    String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
-                "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
-    if (request.getName() != null) {
-      where += "AND name_id IN (" + getNameTable().sqlSelectSearch(request.getName()) + ") ";
+    if (externalIdSearch != null && externalIdSearch.alwaysMatches() == false) {
+      int i = 0;
+      for (ExternalId id : externalIdSearch) {
+        args.addValue("key_scheme" + i, id.getScheme().getName());
+        args.addValue("key_value" + i, id.getValue());
+        i++;
+      }
+      args.addValue("sql_search_external_ids_type", externalIdSearch.getSearchType());
+      args.addValue("sql_search_external_ids", sqlSelectIdKeys(externalIdSearch));
+      args.addValue("id_search_size", externalIdSearch.getExternalIds().size());
     }
-    if (request.getDataField() != null) {
-      where += "AND data_field_id IN (" + getDataFieldTable().sqlSelectSearch(request.getDataField()) + ") ";
-    }
-    if (request.getDataSource() != null) {
-      where += "AND data_source_id IN (" + getDataSourceTable().sqlSelectSearch(request.getDataSource()) + ") ";
-    }
-    if (request.getDataProvider() != null) {
-      where += "AND data_provider_id IN (" + getDataProviderTable().sqlSelectSearch(request.getDataProvider()) + ") ";
-    }
-    if (request.getObservationTime() != null) {
-      where += "AND observation_time_id IN (" + getObservationTimeTable().sqlSelectSearch(request.getObservationTime()) + ") ";
-    }
-    if (request.getObjectIds() != null) {
-      StringBuilder buf = new StringBuilder(request.getObjectIds().size() * 10);
-      for (ObjectId objectId : request.getObjectIds()) {
+    if (objectIds != null) {
+      StringBuilder buf = new StringBuilder(objectIds.size() * 10);
+      for (ObjectId objectId : objectIds) {
         checkScheme(objectId);
         buf.append(extractOid(objectId)).append(", ");
       }
       buf.setLength(buf.length() - 2);
-      where += "AND oid IN (" + buf + ") ";
+      args.addValue("sql_search_object_ids", buf.toString());
     }
-    if (request.getExternalIdSearch() != null && request.getExternalIdSearch().size() > 0) {
-      where += sqlSelectMatchingHistoricalTimeSeriesKeys(request.getExternalIdSearch(), request.getValidityDate());
-    }
-    if (request.getExternalIdValue() != null) {
-      where += sqlSelectExternalIdValue(request.getExternalIdValue(), request.getValidityDate());
-    }
-    where += sqlAdditionalWhere();
+    args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
+    args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     
-    String selectFromWhereInner = "SELECT id FROM hts_document " + where;
-    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
-    
-    String cte = "WITH cte_docs AS (" + inner + ") ";
-    String search = cte + SELECT + FROM_PREFIX + "INNER JOIN cte_docs ON main.id = cte_docs.id " + FROM_POSTFIX
-        + "ORDER BY main.id" + sqlAdditionalOrderBy(false);
-    String count = "SELECT COUNT(*) FROM hts_document " + where;
-    return new String[] {search, count};
-  }
-
-  /**
-   * Gets the SQL to match identifier value.
-   * 
-   * @param identifierValue the identifier value, not null
-   * @param validityDate  the validity date, not null
-   * @return the SQL, not null
-   */
-  protected String sqlSelectExternalIdValue(final String identifierValue, final LocalDate validityDate) {
-    String select = "SELECT DISTINCT doc_id " +
-        "FROM hts_doc2idkey, hts_document " +
-        "WHERE doc_id = hts_document.id " +
-        "AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant " +
-        "AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant " +
-        (validityDate != null ? "AND hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date " : "") +
-        "AND idkey_id IN ( SELECT id FROM hts_idkey WHERE " + getDialect().sqlWildcardQuery("UPPER(key_value) ", "UPPER(:key_value)", identifierValue) + ") ";
-    return "AND id IN (" + select + ") ";
-  }
-
-  /**
-   * Gets the SQL to match the {@code ExternalIdSearch}.
-   * 
-   * @param idSearch  the identifier search, not null
-   * @param validityDate  the validity date, not null
-   * @return the SQL, not null
-   */
-  protected String sqlSelectMatchingHistoricalTimeSeriesKeys(final ExternalIdSearch idSearch, final LocalDate validityDate) {
-    switch (idSearch.getSearchType()) {
-      case EXACT:
-        return "AND id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysExact(idSearch, validityDate) + ") ";
-      case ALL:
-        return "AND id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysAll(idSearch, validityDate) + ") ";
-      case ANY:
-        return "AND id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysAny(idSearch, validityDate) + ") ";
-      case NONE:
-        return "AND id NOT IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysAny(idSearch, validityDate) + ") ";
-    }
-    throw new UnsupportedOperationException("Search type is not supported: " + idSearch.getSearchType());
-  }
-
-  /**
-   * Gets the SQL to find all the series matching.
-   * 
-   * @param idSearch  the identifier search, not null
-   * @param validityDate  the validity date, not null
-   * @return the SQL, not null
-   */
-  protected String sqlSelectMatchingHistoricalTimeSeriesKeysExact(final ExternalIdSearch idSearch, final LocalDate validityDate) {
-    // compare size of all matched to size in total
-    // filter by dates to reduce search set
-    String a = "SELECT doc_id AS matched_doc_id, COUNT(doc_id) AS matched_count " +
-      "FROM hts_doc2idkey, hts_document " +
-      "WHERE hts_doc2idkey.doc_id = hts_document.id " +
-      "AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant " +
-      "AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant " +
-      (validityDate != null ? "AND hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date " : "") +
-      "AND idkey_id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysOr(idSearch) + ") " +
-      "GROUP BY doc_id " +
-      "HAVING COUNT(doc_id) >= " + idSearch.size() + " ";
-    String b = "SELECT doc_id AS total_doc_id, COUNT(doc_id) AS total_count " +
-      "FROM hts_doc2idkey, hts_document " +
-      "WHERE hts_doc2idkey.doc_id = hts_document.id " +
-      "AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant " +
-      "AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant " +
-      (validityDate != null ? "AND hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date " : "") +
-      "GROUP BY doc_id ";
-    String select = "SELECT matched_doc_id AS doc_id " +
-      "FROM (" + a + ") AS a, (" + b + ") AS b " +
-      "WHERE matched_doc_id = total_doc_id " +
-        "AND matched_count = total_count ";
-    return select;
-  }
-
-  /**
-   * Gets the SQL to find all the series matching.
-   * 
-   * @param idSearch  the identifier search, not null
-   * @param validityDate  the validity date, not null
-   * @return the SQL, not null
-   */
-  protected String sqlSelectMatchingHistoricalTimeSeriesKeysAll(final ExternalIdSearch idSearch, final LocalDate validityDate) {
-    // only return doc_id when all requested ids match (having count >= size)
-    // filter by dates to reduce search set
-    String select = "SELECT doc_id " +
-      "FROM hts_doc2idkey, hts_document " +
-      "WHERE hts_doc2idkey.doc_id = hts_document.id " +
-      "AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant " +
-      "AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant " +
-      (validityDate != null ? "AND hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date " : "") +
-      "AND idkey_id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysOr(idSearch) + ") " +
-      "GROUP BY doc_id " +
-      "HAVING COUNT(doc_id) >= " + idSearch.size() + " ";
-    return select;
-  }
-
-  /**
-   * Gets the SQL to find all the series matching any identifier.
-   * 
-   * @param idSearch  the identifier search, not null
-   * @param validityDate  the validity date, not null
-   * @return the SQL, not null
-   */
-  protected String sqlSelectMatchingHistoricalTimeSeriesKeysAny(final ExternalIdSearch idSearch, final LocalDate validityDate) {
-    // optimized search for commons case of individual ORs
-    // filter by dates to reduce search set
-    String select = "SELECT DISTINCT doc_id " +
-      "FROM hts_doc2idkey, hts_document " +
-      "WHERE hts_doc2idkey.doc_id = hts_document.id " +
-      "AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant " +
-      "AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant " +
-      (validityDate != null ? "AND hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date " : "") +
-      "AND idkey_id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysOr(idSearch) + ") ";
-    return select;
+    String[] sql = {getExtSqlBundle().getSql("Search", args), getExtSqlBundle().getSql("SearchCount", args)};
+    searchWithPaging(request.getPagingRequest(), sql, args, new HistoricalTimeSeriesDocumentExtractor(), result);
+    return result;
   }
 
   /**
    * Gets the SQL to find all the ids for a single bundle.
+   * <p>
+   * This is too complex for the extsql mechanism.
    * 
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingHistoricalTimeSeriesKeysOr(final ExternalIdSearch idSearch) {
-    String select = "SELECT id FROM hts_idkey ";
+  protected String sqlSelectIdKeys(final ExternalIdSearch idSearch) {
+    List<String> list = new ArrayList<String>();
     for (int i = 0; i < idSearch.size(); i++) {
-      select += (i == 0 ? "WHERE " : "OR ");
-      select += "(key_scheme = :key_scheme" + i + " AND key_value = :key_value" + i + ") ";
+      list.add("(key_scheme = :key_scheme" + i + " AND key_value = :key_value" + i + ") ");
     }
-    return select;
+    return StringUtils.join(list, "OR ");
   }
 
   //-------------------------------------------------------------------------
@@ -493,7 +317,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     // the arguments for inserting into the table
     final ManageableHistoricalTimeSeriesInfo info = document.getInfo();
-    final DbMapSqlParameterSource seriesArgs = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
       .addValue("doc_id", docId)
       .addValue("doc_oid", docOid)
       .addTimestamp("ver_from_instant", document.getVersionFromInstant())
@@ -508,6 +332,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
     final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
+    final String sqlSelectIdKey = getExtSqlBundle().getSql("SelectIdKey");
     for (ExternalIdWithDates id : info.getExternalIdBundle()) {
       final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
         .addValue("doc_id", docId)
@@ -516,7 +341,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
         .addValue("valid_from", DbDateUtils.toSqlDateNullFarPast(id.getValidFrom()))
         .addValue("valid_to", DbDateUtils.toSqlDateNullFarFuture(id.getValidTo()));
       assocList.add(assocArgs);
-      if (getJdbcTemplate().queryForList(sqlSelectIdKey(), assocArgs).isEmpty()) {
+      if (getJdbcTemplate().queryForList(sqlSelectIdKey, assocArgs).isEmpty()) {
         // select avoids creating unecessary id, but id may still not be used
         final long idKeyId = nextId("hts_idkey_seq");
         final DbMapSqlParameterSource idkeyArgs = new DbMapSqlParameterSource()
@@ -526,9 +351,15 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
         idKeyList.add(idkeyArgs);
       }
     }
-    getJdbcTemplate().update(sqlInsertHistoricalTimeSeries(), seriesArgs);
-    getJdbcTemplate().batchUpdate(sqlInsertIdKey(), idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
-    getJdbcTemplate().batchUpdate(sqlInsertHtsIdKey(), assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
+    
+    // insert
+    final String sqlDoc = getExtSqlBundle().getSql("Insert", docArgs);
+    final String sqlIdKey = getExtSqlBundle().getSql("InsertIdKey");
+    final String sqlDoc2IdKey = getExtSqlBundle().getSql("InsertDoc2IdKey");
+    getJdbcTemplate().update(sqlDoc, docArgs);
+    getJdbcTemplate().batchUpdate(sqlIdKey, idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
+    getJdbcTemplate().batchUpdate(sqlDoc2IdKey, assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
+    
     // set the uniqueId
     final UniqueId uniqueId = createUniqueId(docOid, docId);
     info.setUniqueId(uniqueId);
@@ -537,53 +368,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     return document;
   }
 
-  /**
-   * Gets the SQL for inserting a document.
-   * 
-   * @return the SQL, not null
-   */
-  protected String sqlInsertHistoricalTimeSeries() {
-    return "INSERT INTO hts_document " +
-              "(id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name_id, " +
-              "data_field_id, data_source_id, data_provider_id, observation_time_id) " +
-            "VALUES " +
-              "(:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name_id, " +
-              ":data_field_id, :data_source_id, :data_provider_id, :observation_time_id)";
-  }
-
-  /**
-   * Gets the SQL for inserting an hts-idkey association.
-   * 
-   * @return the SQL, not null
-   */
-  protected String sqlInsertHtsIdKey() {
-    return "INSERT INTO hts_doc2idkey " +
-              "(doc_id, idkey_id, valid_from, valid_to) " +
-            "VALUES " +
-              "(:doc_id, (" + sqlSelectIdKey() + "), :valid_from, :valid_to)";
-  }
-
-  /**
-   * Gets the SQL for selecting an idkey.
-   * 
-   * @return the SQL, not null
-   */
-  protected String sqlSelectIdKey() {
-    return "SELECT id FROM hts_idkey WHERE key_scheme = :key_scheme AND key_value = :key_value";
-  }
-
-  /**
-   * Gets the SQL for inserting an idkey.
-   * 
-   * @return the SQL, not null
-   */
-  protected String sqlInsertIdKey() {
-    return "INSERT INTO hts_idkey (id, key_scheme, key_value) " +
-            "VALUES (:idkey_id, :key_scheme, :key_value)";
-  }
-
   //-------------------------------------------------------------------------
-  
   @Override
   public ManageableHistoricalTimeSeries getTimeSeries(
       UniqueId uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
@@ -1151,17 +936,6 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
       "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant ";
     return select;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  protected String sqlSelectFrom() {
-    return SELECT + FROM;
-  }
-
-  @Override
-  protected String mainTableName() {
-    return "hts_document";
   }
 
   //-------------------------------------------------------------------------
