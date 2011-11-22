@@ -5,6 +5,7 @@
  */
 package com.opengamma.extsql;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 /**
@@ -47,7 +48,7 @@ public final class LikeSqlFragment extends ContainerSqlFragment {
   //-------------------------------------------------------------------------
   @Override
   protected void toSQL(StringBuilder buf, ExtSqlBundle bundle, SqlParameterSource paramSource) {
-    String value = paramSource.getValue(_variable).toString();
+    String value = ObjectUtils.toString(paramSource.getValue(_variable));
     if (bundle.getConfig().isLikeWildcard(value)) {
       buf.append("LIKE ");
       super.toSQL(buf, bundle, paramSource);
