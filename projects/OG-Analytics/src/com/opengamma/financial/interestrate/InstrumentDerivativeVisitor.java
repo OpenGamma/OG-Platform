@@ -43,7 +43,6 @@ import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
-import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -121,8 +120,6 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitInterestRateFutureOptionMarginSecurity(InterestRateFutureOptionMarginSecurity option, S data);
 
   T visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option, S data);
-
-  T visitZZZCouponOIS(ZZZCouponOIS payment, S data);
 
   T visitFixedPayment(PaymentFixed payment, S data);
 
@@ -215,8 +212,6 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitInterestRateFutureOptionMarginSecurity(InterestRateFutureOptionMarginSecurity option);
 
   T visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option);
-
-  T visitZZZCouponOIS(ZZZCouponOIS payment);
 
   T visitFixedPayment(PaymentFixed payment);
 

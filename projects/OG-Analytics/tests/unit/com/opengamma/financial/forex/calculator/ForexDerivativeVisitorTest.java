@@ -51,7 +51,6 @@ import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
-import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -377,11 +376,6 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitZZZCouponOIS(ZZZCouponOIS payment, T data) {
-      return null;
-    }
-
-    @Override
     public String visitFixedPayment(PaymentFixed payment, T data) {
       return null;
     }
@@ -593,11 +587,6 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option) {
-      return null;
-    }
-
-    @Override
-    public String visitZZZCouponOIS(ZZZCouponOIS payment) {
       return null;
     }
 
