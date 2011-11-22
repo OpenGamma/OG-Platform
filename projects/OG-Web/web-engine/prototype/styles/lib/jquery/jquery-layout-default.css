@@ -169,9 +169,15 @@
   overflow: visible!important;
 }
 
+.ui-layout-inner-center .ui-layout-header {
+  min-height: 74px;
+}
+
 /* Fade page top and bottom */
 .ui-layout-inner-center .ui-layout-header {
   position: relative;
+  border-bottom: 1px solid #f1f1f1;
+  margin-bottom: 1px;
 }
 
 .ui-layout-inner-center .ui-layout-header:after {
@@ -187,6 +193,7 @@
   right: 16px;
   bottom: -5px;
   height: 5px;
+  top: 1px;
   display: block;
 }
 

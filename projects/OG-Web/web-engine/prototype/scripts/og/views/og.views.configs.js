@@ -118,7 +118,7 @@ $.register_module({
                 .partial(page_name, 'Configurations', null, toolbar.partial('default')),
             details_page = function (args, new_config_type) {
                 var rest_options, is_new = !!new_config_type, rest_handler = function (result) {
-                    if (result.error) return alert(result.message);
+                    if (result.error) return ui.dialog({type: 'error', message: result.message});
                     if (is_new) {
                         if (!result.data) result.data = {template_data: {type: new_config_type, configJSON: {}}};
                         if (!result.data.template_data.configJSON) result.data.template_data.configJSON = {};
@@ -133,6 +133,10 @@ $.register_module({
                         item: 'history.configs.recent',
                         value: routes.current().hash
                     });
+                    if (!og.views.config_forms[config_type]) {
+                        ui.message({location: '.ui-layout-inner-center', destroy: true});
+                        return ui.dialog({type: 'error', message: 'There is no template for: ' + config_type});
+                    }
                     og.views.config_forms[config_type]({
                         is_new: is_new,
                         data: details_json,
@@ -144,8 +148,7 @@ $.register_module({
                             ui.message({location: '.OG-js-details-panel', destroy: true});
                             if (result.error) {
                                 ui.message({location: '.ui-layout-inner-center', destroy: true});
-                                ui.dialog({type: 'error', message: result.message});
-                                return;
+                                return ui.dialog({type: 'error', message: result.message});
                             }
                             configs.search(args);
                             routes.go(routes.hash(module.rules.load_configs, args));

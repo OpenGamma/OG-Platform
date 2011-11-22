@@ -55,6 +55,7 @@ $.register_module({
              * Create error dialog
              */
             if (obj.type === 'error') {
+                delete default_options.error.jquery.buttons['Cancel'];
                 // Check required data
                 if (!obj.message) throw new Error('obj.message is required for an error dialog');
                 // if the html isnt already in the dom, add it
