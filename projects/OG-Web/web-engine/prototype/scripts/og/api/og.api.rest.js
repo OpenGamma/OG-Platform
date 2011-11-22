@@ -73,8 +73,10 @@ $.register_module({
                     send = function () {
                         outstanding_requests[id].ajax = $.ajax({
                             url: url,
-                            type: config.meta.type,
-                            data: config.meta.type in no_post_body ? {} : config.data,
+                            // the following 2 lines are a hack to make sure GETs do not cachce, they need to be removed
+                            type: config.meta.type === 'GET' ? 'POST' : config.meta.type,
+                            data: config.meta.type in no_post_body ? config.meta.type === 'GET' ? {method: 'GET'} : {}
+                                : config.data,
                             headers: {'Accept': 'application/json'},
                             dataType: 'json',
                             timeout: TIMEOUT,

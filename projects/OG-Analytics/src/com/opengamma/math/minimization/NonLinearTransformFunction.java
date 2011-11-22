@@ -36,6 +36,7 @@ public class NonLinearTransformFunction {
     };
 
     _jac = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix2D evaluate(DoubleMatrix1D yStar) {
         DoubleMatrix1D y = _transform.inverseTransform(yStar);

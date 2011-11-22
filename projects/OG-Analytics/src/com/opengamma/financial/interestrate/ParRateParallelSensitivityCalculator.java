@@ -15,7 +15,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Calculates the change in par rate of an instrument (the exact meaning of par rate depends on the instrument - for swaps it is the par swap rate) due to a parallel move of each yield curve
  * that the instrument is sensitive to - dPar/dR where dR is a movement of the whole curve. The return format is a Map with curve names (String) as keys and a sensitivities as values. 
  */
-public final class ParRateParallelSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, Double>> {
+public final class ParRateParallelSensitivityCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, Double>> {
   private static final ParRateParallelSensitivityCalculator s_instance = new ParRateParallelSensitivityCalculator();
   private final ParRateCurveSensitivityCalculator _prcsc = ParRateCurveSensitivityCalculator.getInstance();
 
@@ -33,7 +33,7 @@ public final class ParRateParallelSensitivityCalculator extends AbstractInterest
    * @return a Map between curve name and sensitivity for that curve 
    */
   @Override
-  public Map<String, Double> visit(final InterestRateDerivative ird, final YieldCurveBundle curves) {
+  public Map<String, Double> visit(final InstrumentDerivative ird, final YieldCurveBundle curves) {
     final Map<String, List<DoublesPair>> sensitivities = _prcsc.visit(ird, curves);
     final Map<String, Double> result = new HashMap<String, Double>();
     for (final Map.Entry<String, List<DoublesPair>> entry : sensitivities.entrySet()) {

@@ -7,7 +7,7 @@ package com.opengamma.financial.interestrate.payments.market;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -27,7 +27,7 @@ public class CouponFixedDiscountingMarketMethod implements PricingMarketMethod {
   }
 
   @Override
-  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final MarketBundle market) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final MarketBundle market) {
     Validate.isTrue(instrument instanceof CouponFixed, "Coupon Fixed");
     return presentValue((CouponFixed) instrument, market);
   }

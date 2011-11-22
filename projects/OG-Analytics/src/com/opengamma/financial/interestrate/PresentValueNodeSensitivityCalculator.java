@@ -24,24 +24,24 @@ public class PresentValueNodeSensitivityCalculator extends NodeSensitivityCalcul
     return DEFAULT_INSTANCE;
   }
 
-  public static PresentValueNodeSensitivityCalculator using(final AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> presentValueSensitivityCalculator) {
+  public static PresentValueNodeSensitivityCalculator using(final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> presentValueSensitivityCalculator) {
     Validate.notNull(presentValueSensitivityCalculator, "present value sensitivity calculator");
     return new PresentValueNodeSensitivityCalculator(presentValueSensitivityCalculator);
   }
 
-  private final AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> _presentValueSensitivityCalculator;
+  private final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> _presentValueSensitivityCalculator;
 
   public PresentValueNodeSensitivityCalculator() {
     _presentValueSensitivityCalculator = PresentValueCurveSensitivityCalculator.getInstance();
   }
 
-  public PresentValueNodeSensitivityCalculator(final AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> presentValueSensitivityCalculator) {
+  public PresentValueNodeSensitivityCalculator(final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> presentValueSensitivityCalculator) {
     Validate.notNull(presentValueSensitivityCalculator, "present value sensitivity calculator");
     _presentValueSensitivityCalculator = presentValueSensitivityCalculator;
   }
 
   @Override
-  public DoubleMatrix1D calculateSensitivities(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves) {
+  public DoubleMatrix1D calculateSensitivities(final InstrumentDerivative ird, final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves) {
     return calculateSensitivities(ird, _presentValueSensitivityCalculator, fixedCurves, interpolatedCurves);
   }
 

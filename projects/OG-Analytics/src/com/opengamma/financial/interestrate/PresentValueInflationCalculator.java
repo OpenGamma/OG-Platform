@@ -28,7 +28,7 @@ import com.opengamma.util.money.CurrencyAmount;
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public class PresentValueInflationCalculator extends AbstractInterestRateDerivativeVisitor<MarketBundle, CurrencyAmount> {
+public class PresentValueInflationCalculator extends AbstractInstrumentDerivativeVisitor<MarketBundle, CurrencyAmount> {
 
   /**
    * Pricing method for zero-coupon with monthly reference index.
@@ -67,7 +67,7 @@ public class PresentValueInflationCalculator extends AbstractInterestRateDerivat
   }
 
   @Override
-  public CurrencyAmount visit(final InterestRateDerivative derivative, final MarketBundle market) {
+  public CurrencyAmount visit(final InstrumentDerivative derivative, final MarketBundle market) {
     Validate.notNull(market);
     Validate.notNull(derivative);
     return derivative.accept(this, market);

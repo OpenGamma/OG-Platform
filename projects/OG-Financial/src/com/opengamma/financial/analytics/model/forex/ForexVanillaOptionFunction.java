@@ -17,7 +17,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
-import com.opengamma.financial.forex.calculator.ForexConverter;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXOptionSecurity;
@@ -31,13 +31,12 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  */
 public abstract class ForexVanillaOptionFunction extends ForexOptionFunction {
 
-  public ForexVanillaOptionFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, 
-      final String callForwardCurveName, final String surfaceName) {
+  public ForexVanillaOptionFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName, final String surfaceName) {
     super(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
   }
 
   @Override
-  protected ForexConverter<?> getDefinition(final FinancialSecurity target) {
+  protected InstrumentDefinition<?> getDefinition(final FinancialSecurity target) {
     final FXOptionSecurity security = (FXOptionSecurity) target;
     return getVisitor().visitFXOptionSecurity(security);
   }

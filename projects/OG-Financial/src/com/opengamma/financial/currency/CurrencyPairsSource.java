@@ -9,17 +9,21 @@ import com.opengamma.util.money.Currency;
 
 /**
  * A source of market convention currency pairs ({@link CurrencyPairs} instances).
- * TODO methods to look up a single pair - at the moment this requires passing all 5000 pairs over the network every time
  */
 public interface CurrencyPairsSource {
 
   /**
    * @param name The name of the set of currency pairs
-   * @return The currency pairs
+   * @return The currency pairs or null if there are none in the system with a matching name
    */
   CurrencyPairs getCurrencyPairs(String name);
 
-  /*CurrencyPair getCurrencyPair(Currency currency1, Currency currency2, String name);
-
-  Double getRate(Currency currency1, double amount1, Currency currency2, double amount2, String name);*/
+  /**
+   * @param currency1 A currency
+   * @param currency2 Another currency
+   * @param name Name of the set of market convention currency pairs
+   * @return Market convention {@code CurrencyPair} for the currencies or null if there is no pair or not
+   * set of pairs matching {@code name}.
+   */
+  CurrencyPair getCurrencyPair(Currency currency1, Currency currency2, String name);
 }
