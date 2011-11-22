@@ -118,7 +118,7 @@ $.register_module({
                 .partial(page_name, 'Configurations', null, toolbar.partial('default')),
             details_page = function (args, new_config_type) {
                 var rest_options, is_new = !!new_config_type, rest_handler = function (result) {
-                    if (result.error) return alert(result.message);
+                    if (result.error) return ui.dialog({type: 'error', message: result.message});
                     if (is_new) {
                         if (!result.data) result.data = {template_data: {type: new_config_type, configJSON: {}}};
                         if (!result.data.template_data.configJSON) result.data.template_data.configJSON = {};

@@ -26,11 +26,10 @@ $.register_module({
                 if (template === null) return setTimeout(block.html.partial(handler), stall);
                 var self = 'html', total = block.children.length, done = 0, result = [],
                     internal_handler = function () {
-                        var html = template ? $(dummy).append($.tmpl(template, $.extend(
+                        handler(template ? $(dummy).append($.tmpl(template, $.extend(
                             result.reduce(function (acc, val, idx) {return acc['item_' + idx] = val, acc;}, {}),
                             extras
-                        ))).html() : wrap(result.join(''));
-                        return handler(html);
+                        ))).html() : wrap(result.join('')));
                     };
                 if (!total) return internal_handler();
                 block.children.forEach(function (val, idx) {
@@ -178,7 +177,7 @@ $.register_module({
             };
             form.data = config.data;
             form.dom = form.html.partial(function (html) {
-                $root.html($(dummy).append($.tmpl(form_template, {id: form.id, html: html})).html());
+                $root.empty().append($.tmpl(form_template, {id: form.id, html: html}));
                 form_events['form:load'].forEach(function (val) {val.handler();});
                 ($form = $('#' + form.id)).unbind().submit(submit_handler);
             });
