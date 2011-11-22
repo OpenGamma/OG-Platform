@@ -17,6 +17,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
@@ -28,6 +29,8 @@ public class VolatilityCubeDataBuilder implements FudgeBuilder<VolatilityCubeDat
 
   /** Field name. */
   public static final String DATA_POINTS_FIELD_NAME = "dataPoints";
+  /** Field name. */
+  public static final String DATA_IDS_FIELD_NAME = "dataIds";
   /** Field name. */
   public static final String OTHER_DATA_FIELD_NAME = "otherData";
   /** Field name. */
@@ -46,8 +49,9 @@ public class VolatilityCubeDataBuilder implements FudgeBuilder<VolatilityCubeDat
     MutableFudgeMsg ret = serializer.newMessage();
     FudgeSerializer.addClassHeader(ret, VolatilityCubeData.class);
     
-    serializer.addToMessage(ret, DATA_POINTS_FIELD_NAME, null, object.getDataPoints());
+    serializer.addToMessage(ret, DATA_POINTS_FIELD_NAME, null, object.getDataPoints());    
     serializer.addToMessage(ret, OTHER_DATA_FIELD_NAME, null, object.getOtherData());
+    serializer.addToMessage(ret, DATA_IDS_FIELD_NAME, null, object.getDataIds());
     
     if (object.getStrikes() != null) {
       MutableFudgeMsg strikesMessage = serializer.newMessage();
@@ -80,15 +84,19 @@ public class VolatilityCubeDataBuilder implements FudgeBuilder<VolatilityCubeDat
   public VolatilityCubeData buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     Class<?> mapClass = (Class<?>) Map.class;
     FudgeField pointsField = message.getByName(DATA_POINTS_FIELD_NAME);
+    FudgeField idsField = message.getByName(DATA_IDS_FIELD_NAME);
     
     @SuppressWarnings("unchecked")
     Map<VolatilityPoint, Double> dataPoints = (Map<VolatilityPoint, Double>) (pointsField == null ? null : deserializer.fieldValueToObject(mapClass, pointsField));
+    @SuppressWarnings("unchecked")
+    Map<VolatilityPoint, ExternalId> dataIds = (Map<VolatilityPoint, ExternalId>) (idsField == null ? null : deserializer.fieldValueToObject(mapClass, idsField));
     
     FudgeField otherField = message.getByName(OTHER_DATA_FIELD_NAME);
     SnapshotDataBundle otherData = otherField == null ? null : deserializer.fieldValueToObject(SnapshotDataBundle.class, otherField);
     
     VolatilityCubeData ret = new VolatilityCubeData();
     ret.setDataPoints(dataPoints);
+    ret.setDataIds(dataIds);
     ret.setOtherData(otherData);
     
     FudgeMsg strikesMsg = message.getMessage(STRIKES_FIELD_NAME);

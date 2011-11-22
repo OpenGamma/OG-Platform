@@ -13,8 +13,8 @@ import org.testng.annotations.Test;
 /**
  * 
  */
-public class ConstantSurfaceShiftFunctionTest {
-  private static final ConstantSurfaceShiftFunction F = new ConstantSurfaceShiftFunction();
+public class ConstantSurfaceMultiplicativeShiftFunctionTest {
+  private static final ConstantSurfaceMultiplicativeShiftFunction F = new ConstantSurfaceMultiplicativeShiftFunction();
   private static final double Z = 3;
   private static final ConstantDoublesSurface SURFACE = ConstantDoublesSurface.from(Z, "X");
 
@@ -52,11 +52,11 @@ public class ConstantSurfaceShiftFunctionTest {
   public void test() {
     final double shift = 0.34;
     ConstantDoublesSurface shifted = F.evaluate(SURFACE, shift);
-    assertArrayEquals(shifted.getZData(), new Double[] {Z + shift});
-    assertEquals(shifted.getName(), "PARALLEL_SHIFT_X");
+    assertArrayEquals(shifted.getZData(), new Double[] {Z * (1 + shift)});
+    assertEquals(shifted.getName(), "CONSTANT_MULTIPLIER_X");
     final String newName = "Y";
     shifted = F.evaluate(SURFACE, shift, newName);
-    assertArrayEquals(shifted.getZData(), new Double[] {Z + shift});
+    assertArrayEquals(shifted.getZData(), new Double[] {Z * (1 + shift)});
     assertEquals(shifted.getName(), newName);
   }
 

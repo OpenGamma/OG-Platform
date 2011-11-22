@@ -108,8 +108,7 @@ public abstract class BlackFormulaRepository {
 
     final double intrinsicPrice = Math.max(0, (isCall ? 1 : -1) * (forward - strike));
     Validate.isTrue(strike > 0, "Cannot find an implied volatility when strike is zero as there is no optionality");
-    Validate.isTrue(price >= intrinsicPrice, "option price (" + price + ") less than intrinsic value (" + intrinsicPrice
-        + ")");
+    Validate.isTrue(price >= intrinsicPrice, "option price (" + price + ") less than intrinsic value (" + intrinsicPrice + ")");
     if (isCall) {
       Validate.isTrue(price < forward, "call price must be less than forward");
     } else {
@@ -301,7 +300,6 @@ public abstract class BlackFormulaRepository {
     final BracketRoot bracketer = new BracketRoot();
     final Function1D<Double, Double> func = new Function1D<Double, Double>() {
 
-      @SuppressWarnings({"synthetic-access" })
       @Override
       public Double evaluate(final Double volatility) {
         return price(forward, strike, expiry, volatility, isCall) - forwardPrice;
@@ -316,7 +314,6 @@ public abstract class BlackFormulaRepository {
     final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(1e-6); //0.01bps accuracy 
     final Function1D<Double, Double> func = new Function1D<Double, Double>() {
 
-      @SuppressWarnings({"synthetic-access" })
       @Override
       public Double evaluate(final Double volatility) {
         return price(forward, strike, expiry, volatility, isCall) - forwardPrice;
@@ -338,7 +335,6 @@ public abstract class BlackFormulaRepository {
     final int n = data.length;
     final Function1D<Double, Double> func = new Function1D<Double, Double>() {
 
-      @SuppressWarnings({"synthetic-access" })
       @Override
       public Double evaluate(final Double volatility) {
         double sum = 0.0;

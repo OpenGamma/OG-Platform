@@ -12,29 +12,29 @@ import com.opengamma.math.function.Function;
 /**
  * Shifts a {@link FunctionalDoublesSurface}. Only parallel shifts of the surface are supported.
  */
-public class FunctionalSurfaceShiftFunction implements SurfaceShiftFunction<FunctionalDoublesSurface> {
+public class FunctionalSurfaceMultiplicativeShiftFunction implements SurfaceShiftFunction<FunctionalDoublesSurface> {
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double shift) {
+  public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double percentage) {
     Validate.notNull(surface, "surface");
-    return evaluate(surface, shift, "PARALLEL_SHIFT_" + surface.getName());
+    return evaluate(surface, percentage, "CONSTANT_MULTIPLIER_" + surface.getName());
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double shift, final String newName) {
+  public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double percentage, final String newName) {
     Validate.notNull(surface, "surface");
     final Function<Double, Double> f = surface.getFunction();
     final Function<Double, Double> shiftedFunction = new Function<Double, Double>() {
 
       @Override
       public Double evaluate(final Double... xy) {
-        return f.evaluate(xy) + shift;
+        return f.evaluate(xy) * (1 + percentage);
       }
 
     };
@@ -47,7 +47,7 @@ public class FunctionalSurfaceShiftFunction implements SurfaceShiftFunction<Func
    * @throws UnsupportedOperationException
    */
   @Override
-  public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double x, final double y, final double shift) {
+  public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double x, final double y, final double percentage) {
     throw new UnsupportedOperationException();
   }
 
@@ -57,7 +57,7 @@ public class FunctionalSurfaceShiftFunction implements SurfaceShiftFunction<Func
    * @throws UnsupportedOperationException
    */
   @Override
-  public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double x, final double y, final double shift, final String newName) {
+  public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double x, final double y, final double percentage, final String newName) {
     throw new UnsupportedOperationException();
   }
 
@@ -67,7 +67,7 @@ public class FunctionalSurfaceShiftFunction implements SurfaceShiftFunction<Func
    * @throws UnsupportedOperationException
    */
   @Override
-  public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double[] xShift, final double[] yShift, final double[] shift) {
+  public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double[] xShift, final double[] yShift, final double[] percentage) {
     throw new UnsupportedOperationException();
   }
 
@@ -77,7 +77,7 @@ public class FunctionalSurfaceShiftFunction implements SurfaceShiftFunction<Func
    * @throws UnsupportedOperationException
    */
   @Override
-  public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double[] xShift, final double[] yShift, final double[] shift, final String newName) {
+  public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double[] xShift, final double[] yShift, final double[] percentage, final String newName) {
     throw new UnsupportedOperationException();
   }
 

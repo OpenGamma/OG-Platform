@@ -20,7 +20,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public class InterpolatedSurfaceShiftFunctionTest {
+public class InterpolatedSurfaceMultiplicativeShiftFunctionTest {
   private static final double[] X = new double[] {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4 };
   private static final double[] Y = new double[] {0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4 };
   private static final double[] Z = new double[] {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 };
@@ -33,7 +33,7 @@ public class InterpolatedSurfaceShiftFunctionTest {
       };
   private static final String NAME = "K";
   private static final InterpolatedDoublesSurface SURFACE = InterpolatedDoublesSurface.from(X, Y, Z, INTERPOLATOR, NAME);
-  private static final InterpolatedSurfaceShiftFunction F = new InterpolatedSurfaceShiftFunction();
+  private static final InterpolatedSurfaceMultiplicativeShiftFunction F = new InterpolatedSurfaceMultiplicativeShiftFunction();
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1() {
@@ -92,15 +92,15 @@ public class InterpolatedSurfaceShiftFunctionTest {
     assertArrayEquals(surface.getXDataAsPrimitive(), X, 0);
     assertArrayEquals(surface.getYDataAsPrimitive(), Y, 0);
     for (int i = 0; i < Z.length; i++) {
-      assertEquals(Z[i] + shift, surface.getZDataAsPrimitive()[i], 0);
+      assertEquals(Z[i] * (1 + shift), surface.getZDataAsPrimitive()[i], 0);
     }
-    assertEquals(surface.getName(), "PARALLEL_SHIFT_" + NAME);
+    assertEquals(surface.getName(), "CONSTANT_MULTIPLIER_" + NAME);
     final String newName = "E";
     surface = F.evaluate(SURFACE, shift, newName);
     assertArrayEquals(surface.getXDataAsPrimitive(), X, 0);
     assertArrayEquals(surface.getYDataAsPrimitive(), Y, 0);
     for (int i = 0; i < Z.length; i++) {
-      assertEquals(Z[i] + shift, surface.getZDataAsPrimitive()[i], 0);
+      assertEquals(Z[i] * (1 + shift), surface.getZDataAsPrimitive()[i], 0);
     }
     assertEquals(surface.getName(), newName);
   }
@@ -116,12 +116,12 @@ public class InterpolatedSurfaceShiftFunctionTest {
     double[] z = surface.getZDataAsPrimitive();
     for (int i = 0; i < z.length; i++) {
       if (i == 14) {
-        assertEquals(Z[i] + shift, z[i], 0);
+        assertEquals(Z[i] * (1 + shift), z[i], 0);
       } else {
         assertEquals(Z[i], z[i], 0);
       }
     }
-    assertEquals(surface.getName(), "SINGLE_SHIFT_" + NAME);
+    assertEquals(surface.getName(), "SINGLE_MULTIPLIER_" + NAME);
     final String newName = "R";
     surface = F.evaluate(SURFACE, x, y, shift, newName);
     assertArrayEquals(surface.getXDataAsPrimitive(), X, 0);
@@ -129,7 +129,7 @@ public class InterpolatedSurfaceShiftFunctionTest {
     z = surface.getZDataAsPrimitive();
     for (int i = 0; i < z.length; i++) {
       if (i == 14) {
-        assertEquals(Z[i] + shift, z[i], 0);
+        assertEquals(Z[i] * (1 + shift), z[i], 0);
       } else {
         assertEquals(Z[i], z[i], 0);
       }
@@ -153,7 +153,7 @@ public class InterpolatedSurfaceShiftFunctionTest {
     assertEquals(newX[n - 1], x, 0);
     assertEquals(newY[n - 1], y, 0);
     assertEquals(z[n - 1], x + y + shift, 0);
-    assertEquals(surface.getName(), "SINGLE_SHIFT_" + NAME);
+    assertEquals(surface.getName(), "SINGLE_MULTIPLIER_" + NAME);
     surface = F.evaluate(SURFACE, x, y, shift, newName);
     newX = surface.getXDataAsPrimitive();
     newY = surface.getYDataAsPrimitive();
@@ -181,7 +181,7 @@ public class InterpolatedSurfaceShiftFunctionTest {
     assertArrayEquals(surface.getXDataAsPrimitive(), X, 0);
     assertArrayEquals(surface.getYDataAsPrimitive(), Y, 0);
     assertArrayEquals(surface.getZDataAsPrimitive(), Z, 0);
-    assertEquals(surface.getName(), "MULTIPLE_SHIFT_" + NAME);
+    assertEquals(surface.getName(), "MULTIPLE_MULTIPLIER_" + NAME);
     surface = F.evaluate(SURFACE, xShift, yShift, shift, "A");
     assertArrayEquals(surface.getXDataAsPrimitive(), X, 0);
     assertArrayEquals(surface.getYDataAsPrimitive(), Y, 0);
@@ -200,14 +200,14 @@ public class InterpolatedSurfaceShiftFunctionTest {
     double[] z = surface.getZDataAsPrimitive();
     for (int i = 0; i < z.length; i++) {
       if (i == 5) {
-        assertEquals(Z[i] + shift[0], z[i], 0);
+        assertEquals(Z[i] * (1 + shift[0]), z[i], 0);
       } else if (i == 13) {
-        assertEquals(Z[i] + shift[1], z[i], 0);
+        assertEquals(Z[i] * (1 + shift[1]), z[i], 0);
       } else {
         assertEquals(Z[i], z[i], 0);
       }
     }
-    assertEquals(surface.getName(), "MULTIPLE_SHIFT_" + NAME);
+    assertEquals(surface.getName(), "MULTIPLE_MULTIPLIER_" + NAME);
     final String newName = "R";
     surface = F.evaluate(SURFACE, x, y, shift, newName);
     assertArrayEquals(surface.getXDataAsPrimitive(), X, 0);
@@ -215,9 +215,9 @@ public class InterpolatedSurfaceShiftFunctionTest {
     z = surface.getZDataAsPrimitive();
     for (int i = 0; i < z.length; i++) {
       if (i == 5) {
-        assertEquals(Z[i] + shift[0], z[i], 0);
+        assertEquals(Z[i] * (1 + shift[0]), z[i], 0);
       } else if (i == 13) {
-        assertEquals(Z[i] + shift[1], z[i], 0);
+        assertEquals(Z[i] * (1 + shift[1]), z[i], 0);
       } else {
         assertEquals(Z[i], z[i], 0);
       }
@@ -240,15 +240,15 @@ public class InterpolatedSurfaceShiftFunctionTest {
     assertEquals(surface.size(), newZ.length);
     for (int i = 0; i < n - 1; i++) {
       if (i == 5) {
-        assertEquals(Z[i] + shift[0], newZ[i], 0);
+        assertEquals(Z[i] * (1 + shift[0]), newZ[i], 0);
       } else {
         assertEquals(Z[i], newZ[i], 0);
       }
     }
     assertEquals(newX[n - 1], x[1], 0);
     assertEquals(newY[n - 1], y[1], 0);
-    assertEquals(newZ[n - 1], x[1] + y[1] + shift[1], 0);
-    assertEquals(surface.getName(), "MULTIPLE_SHIFT_" + NAME);
+    assertEquals(newZ[n - 1], (x[1] + y[1]) * (1 + shift[1]), 0);
+    assertEquals(surface.getName(), "MULTIPLE_MULTIPLIER_" + NAME);
     final String newName = "R";
     surface = F.evaluate(SURFACE, x, y, shift, newName);
     newX = surface.getXDataAsPrimitive();
@@ -259,14 +259,14 @@ public class InterpolatedSurfaceShiftFunctionTest {
     assertEquals(surface.size(), newZ.length);
     for (int i = 0; i < n - 1; i++) {
       if (i == 5) {
-        assertEquals(Z[i] + shift[0], newZ[i], 0);
+        assertEquals(Z[i] * (1 + shift[0]), newZ[i], 0);
       } else {
         assertEquals(Z[i], newZ[i], 0);
       }
     }
     assertEquals(newX[n - 1], x[1], 0);
     assertEquals(newY[n - 1], y[1], 0);
-    assertEquals(newZ[n - 1], x[1] + y[1] + shift[1], 0);
+    assertEquals(newZ[n - 1], (x[1] + y[1]) * (1 + shift[1]), 0);
     assertEquals(surface.getName(), newName);
   }
 
@@ -288,11 +288,11 @@ public class InterpolatedSurfaceShiftFunctionTest {
     }
     assertEquals(newX[n - 2], x[0], 0);
     assertEquals(newY[n - 2], y[0], 0);
-    assertEquals(newZ[n - 2], x[0] + y[0] + shift[0], 0);
+    assertEquals(newZ[n - 2], (x[0] + y[0]) * (1 + shift[0]), 0);
     assertEquals(newX[n - 1], x[1], 0);
     assertEquals(newY[n - 1], y[1], 0);
-    assertEquals(newZ[n - 1], x[1] + y[1] + shift[1], 0);
-    assertEquals(surface.getName(), "MULTIPLE_SHIFT_" + NAME);
+    assertEquals(newZ[n - 1], (x[1] + y[1]) * (1 + shift[1]), 0);
+    assertEquals(surface.getName(), "MULTIPLE_MULTIPLIER_" + NAME);
     final String newName = "R";
     surface = F.evaluate(SURFACE, x, y, shift, newName);
     newX = surface.getXDataAsPrimitive();
@@ -306,10 +306,10 @@ public class InterpolatedSurfaceShiftFunctionTest {
     }
     assertEquals(newX[n - 2], x[0], 0);
     assertEquals(newY[n - 2], y[0], 0);
-    assertEquals(newZ[n - 2], x[0] + y[0] + shift[0], 0);
+    assertEquals(newZ[n - 2], (x[0] + y[0]) * (1 + shift[0]), 0);
     assertEquals(newX[n - 1], x[1], 0);
     assertEquals(newY[n - 1], y[1], 0);
-    assertEquals(newZ[n - 1], x[1] + y[1] + shift[1], 0);
+    assertEquals(newZ[n - 1], (x[1] + y[1]) * (1 + shift[1]), 0);
     assertEquals(surface.getName(), newName);
   }
 }
