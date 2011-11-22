@@ -175,14 +175,28 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            var $html, error_html, layout = og.views.common.layout, json_id = json.identifiers,
+                            var $html, error_html, layout = og.views.common.layout, json_id = json.identifiers, title,
                                 stop_loading, header, content; // functions
                             error_html = '\
                                 <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
                                     This position has been deleted\
                                 </section>\
                             ';
-                            $html = $.tmpl(template, json.template_data);
+                            // check if any of the following scheme types are in json.identifiers, in
+                            // reverse order of preference, delimiting if multiple, then assign to title
+                            ['ISIN', 'SEDOL1', 'CUSIP', 'BLOOMBERG_BUID', 'BLOOMBERG_TICKER'].forEach(function (val) {
+                                title = (function (type) {
+                                    return json.identifiers.reduce(function (acc, val) {
+                                        if (val.scheme === type) acc = acc
+                                            ? acc + ', ' + val.value
+                                            : type.lang() + ' - ' + val.value;
+                                        return acc
+                                    }, '')
+                                }(val)) || title;
+                            });
+                            $html = $.tmpl(template, $.extend({}, json.template_data, {
+                                title: title || json.template_data.object_id
+                            }));
                             // Initial html setup
                             header = $.outer($html.find('> header')[0]);
                             content = $.outer($html.find('> section')[0]);
