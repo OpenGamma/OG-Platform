@@ -62,10 +62,14 @@ public abstract class ConditionalSqlFragment extends ContainerSqlFragment {
     if (paramSource.hasValue(_variable) == false) {
       return false;
     }
-    if (_matchValue == null) {
-      return true;
+    Object value = paramSource.getValue(_variable);
+    if (value instanceof Boolean) {
+      return ((Boolean) value).booleanValue();
     }
-    return _matchValue.equals(paramSource.getValue(_variable).toString());
+    if (_matchValue != null) {
+      return _matchValue.equalsIgnoreCase(value.toString());
+    }
+    return true;
   }
 
   protected boolean endsWith(StringBuilder buf, String match) {
