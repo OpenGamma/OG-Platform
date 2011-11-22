@@ -14,6 +14,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.BLAS.BLAS2KernelAbstractions.BLAS2DGEMVKernelAbstraction;
+import com.opengamma.math.BLAS.BLAS2KernelImplementations.DGEMVForCOOMatrix;
 import com.opengamma.math.BLAS.BLAS2KernelImplementations.DGEMVForCSCMatrix;
 import com.opengamma.math.BLAS.BLAS2KernelImplementations.DGEMVForCSRMatrix;
 import com.opengamma.math.BLAS.BLAS2KernelImplementations.DGEMVForDenseMatrix;
@@ -24,6 +25,7 @@ import com.opengamma.math.matrix.DenseMatrix;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.MatrixPrimitive;
 import com.opengamma.math.matrix.PackedMatrix;
+import com.opengamma.math.matrix.SparseCoordinateFormatMatrix;
 
 /**
  * Provides the BLAS level 2 behaviour for the OG matrix library.
@@ -63,6 +65,7 @@ public class BLAS2 {
     s_dgemvFunctionPointers.put(DenseMatrix.class, DGEMVForDenseMatrix.getInstance());
     s_dgemvFunctionPointers.put(CompressedSparseRowFormatMatrix.class, DGEMVForCSRMatrix.getInstance());
     s_dgemvFunctionPointers.put(CompressedSparseColumnFormatMatrix.class, DGEMVForCSCMatrix.getInstance());
+    s_dgemvFunctionPointers.put(SparseCoordinateFormatMatrix.class, DGEMVForCOOMatrix.getInstance());
     s_dgemvFunctionPointers.put(PackedMatrix.class, DGEMVForPackedMatrix.getInstance());
   }
 
