@@ -87,6 +87,10 @@ public class SumUtils {
       final DoubleLabelledMatrix2D previousMatrix = (DoubleLabelledMatrix2D) currentTotal;
       final DoubleLabelledMatrix2D currentMatrix = (DoubleLabelledMatrix2D) value;
       return previousMatrix.add(currentMatrix, 0.005, 0.005);
+    } else if (value instanceof DoubleLabelledMatrix3D) {
+      final DoubleLabelledMatrix3D previousMatrix = (DoubleLabelledMatrix3D) currentTotal;
+      final DoubleLabelledMatrix3D currentMatrix = (DoubleLabelledMatrix3D) value;
+      return previousMatrix.add((LabelledMatrix3D<Double, Double, Double, Double, Double, Double, DoubleLabelledMatrix3D>) currentMatrix, 0.005, 0.005, 0.005);
     }
     throw new IllegalArgumentException("Can only add Doubles, BigDecimal, DoubleTimeSeries and LabelledMatrix1D (Double, LocalDate and ZonedDateTime), " +
         "or present value curve sensitivities right now.");

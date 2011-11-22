@@ -13,12 +13,12 @@ import org.testng.annotations.Test;
 /**
  * 
  */
-public class NodalSurfaceShiftFunctionTest {
+public class NodalSurfaceMultiplicativeShiftFunctionTest {
   private static final double[] X = new double[] {0, 0, 0, 1, 1, 1, 2, 2, 2};
   private static final double[] Y = new double[] {0, 1, 2, 0, 1, 2, 0, 1, 2};
   private static final double[] Z = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
   private static final NodalDoublesSurface SURFACE = NodalDoublesSurface.from(X, Y, Z, "A");
-  private static final NodalSurfaceShiftFunction F = new NodalSurfaceShiftFunction();
+  private static final NodalSurfaceAdditiveShiftFunction F = new NodalSurfaceAdditiveShiftFunction();
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1() {

@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 /**
  * Shifts a {@link ConstantDoublesSurface}. Only parallel shifts of the surface are supported.
  */
-public class ConstantSurfaceShiftFunction implements SurfaceShiftFunction<ConstantDoublesSurface> {
+public class ConstantSurfaceAdditiveShiftFunction implements SurfaceShiftFunction<ConstantDoublesSurface> {
 
   /**
    * {@inheritDoc}

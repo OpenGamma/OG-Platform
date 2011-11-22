@@ -36,7 +36,7 @@ public class VolatilitySurfaceShiftFunction extends AbstractFunction.NonCompiled
   /**
    * Property to shift a volatility surface.
    */
-  protected static final String SHIFT = "SHIFT";
+  public static final String SHIFT = "SHIFT";
 
   @Override
   public String getShortName() {
@@ -90,7 +90,7 @@ public class VolatilitySurfaceShiftFunction extends AbstractFunction.NonCompiled
     properties.with(SHIFT, shift);
     try {
       final double shiftAmount = Double.parseDouble(shift);
-      volatilitySurface = volatilitySurface.withParallelShift(shiftAmount);
+      volatilitySurface = volatilitySurface.withConstantMultiplicativeShift(shiftAmount);
     } catch (NumberFormatException e) {
       s_logger.error("Volatility surface shift not valid - {}", shift);
     }

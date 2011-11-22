@@ -21,7 +21,7 @@ import com.opengamma.math.interpolation.LinearInterpolator1D;
 /**
  * 
  */
-public class InterpolatedFromCurvesSurfaceShiftFunctionTest {
+public class InterpolatedFromCurvesAdditiveSurfaceShiftFunctionTest {
   private static final NodalDoublesCurve NODAL = NodalDoublesCurve.fromSorted(new double[] {1, 2, 3, 4}, new double[] {2, 3, 4, 5}, "Q");
   private static final LinearInterpolator1D INTERPOLATOR = new LinearInterpolator1D();
   private static final InterpolatedDoublesCurve INTERPOLATED1 = InterpolatedDoublesCurve.fromSorted(new double[] {1, 2, 3, 4}, new double[] {3, 4, 5, 6}, INTERPOLATOR, "W");
@@ -32,7 +32,7 @@ public class InterpolatedFromCurvesSurfaceShiftFunctionTest {
   private static final String NAME = "D";
   private static final InterpolatedFromCurvesDoublesSurface SURFACE1 = InterpolatedFromCurvesDoublesSurface.fromSorted(true, POINTS, CURVES, INTERPOLATOR, NAME);
   private static final InterpolatedFromCurvesDoublesSurface SURFACE2 = InterpolatedFromCurvesDoublesSurface.fromSorted(false, POINTS, CURVES, INTERPOLATOR, NAME);
-  private static final InterpolatedFromCurvesSurfaceShiftFunction F = new InterpolatedFromCurvesSurfaceShiftFunction();
+  private static final InterpolatedFromCurvesSurfaceAdditiveShiftFunction F = new InterpolatedFromCurvesSurfaceAdditiveShiftFunction();
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1() {
