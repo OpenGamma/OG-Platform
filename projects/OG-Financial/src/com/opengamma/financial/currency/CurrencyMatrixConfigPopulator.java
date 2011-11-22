@@ -22,8 +22,8 @@ public class CurrencyMatrixConfigPopulator {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CurrencyMatrixConfigPopulator.class);
   
-  private static final String[] DOLLARS_PER_UNIT_CURRENCIES = new String[] {"EUR", "GBP", "AUD", "NZD" };
-  private static final String[] UNITS_PER_DOLLAR_CURRENCIES = new String[] {"JPY", "CHF", "SEK", "CAD", "DKK" };
+  private static final String[] DOLLARS_PER_UNIT_CURRENCIES = new String[] {"EUR", "GBP", "AUD", "NZD"};
+  private static final String[] UNITS_PER_DOLLAR_CURRENCIES = new String[] {"JPY", "CHF", "SEK", "CAD", "DKK", "BRL",  "TWD"};
   private static final String[] CURRENCIES = combine(DOLLARS_PER_UNIT_CURRENCIES, UNITS_PER_DOLLAR_CURRENCIES);
   
   private static String[] combine(final String[] a, final String[] b) {

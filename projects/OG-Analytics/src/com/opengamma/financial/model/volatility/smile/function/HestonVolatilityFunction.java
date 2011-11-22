@@ -15,9 +15,7 @@ import com.opengamma.financial.model.option.pricing.fourier.MartingaleCharacteri
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.lang.annotation.ExternalFunction;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
-import com.opengamma.math.interpolation.FlatExtrapolator1D;
+import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
@@ -27,7 +25,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonModelData> {
 
   private static final FFTPricer FFT_PRICER = new FFTPricer();
-  private static final Interpolator1D DEFAULT_INTERPOLATOR1D = new CombinedInterpolatorExtrapolator(new DoubleQuadraticInterpolator1D(), new FlatExtrapolator1D(), new FlatExtrapolator1D());
+  private static final Interpolator1D DEFAULT_INTERPOLATOR1D = CombinedInterpolatorExtrapolatorFactory.getInterpolator("DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator");
   private static final double DEFAULT_LIMIT_SIGMA = 0.3;
   private static final double DEFAULT_ALPHA = -0.5;
 
@@ -179,7 +177,7 @@ public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonM
         final double[][] volSense = new double[p - 2][m];
         for (int index = 0; index < p - 2; index++) {
           for (int i = 0; i < m; i++) {
-            volSense[index][i] = greeks[index + 2][i] / vega[i];
+            volSense[index][i] = greeks[index + 2][i] / vega[i]; //TODO here is where vega = 0 -> infinity
           }
         }
 

@@ -300,10 +300,7 @@ import com.opengamma.util.tuple.Pair;
 
       @Override
       public final void pump(final GraphBuildingContext context) {
-        if (_pump == null) {
-          // Either pump called twice for a resolve, called before the first resolve, or after failed
-          throw new IllegalStateException();
-        } else {
+        if (_pump != null) {
           s_logger.debug("Pumping underlying delegate");
           ResolutionPump pump = _pump;
           _pump = null;

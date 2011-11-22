@@ -38,7 +38,7 @@ public class SabrExtrapolationExample {
     private static final double[] MU_VALUES = {5.0, 40.0, 90.0, 150.0};
 
     // @export "main"
-    public static void main(String[] args) throws IOException, IllegalAccessException, java.lang.ClassNotFoundException {
+    public static void main(String[] args) throws IOException, IllegalAccessException {
         double mu;
         double strike;
         double price;
@@ -63,40 +63,11 @@ public class SabrExtrapolationExample {
                 EuropeanVanillaOption option = new EuropeanVanillaOption(strike, TIME_TO_EXPIRY, true);
                 price = sabrExtra.price(option);
                 impliedVolatilityPct = implied.getImpliedVolatility(blackData, option, price) * 100;
-                data_stream.format("%4.0f\t%.6f\t%.4f\t%2.4f%n", mu, price, strike, impliedVolatilityPct);
+                data_stream.format("%4.0f\t%1.10f\t%1.10f\t%1.10f%n", mu, price, strike, impliedVolatilityPct);
             }
         }
         // @export "save-data"
         data_stream.close();
-
-        // @export "debug-classes"
-        Class[] classes = { SABRFormulaData.class, SABRHaganVolatilityFunction.class };
-        for (int i = 0; i < classes.length; i++) {
-            Class klass = classes[i];
-            System.out.println(klass);
-
-            java.net.URL res = SabrExtrapolationExample.class.getResource("/" + klass.getName().replace(".", "/") + ".class");
-            System.out.println(res);
-
-            Constructor[] constructors = klass.getConstructors();
-            System.out.format("Found %d constructors%n", constructors.length);
-            for (int j = 0; j < constructors.length; j++) {
-                Constructor constructor = constructors[j];
-                Class[] parameters = constructor.getParameterTypes();
-                System.out.format("  Constructor %d of %d - takes %d parameters %n", j+1, constructors.length, parameters.length);
-                for (int k = 0; k < parameters.length; k++) {
-                    Class param = parameters[k];
-                    System.out.format("    Param %d: %s", k+1, param.toString());
-                    Class component_type = param.getComponentType();
-                    if (component_type != null) {
-                        System.out.format(" (%s)", component_type.toString());
-                    }
-                    System.out.format("%n");
-                }
-            }
-            // Blank line to separate classes.
-            System.out.println();
-        }
 
         // @export "save-fields"
         // For now this is once-off code. Will be abstracted out unto a generic Dexy utility soon...

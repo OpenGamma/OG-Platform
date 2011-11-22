@@ -180,6 +180,28 @@ public class PositionTradeScalingFunction extends PropertyPreservingFunction {
         }
       }
       scaledValue = new ComputedValue(specification, new DoubleLabelledMatrix2D(xKeys, xLabels, yKeys, yLabels, scaledValues));
+    } else if (value instanceof DoubleLabelledMatrix3D) {
+      final DoubleLabelledMatrix3D matrix = (DoubleLabelledMatrix3D) value;
+      final Double[] xKeys = matrix.getXKeys();
+      final Object[] xLabels = matrix.getXLabels();
+      final Double[] yKeys = matrix.getYKeys();
+      final Object[] yLabels = matrix.getYLabels();
+      final Double[] zKeys = matrix.getZKeys();
+      final Object[] zLabels = matrix.getZLabels();
+      final double[][][] values = matrix.getValues();
+      final int n = values.length;
+      final int m = values[0].length;
+      final int l = values[0][0].length;
+      final double[][][] scaledValues = new double[n][m][l];
+      final double scale = target.getPosition().getQuantity().doubleValue();
+      for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+          for (int k = 0; k < l; j++) {
+            scaledValues[i][j][k] = values[i][j][k] * scale;
+          }
+        }
+      }
+      scaledValue = new ComputedValue(specification, new DoubleLabelledMatrix3D(xKeys, xLabels, yKeys, yLabels, zKeys, zLabels, scaledValues));    
     } else {
       //REVIEW emcleod 27-1-2011 aaaaaaaaaarrrrrrrrgggggghhhhhhhhh Why is nothing done here?
       scaledValue = new ComputedValue(specification, value);

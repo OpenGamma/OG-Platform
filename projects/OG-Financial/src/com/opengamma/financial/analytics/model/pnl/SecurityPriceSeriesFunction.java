@@ -25,6 +25,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -33,6 +34,7 @@ import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingF
 import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.financial.schedule.Schedule;
 import com.opengamma.financial.schedule.ScheduleCalculatorFactory;
+import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -75,7 +77,8 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
     final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, security), getUniqueId());
+    ValueRequirement vr = new ValueRequirement(ValueRequirementNames.PRICE_SERIES, security, createValueProperties().with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode()).get());
+    final ValueSpecification valueSpecification = new ValueSpecification(vr, getUniqueId());
     
     final HistoricalTimeSeries tsPair = historicalSource.getHistoricalTimeSeries(_fieldName, security.getExternalIdBundle(), _resolutionKey, _startDate, true, now, true);
     if (tsPair == null) {
@@ -101,7 +104,14 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.SECURITY;
+    if (target.getType() != ComputationTargetType.SECURITY) {
+      return false;
+    }
+    try {
+      return FinancialSecurityUtils.getCurrency(target.getSecurity()) != null;
+    } catch (UnsupportedOperationException e) {
+      return false;
+    }
   }
 
   @Override
@@ -111,10 +121,8 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, target.getSecurity()), getUniqueId()));
-    }
-    return null;
+    return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, target.getSecurity(), createValueProperties().with(ValuePropertyNames.CURRENCY,
+        FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode()).get()), getUniqueId()));
   }
 
   @Override

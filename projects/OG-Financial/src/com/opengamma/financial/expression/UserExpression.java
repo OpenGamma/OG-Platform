@@ -16,7 +16,14 @@ public abstract class UserExpression {
   /**
    * Special result produced by expressions which fail to evaluate.
    */
-  public static final Object NA = new Object();
+  public static final Object NA = new Object() {
+
+    @Override
+    public String toString() {
+      return "N/A";
+    }
+
+  };
 
   /**
    * Evaluation context for an expression.

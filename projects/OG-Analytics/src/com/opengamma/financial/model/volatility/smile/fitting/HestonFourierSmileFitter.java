@@ -60,9 +60,13 @@ public class HestonFourierSmileFitter extends HestonFFTSmileFitter {
       public Double evaluate(final Double strike, final DoubleMatrix1D fp) {
         final MartingaleCharacteristicExponent ce = getCharacteristicExponent(transforms, fp);
         final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, maturity, true);
-        final double price = FOURIER_PRICER.priceFromVol(blackData, option, ce, getAlpha(), getLimitTolerance(), true);
-        final double vol = BLACK_IMPLIED_VOL_FORMULA.getImpliedVolatility(blackData, option, price);
-        return vol;
+        try {
+          final double price = FOURIER_PRICER.priceFromVol(blackData, option, ce, getAlpha(), getLimitTolerance(), true);
+          final double vol = BLACK_IMPLIED_VOL_FORMULA.getImpliedVolatility(blackData, option, price);
+          return vol;
+        } catch (Exception e) {
+          return 0.;
+        }
       }
     };
 

@@ -69,15 +69,27 @@ public class VolatilitySurface implements VolatilityModel<DoublesPair> {
   }
 
   public VolatilitySurface withParallelShift(final double shift) {
-    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, shift));
+    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, shift, true));
   }
 
-  public VolatilitySurface withSingleShift(final double x, final double y, final double shift) {
-    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, x, y, shift));
+  public VolatilitySurface withSingleAdditiveShift(final double x, final double y, final double shift) {
+    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, x, y, shift, true));
   }
 
-  public VolatilitySurface withMultipleShifts(final double[] x, final double[] y, final double[] shifts) {
-    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, x, y, shifts));
+  public VolatilitySurface withMultipleAdditiveShifts(final double[] x, final double[] y, final double[] shifts) {
+    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, x, y, shifts, true));
+  }
+
+  public VolatilitySurface withConstantMultiplicativeShift(final double shift) {
+    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, shift, false));
+  }
+
+  public VolatilitySurface withSingleMultiplicativeShift(final double x, final double y, final double shift) {
+    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, x, y, shift, false));
+  }
+
+  public VolatilitySurface withMultipleMultiplicativeShifts(final double[] x, final double[] y, final double[] shifts) {
+    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, x, y, shifts, false));
   }
 
   @Override

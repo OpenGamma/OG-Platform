@@ -38,6 +38,7 @@
 		<dependency org="it.unimi.dsi" name="fastutil" rev="6.3"/>
 		<dependency org="org.mongodb" name="java-driver" rev="2.1" />
 		<dependency org="org.scannotation" name="scannotation" rev="[1.0.2,1.1[" />
+		<dependency org="net.sf.opencsv" name="opencsv" rev="[2.0,3["/>
 		<exclude org="org.junit" />
 	</dependencies>
 </ivy-module>
