@@ -61,7 +61,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   // Cell-based state
   private final ConcurrentMap<WebGridCell, WebViewDepGraphGrid> _depGraphGrids = new ConcurrentHashMap<WebGridCell, WebViewDepGraphGrid>();
   
-  protected RequirementBasedWebViewGrid(String name, ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, List<UniqueId> targets,
+  protected RequirementBasedWebViewGrid(String name, ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, List<ComputationTargetSpecification> targets,
       EnumSet<ComputationTargetType> targetTypes, ResultConverterCache resultConverterCache, Client local, Client remote, String nullCellValue) {
     super(name, viewClient, resultConverterCache, local, remote);
     
@@ -74,7 +74,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   //-------------------------------------------------------------------------
 
   public void processTargetResult(ComputationTargetSpecification target, ViewTargetResultModel resultModel, Long resultTimestamp) {
-    Integer rowId = getGridStructure().getRowId(target.getUniqueId());
+    Integer rowId = getGridStructure().getRowId(target);
     if (rowId == null) {
       // Result not in the grid
       return;
@@ -83,39 +83,37 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
     Map<String, Object> valuesToSend = createDefaultTargetResult(rowId);
     
     // Whether or not the row is in the viewport, we may have to store history
-    for (String calcConfigName : resultModel.getCalculationConfigurationNames()) {
-      
-      for (ComputedValue value : resultModel.getAllValues(calcConfigName)) {
-        ValueSpecification specification = value.getSpecification();
-        Collection<WebViewGridColumn> columns = getGridStructure().getColumns(calcConfigName, specification);
-        if (columns == null) {
-          // Expect a column for every value
-          s_logger.warn("Could not find column for calculation configuration {} with value specification {}", calcConfigName, specification);
-          continue;
-        }
-        
-        Object originalValue = value.getValue();        
-        for (WebViewGridColumn column : columns) {
-          int colId = column.getId();
-          WebGridCell cell = WebGridCell.of(rowId, colId);
-          ResultConverter<Object> converter = originalValue != null ? getConverter(column, value.getSpecification().getValueName(), originalValue.getClass()) : null;
-          Map<String, Object> cellData = processCellValue(cell, specification, originalValue, resultTimestamp, converter);
-          Object depGraph = getDepGraphIfRequested(cell, calcConfigName, specification, resultTimestamp);
-          if (depGraph != null) {
-            if (cellData == null) {
-              cellData = new HashMap<String, Object>();
-            }
-            cellData.put("dg", depGraph);
+    if (resultModel != null) {
+      for (String calcConfigName : resultModel.getCalculationConfigurationNames()) {
+        for (ComputedValue value : resultModel.getAllValues(calcConfigName)) {
+          ValueSpecification specification = value.getSpecification();
+          Collection<WebViewGridColumn> columns = getGridStructure().getColumns(calcConfigName, specification);
+          if (columns == null) {
+            // Expect a column for every value
+            s_logger.warn("Could not find column for calculation configuration {} with value specification {}", calcConfigName, specification);
+            continue;
           }
-          if (cellData != null) {
-            valuesToSend.put(Integer.toString(colId), cellData);
+          Object originalValue = value.getValue();        
+          for (WebViewGridColumn column : columns) {
+            int colId = column.getId();
+            WebGridCell cell = WebGridCell.of(rowId, colId);
+            ResultConverter<Object> converter = originalValue != null ? getConverter(column, value.getSpecification().getValueName(), originalValue.getClass()) : null;
+            Map<String, Object> cellData = processCellValue(cell, specification, originalValue, resultTimestamp, converter);
+            Object depGraph = getDepGraphIfRequested(cell, calcConfigName, specification, resultTimestamp);
+            if (depGraph != null) {
+              if (cellData == null) {
+                cellData = new HashMap<String, Object>();
+              }
+              cellData.put("dg", depGraph);
+            }
+            if (cellData != null) {
+              valuesToSend.put(Integer.toString(colId), cellData);
+            }
           }
         }
       }
     }
-    if (valuesToSend != null) {
-      getRemoteClient().deliver(getLocalClient(), getUpdateChannel(), valuesToSend, null);
-    }
+    getRemoteClient().deliver(getLocalClient(), getUpdateChannel(), valuesToSend, null);
   }
   
   private Map<String, Object> createDefaultTargetResult(Integer rowId) {
@@ -152,9 +150,9 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   @Override
   protected List<Object> getInitialJsonRowStructures() {
     List<Object> rowStructures = new ArrayList<Object>();
-    for (Map.Entry<UniqueId, Integer> targetEntry : getGridStructure().getTargets().entrySet()) {
+    for (Map.Entry<ComputationTargetSpecification, Integer> targetEntry : getGridStructure().getTargets().entrySet()) {
       Map<String, Object> rowDetails = new HashMap<String, Object>();
-      UniqueId target = targetEntry.getKey();
+      UniqueId target = targetEntry.getKey().getUniqueId();
       int rowId = targetEntry.getValue();
       rowDetails.put("rowId", rowId);
       addRowDetails(target, rowId, rowDetails);
@@ -290,7 +288,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
     int columnCount = getGridStructure().getColumns().size() + getAdditionalCsvColumnCount();
     int offset = getCsvDataColumnOffset();
     for (ComputationTargetSpecification target : result.getAllTargets()) {
-      Integer rowId = getGridStructure().getRowId(target.getUniqueId());
+      Integer rowId = getGridStructure().getRowId(target);
       if (rowId == null) {
         continue;
       }
