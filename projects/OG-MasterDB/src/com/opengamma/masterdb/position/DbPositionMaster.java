@@ -51,7 +51,7 @@ import com.opengamma.master.position.PositionHistoryResult;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
-import com.opengamma.masterdb.AbstractDocumentDbMaster2;
+import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
@@ -72,7 +72,7 @@ import com.opengamma.util.tuple.Pair;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbPositionMaster extends AbstractDocumentDbMaster2<PositionDocument> implements PositionMaster {
+public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument> implements PositionMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbPositionMaster.class);

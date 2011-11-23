@@ -40,7 +40,7 @@ import com.opengamma.master.config.ConfigMetaDataResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.master.config.ConfigSearchSortOrder;
-import com.opengamma.masterdb.AbstractDocumentDbMaster2;
+import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
@@ -52,7 +52,7 @@ import com.opengamma.util.paging.PagingRequest;
 /**
  * 
  */
-/*package*/class DbConfigWorker extends AbstractDocumentDbMaster2<ConfigDocument<?>> {
+/*package*/class DbConfigWorker extends AbstractDocumentDbMaster<ConfigDocument<?>> {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbConfigWorker.class);

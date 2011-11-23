@@ -44,7 +44,7 @@ import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.master.security.SecuritySearchSortOrder;
-import com.opengamma.masterdb.AbstractDocumentDbMaster2;
+import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
@@ -64,7 +64,7 @@ import com.opengamma.util.paging.Paging;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbSecurityMaster extends AbstractDocumentDbMaster2<SecurityDocument> implements SecurityMaster {
+public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument> implements SecurityMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMaster.class);

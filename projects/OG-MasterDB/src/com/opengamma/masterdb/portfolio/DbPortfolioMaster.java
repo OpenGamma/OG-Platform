@@ -44,7 +44,7 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.master.portfolio.PortfolioSearchSortOrder;
-import com.opengamma.masterdb.AbstractDocumentDbMaster2;
+import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
@@ -64,7 +64,7 @@ import com.opengamma.util.tuple.LongObjectPair;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbPortfolioMaster extends AbstractDocumentDbMaster2<PortfolioDocument> implements PortfolioMaster {
+public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocument> implements PortfolioMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbPortfolioMaster.class);

@@ -38,7 +38,7 @@ import com.opengamma.master.holiday.HolidayMetaDataResult;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.master.holiday.ManageableHoliday;
-import com.opengamma.masterdb.AbstractDocumentDbMaster2;
+import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
@@ -58,7 +58,7 @@ import com.opengamma.util.paging.Paging;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbHolidayMaster extends AbstractDocumentDbMaster2<HolidayDocument> implements HolidayMaster {
+public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> implements HolidayMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbHolidayMaster.class);

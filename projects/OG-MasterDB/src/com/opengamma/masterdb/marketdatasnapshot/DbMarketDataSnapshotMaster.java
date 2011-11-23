@@ -39,7 +39,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
-import com.opengamma.masterdb.AbstractDocumentDbMaster2;
+import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
@@ -59,7 +59,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * This class is mutable but must be treated as immutable after configuration.
  */
 public class DbMarketDataSnapshotMaster
-    extends AbstractDocumentDbMaster2<MarketDataSnapshotDocument>
+    extends AbstractDocumentDbMaster<MarketDataSnapshotDocument>
     implements MarketDataSnapshotMaster {
 
   static {

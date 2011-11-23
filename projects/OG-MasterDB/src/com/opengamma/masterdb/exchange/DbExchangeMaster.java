@@ -39,7 +39,7 @@ import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.master.exchange.ExchangeSearchSortOrder;
 import com.opengamma.master.exchange.ManageableExchange;
-import com.opengamma.masterdb.AbstractDocumentDbMaster2;
+import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
@@ -59,7 +59,7 @@ import com.opengamma.util.paging.Paging;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbExchangeMaster extends AbstractDocumentDbMaster2<ExchangeDocument> implements ExchangeMaster {
+public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument> implements ExchangeMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbExchangeMaster.class);

@@ -52,7 +52,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
-import com.opengamma.masterdb.AbstractDocumentDbMaster2;
+import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
@@ -79,7 +79,7 @@ import com.opengamma.util.tuple.Pair;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster2<HistoricalTimeSeriesInfoDocument> implements HistoricalTimeSeriesMaster {
+public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<HistoricalTimeSeriesInfoDocument> implements HistoricalTimeSeriesMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbHistoricalTimeSeriesMaster.class);
