@@ -112,7 +112,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     _compilationExpiryCycleTrigger = new FixedTimeTrigger();
     _masterCycleTrigger = createViewCycleTrigger(executionOptions);
     _executeCycles = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
-    updateViewDefinitionIfRequired();
+    updateViewDefinitionIfRequired(); 
     subscribeToViewDefinition();
   }
 
@@ -325,7 +325,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
   private void cycleFragmentCompleted(ViewComputationResultModel result) {
     try {
-      getViewProcess().cycleFragmentCompleted(result);
+      getViewProcess().cycleFragmentCompleted(result, getViewDefinition());
     } catch (Exception e) {
       s_logger.error("Error notifying view process " + getViewProcess() + " of cycle fragment completion", e);
     }
