@@ -23,7 +23,12 @@ public class ViewDefinitionChangeListener implements ChangeListener {
   }
 
   @Override
-  public void entityChanged(ChangeEvent event) {
+  public void entityChanged(ChangeEvent event) { 
+    if (getViewDefinitionId().isVersioned()) {
+      // TODO: probably still interested in corrections, but would need to update the computation job with the new ID
+      // Locked to a specific version
+      return;
+    }
     if (event.getBeforeId() == null) {
       // View definition created 
       return;
