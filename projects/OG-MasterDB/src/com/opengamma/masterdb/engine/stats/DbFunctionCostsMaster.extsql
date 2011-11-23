@@ -1,0 +1,30 @@
+-- SQL for function costs master
+
+-- ==========================================================================
+@NAME(GetCosts)
+  SELECT
+    configuration,
+    function,
+    version_instant,
+    invocation_cost,
+    data_input_cost,
+    data_output_cost
+  FROM
+    eng_functioncosts
+  WHERE configuration = :configuration
+    AND function = :function
+    AND version_instant <= :version_instant
+  ORDER BY
+    version_instant DESC
+  @OFFSETFETCH
+
+
+-- ==========================================================================
+@NAME(InsertCosts)
+  INSERT INTO eng_functioncosts
+    (configuration, function, version_instant, invocation_cost, data_input_cost, data_output_cost)
+  VALUES
+    (:configuration, :function, :version_instant, :invocation_cost, :data_input_cost, :data_output_cost)
+
+
+-- ==========================================================================

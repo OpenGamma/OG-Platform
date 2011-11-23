@@ -66,6 +66,7 @@ public class AggregatedViewDefinitionManager {
   }
   
   public UniqueId getViewDefinitionId(UniqueId baseViewDefinitionId, String aggregatorName) {
+    // TODO: what about changes to the base view definition?
     ArgumentChecker.notNull(baseViewDefinitionId, "baseViewDefinitionId");
     ViewDefinition baseViewDefinition = _viewDefinitionRepository.getDefinition(baseViewDefinitionId);
     if (baseViewDefinition == null) {
@@ -73,7 +74,7 @@ public class AggregatedViewDefinitionManager {
     }
     UniqueId basePortfolioId = baseViewDefinition.getPortfolioId();
     if (aggregatorName == null || basePortfolioId == null) {
-      return baseViewDefinition.getUniqueId();
+      return baseViewDefinitionId;
     }
     Pair<UniqueId, String> aggregatedViewDefinitionKey = Pair.of(baseViewDefinition.getUniqueId(), aggregatorName);
     Pair<UniqueId, String> aggregatedPortfolioKey = Pair.of(basePortfolioId, aggregatorName);

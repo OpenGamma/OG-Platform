@@ -24,7 +24,7 @@ import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 
 /**
  * 
- * @param <T> The data for the smile model used 
+ * @param <T> The data for the smile model used
  */
 public abstract class SmileModelFitter<T extends SmileModelData> {
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
@@ -37,12 +37,12 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   private final int _nOptions;
 
   /**
-   * Attempts to calibrate a model to the implied volatilities of European vanilla options, by minimising the sum of squares between the 
-   * market and model implied volatilities. All the options must be for the same expiry and (implicitly) on the same underlying.  
-   * @param forward The forward value of the underlying 
-   * @param strikes ordered values of strikes 
+   * Attempts to calibrate a model to the implied volatilities of European vanilla options, by minimising the sum of squares between the
+   * market and model implied volatilities. All the options must be for the same expiry and (implicitly) on the same underlying.
+   * @param forward The forward value of the underlying
+   * @param strikes ordered values of strikes
    * @param timeToExpiry The time-to-expiry
-   * @param impliedVols The market implied volatilities 
+   * @param impliedVols The market implied volatilities
    * @param error The 'measurement' error to apply to the market volatility of a particular option TODO: Review should this be part of  EuropeanOptionMarketData?
    * @param model VolatilityFunctionProvider
    */
@@ -60,21 +60,43 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
     _marketValues = new DoubleMatrix1D(impliedVols);
     _errors = new DoubleMatrix1D(error);
 
-    _volFunc = model.getVolatilitySetFunction(forward, strikes, timeToExpiry);
-    _volAdjointFunc = model.getVolatilityAdjointSetFunction(forward, strikes, timeToExpiry);
+    _volFunc = model.getVolatilityFunction(forward, strikes, timeToExpiry);
+    _volAdjointFunc = model.getModelAdjointFunction(forward, strikes, timeToExpiry);
   }
 
+  /**
+   * Solve using the default NonLinearParameterTransforms for the concrete implementation
+   * @param start The first guess at the parameter values
+   * @return The LeastSquareResults
+   */
   public LeastSquareResults solve(final DoubleMatrix1D start) {
     return solve(start, new BitSet());
   }
 
+  /**
+   * Solve using the default NonLinearParameterTransforms for the concrete implementation, but with some parameters fixed to their initial
+   * values (indicated by fixed)
+   * @param start The first guess at the parameter values
+   * @param fixed Indicates which parameters are fixed
+   * @return The LeastSquareResults
+   */
   public LeastSquareResults solve(final DoubleMatrix1D start, final BitSet fixed) {
     NonLinearParameterTransforms transform = getTransform(start, fixed);
+    return solve(start, transform);
+  }
+
+  /**
+   * Solve using a user supplied NonLinearParameterTransforms
+   * @param start The first guess at the parameter values
+   * @param transform Transform from model parameters to fitting parameters, and vice versa
+   * @return The LeastSquareResults
+   */
+  public LeastSquareResults solve(final DoubleMatrix1D start, final NonLinearParameterTransforms transform) {
     NonLinearTransformFunction transFunc = new NonLinearTransformFunction(getModelValueFunction(), getModelJacobianFunction(), transform);
 
     LeastSquareResults solRes = SOLVER.solve(_marketValues, _errors, transFunc.getFittingFunction(), transFunc.getFittingJacobian(), transform.transform(start));
     DoubleMatrix1D modelParams = transform.inverseTransform(solRes.getParameters());
-    //TODO return the covariance matrix 
+    //TODO return the covariance matrix
     return new LeastSquareResults(solRes.getChiSq(), modelParams,
         new DoubleMatrix2D(new double[modelParams.getNumberOfElements()][modelParams.getNumberOfElements()]), solRes.getInverseJacobian());
   }
@@ -96,20 +118,10 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
     return new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
       @Override
       public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
-        final int n = x.getNumberOfElements();
         T data = toSmileModelData(x);
-
-        //this thing will be (#strikes/vols) x (# model Params +3) 
+        //this thing will be (#strikes/vols) x (# model Params)
         double[][] volAdjoint = _volAdjointFunc.evaluate(data);
-
-        //lop off non parameter sensitivities 
-        double[][] temp = new double[_nOptions][n];
-        for (int i = 0; i < _nOptions; i++) {
-          System.arraycopy(volAdjoint[i], 3, temp[i], 0, n);
-          //temp[i] = volAdjoint[i + 3];
-        }
-
-        return new DoubleMatrix2D(temp);
+        return new DoubleMatrix2D(volAdjoint);
       }
     };
   }

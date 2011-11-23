@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Visitor for printing out resolution failure information to a file.
  */
-public class ResolutionFailurePrinter extends ResolutionFailureVisitor {
+public class ResolutionFailurePrinter extends ResolutionFailureVisitor<Void> {
 
   private final PrintStream _out;
   private final String _indent;
@@ -143,67 +143,78 @@ public class ResolutionFailurePrinter extends ResolutionFailureVisitor {
   }
 
   @Override
-  protected synchronized void visitCouldNotResolve(final ValueRequirement valueRequirement) {
+  protected synchronized Void visitCouldNotResolve(final ValueRequirement valueRequirement) {
     println("Could not resolve " + toString(valueRequirement));
+    return null;
   }
 
   @Override
-  protected synchronized void visitNoFunctions(final ValueRequirement valueRequirement) {
+  protected synchronized Void visitNoFunctions(final ValueRequirement valueRequirement) {
     println("No functions available for " + toString(valueRequirement));
+    return null;
   }
 
   @Override
-  protected synchronized void visitRecursiveRequirement(final ValueRequirement valueRequirement) {
+  protected synchronized Void visitRecursiveRequirement(final ValueRequirement valueRequirement) {
     println("Recursive requirement on " + toString(valueRequirement) + " for function(s) producing it");
+    return null;
   }
 
   @Override
-  protected synchronized void visitUnsatisfied(final ValueRequirement valueRequirement) {
+  protected synchronized Void visitUnsatisfied(final ValueRequirement valueRequirement) {
     println("Unsatisfied requirement " + toString(valueRequirement));
+    return null;
   }
 
   @Override
-  protected synchronized void visitMarketDataMissing(final ValueRequirement valueRequirement) {
+  protected synchronized Void visitMarketDataMissing(final ValueRequirement valueRequirement) {
     println("Market data missing for requirement " + toString(valueRequirement));
+    return null;
   }
 
   @Override
-  protected synchronized void visitSuccessfulFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected synchronized Void visitSuccessfulFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> satisfied) {
     println("Applied " + toString(function) + " to produce " + toString(desiredOutput) + " for " + toString(valueRequirement));
+    return null;
   }
 
   @Override
-  protected synchronized void visitFailedFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected synchronized Void visitFailedFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> satisfied, final Set<ResolutionFailure> unsatisfied) {
     println("Couldn't satisfy " + toStringResolutionFailures(unsatisfied) + " to produce " + toString(desiredOutput) + " for " + toString(valueRequirement) + ". Caused by:");
     for (ResolutionFailure requirement : unsatisfied) {
       requirement.accept(indent());
     }
+    return null;
   }
 
   @Override
-  protected synchronized void visitGetAdditionalRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected synchronized Void visitGetAdditionalRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> requirements) {
     println("getAdditionalRequirements method failed on " + toString(function) + " with inputs " + toString(requirements) + " to produce " + toString(desiredOutput) + " for " +
         toString(valueRequirement));
+    return null;
   }
 
   @Override
-  protected synchronized void visitGetResultsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
+  protected synchronized Void visitGetResultsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
     println("getResults method failed on " + toString(function) + " to produce " + toString(desiredOutput) + " for " + toString(valueRequirement));
+    return null;
   }
 
   @Override
-  protected synchronized void visitGetRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
+  protected synchronized Void visitGetRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
     println("getRequirements method failed on " + toString(function) + " to produce " + toString(desiredOutput) + " for " + toString(valueRequirement));
+    return null;
   }
 
   @Override
-  protected synchronized void visitLateResolutionFailure(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected synchronized Void visitLateResolutionFailure(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> requirements) {
     println("Provisional result " + toString(desiredOutput) + " for " + toString(desiredOutput) + " not in output of " + toString(function) + " after late resolution of " +
         toStringValueSpecifications(requirements.keySet()));
+    return null;
   }
 
 }

@@ -307,22 +307,15 @@ public class WebView {
   private void processResult(ViewComputationResultModel resultModel) {
     long resultTimestamp = resultModel.getCalculationTime().toEpochMillisLong();
     
-    for (ComputationTargetSpecification target : resultModel.getAllTargets()) {
-      switch (target.getType()) {
-        case PRIMITIVE:
-          if (getPrimitivesGrid() != null) {
-            getPrimitivesGrid().processTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
-          }
-          break;
-        case PORTFOLIO_NODE:
-        case POSITION:
-          if (getPortfolioGrid() != null) {
-            getPortfolioGrid().processTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
-          }
-          break;
-        default:
-          // Something that the client does not display
-          continue;
+    if (getPrimitivesGrid() != null) {
+      for (ComputationTargetSpecification target : getPrimitivesGrid().getGridStructure().getTargets().keySet()) {
+        getPrimitivesGrid().processTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
+      }
+    }
+    
+    if (getPortfolioGrid() != null) {
+      for (ComputationTargetSpecification target : getPortfolioGrid().getGridStructure().getTargets().keySet()) {
+        getPortfolioGrid().processTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
       }
     }
   }

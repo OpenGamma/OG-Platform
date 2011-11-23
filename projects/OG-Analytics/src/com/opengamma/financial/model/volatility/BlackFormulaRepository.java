@@ -17,25 +17,25 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * This <b>SHOULD</b> be the repository for Black formulas - i.e. the price, common greeks (delta, gamma, vega) and implied volatility. Other
- * classes that have higher level abstractions (e.g. option data bundles) should call these functions. 
+ * classes that have higher level abstractions (e.g. option data bundles) should call these functions.
  * As the numeraire (e.g. the zero bond p(0,T) in the T-forward measure) in the Black formula is just a multiplication factor,  all prices,
- * input/output, are <b>forward</b> prices, i.e. (spot price)/numeraire  
+ * input/output, are <b>forward</b> prices, i.e. (spot price)/numeraire
  */
 public abstract class BlackFormulaRepository {
 
   private static final double EPS = 1e-15;
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
   private static final double SMALL = 1.0E-12;
-  private static final int MAX_ITERATIONS = 15; //something's wrong if Newton-Raphson taking longer than this 
-  private static final double VOL_TOL = 1e-9; // 1 part in 100,000 basis points will do for implied vol 
+  private static final int MAX_ITERATIONS = 15; //something's wrong if Newton-Raphson taking longer than this
+  private static final double VOL_TOL = 1e-9; // 1 part in 100,000 basis points will do for implied vol
 
   /**
-   * The <b>forward</b> price of an option using the Black formula  
-   * @param forward The forward value of the underlying 
+   * The <b>forward</b> price of an option using the Black formula
+   * @param forward The forward value of the underlying
    * @param strike The Strike
    * @param timeToExpiry The time-to-expiry
-   * @param lognormalVol The log-normal volatility 
-   * @param isCall True for calls, false for puts 
+   * @param lognormalVol The log-normal volatility
+   * @param isCall True for calls, false for puts
    * @return The <b>forward</b> price
    */
   @ExternalFunction
@@ -63,15 +63,32 @@ public abstract class BlackFormulaRepository {
     return data.getDiscountFactor() * price(data.getForward(), data.getStrike(), data.getTimeToExpiry(), lognormalVol, data.isCall());
   }
 
-  //TODO other greeks 
+  //TODO other greeks
+  @ExternalFunction
+  public static double delta(final double forward, final double strike, final double timeToExpiry, final double lognormalVol, final boolean isCall) {
+    Validate.isTrue(lognormalVol >= 0.0, "negative vol");
+    if (strike < SMALL) {
+      return isCall ? 1.0 : 0.0;
+    }
+    final int sign = isCall ? 1 : -1;
+    final double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
+
+    if (sigmaRootT < SMALL) {
+      return (isCall ? (forward > strike ? 1.0 : 0.0) : (forward > strike ? 0.0 : -1.0));
+    }
+
+    final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+
+    return sign * NORMAL.getCDF(sign * d1);
+  }
 
   /**
    * The forward vega of an option, i.e. the sensitivity of the option's forward price wrt the implied volatility (which is just the the spot vega
-   * divide by the the numeraire) 
-   * @param forward The forward value of the underlying 
+   * divide by the the numeraire)
+   * @param forward The forward value of the underlying
    * @param strike The Strike
    * @param timeToExpiry The time-to-expiry
-   * @param lognormalVol The log-normal volatility 
+   * @param lognormalVol The log-normal volatility
    * @return The forward vega
    */
   public static double vega(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
@@ -96,12 +113,12 @@ public abstract class BlackFormulaRepository {
   }
 
   /**
-   * Get the log-normal (Black) implied volatility of a European option 
+   * Get the log-normal (Black) implied volatility of a European option
    * @param price The <b>forward</b> price - i.e. the market price divided by the numeraire (i.e. the zero bond p(0,T) for the T-forward measure)
-   * @param forward The forward value of the underlying 
+   * @param forward The forward value of the underlying
    * @param strike The Strike
    * @param timeToExpiry The time-to-expiry
-   * @param isCall  True for calls, false for puts 
+   * @param isCall  True for calls, false for puts
    * @return log-normal (Black) implied volatility
    */
   public static double impliedVolatility(final double price, final double forward, final double strike, final double timeToExpiry, final boolean isCall) {
@@ -135,7 +152,7 @@ public abstract class BlackFormulaRepository {
     final double maxChange = 0.5;
 
     double[] pnv = priceAndVega(forward, strike, timeToExpiry, sigma, isCall);
-    //TODO check if this is ever called 
+    //TODO check if this is ever called
     if (pnv[1] == 0 || Double.isNaN(pnv[1])) {
       return solveByBisection(price, forward, strike, timeToExpiry, isCall, lowerSigma, upperSigma);
     }
@@ -256,7 +273,7 @@ public abstract class BlackFormulaRepository {
         change = sigma;
       }
 
-      //detect oscillation around the solution 
+      //detect oscillation around the solution
       if (count > 5 && Math.abs(previousChange + change) < VOL_TOL) {
         change /= 2.0;
       }
@@ -311,7 +328,7 @@ public abstract class BlackFormulaRepository {
   private static double solveByBisection(final double forwardPrice, final double forward, final double strike, final double expiry, final boolean isCall, final double lowerSigma,
       final double upperSigma) {
     //    final BracketRoot bracketer = new BracketRoot();
-    final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(1e-6); //0.01bps accuracy 
+    final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(1e-6); //0.01bps accuracy
     final Function1D<Double, Double> func = new Function1D<Double, Double>() {
 
       @Override

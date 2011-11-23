@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.hsqldb.types.Types;
@@ -23,6 +24,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
+import com.opengamma.extsql.ExtSqlBundle;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ObjectId;
@@ -51,7 +53,9 @@ import com.opengamma.util.paging.Paging;
  * This is a full implementation of the exchange master using an SQL database.
  * Full details of the API are in {@link ExchangeMaster}.
  * <p>
- * This class uses SQL via JDBC. The SQL may be changed by subclassing the relevant methods.
+ * The SQL is stored externally in {@code DbExchangeMaster.extsql}.
+ * Alternate databases or specific SQL requirements can be handled using database
+ * specific overrides, such as {@code DbExchangeMaster-MySpecialDB.extsql}.
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
@@ -69,23 +73,6 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
    */
   protected static final FudgeContext FUDGE_CONTEXT = OpenGammaFudgeContext.getInstance();
 
-  /**
-   * SQL select.
-   */
-  protected static final String SELECT =
-      "SELECT " +
-        "main.id AS doc_id, " +
-        "main.oid AS doc_oid, " +
-        "main.ver_from_instant AS ver_from_instant, " +
-        "main.ver_to_instant AS ver_to_instant, " +
-        "main.corr_from_instant AS corr_from_instant, " +
-        "main.corr_to_instant AS corr_to_instant, " +
-        "main.detail AS detail ";
-  /**
-   * SQL from.
-   */
-  protected static final String FROM =
-      "FROM exg_exchange main ";
   /**
    * SQL order by.
    */
@@ -106,6 +93,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
    */
   public DbExchangeMaster(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
+    setExtSqlBundle(ExtSqlBundle.of(dbConnector.getDialect().getExtSqlConfig(), DbExchangeMaster.class));
   }
 
   //-------------------------------------------------------------------------
@@ -117,8 +105,10 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     s_logger.debug("search {}", request);
     
     final ExchangeSearchResult result = new ExchangeSearchResult();
-    if ((request.getObjectIds() != null && request.getObjectIds().size() == 0) ||
-        (ExternalIdSearch.canMatch(request.getExternalIdSearch()) == false)) {
+    final ExternalIdSearch externalIdSearch = request.getExternalIdSearch();
+    final List<ObjectId> objectIds = request.getObjectIds();
+    if ((objectIds != null && objectIds.size() == 0) ||
+        (ExternalIdSearch.canMatch(externalIdSearch) == false)) {
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
@@ -127,153 +117,49 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));
-    if (request.getExternalIdSearch() != null) {
+    if (externalIdSearch != null && externalIdSearch.alwaysMatches() == false) {
       int i = 0;
-      for (ExternalId id : request.getExternalIdSearch()) {
+      for (ExternalId id : externalIdSearch) {
         args.addValue("key_scheme" + i, id.getScheme().getName());
         args.addValue("key_value" + i, id.getValue());
         i++;
       }
+      args.addValue("sql_search_external_ids_type", externalIdSearch.getSearchType());
+      args.addValue("sql_search_external_ids", sqlSelectIdKeys(externalIdSearch));
+      args.addValue("id_search_size", externalIdSearch.getExternalIds().size());
     }
-    searchWithPaging(request.getPagingRequest(), sqlSearchExchanges(request), args, new ExchangeDocumentExtractor(), result);
-    return result;
-  }
-
-  /**
-   * Gets the SQL to search for documents.
-   * 
-   * @param request  the request, not null
-   * @return the SQL search and count, not null
-   */
-  protected String[] sqlSearchExchanges(final ExchangeSearchRequest request) {
-    String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
-                "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
-    if (request.getName() != null) {
-      where += getDialect().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
-    }
-    if (request.getObjectIds() != null) {
-      StringBuilder buf = new StringBuilder(request.getObjectIds().size() * 10);
-      for (ObjectId objectId : request.getObjectIds()) {
+    if (objectIds != null) {
+      StringBuilder buf = new StringBuilder(objectIds.size() * 10);
+      for (ObjectId objectId : objectIds) {
         checkScheme(objectId);
         buf.append(extractOid(objectId)).append(", ");
       }
       buf.setLength(buf.length() - 2);
-      where += "AND oid IN (" + buf + ") ";
+      args.addValue("sql_search_object_ids", buf.toString());
     }
-    if (request.getExternalIdSearch() != null && request.getExternalIdSearch().size() > 0) {
-      where += sqlSelectMatchingExchangeKeys(request.getExternalIdSearch());
-    }
-    where += sqlAdditionalWhere();
+    args.addValue("sort_order", ORDER_BY_MAP.get(request.getSortOrder()));
+    args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
+    args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     
-    String selectFromWhereInner = "SELECT id FROM exg_exchange " + where;
-    String orderBy = ORDER_BY_MAP.get(request.getSortOrder());
-    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY " + orderBy + " ", request.getPagingRequest());
-    String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main." + orderBy + sqlAdditionalOrderBy(false);
-    String count = "SELECT COUNT(*) FROM exg_exchange " + where;
-    return new String[] {search, count};
-  }
-
-  /**
-   * Gets the SQL to match the {@code ExternalIdSearch}.
-   * 
-   * @param idSearch  the identifier search, not null
-   * @return the SQL, not null
-   */
-  protected String sqlSelectMatchingExchangeKeys(final ExternalIdSearch idSearch) {
-    switch (idSearch.getSearchType()) {
-      case EXACT:
-        return "AND id IN (" + sqlSelectMatchingExchangeKeysExact(idSearch) + ") ";
-      case ALL:
-        return "AND id IN (" + sqlSelectMatchingExchangeKeysAll(idSearch) + ") ";
-      case ANY:
-        return "AND id IN (" + sqlSelectMatchingExchangeKeysAny(idSearch) + ") ";
-      case NONE:
-        return "AND id NOT IN (" + sqlSelectMatchingExchangeKeysAny(idSearch) + ") ";
-    }
-    throw new UnsupportedOperationException("Search type is not supported: " + idSearch.getSearchType());
-  }
-
-  /**
-   * Gets the SQL to find all the exchanges matching.
-   * 
-   * @param idSearch  the identifier search, not null
-   * @return the SQL, not null
-   */
-  protected String sqlSelectMatchingExchangeKeysExact(final ExternalIdSearch idSearch) {
-    // compare size of all matched to size in total
-    // filter by dates to reduce search set
-    String a = "SELECT exchange_id AS matched_exchange_id, COUNT(exchange_id) AS matched_count " +
-      "FROM exg_exchange2idkey, exg_exchange main " +
-      "WHERE exchange_id = main.id " +
-      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
-      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-      "AND idkey_id IN (" + sqlSelectMatchingExchangeKeysOr(idSearch) + ") " +
-      "GROUP BY exchange_id " +
-      "HAVING COUNT(exchange_id) >= " + idSearch.size() + " ";
-    String b = "SELECT exchange_id AS total_exchange_id, COUNT(exchange_id) AS total_count " +
-      "FROM exg_exchange2idkey, exg_exchange main " +
-      "WHERE exchange_id = main.id " +
-      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
-      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-      "GROUP BY exchange_id ";
-    String select = "SELECT matched_exchange_id AS exchange_id " +
-      "FROM (" + a + ") AS a, (" + b + ") AS b " +
-      "WHERE matched_exchange_id = total_exchange_id " +
-        "AND matched_count = total_count ";
-    return select;
-  }
-
-  /**
-   * Gets the SQL to find all the exchanges matching.
-   * 
-   * @param idSearch  the identifier search, not null
-   * @return the SQL, not null
-   */
-  protected String sqlSelectMatchingExchangeKeysAll(final ExternalIdSearch idSearch) {
-    // only return exchange_id when all requested ids match (having count >= size)
-    // filter by dates to reduce search set
-    String select = "SELECT exchange_id " +
-      "FROM exg_exchange2idkey, exg_exchange main " +
-      "WHERE exchange_id = main.id " +
-      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
-      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-      "AND idkey_id IN (" + sqlSelectMatchingExchangeKeysOr(idSearch) + ") " +
-      "GROUP BY exchange_id " +
-      "HAVING COUNT(exchange_id) >= " + idSearch.size() + " ";
-    return select;
-  }
-
-  /**
-   * Gets the SQL to find all the exchanges matching any identifier.
-   * 
-   * @param idSearch  the identifier search, not null
-   * @return the SQL, not null
-   */
-  protected String sqlSelectMatchingExchangeKeysAny(final ExternalIdSearch idSearch) {
-    // optimized search for commons case of individual ORs
-    // filter by dates to reduce search set
-    String select = "SELECT DISTINCT exchange_id " +
-      "FROM exg_exchange2idkey, exg_exchange main " +
-      "WHERE exchange_id = main.id " +
-      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
-      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-      "AND idkey_id IN (" + sqlSelectMatchingExchangeKeysOr(idSearch) + ") ";
-    return select;
+    String[] sql = {getExtSqlBundle().getSql("Search", args), getExtSqlBundle().getSql("SearchCount", args)};
+    searchWithPaging(request.getPagingRequest(), sql, args, new ExchangeDocumentExtractor(), result);
+    return result;
   }
 
   /**
    * Gets the SQL to find all the ids for a single bundle.
+   * <p>
+   * This is too complex for the extsql mechanism.
    * 
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingExchangeKeysOr(final ExternalIdSearch idSearch) {
-    String select = "SELECT id FROM exg_idkey ";
+  protected String sqlSelectIdKeys(final ExternalIdSearch idSearch) {
+    List<String> list = new ArrayList<String>();
     for (int i = 0; i < idSearch.size(); i++) {
-      select += (i == 0 ? "WHERE " : "OR ");
-      select += "(key_scheme = :key_scheme" + i + " AND key_value = :key_value" + i + ") ";
+      list.add("(key_scheme = :key_scheme" + i + " AND key_value = :key_value" + i + ") ");
     }
-    return select;
+    return StringUtils.join(list, "OR ");
   }
 
   //-------------------------------------------------------------------------
@@ -316,7 +202,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     // the arguments for inserting into the exchange table
     FudgeMsgEnvelope env = FUDGE_CONTEXT.toFudgeMsg(exchange);
     byte[] bytes = FUDGE_CONTEXT.toByteArray(env.getMessage());
-    final DbMapSqlParameterSource exchangeArgs = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
       .addValue("doc_id", docId)
       .addValue("doc_oid", docOid)
       .addTimestamp("ver_from_instant", document.getVersionFromInstant())
@@ -329,13 +215,14 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
     final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
+    final String sqlSelectIdKey = getExtSqlBundle().getSql("SelectIdKey");
     for (ExternalId id : exchange.getExternalIdBundle()) {
       final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
         .addValue("doc_id", docId)
         .addValue("key_scheme", id.getScheme().getName())
         .addValue("key_value", id.getValue());
       assocList.add(assocArgs);
-      if (getJdbcTemplate().queryForList(sqlSelectIdKey(), assocArgs).isEmpty()) {
+      if (getJdbcTemplate().queryForList(sqlSelectIdKey, assocArgs).isEmpty()) {
         // select avoids creating unecessary id, but id may still not be used
         final long idKeyId = nextId("exg_idkey_seq");
         final DbMapSqlParameterSource idkeyArgs = new DbMapSqlParameterSource()
@@ -345,64 +232,13 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
         idKeyList.add(idkeyArgs);
       }
     }
-    getJdbcTemplate().update(sqlInsertExchange(), exchangeArgs);
-    getJdbcTemplate().batchUpdate(sqlInsertIdKey(), idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
-    getJdbcTemplate().batchUpdate(sqlInsertSecurityIdKey(), assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
+    final String sqlDoc = getExtSqlBundle().getSql("Insert", docArgs);
+    final String sqlIdKey = getExtSqlBundle().getSql("InsertIdKey");
+    final String sqlDoc2IdKey = getExtSqlBundle().getSql("InsertDoc2IdKey");
+    getJdbcTemplate().update(sqlDoc, docArgs);
+    getJdbcTemplate().batchUpdate(sqlIdKey, idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
+    getJdbcTemplate().batchUpdate(sqlDoc2IdKey, assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
     return document;
-  }
-
-  /**
-   * Gets the SQL for inserting a document.
-   * 
-   * @return the SQL, not null
-   */
-  protected String sqlInsertExchange() {
-    return "INSERT INTO exg_exchange " +
-              "(id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, time_zone, detail) " +
-            "VALUES " +
-              "(:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, :time_zone, :detail)";
-  }
-
-  /**
-   * Gets the SQL for inserting an exchange-idkey association.
-   * 
-   * @return the SQL, not null
-   */
-  protected String sqlInsertSecurityIdKey() {
-    return "INSERT INTO exg_exchange2idkey " +
-              "(exchange_id, idkey_id) " +
-            "VALUES " +
-              "(:doc_id, (" + sqlSelectIdKey() + "))";
-  }
-
-  /**
-   * Gets the SQL for selecting an idkey.
-   * 
-   * @return the SQL, not null
-   */
-  protected String sqlSelectIdKey() {
-    return "SELECT id FROM exg_idkey WHERE key_scheme = :key_scheme AND key_value = :key_value";
-  }
-
-  /**
-   * Gets the SQL for inserting an idkey.
-   * 
-   * @return the SQL, not null
-   */
-  protected String sqlInsertIdKey() {
-    return "INSERT INTO exg_idkey (id, key_scheme, key_value) " +
-            "VALUES (:idkey_id, :key_scheme, :key_value)";
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  protected String sqlSelectFrom() {
-    return SELECT + FROM;
-  }
-
-  @Override
-  protected String mainTableName() {
-    return "exg_exchange";
   }
 
   //-------------------------------------------------------------------------

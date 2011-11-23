@@ -1,0 +1,557 @@
+-- SQL for historical time series master
+
+-- ==========================================================================
+@NAME(GetById)
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    nm.name AS name,
+    df.name AS data_field,
+    ds.name AS data_source,
+    dp.name AS data_provider,
+    ot.name AS observation_time,
+    i.key_scheme AS key_scheme,
+    i.key_value AS key_value,
+    di.valid_from AS key_valid_from,
+    di.valid_to AS key_valid_to
+  FROM
+    hts_document main
+    INNER JOIN hts_name nm ON (main.name_id = nm.id)
+    INNER JOIN hts_data_field df ON (main.data_field_id = df.id)
+    INNER JOIN hts_data_source ds ON (main.data_source_id = ds.id)
+    INNER JOIN hts_data_provider dp ON (main.data_provider_id = dp.id)
+    INNER JOIN hts_observation_time ot ON (main.observation_time_id = ot.id)
+    LEFT JOIN hts_doc2idkey di ON (di.doc_id = main.id)
+    LEFT JOIN hts_idkey i ON (di.idkey_id = i.id)
+  WHERE main.id = :doc_id
+    AND main.oid = :doc_oid
+
+
+-- ==========================================================================
+@NAME(GetByOidInstants)
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    nm.name AS name,
+    df.name AS data_field,
+    ds.name AS data_source,
+    dp.name AS data_provider,
+    ot.name AS observation_time,
+    i.key_scheme AS key_scheme,
+    i.key_value AS key_value,
+    di.valid_from AS key_valid_from,
+    di.valid_to AS key_valid_to
+  FROM
+    hts_document main
+    INNER JOIN hts_name nm ON (main.name_id = nm.id)
+    INNER JOIN hts_data_field df ON (main.data_field_id = df.id)
+    INNER JOIN hts_data_source ds ON (main.data_source_id = ds.id)
+    INNER JOIN hts_data_provider dp ON (main.data_provider_id = dp.id)
+    INNER JOIN hts_observation_time ot ON (main.observation_time_id = ot.id)
+    LEFT JOIN hts_doc2idkey di ON (di.doc_id = main.id)
+    LEFT JOIN hts_idkey i ON (di.idkey_id = i.id)
+  WHERE main.oid = :doc_oid
+    AND main.ver_from_instant <= :version_as_of AND main.ver_to_instant > :version_as_of
+    AND main.corr_from_instant <= :corrected_to AND main.corr_to_instant > :corrected_to
+
+
+-- ==========================================================================
+@NAME(Search)
+  WITH cte_docs AS ( @INSERT(SearchInner) )
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    nm.name AS name,
+    df.name AS data_field,
+    ds.name AS data_source,
+    dp.name AS data_provider,
+    ot.name AS observation_time,
+    i.key_scheme AS key_scheme,
+    i.key_value AS key_value,
+    di.valid_from AS key_valid_from,
+    di.valid_to AS key_valid_to
+  FROM
+    hts_document main
+    INNER JOIN cte_docs ON main.id = cte_docs.id
+    INNER JOIN hts_name nm ON (main.name_id = nm.id)
+    INNER JOIN hts_data_field df ON (main.data_field_id = df.id)
+    INNER JOIN hts_data_source ds ON (main.data_source_id = ds.id)
+    INNER JOIN hts_data_provider dp ON (main.data_provider_id = dp.id)
+    INNER JOIN hts_observation_time ot ON (main.observation_time_id = ot.id)
+    LEFT JOIN hts_doc2idkey di ON (di.doc_id = main.id)
+    LEFT JOIN hts_idkey i ON (di.idkey_id = i.id)
+  ORDER BY
+    main.id
+
+
+-- ==========================================================================
+@NAME(SearchInner)
+  SELECT
+    id
+  FROM
+    hts_document
+  @INSERT(SearchWhere)
+  ORDER BY
+    id
+  @OFFSETFETCH
+
+
+-- ==========================================================================
+@NAME(SearchCount)
+  SELECT
+    COUNT(id)
+  FROM
+    hts_document
+  @INSERT(SearchWhere)
+
+
+-- ==========================================================================
+@NAME(SearchWhere)
+  WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
+    AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
+    @AND(:name)
+      name_id IN (
+        SELECT id FROM hts_name
+        WHERE UPPER(name) @LIKE UPPER(:name)
+      )
+    @AND(:data_field)
+      data_field_id IN (
+        SELECT id FROM hts_data_field
+        WHERE UPPER(name) @LIKE UPPER(:data_field)
+      )
+    @AND(:data_source)
+      data_source_id IN (
+        SELECT id FROM hts_data_source
+        WHERE UPPER(name) @LIKE UPPER(:data_source)
+      )
+    @AND(:data_provider)
+      data_provider_id IN (
+        SELECT id FROM hts_data_provider
+        WHERE UPPER(name) @LIKE UPPER(:data_provider)
+      )
+    @AND(:observation_time)
+      observation_time_id IN (
+        SELECT id FROM hts_observation_time
+        WHERE UPPER(name) @LIKE UPPER(:observation_time)
+      )
+    @AND(:sql_search_object_ids)
+      oid IN ( @INSERT(:sql_search_object_ids) )
+    @AND(:external_id_value)
+      id IN ( @INSERT(SelectKeyValue) )
+    @AND(:sql_search_external_ids_type = EXACT)
+      id IN ( @INSERT(SelectKeyValuesExact) )
+    @AND(:sql_search_external_ids_type = ALL)
+      id IN ( @INSERT(SelectKeyValuesAll) )
+    @AND(:sql_search_external_ids_type = ANY)
+      id IN ( @INSERT(SelectKeyValuesAny) )
+    @AND(:sql_search_external_ids_type = NONE)
+      id NOT IN ( @INSERT(SelectKeyValuesAny) )
+
+
+-- ==========================================================================
+@NAME(SelectKeyValue)
+  SELECT
+    DISTINCT doc_id
+  FROM
+    hts_doc2idkey,
+    hts_document
+  WHERE hts_doc2idkey.doc_id = hts_document.id
+    AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant
+    AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant
+    @AND(:id_validity_date)
+      hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date
+    AND idkey_id IN ( SELECT id FROM hts_idkey WHERE UPPER(key_value) @LIKE UPPER(:external_id_value) @ENDLIKE )
+
+
+-- ==========================================================================
+@NAME(SelectKeyValuesExact)
+  SELECT
+    matched_doc_id AS doc_id
+  FROM
+    (
+      SELECT
+        doc_id AS matched_doc_id,
+        COUNT(doc_id) AS matched_count
+      FROM
+        hts_doc2idkey,
+        hts_document
+      WHERE hts_doc2idkey.doc_id = hts_document.id
+        AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant
+        AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant
+        @AND(:id_validity_date)
+          hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date
+        AND idkey_id IN ( @INSERT(SelectKeyValuesOr) )
+      GROUP BY
+        doc_id
+      HAVING
+        COUNT(doc_id) >= :id_search_size
+    ) AS a, (
+      SELECT
+        doc_id AS total_doc_id,
+        COUNT(doc_id) AS total_count
+      FROM
+        hts_doc2idkey,
+        hts_document
+      WHERE hts_doc2idkey.doc_id = hts_document.id
+        AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant
+        AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant
+        @AND(:id_validity_date)
+          hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date
+      GROUP BY
+        doc_id
+    ) AS b
+  WHERE matched_doc_id = total_doc_id
+    AND matched_count = total_count
+
+
+-- ==========================================================================
+@NAME(SelectKeyValuesAll)
+  SELECT
+    doc_id
+  FROM
+    hts_doc2idkey,
+    hts_document
+  WHERE hts_doc2idkey.doc_id = hts_document.id
+    AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant
+    AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant
+    @AND(:id_validity_date)
+      hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date
+    AND idkey_id IN ( @INSERT(SelectKeyValuesOr) )
+    GROUP BY
+      doc_id
+    HAVING
+      COUNT(doc_id) >= :id_search_size
+
+
+-- ==========================================================================
+@NAME(SelectKeyValuesAny)
+  SELECT
+    DISTINCT doc_id
+  FROM
+    hts_doc2idkey,
+    hts_document
+  WHERE hts_doc2idkey.doc_id = hts_document.id
+    AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant
+    AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant
+    @AND(:id_validity_date)
+      hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date
+    AND idkey_id IN ( @INSERT(SelectKeyValuesOr) )
+
+
+-- ==========================================================================
+@NAME(SelectKeyValuesOr)
+  SELECT
+    id
+  FROM
+    hts_idkey
+  WHERE
+    @INSERT(:sql_search_external_ids)
+
+
+-- ==========================================================================
+@NAME(History)
+  WITH cte_docs AS ( @INSERT(HistoryInner) )
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    nm.name AS name,
+    df.name AS data_field,
+    ds.name AS data_source,
+    dp.name AS data_provider,
+    ot.name AS observation_time,
+    i.key_scheme AS key_scheme,
+    i.key_value AS key_value,
+    di.valid_from AS key_valid_from,
+    di.valid_to AS key_valid_to
+  FROM
+    hts_document main
+    INNER JOIN cte_docs ON main.id = cte_docs.id
+    INNER JOIN hts_name nm ON (main.name_id = nm.id)
+    INNER JOIN hts_data_field df ON (main.data_field_id = df.id)
+    INNER JOIN hts_data_source ds ON (main.data_source_id = ds.id)
+    INNER JOIN hts_data_provider dp ON (main.data_provider_id = dp.id)
+    INNER JOIN hts_observation_time ot ON (main.observation_time_id = ot.id)
+    LEFT JOIN hts_doc2idkey di ON (di.doc_id = main.id)
+    LEFT JOIN hts_idkey i ON (di.idkey_id = i.id)
+  ORDER BY
+    main.ver_from_instant DESC,
+    main.corr_from_instant DESC
+
+
+-- ==========================================================================
+@NAME(HistoryInner)
+  SELECT
+    id
+  FROM
+    hts_document
+  @INSERT(HistoryWhere)
+  ORDER BY
+    ver_from_instant DESC,
+    corr_from_instant DESC
+  @OFFSETFETCH
+
+
+-- ==========================================================================
+@NAME(HistoryCount)
+  SELECT
+    COUNT(id)
+  FROM
+    hts_document 
+  @INSERT(HistoryWhere)
+
+
+-- ==========================================================================
+@NAME(HistoryWhere)
+  WHERE oid = :doc_oid
+    @IF(:sql_history_versions = Point)
+      AND ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant
+    @IF(:sql_history_versions = Range)
+      @AND(:versions_from_instant)
+        ((ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant) OR ver_from_instant >= :versions_from_instant)
+      @AND(:versions_to_instant)
+        ((ver_from_instant <= :versions_to_instant AND ver_to_instant > :versions_to_instant) OR ver_to_instant < :versions_to_instant)
+    @IF(:sql_history_corrections = Point)
+      AND corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant
+    @IF(:sql_history_corrections = Range)
+      @AND(:corrections_from_instant)
+        ((corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant) OR corr_from_instant >= :corrections_from_instant)
+      @AND(:corrections_to_instant)
+        ((corr_from_instant <= :corrections_to_instant AND corr_to_instant > :corrections_to_instant) OR corr_to_instant < :corrections_to_instant)
+
+
+-- ==========================================================================
+@NAME(Insert)
+  INSERT INTO hts_document
+    (id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name_id,
+    data_field_id, data_source_id, data_provider_id, observation_time_id)
+  VALUES
+    (:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name_id,
+    :data_field_id, :data_source_id, :data_provider_id, :observation_time_id)
+
+
+-- ==========================================================================
+@NAME(InsertDoc2IdKey)
+  INSERT INTO hts_doc2idkey
+    (doc_id, idkey_id, valid_from, valid_to)
+  VALUES
+    (:doc_id, ( @INSERT(SelectIdKey) ), :valid_from, :valid_to)
+
+
+-- ==========================================================================
+@NAME(SelectIdKey)
+  SELECT
+    id
+  FROM
+    hts_idkey
+  WHERE key_scheme = :key_scheme
+    AND key_value = :key_value
+
+
+-- ==========================================================================
+@NAME(InsertIdKey)
+  INSERT INTO hts_idkey
+    (id, key_scheme, key_value)
+  VALUES
+    (:idkey_id, :key_scheme, :key_value)
+
+
+-- ==========================================================================
+@NAME(UpdateVersionToInstant)
+  UPDATE hts_document
+  SET ver_to_instant = :ver_to_instant
+  WHERE id = :doc_id
+    AND ver_to_instant >= :max_instant
+
+
+-- ==========================================================================
+@NAME(UpdateCorrectionToInstant)
+  UPDATE hts_document
+  SET corr_to_instant = :corr_to_instant
+  WHERE id = :doc_id
+    AND corr_to_instant >= :max_instant
+
+
+-- ==========================================================================
+-- ==========================================================================
+-- ==========================================================================
+-- select document to handle empty series and to check/use first doc instants
+@NAME(SelectDataPointsCommon)
+  SELECT
+    main.ver_from_instant AS ver_from_instant,
+    main.corr_from_instant AS corr_from_instant,
+    common.*
+  FROM
+    hts_document main
+    LEFT JOIN ( @INSERT(SelectDataPointsCommonInner) ) common ON main.oid = common.doc_oid
+  WHERE main.oid = :doc_oid
+    AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant
+    AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant
+
+
+-- ==========================================================================
+@NAME(SelectDataPointsCommonInner)
+  SELECT
+    doc_oid,
+    MAX(ver_instant) AS max_ver_instant,
+    MAX(corr_instant) AS max_corr_instant
+--    MAX(point_date) AS max_point_date,
+--    MIN(point_date) AS min_point_date
+  FROM
+    hts_point
+  WHERE doc_oid = :doc_oid
+    AND ver_instant <= :version_as_of_instant
+    AND corr_instant <= :corrected_to_instant
+  GROUP BY
+    doc_oid
+
+
+-- ==========================================================================
+@NAME(SelectDataPoints)
+  SELECT
+    point_date,
+    point_value
+  FROM
+    hts_point
+  WHERE doc_oid = :doc_oid
+    AND ver_instant <= :version_as_of_instant
+    AND corr_instant <= :corrected_to_instant
+    AND point_date >= :start_date
+    AND point_date <= :end_date
+  ORDER BY point_date, corr_instant DESC
+
+
+-- ==========================================================================
+@NAME(SelectEarliestDataPoint)
+  SELECT
+    doc_oid,
+    point_date,
+    point_value
+  FROM
+    hts_point
+  WHERE point_date =
+    (
+      SELECT min(point_date)
+      FROM hts_point
+      WHERE doc_oid = :doc_oid
+        AND ver_instant <= :version_as_of_instant AND corr_instant <= :corrected_to_instant
+    )
+    AND doc_oid=:doc_oid
+    AND ver_instant <= :version_as_of_instant
+    AND corr_instant <= :corrected_to_instant
+  ORDER BY
+    ver_instant DESC,
+    corr_instant DESC
+
+
+-- ==========================================================================
+@NAME(SelectLatestDataPoint)
+  SELECT
+    doc_oid,
+    point_date,
+    point_value
+  FROM
+    hts_point
+  WHERE point_date =
+    (
+      SELECT max(point_date)
+      FROM hts_point
+      WHERE doc_oid = :doc_oid
+        AND ver_instant <= :version_as_of_instant AND corr_instant <= :corrected_to_instant
+    )
+    AND doc_oid=:doc_oid
+    AND ver_instant <= :version_as_of_instant
+    AND corr_instant <= :corrected_to_instant
+  ORDER BY
+    ver_instant DESC,
+    corr_instant DESC
+
+
+-- ==========================================================================
+@NAME(SelectMaxPointDate)
+  SELECT
+    MAX(point_date) AS max_point_date
+  FROM
+    hts_point
+  WHERE doc_oid = :doc_oid
+    AND ver_instant <= :ver_instant
+    AND corr_instant <= :corr_instant
+
+
+-- ==========================================================================
+@NAME(InsertDataPoint)
+  INSERT INTO hts_point
+    (doc_oid, point_date, ver_instant, corr_instant, point_value)
+  VALUES
+    (:doc_oid, :point_date, :ver_instant, :corr_instant, :point_value)
+
+
+-- ==========================================================================
+@NAME(InsertCorrectDataPoint)
+  INSERT INTO hts_point
+    (doc_oid, point_date, ver_instant, corr_instant, point_value)
+  VALUES
+    (:doc_oid, :point_date,
+      COALESCE(
+        (SELECT ver_instant FROM hts_point WHERE doc_oid = :doc_oid AND point_date = :point_date AND ver_instant = corr_instant),
+        :corr_instant
+      ),
+    :corr_instant, :point_value)
+
+
+-- ==========================================================================
+@NAME(SelectRemoveDataPoints)
+  SELECT
+    DISTINCT point_date
+  FROM
+    hts_point
+  WHERE doc_oid = :doc_oid
+    AND point_date >= :start_date
+    AND point_date <= :end_date
+
+
+-- ==========================================================================
+-- select document to handle empty series and to check/use first doc instants
+@NAME(SelectUniqueIdByVersionCorrection)
+  SELECT
+    main.ver_from_instant AS ver_from_instant,
+    main.corr_from_instant AS corr_from_instant,
+    instants.*
+  FROM
+    hts_document main
+    LEFT JOIN ( @INSERT(SelectUniqueIdByVersionCorrectionInner) ) instants ON main.oid = instants.doc_oid
+  WHERE main.oid = :doc_oid
+    AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant
+    AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant
+
+
+-- ==========================================================================
+@NAME(SelectUniqueIdByVersionCorrectionInner)
+  SELECT
+    doc_oid,
+    MAX(ver_instant) AS max_ver_instant,
+    MAX(corr_instant) AS max_corr_instant
+  FROM hts_point
+  WHERE doc_oid = :doc_oid
+    AND ver_instant <= :version_as_of_instant
+    AND corr_instant <= :corrected_to_instant
+  GROUP BY
+    doc_oid
+
+
+-- ==========================================================================
