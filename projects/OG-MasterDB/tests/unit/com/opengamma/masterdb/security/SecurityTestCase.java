@@ -89,6 +89,7 @@ import com.opengamma.financial.security.option.FixedStrikeLookbackPayoffStyle;
 import com.opengamma.financial.security.option.FloatingStrikeLookbackPayoffStyle;
 import com.opengamma.financial.security.option.GapPayoffStyle;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.PayoffStyle;
 import com.opengamma.financial.security.option.PoweredPayoffStyle;
 import com.opengamma.financial.security.option.SimpleChooserPayoffStyle;
@@ -727,6 +728,12 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   @Test
   public void testFXOptionSecurity() {
     assertSecurities(FXOptionSecurity.class);
+  }
+  
+  @Override
+  @Test
+  public void testNonDeliverableFXOptionSecurity() {
+    assertSecurities(NonDeliverableFXOptionSecurity.class);
   }
   
   @Override
