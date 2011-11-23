@@ -13,11 +13,11 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.forex.calculator.CurrencyExposureForexCalculator;
-import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueForexCalculator;
 import com.opengamma.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.financial.forex.derivative.ForexSwap;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -68,7 +68,7 @@ public class ForexSwapDiscountingMethodTest {
     final MultipleCurrencyAmount pvMethod = METHOD.presentValue(FX_SWAP, CURVES);
     final MultipleCurrencyAmount pvCalculator = PVC_FX.visit(FX_SWAP, CURVES);
     assertEquals("Forex present value: Method vs Calculator", pvMethod, pvCalculator);
-    final ForexDerivative fxSwap = FX_SWAP;
+    final InstrumentDerivative fxSwap = FX_SWAP;
     final MultipleCurrencyAmount pvMethod2 = METHOD.presentValue(fxSwap, CURVES);
     assertEquals("Forex present value: Method ForexSwap vs Method ForexDerivative", pvMethod, pvMethod2);
   }

@@ -35,6 +35,8 @@ import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurityVisitor;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurityVisitor;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurityVisitor;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurityVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -56,6 +58,7 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
   private final EquityIndexOptionSecurityVisitor<T> _equityIndexOptionSecurityVisitor;
   private final EquityOptionSecurityVisitor<T> _equityOptionSecurityVisitor;
   private final FXOptionSecurityVisitor<T> _fxOptionSecurityVisitor;
+  private final NonDeliverableFXOptionSecurityVisitor<T> _nonDeliverableFxOptionSecurityVisitor;
   private final SwaptionSecurityVisitor<T> _swaptionSecurityVisitor;
   private final IRFutureOptionSecurityVisitor<T> _irfutureSecurityVisitor;
   private final FXBarrierOptionSecurityVisitor<T> _fxBarrierOptionSecurityVisitor;
@@ -80,6 +83,7 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
     private EquityIndexOptionSecurityVisitor<T> _equityIndexOptionSecurityVisitor;
     private EquityOptionSecurityVisitor<T> _equityOptionSecurityVisitor;
     private FXOptionSecurityVisitor<T> _fxOptionSecurityVisitor;
+    private NonDeliverableFXOptionSecurityVisitor<T> _nonDeliverableFxOptionSecurityVisitor;
     private SwaptionSecurityVisitor<T> _swaptionSecurityVisitor;
     private IRFutureOptionSecurityVisitor<T> _irfutureSecurityVisitor;
     private FXBarrierOptionSecurityVisitor<T> _fxBarrierOptionSecurityVisitor;
@@ -137,6 +141,11 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
       return this;
     }
 
+    public Builder<T> nonDeliverableFxOptionVisitor(final NonDeliverableFXOptionSecurityVisitor<T> nonDeliverableFxOptionSecurityVisitor) {
+      _nonDeliverableFxOptionSecurityVisitor = nonDeliverableFxOptionSecurityVisitor;
+      return this;
+    }
+    
     public Builder<T> swaptionVisitor(final SwaptionSecurityVisitor<T> swaptionSecurityVisitor) {
       _swaptionSecurityVisitor = swaptionSecurityVisitor;
       return this;
@@ -192,6 +201,7 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
                                          final EquityIndexOptionSecurityVisitor<T> equityIndexOptionSecurityVisitor,
                                          final EquityOptionSecurityVisitor<T> equityOptionSecurityVisitor,
                                          final FXOptionSecurityVisitor<T> fxOptionSecurityVisitor,
+                                         final NonDeliverableFXOptionSecurityVisitor<T> nonDeliverableFxOptionSecurityVisitor,
                                          final SwaptionSecurityVisitor<T> swaptionSecurityVisitor,
                                          final IRFutureOptionSecurityVisitor<T> irfutureSecurityVisitor,
                                          final FXBarrierOptionSecurityVisitor<T> fxBarrierOptionSecurityVisitor,
@@ -209,6 +219,7 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
     _equityIndexOptionSecurityVisitor = equityIndexOptionSecurityVisitor;
     _equityOptionSecurityVisitor = equityOptionSecurityVisitor;
     _fxOptionSecurityVisitor = fxOptionSecurityVisitor;
+    _nonDeliverableFxOptionSecurityVisitor = nonDeliverableFxOptionSecurityVisitor;
     _swaptionSecurityVisitor = swaptionSecurityVisitor;
     _irfutureSecurityVisitor = irfutureSecurityVisitor;
     _fxBarrierOptionSecurityVisitor = fxBarrierOptionSecurityVisitor;
@@ -220,7 +231,7 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
   }
 
   public FinancialSecurityVisitorAdapter() {
-    this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+    this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
   }
 
   public static <T> Builder<T> builder() {
@@ -230,7 +241,7 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
   protected FinancialSecurityVisitorAdapter(final Builder<T> builder) {
     this(builder._bondSecurityVisitor, builder._cashSecurityVisitor, builder._equitySecurityVisitor, builder._fraSecurityVisitor,
         builder._futureSecurityVisitor, builder._swapSecurityVisitor, builder._equityIndexOptionSecurityVisitor,
-        builder._equityOptionSecurityVisitor, builder._fxOptionSecurityVisitor, builder._swaptionSecurityVisitor,
+        builder._equityOptionSecurityVisitor, builder._fxOptionSecurityVisitor, builder._nonDeliverableFxOptionSecurityVisitor, builder._swaptionSecurityVisitor,
         builder._irfutureSecurityVisitor, builder._fxBarrierOptionSecurityVisitor, builder._fxSecurityVisitor,
         builder._fxForwardSecurityVisitor, builder._capFloorSecurityVisitor, builder._capFloorCMSSpreadSecurityVisitor,
         builder._equityVarianceSwapSecurityVisitor);
@@ -281,6 +292,11 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
   @Override
   public T visitFXOptionSecurity(final FXOptionSecurity security) {
     return (_fxOptionSecurityVisitor != null) ? security.accept(_fxOptionSecurityVisitor) : null;
+  }
+
+  @Override
+  public T visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
+    return _nonDeliverableFxOptionSecurityVisitor != null ? security.accept(_nonDeliverableFxOptionSecurityVisitor) : null;
   }
 
   @Override

@@ -8,15 +8,15 @@ package com.opengamma.financial.forex.derivative;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.forex.calculator.ForexDerivative;
-import com.opengamma.financial.forex.calculator.ForexDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a foreign exchange non-deliverable forward transaction.
  * The transaction is XXX/YYY where YYY is the currency for the cash-settlement. A NDF KRW/USD with USD cash settlement is stored with KRW as currency1 and USD as currency2.
  */
-public class ForexNonDeliverableForward implements ForexDerivative {
+public class ForexNonDeliverableForward implements InstrumentDerivative {
 
   /**
    * First currency of the transaction.
@@ -150,12 +150,12 @@ public class ForexNonDeliverableForward implements ForexDerivative {
   }
 
   @Override
-  public <S, T> T accept(ForexDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitForexNonDeliverableForward(this, data);
   }
 
   @Override
-  public <T> T accept(ForexDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitForexNonDeliverableForward(this);
   }
 

@@ -17,7 +17,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.PV01Calculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -36,7 +36,7 @@ public class InterestRateInstrumentPV01Function extends InterestRateInstrumentFu
   }
 
   @Override
-  public Set<ComputedValue> getComputedValues(final InterestRateDerivative derivative, final YieldCurveBundle bundle,
+  public Set<ComputedValue> getComputedValues(final InstrumentDerivative derivative, final YieldCurveBundle bundle,
       final FinancialSecurity security, final ComputationTarget target) {
     final Map<String, Double> pv01 = CALCULATOR.visit(derivative, bundle);
     final Currency ccy = FinancialSecurityUtils.getCurrency(security);

@@ -24,24 +24,24 @@ public class ParRateNodeSensitivityCalculator extends NodeSensitivityCalculator 
     return DEFAULT_INSTANCE;
   }
 
-  public static ParRateNodeSensitivityCalculator using(final AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> parRateSensitivityCalculator) {
+  public static ParRateNodeSensitivityCalculator using(final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> parRateSensitivityCalculator) {
     Validate.notNull(parRateSensitivityCalculator, "par rate sensitivity calculator");
     return new ParRateNodeSensitivityCalculator(parRateSensitivityCalculator);
   }
 
-  private final AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> _parRateSensitivityCalculator;
+  private final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> _parRateSensitivityCalculator;
 
   public ParRateNodeSensitivityCalculator() {
     _parRateSensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
   }
 
-  public ParRateNodeSensitivityCalculator(final AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> parRateSensitivityCalculator) {
+  public ParRateNodeSensitivityCalculator(final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> parRateSensitivityCalculator) {
     Validate.notNull(parRateSensitivityCalculator, "par rate sensitivity calculator");
     _parRateSensitivityCalculator = parRateSensitivityCalculator;
   }
 
   @Override
-  public DoubleMatrix1D calculateSensitivities(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves) {
+  public DoubleMatrix1D calculateSensitivities(final InstrumentDerivative ird, final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves) {
     return calculateSensitivities(ird, _parRateSensitivityCalculator, fixedCurves, interpolatedCurves);
   }
 

@@ -141,6 +141,8 @@
               <bean class="com.opengamma.language.value.ExpandComputedValuesFunction" />
               <bean class="com.opengamma.language.value.MarketDataRequirementNamesFunction" />
               <bean class="com.opengamma.language.value.ValueRequirementNamesFunction" />
+              <bean class="com.opengamma.language.financial.currency.CurrencyPairFunction" />
+              <bean class="com.opengamma.language.financial.currency.FxRateFunction" />
             </list>
           </property>
         </bean>
@@ -242,6 +244,12 @@
   
   <!-- Time series -->
   <bean id="timeSeriesLoader" class="com.opengamma.language.timeseries.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+
+  <!-- Currency pairs -->
+  <bean id="currencyPairsLoader" class="com.opengamma.language.financial.currency.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
     <property name="configuration" ref="defaultConfiguration" />
   </bean>

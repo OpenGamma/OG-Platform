@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.var;
 
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
@@ -15,6 +17,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -43,6 +47,9 @@ public class PositionHistoricalVaRCalculatorFunction extends AbstractFunction.No
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    
+    String currency = getCurrency(inputs);
+    
     final Object pnlSeriesObj = inputs.getValue(ValueRequirementNames.PNL_SERIES);
     if (pnlSeriesObj == null) {
       throw new NullPointerException("Could not get P&L series for " + target.getPosition());
@@ -50,11 +57,34 @@ public class PositionHistoricalVaRCalculatorFunction extends AbstractFunction.No
     final DoubleTimeSeries<?> pnlSeries = (DoubleTimeSeries<?>) pnlSeriesObj;
     if (!pnlSeries.isEmpty()) {
       final double var = _varCalculator.evaluate(pnlSeries);
-      return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition()), getUniqueId()), var));
+      ValueRequirement vr = new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition(), createValueProperties().with(ValuePropertyNames.CURRENCY, currency).get());
+      return Sets.newHashSet(new ComputedValue(new ValueSpecification(vr, getUniqueId()), var));
     }
     return null;
   }
 
+  private String getCurrency(final FunctionInputs inputs) {
+    String currency = null;
+    for (ComputedValue value : inputs.getAllValues()) {
+      currency = value.getSpecification().getProperty(ValuePropertyNames.CURRENCY);
+      if (currency != null) {
+        break;
+      }
+    }
+    return currency;
+  }
+
+  private String getCurrency(Map<ValueSpecification, ValueRequirement> inputs) {
+    String currency = null;
+    for (Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
+      currency = entry.getKey().getProperty(ValuePropertyNames.CURRENCY);
+      if (currency != null) {
+        break;
+      }
+    }
+    return currency;
+  }
+  
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     return target.getType() == ComputationTargetType.POSITION;
@@ -63,7 +93,7 @@ public class PositionHistoricalVaRCalculatorFunction extends AbstractFunction.No
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition()));
+      return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition(), ValueProperties.withAny(ValuePropertyNames.CURRENCY).get()));
     }
     return null;
   }
@@ -71,7 +101,22 @@ public class PositionHistoricalVaRCalculatorFunction extends AbstractFunction.No
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition()), getUniqueId()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target
+          .getPosition(), createValueProperties().withAny(ValuePropertyNames.CURRENCY).get()), getUniqueId()));
+    }
+    return null;
+  }
+  
+
+  @Override
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
+    if (canApplyTo(context, target)) {
+      String currency = getCurrency(inputs);
+      if (currency == null) {
+        return null;
+      }
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target
+          .getPosition(), createValueProperties().with(ValuePropertyNames.CURRENCY, currency).get()), getUniqueId()));
     }
     return null;
   }

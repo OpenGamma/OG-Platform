@@ -11,6 +11,7 @@ import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 
 import javax.time.calendar.Period;
 
@@ -36,11 +37,10 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctionH
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.volatility.smile.fitting.SABRNonLinearLeastSquareFitter;
+import com.opengamma.financial.model.volatility.smile.fitting.SABRModelFitter;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.id.ExternalId;
 import com.opengamma.math.interpolation.FlatExtrapolator1D;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
@@ -59,26 +59,22 @@ import com.opengamma.util.tuple.Pair;
  */
 public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends AbstractFunction.NonCompiledInvoker {
   private static final double ERROR = 0.001;
-  private static final SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
-  private static final SABRNonLinearLeastSquareFitter FITTER = new SABRNonLinearLeastSquareFitter(SABR_FUNCTION);
-  private static final double[] SABR_INITIAL_VALUES = new double[] {0.05, 0.5, 0.2, 0.0};
   private static final BitSet FIXED = new BitSet();
-  private static final boolean RECOVER_ATM_VOL = false;
+  private static final SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
+  private static final DoubleMatrix1D SABR_INITIAL_VALUES = new DoubleMatrix1D(new double[] {0.05, 0.5, 0.7, 0.3});
   private static final LinearInterpolator1D LINEAR = (LinearInterpolator1D) Interpolator1DFactory.getInterpolator(Interpolator1DFactory.LINEAR);
   private static final FlatExtrapolator1D FLAT = new FlatExtrapolator1D();
-  private static final GridInterpolator2D INTERPOLATOR = new GridInterpolator2D(LINEAR, LINEAR,
-      FLAT, FLAT);
+  private static final GridInterpolator2D INTERPOLATOR = new GridInterpolator2D(LINEAR, LINEAR, FLAT, FLAT);
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private final VolatilityCubeFunctionHelper _volCubeHelper;
-  private ValueSpecification _resultSpecification;
+  private ValueSpecification _sabrSurfacesSpecification;
+  private ValueSpecification _smileIdsSpecification;
   private ValueRequirement _cubeRequirement;
 
   static {
     FIXED.set(1);
   }
-
-  //TODO forward data helper? or in the cube?
-
+  
   public SABRNonLinearLeastSquaresSwaptionCubeFittingFunction(final String currency, final String definitionName) {
     this(Currency.of(currency), definitionName);
   }
@@ -95,7 +91,8 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
     final ValueProperties resultProperties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, _volCubeHelper.getCurrency().getCode())
         .with(ValuePropertyNames.CUBE, _volCubeHelper.getDefinitionName()).get();
-    _resultSpecification = new ValueSpecification(ValueRequirementNames.SABR_SURFACES, currencyTargetSpec, resultProperties);
+    _sabrSurfacesSpecification = new ValueSpecification(ValueRequirementNames.SABR_SURFACES, currencyTargetSpec, resultProperties);
+    _smileIdsSpecification = new ValueSpecification(ValueRequirementNames.EXTERNAL_IDS, currencyTargetSpec, resultProperties);
   }
 
   @Override
@@ -105,7 +102,9 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
       throw new OpenGammaRuntimeException("Could not get volatility cube data");
     }
     final VolatilityCubeData volatilityCubeData = (VolatilityCubeData) objectCubeData;
-    final Map<Tenor, Map<Tenor, Pair<double[], double[]>>> smiles = volatilityCubeData.getSmiles();
+    Pair<SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>>, SortedMap<Tenor, SortedMap<Tenor, ExternalId[]>>> smilesAndIds = volatilityCubeData.getSmilesAndSmileIds();
+    final SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> smiles = smilesAndIds.getFirst();
+    final SortedMap<Tenor, SortedMap<Tenor, ExternalId[]>> smileIds = smilesAndIds.getSecond();
     final DoubleArrayList swapMaturitiesList = new DoubleArrayList();
     final DoubleArrayList swaptionExpiriesList = new DoubleArrayList();
     final DoubleArrayList alphaList = new DoubleArrayList();
@@ -114,39 +113,41 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
     final DoubleArrayList rhoList = new DoubleArrayList();
     final DoubleArrayList chiSqList = new DoubleArrayList();
     final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = new HashMap<DoublesPair, DoubleMatrix2D>();
-    for (final Map.Entry<Tenor, Map<Tenor, Pair<double[], double[]>>> swapMaturityEntry : smiles.entrySet()) {
+    final Map<DoublesPair, ExternalId[]> fittedDataIds = new HashMap<DoublesPair, ExternalId[]>();
+    for (final Map.Entry<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> swapMaturityEntry : smiles.entrySet()) {
       final double maturity = getTime(swapMaturityEntry.getKey());
       for (final Map.Entry<Tenor, Pair<double[], double[]>> swaptionExpiryEntry : swapMaturityEntry.getValue().entrySet()) {
         final double swaptionExpiry = getTime(swaptionExpiryEntry.getKey());
         final double[] strikes = swaptionExpiryEntry.getValue().getFirst();
         final double[] blackVols = swaptionExpiryEntry.getValue().getSecond();
+        final ExternalId[] externalIds = smileIds.get(swapMaturityEntry.getKey()).get(swaptionExpiryEntry.getKey());
         final int n = strikes.length;
         if (n != blackVols.length) {
           throw new OpenGammaRuntimeException("Strike and Black volatility arrays were not the same length; should never happen");
         }
-        final EuropeanVanillaOption[] options = new EuropeanVanillaOption[n];
-        final BlackFunctionData[] data = new BlackFunctionData[n];
+        if (n != externalIds.length) {
+          throw new OpenGammaRuntimeException("Strike and id arrays were not the same length; should never happen");
+        }
         final double[] errors = new double[n];
-        final Pair<Tenor, Tenor> tenorPair = Pair.of(swapMaturityEntry.getKey(), swaptionExpiryEntry.getKey());
+        final Pair<Tenor, Tenor> tenorPair = Pair.of(swapMaturityEntry.getKey(), swaptionExpiryEntry.getKey()); 
         if (volatilityCubeData.getStrikes() != null && volatilityCubeData.getStrikes().containsKey(tenorPair)) {
           final double forward = volatilityCubeData.getStrikes().get(tenorPair);
-          final double atmVol = volatilityCubeData.getATMVolatilities().get(tenorPair);
           for (int k = 0; k < n; k++) {
-            options[k] = new EuropeanVanillaOption(strikes[k], swaptionExpiry, true);
-            data[k] = new BlackFunctionData(forward, 1, blackVols[k]);
             errors[k] = ERROR;
           }
-          if (options.length > 4 && forward > 0) { //don't fit those smiles with insufficient data 
-            final LeastSquareResults fittedResult = FITTER.getFitResult(options, data, errors, SABR_INITIAL_VALUES, FIXED, atmVol, RECOVER_ATM_VOL);
+          if (strikes.length > 4 && forward > 0) { //don't fit those smiles with insufficient data 
+            final LeastSquareResults fittedResult = new SABRModelFitter(forward, strikes, swaptionExpiry, blackVols, errors, SABR_FUNCTION).solve(SABR_INITIAL_VALUES, FIXED);
             final DoubleMatrix1D parameters = fittedResult.getParameters();
             swapMaturitiesList.add(maturity);
             swaptionExpiriesList.add(swaptionExpiry);
             alphaList.add(parameters.getEntry(0));
             betaList.add(parameters.getEntry(1));
-            nuList.add(parameters.getEntry(2));
-            rhoList.add(parameters.getEntry(3));
-            inverseJacobians.put(new DoublesPair(swaptionExpiry, maturity), fittedResult.getInverseJacobian());
+            rhoList.add(parameters.getEntry(2));
+            nuList.add(parameters.getEntry(3));
+            DoublesPair expiryMaturityPair = new DoublesPair(swaptionExpiry, maturity);
+            inverseJacobians.put(expiryMaturityPair, fittedResult.getInverseJacobian());
             chiSqList.add(fittedResult.getChiSq());
+            fittedDataIds.put(DoublesPair.of(maturity, swaptionExpiry), externalIds);
           }
         }
       }
@@ -165,7 +166,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
     final VolatilitySurface nuSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swaptionExpiries, swapMaturities, nu, INTERPOLATOR, "SABR nu surface"));
     final VolatilitySurface rhoSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swaptionExpiries, swapMaturities, rho, INTERPOLATOR, "SABR rho surface"));
     final SABRFittedSurfaces fittedSurfaces = new SABRFittedSurfaces(alphaSurface, betaSurface, nuSurface, rhoSurface, inverseJacobians, _volCubeHelper.getCurrency(), DAY_COUNT);
-    return Sets.newHashSet(new ComputedValue(_resultSpecification, fittedSurfaces));
+    return Sets.newHashSet(new ComputedValue(_sabrSurfacesSpecification, fittedSurfaces), new ComputedValue(_smileIdsSpecification, fittedDataIds));
   }
 
   @Override
@@ -188,7 +189,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Sets.newHashSet(_resultSpecification);
+    return Sets.newHashSet(_sabrSurfacesSpecification, _smileIdsSpecification);
   }
 
   private double getTime(final Tenor tenor) {

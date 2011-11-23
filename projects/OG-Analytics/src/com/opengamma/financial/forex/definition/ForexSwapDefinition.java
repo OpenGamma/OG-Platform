@@ -10,17 +10,17 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.forex.calculator.ForexConverter;
-import com.opengamma.financial.forex.calculator.ForexDefinitionVisitor;
-import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexSwap;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a Forex swap transaction (with a near and far leg).
  */
-public class ForexSwapDefinition implements ForexConverter<ForexDerivative> {
+public class ForexSwapDefinition implements InstrumentDefinition<InstrumentDerivative> {
 
   /**
    * The near leg.
@@ -53,8 +53,8 @@ public class ForexSwapDefinition implements ForexConverter<ForexDerivative> {
    * @param forexRate The near leg forex rate.
    * @param forwardPoints The forward points, i.e. the far leg forex rate is forexRate+forwardPoints.
    */
-  public ForexSwapDefinition(final Currency currency1, final Currency currency2, final ZonedDateTime nearDate, final ZonedDateTime farDate, final double amount1, 
-      double forexRate, double forwardPoints) {
+  public ForexSwapDefinition(final Currency currency1, final Currency currency2, final ZonedDateTime nearDate, final ZonedDateTime farDate, final double amount1, double forexRate, 
+      double forwardPoints) {
     Validate.notNull(currency1, "Currency 1");
     Validate.notNull(currency2, "Currency 2");
     Validate.notNull(nearDate, "Near date");
@@ -90,12 +90,12 @@ public class ForexSwapDefinition implements ForexConverter<ForexDerivative> {
   }
 
   @Override
-  public <U, V> V accept(ForexDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
     return visitor.visitForexSwapDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(ForexDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitForexSwapDefinition(this);
   }
 

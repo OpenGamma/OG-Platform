@@ -30,7 +30,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * The cash flow equivalent sensitivity is represented by the double which is the time of the cash flow and the PresentValueSensitivity which is the sensitivity of the 
  * cash flow at that date.
  */
-public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<Double, InterestRateCurveSensitivity>> {
+public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<Double, InterestRateCurveSensitivity>> {
 
   /**
    * The unique instance of the calculator.
@@ -52,7 +52,7 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractIntere
   }
 
   @Override
-  public Map<Double, InterestRateCurveSensitivity> visit(final InterestRateDerivative derivative, final YieldCurveBundle curves) {
+  public Map<Double, InterestRateCurveSensitivity> visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(derivative);
     return derivative.accept(this, curves);

@@ -312,5 +312,6 @@ public final class ValueRequirementNames {
   public static final String DAILY_MARKET_CAP = "Last Market Cap";
   public static final String DAILY_PRICE = "Last Price";
   
+  public static final String EXTERNAL_IDS = "External ids";
   //CSON
 }

@@ -20,6 +20,7 @@ import com.google.common.collect.Maps;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.view.cache.CacheSelectHint;
+import com.opengamma.engine.view.calc.ExecutionPlanCache.DependencyNodeKey;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 
 /**
@@ -29,8 +30,24 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
  * executor.
  */
 /* package */abstract class ExecutionPlan {
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(ExecutionPlan.class);
+
+  private static Collection<DependencyNode> mapNodes(final Collection<DependencyNode> from, final Map<DependencyNodeKey, DependencyNode> to) {
+    final Collection<DependencyNode> nodes = new ArrayList<DependencyNode>(from.size());
+    for (DependencyNode node : from) {
+      final DependencyNode mapped = to.get(new DependencyNodeKey(node));
+      if (mapped == null) {
+        s_logger.warn("Node {} not mapped", node);
+      } else if (mapped == node) {
+        s_logger.info("Using identity mapping");
+        return from;
+      } else {
+        nodes.add(mapped);
+      }
+    }
+    return nodes;
+  }
 
   private static final class SingleFragment extends ExecutionPlan {
 
@@ -53,8 +70,13 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
       return fragment.getFuture();
     }
 
+    @Override
+    public SingleFragment withNodes(final Map<DependencyNodeKey, DependencyNode> nodes) {
+      return new SingleFragment(mapNodes(_nodes, nodes), _cacheSelectHint);
+    }
+
   }
-  
+
   private static final class MultipleFragment extends ExecutionPlan {
 
     private static final class FragmentDescriptor {
@@ -103,6 +125,14 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
         }
       }
 
+      private FragmentDescriptor(final FragmentDescriptor copyFrom, final Map<DependencyNodeKey, DependencyNode> withNodes) {
+        _nodes = mapNodes(copyFrom.getNodes(), withNodes);
+        _cacheSelectHint = copyFrom.getCacheSelectHint();
+        _inputs = copyFrom.getInputs();
+        _outputs = copyFrom.getOutputs();
+        _tail = copyFrom.getTail();
+      }
+
       public Collection<DependencyNode> getNodes() {
         return _nodes;
       }
@@ -125,11 +155,16 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 
     }
 
-    private final Map<Integer, FragmentDescriptor> _fragments = new HashMap<Integer, FragmentDescriptor>();
+    private final Map<Integer, FragmentDescriptor> _fragments;
 
     public MultipleFragment(final GraphFragment<?, ?> root) {
+      this(new HashMap<Integer, FragmentDescriptor>());
       s_logger.info("Creating {}", this);
       process(root.getInputFragments());
+    }
+
+    private MultipleFragment(final Map<Integer, FragmentDescriptor> fragments) {
+      _fragments = fragments;
     }
 
     private void process(final Collection<? extends GraphFragment<?, ?>> fragments) {
@@ -188,8 +223,17 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
       return root.getFuture();
     }
 
+    @Override
+    public MultipleFragment withNodes(final Map<DependencyNodeKey, DependencyNode> nodes) {
+      final Map<Integer, FragmentDescriptor> fragments = new HashMap<Integer, FragmentDescriptor>(_fragments);
+      for (Map.Entry<Integer, FragmentDescriptor> fragment : fragments.entrySet()) {
+        fragment.setValue(new FragmentDescriptor(fragment.getValue(), nodes));
+      }
+      return new MultipleFragment(fragments);
+    }
+
   }
-  
+
   /**
    * Creates an execution plan for fragment tree.
    * 
@@ -207,5 +251,7 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
    * Constructs appropriate objects and starts the execution.
    */
   public abstract Future<DependencyGraph> run(final GraphFragmentContext context, final GraphExecutorStatisticsGatherer statistics);
+
+  public abstract ExecutionPlan withNodes(final Map<DependencyNodeKey, DependencyNode> nodes);
 
 }

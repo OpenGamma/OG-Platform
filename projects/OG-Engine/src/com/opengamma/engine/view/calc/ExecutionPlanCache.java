@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.MapMaker;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Maps;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -94,15 +94,15 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 
     private final long _functionInitId;
     private final Set<ValueSpecification> _terminals;
-    private final Set<DependencyNodeKey> _nodes;
+    private final Map<DependencyNodeKey, DependencyNode> _nodes;
 
     public DependencyGraphKey(final DependencyGraph graph, final long functionInitId) {
       _functionInitId = functionInitId;
       _terminals = new HashSet<ValueSpecification>(graph.getTerminalOutputSpecifications());
       final Set<DependencyNode> nodes = graph.getDependencyNodes();
-      _nodes = Sets.newHashSetWithExpectedSize(nodes.size());
+      _nodes = Maps.newHashMapWithExpectedSize(nodes.size());
       for (DependencyNode node : nodes) {
-        _nodes.add(new DependencyNodeKey(node));
+        _nodes.put(new DependencyNodeKey(node), node);
       }
     }
 
@@ -121,7 +121,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
       if (!_terminals.equals(key._terminals)) {
         return false;
       }
-      return _nodes.equals(key._nodes);
+      return _nodes.keySet().equals(key._nodes.keySet());
     }
 
     @Override
@@ -129,8 +129,12 @@ import com.opengamma.util.ehcache.EHCacheUtils;
       int hc = 0;
       hc += (hc << 4) + (int) (_functionInitId ^ (_functionInitId >>> 32));
       hc += (hc << 4) + _terminals.hashCode();
-      hc += (hc << 4) + _nodes.hashCode();
+      hc += (hc << 4) + _nodes.keySet().hashCode();
       return hc;
+    }
+
+    public Map<DependencyNodeKey, DependencyNode> getNodes() {
+      return _nodes;
     }
 
   }
@@ -173,7 +177,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
       final Element element = _cache.get(key);
       if (element != null) {
         s_logger.debug("Cache hit");
-        return (ExecutionPlan) element.getObjectValue();
+        return ((ExecutionPlan) element.getObjectValue()).withNodes(key.getNodes());
       } else {
         s_logger.debug("Cache miss");
         return null;

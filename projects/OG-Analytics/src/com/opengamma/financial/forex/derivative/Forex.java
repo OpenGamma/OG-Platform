@@ -8,15 +8,15 @@ package com.opengamma.financial.forex.derivative;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.forex.calculator.ForexDerivative;
-import com.opengamma.financial.forex.calculator.ForexDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a foreign exchange transaction (spot or forward).
  */
-public class Forex implements ForexDerivative {
+public class Forex implements InstrumentDerivative {
 
   /**
    * The payment in the first currency.
@@ -37,7 +37,7 @@ public class Forex implements ForexDerivative {
     Validate.notNull(paymentCurrency2, "Payment 2");
     Validate.isTrue(paymentCurrency1.getPaymentTime() == paymentCurrency2.getPaymentTime(), "Payments on different time");
     Validate.isTrue((paymentCurrency1.getAmount() * paymentCurrency2.getAmount()) <= 0, "Payments with same sign");
-    Validate.isTrue(paymentCurrency1.getCurrency() !=   paymentCurrency2.getCurrency(), "same currency");
+    Validate.isTrue(paymentCurrency1.getCurrency() != paymentCurrency2.getCurrency(), "same currency");
     this._paymentCurrency1 = paymentCurrency1;
     this._paymentCurrency2 = paymentCurrency2;
   }
@@ -113,12 +113,12 @@ public class Forex implements ForexDerivative {
   }
 
   @Override
-  public <S, T> T accept(ForexDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitForex(this, data);
   }
 
   @Override
-  public <T> T accept(ForexDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitForex(this);
   }
 

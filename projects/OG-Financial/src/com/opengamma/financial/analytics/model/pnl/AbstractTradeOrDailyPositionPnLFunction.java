@@ -153,10 +153,19 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
       final PositionOrTrade positionOrTrade = target.getPositionOrTrade();
       final Security security = positionOrTrade.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      requirements.add(new ValueRequirement(getValueRequirementName(), ComputationTargetType.SECURITY, security.getUniqueId()));
+      requirements.add(new ValueRequirement(getValueRequirementName(), ComputationTargetType.SECURITY, security.getUniqueId(), getCurrencyProperty(security)));
       return requirements;
     }
     return null;
+  }
+  
+  protected ValueProperties getCurrencyProperty(Security security) {
+    Currency ccy = FinancialSecurityUtils.getCurrency(security);
+    if (ccy != null) {
+      return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
+    } else {
+      return ValueProperties.none();
+    }
   }
 
   /**

@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.interestrate.method;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.CurrencyAmount;
 
@@ -20,6 +20,6 @@ public interface PricingMethod {
    * @param curves The yield curves.
    * @return The present value.
    */
-  CurrencyAmount presentValue(final InterestRateDerivative instrument, final YieldCurveBundle curves);
+  CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves);
 
 }

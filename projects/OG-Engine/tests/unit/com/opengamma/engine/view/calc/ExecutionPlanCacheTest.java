@@ -10,6 +10,7 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
+import java.util.Map;
 import java.util.concurrent.Future;
 
 import org.testng.annotations.Test;
@@ -200,6 +201,11 @@ public class ExecutionPlanCacheTest {
       @Override
       public Future<DependencyGraph> run(GraphFragmentContext context, GraphExecutorStatisticsGatherer statistics) {
         return null;
+      }
+
+      @Override
+      public ExecutionPlan withNodes(Map<DependencyNodeKey, DependencyNode> nodes) {
+        return this;
       }
     };
   }

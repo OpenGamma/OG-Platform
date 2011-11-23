@@ -5,13 +5,26 @@
  */
 package com.opengamma.financial.analytics.model;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.SortedMap;
+
+import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
+import com.opengamma.financial.analytics.DoubleLabelledMatrix3D;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.financial.forex.method.PresentValueVolatilityQuoteSensitivityDataBundle;
+import com.opengamma.id.ExternalId;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -42,7 +55,7 @@ public class VegaMatrixHelper {
     }
     for (int j = 0; j < nExpiries; j++) {
       rowValues[j] = expiries[j];
-      rowLabels[j] = getFormattedExpiry(expiries[j]);
+      rowLabels[j] = getFXVolatilityFormattedExpiry(expiries[j]);
     }
     for (int i = 0; i < nDelta; i++) {
       for (int j = 0; j < nExpiries; j++) {
@@ -81,7 +94,51 @@ public class VegaMatrixHelper {
     return new DoubleLabelledMatrix2D(columnValues, columnLabels, rowValues, rowLabels, values);
   }
   
-  private static String getFormattedExpiry(final double expiry) {
+  public static DoubleLabelledMatrix3D getVegaSwaptionCubeQuoteMatrixInStandardForm(final SortedMap<DoublesPair, ExternalId[]> smileIds, final Map<Double, DoubleMatrix2D> matrices) {
+    final List<Double> xKeysList = new ArrayList<Double>();
+    final List<Object> xLabelsList = new ArrayList<Object>();
+    final List<Double> yKeysList = new ArrayList<Double>();
+    final List<Object> yLabelsList = new ArrayList<Object>();
+    final List<Double> zKeysList = new ArrayList<Double>();
+    final List<Object> zLabelsList = new ArrayList<Object>();    
+    for (final Entry<DoublesPair, ExternalId[]> entry : smileIds.entrySet()) {
+      if (!zKeysList.contains(entry.getKey().first)) {
+        zKeysList.add(entry.getKey().first);
+        zLabelsList.add(entry.getKey().first);
+      }
+      if (!yKeysList.contains(entry.getKey().second)) {
+        yKeysList.add(entry.getKey().second);
+        yLabelsList.add(entry.getKey().second);
+      }
+      if (xKeysList.size() == 0) {
+        Object idsObject = entry.getValue();
+        final String[] ids;
+        if (idsObject instanceof ArrayList) {
+          ArrayList<String> temp1 = (ArrayList<String>) idsObject;
+          ids = temp1.toArray(new String[temp1.size()]);
+        } else {
+          ids = (String[]) idsObject;
+        }
+        for (int i = 0; i < ids.length; i++) {
+          xKeysList.add(Double.valueOf(i));
+          xLabelsList.add(i);
+        }
+      }      
+    }
+    final Double[] xKeys = xKeysList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
+    final Object[] xLabels = xLabelsList.toArray();
+    final Double[] yKeys = yKeysList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
+    final Object[] yLabels = yLabelsList.toArray();
+    final Double[] zKeys = zKeysList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
+    final Object[] zLabels = zLabelsList.toArray();
+    final double[][][] values = new double[zKeys.length][xKeys.length][yKeys.length];
+    for (int i = 0; i < zKeys.length; i++) {
+      values[i] = matrices.get(zKeys[i]).toArray();
+    }
+    return new DoubleLabelledMatrix3D(xKeys, xLabels, yKeys, yLabels, zKeys, zLabels, values);
+  }
+  
+  private static String getFXVolatilityFormattedExpiry(final double expiry) {
     if (expiry < 1. / 54) {
       final int days = (int) Math.ceil((365 * expiry));
       return days + "D";

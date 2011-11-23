@@ -1,0 +1,87 @@
+.OG-icon.og-icon-tools-new {
+  height: 22px;
+  width: 18px;
+  margin-bottom: 5px;
+}
+
+.OG-icon.og-icon-tools-new:after {
+  background-position: -1px -116px;
+  background-color: transparent;
+  height: 22px;
+  width: 18px;
+  position: absolute;
+  top: 6px;
+  left: 4px;
+}
+
+.OG-icon.og-icon-tools-new span {
+  top: 4px
+}
+
+.OG-icon.og-icon-tools-save {
+  height: 20px;
+  width: 19px;
+  margin-top: 5px;
+  margin-bottom: 0;
+}
+
+.OG-icon.og-icon-tools-save:after {
+  background-position: -22px -118px;
+  background-color: transparent;
+  height: 20px;
+  width: 19px;
+  position: absolute;
+  top: 0;
+  left: 4px;
+}
+
+.OG-icon.og-icon-tools-save span {
+  top: -2px
+}
+
+.OG-icon.og-icon-tools-saveas {
+  height: 20px;
+  width: 19px;
+  margin-top: 5px;
+  margin-bottom: 0;
+}
+
+.OG-icon.og-icon-tools-saveas:after {
+  background-position: -83px -118px;
+  background-color: transparent;
+  height: 20px;
+  width: 19px;
+  position: absolute;
+  top: 0;
+  left: 4px;
+}
+
+.OG-icon.og-icon-tools-saveas span {
+  top: -2px
+}
+
+.OG-icon.og-icon-tools-delete {
+  height: 20px;
+  width: 17px;
+  margin-top: 1px;
+  margin-bottom: 3px;
+}
+
+.OG-icon.og-icon-tools-delete:after {
+  background-position: -42px -118px;
+  background-color: transparent;
+  height: 20px;
+  width: 17px;
+  position: absolute;
+  top: 3px;
+  left: 4px;
+}
+
+.OG-icon.og-icon-tools-delete span {
+  top: 1px
+}
+
+.OG-icon[class*='og-icon-tools']:hover span {
+  display: block;
+  white-space: nowrap;
+}

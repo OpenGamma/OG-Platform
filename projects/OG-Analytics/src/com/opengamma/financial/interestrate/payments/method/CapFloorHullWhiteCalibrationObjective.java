@@ -7,7 +7,7 @@ package com.opengamma.financial.interestrate.payments.method;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationObjective;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
@@ -79,7 +79,7 @@ public class CapFloorHullWhiteCalibrationObjective extends SuccessiveRootFinderC
   }
 
   @Override
-  public void setInstrument(InterestRateDerivative instrument) {
+  public void setInstrument(InstrumentDerivative instrument) {
     super.setInstrument(instrument);
     Validate.isTrue(instrument instanceof CapFloorIbor, "Instrument should be a cap/floor");
   }
