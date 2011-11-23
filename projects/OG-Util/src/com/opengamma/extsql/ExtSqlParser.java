@@ -166,9 +166,6 @@ final class ExtSqlParser {
         }
         container.addFragment(ifFragment);
         
-      } else if (trimmed.startsWith("@")) {
-        throw new IllegalArgumentException("Unknown tag at start of line: " + line);
-        
       } else {
         parseLine(container, line);
       }
@@ -188,6 +185,9 @@ final class ExtSqlParser {
       
     } else  if (trimmed.contains("@OFFSETFETCH")) {
       parseOffsetFetchTag(container, line);
+      
+    } else if (trimmed.startsWith("@")) {
+      throw new IllegalArgumentException("Unknown tag at start of line: " + line);
       
     } else {
       TextSqlFragment textFragment = new TextSqlFragment(trimmed);
