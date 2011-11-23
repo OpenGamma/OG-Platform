@@ -369,6 +369,49 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
   //-------------------------------------------------------------------------
   @Override
+  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    HistoricalTimeSeriesSummary htss = getFromSummaryCache(uniqueId);
+    if (htss != null) {
+      if (htss == MISSSUMMARY) {
+        htss = null;
+      }
+    } else {
+      htss = _underlying.getSummary(uniqueId);
+      if (htss != null) {
+        s_logger.debug("Caching time-series {} summary", htss);
+        _summaryCache.put(new Element(uniqueId, htss));
+      } else {
+        s_logger.debug("Caching miss on {} summary", uniqueId);
+        _summaryCache.put(new Element(uniqueId, MISSSUMMARY));
+      }
+    }
+    return htss;
+  }
+
+  /**
+   * Attempt to get a HistoricalTimeSeriesSummary from the cache.
+   * 
+   * @param uniqueId  the unique id of the HTS, not null
+   * @return the summary information for the HTS, null if not found
+   */
+  private HistoricalTimeSeriesSummary getFromSummaryCache(UniqueId uniqueId) {
+    Element element = _summaryCache.get(uniqueId);
+    if (element == null) {
+      s_logger.debug("Cache miss on {} summary", uniqueId);
+      return null;
+    }
+    s_logger.debug("Cache hit on {} summary", uniqueId);
+    return (HistoricalTimeSeriesSummary) element.getValue();
+  }
+
+  @Override
+  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    throw new UnsupportedOperationException("Getting HTS summary by object id and version correction not supported");
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
       Set<ExternalIdBundle> identifierSet, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean includeStart, LocalDate end, boolean includeEnd) {
@@ -466,78 +509,5 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) hts.getTimeSeries().subSeries(start, includeStart, end, includeEnd);
     return new SimpleHistoricalTimeSeries(hts.getUniqueId(), timeSeries);
   }
-
-  @Override
-  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    HistoricalTimeSeriesSummary htss = getFromSummaryCache(uniqueId);
-    if (htss != null) {
-      if (htss == MISSSUMMARY) {
-        htss = null;
-      }
-    } else {
-      htss = _underlying.getSummary(uniqueId);
-      if (htss != null) {
-        s_logger.debug("Caching time-series {} summary", htss);
-        _summaryCache.put(new Element(uniqueId, htss));
-      } else {
-        s_logger.debug("Caching miss on {} summary", uniqueId);
-        _summaryCache.put(new Element(uniqueId, MISSSUMMARY));
-      }
-    }
-    return htss;
-
-  }
-
-  /**
-   * Attempt to get a HistoricalTimeSeriesSummary from the cache
-   * @param uniqueId  the unique id of the HTS
-   * @return          the summary information for the HTS
-   */
-  private HistoricalTimeSeriesSummary getFromSummaryCache(UniqueId uniqueId) {
-    Element element = _summaryCache.get(uniqueId);
-    if (element == null) {
-      s_logger.debug("Cache miss on {} summary", uniqueId);
-      return null;
-    }
-    s_logger.debug("Cache hit on {} summary", uniqueId);
-    return (HistoricalTimeSeriesSummary) element.getValue();
-  }
-
-  /**
-   * Attempt to get a HistoricalTimeSeriesSummary from the cache
-   * @param objectId  the object id of the HTS
-   * @param VersionCorrection
-   * @return          the summary information for the HTS
-   */
-  @Override
-  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    throw new UnsupportedOperationException("Getting HTS summary by object id and version correction not supported");
-  }
-
-  
-//  @Override
-//  public LocalDate getEarliestDate(UniqueId uniqueId) {
-//    return getHistoricalTimeSeries(uniqueId).getTimeSeries().getEarliestTime();
-//    //return _underlying.getEarliestDate(uniqueId);
-//  }
-//
-//  @Override
-//  public LocalDate getLatestDate(UniqueId uniqueId) {
-//    return getHistoricalTimeSeries(uniqueId).getTimeSeries().getLatestTime();
-//    //return _underlying.getLatestDate(uniqueId);
-//  }
-//
-//  @Override
-//  public Double getEarliestValue(UniqueId uniqueId) {
-//    return getHistoricalTimeSeries(uniqueId).getTimeSeries().getEarliestValue();
-//    //return _underlying.getEarliestValue(uniqueId);
-//  }
-//
-//  @Override
-//  public Double getLatestValue(UniqueId uniqueId) {
-//    return getHistoricalTimeSeries(uniqueId).getTimeSeries().getLatestValue();
-//    //return _underlying.getLatestValue(uniqueId);
-//  }
 
 }
