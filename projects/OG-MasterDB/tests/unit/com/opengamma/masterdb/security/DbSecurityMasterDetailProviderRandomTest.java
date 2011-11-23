@@ -94,6 +94,13 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
   public void testEquityOptionSecurity() {
     _testCase.testEquityOptionSecurity();
   }
+  
+
+  @Override
+  @Test
+  public void testEquityBarrierOptionSecurity() {
+    _testCase.testEquityBarrierOptionSecurity();
+  }
 
   @Override
   @Test
