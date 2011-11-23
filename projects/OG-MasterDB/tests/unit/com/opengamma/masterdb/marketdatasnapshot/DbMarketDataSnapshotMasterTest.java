@@ -2,6 +2,7 @@ package com.opengamma.masterdb.marketdatasnapshot;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +32,8 @@ import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilityCubeSnapsh
 import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DbTest;
@@ -144,6 +147,17 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
     MarketDataSnapshotDocument loaded = _snpMaster.get(added.getUniqueId());
     
     assertEquivalent(added, loaded);
+    
+    // search
+    MarketDataSnapshotSearchRequest request = new MarketDataSnapshotSearchRequest();
+    request.setIncludeData(true);
+    request.setName(added.getName());
+    MarketDataSnapshotSearchResult result = _snpMaster.search(request);
+    assertTrue(result.getDocuments().size() > 0);
+    
+    request.setIncludeData(false);
+    result = _snpMaster.search(request);
+    assertTrue(result.getDocuments().size() > 0);
   }
 
   private void assertEquivalent(MarketDataSnapshotDocument added, MarketDataSnapshotDocument loaded) {
