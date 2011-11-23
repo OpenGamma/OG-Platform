@@ -13,12 +13,12 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
-import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.property.StaticDefaultPropertyFunction;
 
 /**
  * Function to shift a volatility surface, implemented using properties and constraints.
  */
-public class DefaultVolatilitySurfaceShiftFunction extends DefaultPropertyFunction {
+public class DefaultVolatilitySurfaceShiftFunction extends StaticDefaultPropertyFunction {
 
   /**
    * Property to shift all volatility surfaces.

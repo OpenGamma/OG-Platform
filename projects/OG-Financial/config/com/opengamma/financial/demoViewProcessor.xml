@@ -186,6 +186,9 @@
     </constructor-arg>
     <constructor-arg ref="demoFunctionCompilationContext" />
   </bean>
+  <bean id="demoFunctionResolver" class="com.opengamma.web.spring.DemoFunctionResolverFactoryBean">
+    <property name="functionCompilationService" ref="demoFunctionCompilation" />
+  </bean>  
   <bean id="demoAvailableOutputsProvider" class="com.opengamma.engine.view.helper.DefaultAvailableOutputsProvider">
     <constructor-arg ref="demoFunctionCompilation" />
     <constructor-arg ref="combinedPositionSource" />
@@ -311,11 +314,7 @@
     <property name="positionSource" ref="combinedPositionSource" />
     <property name="computationTargetResolver" ref="demoTargetResolver" />
     <property name="functionCompilationService" ref="demoFunctionCompilation" />
-    <property name="functionResolver">
-      <bean class="com.opengamma.web.spring.DemoFunctionResolverFactoryBean">
-        <property name="functionCompilationService" ref="demoFunctionCompilation" />
-      </bean>
-    </property>
+    <property name="functionResolver" ref="demoFunctionResolver" />
     <property name="marketDataProviderResolver" ref="marketDataProviderResolver" />
     <property name="computationCacheSource" ref="demoComputationCacheSource" />
     <property name="computationJobDispatcher" ref="demoComputationJobDispatcher" />

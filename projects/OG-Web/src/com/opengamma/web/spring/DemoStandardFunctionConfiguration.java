@@ -147,6 +147,13 @@ import com.opengamma.financial.currency.PositionDefaultCurrencyFunction;
 import com.opengamma.financial.currency.SecurityCurrencyConversionFunction;
 import com.opengamma.financial.currency.SecurityDefaultCurrencyFunction;
 import com.opengamma.financial.equity.future.pricing.EquityFuturePricerFactory;
+import com.opengamma.financial.property.PortfolioNodeCalcConfigDefaultPropertyFunction;
+import com.opengamma.financial.property.PositionCalcConfigDefaultPropertyFunction;
+import com.opengamma.financial.property.PositionDefaultPropertyFunction;
+import com.opengamma.financial.property.PrimitiveCalcConfigDefaultPropertyFunction;
+import com.opengamma.financial.property.SecurityCalcConfigDefaultPropertyFunction;
+import com.opengamma.financial.property.TradeCalcConfigDefaultPropertyFunction;
+import com.opengamma.financial.property.TradeDefaultPropertyFunction;
 import com.opengamma.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.math.statistics.descriptive.StatisticsCalculatorFactory;
@@ -201,16 +208,65 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
   protected static void addValueGreekAndSummingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
     functionConfigs.add(functionConfiguration(OptionGreekToValueGreekConverterFunction.class, requirementName));
-    functionConfigs.add(functionConfiguration(FilteringSummingFunction.class, requirementName));
+    addFilteredSummingFunction(functionConfigs, requirementName);
   }
 
   protected static void addCurrencyConversionFunctions(List<FunctionConfiguration> functionConfigs, String requirementName) {
     functionConfigs.add(functionConfiguration(PortfolioNodeCurrencyConversionFunction.class, requirementName));
     functionConfigs.add(functionConfiguration(PositionCurrencyConversionFunction.class, requirementName));
     functionConfigs.add(functionConfiguration(SecurityCurrencyConversionFunction.class, requirementName));
-    functionConfigs.add(functionConfiguration(PortfolioNodeDefaultCurrencyFunction.class, requirementName));
-    functionConfigs.add(functionConfiguration(PositionDefaultCurrencyFunction.class, requirementName));
-    functionConfigs.add(functionConfiguration(SecurityDefaultCurrencyFunction.class, requirementName));
+    functionConfigs.add(functionConfiguration(PortfolioNodeDefaultCurrencyFunction.Strict.class, requirementName));
+    functionConfigs.add(functionConfiguration(PositionDefaultCurrencyFunction.Strict.class, requirementName));
+    functionConfigs.add(functionConfiguration(SecurityDefaultCurrencyFunction.Strict.class, requirementName));
+  }
+
+  protected static void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {
+    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.FAIR_VALUE);
+    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.PV01);
+    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.PRESENT_VALUE);
+    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.DAILY_PNL);
+    //TODO PRESENT_VALUE_CURVE_SENSITIVITY
+    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_DELTA);
+    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_GAMMA);
+    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_SPEED);
+    functionConfigs.add(functionConfiguration(SecurityCurrencyConversionFunction.class, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES));
+    functionConfigs.add(functionConfiguration(PortfolioNodeDefaultCurrencyFunction.Permissive.class, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES));
+    functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
+    functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
+    functionConfigs.add(functionConfiguration(DefaultCurrencyInjectionFunction.class));
+    // functionConfigs.add(functionConfiguration(CurrencyInversionFunction.class));
+    // functionConfigs.add(functionConfiguration(CurrencyCrossRateFunction.class, "USD"));
+    // functionConfigs.add(functionConfiguration(BloombergCurrencyRateFunction.class));
+  }
+
+  protected static void addLateAggregationFunctions(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(BottomPositionValues.class));
+    functionConfigs.add(functionConfiguration(SortedPositionValues.class));
+    functionConfigs.add(functionConfiguration(TopPositionValues.class));
+  }
+
+  protected static void addDataShiftingFunctions(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(VolatilitySurfaceShiftFunction.class));
+    functionConfigs.add(functionConfiguration(DefaultVolatilitySurfaceShiftFunction.class));
+    functionConfigs.add(functionConfiguration(YieldCurveShiftFunction.class));
+    functionConfigs.add(functionConfiguration(DefaultYieldCurveShiftFunction.class));
+    functionConfigs.add(functionConfiguration(YieldCurveMarketDataShiftFunction.class));
+    functionConfigs.add(functionConfiguration(DefaultYieldCurveMarketDataShiftFunction.class));
+  }
+
+  protected static void addDefaultPropertyFunctions(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(PortfolioNodeCalcConfigDefaultPropertyFunction.Generic.class));
+    functionConfigs.add(functionConfiguration(PortfolioNodeCalcConfigDefaultPropertyFunction.Specific.class));
+    functionConfigs.add(functionConfiguration(PositionCalcConfigDefaultPropertyFunction.Generic.class));
+    functionConfigs.add(functionConfiguration(PositionCalcConfigDefaultPropertyFunction.Specific.class));
+    functionConfigs.add(functionConfiguration(PrimitiveCalcConfigDefaultPropertyFunction.Generic.class));
+    functionConfigs.add(functionConfiguration(PrimitiveCalcConfigDefaultPropertyFunction.Specific.class));
+    functionConfigs.add(functionConfiguration(SecurityCalcConfigDefaultPropertyFunction.Generic.class));
+    functionConfigs.add(functionConfiguration(SecurityCalcConfigDefaultPropertyFunction.Specific.class));
+    functionConfigs.add(functionConfiguration(TradeCalcConfigDefaultPropertyFunction.Generic.class));
+    functionConfigs.add(functionConfiguration(TradeCalcConfigDefaultPropertyFunction.Specific.class));
+    functionConfigs.add(functionConfiguration(PositionDefaultPropertyFunction.class));
+    functionConfigs.add(functionConfiguration(TradeDefaultPropertyFunction.class));
   }
 
   protected static void addHistoricalDataFunctions(final List<FunctionConfiguration> functionConfigs, final String requirementName) {
@@ -219,13 +275,18 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(LastHistoricalValueFunction.class, requirementName));
   }
 
+  protected static void addHistoricalDataFunctions(final List<FunctionConfiguration> functionConfigs) {
+    addHistoricalDataFunctions(functionConfigs, ValueRequirementNames.DAILY_VOLUME);
+    addHistoricalDataFunctions(functionConfigs, ValueRequirementNames.DAILY_MARKET_CAP);
+    addHistoricalDataFunctions(functionConfigs, ValueRequirementNames.DAILY_APPLIED_BETA);
+    addHistoricalDataFunctions(functionConfigs, ValueRequirementNames.DAILY_PRICE);
+  }
+
   public static RepositoryConfiguration constructRepositoryConfiguration() {
     final List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
 
     functionConfigs.add(functionConfiguration(SecurityMarketPriceFunction.class));
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.SECURITY_IMPLIED_VOLATLITY);
-
-    functionConfigs.add(functionConfiguration(BondTenorFunction.class));
 
     // options
     functionConfigs.add(functionConfiguration(BlackScholesMertonModelFunction.class));
@@ -236,7 +297,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(PositionExchangeTradedPnLFunction.class));
     functionConfigs.add(functionConfiguration(PortfolioExchangeTradedPnLFunction.class));
     functionConfigs.add(functionConfiguration(PortfolioExchangeTradedDailyPnLFunction.class));
-    ;
 
     String returnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_STRICT;
     String startDate = "2008-09-22";
@@ -458,41 +518,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_GAMMA);
     addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_SPEED);
 
-    // Currency conversion
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.FAIR_VALUE);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.PV01);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.PRESENT_VALUE);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.DAILY_PNL);
-    //TODO PRESENT_VALUE_CURVE_SENSITIVITY
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_DELTA);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_GAMMA);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_SPEED);
-    functionConfigs.add(functionConfiguration(SecurityCurrencyConversionFunction.class, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES));
-    functionConfigs.add(functionConfiguration(PortfolioNodeDefaultCurrencyFunction.Permissive.class, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES));
-
-    functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
-    functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
-    functionConfigs.add(functionConfiguration(DefaultCurrencyInjectionFunction.class));
-    // functionConfigs.add(functionConfiguration(CurrencyInversionFunction.class));
-    // functionConfigs.add(functionConfiguration(CurrencyCrossRateFunction.class, "USD"));
-    // functionConfigs.add(functionConfiguration(BloombergCurrencyRateFunction.class));
-
-    functionConfigs.add(functionConfiguration(BottomPositionValues.class));
-    functionConfigs.add(functionConfiguration(SortedPositionValues.class));
-    functionConfigs.add(functionConfiguration(TopPositionValues.class));
-
-    functionConfigs.add(functionConfiguration(VolatilitySurfaceShiftFunction.class));
-    functionConfigs.add(functionConfiguration(DefaultVolatilitySurfaceShiftFunction.class));
-    functionConfigs.add(functionConfiguration(YieldCurveShiftFunction.class));
-    functionConfigs.add(functionConfiguration(DefaultYieldCurveShiftFunction.class));
-    functionConfigs.add(functionConfiguration(YieldCurveMarketDataShiftFunction.class));
-    functionConfigs.add(functionConfiguration(DefaultYieldCurveMarketDataShiftFunction.class));
-
-    // Historical data functions.
-    addHistoricalDataFunctions(functionConfigs, ValueRequirementNames.DAILY_VOLUME);
-    addHistoricalDataFunctions(functionConfigs, ValueRequirementNames.DAILY_MARKET_CAP);
-    addHistoricalDataFunctions(functionConfigs, ValueRequirementNames.DAILY_APPLIED_BETA);
-    addHistoricalDataFunctions(functionConfigs, ValueRequirementNames.DAILY_PRICE);
+    addCurrencyConversionFunctions(functionConfigs);
+    addLateAggregationFunctions(functionConfigs);
+    addDataShiftingFunctions(functionConfigs);
+    addDefaultPropertyFunctions(functionConfigs);
+    addHistoricalDataFunctions(functionConfigs);
 
     RepositoryConfiguration repoConfig = new RepositoryConfiguration(functionConfigs);
 
@@ -642,9 +672,9 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(SwaptionSABRPresentValueSABRFunction.class, "USD", "BLOOMBERG", "FORWARD_3M", "FUNDING"));
     functionConfigs.add(functionConfiguration(SwaptionSABRYieldCurveNodeSensitivitiesFunction.class, "USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING"));
     functionConfigs.add(functionConfiguration(SwaptionSABRVegaFunction.class, "USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING"));
-    functionConfigs.add(functionConfiguration(FilteringSummingFunction.class, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY));
-    functionConfigs.add(functionConfiguration(FilteringSummingFunction.class, ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY));
-    functionConfigs.add(functionConfiguration(FilteringSummingFunction.class, ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY));
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY);
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY);
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY);
   }
 
   private static void addFixedIncomeInstrumentCalculators(List<FunctionConfiguration> functionConfigs) {
@@ -663,7 +693,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class, "FORWARD_6M", "FUNDING", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING));
     functionConfigs
         .add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class, "FORWARD_6M", "FUNDING", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    functionConfigs.add(functionConfiguration(FilteringSummingFunction.class, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES));
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
 
     // Secondary
     functionConfigs.add(functionConfiguration(InterestRateInstrumentPresentValueFunction.class, "SECONDARY", "SECONDARY"));

@@ -20,6 +20,10 @@ public abstract class SecurityDefaultCurrencyFunction extends DefaultCurrencyFun
     super(ComputationTargetType.SECURITY, permitWithout, valueNames);
   }
 
+  /**
+   * Flagged to inject the default currency at a higher priority to avoid other functions
+   * handling the currency omitted case. 
+   */
   public static class Strict extends SecurityDefaultCurrencyFunction {
 
     public Strict(final String valueName) {
@@ -32,6 +36,10 @@ public abstract class SecurityDefaultCurrencyFunction extends DefaultCurrencyFun
 
   }
 
+  /**
+   * Flagged to inject the default currency at a lower priority to allow other functions to
+   * handle the currency omitted case.
+   */
   public static class Permissive extends SecurityDefaultCurrencyFunction {
 
     public Permissive(final String valueName) {

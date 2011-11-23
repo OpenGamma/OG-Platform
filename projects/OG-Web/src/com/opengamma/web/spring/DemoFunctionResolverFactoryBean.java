@@ -44,12 +44,13 @@ public class DemoFunctionResolverFactoryBean extends SingletonFactoryBean<Functi
           return Integer.MIN_VALUE;
         }
         if (function instanceof DefaultPropertyFunction) {
-          if (((DefaultPropertyFunction) function).isPermitWithout()) {
+          final DefaultPropertyFunction defaultPropertyFunction = (DefaultPropertyFunction) function;
+          if (defaultPropertyFunction.isPermitWithout()) {
             // Place below the filtering summing function priority, or the filter may never be applied.
             return -2;
           } else {
             // All other currency injections are important; e.g. the currency constraint can't be omitted for some functions
-            return Integer.MAX_VALUE;
+            return Integer.MAX_VALUE + defaultPropertyFunction.getPriority().getPriorityAdjust() - DefaultPropertyFunction.PriorityClass.MAX_ADJUST;
           }
         }
         if (function instanceof BondPresentValueCountryCurveFunction) {
