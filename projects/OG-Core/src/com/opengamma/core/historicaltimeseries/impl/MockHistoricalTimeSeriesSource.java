@@ -152,6 +152,23 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
 
   //-------------------------------------------------------------------------
   @Override
+  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
+    LocalDateDoubleTimeSeries ts = getHistoricalTimeSeries(uniqueId).getTimeSeries();
+    HistoricalTimeSeriesSummary result = new HistoricalTimeSeriesSummary();
+    result.setEarliestDate(ts.getEarliestTime());
+    result.setLatestDate(ts.getLatestTime());
+    result.setEarliestValue(ts.getEarliestValue());
+    result.setLatestValue(ts.getLatestValue());
+    return result;
+  }
+
+  @Override
+  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    throw new UnsupportedOperationException("Does not support getting summary information by object id and version correction");
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
       Set<ExternalIdBundle> identifiers, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean inclusiveStart, LocalDate end, boolean includeEnd) {
@@ -208,41 +225,5 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
     LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) hts.getTimeSeries().subSeries(start, inclusiveStart, end, includeEnd);
     return new SimpleHistoricalTimeSeries(hts.getUniqueId(), timeSeries);
   }
-
-  @Override
-  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
-    LocalDateDoubleTimeSeries ts = getHistoricalTimeSeries(uniqueId).getTimeSeries();
-    HistoricalTimeSeriesSummary result = new HistoricalTimeSeriesSummary();
-    result.setEarliestDate(ts.getEarliestTime());
-    result.setLatestDate(ts.getLatestTime());
-    result.setEarliestValue(ts.getEarliestValue());
-    result.setLatestValue(ts.getLatestValue());
-    return result;
-  }
-
-  @Override
-  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    throw new UnsupportedOperationException("Does not support getting summary information by object id and version correction");
-  }
-
-//  @Override
-//  public LocalDate getEarliestDate(UniqueId uniqueId) {
-//    return getHistoricalTimeSeries(uniqueId).getTimeSeries().getEarliestTime();
-//  }
-//
-//  @Override
-//  public LocalDate getLatestDate(UniqueId uniqueId) {
-//    return getHistoricalTimeSeries(uniqueId).getTimeSeries().getLatestTime();
-//  }
-//
-//  @Override
-//  public Double getEarliestValue(UniqueId uniqueId) {
-//    return getHistoricalTimeSeries(uniqueId).getTimeSeries().getEarliestValue();
-//  }
-//
-//  @Override
-//  public Double getLatestValue(UniqueId uniqueId) {
-//    return getHistoricalTimeSeries(uniqueId).getTimeSeries().getLatestValue();
-//  }
 
 }

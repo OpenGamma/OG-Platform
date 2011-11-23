@@ -24,6 +24,8 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.extsql.ExtSqlBundle;
+import com.opengamma.extsql.ExtSqlConfig;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
@@ -251,11 +253,8 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
 
   @Test
   public void test_update_rollback() {
-    DbPositionMaster w = new DbPositionMaster(_posMaster.getDbConnector()) {
-      protected String sqlInsertIdKey() {
-        return "INSERT";  // bad sql
-      }
-    };
+    DbPositionMaster w = new DbPositionMaster(_posMaster.getDbConnector());
+    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("Invalid"), DbPositionMaster.class));
     final PositionDocument base = _posMaster.get(UniqueId.of("DbPos", "121", "0"));
     ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     pos.setUniqueId(UniqueId.of("DbPos", "121", "0"));

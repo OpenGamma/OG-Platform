@@ -8,6 +8,7 @@ package com.opengamma.language.view;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.id.UniqueId;
@@ -55,12 +56,17 @@ public class UserViewClients extends ViewClients<ViewClientKey, UserContext> {
       if (client == null) {
         // TODO: check the graveyard for a matching view client instead of creating a new one
         final ViewClient viewClient = createViewClient();
-        client = new UserViewClient(getContext(), viewClient, viewClientKey);
-        final UserViewClient existing = getClients().putIfAbsent(viewClientKey, client);
-        if (existing == null) {
-          return new AttachedViewClientHandle(this, client);
+        try {
+          client = new UserViewClient(getContext(), viewClient, viewClientKey);
+          final UserViewClient existing = getClients().putIfAbsent(viewClientKey, client);
+          if (existing == null) {
+            return new AttachedViewClientHandle(this, client);
+          }
+          client = existing;
+        } catch (Exception e) {
+          viewClient.shutdown();
+          throw new OpenGammaRuntimeException("Error initialising new view client", e);
         }
-        client = existing;
       }
     } while (!client.incrementRefCount());
     return new AttachedViewClientHandle(this, client);
