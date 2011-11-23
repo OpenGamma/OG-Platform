@@ -88,7 +88,7 @@ public class SABRBerestyckiVolatilityFunction extends VolatilityFunctionProvider
   }
 
   @Override
-  public Function1D<SABRFormulaData, double[]> getVolatilitySetFunction(double forward, double[] strikes, double timeToExpiry) {
+  public Function1D<SABRFormulaData, double[]> getVolatilityFunction(double forward, double[] strikes, double timeToExpiry) {
 
     final int n = strikes.length;
     final List<Function1D<SABRFormulaData, Double>> funcs = new ArrayList<Function1D<SABRFormulaData, Double>>(n);

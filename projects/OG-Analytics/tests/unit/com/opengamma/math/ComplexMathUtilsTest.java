@@ -5,6 +5,7 @@
  */
 package com.opengamma.math;
 
+import static com.opengamma.math.ComplexMathUtils.multiply;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
@@ -107,7 +108,7 @@ public class ComplexMathUtilsTest {
       assertStackTraceElement(e.getStackTrace());
     }
     try {
-      ComplexMathUtils.multiply(X, null);
+      ComplexMathUtils.multiply(X, (ComplexNumber) null);
     } catch (final IllegalArgumentException e) {
       assertStackTraceElement(e.getStackTrace());
     }
@@ -189,6 +190,17 @@ public class ComplexMathUtilsTest {
   }
 
   @Test
+  public void testMultiplyMany() {
+    ComplexNumber a = multiply(Z1, multiply(Z2, Z1));
+    ComplexNumber b = multiply(Z1, Z2, Z1);
+    assertComplexEquals(a, b);
+    double x = 3.142;
+    ComplexNumber c = multiply(a, x);
+    ComplexNumber d = multiply(x, Z1, Z1, Z2);
+    assertComplexEquals(c, d);
+  }
+
+  @Test
   public void testExpLn() {
     assertComplexEquals(ComplexMathUtils.log(ComplexMathUtils.exp(Z1)), Z1);
     //TODO test principal value
@@ -214,24 +226,24 @@ public class ComplexMathUtilsTest {
     assertComplexEquals(ComplexMathUtils.pow(ComplexMathUtils.pow(X, ComplexMathUtils.inverse(Z2)), Z2), new ComplexNumber(X, 0));
     assertComplexEquals(ComplexMathUtils.pow(ComplexMathUtils.pow(Z1, ComplexMathUtils.inverse(Z2)), Z2), Z1);
   }
-  
+
   @Test
   public void testSqrt() {
     ComplexNumber z1 = new ComplexNumber(3, -2);
     ComplexNumber z2 = new ComplexNumber(-3, 4);
     ComplexNumber z3 = new ComplexNumber(-3, -4);
-    
+
     ComplexNumber rZ1 = ComplexMathUtils.sqrt(z1);
     ComplexNumber rZ2 = ComplexMathUtils.sqrt(z2);
     ComplexNumber rZ3 = ComplexMathUtils.sqrt(z3);
-    
-    assertComplexEquals(ComplexMathUtils.pow(z1, 0.5),rZ1);
-    assertComplexEquals(ComplexMathUtils.pow(z2, 0.5),rZ2);
-    assertComplexEquals(ComplexMathUtils.pow(z3, 0.5),rZ3);
-    
+
+    assertComplexEquals(ComplexMathUtils.pow(z1, 0.5), rZ1);
+    assertComplexEquals(ComplexMathUtils.pow(z2, 0.5), rZ2);
+    assertComplexEquals(ComplexMathUtils.pow(z3, 0.5), rZ3);
+
     assertComplexEquals(z1, ComplexMathUtils.square(rZ1));
     assertComplexEquals(z2, ComplexMathUtils.square(rZ2));
-    assertComplexEquals(z3, ComplexMathUtils.square(rZ3));   
+    assertComplexEquals(z3, ComplexMathUtils.square(rZ3));
   }
 
   private void assertComplexEquals(final ComplexNumber z1, final ComplexNumber z2) {

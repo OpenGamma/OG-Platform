@@ -5,6 +5,8 @@
  */
 package com.opengamma.math;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.number.ComplexNumber;
 import com.opengamma.util.ArgumentChecker;
 
@@ -62,7 +64,7 @@ public class ComplexMathUtils {
       final double dOverC = d / c;
       final double denom = c + d * dOverC;
       return new ComplexNumber((a + b * dOverC) / denom, (b - a * dOverC) / denom);
-    } 
+    }
     final double cOverD = c / d;
     final double denom = c * cOverD + d;
     return new ComplexNumber((a * cOverD + b) / denom, (b * cOverD - a) / denom);
@@ -81,7 +83,7 @@ public class ComplexMathUtils {
       final double dOverC = d / c;
       final double denom = c + d * dOverC;
       return new ComplexNumber(x / denom, -x * dOverC / denom);
-    } 
+    }
     final double cOverD = c / d;
     final double denom = c * cOverD + d;
     return new ComplexNumber(x * cOverD / denom, -x / denom);
@@ -101,7 +103,7 @@ public class ComplexMathUtils {
       final double dOverC = d / c;
       final double denom = c + d * dOverC;
       return new ComplexNumber(1 / denom, -dOverC / denom);
-    } 
+    }
     final double cOverD = c / d;
     final double denom = c * cOverD + d;
     return new ComplexNumber(cOverD / denom, -1 / denom);
@@ -110,7 +112,7 @@ public class ComplexMathUtils {
   /**
    * Returns the principal value of log, with z the principal argument of z defined to lie in the interval (-pi, pi]
    * @param z ComplexNumber
-   * @return The log 
+   * @return The log
    */
   public static ComplexNumber log(final ComplexNumber z) {
     ArgumentChecker.notNull(z, "z");
@@ -137,6 +139,28 @@ public class ComplexMathUtils {
     final double c = z2.getReal();
     final double d = z2.getImaginary();
     return new ComplexNumber(a * c - b * d, a * d + b * c);
+  }
+
+  public static ComplexNumber multiply(final ComplexNumber... z) {
+    ArgumentChecker.notNull(z, "z");
+    final int n = z.length;
+    Validate.isTrue(n > 0, "nothing to multiply");
+    if (n == 1) {
+      return z[0];
+    } else if (n == 2) {
+      return multiply(z[0], z[1]);
+    } else {
+      ComplexNumber product = multiply(z[0], z[1]);
+      for (int i = 2; i < n; i++) {
+        product = multiply(product, z[i]);
+      }
+      return product;
+    }
+  }
+
+  public static ComplexNumber multiply(final double x, final ComplexNumber... z) {
+    ComplexNumber product = multiply(z);
+    return multiply(x, product);
   }
 
   public static ComplexNumber multiply(final ComplexNumber z, final double x) {
@@ -188,11 +212,11 @@ public class ComplexMathUtils {
     }
     if (c >= 0.0) {
       return new ComplexNumber(w, d / 2 / w);
-    } 
+    }
     if (d >= 0.0) {
       return new ComplexNumber(d / 2 / w, w);
-    } 
-    return new ComplexNumber(-d / 2 / w, -w);    
+    }
+    return new ComplexNumber(-d / 2 / w, -w);
   }
 
   public static ComplexNumber subtract(final ComplexNumber z1, final ComplexNumber z2) {
