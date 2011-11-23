@@ -166,6 +166,9 @@ final class ExtSqlParser {
         }
         container.addFragment(ifFragment);
         
+      } else if (trimmed.startsWith("@")) {
+        throw new IllegalArgumentException("Unknown tag at start of line: " + line);
+        
       } else {
         parseLine(container, line);
       }

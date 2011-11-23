@@ -512,4 +512,14 @@ public class ExtSqlBundleTest {
     ExtSqlBundle.parse(lines);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_unknownTagAtStartLine() {
+    List<String> lines = Arrays.asList(
+        "@NAME(Test1)",
+        "  SELECT * FROM foo",
+        "  @UNKNOWN"
+    );
+    ExtSqlBundle.parse(lines);
+  }
+
 }
