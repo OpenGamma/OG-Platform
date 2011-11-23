@@ -7,7 +7,7 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return {
-            READ_ONLY: true
+            READ_ONLY: false
         };
     }
 });
