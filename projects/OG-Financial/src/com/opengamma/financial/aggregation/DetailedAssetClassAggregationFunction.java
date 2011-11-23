@@ -53,6 +53,8 @@ import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurityVisitor;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurityVisitor;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurityVisitor;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurityVisitor;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
@@ -85,6 +87,7 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   /* package */static final String EQUITY_VARIANCE_SWAPS = "Equity Variance Swaps";
   /* package */static final String IRFUTURE_OPTIONS = "IRFuture Options";
   /* package */static final String FX_OPTIONS = "FX Options";
+  /* package */static final String NONDELIVERABLE_FX_OPTIONS = "Non-deliverable FX Options";
   /* package */static final String FX_BARRIER_OPTIONS = "FX Barrier Options";
   /* package */static final String SWAPTIONS = "Swaptions";
   /* package */static final String CASH = "Cash";
@@ -215,6 +218,12 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         @Override
         public String visitFXOptionSecurity(final FXOptionSecurity fxOptionSecurity) {
           return FX_OPTIONS;
+        }
+      }, new NonDeliverableFXOptionSecurityVisitor<String>() {
+
+        @Override
+        public String visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity fxOptionSecurity) {
+          return NONDELIVERABLE_FX_OPTIONS;
         }
       }, new SwaptionSecurityVisitor<String>() {
 

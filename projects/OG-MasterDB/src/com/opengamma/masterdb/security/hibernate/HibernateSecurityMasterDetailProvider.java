@@ -41,11 +41,12 @@ import com.opengamma.masterdb.security.hibernate.option.EquityOptionSecurityBean
 import com.opengamma.masterdb.security.hibernate.option.FxBarrierOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.FxOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.IRFutureOptionSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.option.NonDeliverableFxOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.SwaptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.swap.SwapSecurityBeanOperation;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbConnector;
 
 /**
  * Provides access to persist the full bean structure of the security.
@@ -136,6 +137,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
     loadBeanOperation(EquityIndexOptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(EquityOptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(FxOptionSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(NonDeliverableFxOptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(SwaptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(IRFutureOptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(FxBarrierOptionSecurityBeanOperation.INSTANCE);

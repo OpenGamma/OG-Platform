@@ -6,12 +6,12 @@
 package com.opengamma.financial.security.option;
 
 /**
- * Visitor for the {@link IRFutureOptionSecurity} subclasses.
+ * Visitor for the {@link NonDeliverableFXOptionSecurity} subclasses.
  * 
  * @param <T> visitor method return type
  */
-public interface IRFutureOptionSecurityVisitor<T> {
+public interface NonDeliverableFXOptionSecurityVisitor<T> {
 
-  T visitIRFutureOptionSecurity(IRFutureOptionSecurity security);
+  T visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity fxOptionSecurity);
 
 }

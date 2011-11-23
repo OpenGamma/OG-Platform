@@ -31,6 +31,7 @@ import com.opengamma.masterdb.security.hibernate.option.EquityOptionSecurityBean
 import com.opengamma.masterdb.security.hibernate.option.FXBarrierOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.FXOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.IRFutureOptionSecurityBean;
+import com.opengamma.masterdb.security.hibernate.option.NonDeliverableFXOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.SwaptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.swap.SwapSecurityBean;
 import com.opengamma.util.db.HibernateMappingFiles;
@@ -76,6 +77,7 @@ public final class HibernateSecurityMasterFiles implements HibernateMappingFiles
       EquityIndexOptionSecurityBean.class,
       EquityOptionSecurityBean.class,
       FXOptionSecurityBean.class,
+      NonDeliverableFXOptionSecurityBean.class,
       SwaptionSecurityBean.class,
       IRFutureOptionSecurityBean.class,
       FXBarrierOptionSecurityBean.class,

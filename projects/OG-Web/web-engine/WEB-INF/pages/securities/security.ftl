@@ -200,6 +200,16 @@
         <@rowout label="Put Currency">${security.putCurrency}</@rowout>
         <@rowout label="Settlement Date">${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}</@rowout>
         <#break>
+      <#case "NONDELIVERABLE_FX_OPTION">
+        <@rowout label="Call Amount">${security.callAmount}</@rowout>
+        <@rowout label="Call Currency">${security.callCurrency}</@rowout>
+        <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
+        <@rowout label="IsLong">${security.long?string?upper_case}</@rowout>
+        <@rowout label="Put Amount">${security.putAmount}</@rowout>
+        <@rowout label="Put Currency">${security.putCurrency}</@rowout>
+        <@rowout label="Settlement Date">${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}</@rowout>
+        <@rowout label="Delivery Currency">${security.deliveryCurrency}</@rowout>
+        <#break>        
       <#case "EQUITY_INDEX_OPTION">
         <@rowout label="Currency">${security.currency}</@rowout>
         <@rowout label="Exchange">${security.exchange}</@rowout>
