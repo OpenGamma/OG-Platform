@@ -436,7 +436,9 @@
     AND corr_instant <= :corrected_to_instant
     AND point_date >= :start_date
     AND point_date <= :end_date
-  ORDER BY point_date, corr_instant DESC
+  ORDER BY
+    point_date,
+    corr_instant DESC
 
 
 -- ==========================================================================
