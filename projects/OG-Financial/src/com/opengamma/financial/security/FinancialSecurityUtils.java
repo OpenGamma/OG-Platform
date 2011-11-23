@@ -483,6 +483,7 @@ public class FinancialSecurityUtils {
           Collection<Currency> currencies = new ArrayList<Currency>();
           currencies.add(security.getCallCurrency());
           currencies.add(security.getPutCurrency());
+          //deliveryCurrency is always already covered
           return currencies;
         }
         

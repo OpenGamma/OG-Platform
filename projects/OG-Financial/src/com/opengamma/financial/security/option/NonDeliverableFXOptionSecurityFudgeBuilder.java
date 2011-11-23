@@ -42,7 +42,7 @@ public class NonDeliverableFXOptionSecurityFudgeBuilder extends AbstractFudgeBui
   /** Field name. */
   public static final String EXERCISE_TYPE_FIELD_NAME = "exerciseType";
   /** Field name. */
-  public static final String DELIVERY_CURRENCY_FIELD_NAME = "deliveryCurrency";
+  public static final String DELIVERY_IN_CALL_CURRENCY_FIELD_NAME = "deliveryInCallCurrency";
   
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, NonDeliverableFXOptionSecurity object) {
@@ -61,7 +61,7 @@ public class NonDeliverableFXOptionSecurityFudgeBuilder extends AbstractFudgeBui
     addToMessage(msg, SETTLEMENT_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getSettlementDate()));
     addToMessage(msg, IS_LONG_FIELD_NAME, object.isLong());
     addToMessage(msg, EXERCISE_TYPE_FIELD_NAME, ExerciseTypeFudgeBuilder.toFudgeMsg(serializer, object.getExerciseType()));
-    addToMessage(msg, DELIVERY_CURRENCY_FIELD_NAME, object.getDeliveryCurrency());
+    addToMessage(msg, DELIVERY_IN_CALL_CURRENCY_FIELD_NAME, object.isDeliveryInCallCurrency());
   }
 
   @Override
@@ -81,7 +81,7 @@ public class NonDeliverableFXOptionSecurityFudgeBuilder extends AbstractFudgeBui
     object.setSettlementDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(SETTLEMENT_DATE_FIELD_NAME)));
     object.setLongShort(LongShort.ofLong(msg.getBoolean(IS_LONG_FIELD_NAME)));
     object.setExerciseType(ExerciseTypeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXERCISE_TYPE_FIELD_NAME)));
-    object.setDeliveryCurrency(msg.getValue(Currency.class, DELIVERY_CURRENCY_FIELD_NAME));
+    object.setDeliveryInCallCurrency(msg.getBoolean(DELIVERY_IN_CALL_CURRENCY_FIELD_NAME));
   }
 
 }

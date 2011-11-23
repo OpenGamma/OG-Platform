@@ -21,7 +21,7 @@
       <property name="zone" column="settlement_zone" type="string" not-null="true" />
     </component>
     <property name="isLong" column="is_long" type="boolean" not-null="true" />
-    <many-to-one name="deliveryCurrency" column="delivery_currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true" />
+    <property name="isDeliveryInCallCurrency" column="is_delivery_in_call_currency" type="boolean" not-null="true" />
   </union-subclass>
 
   <query name="NonDeliverableFXOptionSecurityBean.one.bySecurityId"><![CDATA[

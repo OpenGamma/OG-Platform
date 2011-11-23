@@ -79,18 +79,19 @@ public class NonDeliverableFXOptionSecurity extends FinancialSecurity {
    */
   @PropertyDefinition(validate = "notNull")
   private ExerciseType _exerciseType;
+  
   /**
-   * The currency in which the settlement is made.
+   * Whether the currency in which the settlement is made is the call currency (otherwise it's the put currency).
    */
-  @PropertyDefinition(validate = "notNull")
-  private Currency _deliveryCurrency;
+  @PropertyDefinition
+  private boolean _deliveryInCallCurrency;
   
   NonDeliverableFXOptionSecurity() { //For builder
     super();
   }
 
   public NonDeliverableFXOptionSecurity(Currency putCurrency, Currency callCurrency, double putAmount, double callAmount, Expiry expiry,
-      ZonedDateTime settlementDate, boolean isLong, ExerciseType exerciseType, Currency deliveryCurrency) {
+      ZonedDateTime settlementDate, boolean isLong, ExerciseType exerciseType, boolean deliveryInCallCurrency) {
     super(SECURITY_TYPE);
     setPutCurrency(putCurrency);
     setCallCurrency(callCurrency);
@@ -100,9 +101,13 @@ public class NonDeliverableFXOptionSecurity extends FinancialSecurity {
     setSettlementDate(settlementDate);
     setLongShort(LongShort.ofLong(isLong));
     setExerciseType(exerciseType);
-    setDeliveryCurrency(deliveryCurrency);
+    setDeliveryInCallCurrency(deliveryInCallCurrency);
   }
 
+  public Currency getDeliveryCurrency() {
+    return isDeliveryInCallCurrency() ? getCallCurrency() : getPutCurrency();
+  }
+  
   //-------------------------------------------------------------------------
   @Override
   public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
@@ -176,8 +181,8 @@ public class NonDeliverableFXOptionSecurity extends FinancialSecurity {
         return getLongShort();
       case -466331342:  // exerciseType
         return getExerciseType();
-      case -81118171:  // deliveryCurrency
-        return getDeliveryCurrency();
+      case 106778472:  // deliveryInCallCurrency
+        return isDeliveryInCallCurrency();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -209,8 +214,8 @@ public class NonDeliverableFXOptionSecurity extends FinancialSecurity {
       case -466331342:  // exerciseType
         setExerciseType((ExerciseType) newValue);
         return;
-      case -81118171:  // deliveryCurrency
-        setDeliveryCurrency((Currency) newValue);
+      case 106778472:  // deliveryInCallCurrency
+        setDeliveryInCallCurrency((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -226,7 +231,6 @@ public class NonDeliverableFXOptionSecurity extends FinancialSecurity {
     JodaBeanUtils.notNull(_settlementDate, "settlementDate");
     JodaBeanUtils.notNull(_longShort, "longShort");
     JodaBeanUtils.notNull(_exerciseType, "exerciseType");
-    JodaBeanUtils.notNull(_deliveryCurrency, "deliveryCurrency");
     super.validate();
   }
 
@@ -245,7 +249,7 @@ public class NonDeliverableFXOptionSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
           JodaBeanUtils.equal(getLongShort(), other.getLongShort()) &&
           JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
-          JodaBeanUtils.equal(getDeliveryCurrency(), other.getDeliveryCurrency()) &&
+          JodaBeanUtils.equal(isDeliveryInCallCurrency(), other.isDeliveryInCallCurrency()) &&
           super.equals(obj);
     }
     return false;
@@ -262,7 +266,7 @@ public class NonDeliverableFXOptionSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLongShort());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDeliveryCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isDeliveryInCallCurrency());
     return hash ^ super.hashCode();
   }
 
@@ -476,28 +480,27 @@ public class NonDeliverableFXOptionSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency in which the settlement is made.
-   * @return the value of the property, not null
+   * Gets whether the currency in which the settlement is made is the call currency (otherwise it's the put currency).
+   * @return the value of the property
    */
-  public Currency getDeliveryCurrency() {
-    return _deliveryCurrency;
+  public boolean isDeliveryInCallCurrency() {
+    return _deliveryInCallCurrency;
   }
 
   /**
-   * Sets the currency in which the settlement is made.
-   * @param deliveryCurrency  the new value of the property, not null
+   * Sets whether the currency in which the settlement is made is the call currency (otherwise it's the put currency).
+   * @param deliveryInCallCurrency  the new value of the property
    */
-  public void setDeliveryCurrency(Currency deliveryCurrency) {
-    JodaBeanUtils.notNull(deliveryCurrency, "deliveryCurrency");
-    this._deliveryCurrency = deliveryCurrency;
+  public void setDeliveryInCallCurrency(boolean deliveryInCallCurrency) {
+    this._deliveryInCallCurrency = deliveryInCallCurrency;
   }
 
   /**
-   * Gets the the {@code deliveryCurrency} property.
+   * Gets the the {@code deliveryInCallCurrency} property.
    * @return the property, not null
    */
-  public final Property<Currency> deliveryCurrency() {
-    return metaBean().deliveryCurrency().createProperty(this);
+  public final Property<Boolean> deliveryInCallCurrency() {
+    return metaBean().deliveryInCallCurrency().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -551,10 +554,10 @@ public class NonDeliverableFXOptionSecurity extends FinancialSecurity {
     private final MetaProperty<ExerciseType> _exerciseType = DirectMetaProperty.ofReadWrite(
         this, "exerciseType", NonDeliverableFXOptionSecurity.class, ExerciseType.class);
     /**
-     * The meta-property for the {@code deliveryCurrency} property.
+     * The meta-property for the {@code deliveryInCallCurrency} property.
      */
-    private final MetaProperty<Currency> _deliveryCurrency = DirectMetaProperty.ofReadWrite(
-        this, "deliveryCurrency", NonDeliverableFXOptionSecurity.class, Currency.class);
+    private final MetaProperty<Boolean> _deliveryInCallCurrency = DirectMetaProperty.ofReadWrite(
+        this, "deliveryInCallCurrency", NonDeliverableFXOptionSecurity.class, Boolean.TYPE);
     /**
      * The meta-properties.
      */
@@ -568,7 +571,7 @@ public class NonDeliverableFXOptionSecurity extends FinancialSecurity {
         "settlementDate",
         "longShort",
         "exerciseType",
-        "deliveryCurrency");
+        "deliveryInCallCurrency");
 
     /**
      * Restricted constructor.
@@ -595,8 +598,8 @@ public class NonDeliverableFXOptionSecurity extends FinancialSecurity {
           return _longShort;
         case -466331342:  // exerciseType
           return _exerciseType;
-        case -81118171:  // deliveryCurrency
-          return _deliveryCurrency;
+        case 106778472:  // deliveryInCallCurrency
+          return _deliveryInCallCurrency;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -682,11 +685,11 @@ public class NonDeliverableFXOptionSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code deliveryCurrency} property.
+     * The meta-property for the {@code deliveryInCallCurrency} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Currency> deliveryCurrency() {
-      return _deliveryCurrency;
+    public final MetaProperty<Boolean> deliveryInCallCurrency() {
+      return _deliveryInCallCurrency;
     }
 
   }
