@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
+import com.google.common.collect.ImmutableSortedMap;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.client.ViewClient;
@@ -68,6 +69,8 @@ public abstract class WebViewGrid {
     _resultConverterCache = resultConverterCache;
     _local = local;
     _remote = remote;
+    
+    setViewport(ImmutableSortedMap.<Integer, Long>of());
   }
   
   //-------------------------------------------------------------------------
