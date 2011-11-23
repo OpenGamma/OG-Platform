@@ -30,17 +30,20 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
 
   private final ComputationTargetType _targetType;
   private final String _propertyName;
+  private final boolean _permitWithout;
   private final Set<String> _valueNames;
 
-  protected DefaultPropertyFunction(final ComputationTargetType targetType, final String propertyName, final String valueName) {
+  protected DefaultPropertyFunction(final ComputationTargetType targetType, final String propertyName, final boolean permitWithout, final String valueName) {
     _targetType = targetType;
     _propertyName = propertyName;
+    _permitWithout = permitWithout;
     _valueNames = Collections.singleton(valueName);
   }
 
-  protected DefaultPropertyFunction(final ComputationTargetType targetType, final String propertyName, final String... valueNames) {
+  protected DefaultPropertyFunction(final ComputationTargetType targetType, final String propertyName, final boolean permitWithout, final String... valueNames) {
     _targetType = targetType;
     _propertyName = propertyName;
+    _permitWithout = permitWithout;
     _valueNames = new HashSet<String>(Arrays.asList(valueNames));
   }
 
@@ -48,8 +51,8 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
     return _valueNames;
   }
 
-  public boolean hasValueName(final String valueName) {
-    return getValueNames().contains(valueName);
+  public boolean isPermitWithout() {
+    return _permitWithout;
   }
 
   protected String getPropertyName() {

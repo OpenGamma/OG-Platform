@@ -36,7 +36,7 @@ public class DefaultYieldCurveShiftFunction extends DefaultPropertyFunction {
   protected static final String YIELD_CURVE_SHIFT = "YIELD_CURVE_" + YieldCurveShiftFunction.SHIFT;
 
   public DefaultYieldCurveShiftFunction() {
-    super(ComputationTargetType.PRIMITIVE, YieldCurveShiftFunction.SHIFT, ValueRequirementNames.YIELD_CURVE);
+    super(ComputationTargetType.PRIMITIVE, YieldCurveShiftFunction.SHIFT, false, ValueRequirementNames.YIELD_CURVE);
   }
 
   @Override

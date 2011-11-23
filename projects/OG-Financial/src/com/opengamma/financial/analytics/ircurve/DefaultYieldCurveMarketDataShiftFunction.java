@@ -36,7 +36,7 @@ public class DefaultYieldCurveMarketDataShiftFunction extends DefaultPropertyFun
   protected static final String YIELD_CURVE_MARKET_DATA_SHIFT = "YIELD_CURVE_MARKET_DATA_" + YieldCurveShiftFunction.SHIFT;
 
   public DefaultYieldCurveMarketDataShiftFunction() {
-    super(ComputationTargetType.PRIMITIVE, YieldCurveMarketDataShiftFunction.SHIFT, ValueRequirementNames.YIELD_CURVE_MARKET_DATA);
+    super(ComputationTargetType.PRIMITIVE, YieldCurveMarketDataShiftFunction.SHIFT, false, ValueRequirementNames.YIELD_CURVE_MARKET_DATA);
   }
 
   @Override

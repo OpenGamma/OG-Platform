@@ -21,12 +21,12 @@ import com.opengamma.financial.property.DefaultPropertyFunction;
  */
 public class DefaultCurrencyFunction extends DefaultPropertyFunction {
 
-  public DefaultCurrencyFunction(final ComputationTargetType targetType, final String valueName) {
-    super(targetType, ValuePropertyNames.CURRENCY, valueName);
+  public DefaultCurrencyFunction(final ComputationTargetType targetType, final boolean permitWithout, final String valueName) {
+    super(targetType, ValuePropertyNames.CURRENCY, permitWithout, valueName);
   }
 
-  public DefaultCurrencyFunction(final ComputationTargetType targetType, final String... valueNames) {
-    super(targetType, ValuePropertyNames.CURRENCY, valueNames);
+  public DefaultCurrencyFunction(final ComputationTargetType targetType, final boolean permitWithout, final String... valueNames) {
+    super(targetType, ValuePropertyNames.CURRENCY, permitWithout, valueNames);
   }
 
   @Override

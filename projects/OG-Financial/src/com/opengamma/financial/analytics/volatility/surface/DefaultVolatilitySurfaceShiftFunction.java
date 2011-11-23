@@ -26,7 +26,7 @@ public class DefaultVolatilitySurfaceShiftFunction extends DefaultPropertyFuncti
   public static final String VOLATILITY_SURFACE_SHIFT = "VOLATILITY_SURFACE_" + VolatilitySurfaceShiftFunction.SHIFT;
 
   public DefaultVolatilitySurfaceShiftFunction() {
-    super(ComputationTargetType.SECURITY, VolatilitySurfaceShiftFunction.SHIFT, ValueRequirementNames.VOLATILITY_SURFACE);
+    super(ComputationTargetType.SECURITY, VolatilitySurfaceShiftFunction.SHIFT, false, ValueRequirementNames.VOLATILITY_SURFACE);
   }
 
   @Override

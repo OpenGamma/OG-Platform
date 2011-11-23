@@ -10,14 +10,38 @@ import com.opengamma.engine.ComputationTargetType;
 /**
  * Injects a default currency requirement into the graph at a security.
  */
-public class SecurityDefaultCurrencyFunction extends DefaultCurrencyFunction {
+public abstract class SecurityDefaultCurrencyFunction extends DefaultCurrencyFunction {
 
-  public SecurityDefaultCurrencyFunction(final String valueName) {
-    super(ComputationTargetType.SECURITY, valueName);
+  protected SecurityDefaultCurrencyFunction(final boolean permitWithout, final String valueName) {
+    super(ComputationTargetType.SECURITY, permitWithout, valueName);
   }
 
-  public SecurityDefaultCurrencyFunction(final String... valueNames) {
-    super(ComputationTargetType.SECURITY, valueNames);
+  protected SecurityDefaultCurrencyFunction(final boolean permitWithout, final String... valueNames) {
+    super(ComputationTargetType.SECURITY, permitWithout, valueNames);
+  }
+
+  public static class Strict extends SecurityDefaultCurrencyFunction {
+
+    public Strict(final String valueName) {
+      super(false, valueName);
+    }
+
+    public Strict(final String... valueNames) {
+      super(false, valueNames);
+    }
+
+  }
+
+  public static class Permissive extends SecurityDefaultCurrencyFunction {
+
+    public Permissive(final String valueName) {
+      super(true, valueName);
+    }
+
+    public Permissive(final String... valueNames) {
+      super(true, valueNames);
+    }
+
   }
 
 }
