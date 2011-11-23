@@ -390,6 +390,9 @@
 -- ==========================================================================
 -- ==========================================================================
 -- ==========================================================================
+-- DECISION: time-series data points table has no primary key
+-- to have one would have more downsides than upsides
+
 -- select document to handle empty series and to check/use first doc instants
 @NAME(SelectDataPointsCommon)
   SELECT
