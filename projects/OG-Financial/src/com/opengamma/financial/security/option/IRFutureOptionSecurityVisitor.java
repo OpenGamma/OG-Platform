@@ -6,7 +6,7 @@
 package com.opengamma.financial.security.option;
 
 /**
- * Visitor for the {@link FXOptionSecurity} subclasses.
+ * Visitor for the {@link IRFutureOptionSecurity} subclasses.
  * 
  * @param <T> visitor method return type
  */
