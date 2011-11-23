@@ -48,6 +48,7 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
+import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -235,6 +236,11 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
         .addAll(getSabrSensitivities())
         .add(getPresentValue(ValueProperties.builder()))
         .add(getVegaMatrix(ValueProperties.builder())).build();
+  }
+
+  @Override
+  public Set<Pair<String, ValueProperties>> visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+    throw new NotImplementedException();
   }
 
   @Override

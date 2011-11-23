@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import com.opengamma.core.exchange.ExchangeUtils;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.Security;
@@ -26,6 +28,7 @@ import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
+import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -139,6 +142,11 @@ public class FinancialSecurityUtils {
         }
 
         @Override
+        public ExternalId visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+          return null;
+        }
+        
+        @Override
         public ExternalId visitFXOptionSecurity(final FXOptionSecurity security) {
           throw null;
         }
@@ -242,6 +250,11 @@ public class FinancialSecurityUtils {
           return ExternalId.of(ExchangeUtils.ISO_MIC, security.getExchange());
         }
 
+        @Override
+        public ExternalId visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+          return ExternalId.of(ExchangeUtils.ISO_MIC, security.getExchange());
+        }
+        
         @Override
         public ExternalId visitFXOptionSecurity(final FXOptionSecurity security) {
           throw null;
@@ -353,6 +366,11 @@ public class FinancialSecurityUtils {
           return security.getCurrency();
         }
 
+        @Override
+        public Currency visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+          return security.getCurrency();
+        }
+        
         @Override
         public Currency visitFXOptionSecurity(final FXOptionSecurity security) {
           throw new UnsupportedOperationException("FX securities do not have a currency");
@@ -470,6 +488,11 @@ public class FinancialSecurityUtils {
           return Collections.singletonList(security.getCurrency());
         }
 
+        @Override
+        public Collection<Currency> visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+        
         @Override
         public Collection<Currency> visitFXOptionSecurity(final FXOptionSecurity security) {
           Collection<Currency> currencies = new ArrayList<Currency>();
@@ -593,6 +616,10 @@ public class FinancialSecurityUtils {
           return true;
         }
 
+        @Override
+        public Boolean visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+          throw new NotImplementedException();
+        }
         @Override
         public Boolean visitFXOptionSecurity(FXOptionSecurity security) {
           return null;
