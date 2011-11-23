@@ -22,6 +22,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -38,13 +39,13 @@ public class RequirementBasedGridStructure {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RequirementBasedGridStructure.class);
 
-  private final Map<UniqueId, Integer> _targetIdMap;
+  private final Map<ComputationTargetSpecification, Integer> _targetIdMap;
   private final List<WebViewGridColumn> _orderedColumns;
   private final Map<RequirementBasedColumnKey, Collection<WebViewGridColumn>> _specificationBasedColumns;
   private final Map<Integer, Set<Integer>> _unsatisfiedCells;
 
   public RequirementBasedGridStructure(CompiledViewDefinition compiledViewDefinition, EnumSet<ComputationTargetType> targetTypes,
-      List<RequirementBasedColumnKey> requirements, List<UniqueId> targets) {
+      List<RequirementBasedColumnKey> requirements, List<ComputationTargetSpecification> targets) {
     ValueSpecificationAnalysisResult analysisResult = analyseValueSpecifications(compiledViewDefinition, requirements, targetTypes, targets);
     Map<RequirementBasedColumnKey, Collection<WebViewGridColumn>> specificationBasedColumns = new HashMap<RequirementBasedColumnKey, Collection<WebViewGridColumn>>();
     Map<RequirementBasedColumnKey, WebViewGridColumn> requirementBasedColumns = new HashMap<RequirementBasedColumnKey, WebViewGridColumn>();
@@ -91,10 +92,10 @@ public class RequirementBasedGridStructure {
     if (targets == null) {
       targets = analysisResult.getTargets();
     }
-    _targetIdMap = new LinkedHashMap<UniqueId, Integer>();
+    _targetIdMap = new LinkedHashMap<ComputationTargetSpecification, Integer>();
     _unsatisfiedCells = new HashMap<Integer, Set<Integer>>();
     int nextId = 0;
-    for (UniqueId target : targets) {
+    for (ComputationTargetSpecification target : targets) {
       int targetRowId = nextId++;
       _targetIdMap.put(target, targetRowId);
       Set<RequirementBasedColumnKey> missingColumnKeys = analysisResult.getUnsatisfiedRequirements(target);
@@ -114,12 +115,12 @@ public class RequirementBasedGridStructure {
   }
 
   private static ValueSpecificationAnalysisResult analyseValueSpecifications(CompiledViewDefinition compiledViewDefinition,
-      Collection<RequirementBasedColumnKey> requirements, EnumSet<ComputationTargetType> targetTypes, List<UniqueId> targets) {
+      Collection<RequirementBasedColumnKey> requirements, EnumSet<ComputationTargetType> targetTypes, List<ComputationTargetSpecification> targets) {
     Map<Pair<String, String>, Set<RequirementBasedColumnKey>> requirementsByConfigValueName = getRequirementsMap(requirements);
-    Set<UniqueId> impliedTargets = targets == null ? new HashSet<UniqueId>() : null;
+    Set<ComputationTargetSpecification> impliedTargets = targets == null ? new HashSet<ComputationTargetSpecification>() : null;
     Map<RequirementBasedColumnKey, Set<RequirementBasedColumnKey>> specificationsToRequirementCandidates = new HashMap<RequirementBasedColumnKey, Set<RequirementBasedColumnKey>>();
     Map<RequirementBasedColumnKey, Collection<RequirementBasedColumnKey>> specToRequirements = new HashMap<RequirementBasedColumnKey, Collection<RequirementBasedColumnKey>>();
-    Map<RequirementBasedColumnKey, Set<UniqueId>> specToTargets = new HashMap<RequirementBasedColumnKey, Set<UniqueId>>();
+    Map<RequirementBasedColumnKey, Set<ComputationTargetSpecification>> specToTargets = new HashMap<RequirementBasedColumnKey, Set<ComputationTargetSpecification>>();
 
     for (CompiledViewCalculationConfiguration compiledCalcConfig : compiledViewDefinition.getCompiledCalculationConfigurations()) {
       Set<RequirementBasedColumnKey> requirementsMatchedToSpec = new HashSet<RequirementBasedColumnKey>();
@@ -134,19 +135,19 @@ public class RequirementBasedGridStructure {
         }
 
         if (impliedTargets != null) {
-          impliedTargets.add(valueSpec.getTargetSpecification().getUniqueId());
+          impliedTargets.add(valueSpec.getTargetSpecification());
         }
 
         String valueName = valueSpec.getValueName();
         ValueProperties valueProperties = valueSpec.getProperties();
         RequirementBasedColumnKey specificationBasedKey = new RequirementBasedColumnKey(calcConfigName, valueName, valueProperties);
         
-        Set<UniqueId> targetsForSpec = specToTargets.get(specificationBasedKey);
+        Set<ComputationTargetSpecification> targetsForSpec = specToTargets.get(specificationBasedKey);
         if (targetsForSpec == null) {
-          targetsForSpec = new HashSet<UniqueId>();
+          targetsForSpec = new HashSet<ComputationTargetSpecification>();
           specToTargets.put(specificationBasedKey, targetsForSpec);
         }
-        targetsForSpec.add(valueSpec.getTargetSpecification().getUniqueId());
+        targetsForSpec.add(valueSpec.getTargetSpecification());
         
         if (specToRequirements.containsKey(specificationBasedKey) || specificationsToRequirementCandidates.containsKey(specificationBasedKey)) {
           // Seen this specification before for a different target, so it has been / will be dealt with
@@ -185,19 +186,19 @@ public class RequirementBasedGridStructure {
     }
     
     if (targets == null) {
-      targets = new ArrayList<UniqueId>(impliedTargets);
+      targets = new ArrayList<ComputationTargetSpecification>(impliedTargets);
     }
     
-    Map<UniqueId, Set<RequirementBasedColumnKey>> missingCellMap = generateCompleteMissingCellMap(targets, requirements);
-    for (Map.Entry<RequirementBasedColumnKey, Set<UniqueId>> specToTargetsEntry : specToTargets.entrySet()) {
+    Map<ComputationTargetSpecification, Set<RequirementBasedColumnKey>> missingCellMap = generateCompleteMissingCellMap(targets, requirements);
+    for (Map.Entry<RequirementBasedColumnKey, Set<ComputationTargetSpecification>> specToTargetsEntry : specToTargets.entrySet()) {
       RequirementBasedColumnKey spec = specToTargetsEntry.getKey();
       Collection<RequirementBasedColumnKey> requirementsForSpec = specToRequirements.get(spec);
       if (requirementsForSpec == null) {
         // No columns identified for spec
         continue;
       }
-      Set<UniqueId> targetsForSpec = specToTargetsEntry.getValue();
-      for (UniqueId targetForSpec : targetsForSpec) {
+      Set<ComputationTargetSpecification> targetsForSpec = specToTargetsEntry.getValue();
+      for (ComputationTargetSpecification targetForSpec : targetsForSpec) {
         Set<RequirementBasedColumnKey> requirementsForTarget = missingCellMap.get(targetForSpec);
         if (requirementsForTarget == null) {
           // Target not in grid
@@ -222,11 +223,11 @@ public class RequirementBasedGridStructure {
     return Collections.unmodifiableList(_orderedColumns);
   }
 
-  public Map<UniqueId, Integer> getTargets() {
+  public Map<ComputationTargetSpecification, Integer> getTargets() {
     return Collections.unmodifiableMap(_targetIdMap);
   }
 
-  public Integer getRowId(UniqueId target) {
+  public Integer getRowId(ComputationTargetSpecification target) {
     return _targetIdMap.get(target);
   }
   
@@ -303,9 +304,10 @@ public class RequirementBasedGridStructure {
     return result;
   }
   
-  private static Map<UniqueId, Set<RequirementBasedColumnKey>> generateCompleteMissingCellMap(Collection<UniqueId> targets, Collection<RequirementBasedColumnKey> requirements) {
-    Map<UniqueId, Set<RequirementBasedColumnKey>> result = new HashMap<UniqueId, Set<RequirementBasedColumnKey>>();
-    for (UniqueId target : targets) {
+  private static Map<ComputationTargetSpecification, Set<RequirementBasedColumnKey>> generateCompleteMissingCellMap(
+      Collection<ComputationTargetSpecification> targets, Collection<RequirementBasedColumnKey> requirements) {
+    Map<ComputationTargetSpecification, Set<RequirementBasedColumnKey>> result = new HashMap<ComputationTargetSpecification, Set<RequirementBasedColumnKey>>();
+    for (ComputationTargetSpecification target : targets) {
       result.put(target, new HashSet<RequirementBasedColumnKey>(requirements));
     }
     return result;
@@ -329,12 +331,12 @@ public class RequirementBasedGridStructure {
   private static class ValueSpecificationAnalysisResult {
 
     private final Map<RequirementBasedColumnKey, Collection<RequirementBasedColumnKey>> _specificationToRequirements;
-    private final List<UniqueId> _targets;
-    private final Map<UniqueId, Set<RequirementBasedColumnKey>> _unsatisfiedRequirementMap;
+    private final List<ComputationTargetSpecification> _targets;
+    private final Map<ComputationTargetSpecification, Set<RequirementBasedColumnKey>> _unsatisfiedRequirementMap;
 
     public ValueSpecificationAnalysisResult(Map<RequirementBasedColumnKey,
-        Collection<RequirementBasedColumnKey>> specificationToRequirements, List<UniqueId> targets,
-        Map<UniqueId, Set<RequirementBasedColumnKey>> unsatisfiedRequirementMap) {
+        Collection<RequirementBasedColumnKey>> specificationToRequirements, List<ComputationTargetSpecification> targets,
+        Map<ComputationTargetSpecification, Set<RequirementBasedColumnKey>> unsatisfiedRequirementMap) {
       _specificationToRequirements = specificationToRequirements;
       _targets = targets;
       _unsatisfiedRequirementMap = unsatisfiedRequirementMap;
@@ -344,12 +346,12 @@ public class RequirementBasedGridStructure {
       return _specificationToRequirements;
     }
 
-    public List<UniqueId> getTargets() {
+    public List<ComputationTargetSpecification> getTargets() {
       return _targets;
     }
     
-    public Set<RequirementBasedColumnKey> getUnsatisfiedRequirements(UniqueId targetId) {
-      return _unsatisfiedRequirementMap.get(targetId);
+    public Set<RequirementBasedColumnKey> getUnsatisfiedRequirements(ComputationTargetSpecification target) {
+      return _unsatisfiedRequirementMap.get(target);
     }
 
   }
