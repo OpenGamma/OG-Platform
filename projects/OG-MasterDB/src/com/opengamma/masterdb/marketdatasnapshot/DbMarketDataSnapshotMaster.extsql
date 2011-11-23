@@ -42,11 +42,11 @@
     main.ver_from_instant AS ver_from_instant,
     main.ver_to_instant AS ver_to_instant,
     main.corr_from_instant AS corr_from_instant,
-    main.corr_to_instant AS corr_to_instant,
-    @IF(:details)
-      main.detail AS detail
+    main.corr_to_instant AS corr_to_instant
+    @IF(:details = true)
+      , main.detail AS detail
     @IF(:details = false)
-      main.name AS name
+      , main.name AS name
   FROM
     snp_snapshot main
     INNER JOIN cte_docs ON main.id = cte_docs.id
@@ -92,11 +92,11 @@
     main.ver_from_instant AS ver_from_instant,
     main.ver_to_instant AS ver_to_instant,
     main.corr_from_instant AS corr_from_instant,
-    main.corr_to_instant AS corr_to_instant,
-    @IF(:details)
-      main.detail AS detail
+    main.corr_to_instant AS corr_to_instant
+    @IF(:details = true)
+      , main.detail AS detail
     @IF(:details = false)
-      main.name AS name
+      , main.name AS name
   FROM
     snp_snapshot main
     INNER JOIN cte_docs ON main.id = cte_docs.id
