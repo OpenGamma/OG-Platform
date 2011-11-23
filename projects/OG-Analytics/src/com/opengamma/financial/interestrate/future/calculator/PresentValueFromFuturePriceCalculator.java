@@ -7,7 +7,7 @@ package com.opengamma.financial.interestrate.future.calculator;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.AbstractInterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.method.BondFutureDiscountingMethod;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
@@ -15,7 +15,7 @@ import com.opengamma.financial.interestrate.future.method.InterestRateFutureDisc
 /**
  * Calculate present value for futures from the quoted price.
  */
-public final class PresentValueFromFuturePriceCalculator extends AbstractInterestRateDerivativeVisitor<Double, Double> {
+public final class PresentValueFromFuturePriceCalculator extends AbstractInstrumentDerivativeVisitor<Double, Double> {
 
   /**
    * The calculator instance.

@@ -73,8 +73,10 @@ $.register_module({
                     send = function () {
                         outstanding_requests[id].ajax = $.ajax({
                             url: url,
-                            type: config.meta.type,
-                            data: config.meta.type in no_post_body ? {} : config.data,
+                            // the following 2 lines are a hack to make sure GETs do not cachce, they need to be removed
+                            type: config.meta.type === 'GET' ? 'POST' : config.meta.type,
+                            data: config.meta.type in no_post_body ? config.meta.type === 'GET' ? {method: 'GET'} : {}
+                                : config.data,
                             headers: {'Accept': 'application/json'},
                             dataType: 'json',
                             timeout: TIMEOUT,
@@ -91,7 +93,8 @@ $.register_module({
                                 if (error === 'abort') return; // do not call handler if request was cancelled
                                 config.meta.handler({
                                     error: true, data: null, meta: {},
-                                    message: status === 'parsererror' ? 'JSON parser failed' : xhr.responseText
+                                    message: status === 'parsererror' ? 'JSON parser failed'
+                                        : xhr.responseText || 'There was no response from the server.'
                                 });
                             },
                             success: function (data, status, xhr) {
@@ -108,7 +111,12 @@ $.register_module({
                         });
                         return id;
                     };
-                if (config.meta.type === 'GET') register({id: id, config: config, current: current, url: url});
+                if (config.meta.type === 'GET')
+                    register({id: id, config: config, current: current, url: url});
+                else
+                    if (og.app.READ_ONLY) return setTimeout(config.meta.handler.partial({
+                        error: true, data: null, meta: {}, message: 'This application is in read-only mode.'
+                    }), 0), id;
                 if (config.meta.update && config.meta.type !== 'GET') og.dev.warn('update functions are only for GETs');
                 if (config.meta.cache_for && config.meta.type !== 'GET')
                     og.dev.warn('only GETs can be cached'), delete config.meta.cache_for;
@@ -141,7 +149,7 @@ $.register_module({
                     throw new TypeError(params.bundle.method + ': config.page + config.from/to is ambiguous');
                 if (str(params.bundle.config.to) && !str(params.bundle.config.from))
                     throw new TypeError(params.bundle.method + ': config.to requires config.from');
-                if (params.bundle.config.page_size === 'all' || params.bundle.config.page === 'all')
+                if (params.bundle.config.page_size === '*' || params.bundle.config.page === '*')
                     params.bundle.config.page_size = MAX_INT, params.bundle.config.page = PAGE;
                 return ['handler', 'loading', 'update', 'dependencies', 'cache_for'].reduce(function (acc, val) {
                     return (val in params.bundle.config) && (acc[val] = params.bundle.config[val]), acc;
@@ -405,6 +413,21 @@ $.register_module({
                     return request(method, {data: data, meta: meta});
                 },
                 del: default_del
+            },
+            sync: {  // all requests that begin with /sync
+                root: 'sync',
+                get: function (config) {
+                    var root = this.root, method = [root], data = {}, meta, fields = ['status', 'trades'];
+                    meta = check({
+                        bundle: {method: root + '#get', config: config},
+                        required: [{one_of: fields}],
+                        empties: [{condition: config.status, fields: ['trades'], label: 'status exists'}]
+                    });
+                    fields.forEach(function (field) {if (config[field]) method.push(config[field], field);});
+                    return request(method, {data: data, meta: meta});
+                },
+                put: not_implemented.partial('put'),
+                del: not_available.partial('del')
             },
             timeseries: { // all requests that begin with /timeseries
                 root: 'timeseries',

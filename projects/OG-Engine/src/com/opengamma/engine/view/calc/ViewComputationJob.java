@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.time.Duration;
@@ -30,10 +31,10 @@ import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.ViewProcessImpl;
-import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.trigger.CombinedViewCycleTrigger;
 import com.opengamma.engine.view.calc.trigger.FixedTimeTrigger;
 import com.opengamma.engine.view.calc.trigger.RecomputationPeriodTrigger;
@@ -49,6 +50,7 @@ import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.engine.view.listener.ComputationResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
@@ -110,7 +112,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     _compilationExpiryCycleTrigger = new FixedTimeTrigger();
     _masterCycleTrigger = createViewCycleTrigger(executionOptions);
     _executeCycles = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
-    updateViewDefinitionIfRequired();
+    updateViewDefinitionIfRequired(); 
     subscribeToViewDefinition();
   }
 
@@ -275,7 +277,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     
     if (_executeCycles) {
       try {
-        executeViewCycle(cycleType, cycleReference, marketDataSnapshot);
+        executeViewCycle(cycleType, cycleReference, marketDataSnapshot, getViewProcess().getCalcJobResultExecutorService());
       } catch (InterruptedException e) {
         // Execution interrupted - don't propagate as failure
         s_logger.info("View cycle execution interrupted for view process {}", getViewProcess());
@@ -321,11 +323,11 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
   }
 
-  private void jobResultReceived(ViewResultModel result) {
+  private void cycleFragmentCompleted(ViewComputationResultModel result) {
     try {
-      getViewProcess().jobResultReceived(result);
+      getViewProcess().cycleFragmentCompleted(result, getViewDefinition());
     } catch (Exception e) {
-      s_logger.error("Error notifying view process " + getViewProcess() + " of view cycle completion", e);
+      s_logger.error("Error notifying view process " + getViewProcess() + " of cycle fragment completion", e);
     }
   }
 
@@ -409,7 +411,10 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
   }
   
-  private void executeViewCycle(ViewCycleType cycleType, EngineResourceReference<SingleComputationCycle> cycleReference, MarketDataSnapshot marketDataSnapshot) throws Exception {
+  private void executeViewCycle(ViewCycleType cycleType, 
+                                EngineResourceReference<SingleComputationCycle> cycleReference, 
+                                MarketDataSnapshot marketDataSnapshot,
+                                ExecutorService calcJobResultExecutorService) throws Exception {
     SingleComputationCycle deltaCycle;
     if (cycleType == ViewCycleType.FULL) {
       s_logger.info("Performing full computation");
@@ -420,7 +425,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
     
     try {
-      cycleReference.get().execute(deltaCycle, marketDataSnapshot);
+      cycleReference.get().execute(deltaCycle, marketDataSnapshot, calcJobResultExecutorService);
     } catch (InterruptedException e) {
       Thread.interrupted();
       // In reality this means that the job has been terminated, and it will end as soon as we return from this method.
@@ -506,8 +511,15 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       throw new OpenGammaRuntimeException("Compiled view definition " + compiledViewDefinition + " not valid for execution options " + executionOptions);
     }
     UniqueId cycleId = getViewProcess().generateCycleId();
+    
+    ComputationResultListener streamingResultListener = new ComputationResultListener() {
+      @Override
+      public void resultAvailable(ViewComputationResultModel result) {
+        cycleFragmentCompleted(result);
+      }
+    };
     SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(),
-        getViewProcess(), getProcessContext(), compiledViewDefinition, executionOptions, versionCorrection);
+        streamingResultListener, getProcessContext(), compiledViewDefinition, executionOptions, versionCorrection);
     return getCycleManager().manage(cycle);
   }
 

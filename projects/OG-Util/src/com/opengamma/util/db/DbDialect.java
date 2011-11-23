@@ -12,6 +12,7 @@ import org.hibernate.dialect.Dialect;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 
+import com.opengamma.extsql.ExtSqlConfig;
 import com.opengamma.util.paging.PagingRequest;
 
 /**
@@ -26,6 +27,10 @@ public abstract class DbDialect {
    * The cached hibernate dialect.
    */
   private volatile Dialect _hibernateDialect;
+  /**
+   * The config for the ExtSql system.
+   */
+  private volatile ExtSqlConfig _extSqlConfig;
 
   /**
    * Restrictive constructor.
@@ -52,6 +57,7 @@ public abstract class DbDialect {
    */
   public abstract Class<? extends Driver> getJDBCDriverClass();
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the Hibernate dialect object for the database.
    * 
@@ -72,6 +78,27 @@ public abstract class DbDialect {
    * @return the dialect, not null
    */
   protected abstract Dialect createHibernateDialect();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the ExtSql config.
+   * 
+   * @return the config, not null
+   */
+  public final ExtSqlConfig getExtSqlConfig() {
+    if (_extSqlConfig == null) {
+      _extSqlConfig = createExtSqlConfig();
+    }
+    return _extSqlConfig;
+  }
+
+  /**
+   * Creates the ExtSql config object for the database.
+   * This will be cached by the base class.
+   * 
+   * @return the config, not null
+   */
+  protected abstract ExtSqlConfig createExtSqlConfig();
 
   //-------------------------------------------------------------------------
   /**

@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -513,22 +512,42 @@ public final class DependencyGraphBuilder {
     }
 
     public ResolvedValueProducer declareTaskProducing(final ValueSpecification valueSpecification, final ResolveTask task, final ResolvedValueProducer producer) {
-      ResolvedValueProducer result;
+      ResolvedValueProducer discard = null;
+      ResolvedValueProducer result = null;
       synchronized (_specifications) {
         Map<ResolveTask, ResolvedValueProducer> tasks = _specifications.get(valueSpecification);
         if (tasks == null) {
-          tasks = new ConcurrentHashMap<ResolveTask, ResolvedValueProducer>();
+          tasks = new HashMap<ResolveTask, ResolvedValueProducer>();
           _specifications.put(valueSpecification, tasks);
         }
-        result = tasks.get(task);
+        if (!tasks.isEmpty()) {
+          // The loop below is nasty, but the map won't return its "actual" key and value when we just do a "get"
+          for (Map.Entry<ResolveTask, ResolvedValueProducer> resolveTask : tasks.entrySet()) {
+            if (resolveTask.getKey() == task) {
+              // Replace an earlier attempt from this task with the new producer
+              discard = resolveTask.getValue();
+              producer.addRef();
+              resolveTask.setValue(producer);
+              result = producer;
+              break;
+            } else if (task.equals(resolveTask.getKey())) {
+              // An equivalent task is doing the work
+              result = resolveTask.getValue();
+              break;
+            }
+          }
+        }
         if (result == null) {
-          // Don't ref-count the task; they're just used for value comparisons
+          // No matching tasks
           producer.addRef();
           tasks.put(task, producer);
           result = producer;
         }
-        result.addRef();
       }
+      if (discard != null) {
+        discard.release(this);
+      }
+      result.addRef();
       return result;
     }
 
@@ -618,7 +637,7 @@ public final class DependencyGraphBuilder {
     }
 
     private synchronized void discardIntermediateState() {
-      reportStateSize();
+      s_loggerContext.debug("Discarding intermediate state {} requirements, {} specifications", _requirements.size(), _specifications.size());
       _requirements.clear();
       _specifications.clear();
     }
@@ -754,7 +773,7 @@ public final class DependencyGraphBuilder {
    * 
    * @param failureVisitor the visitor to use, or null to create synthetic exceptions
    */
-  public void setResolutionFailureVisitor(final ResolutionFailureVisitor failureVisitor) {
+  public void setResolutionFailureVisitor(final ResolutionFailureVisitor<?> failureVisitor) {
     _getTerminalValuesCallback.setResolutionFailureVisitor(failureVisitor);
   }
 

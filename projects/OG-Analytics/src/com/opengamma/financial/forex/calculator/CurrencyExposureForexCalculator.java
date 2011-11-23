@@ -13,13 +13,14 @@ import com.opengamma.financial.forex.method.ForexDiscountingMethod;
 import com.opengamma.financial.forex.method.ForexNonDeliverableForwardDiscountingMethod;
 import com.opengamma.financial.forex.method.ForexOptionVanillaBlackMethod;
 import com.opengamma.financial.forex.method.ForexSwapDiscountingMethod;
+import com.opengamma.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculator of the currency exposure for Forex derivatives.
  */
-public class CurrencyExposureForexCalculator extends AbstractForexDerivativeVisitor<YieldCurveBundle, MultipleCurrencyAmount> {
+public class CurrencyExposureForexCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.

@@ -15,9 +15,9 @@ import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -96,7 +96,7 @@ public class ForexOptionVanillaDefinitionTest {
     String discountingUSD = "Discounting USD";
     String[] curves_name = new String[] {discountingEUR, discountingUSD};
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 5, 20);
-    ForexDerivative optionConverted = FX_OPTION_DEFINITION.toDerivative(referenceDate, curves_name);
+    InstrumentDerivative optionConverted = FX_OPTION_DEFINITION.toDerivative(referenceDate, curves_name);
     Forex fx = FX_DEFINITION.toDerivative(referenceDate, curves_name);
     DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     double expirationTime = actAct.getDayCountFraction(referenceDate, EXPIRATION_DATE);

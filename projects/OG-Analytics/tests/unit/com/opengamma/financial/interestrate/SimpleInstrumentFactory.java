@@ -62,11 +62,11 @@ public abstract class SimpleInstrumentFactory {
       BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
   private static final IndexOIS DUMMY_OIS_INDEX = new IndexOIS("OIS", DUMMY_CUR, DayCountFactory.INSTANCE.getDayCount("Actual/365"), 0, new MondayToFridayCalendar("A"));
 
-  public static InterestRateDerivative makeCash(final double time, final String fundCurveName, final double rate, final double notional) {
+  public static InstrumentDerivative makeCash(final double time, final String fundCurveName, final double rate, final double notional) {
     return new Cash(DUMMY_CUR, time, notional, rate, fundCurveName);
   }
 
-  public static InterestRateDerivative makeLibor(final double time, final String indexCurveName, final double rate, final double notional) {
+  public static InstrumentDerivative makeLibor(final double time, final String indexCurveName, final double rate, final double notional) {
     return new Cash(DUMMY_CUR, time, notional, rate, indexCurveName);
   }
 
@@ -81,12 +81,12 @@ public abstract class SimpleInstrumentFactory {
    * @param notional the notional amount 
    * @return A FRA
    */
-  public static InterestRateDerivative makeFRA(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName, final double rate, final double notional) {
+  public static InstrumentDerivative makeFRA(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName, final double rate, final double notional) {
     double tau = 1. / paymentFreq.getPeriodsPerYear();
     return new ForwardRateAgreement(DUMMY_CUR, time - tau, fundCurveName, tau, notional, DUMMY_INDEX, time - tau, time - tau, time, tau, rate, indexCurveName);
   }
 
-  public static InterestRateDerivative makeFuture(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName) {
+  public static InstrumentDerivative makeFuture(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName) {
     double tau = 1. / paymentFreq.getPeriodsPerYear();
     return new InterestRateFuture(time, DUMMY_INDEX, time, time + tau, tau, 0, 1, tau, "N", fundCurveName, indexCurveName);
   }

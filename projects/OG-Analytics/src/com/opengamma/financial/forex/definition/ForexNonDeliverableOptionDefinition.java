@@ -10,10 +10,10 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.forex.calculator.ForexConverter;
-import com.opengamma.financial.forex.calculator.ForexDefinitionVisitor;
-import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 
 /**
  * Class describing a non-deliverable foreign exchange European option. The option exercise date is the underlying NDF fixing date.
@@ -23,7 +23,7 @@ import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
  * A put on a Forex on KRW / USD at strike 1124.00 is thus the right to pay 1.00 USD and receive 1124.00 KRW and cash settle the difference in USD.
  * There is not a full put/call parity in NDO as the two currencies do not have a fully symmetric role.
  */
-public class ForexNonDeliverableOptionDefinition implements ForexConverter<ForexDerivative> {
+public class ForexNonDeliverableOptionDefinition implements InstrumentDefinition<InstrumentDerivative> {
 
   /**
    * The underlying Forex non-deliverable transaction (the one entered into in case of exercise).
@@ -42,7 +42,8 @@ public class ForexNonDeliverableOptionDefinition implements ForexConverter<Forex
   /**
    * Constructor from the details.
    * @param forex The underlying Forex transaction.
-   * @param isCall The call (true) / put (false) flag.
+   * @param isCall The call (true) / put (false) flag. When the option is a call, the option holder has the right to enter into the Forex NDF; when the option is a put, 
+   * the option holder has the right to enter into a NDF transaction equal to the underlying but with opposite signs.
    * @param isLong The long (true) / short (false) flag.
    */
   public ForexNonDeliverableOptionDefinition(final ForexNonDeliverableForwardDefinition forex, final boolean isCall, boolean isLong) {
@@ -88,7 +89,7 @@ public class ForexNonDeliverableOptionDefinition implements ForexConverter<Forex
    * {@inheritDoc}
    */
   @Override
-  public <U, V> V accept(final ForexDefinitionVisitor<U, V> visitor, final U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitForexNonDeliverableOptionDefinition(this, data);
   }
 
@@ -96,7 +97,7 @@ public class ForexNonDeliverableOptionDefinition implements ForexConverter<Forex
    * {@inheritDoc}
    */
   @Override
-  public <V> V accept(final ForexDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitForexNonDeliverableOptionDefinition(this);
   }
 

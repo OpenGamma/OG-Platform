@@ -12,3 +12,4 @@ tests/output/
 MANIFEST.MF
 .clover/
 build.number
+javadoc-data.json

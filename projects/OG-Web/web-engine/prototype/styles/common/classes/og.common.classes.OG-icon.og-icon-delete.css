@@ -1,10 +1,4 @@
 .OG-icon.og-icon-delete:after {
-  height: 10px;
-  width: 11px;
-  position: relative;
-}
-
-.OG-icon.og-icon-delete:after {
   background-position: -22px -9px;
   background-color: transparent;
   height: 6px;

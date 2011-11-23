@@ -14,6 +14,7 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.PortfolioStructure;
+import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.util.SingletonFactoryBean;
 
@@ -30,6 +31,7 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
   private ConventionBundleSource _conventionBundleSource;
   private ExchangeSource _exchangeSource;
   private ConfigSource _configSource;
+  private OverrideOperationCompiler _overrideOperationCompiler;
 
   public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource() {
     return _historicalTimeSeriesSource;
@@ -95,6 +97,14 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     _configSource = configSource;
   }
 
+  public OverrideOperationCompiler getOverrideOperationCompiler() {
+    return _overrideOperationCompiler;
+  }
+
+  public void setOverrideOperationCompiler(final OverrideOperationCompiler overrideOperationCompiler) {
+    _overrideOperationCompiler = overrideOperationCompiler;
+  }
+
   @Override
   protected FunctionExecutionContext createObject() {
     FunctionExecutionContext context = new FunctionExecutionContext();
@@ -106,6 +116,9 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     OpenGammaExecutionContext.setHolidaySource(context, _holidaySource);
     OpenGammaExecutionContext.setConventionBundleSource(context, _conventionBundleSource);
     OpenGammaExecutionContext.setConfigSource(context, _configSource);
+    if (_overrideOperationCompiler != null) {
+      OpenGammaExecutionContext.setOverrideOperationCompiler(context, _overrideOperationCompiler);
+    }
     return context;
   }
 

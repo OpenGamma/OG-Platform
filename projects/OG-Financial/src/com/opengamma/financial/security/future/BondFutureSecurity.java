@@ -56,12 +56,7 @@ public class BondFutureSecurity extends FutureSecurity {
   @PropertyDefinition(validate = "notNull")
   private ZonedDateTime _lastDeliveryDate;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public BondFutureSecurity() {
+  BondFutureSecurity() { //For builder
     super();
   }
 

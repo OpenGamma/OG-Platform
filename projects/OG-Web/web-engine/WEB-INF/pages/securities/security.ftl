@@ -107,6 +107,27 @@
             <@rowout label="Underlying identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
         </#if>
         <#break>
+      <#case "EQUITY_BARRIER_OPTION">
+        <@rowout label="Currency">${security.currency}</@rowout>
+        <@rowout label="Exchange">${security.exchange}</@rowout>
+        <@rowout label="Exercise type">${customRenderer.printExerciseType(security.exerciseType)}</@rowout>
+        <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
+        <@rowout label="Option type">${security.optionType}</@rowout>
+        <@rowout label="Point Value">${security.pointValue}</@rowout>
+        <@rowout label="Strike">${security.strike}</@rowout>
+        <#if underlyingSecurity?has_content>
+            <@rowout label="Underlying security"><a href="${uris.security(underlyingSecurity)}">${underlyingSecurity.name}</a></@rowout>
+        <#else>
+            <@rowout label="Underlying identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
+        </#if>
+        
+        <@rowout label="Barrier Direction">${security.barrierDirection}</@rowout>
+        <@rowout label="Barrier Level">${security.barrierLevel}</@rowout>
+        <@rowout label="Barrier Type">${security.barrierType}</@rowout>
+        <@rowout label="Sampling Frequency">${security.samplingFrequency}</@rowout>
+        <@rowout label="Monitoring Type">${security.monitoringType}</@rowout>
+        
+        <#break>
       <#case "SWAP">
         <@rowout label="Trade date">${security.tradeDate.toLocalDate()} - ${security.tradeDate.zone}</@rowout>
         <@rowout label="Effective date">${security.effectiveDate.toLocalDate()} - ${security.effectiveDate.zone}</@rowout>
@@ -200,6 +221,16 @@
         <@rowout label="Put Currency">${security.putCurrency}</@rowout>
         <@rowout label="Settlement Date">${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}</@rowout>
         <#break>
+      <#case "NONDELIVERABLE_FX_OPTION">
+        <@rowout label="Call Amount">${security.callAmount}</@rowout>
+        <@rowout label="Call Currency">${security.callCurrency}</@rowout>
+        <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
+        <@rowout label="IsLong">${security.long?string?upper_case}</@rowout>
+        <@rowout label="Put Amount">${security.putAmount}</@rowout>
+        <@rowout label="Put Currency">${security.putCurrency}</@rowout>
+        <@rowout label="Settlement Date">${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}</@rowout>
+        <@rowout label="Delivery Currency">${security.deliveryCurrency}</@rowout>
+        <#break>        
       <#case "EQUITY_INDEX_OPTION">
         <@rowout label="Currency">${security.currency}</@rowout>
         <@rowout label="Exchange">${security.exchange}</@rowout>

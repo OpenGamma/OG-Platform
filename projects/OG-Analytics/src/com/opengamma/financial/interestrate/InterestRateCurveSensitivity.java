@@ -56,7 +56,7 @@ public class InterestRateCurveSensitivity {
    * @param other The sensitivity to add.
    * @return The total sensitivity.
    */
-  public InterestRateCurveSensitivity add(InterestRateCurveSensitivity other) { 
+  public InterestRateCurveSensitivity add(InterestRateCurveSensitivity other) {
     return new InterestRateCurveSensitivity(addSensitivity(_sensitivity, other._sensitivity));
   }
 
@@ -76,7 +76,7 @@ public class InterestRateCurveSensitivity {
   public InterestRateCurveSensitivity clean() {
     return new InterestRateCurveSensitivity(InterestRateCurveSensitivityUtils.clean(_sensitivity, 0, 0));
   }
-  
+
   /**
    * Return a clean sensitivity by sorting the times and adding the duplicate times.
    * @param relTol Relative tolerance - if the net divided by gross sensitivity is less than this it is ignored/removed 
@@ -85,6 +85,17 @@ public class InterestRateCurveSensitivity {
    */
   public InterestRateCurveSensitivity clean(final double relTol, final double absTol) {
     return new InterestRateCurveSensitivity(InterestRateCurveSensitivityUtils.clean(_sensitivity, relTol, absTol));
+  }
+
+  /**
+   * Compare two sensitivities with a given tolerance. The tolerance is used for both the time and the value. The two sensitivities are suppose to be in the same time order.
+   * @param sensi1 The first sensitivity.
+   * @param sensi2 The second sensitivity.
+   * @param tolerance The tolerance.
+   * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
+   */
+  public static boolean compare(final InterestRateCurveSensitivity sensi1, final InterestRateCurveSensitivity sensi2, double tolerance) {
+    return InterestRateCurveSensitivityUtils.compare(sensi1.getSensitivities(), sensi2.getSensitivities(), tolerance);
   }
 
   @Override

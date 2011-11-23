@@ -53,8 +53,8 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
     Validate.notNull(error, "null errors");
     Validate.notNull(model, "null model");
     final int n = strikes.length;
-    Validate.isTrue(n == impliedVols.length, "vols not the same length as marketData");
-    Validate.isTrue(n == error.length, "errors not the same length as marketData");
+    Validate.isTrue(n == impliedVols.length, "vols not the same length as strikes");
+    Validate.isTrue(n == error.length, "errors not the same length as strikes");
 
     _nOptions = n;
     _marketValues = new DoubleMatrix1D(impliedVols);

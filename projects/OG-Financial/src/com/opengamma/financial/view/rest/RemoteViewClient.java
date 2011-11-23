@@ -236,14 +236,14 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   }
 
   @Override
-  public ViewResultMode getJobResultMode() {
-    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_JOB_RESULT_MODE);
+  public ViewResultMode getFragmentResultMode() {
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_FRAGMENT_RESULT_MODE);
     return getClient().access(uri).get(ViewResultMode.class);
   }
 
   @Override
-  public void setJobResultMode(ViewResultMode viewResultMode) {
-    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_JOB_RESULT_MODE);
+  public void setFragmentResultMode(ViewResultMode viewResultMode) {
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_FRAGMENT_RESULT_MODE);
     getClient().access(uri).put(viewResultMode);
   }
 

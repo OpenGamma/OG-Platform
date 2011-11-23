@@ -5,9 +5,6 @@
  */
 package com.opengamma.financial.analytics.timeseries.sampling;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.Validate;
@@ -26,40 +23,36 @@ public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunction implements T
     Validate.notNull(ts, "time series");
     Validate.notNull(schedule, "schedule");
     final LocalDateDoubleTimeSeries localDateTS = ts.toLocalDateDoubleTimeSeries();
-    final List<LocalDate> tsDates = localDateTS.times();
-    double[] values = localDateTS.valuesArrayFast();
+    final LocalDate[] tsDates = localDateTS.timesArray();
+    final double[] values = localDateTS.valuesArrayFast();
     
-    
-    final List<LocalDate> scheduledDates = new ArrayList<LocalDate>(schedule.length);
-    final List<Double> scheduledData = new ArrayList<Double>(schedule.length);
+    final double[] scheduledData = new double[schedule.length];
     
     int j = 0;
     for (int i = 0; i < schedule.length; i++) {
       LocalDate localDate = schedule[i];
-      scheduledDates.add(localDate);
-      
-      if (j < tsDates.size()) { //TODO break out
-        if (tsDates.get(j).equals(localDate)) {
-          scheduledData.add(values[j]);
+      if (j < tsDates.length) { //TODO break out
+        if (tsDates[j].equals(localDate)) {
+          scheduledData[i] = values[j];
           j++;
           continue;
         }
-        while (j < tsDates.size() && tsDates.get(j).isBefore(localDate)) {
+        while (j < tsDates.length && tsDates[j].isBefore(localDate)) {
           j++;
         }
-        if (j < tsDates.size() && tsDates.get(j).equals(localDate)) {
-          scheduledData.add(values[j]);
+        if (j < tsDates.length && tsDates[j].equals(localDate)) {
+          scheduledData[i] = values[j];
           j++;
           continue;
         }
       }
       if (j > 0) {
-        scheduledData.add(values[j - 1]); //Should never go too high
+        scheduledData[i] = values[j - 1]; //Should never go too high
       } else {
-        scheduledData.add(values[0]);
+        scheduledData[i] = values[0];
       }
     }
     
-    return new ArrayLocalDateDoubleTimeSeries(scheduledDates, scheduledData);
+    return new ArrayLocalDateDoubleTimeSeries(schedule, scheduledData);
   }
 }

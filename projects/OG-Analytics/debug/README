@@ -1,0 +1,23 @@
+A utility for testing/debugging Java classpaths with Dexy.
+
+When run using Dexy, this utility will report on which JAR files are providing class definitions.
+
+You can edit the .java file to include other classes for reporting.
+
+To run this do:
+
+dexy setup
+dexy
+
+from within this directory.
+
+Report will be in output/DebugClasses.txt
+
+Entries will look something like this:
+
+> class com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction
+>   jar:file:/mnt/OG-Platform/lib/jar/com.opengamma/og-analytics/og-analytics-0.9.0-local-20111116215934.jar!
+>       /com/opengamma/financial/model/volatility/smile/function/SABRHaganVolatilityFunction.class
+>   Found 1 constructors
+>       Constructor 1 of 1 - takes 0 parameters
+

@@ -20,15 +20,15 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.Convention;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
-public class CashDefinition implements FixedIncomeInstrumentDefinition<Cash> {
+public class CashDefinition implements InstrumentDefinition<Cash> {
   private static final Logger s_logger = LoggerFactory.getLogger(CashDefinition.class);
   private final Currency _currency;
   private final Convention _convention;
@@ -139,12 +139,12 @@ public class CashDefinition implements FixedIncomeInstrumentDefinition<Cash> {
   }
 
   @Override
-  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitCashDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitCashDefinition(this);
   }
 

@@ -211,6 +211,7 @@ import com.opengamma.util.tuple.Pair;
         s_logger.debug("Resolved output not produced elsewhere");
         return produceSubstitute(context, inputs, resolvedOutput, resolvedOutputValues);
       }
+      // TODO: only use an aggregate object if there is more than one producer; otherwise use the producer directly
       final AggregateResolvedValueProducer aggregate = new AggregateResolvedValueProducer(getValueRequirement());
       for (Map.Entry<ResolveTask, ResolvedValueProducer> reducingTask : reducingTasks.entrySet()) {
         if (!getTask().hasParent(reducingTask.getKey())) {
@@ -238,6 +239,10 @@ import com.opengamma.util.tuple.Pair;
 
     private boolean produceSubstitute(final GraphBuildingContext context, final Map<ValueSpecification, ValueRequirement> inputs, final ValueSpecification resolvedOutput,
         final Set<ValueSpecification> resolvedOutputs) {
+      if (inputs.containsKey(resolvedOutput)) {
+        s_logger.debug("Backtracking on identity reduction");
+        return false;
+      }
       final FunctionApplicationWorker newWorker = new FunctionApplicationWorker(getValueRequirement());
       final ResolvedValueProducer producer = context.declareTaskProducing(resolvedOutput, getTask(), newWorker);
       if (producer == newWorker) {
@@ -295,10 +300,7 @@ import com.opengamma.util.tuple.Pair;
 
       @Override
       public final void pump(final GraphBuildingContext context) {
-        if (_pump == null) {
-          // Either pump called twice for a resolve, called before the first resolve, or after failed
-          throw new IllegalStateException();
-        } else {
+        if (_pump != null) {
           s_logger.debug("Pumping underlying delegate");
           ResolutionPump pump = _pump;
           _pump = null;
@@ -461,6 +463,7 @@ import com.opengamma.util.tuple.Pair;
       if (originalOutputValues == null) {
         s_logger.info("Function {} returned NULL for getResults on {}", functionDefinition, getComputationTarget());
         final ResolutionFailure failure = ResolutionFailure.functionApplication(getValueRequirement(), getFunction(), getResolvedOutput()).getResultsFailed();
+        context.discardTaskProducing(getResolvedOutput(), getTask());
         worker.storeFailure(failure);
         worker.finished(context);
         storeFailure(failure);
@@ -492,6 +495,7 @@ import com.opengamma.util.tuple.Pair;
       if (inputRequirements == null) {
         s_logger.info("Function {} returned NULL for getRequirements on {}", functionDefinition, getValueRequirement());
         final ResolutionFailure failure = ResolutionFailure.functionApplication(getValueRequirement(), getFunction(), getResolvedOutput()).getRequirementsFailed();
+        context.discardTaskProducing(getResolvedOutput(), getTask());
         worker.storeFailure(failure);
         worker.finished(context);
         storeFailure(failure);
@@ -505,6 +509,7 @@ import com.opengamma.util.tuple.Pair;
         s_logger.debug("Function {} requires no inputs", functionDefinition);
         worker.setPumpingState(state, 0);
         if (!state.inputsAvailable(context, Collections.<ValueSpecification, ValueRequirement>emptyMap())) {
+          context.discardTaskProducing(getResolvedOutput(), getTask());
           setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
           worker.finished(context);
         }
@@ -528,11 +533,6 @@ import com.opengamma.util.tuple.Pair;
       producer.addCallback(context, state);
       producer.release(context);
     }
-  }
-
-  @Override
-  protected void pump(final GraphBuildingContext context) {
-    s_logger.debug("Ignoring pump at {}", this);
   }
 
   @Override

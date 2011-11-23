@@ -5,14 +5,14 @@
  */
 package com.opengamma.financial.forex.method;
 
-import com.opengamma.financial.forex.calculator.ForexDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Interface for Forex pricing methods.
  */
-//TODO: Class name to change very soon! Pricing method interface should probably be the same for all asset classes.
+//TODO: Class name to be change! Pricing method interface should probably be the same for all asset classes.
 public interface ForexPricingMethod {
 
   /**
@@ -21,7 +21,7 @@ public interface ForexPricingMethod {
    * @param curves The yield curves.
    * @return The present value.
    */
-  MultipleCurrencyAmount presentValue(final ForexDerivative instrument, final YieldCurveBundle curves);
+  MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves);
 
   /**
    * Computes the currency exposure of the instrument.
@@ -29,6 +29,6 @@ public interface ForexPricingMethod {
    * @param curves The yield curves.
    * @return The currency exposure.
    */
-  MultipleCurrencyAmount currencyExposure(ForexDerivative instrument, YieldCurveBundle curves);
+  MultipleCurrencyAmount currencyExposure(InstrumentDerivative instrument, YieldCurveBundle curves);
 
 }

@@ -37,7 +37,7 @@ public final class InstrumentSensitivityCalculator {
    * @param nsc A {@link PresentValueNodeSensitivityCalculator}, not null
    * @return bucked delta
    */
-  public DoubleMatrix1D calculateFromPresentValue(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves,
+  public DoubleMatrix1D calculateFromPresentValue(final InstrumentDerivative ird, final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves,
       final DoubleMatrix1D couponSensitivity, final DoubleMatrix2D pvJacobian, final PresentValueNodeSensitivityCalculator nsc) {
     Validate.notNull(nsc, "node sensitivity calculator");
     final DoubleMatrix1D nodeSense = nsc.calculateSensitivities(ird, fixedCurves, interpolatedCurves);
@@ -69,7 +69,7 @@ public final class InstrumentSensitivityCalculator {
    * @param  nsc A {@link PresentValueNodeSensitivityCalculator}, not null
    * @return bucked delta
    */
-  public DoubleMatrix1D calculateFromParRate(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves,
+  public DoubleMatrix1D calculateFromParRate(final InstrumentDerivative ird, final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves,
       final DoubleMatrix2D parRateJacobian, final PresentValueNodeSensitivityCalculator nsc) {
     Validate.notNull(nsc, "node sensitivity calculator");
     final DoubleMatrix1D nodeSensitivities = nsc.calculateSensitivities(ird, fixedCurves, interpolatedCurves);

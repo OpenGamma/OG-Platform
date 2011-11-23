@@ -77,6 +77,7 @@ import com.opengamma.financial.security.option.BarrierPayoffStyle;
 import com.opengamma.financial.security.option.BermudanExerciseType;
 import com.opengamma.financial.security.option.CappedPoweredPayoffStyle;
 import com.opengamma.financial.security.option.CashOrNothingPayoffStyle;
+import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
@@ -89,6 +90,7 @@ import com.opengamma.financial.security.option.FixedStrikeLookbackPayoffStyle;
 import com.opengamma.financial.security.option.FloatingStrikeLookbackPayoffStyle;
 import com.opengamma.financial.security.option.GapPayoffStyle;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.PayoffStyle;
 import com.opengamma.financial.security.option.PoweredPayoffStyle;
 import com.opengamma.financial.security.option.SimpleChooserPayoffStyle;
@@ -557,10 +559,7 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   }
 
   private static <T extends ManageableSecurity> Collection<T> permuteTestSecurities(final Class<T> clazz) {
-    try {
-      clazz.newInstance();
-    } catch (Exception ex) {
-    }
+    intializeClass(clazz);
     MetaBean mb = JodaBeanUtils.metaBean(clazz);
     List<MetaProperty<Object>> mps = new ArrayList<MetaProperty<Object>>(mb.metaPropertyMap().values());
     
@@ -603,6 +602,31 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
       s_logger.debug("{}", o);
     }
     return objects;
+  }
+
+  private static <T> void intializeClass(final Class<T> clazz) {
+    // call the default constructor to initialize the class
+    try {
+      Constructor<T> defaultConstructor = getDefaultConstructor(clazz);
+      if (defaultConstructor != null) {
+        defaultConstructor.setAccessible(true);
+        defaultConstructor.newInstance();
+      }
+    } catch (Exception ex) {
+    }
+  }
+
+  private static <T> Constructor<T> getDefaultConstructor(final Class<T> clazz) {
+    Constructor<T> defaultConstructor = null;
+    Constructor<?>[] declaredConstructors = clazz.getDeclaredConstructors();
+    for (Constructor<?> constructor : declaredConstructors) {
+      Class<?>[] parameterTypes = constructor.getParameterTypes();
+      if (parameterTypes.length == 0) {
+        defaultConstructor = (Constructor<T>) constructor;
+        break;
+      }
+    }
+    return defaultConstructor;
   }
 
   protected abstract <T extends ManageableSecurity> void assertSecurity(final Class<T> securityClass, final T security);
@@ -682,6 +706,12 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   public void testEquityOptionSecurity() {
     assertSecurities(EquityOptionSecurity.class);
   }
+  
+  @Override
+  @Test
+  public void testEquityBarrierOptionSecurity() {
+    assertSecurities(EquityBarrierOptionSecurity.class);
+  }
 
   @Override
   @Test
@@ -705,6 +735,12 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   @Test
   public void testFXOptionSecurity() {
     assertSecurities(FXOptionSecurity.class);
+  }
+  
+  @Override
+  @Test
+  public void testNonDeliverableFXOptionSecurity() {
+    assertSecurities(NonDeliverableFXOptionSecurity.class);
   }
   
   @Override

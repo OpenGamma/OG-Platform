@@ -46,11 +46,11 @@ public class FieldHistoryStore {
     }
   }
   
-  public void clear() {
+  public synchronized void clear() {
     _lastKnownValues.clear();
   }
   
-  public boolean isEmpty() {
+  public synchronized boolean isEmpty() {
     return _lastKnownValues.isEmpty();
   }
   

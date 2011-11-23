@@ -307,15 +307,13 @@
         height: 14px;
       }
 
-      #viewstatus {
-        margin: 0;
-        padding: 0;
-        vertical-align: middle;
-        margin-right: 5px;
-        display: inline-block;
+      #resultsViewer #tabs #viewstatus {
+        float: right;
+        margin: 0.4em 4em 0 0;
       }
 
-      #viewstatus p {
+      #resultsViewer #tabs #viewstatus p {
+        font-weight: normal;
         margin: 0;
         padding: 0;
       }
@@ -394,7 +392,7 @@
         margin: 0 0.5em;
       }
       
-      .live-market-data {
+      .standard-entry {
         font-style: italic;
       }
       
@@ -453,7 +451,6 @@
       </div>
       <div id="currentviewcontrols" style="position: absolute; right: 5px; top: 7px;">
       <div></div>
-        <div id="viewstatus"><p>No view loaded</p></div>
         <div id="resume" class="imgbutton resume"></div>
         <div id="pause" class="imgbutton pause"></div>
       </div>

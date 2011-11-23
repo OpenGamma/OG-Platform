@@ -37,7 +37,7 @@ public abstract class FDCurveSensitivityCalculator {
    * @param absTol If the absolute value of a sensitivities is below this value it is ignored 
    * @return Sensitivities at a given points 
    */
-  public static final List<DoublesPair> curveSensitvityFDCalculator(final InterestRateDerivative ird, AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator,
+  public static final List<DoublesPair> curveSensitvityFDCalculator(final InstrumentDerivative ird, AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator,
       final YieldCurveBundle curves, final String curveName, final double[] times, final double absTol) {
 
     Validate.notNull(times, "null times");
@@ -76,7 +76,7 @@ public abstract class FDCurveSensitivityCalculator {
    * @param absTol If the absolute value of a sensitivities is below this value it is ignored 
    * @return Sensitivities at a given points 
    */
-  public static final List<DoublesPair> curveSensitvityFDCalculator(final InterestRateDerivative ird, PricingMethod method, final YieldCurveBundle curves, final String curveName,
+  public static final List<DoublesPair> curveSensitvityFDCalculator(final InstrumentDerivative ird, PricingMethod method, final YieldCurveBundle curves, final String curveName,
       final double[] times, final double absTol) {
 
     Validate.notNull(times, "null times");
@@ -113,7 +113,7 @@ public abstract class FDCurveSensitivityCalculator {
    * @param t The time along the curve. <b>Note</b> This should be a known sensitivity point or the result will be zero 
    * @return Sensitivity at a given point 
    */
-  public static final double curveSensitvityFDCalculator(final InterestRateDerivative ird, AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator, final YieldCurveBundle curves,
+  public static final double curveSensitvityFDCalculator(final InstrumentDerivative ird, AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator, final YieldCurveBundle curves,
       final String curveName, final double t) {
     Validate.notNull(ird, "null ird");
     Validate.notNull(calculator, "null calculator");
@@ -124,7 +124,7 @@ public abstract class FDCurveSensitivityCalculator {
     return impFDCalculator(ird, calculator, curves, curveName, t);
   }
 
-  private static double impFDCalculator(final InterestRateDerivative ird, AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator, final YieldCurveBundle curves,
+  private static double impFDCalculator(final InstrumentDerivative ird, AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator, final YieldCurveBundle curves,
       final String curveName, final double t) {
 
     final double eps = 1e-6;
@@ -155,7 +155,7 @@ public abstract class FDCurveSensitivityCalculator {
     return (up - down) / 2 / eps;
   }
 
-  private static double impFDCalculator(final InterestRateDerivative ird, PricingMethod method, final YieldCurveBundle curves, final String curveName, final double t) {
+  private static double impFDCalculator(final InstrumentDerivative ird, PricingMethod method, final YieldCurveBundle curves, final String curveName, final double t) {
 
     final double eps = 1e-6;
 

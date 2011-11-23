@@ -26,12 +26,7 @@ public class AgricultureFutureSecurity extends CommodityFutureSecurity {
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public AgricultureFutureSecurity() {
+  AgricultureFutureSecurity() { //For builder
     super();
   }
 

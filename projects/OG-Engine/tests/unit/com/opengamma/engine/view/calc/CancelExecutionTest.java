@@ -20,9 +20,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.time.Instant;
 
-import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
-import com.opengamma.engine.view.listener.ComputationCycleResultListener;
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,12 +56,14 @@ import com.opengamma.engine.test.MockViewDefinitionRepository;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
+import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.LocalCalculationNode;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
@@ -74,6 +73,7 @@ import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGa
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsGatherer;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.listener.ComputationResultListener;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueId;
@@ -120,9 +120,9 @@ public class CancelExecutionTest {
     }
   }
 
-  private ComputationCycleResultListener computationCycleResultListener = new ComputationCycleResultListener() {
+  private ComputationResultListener computationCycleResultListener = new ComputationResultListener() {
     @Override
-    public void jobResultReceived(ViewResultModel result) {
+    public void resultAvailable(ViewComputationResultModel result) {
       //ignore
     }
   };

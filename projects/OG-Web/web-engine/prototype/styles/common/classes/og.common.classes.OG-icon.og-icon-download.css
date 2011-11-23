@@ -1,0 +1,10 @@
+.OG-icon.og-icon-download:after {
+  background-position: -30px -9px;
+  background-color: transparent;
+  height: 6px;
+  width: 6px;
+  z-index: 2;
+  position: absolute;
+  top: 8px;
+  right: -9px;
+}

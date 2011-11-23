@@ -6,6 +6,7 @@
 package com.opengamma.financial.expression.deprecated;
 
 import java.io.StringReader;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +41,11 @@ public final class ExpressionParser extends UserExpressionParser {
   @Override
   public void setConstant(final String var, final Object value) {
     _constants.put(var, value);
+  }
+
+  @Override
+  public void setFunction(final String object, final String name, final Method method) {
+    throw new UnsupportedOperationException();
   }
 
   private static String extractStringFromToken(final String tokenText) {

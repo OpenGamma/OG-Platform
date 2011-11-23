@@ -23,6 +23,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeType;
+import com.opengamma.extsql.ExtSqlBundle;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -32,9 +33,9 @@ import com.opengamma.master.AbstractHistoryRequest;
 import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.master.AbstractMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 
@@ -54,13 +55,17 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDocumentDbMaster.class);
 
   /**
-   * The change manager.
+   * External SQL bundle.
    */
-  private ChangeManager _changeManager = new BasicChangeManager();
+  private ExtSqlBundle _externalSqlBundle;
   /**
    * The maximum number of retries.
    */
   private int _maxRetries = 10;
+  /**
+   * The change manager.
+   */
+  private ChangeManager _changeManager = new BasicChangeManager();
 
   /**
    * Creates an instance.
@@ -70,6 +75,25 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    */
   public AbstractDocumentDbMaster(final DbConnector dbConnector, final String defaultScheme) {
     super(dbConnector, defaultScheme);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the external SQL bundle.
+   * 
+   * @return the external SQL bundle, not null
+   */
+  public ExtSqlBundle getExtSqlBundle() {
+    return _externalSqlBundle;
+  }
+
+  /**
+   * Sets the external SQL bundle.
+   * 
+   * @param bundle  the external SQL bundle, not null
+   */
+  public void setExtSqlBundle(ExtSqlBundle bundle) {
+    _externalSqlBundle = bundle;
   }
 
   //-------------------------------------------------------------------------
@@ -164,7 +188,8 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     final VersionCorrection vc = (versionCorrection.containsLatest() ? versionCorrection.withLatestFixed(now()) : versionCorrection);
     final DbMapSqlParameterSource args = argsGetByOidInstants(objectId, vc);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final List<D> docs = namedJdbc.query(sqlGetByOidInstants(), args, extractor);
+    final String sql = getExtSqlBundle().getSql("GetByOidInstants", args);
+    final List<D> docs = namedJdbc.query(sql, args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException(masterName + " not found: " + objectId);
     }
@@ -188,20 +213,6 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   }
 
   /**
-   * Gets the SQL for a standard get by object identifier at instants.
-   * 
-   * @return the SQL, not null
-   */
-  protected String sqlGetByOidInstants() {
-    return sqlSelectFrom() +
-      "WHERE main.oid = :doc_oid " +
-        "AND main.ver_from_instant <= :version_as_of AND main.ver_to_instant > :version_as_of " +
-        "AND main.corr_from_instant <= :corrected_to AND main.corr_to_instant > :corrected_to " +
-      sqlAdditionalWhere() +
-      sqlAdditionalOrderBy(true);
-  }
-
-  /**
    * Performs a standard get by versioned unique identifier.
    * 
    * @param uniqueId  the versioned unique identifier, not null
@@ -216,7 +227,8 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     
     final DbMapSqlParameterSource args = argsGetById(uniqueId);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final List<D> docs = namedJdbc.query(sqlGetById(), args, extractor);
+    final String sql = getExtSqlBundle().getSql("GetById", args);
+    final List<D> docs = namedJdbc.query(sql, args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException(masterName + " not found: " + uniqueId);
     }
@@ -234,16 +246,6 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
       .addValue("doc_oid", extractOid(uniqueId))
       .addValue("doc_id", extractRowId(uniqueId));
     return args;
-  }
-
-  /**
-   * Gets the SQL for a standard get by versioned unique identifier.
-   * 
-   * @return the SQL, not null
-   */
-  protected String sqlGetById() {
-    // extra check for oid ensures that Db~100~1 doesn't match DB~101~0
-    return sqlSelectFrom() + "WHERE main.id = :doc_id AND main.oid = :doc_oid " + sqlAdditionalWhere() + sqlAdditionalOrderBy(true);
   }
 
   //-------------------------------------------------------------------------
@@ -267,7 +269,8 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     s_logger.debug("history {}", request);
     
     final DbMapSqlParameterSource args = argsHistory(request);
-    searchWithPaging(request.getPagingRequest(), sqlHistory(request), args, extractor, result);
+    final String[] sql = {getExtSqlBundle().getSql("History", args), getExtSqlBundle().getSql("HistoryCount", args)};
+    searchWithPaging(request.getPagingRequest(), sql, args, extractor, result);
     return result;
   }
 
@@ -284,58 +287,19 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
       .addTimestampNullIgnored("versions_to_instant", request.getVersionsToInstant())
       .addTimestampNullIgnored("corrections_from_instant", request.getCorrectionsFromInstant())
       .addTimestampNullIgnored("corrections_to_instant", request.getCorrectionsToInstant());
-    return args;
-  }
-
-  /**
-   * Gets the SQL for searching the history of a document.
-   * 
-   * @param request  the request, not null
-   * @return the SQL search and count, not null
-   */
-  protected String[] sqlHistory(final AbstractHistoryRequest request) {
-    String where = sqlHistoryWhere(request);
-    String selectFromWhereInner = "SELECT id FROM " + mainTableName() + " " + where;
-    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY ver_from_instant DESC, corr_from_instant DESC ", request.getPagingRequest());
-    String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main.ver_from_instant DESC, main.corr_from_instant DESC" + sqlAdditionalOrderBy(false);
-    String count = "SELECT COUNT(*) FROM " + mainTableName() + " " + where;
-    return new String[] {search, count};
-  }
-
-  /**
-   * Gets the SQL where clause for searching the history of a document.
-   * 
-   * @param request  the request, not null
-   * @return the SQL where clause, not null
-   */
-  protected String sqlHistoryWhere(final AbstractHistoryRequest request) {
-    String where = "WHERE oid = :doc_oid ";
     if (request.getVersionsFromInstant() != null && request.getVersionsFromInstant().equals(request.getVersionsToInstant())) {
-      where += "AND ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant ";
+      args.addValue("sql_history_versions", "Point");
     } else {
-      if (request.getVersionsFromInstant() != null) {
-        where += "AND ((ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant) " +
-                            "OR ver_from_instant >= :versions_from_instant) ";
-      }
-      if (request.getVersionsToInstant() != null) {
-        where += "AND ((ver_from_instant <= :versions_to_instant AND ver_to_instant > :versions_to_instant) " +
-                            "OR ver_to_instant < :versions_to_instant) ";
-      }
+      args.addValue("sql_history_versions", "Range");
     }
     if (request.getCorrectionsFromInstant() != null && request.getCorrectionsFromInstant().equals(request.getCorrectionsToInstant())) {
-      where += "AND corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant ";
+      args.addValue("sql_history_corrections", "Point");
     } else {
-      if (request.getCorrectionsFromInstant() != null) {
-        where += "AND ((corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant) " +
-                            "OR corr_from_instant >= :corrections_from_instant) ";
-      }
-      if (request.getCorrectionsToInstant() != null) {
-        where += "AND ((corr_from_instant <= :corrections_to_instant AND ver_to_instant > :corrections_to_instant) " +
-                            "OR corr_to_instant < :corrections_to_instant) ";
-      }
+      args.addValue("sql_history_corrections", "Range");
     }
-    where += sqlAdditionalWhere();
-    return where;
+    args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
+    args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
+    return args;
   }
 
   //-------------------------------------------------------------------------
@@ -629,22 +593,11 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
       .addValue("doc_id", extractRowId(document.getUniqueId()))
       .addTimestamp("ver_to_instant", document.getVersionToInstant())
       .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);
-    int rowsUpdated = getJdbcTemplate().update(sqlUpdateVersionToInstant(), args);
+    final String sql = getExtSqlBundle().getSql("UpdateVersionToInstant", args);
+    int rowsUpdated = getJdbcTemplate().update(sql, args);
     if (rowsUpdated != 1) {
       throw new IncorrectUpdateSemanticsDataAccessException("Update end version instant failed, rows updated: " + rowsUpdated);
     }
-  }
-
-  /**
-   * Gets the SQL for updating the end version of a document.
-   * 
-   * @return the SQL, not null
-   */
-  protected String sqlUpdateVersionToInstant() {
-    return "UPDATE " + mainTableName() + " " +
-              "SET ver_to_instant = :ver_to_instant " +
-            "WHERE id = :doc_id " +
-              "AND ver_to_instant >= :max_instant ";
   }
 
   //-------------------------------------------------------------------------
@@ -672,66 +625,11 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
       .addValue("doc_id", extractRowId(document.getUniqueId()))
       .addTimestamp("corr_to_instant", document.getCorrectionToInstant())
       .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);
-    int rowsUpdated = getJdbcTemplate().update(sqlUpdateCorrectionToInstant(), args);
+    final String sql = getExtSqlBundle().getSql("UpdateCorrectionToInstant", args);
+    int rowsUpdated = getJdbcTemplate().update(sql, args);
     if (rowsUpdated != 1) {
       throw new IncorrectUpdateSemanticsDataAccessException("Update end correction instant failed, rows updated: " + rowsUpdated);
     }
   }
-
-  /**
-   * Gets the SQL for updating the end correction of a document.
-   * 
-   * @return the SQL, not null
-   */
-  protected String sqlUpdateCorrectionToInstant() {
-    return "UPDATE " + mainTableName() + " " +
-              "SET corr_to_instant = :corr_to_instant " +
-            "WHERE id = :doc_id " +
-              "AND corr_to_instant = :max_instant ";
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the SQL select-from clause.
-   * The main table must be aliased to 'main'.
-   * 
-   * @return the SQL select-from, not null
-   */
-  protected abstract String sqlSelectFrom();
-
-  /**
-   * Gets the additional SQL where clause added at the end.
-   * This is used to refine the search space, and must start with 'AND' and end
-   * with a space. It may be an empty string.
-   * <p>
-   * The default value is an empty string.
-   * 
-   * @return the SQL where, not null
-   */
-  protected String sqlAdditionalWhere() {
-    return "";
-  }
-
-  /**
-   * Gets the additional SQL order-by clause added at the end.
-   * This is used to sort joined tables, and must start with 'ORDER BY' or ', ' depending
-   * on the flag, and end with a space. It may be a single space.
-   * <p>
-   * The default value is a single space.
-   * 
-   * @param orderByPrefix  true to prefix by 'ORDER BY', false to prefix by comma ', '.
-   * @return the SQL order by, not null
-   */
-  protected String sqlAdditionalOrderBy(final boolean orderByPrefix) {
-    return " ";
-  }
-
-  /**
-   * Gets the main table.
-   * This table must have the columns id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant.
-   * 
-   * @return the main table, not null
-   */
-  protected abstract String mainTableName();
 
 }

@@ -1,0 +1,32 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.financial.security.option {
+ 
+  /**
+   * An equity barrier option security.
+   */
+  message EquityBarrierOptionSecurity extends FinancialSecurity {
+    required string securityType [default = "EQUITY_BARRIER_OPTION"];
+    
+    required OptionType optionType;
+    required double strike; 
+    required com.opengamma.util.money.Currency currency;
+    required id.ExternalId underlyingIdentifier;
+    required ExerciseType exerciseType;
+    required util.time.Expiry expiry;
+    required double pointValue;
+    required string exchange;
+    
+    required BarrierType barrierType;
+    required BarrierDirection barrierDirection;
+    required MonitoringType monitoringType;
+    required SamplingFrequency samplingFrequency;
+    
+    required double barrierLevel;
+  }
+
+}

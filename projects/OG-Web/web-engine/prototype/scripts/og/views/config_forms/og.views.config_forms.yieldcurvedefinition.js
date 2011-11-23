@@ -16,7 +16,7 @@ $.register_module({
         return function (config) {
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
-                orig_name = config.data.template_data.name, submit_type,
+                orig_name = config.data.template_data.name,
                 resource_id = config.data.template_data.object_id,
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler,
                 master = config.data.template_data.configJSON.data, strips,
@@ -35,7 +35,7 @@ $.register_module({
                     [['strip', INDX, NUMF].join('.'),       Form.type.BYT],
                     [['strip', INDX, 'tenor'].join('.'),    Form.type.STR],
                     [['strip', INDX, 'type'].join('.'),     Form.type.STR],
-                    ['uniqueId',                            Form.type.STR],
+                    ['uniqueId',                            Form.type.STR]
                 ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {}),
                 form = new Form({
                     module: 'og.views.forms.yield-curve-definition',
@@ -57,7 +57,7 @@ $.register_module({
                         index: ['strip', idx, CONV].join('.'), placeholder: 'Please select...',
                         data_generator: function (handler) {
                             api.configs.get({
-                                page: 'all', name: '*_' + currency, type: CURV, cache_for: 30 * 1000,
+                                page: '*', name: '*_' + currency, type: CURV, cache_for: 30 * 1000,
                                 handler: function (result) {
                                     handler(result.data.data.map(function (val) {
                                         var value = val.split('|')[1].match(/^([^_]+)/)[1];
@@ -93,8 +93,8 @@ $.register_module({
                         ]
                     });
                 },
-                save_resource = function (result, as_new) {
-                    var data = result.data, meta = result.meta;
+                save_resource = function (result) {
+                    var data = result.data, meta = result.meta, as_new = result.extras.as_new;
                     if (as_new && (orig_name === data.name + '_' + data.currency))
                         return window.alert('Please select a new name and/or currency.');
                     api.configs.put({
@@ -120,17 +120,9 @@ $.register_module({
                     ';
                     $('.ui-layout-inner-center .ui-layout-header').html(header);
                     $(form_id + ' [name=currency]').val(master.currency);
-                    if (deleted || is_new)
-                        $(form_id + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
-                    if (is_new) $(form_id + ' .og-js-submit[value=save_as_new]').text('Save');
-                    load_handler();
+                    load_handler(form);
                 }},
-                {type: 'click', selector: '#' + form.id + ' .og-js-submit', handler: function (e) {
-                    submit_type = $(e.target).val();
-                }},
-                {type: 'form:submit', handler: function (result) {
-                    save_resource(result, submit_type === 'save_as_new');
-                }},
+                {type: 'form:submit', handler: save_resource},
                 {type: 'change', selector: form_id + ' [name=currency]', handler: function (e) {
                     var currency = $(e.target).val();
                     $('.ui-layout-inner-center  .og-js-currency').text(currency);
@@ -168,7 +160,7 @@ $.register_module({
                     },
                     data_generator: function (handler) {
                         api.regions.get({
-                            page: 'all',
+                            page: '*',
                             handler: function (result) {
                                 handler(result.data.data.map(function (region) {
                                     var split = region.split('|');

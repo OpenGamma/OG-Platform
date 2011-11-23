@@ -17,7 +17,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Returns the change in present value of an instrument due to a parallel move of the yield curve, scaled so that the move is 1bp.
  *  
  */
-public final class PV01Calculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, Double>> {
+public final class PV01Calculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, Double>> {
   private static final PV01Calculator s_instance = new PV01Calculator();
   private final PresentValueCurveSensitivityCalculator _pvsc = PresentValueCurveSensitivityCalculator.getInstance();
 
@@ -35,7 +35,7 @@ public final class PV01Calculator extends AbstractInterestRateDerivativeVisitor<
    * @return a Map between curve name and PV01 for that curve 
    */
   @Override
-  public Map<String, Double> visit(final InterestRateDerivative ird, final YieldCurveBundle curves) {
+  public Map<String, Double> visit(final InstrumentDerivative ird, final YieldCurveBundle curves) {
     final Map<String, List<DoublesPair>> sense = _pvsc.visit(ird, curves);
     final Map<String, Double> res = new HashMap<String, Double>();
     final Iterator<Entry<String, List<DoublesPair>>> iterator = sense.entrySet().iterator();

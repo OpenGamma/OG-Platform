@@ -21,8 +21,10 @@ import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
@@ -267,6 +269,15 @@ public class MasterHistoricalTimeSeriesSource
   }
 
   //-------------------------------------------------------------------------
+  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
+    return getMaster().getSummary(uniqueId);
+  }
+
+  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    return getMaster().getSummary(objectId, versionCorrection);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
       Set<ExternalIdBundle> identifierSet, String dataSource, String dataProvider, String dataField, LocalDate start,
@@ -285,5 +296,5 @@ public class MasterHistoricalTimeSeriesSource
   public String toString() {
     return "MasterHistoricalTimeSeriesSource[" + getMaster() + "]";
   }
-  
+
 }

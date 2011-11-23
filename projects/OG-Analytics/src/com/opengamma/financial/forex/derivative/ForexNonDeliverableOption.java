@@ -8,8 +8,9 @@ package com.opengamma.financial.forex.derivative;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.forex.calculator.ForexDerivative;
-import com.opengamma.financial.forex.calculator.ForexDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a non-deliverable foreign exchange European option. The option exercise date is the underlying NDF fixing date.
@@ -19,7 +20,7 @@ import com.opengamma.financial.forex.calculator.ForexDerivativeVisitor;
  * A put on a Forex on KRW / USD at strike 1124.00 is thus the right to pay 1.00 USD and receive 1124.00 KRW and cash settle the difference in USD at the fixing rate.
  * There is not a full put/call parity in NDO as the two currencies do not have a fully symmetric role.
  */
-public class ForexNonDeliverableOption implements ForexDerivative {
+public class ForexNonDeliverableOption implements InstrumentDerivative {
 
   /**
    * The underlying Forex transaction (the one entered into in case of exercise).
@@ -72,13 +73,45 @@ public class ForexNonDeliverableOption implements ForexDerivative {
     return _isLong;
   }
 
+  /**
+   * Gets the first currency.
+   * @return The currency.
+   */
+  public Currency getCurrency1() {
+    return _underlyingNDF.getCurrency1();
+  }
+
+  /**
+   * Gets the second currency.
+   * @return The currency.
+   */
+  public Currency getCurrency2() {
+    return _underlyingNDF.getCurrency2();
+  }
+
+  /**
+   * Gets the option strike.
+   * @return The strike.
+   */
+  public double getStrike() {
+    return _underlyingNDF.getExchangeRate();
+  }
+
+  /**
+   * Gets the option time to expiration.
+   * @return The time to expiration.
+   */
+  public double getExpiryTime() {
+    return _underlyingNDF.getFixingTime();
+  }
+
   @Override
-  public <S, T> T accept(ForexDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitForexNonDeliverableOption(this, data);
   }
 
   @Override
-  public <T> T accept(ForexDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitForexNonDeliverableOption(this);
   }
 

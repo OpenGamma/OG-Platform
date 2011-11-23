@@ -54,24 +54,29 @@ $.register_module({
                 toolbar: {
                     'default': {
                         buttons: [
-                            {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'new', enabled: 'OG-disabled'}
+                            {id: 'new', name: 'New', enabled: 'OG-disabled'},
+                            {id: 'save', name: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', name: 'Delete', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     },
                     active: {
                         buttons: [
-                            {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'new', enabled: 'OG-disabled'}
+                            {id: 'new', name: 'New', enabled: 'OG-disabled'},
+                            {id: 'save', name: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', name: 'Delete', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     }
                 }
             },
             default_details = og.views.common.default_details.partial(page_name, 'Holidays', options),
             details_page = function (args) {
-                // if new page, close south panel
-                check_state({args: args, conditions: [{new_page: og.views.common.layout.inner.close.partial('south')}]});
+                var layout = og.views.common.layout;
+                layout.inner.options.south.onclose = null;
+                layout.inner.close('south');
                 api.rest.holidays.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);

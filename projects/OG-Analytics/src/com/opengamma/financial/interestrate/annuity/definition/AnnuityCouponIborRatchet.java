@@ -9,8 +9,8 @@ import java.util.ArrayList;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
@@ -64,8 +64,8 @@ public class AnnuityCouponIborRatchet extends GenericAnnuity<Coupon> {
     return _isFixed;
   }
 
-  public InterestRateDerivative[] calibrationBasket(final RatchetIborCalibrationType type, final YieldCurveBundle curves) {
-    ArrayList<InterestRateDerivative> calibration = new ArrayList<InterestRateDerivative>();
+  public InstrumentDerivative[] calibrationBasket(final RatchetIborCalibrationType type, final YieldCurveBundle curves) {
+    ArrayList<InstrumentDerivative> calibration = new ArrayList<InstrumentDerivative>();
     switch (type) {
       case FORWARD_COUPON:
         int nbCpn = getNumberOfPayments();
@@ -96,16 +96,16 @@ public class AnnuityCouponIborRatchet extends GenericAnnuity<Coupon> {
       default:
         break;
     }
-    return calibration.toArray(new InterestRateDerivative[0]);
+    return calibration.toArray(new InstrumentDerivative[0]);
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitAnnuityCouponIborRatchet(this, data);
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitAnnuityCouponIborRatchet(this);
   }
 
