@@ -101,6 +101,10 @@ public class NonDeliverableFXOptionSecurity extends FinancialSecurity {
     setLongShort(LongShort.ofLong(isLong));
     setExerciseType(exerciseType);
     setDeliveryCurrency(deliveryCurrency);
+    
+    if (!deliveryCurrency.equals(putCurrency) && !deliveryCurrency.equals(callCurrency)) {
+      throw new IllegalArgumentException("Delivery currency was neither put nor call currency");
+    }
   }
 
   //-------------------------------------------------------------------------
