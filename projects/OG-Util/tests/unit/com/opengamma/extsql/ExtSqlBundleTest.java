@@ -284,6 +284,54 @@ public class ExtSqlBundleTest {
     assertEquals("SELECT * FROM foo WHERE var = :var ", sql1);
   }
 
+  public void test_if_varPresentBooleanFalseEqualsFalse() {
+    List<String> lines = Arrays.asList(
+        "@NAME(Test1)",
+        "  SELECT * FROM foo",
+        "  @IF(:var = false)",
+        "    WHERE var = :var"
+    );
+    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", Boolean.FALSE));
+    assertEquals("SELECT * FROM foo WHERE var = :var ", sql1);
+  }
+
+  public void test_if_varPresentBooleanFalseEqualsTrue() {
+    List<String> lines = Arrays.asList(
+        "@NAME(Test1)",
+        "  SELECT * FROM foo",
+        "  @IF(:var = true)",
+        "    WHERE var = :var"
+    );
+    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", Boolean.FALSE));
+    assertEquals("SELECT * FROM foo ", sql1);
+  }
+
+  public void test_if_varPresentBooleanTrueEqualsFalse() {
+    List<String> lines = Arrays.asList(
+        "@NAME(Test1)",
+        "  SELECT * FROM foo",
+        "  @IF(:var = false)",
+        "    WHERE var = :var"
+    );
+    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", Boolean.TRUE));
+    assertEquals("SELECT * FROM foo ", sql1);
+  }
+
+  public void test_if_varPresentBooleanTrueEqualsTrue() {
+    List<String> lines = Arrays.asList(
+        "@NAME(Test1)",
+        "  SELECT * FROM foo",
+        "  @IF(:var = true)",
+        "    WHERE var = :var"
+    );
+    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", Boolean.TRUE));
+    assertEquals("SELECT * FROM foo WHERE var = :var ", sql1);
+  }
+
   //-------------------------------------------------------------------------
   public void test_and_1and_varAbsent() {
     List<String> lines = Arrays.asList(
