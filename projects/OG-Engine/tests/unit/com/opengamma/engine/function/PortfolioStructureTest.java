@@ -7,16 +7,13 @@ package com.opengamma.engine.function;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
@@ -127,30 +124,6 @@ public class PortfolioStructureTest {
   public void test_getRootPortfolioNode_position_badChild() {
     final PortfolioStructure resolver = getPortfolioStructure();
     resolver.getRootPortfolioNode(_badPosition);
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_getAllPositions() {
-    final PortfolioStructure resolver = getPortfolioStructure();
-    assertNotNull(resolver);
-    List<Position> positions = resolver.getAllPositions(_child1);
-    assertNotNull(positions);
-    assertEquals(2, positions.size());
-    assertTrue(positions.contains(_position1));
-    assertTrue(positions.contains(_position2));
-    positions = resolver.getAllPositions(_root);
-    assertNotNull(positions);
-    assertEquals(2, positions.size());
-    assertTrue(positions.contains(_position1));
-    assertTrue(positions.contains(_position2));
-    positions = resolver.getAllPositions(_child2);
-    assertNotNull(positions);
-    assertEquals(2, positions.size());
-    assertTrue(positions.contains(_position1));
-    assertTrue(positions.contains(_position2));
-    positions = resolver.getAllPositions(_badChild);
-    assertNotNull(positions);
-    assertTrue(positions.isEmpty());
   }
 
 }
