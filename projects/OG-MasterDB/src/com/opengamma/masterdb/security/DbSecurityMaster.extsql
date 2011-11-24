@@ -1,0 +1,373 @@
+-- SQL for security master
+
+-- ==========================================================================
+@NAME(GetById)
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.name AS name,
+    main.sec_type AS sec_type,
+    main.detail_type AS detail_type,
+    raw.raw_data AS raw_data,
+    i.key_scheme AS key_scheme,
+    i.key_value AS key_value,
+    sa.key AS security_attr_key,
+    sa.value AS security_attr_value
+  FROM
+    sec_security main
+    LEFT JOIN sec_raw raw ON (raw.security_id = main.id)
+    LEFT JOIN sec_security2idkey si ON (si.security_id = main.id)
+    LEFT JOIN sec_idkey i ON (si.idkey_id = i.id)
+    LEFT JOIN sec_security_attribute sa ON (sa.security_id = main.id)
+  WHERE main.id = :doc_id
+    AND main.oid = :doc_oid
+
+
+-- ==========================================================================
+@NAME(GetByOidInstants)
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.name AS name,
+    main.sec_type AS sec_type,
+    main.detail_type AS detail_type,
+    raw.raw_data AS raw_data,
+    i.key_scheme AS key_scheme,
+    i.key_value AS key_value,
+    sa.key AS security_attr_key,
+    sa.value AS security_attr_value
+  FROM
+    sec_security main
+    LEFT JOIN sec_raw raw ON (raw.security_id = main.id)
+    LEFT JOIN sec_security2idkey si ON (si.security_id = main.id)
+    LEFT JOIN sec_idkey i ON (si.idkey_id = i.id)
+    LEFT JOIN sec_security_attribute sa ON (sa.security_id = main.id)
+  WHERE main.oid = :doc_oid
+    AND main.ver_from_instant <= :version_as_of AND main.ver_to_instant > :version_as_of
+    AND main.corr_from_instant <= :corrected_to AND main.corr_to_instant > :corrected_to
+
+
+-- ==========================================================================
+@NAME(Search)
+  WITH cte_docs AS ( @INSERT(SearchInner) )
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.name AS name,
+    main.sec_type AS sec_type,
+    main.detail_type AS detail_type,
+    raw.raw_data AS raw_data,
+    i.key_scheme AS key_scheme,
+    i.key_value AS key_value,
+    sa.key AS security_attr_key,
+    sa.value AS security_attr_value
+  FROM
+    sec_security main
+    INNER JOIN cte_docs ON main.id = cte_docs.id
+    LEFT JOIN sec_raw raw ON (raw.security_id = main.id)
+    LEFT JOIN sec_security2idkey si ON (si.security_id = main.id)
+    LEFT JOIN sec_idkey i ON (si.idkey_id = i.id)
+    LEFT JOIN sec_security_attribute sa ON (sa.security_id = main.id)
+  ORDER BY
+    main.@INSERT(:sort_order)
+
+
+-- ==========================================================================
+@NAME(SearchInner)
+  SELECT
+    sec_security.id AS id
+  FROM
+    sec_security
+    @IF(:sql_search_bond_join)
+      LEFT JOIN sec_bond ON (sec_bond.security_id = sec_security.id)
+  @INSERT(SearchWhere)
+  ORDER BY
+    @INSERT(:sort_order)
+  @OFFSETFETCH
+
+
+-- ==========================================================================
+@NAME(SearchCount)
+  SELECT
+    COUNT(sec_security.id)
+  FROM
+    sec_security
+    @IF(:sql_search_bond_join)
+      LEFT JOIN sec_bond ON (sec_bond.security_id = sec_security.id)
+  @INSERT(SearchWhere)
+
+
+-- ==========================================================================
+@NAME(SearchWhere)
+  WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
+    AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
+    @AND(:sql_search_object_ids)
+      oid IN ( @INSERT(:sql_search_object_ids) )
+    @AND(:sec_type)
+      UPPER(sec_type) = UPPER(:sec_type)
+    @AND(:name)
+      UPPER(name) @LIKE UPPER(:name)
+    @AND(:external_id_value)
+      id IN ( @INSERT(SelectKeyValue) )
+    @AND(:sql_search_external_ids_type = EXACT)
+      id IN ( @INSERT(SelectKeyValuesExact) )
+    @AND(:sql_search_external_ids_type = ALL)
+      id IN ( @INSERT(SelectKeyValuesAll) )
+    @AND(:sql_search_external_ids_type = ANY)
+      id IN ( @INSERT(SelectKeyValuesAny) )
+    @AND(:sql_search_external_ids_type = NONE)
+      id NOT IN ( @INSERT(SelectKeyValuesAny) )
+    @AND(:bond_issuer_name)
+      UPPER(issuername) @LIKE UPPER(:bond_issuer_name)
+    @AND(:bond_issuer_type)
+      UPPER(issuertype) @LIKE UPPER(:bond_issuer_type)
+
+
+-- ==========================================================================
+@NAME(SelectKeyValue)
+  SELECT
+    DISTINCT security_id
+  FROM
+    sec_security2idkey,
+    sec_security
+  WHERE sec_security2idkey.security_id = sec_security.id
+    AND sec_security.ver_from_instant <= :version_as_of_instant AND sec_security.ver_to_instant > :version_as_of_instant
+    AND sec_security.corr_from_instant <= :corrected_to_instant AND sec_security.corr_to_instant > :corrected_to_instant
+    AND idkey_id IN ( SELECT id FROM sec_idkey WHERE UPPER(key_value) @LIKE UPPER(:external_id_value) @ENDLIKE )
+
+
+-- ==========================================================================
+@NAME(SelectKeyValuesExact)
+  SELECT
+    matched_doc_id AS doc_id
+  FROM
+    (
+      SELECT
+        security_id AS matched_doc_id,
+        COUNT(security_id) AS matched_count
+      FROM
+        sec_security2idkey,
+        sec_security
+      WHERE sec_security2idkey.security_id = sec_security.id
+        AND sec_security.ver_from_instant <= :version_as_of_instant AND sec_security.ver_to_instant > :version_as_of_instant
+        AND sec_security.corr_from_instant <= :corrected_to_instant AND sec_security.corr_to_instant > :corrected_to_instant
+        AND idkey_id IN ( @INSERT(SelectKeyValuesOr) )
+      GROUP BY
+        security_id
+      HAVING
+        COUNT(security_id) >= :id_search_size
+    ) AS a, (
+      SELECT
+        security_id AS total_doc_id,
+        COUNT(security_id) AS total_count
+      FROM
+        sec_security2idkey,
+        sec_security
+      WHERE sec_security2idkey.security_id = sec_security.id
+        AND sec_security.ver_from_instant <= :version_as_of_instant AND sec_security.ver_to_instant > :version_as_of_instant
+        AND sec_security.corr_from_instant <= :corrected_to_instant AND sec_security.corr_to_instant > :corrected_to_instant
+      GROUP BY
+        security_id
+    ) AS b
+  WHERE matched_doc_id = total_doc_id
+    AND matched_count = total_count
+
+
+-- ==========================================================================
+@NAME(SelectKeyValuesAll)
+  SELECT
+    security_id
+  FROM
+    sec_security2idkey,
+    sec_security
+  WHERE sec_security2idkey.security_id = sec_security.id
+    AND sec_security.ver_from_instant <= :version_as_of_instant AND sec_security.ver_to_instant > :version_as_of_instant
+    AND sec_security.corr_from_instant <= :corrected_to_instant AND sec_security.corr_to_instant > :corrected_to_instant
+    AND idkey_id IN ( @INSERT(SelectKeyValuesOr) )
+    GROUP BY
+      security_id
+    HAVING
+      COUNT(security_id) >= :id_search_size
+
+
+-- ==========================================================================
+@NAME(SelectKeyValuesAny)
+  SELECT
+    DISTINCT security_id
+  FROM
+    sec_security2idkey,
+    sec_security
+  WHERE sec_security2idkey.security_id = sec_security.id
+    AND sec_security.ver_from_instant <= :version_as_of_instant AND sec_security.ver_to_instant > :version_as_of_instant
+    AND sec_security.corr_from_instant <= :corrected_to_instant AND sec_security.corr_to_instant > :corrected_to_instant
+    AND idkey_id IN ( @INSERT(SelectKeyValuesOr) )
+
+
+-- ==========================================================================
+@NAME(SelectKeyValuesOr)
+  SELECT
+    id
+  FROM
+    sec_idkey
+  WHERE
+    @INSERT(:sql_search_external_ids)
+
+
+-- ==========================================================================
+@NAME(History)
+  WITH cte_docs AS ( @INSERT(HistoryInner) )
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.name AS name,
+    main.sec_type AS sec_type,
+    main.detail_type AS detail_type,
+    raw.raw_data AS raw_data,
+    i.key_scheme AS key_scheme,
+    i.key_value AS key_value,
+    sa.key AS security_attr_key,
+    sa.value AS security_attr_value
+  FROM
+    sec_security main
+    INNER JOIN cte_docs ON main.id = cte_docs.id
+    LEFT JOIN sec_raw raw ON (raw.security_id = main.id)
+    LEFT JOIN sec_security2idkey si ON (si.security_id = main.id)
+    LEFT JOIN sec_idkey i ON (si.idkey_id = i.id)
+    LEFT JOIN sec_security_attribute sa ON (sa.security_id = main.id)
+  ORDER BY
+    main.ver_from_instant DESC,
+    main.corr_from_instant DESC
+
+
+-- ==========================================================================
+@NAME(HistoryInner)
+  SELECT
+    id
+  FROM
+    sec_security
+  @INSERT(HistoryWhere)
+  ORDER BY
+    ver_from_instant DESC,
+    corr_from_instant DESC
+  @OFFSETFETCH
+
+
+-- ==========================================================================
+@NAME(HistoryCount)
+  SELECT
+    COUNT(id)
+  FROM
+    sec_security 
+  @INSERT(HistoryWhere)
+
+
+-- ==========================================================================
+@NAME(HistoryWhere)
+  WHERE oid = :doc_oid
+    @IF(:sql_history_versions = Point)
+      AND ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant
+    @IF(:sql_history_versions = Range)
+      @AND(:versions_from_instant)
+        ((ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant) OR ver_from_instant >= :versions_from_instant)
+      @AND(:versions_to_instant)
+        ((ver_from_instant <= :versions_to_instant AND ver_to_instant > :versions_to_instant) OR ver_to_instant < :versions_to_instant)
+    @IF(:sql_history_corrections = Point)
+      AND corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant
+    @IF(:sql_history_corrections = Range)
+      @AND(:corrections_from_instant)
+        ((corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant) OR corr_from_instant >= :corrections_from_instant)
+      @AND(:corrections_to_instant)
+        ((corr_from_instant <= :corrections_to_instant AND corr_to_instant > :corrections_to_instant) OR corr_to_instant < :corrections_to_instant)
+
+
+-- ==========================================================================
+@NAME(Insert)
+  INSERT INTO sec_security
+    (id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, sec_type, detail_type)
+  VALUES
+    (:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, :sec_type, :detail_type)
+
+
+-- ==========================================================================
+@NAME(InsertDoc2IdKey)
+  INSERT INTO sec_security2idkey
+    (security_id, idkey_id)
+  VALUES
+    (:doc_id, ( @INSERT(SelectIdKey) ))
+
+
+-- ==========================================================================
+@NAME(SelectIdKey)
+  SELECT
+    id
+  FROM
+    sec_idkey
+  WHERE key_scheme = :key_scheme
+    AND key_value = :key_value
+
+
+-- ==========================================================================
+@NAME(InsertIdKey)
+  INSERT INTO sec_idkey
+    (id, key_scheme, key_value)
+  VALUES
+    (:idkey_id, :key_scheme, :key_value)
+
+
+-- ==========================================================================
+@NAME(InsertAttributes)
+  INSERT INTO sec_security_attribute
+    (id, security_id, security_oid, key, value)
+  VALUES
+    (:attr_id, :security_id, :security_oid, :key, :value)
+
+
+-- ==========================================================================
+@NAME(InsertRaw)
+  INSERT INTO sec_raw
+    (security_id, raw_data)
+  VALUES
+    (:security_id, :raw_data)
+
+
+-- ==========================================================================
+@NAME(UpdateVersionToInstant)
+  UPDATE sec_security
+  SET ver_to_instant = :ver_to_instant
+  WHERE id = :doc_id
+    AND ver_to_instant >= :max_instant
+
+
+-- ==========================================================================
+@NAME(UpdateCorrectionToInstant)
+  UPDATE sec_security
+  SET corr_to_instant = :corr_to_instant
+  WHERE id = :doc_id
+    AND corr_to_instant >= :max_instant
+
+
+-- ==========================================================================
+@NAME(SelectTypes)
+  SELECT
+    DISTINCT main.sec_type AS sec_type
+  FROM
+    sec_security main
+
+
+-- ==========================================================================

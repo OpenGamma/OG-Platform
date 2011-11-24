@@ -7,7 +7,7 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (obj) {
-            var $new_obj = [], html,
+            var $new_obj = [], html, disabled_cl = 'OG-disabled',
                 toolbar_tmpl = '\
                     <div class="OG-icon og-icon-tools-${id} og-js-${id} ${enabled}"><span>${name}</span></div>',
                 divider = '<div class="og-divider"></div>',
@@ -17,12 +17,14 @@ $.register_module({
                 ];
             if (!obj) throw new Error('obj is a required input for toolbar');
             if (!obj.location) throw new Error('You need to supply a selector/location for a toolbar to be placed');
-            $.each(obj.buttons, function (i) {
-                if (obj.buttons[i]['enabled'] === 'OG-disabled') obj.buttons[i]['level'] = 'off';
+            obj.buttons.forEach(function (button) {
+                if (og.app.READ_ONLY) button.enabled = disabled_cl;
+                if (button.enabled === disabled_cl) button.level = 'off';
             });
             // must convert rendered template into a string
             html = $('<p/>').append($.tmpl(toolbar_tmpl + divider, $.extend(true, buttons, obj.buttons))).html();
             $(obj.location).html(html); // Add the buttons to the page
+            if (og.app.READ_ONLY) return; // if READ_ONLY, do not add handlers
             // Implement handlers
             $.each(($.extend(true, $new_obj, {'buttons': buttons}, obj)).buttons, function (i, val) {
                 $('.' + obj.location + ' .og-js-' + val.id).unbind('mousedown').bind('mousedown', val.handler);

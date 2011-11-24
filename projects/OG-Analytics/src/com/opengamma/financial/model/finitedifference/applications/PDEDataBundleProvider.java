@@ -12,6 +12,7 @@ import com.opengamma.financial.model.finitedifference.CoupledPDEDataBundle;
 import com.opengamma.financial.model.finitedifference.ExtendedConvectionDiffusionPDEDataBundle;
 import com.opengamma.financial.model.finitedifference.ExtendedCoupledPDEDataBundle;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
@@ -56,6 +57,88 @@ public class PDEDataBundleProvider {
     };
 
     return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(rate), new EuropeanPayoff(strike, isCall));
+  }
+
+  public ConvectionDiffusionPDEDataBundle getBackwardsBlackScholesSpecial(final double vol, final double rate, final double strike, final boolean isCall) {
+
+    final Function<Double, Double> a = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... ts) {
+        Validate.isTrue(ts.length == 2);
+        final double s = ts[1];
+        final double temp = s * vol;
+        return -0.5 * temp * temp;
+      }
+    };
+
+    final Function<Double, Double> b = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... ts) {
+        Validate.isTrue(ts.length == 2);
+        final double t = ts[0];
+        final double s = ts[1];
+        if (s == 0) {
+          return 0.0;
+        }
+        final double df = Math.exp(-t * rate);
+        final double forward = s / df;
+        final double price = df * BlackFormulaRepository.price(forward, strike, t, vol, true);
+        double dOverP;
+        if (price == 0.0) {
+          final double sigmaRootT = vol * Math.sqrt(t);
+          final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+          final double d2 = d1 - sigmaRootT;
+          dOverP = (1 + d2 * d2) / sigmaRootT / forward / (sigmaRootT - 2 * d1);
+        } else {
+          final double delta = BlackFormulaRepository.delta(forward, strike, t, vol, true);
+          dOverP = delta / price;
+        }
+        final double temp = s * vol;
+        return -(temp * temp * dOverP + s * rate);
+      }
+    };
+
+    final Function1D<Double, Double> constant = new Function1D<Double, Double>() {
+
+      @Override
+      public Double evaluate(Double x) {
+        return 1.0;
+      }
+    };
+
+    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(0), constant);
+  }
+
+  public ConvectionDiffusionPDEDataBundle getBackwardsBlackScholesSpecial2(final double vol, final double rate, final double strike, final boolean isCall) {
+    final Function<Double, Double> a = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... ts) {
+        Validate.isTrue(ts.length == 2);
+        final double s = ts[1];
+        final double temp = s * vol;
+        return -0.5 * temp * temp;
+      }
+    };
+
+    final Function<Double, Double> b = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... ts) {
+        Validate.isTrue(ts.length == 2);
+        final double s = ts[1];
+        return -s * rate;
+      }
+    };
+
+    final Function1D<Double, Double> constant = new Function1D<Double, Double>() {
+
+      @Override
+      public Double evaluate(Double x) {
+        return 0.0;
+      }
+    };
+
+    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(rate), constant);
+
   }
 
   /**

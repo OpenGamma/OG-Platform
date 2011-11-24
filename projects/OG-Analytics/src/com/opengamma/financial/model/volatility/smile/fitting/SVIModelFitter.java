@@ -29,7 +29,7 @@ public class SVIModelFitter extends SmileModelFitter<SVIFormulaData> {
     DEFAULT_TRANSFORMS[0] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); //a
     DEFAULT_TRANSFORMS[1] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); //b
     DEFAULT_TRANSFORMS[2] = new DoubleRangeLimitTransform(-1.0, 1.0); //rho
-    DEFAULT_TRANSFORMS[3] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); //sigma 
+    DEFAULT_TRANSFORMS[3] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); //nu
     DEFAULT_TRANSFORMS[4] = new NullTransform(); //m
   }
 

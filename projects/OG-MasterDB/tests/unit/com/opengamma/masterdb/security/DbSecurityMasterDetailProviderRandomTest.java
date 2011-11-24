@@ -94,6 +94,13 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
   public void testEquityOptionSecurity() {
     _testCase.testEquityOptionSecurity();
   }
+  
+
+  @Override
+  @Test
+  public void testEquityBarrierOptionSecurity() {
+    _testCase.testEquityBarrierOptionSecurity();
+  }
 
   @Override
   @Test
@@ -119,6 +126,12 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
     _testCase.testFXOptionSecurity();
   } 
 
+  @Override
+  @Test
+  public void testNonDeliverableFXOptionSecurity() {
+    _testCase.testNonDeliverableFXOptionSecurity();
+  } 
+  
   @Override
   @Test
   public void testFXBarrierOptionSecurity() {
@@ -205,6 +218,12 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
 
   @Override
   @Test
+  public void testNonDeliverableFXForwardSecurity() {
+    _testCase.testNonDeliverableFXOptionSecurity();
+  }
+  
+  @Override
+  @Test
   public void testCapFloorSecurity() {
     _testCase.testCapFloorSecurity();
   }
@@ -226,5 +245,4 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
   public void testEquityVarianceSwapSecurity() {
     _testCase.testEquityVarianceSwapSecurity();
   }
-  
 }

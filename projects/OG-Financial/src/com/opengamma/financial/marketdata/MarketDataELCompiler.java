@@ -13,6 +13,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.OverrideOperation;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.financial.expression.CommonSynthetics;
 import com.opengamma.financial.expression.ELExpressionParser;
 import com.opengamma.financial.expression.UserExpression;
 import com.opengamma.financial.expression.UserExpressionParser;
@@ -80,7 +81,12 @@ public class MarketDataELCompiler implements OverrideOperationCompiler {
     _securitySource = securitySource;
     _parser = new ELExpressionParser();
     try {
+      _parser.setFunction("Curve", "parallelShift", MarketDataELFunctions.class.getMethod("parallelShiftCurve", Object.class, Double.TYPE));
+      _parser.setFunction("Curve", "pointShift", MarketDataELFunctions.class.getMethod("pointShiftCurve", Object.class, Double.TYPE, Double.TYPE));
       _parser.setFunction("Security", "get", MarketDataELFunctions.class.getMethod("getSecurity", Object.class));
+      _parser.setFunction("FX", "isRate", MarketDataELFunctions.class.getMethod("isFXRate", Object.class));
+      _parser.setFunction("FX", "multiplier", MarketDataELFunctions.class.getMethod("getFXMultiplier", Object.class, Double.TYPE));
+      CommonSynthetics.configureParser(_parser, securitySource);
     } catch (Exception ex) {
       throw new OpenGammaRuntimeException("Caught", ex);
     }

@@ -1,0 +1,25 @@
+CREATE TABLE sec_equitybarrieroption (
+    id bigint NOT NULL,
+    security_id bigint NOT NULL,
+    option_exercise_type varchar(32) NOT NULL,
+    option_type varchar(32) NOT NULL,
+    strike double precision NOT NULL,
+    expiry_date timestamp without time zone NOT NULL,
+    expiry_zone varchar(50) NOT NULL,
+    expiry_accuracy smallint NOT NULL,
+    underlying_scheme varchar(255) NOT NULL,
+    underlying_identifier varchar(255) NOT NULL,
+    currency_id bigint NOT NULL,
+    exchange_id bigint,
+    pointValue double precision,
+	barrier_type varchar(32) NOT NULL,
+    barrier_direction varchar(32) NOT NULL,
+    barrier_level double precision NOT NULL,
+    monitoring_type varchar(32) NOT NULL,
+    sampling_frequency varchar(32),
+    PRIMARY KEY (id),
+    CONSTRAINT sec_fk_equitybarrieroption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+    CONSTRAINT sec_fk_equitybarrieroption2currency FOREIGN KEY (currency_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_equitybarrieroption2exchange FOREIGN KEY (exchange_id) REFERENCES sec_exchange (id)
+);
+CREATE INDEX ix_sec_equitybarrieroption_security_id ON sec_equitybarrieroption(security_id);

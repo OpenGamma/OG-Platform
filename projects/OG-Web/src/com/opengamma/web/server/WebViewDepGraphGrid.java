@@ -48,18 +48,25 @@ public class WebViewDepGraphGrid extends WebViewGrid {
 
   private final AtomicBoolean _init = new AtomicBoolean();
   private final IntSet _historyOutputs = new IntOpenHashSet();
+  private final WebGridCell _parentGridCell;
+  private final String _parentCalcConfigName;
+  private final ValueSpecification _parentValueSpecification;
   
   private final Set<ValueSpecification> _typedRows = new HashSet<ValueSpecification>();
   private Map<ValueSpecification, IntSet> _rowIdMap;
   private List<Object> _rowStructure;
   private ComputationCacheQuery _cacheQuery;
   
-  protected WebViewDepGraphGrid(String name, ViewClient viewClient, ResultConverterCache resultConverterCache, Client local, Client remote) {
-    super(name, viewClient, resultConverterCache, local, remote);    
+  protected WebViewDepGraphGrid(String name, ViewClient viewClient, ResultConverterCache resultConverterCache,
+      Client local, Client remote, WebGridCell parentGridCell, String parentCalcConfigName,
+      ValueSpecification parentValueSpecification) {
+    super(name, viewClient, resultConverterCache, local, remote);
+    _parentGridCell = parentGridCell;
+    _parentCalcConfigName = parentCalcConfigName;
+    _parentValueSpecification = parentValueSpecification;
   }
   
   //-------------------------------------------------------------------------
-  
   /*package*/ boolean isInit() {
     return _init.get();
   }
@@ -86,6 +93,18 @@ public class WebViewDepGraphGrid extends WebViewGrid {
     }
     setViewport(viewportMap);
     return true;
+  }
+  
+  /*package*/ WebGridCell getParentGridCell() {
+    return _parentGridCell;
+  }
+  
+  /*package*/ String getParentCalcConfigName() {
+    return _parentCalcConfigName;
+  }
+  
+  /*package*/ ValueSpecification getParentValueSpecification() {
+    return _parentValueSpecification;
   }
   
   private List<Object> generateRowStructure(DependencyGraph depGraph, ValueSpecification output, Map<ValueSpecification, IntSet> rowIdMap) {

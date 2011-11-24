@@ -31,19 +31,19 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
   /**
    * Returns a function that, given data of type T, calculates the volatility.
    * @param option The option, not null
-   * @param forward The forward value of the underlying 
+   * @param forward The forward value of the underlying
    * @return Returns a function that, given data of type T, calculates the volatility
    */
   public abstract Function1D<T, Double> getVolatilityFunction(final EuropeanVanillaOption option, final double forward);
 
   /**
-   * Returns a function that, given data of type T, calculates the volatilities for the given strikes 
+   * Returns a function that, given data of type T, calculates the volatilities for the given strikes
    * @param forward the forward
    * @param strikes set of strikes
    * @param timeToExpiry time-to-expiry
-   * @return A set of volatilities for the given strikes 
+   * @return A set of volatilities for the given strikes
    */
-  public Function1D<T, double[]> getVolatilitySetFunction(double forward, double[] strikes, double timeToExpiry) {
+  public Function1D<T, double[]> getVolatilityFunction(double forward, double[] strikes, double timeToExpiry) {
 
     final int n = strikes.length;
     final List<Function1D<T, Double>> funcs = new ArrayList<Function1D<T, Double>>(n);
@@ -65,11 +65,11 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
   }
 
   /**
-   * Returns a function  that calculates volatility and the ajoint (volatility sensitivity to forward, strike and model parameters) 
-   * by means of central finite difference - this should be overridden where possible 
+   * Returns a function  that calculates volatility and the ajoint (volatility sensitivity to forward, strike and model parameters)
+   * by means of central finite difference - this should be overridden where possible
    * @param option The option, not null
-   * @param forward The forward value of the underlying 
-   * @return Returns a function that, given data of type T, calculates the volatility adjoint 
+   * @param forward The forward value of the underlying
+   * @return Returns a function that, given data of type T, calculates the volatility adjoint
    */
   public Function1D<T, double[]> getVolatilityAdjointFunction(final EuropeanVanillaOption option, final double forward) {
     Validate.notNull(option, "option");
@@ -80,7 +80,7 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
       @Override
       public final double[] evaluate(final T data) {
         Validate.notNull(data, "data");
-        double[] x = new double[3 + data.getNumberOfparameters()]; //vol, fwd, strike, the model parameters      
+        double[] x = new double[3 + data.getNumberOfparameters()]; //vol, fwd, strike, the model parameters
         x[0] = func.evaluate(data);
         x[1] = forwardBar(option, forward, data);
         x[2] = strikeBar(option, forward, data);
@@ -88,21 +88,41 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
         return x;
       }
     };
-
   }
 
   /**
-   * The volatility adjoint set by finite difference, unless this is overloaded 
-   * @param forward Forward value of underlying 
+   *Returns a function  that calculates the volatility sensitivity to model parameters
+   * by means of central finite difference - this should be overridden where possible
+   * @param option The option, not null
+   * @param forward The forward value of the underlying
+   * @return Returns a function that, given data of type T, calculates the volatility model sensitivity
+   */
+  public Function1D<T, double[]> getModelAdjointFunction(final EuropeanVanillaOption option, final double forward) {
+    Validate.notNull(option, "option");
+    Validate.isTrue(forward >= 0.0, "forward must be greater than zero");
+    final Function1D<T, Double> func = getVolatilityFunction(option, forward);
+
+    return new Function1D<T, double[]>() {
+      @Override
+      public final double[] evaluate(final T data) {
+        Validate.notNull(data, "data");
+        return paramBar(func, data);
+      }
+    };
+  }
+
+  /**
+   * The volatility adjoint set by finite difference, unless this is overloaded
+   * @param forward Forward value of underlying
    * @param strikes The strikes
    * @param timeToExpiry Time-toExpiry
    * @return The first column is is vol at each strike, the second and third are the forward and strike sensitivity at each strike, and the
-   * remaining columns are the model parameter sensitivities are each strike 
+   * remaining columns are the model parameter sensitivities are each strike
    */
-  public Function1D<T, double[][]> getVolatilityAdjointSetFunction(final double forward, final double[] strikes, final double timeToExpiry) {
+  public Function1D<T, double[][]> getVolatilityAdjointFunction(final double forward, final double[] strikes, final double timeToExpiry) {
 
     final int n = strikes.length;
-    final Function1D<T, double[]> func = getVolatilitySetFunction(forward, strikes, timeToExpiry);
+    final Function1D<T, double[]> func = getVolatilityFunction(forward, strikes, timeToExpiry);
 
     return new Function1D<T, double[][]>() {
       @Override
@@ -118,18 +138,65 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
           res[3 + i] = temp[i];
         }
         //now transpose
-        //TODO a transpose that works on double[][]? 
+        //TODO a transpose that works on double[][]?
         return MA.getTranspose(new DoubleMatrix2D(res)).getData();
       }
     };
   }
 
-  protected Function1D<T, double[][]> getVolatilityAdjointSetFunctionAlt(double forward, double[] strikes, double timeToExpiry) {
+  protected Function1D<T, double[][]> getVolatilityAdjointFunctionByCallingSingleStrikes(double forward, double[] strikes, double timeToExpiry) {
 
     final int n = strikes.length;
     final List<Function1D<T, double[]>> funcs = new ArrayList<Function1D<T, double[]>>(n);
     for (int i = 0; i < n; i++) {
       funcs.add(getVolatilityAdjointFunction(new EuropeanVanillaOption(strikes[i], timeToExpiry, true), forward));
+    }
+
+    return new Function1D<T, double[][]>() {
+      @Override
+      public double[][] evaluate(T data) {
+        final double[][] res = new double[n][];
+        for (int i = 0; i < n; i++) {
+          res[i] = funcs.get(i).evaluate(data);
+        }
+        return res;
+      }
+
+    };
+  }
+
+  /**
+   * Returns a function  that calculates the volatility sensitivity to model parameters for a range of strikes by means of
+   * central finite difference - this should be overridden where possible
+   * @param forward Forward value of underlying
+   * @param strikes The strikes
+   * @param timeToExpiry Time-toExpiry
+   * @return  Matrix (i.e. double[][]) of volatility sensitivities to model parameters, where the columns are the model parameter
+   *  sensitivities at each strike
+   */
+  public Function1D<T, double[][]> getModelAdjointFunction(final double forward, final double[] strikes, final double timeToExpiry) {
+
+    final Function1D<T, double[]> func = getVolatilityFunction(forward, strikes, timeToExpiry);
+
+    return new Function1D<T, double[][]>() {
+      @Override
+      public double[][] evaluate(T data) {
+        Validate.notNull(data, "data");
+        double[][] temp = paramBarSet(func, data);
+
+        //now transpose
+        //TODO a transpose that works on double[][]?
+        return MA.getTranspose(new DoubleMatrix2D(temp)).getData();
+      }
+    };
+  }
+
+  protected Function1D<T, double[][]> getModelAdjointFunctionByCallingSingleStrikes(final double forward, final double[] strikes, final double timeToExpiry) {
+
+    final int n = strikes.length;
+    final List<Function1D<T, double[]>> funcs = new ArrayList<Function1D<T, double[]>>(n);
+    for (int i = 0; i < n; i++) {
+      funcs.add(getModelAdjointFunction(new EuropeanVanillaOption(strikes[i], timeToExpiry, true), forward));
     }
 
     return new Function1D<T, double[][]>() {
@@ -153,8 +220,8 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
 
   private double[] forwardBar(double[] strikes, double timeToExpiry, double forward, T data) {
     final int n = strikes.length;
-    Function1D<T, double[]> funcUp = getVolatilitySetFunction(forward + EPS, strikes, timeToExpiry);
-    Function1D<T, double[]> funcDown = getVolatilitySetFunction(forward - EPS, strikes, timeToExpiry);
+    Function1D<T, double[]> funcUp = getVolatilityFunction(forward + EPS, strikes, timeToExpiry);
+    Function1D<T, double[]> funcDown = getVolatilityFunction(forward - EPS, strikes, timeToExpiry);
     final double[] res = new double[n];
     final double[] up = funcUp.evaluate(data);
     final double[] down = funcDown.evaluate(data);
@@ -181,8 +248,8 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
     for (int i = 0; i < n; i++) {
       strikesDown[i] = strikes[i] - EPS;
     }
-    Function1D<T, double[]> funcUp = getVolatilitySetFunction(forward, strikesUp, timeToExpiry);
-    Function1D<T, double[]> funcDown = getVolatilitySetFunction(forward, strikesDown, timeToExpiry);
+    Function1D<T, double[]> funcUp = getVolatilityFunction(forward, strikesUp, timeToExpiry);
+    Function1D<T, double[]> funcDown = getVolatilityFunction(forward, strikesDown, timeToExpiry);
     final double[] up = funcUp.evaluate(data);
     final double[] down = funcDown.evaluate(data);
     for (int i = 0; i < n; i++) {
@@ -192,7 +259,7 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
     return res;
   }
 
-  //TODO there is no guard against model parameter going outside allowed range 
+  //TODO there is no guard against model parameter going outside allowed range
   @SuppressWarnings("unchecked")
   private double[] paramBar(Function1D<T, Double> func, T data) {
     final int n = data.getNumberOfparameters();
