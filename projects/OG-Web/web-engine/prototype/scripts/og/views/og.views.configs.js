@@ -99,15 +99,15 @@ $.register_module({
                     }
                 }
             },
-            toolbar = function (type) {
-                ui.toolbar(options.toolbar[type]);
+            toolbar = function (options) {
+                ui.toolbar(options);
                 if (config_types.length) return; // if we already have config_types, return
-                $('.OG-toolbar .og-js-new').addClass('OG-disabled').unbind();
+                $('.OG-tools .og-js-new').addClass('OG-disabled').unbind();
                 api.rest.configs.get({
                     meta: true,
                     handler: function (result) {
                         config_types = result.data.types.sort().map(function (val) {return {name: val, value: val};});
-                        $('.OG-toolbar .og-js-new').removeClass('OG-disabled').click(toolbar_buttons['new']);
+                        $('.OG-tools .og-js-new').removeClass('OG-disabled').click(toolbar_buttons['new']);
                     },
                     cache_for: 60 * 60 * 1000 // an hour
                 });
@@ -115,7 +115,7 @@ $.register_module({
             // toolbar here relies on dynamic data, so it is instantiated with a callback instead of having
             // options passed in (options is set to null for default_details)
             default_details = og.views.common.default_details
-                .partial(page_name, 'Configurations', null, toolbar.partial('default')),
+                .partial(page_name, 'Configurations', null, toolbar.partial(options.toolbar['default'])),
             details_page = function (args, new_config_type) {
                 var rest_options, is_new = !!new_config_type, rest_handler = function (result) {
                     if (result.error) return ui.dialog({type: 'error', message: result.message});
@@ -177,7 +177,7 @@ $.register_module({
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
                             }
-                            if (is_new || json.deleted) ui.toolbar({
+                            if (is_new || json.deleted) toolbar({
                                 buttons: [
                                     {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
                                     {id: 'save', tooltip: 'Save', handler: form.submit.partial({as_new: true})},
@@ -185,7 +185,7 @@ $.register_module({
                                     {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
                                 ],
                                 location: '.OG-tools'
-                            }); else ui.toolbar({
+                            }); else toolbar({
                                 buttons: [
                                     {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
                                     {id: 'save', tooltip: 'Save', handler: form.submit},
