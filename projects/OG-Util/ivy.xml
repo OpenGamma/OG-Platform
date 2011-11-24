@@ -19,7 +19,7 @@
 		<dependency org="org.slf4j" name="slf4j" rev="1.5.11" conf="*->core,jcl-migration,log4j-migration"/>
 		<dependency org="ch.qos" name="logback" rev="[0.9.17,1.0[" conf="*->classic"/>
 		<dependency org="com.sun.jersey" name="jersey-spring" rev="1.3" />
-		<dependency org="org.springframework" name="spring" rev="3.0.4" conf="*->context-support,jms,web,orm"/>
+		<dependency org="org.springframework" name="spring" rev="3.0.4" conf="*->context-support,jms,web,orm,test"/>
 		<dependency org="org.springframework" name="spring-amqp" rev="1.0.0.M1"/>
 		<dependency org="com.rabbitmq" name="java-client" rev="2.1.0"/>
 		<dependency org="org.freemarker" name="freemarker" rev="2.3.16"/>
