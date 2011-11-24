@@ -26,7 +26,7 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search,
+            search, layout,
             ui = common.util.ui,
             module = this, positions,
             page_name = module.name.split('.').pop(),
@@ -85,8 +85,7 @@ $.register_module({
                     }
                 })},
                 'versions': function () {
-                    var rule = module.rules.load_positions, layout = og.views.common.layout,
-                        args = routes.current().args;
+                    var rule = module.rules.load_positions, args = routes.current().args;
                     routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
                     if (!layout.inner.state.south.isClosed && args.version) {
                         layout.inner.close('south');
@@ -133,8 +132,7 @@ $.register_module({
                 }
             },
             details_page = function (args) {
-                var layout = og.views.common.layout,
-                    render_identifiers = function (json) {
+                var render_identifiers = function (json) {
                         $('.OG-js-details-panel .og-js-identifiers').html(json.reduce(function (acc, val) {
                             acc.push('<tr><td><span>' + val.scheme.lang() + '</span></td><td>' + val.value + '</td></tr>');
                             return acc
@@ -160,8 +158,7 @@ $.register_module({
                                         This position has been deleted\
                                     </section>\
                                 ',
-                                $html = $.tmpl(template, json.template_data),
-                                layout = og.views.common.layout, header, content;
+                                $html = $.tmpl(template, json.template_data), header, content;
                             header = $.outer($html.find('> header')[0]);
                             content = $.outer($html.find('> section')[0]);
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
@@ -236,6 +233,7 @@ $.register_module({
         };
         return positions = {
             load: function (args) {
+                layout = og.views.common.layout;
                 check_state({args: args, conditions: [
                     {new_page: function () {positions.search(args), masthead.menu.set_tab(page_name);}}
                 ]});
@@ -258,12 +256,12 @@ $.register_module({
                 check_state({args: args, conditions: [
                     {new_page: function () {
                         positions.load(args);
-                        og.views.common.layout.inner.options.south.onclose = null;
-                        og.views.common.layout.inner.close.partial('south');
+                        layout.inner.options.south.onclose = null;
+                        layout.inner.close.partial('south');
                     }},
                     {new_value: 'id', method: function () {
-                        og.views.common.layout.inner.options.south.onclose = null;
-                        og.views.common.layout.inner.close.partial('south');
+                        layout.inner.options.south.onclose = null;
+                        layout.inner.close.partial('south');
                     }}
                 ]});
                 positions.details(args);

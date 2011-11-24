@@ -31,7 +31,7 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search,
+            search, layout,
             ui = common.util.ui,
             module = this,
             page_name = module.name.split('.').pop(),
@@ -167,8 +167,7 @@ $.register_module({
                                 error_html = '\
                                     <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
                                         This configuration has been deleted\
-                                    </section>',
-                                layout = og.views.common.layout;
+                                    </section>';
                             if (json.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);
                                 layout.inner.sizePane('north', '0');
@@ -199,8 +198,7 @@ $.register_module({
                         },
                         selector: '.ui-layout-inner-center .ui-layout-content'
                     });
-                },
-                layout = og.views.common.layout;
+                };
                 layout.inner.options.south.onclose = null;
                 layout.inner.close('south');
                 rest_options = {
@@ -222,6 +220,7 @@ $.register_module({
         };
         return configs = {
             load: function (args) {
+                layout = og.views.common.layout;
                 check_state({args: args, conditions: [
                     {new_page: function (args) {
                         configs.search(args);
