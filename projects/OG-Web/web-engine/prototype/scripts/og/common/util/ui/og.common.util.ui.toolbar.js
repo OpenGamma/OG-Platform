@@ -24,12 +24,12 @@ $.register_module({
             // must convert rendered template into a string
             html = $('<p/>').append($.tmpl(toolbar_tmpl + divider, obj.buttons)).html();
             $(obj.location).html(html); // Add the buttons to the page
+            og.common.util.ui.tooltip(obj.location);
             if (og.app.READ_ONLY) return; // if READ_ONLY, do not add handlers
             // Implement handlers
             $.each(($.extend(true, $new_obj, {'buttons': obj.buttons}, obj)).buttons, function (i, val) {
                 $('.' + obj.location + ' .og-js-' + val.id).unbind('mousedown').bind('mousedown', val.handler);
             });
-            og.common.util.ui.tooltip(obj.location);
         };
     }
 });

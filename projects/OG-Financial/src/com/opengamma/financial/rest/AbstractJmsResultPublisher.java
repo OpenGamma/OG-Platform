@@ -106,9 +106,18 @@ public abstract class AbstractJmsResultPublisher {
   private void startJmsIfRequired(String destination) throws Exception {
     if (_producer == null) {
       try {
+        // Debugging for XLS-395
+        long startTime = System.currentTimeMillis();
+        
         _connection = _jmsConnector.getConnectionFactory().createConnection();
         _session = _connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
         _producer = _session.createProducer(_session.createQueue(destination));
+        
+        long jmsTime = System.currentTimeMillis() - startTime;
+        if (jmsTime > 3000) {
+          s_logger.warn("[XLS-395] -- took {} ms to interact with JMS", jmsTime);
+        }
+        
         _messageQueue.clear();
         startSenderThread();
         _connection.start();

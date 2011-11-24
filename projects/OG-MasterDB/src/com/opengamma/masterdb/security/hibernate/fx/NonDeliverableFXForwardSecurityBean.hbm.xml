@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.masterdb.security.hibernate.fx">
+  <union-subclass name="NonDeliverableFXForwardSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_nondeliverablefxforward">
+    <component name="forwardDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="forward_date" type="timestamp" not-null="true" />
+      <property name="zone" column="forward_zone" type="string" not-null="true" />
+    </component>
+  	<component name="region" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+  	  <property name="scheme" column="region_scheme" type="string" not-null="true" />
+  	  <property name="identifier" column="region_identifier" type="string" not-null="true" />
+  	</component>
+  	<component name="underlying" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+      <property name="scheme" column="underlying_scheme" type="string" not-null="true" />
+      <property name="identifier" column="underlying_identifier" type="string" not-null="true" />
+    </component>
+    <property name="isDeliveryInReceiveCurrency" column="is_delivery_in_receive_currency" type="boolean" not-null="true" />
+  </union-subclass>
+
+  <query name="NonDeliverableFXForwardSecurityBean.one.bySecurityId"><![CDATA[
+    from 
+      NonDeliverableFXForwardSecurityBean as s
+    where
+      s.securityId = :securityId
+  ]]></query>
+
+  <query name="NonDeliverableFXForwardSecurityBean.all">
+    from NonDeliverableFXForwardSecurityBean
+  </query>
+
+</hibernate-mapping>

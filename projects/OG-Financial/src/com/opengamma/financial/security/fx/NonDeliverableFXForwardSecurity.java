@@ -66,11 +66,12 @@ public class NonDeliverableFXForwardSecurity extends FinancialSecurity {
     super();
   }
 
-  public NonDeliverableFXForwardSecurity(ExternalId underlyingIdentifier, ZonedDateTime forwardDate, ExternalId region) {
+  public NonDeliverableFXForwardSecurity(ExternalId underlyingIdentifier, ZonedDateTime forwardDate, ExternalId region, boolean deliveryInReceiveCurrency) {
     super(SECURITY_TYPE);
     setUnderlyingId(underlyingIdentifier);
     setForwardDate(forwardDate);
     setRegionId(region);
+    setDeliveryInReceiveCurrency(deliveryInReceiveCurrency);
   }
 
   public Currency getDeliveryCurrency(SecuritySource securitySource) {
