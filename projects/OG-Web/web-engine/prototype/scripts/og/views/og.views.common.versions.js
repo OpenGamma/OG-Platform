@@ -41,7 +41,6 @@ $.register_module({
                                 s = add_zero(obj.getSeconds()),
                                 date = d + '<span> / </span>' + M + '<span> / </span>' + y,
                                 time = '<span>' + h + ':' + m + ':' + s + '</span>';
-                            console.log(obj.getMonth(), obj.getDay());
                             return '<time title="day / month / year">' + date + '<span> @ </span>' + time + '</time>';
                         },
                         $list = $(r.data.data.reduce(function (acc, val, i) {
