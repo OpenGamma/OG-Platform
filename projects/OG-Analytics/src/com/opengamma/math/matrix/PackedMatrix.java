@@ -13,7 +13,7 @@ import org.apache.commons.lang.Validate;
 /**
  * Converts or instantiates a matrix to Packed Matrix format. This class is reserved for expert use only.
  */
-public class PackedMatrix implements MatrixPrimitive  {
+public class PackedMatrix implements MatrixPrimitive {
   private double[] _data; // the data
   private int _rows; // number of rows
   private int _cols; // number of columns
@@ -21,9 +21,9 @@ public class PackedMatrix implements MatrixPrimitive  {
   private int[] _colCount; // cumulative sum of unwound columns (incremented per row)
   private int[] _rowPtr; // pointer to where the data should start on a given row
 
-/**
- * Constructors
- */
+  /**
+   * Constructors
+   */
 
   /**
    * Constructs from an array of arrays representation.
@@ -70,7 +70,6 @@ public class PackedMatrix implements MatrixPrimitive  {
     _cols = cols;
     _els = _rows * _cols;
 
-
     double[] tmp = new double[_els];
     _rowPtr = new int[_rows];
     _colCount = new int[_rows + 1];
@@ -88,10 +87,10 @@ public class PackedMatrix implements MatrixPrimitive  {
         // THIS WILL FAIL:
         // it is possible to have "contiguous" data that matches the zero bit pattern (essentially by fluke)
         // that would break the notion of contiguous data.
-//        // test to ensure data is contiguous
-//        if (!MatrixPrimitiveUtils.arrayHasContiguousRowEntries(aMatrix[i])) {
-//          throw new IllegalArgumentException("Matrix given does not contain contiguous nonzero entries, error was thrown due to bad data on row " + i);
-//        }
+        //        // test to ensure data is contiguous
+        //        if (!MatrixPrimitiveUtils.arrayHasContiguousRowEntries(aMatrix[i])) {
+        //          throw new IllegalArgumentException("Matrix given does not contain contiguous nonzero entries, error was thrown due to bad data on row " + i);
+        //        }
         // instead look for start and end positions of the block of data in a row and loop over these.
 
         // search backwards and find the end point
@@ -118,15 +117,16 @@ public class PackedMatrix implements MatrixPrimitive  {
         }
         _colCount[i + 1] += count;
       }
-    } else { /** ALLOWING ZEROS TO BE PACKED INTO THE ARRAY, BEHAVIOUR IS SLIGHTLY DIFFERENT! */
+    } else {
+      /** ALLOWING ZEROS TO BE PACKED INTO THE ARRAY, BEHAVIOUR IS SLIGHTLY DIFFERENT! */
       // make flat!
-      for (int i = 0; i <  aMatrix.length; i++) {
+      for (int i = 0; i < aMatrix.length; i++) {
         isSet = false; // init each starting point as not being set and look for it.
         // Don't do this in case a zero pattern accidentally occurs in the middle of a populated row.
-//        // test to ensure data is contiguous
-//        if (!MatrixPrimitiveUtils.arrayHasContiguousRowEntries(aMatrix[i])) {
-//          throw new IllegalArgumentException("Matrix given does not contain contiguous nonzero entries, error was thrown due to bad data on row " + i);
-//        }
+        //        // test to ensure data is contiguous
+        //        if (!MatrixPrimitiveUtils.arrayHasContiguousRowEntries(aMatrix[i])) {
+        //          throw new IllegalArgumentException("Matrix given does not contain contiguous nonzero entries, error was thrown due to bad data on row " + i);
+        //        }
 
         // flatten
         for (int j = 0; j < aMatrix[i].length; j++) { // for each col
@@ -143,6 +143,32 @@ public class PackedMatrix implements MatrixPrimitive  {
     }
     _data = Arrays.copyOfRange(tmp, 0, count);
   }
+
+  /**
+   * Returns the cumulative column count data used which can be used for indexing purposes.
+   * @return _colCount, the cumulative column count.
+   */
+  public int[] getColCount() {
+    return _colCount;
+  }
+
+  /**
+   * Returns the index of where on each row the data starts.
+   * @return _rowPtr, the index on each row where the data starts.
+   */
+  public int[] getRowPointer() {
+    return _rowPtr;
+  }
+
+  /**
+   * Returns the raw data in its packed form.
+   * @return _data, the raw data in its packed form.
+   */
+  public double[] getData() {
+    return _data;
+  }
+
+
 
   /**
    * {@inheritDoc}
@@ -228,7 +254,7 @@ public class PackedMatrix implements MatrixPrimitive  {
     int idx = 0;
     for (int i = 0; i < _rows; i++) {
       if (index >= _rowPtr[i] && index < ((_colCount[i + 1] - _colCount[i]) + _rowPtr[i])) {
-        tmp[idx] =  _data[_colCount[i] + (index - _rowPtr[i])];
+        tmp[idx] = _data[_colCount[i] + (index - _rowPtr[i])];
         idx++;
       }
 
@@ -269,7 +295,7 @@ public class PackedMatrix implements MatrixPrimitive  {
     for (int i = 0; i < _rows; i++) {
       for (int j = 0; j < _cols; j++) {
         if (j >= _rowPtr[i] && j < ((_colCount[i + 1] - _colCount[i]) + _rowPtr[i])) {
-          tmp[i][j] =  _data[_colCount[i] + (j - _rowPtr[i])];
+          tmp[i][j] = _data[_colCount[i] + (j - _rowPtr[i])];
         } else {
           tmp[i][j] = 0.0;
         }
@@ -284,8 +310,8 @@ public class PackedMatrix implements MatrixPrimitive  {
   @Override
   public String toString() {
     return "PackedMatrix:\ndata = " + Arrays.toString(_data)
-      + "\nrows = " + _rows + "\ncols= " + _cols + "\nels= " + _els + "n_colCount= " + Arrays.toString(_colCount) + "\n rowPtr= "
-      + Arrays.toString(_rowPtr);
+        + "\nrows = " + _rows + "\ncols= " + _cols + "\nels= " + _els + "n_colCount= " + Arrays.toString(_colCount) + "\n rowPtr= "
+        + Arrays.toString(_rowPtr);
   }
 
   /**
