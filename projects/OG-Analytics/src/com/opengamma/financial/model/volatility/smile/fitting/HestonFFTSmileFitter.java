@@ -32,8 +32,9 @@ import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 
 /**
- * 
+ * @deprecated Please use HestonModelFitter instead 
  */
+@Deprecated
 public class HestonFFTSmileFitter extends LeastSquareSmileFitter {
   private static final double DEFAULT_ALPHA = -0.5;
   private static final double DEFAULT_LIMIT_TOLERANCE = 1e-12;
