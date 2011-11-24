@@ -171,7 +171,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
 
       //   int nStartPoints = start.length;
       LeastSquareResults lsRes = fitter.solve(new DoubleMatrix1D(start), fixed);
-      // System.out.println(this.toString() + lsRes.toString());
+      //     System.out.println(this.toString() + lsRes.toString());
       if (i == 0) {
         best = lsRes;
       } else {
@@ -184,7 +184,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     //    Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc = fitter.getModelJacobianFunction();
     //    System.out.println("model Jac: " + jacFunc.evaluate(best.getParameters()));
     //    System.out.println("fit invJac: " + best.getInverseJacobian());
-    System.out.println("best" + this.toString() + best.toString());
+    //    System.out.println("best" + this.toString() + best.toString());
     assertTrue(best.getChiSq() < 24000, "chi square"); //average error 31.6% - not a good fit, but the data is horrible
   }
 
