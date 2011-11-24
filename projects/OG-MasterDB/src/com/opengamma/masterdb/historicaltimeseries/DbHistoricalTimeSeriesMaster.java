@@ -22,11 +22,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
+import com.opengamma.DataDuplicationException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.extsql.ExtSqlBundle;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdSearch;
+import com.opengamma.id.ExternalIdSearchType;
 import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
@@ -300,6 +302,29 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public HistoricalTimeSeriesInfoDocument add(HistoricalTimeSeriesInfoDocument document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getInfo(), "document.info");
+    ArgumentChecker.notNull(document.getInfo().getName(), "document.info.name");
+    ArgumentChecker.notNull(document.getInfo().getDataField(), "document.info.dataField");
+    ArgumentChecker.notNull(document.getInfo().getDataSource(), "document.info.dataSource");
+    ArgumentChecker.notNull(document.getInfo().getDataProvider(), "document.info.dataProvider");
+    ArgumentChecker.notNull(document.getInfo().getObservationTime(), "document.info.observationTime");
+    
+    HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
+    request.setDataField(document.getInfo().getDataField());
+    request.setDataSource(document.getInfo().getDataSource());
+    request.setDataProvider(document.getInfo().getDataProvider());
+    request.setObservationTime(document.getInfo().getObservationTime());
+    request.setExternalIdSearch(new ExternalIdSearch(document.getInfo().getExternalIdBundle().toBundle(), ExternalIdSearchType.EXACT));
+    HistoricalTimeSeriesInfoSearchResult result = search(request);
+    if (result.getDocuments().size() > 0) {
+      throw new DataDuplicationException("Unable to add as similar row exists already: " + result.getDocuments().get(0).getObjectId());
+    }
+    return super.add(document);
+  }
+
   /**
    * Inserts a new document.
    * 
