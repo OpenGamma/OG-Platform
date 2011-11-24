@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.List;
 
 import javax.time.calendar.LocalDate;
@@ -37,6 +38,7 @@ import com.opengamma.master.holiday.HolidayMetaDataRequest;
 import com.opengamma.master.holiday.HolidayMetaDataResult;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
+import com.opengamma.master.holiday.HolidaySearchSortOrder;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -67,6 +69,19 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
    * The default scheme for unique identifiers.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbHol";
+
+  /**
+   * SQL order by.
+   */
+  protected static final EnumMap<HolidaySearchSortOrder, String> ORDER_BY_MAP = new EnumMap<HolidaySearchSortOrder, String>(HolidaySearchSortOrder.class);
+  static {
+    ORDER_BY_MAP.put(HolidaySearchSortOrder.OBJECT_ID_ASC, "oid ASC");
+    ORDER_BY_MAP.put(HolidaySearchSortOrder.OBJECT_ID_DESC, "oid DESC");
+    ORDER_BY_MAP.put(HolidaySearchSortOrder.VERSION_FROM_INSTANT_ASC, "ver_from_instant ASC");
+    ORDER_BY_MAP.put(HolidaySearchSortOrder.VERSION_FROM_INSTANT_DESC, "ver_from_instant DESC");
+    ORDER_BY_MAP.put(HolidaySearchSortOrder.NAME_ASC, "name ASC");
+    ORDER_BY_MAP.put(HolidaySearchSortOrder.NAME_DESC, "name DESC");
+  }
 
   /**
    * Creates an instance.
@@ -151,6 +166,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       buf.setLength(buf.length() - 2);
       args.addValue("sql_search_object_ids", buf.toString());
     }
+    args.addValue("sort_order", ORDER_BY_MAP.get(request.getSortOrder()));
     args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     
