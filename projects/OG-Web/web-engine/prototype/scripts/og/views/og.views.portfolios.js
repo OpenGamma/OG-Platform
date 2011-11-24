@@ -83,6 +83,17 @@ $.register_module({
                             }
                         }
                     })
+                },
+                'versions': function () {
+                    var $version_link, rule = module.rules.load_portfolios, layout = og.views.common.layout,
+                        args = routes.current().args;
+                    routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
+                    if (!layout.inner.state.south.isClosed && args.version) {
+                        layout.inner.close('south');
+                    } else layout.inner.open('south');
+                    layout.inner.options.south.onclose = function () {
+                        routes.go(routes.hash(rule, args, {del: ['version', 'node', 'sync']}));
+                    };
                 }
             },
             options = {
@@ -112,7 +123,7 @@ $.register_module({
                             {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
                             {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
                             {id: 'delete', tooltip: 'Delete', divider: true, handler: toolbar_buttons['delete']},
-                            {id: 'versions', label: 'versions'}
+                            {id: 'versions', label: 'versions', handler: toolbar_buttons['versions']}
                         ],
                         location: '.OG-tools'
                     }
@@ -314,51 +325,7 @@ $.register_module({
                         slick.onMouseLeave.subscribe(function (e) {
                            $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
                         });
-                    },
-                    setup_header_links = function () {
-                        var $version_link, $sync_link, sync_href, message_obj,
-                            rule = module.rules.load_portfolios;
-                        $version_link = $('.OG-tools .og-icon-tools-versions')
-                            .addClass('og-js-version-link')
-                            .unbind('click').bind('click', function (e) {
-                                var layout = og.views.common.layout;
-                                routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
-                                if (!layout.inner.state.south.isClosed && args.version) {
-                                    layout.inner.close('south');
-                                } else layout.inner.open('south');
-                            });
-                        layout.inner.options.south.onclose = function () {
-                            routes.go(routes.hash(rule, args, {del: ['version', 'node', 'sync']}));
-                        };
-                        sync_href = routes.prefix() + routes.hash(rule, args, {add: {sync: 'true'}});
-                        message_obj = {
-                            location: '.ui-layout-inner-center .ui-layout-content',
-                            css: {left: 0}, level: 'strong',
-                            message: '\
-                                <span class="OG-icon og-icon-sync"></span>\
-                                This portfolio is out of sync, \
-                                <a href="' + sync_href + '">Click here to Fix...</a>'
-                        };
-//                        $sync_link = $('<a>check sync status</a>')
-//                            .addClass('OG-link-small og-js-sync-link OG-icon og-icon-sync-small')
-//                            .attr('href', sync_href)
-//                            .unbind('click').bind('click', function (e) {
-//                                e.preventDefault();
-//                                $(e.target).text('checking sync status...').addClass('og-active');
-//                                // TODO: Check if portfolio is out of sync
-//                                setTimeout(function () {
-//                                    ui.message(message_obj);
-//                                    $(e.target).text('check sync status').removeClass('og-active');
-//                                }, 2000);
-//                            });
                     };
-                // if new page, close south panel
-                check_state({args: args, conditions: [{
-                    new_page: function () {
-                        layout.inner.options.south.onclose = null;
-                        layout.inner.close.partial('south');
-                    }
-                }]});
                 // load versions
                 if (args.version || args.sync) {
                     layout.inner.open('south');
@@ -387,7 +354,6 @@ $.register_module({
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
                             $('.ui-layout-inner-center .ui-layout-content').html(content);
                             ui.toolbar(options.toolbar.active);
-                            setup_header_links();
                             if (json.template_data && json.template_data.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);
                                 layout.inner.sizePane('north', '0');
@@ -482,7 +448,17 @@ $.register_module({
             load_edit_portfolios: load_portfolios_without.partial('edit'),
             load_portfolios: function (args) {
                 if (portfolios.deleted) return portfolios.load_delete(args);
-                check_state({args: args, conditions: [{new_page: portfolios.load}]});
+                check_state({args: args, conditions: [
+                    {new_page: function () {
+                        portfolios.load(args);
+                        og.views.common.layout.inner.options.south.onclose = null;
+                        og.views.common.layout.inner.close.partial('south');
+                    }},
+                    {new_value: 'id', method: function () {
+                        og.views.common.layout.inner.options.south.onclose = null;
+                        og.views.common.layout.inner.close.partial('south');
+                    }}
+                ]});
                 portfolios.details(args);
             },
             search: function (args) {

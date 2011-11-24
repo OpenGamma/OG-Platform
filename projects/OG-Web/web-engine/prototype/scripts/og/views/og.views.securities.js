@@ -152,13 +152,6 @@ $.register_module({
                             routes.go(routes.hash(rule, args, {del: ['version']}));
                         };
                     };
-                // if new page, close south panel
-                check_state({args: args, conditions: [{
-                    new_page: function () {
-                        layout.inner.options.south.onclose = null;
-                        layout.inner.close.partial('south');
-                    }
-                }]});
                 // load versions
                 if (args.version) {
                     layout.inner.open('south');
@@ -282,7 +275,17 @@ $.register_module({
             load_delete: function (args) {securities.search(args), routes.go(routes.hash(module.rules.load, {}));},
             load_new_securities: load_securities_without.partial('new'),
             load_securities: function (args) {
-                check_state({args: args, conditions: [{new_page: securities.load}]});
+                check_state({args: args, conditions: [
+                    {new_page: function () {
+                        securities.load(args);
+                        og.views.common.layout.inner.options.south.onclose = null;
+                        og.views.common.layout.inner.close.partial('south');
+                    }},
+                    {new_value: 'id', method: function () {
+                        og.views.common.layout.inner.options.south.onclose = null;
+                        og.views.common.layout.inner.close.partial('south');
+                    }}
+                ]});
                 securities.details(args);
             },
             search: function (args) {
