@@ -26,7 +26,7 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search,
+            search, layout,
             ui = common.util.ui,
             module = this,
             page_name = module.name.split('.').pop(),
@@ -90,7 +90,17 @@ $.register_module({
                             api.rest.securities.del(obj);
                         }
                     }
-                })}
+                })},
+                'versions': function () {
+                    var rule = module.rules.load_securities, args = routes.current().args;
+                    routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
+                    if (!layout.inner.state.south.isClosed && args.version) {
+                        layout.inner.close('south');
+                    } else layout.inner.open('south');
+                    layout.inner.options.south.onclose = function () {
+                        routes.go(routes.hash(rule, args, {del: ['version']}));
+                    };
+                }
             },
             options = {
                 slickgrid: {
@@ -120,7 +130,7 @@ $.register_module({
                             {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
                             {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
                             {id: 'delete', tooltip: 'Delete', divider: true, handler: toolbar_buttons['delete']},
-                            {id: 'versions', label: 'versions'}
+                            {id: 'versions', label: 'versions', handler: toolbar_buttons['versions']}
                         ],
                         location: '.OG-tools'
                     }
@@ -134,31 +144,6 @@ $.register_module({
             },
             default_details = og.views.common.default_details.partial(page_name, 'Securities', options),
             details_page = function (args) {
-                var layout = og.views.common.layout,
-                    setup_header_links = function () {
-                        var $version_link,
-                            rule = module.rules.load_securities;
-                        $version_link = $('.OG-tools .og-icon-tools-versions')
-                            .addClass('og-js-version-link')
-                            .unbind('click').bind('click', function (e) {
-                                var layout = og.views.common.layout;
-                                routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
-                                if (!layout.inner.state.south.isClosed && args.version) {
-                                    e.preventDefault();
-                                    layout.inner.close('south');
-                                } else layout.inner.open('south');
-                            });
-                        layout.inner.options.south.onclose = function () {
-                            routes.go(routes.hash(rule, args, {del: ['version']}));
-                        };
-                    };
-                // if new page, close south panel
-                check_state({args: args, conditions: [{
-                    new_page: function () {
-                        layout.inner.options.south.onclose = null;
-                        layout.inner.close.partial('south');
-                    }
-                }]});
                 // load versions
                 if (args.version) {
                     layout.inner.open('south');
@@ -185,8 +170,7 @@ $.register_module({
                                         This security has been deleted\
                                     </section>\
                                 ',
-                                $html = $.tmpl(template, json.template_data),
-                                layout = og.views.common.layout, header, content,
+                                $html = $.tmpl(template, json.template_data), header, content,
                                 html = [], id, json_id = json.identifiers;
                             header = $.outer($html.find('> header')[0]);
                             content = $.outer($html.find('> section')[0]);
@@ -210,7 +194,6 @@ $.register_module({
                                 }
                             }());
                             ui.toolbar(options.toolbar.active);
-                            setup_header_links();
                             if (json.template_data && json.template_data.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);
                                 layout.inner.sizePane('north', '0');
@@ -251,6 +234,7 @@ $.register_module({
         };
         return securities = {
             load: function (args) {
+                layout = og.views.common.layout;
                 check_state({args: args, conditions: [
                     {new_page: function () {
                         securities.search(args);
@@ -282,7 +266,17 @@ $.register_module({
             load_delete: function (args) {securities.search(args), routes.go(routes.hash(module.rules.load, {}));},
             load_new_securities: load_securities_without.partial('new'),
             load_securities: function (args) {
-                check_state({args: args, conditions: [{new_page: securities.load}]});
+                check_state({args: args, conditions: [
+                    {new_page: function () {
+                        securities.load(args);
+                        layout.inner.options.south.onclose = null;
+                        layout.inner.close.partial('south');
+                    }},
+                    {new_value: 'id', method: function () {
+                        layout.inner.options.south.onclose = null;
+                        layout.inner.close.partial('south');
+                    }}
+                ]});
                 securities.details(args);
             },
             search: function (args) {

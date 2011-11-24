@@ -96,7 +96,8 @@ public class FRASecurity extends FinancialSecurity {
    * @param underlyingIdentifier the underlying identifier, not null
    * @param fixingDate the fixing date, not null
    */
-  public FRASecurity(Currency currency, ExternalId region, ZonedDateTime startDate, ZonedDateTime endDate, double rate, double amount, ExternalId underlyingIdentifier, ZonedDateTime fixingDate) {
+  public FRASecurity(Currency currency, ExternalId region, ZonedDateTime startDate, ZonedDateTime endDate, double rate,
+                     double amount, ExternalId underlyingIdentifier, ZonedDateTime fixingDate) {
     super(SECURITY_TYPE);
     setCurrency(currency);
     setRegionId(region);
