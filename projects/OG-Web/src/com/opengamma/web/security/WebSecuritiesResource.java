@@ -84,7 +84,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @QueryParam("securityId") List<String> securityIdStrs,
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
-    SecuritySearchSortOrder so = buildSortOrder(sort, SecuritySearchSortOrder.OBJECT_ID_ASC);
+    SecuritySearchSortOrder so = buildSortOrder(sort, SecuritySearchSortOrder.NAME_ASC);
     FlexiBean out = createSearchResultData(pr, so, name, identifier, type, securityIdStrs, uriInfo);
     return getFreemarker().build("securities/securities.ftl", out);
   }
@@ -102,7 +102,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @QueryParam("securityId") List<String> securityIdStrs,
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
-    SecuritySearchSortOrder so = buildSortOrder(sort, SecuritySearchSortOrder.OBJECT_ID_ASC);
+    SecuritySearchSortOrder so = buildSortOrder(sort, SecuritySearchSortOrder.NAME_ASC);
     FlexiBean out = createSearchResultData(pr, so, name, identifier, type, securityIdStrs, uriInfo);
     return getFreemarker().build("securities/jsonsecurities.ftl", out);
   }
