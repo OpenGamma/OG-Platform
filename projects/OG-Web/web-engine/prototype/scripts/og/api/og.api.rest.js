@@ -111,7 +111,12 @@ $.register_module({
                         });
                         return id;
                     };
-                if (config.meta.type === 'GET') register({id: id, config: config, current: current, url: url});
+                if (config.meta.type === 'GET')
+                    register({id: id, config: config, current: current, url: url});
+                else
+                    if (og.app.READ_ONLY) return setTimeout(config.meta.handler.partial({
+                        error: true, data: null, meta: {}, message: 'This application is in read-only mode.'
+                    }), 0), id;
                 if (config.meta.update && config.meta.type !== 'GET') og.dev.warn('update functions are only for GETs');
                 if (config.meta.cache_for && config.meta.type !== 'GET')
                     og.dev.warn('only GETs can be cached'), delete config.meta.cache_for;

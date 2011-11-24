@@ -23,11 +23,13 @@ import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
+import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -107,12 +109,22 @@ public class StocksPutsCallsAggregationFunction implements AggregationFunction<S
         public String visitEquityOptionSecurity(EquityOptionSecurity security) {
           return security.getOptionType() == OptionType.CALL ? CALLS : PUTS;
         }
+        
+        @Override
+        public String visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+          return security.getOptionType() == OptionType.CALL ? CALLS : PUTS;
+        }
   
         @Override
         public String visitFXOptionSecurity(FXOptionSecurity security) {
           return security.getCallAmount() > 0 ? CALLS : PUTS; // check this!
         }
   
+        @Override
+        public String visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
+          return security.getCallAmount() > 0 ? CALLS : PUTS; // check this!
+        }
+        
         @Override
         public String visitSwaptionSecurity(SwaptionSecurity security) {
           return NA;

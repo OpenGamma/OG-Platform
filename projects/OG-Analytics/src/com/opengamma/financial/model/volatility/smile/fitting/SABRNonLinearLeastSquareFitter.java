@@ -28,8 +28,9 @@ import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.CompareUtils;
 
 /**
- * 
+ * @deprecated Please use SABRModelFitter
  */
+@Deprecated
 public class SABRNonLinearLeastSquareFitter extends LeastSquareSmileFitter {
   private static final NonLinearLeastSquare SOLVER = new NonLinearLeastSquare(DecompositionFactory.SV_COLT, MatrixAlgebraFactory.OG_ALGEBRA, 1e-4);
   private static final int N_PARAMETERS = 4;

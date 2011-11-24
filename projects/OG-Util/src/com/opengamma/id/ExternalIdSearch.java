@@ -292,6 +292,15 @@ public final class ExternalIdSearch implements Iterable<ExternalId>, Serializabl
     return idSearch.size() > 0;
   }
 
+  /**
+   * Checks if this search always matches.
+   * 
+   * @return true if the search always matches
+   */
+  public boolean alwaysMatches() {
+    return (getSearchType() == ExternalIdSearchType.NONE && size() == 0);
+  }
+
   //-------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {

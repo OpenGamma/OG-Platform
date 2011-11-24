@@ -1,0 +1,237 @@
+-- SQL for holiday master
+
+-- ==========================================================================
+@NAME(GetById)
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.name AS name,
+    main.hol_type AS hol_type,
+    main.provider_scheme AS provider_scheme,
+    main.provider_value AS provider_value,
+    main.region_scheme AS region_scheme,
+    main.region_value AS region_value,
+    main.exchange_scheme AS exchange_scheme,
+    main.exchange_value AS exchange_value,
+    main.currency_iso AS currency_iso,
+    d.hol_date AS hol_date
+  FROM
+    hol_holiday main
+    LEFT JOIN hol_date d ON (d.holiday_id = main.id)
+  WHERE main.id = :doc_id
+    AND main.oid = :doc_oid
+  ORDER BY
+    d.hol_date
+
+
+-- ==========================================================================
+@NAME(GetByOidInstants)
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.name AS name,
+    main.hol_type AS hol_type,
+    main.provider_scheme AS provider_scheme,
+    main.provider_value AS provider_value,
+    main.region_scheme AS region_scheme,
+    main.region_value AS region_value,
+    main.exchange_scheme AS exchange_scheme,
+    main.exchange_value AS exchange_value,
+    main.currency_iso AS currency_iso,
+    d.hol_date AS hol_date
+  FROM
+    hol_holiday main
+    LEFT JOIN hol_date d ON (d.holiday_id = main.id)
+  WHERE main.oid = :doc_oid
+    AND main.ver_from_instant <= :version_as_of AND main.ver_to_instant > :version_as_of
+    AND main.corr_from_instant <= :corrected_to AND main.corr_to_instant > :corrected_to
+  ORDER BY
+    d.hol_date
+
+
+-- ==========================================================================
+@NAME(Search)
+  WITH cte_docs AS ( @INSERT(SearchInner) )
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.name AS name,
+    main.hol_type AS hol_type,
+    main.provider_scheme AS provider_scheme,
+    main.provider_value AS provider_value,
+    main.region_scheme AS region_scheme,
+    main.region_value AS region_value,
+    main.exchange_scheme AS exchange_scheme,
+    main.exchange_value AS exchange_value,
+    main.currency_iso AS currency_iso,
+    d.hol_date AS hol_date
+  FROM
+    hol_holiday main
+    INNER JOIN cte_docs ON main.id = cte_docs.id
+    LEFT JOIN hol_date d ON (d.holiday_id = main.id)
+  ORDER BY
+    main.id,
+    d.hol_date
+
+
+-- ==========================================================================
+@NAME(SearchInner)
+  SELECT
+    id
+  FROM
+    hol_holiday
+  @INSERT(SearchWhere)
+  ORDER BY
+    id
+  @OFFSETFETCH
+
+
+-- ==========================================================================
+@NAME(SearchCount)
+  SELECT
+    COUNT(id)
+  FROM
+    hol_holiday
+  @INSERT(SearchWhere)
+
+
+-- ==========================================================================
+@NAME(SearchWhere)
+  WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
+    AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
+    @AND(:sql_search_object_ids)
+      oid IN ( @INSERT(:sql_search_object_ids) )
+    @AND(:hol_type)
+      hol_type = :hol_type
+    @AND(:provider_scheme)
+      provider_scheme = :provider_scheme
+    @AND(:provider_value)
+      provider_value = :provider_value
+    @AND(:currency_iso)
+      currency_iso = :currency_iso
+    @AND(:name)
+      UPPER(name) @LIKE UPPER(:name)
+    @AND(:sql_search_region_ids)
+      ( @INSERT(:sql_search_region_ids) )
+    @AND(:sql_search_exchange_ids)
+      ( @INSERT(:sql_search_exchange_ids) )
+
+
+-- ==========================================================================
+@NAME(History)
+  WITH cte_docs AS ( @INSERT(HistoryInner) )
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.name AS name,
+    main.hol_type AS hol_type,
+    main.provider_scheme AS provider_scheme,
+    main.provider_value AS provider_value,
+    main.region_scheme AS region_scheme,
+    main.region_value AS region_value,
+    main.exchange_scheme AS exchange_scheme,
+    main.exchange_value AS exchange_value,
+    main.currency_iso AS currency_iso,
+    d.hol_date AS hol_date
+  FROM
+    hol_holiday main
+    INNER JOIN cte_docs ON main.id = cte_docs.id
+    LEFT JOIN hol_date d ON (d.holiday_id = main.id)
+  ORDER BY
+    main.ver_from_instant DESC,
+    main.corr_from_instant DESC,
+    d.hol_date
+
+
+-- ==========================================================================
+@NAME(HistoryInner)
+  SELECT
+    id
+  FROM
+    hol_holiday
+  @INSERT(HistoryWhere)
+  ORDER BY
+    ver_from_instant DESC,
+    corr_from_instant DESC
+  @OFFSETFETCH
+
+
+-- ==========================================================================
+@NAME(HistoryCount)
+  SELECT
+    COUNT(id)
+  FROM
+    hol_holiday 
+  @INSERT(HistoryWhere)
+
+
+-- ==========================================================================
+@NAME(HistoryWhere)
+  WHERE oid = :doc_oid
+    @IF(:sql_history_versions = Point)
+      AND ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant
+    @IF(:sql_history_versions = Range)
+      @AND(:versions_from_instant)
+        ((ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant) OR ver_from_instant >= :versions_from_instant)
+      @AND(:versions_to_instant)
+        ((ver_from_instant <= :versions_to_instant AND ver_to_instant > :versions_to_instant) OR ver_to_instant < :versions_to_instant)
+    @IF(:sql_history_corrections = Point)
+      AND corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant
+    @IF(:sql_history_corrections = Range)
+      @AND(:corrections_from_instant)
+        ((corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant) OR corr_from_instant >= :corrections_from_instant)
+      @AND(:corrections_to_instant)
+        ((corr_from_instant <= :corrections_to_instant AND corr_to_instant > :corrections_to_instant) OR corr_to_instant < :corrections_to_instant)
+
+
+-- ==========================================================================
+@NAME(Insert)
+  INSERT INTO hol_holiday
+    (id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, hol_type,
+    provider_scheme, provider_value, region_scheme, region_value, exchange_scheme, exchange_value, currency_iso)
+  VALUES
+    (:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, :hol_type,
+    :provider_scheme, :provider_value, :region_scheme, :region_value, :exchange_scheme, :exchange_value, :currency_iso)
+
+
+-- ==========================================================================
+@NAME(InsertDate)
+  INSERT INTO hol_date
+    (holiday_id, hol_date)
+  VALUES
+    (:doc_id, :hol_date)
+
+
+-- ==========================================================================
+@NAME(UpdateVersionToInstant)
+  UPDATE hol_holiday
+  SET ver_to_instant = :ver_to_instant
+  WHERE id = :doc_id
+    AND ver_to_instant >= :max_instant
+
+
+-- ==========================================================================
+@NAME(UpdateCorrectionToInstant)
+  UPDATE hol_holiday
+  SET corr_to_instant = :corr_to_instant
+  WHERE id = :doc_id
+    AND corr_to_instant >= :max_instant
+
+
+-- ==========================================================================

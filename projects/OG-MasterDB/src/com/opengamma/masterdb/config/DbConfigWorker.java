@@ -25,6 +25,7 @@ import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.extsql.ExtSqlBundle;
 import com.opengamma.id.IdUtils;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.ObjectId;
@@ -52,38 +53,15 @@ import com.opengamma.util.paging.PagingRequest;
  * 
  */
 /*package*/class DbConfigWorker extends AbstractDocumentDbMaster<ConfigDocument<?>> {
-  
+
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbConfigWorker.class);
-  
+
   /**
    * The Fudge context.
    */
   protected static final FudgeContext FUDGE_CONTEXT = OpenGammaFudgeContext.getInstance();
-  
-  /**
-   * SQL select.
-   */
-  protected static final String SELECT =
-      "SELECT " +
-        "main.id AS doc_id, " +
-        "main.oid AS doc_oid, " +
-        "main.ver_from_instant AS ver_from_instant, " +
-        "main.ver_to_instant AS ver_to_instant, " +
-        "main.corr_from_instant AS corr_from_instant, " +
-        "main.corr_to_instant AS corr_to_instant, " +
-        "main.name AS name, " +
-        "main.config_type AS config_type, " +
-        "main.config AS config ";
-  /**
-   * SQL from.
-   */
-  protected static final String FROM =
-      "FROM cfg_config main ";
-  /**
-   * SQL select types
-   */
-  protected static final String SELECT_TYPES = "SELECT DISTINCT main.config_type AS config_type ";
+
   /**
    * SQL order by.
    */
@@ -105,6 +83,7 @@ import com.opengamma.util.paging.PagingRequest;
    */
   public DbConfigWorker(DbConnector dbConnector, String defaultScheme) {
     super(dbConnector, defaultScheme);
+    setExtSqlBundle(ExtSqlBundle.of(dbConnector.getDialect().getExtSqlConfig(), DbConfigMaster.class));
   }
 
   //-------------------------------------------------------------------------
@@ -148,7 +127,7 @@ import com.opengamma.util.paging.PagingRequest;
     // refactoring of stored objects following an upgrade through database operations.
     byte[] bytes = FUDGE_CONTEXT.toByteArray(env.getMessage());
     // the arguments for inserting into the config table
-    final DbMapSqlParameterSource configArgs = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
       .addValue("doc_id", docId)
       .addValue("doc_oid", docOid)
       .addTimestamp("ver_from_instant", document.getVersionFromInstant())
@@ -158,30 +137,9 @@ import com.opengamma.util.paging.PagingRequest;
       .addValue("name", document.getName())
       .addValue("config_type", document.getType().getName())
       .addValue("config", new SqlLobValue(bytes, getDialect().getLobHandler()), Types.BLOB);
-    getJdbcTemplate().update(sqlInsertConfig(), configArgs);
+    final String sqlDoc = getExtSqlBundle().getSql("Insert", docArgs);
+    getJdbcTemplate().update(sqlDoc, docArgs);
     return document;
-  }
-
-  @Override
-  protected String sqlSelectFrom() {
-    return SELECT + FROM;
-  }
-
-  @Override
-  protected String mainTableName() {
-    return "cfg_config";
-  }
-
-  /**
-  * Gets the SQL for inserting a document.
-  * 
-  * @return the SQL, not null
-  */
-  protected String sqlInsertConfig() {
-    return "INSERT INTO cfg_config " +
-           "(id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, config_type, config) " +
-         "VALUES " +
-           "(:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, :config_type, :config)";
   }
 
   //-------------------------------------------------------------------------
@@ -189,7 +147,8 @@ import com.opengamma.util.paging.PagingRequest;
     ArgumentChecker.notNull(request, "request");
     ConfigMetaDataResult result = new ConfigMetaDataResult();
     if (request.isConfigTypes()) {
-      List<String> configTypes = getJdbcTemplate().getJdbcOperations().queryForList(SELECT_TYPES + FROM, String.class);
+      final String sql = getExtSqlBundle().getSql("SelectTypes");
+      List<String> configTypes = getJdbcTemplate().getJdbcOperations().queryForList(sql, String.class);
       for (String configType : configTypes) {
         try {
           result.getConfigTypes().add(loadClass(configType));
@@ -201,6 +160,7 @@ import com.opengamma.util.paging.PagingRequest;
     return result;
   }
 
+  //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   protected <T> ConfigSearchResult<T> search(ConfigSearchRequest<T> request) {
     ArgumentChecker.notNull(request, "request");
@@ -210,7 +170,8 @@ import com.opengamma.util.paging.PagingRequest;
     s_logger.debug("search {}", request);
     
     final ConfigSearchResult<T> result = new ConfigSearchResult<T>();
-    if (request.getConfigIds() != null && request.getConfigIds().size() == 0) {
+    final List<ObjectId> objectIds = request.getConfigIds();
+    if (objectIds != null && objectIds.size() == 0) {
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
@@ -224,9 +185,21 @@ import com.opengamma.util.paging.PagingRequest;
     if (!request.getType().isInstance(Object.class)) {
       args.addValue("config_type", request.getType().getName());
     }
-
-    String[] sql = sqlSearchConfigs(request);
-
+    if (objectIds != null) {
+      StringBuilder buf = new StringBuilder(objectIds.size() * 10);
+      for (ObjectId objectId : objectIds) {
+        checkScheme(objectId);
+        buf.append(extractOid(objectId)).append(", ");
+      }
+      buf.setLength(buf.length() - 2);
+      args.addValue("sql_search_object_ids", buf.toString());
+    }
+    args.addValue("sort_order", ORDER_BY_MAP.get(request.getSortOrder()));
+    args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
+    args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
+    
+    String[] sql = {getExtSqlBundle().getSql("Search", args), getExtSqlBundle().getSql("SearchCount", args)};
+    
     final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
     ConfigDocumentExtractor configDocumentExtractor = new ConfigDocumentExtractor();
     if (request.equals(PagingRequest.ALL)) {
@@ -252,6 +225,7 @@ import com.opengamma.util.paging.PagingRequest;
     return result;
   }
 
+  //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   protected <T> ConfigHistoryResult<T> history(ConfigHistoryRequest<T> request) {
     ArgumentChecker.notNull(request, "request");
@@ -259,15 +233,15 @@ import com.opengamma.util.paging.PagingRequest;
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     checkScheme(request.getObjectId());
     s_logger.debug("history {}", request);
-
+    
     ConfigHistoryResult<T> result = new ConfigHistoryResult<T>();
     ConfigDocumentExtractor extractor = new ConfigDocumentExtractor();
     final DbMapSqlParameterSource args = argsHistory(request);
-    String[] sqlHistory = sqlHistory(request);
-
+    final String[] sql = {getExtSqlBundle().getSql("History", args), getExtSqlBundle().getSql("HistoryCount", args)};
+    
     final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
     if (request.getPagingRequest().equals(PagingRequest.ALL)) {
-      List<ConfigDocument<?>> queryResult = namedJdbc.query(sqlHistory[0], args, extractor);
+      List<ConfigDocument<?>> queryResult = namedJdbc.query(sql[0], args, extractor);
       for (ConfigDocument<?> configDocument : queryResult) {
         if (request.getType().isInstance(configDocument.getValue())) {
           result.getDocuments().add((ConfigDocument<T>) configDocument);
@@ -275,10 +249,10 @@ import com.opengamma.util.paging.PagingRequest;
       }
       result.setPaging(Paging.of(request.getPagingRequest(), result.getDocuments()));
     } else {
-      final int count = namedJdbc.queryForInt(sqlHistory[1], args);
+      final int count = namedJdbc.queryForInt(sql[1], args);
       result.setPaging(Paging.of(request.getPagingRequest(), count));
       if (count > 0 && request.getPagingRequest().equals(PagingRequest.NONE) == false) {
-        List<ConfigDocument<?>> queryResult = namedJdbc.query(sqlHistory[0], args, extractor);
+        List<ConfigDocument<?>> queryResult = namedJdbc.query(sql[0], args, extractor);
         for (ConfigDocument<?> configDocument : queryResult) {
           if (request.getType().isInstance(configDocument.getValue())) {
             result.getDocuments().add((ConfigDocument<T>) configDocument);
@@ -287,40 +261,6 @@ import com.opengamma.util.paging.PagingRequest;
       }
     }
     return result;
-  }
-
-  /**
-  * Gets the SQL to search for documents.
-  * 
-  * @param <T> the config type
-  * @param request  the request, not null
-  * @return the SQL search and count, not null
-  */
-  protected <T> String[] sqlSearchConfigs(final ConfigSearchRequest<T> request) {
-    String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
-        "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
-    if (request.getName() != null) {
-      where += getDialect().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
-    }
-    if (!request.getType().isInstance(Object.class)) {
-      where += "AND config_type = :config_type ";
-    }
-    if (request.getConfigIds() != null) {
-      StringBuilder buf = new StringBuilder(request.getConfigIds().size() * 10);
-      for (ObjectId objectId : request.getConfigIds()) {
-        checkScheme(objectId);
-        buf.append(extractOid(objectId)).append(", ");
-      }
-      buf.setLength(buf.length() - 2);
-      where += "AND oid IN (" + buf + ") ";
-    }
-    
-    String selectFromWhereInner = "SELECT id FROM cfg_config " + where;
-    String orderBy = ORDER_BY_MAP.get(request.getSortOrder());
-    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY " + orderBy + " ", request.getPagingRequest());
-    String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main." + orderBy + sqlAdditionalOrderBy(false);
-    String count = "SELECT COUNT(*) FROM cfg_config " + where;
-    return new String[] {search, count };
   }
 
   /**
@@ -333,13 +273,6 @@ import com.opengamma.util.paging.PagingRequest;
    */
   protected Class<?> loadClass(String className) throws ClassNotFoundException {
     return Thread.currentThread().getContextClassLoader().loadClass(className);
-//    Class<?> reifiedType = null;
-//    try {
-//      reifiedType = Thread.currentThread().getContextClassLoader().loadClass(className);
-//    } catch (ClassNotFoundException ex) {
-//      throw new OpenGammaRuntimeException("Unable to load class", ex);
-//    }
-//    return reifiedType;
   }
 
   //-------------------------------------------------------------------------

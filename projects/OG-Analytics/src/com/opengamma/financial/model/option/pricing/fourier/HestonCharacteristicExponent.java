@@ -39,7 +39,7 @@ import com.opengamma.math.number.ComplexNumber;
  * \\phi(u) &= e^{C(t, u) + D(t, u)V_0 + iu\\ln F}\\\\
  * \\text{where}\\\\
  * C(t, u) &= \\frac{\\kappa\\theta}{\\omega^2} \\left((\\kappa - \\rho \\omega ui + d(u))t - 2\\ln\\left(\\frac{c(u)e^{d(u)t} - 1}{c(u) - 1}\\right) \\right)\\\\
- * D(t, u) &= \\frac{\\kappa - \\rho \\omega ui + d(u)}{\\omega^2}\\left(\\frac{e^{d(u)t} - 1}{c(u)e^{d(u)t} - 1}\\right)\\\\ 
+ * D(t, u) &= \\frac{\\kappa - \\rho \\omega ui + d(u)}{\\omega^2}\\left(\\frac{e^{d(u)t} - 1}{c(u)e^{d(u)t} - 1}\\right)\\\\
  * c(u) &= \\frac{\\kappa - \\rho \\omega ui + d(u)}{\\kappa - \\rho \\omega ui - d(u)}\\\\
  * \\text{and}\\\\
  * d(u) &= \\sqrt{(\\rho \\omega ui - \\kappa)^2 + iu\\omega^2 + \\omega^2 u^2}
@@ -57,8 +57,8 @@ public class HestonCharacteristicExponent implements MartingaleCharacteristicExp
 
   /**
    * 
-   * @param kappa mean-reverting speed 
-   * @param theta mean-reverting level 
+   * @param kappa mean-reverting speed
+   * @param theta mean-reverting level
    * @param vol0 starting value of volatility
    * @param omega volatility-of-volatility
    * @param rho correlation between the spot process and the volatility process
@@ -107,7 +107,7 @@ public class HestonCharacteristicExponent implements MartingaleCharacteristicExp
       return ZERO;
     }
 
-    //non-stochastic vol limit 
+    //non-stochastic vol limit
     if (_omega == 0.0 || mod(multiply(multiply(_omega / _kappa, u), add(I, u))) < 1e-6) {
       final ComplexNumber z = multiply(u, add(I, u));
       if (_kappa * t < 1e-6) {
@@ -132,114 +132,184 @@ public class HestonCharacteristicExponent implements MartingaleCharacteristicExp
     };
   }
 
+  private ComplexNumber[] forwardSweep(final ComplexNumber u, final double t) {
+    ComplexNumber[] w = new ComplexNumber[19];
+    w[0] = new ComplexNumber(_kappa * _theta / _omega / _omega);
+    w[1] = multiply(u, new ComplexNumber(0, _rho * _omega));
+    w[2] = subtract(w[1], _kappa);
+    w[3] = square(w[2]);
+    w[4] = multiply(u, new ComplexNumber(0, _omega * _omega));
+    w[5] = square(multiply(u, _omega));
+    w[6] = add(w[3], w[4], w[5]);
+    w[7] = sqrt(w[6]);
+    w[8] = subtract(w[7], w[2]);
+    w[9] = multiply(-1.0, add(w[7], w[2]));
+    w[10] = divide(w[8], w[9]);
+    w[11] = multiply(t, w[9]);
+    w[12] = exp(multiply(w[7], -t));
+    w[13] = divide(subtract(w[10], w[12]), subtract(w[10], 1));
+    w[14] = log(w[13]);
+    w[15] = divide(subtract(1, w[12]), subtract(w[10], w[12]));
+    w[16] = multiply(w[0], subtract(w[11], multiply(2, w[14])));
+    w[17] = divide(multiply(w[8], w[15]), _omega * _omega);
+    w[18] = add(w[16], multiply(_vol0, w[17]));
+    return w;
+  }
+
+  private ComplexNumber[] backwardsSweep(final ComplexNumber[] w, final double t) {
+    final double oneOverOmega2 = 1 / _omega / _omega;
+    final ComplexNumber[] wBar = new ComplexNumber[19];
+    wBar[18] = new ComplexNumber(1.0); //formal start
+    wBar[17] = new ComplexNumber(_vol0); //Suppressing the multiple by wBar18
+    wBar[16] = wBar[18];
+    wBar[15] = multiply(oneOverOmega2, w[8], wBar[17]);
+    wBar[14] = multiply(-2, w[0], wBar[16]);
+    wBar[13] = divide(wBar[14], w[13]);
+    ComplexNumber temp1 = subtract(1.0, w[10]);
+    ComplexNumber temp2 = subtract(w[10], w[12]);
+    ComplexNumber temp3 = square(temp2);
+    wBar[12] = add(multiply(wBar[15], divide(temp1, temp3)), divide(wBar[13], temp1));
+    wBar[11] = multiply(w[0], wBar[16]);
+    wBar[10] = add(multiply(divide(subtract(w[12], 1), temp3), wBar[15]), multiply(divide(subtract(w[12], 1), square(temp1)), wBar[13]));
+    wBar[9] = subtract(multiply(t, wBar[11]), multiply(divide(w[8], square(w[9])), wBar[10]));
+    wBar[8] = add(multiply(oneOverOmega2, w[15], wBar[17]), divide(wBar[10], w[9]));
+    //subtract(add(multiply(wBar12, multiply(-t, w12)), wBar8), wBar9);
+    wBar[7] = subtract(wBar[8], add(multiply(t, w[12], wBar[12]), wBar[9]));
+    wBar[6] = divide(wBar[7], multiply(2, w[7]));
+    wBar[5] = wBar[6];
+    wBar[4] = wBar[6];
+    wBar[3] = wBar[6];
+    wBar[2] = subtract(multiply(2, w[2], wBar[3]), add(wBar[8], wBar[9]));
+    wBar[1] = wBar[2];
+    wBar[0] = multiply(subtract(w[11], multiply(2, w[14])), wBar[16]);
+
+    return wBar;
+  }
+
+  public ComplexNumber[] getCharacteristicExponentAdjointDebug(final ComplexNumber u, final double t) {
+    ComplexNumber[] res = new ComplexNumber[6];
+    ComplexNumber[] w = forwardSweep(u, t);
+    ComplexNumber[] wBar = backwardsSweep(w, t);
+
+    res[0] = w[18];
+    res[1] = subtract(multiply(_theta / _omega / _omega, wBar[0]), wBar[2]);
+    res[2] = multiply(_kappa / _omega / _omega, wBar[0]);
+    res[3] = multiply(w[17], wBar[18]);
+    res[4] = multiply(1 / _omega, add(multiply(-2, w[0], wBar[0]), multiply(w[1], wBar[1]), multiply(2, w[4], wBar[4]), multiply(2, w[5], wBar[5]),
+        multiply(-2, w[17], wBar[17])));
+    res[5] = multiply(1 / _rho, w[1], wBar[1]);
+
+    return res;
+  }
+
   @Override
   public ComplexNumber[] getCharacteristicExponentAdjoint(final ComplexNumber u, final double t) {
     ComplexNumber[] res = new ComplexNumber[6];
 
-    final double kto = _kappa * _theta / _omega / _omega;
+    if (u.getReal() == 0.0 && (u.getImaginary() == 0.0 || u.getImaginary() == -1.0)) {
+      for (int i = 0; i < 6; i++) {
+        res[i] = ZERO;
+      }
+      return res;
+    }
 
-    final ComplexNumber rhoOmegaUi = multiply(u, new ComplexNumber(0, _rho * _omega));
-    final ComplexNumber rhoOmegaUiMinusKappa = subtract(rhoOmegaUi, _kappa);
-    final ComplexNumber rhoOmegaUiMinusKappa2 = square(rhoOmegaUiMinusKappa);
-    final ComplexNumber uOmega2i = multiply(u, new ComplexNumber(0, _omega * _omega));
-    final ComplexNumber omega2u2 = square(multiply(u, _omega));
-    final ComplexNumber smallD2 = add(add(rhoOmegaUiMinusKappa2, uOmega2i), omega2u2);
-    final ComplexNumber smallD = sqrt(smallD2);
+    //non-stochastic vol limit
+    if (_omega == 0.0 || mod(multiply(_omega / _kappa, u, add(I, u))) < 1e-6) {
+      final ComplexNumber z = multiply(u, add(I, u));
 
-    final ComplexNumber num = subtract(smallD, rhoOmegaUiMinusKappa);
-    final ComplexNumber denom = multiply(-1.0, add(smallD, rhoOmegaUiMinusKappa));
-    final ComplexNumber smallC = divide(num, denom);
+      //      //TODO calculate the omega -> 0 sensitivity without resorting to this hack
+      //      HestonCharacteristicExponent ceTemp = this.withOmega(1.1e-6 * _kappa / mod(z));
+      //      ComplexNumber[] temp = ceTemp.getCharacteristicExponentAdjoint(u, t);
 
-    final ComplexNumber denomT = multiply(t, denom);
-    final ComplexNumber e = exp(multiply(smallD, -t));
-    final ComplexNumber arg1 = divide(subtract(smallC, e), subtract(smallC, 1));
+      final double var;
+      if (_kappa * t < 1e-6) {
+        var = _vol0 * t + (_vol0 - _theta) * _kappa * t * t / 2;
+        res[1] = multiply(-0.5 * (_vol0 - _theta) * t * t / 2, z);
+        res[2] = multiply(_kappa * t * t / 4, z);
+        res[3] = multiply(-0.5 * (t + _kappa * t * t / 2), z);
+        res[4] = ZERO; //TODO this is wrong
+        res[5] = ZERO;
+      } else {
+        final double expKappaT = Math.exp(-_kappa * t);
+        var = _theta * t + (_vol0 - _theta) * (1 - expKappaT) / _kappa;
+        res[1] = multiply(-0.5 * (_vol0 - _theta) * (expKappaT * (1 + t * _kappa) - 1) / _kappa / _kappa, z);
+        res[2] = multiply(-0.5 * (t - (1 - expKappaT) / _kappa), z);
+        res[3] = multiply(-0.5 * (1 - expKappaT) / _kappa, z);
+        res[4] = ZERO; //TODO this is wrong
+        res[5] = ZERO;
+      }
+      res[0] = multiply(-var / 2, z);
+      return res;
+    }
 
-    final ComplexNumber lnArg1 = log(arg1);
-    final ComplexNumber arg2 = divide(subtract(1, e), subtract(smallC, e));
+    final double oneOverOmega2 = 1 / _omega / _omega;
+    final double w0 = _kappa * _theta * oneOverOmega2;
 
-    final ComplexNumber bigC = multiply(kto, subtract(denomT, multiply(2, lnArg1)));
-    final ComplexNumber bigD = divide(multiply(num, arg2), _omega * _omega);
+    final ComplexNumber w1 = multiply(u, new ComplexNumber(0, _rho * _omega)); //w1
+    final ComplexNumber w2 = subtract(w1, _kappa); //w2
+    final ComplexNumber w3 = square(w2); //w3
+    final ComplexNumber w4 = multiply(u, new ComplexNumber(0, _omega * _omega));
+    final ComplexNumber w5 = square(multiply(u, _omega));
+    final ComplexNumber w6 = add(w3, w4, w5);
+    final ComplexNumber w7 = sqrt(w6);
 
-    final ComplexNumber dv0 = multiply(_vol0, bigD);
-    res[0] = add(bigC, dv0); //value of CE
+    final ComplexNumber w8 = subtract(w7, w2);
+    final ComplexNumber w9 = multiply(-1.0, add(w7, w2));
+    final ComplexNumber w10 = divide(w8, w9);
+
+    final ComplexNumber w11 = multiply(t, w9);
+    final ComplexNumber w12 = exp(multiply(w7, -t));
+    final ComplexNumber w13 = divide(subtract(w10, w12), subtract(w10, 1));
+
+    final ComplexNumber w14 = log(w13);
+    final ComplexNumber w15 = divide(subtract(1, w12), subtract(w10, w12));
+
+    final ComplexNumber w16 = multiply(w0, subtract(w11, multiply(2, w14)));
+    final ComplexNumber w17 = multiply(oneOverOmega2, w8, w15);
+    final ComplexNumber w18 = add(w16, multiply(_vol0, w17));
+
+    res[0] = w18; //value of CE
 
     //backwards sweep
-    final ComplexNumber bigCBar = new ComplexNumber(1.0);
-    final ComplexNumber bigDBar = new ComplexNumber(_vol0);
-    res[3] = bigD; //vol0
+    final ComplexNumber wBar16 = new ComplexNumber(1.0);
+    final ComplexNumber wBar17 = new ComplexNumber(_vol0);
+    final ComplexNumber wBar15 = multiply(oneOverOmega2, wBar17, w8);
+    final ComplexNumber wBar14 = multiply(-2 * w0, wBar16);
+    final ComplexNumber wBar13 = divide(wBar14, w13);
+    final ComplexNumber wBar12a = multiply(wBar15, divide(subtract(1, w10), square(subtract(w10, w12))));
+    final ComplexNumber wBar12b = multiply(wBar13, divide(1.0, subtract(1.0, w10)));
+    final ComplexNumber wBar12 = add(wBar12a, wBar12b);
+    final ComplexNumber wBar11 = multiply(w0, wBar16);
+    final ComplexNumber wBar10a = multiply(wBar15, divide(w15, subtract(w12, w10)));
+    final ComplexNumber wBar10b = multiply(wBar13, divide(subtract(w12, 1.0), square(subtract(w10, 1.0))));
+    final ComplexNumber wBar10 = add(wBar10a, wBar10b);
+    final ComplexNumber wBar9a = multiply(t, wBar11);
+    final ComplexNumber wBar9b = multiply(-1.0, wBar10, divide(w10, w9));
+    final ComplexNumber wBar9 = add(wBar9a, wBar9b);
+    final ComplexNumber wBar8a = multiply(oneOverOmega2, wBar17, w15);
+    final ComplexNumber wBar8b = divide(wBar10, w9);
+    final ComplexNumber wBar8 = add(wBar8a, wBar8b);
+    final ComplexNumber wBar7 = subtract(add(multiply(wBar12, multiply(-t, w12)), wBar8), wBar9);
+    final ComplexNumber wBar6 = multiply(wBar7, divide(0.5, w7));
+    final ComplexNumber wBar5 = wBar6;
+    final ComplexNumber wBar4 = wBar6;
+    final ComplexNumber wBar3 = wBar6;
+    final ComplexNumber wBar2 = subtract(multiply(wBar3, multiply(2.0, w2)), add(wBar8, wBar9));
+    final ComplexNumber wBar1 = wBar2;
+    final ComplexNumber wBar0 = multiply(wBar16, subtract(w11, multiply(2, w14)));
 
-    final ComplexNumber bigDXarg2 = divide(num, _omega * _omega);
-    final ComplexNumber arg2Bar = multiply(bigDBar, bigDXarg2);
-    final ComplexNumber bigDXNum = divide(arg2, _omega * _omega);
-    final ComplexNumber numBar1 = multiply(bigDBar, bigDXNum); //since num appears in several places in the graph we need to split it out 
-    final ComplexNumber bigDXOmega = multiply(-2 / _omega, bigD);
-    final ComplexNumber omegaBar1 = multiply(bigDBar, bigDXOmega);
+    res[1] = subtract(multiply(wBar0, _theta / _omega / _omega), wBar2); //kappaBar
+    res[2] = multiply(wBar0, _kappa / _omega / _omega); //thetaBar
+    res[3] = w17; //vol0
 
-    final ComplexNumber bigCXlnArg1 = new ComplexNumber(-2 * kto);
-    final ComplexNumber lnArg1Bar = multiply(bigCBar, bigCXlnArg1);
-    final ComplexNumber bigCXdenom = new ComplexNumber(t * kto);
-    final ComplexNumber denomBar1 = multiply(bigCBar, bigCXdenom);
-    final ComplexNumber bigCXkto = divide(bigC, kto);
-    final ComplexNumber ktoBar = multiply(bigCBar, bigCXkto);
-
-    final ComplexNumber arg2XsmallC = divide(arg2, subtract(e, smallC));
-    final ComplexNumber smallCBar1 = multiply(arg2Bar, arg2XsmallC);
-    final ComplexNumber arg2Xe = divide(subtract(1, smallC), square(subtract(smallC, e)));
-    final ComplexNumber eBar1 = multiply(arg2Bar, arg2Xe);
-
-    final ComplexNumber lnArg1Xarg1 = divide(1.0, arg1);
-    final ComplexNumber arg1Bar = multiply(lnArg1Bar, lnArg1Xarg1);
-    final ComplexNumber arg1XsmallC = divide(subtract(e, 1.0), square(subtract(smallC, 1.0)));
-    final ComplexNumber smallCBar2 = multiply(arg1Bar, arg1XsmallC);
-    final ComplexNumber arg1Xe = divide(1.0, subtract(1.0, smallC));
-    final ComplexNumber eBar2 = multiply(arg1Bar, arg1Xe);
-
-    final ComplexNumber eXsmallD = multiply(-t, e);
-    final ComplexNumber smallDBar1 = multiply(add(eBar1, eBar2), eXsmallD);
-
-    final ComplexNumber smallCXnum = divide(1.0, denom);
-    final ComplexNumber smallCBar = add(smallCBar1, smallCBar2);
-    final ComplexNumber numBar2 = multiply(smallCBar, smallCXnum);
-    final ComplexNumber smallCXdenom = multiply(-1.0, divide(smallC, denom));
-    final ComplexNumber denomBar2 = multiply(smallCBar, smallCXdenom);
-
-    final ComplexNumber numBar = add(numBar1, numBar2);
-    final ComplexNumber denomBar = add(denomBar1, denomBar2);
-    final ComplexNumber smallDBar2 = numBar;
-    final ComplexNumber smallDBar3 = multiply(-1.0, denomBar);
-    final ComplexNumber smallDBar = add(smallDBar1, smallDBar2, smallDBar3);
-
-    final ComplexNumber smallDXsmallD2 = divide(0.5, smallD);
-    final ComplexNumber smallD2Bar = multiply(smallDBar, smallDXsmallD2);
-    final ComplexNumber rhoOmegaUiMinusKappa2Bar = smallD2Bar;
-    final ComplexNumber uOmega2iBar = smallD2Bar;
-    final ComplexNumber omega2u2Bar = smallD2Bar;
-    final ComplexNumber rhoOmegaUiMinusKappa2XrhoOmegaUiMinusKappa = multiply(2.0, rhoOmegaUiMinusKappa);
-    final ComplexNumber rhoOmegaUiMinusKappaBar1 = multiply(rhoOmegaUiMinusKappa2Bar, rhoOmegaUiMinusKappa2XrhoOmegaUiMinusKappa);
-    final ComplexNumber rhoOmegaUiMinusKappaBar2 = multiply(numBar, -1.0);
-    final ComplexNumber rhoOmegaUiMinusKappaBar3 = multiply(denomBar, -1.0);
-    final ComplexNumber rhoOmegaUiMinusKappaBar = add(rhoOmegaUiMinusKappaBar1, rhoOmegaUiMinusKappaBar2, rhoOmegaUiMinusKappaBar3);
-
-    final ComplexNumber rhoOmegaUiBar = rhoOmegaUiMinusKappaBar;
-    final ComplexNumber kappaBar1 = multiply(rhoOmegaUiMinusKappaBar, -1.0);
-    final double ktoXkappa = kto / _kappa;
-    final ComplexNumber kappaBar2 = multiply(ktoBar, ktoXkappa);
-    res[1] = add(kappaBar1, kappaBar2); //kappaBar
-    final double ktoXtheta = kto / _theta;
-    res[2] = multiply(ktoBar, ktoXtheta); //thetaBar
-
-    final double ktoXomega = -2.0 * kto / _omega;
-    final ComplexNumber omegaBar2 = multiply(ktoBar, ktoXomega);
-    final ComplexNumber rhoOmegaUiXomega = multiply(u, new ComplexNumber(0.0, _rho));
-    final ComplexNumber omegaBar3 = multiply(rhoOmegaUiBar, rhoOmegaUiXomega);
-    final ComplexNumber uOmega2iXomega = multiply(u, new ComplexNumber(0.0, 2 * _omega));
-    final ComplexNumber omegaBar4 = multiply(uOmega2iBar, uOmega2iXomega);
-    final ComplexNumber omega2u2Xomega = multiply(2 * _omega, square(u));
-    final ComplexNumber omegaBar5 = multiply(omega2u2Bar, omega2u2Xomega);
+    final ComplexNumber omegaBar1 = multiply(-2 / _omega, w17, wBar17);
+    final ComplexNumber omegaBar2 = multiply(-2.0 * w0 / _omega, wBar0);
+    final ComplexNumber omegaBar3 = multiply(1 / _omega, w1, wBar1);
+    final ComplexNumber omegaBar4 = multiply(2 / _omega, w4, wBar4);
+    final ComplexNumber omegaBar5 = multiply(2 / _omega, w5, wBar5);
     res[4] = add(omegaBar1, omegaBar2, omegaBar3, omegaBar4, omegaBar5);
 
-    final ComplexNumber rhoOmegaUiXrho = multiply(u, new ComplexNumber(0.0, _omega));
-    res[5] = multiply(rhoOmegaUiBar, rhoOmegaUiXrho);
+    res[5] = multiply(_omega, u, I, wBar1);
 
     return res;
   }
@@ -302,17 +372,17 @@ public class HestonCharacteristicExponent implements MartingaleCharacteristicExp
   }
 
   /** The maximum allowable value of {@latex.inline $alpha$} which is given by
-  * {@latex.ilb %preamble{\\usepackage{amsmath}}
-  * \\begin{align*}
-  * t &= \\omega - 2 \\kappa \\rho \\\\
-  * \\rho^* &= 1 - \\rho^2\\\\
-  * r &= \\sqrt{t^2 + 4\\kappa^2\\rho^*}\\\\
-  * \\alpha_{min} &= \\frac{t - r}{\\omega(\\rho^* - 1)}
-  * \\end{align*}
-  * }
-  * 
-  * @return {@latex.inline $alpha_{min}$}
-  */
+   * {@latex.ilb %preamble{\\usepackage{amsmath}}
+   * \\begin{align*}
+   * t &= \\omega - 2 \\kappa \\rho \\\\
+   * \\rho^* &= 1 - \\rho^2\\\\
+   * r &= \\sqrt{t^2 + 4\\kappa^2\\rho^*}\\\\
+   * \\alpha_{min} &= \\frac{t - r}{\\omega(\\rho^* - 1)}
+   * \\end{align*}
+   * }
+   * 
+   * @return {@latex.inline $alpha_{min}$}
+   */
   @Override
   public double getSmallestAlpha() {
     return _alphaMin;
@@ -356,6 +426,26 @@ public class HestonCharacteristicExponent implements MartingaleCharacteristicExp
    */
   public double getRho() {
     return _rho;
+  }
+
+  public HestonCharacteristicExponent withKappa(final double kappa) {
+    return new HestonCharacteristicExponent(kappa, _theta, _vol0, _omega, _rho);
+  }
+
+  public HestonCharacteristicExponent withTheta(final double theta) {
+    return new HestonCharacteristicExponent(_kappa, theta, _vol0, _omega, _rho);
+  }
+
+  public HestonCharacteristicExponent withVol0(final double vol0) {
+    return new HestonCharacteristicExponent(_kappa, _theta, vol0, _omega, _rho);
+  }
+
+  public HestonCharacteristicExponent withOmega(final double omega) {
+    return new HestonCharacteristicExponent(_kappa, _theta, _vol0, omega, _rho);
+  }
+
+  public HestonCharacteristicExponent withRho(final double rho) {
+    return new HestonCharacteristicExponent(_kappa, _theta, _vol0, _omega, rho);
   }
 
   @Override

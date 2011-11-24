@@ -29,23 +29,18 @@ $.register_module({
                 var $this = $(this), $editable_element = $(e.target), cur_content = $this.html(),
                     width = $this.css('width'), font_size = $this.css('font-size'),
                     line_height = $this.css('line-height'),
-                    cancel_update = function (message) {
+                    cancel_update = function (error_message) {
                         $editable_element.html(cur_content);
                         editing = false;
-                        if (message) ui.message({
-                            location: '.OG-details',
-                            message: message,
-                            css: {'left': '7px'},
-                            live_for: 5000
-                        });
+                        if (error_message) ui.dialog({type: 'error', message: error_message});
                     },
                     update_field = function () {
                         var current = routes.current(), put_config,
                             new_content = $editable_element.find('input[type=text]').attr('value');
                         if (!new_content) return;
                         put_config = {
-                            handler: function (e) {
-                                if (e.error) return cancel_update('oops something bad happened!');
+                            handler: function (result) {
+                                if (result.error) return cancel_update(result.message);
                                 $('.og-js-msg').html('saved');
                                 ui.message({location: '.OG-details', message: 'saved', css: {'left': '7px'}});
                                 handler(e);

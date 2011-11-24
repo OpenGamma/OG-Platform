@@ -70,6 +70,7 @@
     <fragment>/styles/common/search/og.common.search.OG-search.css</fragment>
   </bundle>
   <bundle id="common.details.css">
+    <fragment>/styles/common/details/og.common.OG-details-content.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-timeseries.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-holiday.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-region.css</fragment>
@@ -171,6 +172,7 @@
   <bundle id="api.js">
     <fragment>/scripts/og/common/og.common.core.js</fragment>
     <fragment>/scripts/og/og.dev.js</fragment>
+    <fragment>/scripts/og/og.app.js</fragment>
     <fragment>/scripts/og/api/og.api.common.js</fragment>
     <fragment>/scripts/og/views/og.views.common.layout.js</fragment>
     <fragment>/scripts/og/common/og.common.routes.js</fragment>

@@ -3,7 +3,7 @@
  * @license See distribution for license
  */
 .OG-disabled {
-  opacity: .3;
-  filter: alpha(opacity=30);
+  opacity: .5;
+  filter: alpha(opacity=50);
   cursor: default!important;
 }

@@ -77,6 +77,11 @@
  * Plots
  */
 
+.OG-timeseries .og-plots { /* needed to compensate for flots axis padding */
+  height: 375px;
+  top: 25px;
+}
+
 .OG-timeseries .og-timeseries-plot {
   position: relative;
   margin-left: -6px;
@@ -181,6 +186,7 @@
   position: relative;
   width: 717px;
   border: 1px solid #e9eaeb;
+  margin-bottom: 30px
 }
 
 .OG-timeseries .og-container {

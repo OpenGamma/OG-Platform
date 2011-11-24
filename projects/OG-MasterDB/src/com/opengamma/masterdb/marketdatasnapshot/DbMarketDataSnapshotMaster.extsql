@@ -1,0 +1,173 @@
+-- SQL for snapshot master
+
+-- ==========================================================================
+@NAME(GetById)
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.detail AS detail
+  FROM
+    snp_snapshot main
+  WHERE main.id = :doc_id
+    AND main.oid = :doc_oid
+
+
+-- ==========================================================================
+@NAME(GetByOidInstants)
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.detail AS detail
+  FROM
+    snp_snapshot main
+  WHERE main.oid = :doc_oid
+    AND main.ver_from_instant <= :version_as_of AND main.ver_to_instant > :version_as_of
+    AND main.corr_from_instant <= :corrected_to AND main.corr_to_instant > :corrected_to
+
+
+-- ==========================================================================
+@NAME(Search)
+  WITH cte_docs AS ( @INSERT(SearchInner) )
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant
+    @IF(:details = true)
+      , main.detail AS detail
+    @IF(:details = false)
+      , main.name AS name
+  FROM
+    snp_snapshot main
+    INNER JOIN cte_docs ON main.id = cte_docs.id
+  ORDER BY
+    main.id
+
+
+-- ==========================================================================
+@NAME(SearchInner)
+  SELECT
+    snp_snapshot.id AS id
+  FROM
+    snp_snapshot
+  @INSERT(SearchWhere)
+  ORDER BY
+    snp_snapshot.id
+  @OFFSETFETCH
+
+
+-- ==========================================================================
+@NAME(SearchCount)
+  SELECT
+    COUNT(snp_snapshot.id)
+  FROM
+    snp_snapshot
+  @INSERT(SearchWhere)
+
+
+-- ==========================================================================
+@NAME(SearchWhere)
+  WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
+    AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
+    @AND(:name)
+      UPPER(name) @LIKE UPPER(:name)
+
+
+-- ==========================================================================
+@NAME(History)
+  WITH cte_docs AS ( @INSERT(HistoryInner) )
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant
+    @IF(:details = true)
+      , main.detail AS detail
+    @IF(:details = false)
+      , main.name AS name
+  FROM
+    snp_snapshot main
+    INNER JOIN cte_docs ON main.id = cte_docs.id
+  ORDER BY
+    main.ver_from_instant DESC,
+    main.corr_from_instant DESC
+
+
+-- ==========================================================================
+@NAME(HistoryInner)
+  SELECT
+    id
+  FROM
+    snp_snapshot
+  @INSERT(HistoryWhere)
+  ORDER BY
+    ver_from_instant DESC,
+    corr_from_instant DESC
+  @OFFSETFETCH
+
+
+-- ==========================================================================
+@NAME(HistoryCount)
+  SELECT
+    COUNT(id)
+  FROM
+    snp_snapshot 
+  @INSERT(HistoryWhere)
+
+
+-- ==========================================================================
+@NAME(HistoryWhere)
+  WHERE oid = :doc_oid
+    @IF(:sql_history_versions = Point)
+      AND ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant
+    @IF(:sql_history_versions = Range)
+      @AND(:versions_from_instant)
+        ((ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant) OR ver_from_instant >= :versions_from_instant)
+      @AND(:versions_to_instant)
+        ((ver_from_instant <= :versions_to_instant AND ver_to_instant > :versions_to_instant) OR ver_to_instant < :versions_to_instant)
+    @IF(:sql_history_corrections = Point)
+      AND corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant
+    @IF(:sql_history_corrections = Range)
+      @AND(:corrections_from_instant)
+        ((corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant) OR corr_from_instant >= :corrections_from_instant)
+      @AND(:corrections_to_instant)
+        ((corr_from_instant <= :corrections_to_instant AND corr_to_instant > :corrections_to_instant) OR corr_to_instant < :corrections_to_instant)
+
+
+-- ==========================================================================
+@NAME(Insert)
+  INSERT INTO snp_snapshot
+    (id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, detail)
+  VALUES
+    (:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, :detail)
+
+
+-- ==========================================================================
+@NAME(UpdateVersionToInstant)
+  UPDATE snp_snapshot
+  SET ver_to_instant = :ver_to_instant
+  WHERE id = :doc_id
+    AND ver_to_instant >= :max_instant
+
+
+-- ==========================================================================
+@NAME(UpdateCorrectionToInstant)
+  UPDATE snp_snapshot
+  SET corr_to_instant = :corr_to_instant
+  WHERE id = :doc_id
+    AND corr_to_instant >= :max_instant
+
+
+-- ==========================================================================

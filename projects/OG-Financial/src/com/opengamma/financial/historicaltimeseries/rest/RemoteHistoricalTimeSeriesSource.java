@@ -264,7 +264,17 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     }
   }
 
-  
+  //-------------------------------------------------------------------------
+  @Override
+  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
+    throw new OpenGammaRuntimeException("Getting remote HTS summary not yet implemented");
+  }
+
+  @Override
+  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    throw new OpenGammaRuntimeException("Getting remote HTS summary not yet implemented");    
+  }
+
   //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   @Override
@@ -291,35 +301,5 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     FudgeDeserializer deserializationContext = new FudgeDeserializer(getRestClient().getFudgeContext());
     return deserializationContext.fudgeMsgToObject(Map.class, result.getMessage().getMessage(HISTORICALTIMESERIESSOURCE_TIMESERIES));
   }
-
-  @Override
-  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
-    throw new OpenGammaRuntimeException("Getting remote HTS summary not yet implemented");
-  }
-
-  @Override
-  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    throw new OpenGammaRuntimeException("Getting remote HTS summary not yet implemented");    
-  }
-
-//  @Override
-//  public LocalDate getEarliestDate(UniqueId uniqueId) {
-//    return getHistoricalTimeSeries(uniqueId).getTimeSeries().getEarliestTime();
-//  }
-//
-//  @Override
-//  public LocalDate getLatestDate(UniqueId uniqueId) {
-//    return getHistoricalTimeSeries(uniqueId).getTimeSeries().getLatestTime();
-//  }
-//
-//  @Override
-//  public Double getEarliestValue(UniqueId uniqueId) {
-//    return getHistoricalTimeSeries(uniqueId).getTimeSeries().getEarliestValue();
-//  }
-//
-//  @Override
-//  public Double getLatestValue(UniqueId uniqueId) {
-//    return getHistoricalTimeSeries(uniqueId).getTimeSeries().getLatestValue();
-//  }
 
 }

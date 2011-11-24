@@ -36,16 +36,18 @@ import com.opengamma.masterdb.security.hibernate.fra.FRASecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.future.FutureSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.fx.FXForwardSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.fx.FXSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.option.EquityBarrierOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.EquityIndexOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.EquityOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.FxBarrierOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.FxOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.IRFutureOptionSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.option.NonDeliverableFxOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.SwaptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.swap.SwapSecurityBeanOperation;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbConnector;
 
 /**
  * Provides access to persist the full bean structure of the security.
@@ -135,7 +137,9 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
     loadBeanOperation(SwapSecurityBeanOperation.INSTANCE);
     loadBeanOperation(EquityIndexOptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(EquityOptionSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(EquityBarrierOptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(FxOptionSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(NonDeliverableFxOptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(SwaptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(IRFutureOptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(FxBarrierOptionSecurityBeanOperation.INSTANCE);
@@ -238,22 +242,19 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
   }
 
   @Override
-  public String extendSearch(SecuritySearchRequest request, DbMapSqlParameterSource args, String select, String where) {
+  public void extendSearch(SecuritySearchRequest request, DbMapSqlParameterSource args) {
     if (request instanceof BondSecuritySearchRequest) {
       BondSecuritySearchRequest bondRequest = (BondSecuritySearchRequest) request;
       if (bondRequest.getIssuerName() != null || bondRequest.getIssuerType() != null) {
-        select += "LEFT JOIN sec_bond ON (sec_bond.security_id = sec_security.id) ";
+        args.addValue("sql_search_bond_join", Boolean.TRUE);
       }
       if (bondRequest.getIssuerName() != null) {
         args.addValue("bond_issuer_name", getDialect().sqlWildcardAdjustValue(bondRequest.getIssuerName()));
-        where += getDialect().sqlWildcardQuery("AND UPPER(issuername) ", "UPPER(:bond_issuer_name)", bondRequest.getIssuerName());
       }
       if (bondRequest.getIssuerType() != null) {
         args.addValue("bond_issuer_type", getDialect().sqlWildcardAdjustValue(bondRequest.getIssuerName()));
-        where += getDialect().sqlWildcardQuery("AND UPPER(issuertype) ", "UPPER(:bond_issuer_type)", bondRequest.getIssuerName());
       }
     }
-    return select + where;
   }
 
 }

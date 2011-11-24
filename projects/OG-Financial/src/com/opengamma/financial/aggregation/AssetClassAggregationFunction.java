@@ -22,11 +22,13 @@ import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
+import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
@@ -37,6 +39,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
  */
 public class AssetClassAggregationFunction implements AggregationFunction<String> {
   /* package */static final String FX_OPTIONS = "FX Options";
+  /* package */static final String NONDELIVERABLE_FX_OPTIONS = "Non-deliverable FX Options";
   /* package */static final String FX_BARRIER_OPTIONS = "FX Barrier Options";
   /* package */static final String BONDS = "Bonds";
   /* package */static final String CASH = "Cash";
@@ -45,6 +48,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String FUTURES = "Futures";
   /* package */static final String EQUITY_INDEX_OPTIONS = "Equity Index Options";
   /* package */static final String EQUITY_OPTIONS = "Equity Options";
+  /* package */static final String EQUITY_BARRIER_OPTIONS = "Equity Barrier Options";
   /* package */static final String EQUITY_VARIANCE_SWAPS = "Equity Variance Swaps";
   /* package */static final String SWAPTIONS = "Swaptions";
   /* package */static final String IRFUTURE_OPTIONS = "IRFuture Options";
@@ -104,8 +108,17 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         }
 
         @Override
+        public String visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+          return EQUITY_BARRIER_OPTIONS;
+        }
+        @Override
         public String visitFXOptionSecurity(final FXOptionSecurity fxOptionSecurity) {
           return FX_OPTIONS;
+        }
+
+        @Override
+        public String visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
+          return NONDELIVERABLE_FX_OPTIONS;
         }
 
         @Override

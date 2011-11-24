@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.masterdb.security.hibernate.option">
+  <union-subclass name="NonDeliverableFXOptionSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_nondeliverablefxoption">
+    <property name="optionExerciseType" column="option_exercise_type" type="com.opengamma.masterdb.security.hibernate.option.OptionExerciseTypeUserType" not-null="true" />
+    <property name="callAmount" column="call_amount" type="double" not-null="true" />
+    <property name="putAmount" column="put_amount" type="double" not-null="true" />
+    <component name="expiry" class="com.opengamma.masterdb.security.hibernate.ExpiryBean">
+      <component name="expiry" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+        <property name="date" column="expiry_date" type="timestamp" not-null="true" />
+        <property name="zone" column="expiry_zone" type="string" not-null="true" />
+      </component>
+      <property name="accuracy" column="expiry_accuracy" type="com.opengamma.masterdb.security.hibernate.ExpiryAccuracyUserType" not-null="true" />
+    </component>
+    <many-to-one name="callCurrency" column="call_currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true" />
+    <many-to-one name="putCurrency" column="put_currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true" />
+    <component name="settlementDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="settlement_date" type="timestamp" not-null="true" />
+      <property name="zone" column="settlement_zone" type="string" not-null="true" />
+    </component>
+    <property name="isLong" column="is_long" type="boolean" not-null="true" />
+    <property name="isDeliveryInCallCurrency" column="is_delivery_in_call_currency" type="boolean" not-null="true" />
+  </union-subclass>
+
+  <query name="NonDeliverableFXOptionSecurityBean.one.bySecurityId"><![CDATA[
+    from 
+      NonDeliverableFXOptionSecurityBean as s
+    where
+      s.securityId = :securityId
+  ]]></query>
+
+  <query name="NonDeliverableFXOptionSecurityBean.all">
+    from NonDeliverableFXOptionSecurityBean
+  </query>
+
+</hibernate-mapping>
