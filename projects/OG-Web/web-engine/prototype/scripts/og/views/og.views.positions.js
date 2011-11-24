@@ -83,7 +83,18 @@ $.register_module({
                             });
                         }
                     }
-                })}
+                })},
+                'versions': function () {
+                    var rule = module.rules.load_positions, layout = og.views.common.layout,
+                        args = routes.current().args;
+                    routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
+                    if (!layout.inner.state.south.isClosed && args.version) {
+                        layout.inner.close('south');
+                    } else layout.inner.open('south');
+                    layout.inner.options.south.onclose = function () {
+                        routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
+                    };
+                }
             },
             options = {
                 slickgrid: {
@@ -115,8 +126,7 @@ $.register_module({
                             {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
                             {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
                             {id: 'delete', tooltip: 'Delete', divider: true, handler: toolbar_buttons['delete']},
-                            {id: 'versions', label: 'versions'}
-
+                            {id: 'versions', label: 'versions', handler: toolbar_buttons['versions']}
                         ],
                         location: '.OG-tools'
                     }
@@ -129,21 +139,6 @@ $.register_module({
                             acc.push('<tr><td><span>' + val.scheme.lang() + '</span></td><td>' + val.value + '</td></tr>');
                             return acc
                         }, []).join(''));
-                    },
-                    setup_header_links = function () {
-                        var $version_link, rule = module.rules.load_positions;
-                        $version_link = $('.OG-tools .og-icon-tools-versions')
-                            .addClass('og-js-version-link')
-                            .unbind('click').bind('click', function () {
-                                var layout = og.views.common.layout;
-                                routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
-                                if (!layout.inner.state.south.isClosed && args.version) {
-                                    layout.inner.close('south');
-                                } else layout.inner.open('south');
-                            });
-                        layout.inner.options.south.onclose = function () {
-                            routes.go(routes.hash(rule, args, {del: ['version']}));
-                        };
                     };
                 // load versions
                 if (args.version) {
@@ -172,7 +167,6 @@ $.register_module({
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
                             $('.ui-layout-inner-center .ui-layout-content').html(content);
                             ui.toolbar(options.toolbar.active);
-                            setup_header_links();
                             if (json.template_data && json.template_data.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);
                                 layout.inner.sizePane('north', '0');
