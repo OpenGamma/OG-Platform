@@ -107,19 +107,20 @@ $.register_module({
                 toolbar: {
                     'default': {
                         buttons: [
-                            {id: 'new', name: 'New', handler: toolbar_buttons['new']},
-                            {id: 'save', name: 'Save', enabled: 'OG-disabled'},
-                            {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
-                            {id: 'delete', name: 'Delete', enabled: 'OG-disabled'}
+                            {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
                         ],
                         location: '.OG-tools'
                     },
                     active: {
                         buttons: [
-                            {id: 'new', name: 'New', handler: toolbar_buttons['new']},
-                            {id: 'save', name: 'Save', enabled: 'OG-disabled'},
-                            {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
-                            {id: 'delete', name: 'Delete', handler: toolbar_buttons['delete']}
+                            {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', tooltip: 'Delete', divider: true, handler: toolbar_buttons['delete']},
+                            {id: 'versions', label: 'versions'}
                         ],
                         location: '.OG-tools'
                     }
@@ -137,11 +138,11 @@ $.register_module({
                     setup_header_links = function () {
                         var $version_link,
                             rule = module.rules.load_securities;
-                        $version_link = $('<a>version history</a>')
-                            .addClass('OG-link-small og-js-version-link')
-                            .attr('href', routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}))
+                        $version_link = $('.OG-tools .og-icon-tools-versions')
+                            .addClass('og-js-version-link')
                             .unbind('click').bind('click', function (e) {
                                 var layout = og.views.common.layout;
+                                routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
                                 if (!layout.inner.state.south.isClosed && args.version) {
                                     e.preventDefault();
                                     layout.inner.close('south');
@@ -150,7 +151,6 @@ $.register_module({
                         layout.inner.options.south.onclose = function () {
                             routes.go(routes.hash(rule, args, {del: ['version']}));
                         };
-                        $('.OG-js-header-links').empty().append($version_link);
                     };
                 // if new page, close south panel
                 check_state({args: args, conditions: [{
@@ -209,8 +209,8 @@ $.register_module({
                                         $('.ui-layout-inner-center .OG-js-underlying-id').html(anchor);
                                 }
                             }());
-                            setup_header_links();
                             ui.toolbar(options.toolbar.active);
+                            setup_header_links();
                             if (json.template_data && json.template_data.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);
                                 layout.inner.sizePane('north', '0');

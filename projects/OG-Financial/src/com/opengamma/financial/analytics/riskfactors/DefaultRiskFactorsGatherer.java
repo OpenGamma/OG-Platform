@@ -48,6 +48,7 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
+import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -318,6 +319,12 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
         getYieldCurveNodeSensitivities(getFundingCurve(), underlying.getReceiveCurrency()),
         getYieldCurveNodeSensitivities(getForwardCurve(underlying.getPayCurrency()), underlying.getPayCurrency()),
         getYieldCurveNodeSensitivities(getForwardCurve(underlying.getReceiveCurrency()), underlying.getReceiveCurrency()));
+  }
+  
+  @Override
+  public Set<Pair<String, ValueProperties>> visitNonDeliverableFXForwardSecurity(
+      NonDeliverableFXForwardSecurity security) {
+    throw new NotImplementedException();
   }
 
   @Override

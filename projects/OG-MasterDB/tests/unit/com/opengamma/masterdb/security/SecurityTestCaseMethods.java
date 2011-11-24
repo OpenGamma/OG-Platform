@@ -29,6 +29,8 @@ public interface SecurityTestCaseMethods {
   void testEnergyFutureSecurity();
 
   void testFXFutureSecurity();
+  
+  void testNonDeliverableFXForwardSecurity();
 
   void testIndexFutureSecurity();
 

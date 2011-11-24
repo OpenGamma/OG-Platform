@@ -317,6 +317,7 @@ public class WebView {
       for (ComputationTargetSpecification target : getPortfolioGrid().getGridStructure().getTargets().keySet()) {
         getPortfolioGrid().processTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
       }
+      getPortfolioGrid().processDepGraphs(resultTimestamp);
     }
   }
   

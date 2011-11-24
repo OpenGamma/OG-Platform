@@ -176,6 +176,10 @@
     }
     
     this.openExplain = function($cell, colId, rowId, popupTitle) {
+      if (_dataView.rows[rowId][colId] == false) {
+        // Not in dep graph
+        return;
+      }
       if (_$explains[rowId] && _$explains[rowId][colId]) {
         // Already exists - find it
         var $popup = _$explains[rowId][colId];
