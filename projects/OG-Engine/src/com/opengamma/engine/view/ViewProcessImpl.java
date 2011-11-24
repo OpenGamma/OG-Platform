@@ -249,18 +249,18 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     }
   }
 
-  public void cycleFragmentCompleted(ViewComputationResultModel result) {
+  public void cycleFragmentCompleted(ViewComputationResultModel result, ViewDefinition viewDefinition) {
     // Caller MUST NOT hold the semaphore
     s_logger.debug("Result fragment from cycle {} received on view process {}", result.getViewCycleId(), getUniqueId());
     lock();
     try {
-      cycleFragmentCompletedCore(result);
+      cycleFragmentCompletedCore(result, viewDefinition);
     } finally {
       unlock();
     }
   }
 
-  private void cycleFragmentCompletedCore(ViewComputationResultModel fullFragment) {
+  private void cycleFragmentCompletedCore(ViewComputationResultModel fullFragment, ViewDefinition viewDefinition) {
     // Caller MUST hold the semaphore
 
     // [PLAT-1158]
@@ -271,9 +271,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
     // We swap these first so that in the callback the process is consistent.
     ViewComputationResultModel previousResult = _latestResult.get();
-    ViewDefinition latestViewDefinition = getLatestViewDefinition();
 
-    ViewDeltaResultModel deltaFragment = ViewDeltaResultCalculator.computeDeltaModel(latestViewDefinition, previousResult, fullFragment);
+    ViewDeltaResultModel deltaFragment = ViewDeltaResultCalculator.computeDeltaModel(viewDefinition, previousResult, fullFragment);
     for (ViewResultListener listener : _listeners) {
       try {
         listener.cycleFragmentCompleted(fullFragment, deltaFragment);

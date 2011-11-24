@@ -295,13 +295,12 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
     return result;
   }
 
-
   @Override
   public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     return getSummary(uniqueId.getObjectId(), VersionCorrection.LATEST);
   }
-  
+
   public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectKey, VersionCorrection versionCorrection) {
     validateId(objectKey);
     final ObjectId objectId = objectKey.getObjectId();
@@ -324,61 +323,6 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
     }
     return result;
   }
-
-//  @Override
-//  public ManageableHistoricalTimeSeries getTimeSeriesWithoutDataPoints(UniqueId uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
-//    return getTimeSeriesWithoutDataPoints(uniqueId.getObjectId(), VersionCorrection.LATEST, fromDateInclusive, toDateInclusive);
-//  }
-//
-//  @Override
-//  public ManageableHistoricalTimeSeries getTimeSeriesWithoutDataPoints(ObjectIdentifiable objectKey, VersionCorrection versionCorrection, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
-//    // This actually fetches the data points anyway, as the cost is minimal with the in-memory implementation
-//    return getTimeSeries(objectKey, versionCorrection, fromDateInclusive, toDateInclusive);
-//  }
-//
-//  @Override
-//  public LocalDateDoubleTimeSeries getTimeSeriesDataPoints(UniqueId uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
-//    return getTimeSeriesDataPoints(uniqueId.getObjectId(), VersionCorrection.LATEST, fromDateInclusive, toDateInclusive);
-//  }
-//
-//  @Override
-//  public LocalDateDoubleTimeSeries getTimeSeriesDataPoints(ObjectIdentifiable objectKey, VersionCorrection versionCorrection, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
-//    validateId(objectKey);
-//    fromDateInclusive = Objects.firstNonNull(fromDateInclusive, LocalDate.of(1000, 1, 1));  // TODO: JSR-310 min/max date
-//    toDateInclusive = Objects.firstNonNull(toDateInclusive, LocalDate.of(9999, 1, 1));
-//    ArgumentChecker.inOrderOrEqual(fromDateInclusive, toDateInclusive, "fromDateInclusive", "toDateInclusive");
-//    final ObjectId objectId = objectKey.getObjectId();
-//    
-//    final Instant now = Instant.now();
-//    LocalDateDoubleTimeSeries existingSeries = _storePoints.get(objectId);
-//    if (existingSeries == null) {
-//      if (_storeInfo.get(objectId) == null) {
-//        throw new DataNotFoundException("Historical time-series not found: " + objectId);
-//      }
-//      existingSeries = new ArrayLocalDateDoubleTimeSeries();
-//    }
-//    return existingSeries.subSeries(fromDateInclusive, toDateInclusive).toLocalDateDoubleTimeSeries();
-//  }
-//  
-//  @Override
-//  public Double getLatestValue(UniqueId uniqueId) {
-//    return null; //getTimeSeries(uniqueId, null, LocalDate.now()).getLatestValue();
-//  }
-//  
-//  @Override
-//  public Double getEarliestValue(UniqueId uniqueId) {
-//    return null; //getTimeSeries(uniqueId, null, LocalDate.now()).getEarliestValue();
-//  }
-//
-//  @Override
-//  public LocalDate getLatestDate(UniqueId uniqueId) {
-//    return null; //getTimeSeries(uniqueId, null, LocalDate.now()).getLatestDate();
-//  }
-//
-//  @Override
-//  public LocalDate getEarliestDate(UniqueId uniqueId) {
-//    return null; //getTimeSeries(uniqueId, null, LocalDate.now()).getEarliestDate();
-//  }
 
   //-------------------------------------------------------------------------
   @Override

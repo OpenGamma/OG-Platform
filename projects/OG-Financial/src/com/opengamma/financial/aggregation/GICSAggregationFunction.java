@@ -36,11 +36,6 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
   private Level _level;
   private SecuritySource _secSource;;
   
-  /* to make dep injection easier */
-  public GICSAggregationFunction(SecuritySource secSource, String levelString, String useAttributes) {
-    this(secSource, Level.valueOf(levelString));
-  }
-  
   public GICSAggregationFunction(SecuritySource secSource, Level level) {
     this(secSource, level, true);
   }

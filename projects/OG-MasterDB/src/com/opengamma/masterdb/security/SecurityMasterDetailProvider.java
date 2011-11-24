@@ -52,18 +52,12 @@ public interface SecurityMasterDetailProvider {
    * Extends the search based on subclasses of the search request.
    * <p>
    * The implementation should check if the request is of a known additional type
-   * and process it. The arguments may be updated and the SQL returned.
-   * <p>
-   * A no-op implementation will return {@code select + where}.
-   * A simple search would add to the arguments and return
-   * {@code select + "LEFT JOIN ... " + where + "AND ... "}.
+   * and process it. The arguments should be updated as appropriate.
+   * A no-op implementation will do nothing.
    * 
    * @param request  the request to search for, not null
    * @param args  the search arguments, not null
-   * @param select  the select clause to add to ending in a space, not null
-   * @param where  the where clause to add to ending in a space, not null
-   * @return the combined select and where clauses extended as necessary, ending in a space, not null
    */
-  String extendSearch(SecuritySearchRequest request, DbMapSqlParameterSource args, String select, String where);
+  void extendSearch(SecuritySearchRequest request, DbMapSqlParameterSource args);
 
 }

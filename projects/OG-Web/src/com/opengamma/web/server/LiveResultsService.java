@@ -371,7 +371,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   
   private UniqueId getViewDefinitionId(String viewDefinitionName) {
     ViewDefinition view = _viewProcessor.getViewDefinitionRepository().getDefinition(viewDefinitionName);
-    return view.getUniqueId();
+    return view.getUniqueId().toLatest();
   }
   
   public void processPauseRequest(Client remote, Message message) {
