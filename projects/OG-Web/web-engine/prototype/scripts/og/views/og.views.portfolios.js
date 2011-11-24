@@ -28,7 +28,7 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search,
+            search, layout,
             ui = common.util.ui,
             module = this,
             page_name = module.name.split('.').pop(),
@@ -85,7 +85,7 @@ $.register_module({
                     })
                 },
                 'versions': function () {
-                    var rule = module.rules.load_portfolios, layout = og.views.common.layout,
+                    var rule = module.rules.load_portfolios,
                         args = routes.current().args;
                     routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
                     if (!layout.inner.state.south.isClosed && args.version) {
@@ -131,8 +131,7 @@ $.register_module({
             },
             default_details = og.views.common.default_details.partial(page_name, 'Portfolios', options),
             details_page = function (args) {
-                var layout = og.views.common.layout,
-                    render_portfolio_rows = function (selector, json) {
+                var render_portfolio_rows = function (selector, json) {
                         var display_columns = [], data_columns = [], format = common.slickgrid.formatters.portfolios,
                             html = '\
                                 <h3>Portfolios</h3>\
@@ -347,8 +346,7 @@ $.register_module({
                                         This portfolio has been deleted\
                                     </section>\
                                 ',
-                                $html = $.tmpl(template, json.template_data),
-                                header, content, layout = og.views.common.layout;
+                                $html = $.tmpl(template, json.template_data), header, content;
                             header = $.outer($html.find('> header')[0]);
                             content = $.outer($html.find('> section')[0]);
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
@@ -416,6 +414,7 @@ $.register_module({
         };
         return portfolios = {
             load: function (args) {
+                layout = og.views.common.layout;
                 check_state({args: args, conditions: [
                     {new_page: function (args) {
                         portfolios.search(args);
@@ -450,12 +449,12 @@ $.register_module({
                 check_state({args: args, conditions: [
                     {new_page: function () {
                         portfolios.load(args);
-                        og.views.common.layout.inner.options.south.onclose = null;
-                        og.views.common.layout.inner.close.partial('south');
+                        layout.inner.options.south.onclose = null;
+                        layout.inner.close.partial('south');
                     }},
                     {new_value: 'id', method: function () {
-                        og.views.common.layout.inner.options.south.onclose = null;
-                        og.views.common.layout.inner.close.partial('south');
+                        layout.inner.options.south.onclose = null;
+                        layout.inner.close.partial('south');
                     }}
                 ]});
                 portfolios.details(args);
