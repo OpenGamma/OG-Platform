@@ -82,6 +82,7 @@
     INNER JOIN cte_docs ON main.id = cte_docs.id
     LEFT JOIN hol_date d ON (d.holiday_id = main.id)
   ORDER BY
+    main.@INSERT(:sort_order),
     main.id,
     d.hol_date
 
@@ -94,6 +95,7 @@
     hol_holiday
   @INSERT(SearchWhere)
   ORDER BY
+    @INSERT(:sort_order),
     id
   @OFFSETFETCH
 
