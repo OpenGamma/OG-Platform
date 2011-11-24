@@ -24,8 +24,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRExtrapolationCalculator;
@@ -55,10 +55,10 @@ public class CapFloorSABRPresentValueFunction extends CapFloorSABRFunction {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final CapFloorSecurity capFloorSecurity = (CapFloorSecurity) target.getSecurity();
-    final FixedIncomeInstrumentDefinition<?> capFloorDefinition = capFloorSecurity.accept(getVisitor());
+    final InstrumentDefinition<?> capFloorDefinition = capFloorSecurity.accept(getVisitor());
     final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(target, inputs));
     final String[] curveNames = new String[] {getFundingCurveName(), getForwardCurveName()};
-    final InterestRateDerivative capFloor = getConverter().convert(capFloorSecurity, capFloorDefinition, now, curveNames, dataSource);
+    final InstrumentDerivative capFloor = getConverter().convert(capFloorSecurity, capFloorDefinition, now, curveNames, dataSource);
     final double presentValue = _calculator.visit(capFloor, data);
     return Sets.newHashSet(new ComputedValue(getSpecification(target), presentValue));
   }

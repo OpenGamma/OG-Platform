@@ -56,7 +56,8 @@ public class InterpolatedYieldCurveSpecificationWithSecuritiesFudgeEncodingTest 
     ZonedDateTime startDate = DateUtils.getUTCDate(2011, 11, 1);
     ZonedDateTime endDate = DateUtils.getUTCDate(2012, 2, 1);
     ExternalId underlyingIdentifier = SecurityUtils.bloombergTickerSecurityId("US0003M Index");
-    FRASecurity fra = new FRASecurity(Currency.USD, RegionUtils.financialRegionId("US"), startDate, endDate, 0.05, 1, underlyingIdentifier);
+    ZonedDateTime fixingDate = startDate.minusDays(2);
+    FRASecurity fra = new FRASecurity(Currency.USD, RegionUtils.financialRegionId("US"), startDate, endDate, 0.05, 1, underlyingIdentifier, fixingDate);
     fra.setExternalIdBundle(bundle);
     FixedIncomeStripWithSecurity fraStrip = new FixedIncomeStripWithSecurity(new FixedIncomeStrip(StripInstrumentType.FRA_3M, Tenor.FIVE_MONTHS, "DEFAULT"), Tenor.FIVE_MONTHS, endDate, dummyId, fra);
     

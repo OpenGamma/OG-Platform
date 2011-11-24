@@ -23,11 +23,11 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D, DoubleMatrix2D> {
-  private final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> _calculator;
+  private final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> _calculator;
   private final MultipleYieldCurveFinderDataBundle _data;
   private final YieldCurveBundleBuildingFunction _curveBuilderFunction; //TODO this could be moved into MultipleYieldCurveFinderDataBundle
 
-  public MultipleYieldCurveFinderJacobian(final MultipleYieldCurveFinderDataBundle data, final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> calculator) {
+  public MultipleYieldCurveFinderJacobian(final MultipleYieldCurveFinderDataBundle data, final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> calculator) {
     Validate.notNull(data, "data");
     Validate.notNull(calculator, "calculator");
     _data = data;

@@ -18,9 +18,6 @@ import java.util.Set;
 import javax.time.Duration;
 import javax.time.Instant;
 
-import com.opengamma.core.position.Portfolio;
-import com.opengamma.core.position.PortfolioNode;
-import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.id.UniqueId;
@@ -102,37 +99,6 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
     return Collections.unmodifiableSet(_resultsByTarget.keySet());
   }
 
-  public void setCalculationConfigurationNames(final Collection<String> calcConfigurationNames) {
-    for (String calcConfigurationName : calcConfigurationNames) {
-      _resultsByConfiguration.put(calcConfigurationName, new ViewCalculationResultModelImpl());
-    }
-  }
-  
-  public void ensureCalculationConfigurationName(String calcConfigurationName) {
-    ensureCalculationConfigurationNames(Collections.singleton(calcConfigurationName));
-  }
-
-  public void ensureCalculationConfigurationNames(final Collection<String> calcConfigurationNames) {
-    for (String calcConfigurationName : calcConfigurationNames) {
-      if (!_resultsByConfiguration.containsKey(calcConfigurationName)) {
-        _resultsByConfiguration.put(calcConfigurationName, new ViewCalculationResultModelImpl());
-      }
-    }
-  }
-
-  private void ensureTargetSpec(final ComputationTargetSpecification targetSpec) {
-    for (ViewCalculationResultModelImpl model : _resultsByConfiguration.values()) {
-      model.addValue(targetSpec, null);
-    }
-    if (!_resultsByTarget.containsKey(targetSpec)) {
-      final ViewTargetResultModelImpl model = new ViewTargetResultModelImpl();
-      _resultsByTarget.put(targetSpec, model);
-      for (String calcConfigurationName : _resultsByConfiguration.keySet()) {
-        model.addValue(calcConfigurationName, null);
-      }
-    }
-  }
-
   /**
    * For testing.
    */
@@ -140,23 +106,9 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
     return _resultsByConfiguration.get(calcConfigurationName);
   }
 
-  public void setPortfolio(final Portfolio portfolio) {
-    recursePortfolio(portfolio.getRootNode());
-  }
-
-  private void recursePortfolio(final PortfolioNode node) {
-    for (Position position : node.getPositions()) {
-      ensureTargetSpec(new ComputationTargetSpecification(position));
-    }
-    ensureTargetSpec(new ComputationTargetSpecification(node));
-    for (PortfolioNode child : node.getChildNodes()) {
-      recursePortfolio(child);
-    }
-  }
-
   public void addValue(final String calcConfigurationName, final ComputedValue value) {
     final ComputationTargetSpecification target = value.getSpecification().getTargetSpecification();
-    
+
     ViewCalculationResultModelImpl result = _resultsByConfiguration.get(calcConfigurationName);
     if (result == null) {
       result = new ViewCalculationResultModelImpl();

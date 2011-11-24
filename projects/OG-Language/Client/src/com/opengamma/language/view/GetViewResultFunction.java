@@ -6,7 +6,18 @@
 
 package com.opengamma.language.view;
 
+
 import com.opengamma.engine.view.CycleInfo;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.time.Instant;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
@@ -111,7 +122,7 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
 
 
     @Override
-    public void jobResultReceived(ViewResultModel fullResult, ViewDeltaResultModel deltaResult) {
+    public void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
       s_logger.debug("Ignoring partial results.");
     }
 

@@ -17,7 +17,7 @@ import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
@@ -26,7 +26,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityVisitor<FixedIncomeInstrumentDefinition<?>> {
+public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityVisitor<InstrumentDefinition<?>> {
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
   private final RegionSource _regionSource;
@@ -42,7 +42,7 @@ public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityV
   }
 
   @Override
-  public FixedIncomeInstrumentDefinition<?> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+  public InstrumentDefinition<?> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
     Validate.notNull(security, "security");
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();

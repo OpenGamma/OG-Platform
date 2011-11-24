@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.interestrate.future.definition;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.util.money.Currency;
 
@@ -17,7 +17,7 @@ import org.apache.commons.lang.Validate;
 /**
  * Description of a bond future (derivative version).
  */
-public class BondFuture implements InterestRateDerivative {
+public class BondFuture implements InstrumentDerivative {
 
   /**
    * The last trading time.
@@ -169,12 +169,12 @@ public class BondFuture implements InterestRateDerivative {
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitBondFuture(this, data);
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitBondFuture(this);
   }
 

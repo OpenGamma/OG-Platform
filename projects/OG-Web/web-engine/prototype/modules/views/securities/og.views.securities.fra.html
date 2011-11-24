@@ -5,9 +5,9 @@
     <div class="OG-js-header-links"></div>
   </header>
   <section>
-    <div class="og-details-content OG-security OG-js-details-panel">
-      <div class="OG-c10 og-grid-last OG-max-width-l">
-        <section class="OG-mod-1 OG-c6">
+    <div class="OG-details-content OG-security OG-js-details-panel">
+      <section>
+        <div class="OG-mod-1 OG-c6">
           <table>
             <col style="width: 40%" />
             <col style="width: 60%" />
@@ -19,13 +19,14 @@
             <tbody class="og-mod-content">
               <tr><td><span>Amount</span></td><td>${amount}</td></tr>
               <tr><td><span>Currency</span></td><td>${currency}</td></tr>
+              <tr><td><span>Start Date</span></td><td>${startDate.date} - ${startDate.zone}</td></tr>
               <tr><td><span>End Date</span></td><td>${endDate.date} - ${endDate.zone}</td></tr>
               <tr><td><span>Rate</span></td><td>${rate}</td></tr>
               <tr><td><span>Region</span></td><td>${region}</td></tr>
             </tbody>
           </table>
-        </section>
-        <section class="OG-mod-1 og-style-2 OG-c4">
+        </div>
+        <div class="OG-mod-1 og-style-2 OG-c4">
           <table>
             <col style="width: 40%" />
             <col style="width: 60%" />
@@ -36,8 +37,8 @@
             </thead>
             <tbody class="og-js-identifiers og-mod-content"></tbody>
           </table>
-        </section>
-      </div>
+        </div>
+      </section>
     </div>
   </section>
 </article>

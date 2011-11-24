@@ -10,10 +10,10 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.forex.calculator.ForexConverter;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionSingleBarrierDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.model.option.definition.Barrier;
 import com.opengamma.financial.model.option.definition.Barrier.KnockType;
 import com.opengamma.financial.model.option.definition.Barrier.ObservationType;
@@ -28,14 +28,14 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class ForexSingleBarrierOptionSecurityConverter implements FXBarrierOptionSecurityVisitor<ForexConverter<?>> {
+public class ForexSingleBarrierOptionSecurityConverter implements FXBarrierOptionSecurityVisitor<InstrumentDefinition<?>> {
 
-  public ForexSingleBarrierOptionSecurityConverter(final FinancialSecurityVisitorAdapter<ForexConverter<?>> visitor) {
+  public ForexSingleBarrierOptionSecurityConverter(final FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> visitor) {
     Validate.notNull(visitor, "visitor");
   }
 
   @Override
-  public ForexConverter<?> visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity barrierOptionSecurity) {
+  public InstrumentDefinition<?> visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity barrierOptionSecurity) {
     Validate.notNull(barrierOptionSecurity, "fx barrier option security");
     Validate.isTrue(barrierOptionSecurity.getBarrierType() != BarrierType.DOUBLE, "Can only handle single barrier options");
     Validate.isTrue(barrierOptionSecurity.getMonitoringType() == MonitoringType.CONTINUOUS, "Can only handle continuously-monitored barrier options");
@@ -46,9 +46,8 @@ public class ForexSingleBarrierOptionSecurityConverter implements FXBarrierOptio
     final double callAmount = barrierOptionSecurity.getCallAmount();
     final double fxRate = -putAmount / callAmount;
     final ZonedDateTime expiry = barrierOptionSecurity.getExpiry().getExpiry();
-    final Barrier barrier = new Barrier(getKnockType(barrierOptionSecurity.getBarrierDirection()),
-                                  getBarrierType(barrierOptionSecurity.getBarrierType()),
-                                  getObservationType(barrierOptionSecurity.getMonitoringType()), level);
+    final Barrier barrier = new Barrier(getKnockType(barrierOptionSecurity.getBarrierDirection()), getBarrierType(barrierOptionSecurity.getBarrierType()),
+        getObservationType(barrierOptionSecurity.getMonitoringType()), level);
     final ZonedDateTime settlementDate = barrierOptionSecurity.getSettlementDate();
     final ForexDefinition underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, fxRate); //TODO this needs its own converter
     final boolean isLong = barrierOptionSecurity.isLong();

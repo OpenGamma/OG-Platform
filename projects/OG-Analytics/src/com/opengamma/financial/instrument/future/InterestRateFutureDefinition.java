@@ -7,10 +7,10 @@ package com.opengamma.financial.instrument.future;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionWithData;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
@@ -23,7 +23,7 @@ import org.apache.commons.lang.Validate;
 /**
  * Description of an interest rate future security.
  */
-public class InterestRateFutureDefinition implements FixedIncomeInstrumentDefinitionWithData<InterestRateDerivative, Double> {
+public class InterestRateFutureDefinition implements InstrumentDefinitionWithData<InstrumentDerivative, Double> {
 
   /**
    * Future last trading date. Usually the date for which the third Wednesday of the month is the spot date.
@@ -185,18 +185,18 @@ public class InterestRateFutureDefinition implements FixedIncomeInstrumentDefini
   }
 
   @Override
-  public InterestRateDerivative toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public InstrumentDerivative toDerivative(ZonedDateTime date, String... yieldCurveNames) {
     throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() +
         " does not support the two argument method (without margin price data).");
   }
 
   @Override
-  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
     return visitor.visitInterestRateFutureSecurityDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitInterestRateFutureSecurityDefinition(this);
   }
 

@@ -36,12 +36,7 @@ public class StockFutureSecurity extends FutureSecurity {
   @PropertyDefinition
   private ExternalId _underlyingId;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public StockFutureSecurity() {
+  StockFutureSecurity() { //For builder
     super();
   }
 

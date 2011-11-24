@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -100,8 +100,8 @@ public class YieldCurveFittingFromMarketDataTest extends YieldCurveFittingSetup 
     final CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory
         .getInterpolator(interpolator, LINEAR_EXTRAPOLATOR,
             FLAT_EXTRAPOLATOR);
-    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = ParRateCalculator.getInstance();
-    final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator
+    final InstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator = ParRateCalculator.getInstance();
+    final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator
         .getInstance();
     // final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = PresentValueCalculator.getInstance();
     // final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueSensitivityCalculator.getInstance();
@@ -142,8 +142,8 @@ public class YieldCurveFittingFromMarketDataTest extends YieldCurveFittingSetup 
     // now get market prices
     final double[] marketValues = new double[nNodes];
 
-    final List<InterestRateDerivative> instruments = new ArrayList<InterestRateDerivative>();
-    InterestRateDerivative ird;
+    final List<InstrumentDerivative> instruments = new ArrayList<InstrumentDerivative>();
+    InstrumentDerivative ird;
     index = 0;
     for (final String name : maturities.keySet()) {
       final double[] times = maturities.get(name);

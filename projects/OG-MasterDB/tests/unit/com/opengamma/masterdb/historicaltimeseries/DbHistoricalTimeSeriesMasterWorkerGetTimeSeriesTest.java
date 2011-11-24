@@ -15,6 +15,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -59,9 +60,10 @@ public class DbHistoricalTimeSeriesMasterWorkerGetTimeSeriesTest extends Abstrac
   public void test_get_UID_101_latest() {
     UniqueId uniqueId = UniqueId.of("DbHts", "DP101");
     ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(uniqueId, null, null);
+    HistoricalTimeSeriesSummary summary = _htsMaster.getSummary(uniqueId);
     assertEquals(uniqueId.getObjectId(), test.getUniqueId().getObjectId());
-    assertEquals(LocalDate.of(2011, 1, 1), test.getEarliest());
-    assertEquals(LocalDate.of(2011, 1, 3), test.getLatest());
+    assertEquals(LocalDate.of(2011, 1, 1), summary.getEarliestDate());
+    assertEquals(LocalDate.of(2011, 1, 3), summary.getLatestDate());
     assertEquals(_version2Instant, test.getVersionInstant());
     assertEquals(_version4Instant, test.getCorrectionInstant());
     LocalDateDoubleTimeSeries timeSeries = test.getTimeSeries();

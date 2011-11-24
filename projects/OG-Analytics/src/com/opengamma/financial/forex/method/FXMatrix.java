@@ -11,6 +11,8 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Class describing a set of currencies and all the cross rates between them.
@@ -104,6 +106,21 @@ public class FXMatrix {
     Validate.notNull(index1, "Currency 1 not in the FX Matrix.");
     Validate.notNull(index2, "Currency 2 not in the FX Matrix.");
     return _fxrates[index1][index2];
+  }
+
+  /**
+   * Convert a multiple currency amount into a amount in a given currency.
+   * @param amount The multiple currency amount.
+   * @param ccy The currency for the conversion.
+   * @return The amount.
+   */
+  public CurrencyAmount convert(final MultipleCurrencyAmount amount, final Currency ccy) {
+    double convertion = 0;
+    CurrencyAmount[] ca = amount.getCurrencyAmounts();
+    for (int loopccy = 0; loopccy < ca.length; loopccy++) {
+      convertion += ca[loopccy].getAmount() * getFxRate(ca[loopccy].getCurrency(), ccy);
+    }
+    return CurrencyAmount.of(ccy, convertion);
   }
 
   /**

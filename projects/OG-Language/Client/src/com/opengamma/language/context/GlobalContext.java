@@ -5,10 +5,6 @@
  */
 package com.opengamma.language.context;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
@@ -17,6 +13,7 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.financial.currency.CurrencyPairsSource;
 import com.opengamma.financial.user.rest.RemoteClient;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.function.DefaultFunctionDefinitionFilter;
@@ -35,6 +32,10 @@ import com.opengamma.language.livedata.LiveDataDefinitionFilter;
 import com.opengamma.language.procedure.AggregatingProcedureProvider;
 import com.opengamma.language.procedure.DefaultProcedureDefinitionFilter;
 import com.opengamma.language.procedure.ProcedureDefinitionFilter;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 /**
  * A global information context shared by all client instances. This corresponds to the
@@ -156,6 +157,12 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    * Name under which the view processor is bound.
    */
   protected static final String VIEW_PROCESSOR = "viewProcessor";
+
+  /**
+   * Name under which the currency pairs source is bound.
+   */
+  protected static final String CURRENCY_PAIRS_SOURCE = "currencyPairsSource";
+
 
   private final Map<String, UserContext> _userContexts = new HashMap<String, UserContext>();
 
@@ -352,6 +359,10 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
 
   public ViewProcessor getViewProcessor() {
     return getValue(VIEW_PROCESSOR);
+  }
+
+  public CurrencyPairsSource getCurrencyPairsSource() {
+    return getValue(CURRENCY_PAIRS_SOURCE);
   }
 
 }

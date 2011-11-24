@@ -1,0 +1,22 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+ 
+ namespace com.opengamma.financial.security.fx {
+ 
+  /**
+   * A non-deliverable FX forward security.
+   */
+  message NonDeliverableFXForwardSecurity extends FinancialSecurity {
+  	required string securityType [default = "NONDELIVERABLE_FX_FORWARD"];
+  	
+  	required id.ExternalId underlyingIdentifier;
+  	required javax.time.calendar.ZonedDateTime forwardDate;
+    required id.ExternalId region;
+    
+    required boolean deliveryInCallCurrency;
+  }
+
+}

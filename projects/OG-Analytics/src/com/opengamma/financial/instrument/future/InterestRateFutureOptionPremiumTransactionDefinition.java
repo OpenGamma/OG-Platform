@@ -12,8 +12,8 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumTransaction;
@@ -21,7 +21,7 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 /**
  * Description of transaction on an interest rate future option security with premium paid up-front (CME type).
  */
-public class InterestRateFutureOptionPremiumTransactionDefinition implements FixedIncomeInstrumentDefinition<InterestRateFutureOptionPremiumTransaction> {
+public class InterestRateFutureOptionPremiumTransactionDefinition implements InstrumentDefinition<InterestRateFutureOptionPremiumTransaction> {
 
   /**
    * The underlying option future security.
@@ -98,12 +98,12 @@ public class InterestRateFutureOptionPremiumTransactionDefinition implements Fix
   }
 
   @Override
-  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
     return visitor.visitInterestRateFutureOptionPremiumTransactionDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitInterestRateFutureOptionPremiumTransactionDefinition(this);
   }
 

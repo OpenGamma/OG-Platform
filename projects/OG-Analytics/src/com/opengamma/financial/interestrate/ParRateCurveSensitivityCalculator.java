@@ -49,7 +49,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * set of time (corresponding to point of the yield curve) and sensitivity pairs (i.e. dPar/dR at that time). 
  * <b>Note:</b> The length of the list is instrument dependent and may have repeated times (with the understanding the sensitivities should be summed).
  */
-public final class ParRateCurveSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> {
+public final class ParRateCurveSensitivityCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> {
   private static final PresentValueCalculator PV_CALCULATOR = PresentValueCalculator.getInstance();
   private static final ParRateCalculator PRC_CALCULATOR = ParRateCalculator.getInstance();
   private static final PresentValueCurveSensitivityCalculator PV_SENSITIVITY_CALCULATOR = PresentValueCurveSensitivityCalculator.getInstance();
@@ -69,7 +69,7 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visit(final InterestRateDerivative instrument, final YieldCurveBundle curves) {
+  public Map<String, List<DoublesPair>> visit(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.notNull(instrument);
     Validate.notNull(curves);
     return instrument.accept(this, curves);

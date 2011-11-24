@@ -5,10 +5,15 @@
  */
 package com.opengamma.financial.marketdata;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.OverrideOperation;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.financial.expression.CommonSynthetics;
 import com.opengamma.financial.expression.ELExpressionParser;
 import com.opengamma.financial.expression.UserExpression;
 import com.opengamma.financial.expression.UserExpressionParser;
@@ -20,6 +25,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class MarketDataELCompiler implements OverrideOperationCompiler {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(MarketDataELCompiler.class);
+  
   private final class Evaluator implements OverrideOperation {
 
     private final UserExpression _expr;
@@ -34,18 +41,33 @@ public class MarketDataELCompiler implements OverrideOperationCompiler {
 
     @Override
     public Object apply(final ValueRequirement requirement, final Object original) {
-      final UserExpression.Evaluator eval = getExpr().evaluator();
-      eval.setVariable("x", original);
-      switch (requirement.getTargetSpecification().getType()) {
-        case SECURITY:
-          eval.setVariable("security", getSecuritySource().getSecurity(requirement.getTargetSpecification().getUniqueId()));
-          break;
-      }
-      final Object result = eval.evaluate();
-      if (result == UserExpression.NA) {
-        return original;
-      } else {
-        return result;
+      synchronized (MarketDataELFunctions.class) {
+        MarketDataELFunctions.setCompiler(MarketDataELCompiler.this);
+        s_logger.debug("Applying {} to {}", _expr, requirement);
+        final UserExpression.Evaluator eval = getExpr().evaluator();
+        eval.setVariable("x", original);
+        switch (requirement.getTargetSpecification().getType()) {
+          case SECURITY:
+            eval.setVariable("security", getSecuritySource().getSecurity(requirement.getTargetSpecification().getUniqueId()));
+            break;
+          case PRIMITIVE:
+            if (requirement.getTargetSpecification().getIdentifier() != null) {
+              eval.setVariable("externalId", requirement.getTargetSpecification().getIdentifier());
+            }
+            if (requirement.getTargetSpecification().getUniqueId() != null) {
+              eval.setVariable("uniqueId", requirement.getTargetSpecification().getUniqueId());
+            }
+            break;
+        }
+        eval.setVariable("value", requirement.getValueName());
+        final Object result = eval.evaluate();
+        if (result == UserExpression.NA) {
+          s_logger.debug("Evaluation failed - using original {}", original);
+          return original;
+        } else {
+          s_logger.debug("Evaluation of {} to {}", original, result);
+          return result;
+        }
       }
     }
 
@@ -58,6 +80,16 @@ public class MarketDataELCompiler implements OverrideOperationCompiler {
     ArgumentChecker.notNull(securitySource, "securitySource");
     _securitySource = securitySource;
     _parser = new ELExpressionParser();
+    try {
+      _parser.setFunction("Curve", "parallelShift", MarketDataELFunctions.class.getMethod("parallelShiftCurve", Object.class, Double.TYPE));
+      _parser.setFunction("Curve", "pointShift", MarketDataELFunctions.class.getMethod("pointShiftCurve", Object.class, Double.TYPE, Double.TYPE));
+      _parser.setFunction("Security", "get", MarketDataELFunctions.class.getMethod("getSecurity", Object.class));
+      _parser.setFunction("FX", "isRate", MarketDataELFunctions.class.getMethod("isFXRate", Object.class));
+      _parser.setFunction("FX", "multiplier", MarketDataELFunctions.class.getMethod("getFXMultiplier", Object.class, Double.TYPE));
+      CommonSynthetics.configureParser(_parser, securitySource);
+    } catch (Exception ex) {
+      throw new OpenGammaRuntimeException("Caught", ex);
+    }
   }
 
   @Override
@@ -66,7 +98,7 @@ public class MarketDataELCompiler implements OverrideOperationCompiler {
     return new Evaluator(expr);
   }
 
-  private SecuritySource getSecuritySource() {
+  protected SecuritySource getSecuritySource() {
     return _securitySource;
   }
 

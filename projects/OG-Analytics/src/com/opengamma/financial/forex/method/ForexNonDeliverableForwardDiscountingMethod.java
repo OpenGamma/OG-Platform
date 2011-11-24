@@ -12,9 +12,9 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.Currency;
@@ -56,12 +56,12 @@ public final class ForexNonDeliverableForwardDiscountingMethod implements ForexP
     double df2 = curves.getCurve(ndf.getDiscountingCurve2Name()).getDiscountFactor(ndf.getPaymentTime());
     double df1 = curves.getCurve(ndf.getDiscountingCurve1Name()).getDiscountFactor(ndf.getPaymentTime());
     double spot = curves.getFxRate(ndf.getCurrency2(), ndf.getCurrency1());
-    double pv2 = ndf.getNotional() * (df2 - ndf.getExchangeRate() / spot * df1);
+    double pv2 = ndf.getNotionalCurrency2() * (df2 - ndf.getExchangeRate() / spot * df1);
     return MultipleCurrencyAmount.of(ndf.getCurrency2(), pv2);
   }
 
   @Override
-  public MultipleCurrencyAmount presentValue(ForexDerivative instrument, YieldCurveBundle curves) {
+  public MultipleCurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ForexNonDeliverableForward, "Derivative should be ForexNonDeliverableForward");
     Validate.isTrue(curves instanceof YieldCurveWithFXBundle, "Bundle should contain FX rate");
     return presentValue((ForexNonDeliverableForward) instrument, (YieldCurveWithFXBundle) curves);
@@ -78,14 +78,14 @@ public final class ForexNonDeliverableForwardDiscountingMethod implements ForexP
   public MultipleCurrencyAmount currencyExposure(final ForexNonDeliverableForward ndf, final YieldCurveBundle curves) {
     double df2 = curves.getCurve(ndf.getDiscountingCurve2Name()).getDiscountFactor(ndf.getPaymentTime());
     double df1 = curves.getCurve(ndf.getDiscountingCurve1Name()).getDiscountFactor(ndf.getPaymentTime());
-    double pv1 = -ndf.getNotional() * ndf.getExchangeRate() * df1;
-    double pv2 = ndf.getNotional() * df2;
+    double pv1 = -ndf.getNotionalCurrency2() * ndf.getExchangeRate() * df1;
+    double pv2 = ndf.getNotionalCurrency2() * df2;
     return MultipleCurrencyAmount.of(new Currency[] {ndf.getCurrency1(), ndf.getCurrency2()}, new double[] {pv1, pv2});
 
   }
 
   @Override
-  public MultipleCurrencyAmount currencyExposure(ForexDerivative instrument, YieldCurveBundle curves) {
+  public MultipleCurrencyAmount currencyExposure(InstrumentDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof Forex, "Derivative should be ForexNonDeliverableForward");
     return currencyExposure((ForexNonDeliverableForward) instrument, curves);
   }
@@ -104,8 +104,8 @@ public final class ForexNonDeliverableForwardDiscountingMethod implements ForexP
     double spot = curvesFX.getFxRate(ndf.getCurrency2(), ndf.getCurrency1());
     // Backward sweep
     double pvBar = 1.0;
-    double df1Bar = -ndf.getNotional() * ndf.getExchangeRate() / spot * pvBar;
-    double df2Bar = ndf.getNotional() * pvBar;
+    double df1Bar = -ndf.getNotionalCurrency2() * ndf.getExchangeRate() / spot * pvBar;
+    double df2Bar = ndf.getNotionalCurrency2() * pvBar;
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDiscounting1 = new ArrayList<DoublesPair>();
     listDiscounting1.add(new DoublesPair(ndf.getPaymentTime(), -ndf.getPaymentTime() * df1 * df1Bar));

@@ -773,7 +773,7 @@ public final class DependencyGraphBuilder {
    * 
    * @param failureVisitor the visitor to use, or null to create synthetic exceptions
    */
-  public void setResolutionFailureVisitor(final ResolutionFailureVisitor failureVisitor) {
+  public void setResolutionFailureVisitor(final ResolutionFailureVisitor<?> failureVisitor) {
     _getTerminalValuesCallback.setResolutionFailureVisitor(failureVisitor);
   }
 

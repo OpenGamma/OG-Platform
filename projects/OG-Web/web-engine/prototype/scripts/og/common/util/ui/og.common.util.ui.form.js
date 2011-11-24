@@ -26,26 +26,28 @@ $.register_module({
                 if (template === null) return setTimeout(block.html.partial(handler), stall);
                 var self = 'html', total = block.children.length, done = 0, result = [],
                     internal_handler = function () {
-                        var html = template ? $(dummy).append($.tmpl(template, $.extend(
+                        handler(template ? $(dummy).append($.tmpl(template, $.extend(
                             result.reduce(function (acc, val, idx) {return acc['item_' + idx] = val, acc;}, {}),
                             extras
-                        ))).html() : wrap(result.join(''));
-                        return handler(html);
+                        ))).html() : wrap(result.join('')));
                     };
                 if (!total) return internal_handler();
                 block.children.forEach(function (val, idx) {
-                    if (typeof val.html === 'function') return val.html(function (html) {
+                    var error_prefix;
+                    if (val.html) return val.html(function (html) {
                         result[idx] = html, (total === ++done) && internal_handler();
                     });
-                    throw new TypeError(klass + '#' + self + ': children[' + idx + '].html is not a function');
+                    if (typeof val === 'string') return result[idx] = val, (total === ++done) && internal_handler();
+                    error_prefix = klass + '#' + self + ': children[' + idx + ']';
+                    throw new TypeError(error_prefix + ' is neither a string nor does it have an html function');
                 });
             };
             block.load = function () {
                 handlers.forEach(function (handler) {if (handler.type === 'form:load') handler.handler();});
-                block.children.forEach(function (child) {child.load();});
+                block.children.forEach(function (child) {if (child.load) child.load();});
             };
             block.process = function (data, errors) {
-                block.children.forEach(function (child) {child.process(data, errors);});
+                block.children.forEach(function (child) {if (child.process) child.process(data, errors);});
                 try {if (processor) processor(data);} catch (error) {errors.push(error);}
             };
             if (url || module) {
@@ -126,6 +128,16 @@ $.register_module({
                         if ((result[key] === Form.type.IND) && (data[key] !== null)) result[key] = Form.type.STR;
                     }
                     return result;
+                },
+                submit_handler = function (event, extras) {
+                    var self = 'submit_handler', result = form.compile();
+                    $.extend(true, result.extras, extras);
+                    if (event && event.preventDefault) event.preventDefault();
+                    try {
+                        form_events['form:submit'].forEach(function (val) {val.handler(result);});
+                    } catch (error) {
+                        og.dev.warn(klass + '#' + self + ' a form:submit handler failed with:\n', error);
+                    }
                 };
             form.attach = function (handlers) {
                 var self = 'attach';
@@ -140,42 +152,38 @@ $.register_module({
                 });
             };
             form.Block = Block.partial(form);
-            form.dom = form.html.partial(function (html) {
-                $root.html($(dummy).append($.tmpl(form_template, {id: form.id, html: html})).html());
-                form_events['form:load'].forEach(function (val) {val.handler();});
-                ($form = $('#' + form.id)).unbind().submit(function (e) {
-                    var self = 'onsubmit', raw = $form.serializeArray(), built_meta, meta_warns = [],
-                        data = config.data ? $.extend(true, {}, config.data) : null, errors = [], result;
-                    if (data) raw.forEach(function (value) {
-                        var hier = value.name.split('.'), last = hier.pop();
-                        try {
-                            hier.reduce(function (acc, level) {
-                                return acc[level] && typeof acc[level] === 'object' ? acc[level] : (acc[level] = {});
-                            }, data)[last] = value.value;
-                        } catch (error) {
-                            data = null;
-                            error = new Error(klass + '#' + self + ': could not drill down to data.' + value.name);
-                            form_events['form:error'].forEach(function (val) {val.handler(error);});
-                        }
-                    });
-                    form.process(data, errors);
-                    built_meta = type_map ? build_meta(data, null, meta_warns) : null;
-                    meta_warns = meta_warns.sort().reduce(function (acc, val) {
-                        return acc[acc.length - 1] !== val ? (acc.push(val), acc) : acc;
-                    }, []).join('\n');
-                    if (meta_warns.length)
-                        return og.dev.warn(klass + '#build_meta needs these:\n', meta_warns), false;
-                    result = {raw: raw, data: data, errors: errors, meta: built_meta};
+            form.compile = function () {
+                var raw = $form.serializeArray(), built_meta, meta_warns = [],
+                    data = form.data ? $.extend(true, {}, form.data) : null, errors = [];
+                if (data) raw.forEach(function (value) {
+                    var hier = value.name.split('.'), last = hier.pop();
                     try {
-                        form_events['form:submit'].forEach(function (val) {val.handler(result);});
+                        hier.reduce(function (acc, level) {
+                            return acc[level] && typeof acc[level] === 'object' ? acc[level] : (acc[level] = {});
+                        }, data)[last] = value.value;
                     } catch (error) {
-                        og.dev.warn(klass + '#' + self + ' a form:submit handler failed with:\n', error);
+                        data = null;
+                        error = new Error(klass + '#' + self + ': could not drill down to data.' + value.name);
+                        form_events['form:error'].forEach(function (val) {val.handler(error);});
                     }
-                    return false;
                 });
+                form.process(data, errors);
+                built_meta = type_map ? build_meta(data, null, meta_warns) : null;
+                meta_warns = meta_warns.sort().reduce(function (acc, val) {
+                    return acc[acc.length - 1] !== val ? (acc.push(val), acc) : acc;
+                }, []).join('\n');
+                if (meta_warns.length) og.dev.warn(klass + '#build_meta needs these:\n', meta_warns);
+                return {raw: raw, data: data, errors: errors, meta: built_meta, extras: {}};
+            };
+            form.data = config.data;
+            form.dom = form.html.partial(function (html) {
+                $root.empty().append($.tmpl(form_template, {id: form.id, html: html}));
+                form_events['form:load'].forEach(function (val) {val.handler();});
+                ($form = $('#' + form.id)).unbind().submit(submit_handler);
             });
             form.Field = Field.partial(form);
             form.id = 'gen_form_' + id_count++;
+            form.submit = submit_handler.partial(null);
             $root.unbind();
             if (config.handlers) form.attach(config.handlers);
             return form;
@@ -186,7 +194,7 @@ $.register_module({
             DBL: 'double',
             IND: 'indicator',
             SHR: 'short',
-            STR: 'string',
+            STR: 'string'
         };
         [Form.type.BYT, Form.type.DBL, Form.type.SHR].forEach(function (val, idx) {numbers[val] = null;});
         return Form;

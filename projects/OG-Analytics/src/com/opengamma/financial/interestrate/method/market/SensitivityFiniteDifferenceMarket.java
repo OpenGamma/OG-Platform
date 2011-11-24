@@ -9,7 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.PriceIndex;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketDiscountingTimeDecorated;
 import com.opengamma.financial.interestrate.market.MarketForwardTimeDecorated;
@@ -35,7 +35,7 @@ public class SensitivityFiniteDifferenceMarket {
    * Indicates how the finite difference is computed. Not null
    * @return The array of sensitivity with respect the to the given node times.
    */
-  public static double[] curveSensitivity(final InterestRateDerivative instrument, final MarketBundle market, Currency ccy, double[] nodeTimes, double deltaShift, PricingMarketMethod method,
+  public static double[] curveSensitivity(final InstrumentDerivative instrument, final MarketBundle market, Currency ccy, double[] nodeTimes, double deltaShift, PricingMarketMethod method,
       final FiniteDifferenceType differenceType) {
     Validate.notNull(instrument, "Instrument");
     Validate.notNull(method, "Method");
@@ -83,11 +83,11 @@ public class SensitivityFiniteDifferenceMarket {
    * @param method The method to compute the present value sensitivity.
    * @return The array of sensitivity with respect the to the given node times.
    */
-  public static double[] curveSensitivity(final InterestRateDerivative instrument, final MarketBundle market, Currency ccy, double[] nodeTimes, double deltaShift, PricingMarketMethod method) {
+  public static double[] curveSensitivity(final InstrumentDerivative instrument, final MarketBundle market, Currency ccy, double[] nodeTimes, double deltaShift, PricingMarketMethod method) {
     return curveSensitivity(instrument, market, ccy, nodeTimes, deltaShift, method, FiniteDifferenceType.CENTRAL);
   }
 
-  public static double[] curveSensitivity(final InterestRateDerivative instrument, final MarketBundle market, IborIndex index, double[] nodeTimes, double deltaShift, PricingMarketMethod method,
+  public static double[] curveSensitivity(final InstrumentDerivative instrument, final MarketBundle market, IborIndex index, double[] nodeTimes, double deltaShift, PricingMarketMethod method,
       final FiniteDifferenceType differenceType) {
     Validate.notNull(instrument, "Instrument");
     Validate.notNull(method, "Method");
@@ -124,7 +124,7 @@ public class SensitivityFiniteDifferenceMarket {
     throw new IllegalArgumentException("Can only handle forward, backward and central differencing");
   }
 
-  public static double[] curveSensitivity(final InterestRateDerivative instrument, final MarketBundle market, PriceIndex index, double[] nodeTimes, double deltaShift, PricingMarketMethod method,
+  public static double[] curveSensitivity(final InstrumentDerivative instrument, final MarketBundle market, PriceIndex index, double[] nodeTimes, double deltaShift, PricingMarketMethod method,
       final FiniteDifferenceType differenceType) {
     Validate.notNull(instrument, "Instrument");
     Validate.notNull(method, "Method");

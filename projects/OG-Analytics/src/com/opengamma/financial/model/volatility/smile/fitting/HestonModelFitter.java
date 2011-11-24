@@ -13,15 +13,15 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.minimization.DoubleRangeLimitTransform;
 import com.opengamma.math.minimization.NonLinearParameterTransforms;
 import com.opengamma.math.minimization.ParameterLimitsTransform;
+import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.math.minimization.UncoupledParameterTransforms;
-import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 
 /**
  * 
  */
 public class HestonModelFitter extends SmileModelFitter<HestonModelData> {
-  // kappa, theta, vol0, omega, rho 
+  // kappa, theta, vol0, omega, rho
 
   private static final ParameterLimitsTransform[] DEFAULT_TRANSFORMS;
 
@@ -31,9 +31,8 @@ public class HestonModelFitter extends SmileModelFitter<HestonModelData> {
     DEFAULT_TRANSFORMS[1] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // theta > 0
     DEFAULT_TRANSFORMS[2] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); //vol0 > 0
     DEFAULT_TRANSFORMS[3] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // omega > 0
-    DEFAULT_TRANSFORMS[4] = new DoubleRangeLimitTransform(-1.0, 1.0); // -1 <= rho <= 1
+    DEFAULT_TRANSFORMS[4] = new DoubleRangeLimitTransform(-1.0 , 1.0); // -1 <= rho <= 1
   }
-
 
   public HestonModelFitter(double forward, double[] strikes, double timeToExpiry, double[] impliedVols, double[] error, VolatilityFunctionProvider<HestonModelData> model) {
     super(forward, strikes, timeToExpiry, impliedVols, error, model);

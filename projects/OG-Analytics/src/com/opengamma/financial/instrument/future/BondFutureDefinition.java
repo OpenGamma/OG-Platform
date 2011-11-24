@@ -6,8 +6,8 @@
 package com.opengamma.financial.instrument.future;
 
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionWithData;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
@@ -24,7 +24,7 @@ import org.apache.commons.lang.Validate;
 /**
  * Description of a bond future (definition version).
  */
-public class BondFutureDefinition implements FixedIncomeInstrumentDefinitionWithData<BondFuture, Double> {
+public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFuture, Double> {
 
   /**
    * The last trading date.
@@ -195,12 +195,12 @@ public class BondFutureDefinition implements FixedIncomeInstrumentDefinitionWith
   }
 
   @Override
-  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
     return visitor.visitBondFutureSecurityDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitBondFutureSecurityDefinition(this);
   }
 

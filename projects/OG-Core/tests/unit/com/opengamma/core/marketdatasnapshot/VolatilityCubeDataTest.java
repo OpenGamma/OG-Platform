@@ -6,6 +6,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
 
 import org.testng.annotations.Test;
 
@@ -56,7 +57,7 @@ public class VolatilityCubeDataTest {
   }
 
   private static void checkSimpleData(VolatilityCubeData data) {
-    Map<Tenor, Map<Tenor, Pair<double[], double[]>>> smiles = data.getSmiles();
+    SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> smiles = data.getSmiles();
     assertEquals(2, smiles.size());
     
     assertTrue(smiles.containsKey(Tenor.DAY));
@@ -86,7 +87,7 @@ public class VolatilityCubeDataTest {
   }
 
   private static void checkNulldata(VolatilityCubeData data) {
-    Map<Tenor, Map<Tenor, Pair<double[], double[]>>> smiles = data.getSmiles();
+    SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> smiles = data.getSmiles();
     assertEquals(null, smiles);
   }
 

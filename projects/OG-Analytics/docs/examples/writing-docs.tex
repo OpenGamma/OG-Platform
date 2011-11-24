@@ -196,13 +196,16 @@ The json-doclet project is part of Dexy, and it lets us run a custom Javadoc
 which gathers all the Javadoc information plus extracts source code, and
 writes all this information to a JSON file.
 
+In theory, any element from the \href{http://download.oracle.com/javase/6/docs/jdk/api/javadoc/doclet/index.html}{Doclet API}
+can be made available, although not all elements are implemented yet.
+
 Within our Dexy documents, we can pull information out of this JSON dict. A
 special Dexy filter adds some nice features like syntax highlighting the Java
 source code stored in the dict. You can view the filter reference documentation
 for the \href{http://dexy.it/docs/filters/javadoc}{javadoc filter}.
 
 %%% @export "assign-class-to-local-variable"
-<% set cn_class = d['/javadoc-data.json|javadocs']['packages']['com.opengamma.math.number']['classes']['ComplexNumber'] %>
+<% set cn_class = d['/jsondocs/javadoc-data.json|javadocs']['packages']['com.opengamma.math.number']['classes']['ComplexNumber'] %>
 %%% @end
 
 When working with a class, it can be useful to assign that branch of the dict to a local variable:
@@ -237,7 +240,7 @@ Documentation is available for the following methods:
 
 We can iterate over constructors in the class docs via:
 
-<< d['writing-docs.tex|idio|l']['print-methods'] >>
+<< d['writing-docs.tex|idio|l']['print-constructors'] >>
 
 Documentation is available for the following constructors:
 
@@ -253,23 +256,106 @@ In the previous section, we used the following constructor:
 
 << cn_class['constructors']['ComplexNumber(double,double)']['source-latex'] >>
 
-If we didn't have an imagniary component, we could have used an alternate constructor:
+If we didn't have an imaginary component, we could have used an alternate constructor:
 
 \begin{Verbatim}
 << cn_class['constructors']['ComplexNumber(double)']['comment-text'] >>
 \end{Verbatim}
 << cn_class['constructors']['ComplexNumber(double)']['source-latex'] >>
 
+You can use Python to extract just the first line of the source code:
+
+<< d['writing-docs.tex|idio|l']['extract-first-line-source'] >>
+
+%%% @export "extract-first-line-source"
+<< cn_class['constructors']['ComplexNumber(double)']['source-latex'].splitlines()[0] >>
+<< cn_class['constructors']['ComplexNumber(double)']['source-latex'].splitlines()[1] >>
+<< cn_class['constructors']['ComplexNumber(double)']['source-latex'].splitlines()[-1] >>
+%%% @end
+
+Line 0 will have the opening Verbatim tag, and the final line will have the closing Verbatim tag. Line 1 will have the first line of highlighted code.
+
+Or, use the plain text rather than highlighted version, and add your own Verbatim tags:
+
+<< d['writing-docs.tex|idio|l']['extract-first-line-source-alt1'] >>
+
+%%% @export "extract-first-line-source-alt1"
+\begin{Verbatim}
+<< cn_class['constructors']['ComplexNumber(double)']['source'].splitlines()[0] >>
+\end{Verbatim}
+%%% @end
+
+You can also strip off the curly bracket:
+
+<< d['writing-docs.tex|idio|l']['extract-first-line-source-alt2'] >>
+
+%%% @export "extract-first-line-source-alt2"
+\begin{Verbatim}
+<< cn_class['constructors']['ComplexNumber(double)']['source'].splitlines()[0].rstrip("{ ") >>
+\end{Verbatim}
+%%% @end
+
+Or, you can retrieve the \href{http://download.oracle.com/javase/6/docs/jdk/api/javadoc/doclet/com/sun/javadoc/ExecutableMemberDoc.html#signature()}{signature}:
+
+\begin{Verbatim}
+<< cn_class['constructors']['ComplexNumber(double)']['signature'] >>
+\end{Verbatim}
+
 Here is the source of the \verb|toString()| method:
 
 << cn_class['methods']['toString()']['source-latex'] >>
+
+\subsection{Class Information}
+
+Here are the methods available for this class:
+
+\begin{itemize}
+<% for key, value in cn_class.iteritems() -%>
+\item{<< key >>}
+<% endfor -%>
+\end{itemize}
+
+\subsection{Constructor Information}
+
+<% set cn_constructor = "ComplexNumber(double)" -%>
+
+Here are the methods available for the << cn_constructor >> constructor:
+
+\begin{itemize}
+<% for key, value in cn_class['constructors'][cn_constructor].iteritems() -%>
+\item{<< key >>}
+<% endfor -%>
+\end{itemize}
+
+Here are some examples of what these items return:
+
+<% for key in ["signature", "flat-signature", "modifiers", "qualified-name"] -%>
+\subsubsection{<< key >>}
+
+\begin{Verbatim}
+<< cn_class['constructors'][cn_constructor][key] >>
+\end{Verbatim}
+
+<% endfor -%>
+
+\subsection{Method Information}
+
+<% set cn_method = "toString()" -%>
+
+Here are the methods available for the << cn_method >> method:
+
+\begin{itemize}
+<% for key, value in cn_class['methods'][cn_method].iteritems() -%>
+\item{<< key >>}
+<% endfor -%>
+\end{itemize}
 
 \section{A Real Example}
 
 In this section we discuss writing the SABR extrapolation example. The example
 is adapted from a unit test.
 
-<% set sabr_class = d['/javadoc-data.json|javadocs']['packages']['com.opengamma.financial.model.option.pricing.analytic.formula']['classes']['SABRExtrapolationRightFunction'] %>
+<% set sabr_class = d['/jsondocs/javadoc-data.json|javadocs']['packages']['com.opengamma.financial.model.option.pricing.analytic.formula']['classes']['SABRExtrapolationRightFunction'] %>
 
 First we look at some of the docs and source of the classes we will use in our
 example.
@@ -295,7 +381,7 @@ Then we will use the \verb|price| function.
 
 The other class we use is SABRFormulaData.
 
-<% set sabr_formula_data_class = d['/javadoc-data.json|javadocs']['packages']['com.opengamma.financial.model.volatility.smile.function']['classes']['SABRFormulaData'] %>
+<% set sabr_formula_data_class = d['/jsondocs/javadoc-data.json|javadocs']['packages']['com.opengamma.financial.model.volatility.smile.function']['classes']['SABRFormulaData'] %>
 
 << sabr_formula_data_class['constructors']['SABRFormulaData(double,double,double,double)']['source-latex'] >>
 
@@ -309,4 +395,115 @@ And the class definition:
 
 << d['sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['class-def'] >>
 
+We define constants used in the SABRFormulaData constructor, and then create a
+\verb|SABR_DATA| constant:
 
+<< d['sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['class-constants-sabr-data'] >>
+
+Next we set some more constants we will use in our calculations:
+<< d['sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['class-constants-sabr-extrapolation-function'] >>
+
+Now we enter the main method, where we declare some local variables and set up
+some more formulas and data we will need:
+
+<< d['sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['main'] >>
+
+We set up the data file we will store our data in, and write the field header line:
+
+<< d['sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['data-file'] >>
+
+Now we're all set, and we can enter our main loop and calculate the option
+price over a range of strikes, and also calculate the implied volatility:
+
+\fvset{fontsize=\scriptsize}
+<< d['sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['loop'] >>
+\fvset{fontsize=\small}
+
+Finally, we close the data stream, ensuring all our data is written to a file:
+
+<< d['sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['save-data'] >>
+
+Here is the first few lines of the generated data:
+
+\begin{Verbatim}
+<< "\n".join(d['sabr-extrapolation/smile-multi-mu-data.txt'].splitlines()[0:10]) >>
+\end{Verbatim}
+
+\subsection{Plotting Data in R}
+
+The reason we have generated this data is to make use of it. In this case, we
+want to plot this data in R. The examples repository is configured so that if
+you create a .R file with the same name as the .java file, this R file will
+be run automatically, after the .java file has been, so it can make use of any
+data files generated by the java.
+
+At the top of our R script, we state which libraries we will need:
+
+<< d['sabr-extrapolation/SabrExtrapolationExample.R|idio|l']['libraries'] >>
+
+Next we read the generated data into a variable creatively named \verb|data|:
+
+<< d['sabr-extrapolation/SabrExtrapolationExample.R|idio|l']['read-data'] >>
+
+We need to calculate the density separately for each value of Mu. To simplify
+this, we begin by creating variables to hold Price and Strike for different
+values of Mu.
+
+<< d['sabr-extrapolation/SabrExtrapolationExample.R|idio|l']['extract-data-by-mu'] >>
+
+Next we calculate density for each of the values of Mu, and add the
+concatenated vectors back into our original data object.
+
+<< d['sabr-extrapolation/SabrExtrapolationExample.R|idio|l']['calculate-density'] >>
+
+Now we are ready to plot. To start with, we plot the option price against the strike price:
+
+<< d['sabr-extrapolation/SabrExtrapolationExample.R|idio|l']['plot-data-pdf'] >>
+
+%%% @export "include-extrapolation-price-pdf"
+\includegraphics{<< a['sabr-extrapolation/extrapolation-price.pdf'].filename() >>}
+%%% @end
+
+Because we are working in \LaTeX, we use the \verb|includegraphics| commands
+and reference the dexy artifact corresponding to the plot we want to include,
+and call that artifact's \verb|filename()| method:
+
+<< d['writing-docs.tex|idio|l']['include-extrapolation-price-pdf'] >>
+
+By the time we run \LaTeX, our expression has been replaced with the name of
+the PDF file we want to include.
+
+Here is the second plot, of the implied volatility against the strike price:
+
+<< d['sabr-extrapolation/SabrExtrapolationExample.R|idio|l']['plot-implied-vol-pdf'] >>
+
+\includegraphics{<< a['sabr-extrapolation/extrapolation-smile.pdf'].filename() >>}
+
+\subsection{Saving Field Values}
+
+For one last trick, we have added some code to allow us to automatically report
+on all the field values we defined. Eventually, when this is more developed, it
+will be integrated with Dexy so you don't need to insert the code in every
+example to make use of it (similar functionality is available for R and
+Python). For now, the code is just at the end of the \verb|main| method.
+
+<< d['sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['save-fields'] >>
+
+This code uses Java introspection to iterate over all the class fields and
+write the field names and values to a JSON dict. This means that in our
+documents, we can say that
+
+%%% @export "alpha"
+$\alpha=<<d['sabr-extrapolation/sabr-fields.json']['ALPHA']>>$
+%%% @end
+
+By typing: << d['writing-docs.tex|idio|l']['alpha'] >>
+i.e. without hard-coding that value into our document.
+
+Here are all the field values for this example:
+
+\begin{Verbatim}
+<% for field, value in d['sabr-extrapolation/sabr-fields.json'].iteritems() -%>
+<< field >> : << value >>
+<% endfor -%>
+\end{Verbatim}

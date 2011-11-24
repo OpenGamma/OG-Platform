@@ -21,7 +21,7 @@ import com.opengamma.core.position.Position;
  *
  */
 public class EquityBetaAggregationFunction implements AggregationFunction<String> {
-  private static final boolean s_useAttributes = true;
+  private boolean _useAttributes;
   private static final String MORE_THAN_1_25 = "E) > 1.25";
   private static final String FROM_0_9_TO_1_25 = "D) 0.9 - 1.25";
   private static final String FROM_0_75_TO_0_9 = "C) 0.75 - 0.9";
@@ -33,14 +33,19 @@ public class EquityBetaAggregationFunction implements AggregationFunction<String
   private static final String NO_BETA = "N/A";
 
   private HistoricalTimeSeriesSource _htsSource;
+
+  public EquityBetaAggregationFunction(HistoricalTimeSeriesSource htsSource, boolean useAttributes) {
+    _htsSource = htsSource;
+    _useAttributes = useAttributes;
+  }
   
   public EquityBetaAggregationFunction(HistoricalTimeSeriesSource htsSource) {
-    _htsSource = htsSource;
+    this(htsSource, true);
   }
   
   @Override
   public String classifyPosition(Position position) {
-    if (s_useAttributes) {
+    if (_useAttributes) {
       Map<String, String> attributes = position.getAttributes();
       if (attributes.containsKey(getName())) {
         return attributes.get(getName());

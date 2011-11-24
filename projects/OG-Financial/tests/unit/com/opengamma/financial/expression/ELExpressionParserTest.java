@@ -9,6 +9,8 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.google.common.base.Function;
+
 /**
  * Tests the {@link ELExpressionParser} class.
  */
@@ -65,6 +67,44 @@ public class ELExpressionParserTest {
     assertEquals(eval.evaluate(), 0.2);
     eval = expr.evaluator();
     assertEquals(eval.evaluate(), UserExpression.NA);
+  }
+
+  public static final class Foo {
+
+    private final int _bar;
+
+    public Foo(final int v) {
+      _bar = v;
+    }
+
+    public int getBar() {
+      return _bar;
+    }
+
+  }
+
+  public void testSyntheticProperties() {
+    final ELExpressionParser parser = new ELExpressionParser();
+    UserExpression expr = parser.parse("x.bar");
+    UserExpression.Evaluator eval = expr.evaluator();
+    eval.setVariable("x", new Foo(42));
+    assertEquals(eval.evaluate(), 42);
+    expr = parser.parse("x.foo");
+    eval = expr.evaluator();
+    eval.setVariable("x", new Foo(42));
+    assertEquals(eval.evaluate(), UserExpression.NA);
+    parser.setSynthetic(Foo.class, Integer.class, "foo", new Function<Foo, Integer>() {
+
+      @Override
+      public Integer apply(final Foo from) {
+        return from.getBar() / 2;
+      }
+
+    });
+    expr = parser.parse("x.foo");
+    eval = expr.evaluator();
+    eval.setVariable("x", new Foo(42));
+    assertEquals(eval.evaluate(), 21);
   }
 
 }

@@ -17,6 +17,8 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.extsql.ExtSqlBundle;
+import com.opengamma.extsql.ExtSqlConfig;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
@@ -110,12 +112,8 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
 
   @Test
   public void test_update_rollback() {
-    DbSecurityMaster w = new DbSecurityMaster(_secMaster.getDbConnector()) {
-      @Override
-      protected String sqlInsertSecurityIdKey() {
-        return "INSERT";  // bad sql
-      }
-    };
+    DbSecurityMaster w = new DbSecurityMaster(_secMaster.getDbConnector());
+    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("Invalid"), DbSecurityMaster.class));
     final SecurityDocument base = _secMaster.get(UniqueId.of("DbSec", "101", "0"));
     UniqueId uniqueId = UniqueId.of("DbSec", "101", "0");
     ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", ExternalIdBundle.of("A", "B"));

@@ -21,7 +21,7 @@ import com.opengamma.core.position.Position;
  *
  */
 public class LiquidityAggregationFunction implements AggregationFunction<String> {
-  private static final boolean s_useAttributes = true;
+  private boolean _useAttributes;
   
   private static final String MORE_THAN_10_0 = "F) 10+";
   private static final String FROM_3_0_TO_10_0 = "E) 3 - 10";
@@ -37,12 +37,17 @@ public class LiquidityAggregationFunction implements AggregationFunction<String>
   private HistoricalTimeSeriesSource _htsSource;
   
   public LiquidityAggregationFunction(HistoricalTimeSeriesSource htsSource) {
+    this(htsSource, true);
+  }
+  
+  public LiquidityAggregationFunction(HistoricalTimeSeriesSource htsSource, boolean useAttributes) {
     _htsSource = htsSource;
+    _useAttributes = useAttributes;
   }
   
   @Override
   public String classifyPosition(Position position) {
-    if (s_useAttributes) {
+    if (_useAttributes) {
       Map<String, String> attributes = position.getAttributes();
       if (attributes.containsKey(getName())) {
         return attributes.get(getName());

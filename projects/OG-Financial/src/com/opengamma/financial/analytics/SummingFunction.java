@@ -69,7 +69,8 @@ public class SummingFunction extends PropertyPreservingFunction {
         YieldCurveFunction.PROPERTY_FUNDING_CURVE,
         ValuePropertyNames.CURVE_CALCULATION_METHOD,
         ValuePropertyNames.PAY_CURVE,
-        ValuePropertyNames.RECEIVE_CURVE);
+        ValuePropertyNames.RECEIVE_CURVE,
+        ValuePropertyNames.SMILE_FITTING_METHOD);
   }
 
   protected String getAggregationStyle() {

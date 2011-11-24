@@ -116,12 +116,12 @@ import com.opengamma.livedata.UserPrincipal;
   }
 
   @Override
-  public ViewResultMode getJobResultMode() {
+  public ViewResultMode getFragmentResultMode() {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void setJobResultMode(ViewResultMode viewResultMode) {
+  public void setFragmentResultMode(ViewResultMode fragmentResultMode) {
     throw new UnsupportedOperationException();
   }
 

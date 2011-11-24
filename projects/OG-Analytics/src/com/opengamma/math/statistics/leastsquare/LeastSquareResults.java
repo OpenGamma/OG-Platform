@@ -15,6 +15,11 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
  * 
  */
 public class LeastSquareResults {
+  @Override
+  public String toString() {
+    return "LeastSquareResults [_chiSq=" + _chiSq + ", _parameters=" + _parameters.toString() + ", _covariance=" + _covariance.toString() + "]";
+  }
+
   private final double _chiSq;
   private final DoubleMatrix1D _parameters;
   private final DoubleMatrix2D _covariance;

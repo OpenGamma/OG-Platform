@@ -51,9 +51,9 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.InstrumentSensitivityCalculator;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -72,7 +72,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
   private static final InstrumentSensitivityCalculator CALCULATOR = InstrumentSensitivityCalculator.getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
   // TODO: This will be hit for a curve definition on each calculation cycle, so it really needs to cache stuff rather than do any I/O
-  private FinancialSecurityVisitorAdapter<FixedIncomeInstrumentDefinition<?>> _visitor;
+  private FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> _visitor;
   private FixedIncomeConverterDataProvider _definitionConverter;
   private final String _curveCalculationType;
   private String _forwardCurveName;
@@ -106,7 +106,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
     final FutureSecurityConverter futureConverter = new FutureSecurityConverter(bondFutureConverter, irFutureConverter);
     _visitor =
-        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentDefinition<?>>builder()
+        FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
             .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
             .futureSecurityVisitor(futureConverter)
             .bondSecurityVisitor(bondConverter).create();
@@ -154,11 +154,11 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     final InterpolatedYieldCurveSpecificationWithSecurities forwardCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) forwardCurveSpecObject;
     final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpec = fundingCurveSpecObject == null ? forwardCurveSpec
         : (InterpolatedYieldCurveSpecificationWithSecurities) fundingCurveSpecObject;
-    final FixedIncomeInstrumentDefinition<?> definition = security.accept(_visitor);
+    final InstrumentDefinition<?> definition = security.accept(_visitor);
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
-    final InterestRateDerivative derivative = _definitionConverter.convert(security, definition, now,
+    final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now,
         FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security,
             _fundingCurveName, _forwardCurveName), dataSource);
     final double[][] array = FunctionUtils.decodeJacobian(jacobianObject);

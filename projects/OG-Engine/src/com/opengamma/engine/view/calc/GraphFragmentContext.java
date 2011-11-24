@@ -8,6 +8,7 @@ package com.opengamma.engine.view.calc;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -16,18 +17,19 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.function.CompiledFunctionDefinition;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
-import com.opengamma.engine.view.calcnode.stats.FunctionCostsPerConfiguration;
-import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
 import com.opengamma.util.Cancelable;
 
+/**
+ * State shared among all fragments of a dependency graph for execution. Also implements
+ * the {@link JobResultReceiver} interface to coordinate responses and try to support
+ * cancellation of an executing graph.
+ */
 /* package */class GraphFragmentContext implements JobResultReceiver {
 
   private static final Logger s_logger = LoggerFactory.getLogger(GraphFragmentContext.class);
@@ -35,54 +37,24 @@ import com.opengamma.util.Cancelable;
   private final AtomicInteger _graphFragmentIdentifiers = new AtomicInteger();
   private final long _functionInitializationTimestamp;
   private final AtomicLong _executionTime = new AtomicLong();
-  private MultipleNodeExecutor _executor;
+  private final MultipleNodeExecutor _executor;
   private final DependencyGraph _graph;
   private final Map<CalculationJobItem, DependencyNode> _item2node;
-  private final FunctionCostsPerConfiguration _functionCost;
   private final Map<CalculationJobSpecification, Cancelable> _cancels = new ConcurrentHashMap<CalculationJobSpecification, Cancelable>();
-  private Map<ValueSpecification, Boolean> _sharedCacheValues;
-  private Map<CalculationJobSpecification, GraphFragment> _job2fragment;
+  private Map<CalculationJobSpecification, GraphFragment<?, ?>> _job2fragment;
   private volatile boolean _cancelled;
   private final BlockingQueue<CalculationJobResult> _calcJobResultQueue;
+
+  protected static <K, V> ConcurrentMap<K, V> createMap(int numElements) {
+    return new ConcurrentHashMap<K, V>((numElements << 2) / 3);
+  }
 
   public GraphFragmentContext(final MultipleNodeExecutor executor, final DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue) {
     _executor = executor;
     _graph = graph;
-    final int hashSize = (graph.getSize() * 4) / 3;
-    _item2node = new ConcurrentHashMap<CalculationJobItem, DependencyNode>(hashSize);
-    _sharedCacheValues = new ConcurrentHashMap<ValueSpecification, Boolean>();
-    for (ValueSpecification specification : graph.getTerminalOutputSpecifications()) {
-      _sharedCacheValues.put(specification, Boolean.TRUE);
-    }
-    _functionCost = executor.getFunctionCosts().getStatistics(graph.getCalculationConfigurationName());
+    _item2node = createMap(graph.getSize());
     _functionInitializationTimestamp = executor.getFunctionInitId();
     _calcJobResultQueue = calcJobResultQueue;
-  }
-
-  /**
-   * Resets state so that the plan can be executed again. This is not valid after a cancellation.
-   */
-  public boolean reset(final MultipleNodeExecutor executor) {
-    if (_cancelled) {
-      s_logger.warn("Was cancelled - can't reset for re-execution");
-      return false;
-    }
-    // sanity checks
-    if (!_item2node.isEmpty()) {
-      s_logger.warn("{} elements in item2node map - can't reset for re-execution ({})", _item2node.size(), _item2node);
-      return false;
-    }
-    if (!_job2fragment.isEmpty()) {
-      s_logger.warn("{} elements in job2fragment map - can't reset for re-execution ({})", _job2fragment.size(), _job2fragment);
-      return false;
-    }
-    if (!_cancels.isEmpty()) {
-      s_logger.warn("{} elements in cancellation set - can't reset for re-execution ({})", _cancels.size(), _cancels);
-      return false;
-    }
-    _executionTime.set(0);
-    _executor = executor;
-    return true;
   }
 
   public MultipleNodeExecutor getExecutor() {
@@ -109,34 +81,22 @@ import com.opengamma.util.Cancelable;
     return _executionTime.get();
   }
 
-  public Map<CalculationJobItem, DependencyNode> getItem2Node() {
-    return _item2node;
-  }
-
-  public Map<ValueSpecification, Boolean> getSharedCacheValues() {
-    return _sharedCacheValues;
-  }
-
-  public void freeSharedCacheValues() {
-    _sharedCacheValues = null;
-  }
-
   public void allocateFragmentMap(final int size) {
-    _job2fragment = new ConcurrentHashMap<CalculationJobSpecification, GraphFragment>((size * 4) / 3);
+    _job2fragment = createMap(size);
   }
 
-  public void registerCallback(final CalculationJobSpecification jobspec, final GraphFragment fragment) {
+  public void registerJobItem(final CalculationJobItem jobitem, final DependencyNode node) {
+    _item2node.put(jobitem, node);
+  }
+
+  public void registerCallback(final CalculationJobSpecification jobspec, final GraphFragment<?, ?> fragment) {
     _job2fragment.put(jobspec, fragment);
-  }
-
-  public FunctionInvocationStatistics getFunctionStatistics(final CompiledFunctionDefinition function) {
-    return _functionCost.getStatistics(function.getFunctionDefinition().getUniqueId());
   }
 
   @Override
   public void resultReceived(final CalculationJobResult result) {
     _cancels.remove(result.getSpecification());
-    final GraphFragment fragment = _job2fragment.remove(result.getSpecification());
+    final GraphFragment<?, ?> fragment = _job2fragment.remove(result.getSpecification());
     if (fragment != null) {
       // Put result into the queue
       getCalculationJobResultQueue().offer(result);
@@ -181,7 +141,7 @@ import com.opengamma.util.Cancelable;
     }
   }
 
-  public long getFunctionInitializationTimestamp() {
+  public long getFunctionInitId() {
     return _functionInitializationTimestamp;
   }
 

@@ -18,13 +18,16 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.util.money.Currency;
 
 /**
  * Function to shift a yield curve, implemented using properties and constraints.
@@ -50,7 +53,7 @@ public class YieldCurveShiftFunction extends AbstractFunction.NonCompiledInvoker
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return true;
+    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
   }
 
   @Override
@@ -84,13 +87,18 @@ public class YieldCurveShiftFunction extends AbstractFunction.NonCompiledInvoker
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ComputedValue input = inputs.getAllValues().iterator().next();
     final ValueSpecification inputSpec = input.getSpecification();
-    YieldAndDiscountCurve curve = (YieldAndDiscountCurve) input.getValue();
-    final ValueProperties.Builder properties = createValueProperties(inputSpec);
-    final String shift = desiredValues.iterator().next().getConstraint(SHIFT);
-    properties.with(SHIFT, shift);
-    // TODO: apply the shift operation to the yield curve
-    s_logger.error("TODO: apply shift {} to yield curve {}", shift, curve);
-    return Collections.singleton(new ComputedValue(new ValueSpecification(inputSpec.getValueName(), inputSpec.getTargetSpecification(), properties.get()), curve));
+    final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) input.getValue();
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
+    final String shift = desiredValue.getConstraint(SHIFT);
+    final ValueProperties.Builder properties = createValueProperties(inputSpec).with(SHIFT, shift);
+    final OverrideOperationCompiler compiler = OpenGammaExecutionContext.getOverrideOperationCompiler(executionContext);
+    if (compiler == null) {
+      throw new IllegalStateException("No override operation compiler for " + shift + " in execution context");
+    }
+    s_logger.debug("Applying {} to yield curve {}", shift, curve);
+    final Object result = compiler.compile(shift).apply(desiredValue, curve);
+    s_logger.debug("Got result {}", result);
+    return Collections.singleton(new ComputedValue(new ValueSpecification(inputSpec.getValueName(), inputSpec.getTargetSpecification(), properties.get()), result));
   }
 
 }

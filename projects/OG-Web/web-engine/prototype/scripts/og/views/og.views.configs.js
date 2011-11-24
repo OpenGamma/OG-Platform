@@ -90,17 +90,12 @@ $.register_module({
                 toolbar: {
                     'default': {
                         buttons: [
-                            {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'new', handler: toolbar_buttons['new']}
+                            {id: 'new', name: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', name: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', name: 'Delete', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar'
-                    },
-                    active: {
-                        buttons: [
-                            {name: 'delete', handler: toolbar_buttons['delete']},
-                            {name: 'new', handler: toolbar_buttons['new']}
-                        ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     }
                 }
             },
@@ -114,7 +109,7 @@ $.register_module({
                         config_types = result.data.types.sort().map(function (val) {return {name: val, value: val};});
                         $('.OG-toolbar .og-js-new').removeClass('OG-disabled').click(toolbar_buttons['new']);
                     },
-                    cache_for: 15 * 1000
+                    cache_for: 60 * 60 * 1000 // an hour
                 });
             },
             // toolbar here relies on dynamic data, so it is instantiated with a callback instead of having
@@ -123,7 +118,7 @@ $.register_module({
                 .partial(page_name, 'Configurations', null, toolbar.partial('default')),
             details_page = function (args, new_config_type) {
                 var rest_options, is_new = !!new_config_type, rest_handler = function (result) {
-                    if (result.error) return alert(result.message);
+                    if (result.error) return ui.dialog({type: 'error', message: result.message});
                     if (is_new) {
                         if (!result.data) result.data = {template_data: {type: new_config_type, configJSON: {}}};
                         if (!result.data.template_data.configJSON) result.data.template_data.configJSON = {};
@@ -138,8 +133,10 @@ $.register_module({
                         item: 'history.configs.recent',
                         value: routes.current().hash
                     });
-                // if new page, close south panel
-                check_state({args: args, conditions: [{new_page: og.views.common.layout.inner.close.partial('south')}]});
+                    if (!og.views.config_forms[config_type]) {
+                        ui.message({location: '.ui-layout-inner-center', destroy: true});
+                        return ui.dialog({type: 'error', message: 'There is no template for: ' + config_type});
+                    }
                     og.views.config_forms[config_type]({
                         is_new: is_new,
                         data: details_json,
@@ -151,8 +148,7 @@ $.register_module({
                             ui.message({location: '.OG-js-details-panel', destroy: true});
                             if (result.error) {
                                 ui.message({location: '.ui-layout-inner-center', destroy: true});
-                                ui.dialog({type: 'error', message: result.message});
-                                return;
+                                return ui.dialog({type: 'error', message: result.message});
                             }
                             configs.search(args);
                             routes.go(routes.hash(module.rules.load_configs, args));
@@ -166,30 +162,47 @@ $.register_module({
                             ui.message({location: '.ui-layout-inner-center', message: 'saved'});
                             setTimeout(function () {routes.handler(); details_page(args);}, 300);
                         },
-                        handler: function () {
+                        handler: function (form) {
                             var json = details_json.template_data,
                                 error_html = '\
                                     <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
                                         This configuration has been deleted\
                                     </section>',
                                 layout = og.views.common.layout;
-                            toolbar('active');
-                            if (json && json.deleted) {
+                            if (json.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);
                                 layout.inner.sizePane('north', '0');
                                 layout.inner.open('north');
-                                $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
                             } else {
-                                if (is_new) $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
                             }
+                            if (is_new || json.deleted) ui.toolbar({
+                                buttons: [
+                                    {id: 'new', name: 'New', handler: toolbar_buttons['new']},
+                                    {id: 'save', name: 'Save', handler: form.submit.partial({as_new: true})},
+                                    {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
+                                    {id: 'delete', name: 'Delete', enabled: 'OG-disabled'}
+                                ],
+                                location: '.OG-tools'
+                            }); else ui.toolbar({
+                                buttons: [
+                                    {id: 'new', name: 'New', handler: toolbar_buttons['new']},
+                                    {id: 'save', name: 'Save', handler: form.submit},
+                                    {id: 'saveas', name: 'Save as', handler: form.submit.partial({as_new: true})},
+                                    {id: 'delete', name: 'Delete', handler: toolbar_buttons['delete']}
+                                ],
+                                location: '.OG-tools'
+                            });
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             layout.inner.resizeAll();
                         },
                         selector: '.ui-layout-inner-center .ui-layout-content'
                     });
-                };
+                },
+                layout = og.views.common.layout;
+                layout.inner.options.south.onclose = null;
+                layout.inner.close('south');
                 rest_options = {
                     handler: rest_handler,
                     loading: function () {
@@ -247,6 +260,7 @@ $.register_module({
                 if (options.slickgrid.columns[0].name === null) return api.rest.configs.get({
                     meta: true,
                     handler: function (result) {
+                        if (result.error) return ui.dialog({type: 'error', message: result.message});
                         options.slickgrid.columns[0].name = [
                             '<select class="og-js-type-filter" style="width: 80px">',
                             result.data.types.sort().reduce(function (acc, type) {

@@ -8,15 +8,15 @@ package com.opengamma.financial.forex.derivative;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.forex.calculator.ForexDerivative;
-import com.opengamma.financial.forex.calculator.ForexDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a foreign exchange non-deliverable forward transaction.
  * The transaction is XXX/YYY where YYY is the currency for the cash-settlement. A NDF KRW/USD with USD cash settlement is stored with KRW as currency1 and USD as currency2.
  */
-public class ForexNonDeliverableForward implements ForexDerivative {
+public class ForexNonDeliverableForward implements InstrumentDerivative {
 
   /**
    * First currency of the transaction.
@@ -52,7 +52,7 @@ public class ForexNonDeliverableForward implements ForexDerivative {
   private final String _discountingCurve2Name;
 
   /**
-   * Constructor for non-deliverable forward forex transaction.
+   * Constructor for non-deliverable forward Forex transaction.
    * @param currency1 First currency of the transaction.
    * @param currency2 Second currency of the transaction. The cash settlement is done in this currency.
    * @param notional Notional of the transaction (in currency2).
@@ -97,8 +97,16 @@ public class ForexNonDeliverableForward implements ForexDerivative {
    * Gets the notional of the transaction (in currency2).
    * @return The notional.
    */
-  public double getNotional() {
+  public double getNotionalCurrency2() {
     return _notional;
+  }
+
+  /**
+   * Gets the notional of the transaction (in currency1).
+   * @return The notional.
+   */
+  public double getNotionalCurrency1() {
+    return -_notional * _exchangeRate;
   }
 
   /**
@@ -142,12 +150,12 @@ public class ForexNonDeliverableForward implements ForexDerivative {
   }
 
   @Override
-  public <S, T> T accept(ForexDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitForexNonDeliverableForward(this, data);
   }
 
   @Override
-  public <T> T accept(ForexDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitForexNonDeliverableForward(this);
   }
 

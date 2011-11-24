@@ -1,4 +1,4 @@
-/**
+    /**
  * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
@@ -27,8 +27,21 @@ $.register_module({
                                 og.views[page].rules['load_' + page], $.extend({}, current, {version: version})
                             );
                         },
+                        // TODO: split off into lib
                         format_date = function (timestamp) {
-                            return timestamp;
+                            // the timestamp format isnt supported by for IE or safari, we need to change the format
+                            if (isNaN(new Date(timestamp).getDate())) return timestamp;
+                            var add_zero = function (n) {return n < 10 ? '0' + n : '' + n;},
+                                obj = new Date(timestamp),
+                                d = add_zero(obj.getDay()),
+                                M = add_zero(obj.getMonth()),
+                                y = obj.getFullYear(),
+                                h = add_zero(obj.getHours()),
+                                m = add_zero(obj.getMinutes()),
+                                s = add_zero(obj.getSeconds()),
+                                date = d + '<span> / </span>' + M + '<span> / </span>' + y,
+                                time = '<span>' + h + ':' + m + ':' + s + '</span>';
+                            return '<time title="day / month / year">' + date + '<span> @ </span>' + time + '</time>';
                         },
                         $list = $(r.data.data.reduce(function (acc, val, i) {
                             var arr = val.split('|'), cur, sel, ver = routes.current().args.version;

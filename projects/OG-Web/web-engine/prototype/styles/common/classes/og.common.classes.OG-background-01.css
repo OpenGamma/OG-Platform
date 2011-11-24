@@ -1,0 +1,15 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ *
+ * @colordef #ecf5fa light blue (0)
+ * @colordef #fefeff off white (1)
+ *
+ * 0001
+ * 0010
+ * 0100
+ * 1000
+ */
+.OG-background-01 {
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAKklEQVQIW2N88/XXfwYoEOJkZWCECYA4777/hgjAOCCFjP/+/f8PkoEBAEksGI2sJts/AAAAAElFTkSuQmCC);
+}

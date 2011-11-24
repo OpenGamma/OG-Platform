@@ -25,8 +25,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -54,9 +54,9 @@ public class CMSwapSABRPresentValueSABRFunction extends CMSwapSABRFunction {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final SwapSecurity swapSecurity = (SwapSecurity) target.getSecurity();
-    final FixedIncomeInstrumentDefinition<?> swapDefinition = swapSecurity.accept(getVisitor());
+    final InstrumentDefinition<?> swapDefinition = swapSecurity.accept(getVisitor());
     final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(target, inputs));
-    final InterestRateDerivative swap = swapDefinition.toDerivative(now, getFundingCurveName(), getForwardCurveName());
+    final InstrumentDerivative swap = swapDefinition.toDerivative(now, getFundingCurveName(), getForwardCurveName());
     final PresentValueSABRSensitivityDataBundle presentValue = CALCULATOR.visit(swap, data);
     final ValueProperties resultProperties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode())

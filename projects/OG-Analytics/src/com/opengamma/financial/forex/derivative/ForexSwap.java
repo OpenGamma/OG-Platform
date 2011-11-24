@@ -8,13 +8,13 @@ package com.opengamma.financial.forex.derivative;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.forex.calculator.ForexDerivative;
-import com.opengamma.financial.forex.calculator.ForexDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 
 /**
  * Class describing a Forex swap transaction (with a near and far leg).
  */
-public class ForexSwap implements ForexDerivative {
+public class ForexSwap implements InstrumentDerivative {
 
   /**
    * The near leg.
@@ -54,12 +54,12 @@ public class ForexSwap implements ForexDerivative {
   }
 
   @Override
-  public <S, T> T accept(ForexDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitForexSwap(this, data);
   }
 
   @Override
-  public <T> T accept(ForexDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitForexSwap(this);
   }
 

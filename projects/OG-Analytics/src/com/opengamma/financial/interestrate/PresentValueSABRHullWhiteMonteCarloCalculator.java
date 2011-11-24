@@ -103,7 +103,7 @@ public class PresentValueSABRHullWhiteMonteCarloCalculator extends PresentValueC
     CapFloorHullWhiteCalibrationObjective objective = new CapFloorHullWhiteCalibrationObjective(hwParameters);
     SuccessiveRootFinderCalibrationEngine calibrationEngine = new CapFloorHullWhiteSuccessiveRootFinderCalibrationEngine(objective);
     // Calibration instruments
-    InterestRateDerivative[] calibrationBasket = annuity.calibrationBasket(RatchetIborCalibrationType.FORWARD_COUPON, curves);
+    InstrumentDerivative[] calibrationBasket = annuity.calibrationBasket(RatchetIborCalibrationType.FORWARD_COUPON, curves);
     //TODO: set a way to chose the calibration type.
     calibrationEngine.addInstrument(calibrationBasket, METHOD_CAP_SABR);
     // Calibration

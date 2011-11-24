@@ -23,11 +23,14 @@ import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
+import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -37,7 +40,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
  *
  */
 public class StocksPutsCallsAggregationFunction implements AggregationFunction<String> {
-  private static final boolean s_useAttributes = true;
+  private boolean _useAttributes;
     
   private static final String NAME = "Stocks/Puts/Calls";
   private static final String NA = "N/A"; 
@@ -47,12 +50,17 @@ public class StocksPutsCallsAggregationFunction implements AggregationFunction<S
   private SecuritySource _secSource;
   
   public StocksPutsCallsAggregationFunction(SecuritySource secSource) {
+    this(secSource, true);
+  }
+  
+  public StocksPutsCallsAggregationFunction(SecuritySource secSource, boolean useAttributes) {
     _secSource = secSource;
+    _useAttributes = useAttributes;
   }
   
   @Override
   public String classifyPosition(final Position position) {
-    if (s_useAttributes) {
+    if (_useAttributes) {
       Map<String, String> attributes = position.getAttributes();
       if (attributes.containsKey(getName())) {
         return attributes.get(getName());
@@ -102,12 +110,22 @@ public class StocksPutsCallsAggregationFunction implements AggregationFunction<S
         public String visitEquityOptionSecurity(EquityOptionSecurity security) {
           return security.getOptionType() == OptionType.CALL ? CALLS : PUTS;
         }
+        
+        @Override
+        public String visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+          return security.getOptionType() == OptionType.CALL ? CALLS : PUTS;
+        }
   
         @Override
         public String visitFXOptionSecurity(FXOptionSecurity security) {
           return security.getCallAmount() > 0 ? CALLS : PUTS; // check this!
         }
   
+        @Override
+        public String visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
+          return security.getCallAmount() > 0 ? CALLS : PUTS; // check this!
+        }
+        
         @Override
         public String visitSwaptionSecurity(SwaptionSecurity security) {
           return NA;
@@ -132,7 +150,12 @@ public class StocksPutsCallsAggregationFunction implements AggregationFunction<S
         public String visitFXForwardSecurity(FXForwardSecurity security) {
           return NA;
         }
-  
+
+        @Override
+        public String visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
+          return NA;
+        }
+        
         @Override
         public String visitCapFloorSecurity(CapFloorSecurity security) {
           return NA;

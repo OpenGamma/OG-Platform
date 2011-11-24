@@ -6,8 +6,8 @@
 package com.opengamma.financial.interestrate.future.definition;
 
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -16,7 +16,7 @@ import org.apache.commons.lang.Validate;
 /**
  * Description of an interest rate future security.
  */
-public class InterestRateFuture implements InterestRateDerivative {
+public class InterestRateFuture implements InstrumentDerivative {
 
   /**
    * Future last trading time. Usually the date for which the third Wednesday of the month is the spot date.
@@ -195,12 +195,12 @@ public class InterestRateFuture implements InterestRateDerivative {
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitInterestRateFuture(this, data);
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitInterestRateFutureSecurity(this);
   }
 

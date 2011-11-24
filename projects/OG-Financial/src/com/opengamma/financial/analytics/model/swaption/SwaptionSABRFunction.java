@@ -28,7 +28,7 @@ import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctionHelper;
-import com.opengamma.financial.analytics.volatility.sabr.SABRFittedSurfaces;
+import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -118,7 +118,8 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
   }
 
   protected ValueRequirement getCubeRequirement(final ComputationTarget target) {
-    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CUBE, _helper.getDefinitionName()).get();
+    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CUBE, _helper.getDefinitionName())
+                                                      .with(ValuePropertyNames.CURRENCY, _helper.getCurrency().getCode()).get();
     return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, FinancialSecurityUtils.getCurrency(target.getSecurity()), properties);
   }
 

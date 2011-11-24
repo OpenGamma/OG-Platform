@@ -48,7 +48,7 @@ import org.apache.commons.lang.Validate;
 /**
  * Calculates the present value of an instrument for a given YieldCurveBundle (set of yield curve that the instrument is sensitive to) 
  */
-public class PresentValueCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> {
+public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
 
   /**
    * The method used for OIS coupons.
@@ -65,14 +65,14 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   }
 
   @Override
-  public Double visit(final InterestRateDerivative derivative, final YieldCurveBundle curves) {
+  public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(derivative);
     return derivative.accept(this, curves);
   }
 
   @Override
-  public Double[] visit(final InterestRateDerivative[] derivative, final YieldCurveBundle curves) {
+  public Double[] visit(final InstrumentDerivative[] derivative, final YieldCurveBundle curves) {
     Validate.notNull(derivative, "derivative");
     Validate.noNullElements(derivative, "derivative");
     Validate.notNull(curves, "curves");

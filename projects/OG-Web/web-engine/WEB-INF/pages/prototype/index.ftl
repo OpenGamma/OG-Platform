@@ -28,9 +28,11 @@ ${ogStyle.print('og_all.css', 'all',false)}
   <div class="ui-layout-south">
     <#include "modules/common/og.common.footer.ftl">
   </div>
-  <div class="ui-layout-east">&nbsp;</div>
+  <div class="ui-layout-east">
+    <#include "modules/common/og.common.tools.ftl">
+  </div>
   <div class="ui-layout-west">
-      <#include "modules/common/og.common.search_results.ftl">
+    <#include "modules/common/og.common.search_results.ftl">
   </div>
 </div>
 ${ogScript.print('og_common.js',false)}

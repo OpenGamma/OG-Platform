@@ -5,6 +5,7 @@
  */
 package com.opengamma.language.view;
 
+
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
@@ -38,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
+
 
 /**
  * Tests a view running over historical market data.
@@ -106,9 +108,9 @@ public class RegressionTest {
       }
 
       @Override
-      public void jobResultReceived(ViewResultModel fullResult, ViewDeltaResultModel deltaResult) {
-        s_logger.info("Job result received");
-        postJobResult(fullResult);
+      public void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
+        s_logger.info("Cycle fragment completed");
+        postJobResult(fullFragment);
       }
 
       @Override
