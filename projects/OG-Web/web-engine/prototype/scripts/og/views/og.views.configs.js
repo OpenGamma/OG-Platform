@@ -90,10 +90,10 @@ $.register_module({
                 toolbar: {
                     'default': {
                         buttons: [
-                            {id: 'new', name: 'New', handler: toolbar_buttons['new']},
-                            {id: 'save', name: 'Save', enabled: 'OG-disabled'},
-                            {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
-                            {id: 'delete', name: 'Delete', enabled: 'OG-disabled'}
+                            {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
                         ],
                         location: '.OG-tools'
                     }
@@ -179,18 +179,18 @@ $.register_module({
                             }
                             if (is_new || json.deleted) ui.toolbar({
                                 buttons: [
-                                    {id: 'new', name: 'New', handler: toolbar_buttons['new']},
-                                    {id: 'save', name: 'Save', handler: form.submit.partial({as_new: true})},
-                                    {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
-                                    {id: 'delete', name: 'Delete', enabled: 'OG-disabled'}
+                                    {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                                    {id: 'save', tooltip: 'Save', handler: form.submit.partial({as_new: true})},
+                                    {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                                    {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
                                 ],
                                 location: '.OG-tools'
                             }); else ui.toolbar({
                                 buttons: [
-                                    {id: 'new', name: 'New', handler: toolbar_buttons['new']},
-                                    {id: 'save', name: 'Save', handler: form.submit},
-                                    {id: 'saveas', name: 'Save as', handler: form.submit.partial({as_new: true})},
-                                    {id: 'delete', name: 'Delete', handler: toolbar_buttons['delete']}
+                                    {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                                    {id: 'save', tooltip: 'Save', handler: form.submit},
+                                    {id: 'saveas', tooltip: 'Save as', handler: form.submit.partial({as_new: true})},
+                                    {id: 'delete', tooltip: 'Delete', handler: toolbar_buttons['delete']}
                                 ],
                                 location: '.OG-tools'
                             });

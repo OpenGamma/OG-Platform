@@ -23,7 +23,7 @@ $.register_module({
             var attr = config.attribute, handler = config.handler, $attr = $('[' + attr + ']');
             if (typeof attr !== 'string') throw new TypeError(': config.attribute must be a string');
             if (typeof handler !== 'function') throw new TypeError(': config.handler must be a function');
-            $attr.css({position: 'relative', 'z-index': '1'});
+            $attr.css({position: 'relative', 'z-index': '2'});
             $attr.hover(function () {if (!editing) $(this).css(css_edit);}, function () {$(this).css(css_not_edit);});
             $attr.click(function (e) {
                 var $this = $(this), $editable_element = $(e.target), cur_content = $this.html(),
