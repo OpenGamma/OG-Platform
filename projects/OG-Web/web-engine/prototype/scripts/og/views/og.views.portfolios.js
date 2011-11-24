@@ -135,9 +135,9 @@ $.register_module({
                         var display_columns = [], data_columns = [], format = common.slickgrid.formatters.portfolios,
                             html = '\
                                 <h3>Portfolios</h3>\
+                                <a href="#" class="OG-link-add OG-js-add-sub-portfolio">add new portfolio</a>\
                                 <div class="og-divider"></div>\
-                                <div class="og-js-portfolios-grid og-grid"></div>\
-                                <a href="#" class="OG-link-add OG-js-add-sub-portfolio">add new portfolio</a>';
+                                <div class="og-js-portfolios-grid og-grid"></div>';
                         $(selector).html(html);
                         (function () { /* Hook up add button */
                             var do_update = function () {
@@ -218,9 +218,9 @@ $.register_module({
                         var display_columns = [], data_columns = [], format = common.slickgrid.formatters.positions,
                             html = '\
                               <h3>Positions</h3>\
+                              <a href="#" class="OG-link-add OG-js-add-position">add new position</a>\
                               <div class="og-divider"></div>\
-                              <div class="og-js-position-grid og-grid"></div>\
-                              <a href="#" class="OG-link-add OG-js-add-position">add new position</a>';
+                              <div class="og-js-position-grid og-grid"></div>';
                         $(selector).html(html);
                         (function () { /* hook up add button */
                             var do_update = function (e, id) {
@@ -325,8 +325,7 @@ $.register_module({
                            $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
                         });
                     };
-                // load versions
-                if (args.version || args.sync) {
+                if (args.version || args.sync) { // load versions
                     layout.inner.open('south');
                     if (args.version) og.views.common.versions.load();
                     if (args.sync) og.views.portfolios_sync.load(args);
