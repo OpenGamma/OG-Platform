@@ -131,11 +131,10 @@ $.register_module({
                         }, []).join(''));
                     },
                     setup_header_links = function () {
-                        var $version_link,
-                            rule = module.rules.load_positions;
+                        var $version_link, rule = module.rules.load_positions;
                         $version_link = $('.OG-tools .og-icon-tools-versions')
                             .addClass('og-js-version-link')
-                            .unbind('click').bind('click', function (e) {
+                            .unbind('click').bind('click', function () {
                                 var layout = og.views.common.layout;
                                 routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
                                 if (!layout.inner.state.south.isClosed && args.version) {
@@ -146,13 +145,6 @@ $.register_module({
                             routes.go(routes.hash(rule, args, {del: ['version']}));
                         };
                     };
-                // if new page, close south panel
-                check_state({args: args, conditions: [{
-                    new_page: function () {
-                        layout.inner.options.south.onclose = null;
-                        layout.inner.close.partial('south');
-                    }
-                }]});
                 // load versions
                 if (args.version) {
                     layout.inner.open('south');
@@ -269,7 +261,17 @@ $.register_module({
                 search.filter($.extend(true, args, {filter: true}, get_quantities(args.quantity)));
             },
             load_positions: function (args) {
-                check_state({args: args, conditions: [{new_page: positions.load}]});
+                check_state({args: args, conditions: [
+                    {new_page: function () {
+                        positions.load(args);
+                        og.views.common.layout.inner.options.south.onclose = null;
+                        og.views.common.layout.inner.close.partial('south');
+                    }},
+                    {new_value: 'id', method: function () {
+                        og.views.common.layout.inner.options.south.onclose = null;
+                        og.views.common.layout.inner.close.partial('south');
+                    }}
+                ]});
                 positions.details(args);
             },
             search: function (args) {
