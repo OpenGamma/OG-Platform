@@ -131,7 +131,7 @@
           if (detailComponents && detailComponents[column.colId]) {
             detailComponents[column.colId].updateValue(latestValue.v);
           }
-          if (explainComponents && explainComponents[column.colId]) {
+          if (explainComponents && explainComponents[column.colId] && latestValue.dg) {
             explainComponents[column.colId].updateValue(latestValue.dg);
           }
           if (latestValue.dg && !latestValue.v) {

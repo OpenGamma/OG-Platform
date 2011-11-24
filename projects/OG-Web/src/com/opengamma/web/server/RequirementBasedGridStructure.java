@@ -22,6 +22,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
@@ -29,7 +30,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -222,6 +222,46 @@ public class RequirementBasedGridStructure {
   public List<WebViewGridColumn> getColumns() {
     return Collections.unmodifiableList(_orderedColumns);
   }
+  
+  public Pair<String, ValueSpecification> findCellSpecification(WebGridCell cell, CompiledViewDefinition compiledViewDefinition) {
+    // REVIEW jonathan 2011-11-24 -- this is horrible, but so is the fact that the result mapping logic in this class
+    // is needed at all on the client side. Really need to solve [PLAT-1299].
+    ComputationTargetSpecification targetSpec = findRow(cell.getRowId());
+    if (targetSpec == null) {
+      return null;
+    }
+    // The existing data structures are intended for locating a cell given a value specification. We want to answer the
+    // reverse question: what is the value specification for a cell. Without storing this information for every cell in
+    // the grid during initialisation, we can use the existing data structures to form candidate specifications, only
+    // one of which will be in the dep graph for the target.
+    String calcConfigName = null;
+    Set<ValueSpecification> specificationCandidates = new HashSet<ValueSpecification>();
+    for (Map.Entry<RequirementBasedColumnKey, Collection<WebViewGridColumn>> specificationBasedColumnEntry : _specificationBasedColumns.entrySet()) {
+      for (WebViewGridColumn column : specificationBasedColumnEntry.getValue()) {
+        if (column.getId() == cell.getColumnId()) {
+          RequirementBasedColumnKey specificationBasedColumnKey = specificationBasedColumnEntry.getKey();
+          if (calcConfigName == null) {
+            calcConfigName = specificationBasedColumnKey.getCalcConfigName();
+          } else if (!calcConfigName.equals(specificationBasedColumnKey.getCalcConfigName())) {
+            // Shouldn't happen
+            throw new OpenGammaRuntimeException("Found multiple calculation configuration names for column ID " + cell.getColumnId());
+          }
+          ValueSpecification valueSpec = new ValueSpecification(specificationBasedColumnKey.getValueName(), targetSpec, specificationBasedColumnKey.getValueProperties());
+          specificationCandidates.add(valueSpec);
+        }
+      }
+    }
+    if (calcConfigName == null) {
+      return null;
+    }
+    CompiledViewCalculationConfiguration compiledCalcConfig = compiledViewDefinition.getCompiledCalculationConfiguration(calcConfigName);
+    for (ValueSpecification candidateSpec : specificationCandidates) {
+      if (compiledCalcConfig.getTerminalOutputSpecifications().keySet().contains(candidateSpec)) {
+        return Pair.of(calcConfigName, candidateSpec);
+      }
+    }
+    return null;
+  }
 
   public Map<ComputationTargetSpecification, Integer> getTargets() {
     return Collections.unmodifiableMap(_targetIdMap);
@@ -229,6 +269,15 @@ public class RequirementBasedGridStructure {
 
   public Integer getRowId(ComputationTargetSpecification target) {
     return _targetIdMap.get(target);
+  }
+  
+  public ComputationTargetSpecification findRow(int rowId) {
+    for (Map.Entry<ComputationTargetSpecification, Integer> targetEntry : getTargets().entrySet()) {
+      if (targetEntry.getValue() == rowId) {
+        return targetEntry.getKey();
+      }
+    }
+    return null;
   }
   
   public Set<Integer> getUnsatisfiedCells(int rowId) {
