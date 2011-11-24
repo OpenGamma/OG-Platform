@@ -20,7 +20,7 @@ namespace com.opengamma.financial.security.option {
     required javax.time.calendar.ZonedDateTime settlementDate;
     required boolean isLong;
     required ExerciseType exerciseType;
-    required com.opengamma.util.money.Currency deliveryCurrency;
+    required boolean deliveryInCallCurrency;
   }
 
 }

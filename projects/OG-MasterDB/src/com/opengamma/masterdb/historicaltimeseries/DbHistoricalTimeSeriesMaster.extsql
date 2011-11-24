@@ -390,6 +390,9 @@
 -- ==========================================================================
 -- ==========================================================================
 -- ==========================================================================
+-- DECISION: time-series data points table has no primary key
+-- to have one would have more downsides than upsides
+
 -- select document to handle empty series and to check/use first doc instants
 @NAME(SelectDataPointsCommon)
   SELECT
@@ -433,7 +436,9 @@
     AND corr_instant <= :corrected_to_instant
     AND point_date >= :start_date
     AND point_date <= :end_date
-  ORDER BY point_date, corr_instant DESC
+  ORDER BY
+    point_date,
+    corr_instant DESC
 
 
 -- ==========================================================================
