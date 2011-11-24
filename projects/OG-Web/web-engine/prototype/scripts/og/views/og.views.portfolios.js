@@ -85,7 +85,7 @@ $.register_module({
                     })
                 },
                 'versions': function () {
-                    var $version_link, rule = module.rules.load_portfolios, layout = og.views.common.layout,
+                    var rule = module.rules.load_portfolios, layout = og.views.common.layout,
                         args = routes.current().args;
                     routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
                     if (!layout.inner.state.south.isClosed && args.version) {
@@ -365,7 +365,6 @@ $.register_module({
                             }
                             render_portfolio_rows('.OG-js-details-panel .og-js-portfolios', json);
                             render_position_rows('.OG-js-details-panel .og-js-positions', json);
-//                            hook_up_add_portfolio_form(), hook_up_add_position_form();
                             ui.content_editable({
                                 attribute: 'data-og-editable',
                                 handler: function () {
