@@ -13,6 +13,7 @@ import org.fudgemsg.FudgeContext;
 
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
+import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.LabelledMatrix2D;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -51,6 +52,7 @@ public class ResultConverterCache {
     registerConverter(LabelledMatrix2D.class, new LabelledMatrix2DConverter());
     registerConverter(Tenor.class, new TenorConverter());
     registerConverter(MultipleCurrencyAmount.class, new MultipleCurrencyAmountConverter(_doubleConverter));
+    registerConverter(MissingMarketDataSentinel.class, new StaticStringConverter("Missing market data"));
   }
 
   private <T> void registerConverter(Class<T> clazz, ResultConverter<? super T> converter) {
