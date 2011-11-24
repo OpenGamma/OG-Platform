@@ -36,11 +36,14 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
+import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
@@ -196,6 +199,21 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 
   @Override
   public JSONObject visitEquityVarianceSwapSecurity(EquityVarianceSwapSecurity security) {
+    return null;
+  }
+
+  @Override
+  public JSONObject visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+    return null;
+  }
+
+  @Override
+  public JSONObject visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
+    return null;
+  }
+
+  @Override
+  public JSONObject visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
     return null;
   }
 
