@@ -1,0 +1,580 @@
+-- SQL for position master
+
+-- ==========================================================================
+@NAME(GetById)
+  SELECT
+    main.id AS position_id,
+    main.oid AS position_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.provider_scheme AS pos_provider_scheme,
+    main.provider_value AS pos_provider_value,
+    main.quantity AS pos_quantity,
+    ps.key_scheme AS pos_key_scheme,
+    ps.key_value AS pos_key_value,
+    t.id AS trade_id,
+    t.oid AS trade_oid,
+    t.quantity AS trade_quantity,
+    t.trade_date AS trade_date,
+    t.trade_time AS trade_time,
+    t.zone_offset AS zone_offset,
+    t.cparty_scheme AS cparty_scheme,
+    t.cparty_value AS cparty_value,
+    t.provider_scheme AS trade_provider_scheme,
+    t.provider_value AS trade_provider_value,
+    t.premium_value AS premium_value,
+    t.premium_currency AS premium_currency,
+    t.premium_date AS premium_date,
+    t.premium_time AS premium_time,
+    t.premium_zone_offset AS premium_zone_offset,
+    ts.key_scheme AS trade_key_scheme,
+    ts.key_value AS trade_key_value,
+    ta.key AS trade_attr_key,
+    ta.value AS trade_attr_value,
+    pa.key AS pos_attr_key,
+    pa.value AS pos_attr_value
+  FROM
+    pos_position main
+    LEFT JOIN pos_position2idkey pi ON (pi.position_id = main.id)
+    LEFT JOIN pos_idkey ps ON (ps.id = pi.idkey_id)
+    LEFT JOIN pos_trade t ON (t.position_id = main.id)
+    LEFT JOIN pos_trade2idkey ti ON (ti.trade_id = t.id)
+    LEFT JOIN pos_idkey ts ON (ts.id = ti.idkey_id)
+    LEFT JOIN pos_trade_attribute ta ON (ta.trade_id = t.id)
+    LEFT JOIN pos_attribute pa ON (pa.position_id = main.id)
+  WHERE main.id = :doc_id
+    AND main.oid = :doc_oid
+  ORDER BY
+    t.trade_date,
+    t.id
+
+
+-- ==========================================================================
+@NAME(GetByOidInstants)
+  SELECT
+    main.id AS position_id,
+    main.oid AS position_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.provider_scheme AS pos_provider_scheme,
+    main.provider_value AS pos_provider_value,
+    main.quantity AS pos_quantity,
+    ps.key_scheme AS pos_key_scheme,
+    ps.key_value AS pos_key_value,
+    t.id AS trade_id,
+    t.oid AS trade_oid,
+    t.quantity AS trade_quantity,
+    t.trade_date AS trade_date,
+    t.trade_time AS trade_time,
+    t.zone_offset AS zone_offset,
+    t.cparty_scheme AS cparty_scheme,
+    t.cparty_value AS cparty_value,
+    t.provider_scheme AS trade_provider_scheme,
+    t.provider_value AS trade_provider_value,
+    t.premium_value AS premium_value,
+    t.premium_currency AS premium_currency,
+    t.premium_date AS premium_date,
+    t.premium_time AS premium_time,
+    t.premium_zone_offset AS premium_zone_offset,
+    ts.key_scheme AS trade_key_scheme,
+    ts.key_value AS trade_key_value,
+    ta.key AS trade_attr_key,
+    ta.value AS trade_attr_value,
+    pa.key AS pos_attr_key,
+    pa.value AS pos_attr_value
+  FROM
+    pos_position main
+    LEFT JOIN pos_position2idkey pi ON (pi.position_id = main.id)
+    LEFT JOIN pos_idkey ps ON (ps.id = pi.idkey_id)
+    LEFT JOIN pos_trade t ON (t.position_id = main.id)
+    LEFT JOIN pos_trade2idkey ti ON (ti.trade_id = t.id)
+    LEFT JOIN pos_idkey ts ON (ts.id = ti.idkey_id)
+    LEFT JOIN pos_trade_attribute ta ON (ta.trade_id = t.id)
+    LEFT JOIN pos_attribute pa ON (pa.position_id = main.id)
+  WHERE main.oid = :doc_oid
+    AND main.ver_from_instant <= :version_as_of AND main.ver_to_instant > :version_as_of
+    AND main.corr_from_instant <= :corrected_to AND main.corr_to_instant > :corrected_to
+  ORDER BY
+    t.trade_date,
+    t.id
+
+
+-- ==========================================================================
+@NAME(Search)
+  WITH cte_docs AS ( @INSERT(SearchInner) )
+  SELECT
+    main.id AS position_id,
+    main.oid AS position_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.provider_scheme AS pos_provider_scheme,
+    main.provider_value AS pos_provider_value,
+    main.quantity AS pos_quantity,
+    ps.key_scheme AS pos_key_scheme,
+    ps.key_value AS pos_key_value,
+    t.id AS trade_id,
+    t.oid AS trade_oid,
+    t.quantity AS trade_quantity,
+    t.trade_date AS trade_date,
+    t.trade_time AS trade_time,
+    t.zone_offset AS zone_offset,
+    t.cparty_scheme AS cparty_scheme,
+    t.cparty_value AS cparty_value,
+    t.provider_scheme AS trade_provider_scheme,
+    t.provider_value AS trade_provider_value,
+    t.premium_value AS premium_value,
+    t.premium_currency AS premium_currency,
+    t.premium_date AS premium_date,
+    t.premium_time AS premium_time,
+    t.premium_zone_offset AS premium_zone_offset,
+    ts.key_scheme AS trade_key_scheme,
+    ts.key_value AS trade_key_value,
+    ta.key AS trade_attr_key,
+    ta.value AS trade_attr_value,
+    pa.key AS pos_attr_key,
+    pa.value AS pos_attr_value
+  FROM
+    pos_position main
+    INNER JOIN cte_docs ON main.id = cte_docs.id
+    LEFT JOIN pos_position2idkey pi ON (pi.position_id = main.id)
+    LEFT JOIN pos_idkey ps ON (ps.id = pi.idkey_id)
+    LEFT JOIN pos_trade t ON (t.position_id = main.id)
+    LEFT JOIN pos_trade2idkey ti ON (ti.trade_id = t.id)
+    LEFT JOIN pos_idkey ts ON (ts.id = ti.idkey_id)
+    LEFT JOIN pos_trade_attribute ta ON (ta.trade_id = t.id)
+    LEFT JOIN pos_attribute pa ON (pa.position_id = main.id)
+  ORDER BY
+    main.id,
+    t.trade_date,
+    t.id
+
+
+-- ==========================================================================
+@NAME(SearchInner)
+  SELECT
+    pos_position.id AS id
+  FROM
+    pos_position
+  @INSERT(SearchWhere)
+  ORDER BY
+    oid
+  @OFFSETFETCH
+
+
+-- ==========================================================================
+@NAME(SearchCount)
+  SELECT
+    COUNT(pos_position.id)
+  FROM
+    pos_position
+  @INSERT(SearchWhere)
+
+
+-- ==========================================================================
+@NAME(SearchWhere)
+  WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
+    AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
+    @AND(:sql_search_position_ids)
+      oid IN ( @INSERT(:sql_search_position_ids) )
+    @AND(:min_quantity)
+      quantity >= :min_quantity
+    @AND(:max_quantity)
+      quantity <= :max_quantity
+    @AND(:pos_provider_scheme)
+      provider_scheme = :pos_provider_scheme
+    @AND(:pos_provider_value)
+      provider_value = :pos_provider_value
+    @AND(:trade_provider_scheme)
+      oid IN (SELECT DISTINCT position_oid FROM pos_trade
+        WHERE provider_scheme = :trade_provider_scheme AND provider_value = :trade_provider_value)
+    @AND(:sql_search_trade_ids)
+      oid IN (SELECT DISTINCT position_oid FROM pos_trade WHERE oid IN ( @INSERT(:sql_search_trade_ids) ))
+    @AND(:security_id_value)
+      id IN ( @INSERT(SelectSecurityKeyValue) )
+    @AND(:sql_search_security_ids_type = EXACT)
+      id IN ( @INSERT(SelectSecurityKeyValuesExact) )
+    @AND(:sql_search_security_ids_type = ALL)
+      id IN ( @INSERT(SelectSecurityKeyValuesAll) )
+    @AND(:sql_search_security_ids_type = ANY)
+      id IN ( @INSERT(SelectSecurityKeyValuesAny) )
+    @AND(:sql_search_security_ids_type = NONE)
+      id NOT IN ( @INSERT(SelectSecurityKeyValuesAny) )
+
+
+-- ==========================================================================
+@NAME(SelectSecurityKeyValue)
+  SELECT
+    DISTINCT position_id
+  FROM
+    pos_position2idkey,
+    pos_position
+  WHERE pos_position2idkey.position_id = pos_position.id
+    AND pos_position.ver_from_instant <= :version_as_of_instant AND pos_position.ver_to_instant > :version_as_of_instant
+    AND pos_position.corr_from_instant <= :corrected_to_instant AND pos_position.corr_to_instant > :corrected_to_instant
+    AND idkey_id IN ( SELECT id FROM pos_idkey WHERE UPPER(key_value) @LIKE UPPER(:security_id_value) @ENDLIKE )
+
+
+-- ==========================================================================
+@NAME(SelectSecurityKeyValuesExact)
+  SELECT
+    matched_doc_id AS doc_id
+  FROM
+    (
+      SELECT
+        position_id AS matched_doc_id,
+        COUNT(position_id) AS matched_count
+      FROM
+        pos_position2idkey,
+        pos_position
+      WHERE pos_position2idkey.position_id = pos_position.id
+        AND pos_position.ver_from_instant <= :version_as_of_instant AND pos_position.ver_to_instant > :version_as_of_instant
+        AND pos_position.corr_from_instant <= :corrected_to_instant AND pos_position.corr_to_instant > :corrected_to_instant
+        AND idkey_id IN ( @INSERT(SelectSecurityKeyValuesOr) )
+      GROUP BY
+        position_id
+      HAVING
+        COUNT(position_id) >= :security_id_search_size
+    ) AS a, (
+      SELECT
+        position_id AS total_doc_id,
+        COUNT(position_id) AS total_count
+      FROM
+        pos_position2idkey,
+        pos_position
+      WHERE pos_position2idkey.position_id = pos_position.id
+        AND pos_position.ver_from_instant <= :version_as_of_instant AND pos_position.ver_to_instant > :version_as_of_instant
+        AND pos_position.corr_from_instant <= :corrected_to_instant AND pos_position.corr_to_instant > :corrected_to_instant
+      GROUP BY
+        position_id
+    ) AS b
+  WHERE matched_doc_id = total_doc_id
+    AND matched_count = total_count
+
+
+-- ==========================================================================
+@NAME(SelectSecurityKeyValuesAll)
+  SELECT
+    position_id
+  FROM
+    pos_position2idkey,
+    pos_position
+  WHERE pos_position2idkey.position_id = pos_position.id
+    AND pos_position.ver_from_instant <= :version_as_of_instant AND pos_position.ver_to_instant > :version_as_of_instant
+    AND pos_position.corr_from_instant <= :corrected_to_instant AND pos_position.corr_to_instant > :corrected_to_instant
+    AND idkey_id IN ( @INSERT(SelectSecurityKeyValuesOr) )
+    GROUP BY
+      position_id
+    HAVING
+      COUNT(position_id) >= :security_id_search_size
+
+
+-- ==========================================================================
+@NAME(SelectSecurityKeyValuesAny)
+  SELECT
+    DISTINCT position_id
+  FROM
+    pos_position2idkey,
+    pos_position
+  WHERE pos_position2idkey.position_id = pos_position.id
+    AND pos_position.ver_from_instant <= :version_as_of_instant AND pos_position.ver_to_instant > :version_as_of_instant
+    AND pos_position.corr_from_instant <= :corrected_to_instant AND pos_position.corr_to_instant > :corrected_to_instant
+    AND idkey_id IN ( @INSERT(SelectSecurityKeyValuesOr) )
+
+
+-- ==========================================================================
+@NAME(SelectSecurityKeyValuesOr)
+  SELECT
+    id
+  FROM
+    pos_idkey
+  WHERE
+    @INSERT(:sql_search_security_ids)
+
+
+-- ==========================================================================
+@NAME(History)
+  WITH cte_docs AS ( @INSERT(HistoryInner) )
+  SELECT
+    main.id AS position_id,
+    main.oid AS position_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.provider_scheme AS pos_provider_scheme,
+    main.provider_value AS pos_provider_value,
+    main.quantity AS pos_quantity,
+    ps.key_scheme AS pos_key_scheme,
+    ps.key_value AS pos_key_value,
+    t.id AS trade_id,
+    t.oid AS trade_oid,
+    t.quantity AS trade_quantity,
+    t.trade_date AS trade_date,
+    t.trade_time AS trade_time,
+    t.zone_offset AS zone_offset,
+    t.cparty_scheme AS cparty_scheme,
+    t.cparty_value AS cparty_value,
+    t.provider_scheme AS trade_provider_scheme,
+    t.provider_value AS trade_provider_value,
+    t.premium_value AS premium_value,
+    t.premium_currency AS premium_currency,
+    t.premium_date AS premium_date,
+    t.premium_time AS premium_time,
+    t.premium_zone_offset AS premium_zone_offset,
+    ts.key_scheme AS trade_key_scheme,
+    ts.key_value AS trade_key_value,
+    ta.key AS trade_attr_key,
+    ta.value AS trade_attr_value,
+    pa.key AS pos_attr_key,
+    pa.value AS pos_attr_value
+  FROM
+    pos_position main
+    INNER JOIN cte_docs ON main.id = cte_docs.id
+    LEFT JOIN pos_position2idkey pi ON (pi.position_id = main.id)
+    LEFT JOIN pos_idkey ps ON (ps.id = pi.idkey_id)
+    LEFT JOIN pos_trade t ON (t.position_id = main.id)
+    LEFT JOIN pos_trade2idkey ti ON (ti.trade_id = t.id)
+    LEFT JOIN pos_idkey ts ON (ts.id = ti.idkey_id)
+    LEFT JOIN pos_trade_attribute ta ON (ta.trade_id = t.id)
+    LEFT JOIN pos_attribute pa ON (pa.position_id = main.id)
+  ORDER BY
+    main.ver_from_instant DESC,
+    main.corr_from_instant DESC,
+    t.trade_date,
+    t.id
+
+
+-- ==========================================================================
+@NAME(HistoryInner)
+  SELECT
+    id
+  FROM
+    pos_position
+  @INSERT(HistoryWhere)
+  ORDER BY
+    ver_from_instant DESC,
+    corr_from_instant DESC
+  @OFFSETFETCH
+
+
+-- ==========================================================================
+@NAME(HistoryCount)
+  SELECT
+    COUNT(id)
+  FROM
+    pos_position 
+  @INSERT(HistoryWhere)
+
+
+-- ==========================================================================
+@NAME(HistoryWhere)
+  WHERE oid = :doc_oid
+    @IF(:sql_history_versions = Point)
+      AND ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant
+    @IF(:sql_history_versions = Range)
+      @AND(:versions_from_instant)
+        ((ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant) OR ver_from_instant >= :versions_from_instant)
+      @AND(:versions_to_instant)
+        ((ver_from_instant <= :versions_to_instant AND ver_to_instant > :versions_to_instant) OR ver_to_instant < :versions_to_instant)
+    @IF(:sql_history_corrections = Point)
+      AND corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant
+    @IF(:sql_history_corrections = Range)
+      @AND(:corrections_from_instant)
+        ((corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant) OR corr_from_instant >= :corrections_from_instant)
+      @AND(:corrections_to_instant)
+        ((corr_from_instant <= :corrections_to_instant AND corr_to_instant > :corrections_to_instant) OR corr_to_instant < :corrections_to_instant)
+
+
+-- ==========================================================================
+@NAME(Insert)
+  INSERT INTO pos_position
+    (id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, provider_scheme, provider_value, quantity)
+  VALUES
+    (:position_id, :position_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :provider_scheme, :provider_value, :quantity)
+
+
+-- ==========================================================================
+@NAME(InsertTrade)
+  INSERT INTO pos_trade
+    (id, oid, position_id, position_oid, quantity, trade_date, trade_time, zone_offset, cparty_scheme, cparty_value,
+    premium_value, premium_currency, premium_date, premium_time, premium_zone_offset)
+  VALUES
+    (:trade_id, :trade_oid, :position_id, :position_oid, :quantity, :trade_date, :trade_time, :zone_offset, :cparty_scheme, :cparty_value,
+    :premium_value, :premium_currency, :premium_date, :premium_time, :premium_zone_offset)
+
+
+-- ==========================================================================
+@NAME(InsertPosition2IdKey)
+  INSERT INTO pos_position2idkey
+    (position_id, idkey_id)
+  VALUES
+    (:position_id, ( @INSERT(SelectIdKey) ))
+
+
+-- ==========================================================================
+@NAME(InsertTrade2IdKey)
+  INSERT INTO pos_trade2idkey
+    (trade_id, idkey_id)
+  VALUES
+    (:trade_id, ( @INSERT(SelectIdKey) ))
+
+
+-- ==========================================================================
+@NAME(SelectIdKey)
+  SELECT
+    id
+  FROM
+    pos_idkey
+  WHERE key_scheme = :key_scheme
+    AND key_value = :key_value
+
+
+-- ==========================================================================
+@NAME(InsertIdKey)
+  INSERT INTO pos_idkey
+    (id, key_scheme, key_value)
+  VALUES
+    (:idkey_id, :key_scheme, :key_value)
+
+
+-- ==========================================================================
+@NAME(InsertPositionAttributes)
+  INSERT INTO pos_attribute
+    (id, position_id, position_oid, key, value)
+  VALUES
+    (:attr_id, :pos_id, :pos_oid, :key, :value)
+
+
+-- ==========================================================================
+@NAME(InsertTradeAttributes)
+  INSERT INTO pos_trade_attribute
+    (id, trade_id, trade_oid, key, value)
+  VALUES
+    (:attr_id, :trade_id, :trade_oid, :key, :value)
+
+
+-- ==========================================================================
+@NAME(UpdateVersionToInstant)
+  UPDATE pos_position
+  SET ver_to_instant = :ver_to_instant
+  WHERE id = :doc_id
+    AND ver_to_instant >= :max_instant
+
+
+-- ==========================================================================
+@NAME(UpdateCorrectionToInstant)
+  UPDATE pos_position
+  SET corr_to_instant = :corr_to_instant
+  WHERE id = :doc_id
+    AND corr_to_instant >= :max_instant
+
+
+-- ==========================================================================
+@NAME(GetTradeById)
+  SELECT
+    main.id AS position_id,
+    main.oid AS position_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.provider_scheme AS pos_provider_scheme,
+    main.provider_value AS pos_provider_value,
+    main.quantity AS pos_quantity,
+    ps.key_scheme AS pos_key_scheme,
+    ps.key_value AS pos_key_value,
+    t.id AS trade_id,
+    t.oid AS trade_oid,
+    t.quantity AS trade_quantity,
+    t.trade_date AS trade_date,
+    t.trade_time AS trade_time,
+    t.zone_offset AS zone_offset,
+    t.cparty_scheme AS cparty_scheme,
+    t.cparty_value AS cparty_value,
+    t.provider_scheme AS trade_provider_scheme,
+    t.provider_value AS trade_provider_value,
+    t.premium_value AS premium_value,
+    t.premium_currency AS premium_currency,
+    t.premium_date AS premium_date,
+    t.premium_time AS premium_time,
+    t.premium_zone_offset AS premium_zone_offset,
+    ts.key_scheme AS trade_key_scheme,
+    ts.key_value AS trade_key_value,
+    ta.key AS trade_attr_key,
+    ta.value AS trade_attr_value,
+    pa.key AS pos_attr_key,
+    pa.value AS pos_attr_value
+  FROM
+    pos_position main
+    LEFT JOIN pos_position2idkey pi ON (pi.position_id = main.id)
+    LEFT JOIN pos_idkey ps ON (ps.id = pi.idkey_id)
+    LEFT JOIN pos_trade t ON (t.position_id = main.id)
+    LEFT JOIN pos_trade2idkey ti ON (ti.trade_id = t.id)
+    LEFT JOIN pos_idkey ts ON (ts.id = ti.idkey_id)
+    LEFT JOIN pos_trade_attribute ta ON (ta.trade_id = t.id)
+    LEFT JOIN pos_attribute pa ON (pa.position_id = main.id)
+  WHERE t.id = :trade_id
+  ORDER BY
+    t.trade_date,
+    t.id
+
+
+-- ==========================================================================
+@NAME(GetTradeByOidInstants)
+  SELECT
+    main.id AS position_id,
+    main.oid AS position_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.provider_scheme AS pos_provider_scheme,
+    main.provider_value AS pos_provider_value,
+    main.quantity AS pos_quantity,
+    ps.key_scheme AS pos_key_scheme,
+    ps.key_value AS pos_key_value,
+    t.id AS trade_id,
+    t.oid AS trade_oid,
+    t.quantity AS trade_quantity,
+    t.trade_date AS trade_date,
+    t.trade_time AS trade_time,
+    t.zone_offset AS zone_offset,
+    t.cparty_scheme AS cparty_scheme,
+    t.cparty_value AS cparty_value,
+    t.provider_scheme AS trade_provider_scheme,
+    t.provider_value AS trade_provider_value,
+    t.premium_value AS premium_value,
+    t.premium_currency AS premium_currency,
+    t.premium_date AS premium_date,
+    t.premium_time AS premium_time,
+    t.premium_zone_offset AS premium_zone_offset,
+    ts.key_scheme AS trade_key_scheme,
+    ts.key_value AS trade_key_value,
+    ta.key AS trade_attr_key,
+    ta.value AS trade_attr_value,
+    pa.key AS pos_attr_key,
+    pa.value AS pos_attr_value
+  FROM
+    pos_position main
+    LEFT JOIN pos_position2idkey pi ON (pi.position_id = main.id)
+    LEFT JOIN pos_idkey ps ON (ps.id = pi.idkey_id)
+    LEFT JOIN pos_trade t ON (t.position_id = main.id)
+    LEFT JOIN pos_trade2idkey ti ON (ti.trade_id = t.id)
+    LEFT JOIN pos_idkey ts ON (ts.id = ti.idkey_id)
+    LEFT JOIN pos_trade_attribute ta ON (ta.trade_id = t.id)
+    LEFT JOIN pos_attribute pa ON (pa.position_id = main.id)
+  WHERE t.oid = :trade_oid
+    AND ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
+    AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
+  ORDER BY
+    t.trade_date,
+    t.id
+
+
+-- ==========================================================================

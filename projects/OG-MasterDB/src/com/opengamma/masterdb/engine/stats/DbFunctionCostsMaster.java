@@ -21,11 +21,11 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsDocument;
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsMaster;
+import com.opengamma.extsql.ExtSqlBundle;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbConnector;
-import com.opengamma.util.paging.PagingRequest;
 
 /**
  * Database storage of function costs.
@@ -37,6 +37,10 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbFunctionCostsMaster.class);
 
+  /**
+   * External SQL bundle.
+   */
+  private ExtSqlBundle _externalSqlBundle;
   /**
    * The database connector.
    */
@@ -55,6 +59,26 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
     ArgumentChecker.notNull(dbConnector, "dbConnector");
     s_logger.debug("installed DbConnector: {}", dbConnector);
     _dbConnector = dbConnector;
+    _externalSqlBundle = ExtSqlBundle.of(dbConnector.getDialect().getExtSqlConfig(), DbFunctionCostsMaster.class);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the external SQL bundle.
+   * 
+   * @return the external SQL bundle, not null
+   */
+  public ExtSqlBundle getExtSqlBundle() {
+    return _externalSqlBundle;
+  }
+
+  /**
+   * Sets the external SQL bundle.
+   * 
+   * @param bundle  the external SQL bundle, not null
+   */
+  public void setExtSqlBundle(ExtSqlBundle bundle) {
+    _externalSqlBundle = bundle;
   }
 
   //-------------------------------------------------------------------------
@@ -98,26 +122,14 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("configuration", configuration)
       .addValue("function", functionId)
-      .addTimestamp("version_instant", versionAsOf);
+      .addTimestamp("version_instant", versionAsOf)
+      .addValue("paging_offset", 0)
+      .addValue("paging_fetch", 1);
     final FunctionCostsDocumentExtractor extractor = new FunctionCostsDocumentExtractor();
     final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
-    final List<FunctionCostsDocument> docs = namedJdbc.query(sqlSelectCosts(), args, extractor);
+    final String sql = getExtSqlBundle().getSql("GetCosts", args);
+    final List<FunctionCostsDocument> docs = namedJdbc.query(sql, args, extractor);
     return docs.isEmpty() ? null : docs.get(0);
-  }
-
-  /**
-   * Gets the SQL for getting costs.
-   * @return the SQL, not null
-   */
-  protected String sqlSelectCosts() {
-    String selectFrom =
-      "SELECT configuration, function, version_instant, invocation_cost, data_input_cost, data_output_cost " +
-      "FROM eng_functioncosts ";
-    String where =
-      "WHERE configuration = :configuration " +
-        "AND function = :function " +
-        "AND version_instant <= :version_instant ";
-    return getDbConnector().getDialect().sqlApplyPaging(selectFrom + where, "ORDER BY version_instant DESC ", PagingRequest.ONE);
   }
 
   //-------------------------------------------------------------------------
@@ -135,19 +147,9 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
       .addValue("invocation_cost", costs.getInvocationCost())
       .addValue("data_input_cost", costs.getDataInputCost())
       .addValue("data_output_cost", costs.getDataOutputCost());
-    getDbConnector().getJdbcTemplate().update(sqlInsertCosts(), args);
+    final String sql = getExtSqlBundle().getSql("InsertCosts", args);
+    getDbConnector().getJdbcTemplate().update(sql, args);
     return costs;
-  }
-
-  /**
-   * Gets the SQL for getting costs.
-   * @return the SQL, not null
-   */
-  protected String sqlInsertCosts() {
-    return "INSERT INTO eng_functioncosts " +
-              "(configuration, function, version_instant, invocation_cost, data_input_cost, data_output_cost) " +
-            "VALUES " +
-              "(:configuration, :function, :version_instant, :invocation_cost, :data_input_cost, :data_output_cost)";
   }
 
   //-------------------------------------------------------------------------

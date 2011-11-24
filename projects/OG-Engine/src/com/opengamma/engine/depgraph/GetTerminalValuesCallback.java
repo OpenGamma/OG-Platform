@@ -49,13 +49,13 @@ import com.opengamma.engine.value.ValueSpecification;
       new HashMap<ParameterizedFunction, Map<ComputationTarget, Set<DependencyNodeProducer>>>();
   private final Collection<DependencyNode> _graphNodes = new ArrayList<DependencyNode>();
   private final Map<ValueRequirement, ValueSpecification> _resolvedValues = new HashMap<ValueRequirement, ValueSpecification>();
-  private ResolutionFailureVisitor _failureVisitor;
+  private ResolutionFailureVisitor<?> _failureVisitor;
 
-  public GetTerminalValuesCallback(final ResolutionFailureVisitor failureVisitor) {
+  public GetTerminalValuesCallback(final ResolutionFailureVisitor<?> failureVisitor) {
     _failureVisitor = failureVisitor;
   }
 
-  public void setResolutionFailureVisitor(final ResolutionFailureVisitor failureVisitor) {
+  public void setResolutionFailureVisitor(final ResolutionFailureVisitor<?> failureVisitor) {
     _failureVisitor = failureVisitor;
   }
 

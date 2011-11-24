@@ -2,6 +2,7 @@ package com.opengamma.masterdb.marketdatasnapshot;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +32,8 @@ import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilityCubeSnapsh
 import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DbTest;
@@ -83,14 +86,14 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
     globalValues.setValues(new HashMap<MarketDataValueSpecification, Map<String,ValueSnapshot>>());
     marketDataSnapshot.setGlobalValues(globalValues);
     marketDataSnapshot.setYieldCurves(yieldCurves);
-        
+    
     MarketDataSnapshotDocument addDoc = new MarketDataSnapshotDocument(marketDataSnapshot);
     MarketDataSnapshotDocument added = _snpMaster.add(addDoc);
     
     MarketDataSnapshotDocument loaded = _snpMaster.get(added.getUniqueId());
     assertEquivalent(added, loaded);
   }
-  
+
   //-------------------------------------------------------------------------
   @Test
   public void test_complex_example() throws Exception {
@@ -103,7 +106,6 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
     
     HashMap<YieldCurveKey,YieldCurveSnapshot> yieldCurves = new HashMap<YieldCurveKey,YieldCurveSnapshot>();
     
-    
     MarketDataValueSpecification specA = new MarketDataValueSpecification(MarketDataValueType.PRIMITIVE, UniqueId.of("XXX", "AAA"));
     MarketDataValueSpecification specB = new MarketDataValueSpecification(MarketDataValueType.SECURITY, UniqueId.of("XXX", "AAA"));
     
@@ -115,7 +117,6 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
     HashMap<String,ValueSnapshot> hashMapB = new HashMap<String,ValueSnapshot>();
     hashMapB.put("X", new ValueSnapshot(Double.valueOf(12),Double.valueOf(11)));
     values.put(specB, hashMapB);
-    
     
     ManageableYieldCurveSnapshot manageableYieldCurveSnapshot = new ManageableYieldCurveSnapshot();
     manageableYieldCurveSnapshot.setValuationTime(Instant.now());
@@ -146,10 +147,20 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
     MarketDataSnapshotDocument loaded = _snpMaster.get(added.getUniqueId());
     
     assertEquivalent(added, loaded);
+    
+    // search
+    MarketDataSnapshotSearchRequest request = new MarketDataSnapshotSearchRequest();
+    request.setIncludeData(true);
+    request.setName(added.getName());
+    MarketDataSnapshotSearchResult result = _snpMaster.search(request);
+    assertTrue(result.getDocuments().size() > 0);
+    
+    request.setIncludeData(false);
+    result = _snpMaster.search(request);
+    assertTrue(result.getDocuments().size() > 0);
   }
 
   private void assertEquivalent(MarketDataSnapshotDocument added, MarketDataSnapshotDocument loaded) {
-    
     ManageableMarketDataSnapshot addedSnapshot = added.getSnapshot();
     ManageableMarketDataSnapshot loadedSnapshot = loaded.getSnapshot();
     assertEquivalent(addedSnapshot, loadedSnapshot);
@@ -162,17 +173,13 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
     // TODO check yield curves and vol cubes
   }
 
-  private void assertEquivalent(UnstructuredMarketDataSnapshot addedGlobalValues,       UnstructuredMarketDataSnapshot loadedGlobalValues) {
-    
-    if (addedGlobalValues == null && loadedGlobalValues == null)
-    {
+  private void assertEquivalent(UnstructuredMarketDataSnapshot addedGlobalValues, UnstructuredMarketDataSnapshot loadedGlobalValues) {
+    if (addedGlobalValues == null && loadedGlobalValues == null) {
       return;
     }
-    if (addedGlobalValues == null && loadedGlobalValues != null)
-    {
+    if (addedGlobalValues == null && loadedGlobalValues != null) {
       throw new AssertionError(null);
     }
-    
     assertEquivalent(addedGlobalValues.getValues(), loadedGlobalValues.getValues());
   }
 

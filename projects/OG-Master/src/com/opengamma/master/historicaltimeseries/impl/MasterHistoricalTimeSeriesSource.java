@@ -269,6 +269,15 @@ public class MasterHistoricalTimeSeriesSource
   }
 
   //-------------------------------------------------------------------------
+  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
+    return getMaster().getSummary(uniqueId);
+  }
+
+  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    return getMaster().getSummary(objectId, versionCorrection);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
       Set<ExternalIdBundle> identifierSet, String dataSource, String dataProvider, String dataField, LocalDate start,
@@ -288,33 +297,4 @@ public class MasterHistoricalTimeSeriesSource
     return "MasterHistoricalTimeSeriesSource[" + getMaster() + "]";
   }
 
-  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
-    return getMaster().getSummary(uniqueId);
-  }
-  
-  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    return getMaster().getSummary(objectId, versionCorrection);
-  }
-
-//  @Override
-//  public LocalDate getEarliestDate(UniqueId uniqueId) {
-//    return getMaster().getEarliestDate(uniqueId);
-//    
-//  }
-//
-//  @Override
-//  public LocalDate getLatestDate(UniqueId uniqueId) {
-//    return getMaster().getEarliestDate(uniqueId);
-//  }
-//
-//  @Override
-//  public Double getEarliestValue(UniqueId uniqueId) {
-//    return getMaster().getEarliestValue(uniqueId);
-//  }
-//
-//  @Override
-//  public Double getLatestValue(UniqueId uniqueId) {
-//    return getMaster().getLatestValue(uniqueId);
-//  }
-  
 }

@@ -10,6 +10,8 @@ import java.sql.Driver;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.PostgreSQLDialect;
 
+import com.opengamma.extsql.ExtSqlConfig;
+
 /**
  * Database dialect for Postgres databases.
  * <p>
@@ -37,6 +39,11 @@ public class PostgresDbDialect extends DbDialect {
   @Override
   protected Dialect createHibernateDialect() {
     return new PostgreSQLDialect();
+  }
+
+  @Override
+  protected ExtSqlConfig createExtSqlConfig() {
+    return ExtSqlConfig.POSTGRES;
   }
 
   //-------------------------------------------------------------------------
