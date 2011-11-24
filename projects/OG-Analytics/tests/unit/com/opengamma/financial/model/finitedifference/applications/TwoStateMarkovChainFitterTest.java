@@ -25,7 +25,7 @@ import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -153,15 +153,16 @@ public class TwoStateMarkovChainFitterTest {
   public void test() {
     DoubleMatrix1D initalGuess = new DoubleMatrix1D(new double[] {0.2, 0.8, 0.3, 2.0, 0.9, 0.9 });
     TwoStateMarkovChainFitter fitter = new TwoStateMarkovChainFitter(THETA);
-    LeastSquareResults res = fitter.fit(FORWARD_CURVE, MARKET_VOLS, initalGuess);
+    LeastSquareResultsWithTransform res = fitter.fit(FORWARD_CURVE, MARKET_VOLS, initalGuess);
     //System.out.println("chi^2:" + res.getChiSq() + "\n params: " + res.getParameters().toString());
+    final double[] modelParms = res.getModelParameters().getData();
 
     assertEquals(0.0, res.getChiSq(), 1e-3);
-    assertEquals(VOL1, res.getParameters().getEntry(0), 1e-3);
-    assertEquals(DELTA_VOL, res.getParameters().getEntry(1), 2e-3);
-    assertEquals(LAMBDA12, res.getParameters().getEntry(2), 2e-3);
-    assertEquals(LAMBDA21, res.getParameters().getEntry(3), 2e-3);
-    assertEquals(P0, res.getParameters().getEntry(4), 1e-3);
-    assertEquals(BETA, res.getParameters().getEntry(5), 1e-3);
+    assertEquals(VOL1, modelParms[0], 1e-3);
+    assertEquals(DELTA_VOL, modelParms[1], 2e-3);
+    assertEquals(LAMBDA12, modelParms[2], 2e-3);
+    assertEquals(LAMBDA21, modelParms[3], 2e-3);
+    assertEquals(P0, modelParms[4], 1e-3);
+    assertEquals(BETA, modelParms[5], 1e-3);
   }
 }

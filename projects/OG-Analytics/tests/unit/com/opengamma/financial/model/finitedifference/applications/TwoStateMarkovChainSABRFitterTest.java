@@ -31,7 +31,7 @@ import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurface;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -155,8 +155,8 @@ public class TwoStateMarkovChainSABRFitterTest {
   public void test() {
     final DoubleMatrix1D initialGuess = new DoubleMatrix1D(new double[] {0.2, 0.3, 0.2, 2.0, 0.95, 0.8 });
     final TwoStateMarkovChainFitter fitter = new TwoStateMarkovChainFitter();
-    final LeastSquareResults res = fitter.fit(FORWARD_CURVE, SABR_VOLS, initialGuess);
-    System.out.println("chi^2:" + res.getChiSq() + "\n params: " + res.getParameters().toString());
+    final LeastSquareResultsWithTransform res = fitter.fit(FORWARD_CURVE, SABR_VOLS, initialGuess);
+    System.out.println("chi^2:" + res.getChiSq() + "\n params: " + res.getModelParameters().toString());
   }
 
   @Test(enabled = false)
@@ -188,10 +188,10 @@ public class TwoStateMarkovChainSABRFitterTest {
     PDEUtilityTools.printSurface("State 2 density", res2);
   }
 
-  //TODO need to have real tests here rather than print a lot of surfaces 
+  //TODO need to have real tests here rather than print a lot of surfaces
   @Test
-      (enabled = false)
-      public void localVolFitTest() {
+  (enabled = false)
+  public void localVolFitTest() {
     final DoubleMatrix1D initialGuess = new DoubleMatrix1D(new double[] {0.2, 0.3, 0.2, 2.0, 0.95, 0.8 });
     final TwoStateMarkovChainLocalVolFitter fitter = new TwoStateMarkovChainLocalVolFitter(true);
     fitter.fit(FORWARD_CURVE, new BlackVolatilitySurface(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION)), SABR_VOLS, initialGuess);

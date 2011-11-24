@@ -1,26 +1,43 @@
-.OG-tools .og-divider {
-  border-top: 1px solid #dcdcdc;
-  border-bottom: 1px solid #f1f1f1;
-  margin: 0 -3px;
+.OG-tools {
+  height: 22px;
+  position: absolute;
+  bottom: -14px;
+  background-color: #fff;
+  border-left: 1px solid #ebebeb;
+  border-right: 1px solid #ebebeb;
+  font-size: 10px;
+  color: #61d050;
+  z-index: 2;
+  border-bottom: 5px solid #fff;
+}
+
+.OG-tools div {
+  margin-top: -3px;
+  margin-right: 8px;
+}
+
+.OG-tools div:first-child {
+  margin-left: 8px;
+}
+
+.OG-tools div:last-child {
+  margin-right: 10px;
 }
 
 .OG-tools span {
-  position: absolute;
-  padding: 2px 5px;
-  background: #2b343c;
-  color: #fff;
-  right: 20px;
-  display: none;
-  cursor: default;
+  float: right;
+  padding-top: 3px;
+  line-height: 12px;
 }
 
-.OG-tools span:after {
-  content: '';
-  position: absolute;
-  right: -5px;
-  top: 8px;
-  display: block;
-  border-top: 4px solid transparent;
-  border-left: 5px solid #2b343c;
-  border-bottom: 4px solid transparent;
+.OG-tools span:hover {
+  border-bottom: 1px solid #6fd66f;
+}
+
+.OG-tools .og-divider {
+  display: inline-block;
+  border-left: 1px solid #ebebeb;
+  height: 22px;
+  position: relative;
+  top: 3px;
 }

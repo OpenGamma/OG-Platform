@@ -5,6 +5,7 @@
  */
 package com.opengamma.math.statistics.leastsquare;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
@@ -12,18 +13,23 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
- * 
+ * Container for the results of a least square (minimum chi-square) fit, where some model (with a set of parameters), is calibrated
+ * to a data set.
  */
 public class LeastSquareResults {
   @Override
   public String toString() {
-    return "LeastSquareResults [_chiSq=" + _chiSq + ", _parameters=" + _parameters.toString() + ", _covariance=" + _covariance.toString() + "]";
+    return "LeastSquareResults [chiSq=" + _chiSq + ", fit parameters=" + _parameters.toString() + ", covariance=" + _covariance.toString() + "]";
   }
 
   private final double _chiSq;
   private final DoubleMatrix1D _parameters;
   private final DoubleMatrix2D _covariance;
   private final DoubleMatrix2D _inverseJacobian;
+
+  public LeastSquareResults(LeastSquareResults from) {
+    this(from._chiSq, from._parameters, from._covariance, from._inverseJacobian);
+  }
 
   public LeastSquareResults(final double chiSq, final DoubleMatrix1D parameters, final DoubleMatrix2D covariance) {
     this(chiSq, parameters, covariance, null);
@@ -44,7 +50,7 @@ public class LeastSquareResults {
   }
 
   /**
-   * Gets the chiSq field.
+   * Gets the Chi-square of the fit
    * @return the chiSq
    */
   public double getChiSq() {
@@ -52,22 +58,32 @@ public class LeastSquareResults {
   }
 
   /**
-   * Gets the parameters field.
+   * Gets the value of the fitting parameters, when the chi-squared is minimised
    * @return the parameters
    */
-  public DoubleMatrix1D getParameters() {
+  public DoubleMatrix1D getFitParameters() {
     return _parameters;
   }
 
   /**
-   * Gets the covariance field.
-   * @return the covariance
+   * Gets the estimated covariance matrix of the standard errors in the fitting parameters. <b>Note</b> only in the case of
+   * normally distributed errors, does this have any meaning full mathematical interpretation (See NR third edition, p812-816)
+   * @return the formal covariance matrix
    */
   public DoubleMatrix2D getCovariance() {
     return _covariance;
   }
 
-  public DoubleMatrix2D getInverseJacobian() {
+  /**
+   * This a matrix where the i,jth element is the (infinitesimal) sensitivity of the ith fitting parameter to the jth data
+   * point (NOT the model point), when the fitting parameter are such that the chi-squared is minimised. So it is a type of (inverse)
+   * Jacobian, but should not be confused with the model jacobian (sensitivity of model data points, to parameters) or its inverse.
+   * @return a matrix
+   */
+  public DoubleMatrix2D getFittingParameterSensitivityToData() {
+    if (_inverseJacobian == null) {
+      throw new NotImplementedException("The inverse Jacobian was not set");
+    }
     return _inverseJacobian;
   }
 

@@ -23,7 +23,7 @@ import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatili
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
@@ -72,8 +72,8 @@ public class SABRFittingTest {
   public void testExactFitNLSS() {
     final BitSet fixed = new BitSet();
     final double[] start = new double[] {0.03, 0.4, 0.1, 0.2 };
-    final LeastSquareResults results = NLSS.getFitResult(OPTIONS, DATA, ERRORS, start, fixed);
-    final double[] res = results.getParameters().getData();
+    final LeastSquareResultsWithTransform results = NLSS.getFitResult(OPTIONS, DATA, ERRORS, start, fixed);
+    final double[] res = results.getModelParameters().getData();
     final double eps = 1e-4;
     assertEquals(ALPHA, res[0], eps);
     assertEquals(BETA, res[1], eps);
@@ -143,9 +143,9 @@ public class SABRFittingTest {
     final BitSet fixed = new BitSet();
     fixed.set(1, true);
     final double[] start = new double[] {0.03, 0.5, 0.1, 0.2 };
-    final LeastSquareResults results = NLSS.getFitResult(OPTIONS, NOISY_DATA, ERRORS, start, fixed);
+    final LeastSquareResultsWithTransform results = NLSS.getFitResult(OPTIONS, NOISY_DATA, ERRORS, start, fixed);
     assertTrue(results.getChiSq() < 10.0);
-    final double[] res = results.getParameters().getData();
+    final double[] res = results.getModelParameters().getData();
     assertEquals(ALPHA, res[0], 1e-3);
     assertEquals(BETA, res[1], 1e-7);
     assertEquals(RHO, res[2], 1e-1);

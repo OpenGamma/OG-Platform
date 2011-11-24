@@ -47,7 +47,7 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -59,7 +59,7 @@ import com.opengamma.util.tuple.ObjectsPair;
 public class SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction extends AbstractFunction.NonCompiledInvoker {
   private static final double ERROR = 0.001;
   private static final SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
-  private static final DoubleMatrix1D SABR_INITIAL_VALUES = new DoubleMatrix1D(new double[] {0.05, 1., 0.7, 0.0});
+  private static final DoubleMatrix1D SABR_INITIAL_VALUES = new DoubleMatrix1D(new double[] {0.05, 1., 0.7, 0.0 });
   private static final BitSet FIXED = new BitSet();
   private static final LinearInterpolator1D LINEAR = (LinearInterpolator1D) Interpolator1DFactory.getInterpolator(Interpolator1DFactory.LINEAR);
   private static final FlatExtrapolator1D FLAT = new FlatExtrapolator1D();
@@ -137,20 +137,20 @@ public class SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction extends Abs
       double[] blackVols = new double[n];
       double forward = futurePriceData.getFuturePrice(t);
       if (strip.size() > 4) {
-        for (ObjectsPair<Double, Double> value : strip) {          
+        for (ObjectsPair<Double, Double> value : strip) {
           strikes[strikeIndex] = 1 - value.first / 100;
           blackVols[strikeIndex] = value.second;
           errors[strikeIndex++] = ERROR;
         }
-        final LeastSquareResults fittedResult = new SABRModelFitter(forward, strikes, t, blackVols, errors, SABR_FUNCTION).solve(SABR_INITIAL_VALUES, FIXED);
-        final DoubleMatrix1D parameters = fittedResult.getParameters();
+        final LeastSquareResultsWithTransform fittedResult = new SABRModelFitter(forward, strikes, t, blackVols, errors, SABR_FUNCTION).solve(SABR_INITIAL_VALUES, FIXED);
+        final DoubleMatrix1D parameters = fittedResult.getModelParameters();
         fittedOptionExpiryList.add(t);
         futureDelayList.add(0);
         alphaList.add(parameters.getEntry(0));
         betaList.add(parameters.getEntry(1));
         nuList.add(parameters.getEntry(2));
         rhoList.add(parameters.getEntry(3));
-        inverseJacobians.put(DoublesPair.of(t.doubleValue(), 0.), fittedResult.getInverseJacobian());
+        inverseJacobians.put(DoublesPair.of(t.doubleValue(), 0.), fittedResult.getModelParameterSensitivityToData());
         chiSqList.add(fittedResult.getChiSq());
       }
     }

@@ -110,12 +110,12 @@ $.register_module({
                 {type: 'form:load', handler: function () {
                     var header = '\
                         <header class="OG-header-generic">\
-                          <div class="OG-toolbar"></div>\
+                          <div class="OG-tools"></div>\
                           <h1>\
                             <span class="og-js-name">' + master.name + '</span>_<span class="og-js-currency">' +
                             master.currency + '</span>\
                           </h1>\
-                          <br />(Yield Curve Definition)\
+                          (Yield Curve Definition)\
                         </header>\
                     ';
                     $('.ui-layout-inner-center .ui-layout-header').html(header);
