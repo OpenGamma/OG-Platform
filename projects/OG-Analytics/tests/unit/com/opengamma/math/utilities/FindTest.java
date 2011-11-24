@@ -56,6 +56,10 @@ public class FindTest {
   int[] _dataRepeatGTD = {6, 7, 8, 9 };
   int[] _dataRepeatGED = {4, 5, 6, 7, 8, 9 };
 
+  boolean[] _dataMixedBoolean = {false,true,false,true,false};
+  int [] _dataMixedFalsePositions={0,2,4};
+  int [] _dataMixedTruePositions={1,3};  
+  
   // Test Ints
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalidIntVector() {
@@ -328,6 +332,31 @@ public class FindTest {
     assertTrue(Arrays.equals(Find.indexes(_dataRepeatD, Find.condition.ge, _valueD), _dataRepeatGED));
   }
 
+  // Test Bools
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInvalidBoolVector() {
+    boolean[] tmp = null;
+    Find.indexes(tmp, Find.booleanCondition.eq, true);
+  }
 
+  @Test
+  public void testLinearFindEQTrue() {
+    assertTrue(Arrays.equals(Find.indexes(_dataMixedBoolean, Find.booleanCondition.eq, true), _dataMixedTruePositions));
+  }
 
+  @Test
+  public void testLinearFindEQFalse() {
+    assertTrue(Arrays.equals(Find.indexes(_dataMixedBoolean, Find.booleanCondition.eq, false), _dataMixedFalsePositions));
+  }
+
+  @Test
+  public void testLinearFindNEQTrue() {
+    assertTrue(Arrays.equals(Find.indexes(_dataMixedBoolean, Find.booleanCondition.ne, true), _dataMixedFalsePositions));
+  }
+
+  @Test
+  public void testLinearFindNEQFalse() {
+    assertTrue(Arrays.equals(Find.indexes(_dataMixedBoolean, Find.booleanCondition.ne, false), _dataMixedTruePositions));
+  }  
+  
 }

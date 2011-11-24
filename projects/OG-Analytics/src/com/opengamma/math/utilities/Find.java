@@ -32,6 +32,18 @@ public class Find {
     ge
   }
 
+
+  /**
+   * Enum for the condition to satisfy in the case of booleans.
+   */
+  public enum booleanCondition {
+    /** Equal to */
+    eq,
+    /** Not equal to */
+    ne
+  }
+  
+  
   /**
    * Find values that match a given condition.
    * For example: Find(v,eq,3) will return the indices in vector v which are numerically equal to 3.
@@ -249,7 +261,7 @@ public class Find {
     return ret;
   }
 
-*/
+  */
 
   /**
    * Find values that match a given condition.
@@ -323,7 +335,6 @@ public class Find {
     return ret;
   }
 
-
   /**
    * Find values that match a given condition.
    * For example: Find(v,eq,3) will return the indices in vector v which are numerically equal to 3.
@@ -396,4 +407,43 @@ public class Find {
     return ret;
   }
 
+  /**
+   * Find values that match a given condition.
+   * For example: Find(v,eq,3) will return the indices in vector v which are numerically equal to 3.
+   * @param v the values to try against the condition
+   * @param op the booleanCondition
+   * @param value the value to which the vector of values is compared
+   * @return the indices of the values which satisfy the condition
+   */
+  public static int[] indexes(boolean[] v, booleanCondition op, boolean value) {
+    Validate.notNull(v);
+
+    final int n = v.length;
+    int[] tmp = new int[n];
+
+    int count = 0;
+    switch (op) {
+      case eq:
+        for (int i = 0; i < n; i++) {
+          if (v[i] == value) {
+            tmp[count] = i;
+            count++;
+          }
+        }
+        break;
+      case ne:
+        for (int i = 0; i < n; i++) {
+          if (v[i] != value) {
+            tmp[count] = i;
+            count++;
+          }
+        }
+        break;
+      default:
+        throw new MathException("Impossible condition in Find.");
+    }
+    int[] ret = new int[count];
+    System.arraycopy(tmp, 0, ret, 0, count);
+    return ret;
+  }
 } // class end
