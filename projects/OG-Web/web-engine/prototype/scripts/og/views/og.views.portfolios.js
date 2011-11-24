@@ -121,90 +121,45 @@ $.register_module({
             default_details = og.views.common.default_details.partial(page_name, 'Portfolios', options),
             details_page = function (args) {
                 var layout = og.views.common.layout,
-                    hook_up_add_portfolio_form = function () {
-                        var do_update = function () {
-                            api.rest.portfolios.put({
-                                handler: function (r) {
-                                    if (r.error) {ui.dialog({type: 'error', message: r.message}); return}
-                                    routes.go(routes.hash(module.rules.load_new_portfolios,
-                                            $.extend({},routes.current().args, {'new': true})
-                                    ));
-                                },
-                                name: ui.dialog({return_field_value: 'name'}),
-                                id: json.template_data.object_id,
-                                node: json.template_data.node,
-                                'new': true
-                            });
-                        };
-                        $('.OG-js-add-sub-portfolio').click(function () {
-                            ui.dialog({
-                                type: 'input',
-                                title: 'Add New sub Portfolio',
-                                fields: [{type: 'input', name: 'Portfolio Name', id: 'name'}],
-                                buttons: {
-                                    'OK': function () {
-                                        if (ui.dialog({return_field_value: 'name'}) === '') return;
-                                        $(this).dialog('close');
-                                        do_update();
-                                    }
-                                }
-                            });
-                            return false;
-                        });
-                    },
-                    hook_up_add_position_form = function () {
-                        var do_update = function (e, id) {
-                            api.rest.portfolios.put({
-                                handler: function (r) {
-                                    if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                    // TODO: prevent search from reloading
-                                    routes.go(routes.hash(module.rules.load_new_portfolios,
-                                         $.extend({}, routes.last().args,
-                                             {id: json.template_data.object_id, 'new': true})
-                                    ));
-                                },
-                                position: id ? id.item.value : $input.val(),
-                                id: json.template_data.object_id,
-                                node: json.template_data.node
-                           });
-                           ui.dialog({type: 'input', action: 'close'});
-                        };
-                        $('.OG-js-add-position').click(function () {
-                            ui.dialog({
-                                type: 'input',
-                                title: 'Add Position',
-                                fields: [{type: 'input', name: 'Identifier', id: 'name'}],
-                                buttons: {
-                                    'OK': function () {
-                                        if (ui.dialog({return_field_value: 'name'}) === '') return;
-                                        do_update();
-                                        $(this).dialog('close');
-                                    }
-                                }
-                            });
-                            $('#og-js-dialog-name').autocomplete({
-                                source: function (obj, callback) {
-                                    api.rest.positions.get({
-                                        handler: function (r) {
-                                            callback(
-                                                r.data.data.map(function (val) {
-                                                    var arr = val.split('|');
-                                                    return {value: arr[0], label: arr[1], id: arr[0], node: arr[1]};
-                                                })
-                                            );
-                                        },
-                                        loading: '', page_size: 10, page: 1,
-                                        identifier: '*' + obj.term.replace(/\s/g, '*') + '*'
-                                    });
-                                },
-                                minLength: 1,
-                                select: function (e, ui) {do_update(e, ui);}
-                            });
-                            return false;
-                        });
-                    },
                     render_portfolio_rows = function (selector, json) {
-                        var display_columns = [], data_columns = [], format = common.slickgrid.formatters.portfolios;
+                        var display_columns = [], data_columns = [], format = common.slickgrid.formatters.portfolios,
+                            html = '\
+                                <h3>Portfolios</h3>\
+                                <div class="og-divider"></div>\
+                                <div class="og-js-portfolios-grid og-grid"></div>\
+                                <a href="#" class="OG-link-add OG-js-add-sub-portfolio">add new portfolio</a>';
+                        $(selector).html(html);
+                        (function () { /* Hook up add button */
+                            var do_update = function () {
+                                api.rest.portfolios.put({
+                                    handler: function (r) {
+                                        if (r.error) {ui.dialog({type: 'error', message: r.message}); return}
+                                        routes.go(routes.hash(module.rules.load_new_portfolios,
+                                                $.extend({},routes.current().args, {'new': true})
+                                        ));
+                                    },
+                                    name: ui.dialog({return_field_value: 'name'}),
+                                    id: json.template_data.object_id,
+                                    node: json.template_data.node,
+                                    'new': true
+                                });
+                            };
+                            $('.OG-js-add-sub-portfolio').click(function () {
+                                ui.dialog({
+                                    type: 'input',
+                                    title: 'Add New sub Portfolio',
+                                    fields: [{type: 'input', name: 'Portfolio Name', id: 'name'}],
+                                    buttons: {
+                                        'OK': function () {
+                                            if (ui.dialog({return_field_value: 'name'}) === '') return;
+                                            $(this).dialog('close');
+                                            do_update();
+                                        }
+                                    }
+                                });
+                                return false;
+                            });
+                        }());
                         if (json.portfolios[0]) {
                             display_columns = [{
                                 id: 'name', name: 'Name', field: 'name', cssClass: 'og-link',
@@ -217,7 +172,7 @@ $.register_module({
                             display_columns = [{id: 'name', name: 'Name', field: 'name', width: 300}],
                             json.portfolios = [{name: 'No portfolios', id: ''}]
                         }
-                        slick = new Slick.Grid(selector, json.portfolios, display_columns.concat(data_columns));
+                        slick = new Slick.Grid(selector + ' .og-js-portfolios-grid', json.portfolios, display_columns.concat(data_columns));
                         slick.setColumns(display_columns);
                         slick.onClick.subscribe(function (e, dd) {
                             var rule = module.rules.load_portfolios,
@@ -250,7 +205,64 @@ $.register_module({
                         });
                     },
                     render_position_rows = function (selector, json) {
-                        var display_columns = [], data_columns = [], format = common.slickgrid.formatters.positions;
+                        var display_columns = [], data_columns = [], format = common.slickgrid.formatters.positions,
+                            html = '\
+                              <h3>Positions</h3>\
+                              <div class="og-divider"></div>\
+                              <div class="og-js-position-grid og-grid"></div>\
+                              <a href="#" class="OG-link-add OG-js-add-position">add new position</a>';
+                        $(selector).html(html);
+                        (function () { /* hook up add button */
+                            var do_update = function (e, id) {
+                                api.rest.portfolios.put({
+                                    handler: function (r) {
+                                        if (r.error) return ui.dialog({type: 'error', message: r.message});
+                                        // TODO: prevent search from reloading
+                                        routes.go(routes.hash(module.rules.load_new_portfolios,
+                                             $.extend({}, routes.last().args,
+                                                 {id: json.template_data.object_id, 'new': true})
+                                        ));
+                                    },
+                                    position: id ? id.item.value : $input.val(),
+                                    id: json.template_data.object_id,
+                                    node: json.template_data.node
+                               });
+                               ui.dialog({type: 'input', action: 'close'});
+                            };
+                            $('.OG-js-add-position').click(function () {
+                                ui.dialog({
+                                    type: 'input',
+                                    title: 'Add Position',
+                                    fields: [{type: 'input', name: 'Identifier', id: 'name'}],
+                                    buttons: {
+                                        'OK': function () {
+                                            if (ui.dialog({return_field_value: 'name'}) === '') return;
+                                            do_update();
+                                            $(this).dialog('close');
+                                        }
+                                    }
+                                });
+                                $('#og-js-dialog-name').autocomplete({
+                                    source: function (obj, callback) {
+                                        api.rest.positions.get({
+                                            handler: function (r) {
+                                                callback(
+                                                    r.data.data.map(function (val) {
+                                                        var arr = val.split('|');
+                                                        return {value: arr[0], label: arr[1], id: arr[0], node: arr[1]};
+                                                    })
+                                                );
+                                            },
+                                            loading: '', page_size: 10, page: 1,
+                                            identifier: '*' + obj.term.replace(/\s/g, '*') + '*'
+                                        });
+                                    },
+                                    minLength: 1,
+                                    select: function (e, ui) {do_update(e, ui);}
+                                });
+                                return false;
+                            });
+                        }());
                         if (json.positions[0]) {
                             display_columns = [
                                 {id:"name", name:"Name", field:"name", width: 300, cssClass: 'og-link'},
@@ -266,7 +278,8 @@ $.register_module({
                             ],
                             json.positions = [{name: 'No positions', quantity:'', id: ''}]
                         }
-                        slick = new Slick.Grid(selector, json.positions, display_columns.concat(data_columns));
+                        slick = new Slick.Grid(selector + ' .og-js-position-grid',
+                            json.positions, display_columns.concat(data_columns));
                         slick.setColumns(display_columns);
                         slick.onClick.subscribe(function (e, dd) {
                             var rule = og.views.positions.rules['load_positions'], row = json.positions[dd.row],
@@ -384,9 +397,9 @@ $.register_module({
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
                             }
-                            hook_up_add_portfolio_form(), hook_up_add_position_form();
                             render_portfolio_rows('.OG-js-details-panel .og-js-portfolios', json);
                             render_position_rows('.OG-js-details-panel .og-js-positions', json);
+//                            hook_up_add_portfolio_form(), hook_up_add_position_form();
                             ui.content_editable({
                                 attribute: 'data-og-editable',
                                 handler: function () {
