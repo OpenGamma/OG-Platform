@@ -1,0 +1,341 @@
+-- SQL for portfolio master
+
+-- ==========================================================================
+@NAME(GetById)
+  SELECT
+    main.id AS portfolio_id,
+    main.oid AS portfolio_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.name AS portfolio_name,
+    n.id AS node_id,
+    n.oid AS node_oid,
+    n.tree_left AS tree_left,
+    n.tree_right AS tree_right,
+    n.name AS node_name,
+    p.key_scheme AS pos_key_scheme,
+    p.key_value AS pos_key_value,
+    pa.key AS prt_attr_key,
+    pa.value AS prt_attr_value
+  FROM
+    prt_portfolio main
+    LEFT JOIN prt_node n ON (n.portfolio_id = main.id)
+    LEFT JOIN prt_position p ON (p.node_id = n.id)
+    LEFT JOIN prt_portfolio_attribute pa ON (pa.portfolio_id = main.id)
+  WHERE main.id = :doc_id
+    AND main.oid = :doc_oid
+  ORDER BY
+    n.tree_left,
+    p.key_scheme,
+    p.key_value
+
+
+-- ==========================================================================
+@NAME(GetByOidInstants)
+  SELECT
+    main.id AS portfolio_id,
+    main.oid AS portfolio_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.name AS portfolio_name,
+    n.id AS node_id,
+    n.oid AS node_oid,
+    n.tree_left AS tree_left,
+    n.tree_right AS tree_right,
+    n.name AS node_name,
+    p.key_scheme AS pos_key_scheme,
+    p.key_value AS pos_key_value,
+    pa.key AS prt_attr_key,
+    pa.value AS prt_attr_value
+  FROM
+    prt_portfolio main
+    LEFT JOIN prt_node n ON (n.portfolio_id = main.id)
+    LEFT JOIN prt_position p ON (p.node_id = n.id)
+    LEFT JOIN prt_portfolio_attribute pa ON (pa.portfolio_id = main.id)
+  WHERE main.oid = :doc_oid
+    AND main.ver_from_instant <= :version_as_of AND main.ver_to_instant > :version_as_of
+    AND main.corr_from_instant <= :corrected_to AND main.corr_to_instant > :corrected_to
+  ORDER BY
+    n.tree_left,
+    p.key_scheme,
+    p.key_value
+
+
+-- ==========================================================================
+@NAME(Search)
+  WITH cte_docs AS ( @INSERT(SearchInner) )
+  SELECT
+    main.id AS portfolio_id,
+    main.oid AS portfolio_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.name AS portfolio_name,
+    n.id AS node_id,
+    n.oid AS node_oid,
+    n.tree_left AS tree_left,
+    n.tree_right AS tree_right,
+    n.name AS node_name,
+    p.key_scheme AS pos_key_scheme,
+    p.key_value AS pos_key_value,
+    pa.key AS prt_attr_key,
+    pa.value AS prt_attr_value
+  FROM
+    prt_portfolio main
+    INNER JOIN cte_docs ON main.id = cte_docs.id
+    LEFT JOIN prt_node n ON (n.portfolio_id = main.id)
+    LEFT JOIN prt_position p ON (p.node_id = n.id)
+    LEFT JOIN prt_portfolio_attribute pa ON (pa.portfolio_id = main.id)
+  @WHERE
+    @AND(:depth)
+      n.depth <= :depth
+  ORDER BY
+    main.@INSERT(:sort_order),
+    main.id,
+    n.tree_left,
+    p.key_scheme,
+    p.key_value
+
+
+-- ==========================================================================
+@NAME(SearchInner)
+  SELECT
+    prt_portfolio.id AS id
+  FROM
+    prt_portfolio
+  @INSERT(SearchWhere)
+  ORDER BY
+    @INSERT(:sort_order),
+    prt_portfolio.id
+  @OFFSETFETCH
+
+
+-- ==========================================================================
+@NAME(SearchCount)
+  SELECT
+    COUNT(prt_portfolio.id)
+  FROM
+    prt_portfolio
+  @INSERT(SearchWhere)
+
+
+-- ==========================================================================
+@NAME(SearchWhere)
+  WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
+    AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
+    @AND(:sql_search_portfolio_ids)
+      oid IN ( @INSERT(:sql_search_portfolio_ids) )
+    @AND(:name)
+      UPPER(name) @LIKE UPPER(:name)
+    @AND(:sql_search_node_ids)
+      oid IN (SELECT DISTINCT portfolio_oid FROM prt_node WHERE oid IN ( @INSERT(:sql_search_node_ids) ))
+
+
+-- ==========================================================================
+@NAME(History)
+  WITH cte_docs AS ( @INSERT(HistoryInner) )
+  SELECT
+    main.id AS portfolio_id,
+    main.oid AS portfolio_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.name AS portfolio_name,
+    n.id AS node_id,
+    n.oid AS node_oid,
+    n.tree_left AS tree_left,
+    n.tree_right AS tree_right,
+    n.name AS node_name,
+    p.key_scheme AS pos_key_scheme,
+    p.key_value AS pos_key_value,
+    pa.key AS prt_attr_key,
+    pa.value AS prt_attr_value
+  FROM
+    prt_portfolio main
+    INNER JOIN cte_docs ON main.id = cte_docs.id
+    LEFT JOIN prt_node n ON (n.portfolio_id = main.id)
+    LEFT JOIN prt_position p ON (p.node_id = n.id)
+    LEFT JOIN prt_portfolio_attribute pa ON (pa.portfolio_id = main.id)
+  @WHERE
+    @AND(:depth)
+      n.depth <= :depth
+  ORDER BY
+    main.ver_from_instant DESC,
+    main.corr_from_instant DESC,
+    n.tree_left,
+    p.key_scheme,
+    p.key_value
+
+
+-- ==========================================================================
+@NAME(HistoryInner)
+  SELECT
+    id
+  FROM
+    prt_portfolio
+  @INSERT(HistoryWhere)
+  ORDER BY
+    ver_from_instant DESC,
+    corr_from_instant DESC
+  @OFFSETFETCH
+
+
+-- ==========================================================================
+@NAME(HistoryCount)
+  SELECT
+    COUNT(id)
+  FROM
+    prt_portfolio 
+  @INSERT(HistoryWhere)
+
+
+-- ==========================================================================
+@NAME(HistoryWhere)
+  WHERE oid = :doc_oid
+    @IF(:sql_history_versions = Point)
+      AND ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant
+    @IF(:sql_history_versions = Range)
+      @AND(:versions_from_instant)
+        ((ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant) OR ver_from_instant >= :versions_from_instant)
+      @AND(:versions_to_instant)
+        ((ver_from_instant <= :versions_to_instant AND ver_to_instant > :versions_to_instant) OR ver_to_instant < :versions_to_instant)
+    @IF(:sql_history_corrections = Point)
+      AND corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant
+    @IF(:sql_history_corrections = Range)
+      @AND(:corrections_from_instant)
+        ((corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant) OR corr_from_instant >= :corrections_from_instant)
+      @AND(:corrections_to_instant)
+        ((corr_from_instant <= :corrections_to_instant AND corr_to_instant > :corrections_to_instant) OR corr_to_instant < :corrections_to_instant)
+
+
+-- ==========================================================================
+@NAME(Insert)
+  INSERT INTO prt_portfolio
+    (id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name)
+  VALUES
+    (:portfolio_id, :portfolio_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name)
+
+
+-- ==========================================================================
+@NAME(InsertNode)
+  INSERT INTO prt_node
+    (id, oid, portfolio_id, portfolio_oid, parent_node_id, parent_node_oid, depth, tree_left, tree_right, name)
+  VALUES
+    (:node_id, :node_oid, :portfolio_id, :portfolio_oid, :parent_node_id, :parent_node_oid, :depth, :tree_left, :tree_right, :name)
+
+
+-- ==========================================================================
+@NAME(InsertPosition)
+  INSERT INTO prt_position
+    (node_id, key_scheme, key_value)
+  VALUES
+    (:node_id, :key_scheme, :key_value)
+
+
+-- ==========================================================================
+@NAME(InsertAttribute)
+  INSERT INTO prt_portfolio_attribute
+    (id, portfolio_id, portfolio_oid, key, value)
+  VALUES
+    (:attr_id, :portfolio_id, :portfolio_oid, :key, :value)
+
+
+-- ==========================================================================
+@NAME(UpdateVersionToInstant)
+  UPDATE prt_portfolio
+  SET ver_to_instant = :ver_to_instant
+  WHERE id = :doc_id
+    AND ver_to_instant >= :max_instant
+
+
+-- ==========================================================================
+@NAME(UpdateCorrectionToInstant)
+  UPDATE prt_portfolio
+  SET corr_to_instant = :corr_to_instant
+  WHERE id = :doc_id
+    AND corr_to_instant >= :max_instant
+
+
+-- ==========================================================================
+@NAME(GetNodeById)
+  WITH cte_base AS (
+    SELECT portfolio_id, tree_left, tree_right FROM prt_node WHERE id = :node_id
+  )
+  SELECT
+    main.id AS portfolio_id,
+    main.oid AS portfolio_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.name AS portfolio_name,
+    n.id AS node_id,
+    n.oid AS node_oid,
+    n.tree_left AS tree_left,
+    n.tree_right AS tree_right,
+    n.name AS node_name,
+    p.key_scheme AS pos_key_scheme,
+    p.key_value AS pos_key_value,
+    pa.key AS prt_attr_key,
+    pa.value AS prt_attr_value,
+    n.parent_node_id AS parent_node_id,
+    n.parent_node_oid AS parent_node_oid
+  FROM
+    prt_portfolio main
+    INNER JOIN cte_base base ON (base.portfolio_id = main.id)
+    LEFT JOIN prt_node n ON (n.portfolio_id = main.id)
+    LEFT JOIN prt_position p ON (p.node_id = n.id)
+    LEFT JOIN prt_portfolio_attribute pa ON (pa.portfolio_id = main.id)
+  WHERE n.tree_left BETWEEN base.tree_left AND base.tree_right
+  ORDER BY
+    n.tree_left,
+    p.key_scheme,
+    p.key_value
+
+
+-- ==========================================================================
+@NAME(GetNodeByOidInstants)
+  WITH cte_base AS (
+    SELECT portfolio_id, tree_left, tree_right FROM prt_node WHERE oid = :node_oid
+  )
+  SELECT
+    main.id AS portfolio_id,
+    main.oid AS portfolio_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.name AS portfolio_name,
+    n.id AS node_id,
+    n.oid AS node_oid,
+    n.tree_left AS tree_left,
+    n.tree_right AS tree_right,
+    n.name AS node_name,
+    p.key_scheme AS pos_key_scheme,
+    p.key_value AS pos_key_value,
+    pa.key AS prt_attr_key,
+    pa.value AS prt_attr_value,
+    n.parent_node_id AS parent_node_id,
+    n.parent_node_oid AS parent_node_oid
+  FROM
+    prt_portfolio main
+    INNER JOIN cte_base base ON (base.portfolio_id = main.id)
+    LEFT JOIN prt_node n ON (n.portfolio_id = main.id)
+    LEFT JOIN prt_position p ON (p.node_id = n.id)
+    LEFT JOIN prt_portfolio_attribute pa ON (pa.portfolio_id = main.id)
+  WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
+    AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
+    AND n.tree_left BETWEEN base.tree_left AND base.tree_right
+  ORDER BY
+    n.tree_left,
+    p.key_scheme,
+    p.key_value
+
+
+-- ==========================================================================

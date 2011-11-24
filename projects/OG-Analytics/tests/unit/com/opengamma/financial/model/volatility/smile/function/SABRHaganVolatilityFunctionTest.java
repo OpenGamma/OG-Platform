@@ -14,6 +14,8 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVan
 import com.opengamma.math.MathException;
 import com.opengamma.math.differentiation.FiniteDifferenceType;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
+import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
@@ -76,7 +78,7 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
 
   @Test
   /**
-   * Tests the first order adjoint derivatives for the SABR Hagan volatility function. 
+   * Tests the first order adjoint derivatives for the SABR Hagan volatility function.
    * The derivatives with respect to the forward, strike, alpha, beta  rho and nu are provided.
    */
   public void testVolatilityAdjointDebug() {
@@ -89,7 +91,7 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
 
   /**
    * Test small strike edge case. Vol -> infinity as strike -> 0, so the strike is floored - tested against finite difference below this
-   * floor will give spurious results 
+   * floor will give spurious results
    */
   @Test
   public void testVolatilityAdjointSmallStrike() {
@@ -101,7 +103,7 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
 
   /**
    *Test the alpha = 0 edge case. Implied vol is zero for alpha = 0, and except in the ATM case, the alpha sensitivity is infinite. We
-   *choose to (arbitrarily) return 1e7 in this case.  
+   *choose to (arbitrarily) return 1e7 in this case.
    */
   @Test
   public void testVolatilityAdjointAlpha0() {
@@ -214,6 +216,151 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
     testVolatilityAdjoint(FORWARD, CALL_ITM, data, eps, tol);
   }
 
+  @Test
+  public void testVolatilityModelAdjoint() {
+    final double eps = 1e-5;
+    final double tol = 1e-6;
+    SABRFormulaData data = DATA;
+    testVolatilityModelAdjoint(FORWARD, CALL_ATM, data, eps, tol);
+    testVolatilityModelAdjoint(FORWARD, CALL_ITM, data, eps, tol);
+    testVolatilityModelAdjoint(FORWARD, CALL_OTM, data, eps, tol);
+  }
+
+  @Test
+  public void testVolatilityModelAdjointRhoM1() {
+    final double eps = 1e-5;
+    final double tol = 1e-6;
+    SABRFormulaData data = DATA.withRho(-1.0);
+    testVolatilityModelAdjoint(FORWARD, CALL_ATM, data, eps, tol); //z=0 case
+    double z = -0.975;
+    double strike = strikeForZ(z, FORWARD, ALPHA, BETA, NU);
+    testVolatilityModelAdjoint(FORWARD, CALL_ATM.withStrike(strike), data, eps, 5e-4);
+    z = 2.0;
+    strike = strikeForZ(z, FORWARD, ALPHA, BETA, NU);
+    testVolatilityModelAdjoint(FORWARD, CALL_ATM.withStrike(strike), data, eps, tol);
+    z = -2.0;
+    strike = strikeForZ(z, FORWARD, ALPHA, BETA, NU);
+    //The true rho sensitivity at rho=-1 is infinity
+    testVolatilityModelAdjoint(FORWARD, CALL_ATM.withStrike(strike), DATA.withRho(-1 + 1e-3), eps, 1e-4);
+    testVolatilityModelAdjoint(FORWARD, CALL_ATM.withStrike(strike), data, 1e-6, 1.5);
+  }
+
+  @Test
+  public void testVolatilityModelAdjointRhoP1() {
+    final double eps = 1e-5;
+    final double tol = 1e-6;
+    SABRFormulaData data = DATA.withRho(1.0);
+    testVolatilityModelAdjoint(FORWARD, CALL_ATM, data, eps, tol); //z=0 case
+    double z = 0.975;
+    double strike = strikeForZ(z, FORWARD, ALPHA, BETA, NU);
+    testVolatilityModelAdjoint(FORWARD, CALL_ATM.withStrike(strike), data, eps, 1e-2);
+    z = -2.0;
+    strike = strikeForZ(z, FORWARD, ALPHA, BETA, NU);
+    testVolatilityModelAdjoint(FORWARD, CALL_ATM.withStrike(strike), data, eps, 50 * tol);
+    z = 2.0;
+    strike = strikeForZ(z, FORWARD, ALPHA, BETA, NU);
+    //The true rho sensitivity at rho= 1 is -infinity
+    testVolatilityModelAdjoint(FORWARD, CALL_ATM.withStrike(strike), DATA.withRho(1 - 1e-3), eps, 5e-5);
+    testVolatilityModelAdjoint(FORWARD, CALL_ATM.withStrike(strike), data, 1e-6, 1.0);
+  }
+
+  @Test
+  public void testVolatilityModelAdjointBeta0() {
+    final double eps = 1e-5;
+    final double tol = 1e-6;
+    SABRFormulaData data = DATA.withBeta(0);
+    testVolatilityModelAdjoint(FORWARD, CALL_ATM, data, eps, tol);
+    testVolatilityModelAdjoint(FORWARD, CALL_ITM, data, eps, tol);
+    testVolatilityModelAdjoint(FORWARD, CALL_OTM, data, eps, tol);
+  }
+
+  @Test
+  public void testVolatilityModelAdjointBeta1() {
+    final double eps = 1e-5;
+    final double tol = 1e-6;
+    SABRFormulaData data = DATA.withBeta(1);
+    testVolatilityModelAdjoint(FORWARD, CALL_ATM, data, eps, tol);
+    testVolatilityModelAdjoint(FORWARD, CALL_ITM, data, eps, tol);
+    testVolatilityModelAdjoint(FORWARD, CALL_OTM, data, eps, tol);
+  }
+
+  @Test
+  public void testVolatilityModelAdjointNu0() {
+    final double eps = 1e-6;
+    final double tol = 1e-6;
+    SABRFormulaData data = DATA.withNu(0);
+    testVolatilityModelAdjoint(FORWARD, CALL_ATM, data, eps, tol);
+    testVolatilityModelAdjoint(FORWARD, CALL_ITM, data, eps, tol);
+    testVolatilityModelAdjoint(FORWARD, CALL_OTM, data, eps, tol);
+  }
+
+  @Test
+  public void testVolatilityModelAdjoinAlpha0() {
+
+    final double eps = 1e-10;
+    final double tol = 1e-2;
+
+    double z = getZ(FORWARD, CALL_ITM.getStrike(), ALPHA, BETA, NU);
+    double alpha = z / 2e8;
+    SABRFormulaData data = DATA.withAlpha(alpha);
+    testVolatilityModelAdjoint(FORWARD, CALL_ITM, data, eps, tol);
+
+    z = getZ(FORWARD, CALL_OTM.getStrike(), ALPHA, BETA, NU);
+    alpha = -z / 2e6;
+    data = DATA.withAlpha(alpha);
+    testVolatilityModelAdjoint(FORWARD, CALL_ITM, data, eps, tol);
+
+  }
+
+  /**
+   *Test the beta = 0.0, rho = 1 edge case
+   */
+  @Test
+  public void testVolatilityModelAdjointBeta0Rho1() {
+    final double eps = 1e-4;
+    final double tol = 1e-5;
+    SABRFormulaData data = DATA.withRho(1.0).withBeta(0.0).withNu(20.0);
+    testVolatilityModelAdjoint(FORWARD, CALL_ATM, data, eps, tol);
+    // testVolatilityModelAdjoint(FORWARD, CALL_ITM, data, eps, tol);
+    testVolatilityModelAdjoint(FORWARD, CALL_OTM, data, eps, tol);
+  }
+
+  private double getZ(final double forward, final double strike, final double alpha, final double beta, final double nu) {
+    return nu / alpha * Math.pow(forward * strike, (1 - beta) / 2) * Math.log(forward / strike);
+  }
+
+  private double strikeForZ(final double z, final double forward, final double alpha, final double beta, final double nu) {
+    if (z == 0) {
+      return forward;
+    }
+    if (beta == 1) {
+      return forward * Math.exp(-alpha * z / nu);
+    }
+
+    final BracketRoot bracketer = new BracketRoot();
+    final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(1e-5);
+
+    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double strike) {
+        return getZ(forward, strike, alpha, beta, nu) - z;
+      }
+    };
+
+    final double k = forward * Math.exp(-alpha * z / nu * Math.pow(forward, beta - 1));
+    double l, h;
+    if (z > 0) {
+      h = k;
+      l = h / 2;
+    } else {
+      l = k;
+      h = 2 * l;
+    }
+
+    double[] brackets = bracketer.getBracketedPoints(func, l, h, forward / 20, 20 * forward);
+    return rootFinder.getRoot(func, brackets[0], brackets[1]);
+  }
+
   private void testVolatilityAdjoint(final double forward, final EuropeanVanillaOption optionData, final SABRFormulaData sabrData, final double eps, final double tol) {
     double volatility = FUNCTION.getVolatilityFunction(optionData, forward).evaluate(sabrData);
     double[] volatilityAdjoint = FUNCTION.getVolatilityAdjoint(optionData, forward, sabrData);
@@ -226,6 +373,16 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
     assertEqualsRelTol("Beta Sensitivity" + sabrData.toString(), fdSensitivity(optionData, forward, sabrData, SABRParameter.Beta, eps), volatilityAdjoint[4], tol);
     assertEqualsRelTol("Rho Sensitivity" + sabrData.toString(), fdSensitivity(optionData, forward, sabrData, SABRParameter.Rho, eps), volatilityAdjoint[5], tol);
     assertEqualsRelTol("Nu Sensitivity" + sabrData.toString(), fdSensitivity(optionData, forward, sabrData, SABRParameter.Nu, eps), volatilityAdjoint[6], tol);
+  }
+
+  private void testVolatilityModelAdjoint(final double forward, final EuropeanVanillaOption optionData, final SABRFormulaData sabrData, final double eps, final double tol) {
+    //    double volatility = FUNCTION.getVolatilityFunction(optionData, forward).evaluate(sabrData);
+    double[] volatilityAdjoint = FUNCTION.getVolatilityModelAdjoint(optionData, forward, sabrData);
+
+    assertEqualsRelTol("Alpha Sensitivity" + sabrData.toString(), fdSensitivity(optionData, forward, sabrData, SABRParameter.Alpha, eps), volatilityAdjoint[0], tol);
+    assertEqualsRelTol("Beta Sensitivity" + sabrData.toString(), fdSensitivity(optionData, forward, sabrData, SABRParameter.Beta, eps), volatilityAdjoint[1], tol);
+    assertEqualsRelTol("Rho Sensitivity" + sabrData.toString(), fdSensitivity(optionData, forward, sabrData, SABRParameter.Rho, eps), volatilityAdjoint[2], tol);
+    assertEqualsRelTol("Nu Sensitivity" + sabrData.toString(), fdSensitivity(optionData, forward, sabrData, SABRParameter.Nu, eps), volatilityAdjoint[3], tol);
   }
 
   private void assertEqualsRelTol(final String msg, final double exp, final double act, final double tol) {
@@ -271,7 +428,7 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
     assertEquals("SABR adjoint order 2: strike-forward", volD2[0][1], volD2[1][0], 1E-6);
   }
 
-  //TODO write a fuzzer that hits SABR with random parameters 
+  //TODO write a fuzzer that hits SABR with random parameters
   @Test
   public void testRandomParameters() {
     final double eps = 1e-5;

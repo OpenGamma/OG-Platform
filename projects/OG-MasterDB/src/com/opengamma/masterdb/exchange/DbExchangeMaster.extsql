@@ -1,0 +1,280 @@
+-- SQL for exchange master
+
+-- ==========================================================================
+@NAME(GetById)
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.detail AS detail
+  FROM
+    exg_exchange main
+  WHERE main.id = :doc_id
+    AND main.oid = :doc_oid
+
+
+-- ==========================================================================
+@NAME(GetByOidInstants)
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.detail AS detail
+  FROM
+    exg_exchange main
+  WHERE main.oid = :doc_oid
+    AND main.ver_from_instant <= :version_as_of AND main.ver_to_instant > :version_as_of
+    AND main.corr_from_instant <= :corrected_to AND main.corr_to_instant > :corrected_to
+
+
+-- ==========================================================================
+@NAME(Search)
+  WITH cte_docs AS ( @INSERT(SearchInner) )
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.detail AS detail
+  FROM
+    exg_exchange main
+    INNER JOIN cte_docs ON main.id = cte_docs.id
+  ORDER BY
+    main.@INSERT(:sort_order)
+
+
+-- ==========================================================================
+@NAME(SearchInner)
+  SELECT
+    id
+  FROM
+    exg_exchange
+  @INSERT(SearchWhere)
+  ORDER BY
+    @INSERT(:sort_order)
+  @OFFSETFETCH
+
+
+-- ==========================================================================
+@NAME(SearchCount)
+  SELECT
+    COUNT(id)
+  FROM
+    exg_exchange
+  @INSERT(SearchWhere)
+
+
+-- ==========================================================================
+@NAME(SearchWhere)
+  WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
+    AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
+    @AND(:name)
+      UPPER(name) @LIKE UPPER(:name)
+    @AND(:sql_search_object_ids)
+      oid IN ( @INSERT(:sql_search_object_ids) )
+    @AND(:sql_search_external_ids_type = EXACT)
+      id IN ( @INSERT(SelectKeyValuesExact) )
+    @AND(:sql_search_external_ids_type = ALL)
+      id IN ( @INSERT(SelectKeyValuesAll) )
+    @AND(:sql_search_external_ids_type = ANY)
+      id IN ( @INSERT(SelectKeyValuesAny) )
+    @AND(:sql_search_external_ids_type = NONE)
+      id NOT IN ( @INSERT(SelectKeyValuesAny) )
+
+
+-- ==========================================================================
+@NAME(SelectKeyValuesExact)
+  SELECT
+    matched_doc_id AS doc_id
+  FROM
+    (
+      SELECT
+        exchange_id AS matched_doc_id,
+        COUNT(exchange_id) AS matched_count
+      FROM
+        exg_exchange2idkey,
+        exg_exchange
+      WHERE exg_exchange2idkey.exchange_id = exg_exchange.id
+        AND exg_exchange.ver_from_instant <= :version_as_of_instant AND exg_exchange.ver_to_instant > :version_as_of_instant
+        AND exg_exchange.corr_from_instant <= :corrected_to_instant AND exg_exchange.corr_to_instant > :corrected_to_instant
+        AND idkey_id IN ( @INSERT(SelectKeyValuesOr) )
+      GROUP BY
+        exchange_id
+      HAVING
+        COUNT(exchange_id) >= :id_search_size
+    ) AS a, (
+      SELECT
+        exchange_id AS total_doc_id,
+        COUNT(exchange_id) AS total_count
+      FROM
+        exg_exchange2idkey,
+        exg_exchange
+      WHERE exg_exchange2idkey.exchange_id = exg_exchange.id
+        AND exg_exchange.ver_from_instant <= :version_as_of_instant AND exg_exchange.ver_to_instant > :version_as_of_instant
+        AND exg_exchange.corr_from_instant <= :corrected_to_instant AND exg_exchange.corr_to_instant > :corrected_to_instant
+      GROUP BY
+        exchange_id
+    ) AS b
+  WHERE matched_doc_id = total_doc_id
+    AND matched_count = total_count
+
+
+-- ==========================================================================
+@NAME(SelectKeyValuesAll)
+  SELECT
+    exchange_id
+  FROM
+    exg_exchange2idkey,
+    exg_exchange
+  WHERE exg_exchange2idkey.exchange_id = exg_exchange.id
+    AND exg_exchange.ver_from_instant <= :version_as_of_instant AND exg_exchange.ver_to_instant > :version_as_of_instant
+    AND exg_exchange.corr_from_instant <= :corrected_to_instant AND exg_exchange.corr_to_instant > :corrected_to_instant
+    AND idkey_id IN ( @INSERT(SelectKeyValuesOr) )
+    GROUP BY
+      exchange_id
+    HAVING
+      COUNT(exchange_id) >= :id_search_size
+
+
+-- ==========================================================================
+@NAME(SelectKeyValuesAny)
+  SELECT
+    DISTINCT exchange_id
+  FROM
+    exg_exchange2idkey,
+    exg_exchange
+  WHERE exg_exchange2idkey.exchange_id = exg_exchange.id
+    AND exg_exchange.ver_from_instant <= :version_as_of_instant AND exg_exchange.ver_to_instant > :version_as_of_instant
+    AND exg_exchange.corr_from_instant <= :corrected_to_instant AND exg_exchange.corr_to_instant > :corrected_to_instant
+    AND idkey_id IN ( @INSERT(SelectKeyValuesOr) )
+
+
+-- ==========================================================================
+@NAME(SelectKeyValuesOr)
+  SELECT
+    id
+  FROM
+    exg_idkey
+  WHERE
+    @INSERT(:sql_search_external_ids)
+
+
+-- ==========================================================================
+@NAME(History)
+  WITH cte_docs AS ( @INSERT(HistoryInner) )
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.detail AS detail
+  FROM
+    exg_exchange main
+    INNER JOIN cte_docs ON main.id = cte_docs.id
+  ORDER BY
+    main.ver_from_instant DESC,
+    main.corr_from_instant DESC
+
+
+-- ==========================================================================
+@NAME(HistoryInner)
+  SELECT
+    id
+  FROM
+    exg_exchange
+  @INSERT(HistoryWhere)
+  ORDER BY
+    ver_from_instant DESC,
+    corr_from_instant DESC
+  @OFFSETFETCH
+
+
+-- ==========================================================================
+@NAME(HistoryCount)
+  SELECT
+    COUNT(id)
+  FROM
+    exg_exchange 
+  @INSERT(HistoryWhere)
+
+
+-- ==========================================================================
+@NAME(HistoryWhere)
+  WHERE oid = :doc_oid
+    @IF(:sql_history_versions = Point)
+      AND ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant
+    @IF(:sql_history_versions = Range)
+      @AND(:versions_from_instant)
+        ((ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant) OR ver_from_instant >= :versions_from_instant)
+      @AND(:versions_to_instant)
+        ((ver_from_instant <= :versions_to_instant AND ver_to_instant > :versions_to_instant) OR ver_to_instant < :versions_to_instant)
+    @IF(:sql_history_corrections = Point)
+      AND corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant
+    @IF(:sql_history_corrections = Range)
+      @AND(:corrections_from_instant)
+        ((corr_from_instant <= :corrections_from_instant AND corr_to_instant > :corrections_from_instant) OR corr_from_instant >= :corrections_from_instant)
+      @AND(:corrections_to_instant)
+        ((corr_from_instant <= :corrections_to_instant AND corr_to_instant > :corrections_to_instant) OR corr_to_instant < :corrections_to_instant)
+
+
+-- ==========================================================================
+@NAME(Insert)
+  INSERT INTO exg_exchange
+    (id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, time_zone, detail)
+  VALUES
+    (:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, :time_zone, :detail)
+
+
+-- ==========================================================================
+@NAME(InsertDoc2IdKey)
+  INSERT INTO exg_exchange2idkey
+    (exchange_id, idkey_id)
+  VALUES
+    (:doc_id, ( @INSERT(SelectIdKey) ))
+
+
+-- ==========================================================================
+@NAME(SelectIdKey)
+  SELECT
+    id
+  FROM
+    exg_idkey
+  WHERE key_scheme = :key_scheme
+    AND key_value = :key_value
+
+
+-- ==========================================================================
+@NAME(InsertIdKey)
+  INSERT INTO exg_idkey
+    (id, key_scheme, key_value)
+  VALUES
+    (:idkey_id, :key_scheme, :key_value)
+
+
+-- ==========================================================================
+@NAME(UpdateVersionToInstant)
+  UPDATE exg_exchange
+  SET ver_to_instant = :ver_to_instant
+  WHERE id = :doc_id
+    AND ver_to_instant >= :max_instant
+
+
+-- ==========================================================================
+@NAME(UpdateCorrectionToInstant)
+  UPDATE exg_exchange
+  SET corr_to_instant = :corr_to_instant
+  WHERE id = :doc_id
+    AND corr_to_instant >= :max_instant
+
+
+-- ==========================================================================

@@ -29,8 +29,9 @@ import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.CompareUtils;
 
 /**
- * 
+ * @deprecated Please use SVIModelFitter
  */
+@Deprecated
 public class SVINonLinearLeastSquareFitter extends LeastSquareSmileFitter {
   private static final int N_PARAMETERS = 5;
   private static final ParameterLimitsTransform[] TRANSFORMS;

@@ -172,6 +172,7 @@
   <bundle id="api.js">
     <fragment>/scripts/og/common/og.common.core.js</fragment>
     <fragment>/scripts/og/og.dev.js</fragment>
+    <fragment>/scripts/og/og.app.js</fragment>
     <fragment>/scripts/og/api/og.api.common.js</fragment>
     <fragment>/scripts/og/views/og.views.common.layout.js</fragment>
     <fragment>/scripts/og/common/og.common.routes.js</fragment>

@@ -29,7 +29,7 @@ import com.opengamma.id.UniqueIdSupplier;
  * An aggregator of portfolios.
  */
 public class PortfolioAggregator {
-  @SuppressWarnings("unused")
+  
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioAggregator.class);
 
   private static final UniqueIdSupplier s_syntheticIdentifiers = new UniqueIdSupplier("PortfolioAggregator");

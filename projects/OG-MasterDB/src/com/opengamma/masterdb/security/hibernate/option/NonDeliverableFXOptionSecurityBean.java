@@ -57,7 +57,7 @@ public class NonDeliverableFXOptionSecurityBean extends SecurityBean {
   private OptionExerciseType _optionExerciseType;
   
   @PropertyDefinition
-  private CurrencyBean _deliveryCurrency;
+  private Boolean _isDeliveryInCallCurrency;
 
   public NonDeliverableFXOptionSecurityBean() {
     super();
@@ -80,7 +80,7 @@ public class NonDeliverableFXOptionSecurityBean extends SecurityBean {
       .append(getPutAmount(), option.getPutAmount())
       .append(getSettlementDate(), option.getSettlementDate())
       .append(getIsLong(), option.getIsLong())
-      .append(getDeliveryCurrency(), option.getDeliveryCurrency())
+      .append(getIsDeliveryInCallCurrency(), option.getIsDeliveryInCallCurrency())
       .isEquals();
   }
 
@@ -95,7 +95,7 @@ public class NonDeliverableFXOptionSecurityBean extends SecurityBean {
       .append(getPutAmount())
       .append(getCallAmount())
       .append(getIsLong())
-      .append(getDeliveryCurrency())
+      .append(getIsDeliveryInCallCurrency())
       .toHashCode();
   }
 
@@ -142,8 +142,8 @@ public class NonDeliverableFXOptionSecurityBean extends SecurityBean {
         return getIsLong();
       case -266326457:  // optionExerciseType
         return getOptionExerciseType();
-      case -81118171:  // deliveryCurrency
-        return getDeliveryCurrency();
+      case -426676942:  // isDeliveryInCallCurrency
+        return getIsDeliveryInCallCurrency();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -175,8 +175,8 @@ public class NonDeliverableFXOptionSecurityBean extends SecurityBean {
       case -266326457:  // optionExerciseType
         setOptionExerciseType((OptionExerciseType) newValue);
         return;
-      case -81118171:  // deliveryCurrency
-        setDeliveryCurrency((CurrencyBean) newValue);
+      case -426676942:  // isDeliveryInCallCurrency
+        setIsDeliveryInCallCurrency((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -384,27 +384,27 @@ public class NonDeliverableFXOptionSecurityBean extends SecurityBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the deliveryCurrency.
+   * Gets the isDeliveryInCallCurrency.
    * @return the value of the property
    */
-  public CurrencyBean getDeliveryCurrency() {
-    return _deliveryCurrency;
+  public Boolean getIsDeliveryInCallCurrency() {
+    return _isDeliveryInCallCurrency;
   }
 
   /**
-   * Sets the deliveryCurrency.
-   * @param deliveryCurrency  the new value of the property
+   * Sets the isDeliveryInCallCurrency.
+   * @param isDeliveryInCallCurrency  the new value of the property
    */
-  public void setDeliveryCurrency(CurrencyBean deliveryCurrency) {
-    this._deliveryCurrency = deliveryCurrency;
+  public void setIsDeliveryInCallCurrency(Boolean isDeliveryInCallCurrency) {
+    this._isDeliveryInCallCurrency = isDeliveryInCallCurrency;
   }
 
   /**
-   * Gets the the {@code deliveryCurrency} property.
+   * Gets the the {@code isDeliveryInCallCurrency} property.
    * @return the property, not null
    */
-  public final Property<CurrencyBean> deliveryCurrency() {
-    return metaBean().deliveryCurrency().createProperty(this);
+  public final Property<Boolean> isDeliveryInCallCurrency() {
+    return metaBean().isDeliveryInCallCurrency().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -458,10 +458,10 @@ public class NonDeliverableFXOptionSecurityBean extends SecurityBean {
     private final MetaProperty<OptionExerciseType> _optionExerciseType = DirectMetaProperty.ofReadWrite(
         this, "optionExerciseType", NonDeliverableFXOptionSecurityBean.class, OptionExerciseType.class);
     /**
-     * The meta-property for the {@code deliveryCurrency} property.
+     * The meta-property for the {@code isDeliveryInCallCurrency} property.
      */
-    private final MetaProperty<CurrencyBean> _deliveryCurrency = DirectMetaProperty.ofReadWrite(
-        this, "deliveryCurrency", NonDeliverableFXOptionSecurityBean.class, CurrencyBean.class);
+    private final MetaProperty<Boolean> _isDeliveryInCallCurrency = DirectMetaProperty.ofReadWrite(
+        this, "isDeliveryInCallCurrency", NonDeliverableFXOptionSecurityBean.class, Boolean.class);
     /**
      * The meta-properties.
      */
@@ -475,7 +475,7 @@ public class NonDeliverableFXOptionSecurityBean extends SecurityBean {
         "settlementDate",
         "isLong",
         "optionExerciseType",
-        "deliveryCurrency");
+        "isDeliveryInCallCurrency");
 
     /**
      * Restricted constructor.
@@ -502,8 +502,8 @@ public class NonDeliverableFXOptionSecurityBean extends SecurityBean {
           return _isLong;
         case -266326457:  // optionExerciseType
           return _optionExerciseType;
-        case -81118171:  // deliveryCurrency
-          return _deliveryCurrency;
+        case -426676942:  // isDeliveryInCallCurrency
+          return _isDeliveryInCallCurrency;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -589,11 +589,11 @@ public class NonDeliverableFXOptionSecurityBean extends SecurityBean {
     }
 
     /**
-     * The meta-property for the {@code deliveryCurrency} property.
+     * The meta-property for the {@code isDeliveryInCallCurrency} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<CurrencyBean> deliveryCurrency() {
-      return _deliveryCurrency;
+    public final MetaProperty<Boolean> isDeliveryInCallCurrency() {
+      return _isDeliveryInCallCurrency;
     }
 
   }

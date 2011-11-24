@@ -23,6 +23,7 @@ import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
+import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -106,6 +107,11 @@ public class StocksPutsCallsAggregationFunction implements AggregationFunction<S
   
         @Override
         public String visitEquityOptionSecurity(EquityOptionSecurity security) {
+          return security.getOptionType() == OptionType.CALL ? CALLS : PUTS;
+        }
+        
+        @Override
+        public String visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
           return security.getOptionType() == OptionType.CALL ? CALLS : PUTS;
         }
   

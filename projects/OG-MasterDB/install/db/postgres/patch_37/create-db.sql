@@ -362,12 +362,11 @@ CREATE TABLE sec_nondeliverablefxoption (
     settlement_date timestamp without time zone NOT NULL,
     settlement_zone varchar(50) NOT NULL,
     is_long boolean NOT NULL,
-	delivery_currency_id bigint NOT NULL,
+	is_delivery_in_call_currency boolean NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT sec_fk_nondeliverablefxoption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
     CONSTRAINT sec_fk_nondeliverablefxoption2putcurrency FOREIGN KEY (put_currency_id) REFERENCES sec_currency (id),
-    CONSTRAINT sec_fk_nondeliverablefxoption2callcurrency FOREIGN KEY (call_currency_id) REFERENCES sec_currency (id),
-	CONSTRAINT sec_fk_nondeliverablefxoption2deliverycurrency FOREIGN KEY (delivery_currency_id) REFERENCES sec_currency (id)
+    CONSTRAINT sec_fk_nondeliverablefxoption2callcurrency FOREIGN KEY (call_currency_id) REFERENCES sec_currency (id)
 );
 CREATE INDEX ix_sec_nondeliverablefxoption_security_id ON sec_nondeliverablefxoption(security_id);
 

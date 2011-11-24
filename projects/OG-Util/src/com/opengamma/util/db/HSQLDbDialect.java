@@ -12,6 +12,8 @@ import org.hibernate.dialect.HSQLDialect;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 
+import com.opengamma.extsql.ExtSqlConfig;
+
 /**
  * Database dialect for HSQL databases.
  * <p>
@@ -39,6 +41,11 @@ public class HSQLDbDialect extends DbDialect {
   @Override
   protected Dialect createHibernateDialect() {
     return new HSQLDialect();
+  }
+
+  @Override
+  protected ExtSqlConfig createExtSqlConfig() {
+    return ExtSqlConfig.HSQL;
   }
 
   //-------------------------------------------------------------------------

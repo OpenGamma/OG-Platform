@@ -50,7 +50,7 @@ public class HestonVolatilityFunctionTest {
       EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKES[i], TIME, false);
       VOL_FUNC_LIST.add(VOL_FUNC_PROVIDER.getVolatilityFunction(option, FORWARD));
     }
-    VOL_FUNC_SET = VOL_FUNC_PROVIDER.getVolatilitySetFunction(FORWARD, STRIKES, TIME);
+    VOL_FUNC_SET = VOL_FUNC_PROVIDER.getVolatilityFunction(FORWARD, STRIKES, TIME);
   }
 
   @Test
@@ -65,8 +65,8 @@ public class HestonVolatilityFunctionTest {
   @Test
   public void tesVolFunctionAdjoint() {
     final int n = STRIKES.length;
-    Function1D<HestonModelData, double[][]> adjointSetFunc = VOL_FUNC_PROVIDER.getVolatilityAdjointSetFunction(FORWARD, STRIKES, TIME);
-    Function1D<HestonModelData, double[][]> adjointSetFuncFD = VOL_FUNC_PROVIDER_FD.getVolatilityAdjointSetFunction(FORWARD, STRIKES, TIME);
+    Function1D<HestonModelData, double[][]> adjointSetFunc = VOL_FUNC_PROVIDER.getVolatilityAdjointFunction(FORWARD, STRIKES, TIME);
+    Function1D<HestonModelData, double[][]> adjointSetFuncFD = VOL_FUNC_PROVIDER_FD.getVolatilityAdjointFunction(FORWARD, STRIKES, TIME);
 
     double[][] adjointSet = adjointSetFunc.evaluate(DATA);
     double[][] adjointSetFD = adjointSetFuncFD.evaluate(DATA);

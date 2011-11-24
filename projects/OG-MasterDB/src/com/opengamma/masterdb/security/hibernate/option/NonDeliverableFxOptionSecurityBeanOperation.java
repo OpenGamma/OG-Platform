@@ -46,7 +46,7 @@ public final class NonDeliverableFxOptionSecurityBeanOperation extends AbstractS
     bean.setSettlementDate(Converters.dateTimeWithZoneToZonedDateTimeBean(security.getSettlementDate()));
     bean.setIsLong(security.isLong());
     bean.setOptionExerciseType(OptionExerciseType.identify(security.getExerciseType()));
-    bean.setDeliveryCurrency(secMasterSession.getOrCreateCurrencyBean(security.getDeliveryCurrency().getCode()));
+    bean.setIsDeliveryInCallCurrency(security.isDeliveryInCallCurrency());
     return bean;
   }
 
@@ -57,9 +57,9 @@ public final class NonDeliverableFxOptionSecurityBeanOperation extends AbstractS
     Currency callCurrency = currencyBeanToCurrency(bean.getCallCurrency());
     Expiry expiry = expiryBeanToExpiry(bean.getExpiry());
     ZonedDateTime settlementDate = Converters.zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate());
-    Currency deliveryCurrency = currencyBeanToCurrency(bean.getDeliveryCurrency());
+    boolean isDeliveryInCallCurrency = bean.getIsDeliveryInCallCurrency();
     NonDeliverableFXOptionSecurity sec = 
-      new NonDeliverableFXOptionSecurity(putCurrency, callCurrency, bean.getPutAmount(), bean.getCallAmount(), expiry, settlementDate, bean.getIsLong(), exerciseType, deliveryCurrency);
+      new NonDeliverableFXOptionSecurity(putCurrency, callCurrency, bean.getPutAmount(), bean.getCallAmount(), expiry, settlementDate, bean.getIsLong(), exerciseType, isDeliveryInCallCurrency);
     return sec;
   }
 

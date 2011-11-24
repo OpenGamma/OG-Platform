@@ -9,6 +9,10 @@ import java.util.BitSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import cern.jet.random.engine.MersenneTwister;
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.financial.model.volatility.smile.function.SVIFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SVIVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
@@ -25,6 +29,7 @@ public class SVIModelFitterTest extends SmileModelFitterTest<SVIFormulaData> {
   private static double RHO = -0.5;
   private static double NU = 0.3;
   private static double M = 0.2;
+  private static RandomEngine RANDOM = new MersenneTwister();
 
   public SVIModelFitterTest() {
     _chiSqEps = 1e-4;
@@ -63,6 +68,16 @@ public class SVIModelFitterTest extends SmileModelFitterTest<SVIFormulaData> {
   @Override
   Logger getlogger() {
     return LOGGER;
+  }
+
+  @Override
+  double[] getRandomStartValues() {
+    final double a = 0.5 * RANDOM.nextDouble();
+    final double b = 0.5 * RANDOM.nextDouble();
+    final double rho = 2 * RANDOM.nextDouble() - 1;
+    final double nu = 0.5 * RANDOM.nextDouble();
+    final double m = 0.5 * RANDOM.nextDouble() - 0.25;
+    return new double[] {a, b, rho, nu, m };
   }
 
 }
