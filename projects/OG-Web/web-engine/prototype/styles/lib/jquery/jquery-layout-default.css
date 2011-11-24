@@ -219,8 +219,8 @@
 }
 .ui-layout-inner-center .ui-layout-header header .OG-toolbar {
   position: absolute;
-  top: 0;
-  right: 0;
+  bottom: -15px;
+  left: 20px;
 }
 
 .ui-layout-inner-south-south .ui-layout-header {

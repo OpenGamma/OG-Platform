@@ -90,9 +90,9 @@ $.register_module({
                 {type: 'form:load', handler: function () {
                     var header = '\
                         <header class="OG-header-generic">\
-                          <div class="OG-toolbar"></div>\
+                          <div class="OG-tools"></div>\
                           <h1 class="og-js-name">' + orig_name + '</h1>\
-                          <br />(Curve Specification Builder Configuration)\
+                          (Curve Specification Builder Configuration)\
                         </header>',
                         section_width = $(form_id + ' .og-js-cell:first').outerWidth() * (field_names.length + 1);
                     section_width += 40; // padding + awesome list delete icon

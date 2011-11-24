@@ -128,9 +128,9 @@ $.register_module({
                 {type: 'form:load', handler: function () {
                     var header = '\
                         <header class="OG-header-generic">\
-                          <div class="OG-toolbar"></div>\
+                          <div class="OG-tools"></div>\
                           <h1 class="og-js-name">' + master.name + '</h1>\
-                          <br />(View Definition)\
+                          (View Definition)\
                         </header>\
                     ';
                     $('.ui-layout-inner-center .ui-layout-header').html(header);
