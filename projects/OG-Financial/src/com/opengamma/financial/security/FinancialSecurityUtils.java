@@ -28,6 +28,7 @@ import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
+import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -182,6 +183,11 @@ public class FinancialSecurityUtils {
         }
 
         @Override
+        public ExternalId visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
+          return security.getRegionId();
+        }
+        
+        @Override
         public ExternalId visitCapFloorSecurity(final CapFloorSecurity security) {
           return null;
         }
@@ -290,6 +296,11 @@ public class FinancialSecurityUtils {
           return security.getRegionId();
         }
 
+        @Override
+        public ExternalId visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
+          return security.getRegionId();
+        }
+        
         @Override
         public ExternalId visitCapFloorSecurity(final CapFloorSecurity security) {
           return null;
@@ -406,6 +417,11 @@ public class FinancialSecurityUtils {
           throw new UnsupportedOperationException("FX forward securities do not have a currency");
         }
 
+        @Override
+        public Currency visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
+          throw new UnsupportedOperationException("Non-deliverable FX forward securities do not have a currency");
+        }
+        
         @Override
         public Currency visitCapFloorSecurity(final CapFloorSecurity security) {
           return security.getCurrency();
@@ -544,6 +560,11 @@ public class FinancialSecurityUtils {
         }
 
         @Override
+        public Collection<Currency> visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
+          return visitFXSecurity((FXSecurity) securitySource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId())));
+        }
+        
+        @Override
         public Collection<Currency> visitCapFloorSecurity(final CapFloorSecurity security) {
           return Collections.singletonList(security.getCurrency());
         }
@@ -655,6 +676,11 @@ public class FinancialSecurityUtils {
           return null;
         }
 
+        @Override
+        public Boolean visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
+          throw new NotImplementedException();
+        }
+        
         @Override
         public Boolean visitCapFloorSecurity(CapFloorSecurity security) {
           return null;
