@@ -5,30 +5,17 @@
  */
 package com.opengamma.masterdb.batch;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.view.calc.ResultWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFilter;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.cache.ViewComputationCache;
+import com.opengamma.engine.view.calc.ResultWriter;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.InvocationResult;
@@ -37,6 +24,18 @@ import com.opengamma.financial.conversion.ResultConverter;
 import com.opengamma.financial.conversion.ResultConverterCache;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This writer is used to write risk that originates from a command line batch job. 
@@ -47,62 +46,66 @@ import com.opengamma.util.db.DbConnector;
  * <p>
  * Because of this, clients of this writer MUST collect
  * all results pertaining to a single computation target together and then call 
- * {@link com.opengamma.engine.view.calc.ResultWriter#write(CalculationJobResult, DependencyGraph)}
+ * {@link com.opengamma.engine.view.calc.ResultWriter#write(com.opengamma.engine.view.calcnode.CalculationJobResult, com.opengamma.engine.depgraph.DependencyGraph)}
  * with the entire set of results for that computation target.
  * <p>
  * A call to
- * {@link com.opengamma.engine.view.calc.ResultWriter#write(CalculationJobResult, DependencyGraph)}
+ * {@link com.opengamma.engine.view.calc.ResultWriter#write(com.opengamma.engine.view.calcnode.CalculationJobResult, com.opengamma.engine.depgraph.DependencyGraph)}
  * can include results for multiple computation targets, as long as it
  * is still true that results for the <i>same</i> target are not scattered across
- * multiple calls. 
+ * multiple calls.
  * <p>
- * {@link DbBatchMaster#createDependencyGraphExecutorFactory(com.opengamma.financial.batch.BatchJobRun)} 
+ * {@link com.opengamma.masterdb.batch.DbBatchMaster#createDependencyGraphExecutorFactory(com.opengamma.financial.batch.BatchJobRun)}
  * shows how to guarantee this in practice by using {@link com.opengamma.engine.view.calc.BatchExecutor}.
- *  
+ *
  */
-public class CommandLineBatchResultWriter extends AbstractBatchResultWriter implements ResultWriter {
-  
-  private static final Logger s_logger = LoggerFactory.getLogger(CommandLineBatchResultWriter.class);
-  
+public class BatchResultWriter extends AbstractBatchResultWriter implements ResultWriter {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(BatchResultWriter.class);
+
   /**
    * Used to decide what risk to write into DB
    */
   private final ResultModelDefinition _resultModelDefinition;
-  
+
   /**
    * Caches
    */
   private final Map<String, ViewComputationCache> _cachesByCalculationConfiguration;
-  
+
   /**
    * Used to determine whether it's worth checking the status
    * table for already-executed entries. If this is the first
-   * time we're running the batch, there won't be anything in 
+   * time we're running the batch, there won't be anything in
    * the status table, so it's not necessary to make queries
    * against it.
    */
   private volatile boolean _isRestart;
-  
+
   /**
    * It is possible to disable writing errors into
-   * 
-   * rsk_compute_failure  
-   * rsk_failure 
+   *
+   * rsk_compute_failure
+   * rsk_failure
    * rsk_failure_reason
-   * 
+   *
    * by setting this to false.
-   * 
+   *
    */
   private final boolean _writeErrors = true;
-  
-  public CommandLineBatchResultWriter(DbConnector dbConnector,
-      ResultModelDefinition resultModelDefinition,
-      Map<String, ViewComputationCache> cachesByCalculationConfiguration,
-      Set<ComputationTarget> computationTargets,
-      RiskRun riskRun,
-      Set<RiskValueName> valueNames,
-      Set<RiskValueRequirement> valueRequirements,
-      Set<RiskValueSpecification> valueSpecifications) {
+
+  public BatchResultWriter(DbConnector dbConnector, String calculationConfigurationName, Map<ValueSpecification, Set<ValueRequirement>> terminalOutputs, Set<com.opengamma.engine.ComputationTarget> allComputationTargets) {
+    super(dbConnector, calculationConfigurationName, terminalOutputs, allComputationTargets);
+  }
+
+  public BatchResultWriter(DbConnector dbConnector,
+                           ResultModelDefinition resultModelDefinition,
+                           Map<String, ViewComputationCache> cachesByCalculationConfiguration,
+                           Set<ComputationTarget> computationTargets,
+                           RiskRun riskRun,
+                           Set<RiskValueName> valueNames,
+                           Set<RiskValueRequirement> valueRequirements,
+                           Set<RiskValueSpecification> valueSpecifications) {
     this(dbConnector,
         resultModelDefinition,
         cachesByCalculationConfiguration,
@@ -113,8 +116,8 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
         valueSpecifications,
         new ResultConverterCache());
   }
-  
-  public CommandLineBatchResultWriter(
+
+  public BatchResultWriter(
       DbConnector dbConnector,
       ResultModelDefinition resultModelDefinition,
       Map<String, ViewComputationCache> cachesByCalculationConfiguration,
@@ -135,7 +138,9 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
     
     setRestart(riskRun.isRestart());
   }
-  
+
+
+
   public boolean isWriteErrors() {
     return _writeErrors;
   }

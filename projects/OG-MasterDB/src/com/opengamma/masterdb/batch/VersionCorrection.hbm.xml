@@ -4,23 +4,23 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.masterdb.batch">
 
-  <class name="ObservationDateTime" table="rsk_observation_datetime" dynamic-update="true">
+  <class name="VersionCorrection" table="rsk_version_correction">
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
       	<param name="optimizer">hilo</param>
       	<param name="increment_size">100</param>
       </generator>
     </id>
-    <property name="date" column="date_part" not-null="true"/>
-    <property name="time" column="time_part"/>
-    <many-to-one name="observationTime" 
-        column="observation_time_id" 
-        not-null="true"/>
+
+    <property name="asOf" column="as_of" not-null="true"/>
+    <property name="correctedTo" column="corrected_to" not-null="true"/>
+
   </class>
   
-  <query name="ObservationDateTime.one.byDateAndTime">
-  	from ObservationDateTime as a where 
-  	a.date = :date and
-  	a.observationTime.label = :time</query>  
+  <query name="VersionCorrection.one.byTimestamps">
+    from VersionCorrection as a where
+    a.asOf = :asOf and
+    a.correctedTo = :correctedTo
+  </query>
   
 </hibernate-mapping>

@@ -5,24 +5,33 @@
  */
 package com.opengamma.masterdb.batch;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
-
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.opengamma.DataNotFoundException;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import org.apache.commons.lang.ObjectUtils;
+import com.opengamma.engine.view.ResultModelDefinition;
+import com.opengamma.engine.view.ViewResultEntry;
+import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.financial.batch.BatchDocument;
+import com.opengamma.financial.batch.BatchError;
+import com.opengamma.financial.batch.BatchGetRequest;
+import com.opengamma.financial.batch.BatchId;
+import com.opengamma.financial.batch.BatchMaster;
+import com.opengamma.financial.batch.BatchSearchRequest;
+import com.opengamma.financial.batch.BatchSearchResult;
+import com.opengamma.financial.batch.BatchStatus;
+import com.opengamma.financial.batch.LiveDataValue;
+import com.opengamma.id.UniqueId;
+import com.opengamma.masterdb.AbstractDbMaster;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.DbConnector;
+import com.opengamma.util.db.DbDateUtils;
+import com.opengamma.util.paging.Paging;
+import com.opengamma.util.paging.PagingRequest;
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -39,44 +48,16 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-import com.google.common.collect.Sets;
-import com.opengamma.DataNotFoundException;
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.view.ResultModelDefinition;
-import com.opengamma.engine.view.ViewResultEntry;
-import com.opengamma.engine.view.cache.ViewComputationCache;
-import com.opengamma.engine.view.calc.BatchExecutor;
-import com.opengamma.engine.view.calc.DependencyGraphExecutor;
-import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
-import com.opengamma.engine.view.calc.SingleComputationCycle;
-import com.opengamma.engine.view.calc.SingleNodeExecutor;
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
-import com.opengamma.financial.batch.AdHocBatchDbManager;
-import com.opengamma.financial.batch.AdHocBatchJobRun;
-import com.opengamma.financial.batch.AdHocBatchResult;
-import com.opengamma.financial.batch.BatchDocument;
-import com.opengamma.financial.batch.BatchError;
-import com.opengamma.financial.batch.BatchGetRequest;
-import com.opengamma.financial.batch.BatchId;
-import com.opengamma.financial.batch.BatchJobRun;
-import com.opengamma.financial.batch.BatchMaster;
-import com.opengamma.financial.batch.BatchResultWriterExecutor;
-import com.opengamma.financial.batch.BatchRunMaster;
-import com.opengamma.financial.batch.BatchSearchRequest;
-import com.opengamma.financial.batch.BatchSearchResult;
-import com.opengamma.financial.batch.BatchStatus;
-import com.opengamma.financial.batch.LiveDataValue;
-import com.opengamma.financial.batch.SnapshotId;
-import com.opengamma.financial.conversion.ResultConverterCache;
-import com.opengamma.id.UniqueId;
-import com.opengamma.masterdb.AbstractDbMaster;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.InetAddressUtils;
-import com.opengamma.util.db.DbDateUtils;
-import com.opengamma.util.db.DbConnector;
-import com.opengamma.util.paging.Paging;
-import com.opengamma.util.paging.PagingRequest;
+import javax.time.Instant;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A batch master implementation using a database for persistence.
@@ -89,7 +70,7 @@ import com.opengamma.util.paging.PagingRequest;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, BatchRunMaster, AdHocBatchDbManager {
+public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, BatchRunMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbBatchMaster.class);
@@ -107,6 +88,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
    * The Hibernate template.
    */
   private HibernateTemplate _hibernateTemplate;
+  private BatchResultWriter _writer;
 
   /**
    * Creates an instance.
@@ -128,11 +110,12 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
     if (schema == null) {
       s_dbSchema = "";
     } else {
-      s_dbSchema = schema  + ".";
+      s_dbSchema = schema + ".";
     }
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the Hibernate Session factory.
    *
@@ -151,69 +134,6 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
     return _hibernateTemplate;
   }
 
-  //-------------------------------------------------------------------------
-  /*package*/OpenGammaVersion getOpenGammaVersion(final BatchJobRun job) {
-    OpenGammaVersion version = getHibernateTemplate().execute(new HibernateCallback<OpenGammaVersion>() {
-      @Override
-      public OpenGammaVersion doInHibernate(Session session) throws HibernateException, SQLException {
-        Query query = session.getNamedQuery("OpenGammaVersion.one.byVersion");
-        query.setString("version", job.getOpenGammaVersion());
-        return (OpenGammaVersion) query.uniqueResult();
-      }
-    });
-    if (version == null) {
-      version = new OpenGammaVersion();
-      version.setVersion(job.getOpenGammaVersion());
-      getHibernateTemplate().save(version);
-    }
-    return version;
-  }
-
-  /*package*/ObservationTime getObservationTime(final BatchJobRun job) {
-    return getObservationTime(job.getObservationTime());
-  }
-
-  /*package*/ ObservationTime getObservationTime(final String label) {
-    ObservationTime observationTime = getHibernateTemplate().execute(new HibernateCallback<ObservationTime>() {
-      @Override
-      public ObservationTime doInHibernate(Session session) throws HibernateException, SQLException {
-        Query query = session.getNamedQuery("ObservationTime.one.byLabel");
-        query.setString("label", label);
-        return (ObservationTime) query.uniqueResult();
-      }
-    });
-    if (observationTime == null) {
-      observationTime = new ObservationTime();
-      observationTime.setLabel(label);
-      getHibernateTemplate().save(observationTime);
-    }
-    return observationTime;
-  }
-
-
-  /*package*/ ObservationDateTime getObservationDateTime(final BatchJobRun job) {
-    return getObservationDateTime(job.getObservationDate(), job.getObservationTime());
-  }
-
-  /*package*/ ObservationDateTime getObservationDateTime(final LocalDate observationDate, final String observationTime) {
-    ObservationDateTime dateTime = getHibernateTemplate().execute(new HibernateCallback<ObservationDateTime>() {
-      @Override
-      public ObservationDateTime doInHibernate(Session session) throws HibernateException, SQLException {
-        Query query = session.getNamedQuery("ObservationDateTime.one.byDateAndTime");
-        query.setDate("date", DbDateUtils.toSqlDate(observationDate));
-        query.setString("time", observationTime);
-        return (ObservationDateTime) query.uniqueResult();
-      }
-    });
-    if (dateTime == null) {
-      dateTime = new ObservationDateTime();
-      dateTime.setDate(DbDateUtils.toSqlDate(observationDate));
-      dateTime.setObservationTime(getObservationTime(observationTime));
-      getHibernateTemplate().save(dateTime);
-    }
-    return dateTime;
-  }
-
   /*package*/ ComputeHost getComputeHost(final String hostName) {
     ComputeHost computeHost = getHibernateTemplate().execute(new HibernateCallback<ComputeHost>() {
       @Override
@@ -229,10 +149,6 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
       getHibernateTemplate().save(computeHost);
     }
     return computeHost;
-  }
-
-  /*package*/ ComputeHost getLocalComputeHost() {
-    return getComputeHost(InetAddressUtils.getLocalHostName());
   }
 
   /*package*/ ComputeNode getComputeNode(final String nodeId) {
@@ -260,39 +176,23 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
     return node;
   }
 
-  /*package*/ ComputeNode getLocalComputeNode() {
-    return getComputeNode(InetAddressUtils.getLocalHostName());
-  }
+  /*package*/ LiveDataSnapshot getLiveDataSnapshot(final UniqueId marketDataSnapshotUniqueId) {
 
-  /*package*/ LiveDataSnapshot getLiveDataSnapshot(final BatchJobRun job) {
-
-    LiveDataSnapshot liveDataSnapshot = getLiveDataSnapshot(
-        job.getSnapshotObservationDate(),
-        job.getSnapshotObservationTime());
-
-    if (liveDataSnapshot == null) {
-      throw new IllegalArgumentException("Snapshot for "
-          + job.getSnapshotObservationDate()
-          + "/"
-          + job.getSnapshotObservationTime()
-          + " cannot be found");
-    }
-
-    return liveDataSnapshot;
-  }
-
-  /*package*/ LiveDataSnapshot getLiveDataSnapshot(final LocalDate observationDate, final String observationTime) {
     LiveDataSnapshot liveDataSnapshot = getHibernateTemplate().execute(new HibernateCallback<LiveDataSnapshot>() {
       @Override
       public LiveDataSnapshot doInHibernate(Session session) throws HibernateException, SQLException {
-        Query query = session.getNamedQuery("LiveDataSnapshot.one.byDateAndTime");
-        query.setDate("date", DbDateUtils.toSqlDate(observationDate));
-        query.setString("time", observationTime);
+        Query query = session.getNamedQuery("LiveDataSnapshot.one.byMarketDataSnapshotUniqueId");
+        query.setString("marketDataSnapshotUniqueId", marketDataSnapshotUniqueId.toString());
         return (LiveDataSnapshot) query.uniqueResult();
       }
     });
+
+    if (liveDataSnapshot == null) {
+      throw new IllegalArgumentException("Snapshot for " + marketDataSnapshotUniqueId + " cannot be found");
+    }
     return liveDataSnapshot;
   }
+
 
   /*package*/ LiveDataField getLiveDataField(final String fieldName) {
     LiveDataField field = getHibernateTemplate().execute(new HibernateCallback<LiveDataField>() {
@@ -344,23 +244,79 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
     return computationTarget;
   }
 
-  /*package*/ ComputationTarget getComputationTarget(final com.opengamma.engine.ComputationTarget ct) {
-    ComputationTarget computationTarget = getComputationTargetImpl(ct.toSpecification());
-    if (computationTarget == null) {
-      computationTarget = new ComputationTarget();
-      computationTarget.setComputationTargetType(ct.getType());
-      computationTarget.setIdScheme(ct.getUniqueId().getScheme());
-      computationTarget.setIdValue(ct.getUniqueId().getValue());
-      computationTarget.setIdVersion(ct.getUniqueId().getVersion());
-      computationTarget.setName(ct.getName());
-      getHibernateTemplate().save(computationTarget);
-    } else {
-      if (!ObjectUtils.equals(computationTarget.getName(), ct.getName())) {
-        computationTarget.setName(ct.getName());
-        getHibernateTemplate().update(computationTarget);
-      }
+  /*package*/ ViewDefinition createViewDefinition(com.opengamma.engine.view.ViewDefinition viewDefinition) {
+    ViewDefinition vd = getViewDefinitionImpl(viewDefinition);
+    if (vd == null) {
+      vd = new ViewDefinition();
+      vd.setUid(viewDefinition.getUniqueId().toString());
+      getHibernateTemplate().save(vd);
     }
-    return computationTarget;
+    return vd;
+  }
+
+  private ViewDefinition getViewDefinitionImpl(final com.opengamma.engine.view.ViewDefinition viewDefinition) {
+    return getHibernateTemplate().execute(new HibernateCallback<ViewDefinition>() {
+      @Override
+      public ViewDefinition doInHibernate(Session session) throws HibernateException, SQLException {
+        Query query = session.getNamedQuery("ViewDefinition.one.byUID");
+        query.setString("uid", viewDefinition.getUniqueId().toString());
+        return (ViewDefinition) query.uniqueResult();
+      }
+    });
+  }
+
+  /*package*/ VersionCorrection getVersionCorrection(final com.opengamma.id.VersionCorrection versionCorrection) {
+    VersionCorrection vc = getVersionCorrectionImpl(versionCorrection);
+    if (vc == null) {
+      vc = new VersionCorrection();
+      vc.setAsOf(DbDateUtils.toSqlTimestamp(versionCorrection.getVersionAsOf()));
+      vc.setCorrectedTo(DbDateUtils.toSqlTimestamp(versionCorrection.getCorrectedTo()));
+      getHibernateTemplate().save(vc);
+    }
+    return vc;
+  }
+
+  private VersionCorrection getVersionCorrectionImpl(final com.opengamma.id.VersionCorrection versionCorrection) {
+    return getHibernateTemplate().execute(new HibernateCallback<VersionCorrection>() {
+      @Override
+      public VersionCorrection doInHibernate(Session session) throws HibernateException, SQLException {
+        Query query = session.getNamedQuery("VersionCorrection.one.byTimestamps");
+        query.setTimestamp("asOf", DbDateUtils.toSqlTimestamp(versionCorrection.getVersionAsOf()));
+        query.setTimestamp("correctedTo", DbDateUtils.toSqlTimestamp(versionCorrection.getCorrectedTo()));
+        return (VersionCorrection) query.uniqueResult();
+      }
+    });
+  }
+
+  @Override
+  public VersionCorrection createVersionCorrection(com.opengamma.id.VersionCorrection versionCorrection) {
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+
+      VersionCorrection vc = createVersionCorrectionImpl(versionCorrection);
+
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+
+      return vc;
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
+    }
+  }
+
+  private VersionCorrection createVersionCorrectionImpl(com.opengamma.id.VersionCorrection versionCorrection) {
+    s_logger.info("Creating VersionCorrection {} ", versionCorrection);
+    VersionCorrection vc;
+    vc = getVersionCorrection(versionCorrection);
+    if (vc != null) {
+      s_logger.info("VersionCorrection " + versionCorrection + " already exists. No need to create.");
+    } else {
+      vc = new VersionCorrection();
+      vc.setAsOf(DbDateUtils.toSqlTimestamp(versionCorrection.getVersionAsOf()));
+      vc.setCorrectedTo(DbDateUtils.toSqlTimestamp(versionCorrection.getCorrectedTo()));
+      getHibernateTemplate().save(vc);
+    }
+    return vc;
   }
 
   /*package*/ RiskValueName getRiskValueName(final String name) {
@@ -432,62 +388,29 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
   }
 
   //-------------------------------------------------------------------------
-  /*package*/ RiskRun getRiskRunFromDb(final UniqueId uniqueId) {
-    LocalDate date = LocalDate.parse(uniqueId.getValue().substring(0, 10));
-    String timeKey = uniqueId.getValue().substring(11);
-    return getRiskRunFromDb(date, timeKey);
-  }
-
-  /*package*/ RiskRun getRiskRunFromDb(final BatchJobRun job) {
-    return getRiskRunFromDb(job.getObservationDate(), job.getObservationTime());
-  }
-
-  /*package*/ RiskRun getRiskRunFromDb(final LocalDate observationDate, final String observationTime) {
-    RiskRun riskRun = getHibernateTemplate().execute(new HibernateCallback<RiskRun>() {
+  /*package*/ RiskRun getRiskRunFromDb(final BatchId batchId) {
+    return getHibernateTemplate().execute(new HibernateCallback<RiskRun>() {
       @Override
       public RiskRun doInHibernate(Session session) throws HibernateException, SQLException {
-        Query query = session.getNamedQuery("RiskRun.one.byRunTime");
-        query.setDate("runDate", DbDateUtils.toSqlDate(observationDate));
-        query.setString("runTime", observationTime);
+        Query query = session.getNamedQuery("RiskRun.one.byBatchID");
+
+        query.setString("marketDataSpecificationUID", batchId.getMarketDataSnapshotUid().toString());
+        query.setDate("valuationTime", DbDateUtils.toSqlTimestamp(batchId.getValuationTime()));
+        query.setDate("versionCorrectionAsOf", DbDateUtils.toSqlTimestamp(batchId.getVersionCorrection().getVersionAsOf()));
+        query.setDate("versionCorrectionCorrectedTo", DbDateUtils.toSqlTimestamp(batchId.getVersionCorrection().getCorrectedTo()));
+        query.setString("viewDefinitionUID", batchId.getViewDefinitionUid().toString());
+
         return (RiskRun) query.uniqueResult();
       }
     });
+  }
 
-    return riskRun;
+  /*package*/ RiskRun getRiskRunFromDb(final Batch batch) {
+    return getRiskRunFromDb(batch.getId());
   }
 
   //-------------------------------------------------------------------------
-  /*package*/ RiskRun createRiskRun(final BatchJobRun job) {
-    Instant now = job.getCreationTime();
 
-    LiveDataSnapshot snapshot = getLiveDataSnapshot(job);
-
-    RiskRun riskRun = new RiskRun();
-    riskRun.setOpenGammaVersion(getOpenGammaVersion(job));
-    riskRun.setMasterProcessHost(getLocalComputeHost());
-    riskRun.setRunTime(getObservationDateTime(job));
-    riskRun.setLiveDataSnapshot(snapshot);
-    riskRun.setCreateInstant(DbDateUtils.toSqlTimestamp(now));
-    riskRun.setStartInstant(DbDateUtils.toSqlTimestamp(now));
-    riskRun.setNumRestarts(0);
-    riskRun.setComplete(false);
-
-    for (Map.Entry<String, String> parameter : job.getParametersMap().entrySet()) {
-      riskRun.addProperty(parameter.getKey(), parameter.getValue());
-    }
-
-    for (String calcConf : job.getCalculationConfigurations()) {
-      riskRun.addCalculationConfiguration(calcConf);
-    }
-
-    getHibernateTemplate().save(riskRun);
-    getHibernateTemplate().saveOrUpdateAll(riskRun.getCalculationConfigurations());
-    getHibernateTemplate().saveOrUpdateAll(riskRun.getProperties());
-
-    job.setOriginalCreationTime(job.getCreationTime().toInstant());
-
-    return riskRun;
-  }
 
   /*package*/ void deleteRun(RiskRun riskRun) {
     deleteRiskValues(riskRun);
@@ -498,11 +421,8 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
     getHibernateTemplate().flush();
   }
 
-  /*package*/ void restartRun(BatchJobRun batch, RiskRun riskRun) {
+  /*package*/ Instant restartRun(Batch batch, RiskRun riskRun) {
     Instant now = now();
-
-    riskRun.setOpenGammaVersion(getOpenGammaVersion(batch));
-    riskRun.setMasterProcessHost(getLocalComputeHost());
     riskRun.setStartInstant(DbDateUtils.toSqlTimestamp(now));
     riskRun.setNumRestarts(riskRun.getNumRestarts() + 1);
     riskRun.setComplete(false);
@@ -511,18 +431,18 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
 
     deleteRiskFailures(riskRun);
 
-    batch.setOriginalCreationTime(Instant.ofEpochMillis(riskRun.getCreateInstant().getTime()));
+    return Instant.ofEpochMillis(riskRun.getCreateInstant().getTime());
   }
 
   private void deleteRiskValues(RiskRun riskRun) {
     MapSqlParameterSource parameters = new MapSqlParameterSource()
-      .addValue("run_id", riskRun.getId());
+        .addValue("run_id", riskRun.getId());
     getJdbcTemplate().update(RiskValue.sqlDeleteRiskValues(), parameters);
   }
 
   private void deleteRiskFailures(RiskRun riskRun) {
     MapSqlParameterSource parameters = new MapSqlParameterSource()
-      .addValue("run_id", riskRun.getId());
+        .addValue("run_id", riskRun.getId());
     getJdbcTemplate().update(FailureReason.sqlDeleteRiskFailureReasons(), parameters);
     getJdbcTemplate().update(RiskFailure.sqlDeleteRiskFailures(), parameters);
   }
@@ -536,70 +456,75 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
     getHibernateTemplate().update(riskRun);
   }
 
-  /*package*/ RiskRun getRiskRunFromHandle(BatchJobRun job) {
-    return getDbHandle(job)._riskRun;
+  /*package*/ RiskRun getRiskRunFromHandle(Batch batch) {
+    return getDbHandle(batch)._riskRun;
   }
 
-  private DbHandle getDbHandle(BatchJobRun job) {
-    Object handle = job.getDbHandle();
+  private DbHandle getDbHandle(Batch batch) {
+    Object handle = batch.getDbHandle();
     if (handle == null) {
-      throw new IllegalStateException("Job db handle is null");
+      throw new IllegalStateException("Batch db handle is null");
     }
     if (!(handle instanceof DbHandle)) {
-      throw new IllegalStateException("Job db handle must be of type DbHandle, was " + handle.getClass());
+      throw new IllegalStateException("Batch db handle must be of type DbHandle, was " + handle.getClass());
     }
     return (DbHandle) handle;
   }
 
-  /*package*/ Set<RiskValueName> populateRiskValueNames(BatchJobRun job) {
-    Set<RiskValueName> returnValue = new HashSet<RiskValueName>();
+  /*package*/ Map<RiskValueName, Integer> populateRiskValueNames(final Batch batch) {
 
-    Set<String> riskValueNames = job.getAllOutputValueNames();
-    for (String name : riskValueNames) {
-      RiskValueName riskValueName = getRiskValueName(name);
-      returnValue.add(riskValueName);
-    }
+    Map<RiskValueName, Integer> returnValue = Maps.newHashMap();
 
-    return returnValue;
-  }
-
-  /*package*/ Set<RiskValueRequirement> populateRiskValueRequirements(BatchJobRun job) {
-    Set<RiskValueRequirement> returnValue = new HashSet<RiskValueRequirement>();
-
-    Map<ValueSpecification, Set<ValueRequirement>> outputs = job.getAllOutputs();
-    for (ValueSpecification specification : outputs.keySet()) {
-      for (ValueRequirement requirement : outputs.get(specification)) {
-        RiskValueRequirement riskValueRequirement = getRiskValueRequirement(requirement.getConstraints());
-        returnValue.add(riskValueRequirement);
+    for (String calcConfName : batch.getCycleInfo().getViewDefinition().getAllCalculationConfigurationNames()) {
+      Set<ValueSpecification> outputSpecs = batch.getCycleInfo().getDependencyGraphsByConfigName().get(calcConfName).getTerminalOutputSpecifications();
+      for (ValueSpecification outputSpec : outputSpecs) {
+        RiskValueName riskValueName = getRiskValueName(outputSpec.getValueName());
+        returnValue.put(riskValueName, riskValueName.getId());
       }
     }
+
     return returnValue;
   }
 
-  /*package*/ Set<RiskValueSpecification> populateRiskValueSpecifications(BatchJobRun job) {
-    Set<RiskValueSpecification> returnValue = new HashSet<RiskValueSpecification>();
+  /*package*/ Map<RiskValueRequirement, Integer> populateRiskValueRequirements(final Batch batch) {
+    Map<RiskValueRequirement, Integer> returnValue = new HashMap<RiskValueRequirement, Integer>();
 
-    Map<ValueSpecification, Set<ValueRequirement>> outputs = job.getAllOutputs();
-    for (ValueSpecification specification : outputs.keySet()) {
-      RiskValueSpecification riskValueSpecification = getRiskValueSpecification(specification.getProperties());
-      returnValue.add(riskValueSpecification);
-    }
-    return returnValue;
-  }
-
-  /*package*/ Set<ComputationTarget> populateComputationTargets(BatchJobRun job) {
-    Set<ComputationTarget> returnValue = new HashSet<ComputationTarget>();
-
-    Collection<ComputationTargetSpecification> computationTargetSpecs = job.getAllComputationTargets();
-    for (ComputationTargetSpecification spec : computationTargetSpecs) {
-      com.opengamma.engine.ComputationTarget inMemoryTarget = job.resolve(spec);
-      com.opengamma.masterdb.batch.ComputationTarget dbTarget;
-      if (inMemoryTarget != null) {
-        dbTarget = getComputationTarget(inMemoryTarget);
-      } else {
-        dbTarget = getComputationTarget(spec);
+    for (String calcConfName : batch.getCycleInfo().getViewDefinition().getAllCalculationConfigurationNames()) {
+      Map<ValueSpecification, Set<ValueRequirement>> outputs = batch.getCycleInfo().getDependencyGraphsByConfigName().get(calcConfName).getTerminalOutputs();
+      for (ValueSpecification specification : outputs.keySet()) {
+        for (ValueRequirement requirement : outputs.get(specification)) {
+          RiskValueRequirement riskValueRequirement = getRiskValueRequirement(requirement.getConstraints());
+          returnValue.put(riskValueRequirement, riskValueRequirement.getId());
+        }
       }
-      returnValue.add(dbTarget);
+    }
+
+    return returnValue;
+  }
+
+  /*package*/ Map<RiskValueSpecification, Integer> populateRiskValueSpecifications(Batch batch) {
+    Map<RiskValueSpecification, Integer> returnValue = new HashMap<RiskValueSpecification, Integer>();
+
+    for (String calcConfName : batch.getCycleInfo().getViewDefinition().getAllCalculationConfigurationNames()) {
+      Set<ValueSpecification> outputSpecs = batch.getCycleInfo().getDependencyGraphsByConfigName().get(calcConfName).getTerminalOutputSpecifications();
+      for (ValueSpecification specification : outputSpecs) {
+        RiskValueSpecification riskValueSpecification = getRiskValueSpecification(specification.getProperties());
+        returnValue.put(riskValueSpecification, riskValueSpecification.getId());
+      }
+    }
+
+    return returnValue;
+  }
+
+  /*package*/ Map<ComputationTarget, Integer> populateComputationTargets(Batch batch) {
+    Map<ComputationTarget, Integer> returnValue = new HashMap<ComputationTarget, Integer>();
+
+    for (String calcConfName : batch.getCycleInfo().getViewDefinition().getAllCalculationConfigurationNames()) {
+      DependencyGraph dependencyGraph = batch.getCycleInfo().getDependencyGraphsByConfigName().get(calcConfName);
+      for (com.opengamma.engine.ComputationTarget computationTarget : dependencyGraph.getAllComputationTargets()) {
+        ComputationTarget dbTarget = getComputationTarget(computationTarget.toSpecification());
+        returnValue.put(dbTarget, dbTarget.getId());
+      }
     }
 
     return returnValue;
@@ -609,11 +534,11 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
 
 
   @Override
-  public void addValuesToSnapshot(SnapshotId snapshotId, Set<LiveDataValue> values) {
+  public void addValuesToSnapshot(UniqueId marketDataSnapshotUniqueId, Set<LiveDataValue> values) {
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
 
-      addValuesToSnapshotImpl(snapshotId, values);
+      addValuesToSnapshotImpl(marketDataSnapshotUniqueId, values);
 
       getSessionFactory().getCurrentSession().getTransaction().commit();
     } catch (RuntimeException e) {
@@ -622,42 +547,12 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
     }
   }
 
-  private void addValuesToSnapshotImpl(SnapshotId snapshotId, Set<LiveDataValue> values) {
-    s_logger.info("Adding {} values to LiveData snapshot {}", values.size(), snapshotId);
+  private void addValuesToSnapshotImpl(UniqueId marketDataSnapshotUniqueId, Set<LiveDataValue> values) {
+    s_logger.info("Adding {} values to LiveData snapshot {}", values.size(), marketDataSnapshotUniqueId);
 
-    LiveDataSnapshot snapshot = getLiveDataSnapshot(snapshotId.getObservationDate(), snapshotId.getObservationTime());
+    LiveDataSnapshot snapshot = getLiveDataSnapshot(marketDataSnapshotUniqueId);
     if (snapshot == null) {
-      throw new IllegalArgumentException("Snapshot " + snapshotId + " cannot be found");
-    }
-
-    Collection<LiveDataSnapshotEntry> changedEntries = new ArrayList<LiveDataSnapshotEntry>();
-    for (LiveDataValue value : values) {
-      LiveDataSnapshotEntry entry = snapshot.getEntry(value.getComputationTargetSpecification(), value.getFieldName());
-      if (entry != null) {
-        if (entry.getValue() != value.getValue()) {
-          entry.setValue(value.getValue());
-          changedEntries.add(entry);
-        }
-      } else {
-        entry = new LiveDataSnapshotEntry();
-        entry.setSnapshot(snapshot);
-        entry.setComputationTarget(getComputationTarget(value.getComputationTargetSpecification()));
-        entry.setField(getLiveDataField(value.getFieldName()));
-        entry.setValue(value.getValue());
-        snapshot.addEntry(entry);
-        changedEntries.add(entry);
-      }
-    }
-
-    getHibernateTemplate().saveOrUpdateAll(changedEntries);
-  }
-
-  private void addPropertiesToValueRequirementImpl(SnapshotId snapshotId, Set<LiveDataValue> values) {
-    s_logger.info("Adding {} values to LiveData snapshot {}", values.size(), snapshotId);
-
-    LiveDataSnapshot snapshot = getLiveDataSnapshot(snapshotId.getObservationDate(), snapshotId.getObservationTime());
-    if (snapshot == null) {
-      throw new IllegalArgumentException("Snapshot " + snapshotId + " cannot be found");
+      throw new IllegalArgumentException("Snapshot " + marketDataSnapshotUniqueId + " cannot be found");
     }
 
     Collection<LiveDataSnapshotEntry> changedEntries = new ArrayList<LiveDataSnapshotEntry>();
@@ -683,40 +578,38 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
   }
 
   @Override
-  public void createLiveDataSnapshot(SnapshotId snapshotId) {
+  public LiveDataSnapshot createLiveDataSnapshot(UniqueId marketDataSnapshotUniqueId) {
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
 
-      createLiveDataSnapshotImpl(snapshotId);
+      LiveDataSnapshot snapshot = createLiveDataSnapshotImpl(marketDataSnapshotUniqueId);
 
       getSessionFactory().getCurrentSession().getTransaction().commit();
+
+      return snapshot;
     } catch (RuntimeException e) {
       getSessionFactory().getCurrentSession().getTransaction().rollback();
       throw e;
     }
   }
 
-  private void createLiveDataSnapshotImpl(SnapshotId snapshotId) {
-    s_logger.info("Creating LiveData snapshot {} ", snapshotId);
-
-    LiveDataSnapshot snapshot = getLiveDataSnapshot(snapshotId.getObservationDate(), snapshotId.getObservationTime());
+  private LiveDataSnapshot createLiveDataSnapshotImpl(UniqueId marketDataSnapshotUniqueId) {
+    s_logger.info("Creating LiveData snapshot {} ", marketDataSnapshotUniqueId);
+    LiveDataSnapshot snapshot;
+    snapshot = getLiveDataSnapshot(marketDataSnapshotUniqueId);
     if (snapshot != null) {
-      s_logger.info("Snapshot " + snapshotId + " already exists. No need to create.");
-      return;
+      s_logger.info("Snapshot " + marketDataSnapshotUniqueId + " already exists. No need to create.");
+    } else {
+      snapshot = new LiveDataSnapshot();
+      snapshot.setMarketDataSnapshotUniqueId(marketDataSnapshotUniqueId.toString());
+      getHibernateTemplate().save(snapshot);
     }
-
-    snapshot = new LiveDataSnapshot();
-
-    ObservationDateTime snapshotTime = getObservationDateTime(
-        snapshotId.getObservationDate(),
-        snapshotId.getObservationTime());
-    snapshot.setSnapshotTime(snapshotTime);
-
-    getHibernateTemplate().save(snapshot);
+    return snapshot;
   }
 
+
   @Override
-  public void endBatch(BatchJobRun batch) {
+  public void endBatch(Batch batch) {
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
 
@@ -729,50 +622,25 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
     }
   }
 
-  private void endBatchImpl(BatchJobRun batch) {
+  private void endBatchImpl(Batch batch) {
     s_logger.info("Ending batch {}", batch);
 
     RiskRun run = getRiskRunFromHandle(batch);
     endRun(run);
   }
 
+
   @Override
-  public void fixLiveDataSnapshotTime(SnapshotId snapshotId, OffsetTime fix) {
-    s_logger.info("Fixing LiveData snapshot {} at {}", snapshotId, fix);
+  public Set<LiveDataValue> getSnapshotValues(UniqueId snapshotUniqueId) {
+    s_logger.info("Getting LiveData snapshot {}", snapshotUniqueId);
 
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
 
-      LiveDataSnapshot snapshot = getLiveDataSnapshot(snapshotId.getObservationDate(), snapshotId.getObservationTime());
-
-      if (snapshot == null) {
-        throw new IllegalArgumentException("Snapshot " + snapshotId + " cannot be found");
-      }
-
-      ObservationDateTime snapshotTime = snapshot.getSnapshotTime();
-      snapshotTime.setTime(DbDateUtils.toSqlTime(fix.toLocalTime()));  // NOTE: this does not record the nano-of-second or offset
-      getHibernateTemplate().save(snapshotTime);
-
-      getSessionFactory().getCurrentSession().getTransaction().commit();
-    } catch (RuntimeException e) {
-      getSessionFactory().getCurrentSession().getTransaction().rollback();
-      throw e;
-    }
-  }
-
-  @Override
-  public Set<LiveDataValue> getSnapshotValues(SnapshotId snapshotId) {
-    s_logger.info("Getting LiveData snapshot {}", snapshotId);
-
-    try {
-      getSessionFactory().getCurrentSession().beginTransaction();
-
-      LiveDataSnapshot liveDataSnapshot = getLiveDataSnapshot(
-          snapshotId.getObservationDate(),
-          snapshotId.getObservationTime());
+      LiveDataSnapshot liveDataSnapshot = getLiveDataSnapshot(snapshotUniqueId);
 
       if (liveDataSnapshot == null) {
-        throw new IllegalArgumentException("Snapshot " + snapshotId + " cannot be found");
+        throw new IllegalArgumentException("Snapshot " + snapshotUniqueId + " cannot be found");
       }
 
       Set<LiveDataValue> returnValues = new HashSet<LiveDataValue>();
@@ -789,7 +657,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
   }
 
   @Override
-  public void startBatch(BatchJobRun batch) {
+  public void startBatch(Batch batch) {
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
 
@@ -802,7 +670,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
     }
   }
 
-  private void startBatchImpl(BatchJobRun batch) {
+  private void startBatchImpl(Batch batch) {
     s_logger.info("Starting batch {}", batch);
 
     RiskRun run;
@@ -817,7 +685,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
 
           if (!existingProperties.equals(newProperties)) {
             Set<Map.Entry<String, String>> symmetricDiff =
-              Sets.symmetricDifference(existingProperties.entrySet(), newProperties.entrySet());
+                Sets.symmetricDifference(existingProperties.entrySet(), newProperties.entrySet());
             throw new IllegalStateException("Run parameters stored in DB differ from new parameters with respect to: " + symmetricDiff);
           }
         }
@@ -825,7 +693,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
         if (run == null) {
           run = createRiskRun(batch);
         } else {
-          restartRun(batch, run);
+          batch.setOriginalCreationTime(restartRun(batch, run));
         }
         break;
 
@@ -859,35 +727,115 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
       assert cc != null;
     }
 
-    Set<RiskValueName> riskValueNames = populateRiskValueNames(batch);
-    Set<RiskValueRequirement> riskValueRequirements = populateRiskValueRequirements(batch);
-    Set<RiskValueSpecification> riskValueSpecifications = populateRiskValueSpecifications(batch);
-    Set<ComputationTarget> computationTargets = populateComputationTargets(batch);
+    Map<RiskValueName, Integer> riskValueNames = populateRiskValueNames(batch);
+    Map<RiskValueRequirement, Integer> riskValueRequirements = populateRiskValueRequirements(batch);
+    Map<RiskValueSpecification, Integer> riskValueSpecifications = populateRiskValueSpecifications(batch);
+    Map<ComputationTarget, Integer> computationTargets = populateComputationTargets(batch);
 
     DbHandle dbHandle = new DbHandle();
+    dbHandle._computationTargets = computationTargets;
     dbHandle._riskRun = run;
     dbHandle._riskValueNames = riskValueNames;
     dbHandle._riskValueRequirements = riskValueRequirements;
     dbHandle._riskValueSpecifications = riskValueSpecifications;
-    dbHandle._computationTargets = computationTargets;
+
 
     batch.setDbHandle(dbHandle);
+
+    _writer = new BatchResultWriter(
+        getDbConnector(),
+        computationTargets.keySet(),
+        run,
+        riskValueNames.keySet(),
+        riskValueRequirements.keySet(),
+        riskValueSpecifications.keySet());
   }
 
-  private static class DbHandle {
+  public static class DbHandle {
+    private Map<ComputationTarget, Integer> _computationTargets;
     private RiskRun _riskRun;
-    private Set<RiskValueName> _riskValueNames;
-    private Set<RiskValueRequirement> _riskValueRequirements;
-    private Set<RiskValueSpecification> _riskValueSpecifications;
-    private Set<ComputationTarget> _computationTargets;
+    private Map<RiskValueName, Integer> _riskValueNames;
+    private Map<RiskValueRequirement, Integer> _riskValueRequirements;
+    private Map<RiskValueSpecification, Integer> _riskValueSpecifications;
+    private ResultModelDefinition _resultModelDefinition;
+    private DependencyGraph _dependencyGraph;
+  }
+
+
+  @Override
+  public void addJobResults(Batch batch, ViewResultModel result) {
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+
+      /*SnapshotId snapshotId = createAdHocBatchSnapshotId(result.getBatchId());
+
+      createLiveDataSnapshotImpl(snapshotId);
+
+      Set<LiveDataValue> values = new HashSet<LiveDataValue>();
+      for (ComputedValue liveData : result.getAllMarketData()) {
+        values.add(new LiveDataValue(liveData));
+      }
+
+      addValuesToSnapshotImpl(snapshotId, values);
+
+      AdHocBatchJobRun batch = new AdHocBatchJobRun(result, snapshotId);
+      startBatchImpl(batch);*/
+
+
+      _writer.write(result);
+
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException ex) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw ex;
+    }
   }
 
   @Override
-  public DependencyGraphExecutorFactory<Object> createDependencyGraphExecutorFactory(BatchJobRun batch) {
-    return new BatchResultWriterFactory(batch);
+  public RiskRun createRiskRun(final Batch batch) {
+    Instant now = Instant.now();
+
+    LiveDataSnapshot snapshot;
+
+    VersionCorrection versionCorrection = createVersionCorrection(batch.getCycleInfo().getVersionCorrection());
+
+    ViewDefinition viewDefinition = createViewDefinition(batch.getCycleInfo().getViewDefinition());
+
+    if (batch.getSnapshotMode().equals(Batch.SnapshotMode.PREPARED)) {
+      snapshot = getLiveDataSnapshot(batch.getCycleInfo().getMarketDataSnapshotUniqueId());
+      if (snapshot == null) {
+        throw new DataNotFoundException("Snapshot not found: " + batch.getCycleInfo().getMarketDataSnapshotUniqueId());
+      }
+    } else {
+      snapshot = createLiveDataSnapshot(batch.getCycleInfo().getMarketDataSnapshotUniqueId());
+    }
+
+    RiskRun riskRun = new RiskRun();
+    riskRun.setLiveDataSnapshot(snapshot);
+    riskRun.setVersionCorrection(versionCorrection);
+    riskRun.setViewDefinition(viewDefinition);
+    riskRun.setValuationTime(DbDateUtils.toSqlTimestamp(batch.getCycleInfo().getValuationTime()));
+    riskRun.setCreateInstant(DbDateUtils.toSqlTimestamp(now));
+    riskRun.setStartInstant(DbDateUtils.toSqlTimestamp(now));
+    riskRun.setNumRestarts(0);
+    riskRun.setComplete(false);
+
+    for (Map.Entry<String, String> parameter : batch.getParametersMap().entrySet()) {
+      riskRun.addProperty(parameter.getKey(), parameter.getValue());
+    }
+
+    for (String calcConf : batch.getCycleInfo().getViewDefinition().getAllCalculationConfigurationNames()) {
+      riskRun.addCalculationConfiguration(calcConf);
+    }
+
+    getHibernateTemplate().save(riskRun);
+    getHibernateTemplate().saveOrUpdateAll(riskRun.getCalculationConfigurations());
+    getHibernateTemplate().saveOrUpdateAll(riskRun.getProperties());
+
+    return riskRun;
   }
 
-  public CommandLineBatchResultWriter createTestResultWriter(BatchJobRun batch) {
+  /*public CommandLineBatchResultWriter createTestResultWriter(BatchJobRun batch) {
     BatchResultWriterFactory factory = new BatchResultWriterFactory(batch);
     return factory.createTestWriter();
   }
@@ -901,48 +849,12 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
       _batch = batch;
     }
 
-    @Override
-    public BatchExecutor createExecutor(SingleComputationCycle cycle) {
-
-      Map<String, ViewComputationCache> cachesByCalculationConfiguration = cycle.getCachesByCalculationConfiguration();
-
-      CommandLineBatchResultWriter writer = new CommandLineBatchResultWriter(
-          getDbConnector(),
-          cycle.getViewDefinition().getResultModelDefinition(),
-          cachesByCalculationConfiguration,
-          getDbHandle(_batch)._computationTargets,
-          getRiskRunFromHandle(_batch),
-          getDbHandle(_batch)._riskValueNames,
-          getDbHandle(_batch)._riskValueRequirements,
-          getDbHandle(_batch)._riskValueSpecifications);
-
-      // Ultimate executor of the tasks
-      DependencyGraphExecutor<CalculationJobResult> level3Executor =
-        new SingleNodeExecutor(cycle);
-
-      // 'Wrapper' executor that will write
-      // results from the underlying executor 
-      // to batch DB as soon as they are received
-      // and pass the result back to level 1 executor
-      BatchResultWriterExecutor level2Executor =
-        new BatchResultWriterExecutor(
-            writer,
-            level3Executor);
-
-      // This executor is needed to guarantee that
-      // BatchResultWriterImpl.write() is called once
-      // and once only for each computation target
-      BatchExecutor level1Executor =
-        new BatchExecutor(level2Executor);
-
-      return level1Executor;
-    }
-
-    public CommandLineBatchResultWriter createTestWriter() {
-      CommandLineBatchResultWriter resultWriter = new CommandLineBatchResultWriter(
+    public BatchResultWriter createTestWriter() {
+      BatchResultWriter resultWriter = new BatchResultWriter(
           getDbConnector(),
           new ResultModelDefinition(),
           new HashMap<String, ViewComputationCache>(),
+
           getDbHandle(_batch)._computationTargets,
           getRiskRunFromHandle(_batch),
           getDbHandle(_batch)._riskValueNames,
@@ -951,7 +863,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
 
       return resultWriter;
     }
-  }
+  }*/
 
   public static Class<?>[] getHibernateMappingClasses() {
     return new HibernateBatchDbFiles().getHibernateMappingFiles();
@@ -1002,9 +914,12 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
       }
 
       for (RiskRun riskRun : runs) {
-        BatchDocument doc = new BatchDocument();
+        BatchDocument doc = new BatchDocument(
+            UniqueId.parse(riskRun.getViewDefinition().getUid()),
+            UniqueId.parse(riskRun.getLiveDataSnapshot().getMarketDataSnapshotUniqueId()),
+            DbDateUtils.fromSqlTimestamp(riskRun.getValuationTime()),
+            riskRun.getVersionCorrection().getBaseType());
         parseRiskRun(riskRun, doc);
-        doc.setUniqueId(createUniqueId(doc));
         result.getDocuments().add(doc);
       }
 
@@ -1014,16 +929,6 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
       throw ex;
     }
     return result;
-  }
-
-  /**
-   * Creates a unique identifier from the date and time key.
-   *
-   * @param doc  the document, not null
-   * @return the unique identifier,not null
-   */
-  protected UniqueId createUniqueId(BatchDocument doc) {
-    return UniqueId.of(getUniqueIdScheme(), doc.getObservationDate() + "-" + doc.getObservationTime());
   }
 
   //-------------------------------------------------------------------------
@@ -1043,7 +948,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
     BatchDocument doc = new BatchDocument(request.getUniqueId());
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
-      riskRun = getRiskRunFromDb(request.getUniqueId());
+      riskRun = getRiskRunFromDb(new BatchId(doc.getMarketDataSnapshotUid(), doc.getViewDefinitionUid(), doc.getVersionCorrection(), doc.getValuationTime()));
       if (riskRun != null) {
         parseRiskRun(riskRun, doc);
       }
@@ -1082,27 +987,24 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
    */
   protected void parseRiskRun(RiskRun riskRun, BatchDocument doc) {
     doc.setStatus(riskRun.isComplete() ? BatchStatus.COMPLETE : BatchStatus.RUNNING);
-    doc.setObservationDate(DbDateUtils.fromSqlDate(riskRun.getRunTime().getDate()));
-    doc.setObservationTime(riskRun.getRunTime().getObservationTime().getLabel());
+    doc.setValuationTime(DbDateUtils.fromSqlTimestamp(riskRun.getValuationTime()));
     doc.setCreationInstant(DbDateUtils.fromSqlTimestamp(riskRun.getCreateInstant()));
     doc.setStartInstant(DbDateUtils.fromSqlTimestamp(riskRun.getStartInstant()));
     if (riskRun.getEndInstant() != null) {
       doc.setEndInstant(DbDateUtils.fromSqlTimestamp(riskRun.getEndInstant()));
     }
-    doc.setMasterProcessHost(riskRun.getMasterProcessHost().getHostName());
     doc.setNumRestarts(riskRun.getNumRestarts());
   }
 
-  //-------------------------------------------------------------------------
   @Override
-  public void delete(UniqueId uniqueId) {
-    s_logger.info("Deleting batch {}", uniqueId);
+  public void delete(BatchId batchId) {
+    s_logger.info("Deleting batch {}", batchId);
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
 
-      RiskRun run = getRiskRunFromDb(uniqueId);
+      RiskRun run = getRiskRunFromDb(batchId);
       if (run == null) {
-        throw new DataNotFoundException("Batch not found: " + uniqueId);
+        throw new DataNotFoundException("Batch not found: " + batchId);
       }
       deleteRun(run);
 
@@ -1113,49 +1015,21 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
     }
   }
 
-  //-------------------------------------------------------------------------
   @Override
-  public void write(AdHocBatchResult result) {
+  public void end(Batch batch) {
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
 
-      SnapshotId snapshotId = createAdHocBatchSnapshotId(result.getBatchId());
-
-      createLiveDataSnapshotImpl(snapshotId);
-
-      Set<LiveDataValue> values = new HashSet<LiveDataValue>();
-      for (ComputedValue liveData : result.getResult().getAllMarketData()) {
-        values.add(new LiveDataValue(liveData));
+      BatchId batchId = batch.getId();
+      RiskRun riskRun = getRiskRunFromDb(batchId);
+      if (riskRun == null) {
+        throw new DataNotFoundException("Batch not found: " + batchId);
       }
-
-      addValuesToSnapshotImpl(snapshotId, values);
-
-      AdHocBatchJobRun batch = new AdHocBatchJobRun(result, snapshotId);
-      startBatchImpl(batch);
-
-      AdHocBatchResultWriter writer = new AdHocBatchResultWriter(
-          getDbConnector(),
-          getRiskRunFromHandle(batch),
-          getLocalComputeNode(),
-          new ResultConverterCache(),
-          getDbHandle(batch)._computationTargets,
-          getDbHandle(batch)._riskValueRequirements,
-          getDbHandle(batch)._riskValueSpecifications,
-          getDbHandle(batch)._riskValueNames);
-
-      writer.write(result.getResult());
-
-      endBatchImpl(batch);
-
+      endRun(riskRun);
       getSessionFactory().getCurrentSession().getTransaction().commit();
     } catch (RuntimeException ex) {
       getSessionFactory().getCurrentSession().getTransaction().rollback();
       throw ex;
     }
   }
-
-  protected SnapshotId createAdHocBatchSnapshotId(BatchId batchId) {
-    return new SnapshotId(batchId.getObservationDate(), "AD_HOC_" + Instant.now().toString());
-  }
-
 }

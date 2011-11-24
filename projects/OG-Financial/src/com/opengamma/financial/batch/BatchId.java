@@ -1,13 +1,16 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.financial.batch;
 
-import javax.time.calendar.LocalDate;
-
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
+
+import javax.time.Instant;
+
 
 /**
  * An id for a batch in the batch database.
@@ -17,68 +20,54 @@ import com.opengamma.util.ArgumentChecker;
 public final class BatchId {
 
   /**
-   * The date of the batch.
+   * The unique id of the market data snapshot used by the batch
    */
-  private final LocalDate _observationDate;
+  final private UniqueId _marketDataSnapshotUid;
   /**
-   * The descriptive time of the batch, such as LDN_CLOSE.
+   * The unique id of the view definition used by the batch
    */
-  private final String _observationTime;
+  final private UniqueId _viewDefinitionUid;
+  /**
+   * The version correction used by the batch
+   */
+  final private VersionCorrection _versionCorrection;
+  /**
+   * The valuation time used by the batch
+   */
+  final Instant _valuationTime;
 
   /**
    * Creates an instance.
-   * 
-   * @param observationDate  the observation date, not null
-   * @param observationTimeKey  the descriptive time key, not null
+   *
+   * @param snapshotUid  the  unique id of the market data snapshot, not null
+   * @param viewDefinitionId  the unique id of the view definition, not null
+   * @param versionCorrection  the version correction, not null
+   * @param valuationTime  the valuation time, not null
    */
-  public BatchId(LocalDate observationDate, String observationTimeKey) {
-    ArgumentChecker.notNull(observationDate, "observationDate");
-    ArgumentChecker.notNull(observationTimeKey, "observationTimeKey");
-    _observationDate = observationDate;
-    _observationTime = observationTimeKey;
+  public BatchId(UniqueId snapshotUid, UniqueId viewDefinitionId, VersionCorrection versionCorrection, Instant valuationTime) {
+    ArgumentChecker.notNull(snapshotUid, "snapshotUid");
+    ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    ArgumentChecker.notNull(valuationTime, "valuationTime");
+    this._marketDataSnapshotUid = snapshotUid;
+    this._viewDefinitionUid = viewDefinitionId;
+    this._versionCorrection = versionCorrection;
+    this._valuationTime = valuationTime;
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the observation date.
-   * 
-   * @return the date of the batch, not null
-   */
-  public LocalDate getObservationDate() {
-    return _observationDate;
+  public UniqueId getMarketDataSnapshotUid() {
+    return _marketDataSnapshotUid;
   }
 
-  /**
-   * Gets the descriptive observation time key, such as LDN_CLOSE.
-   * 
-   * @return the descriptive time key, not null
-   */
-  public String getObservationTime() {
-    return _observationTime;
+  public UniqueId getViewDefinitionUid() {
+    return _viewDefinitionUid;
   }
 
-  //-------------------------------------------------------------------------
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj instanceof SnapshotId) {
-      SnapshotId other = (SnapshotId) obj;
-      return getObservationDate().equals(other.getObservationDate()) &&
-          getObservationTime().equals(other.getObservationTime());
-    }
-    return false;
+  public VersionCorrection getVersionCorrection() {
+    return _versionCorrection;
   }
 
-  @Override
-  public int hashCode() {
-    return getObservationDate().hashCode() ^ getObservationTime().hashCode();
+  public Instant getValuationTime() {
+    return _valuationTime;
   }
-
-  @Override
-  public String toString() {
-    return getObservationDate() + "/" + getObservationTime();
-  }
-
 }

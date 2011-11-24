@@ -12,6 +12,7 @@ import javax.time.Instant;
 
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.id.UniqueId;
 
 /**
  * Mock market data snapshot implementation to allow the example server to run.
@@ -20,6 +21,12 @@ import com.opengamma.engine.value.ValueRequirement;
  * contact sales@opengamma.com
  */
 public class MockMarketDataSnapshot implements MarketDataSnapshot {
+
+
+  @Override
+  public UniqueId getUniqueId() {
+    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "MockMarketDataSnapshot:"+getSnapshotTime());
+  }
 
   @Override
   public Instant getSnapshotTimeIndication() {

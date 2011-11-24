@@ -5,16 +5,15 @@
  */
 package com.opengamma.masterdb.batch;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
+import com.opengamma.engine.ComputationTargetSpecification;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import com.opengamma.engine.ComputationTargetSpecification;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Hibernate bean.
@@ -22,7 +21,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 public class LiveDataSnapshot {
   
   private int _id;
-  private ObservationDateTime _snapshotTime;
+  private String _marketDataSnapshotUniqueId;
   private Set<LiveDataSnapshotEntry> _snapshotEntries = new HashSet<LiveDataSnapshotEntry>();
   private Map<ComputationTargetSpecification, Map<String, LiveDataSnapshotEntry>> _ct2FieldName2Entry; 
     
@@ -33,15 +32,15 @@ public class LiveDataSnapshot {
   public void setId(int id) {
     _id = id;
   }
-  
-  public ObservationDateTime getSnapshotTime() {
-    return _snapshotTime;
+
+  public String getMarketDataSnapshotUniqueId() {
+    return _marketDataSnapshotUniqueId;
   }
-  
-  public void setSnapshotTime(ObservationDateTime snapshotTime) {
-    _snapshotTime = snapshotTime;
+
+  public void setMarketDataSnapshotUniqueId(String _marketDataSnapshotUniqueId) {
+    this._marketDataSnapshotUniqueId = _marketDataSnapshotUniqueId;
   }
-  
+
   public Set<LiveDataSnapshotEntry> getSnapshotEntries() {
     return _snapshotEntries;
   }
@@ -102,8 +101,7 @@ public class LiveDataSnapshot {
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-      .append("date", getSnapshotTime().getDate())
-      .append("time", getSnapshotTime().getObservationTime().getLabel())
+      .append("market data specification", getMarketDataSnapshotUniqueId())
       .toString();
   }
 

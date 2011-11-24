@@ -5,19 +5,15 @@
  */
 package com.opengamma.financial.batch.marketdata;
 
-import java.util.Collections;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import javax.time.Instant;
-
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataSnapshot;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.financial.batch.BatchRunMaster;
-import com.opengamma.financial.batch.LiveDataValue;
-import com.opengamma.financial.batch.SnapshotId;
+import com.opengamma.id.UniqueId;
+
+import javax.time.Instant;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 // REVIEW jonathan 2011-06-30 -- see comment on BatchMarketDataProvider
 
@@ -38,19 +34,19 @@ import com.opengamma.financial.batch.SnapshotId;
  */
 public class BatchMarketDataSnapshot implements MarketDataSnapshot {
 
-  private final SnapshotId _batchSnapshotId;
-  private final BatchRunMaster _batchRunMaster;
   private final InMemoryLKVMarketDataProvider _batchDbProvider;
   private final InMemoryLKVMarketDataSnapshot _batchDbSnapshot;
   private final MarketDataSnapshot _historicalMarketDataSnapshot;
   
-  public BatchMarketDataSnapshot(SnapshotId batchSnapshotId, BatchRunMaster batchRunMaster,
-      InMemoryLKVMarketDataProvider batchDbProvider, InMemoryLKVMarketDataSnapshot batchDbSnapshot, MarketDataSnapshot historicalMarketDataSnapshot) {
-    _batchSnapshotId = batchSnapshotId;
-    _batchRunMaster = batchRunMaster;
+  public BatchMarketDataSnapshot(InMemoryLKVMarketDataProvider batchDbProvider, InMemoryLKVMarketDataSnapshot batchDbSnapshot, MarketDataSnapshot historicalMarketDataSnapshot) {
     _batchDbProvider = batchDbProvider;
     _batchDbSnapshot = batchDbSnapshot;
     _historicalMarketDataSnapshot = historicalMarketDataSnapshot;
+  }
+
+  @Override
+  public UniqueId getUniqueId() {
+    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "BatchMarketDataSnapshot:"+getSnapshotTime());
   }
   
   @Override
@@ -79,11 +75,8 @@ public class BatchMarketDataSnapshot implements MarketDataSnapshot {
     return null;
   }
 
-  // method is synchronized for now because of the call to .addValuesToSnapshot() which
-  // you don't want to be doing multiple times. Could synchronize just on snapshot+requirement 
-  // combo
   @Override
-  public synchronized Object query(ValueRequirement requirement) {
+  public Object query(ValueRequirement requirement) {
     Object valueInBatchDb = getBatchDbSnapshot().query(requirement);
     if (valueInBatchDb != null) {
       return valueInBatchDb;
@@ -102,24 +95,12 @@ public class BatchMarketDataSnapshot implements MarketDataSnapshot {
       throw new IllegalStateException("Value " + valueInTimeSeriesDb + " not a double for " + requirement);
     }
     
-    Double value = (Double) valueInTimeSeriesDb;
-    LiveDataValue liveDataValue = new LiveDataValue(requirement, value);
-    Set<LiveDataValue> liveDataValues = Collections.singleton(liveDataValue);
-    getBatchRunMaster().addValuesToSnapshot(getBatchSnapshotId(), liveDataValues);
-    
     getBatchDbProvider().addValue(requirement, valueInTimeSeriesDb);
     
     return valueInTimeSeriesDb;
   }
   
   //-------------------------------------------------------------------------
-  private SnapshotId getBatchSnapshotId() {
-    return _batchSnapshotId;
-  }
-  
-  private BatchRunMaster getBatchRunMaster() {
-    return _batchRunMaster;
-  }
   
   private InMemoryLKVMarketDataProvider getBatchDbProvider() {
     return _batchDbProvider;

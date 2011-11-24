@@ -38,15 +38,7 @@ public class BatchLiveDataSnapshotProviderTest {
     ArrayLocalDateDoubleTimeSeries timeSeries = new ArrayLocalDateDoubleTimeSeries(
         new LocalDate[] { date },
         new double[] { 11.12 });
-    
-    CommandLineBatchJob job = new CommandLineBatchJob();
-    job.getParameters().initializeDefaults(job);
-    CommandLineBatchJobRun run = new CommandLineBatchJobRun(job,
-        date,
-        date,
-        date,
-        date);
-    job.getParameters().setSnapshotObservationTime("LDN_CLOSE");
+
     
     MockHistoricalTimeSeriesSource historicalSource = new MockHistoricalTimeSeriesSource();
     
@@ -57,7 +49,7 @@ public class BatchLiveDataSnapshotProviderTest {
     HistoricalMarketDataProvider snapshotProvider = new HistoricalMarketDataProvider(historicalSource, null, new DefaultHistoricalMarketDataFieldResolver(), null);
     InMemoryLKVMarketDataProvider batchDbProvider = new InMemoryLKVMarketDataProvider();
     
-    BatchMarketDataProvider provider = new BatchMarketDataProvider(run, new DummyBatchMaster(), batchDbProvider, snapshotProvider);
+    BatchMarketDataProvider provider = new BatchMarketDataProvider(batchDbProvider, snapshotProvider);
     
     HistoricalMarketDataSpecification marketDataSpec = new HistoricalMarketDataSpecification(LocalDate.of(2005, 11, 12).atStartOfDayInZone(TimeZone.UTC), null, null);
     MarketDataSnapshot snapshot = provider.snapshot(marketDataSpec);

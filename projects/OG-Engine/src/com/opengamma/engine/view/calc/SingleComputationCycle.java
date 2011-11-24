@@ -37,6 +37,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
+import com.opengamma.util.functional.Function1;
 import com.opengamma.util.functional.Function2;
 import com.opengamma.util.tuple.Pair;
 import org.slf4j.Logger;
@@ -64,6 +65,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static com.opengamma.util.functional.Functional.map;
 import static com.opengamma.util.functional.Functional.reduce;
 
 
@@ -575,7 +577,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
     DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
 
-    Map<ValueSpecification, Set<ValueRequirement>> mapping = depGraph.getTerminalOutputs();
+    /*Map<ValueSpecification, Set<ValueRequirement>> mapping = depGraph.getTerminalOutputs();
 
     final Map<ValueRequirement, ValueSpecification> reverseMapping = new HashMap<ValueRequirement, ValueSpecification>();
     for (ValueSpecification specification : mapping.keySet()) {
@@ -583,38 +585,50 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       for (ValueRequirement requirement : requirements) {
         reverseMapping.put(requirement, specification);
       }
-    }
+    }*/
+
+
 
     for (CalculationJobResultItem calculationJobResultItem : calculationJobResult.getResultItems()) {
       // get desired values from calc job result (value requirements)
       Set<ValueRequirement> desiredValues = calculationJobResultItem.getItem().getDesiredValues();
 
       // using information from dependency graph build set of value specifactions originated from the value requirements
-      Set<ValueSpecification> specifications = reduce(new HashSet<ValueSpecification>(), desiredValues,
+      /*Set<ValueSpecification> specifications = reduce(new HashSet<ValueSpecification>(), desiredValues,
           new Function2<HashSet<ValueSpecification>, ValueRequirement, HashSet<ValueSpecification>>() {
             @Override
             public HashSet<ValueSpecification> execute(HashSet<ValueSpecification> acc, ValueRequirement requirement) {
               acc.add(reverseMapping.get(requirement));
               return acc;
             }
-          });
+          });*/
       
       if (calculationJobResultItem.failed()) {
         // build computed values denoting failure
-        for (ValueSpecification specification : specifications) {
+        for (ValueRequirement requirement : desiredValues) {
+          // We can do it because value requirements from calcJobResItems are actually constructed from value specifications
+          ValueSpecification specification = new ValueSpecification(requirement.getValueName(), requirement.getTargetSpecification(), requirement.getConstraints());
           ComputedValue computedValue = new ComputedValue(specification, null);
           computedValue.setInvocationResult(calculationJobResultItem.getResult());
           computedValue.setMissingInputs(calculationJobResultItem.getMissingInputs());
           computedValue.setExceptionClass(calculationJobResultItem.getExceptionClass());
           computedValue.setExceptionMsg(calculationJobResultItem.getExceptionMsg());
           computedValue.setStackTrace(calculationJobResultItem.getStackTrace());
-          computedValue.setRequirements(desiredValues);
+          //TODO we need original requirement !!!
+          computedValue.setRequirement(requirement);
           resultModel.addValue(calcConfigurationName, computedValue);
         }
       } else {
         // build computed values denoting success
-        
-        // lukup computed values from cache by specifications, and build mapping from these specifications to actual values 
+
+        Collection<ValueSpecification> specifications = map(desiredValues, new Function1<ValueRequirement, ValueSpecification>() {
+          @Override
+          public ValueSpecification execute(ValueRequirement requirement) {
+            return new ValueSpecification(requirement.getValueName(), requirement.getTargetSpecification(), requirement.getConstraints());
+          }
+        });
+
+        // lookup computed values from cache by specifications, and build mapping from these specifications to actual values
         Map<ValueSpecification, Object> valuesFromCacheBySpecification = reduce(new HashMap<ValueSpecification, Object>(),
             computationCache.getValues(specifications, CacheSelectHint.allShared()),
             new Function2<HashMap<ValueSpecification, Object>, Pair<ValueSpecification, Object>, HashMap<ValueSpecification, Object>>() {
@@ -626,14 +640,17 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
             });
 
         // iterate trough all specifications of the calc job result item and build computed values
-        for (ValueSpecification specification : specifications) {
+        for (ValueRequirement requirement : desiredValues) {
+          // We can do it because value requirements from calcJobResItems are actually constructed from value specifications
+          ValueSpecification specification = new ValueSpecification(requirement.getValueName(), requirement.getTargetSpecification(), requirement.getConstraints());
           Object actualValue = valuesFromCacheBySpecification.get(specification);
           if(actualValue == null){
             throw new OpenGammaRuntimeException("Encountered cache miss for successful CalculationJobResultItem [spec: "+specification+"]");
           } else {
             ComputedValue computedValue = new ComputedValue(specification, actualValue);
             computedValue.setInvocationResult(InvocationResult.SUCCESS);
-            computedValue.setRequirements(desiredValues);
+            //TODO we need original requirement !!!
+            computedValue.setRequirement(requirement);
             resultModel.addValue(calcConfigurationName, computedValue);
           }
         }

@@ -6,22 +6,10 @@
 
 package com.opengamma.language.view;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.time.Instant;
-
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ViewResultModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -40,6 +28,13 @@ import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.Cancelable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Returns the latest result from a calculating view
@@ -185,7 +180,7 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
     }
 
     @Override
-    public void cycleInitiated(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping) {
+    public void cycleInitiated(CycleInfo cycleInfo) {
       // ignore
     }
 

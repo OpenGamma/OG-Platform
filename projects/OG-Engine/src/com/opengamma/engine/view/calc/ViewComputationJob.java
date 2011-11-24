@@ -9,6 +9,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeListener;
+import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
@@ -16,6 +17,7 @@ import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvid
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.ViewProcessImpl;
@@ -284,14 +286,16 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
         Set<String> configurationNames = singleComputationCycle.getAllCalculationConfigurationNames();
 
 
-        Map<String, Map<ValueSpecification, Set<ValueRequirement>>> mapping = reduce(new HashMap<String, Map<ValueSpecification, Set<ValueRequirement>>>(), configurationNames, new Function2<HashMap<String, Map<ValueSpecification, Set<ValueRequirement>>>, String, HashMap<String, Map<ValueSpecification, Set<ValueRequirement>>>>() {
-          @Override
-          public HashMap<String, Map<ValueSpecification, Set<ValueRequirement>>> execute(HashMap<String, Map<ValueSpecification, Set<ValueRequirement>>> mapping, String configName) {
-            mapping.put(configName, singleComputationCycle.getExecutableDependencyGraph(configName).getTerminalOutputs());
-            return mapping;
-          }
-        });
-        cycleInitiated(singleComputationCycle.getViewCycleExecutionOptions(), mapping);
+        Map<String, DependencyGraph> dependencyGraphsByConfigName = reduce(new HashMap<String, DependencyGraph>(), configurationNames,
+            new Function2<HashMap<String, DependencyGraph>, String, HashMap<String, DependencyGraph>>() {
+              @Override
+              public HashMap<String, DependencyGraph> execute(HashMap<String, DependencyGraph> mapping, String configName) {
+                mapping.put(configName, singleComputationCycle.getExecutableDependencyGraph(configName));
+                return mapping;
+              }
+            });
+
+        cycleInitiated(new CycleInfo(marketDataSnapshot.getUniqueId(),  dependencyGraphsByConfigName, compiledViewDefinition.getViewDefinition(), versionCorrection, executionOptions.getValuationTime()));
         executeViewCycle(cycleType, cycleReference, marketDataSnapshot, getViewProcess().getCalcJobResultExecutorService());
       } catch (InterruptedException e) {
         // Execution interrupted - don't propagate as failure
@@ -338,9 +342,9 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
   }
 
-  private void cycleInitiated(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping) {
+  private void cycleInitiated(CycleInfo cycleInfo) {
     try {
-      getViewProcess().cycleInitiated(viewCycleExecutionOptions, specificationToRequirementMapping);
+      getViewProcess().cycleInitiated(cycleInfo);
     } catch (Exception e) {
       s_logger.error("Error notifying view process " + getViewProcess() + " of view cycle initiation", e);
     }

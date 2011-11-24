@@ -17,6 +17,7 @@ import javax.time.Instant;
 import com.google.common.base.Function;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
@@ -136,11 +137,11 @@ public class MergingViewProcessListener implements ViewResultListener {
 
 
   @Override
-  public void cycleInitiated(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping) {
+  public void cycleInitiated(CycleInfo cycleInfo) {
     _mergerLock.lock();
     try {
       if (isPassThrough()) {
-        getUnderlying().cycleInitiated(viewCycleExecutionOptions, specificationToRequirementMapping);
+        getUnderlying().cycleInitiated(cycleInfo);
       } else {
         _callQueue.add(new ProcessCompletedCall());
       }

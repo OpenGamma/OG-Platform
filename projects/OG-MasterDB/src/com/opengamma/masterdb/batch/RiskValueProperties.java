@@ -19,7 +19,7 @@ import static com.opengamma.util.functional.Functional.sort;
 /**
  * Hibernate bean.
  */
-public class RiskValueProperties {
+public class RiskValueProperties implements HavingDatabaseId<Integer>{
 
   private int _id;
 
@@ -114,7 +114,7 @@ public class RiskValueProperties {
     }
   }
 
-  public int getId() {
+  public Integer getId() {
     return _id;
   }
 

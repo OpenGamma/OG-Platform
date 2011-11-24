@@ -8,6 +8,7 @@ package com.opengamma.engine.fudgemsg;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -30,31 +31,21 @@ import java.util.Set;
 @FudgeBuilderFor(CycleInitiatedCall.class)
 public class CycleInitiatedCallFudgeBuilder implements FudgeBuilder<CycleInitiatedCall> {
 
-  private static final String VIEW_CYCLE_EXECUTION_OPTIONS_FIELD = "viewCycleExecutionOptions";
-  private static final String SPECIFICATION_TO_REQUIREMENT_MAPPING_FIELD = "specificationToRequirementMapping";
-
+  private static final String VIEW_CYCLE_INFO_FIELD = "viewCycleInfoOptions";
   
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CycleInitiatedCall object) {
     MutableFudgeMsg msg = serializer.newMessage();
-    ViewCycleExecutionOptions viewCycleExecutionOptions = object.getViewCycleExecutionOptions();
-
-    serializer.addToMessage(msg, VIEW_CYCLE_EXECUTION_OPTIONS_FIELD, null, viewCycleExecutionOptions);
-
-    Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping = object.getSpecificationToRequirementMapping();
-
-    serializer.addToMessage(msg, SPECIFICATION_TO_REQUIREMENT_MAPPING_FIELD, null, specificationToRequirementMapping);
+    CycleInfo cycleInfo = object.getCycleInfo();
+    serializer.addToMessage(msg, VIEW_CYCLE_INFO_FIELD, null, cycleInfo);
     return msg;
   }
 
   @Override
   public CycleInitiatedCall buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    FudgeField viewCycleExecutionOptionsField = msg.getByName(VIEW_CYCLE_EXECUTION_OPTIONS_FIELD);
-    ViewCycleExecutionOptions viewCycleExecutionOptions = viewCycleExecutionOptionsField != null ? deserializer.fieldValueToObject(ViewCycleExecutionOptions.class, viewCycleExecutionOptionsField) : null;
-
-    FudgeField specificationToRequirementMappingField = msg.getByName(SPECIFICATION_TO_REQUIREMENT_MAPPING_FIELD);
-    Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping = specificationToRequirementMappingField != null ? deserializer.fieldValueToObject(Map.class, specificationToRequirementMappingField) : null;
-    return new CycleInitiatedCall(viewCycleExecutionOptions, specificationToRequirementMapping);
+    FudgeField viewCycleInfoField = msg.getByName(VIEW_CYCLE_INFO_FIELD);
+    CycleInfo cycleInfo = viewCycleInfoField != null ? deserializer.fieldValueToObject(CycleInfo.class, viewCycleInfoField) : null;
+    return new CycleInitiatedCall(cycleInfo);
   }
 
 }

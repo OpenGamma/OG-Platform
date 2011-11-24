@@ -7,11 +7,13 @@ package com.opengamma.engine.view.listener;
 
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
 
@@ -72,9 +74,9 @@ public interface ViewResultListener {
   /**
    * Called following the initialisation of a computation cycle.
    *
-   * @param viewCycle  the view cycle, not null
+   * @param cycleInfo cycle information
    */
-  void cycleInitiated(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping);
+  void cycleInitiated(CycleInfo cycleInfo);
 
 
 

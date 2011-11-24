@@ -5,13 +5,13 @@
  */
 package com.opengamma.financial.batch;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.view.ViewResultEntry;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.paging.Paging;
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -24,11 +24,10 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.view.ViewResultEntry;
-import com.opengamma.id.UniqueId;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.paging.Paging;
+import javax.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A document used to pass into and out of the batch master.
@@ -45,25 +44,15 @@ public class BatchDocument extends DirectBean {
   @PropertyDefinition
   private UniqueId _uniqueId;
   /**
-   * The batch date, not null.
+   * The batch valuation time, not null.
    */
   @PropertyDefinition
-  private LocalDate _observationDate;
-  /**
-   * The batch time, such as LDN_CLOSE, not null.
-   */
-  @PropertyDefinition
-  private String _observationTime;
+  private Instant _valuationTime;
   /**
    * The status of the batch, determining if it is running, not null.
    */
   @PropertyDefinition
   private BatchStatus _status;
-  /**
-   * The master process host, not null.
-   */
-  @PropertyDefinition
-  private String _masterProcessHost;
   /**
    * The instant that the batch run was first created, not null.
    */
@@ -104,6 +93,29 @@ public class BatchDocument extends DirectBean {
    */
   @PropertyDefinition
   private final List<BatchError> _errors = new ArrayList<BatchError>();
+  /**
+   * The unique id of market data snapshot, not null.
+   */
+  @PropertyDefinition
+  private UniqueId _marketDataSnapshotUid;
+    /**
+   * The unique id of view definition, not null.
+   */
+  @PropertyDefinition
+  private UniqueId _viewDefinitionUid;
+  /**
+   * The unique id of view definition, not null.
+   */
+  @PropertyDefinition
+  private VersionCorrection _versionCorrection;
+  
+  
+  public final String BATCH_DOCUMENT_UNIQUE_ID_DELIMITER = "-";
+
+  /**
+   * The default scheme for unique identifiers.
+   */
+  public static final String IDENTIFIER_SCHEME_DEFAULT = "DbBat";
 
   /**
    * Creates an instance.
@@ -113,14 +125,44 @@ public class BatchDocument extends DirectBean {
 
   /**
    * Creates an instance specifying a unique identifier.
-   * 
+   *
    * @param uniqueId  the batch unique identifier, not null
    */
   public BatchDocument(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    setUniqueId(uniqueId);
+    String[] split = StringUtils.splitByWholeSeparatorPreserveAllTokens(uniqueId.getValue(), BATCH_DOCUMENT_UNIQUE_ID_DELIMITER);
+    if (split.length == 4 && uniqueId.getScheme().equals(IDENTIFIER_SCHEME_DEFAULT)) {
+      setUniqueId(uniqueId);
+      setViewDefinitionUid(UniqueId.parse(split[0]));
+      setMarketDataSnapshotUid(UniqueId.parse(split[1]));
+      setValuationTime(Instant.parse(split[2]));
+      setVersionCorrection(VersionCorrection.parse(split[3]));
+    } else {
+      throw new IllegalArgumentException("Invalid identifier format: " + uniqueId.getValue());
+    }
   }
 
+  /**
+   * Creates an instance specifying a unique identifier.
+   * 
+   * @param uniqueId  the batch unique identifier, not null
+   */
+  public BatchDocument(UniqueId viewDefinitionUid, UniqueId marketDataSnapshotUid, Instant valuationTime, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(viewDefinitionUid, "viewDefinitionUid");
+    ArgumentChecker.notNull(marketDataSnapshotUid, "marketDataSnapshotUid");
+    ArgumentChecker.notNull(valuationTime, "valuationTime");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    setViewDefinitionUid(viewDefinitionUid);
+    setMarketDataSnapshotUid(marketDataSnapshotUid);
+    setValuationTime(valuationTime);
+    setVersionCorrection(versionCorrection);
+    setUniqueId(createUniqueId(viewDefinitionUid, marketDataSnapshotUid, valuationTime, versionCorrection));
+  }
+  
+  private UniqueId createUniqueId(UniqueId viewDefinitionUid, UniqueId marketDataSnapshotUid, Instant valuationTime, VersionCorrection versionCorrection) {
+    return UniqueId.of(IDENTIFIER_SCHEME_DEFAULT, viewDefinitionUid + "-" + marketDataSnapshotUid + "-" + valuationTime + "-" + versionCorrection);
+  }
+  
   //-------------------------------------------------------------------------
   /**
    * Gets the unique entry by {@code ComputationTargetSpecification}.
@@ -168,14 +210,10 @@ public class BatchDocument extends DirectBean {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
-      case 950748666:  // observationDate
-        return getObservationDate();
-      case 951232793:  // observationTime
-        return getObservationTime();
+      case 113591406:  // valuationTime
+        return getValuationTime();
       case -892481550:  // status
         return getStatus();
-      case 2095858933:  // masterProcessHost
-        return getMasterProcessHost();
       case -961305086:  // creationInstant
         return getCreationInstant();
       case 1823123231:  // startInstant
@@ -192,6 +230,12 @@ public class BatchDocument extends DirectBean {
         return getErrorsPaging();
       case -1294635157:  // errors
         return getErrors();
+      case -1278853626:  // marketDataSnapshotUid
+        return getMarketDataSnapshotUid();
+      case 276749144:  // viewDefinitionUid
+        return getViewDefinitionUid();
+      case -2031293866:  // versionCorrection
+        return getVersionCorrection();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -203,17 +247,11 @@ public class BatchDocument extends DirectBean {
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
         return;
-      case 950748666:  // observationDate
-        setObservationDate((LocalDate) newValue);
-        return;
-      case 951232793:  // observationTime
-        setObservationTime((String) newValue);
+      case 113591406:  // valuationTime
+        setValuationTime((Instant) newValue);
         return;
       case -892481550:  // status
         setStatus((BatchStatus) newValue);
-        return;
-      case 2095858933:  // masterProcessHost
-        setMasterProcessHost((String) newValue);
         return;
       case -961305086:  // creationInstant
         setCreationInstant((Instant) newValue);
@@ -239,6 +277,15 @@ public class BatchDocument extends DirectBean {
       case -1294635157:  // errors
         setErrors((List<BatchError>) newValue);
         return;
+      case -1278853626:  // marketDataSnapshotUid
+        setMarketDataSnapshotUid((UniqueId) newValue);
+        return;
+      case 276749144:  // viewDefinitionUid
+        setViewDefinitionUid((UniqueId) newValue);
+        return;
+      case -2031293866:  // versionCorrection
+        setVersionCorrection((VersionCorrection) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -251,10 +298,8 @@ public class BatchDocument extends DirectBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       BatchDocument other = (BatchDocument) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getObservationDate(), other.getObservationDate()) &&
-          JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
+          JodaBeanUtils.equal(getValuationTime(), other.getValuationTime()) &&
           JodaBeanUtils.equal(getStatus(), other.getStatus()) &&
-          JodaBeanUtils.equal(getMasterProcessHost(), other.getMasterProcessHost()) &&
           JodaBeanUtils.equal(getCreationInstant(), other.getCreationInstant()) &&
           JodaBeanUtils.equal(getStartInstant(), other.getStartInstant()) &&
           JodaBeanUtils.equal(getEndInstant(), other.getEndInstant()) &&
@@ -262,7 +307,10 @@ public class BatchDocument extends DirectBean {
           JodaBeanUtils.equal(getDataPaging(), other.getDataPaging()) &&
           JodaBeanUtils.equal(getData(), other.getData()) &&
           JodaBeanUtils.equal(getErrorsPaging(), other.getErrorsPaging()) &&
-          JodaBeanUtils.equal(getErrors(), other.getErrors());
+          JodaBeanUtils.equal(getErrors(), other.getErrors()) &&
+          JodaBeanUtils.equal(getMarketDataSnapshotUid(), other.getMarketDataSnapshotUid()) &&
+          JodaBeanUtils.equal(getViewDefinitionUid(), other.getViewDefinitionUid()) &&
+          JodaBeanUtils.equal(getVersionCorrection(), other.getVersionCorrection());
     }
     return false;
   }
@@ -271,10 +319,8 @@ public class BatchDocument extends DirectBean {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStatus());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMasterProcessHost());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCreationInstant());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStartInstant());
     hash += hash * 31 + JodaBeanUtils.hashCode(getEndInstant());
@@ -283,6 +329,9 @@ public class BatchDocument extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getData());
     hash += hash * 31 + JodaBeanUtils.hashCode(getErrorsPaging());
     hash += hash * 31 + JodaBeanUtils.hashCode(getErrors());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotUid());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionUid());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionCorrection());
     return hash;
   }
 
@@ -316,52 +365,27 @@ public class BatchDocument extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the batch date, not null.
+   * Gets the batch valuation time, not null.
    * @return the value of the property
    */
-  public LocalDate getObservationDate() {
-    return _observationDate;
+  public Instant getValuationTime() {
+    return _valuationTime;
   }
 
   /**
-   * Sets the batch date, not null.
-   * @param observationDate  the new value of the property
+   * Sets the batch valuation time, not null.
+   * @param valuationTime  the new value of the property
    */
-  public void setObservationDate(LocalDate observationDate) {
-    this._observationDate = observationDate;
+  public void setValuationTime(Instant valuationTime) {
+    this._valuationTime = valuationTime;
   }
 
   /**
-   * Gets the the {@code observationDate} property.
+   * Gets the the {@code valuationTime} property.
    * @return the property, not null
    */
-  public final Property<LocalDate> observationDate() {
-    return metaBean().observationDate().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the batch time, such as LDN_CLOSE, not null.
-   * @return the value of the property
-   */
-  public String getObservationTime() {
-    return _observationTime;
-  }
-
-  /**
-   * Sets the batch time, such as LDN_CLOSE, not null.
-   * @param observationTime  the new value of the property
-   */
-  public void setObservationTime(String observationTime) {
-    this._observationTime = observationTime;
-  }
-
-  /**
-   * Gets the the {@code observationTime} property.
-   * @return the property, not null
-   */
-  public final Property<String> observationTime() {
-    return metaBean().observationTime().createProperty(this);
+  public final Property<Instant> valuationTime() {
+    return metaBean().valuationTime().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -387,31 +411,6 @@ public class BatchDocument extends DirectBean {
    */
   public final Property<BatchStatus> status() {
     return metaBean().status().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the master process host, not null.
-   * @return the value of the property
-   */
-  public String getMasterProcessHost() {
-    return _masterProcessHost;
-  }
-
-  /**
-   * Sets the master process host, not null.
-   * @param masterProcessHost  the new value of the property
-   */
-  public void setMasterProcessHost(String masterProcessHost) {
-    this._masterProcessHost = masterProcessHost;
-  }
-
-  /**
-   * Gets the the {@code masterProcessHost} property.
-   * @return the property, not null
-   */
-  public final Property<String> masterProcessHost() {
-    return metaBean().masterProcessHost().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -618,6 +617,81 @@ public class BatchDocument extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the unique id of market data snapshot, not null.
+   * @return the value of the property
+   */
+  public UniqueId getMarketDataSnapshotUid() {
+    return _marketDataSnapshotUid;
+  }
+
+  /**
+   * Sets the unique id of market data snapshot, not null.
+   * @param marketDataSnapshotUid  the new value of the property
+   */
+  public void setMarketDataSnapshotUid(UniqueId marketDataSnapshotUid) {
+    this._marketDataSnapshotUid = marketDataSnapshotUid;
+  }
+
+  /**
+   * Gets the the {@code marketDataSnapshotUid} property.
+   * @return the property, not null
+   */
+  public final Property<UniqueId> marketDataSnapshotUid() {
+    return metaBean().marketDataSnapshotUid().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the unique id of view definition, not null.
+   * @return the value of the property
+   */
+  public UniqueId getViewDefinitionUid() {
+    return _viewDefinitionUid;
+  }
+
+  /**
+   * Sets the unique id of view definition, not null.
+   * @param viewDefinitionUid  the new value of the property
+   */
+  public void setViewDefinitionUid(UniqueId viewDefinitionUid) {
+    this._viewDefinitionUid = viewDefinitionUid;
+  }
+
+  /**
+   * Gets the the {@code viewDefinitionUid} property.
+   * @return the property, not null
+   */
+  public final Property<UniqueId> viewDefinitionUid() {
+    return metaBean().viewDefinitionUid().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the unique id of view definition, not null.
+   * @return the value of the property
+   */
+  public VersionCorrection getVersionCorrection() {
+    return _versionCorrection;
+  }
+
+  /**
+   * Sets the unique id of view definition, not null.
+   * @param versionCorrection  the new value of the property
+   */
+  public void setVersionCorrection(VersionCorrection versionCorrection) {
+    this._versionCorrection = versionCorrection;
+  }
+
+  /**
+   * Gets the the {@code versionCorrection} property.
+   * @return the property, not null
+   */
+  public final Property<VersionCorrection> versionCorrection() {
+    return metaBean().versionCorrection().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code BatchDocument}.
    */
   public static class Meta extends DirectMetaBean {
@@ -632,25 +706,15 @@ public class BatchDocument extends DirectBean {
     private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
         this, "uniqueId", BatchDocument.class, UniqueId.class);
     /**
-     * The meta-property for the {@code observationDate} property.
+     * The meta-property for the {@code valuationTime} property.
      */
-    private final MetaProperty<LocalDate> _observationDate = DirectMetaProperty.ofReadWrite(
-        this, "observationDate", BatchDocument.class, LocalDate.class);
-    /**
-     * The meta-property for the {@code observationTime} property.
-     */
-    private final MetaProperty<String> _observationTime = DirectMetaProperty.ofReadWrite(
-        this, "observationTime", BatchDocument.class, String.class);
+    private final MetaProperty<Instant> _valuationTime = DirectMetaProperty.ofReadWrite(
+        this, "valuationTime", BatchDocument.class, Instant.class);
     /**
      * The meta-property for the {@code status} property.
      */
     private final MetaProperty<BatchStatus> _status = DirectMetaProperty.ofReadWrite(
         this, "status", BatchDocument.class, BatchStatus.class);
-    /**
-     * The meta-property for the {@code masterProcessHost} property.
-     */
-    private final MetaProperty<String> _masterProcessHost = DirectMetaProperty.ofReadWrite(
-        this, "masterProcessHost", BatchDocument.class, String.class);
     /**
      * The meta-property for the {@code creationInstant} property.
      */
@@ -694,15 +758,28 @@ public class BatchDocument extends DirectBean {
     private final MetaProperty<List<BatchError>> _errors = DirectMetaProperty.ofReadWrite(
         this, "errors", BatchDocument.class, (Class) List.class);
     /**
+     * The meta-property for the {@code marketDataSnapshotUid} property.
+     */
+    private final MetaProperty<UniqueId> _marketDataSnapshotUid = DirectMetaProperty.ofReadWrite(
+        this, "marketDataSnapshotUid", BatchDocument.class, UniqueId.class);
+    /**
+     * The meta-property for the {@code viewDefinitionUid} property.
+     */
+    private final MetaProperty<UniqueId> _viewDefinitionUid = DirectMetaProperty.ofReadWrite(
+        this, "viewDefinitionUid", BatchDocument.class, UniqueId.class);
+    /**
+     * The meta-property for the {@code versionCorrection} property.
+     */
+    private final MetaProperty<VersionCorrection> _versionCorrection = DirectMetaProperty.ofReadWrite(
+        this, "versionCorrection", BatchDocument.class, VersionCorrection.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
         this, null,
         "uniqueId",
-        "observationDate",
-        "observationTime",
+        "valuationTime",
         "status",
-        "masterProcessHost",
         "creationInstant",
         "startInstant",
         "endInstant",
@@ -710,7 +787,10 @@ public class BatchDocument extends DirectBean {
         "dataPaging",
         "data",
         "errorsPaging",
-        "errors");
+        "errors",
+        "marketDataSnapshotUid",
+        "viewDefinitionUid",
+        "versionCorrection");
 
     /**
      * Restricted constructor.
@@ -723,14 +803,10 @@ public class BatchDocument extends DirectBean {
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return _uniqueId;
-        case 950748666:  // observationDate
-          return _observationDate;
-        case 951232793:  // observationTime
-          return _observationTime;
+        case 113591406:  // valuationTime
+          return _valuationTime;
         case -892481550:  // status
           return _status;
-        case 2095858933:  // masterProcessHost
-          return _masterProcessHost;
         case -961305086:  // creationInstant
           return _creationInstant;
         case 1823123231:  // startInstant
@@ -747,6 +823,12 @@ public class BatchDocument extends DirectBean {
           return _errorsPaging;
         case -1294635157:  // errors
           return _errors;
+        case -1278853626:  // marketDataSnapshotUid
+          return _marketDataSnapshotUid;
+        case 276749144:  // viewDefinitionUid
+          return _viewDefinitionUid;
+        case -2031293866:  // versionCorrection
+          return _versionCorrection;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -776,19 +858,11 @@ public class BatchDocument extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code observationDate} property.
+     * The meta-property for the {@code valuationTime} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> observationDate() {
-      return _observationDate;
-    }
-
-    /**
-     * The meta-property for the {@code observationTime} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> observationTime() {
-      return _observationTime;
+    public final MetaProperty<Instant> valuationTime() {
+      return _valuationTime;
     }
 
     /**
@@ -797,14 +871,6 @@ public class BatchDocument extends DirectBean {
      */
     public final MetaProperty<BatchStatus> status() {
       return _status;
-    }
-
-    /**
-     * The meta-property for the {@code masterProcessHost} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> masterProcessHost() {
-      return _masterProcessHost;
     }
 
     /**
@@ -869,6 +935,30 @@ public class BatchDocument extends DirectBean {
      */
     public final MetaProperty<List<BatchError>> errors() {
       return _errors;
+    }
+
+    /**
+     * The meta-property for the {@code marketDataSnapshotUid} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<UniqueId> marketDataSnapshotUid() {
+      return _marketDataSnapshotUid;
+    }
+
+    /**
+     * The meta-property for the {@code viewDefinitionUid} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<UniqueId> viewDefinitionUid() {
+      return _viewDefinitionUid;
+    }
+
+    /**
+     * The meta-property for the {@code versionCorrection} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<VersionCorrection> versionCorrection() {
+      return _versionCorrection;
     }
 
   }

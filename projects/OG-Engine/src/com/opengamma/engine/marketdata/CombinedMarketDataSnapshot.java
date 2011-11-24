@@ -13,12 +13,13 @@ import java.util.concurrent.TimeUnit;
 import javax.time.Instant;
 
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.id.UniqueId;
 
 /**
  * 
  */
 public class CombinedMarketDataSnapshot implements MarketDataSnapshot {
-  
+
   private final Map<MarketDataProvider, MarketDataSnapshot> _snapshotByProvider;
   private final MarketDataSnapshot _prefferedSnapshot;
   private final CombinedMarketDataProvider _combinedMarketDataProvider;
@@ -27,6 +28,11 @@ public class CombinedMarketDataSnapshot implements MarketDataSnapshot {
     _prefferedSnapshot = prefferedSnapshot;
     _snapshotByProvider = snapshotByProvider;
     _combinedMarketDataProvider = combinedMarketDataProvider;
+  }
+
+  @Override
+  public UniqueId getUniqueId() {
+    return _prefferedSnapshot.getUniqueId();
   }
 
   @Override

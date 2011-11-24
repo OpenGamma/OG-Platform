@@ -52,9 +52,9 @@ public interface BatchMaster {
   /**
    * Deletes (permanently) a batch document and all its risk from the database.
    * 
-   * @param uniqueId  the unique identifier, not null
-   * @throws DataNotFoundException if there is no document with that unique identifier
+   * @param batchId  the batch identifier, not null
+   * @throws DataNotFoundException if there is no document with that batch identifier
    */
-  void delete(UniqueId uniqueId);
+  void delete(BatchId batchId);
 
 }

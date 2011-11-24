@@ -5,32 +5,32 @@
  */
 package com.opengamma.masterdb.batch;
 
+import com.opengamma.id.UniqueId;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * Hibernate bean.
  */
-public class ObservationTime {
-  
+public class ViewDefinition {
+
   private int _id;
-  private String _label;
-  
+  private String _uid;
+
   public int getId() {
     return _id;
   }
- 
+
   public void setId(int id) {
     _id = id;
   }
-  
-  public String getLabel() {
-    return _label;
+
+  public String getUid() {
+    return _uid;
   }
-  
-  public void setLabel(String label) {
-    _label = label;
+
+  public void setUid(String uid) {
+    _uid = uid;
   }
 
   @Override
@@ -42,10 +42,10 @@ public class ObservationTime {
   public boolean equals(Object obj) {
     return EqualsBuilder.reflectionEquals(this, obj);
   }
-  
+
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this);
+    return "ViewDefinition : " + _uid;
   }
 
 }

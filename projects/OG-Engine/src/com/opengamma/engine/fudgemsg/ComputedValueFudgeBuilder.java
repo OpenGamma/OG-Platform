@@ -8,8 +8,6 @@ package com.opengamma.engine.fudgemsg;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.calcnode.CalculationJobItem;
-import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.InvocationResult;
 import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeField;
@@ -41,7 +39,7 @@ public class ComputedValueFudgeBuilder implements FudgeBuilder<ComputedValue> {
   private static final String EXCEPTION_MSG_FIELD_NAME = "exceptionMsg";
   private static final String STACK_TRACE_FIELD_NAME = "stackTrace";
   private static final String MISSING_INPUTS_FIELD_NAME = "missingInputs";
-  private static final String REQUIREMENTS_FIELD_NAME = "requirements";
+  private static final String REQUIREMENT_FIELD_NAME = "requirements";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ComputedValue object) {
@@ -62,8 +60,8 @@ public class ComputedValueFudgeBuilder implements FudgeBuilder<ComputedValue> {
     if (object.getMissingInputs() != null) {
       serializer.addToMessage(msg, MISSING_INPUTS_FIELD_NAME, null, object.getMissingInputs());
     }
-    if (object.getRequirements() != null) {
-      serializer.addToMessage(msg, REQUIREMENTS_FIELD_NAME, null, object.getRequirements());
+    if (object.getRequirement() != null) {
+      serializer.addToMessage(msg, REQUIREMENT_FIELD_NAME, null, object.getRequirement());
     }
     if (object.getStackTrace() != null) {
       serializer.addToMessage(msg, STACK_TRACE_FIELD_NAME, null, object.getStackTrace());
@@ -89,7 +87,7 @@ public class ComputedValueFudgeBuilder implements FudgeBuilder<ComputedValue> {
     String exceptionClass = message.getString(EXCEPTION_CLASS_FIELD_NAME);
     String exceptionMsg = message.getString(EXCEPTION_MSG_FIELD_NAME);
     String stackTrace = message.getString(STACK_TRACE_FIELD_NAME);
-    Set<ValueRequirement> requirements = deserializer.fieldValueToObject(Set.class, message.getByName(REQUIREMENTS_FIELD_NAME));
+    ValueRequirement requirement = deserializer.fieldValueToObject(ValueRequirement.class, message.getByName(REQUIREMENT_FIELD_NAME));
     Set<ValueSpecification> missingInputs = deserializer.fieldValueToObject(Set.class, message.getByName(MISSING_INPUTS_FIELD_NAME));
 
     ComputedValue computedValue = new ComputedValue(valueSpec, valueObject);
@@ -97,7 +95,7 @@ public class ComputedValueFudgeBuilder implements FudgeBuilder<ComputedValue> {
     computedValue.setExceptionMsg(exceptionMsg);
     computedValue.setInvocationResult(invocationResult);
     computedValue.setMissingInputs(missingInputs);
-    computedValue.setRequirements(requirements);
+    computedValue.setRequirement(requirement);
     computedValue.setStackTrace(stackTrace);
 
     return computedValue;

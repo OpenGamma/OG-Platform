@@ -12,16 +12,16 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 /**
  * Hibernate bean.
  */
-public class RiskValueName {
+public class RiskValueName implements HavingDatabaseId<Integer>{
   
   private int _id;
   private String _name;
   
-  public int getId() {
+  public Integer getId() {
     return _id;
   }
  
-  public void setId(int id) {
+  public void setId(Integer id) {
     _id = id;
   }
   

@@ -11,6 +11,7 @@ import javax.time.Instant;
 
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
@@ -208,8 +209,8 @@ public class TestViewResultListener extends AbstractTestResultListener implement
   }
 
   @Override
-  public void cycleInitiated(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping) {
-    callReceived(new CycleInitiatedCall(viewCycleExecutionOptions, specificationToRequirementMapping), true);
+  public void cycleInitiated(CycleInfo cycleInfo) {
+    callReceived(new CycleInitiatedCall(cycleInfo), true);
   }
 
   @Override

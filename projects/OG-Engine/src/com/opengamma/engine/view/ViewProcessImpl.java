@@ -250,12 +250,12 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, Computat
     }
   }
 
-  public void cycleInitiated(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping) {
+  public void cycleInitiated(CycleInfo cycleInfo) {
     // Caller MUST NOT hold the semaphore
-    s_logger.debug("View cycle, with execution options {} initiated on view process {}", viewCycleExecutionOptions, getUniqueId());
+    s_logger.debug("View cycle {} initiated on view process {}", cycleInfo, getUniqueId());
     lock();
     try {
-      cycleInitiatedCore(viewCycleExecutionOptions, specificationToRequirementMapping);
+      cycleInitiatedCore(cycleInfo);
     } finally {
       unlock();
     }
@@ -320,7 +320,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, Computat
     }
   }
 
-  private void cycleInitiatedCore(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping) {
+  private void cycleInitiatedCore(CycleInfo cycleInfo) {
     // Caller MUST hold the semaphore
 
     // [PLAT-1158]
@@ -332,7 +332,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, Computat
     // We swap these first so that in the callback the process is consistent.
     for (ViewResultListener listener : _listeners) {
       try {
-        listener.cycleInitiated(viewCycleExecutionOptions, specificationToRequirementMapping);
+        listener.cycleInitiated(cycleInfo);
       } catch (Exception e) {
         logListenerError(listener, e);
       }

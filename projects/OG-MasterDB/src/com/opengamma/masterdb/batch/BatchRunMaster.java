@@ -3,13 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.batch;
+package com.opengamma.masterdb.batch;
+
+import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.financial.batch.BatchMaster;
+import com.opengamma.financial.batch.LiveDataValue;
+import com.opengamma.id.UniqueId;
 
 import java.util.Set;
-
-import javax.time.calendar.OffsetTime;
-
-import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 
 /**
  * A master for storing batch job runs.
@@ -27,7 +28,7 @@ public interface BatchRunMaster extends BatchMaster {
    * 
    * @param batch  the batch job which is starting, not null
    */
-  void startBatch(BatchJobRun batch);
+  void startBatch(Batch batch);
 
   /**
    * Ends the storage of a batch job run.
@@ -36,16 +37,26 @@ public interface BatchRunMaster extends BatchMaster {
    * 
    * @param batch  the batch job which has finished, not null
    */
-  void endBatch(BatchJobRun batch);
+  void endBatch(Batch batch);
 
   //-------------------------------------------------------------------------
   /**
    * Creates a LiveData snapshot in the database. 
    * If the snapshot already exists, does nothing.
    * 
-   * @param snapshotId The date and time of the snapshot, not null
+   * @param snapshotId The market data specification of the snapshot, not null
+   * @return the snapshot
    */
-  void createLiveDataSnapshot(SnapshotId snapshotId);
+  LiveDataSnapshot createLiveDataSnapshot(UniqueId snapshotId);
+
+  /**
+   * Craetes a version correction in the database.
+   * If the version correction already exists, does nothing.
+   *
+   * @param versionCorrection The version correction, not null
+   * @return the databse version correction
+   */
+  VersionCorrection createVersionCorrection(com.opengamma.id.VersionCorrection versionCorrection);
 
   /**
    * Fixes the time of a LiveData snapshot in the database.
@@ -55,40 +66,35 @@ public interface BatchRunMaster extends BatchMaster {
    * @param snapshotId The date and time of the snapshot, not null
    * @param fix The time to which the observation time was fixed, not null
    */
-  void fixLiveDataSnapshotTime(SnapshotId snapshotId, OffsetTime fix);
+  //TODO enableit?
+  //void fixLiveDataSnapshotTime(UniqueId marketDataSnapshotUniqueId, OffsetTime fix);
 
   /**
    * Adds market data fixings to an existing LiveData snapshot. The
    * snapshot must already exist.
    * 
-   * @param snapshotId The date and time of the snapshot, not null
+   * @param marketDataSnapshotUniqueId Unique id of the snapshot, not null
    * @param values The fixings, not null
    */
-  void addValuesToSnapshot(SnapshotId snapshotId, Set<LiveDataValue> values);
+  void addValuesToSnapshot(UniqueId marketDataSnapshotUniqueId, Set<LiveDataValue> values);
 
   /**
    * Gets all market data fixings associated with an existing snapshot.
    * 
-   * @param snapshotId The date and time of the snapshot, not null
+   * @param snapshotUniqueId Unique id of the snapshot, not null
    * @return The fixings associated with this snapshot, not null
    * @throws IllegalArgumentException If a snapshot with the given
    * ID does not exist
    */
-  Set<LiveDataValue> getSnapshotValues(SnapshotId snapshotId);
+  Set<LiveDataValue> getSnapshotValues(UniqueId snapshotUniqueId);
+
+  void addJobResults(Batch batch, ViewResultModel result);
+
+  RiskRun createRiskRun(Batch batch);
 
   /**
-   * Gets a factory for executing dependency graphs and
-   * writing risk values into the database.
-   * <p>
-   * The risk is written into the database incrementally,
-   * as the dependency graph is being executed. This
-   * is useful if you do not already have the results in
-   * memory.
-   * 
-   * @param batch The batch job for which results will be written
-   * @return A factory used to execute the batch dependency graph
-   * and write results into the database.
+   * Ends the batch.
+   * @param batch the batch to end.
    */
-  DependencyGraphExecutorFactory<?> createDependencyGraphExecutorFactory(BatchJobRun batch);
-
+  void end(Batch batch);
 }

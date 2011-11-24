@@ -4,18 +4,21 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.masterdb.batch">
 
-  <class name="ObservationTime" table="rsk_observation_time">
+  <class name="ViewDefinition" table="rsk_view_definition">
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
       	<param name="optimizer">hilo</param>
       	<param name="increment_size">100</param>
       </generator>
     </id>
-    <property name="label" not-null="true"/>
+
+    <property name="uid" column="uid" not-null="true"/>
+
   </class>
   
-  <query name="ObservationTime.one.byLabel">
-  	from ObservationTime as a where 
-  	a.label = :label</query>  
+  <query name="ViewDefinition.one.byUID">
+    from ViewDefinition as a where
+    a.uid = :uid
+  </query>
   
 </hibernate-mapping>

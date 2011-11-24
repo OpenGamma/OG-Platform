@@ -5,8 +5,11 @@
  */
 package com.opengamma.financial.fudgemsg;
 
+import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
@@ -25,30 +28,42 @@ import com.opengamma.financial.batch.BatchId;
 public class BatchIdFudgeBuilder implements FudgeBuilder<BatchId> {
 
   /** Field name. */
-  public static final String DATE_FIELD_NAME = "observationDate";
+  public static final String SNAPSHOT_UID_FIELD_NAME = "marketDataSnapshotUid";
   /** Field name. */
-  public static final String TIME_FIELD_NAME = "observationTime";
+  public static final String VALUATION_TIME_FIELD_NAME = "valuationTime";
+  /** Field name. */
+  public static final String VERSION_CORRECTION_FIELD_NAME = "versionCorrection";
+  /** Field name. */
+  public static final String VIEW_DEFINITION_UID_FIELD_NAME = "viewDefinitionUid";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, BatchId object) {
     MutableFudgeMsg msg = serializer.newMessage();
-    msg.add(DATE_FIELD_NAME, null, object.getObservationDate());
-    msg.add(TIME_FIELD_NAME, null, object.getObservationTime());
+    msg.add(SNAPSHOT_UID_FIELD_NAME, null, object.getMarketDataSnapshotUid());
+    msg.add(VALUATION_TIME_FIELD_NAME, null, object.getValuationTime());
+    msg.add(VERSION_CORRECTION_FIELD_NAME, null, object.getVersionCorrection());
+    msg.add(VIEW_DEFINITION_UID_FIELD_NAME, null, object.getViewDefinitionUid());
     return msg;
   }
 
   @Override
   public BatchId buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    FudgeField dateField = message.getByName(DATE_FIELD_NAME);
-    FudgeField timeField = message.getByName(TIME_FIELD_NAME);
+    FudgeField snapshotUidField = message.getByName(SNAPSHOT_UID_FIELD_NAME);
+    FudgeField valuationTimeField = message.getByName(VALUATION_TIME_FIELD_NAME);
+    FudgeField versionCorrectionField = message.getByName(VERSION_CORRECTION_FIELD_NAME);
+    FudgeField viewDefinitionUidField = message.getByName(VIEW_DEFINITION_UID_FIELD_NAME);
 
-    Validate.notNull(dateField, "Fudge message is not a BatchId - field " + DATE_FIELD_NAME + " is not present");
-    Validate.notNull(timeField, "Fudge message is not a BatchId - field " + TIME_FIELD_NAME + " is not present");
+    Validate.notNull(snapshotUidField, "Fudge message is not a BatchId - field " + SNAPSHOT_UID_FIELD_NAME + " is not present");
+    Validate.notNull(valuationTimeField, "Fudge message is not a BatchId - field " + VALUATION_TIME_FIELD_NAME + " is not present");
+    Validate.notNull(versionCorrectionField, "Fudge message is not a BatchId - field " + VERSION_CORRECTION_FIELD_NAME + " is not present");
+    Validate.notNull(viewDefinitionUidField, "Fudge message is not a BatchId - field " + VIEW_DEFINITION_UID_FIELD_NAME + " is not present");
 
-    LocalDate date = message.getFieldValue(LocalDate.class, dateField);
-    String time = message.getFieldValue(String.class, timeField);
-    
-    return new BatchId(date, time);
+    UniqueId snapshotUid = message.getFieldValue(UniqueId.class, snapshotUidField);
+    Instant valuationTime = message.getFieldValue(Instant.class, valuationTimeField);
+    VersionCorrection versionCorrection = message.getFieldValue(VersionCorrection.class, versionCorrectionField);
+    UniqueId viewDefinitionUid = message.getFieldValue(UniqueId.class, viewDefinitionUidField);
+
+    return new BatchId(snapshotUid, viewDefinitionUid, versionCorrection, valuationTime);
   }
 
 }

@@ -5,11 +5,6 @@
  */
 package com.opengamma.financial.batch.marketdata;
 
-import java.util.Set;
-
-import javax.time.Duration;
-import javax.time.Instant;
-
 import com.opengamma.engine.marketdata.HistoricalMarketDataProvider;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataSnapshot;
@@ -23,10 +18,12 @@ import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermission
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.financial.batch.BatchJobRun;
-import com.opengamma.financial.batch.BatchRunMaster;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
+
+import javax.time.Duration;
+import javax.time.Instant;
+import java.util.Set;
 
 // REVIEW jonathan 2011-06-30 -- as usual, this has been added simply to make batch work against the new market data
 // API. It is not an illustration of the best practice for implementing a custom MarketDataProvider, and has only been
@@ -44,14 +41,6 @@ import com.opengamma.util.ArgumentChecker;
 public class BatchMarketDataProvider implements MarketDataProvider, MarketDataAvailabilityProvider {
 
   /**
-   * The run for which snapshots are being provided.
-   */
-  private final BatchJobRun _run;
-  /**
-   * The batch master.
-   */
-  private final BatchRunMaster _batchRunMaster;
-  /**
    * The provider of previously-used market data from the batch database.
    */
   private final InMemoryLKVMarketDataProvider _batchDbProvider;
@@ -62,22 +51,14 @@ public class BatchMarketDataProvider implements MarketDataProvider, MarketDataAv
 
   /**
    * Creates an instance.
-   * 
-   * @param run  the run data, not null
-   * @param batchRunMaster  the batch master, not null
+   *
    * @param batchDbProvider  the provider of previously-used market data from the batch database, not null 
    * @param historicalMarketDataProvider  the provider of historical market data, not null
    */
   public BatchMarketDataProvider(
-      BatchJobRun run,
-      BatchRunMaster batchRunMaster,
       InMemoryLKVMarketDataProvider batchDbProvider,
       HistoricalMarketDataProvider historicalMarketDataProvider) {
-    ArgumentChecker.notNull(run, "run");
-    ArgumentChecker.notNull(batchRunMaster, "batchMaster");
     ArgumentChecker.notNull(batchDbProvider, "batchDbMarketDataProvider");
-    _run = run;
-    _batchRunMaster = batchRunMaster;
     _batchDbProvider = batchDbProvider;
     _historicalMarketDataProvider = historicalMarketDataProvider;
   }
@@ -145,7 +126,7 @@ public class BatchMarketDataProvider implements MarketDataProvider, MarketDataAv
       historicalSnapshot = null;
     }
     
-    return new BatchMarketDataSnapshot(_run.getSnapshotId(), _batchRunMaster, _batchDbProvider, batchDbSnapshot, historicalSnapshot);
+    return new BatchMarketDataSnapshot(_batchDbProvider, batchDbSnapshot, historicalSnapshot);
   }
   
   @Override

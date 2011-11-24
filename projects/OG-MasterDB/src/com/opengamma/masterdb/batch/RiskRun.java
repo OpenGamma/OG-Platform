@@ -17,18 +17,21 @@ import java.util.Set;
 public class RiskRun {
   
   private int _id;
-  private OpenGammaVersion _openGammaVersion;
-  private ComputeHost _masterProcessHost;
-  private ObservationDateTime _runTime;
+  //private ComputeHost _masterProcessHost;
+  //private ObservationDateTime _runTime;
   private LiveDataSnapshot _liveDataSnapshot;
   private Timestamp _createInstant;
   private Timestamp _startInstant;
   private Timestamp _endInstant;
+  private Timestamp _valuationTime;
   private int _numRestarts;
   private Set<CalculationConfiguration> _calculationConfigurations = new HashSet<CalculationConfiguration>();
   private Set<RiskRunProperty> _properties = new HashSet<RiskRunProperty>();
   private boolean _complete;
-  
+  private VersionCorrection _versionCorrection;
+  private ViewDefinition _viewDefinition;
+
+
   public int getId() {
     return _id;
   }
@@ -36,16 +39,9 @@ public class RiskRun {
   public void setId(int id) {
     _id = id;
   }
+
   
-  public OpenGammaVersion getOpenGammaVersion() {
-    return _openGammaVersion;
-  }
-  
-  public void setOpenGammaVersion(OpenGammaVersion openGammaVersion) {
-    _openGammaVersion = openGammaVersion;
-  }
-  
-  public ComputeHost getMasterProcessHost() {
+/*  public ComputeHost getMasterProcessHost() {
     return _masterProcessHost;
   }
   
@@ -59,7 +55,7 @@ public class RiskRun {
   
   public void setRunTime(ObservationDateTime runTime) {
     _runTime = runTime;
-  }
+  }*/
   
   public LiveDataSnapshot getLiveDataSnapshot() {
     return _liveDataSnapshot;
@@ -177,12 +173,35 @@ public class RiskRun {
     calcConf.setRiskRun(this);
     _calculationConfigurations.add(calcConf);
   }
-  
-  // --------------------------------------------------------------------------
+
+  public Timestamp getValuationTime() {
+    return _valuationTime;
+  }
+
+  public void setValuationTime(Timestamp valuationTime) {
+    this._valuationTime = valuationTime;
+  }
+
+// --------------------------------------------------------------------------
   
   @Override
   public String toString() {
     return "RiskRun[id=" + getId() + "]";
   }
-  
+
+  public void setVersionCorrection(VersionCorrection versionCorrection) {
+    _versionCorrection = versionCorrection;
+  }
+
+  public VersionCorrection getVersionCorrection() {
+    return _versionCorrection;
+  }
+
+  public void setViewDefinition(ViewDefinition viewDefinition) {
+    _viewDefinition = viewDefinition;
+  }
+
+  public ViewDefinition getViewDefinition() {
+    return _viewDefinition;
+  }
 }

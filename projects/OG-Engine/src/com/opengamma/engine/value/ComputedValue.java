@@ -49,7 +49,8 @@ public class ComputedValue implements Serializable {
   private String _exceptionMsg = null;
   private String _stackTrace = null;
   private Set<ValueSpecification> _missingInputs = null;
-  private Set<ValueRequirement> _requirements = null;
+  private ValueRequirement _originalRequirement = null;
+  private String _nodeId;
 
   /**
    * Creates a computed value.
@@ -128,12 +129,20 @@ public class ComputedValue implements Serializable {
     this._missingInputs = missingInputs;
   }
 
-  public Set<ValueRequirement> getRequirements() {
-    return _requirements;
+  public ValueRequirement getRequirement() {
+    return _originalRequirement;
   }
 
-  public void setRequirements(Set<ValueRequirement> requirements) {
-    this._requirements = requirements;
+  public void setRequirement(ValueRequirement requirement) {
+    _originalRequirement = requirement;
+  }
+
+  public String getComputeNodeId() {
+    return _nodeId;
+  }
+
+  public void setComputeNodeId(String nodeId) {
+    _nodeId = nodeId;
   }
 
   //-------------------------------------------------------------------------
@@ -149,7 +158,7 @@ public class ComputedValue implements Serializable {
           ObjectUtils.equals(_exceptionClass, other._exceptionClass) &&
           ObjectUtils.equals(_missingInputs, other._missingInputs) &&
           ObjectUtils.equals(_exceptionMsg, other._exceptionMsg) &&
-          ObjectUtils.equals(_requirements, other._requirements) &&
+          ObjectUtils.equals(_originalRequirement, other._originalRequirement) &&
           ObjectUtils.equals(_stackTrace, other._stackTrace) &&
           ObjectUtils.equals(_result, other._result) &&
           ObjectUtils.equals(_value, other._value);
@@ -166,7 +175,7 @@ public class ComputedValue implements Serializable {
     result = 31 * result + (_exceptionMsg != null ? _exceptionMsg.hashCode() : 0);
     result = 31 * result + (_stackTrace != null ? _stackTrace.hashCode() : 0);
     result = 31 * result + (_missingInputs != null ? _missingInputs.hashCode() : 0);
-    result = 31 * result + _requirements.hashCode();
+    result = 31 * result + _originalRequirement.hashCode();
     return result;
   }
 

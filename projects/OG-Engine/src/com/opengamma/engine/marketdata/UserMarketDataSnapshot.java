@@ -153,6 +153,12 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
   }
   
   //-------------------------------------------------------------------------
+
+  @Override
+  public UniqueId getUniqueId() {
+    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "UserMarketDataSnapshot:"+getSnapshotTime());
+  }
+
   @Override
   public Instant getSnapshotTimeIndication() {
     init();

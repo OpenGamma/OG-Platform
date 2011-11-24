@@ -8,6 +8,7 @@ package com.opengamma.engine.view.client;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
@@ -120,10 +121,10 @@ public class ViewClientImpl implements ViewClient {
       }
 
       @Override
-      public void cycleInitiated(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping) {
+      public void cycleInitiated(CycleInfo cycleInfo) {
         ViewResultListener listener = _userResultListener.get();
         if (listener != null) {
-          listener.cycleInitiated(viewCycleExecutionOptions, specificationToRequirementMapping);
+          listener.cycleInitiated(cycleInfo);
         }
       }
 

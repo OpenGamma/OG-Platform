@@ -9,6 +9,7 @@ import javax.time.Instant;
 
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.listener.CycleInitiatedCall;
 import com.opengamma.engine.view.listener.JobResultReceivedCall;
@@ -90,8 +91,8 @@ public class ViewClientJmsResultPublisher extends AbstractJmsResultPublisher imp
   }
 
   @Override
-  public void cycleInitiated(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping) {
-    send(new CycleInitiatedCall(viewCycleExecutionOptions, specificationToRequirementMapping));
+  public void cycleInitiated(CycleInfo cycleInfo) {
+    send(new CycleInitiatedCall(cycleInfo));
   }
 
   @Override

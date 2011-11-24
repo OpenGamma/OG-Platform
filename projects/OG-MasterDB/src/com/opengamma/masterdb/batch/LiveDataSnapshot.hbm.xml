@@ -15,14 +15,14 @@
         <key column="snapshot_id"/>
         <one-to-many class="LiveDataSnapshotEntry"/>
     </set>
-    <many-to-one name="snapshotTime" 
-    	column="observation_datetime_id" 
-    	not-null="true"/>
+
+    <property name="marketDataSnapshotUniqueId" column="market_data_snapshot_uniqueid" not-null="true"/>
+
   </class>
   
-  <query name="LiveDataSnapshot.one.byDateAndTime">
-  	from LiveDataSnapshot as a where 
-  	a.snapshotTime.date = :date and
-  	a.snapshotTime.observationTime.label = :time</query>  
+  <query name="LiveDataSnapshot.one.byMarketDataSnapshotUniqueId">
+    from LiveDataSnapshot as a where
+    a.marketDataSnapshotUniqueId = :marketDataSnapshotUniqueId
+  </query>
   
 </hibernate-mapping>

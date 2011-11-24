@@ -5,7 +5,9 @@
  */
 package com.opengamma.util.functional;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,6 +23,30 @@ import java.util.Set;
 public class Functional {
 
   /**
+   * Creates an array of stings out of supplied objects
+   *
+   * @param objs objects out of which string array is created
+   * @return an array of stings out of supplied objects 
+   */
+  public static String[] newStringArray(final Object... objs) {
+    String[] strings = new String[objs.length];
+    for (int i = 0; i < objs.length; i++) {
+      strings[i] = objs[i] != null ? objs[i].toString() : null;
+    }
+    return strings;
+  }
+
+  /**
+   * Creates an array of type V out of provided objects (of type V as well)
+   *
+   * @param array objects out of which the array is created
+   * @return an array of type V out of provided objects
+   */
+  public static <V> V[] newArray(final V... array) {
+    return array;
+  }
+
+  /**
    * Returns part of the provided map which values are contained by provided set of values
    * @param map the map
    * @param values the set of values
@@ -28,7 +54,7 @@ public class Functional {
    * @param <V> type of map values
    * @return submap of the original map
    */
-  public static <K, V> Map<K, V> submapByValueSet(Map<K, V> map, Set<V> values) {
+  public static <K, V> Map<K, V> submapByValueSet(final Map<K, V> map, final Set<V> values) {
     Map<K, V> submap = new HashMap<K, V>();
     for (K key : map.keySet()) {
       V value = map.get(key);
@@ -47,7 +73,7 @@ public class Functional {
    * @param <V> type of map values
    * @return submap of the original map
    */
-  public static <K, V> Map<K, V> submapByKeySet(Map<K, V> map, Set<K> keys) {
+  public static <K, V> Map<K, V> submapByKeySet(final Map<K, V> map, final Set<K> keys) {
     Map<K, V> submap = new HashMap<K, V>();
     for (K key : keys) {
       if (map.containsKey(key)) {
@@ -65,7 +91,7 @@ public class Functional {
    * @param <V> type of map values
    * @return the reversed map
    */
-  public static <K, V> Map<V, Collection<K>> reverseMap(Map<K, V> map) {
+  public static <K, V> Map<V, Collection<K>> reverseMap(final Map<K, V> map) {
     Map<V, Collection<K>> reversed = new HashMap<V, Collection<K>>();
     for (K key : map.keySet()) {
       V value = map.get(key);
@@ -87,7 +113,7 @@ public class Functional {
    * @param <V> type of map values
    * @return the merged map
    */
-  public static <K, V> Map<K, V> merge(Map<K, V> target, Map<K, V> source) {
+  public static <K, V> Map<K, V> merge(final Map<K, V> target, final Map<K, V> source) {
     for (K key : source.keySet()) {
       target.put(key, source.get(key));
     }
@@ -100,105 +126,67 @@ public class Functional {
    * @param <T> type if elements in unsorted collection (must implement Comparable interface)
    * @return list sorted using internal entries' {@link Comparable#compareTo(Object)} compareTo} method.
    */
-  public static <T extends Comparable> List<T> sort(Collection<T> c) {
+  public static <T extends Comparable> List<T> sort(final Collection<T> c) {
     List<T> list = new ArrayList<T>(c);
     Collections.sort(list);
     return list;
   }
 
-  public static <T> T head(Iterable<? extends T> i) {
-    final Iterator<? extends T> iter = i.iterator();
-    if (iter.hasNext()) {
-      return iter.next();
-    } else {
-      return null;
-    }
-  }
-
-  public static <T> Iterable<? extends T> tail(Iterable<? extends T> i) {
-    final Iterator<? extends T> iter = i.iterator();
-    if (iter.hasNext()) {
-      iter.next(); // loose the head
-      return new Iterable<T>() {
-        @Override
-        public Iterator<T> iterator() {
-          return new Iterator<T>() {
-            @Override
-            public boolean hasNext() {
-              return iter.hasNext();
-            }
-
-            @Override
-            public T next() {
-              return iter.next();
-            }
-
-            @Override
-            public void remove() {
-              //iter.remove();
-              throw new UnsupportedOperationException("don't mutate");
-            }
-          };
-        }
-      };
-    } else {
-      throw new UnsupportedOperationException("can't get tail of the empty Iterable");
-    }
-  }
-
-  public static <T> boolean empty(Iterable<? extends T> i) {
-    final Iterator<? extends T> iter = i.iterator();
-    return !iter.hasNext();
-  }
-
-  public static final Iterable EMPTY_ITERABLE = new Iterable() {
-    @Override
-    public Iterator iterator() {
-      return new Iterator() {
-        @Override
-        public boolean hasNext() {
-          return false;
-        }
-
-        @Override
-        public Object next() {
-          return null;
-        }
-
-        @Override
-        public void remove() {
-          throw new UnsupportedOperationException("don't mutate");
-        }
-      };
-    }
-  };
-
-  public static <T, S> T reduce(T acc, Iterable<? extends S> c, Function2<T, S, T> reducer) {
-    T result = acc;
-    final Iterator<? extends S> iter = c.iterator();
-    if (iter.hasNext()) {
+  public static <T, S> T reduce(final T acc, final Iterator<? extends S> iter, final Function2<T, S, T> reducer) {
+    T result = acc;    
+    while (iter.hasNext()) {
       result = reducer.execute(result, iter.next());
-      while (iter.hasNext()) {
-        result = reducer.execute(result, iter.next());
-      }
     }
     return result;
   }
 
-  public static <T> T reduce(Iterable<? extends T> c, Function2<T, T, T> reducer) {
-    T head = head(c);
-    if (head != null) {
-      return reduce(head, tail(c), reducer);
-    } else {
+  public static <T, S> T reduce(final T acc, final Iterable<? extends S> c, final Function2<T, S, T> reducer) {
+    final Iterator<? extends S> iter = c.iterator();
+    return reduce(acc, iter, reducer);
+  }
+
+  public static <T> T reduce(final Iterable<? extends T> c, final Function2<T, T, T> reducer) {
+    final Iterator<? extends T> iter = c.iterator();
+    if(iter.hasNext()){
+      T acc = iter.next();
+      return reduce(acc, iter, reducer);
+    }else{
       return null;
     }
   }
 
+  public static <T> boolean any(final Iterable<? extends T> c, final Function1<T, Boolean> predicate) {
+    final Iterator<? extends T> iter = c.iterator();
+    boolean _any = false;
+    while (!_any && iter.hasNext()) {
+      _any = predicate.execute(iter.next());
+    }
+    return _any;
+  }
+  
+  public static <T> boolean all(final Iterable<? extends T> c, final Function1<T, Boolean> predicate) {
+    final Iterator<? extends T> iter = c.iterator();
+    boolean _all = true;
+    while (_all && iter.hasNext()) {
+      _all = predicate.execute(iter.next());
+    }
+    return _all;
+  }
+
+  public static <T> Function1<T, Boolean> complement(final Function1<T, Boolean> predicate) {
+    return new Function1<T, Boolean>(){
+      @Override
+      public Boolean execute(T t) {
+        return !predicate.execute(t);
+      }
+    };
+  }
+  
   public static <T> Collection<T> filter(Iterable<? extends T> c, final Function1<T, Boolean> predicate) {
     return reduce(new LinkedList<T>(), c, new Function2<LinkedList<T>, T, LinkedList<T>>() {
       @Override
       public LinkedList<T> execute(LinkedList<T> acc, T e) {
-        if(predicate.execute(e)){
+        if (predicate.execute(e)) {
           acc.add(e);
         }
         return acc;
@@ -210,17 +198,23 @@ public class Functional {
     return map(new LinkedList<T>(), c, mapper);
   }
 
-  public static <T, S> Collection<T> map(Collection<T> into, Iterable<? extends S> c, Function1<S, T> mapper) {
+  public static <T, S, X extends Collection<T>> X map(X into, Iterable<? extends S> c, Function1<S, T> mapper) {
     for (S arg : c) {
       into.add(mapper.execute(arg));
     }
     return into;
   }
-  
+
+  public static <S> void dorun(Iterable<? extends S> c, Function1<S, Void> executor) {
+    for (S arg : c) {
+      executor.execute(arg);
+    }
+  }
+
   public static <T, S> Collection<T> flatMap(Iterable<? extends S> c, Function1<S, Collection<T>> mapper) {
     return flatMap(new LinkedList<T>(), c, mapper);
   }
-  
+
   public static <T, S, X extends Collection<T>> X flatMap(X into, Iterable<? extends S> c, Function1<S, Collection<T>> mapper) {
     for (S arg : c) {
       into.addAll(mapper.execute(arg));

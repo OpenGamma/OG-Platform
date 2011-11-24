@@ -18,6 +18,7 @@ import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 
 /**
  * A {@link MarketDataSnapshot} backed by historical data.
@@ -33,7 +34,12 @@ public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
     _timeSeriesSource = timeSeriesSource;
     _fieldResolver = fieldResolver;
   }
-  
+
+  @Override
+  public UniqueId getUniqueId() {
+    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "HistoricalMarketDataSnapshot:"+getSnapshotTime());
+  }
+
   @Override
   public Instant getSnapshotTimeIndication() {
     // TODO something better thought-out here

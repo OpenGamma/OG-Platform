@@ -11,36 +11,45 @@
       	<param name="increment_size">100</param>
       </generator>
     </id>
-    <many-to-one name="openGammaVersion" 
-    	column="opengamma_version_id" 
-    	not-null="true"/>
-   	<many-to-one name="masterProcessHost" 
-    	column="master_process_host_id" 
-    	not-null="true"/>
-   	<many-to-one name="runTime" 
-    	column="run_time_id" 
-    	not-null="true"/>
+
    	<many-to-one name="liveDataSnapshot" 
     	column="live_data_snapshot_id" 
     	not-null="true"/>
+
+    <many-to-one name="viewDefinition"
+        	column="view_definition_id"
+        	not-null="true"/>
+
+    <many-to-one name="versionCorrection"
+            	column="version_correction_id"
+            	not-null="true"/>
+
+
    	<property name="createInstant" column="create_instant" not-null="true"/>
    	<property name="startInstant" column="start_instant" not-null="true"/>
    	<property name="endInstant" column="end_instant"/>
    	<property name="numRestarts" column="num_restarts"/>
+    <property name="valuationTime" column="valuation_time"/>
+
     <set name="calculationConfigurations" inverse="true">
         <key column="run_id"/>
         <one-to-many class="CalculationConfiguration"/>
     </set>
+
     <set name="properties" inverse="true">
         <key column="run_id"/>
         <one-to-many class="RiskRunProperty"/>
     </set>
+
     <property name="complete" not-null="true"/>
   </class>
   
-  <query name="RiskRun.one.byRunTime">
-  	from RiskRun as a where 
-  	a.runTime.date = :runDate and
-  	a.runTime.observationTime.label = :runTime</query>  
+  <query name="RiskRun.one.byBatchID">
+    from RiskRun as a where
+    a.valuationTime = :valuationTime and
+    a.liveDataSnapshot.marketDataSpecificationUID = :marketDataSpecificationUID and
+    a.versionCorrection.asOf = :versionCorrectionAsOf and
+    a.versionCorrection.correctedTo = :versionCorrectionCorrectedTo and
+    a.viewDefinition.viewDefinitionUID = :viewDefinitionUID</query>
   
 </hibernate-mapping>

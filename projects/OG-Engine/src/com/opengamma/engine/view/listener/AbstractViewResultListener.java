@@ -7,11 +7,13 @@ package com.opengamma.engine.view.listener;
 
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.id.UniqueId;
 
 import javax.time.Instant;
 import java.util.Map;
@@ -31,7 +33,7 @@ public abstract class AbstractViewResultListener implements ViewResultListener {
   }
 
   @Override
-  public void cycleInitiated(ViewCycleExecutionOptions viewCycleExecutionOptions, Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specificationToRequirementMapping) {
+  public void cycleInitiated(CycleInfo cycleInfo) {
   }
 
   @Override

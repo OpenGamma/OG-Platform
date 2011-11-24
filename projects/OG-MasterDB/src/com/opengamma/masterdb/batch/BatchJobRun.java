@@ -3,22 +3,20 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.batch;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
+package com.opengamma.masterdb.batch;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.batch.BatchId;
+import com.opengamma.financial.batch.RunCreationMode;
 import com.opengamma.util.ArgumentChecker;
+
+import javax.time.Instant;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A batch run saved in the database.
@@ -58,13 +56,9 @@ public abstract class BatchJobRun {
   //-------------------------------------------------------------------------
   public abstract String getRunReason();
 
-  public abstract SnapshotId getSnapshotId();
-
   public abstract Instant getValuationTime();
 
   public abstract RunCreationMode getRunCreationMode();
-
-  public abstract String getOpenGammaVersion();
 
   public abstract Instant getCreationTime();
 
@@ -92,46 +86,8 @@ public abstract class BatchJobRun {
    */
   public abstract Map<String, String> getJobLevelParameters();
 
-  /**
-   * Gets parameters that vary by date.
-   * 
-   * @return the parameters that vary by date, not null
-   */
-  public Map<String, String> getRunLevelParameters() {
-    Map<String, String> parameters = new HashMap<String, String>();
-    parameters.put("valuationInstant", getValuationTime().toString());
-    return parameters;
-  }
-
-  /**
-   * Gets the combined set of parameters.
-   * 
-   * @return the parameters that apply to the run, not null
-   */
-  public Map<String, String> getParametersMap() {
-    Map<String, String> jobLevelParameters = getJobLevelParameters();
-    Map<String, String> runLevelParameters = getRunLevelParameters();
-    Map<String, String> allParameters = new HashMap<String, String>(jobLevelParameters);
-    allParameters.putAll(runLevelParameters);
-    return allParameters;
-  }
 
   //-------------------------------------------------------------------------
-  public LocalDate getObservationDate() {
-    return _batchId.getObservationDate();
-  }
-
-  public String getObservationTime() {
-    return _batchId.getObservationTime();
-  }
-
-  public LocalDate getSnapshotObservationDate() {
-    return getSnapshotId().getObservationDate();
-  }
-
-  public String getSnapshotObservationTime() {
-    return getSnapshotId().getObservationTime();
-  }
 
   public Object getDbHandle() {
     return _dbHandle;
