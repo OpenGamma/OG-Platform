@@ -92,7 +92,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
         .with(ValuePropertyNames.CURRENCY, _volCubeHelper.getCurrency().getCode())
         .with(ValuePropertyNames.CUBE, _volCubeHelper.getDefinitionName()).get();
     _sabrSurfacesSpecification = new ValueSpecification(ValueRequirementNames.SABR_SURFACES, currencyTargetSpec, resultProperties);
-    _smileIdsSpecification = new ValueSpecification(ValueRequirementNames.EXTERNAL_IDS, currencyTargetSpec, resultProperties);
+    _smileIdsSpecification = new ValueSpecification(ValueRequirementNames.VOLATILITY_CUBE_FITTED_POINTS, currencyTargetSpec, resultProperties); //TODO add fitting method information
   }
 
   @Override
@@ -101,10 +101,10 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
     if (objectCubeData == null) {
       throw new OpenGammaRuntimeException("Could not get volatility cube data");
     }
-    final VolatilityCubeData volatilityCubeData = (VolatilityCubeData) objectCubeData;
-    Pair<SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>>, SortedMap<Tenor, SortedMap<Tenor, ExternalId[]>>> smilesAndIds = volatilityCubeData.getSmilesAndSmileIds();
-    final SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> smiles = smilesAndIds.getFirst();
-    final SortedMap<Tenor, SortedMap<Tenor, ExternalId[]>> smileIds = smilesAndIds.getSecond();
+    final VolatilityCubeData volatilityCubeData = (VolatilityCubeData) objectCubeData;    
+    final SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> smiles = volatilityCubeData.getSmiles();
+    final SortedMap<Tenor, SortedMap<Tenor, ExternalId[]>> smileIds = volatilityCubeData.getSmileIds();
+    final SortedMap<Tenor, SortedMap<Tenor, Double[]>> smileRelativeStrikes = volatilityCubeData.getSmileRelativeStrikes();
     final DoubleArrayList swapMaturitiesList = new DoubleArrayList();
     final DoubleArrayList swaptionExpiriesList = new DoubleArrayList();
     final DoubleArrayList alphaList = new DoubleArrayList();
@@ -113,25 +113,30 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
     final DoubleArrayList rhoList = new DoubleArrayList();
     final DoubleArrayList chiSqList = new DoubleArrayList();
     final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = new HashMap<DoublesPair, DoubleMatrix2D>();
-    final Map<DoublesPair, ExternalId[]> fittedDataIds = new HashMap<DoublesPair, ExternalId[]>();
+    final Map<Pair<Tenor, Tenor>, ExternalId[]> fittedSmileIds = new HashMap<Pair<Tenor, Tenor>, ExternalId[]>();
+    final Map<Pair<Tenor, Tenor>, Double[]> fittedRelativeStrikes = new HashMap<Pair<Tenor, Tenor>, Double[]>();
     for (final Map.Entry<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> swapMaturityEntry : smiles.entrySet()) {
       final double maturity = getTime(swapMaturityEntry.getKey());
       for (final Map.Entry<Tenor, Pair<double[], double[]>> swaptionExpiryEntry : swapMaturityEntry.getValue().entrySet()) {
         final double swaptionExpiry = getTime(swaptionExpiryEntry.getKey());
         final double[] strikes = swaptionExpiryEntry.getValue().getFirst();
         final double[] blackVols = swaptionExpiryEntry.getValue().getSecond();
-        final ExternalId[] externalIds = smileIds.get(swapMaturityEntry.getKey()).get(swaptionExpiryEntry.getKey());
         final int n = strikes.length;
         if (n != blackVols.length) {
           throw new OpenGammaRuntimeException("Strike and Black volatility arrays were not the same length; should never happen");
         }
+        final ExternalId[] externalIds = smileIds.get(swapMaturityEntry.getKey()).get(swaptionExpiryEntry.getKey());
         if (n != externalIds.length) {
           throw new OpenGammaRuntimeException("Strike and id arrays were not the same length; should never happen");
         }
+        final Double[] relativeStrikes = smileRelativeStrikes.get(swapMaturityEntry.getKey()).get(swaptionExpiryEntry.getKey());
+        if (n != relativeStrikes.length) {
+          throw new OpenGammaRuntimeException("Strike and relative strike arrays were not the same length; should never happen");
+        }
         final double[] errors = new double[n];
         final Pair<Tenor, Tenor> tenorPair = Pair.of(swapMaturityEntry.getKey(), swaptionExpiryEntry.getKey()); 
-        if (volatilityCubeData.getStrikes() != null && volatilityCubeData.getStrikes().containsKey(tenorPair)) {
-          final double forward = volatilityCubeData.getStrikes().get(tenorPair);
+        if (volatilityCubeData.getATMStrikes() != null && volatilityCubeData.getATMStrikes().containsKey(tenorPair)) {
+          final double forward = volatilityCubeData.getATMStrikes().get(tenorPair);
           for (int k = 0; k < n; k++) {
             errors[k] = ERROR;
           }
@@ -147,7 +152,8 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
             DoublesPair expiryMaturityPair = new DoublesPair(swaptionExpiry, maturity);
             inverseJacobians.put(expiryMaturityPair, fittedResult.getInverseJacobian());
             chiSqList.add(fittedResult.getChiSq());
-            fittedDataIds.put(DoublesPair.of(maturity, swaptionExpiry), externalIds);
+            fittedSmileIds.put(tenorPair, externalIds);
+            fittedRelativeStrikes.put(tenorPair, relativeStrikes); 
           }
         }
       }
@@ -166,7 +172,8 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
     final VolatilitySurface nuSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swaptionExpiries, swapMaturities, nu, INTERPOLATOR, "SABR nu surface"));
     final VolatilitySurface rhoSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swaptionExpiries, swapMaturities, rho, INTERPOLATOR, "SABR rho surface"));
     final SABRFittedSurfaces fittedSurfaces = new SABRFittedSurfaces(alphaSurface, betaSurface, nuSurface, rhoSurface, inverseJacobians, _volCubeHelper.getCurrency(), DAY_COUNT);
-    return Sets.newHashSet(new ComputedValue(_sabrSurfacesSpecification, fittedSurfaces), new ComputedValue(_smileIdsSpecification, fittedDataIds));
+    return Sets.newHashSet(new ComputedValue(_sabrSurfacesSpecification, fittedSurfaces), 
+                           new ComputedValue(_smileIdsSpecification, new FittedSmileDataPoints(fittedSmileIds, fittedRelativeStrikes)));
   }
 
   @Override

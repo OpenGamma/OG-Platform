@@ -110,6 +110,12 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
         return new String[] {fundingCurveName, forwardCurveName};
       case SWAP_CMS_CMS:
         return new String[] {fundingCurveName, forwardCurveName};
+      case SWAPTION:
+        return new String[] {fundingCurveName, forwardCurveName};
+      case CAP_FLOOR:
+        return new String[] {fundingCurveName, forwardCurveName};
+      case CAP_FLOOR_CMS_SPREAD:
+        return new String[] {fundingCurveName, forwardCurveName};
       default:
         throw new OpenGammaRuntimeException("Could not find " + type + " in security instrument list");
     }

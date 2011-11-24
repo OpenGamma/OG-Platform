@@ -53,7 +53,13 @@ public enum InterestRateInstrumentType {
   /** Coupon bond */
   COUPON_BOND,
   /** Bond future */
-  BOND_FUTURE;
+  BOND_FUTURE,
+  /** Swaption */
+  SWAPTION,
+  /** Cap-floor */
+  CAP_FLOOR,
+  /** Cap-floor CMS spread */
+  CAP_FLOOR_CMS_SPREAD;
 
   @SuppressWarnings("synthetic-access")
   private static final FinancialSecurityVisitor<InterestRateInstrumentType> TYPE_IDENTIFIER = new TypeIdentifier();
@@ -109,7 +115,7 @@ public enum InterestRateInstrumentType {
 
     @Override
     public InterestRateInstrumentType visitSwaptionSecurity(final SwaptionSecurity security) {
-      throw new OpenGammaRuntimeException("Cannot handle SwaptionSecurity");
+      return SWAPTION;
     }
 
     @Override
@@ -154,12 +160,12 @@ public enum InterestRateInstrumentType {
 
     @Override
     public InterestRateInstrumentType visitCapFloorSecurity(final CapFloorSecurity security) {
-      throw new OpenGammaRuntimeException("Cannot handle CapFloorSecurity");
+      return CAP_FLOOR;
     }
 
     @Override
     public InterestRateInstrumentType visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
-      throw new OpenGammaRuntimeException("Cannot handle CapFloorCMSSpreadSecurity");
+      return CAP_FLOOR_CMS_SPREAD;
     }
 
   }

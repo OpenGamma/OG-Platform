@@ -59,8 +59,8 @@ import com.opengamma.util.money.Currency;
 public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
   private static final String DIVIDEND_YIELD_FIELD = "EQY_DVD_YLD_EST";
-  private static final String DATA_SOURCE = "BLOOMBERG"; // TODO Make DATA_SOURCE and DATA_PROVIDER inputs
-  private static final String DATA_PROVIDER = "UNKNOWN";
+  //private static final String DATA_SOURCE = "BLOOMBERG"; // TODO Make DATA_SOURCE and DATA_PROVIDER inputs
+  //private static final String DATA_PROVIDER = "UNKNOWN";
 
   private final String _valueRequirementName;
   private final EquityFuturesPricingMethod _pricingMethod;
@@ -133,7 +133,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
         Double spot = getSpot(security, inputs);
         Double dividendYield = getLatestValueFromTimeSeries(DIVIDEND_YIELD_FIELD, executionContext, ExternalIdBundle.of(security.getUnderlyingId()));
         dividendYield /= 100.0;
-        YieldAndDiscountCurve fundingCurve = getDiscountCurve(security, inputs);
+        YieldAndDiscountCurve fundingCurve = getYieldCurve(security, inputs);
         dataBundle = new EquityFutureDataBundle(fundingCurve, null, spot, dividendYield, null);
         break;
       default:
@@ -208,7 +208,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, security.getCurrency().getUniqueId());
   }
 
-  private YieldAndDiscountCurve getDiscountCurve(EquityFutureSecurity security, FunctionInputs inputs) {
+  private YieldAndDiscountCurve getYieldCurve(EquityFutureSecurity security, FunctionInputs inputs) {
 
     final ValueRequirement curveRequirement = getDiscountCurveRequirement(security);
     final Object curveObject = inputs.getValue(curveRequirement);
