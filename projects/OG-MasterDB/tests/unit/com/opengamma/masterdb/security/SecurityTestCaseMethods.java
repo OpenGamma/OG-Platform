@@ -29,6 +29,8 @@ public interface SecurityTestCaseMethods {
   void testEnergyFutureSecurity();
 
   void testFXFutureSecurity();
+  
+  void testNonDeliverableFXForwardSecurity();
 
   void testIndexFutureSecurity();
 
@@ -39,10 +41,14 @@ public interface SecurityTestCaseMethods {
   void testStockFutureSecurity();
 
   void testEquityOptionSecurity();
+  
+  void testEquityBarrierOptionSecurity();
 
   void testIRFutureOptionSecurity();
 
   void testFXOptionSecurity();
+  
+  void testNonDeliverableFXOptionSecurity();
   
   void testFXBarrierOptionSecurity();
 

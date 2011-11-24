@@ -25,7 +25,7 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search,
+            search, layout,
             ui = common.util.ui,
             module = this,
             page_name = module.name.split('.').pop(),
@@ -136,19 +136,19 @@ $.register_module({
                 toolbar: {
                     'default':  {
                         buttons: [
-                            {id: 'new', name: 'New', handler: toolbar_buttons['new']},
-                            {id: 'save', name: 'Save', enabled: 'OG-disabled'},
-                            {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
-                            {id: 'delete', name: 'Delete', enabled: 'OG-disabled'}
+                            {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
                         ],
                         location: '.OG-tools'
                     },
                     active: {
                         buttons: [
-                            {id: 'new', name: 'New', handler: toolbar_buttons['new']},
-                            {id: 'save', name: 'Save', enabled: 'OG-disabled'},
-                            {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
-                            {id: 'delete', name: 'Delete', handler: toolbar_buttons['delete']}
+                            {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', tooltip: 'Delete', handler: toolbar_buttons['delete']}
                         ],
                         location: '.OG-tools'
                     }
@@ -162,27 +162,40 @@ $.register_module({
             },
             default_details = og.views.common.default_details.partial(page_name, 'Time Series', options),
             details_page = function (args) {
-                var layout = og.views.common.layout;
                 layout.inner.options.south.onclose = null;
                 layout.inner.close('south');
                 api.rest.timeseries.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var json = result.data;
-                        history.put({
-                            name: json.template_data.object_id,
-                            item: 'history.timeseries.recent',
-                            value: routes.current().hash
-                        });
                         api.text({module: module.name, handler: function (template) {
-                            var $html, error_html, layout = og.views.common.layout, json_id = json.identifiers,
+                            var $html, error_html, json_id = json.identifiers, title,
                                 stop_loading, header, content; // functions
                             error_html = '\
                                 <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
                                     This position has been deleted\
                                 </section>\
                             ';
-                            $html = $.tmpl(template, json.template_data);
+                            // check if any of the following scheme types are in json.identifiers, in
+                            // reverse order of preference, delimiting if multiple, then assign to title
+                            ['ISIN', 'SEDOL1', 'CUSIP', 'BLOOMBERG_BUID', 'BLOOMBERG_TICKER'].forEach(function (val) {
+                                title = (function (type) {
+                                    return json.identifiers.reduce(function (acc, val) {
+                                        if (val.scheme === type) acc = acc
+                                            ? acc + ', ' + val.value
+                                            : type.lang() + ' - ' + val.value;
+                                        return acc
+                                    }, '')
+                                }(val)) || title;
+                            });
+                            $html = $.tmpl(template, $.extend(json.template_data, {
+                                title: title || json.template_data.object_id
+                            }));
+                            history.put({
+                                name: title + ' (' + json.template_data.data_field + ')',
+                                item: 'history.timeseries.recent',
+                                value: routes.current().hash
+                            });
                             // Initial html setup
                             header = $.outer($html.find('> header')[0]);
                             content = $.outer($html.find('> section')[0]);
@@ -242,6 +255,7 @@ $.register_module({
         };
         return timeseries = {
             load: function (args) {
+                layout = og.views.common.layout;
                 check_state({args: args, conditions: [
                     {new_page: function () {
                         timeseries.search(args);

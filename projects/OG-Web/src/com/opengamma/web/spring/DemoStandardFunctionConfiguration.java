@@ -123,6 +123,7 @@ import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToVa
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRPresentValueFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRPresentValueSABRFunction;
+import com.opengamma.financial.analytics.model.swaption.SwaptionSABRVegaFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.var.OptionPortfolioParametricVaRCalculatorFunction;
 import com.opengamma.financial.analytics.model.var.OptionPositionParametricVaRCalculatorFunction;
@@ -224,7 +225,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(PositionExchangeTradedPnLFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(PortfolioExchangeTradedPnLFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(PortfolioExchangeTradedDailyPnLFunction.class.getName()));;
-    functionConfigs.add(new ParameterizedFunctionConfiguration(PortfolioNodeDefaultCurrencyFunction.class.getName(), Collections.singleton(ValueRequirementNames.DAILY_PNL)));
+    
 
     String returnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_STRICT;
     String startDate = "2008-09-22";
@@ -458,6 +459,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.FAIR_VALUE);
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.PV01);
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.PRESENT_VALUE);
+    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.DAILY_PNL);
     //TODO PRESENT_VALUE_CURVE_SENSITIVITY
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_DELTA);
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_GAMMA);
@@ -701,6 +703,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueSABRFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "FORWARD_3M", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRVegaFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY)));

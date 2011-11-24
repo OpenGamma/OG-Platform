@@ -118,7 +118,8 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
   }
 
   protected ValueRequirement getCubeRequirement(final ComputationTarget target) {
-    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CUBE, _helper.getDefinitionName()).get();
+    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CUBE, _helper.getDefinitionName())
+                                                      .with(ValuePropertyNames.CURRENCY, _helper.getCurrency().getCode()).get();
     return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, FinancialSecurityUtils.getCurrency(target.getSecurity()), properties);
   }
 

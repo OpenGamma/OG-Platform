@@ -60,9 +60,8 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
   HistoricalTimeSeriesInfoHistoryResult history(HistoricalTimeSeriesInfoHistoryRequest request);
 
   //-------------------------------------------------------------------------
-  
   /**
-   * Gets the time-series data points in a ManageableHistoricalTimeSeries object.
+   * Gets the time-series data points.
    * <p>
    * The main get request returns the document describing the time-series.
    * This method gets the series itself.
@@ -77,7 +76,7 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
   ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive);
 
   /**
-   * Gets the time-series data points in a ManageableHistoricalTimeSeries object.
+   * Gets the time-series data points.
    * <p>
    * The main get request returns the document describing the time-series.
    * This method gets the series itself.
@@ -93,26 +92,28 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
   ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection, LocalDate fromDateInclusive, LocalDate toDateInclusive);
 
   //-------------------------------------------------------------------------
-  
   /**
-   * Returns summary information for the specified time series.
+   * Gets a summary of the time-series data points.
+   * <p>
    * The information includes the earliest and latest data points and their dates.
+   * 
    * @param uniqueId  the unique id of the historic time series, not null
-   * @return          a HistoricalTimeSeriesSummary filled in with the summary information
+   * @return a summary of the data points, not null
    */
   HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId);
   
   /**
-   * Returns summary information for the specified time series.
+   * Gets a summary of the time-series data points.
+   * <p>
    * The information includes the earliest and latest data points and their dates.
+   * 
    * @param objectId  the time-series object identifier, not null
    * @param versionCorrection  the version-correction locator to search at, not null
-   * @return          a HistoricalTimeSeriesSummary filled in with the summary information
+   * @return a summary of the data points, not null
    */
   HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection);
 
   //-------------------------------------------------------------------------
-
   /**
    * Adds to the time-series by appending new data points.
    * <p>

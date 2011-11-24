@@ -26,6 +26,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties.Builder;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -89,12 +91,25 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.N
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    String currency = null;
+    for (ComputedValue value : inputs.getAllValues()) {
+      //TODO convert series
+      String newCurrency = value.getSpecification().getProperty(ValuePropertyNames.CURRENCY);
+      if (newCurrency != null) {
+        if (currency != null && !currency.equals(newCurrency)) {
+          return null;
+        }
+        currency = newCurrency;
+      }
+    }
     final Position position = target.getPosition();
     final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final SecuritySource securitySource = executionContext.getSecuritySource();
-    final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position), getUniqueId());
+    Builder resultProperties = createValueProperties().with(ValuePropertyNames.CURRENCY, currency);
+    ValueRequirement resultRequirements = new ValueRequirement(ValueRequirementNames.PNL_SERIES, position, resultProperties.get());
+    final ValueSpecification resultSpecification = new ValueSpecification(resultRequirements, getUniqueId());
     final SensitivityAndReturnDataBundle[] dataBundleArray = new SensitivityAndReturnDataBundle[_valueGreekRequirementNames.size()];
     int i = 0;
     for (final String valueGreekRequirementName : _valueGreekRequirementNames) {
@@ -145,10 +160,33 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.N
       return null;
     }
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-    results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition()), getUniqueId()));
+    results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition(), createValueProperties().withAny(ValuePropertyNames.CURRENCY).get()), getUniqueId()));
     return results;
   }
 
+  
+  @Override
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target,
+      Map<ValueSpecification, ValueRequirement> inputs) {
+    if (!canApplyTo(context, target)) {
+      return null;
+    }
+    String currency = null;
+    for (ValueSpecification spec : inputs.keySet()) {
+      String newCurrency = spec.getProperty(ValuePropertyNames.CURRENCY);
+      if (newCurrency != null) {
+        if (currency != null && !currency.equals(newCurrency)) {
+          return null;
+        }
+        currency = newCurrency;
+      }
+    }
+    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition(),
+        createValueProperties().with(ValuePropertyNames.CURRENCY, currency).get()), getUniqueId()));
+    return results;
+  }
+  
   @Override
   public String getShortName() {
     return "PositionValueGreekSensitivityPnL";

@@ -73,8 +73,10 @@ $.register_module({
                     send = function () {
                         outstanding_requests[id].ajax = $.ajax({
                             url: url,
-                            type: config.meta.type,
-                            data: config.meta.type in no_post_body ? {} : config.data,
+                            // the following 2 lines are a hack to make sure GETs do not cachce, they need to be removed
+                            type: config.meta.type === 'GET' ? 'POST' : config.meta.type,
+                            data: config.meta.type in no_post_body ? config.meta.type === 'GET' ? {method: 'GET'} : {}
+                                : config.data,
                             headers: {'Accept': 'application/json'},
                             dataType: 'json',
                             timeout: TIMEOUT,
@@ -109,7 +111,12 @@ $.register_module({
                         });
                         return id;
                     };
-                if (config.meta.type === 'GET') register({id: id, config: config, current: current, url: url});
+                if (config.meta.type === 'GET')
+                    register({id: id, config: config, current: current, url: url});
+                else
+                    if (og.app.READ_ONLY) return setTimeout(config.meta.handler.partial({
+                        error: true, data: null, meta: {}, message: 'This application is in read-only mode.'
+                    }), 0), id;
                 if (config.meta.update && config.meta.type !== 'GET') og.dev.warn('update functions are only for GETs');
                 if (config.meta.cache_for && config.meta.type !== 'GET')
                     og.dev.warn('only GETs can be cached'), delete config.meta.cache_for;

@@ -15,7 +15,7 @@ import com.opengamma.financial.model.volatility.smile.function.SVIVolatilityFunc
 import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.MatrixAlgebraFactory;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 
 /**
@@ -56,19 +56,19 @@ public class SVINonLinearLeastSquareFitterTest extends LeastSquareSmileFitterTes
 
   @Test
   public void testSolutionFlatSurface() {
-    final LeastSquareResults results = FITTER.getFitResult(OPTIONS, FLAT_DATA, ERRORS, INITIAL_VALUES, FIXED);
-    final DoubleMatrix1D parameters = results.getParameters();
+    final LeastSquareResultsWithTransform results = FITTER.getFitResult(OPTIONS, FLAT_DATA, ERRORS, INITIAL_VALUES, FIXED);
+    final DoubleMatrix1D parameters = results.getModelParameters();
     assertEquals("a", SIGMA * SIGMA, parameters.getEntry(0), EPS);
     assertEquals("b", 0.0, parameters.getEntry(1), EPS);
-    //TODO investigate why a chi^2 of 0 is not reached 
+    //TODO investigate why a chi^2 of 0 is not reached
     //assertEquals("chi^2", 0.0, results.getChiSq(), EPS);
 
   }
 
   @Test
   public void testRecoverParameters() {
-    LeastSquareResults results = FITTER.getFitResult(OPTIONS, SMILE_DATA, INITIAL_VALUES, FIXED);
-    DoubleMatrix1D fit = results.getParameters();
+    LeastSquareResultsWithTransform results = FITTER.getFitResult(OPTIONS, SMILE_DATA, INITIAL_VALUES, FIXED);
+    DoubleMatrix1D fit = results.getModelParameters();
     final double eps = ERRORS[0];
     assertEquals("a", SVI_DATA.getA(), fit.getEntry(0), eps);
     assertEquals("b", SVI_DATA.getB(), fit.getEntry(1), eps);
@@ -78,7 +78,7 @@ public class SVINonLinearLeastSquareFitterTest extends LeastSquareSmileFitterTes
     final double chiSq = results.getChiSq();
     assertEquals("chi^2", 0, chiSq, eps * eps);
     results = FITTER.getFitResult(OPTIONS, SMILE_DATA, ERRORS, INITIAL_VALUES, FIXED);
-    fit = results.getParameters();
+    fit = results.getModelParameters();
     assertEquals(SVI_DATA.getA(), fit.getEntry(0), eps);
     assertEquals(SVI_DATA.getB(), fit.getEntry(1), eps);
     assertEquals(SVI_DATA.getRho(), fit.getEntry(2), eps);

@@ -9,6 +9,10 @@ import java.util.BitSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import cern.jet.random.engine.MersenneTwister;
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.financial.model.volatility.smile.function.HestonModelData;
 import com.opengamma.financial.model.volatility.smile.function.HestonVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
@@ -24,6 +28,7 @@ public class HestonModelFitterTest extends SmileModelFitterTest<HestonModelData>
   private static double OMEGA = 0.7;
   private static double RHO = -0.9;
   private static Logger LOGGER = LoggerFactory.getLogger(HestonModelFitterTest.class);
+  private static RandomEngine RANDOM = new MersenneTwister();
 
   public HestonModelFitterTest() {
     _paramValueEps = 1e-5;
@@ -61,6 +66,16 @@ public class HestonModelFitterTest extends SmileModelFitterTest<HestonModelData>
     fixed[0].set(2);
     fixed[1] = new BitSet();
     return fixed;
+  }
+
+  @Override
+  double[] getRandomStartValues() {
+    double kappa = RANDOM.nextDouble() * 2.0;
+    double theta =RANDOM.nextDouble();
+    double vol0 = RANDOM.nextDouble();
+    double omega = 1.5 * RANDOM.nextDouble();
+    double rho = 2 * RANDOM.nextDouble() - 1;
+    return new double[] {kappa, theta, vol0, omega, rho };
   }
 
 }

@@ -40,7 +40,7 @@ public class NelsonSiegelSvenssonBondCurveModelTest {
     final double[] y = new double[t.length];
     for (int i = 0; i < t.length; i++) {
       y[i] = BETA0 + BETA1 * (1 - Math.exp(-t[i] / LAMBDA1)) / (t[i] / LAMBDA1) + BETA2 * ((1 - Math.exp(-t[i] / LAMBDA1)) / (t[i] / LAMBDA1) - Math.exp(-t[i] / LAMBDA1)) + BETA3
-          * ((1 - Math.exp(-t[i] / LAMBDA2)) / (t[i] / LAMBDA2) - Math.exp(-t[i] / LAMBDA2));
+      * ((1 - Math.exp(-t[i] / LAMBDA2)) / (t[i] / LAMBDA2) - Math.exp(-t[i] / LAMBDA2));
     }
     Y = new DoubleMatrix1D(y);
     final double[] e = new double[TREASURY_T.getNumberOfElements()];
@@ -66,14 +66,14 @@ public class NelsonSiegelSvenssonBondCurveModelTest {
   @Test
   public void testKnownParameters() {
     final LeastSquareResults result = NLLS.solve(T, Y, MODEL.getParameterizedFunction(), new DoubleMatrix1D(new double[] {2, 1, 1, 4, 6, 1 }));
-    final DoubleMatrix1D fitted = result.getParameters();
+    final DoubleMatrix1D fitted = result.getFitParameters();
     assertArrayEquals(fitted.getData(), new double[] {BETA0, BETA1, BETA2, LAMBDA1, BETA3, LAMBDA2}, 1e-4);
   }
 
   @Test
   public void testFit() {
     final LeastSquareResults result = NLLS.solve(TREASURY_T, TREASURY_20110127_Y, TREASURY_E, MODEL.getParameterizedFunction(), new DoubleMatrix1D(new double[] {2, -1, -1, 2, 2, 9 }));
-    final DoubleMatrix1D fitted = result.getParameters();
+    final DoubleMatrix1D fitted = result.getFitParameters();
     assertEquals(fitted.getEntry(0), 4.07923660, 1e-2);
     assertEquals(fitted.getEntry(1), -3.74204358, 1e-2);
     assertEquals(fitted.getEntry(2), -6.18790519, 1e-2);

@@ -151,7 +151,7 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
    * @param instantProvider  the instant, not null
    * @return this, for chaining, not null
    */
-  public DbMapSqlParameterSource addTimestampNullIgnored(final String name, final InstantProvider instantProvider) {
+  public DbMapSqlParameterSource addTimestampAllowNull(final String name, final InstantProvider instantProvider) {
     if (instantProvider != null) {
       addTimestamp(name, instantProvider);
     } else {
@@ -167,7 +167,7 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
    * @param date  the date, not null
    * @return this, for chaining, not null
    */
-  public DbMapSqlParameterSource addDateNullIgnored(final String name, final LocalDate date) {
+  public DbMapSqlParameterSource addDateAllowNull(final String name, final LocalDate date) {
     if (date != null) {
       addDate(name, date);
     } else {
@@ -183,11 +183,54 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
    * @param time  the time, not null
    * @return this, for chaining, not null
    */
-  public DbMapSqlParameterSource addTimeNullIgnored(final String name, final LocalTime time) {
+  public DbMapSqlParameterSource addTimeAllowNull(final String name, final LocalTime time) {
     if (time != null) {
       addTime(name, time);
     } else {
       addValue(name, null, Types.TIME);
+    }
+    return this;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Adds an instant to this source unless the object is null.
+   * 
+   * @param name  the name, not null
+   * @param instantProvider  the instant, not null
+   * @return this, for chaining, not null
+   */
+  public DbMapSqlParameterSource addTimestampNullIgnored(final String name, final InstantProvider instantProvider) {
+    if (instantProvider != null) {
+      addTimestamp(name, instantProvider);
+    }
+    return this;
+  }
+
+  /**
+   * Adds an date to this source unless the object is null.
+   * 
+   * @param name  the name, not null
+   * @param date  the date, not null
+   * @return this, for chaining, not null
+   */
+  public DbMapSqlParameterSource addDateNullIgnored(final String name, final LocalDate date) {
+    if (date != null) {
+      addDate(name, date);
+    }
+    return this;
+  }
+
+  /**
+   * Adds an time to this source unless the object is null.
+   * 
+   * @param name  the name, not null
+   * @param time  the time, not null
+   * @return this, for chaining, not null
+   */
+  public DbMapSqlParameterSource addTimeNullIgnored(final String name, final LocalTime time) {
+    if (time != null) {
+      addTime(name, time);
     }
     return this;
   }

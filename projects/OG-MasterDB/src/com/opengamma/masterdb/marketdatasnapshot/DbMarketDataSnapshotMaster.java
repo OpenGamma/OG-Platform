@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
@@ -29,9 +28,11 @@ import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDa
 import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilityCubeSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
+import com.opengamma.extsql.ExtSqlBundle;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.AbstractHistoryRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
@@ -40,9 +41,9 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -51,7 +52,9 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * This is a full implementation of the exchange master using an SQL database.
  * Full details of the API are in {@link MarketDataSnapshotMaster}.
  * <p>
- * This class uses SQL via JDBC. The SQL may be changed by subclassing the relevant methods.
+ * The SQL is stored externally in {@code DbMarketDataSnapshotMaster.extsql}.
+ * Alternate databases or specific SQL requirements can be handled using database
+ * specific overrides, such as {@code DbMarketDataSnapshotMaster-MySpecialDB.extsql}.
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
@@ -68,7 +71,7 @@ public class DbMarketDataSnapshotMaster
     typeDictionary.registerClassRename("com.opengamma.master.marketdatasnapshot.ManageableVolatilitySurfaceSnapshot", ManageableVolatilitySurfaceSnapshot.class);
     typeDictionary.registerClassRename("com.opengamma.master.marketdatasnapshot.ManageableVolatilityCubeSnapshot", ManageableVolatilityCubeSnapshot.class);
   }
-  
+
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbMarketDataSnapshotMaster.class);
 
@@ -82,32 +85,13 @@ public class DbMarketDataSnapshotMaster
   protected static final FudgeContext FUDGE_CONTEXT = OpenGammaFudgeContext.getInstance();
 
   /**
-   * SQL select.
-   */
-  private static final String SELECT_TEMPLATE = "SELECT " + "main.id AS doc_id, " + "main.oid AS doc_oid, "
-      + "main.ver_from_instant AS ver_from_instant, " + "main.ver_to_instant AS ver_to_instant, "
-      + "main.corr_from_instant AS corr_from_instant, " + "main.corr_to_instant AS corr_to_instant ";
-  /**
-   * SQL select to be used when details aren't required
-   * see PLAT-1378
-   */
-  protected static final String SELECT_NO_DETAILS = SELECT_TEMPLATE + ", main.name AS name ";
-  /**
-   * SQL select to be used when details are required
-   */
-  protected static final String SELECT_DETAILS = SELECT_NO_DETAILS + ", main.detail AS detail ";
-  /**
-   * SQL from.
-   */
-  protected static final String FROM = "FROM snp_snapshot main ";
-
-  /**
    * Creates an instance.
    * 
    * @param dbConnector  the database connector, not null
    */
   public DbMarketDataSnapshotMaster(DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
+    setExtSqlBundle(ExtSqlBundle.of(dbConnector.getDialect().getExtSqlConfig(), DbMarketDataSnapshotMaster.class));
   }
 
   //-------------------------------------------------------------------------
@@ -116,43 +100,21 @@ public class DbMarketDataSnapshotMaster
     ArgumentChecker.notNull(request.getPagingRequest(), "request.pagingRequest");
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
-
+    
     final MarketDataSnapshotSearchResult result = new MarketDataSnapshotSearchResult();
-
+    
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-        .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
-        .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
-        .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));
-
-    searchWithPaging(request.getPagingRequest(), sqlSearchMarketDataSnapshots(request), args, new MarketDataSnapshotDocumentExtractor(request.isIncludeData()), result);
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource();
+    args.addTimestamp("version_as_of_instant", vc.getVersionAsOf());
+    args.addTimestamp("corrected_to_instant", vc.getCorrectedTo());
+    args.addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));
+    args.addValue("details", request.isIncludeData());
+    args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
+    args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
+    
+    String[] sql = {getExtSqlBundle().getSql("Search", args), getExtSqlBundle().getSql("SearchCount", args)};
+    searchWithPaging(request.getPagingRequest(), sql, args, new MarketDataSnapshotDocumentExtractor(request.isIncludeData()), result);
     return result;
-  }
-
-  /**
-   * Gets the SQL to search for documents.
-   * 
-   * @param request  the request, not null
-   * @return the SQL search and count, not null
-   */
-  protected String[] sqlSearchMarketDataSnapshots(final MarketDataSnapshotSearchRequest request) {
-    String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant "
-        + "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
-    if (request.getName() != null) {
-      where += getDialect().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
-    }
-
-    where += sqlAdditionalWhere();
-
-    String selectFromWhereInner = "SELECT id FROM snp_snapshot " + where;
-    String inner = getDialect().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
-    String search = sqlSelectFrom(request.isIncludeData()) + "WHERE main.id IN (" + inner + ") ORDER BY main.id" + sqlAdditionalOrderBy(false);
-    String count = "SELECT COUNT(*) FROM snp_snapshot " + where;
-    return new String[] {search, count };
-  }
-
-  public MarketDataSnapshotHistoryResult history(final MarketDataSnapshotHistoryRequest request) {
-    return doHistory(request, new MarketDataSnapshotHistoryResult(), new MarketDataSnapshotDocumentExtractor(request.isIncludeData()));
   }
 
   //-------------------------------------------------------------------------
@@ -168,6 +130,18 @@ public class DbMarketDataSnapshotMaster
   }
 
   //-------------------------------------------------------------------------
+  public MarketDataSnapshotHistoryResult history(final MarketDataSnapshotHistoryRequest request) {
+    return doHistory(request, new MarketDataSnapshotHistoryResult(), new MarketDataSnapshotDocumentExtractor(request.isIncludeData()));
+  }
+
+  @Override
+  protected DbMapSqlParameterSource argsHistory(AbstractHistoryRequest request) {
+    DbMapSqlParameterSource args = super.argsHistory(request);
+    args.addValue("details", ((MarketDataSnapshotHistoryRequest) request).isIncludeData());
+    return args;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Inserts a new document.
    * 
@@ -178,7 +152,7 @@ public class DbMarketDataSnapshotMaster
   protected MarketDataSnapshotDocument insert(final MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
     ArgumentChecker.notNull(document.getName(), "document.name");
-
+    
     final ManageableMarketDataSnapshot marketDataSnaphshot = document.getSnapshot();
     final long docId = nextId("snp_snapshot_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
@@ -186,7 +160,7 @@ public class DbMarketDataSnapshotMaster
     final UniqueId uniqueId = createUniqueId(docOid, docId);
     marketDataSnaphshot.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
-
+    
     // the arguments for inserting into the marketDataSnaphshot table
     FudgeMsgEnvelope env = FUDGE_CONTEXT.toFudgeMsg(marketDataSnaphshot);
     byte[] bytes = FUDGE_CONTEXT.toByteArray(env.getMessage());
@@ -197,37 +171,10 @@ public class DbMarketDataSnapshotMaster
         .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
         .addValue("name", document.getName())
         .addValue("detail", new SqlLobValue(bytes, getDialect().getLobHandler()), Types.BLOB);
-
-    getJdbcTemplate().update(sqlInsertMarketDataSnapshot(), marketDataSnaphshotArgs);
+    
+    final String sql = getExtSqlBundle().getSql("Insert", marketDataSnaphshotArgs);
+    getJdbcTemplate().update(sql, marketDataSnaphshotArgs);
     return document;
-  }
-
-  /**
-   * Gets the SQL for inserting a document.
-   * 
-   * @return the SQL, not null
-   */
-  protected String sqlInsertMarketDataSnapshot() {
-    return "INSERT INTO snp_snapshot "
-        + "(id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, detail) "
-        + "VALUES "
-        + "(:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, :detail)";
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  protected String sqlSelectFrom() {
-    //TODO: this should never be called with !includeDetail, but it still is at the moment for history requests
-    return SELECT_DETAILS + FROM;
-  }
-
-  protected String sqlSelectFrom(boolean includeDetail) {
-    return (includeDetail ? SELECT_DETAILS : SELECT_NO_DETAILS) + FROM;
-  }
-  
-  @Override
-  protected String mainTableName() {
-    return "snp_snapshot";
   }
 
   //-------------------------------------------------------------------------
@@ -235,7 +182,6 @@ public class DbMarketDataSnapshotMaster
    * Mapper from SQL rows to a MarketDataSnapshotDocument.
    */
   protected final class MarketDataSnapshotDocumentExtractor implements ResultSetExtractor<List<MarketDataSnapshotDocument>> {
-
     private final boolean _includeData;
     private final List<MarketDataSnapshotDocument> _documents = new ArrayList<MarketDataSnapshotDocument>();
 

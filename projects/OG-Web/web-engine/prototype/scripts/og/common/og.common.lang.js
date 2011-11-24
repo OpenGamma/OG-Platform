@@ -11,6 +11,7 @@ $.register_module({
                 'AUTO': 'Auto',
                 'BLOOMBERG_TICKER': 'Bloomberg Ticker',
                 'bloombergTicker': 'Bloomberg Ticker',
+                'BLOOMBERG_BUID': 'Bloomberg BUID',
                 'buySell': 'Buy Sell',
                 'BUY_LONG': 'Buy Long',
                 'BUY': 'Buy',

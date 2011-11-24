@@ -5,13 +5,13 @@
 Function.prototype.preload = function () {
     var method = this,
         merge = function () {
-            var result = {}, key, val;
-            for (var lcv = 0, len = arguments.length; lcv < len; lcv += 1) {
+            var result = {}, key, val, lcv, len = arguments.length;
+            for (lcv = 0; lcv < len; lcv += 1) {
                 if (typeof arguments[lcv] !== 'object') throw new TypeError('preload only works with objects');
                 for (key in arguments[lcv]) {
                     val = arguments[lcv][key];
                     if (!val) { // catches falsey values (which include null, even though its typeof === 'object)
-                        (result[key] = val);
+                        result[key] = val;
                         continue;
                     }
                     if (typeof val === 'object') { // catches arrays and objects
@@ -25,7 +25,7 @@ Function.prototype.preload = function () {
         },
         orig = merge.apply(null, Array.prototype.slice.call(arguments));
     return function () {
-        if (!arguments.length) return method.call(this, orig);
-        return method.call(this, merge.apply(null, Array.prototype.concat.apply([orig], arguments)));
+        return arguments.length ? method.call(this, merge.apply(null, Array.prototype.concat.apply([orig], arguments)))
+            : method.call(this, orig);
     };
 };

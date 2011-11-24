@@ -24,7 +24,7 @@ import com.opengamma.financial.model.volatility.surface.BlackVolatilityFixedStri
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
-import com.opengamma.math.surface.InterpolatedSurfaceShiftFunction;
+import com.opengamma.math.surface.InterpolatedSurfaceAdditiveShiftFunction;
 import com.opengamma.math.surface.NodalDoublesSurface;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -214,7 +214,7 @@ public final class VarianceSwapRatesSensitivityCalculator {
     int nNodes = maturities.length;
     Validate.isTrue(nNodes == strikes.length);
 
-    InterpolatedSurfaceShiftFunction volShifter = new InterpolatedSurfaceShiftFunction();
+    InterpolatedSurfaceAdditiveShiftFunction volShifter = new InterpolatedSurfaceAdditiveShiftFunction();
     VarianceSwapPresentValueCalculator pricer = VarianceSwapPresentValueCalculator.getInstance();
 
     // Parallel shift UP
@@ -299,7 +299,7 @@ public final class VarianceSwapRatesSensitivityCalculator {
 
     final InterpolatedDoublesSurface blackSurf = (InterpolatedDoublesSurface) market.getVolatilitySurface().getSurface();
     final StrikeParameterization strikeType = market.getVolatilitySurface().getStrikeParameterisation();
-    final InterpolatedSurfaceShiftFunction volShifter = new InterpolatedSurfaceShiftFunction();
+    final InterpolatedSurfaceAdditiveShiftFunction volShifter = new InterpolatedSurfaceAdditiveShiftFunction();
 
     // shift UP
     final InterpolatedDoublesSurface bumpedVolUp = volShifter.evaluate(blackSurf, maturity, strike, shift);

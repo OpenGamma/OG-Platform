@@ -21,10 +21,8 @@ $.register_module({
                 size: 36
             },
             east: {
-                size: '36',
-                spacing_closed: 0,
-                closable: false,
-                resizable: false
+              initClosed: true,
+              spacing_closed: 0
             },
             west: {
               size: '33%',

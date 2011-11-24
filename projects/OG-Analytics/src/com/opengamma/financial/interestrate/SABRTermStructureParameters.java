@@ -90,9 +90,9 @@ public class SABRTermStructureParameters implements VolatilityModel1D {
   }
 
   /**
-   * get the Black volatility for a given forward/strike/time-to-expiry 
+   * get the Black volatility for a given forward/strike/time-to-expiry
    * @param fwdKT Array of values of forward, strike and time-to-expiry <b>in that order</b>
-   * @return The (Black) volatility 
+   * @return The (Black) volatility
    */
   @Override
   public Double getVolatility(double[] fwdKT) {
@@ -102,18 +102,20 @@ public class SABRTermStructureParameters implements VolatilityModel1D {
   }
 
   /**
-   * get the Black volatility for a given forward/strike/time-to-expiry 
+   * get the Black volatility for a given forward/strike/time-to-expiry
    * @param fwd The Forward
    * @param strike The Strike
    * @param timeToExpiry The time-to-expiry
-   * @return The (Black) volatility 
+   * @return The (Black) volatility
    */
   @Override
   public double getVolatility(final double fwd, final double strike, final double timeToExpiry) {
     final SABRFormulaData data = new SABRFormulaData(getAlpha(timeToExpiry), getBeta(timeToExpiry), getRho(timeToExpiry), getNu(timeToExpiry));
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, timeToExpiry, true);
     final Function1D<SABRFormulaData, Double> func = _sabrFunction.getVolatilityFunction(option, fwd);
-    return func.evaluate(data);
+    double vol = func.evaluate(data);
+    //The SABR Hagan formula can produce negative vols
+    return Math.max(0, vol);
   }
 
 }
