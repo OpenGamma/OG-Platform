@@ -21,7 +21,6 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.math.minimization.DoubleRangeLimitTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform;
@@ -29,10 +28,11 @@ import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.math.minimization.UncoupledParameterTransforms;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 
 /**
- * @deprecated Please use HestonModelFitter instead 
+ * @deprecated Please use HestonModelFitter instead
  */
 @Deprecated
 public class HestonFFTSmileFitter extends LeastSquareSmileFitter {
@@ -49,7 +49,7 @@ public class HestonFFTSmileFitter extends LeastSquareSmileFitter {
   private final double _limitTolerance;
 
   /**
-   * @param fixVol0 True if initial value of vol the same as mean reversion level 
+   * @param fixVol0 True if initial value of vol the same as mean reversion level
    */
   public HestonFFTSmileFitter(boolean fixVol0) {
     this(Interpolator1DFactory.getInterpolator("DoubleQuadratic"), DEFAULT_ALPHA, DEFAULT_LIMIT_TOLERANCE, fixVol0);
@@ -82,12 +82,13 @@ public class HestonFFTSmileFitter extends LeastSquareSmileFitter {
   }
 
   @Override
-  public LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] initialFitParameters, final BitSet fixed) {
+  public LeastSquareResultsWithTransform getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] initialFitParameters, final BitSet fixed) {
     return getFitResult(options, data, null, initialFitParameters, fixed);
   }
 
   @Override
-  public LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] errors, final double[] initialFitParameters, final BitSet fixed) {
+  public LeastSquareResultsWithTransform getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] errors, final double[] initialFitParameters,
+      final BitSet fixed) {
     testData(options, data, errors, initialFitParameters, fixed, _nParams);
     final int n = options.length;
     final double[] strikes = new double[n];
@@ -118,7 +119,7 @@ public class HestonFFTSmileFitter extends LeastSquareSmileFitter {
         for (int i = 0; i < nStrikes; i++) {
           k[i] = strikeNPrice[i][0];
           try {
-            //TODO have implied vol interface which mean not having to create new objects inside loops 
+            //TODO have implied vol interface which mean not having to create new objects inside loops
             vol[i] = BLACK_IMPLIED_VOL_FORMULA.getImpliedVolatility(new BlackFunctionData(forward, 1.0, 0.0), new EuropeanVanillaOption(k[i], maturity, true), strikeNPrice[i][1]);
           } catch (Exception e) {
             vol[i] = 0.0;
@@ -135,7 +136,9 @@ public class HestonFFTSmileFitter extends LeastSquareSmileFitter {
     final DoubleMatrix1D fp = transforms.transform(new DoubleMatrix1D(initialFitParameters));
     final LeastSquareResults results = errors == null ? SOLVER.solve(new DoubleMatrix1D(blackVols), hestonVols, fp) : SOLVER.solve(new DoubleMatrix1D(blackVols), new DoubleMatrix1D(errors),
         hestonVols, fp);
-    return new LeastSquareResults(results.getChiSq(), transforms.inverseTransform(results.getParameters()), new DoubleMatrix2D(new double[_nParams][_nParams]));
+
+    return new LeastSquareResultsWithTransform(results, transforms);
+    // return new LeastSquareResults(results.getChiSq(), transforms.inverseTransform(results.getFitParameters()), new DoubleMatrix2D(new double[_nParams][_nParams]));
   }
 
   /**

@@ -27,14 +27,14 @@ import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * AKA Poor man's LSV 
+ * AKA Poor man's LSV
  */
 public class TwoStateMarkovChainLocalVolFitter {
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
@@ -53,12 +53,12 @@ public class TwoStateMarkovChainLocalVolFitter {
    * @param forward The forward curve <b>NOTE</b> Anything other than a constant rate will give spurious results because the local vol calculator
    * does not handle time varying rates
    * @param marketVolSurface <b> THIS IS A CHEAT</b> Don't have access to some continuous (twice differentiable in strike and once in time)
-   * volatility surface, but have to approximate it from finite data points (i.e. option prices at gives strike/maturity). We assume for now that 
-   * this is provided by some magical algorithm 
-   * @param marketVols Collection of expiry-strike coordinates and the implied volatility at those points  
+   * volatility surface, but have to approximate it from finite data points (i.e. option prices at gives strike/maturity). We assume for now that
+   * this is provided by some magical algorithm
+   * @param marketVols Collection of expiry-strike coordinates and the implied volatility at those points
    * @param initialGuess Initial guess at the parameters of the Markov chain. these are: CEV vol of normal state; CEV vol of excited state
    *  (which must be greater than the vol in normal state); transition rate from normal to excited; transition rate from excited to normal;
-   * probability of starting in normal state; and the CEV parameter, beta  
+   * probability of starting in normal state; and the CEV parameter, beta
    */
   public void fit(final ForwardCurve forward, final BlackVolatilitySurface marketVolSurface, final List<Pair<double[], Double>> marketVols,
       final DoubleMatrix1D initialGuess) {
@@ -67,20 +67,22 @@ public class TwoStateMarkovChainLocalVolFitter {
     final Set<DoublesPair> dataPoints = marketVolsMap.keySet();
 
     // first fit calibrate the basic Markov chain model (i.e. fixed vol levels) to market data
-    final LeastSquareResults chiSqRes = CHAIN_FITTER.fit(forward, marketVols, initialGuess);
+    final LeastSquareResultsWithTransform chiSqRes = CHAIN_FITTER.fit(forward, marketVols, initialGuess);
 
-    final double vol1 = chiSqRes.getParameters().getEntry(0);
-    final double vol2 = chiSqRes.getParameters().getEntry(1) + vol1;
-    final double lambda12 = chiSqRes.getParameters().getEntry(2);
-    final double lambda21 = chiSqRes.getParameters().getEntry(3);
-    final double p0 = chiSqRes.getParameters().getEntry(4);
-    final double beta = chiSqRes.getParameters().getEntry(5);
+    DoubleMatrix1D modelParms = chiSqRes.getModelParameters();
+
+    final double vol1 = modelParms.getEntry(0);
+    final double vol2 = modelParms.getEntry(1) + vol1;
+    final double lambda12 = modelParms.getEntry(2);
+    final double lambda21 = modelParms.getEntry(3);
+    final double p0 = modelParms.getEntry(4);
+    final double beta = modelParms.getEntry(5);
 
     final TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(vol1, vol2, lambda12, lambda21, p0, beta, beta);
 
     //**** DO NOT REMOVE ****************************************************************************************************
     //TODO This is not used because we are passing in the market Vol Surface - this should be replaced by a "smart" interpolator to get vol surface
-    //interpolate the market vol surface. 
+    //interpolate the market vol surface.
     //    final Map<Double, Interpolator1DDoubleQuadraticDataBundle> dataBundle = GRID_INTERPOLATOR2D.getDataBundle(marketVolsMap);
     //    @SuppressWarnings("unused")
     //    Function<Double, Double> mrkVolFunc = new Function<Double, Double>() {
@@ -90,14 +92,14 @@ public class TwoStateMarkovChainLocalVolFitter {
     //        double s = ts[1];
     //        return GRID_INTERPOLATOR2D.interpolate(dataBundle, new DoublesPair(t, s));
     //      }
-    //    }; 
+    //    };
     // BlackVolatilitySurface marketVolSurface = new BlackVolatilitySurface(FunctionalDoublesSurface.from(mrkVolFunc));
     //******************************************************************************************************************
 
     final int tNodes = 50;
     final int xNodes = 100;
 
-    //Get min/max strikes and expiries 
+    //Get min/max strikes and expiries
     final int nMarketValues = marketVols.size();
     double tminT = Double.POSITIVE_INFINITY;
     double tminK = Double.POSITIVE_INFINITY;
@@ -149,7 +151,7 @@ public class TwoStateMarkovChainLocalVolFitter {
       PDEUtilityTools.printSurface("State 2 densities", denRes[1]);
     }
 
-    //the Local vol of the basis Markov chain model 
+    //the Local vol of the basis Markov chain model
     AbsoluteLocalVolatilitySurface mcBaseLocalVol = MC_LOCAL_VOL_CALC.calc(denRes, chainData, null);
     AbsoluteLocalVolatilitySurface mcLocalVol;
     if (_print) {
@@ -163,7 +165,7 @@ public class TwoStateMarkovChainLocalVolFitter {
     while (!converged(marketLocalVol, mcLocalVol, dataPoints) && count < 10) {
       count++;
 
-      //get the local vol overlay to the Markov chain model 
+      //get the local vol overlay to the Markov chain model
       lvOverlay = getLocalVolOverlay(marketLocalVol, mcBaseLocalVol);
       if (_print) {
         PDEUtilityTools.printSurface("Local vol overlay at step " + count, lvOverlay.getSurface(), minT, maxT, minK, maxK);
@@ -179,11 +181,11 @@ public class TwoStateMarkovChainLocalVolFitter {
 
       //calculate mc local vol without overlay
       mcBaseLocalVol = MC_LOCAL_VOL_CALC.calc(denRes, chainData, null);
-      //... and with overlay  
+      //... and with overlay
       mcLocalVol = MC_LOCAL_VOL_CALC.calc(denRes, chainData, lvOverlay);
     }
 
-    if (_print) {      
+    if (_print) {
       PDEUtilityTools.printSurface("Markov LV local Vols", mcLocalVol.getSurface(), minT, maxT, minK, maxK);
       if (lvOverlay != null) {
         PDEUtilityTools.printSurface("Local vol overlay ", lvOverlay.getSurface(), minT, maxT, minK, maxK);
@@ -214,7 +216,7 @@ public class TwoStateMarkovChainLocalVolFitter {
       error += temp * temp;
     }
     System.out.println("error " + error);
-    return error < 1e-5; //TODO arbitrary error 
+    return error < 1e-5; //TODO arbitrary error
   }
 
   //  private void printSurface(PDEFullResults1D res) {
@@ -297,7 +299,7 @@ public class TwoStateMarkovChainLocalVolFitter {
         final double p1 = denRes[0].getFunctionValue(j, i);
         final double p2 = denRes[1].getFunctionValue(j, i);
         final double p = p1 + p2;
-        if (p > 0) { //if p = 0 can't find equivalent local vol for this t-s, so don't use point 
+        if (p > 0) { //if p = 0 can't find equivalent local vol for this t-s, so don't use point
           lv[i][j] = Math.sqrt((nu1 * p1 + nu2 * p2) / p);
         }
       }
@@ -346,7 +348,7 @@ public class TwoStateMarkovChainLocalVolFitter {
         final double p1 = denRes[0].getFunctionValue(j, i);
         final double p2 = denRes[1].getFunctionValue(j, i);
         final double p = p1 + p2;
-        if (p > 0) { //if p = 0 can't find equivalent local vol for this t-s, so don't use point 
+        if (p > 0) { //if p = 0 can't find equivalent local vol for this t-s, so don't use point
           final double eNu = (nu1 * p1 + nu2 * p2) / p;
           final double mrkLV = marketLocalVol.getVolatility(t, s);
           double overlay = 1.0;

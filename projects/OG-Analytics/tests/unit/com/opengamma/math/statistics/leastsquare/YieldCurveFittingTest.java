@@ -56,10 +56,10 @@ public class YieldCurveFittingTest extends YieldCurveFittingFromSwapsTest {
     final List<double[]> yields = new ArrayList<double[]>();
 
     final String interpolatorName = Interpolator1DFactory.NATURAL_CUBIC_SPLINE;
-    final int[] payments = new int[] {1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 20, 24, 30, 40, 50, 60};
+    final int[] payments = new int[] {1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 20, 24, 30, 40, 50, 60 };
     curveNames.add("single curve");
-    curveKnots.add(new double[] {0.5, 1.00, 1.5, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556});
-    yields.add(new double[] {0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.052, 0.049, 0.045, 0.044, 0.043, 0.041, 0.04});
+    curveKnots.add(new double[] {0.5, 1.00, 1.5, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556 });
+    yields.add(new double[] {0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.052, 0.049, 0.045, 0.044, 0.043, 0.041, 0.04 });
 
     final int n = curveKnots.get(0).length;
     final double[] rates = new double[n];
@@ -101,7 +101,7 @@ public class YieldCurveFittingTest extends YieldCurveFittingFromSwapsTest {
     final LeastSquareResults res = ls.solve(y, sigma, func, jac, data.getStartPosition());
 
     assertEquals(0.0, res.getChiSq(), EPS);
-    checkResult(res.getParameters(), data);
+    checkResult(res.getFitParameters(), data);
   }
 
   @Test

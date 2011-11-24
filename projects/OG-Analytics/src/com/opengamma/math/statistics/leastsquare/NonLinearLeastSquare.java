@@ -360,6 +360,7 @@ public class NonLinearLeastSquare {
   private LeastSquareResults finish(final double newChiSqr, final DoubleMatrix2D jacobian, final DoubleMatrix1D newTheta, final DoubleMatrix1D sigma) {
     final DoubleMatrix2D alpha = getModifiedCurvatureMatrix(jacobian, 0.0);
     final DecompositionResult decmp = _decomposition.evaluate(alpha);
+    //
     final DoubleMatrix2D covariance = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(alpha.getNumberOfRows()));
     final DoubleMatrix2D bT = getBTranspose(jacobian, sigma);
     final DoubleMatrix2D inverseJacobian = decmp.solve(bT);

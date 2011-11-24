@@ -20,6 +20,7 @@ import com.opengamma.math.matrix.OGMatrixAlgebra;
 import com.opengamma.math.minimization.NonLinearParameterTransforms;
 import com.opengamma.math.minimization.NonLinearTransformFunction;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 
 /**
@@ -69,7 +70,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * @param start The first guess at the parameter values
    * @return The LeastSquareResults
    */
-  public LeastSquareResults solve(final DoubleMatrix1D start) {
+  public LeastSquareResultsWithTransform solve(final DoubleMatrix1D start) {
     return solve(start, new BitSet());
   }
 
@@ -80,7 +81,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * @param fixed Indicates which parameters are fixed
    * @return The LeastSquareResults
    */
-  public LeastSquareResults solve(final DoubleMatrix1D start, final BitSet fixed) {
+  public LeastSquareResultsWithTransform solve(final DoubleMatrix1D start, final BitSet fixed) {
     NonLinearParameterTransforms transform = getTransform(start, fixed);
     return solve(start, transform);
   }
@@ -91,14 +92,11 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * @param transform Transform from model parameters to fitting parameters, and vice versa
    * @return The LeastSquareResults
    */
-  public LeastSquareResults solve(final DoubleMatrix1D start, final NonLinearParameterTransforms transform) {
+  public LeastSquareResultsWithTransform solve(final DoubleMatrix1D start, final NonLinearParameterTransforms transform) {
     NonLinearTransformFunction transFunc = new NonLinearTransformFunction(getModelValueFunction(), getModelJacobianFunction(), transform);
 
     LeastSquareResults solRes = SOLVER.solve(_marketValues, _errors, transFunc.getFittingFunction(), transFunc.getFittingJacobian(), transform.transform(start));
-    DoubleMatrix1D modelParams = transform.inverseTransform(solRes.getParameters());
-    //TODO return the covariance matrix
-    return new LeastSquareResults(solRes.getChiSq(), modelParams,
-        new DoubleMatrix2D(new double[modelParams.getNumberOfElements()][modelParams.getNumberOfElements()]), solRes.getInverseJacobian());
+    return new LeastSquareResultsWithTransform(solRes, transform);
   }
 
   protected Function1D<DoubleMatrix1D, DoubleMatrix1D> getModelValueFunction() {

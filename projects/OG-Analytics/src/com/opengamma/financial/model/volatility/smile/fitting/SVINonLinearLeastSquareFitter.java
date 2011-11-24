@@ -16,7 +16,6 @@ import com.opengamma.financial.model.volatility.smile.function.SVIVolatilityFunc
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.math.minimization.DoubleRangeLimitTransform;
 import com.opengamma.math.minimization.NullTransform;
@@ -25,6 +24,7 @@ import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.math.minimization.UncoupledParameterTransforms;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.CompareUtils;
 
@@ -43,7 +43,7 @@ public class SVINonLinearLeastSquareFitter extends LeastSquareSmileFitter {
     TRANSFORMS[0] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); //a
     TRANSFORMS[1] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); //b
     TRANSFORMS[2] = new DoubleRangeLimitTransform(-1.0, 1.0); //rho
-    TRANSFORMS[3] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); //sigma 
+    TRANSFORMS[3] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); //sigma
     TRANSFORMS[4] = new NullTransform(); //m
   }
 
@@ -57,12 +57,13 @@ public class SVINonLinearLeastSquareFitter extends LeastSquareSmileFitter {
   }
 
   @Override
-  public LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] initialFitParameters, final BitSet fixed) {
+  public LeastSquareResultsWithTransform getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] initialFitParameters, final BitSet fixed) {
     return getFitResult(options, data, null, initialFitParameters, fixed);
   }
 
   @Override
-  public LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] errors, final double[] initialFitParameters, final BitSet fixed) {
+  public LeastSquareResultsWithTransform getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] errors, final double[] initialFitParameters,
+      final BitSet fixed) {
     testData(options, data, errors, initialFitParameters, fixed, N_PARAMETERS);
     final int n = options.length;
     final double[] strikes = new double[n];
@@ -100,8 +101,9 @@ public class SVINonLinearLeastSquareFitter extends LeastSquareSmileFitter {
     final DoubleMatrix1D fp = transforms.transform(new DoubleMatrix1D(initialFitParameters));
     final LeastSquareResults lsRes = errors == null ? _solver.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), function, fp) : _solver.solve(new DoubleMatrix1D(strikes),
         new DoubleMatrix1D(blackVols), new DoubleMatrix1D(errors), function, fp);
-    final DoubleMatrix1D mp = transforms.inverseTransform(lsRes.getParameters());
-    return new LeastSquareResults(lsRes.getChiSq(), mp, new DoubleMatrix2D(new double[N_PARAMETERS][N_PARAMETERS]));
+    // final DoubleMatrix1D mp = transforms.inverseTransform(lsRes.getFitParameters());
+    return new LeastSquareResultsWithTransform(lsRes, transforms);
+    // return new LeastSquareResults(lsRes.getChiSq(), mp, new DoubleMatrix2D(new double[N_PARAMETERS][N_PARAMETERS]));
 
   }
 }
