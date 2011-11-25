@@ -164,6 +164,10 @@ $.register_module({
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
                             $('.ui-layout-inner-center .ui-layout-content').html(content);
                             ui.toolbar(options.toolbar.active);
+                            (function () {
+                                /* load timeseries */
+                                //$('.OG-details-positions .og-timeseries').html('test');
+                            }());
                             if (json.template_data && json.template_data.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);
                                 layout.inner.sizePane('north', '0');

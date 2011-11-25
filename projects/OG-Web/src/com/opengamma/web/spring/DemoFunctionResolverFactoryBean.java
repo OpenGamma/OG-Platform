@@ -10,7 +10,6 @@ import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionPriority;
 import com.opengamma.engine.function.resolver.FunctionResolver;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
 import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondPV01CountryCurveFunction;
@@ -45,13 +44,13 @@ public class DemoFunctionResolverFactoryBean extends SingletonFactoryBean<Functi
           return Integer.MIN_VALUE;
         }
         if (function instanceof DefaultPropertyFunction) {
-          if (((DefaultPropertyFunction) function).hasValueName(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)) {
-            // YCNS currency injection must be below the filtering summing function priority, or the filter may never
-            // be applied.
+          final DefaultPropertyFunction defaultPropertyFunction = (DefaultPropertyFunction) function;
+          if (defaultPropertyFunction.isPermitWithout()) {
+            // Place below the filtering summing function priority, or the filter may never be applied.
             return -2;
           } else {
-            // All other currency injections are important; i.e. the currency constraint can't be omitted.
-            return Integer.MAX_VALUE;
+            // All other currency injections are important; e.g. the currency constraint can't be omitted for some functions
+            return Integer.MAX_VALUE + defaultPropertyFunction.getPriority().getPriorityAdjust() - DefaultPropertyFunction.PriorityClass.MAX_ADJUST;
           }
         }
         if (function instanceof BondPresentValueCountryCurveFunction) {

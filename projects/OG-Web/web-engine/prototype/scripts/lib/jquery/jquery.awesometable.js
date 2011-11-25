@@ -3,7 +3,7 @@
  * @license See distribution for license
  */
 (function($, undefined) {
-    var table_resizers = [], t;
+    var table_resizers = [], t, scrollbar_width;
     $(window).resize(function () {
         if (t) clearTimeout(t);
         t = setTimeout(function () {
@@ -14,10 +14,11 @@
         if (!this.is('table')) throw new TypeError('$.awesometable: needs to be called on a table element');
         var self = this, cons = arguments.callee, $dup,
             get_scrollbar_width = function () {
-            return 100 - $('<div style="width: 100px; height: 100px; position: absolute; overflow: auto" />')
-              .appendTo('body').append('<div />').find('div').css('height', '200px').width();
+                var html = '<div style="width: 100px; height: 100px; position: absolute; overflow: auto" />';
+                return scrollbar_width || (scrollbar_width = 100 - $(html)
+                    .appendTo('body').append('<div />').find('div').css('height', '200px').width());
         };
-        if (!self.parent().parent().hasClass('og-js-table')) { // initialize
+        if (!self.parent().parent().hasClass('js-awesometable')) { // initialize
             if (self.height() - self.find('thead').height() <= options.height) return;
             self.css('margin-top', '-1px'); // compensate for thead height being 1px
             self.wrap('<div />').parent()
@@ -34,11 +35,11 @@
                     'height': '0', 'line-height': '0', 'padding': '0', 'margin': '0',
                     'overflow': 'hidden', 'visibility': 'hidden'
                 };
+            self.find('thead').css(reset_css).find('*').css(reset_css);
             self.find('th').each(function (index, elm) {
                 index === len - 1 ? last = get_scrollbar_width() : last = 0;
                 $($dup[index]).width($(elm).width() + last);
             });
-            self.find('thead').css(reset_css).find('*').css(reset_css);
         }());
         // deal with and css before and after content
         (function () {

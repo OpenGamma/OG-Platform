@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.fudgemsg;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,13 +18,16 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.analytics.volatility.cube.fitting.FittedSmileDataPoints;
 import com.opengamma.financial.analytics.volatility.fittedresults.HestonFittedSurfaces;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.id.ExternalId;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
@@ -38,7 +42,6 @@ import com.opengamma.util.tuple.Pair;
 
   @FudgeBuilderFor(SABRFittedSurfaces.class)
   public static final class SABRFittedSurfacesFudgeBuilder extends AbstractFudgeBuilder<SABRFittedSurfaces> {
-
     /** Field name. */
     public static final String ALPHA_SURFACE_FIELD_NAME = "AlphaSurface";
     /** Field name. */
@@ -95,7 +98,6 @@ import com.opengamma.util.tuple.Pair;
   
   @FudgeBuilderFor(HestonFittedSurfaces.class)
   public static final class HestonFittedSurfacesFudgeBuilder extends AbstractFudgeBuilder<HestonFittedSurfaces> {
-
     /** Field name. */
     public static final String KAPPA_SURFACE_FIELD_NAME = "KappaSurface";
     /** Field name. */
@@ -148,5 +150,47 @@ import com.opengamma.util.tuple.Pair;
         message.add(INVERSE_JACOBIANS_MATRICES_FIELD_NAME, null, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(entry.getValue()), entry.getValue().getClass()));
       }
     }
+  }
+  
+  @FudgeBuilderFor(FittedSmileDataPoints.class)
+  public static final class FittedSmileDataPointsBuilder extends AbstractFudgeBuilder<FittedSmileDataPoints> {
+    /** Field name */
+    public static final String TENOR_PAIR_FIELD_NAME = "Tenor pairs";
+    /** Field name */
+    public static final String EXTERNAL_IDS_ARRAY_FIELD_NAME = "External ids";
+    /** Field name */
+    public static final String RELATIVE_STRIKES_ARRAY_FIELD_NAME = "Relative strikes";
+    @SuppressWarnings("unchecked")
+    @Override
+    public FittedSmileDataPoints buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+      final List<FudgeField> tenorPairFields = message.getAllByName(TENOR_PAIR_FIELD_NAME);
+      final List<FudgeField> externalIdsFields = message.getAllByName(EXTERNAL_IDS_ARRAY_FIELD_NAME);
+      final List<FudgeField> relativeStrikesFields = message.getAllByName(RELATIVE_STRIKES_ARRAY_FIELD_NAME);
+      final Map<Pair<Tenor, Tenor>, ExternalId[]> externalIds = new HashMap<Pair<Tenor, Tenor>, ExternalId[]>();
+      final Map<Pair<Tenor, Tenor>, Double[]> relativeStrikes = new HashMap<Pair<Tenor, Tenor>, Double[]>();
+      if (tenorPairFields.size() != externalIdsFields.size() || tenorPairFields.size() != relativeStrikesFields.size()) {
+        throw new OpenGammaRuntimeException("Should never happen");
+      }
+      for (int i = 0; i < tenorPairFields.size(); i++) {
+        final Pair<Tenor, Tenor> tenors = deserializer.fieldValueToObject(Pair.class, tenorPairFields.get(i));
+        final List<ExternalId> externalIdList = deserializer.fieldValueToObject(List.class, externalIdsFields.get(i));
+        final List<Double> relativeStrikesList = deserializer.fieldValueToObject(List.class, relativeStrikesFields.get(i));
+        externalIds.put(tenors, externalIdList.toArray(new ExternalId[externalIdList.size()]));
+        relativeStrikes.put(tenors, relativeStrikesList.toArray(new Double[relativeStrikesList.size()]));
+      }
+      return new FittedSmileDataPoints(externalIds, relativeStrikes);
+    }
+
+    @Override
+    protected void buildMessage(FudgeSerializer serializer, MutableFudgeMsg message, FittedSmileDataPoints object) {
+      final Map<Pair<Tenor, Tenor>, ExternalId[]> externalIds = object.getExternalIds();
+      final Map<Pair<Tenor, Tenor>, Double[]> relativeStrikes = object.getRelativeStrikes();
+      for (final Map.Entry<Pair<Tenor, Tenor>, ExternalId[]> entry : externalIds.entrySet()) {
+        message.add(TENOR_PAIR_FIELD_NAME, null, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(entry.getKey()), Pair.class));
+        serializer.addToMessageObject(message, EXTERNAL_IDS_ARRAY_FIELD_NAME, null, Arrays.asList(entry.getValue()), List.class);
+        serializer.addToMessageObject(message, RELATIVE_STRIKES_ARRAY_FIELD_NAME, null, Arrays.asList(relativeStrikes.get(entry.getKey())), List.class);
+      }
+    }
+  
   }
 }

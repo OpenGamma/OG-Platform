@@ -37,7 +37,6 @@ import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
-import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.payments.method.CouponCMSDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.method.CouponIborGearingDiscountingMethod;
@@ -118,7 +117,7 @@ public class PresentValueCurveSensitivityCalculator extends AbstractInstrumentDe
     final BondSecurityDiscountingMethod method = BondSecurityDiscountingMethod.getInstance();
     return method.presentValueSensitivity(bond, curves).getSensitivities();
   }
-  
+
   @Override
   public Map<String, List<DoublesPair>> visitBondFixedTransaction(final BondFixedTransaction bond, final YieldCurveBundle curves) {
     final BondTransactionDiscountingMethod method = BondTransactionDiscountingMethod.getInstance();
@@ -257,39 +256,6 @@ public class PresentValueCurveSensitivityCalculator extends AbstractInstrumentDe
   public Map<String, List<DoublesPair>> visitCouponOIS(final CouponOIS payment, final YieldCurveBundle data) {
 
     Map<String, List<DoublesPair>> result = METHOD_OIS.presentValueCurveSensitivity(payment, data).getSensitivities();
-
-    return result;
-  }
-
-  @Override
-  public Map<String, List<DoublesPair>> visitZZZCouponOIS(final ZZZCouponOIS payment, final YieldCurveBundle data) {
-    final YieldAndDiscountCurve fundingCurve = data.getCurve(payment.getFundingCurveName());
-    //  final YieldAndDiscountCurve indexCurve = data.getCurve(payment.getIndexCurveName());
-    final double ta = payment.getStartTime();
-    final double tb = payment.getEndTime();
-    final double tPay = payment.getPaymentTime();
-    final double avRate = (fundingCurve.getInterestRate(tb) * tb - fundingCurve.getInterestRate(ta) * ta) / payment.getRateYearFraction();
-    final double dfPay = fundingCurve.getDiscountFactor(tPay);
-    final double notional = payment.getNotional();
-
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> temp = new ArrayList<DoublesPair>();
-    DoublesPair s;
-    s = new DoublesPair(tPay, -tPay * dfPay * notional * (avRate + payment.getSpread()) * payment.getPaymentYearFraction());
-    temp.add(s);
-
-    //    if (!payment.getIndexCurveName().equals(payment.getFundingCurveName())) {
-    //      result.put(payment.getFundingCurveName(), temp);
-    //      temp = new ArrayList<DoublesPair>();
-    //    }
-
-    final double ratio = notional * dfPay * payment.getPaymentYearFraction() / payment.getRateYearFraction();
-    s = new DoublesPair(ta, -ta * ratio);
-    temp.add(s);
-    s = new DoublesPair(tb, tb * ratio);
-    temp.add(s);
-
-    result.put(payment.getFundingCurveName(), temp);
 
     return result;
   }

@@ -12,10 +12,12 @@ import java.util.Set;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Recursively loads all positions under a particular {@link PortfolioNode}.
  */
+@PublicAPI
 public class PositionAccumulator {
 
   /**

@@ -22,7 +22,6 @@ import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.payments.method.CouponOISDiscountingMethod;
 import com.opengamma.financial.interestrate.swap.definition.CrossCurrencySwap;
@@ -187,7 +186,7 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
     final double matPV = PVC.visit(bond.getNominal(), curves);
     return (1 - matPV) / pvann;
   }
-  
+
   @Override
   public Double visitCouponIbor(final CouponIbor payment, final YieldCurveBundle data) {
     final YieldAndDiscountCurve curve = data.getCurve(payment.getForwardCurveName());
@@ -208,14 +207,6 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
   @Override
   public Double visitCapFloorIbor(final CapFloorIbor payment, final YieldCurveBundle data) {
     return visitCouponIbor(payment, data);
-  }
-
-  @Override
-  public Double visitZZZCouponOIS(final ZZZCouponOIS payment, final YieldCurveBundle data) {
-    final YieldAndDiscountCurve fundingCurve = data.getCurve(payment.getFundingCurveName());
-    final double ta = payment.getStartTime();
-    final double tb = payment.getEndTime();
-    return (fundingCurve.getInterestRate(tb) * tb - fundingCurve.getInterestRate(ta) * ta) / payment.getRateYearFraction();
   }
 
   @Override

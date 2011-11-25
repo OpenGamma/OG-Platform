@@ -104,8 +104,7 @@ public class VarianceSwapDefinition {
   }
 
   public static VarianceSwapDefinition fromVegaParams(ZonedDateTime obsStartDate, ZonedDateTime obsEndDate, ZonedDateTime settlementDate, PeriodFrequency obsFreq, Currency currency,
-      Calendar calendar,
-      double annualizationFactor, double volStrike, double volNotional) {
+      Calendar calendar, double annualizationFactor, double volStrike, double volNotional) {
     return new VarianceSwapDefinition(obsStartDate, obsEndDate, settlementDate, obsFreq, currency, calendar, annualizationFactor, volStrike, volNotional);
   }
 
