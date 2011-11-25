@@ -27,6 +27,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
 
   <bean id="dataNotFoundExceptionMapper" class="com.opengamma.util.rest.DataNotFoundExceptionMapper" scope="singleton">
   </bean>
+  <bean id="dataDuplicationExceptionMapper" class="com.opengamma.util.rest.DataDuplicationExceptionMapper" scope="singleton">
+  </bean>
   <bean id="illegalArgumentExceptionMapper" class="com.opengamma.util.rest.IllegalArgumentExceptionMapper" scope="singleton">
   </bean>
   <bean id="unsupportedOperationExceptionMapper" class="com.opengamma.util.rest.UnsupportedOperationExceptionMapper" scope="singleton">

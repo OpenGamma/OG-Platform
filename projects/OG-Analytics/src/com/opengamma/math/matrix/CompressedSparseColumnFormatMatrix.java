@@ -9,6 +9,8 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.utilities.Max;
+
 /**
  * Converts, or instantiates, a matrix to Compressed Sparse Column format (CSC). CSC is a near optimal method of storing sparse matrix data.
  * Only the non-zero components of the matrix are stored (note: there is no tolerance for testing zero to machine precision, zero is solely tested bitwise).
@@ -126,6 +128,29 @@ public class CompressedSparseColumnFormatMatrix extends SparseMatrixType  {
   public CompressedSparseColumnFormatMatrix(double[][] m) {
     this(new DoubleMatrix2D(m));
   }
+  
+  
+  /**
+   * Construct from coordinate inputs
+   * @param x x-coordinates of data points
+   * @param y y-coordinates of data points
+   * @param values value of data points
+   */
+  public CompressedSparseColumnFormatMatrix(int[] x, int[] y, double[] values) {
+    this(new SparseCoordinateFormatMatrix(x, y, values, (Max.value(y) + 1), (Max.value(x) + 1)));
+  }
+
+  /**
+   * Construct from coordinate inputs
+   * @param x x-coordinates of data points
+   * @param y y-coordinates of data points
+   * @param values value of data points
+   * @param m the number of rows the CSC matrix should have
+   * @param n the number of columns the CSC matrix should have
+   */
+  public CompressedSparseColumnFormatMatrix(int[] x, int[] y, double[] values, int m, int n) {
+    this(new SparseCoordinateFormatMatrix(x, y, values, m, n));
+  }  
 
   /* methods */
 

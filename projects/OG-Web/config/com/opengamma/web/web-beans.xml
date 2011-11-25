@@ -47,6 +47,16 @@
     <constructor-arg ref="demoAvailableOutputsProvider" />
     <constructor-arg ref="fudgeContext" />
   </bean>
+  <bean id="dependencyGraphDebugRestBean" class="com.opengamma.financial.depgraph.rest.DependencyGraphBuilderService">
+    <constructor-arg ref="fudgeContext" />
+    <property name="underlying">
+      <bean class="com.opengamma.financial.depgraph.rest.DependencyGraphBuilderResourceContextBean">
+        <property name="compiledFunctionService" ref="demoFunctionCompilation" />
+        <property name="marketDataProviderResolver" ref="marketDataProviderResolver" />
+        <property name="computationTargetResolver" ref="demoTargetResolver" />
+      </bean>
+    </property>
+  </bean>
   
   <!-- Snapshotter service -->
   <bean id="snapshotterRest" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshottersResource">
@@ -266,6 +276,12 @@
             <entry key="currencyPairsSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/currencyPairsSource/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="dependencyGraphBuilder">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/dependencyGraphBuilder/0/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>

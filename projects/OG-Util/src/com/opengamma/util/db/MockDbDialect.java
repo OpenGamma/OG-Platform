@@ -9,6 +9,8 @@ import java.sql.Driver;
 
 import org.hibernate.dialect.Dialect;
 
+import com.opengamma.extsql.ExtSqlConfig;
+
 /**
  * Database dialect for mocking.
  */
@@ -22,6 +24,11 @@ public class MockDbDialect extends DbDialect {
   @Override
   protected Dialect createHibernateDialect() {
     return null;
+  }
+
+  @Override
+  protected ExtSqlConfig createExtSqlConfig() {
+    return ExtSqlConfig.DEFAULT;
   }
 
 }

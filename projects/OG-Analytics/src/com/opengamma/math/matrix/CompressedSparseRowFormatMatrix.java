@@ -125,7 +125,7 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
   }
 
   /**
-   * Construct from SparseCoordinateFormatMatrix type
+   * Construct from coordinate inputs
    * @param x x-coordinates of data points
    * @param y y-coordinates of data points
    * @param values value of data points
@@ -135,7 +135,7 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
   }
 
   /**
-   * Construct from SparseCoordinateFormatMatrix type
+   * Construct from coordinate inputs
    * @param x x-coordinates of data points
    * @param y y-coordinates of data points
    * @param values value of data points

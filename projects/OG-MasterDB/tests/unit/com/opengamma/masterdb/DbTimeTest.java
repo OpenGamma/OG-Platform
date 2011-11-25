@@ -26,7 +26,7 @@ import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.test.DbTest;
 
 /**
- * Tests time in the databse.
+ * Tests time in the database.
  */
 public class DbTimeTest extends DbTest {
   // TIMESTAMP WITHOUT TIME ZONE is consistent across Postgres and HSQL
