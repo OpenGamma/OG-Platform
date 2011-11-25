@@ -16,7 +16,12 @@
 }
 
 .OG-details-grid > div {
-  padding-right: 10px;
+  float: left;
+  position: relative;
+}
+
+.OG-details-grid > div:first-child {
+  margin-right: 10px;
 }
 
 .OG-details-grid header {

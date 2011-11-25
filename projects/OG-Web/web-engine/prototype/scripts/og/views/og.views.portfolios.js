@@ -182,7 +182,8 @@ $.register_module({
                             display_columns = [{id: 'name', name: 'Name', field: 'name', width: 300}],
                             json.portfolios = [{name: 'No portfolios', id: ''}]
                         }
-                        slick = new Slick.Grid(selector + ' .og-js-portfolios-grid', json.portfolios, display_columns.concat(data_columns));
+                        slick = new Slick.Grid(selector + ' .og-js-portfolios-grid',
+                            json.portfolios, display_columns.concat(data_columns));
                         slick.setColumns(display_columns);
                         slick.onClick.subscribe(function (e, dd) {
                             var rule = module.rules.load_portfolios,
