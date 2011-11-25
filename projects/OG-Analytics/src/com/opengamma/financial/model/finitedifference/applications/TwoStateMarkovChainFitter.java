@@ -34,6 +34,7 @@ import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.math.minimization.UncoupledParameterTransforms;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -56,7 +57,7 @@ public class TwoStateMarkovChainFitter {
     //trans[3] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN);
     //    trans[0] = new DoubleRangeLimitTransform(0.1, 0.5);
     //trans[1] = new DoubleRangeLimitTransform(0.0, 0.7);
-    trans[2] = new DoubleRangeLimitTransform(0.1, 5.0); //try to keep transition rates physical 
+    trans[2] = new DoubleRangeLimitTransform(0.1, 5.0); //try to keep transition rates physical
     trans[3] = new DoubleRangeLimitTransform(0.1, 5.0);
     trans[4] = new DoubleRangeLimitTransform(0.0, 1.0);
     trans[5] = new DoubleRangeLimitTransform(0.0, 2.0);
@@ -74,7 +75,7 @@ public class TwoStateMarkovChainFitter {
     _theta = theta;
   }
 
-  public LeastSquareResults fit(final ForwardCurve forward, final List<Pair<double[], Double>> marketVols, final DoubleMatrix1D initialGuess) {
+  public LeastSquareResultsWithTransform fit(final ForwardCurve forward, final List<Pair<double[], Double>> marketVols, final DoubleMatrix1D initialGuess) {
 
     Validate.isTrue(initialGuess.getNumberOfElements() == TRANSFORMS.getNumberOfModelParameters());
     TRANSFORMS.transform(initialGuess);
@@ -154,7 +155,7 @@ public class TwoStateMarkovChainFitter {
       @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-//        long timer = System.nanoTime();
+        //        long timer = System.nanoTime();
         final DoubleMatrix1D y = TRANSFORMS.inverseTransform(x);
         final double vol1 = y.getEntry(0);
         final double deltaVol = y.getEntry(1);
@@ -164,13 +165,13 @@ public class TwoStateMarkovChainFitter {
         final double beta = y.getEntry(5);
         final TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(vol1, vol1 + deltaVol, lambda12, lambda21, p0, beta, beta);
         final TwoStateMarkovChainPricer mc = new TwoStateMarkovChainPricer(forward, chainData);
-//        long timer1 = System.nanoTime();
+        //        long timer1 = System.nanoTime();
         final PDEFullResults1D res = mc.solve(grid, _theta);
-//        System.out.println("time1 " + ((System.nanoTime() - timer1)/1e6)+"ms");
-//        long timer2 = System.nanoTime();
+        //        System.out.println("time1 " + ((System.nanoTime() - timer1)/1e6)+"ms");
+        //        long timer2 = System.nanoTime();
         final Map<DoublesPair, Double> data = PDEUtilityTools.priceToImpliedVol(forward, res, minT, maxT, minK, maxK);
-//        System.out.println("time2 " + ((System.nanoTime() - timer2)/1e6)+"ms");
-//        long timer3 = System.nanoTime();
+        //        System.out.println("time2 " + ((System.nanoTime() - timer2)/1e6)+"ms");
+        //        long timer3 = System.nanoTime();
         final Map<Double, Interpolator1DDataBundle> dataBundle = GRID_INTERPOLATOR2D.getDataBundle(data);
         final double[] modVols = new double[nMarketValues];
         for (int i = 0; i < nMarketValues; i++) {
@@ -182,8 +183,8 @@ public class TwoStateMarkovChainFitter {
             System.out.println("arrrgggg");
           }
         }
-//        System.out.println("time3 " + ((System.nanoTime() - timer3)/1e6)+"ms");
-//        System.out.println("time " + ((System.nanoTime() - timer)/1e6)+"ms");
+        //        System.out.println("time3 " + ((System.nanoTime() - timer3)/1e6)+"ms");
+        //        System.out.println("time " + ((System.nanoTime() - timer)/1e6)+"ms");
         //debug(DataBundle);
         return new DoubleMatrix1D(modVols);
       }
@@ -201,8 +202,9 @@ public class TwoStateMarkovChainFitter {
     //solve approx first
     LeastSquareResults solverRes = ls.solve(new DoubleMatrix1D(mrkVols), new DoubleMatrix1D(sigma), funcAppox, TRANSFORMS.transform(initialGuess));
     // now solve pde model
-    solverRes = ls.solve(new DoubleMatrix1D(mrkVols), new DoubleMatrix1D(sigma), func, solverRes.getParameters());
-    return new LeastSquareResults(solverRes.getChiSq(), TRANSFORMS.inverseTransform(solverRes.getParameters()), solverRes.getCovariance());
+    solverRes = ls.solve(new DoubleMatrix1D(mrkVols), new DoubleMatrix1D(sigma), func, solverRes.getFitParameters());
+    return new LeastSquareResultsWithTransform(solverRes, TRANSFORMS);
+    // return new LeastSquareResults(solverRes.getChiSq(), TRANSFORMS.inverseTransform(solverRes.getFitParameters()), solverRes.getCovariance());
   }
 
   public void debug(final Map<Double, Interpolator1DDataBundle> dataBundle) {
@@ -225,7 +227,7 @@ public class TwoStateMarkovChainFitter {
   }
 
   /**
-   * Transforms the price data (in PDEFullResults1D form) to implied volatility in a form used by 2D interpolator 
+   * Transforms the price data (in PDEFullResults1D form) to implied volatility in a form used by 2D interpolator
    * @param forward
    * @param yield
    * @param prices

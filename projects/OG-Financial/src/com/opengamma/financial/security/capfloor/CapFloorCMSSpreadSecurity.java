@@ -38,7 +38,7 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
   /**
    * The security type.
    */
-  public static final String SECURITY_TYPE = "CAP/FLOOR CMS SPREAD";
+  public static final String SECURITY_TYPE = "CAP-FLOOR CMS SPREAD";
 
   /**
    * The start date.

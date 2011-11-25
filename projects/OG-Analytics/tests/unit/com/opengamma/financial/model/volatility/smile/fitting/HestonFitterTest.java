@@ -27,6 +27,7 @@ import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
@@ -77,7 +78,7 @@ public class HestonFitterTest {
     for (int i = 0; i < N; i++) {
 
       OPTIONS[i] = new EuropeanVanillaOption(0.01 + 0.01 * i, T, true);
-      //using Fourier integral here rather than FFT 
+      //using Fourier integral here rather than FFT
       final double price = pricer.price(data, OPTIONS[i], heston, -0.5, 1e-10, true);
       BLACK_VOLS[i] = new BlackFunctionData(FORWARD, DF, blackImpliedVol.getImpliedVolatility(data, OPTIONS[i], price));
       SABR_VOLS[i] = new BlackFunctionData(FORWARD, DF, sabr.getVolatilityFunction(OPTIONS[i], FORWARD).evaluate(new SABRFormulaData(alpha, beta, rho, nu)));
@@ -89,7 +90,7 @@ public class HestonFitterTest {
 
     double[] errors = new double[N];
     for (int i = 0; i < N; i++) {
-      errors[i] = 0.01; //1pc errors 
+      errors[i] = 0.01; //1pc errors
     }
 
     final double[] temp = new double[] {0.2, 0.1, 0.3, -0.7 };
@@ -110,15 +111,15 @@ public class HestonFitterTest {
   public void testExactFit() {
 
     double[] errors = new double[N];
-    Arrays.fill(errors, 1e-4);//1bps errors 
+    Arrays.fill(errors, 1e-4);//1bps errors
 
     assertExactFit(FFT_VOL_FITTER, "FFT vols", errors, true);
     final double[] pErrors = new double[N];
-    //where doing a least square fit by price, having errors be the invease of vega makes it similar to least square by vols 
+    //where doing a least square fit by price, having errors be the invease of vega makes it similar to least square by vols
     for (int i = 0; i < N; i++) {
       pErrors[i] = 2e-6 * FORWARD / BLACK_PRICE.getVegaFunction(OPTIONS[i]).evaluate(BLACK_VOLS[i]);
     }
-    assertExactFit(FFT_PRICE_FITTER, "FFT price", pErrors, false); //does not recover starting vols 
+    assertExactFit(FFT_PRICE_FITTER, "FFT price", pErrors, false); //does not recover starting vols
     assertExactFit(FOURIER_VOL_FITTER, "Fourier", errors, true);
 
   }
@@ -126,7 +127,7 @@ public class HestonFitterTest {
   @Test(enabled = false)
   public void testExactFitNewMethod() {
     double[] errors = new double[N];
-    Arrays.fill(errors, 1e-4);//1bps errors 
+    Arrays.fill(errors, 1e-4);//1bps errors
     final double[] strikes = new double[N];
     final double[] vols = new double[N];
     for (int i = 0; i < N; i++) {
@@ -151,8 +152,8 @@ public class HestonFitterTest {
     if (_benchmarkCycles > 0) {
       final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles using {}", _benchmarkCycles, name);
       for (int i = 0; i < _benchmarkCycles; i++) {
-        final LeastSquareResults results = fitter.getFitResult(OPTIONS, BLACK_VOLS, errors, temp, new BitSet());
-        final DoubleMatrix1D params = results.getParameters();
+        final LeastSquareResultsWithTransform results = fitter.getFitResult(OPTIONS, BLACK_VOLS, errors, temp, new BitSet());
+        final DoubleMatrix1D params = results.getModelParameters();
 
         //System.out.println(name + " chi^2: " + results.getChiSq() + "\n" + params);
 

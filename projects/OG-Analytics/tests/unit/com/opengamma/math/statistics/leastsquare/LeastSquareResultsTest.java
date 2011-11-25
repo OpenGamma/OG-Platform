@@ -17,9 +17,9 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
  * 
  */
 public class LeastSquareResultsTest {
-  private static final DoubleMatrix1D PARAMS = new DoubleMatrix1D(new double[] {1.0, 2.0});
-  private static final DoubleMatrix2D COVAR = new DoubleMatrix2D(new double[][] { {0.1, 0.2}, {0.2, 0.3}});
-  private static final DoubleMatrix2D INV_JAC = new DoubleMatrix2D(new double[][] { {0.5, 0.6}, {0.7, 0.8}});
+  private static final DoubleMatrix1D PARAMS = new DoubleMatrix1D(new double[] {1.0, 2.0 });
+  private static final DoubleMatrix2D COVAR = new DoubleMatrix2D(new double[][] { {0.1, 0.2 }, {0.2, 0.3 } });
+  private static final DoubleMatrix2D INV_JAC = new DoubleMatrix2D(new double[][] { {0.5, 0.6 }, {0.7, 0.8 } });
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeChiSq1() {
@@ -38,12 +38,12 @@ public class LeastSquareResultsTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullWrongSize1() {
-    new LeastSquareResults(1, new DoubleMatrix1D(new double[] {1.2}), COVAR);
+    new LeastSquareResults(1, new DoubleMatrix1D(new double[] {1.2 }), COVAR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNotSquare1() {
-    new LeastSquareResults(1, PARAMS, new DoubleMatrix2D(new double[][] {{0.2, 0.3}}));
+    new LeastSquareResults(1, PARAMS, new DoubleMatrix2D(new double[][] {{0.2, 0.3 } }));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -63,12 +63,12 @@ public class LeastSquareResultsTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullWrongSize2() {
-    new LeastSquareResults(1, new DoubleMatrix1D(new double[] {1.2}), COVAR, INV_JAC);
+    new LeastSquareResults(1, new DoubleMatrix1D(new double[] {1.2 }), COVAR, INV_JAC);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNotSquare2() {
-    new LeastSquareResults(1, PARAMS, new DoubleMatrix2D(new double[][] {{0.2, 0.3}}), INV_JAC);
+    new LeastSquareResults(1, PARAMS, new DoubleMatrix2D(new double[][] {{0.2, 0.3 } }), INV_JAC);
   }
 
   @Test
@@ -77,7 +77,7 @@ public class LeastSquareResultsTest {
     LeastSquareResults res = new LeastSquareResults(chiSq, PARAMS, COVAR);
     assertEquals(chiSq, res.getChiSq(), 0.0);
     for (int i = 0; i < 2; i++) {
-      assertEquals(PARAMS.getEntry(i), res.getParameters().getEntry(i), 0);
+      assertEquals(PARAMS.getEntry(i), res.getFitParameters().getEntry(i), 0);
       for (int j = 0; j < 2; j++) {
         assertEquals(COVAR.getEntry(i, j), res.getCovariance().getEntry(i, j), 0);
       }
@@ -85,10 +85,10 @@ public class LeastSquareResultsTest {
     res = new LeastSquareResults(chiSq, PARAMS, COVAR, INV_JAC);
     assertEquals(chiSq, res.getChiSq(), 0.0);
     for (int i = 0; i < 2; i++) {
-      assertEquals(PARAMS.getEntry(i), res.getParameters().getEntry(i), 0);
+      assertEquals(PARAMS.getEntry(i), res.getFitParameters().getEntry(i), 0);
       for (int j = 0; j < 2; j++) {
         assertEquals(COVAR.getEntry(i, j), res.getCovariance().getEntry(i, j), 0);
-        assertEquals(INV_JAC.getEntry(i, j), res.getInverseJacobian().getEntry(i, j), 0);
+        assertEquals(INV_JAC.getEntry(i, j), res.getFittingParameterSensitivityToData().getEntry(i, j), 0);
       }
     }
   }
@@ -96,35 +96,35 @@ public class LeastSquareResultsTest {
   @Test
   public void testHashCode() {
     LeastSquareResults ls1 = new LeastSquareResults(1.0, PARAMS, COVAR);
-    LeastSquareResults ls2 = new LeastSquareResults(1.0, new DoubleMatrix1D(new double[] {1.0, 2.0}),
-        new DoubleMatrix2D(new double[][] { {0.1, 0.2}, {0.2, 0.3}}));
+    LeastSquareResults ls2 = new LeastSquareResults(1.0, new DoubleMatrix1D(new double[] {1.0, 2.0 }),
+        new DoubleMatrix2D(new double[][] { {0.1, 0.2 }, {0.2, 0.3 } }));
     assertEquals(ls1.hashCode(), ls2.hashCode(), 0);
-    ls2 = new LeastSquareResults(1.0, new DoubleMatrix1D(new double[] {1.0, 2.0}),
-        new DoubleMatrix2D(new double[][] { {0.1, 0.2}, {0.2, 0.3}}), null);
+    ls2 = new LeastSquareResults(1.0, new DoubleMatrix1D(new double[] {1.0, 2.0 }),
+        new DoubleMatrix2D(new double[][] { {0.1, 0.2 }, {0.2, 0.3 } }), null);
     assertEquals(ls1.hashCode(), ls2.hashCode(), 0);
     ls1 = new LeastSquareResults(1.0, PARAMS, COVAR, INV_JAC);
     ls2 = new LeastSquareResults(1.0,
-        new DoubleMatrix1D(new double[] {1.0, 2.0}),
-        new DoubleMatrix2D(new double[][] { {0.1, 0.2}, {0.2, 0.3}}),
-        new DoubleMatrix2D(new double[][] { {0.5, 0.6}, {0.7, 0.8}}));
+        new DoubleMatrix1D(new double[] {1.0, 2.0 }),
+        new DoubleMatrix2D(new double[][] { {0.1, 0.2 }, {0.2, 0.3 } }),
+        new DoubleMatrix2D(new double[][] { {0.5, 0.6 }, {0.7, 0.8 } }));
     assertEquals(ls1.hashCode(), ls2.hashCode(), 0);
   }
 
   @Test
   public void testEquals() {
     LeastSquareResults ls1 = new LeastSquareResults(1.0, PARAMS, COVAR);
-    LeastSquareResults ls2 = new LeastSquareResults(1.0, new DoubleMatrix1D(new double[] {1.0, 2.0}),
-        new DoubleMatrix2D(new double[][] { {0.1, 0.2}, {0.2, 0.3}}));
+    LeastSquareResults ls2 = new LeastSquareResults(1.0, new DoubleMatrix1D(new double[] {1.0, 2.0 }),
+        new DoubleMatrix2D(new double[][] { {0.1, 0.2 }, {0.2, 0.3 } }));
     assertEquals(ls1, ls2);
     ls2 = new LeastSquareResults(1.0, PARAMS, COVAR, null);
     assertEquals(ls1, ls2);
     ls2 = new LeastSquareResults(1.1, PARAMS, COVAR);
     assertFalse(ls1.equals(ls2));
-    ls2 = new LeastSquareResults(1.0, new DoubleMatrix1D(new double[] {1.1, 2.0}), new DoubleMatrix2D(new double[][] {
-        {0.1, 0.2}, {0.2, 0.3}}));
+    ls2 = new LeastSquareResults(1.0, new DoubleMatrix1D(new double[] {1.1, 2.0 }), new DoubleMatrix2D(new double[][] {
+        {0.1, 0.2 }, {0.2, 0.3 } }));
     assertFalse(ls1.equals(ls2));
-    ls2 = new LeastSquareResults(1.0, new DoubleMatrix1D(new double[] {1.0, 2.0}), new DoubleMatrix2D(new double[][] {
-        {0.1, 0.2}, {0.2, 0.4}}));
+    ls2 = new LeastSquareResults(1.0, new DoubleMatrix1D(new double[] {1.0, 2.0 }), new DoubleMatrix2D(new double[][] {
+        {0.1, 0.2 }, {0.2, 0.4 } }));
     assertFalse(ls1.equals(ls2));
     ls2 = new LeastSquareResults(1.0, PARAMS, COVAR, INV_JAC);
     assertFalse(ls1.equals(ls2));
