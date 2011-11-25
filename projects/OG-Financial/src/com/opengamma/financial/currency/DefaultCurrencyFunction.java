@@ -13,20 +13,20 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.property.StaticDefaultPropertyFunction;
 
 /**
  * If no currency is explicitly requested, inject the view's default currency. This function should never
  * be added to a dependency graph as the input will always match the output.
  */
-public class DefaultCurrencyFunction extends DefaultPropertyFunction {
+public class DefaultCurrencyFunction extends StaticDefaultPropertyFunction {
 
-  public DefaultCurrencyFunction(final ComputationTargetType targetType, final String valueName) {
-    super(targetType, ValuePropertyNames.CURRENCY, valueName);
+  public DefaultCurrencyFunction(final ComputationTargetType targetType, final boolean permitWithout, final String valueName) {
+    super(targetType, ValuePropertyNames.CURRENCY, permitWithout, valueName);
   }
 
-  public DefaultCurrencyFunction(final ComputationTargetType targetType, final String... valueNames) {
-    super(targetType, ValuePropertyNames.CURRENCY, valueNames);
+  public DefaultCurrencyFunction(final ComputationTargetType targetType, final boolean permitWithout, final String... valueNames) {
+    super(targetType, ValuePropertyNames.CURRENCY, permitWithout, valueNames);
   }
 
   @Override
