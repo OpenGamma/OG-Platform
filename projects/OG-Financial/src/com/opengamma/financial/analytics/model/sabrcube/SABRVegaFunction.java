@@ -3,14 +3,12 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.swaption;
+package com.opengamma.financial.analytics.model.sabrcube;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -30,10 +28,10 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.SABRVegaCalculationUtils;
 import com.opengamma.financial.analytics.model.VegaMatrixHelper;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
+import com.opengamma.financial.analytics.volatility.cube.fitting.FittedSmileDataPoints;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.id.ExternalId;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -42,21 +40,20 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.FirstThenSecondPairComparator;
 
 /**
  * 
  */
-public class SwaptionSABRVegaFunction extends SwaptionSABRFunction {
+public class SABRVegaFunction extends SABRFunction {
   private static final Interpolator1D INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator("Linear", "FlatExtrapolator", "FlatExtrapolator");
   private static final GridInterpolator2D NODE_SENSITIVITY_CALCULATOR = new GridInterpolator2D(INTERPOLATOR, INTERPOLATOR);
   private VolatilityCubeDefinition _definition;
 
-  public SwaptionSABRVegaFunction(final Currency currency, final String cubeName, final boolean useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
+  public SABRVegaFunction(final Currency currency, final String cubeName, final boolean useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
     super(currency, cubeName, useSABRExtrapolation, forwardCurveName, fundingCurveName);
   }
 
-  public SwaptionSABRVegaFunction(final String currency, final String cubeName, final String useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
+  public SABRVegaFunction(final String currency, final String cubeName, final String useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
     super(currency, cubeName, useSABRExtrapolation, forwardCurveName, fundingCurveName);
   }
 
@@ -91,13 +88,13 @@ public class SwaptionSABRVegaFunction extends SwaptionSABRFunction {
       throw new OpenGammaRuntimeException("Could not get SABR fitted surfaces");
     }
     final SABRFittedSurfaces sabrFittedSurfaces = (SABRFittedSurfaces) sabrSurfacesObject;
-    final ValueRequirement externalIdsRequirement = new ValueRequirement(ValueRequirementNames.EXTERNAL_IDS, FinancialSecurityUtils.getCurrency(target.getSecurity()), getExternalIdProperties());
-    final Object externalIdsObject = inputs.getValue(externalIdsRequirement);
-    if (externalIdsObject == null) {
-      throw new OpenGammaRuntimeException("Could not get external ids for cube");
+    final ValueRequirement fittedPointsRequirement = 
+      new ValueRequirement(ValueRequirementNames.VOLATILITY_CUBE_FITTED_POINTS, FinancialSecurityUtils.getCurrency(target.getSecurity()), getFittedPointsProperties());
+    final Object fittedDataPointsObject = inputs.getValue(fittedPointsRequirement);
+    if (fittedDataPointsObject == null) {
+      throw new OpenGammaRuntimeException("Could not get fitted points for cube");
     }
-    final SortedMap<DoublesPair, ExternalId[]> fittedDataIds = new TreeMap<DoublesPair, ExternalId[]>(new FirstThenSecondPairComparator<Double, Double>()); 
-    fittedDataIds.putAll((Map<DoublesPair, ExternalId[]>) externalIdsObject);
+    final FittedSmileDataPoints fittedDataPoints = (FittedSmileDataPoints) fittedDataPointsObject;
     final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = sabrFittedSurfaces.getInverseJacobians();
     final DoubleLabelledMatrix2D alphaSensitivity = (DoubleLabelledMatrix2D) alphaSensitivityObject;
     final DoubleLabelledMatrix2D nuSensitivity = (DoubleLabelledMatrix2D) nuSensitivityObject;
@@ -120,7 +117,7 @@ public class SwaptionSABRVegaFunction extends SwaptionSABRFunction {
     
     final Map<Double, DoubleMatrix2D> result = 
       SABRVegaCalculationUtils.getVegaCube(alpha, rho, nu, alphaDataBundle, rhoDataBundle, nuDataBundle, inverseJacobians, expiryMaturity, NODE_SENSITIVITY_CALCULATOR);
-    final DoubleLabelledMatrix3D labelledMatrix = VegaMatrixHelper.getVegaSwaptionCubeQuoteMatrixInStandardForm(fittedDataIds, result);
+    final DoubleLabelledMatrix3D labelledMatrix = VegaMatrixHelper.getVegaSwaptionCubeQuoteMatrixInStandardForm(fittedDataPoints, result);
     return Collections.singleton(new ComputedValue(getResultSpec(target), labelledMatrix));
   }
 
@@ -133,7 +130,7 @@ public class SwaptionSABRVegaFunction extends SwaptionSABRFunction {
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.getSecurity(), sensitivityProperties));
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.getSecurity(), sensitivityProperties));
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, target.getSecurity(), sensitivityProperties));
-    requirements.add(new ValueRequirement(ValueRequirementNames.EXTERNAL_IDS, ccy, getExternalIdProperties()));
+    requirements.add(new ValueRequirement(ValueRequirementNames.VOLATILITY_CUBE_FITTED_POINTS, ccy, getFittedPointsProperties())); //TODO add fitting method information
     return requirements;
   }
   
@@ -147,10 +144,11 @@ public class SwaptionSABRVegaFunction extends SwaptionSABRFunction {
       .with(ValuePropertyNames.CURRENCY, ccyCode)
       .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
       .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
-      .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();    
+      .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName())
+      .with(ValuePropertyNames.CALCULATION_METHOD, isUseSABRExtrapolation() ? SABR_RIGHT_EXTRAPOLATION : SABR_NO_EXTRAPOLATION).get();    
   }
 
-  private ValueProperties getExternalIdProperties() {
+  private ValueProperties getFittedPointsProperties() {
     return ValueProperties.builder()
         .with(ValuePropertyNames.CURRENCY, getHelper().getCurrency().getCode())
         .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
@@ -163,6 +161,7 @@ public class SwaptionSABRVegaFunction extends SwaptionSABRFunction {
             .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode())
             .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
             .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
-            .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get());
+            .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName())
+            .with(ValuePropertyNames.CALCULATION_METHOD, isUseSABRExtrapolation() ? SABR_RIGHT_EXTRAPOLATION : SABR_NO_EXTRAPOLATION).get());
   }
 }

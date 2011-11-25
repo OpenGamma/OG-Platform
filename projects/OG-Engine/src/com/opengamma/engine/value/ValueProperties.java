@@ -1052,7 +1052,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
   /**
    * Gets an immutable set of the defined property names.
    * 
-   * @return the property names, not null
+   * @return the property names, null if there are no properties, or the empty set for an infinite(ish) set 
    */
   public abstract Set<String> getProperties();
 
