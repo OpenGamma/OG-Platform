@@ -685,27 +685,19 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private static void addFixedIncomeInstrumentCalculators(List<FunctionConfiguration> functionConfigs) {
-    //forward/funding
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateFunction.class, "FORWARD_3M", "FUNDING"));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentPresentValueFunction.class, "FORWARD_3M", "FUNDING"));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateParallelCurveSensitivityFunction.class, "FORWARD_3M", "FUNDING"));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentPV01Function.class, "FORWARD_3M", "FUNDING"));
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateParallelCurveSensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentPV01Function.class));
     functionConfigs.add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class, "FORWARD_3M", "FUNDING", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING));
     functionConfigs
         .add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class, "FORWARD_3M", "FUNDING", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateFunction.class, "FORWARD_6M", "FUNDING"));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentPresentValueFunction.class, "FORWARD_6M", "FUNDING"));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateParallelCurveSensitivityFunction.class, "FORWARD_6M", "FUNDING"));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentPV01Function.class, "FORWARD_6M", "FUNDING"));
     functionConfigs.add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class, "FORWARD_6M", "FUNDING", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING));
     functionConfigs
         .add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class, "FORWARD_6M", "FUNDING", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
-
-    // Secondary
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentPresentValueFunction.class, "SECONDARY", "SECONDARY"));
-    functionConfigs.add(functionConfiguration(
-        InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class, "SECONDARY", "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING));
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class, "SECONDARY", "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING));
+    functionConfigs
+        .add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class, "SECONDARY", "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
   }
 
   public static RepositoryConfigurationSource constructRepositoryConfigurationSource() {

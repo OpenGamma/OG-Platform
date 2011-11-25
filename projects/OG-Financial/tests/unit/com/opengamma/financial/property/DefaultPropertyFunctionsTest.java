@@ -198,11 +198,11 @@ public class DefaultPropertyFunctionsTest {
     @Override
     public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
       final Set<String> forwardCurves = desiredValue.getConstraints().getValues("ForwardCurve");
-      if ((forwardCurves == null) || forwardCurves.isEmpty()) {
+      if (forwardCurves.isEmpty()) {
         return null;
       }
       final Set<String> fundingCurves = desiredValue.getConstraints().getValues("FundingCurve");
-      if ((fundingCurves == null) || fundingCurves.isEmpty()) {
+      if (fundingCurves.isEmpty()) {
         return null;
       }
       // Two curves have been requested
