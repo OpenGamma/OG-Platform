@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.property;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
@@ -26,28 +29,66 @@ import com.opengamma.engine.value.ValueRequirement;
 
   private static final String SEP = ".DEFAULT_";
 
-  private final boolean _uniqueId;
+  private final boolean _identifier;
 
-  protected CalcConfigDefaultPropertyFunction(final ComputationTargetType type, final boolean uniqueId) {
+  protected CalcConfigDefaultPropertyFunction(final ComputationTargetType type, final boolean identifier) {
     super(type, false);
-    _uniqueId = uniqueId;
+    _identifier = identifier;
   }
 
-  protected boolean isUniqueId() {
-    return _uniqueId;
+  protected boolean isIdentifier() {
+    return _identifier;
+  }
+
+  protected String getUniqueId(final ComputationTarget target) {
+    if (target.getUniqueId() != null) {
+      return target.getUniqueId().getObjectId().toString();
+    } else {
+      return null;
+    }
+  }
+
+  protected List<String> getIdentifiers(final ComputationTarget target) {
+    final String uniqueId = getUniqueId(target);
+    if (uniqueId != null) {
+      return Collections.singletonList(uniqueId);
+    } else {
+      return null;
+    }
   }
 
   @Override
   protected void getDefaults(final FunctionCompilationContext context, final ComputationTarget target, final PropertyDefaults defaults) {
     final String prefix = getTargetType().name() + ".";
-    final String suffix = isUniqueId() ? "." + target.getUniqueId() : "";
-    for (String property : context.getViewCalculationConfiguration().getDefaultProperties().getProperties()) {
-      if (property.startsWith(prefix) && property.endsWith(suffix)) {
-        final int i = property.indexOf(SEP, prefix.length());
-        if (i > 0) {
-          final String valueName = property.substring(prefix.length(), i);
-          final String propertyName = property.substring(i + SEP.length(), property.length() - suffix.length());
-          defaults.addValuePropertyName(valueName, propertyName);
+    if (isIdentifier()) {
+      final List<String> identifiers = getIdentifiers(target);
+      final List<String> suffixes = new ArrayList<String>(identifiers.size());
+      for (String identifier : identifiers) {
+        suffixes.add("." + identifier);
+      }
+      for (String property : context.getViewCalculationConfiguration().getDefaultProperties().getProperties()) {
+        for (String suffix : suffixes) {
+          if (property.startsWith(prefix) && property.endsWith(suffix)) {
+            final int i = property.indexOf(SEP, prefix.length());
+            if (i > 0) {
+              final String valueName = property.substring(prefix.length(), i);
+              final String propertyName = property.substring(i + SEP.length(), property.length() - suffix.length());
+              defaults.addValuePropertyName(valueName, propertyName);
+            }
+          }
+        }
+      }
+    } else {
+      for (String property : context.getViewCalculationConfiguration().getDefaultProperties().getProperties()) {
+        if (property.startsWith(prefix)) {
+          final int i = property.indexOf(SEP, prefix.length());
+          if (i > 0) {
+            if (property.indexOf('.', i + 1) < 0) {
+              final String valueName = property.substring(prefix.length(), i);
+              final String propertyName = property.substring(i + SEP.length());
+              defaults.addValuePropertyName(valueName, propertyName);
+            }
+          }
         }
       }
     }
@@ -58,20 +99,34 @@ import com.opengamma.engine.value.ValueRequirement;
     if (context.getViewCalculationConfiguration() == null) {
       return false;
     }
-    if (isUniqueId() && (target.getUniqueId() == null)) {
-      return false;
-    }
     final ValueProperties defaults = context.getViewCalculationConfiguration().getDefaultProperties();
     if (defaults.getProperties() == null) {
       return false;
     }
     final String prefix = getTargetType().name() + ".";
-    final String suffix = isUniqueId() ? "." + target.getUniqueId() : "";
-    for (String defaultValue : defaults.getProperties()) {
-      if (defaultValue.startsWith(prefix) && defaultValue.endsWith(suffix)) {
-        final int i = defaultValue.indexOf(SEP, prefix.length());
-        if (i > 0) {
-          return true;
+    if (isIdentifier()) {
+      final List<String> identifiers = getIdentifiers(target);
+      final List<String> suffixes = new ArrayList<String>(identifiers.size());
+      for (String identifier : identifiers) {
+        suffixes.add("." + identifier);
+      }
+      for (String property : defaults.getProperties()) {
+        for (String suffix : suffixes) {
+          if (property.startsWith(prefix) && property.endsWith(suffix)) {
+            final int i = property.indexOf(SEP, prefix.length());
+            if (i > 0) {
+              return true;
+            }
+          }
+        }
+      }
+    } else {
+      for (String property : defaults.getProperties()) {
+        if (property.startsWith(prefix)) {
+          final int i = property.indexOf(SEP, prefix.length());
+          if (i > 0) {
+            return (property.indexOf('.', i + 1) < 0);
+          }
         }
       }
     }
@@ -81,15 +136,25 @@ import com.opengamma.engine.value.ValueRequirement;
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     final StringBuilder sb = new StringBuilder(getTargetType().name()).append('.').append(desiredValue.getValueName()).append(SEP).append(propertyName);
-    if (isUniqueId()) {
-      sb.append('.').append(target.getUniqueId());
+    if (isIdentifier()) {
+      sb.append('.');
+      final int l = sb.length();
+      for (String identifier : getIdentifiers(target)) {
+        sb.delete(l, sb.length()).append(identifier);
+        final Set<String> values = context.getViewCalculationConfiguration().getDefaultProperties().getValues(sb.toString());
+        if (values != null) {
+          return values;
+        }
+      }
+      return null;
+    } else {
+      return context.getViewCalculationConfiguration().getDefaultProperties().getValues(sb.toString());
     }
-    return context.getViewCalculationConfiguration().getDefaultProperties().getValues(sb.toString());
   }
 
   @Override
   public PriorityClass getPriority() {
-    return isUniqueId() ? PriorityClass.ABOVE_NORMAL : PriorityClass.NORMAL;
+    return isIdentifier() ? PriorityClass.ABOVE_NORMAL : PriorityClass.NORMAL;
   }
 
 }

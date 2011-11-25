@@ -12,8 +12,8 @@ import com.opengamma.engine.ComputationTargetType;
  */
 public abstract class PositionCalcConfigDefaultPropertyFunction extends CalcConfigDefaultPropertyFunction {
 
-  protected PositionCalcConfigDefaultPropertyFunction(final boolean uniqueId) {
-    super(ComputationTargetType.POSITION, uniqueId);
+  protected PositionCalcConfigDefaultPropertyFunction(final boolean identifier) {
+    super(ComputationTargetType.POSITION, identifier);
   }
 
   /**

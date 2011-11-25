@@ -45,7 +45,7 @@ import com.opengamma.engine.value.ValueRequirement;
         final String valueName = attribute.getKey().substring(0, i);
         final String propertyName = attribute.getKey().substring(i + SEP.length());
         defaults.addValuePropertyName(valueName, propertyName);
-        s_logger.debug("Found default {} = {}", valueName, propertyName);
+        s_logger.debug("Found default {}[{}]", valueName, propertyName);
       }
     }
   }

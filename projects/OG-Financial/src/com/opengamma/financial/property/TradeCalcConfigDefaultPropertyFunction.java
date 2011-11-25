@@ -12,8 +12,8 @@ import com.opengamma.engine.ComputationTargetType;
  */
 public abstract class TradeCalcConfigDefaultPropertyFunction extends CalcConfigDefaultPropertyFunction {
 
-  protected TradeCalcConfigDefaultPropertyFunction(final boolean uniqueId) {
-    super(ComputationTargetType.TRADE, uniqueId);
+  protected TradeCalcConfigDefaultPropertyFunction(final boolean identifier) {
+    super(ComputationTargetType.TRADE, identifier);
   }
 
   /**

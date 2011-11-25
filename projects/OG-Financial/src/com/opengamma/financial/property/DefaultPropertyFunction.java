@@ -14,6 +14,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -56,7 +57,7 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
     private final int _level;
 
     private PriorityClass(final int level) {
-      _level = 1;
+      _level = level;
     }
 
     /**
@@ -138,7 +139,7 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
       s_logger.debug("No default properties for {}", target);
       return null;
     } else {
-      s_logger.debug("Found {} values with default properties for {}", defaults.getValueName2PropertyNames().size(), target);
+      s_logger.debug("Found {} value(s) with default properties for {}", defaults.getValueName2PropertyNames().size(), target);
       return defaults;
     }
   }
@@ -180,21 +181,42 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
     final ValueProperties.Builder constraints = desiredValue.getConstraints().copy();
     boolean matched = false;
     for (String propertyName : defaults.getValueName2PropertyNames().get(desiredValue.getValueName())) {
-      if (desiredValue.getConstraints().getValues(propertyName) == null) {
-        s_logger.debug("Matched default property {} for {}", propertyName, desiredValue);
-        final Set<String> values = getDefaultValue(context, target, desiredValue, propertyName);
-        if (values != null) {
-          if (values.isEmpty()) {
-            s_logger.debug("Matched ANY");
+      s_logger.debug("Matched default property {} for {}", propertyName, desiredValue);
+      final Set<String> existingValues = desiredValue.getConstraints().getValues(propertyName);
+      final Set<String> defaultValues = getDefaultValue(context, target, desiredValue, propertyName);
+      if (defaultValues != null) {
+        if (defaultValues.isEmpty()) {
+          if (existingValues == null) {
+            s_logger.debug("Default ANY");
             constraints.withAny(propertyName);
+            matched = true;
           } else {
-            s_logger.debug("Matched {}", values);
-            constraints.with(propertyName, values);
+            s_logger.debug("Default ANY but already had constraint {}", existingValues);
           }
-          matched = true;
         } else {
-          s_logger.debug("No default values");
+          if (existingValues == null) {
+            s_logger.debug("Default {}", defaultValues);
+            constraints.with(propertyName, defaultValues);
+            matched = true;
+          } else {
+            if (existingValues.isEmpty()) {
+              s_logger.debug("Default {} better than ANY", defaultValues);
+              constraints.withoutAny(propertyName).with(propertyName, defaultValues);
+              matched = true;
+            } else {
+              final Set<String> intersect = Sets.intersection(existingValues, defaultValues);
+              if (intersect.isEmpty()) {
+                s_logger.debug("Default {} incompatible with {}", defaultValues, existingValues);
+              } else {
+                s_logger.debug("Default {} reduced to {}", defaultValues, intersect);
+                constraints.withoutAny(propertyName).with(propertyName, intersect);
+                matched = true;
+              }
+            }
+          }
         }
+      } else {
+        s_logger.debug("No default values");
       }
     }
     if (!matched) {

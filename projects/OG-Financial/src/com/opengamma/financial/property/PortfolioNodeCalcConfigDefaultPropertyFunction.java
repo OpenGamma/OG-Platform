@@ -12,8 +12,8 @@ import com.opengamma.engine.ComputationTargetType;
  */
 public abstract class PortfolioNodeCalcConfigDefaultPropertyFunction extends CalcConfigDefaultPropertyFunction {
 
-  protected PortfolioNodeCalcConfigDefaultPropertyFunction(final boolean uniqueId) {
-    super(ComputationTargetType.PORTFOLIO_NODE, uniqueId);
+  protected PortfolioNodeCalcConfigDefaultPropertyFunction(final boolean identifier) {
+    super(ComputationTargetType.PORTFOLIO_NODE, identifier);
   }
 
   /**
