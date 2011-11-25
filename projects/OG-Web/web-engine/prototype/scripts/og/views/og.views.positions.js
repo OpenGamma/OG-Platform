@@ -26,7 +26,7 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search,
+            search, layout,
             ui = common.util.ui,
             module = this, positions,
             page_name = module.name.split('.').pop(),
@@ -83,7 +83,17 @@ $.register_module({
                             });
                         }
                     }
-                })}
+                })},
+                'versions': function () {
+                    var rule = module.rules.load_positions, args = routes.current().args;
+                    routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
+                    if (!layout.inner.state.south.isClosed && args.version) {
+                        layout.inner.close('south');
+                    } else layout.inner.open('south');
+                    layout.inner.options.south.onclose = function () {
+                        routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
+                    };
+                }
             },
             options = {
                 slickgrid: {
@@ -102,57 +112,32 @@ $.register_module({
                 toolbar: {
                     'default': {
                         buttons: [
-                            {id: 'new', name: 'New', handler: toolbar_buttons['new']},
-                            {id: 'save', name: 'Save', enabled: 'OG-disabled'},
-                            {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
-                            {id: 'delete', name: 'Delete', enabled: 'OG-disabled'}
+                            {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
                         ],
                         location: '.OG-tools'
                     },
                     active: {
                         buttons: [
-                            {id: 'new', name: 'New', handler: toolbar_buttons['new']},
-                            {id: 'save', name: 'Save', enabled: 'OG-disabled'},
-                            {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
-                            {id: 'delete', name: 'Delete', handler: toolbar_buttons['delete']}
+                            {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', tooltip: 'Delete', divider: true, handler: toolbar_buttons['delete']},
+                            {id: 'versions', label: 'versions', handler: toolbar_buttons['versions']}
                         ],
                         location: '.OG-tools'
                     }
                 }
             },
             details_page = function (args) {
-                var layout = og.views.common.layout,
-                    render_identifiers = function (json) {
+                var render_identifiers = function (json) {
                         $('.OG-js-details-panel .og-js-identifiers').html(json.reduce(function (acc, val) {
                             acc.push('<tr><td><span>' + val.scheme.lang() + '</span></td><td>' + val.value + '</td></tr>');
                             return acc
                         }, []).join(''));
-                    },
-                    setup_header_links = function () {
-                        var $version_link,
-                            rule = module.rules.load_positions;
-                        $version_link = $('<a>version history</a>')
-                            .addClass('OG-link-small og-js-version-link')
-                            .attr('href', routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}))
-                            .unbind('click').bind('click', function (e) {
-                                var layout = og.views.common.layout;
-                                if (!layout.inner.state.south.isClosed && args.version) {
-                                    e.preventDefault();
-                                    layout.inner.close('south');
-                                } else layout.inner.open('south');
-                            });
-                        layout.inner.options.south.onclose = function () {
-                            routes.go(routes.hash(rule, args, {del: ['version']}));
-                        };
-                        $('.OG-js-header-links').empty().append($version_link);
                     };
-                // if new page, close south panel
-                check_state({args: args, conditions: [{
-                    new_page: function () {
-                        layout.inner.options.south.onclose = null;
-                        layout.inner.close.partial('south');
-                    }
-                }]});
                 // load versions
                 if (args.version) {
                     layout.inner.open('south');
@@ -173,13 +158,11 @@ $.register_module({
                                         This position has been deleted\
                                     </section>\
                                 ',
-                                $html = $.tmpl(template, json.template_data),
-                                layout = og.views.common.layout, header, content;
+                                $html = $.tmpl(template, json.template_data), header, content;
                             header = $.outer($html.find('> header')[0]);
                             content = $.outer($html.find('> section')[0]);
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
                             $('.ui-layout-inner-center .ui-layout-content').html(content);
-                            setup_header_links();
                             ui.toolbar(options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);
@@ -250,6 +233,7 @@ $.register_module({
         };
         return positions = {
             load: function (args) {
+                layout = og.views.common.layout;
                 check_state({args: args, conditions: [
                     {new_page: function () {positions.search(args), masthead.menu.set_tab(page_name);}}
                 ]});
@@ -269,7 +253,17 @@ $.register_module({
                 search.filter($.extend(true, args, {filter: true}, get_quantities(args.quantity)));
             },
             load_positions: function (args) {
-                check_state({args: args, conditions: [{new_page: positions.load}]});
+                check_state({args: args, conditions: [
+                    {new_page: function () {
+                        positions.load(args);
+                        layout.inner.options.south.onclose = null;
+                        layout.inner.close.partial('south');
+                    }},
+                    {new_value: 'id', method: function () {
+                        layout.inner.options.south.onclose = null;
+                        layout.inner.close.partial('south');
+                    }}
+                ]});
                 positions.details(args);
             },
             search: function (args) {

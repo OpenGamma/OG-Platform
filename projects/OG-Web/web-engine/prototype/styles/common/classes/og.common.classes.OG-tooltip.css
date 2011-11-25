@@ -1,0 +1,33 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+.OG-tooltip {
+  background: #313b44;
+  color: #fff;
+  display: none;
+  padding: 3px;
+  position: absolute;
+  z-index: 2;
+}
+
+.OG-tooltip:before {
+  background-position: 0 -10px;
+  bottom: -3px;
+  content: '';
+  display: inline-block;
+  position: absolute;
+  left: 50%;
+  top: -5px;
+  margin-left: -4px;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 5px solid #313b44;
+}
+
+.OG-tooltip.OG-disabled {
+  opacity: 0.7;
+  filter: alpha(opacity=70);
+}

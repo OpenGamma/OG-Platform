@@ -10,7 +10,7 @@ namespace com.opengamma.financial.security.capfloor {
    * A cap/floor CMS spread security.
    */
   message CapFloorCMSSpreadSecurity extends FinancialSecurity {
-    required string securityType [default = "CAP/FLOOR CMS SPREAD"];
+    required string securityType [default = "CAP-FLOOR CMS SPREAD"];
     
     required javax.time.calendar.ZonedDateTime startDate;
     required javax.time.calendar.ZonedDateTime maturityDate;

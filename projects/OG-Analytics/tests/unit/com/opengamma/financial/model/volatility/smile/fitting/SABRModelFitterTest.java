@@ -25,7 +25,7 @@ import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctio
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
@@ -79,8 +79,8 @@ public class SABRModelFitterTest {
   public void testExactFit() {
 
     final double[] start = new double[] {0.1, 0.7, 0.0, 0.3 };
-    final LeastSquareResults results = FITTER.solve(new DoubleMatrix1D(start));
-    final double[] res = results.getParameters().getData();
+    final LeastSquareResultsWithTransform results = FITTER.solve(new DoubleMatrix1D(start));
+    final double[] res = results.getModelParameters().getData();
     final double eps = 1e-6;
     assertEquals(ALPHA, res[0], eps);
     assertEquals(BETA, res[1], eps);
@@ -92,8 +92,8 @@ public class SABRModelFitterTest {
   @Test
   public void testExactFitOddStart() {
     final double[] start = new double[] {0.01, 1.2, 0.9, 0.4 };
-    final LeastSquareResults results = FITTER.solve(new DoubleMatrix1D(start));
-    final double[] res = results.getParameters().getData();
+    final LeastSquareResultsWithTransform results = FITTER.solve(new DoubleMatrix1D(start));
+    final double[] res = results.getModelParameters().getData();
     final double eps = 1e-6;
     assertEquals(ALPHA, res[0], eps);
     assertEquals(BETA, res[1], eps);
@@ -107,8 +107,8 @@ public class SABRModelFitterTest {
     final double[] start = new double[] {0.1, 0.5, 0.0, 0.3 };
     BitSet fixed = new BitSet();
     fixed.set(1);
-    final LeastSquareResults results = FITTER.solve(new DoubleMatrix1D(start), fixed);
-    final double[] res = results.getParameters().getData();
+    final LeastSquareResultsWithTransform results = FITTER.solve(new DoubleMatrix1D(start), fixed);
+    final double[] res = results.getModelParameters().getData();
     final double eps = 1e-6;
     assertEquals(ALPHA, res[0], eps);
     assertEquals(BETA, res[1], eps);
@@ -123,12 +123,12 @@ public class SABRModelFitterTest {
     final double[] start = new double[] {0.1, 0.8, 0.0, 0.3 };
     BitSet fixed = new BitSet();
     fixed.set(1);
-    final LeastSquareResults results = FITTER.solve(new DoubleMatrix1D(start), fixed);
-    final double[] res = results.getParameters().getData();
+    final LeastSquareResultsWithTransform results = FITTER.solve(new DoubleMatrix1D(start), fixed);
+    final double[] res = results.getModelParameters().getData();
     final double eps = 1e-6;
     assertEquals(0.8, res[1], eps);
 
-    final double bpError = 35.0; //35 bps error 
+    final double bpError = 35.0; //35 bps error
     int n = MARKETDATA.length;
     double exChi2 = bpError * bpError * n;
     assertTrue("chi^2 " + results.getChiSq(), results.getChiSq() < exChi2);
@@ -138,8 +138,8 @@ public class SABRModelFitterTest {
   public void testNoisyFit() {
 
     final double[] start = new double[] {0.1, 0.7, 0.0, 0.3 };
-    final LeastSquareResults results = NOISY_FITTER.solve(new DoubleMatrix1D(start));
-    final double[] res = results.getParameters().getData();
+    final LeastSquareResultsWithTransform results = NOISY_FITTER.solve(new DoubleMatrix1D(start));
+    final double[] res = results.getModelParameters().getData();
     final double eps = 1e-2;
     assertEquals(ALPHA, res[0], eps);
     assertEquals(BETA, res[1], eps);
@@ -198,8 +198,8 @@ public class SABRModelFitterTest {
 
   private void doOldTest(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] start, final BitSet fixed,
       SABRNonLinearLeastSquareFitter fitter) {
-    LeastSquareResults lsRes = fitter.getFitResult(options, data, ERRORS, start, fixed);
-    final double[] res = lsRes.getParameters().getData();
+    LeastSquareResultsWithTransform lsRes = fitter.getFitResult(options, data, ERRORS, start, fixed);
+    final double[] res = lsRes.getModelParameters().getData();
     final double eps = 1e-2;
     assertEquals(ALPHA, res[0], eps);
     assertEquals(BETA, res[1], eps);

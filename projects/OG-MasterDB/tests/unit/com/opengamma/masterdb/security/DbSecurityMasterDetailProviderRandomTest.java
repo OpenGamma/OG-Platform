@@ -218,6 +218,12 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
 
   @Override
   @Test
+  public void testNonDeliverableFXForwardSecurity() {
+    _testCase.testNonDeliverableFXOptionSecurity();
+  }
+  
+  @Override
+  @Test
   public void testCapFloorSecurity() {
     _testCase.testCapFloorSecurity();
   }
@@ -239,5 +245,4 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
   public void testEquityVarianceSwapSecurity() {
     _testCase.testEquityVarianceSwapSecurity();
   }
-  
 }

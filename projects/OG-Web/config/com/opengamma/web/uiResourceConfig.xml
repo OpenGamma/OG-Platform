@@ -17,8 +17,6 @@
     <fragment>/styles/common/og.common.OG-main.css</fragment>
     <fragment>/styles/common/og.common.OG-mod-0.css</fragment>
     <fragment>/styles/common/og.common.OG-mod-0.og-mod-al.css</fragment><!-- awesome list module -->
-    <fragment>/styles/common/og.common.OG-mod-1.css</fragment>
-    <fragment>/styles/common/og.common.OG-mod-1.slick-viewport.css</fragment>
     <fragment>/styles/common/og.common.OG-mod-1.table.css</fragment>
     <fragment>/styles/common/og.common.OG-mod-1.og-style-2.css</fragment>
     <fragment>/styles/common/og.common.OG-filter.css</fragment>
@@ -65,12 +63,14 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-download.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-sync.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-background-01.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
   </bundle>
   <bundle id="common.search.css">
     <fragment>/styles/common/search/og.common.search.OG-search.css</fragment>
   </bundle>
   <bundle id="common.details.css">
     <fragment>/styles/common/details/og.common.OG-details-content.css</fragment>
+    <fragment>/styles/common/details/og.common.OG-details-grid.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-timeseries.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-holiday.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-region.css</fragment>
@@ -193,6 +193,7 @@
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.message.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.dialog.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.toolbar.js</fragment>
+    <fragment>/scripts/og/common/util/ui/og.common.util.ui.tooltip.js</fragment>
   </bundle>
   <bundle id="common.js">
     <fragment>/scripts/og/common/slickgrid/formatters/og.common.slickgrid.formatters.timeseries.js</fragment>

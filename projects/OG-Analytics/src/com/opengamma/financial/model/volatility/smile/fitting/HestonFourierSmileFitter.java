@@ -15,9 +15,9 @@ import com.opengamma.financial.model.option.pricing.fourier.FourierPricer;
 import com.opengamma.financial.model.option.pricing.fourier.MartingaleCharacteristicExponent;
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.minimization.UncoupledParameterTransforms;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -28,14 +28,15 @@ public class HestonFourierSmileFitter extends HestonFFTSmileFitter {
   private static final FourierPricer FOURIER_PRICER = new FourierPricer();
 
   /**
-   * @param fixVol0 True if initial value of vol the same as mean reversion level 
+   * @param fixVol0 True if initial value of vol the same as mean reversion level
    */
   public HestonFourierSmileFitter(boolean fixVol0) {
     super(fixVol0);
   }
 
   @Override
-  public LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] errors, final double[] initialFitParameters, final BitSet fixed) {
+  public LeastSquareResultsWithTransform getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] errors, final double[] initialFitParameters,
+      final BitSet fixed) {
     testData(options, data, errors, initialFitParameters, fixed, getnParams());
     final int n = options.length;
     final double[] strikes = new double[n];
@@ -73,7 +74,8 @@ public class HestonFourierSmileFitter extends HestonFFTSmileFitter {
     final DoubleMatrix1D fp = transforms.transform(new DoubleMatrix1D(initialFitParameters));
     final LeastSquareResults results = errors == null ? SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), function, fp) : SOLVER.solve(new DoubleMatrix1D(strikes),
         new DoubleMatrix1D(blackVols), new DoubleMatrix1D(errors), function, fp);
-    return new LeastSquareResults(results.getChiSq(), transforms.inverseTransform(results.getParameters()), new DoubleMatrix2D(new double[getnParams()][getnParams()]));
+    return new LeastSquareResultsWithTransform(results, transforms);
+    //  return new LeastSquareResults(results.getChiSq(), transforms.inverseTransform(results.getFitParameters()), new DoubleMatrix2D(new double[getnParams()][getnParams()]));
   }
 
 }

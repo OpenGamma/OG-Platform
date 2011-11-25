@@ -56,6 +56,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
   private double _strike;
   /**
    * The notional.
+   * TODO document how the sign of the notional implies pay / receive / fixed / realized
    */
   @PropertyDefinition
   private double _notional;
@@ -99,11 +100,11 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
     super();
   }
 
-  public EquityVarianceSwapSecurity(ExternalId spotUnderlyingIdentifier, Currency currency, double strike, double notional,
+  public EquityVarianceSwapSecurity(ExternalId spotUnderlyingId, Currency currency, double strike, double notional,
       boolean parameterizedAsVariance, double annualizationFactor, ZonedDateTime firstObservationDate, ZonedDateTime lastObservationDate,
-      ZonedDateTime settlementDate, ExternalId region, Frequency observationFrequency) {
+      ZonedDateTime settlementDate, ExternalId regionId, Frequency observationFrequency) {
     super(SECURITY_TYPE);
-    setSpotUnderlyingId(spotUnderlyingIdentifier);
+    setSpotUnderlyingId(spotUnderlyingId);
     setCurrency(currency);
     setStrike(strike);
     setNotional(notional);
@@ -112,7 +113,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
     setFirstObservationDate(firstObservationDate);
     setLastObservationDate(lastObservationDate);
     setSettlementDate(settlementDate);
-    setRegionId(region);
+    setRegionId(regionId);
     setObservationFrequency(observationFrequency);
   }
 

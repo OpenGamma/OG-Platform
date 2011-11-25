@@ -47,7 +47,7 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
@@ -61,7 +61,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
   private static final double ERROR = 0.001;
   private static final BitSet FIXED = new BitSet();
   private static final SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
-  private static final DoubleMatrix1D SABR_INITIAL_VALUES = new DoubleMatrix1D(new double[] {0.05, 0.5, 0.7, 0.3});
+  private static final DoubleMatrix1D SABR_INITIAL_VALUES = new DoubleMatrix1D(new double[] {0.05, 0.5, 0.7, 0.3 });
   private static final LinearInterpolator1D LINEAR = (LinearInterpolator1D) Interpolator1DFactory.getInterpolator(Interpolator1DFactory.LINEAR);
   private static final FlatExtrapolator1D FLAT = new FlatExtrapolator1D();
   private static final GridInterpolator2D INTERPOLATOR = new GridInterpolator2D(LINEAR, LINEAR, FLAT, FLAT);
@@ -74,7 +74,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
   static {
     FIXED.set(1);
   }
-  
+
   public SABRNonLinearLeastSquaresSwaptionCubeFittingFunction(final String currency, final String definitionName) {
     this(Currency.of(currency), definitionName);
   }
@@ -129,15 +129,15 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
           throw new OpenGammaRuntimeException("Strike and id arrays were not the same length; should never happen");
         }
         final double[] errors = new double[n];
-        final Pair<Tenor, Tenor> tenorPair = Pair.of(swapMaturityEntry.getKey(), swaptionExpiryEntry.getKey()); 
+        final Pair<Tenor, Tenor> tenorPair = Pair.of(swapMaturityEntry.getKey(), swaptionExpiryEntry.getKey());
         if (volatilityCubeData.getStrikes() != null && volatilityCubeData.getStrikes().containsKey(tenorPair)) {
           final double forward = volatilityCubeData.getStrikes().get(tenorPair);
           for (int k = 0; k < n; k++) {
             errors[k] = ERROR;
           }
           if (strikes.length > 4 && forward > 0) { //don't fit those smiles with insufficient data 
-            final LeastSquareResults fittedResult = new SABRModelFitter(forward, strikes, swaptionExpiry, blackVols, errors, SABR_FUNCTION).solve(SABR_INITIAL_VALUES, FIXED);
-            final DoubleMatrix1D parameters = fittedResult.getParameters();
+            final LeastSquareResultsWithTransform fittedResult = new SABRModelFitter(forward, strikes, swaptionExpiry, blackVols, errors, SABR_FUNCTION).solve(SABR_INITIAL_VALUES, FIXED);
+            final DoubleMatrix1D parameters = fittedResult.getModelParameters();
             swapMaturitiesList.add(maturity);
             swaptionExpiriesList.add(swaptionExpiry);
             alphaList.add(parameters.getEntry(0));
@@ -145,7 +145,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
             rhoList.add(parameters.getEntry(2));
             nuList.add(parameters.getEntry(3));
             DoublesPair expiryMaturityPair = new DoublesPair(swaptionExpiry, maturity);
-            inverseJacobians.put(expiryMaturityPair, fittedResult.getInverseJacobian());
+            inverseJacobians.put(expiryMaturityPair, fittedResult.getModelParameterSensitivityToData());
             chiSqList.add(fittedResult.getChiSq());
             fittedDataIds.put(DoublesPair.of(maturity, swaptionExpiry), externalIds);
           }
