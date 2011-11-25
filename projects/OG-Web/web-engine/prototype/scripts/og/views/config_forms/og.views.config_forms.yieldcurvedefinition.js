@@ -24,7 +24,7 @@ $.register_module({
                 CURV = 'CurveSpecificationBuilderConfiguration', INTR = 'interpolatorName',
                 INDX = '<INDEX>',
                 sep = '~',
-                config_type = 'com.opengamma.financial.analytics.ircurve.YieldCurveDefinition',
+                config_type = config.type,
                 type_map = [
                     [['0', INDX].join('.'),                 Form.type.STR],
                     ['currency',                            Form.type.STR],

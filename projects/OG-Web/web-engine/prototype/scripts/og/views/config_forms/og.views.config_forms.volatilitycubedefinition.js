@@ -12,7 +12,6 @@ $.register_module({
         var module = this, Form = og.common.util.ui.Form, forms = og.views.forms, api = og.api.rest,
             INDX = '<INDEX>', EMPT = '<EMPTY>', SWAP = 'swapTenors', OPEX = 'optionExpiries', RLST = 'relativeStrikes',
             fields = [SWAP, OPEX, RLST],
-            config_type = 'com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition',
             type_map = [
                 [['0', INDX].join('.'),         Form.type.STR],
                 [[OPEX, EMPT, INDX].join('.'),  Form.type.STR],
@@ -21,10 +20,7 @@ $.register_module({
                 ['uniqueId',                    Form.type.STR]
             ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {}),
             arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
-        return og.views.config_forms['default'].preload({
-            type: config_type,
-            type_map: type_map
-        });
+        return og.views.config_forms['default'].preload({type_map: type_map});
         /* dead code below, needs to be updated */
         return function (config) {
             var load_handler = config.handler || $.noop, selector = config.selector,
