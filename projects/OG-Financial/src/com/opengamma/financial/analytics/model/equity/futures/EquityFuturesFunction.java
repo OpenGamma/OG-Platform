@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.equity.futures;
 import java.util.Collections;
 import java.util.Set;
 
+import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -104,13 +105,14 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
    * @param target The ComputationTarget is a TradeImpl
    */
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
-
+    final Clock snapshotClock = executionContext.getValuationClock();
+    final ZonedDateTime now = snapshotClock.zonedDateTime();
     final SimpleTrade trade = (SimpleTrade) target.getTrade();
     final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
 
     final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
 
-    final Double lastMarginPrice = getLatestValueFromTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, executionContext, security.getExternalIdBundle());
+    final Double lastMarginPrice = getLatestValueFromTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, executionContext, security.getExternalIdBundle(), now);
     trade.setPremium(lastMarginPrice); // TODO !!! Issue of futures and margining
 
     // Build the analytic's version of the security - the derivative    
@@ -131,7 +133,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
         break;
       case DIVIDEND_YIELD:
         Double spot = getSpot(security, inputs);
-        Double dividendYield = getLatestValueFromTimeSeries(DIVIDEND_YIELD_FIELD, executionContext, ExternalIdBundle.of(security.getUnderlyingId()));
+        Double dividendYield = getLatestValueFromTimeSeries(DIVIDEND_YIELD_FIELD, executionContext, ExternalIdBundle.of(security.getUnderlyingId()), now);
         dividendYield /= 100.0;
         YieldAndDiscountCurve fundingCurve = getYieldCurve(security, inputs);
         dataBundle = new EquityFutureDataBundle(fundingCurve, null, spot, dividendYield, null);
@@ -277,10 +279,10 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
   /**
    *  Returns the latest value of the historical time series keyed by idBundle and field. 
    */
-  Double getLatestValueFromTimeSeries(String field, FunctionExecutionContext executionContext, ExternalIdBundle idBundle) {
-
+  private Double getLatestValueFromTimeSeries(final String field, final FunctionExecutionContext executionContext, final ExternalIdBundle idBundle, final ZonedDateTime now) {
+    final ZonedDateTime startDate = now.minusDays(7);
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(idBundle, DATA_SOURCE, DATA_PROVIDER, field);
+    final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(field, idBundle, null, null, startDate.toLocalDate(), true, now.toLocalDate(), true);
 
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get " + field + " time series for " + idBundle.toString());

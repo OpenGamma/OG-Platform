@@ -200,6 +200,9 @@ public class VolatilityCubeData {
   public SortedMap<Tenor, SortedMap<Tenor, ExternalId[]>> getSmileIds() {
     // TODO: this is slow.  Would start to matter if we got more data
     // Could avoid it on deserialization, which is the repeated case
+    if (_dataIds == null) {
+      throw new UnsupportedOperationException("Data ids were not set");
+    }
     if (_smiles == null) {
       @SuppressWarnings("rawtypes")
       final Map[] smileArray = createSmiles(_dataPoints, _dataIds, _relativeStrikes);
@@ -220,6 +223,9 @@ public class VolatilityCubeData {
   public SortedMap<Tenor, SortedMap<Tenor, Double[]>> getSmileRelativeStrikes() {
     // TODO: this is slow.  Would start to matter if we got more data
     // Could avoid it on deserialization, which is the repeated case
+    if (_relativeStrikes == null) {
+      throw new UnsupportedOperationException("Relative strikes data were not set");
+    }
     if (_smiles == null) {
       @SuppressWarnings("rawtypes")
       final Map[] smileArray = createSmiles(_dataPoints, _dataIds, _relativeStrikes);
@@ -298,15 +304,23 @@ public class VolatilityCubeData {
       }
       strikes.add(entry.getKey().getRelativeStrike());
       vols.add(entry.getValue());
-      ids.add(dataIds.get(entry.getKey()));
-      relativeStrikes.add(relativeStrikePoints.get(entry.getKey()));
+      if (dataIds != null) {
+        ids.add(dataIds.get(entry.getKey()));
+      }
+      if (relativeStrikePoints != null) {
+        relativeStrikes.add(relativeStrikePoints.get(entry.getKey()));
+      }
     }
     
     if (currentOptionExpiry != null) {      
       smiles.get(currentSwapTenor).put(currentOptionExpiry, Pair.of(getNativeArray(strikes), getNativeArray(vols)));
-      smileIds.get(currentSwapTenor).put(currentOptionExpiry, ids.toArray(new ExternalId[ids.size()]));
-      smileRelativeStrikes.get(currentSwapTenor).put(currentOptionExpiry, relativeStrikes.toArray(new Double[relativeStrikes.size()]));
-    }
+      if (dataIds != null) {
+        smileIds.get(currentSwapTenor).put(currentOptionExpiry, ids.toArray(new ExternalId[ids.size()]));
+      }
+      if (relativeStrikePoints != null) {
+        smileRelativeStrikes.get(currentSwapTenor).put(currentOptionExpiry, relativeStrikes.toArray(new Double[relativeStrikes.size()]));
+      }
+    }    
     return new Map[] {smiles, smileIds, smileRelativeStrikes};
   }
 

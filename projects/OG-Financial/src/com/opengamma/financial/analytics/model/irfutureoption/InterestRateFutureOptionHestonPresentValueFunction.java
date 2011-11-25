@@ -42,10 +42,12 @@ import com.opengamma.financial.analytics.volatility.fittedresults.HestonFittedSu
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
@@ -64,10 +66,6 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public class InterestRateFutureOptionHestonPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final double ALPHA = -0.5;
-  private static final double TOLERANCE = 0.001;
-  private static final InterestRateFutureDiscountingMethod METHOD_FUTURE = InterestRateFutureDiscountingMethod.getInstance();
-  private static final FourierPricer PRICER = new FourierPricer(new RungeKuttaIntegrator1D());
   private final String _forwardCurveName;
   private final String _fundingCurveName;
   private final String _surfaceName;
@@ -102,27 +100,7 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
     @SuppressWarnings("unchecked")
     final InstrumentDefinition<InstrumentDerivative> irFutureOptionDefinition = (InstrumentDefinition<InstrumentDerivative>) _converter.convert(trade);
     final InstrumentDerivative irFutureOption = _dataConverter.convert(trade.getSecurity(), irFutureOptionDefinition, now, new String[] {_fundingCurveName, _forwardCurveName}, dataSource);
-    final double t, k;
-    final boolean isCall;
-    final InstrumentDerivative irFuture;
-    if (irFutureOption instanceof InterestRateFutureOptionMarginSecurity) {
-      final InterestRateFutureOptionMarginSecurity option = (InterestRateFutureOptionMarginSecurity) irFutureOption; 
-      t = option.getExpirationTime();
-      k = option.getStrike();
-      isCall = option.isCall();
-      irFuture = option.getUnderlyingFuture();
-    } else {
-      final InterestRateFutureOptionPremiumSecurity option = ((InterestRateFutureOptionPremiumTransaction) irFutureOption).getUnderlyingOption();
-      t = option.getExpirationTime();
-      k = option.getStrike();
-      isCall = option.isCall();
-      irFuture = option.getUnderlyingFuture();
-    }
-    final double f = 1 - METHOD_FUTURE.price((InterestRateFuture) irFuture, getYieldCurves(target, inputs));
-    final BlackFunctionData data = new BlackFunctionData(f, 1, 0);
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, isCall);
-    final HestonCharacteristicExponent ce = getModelParameters(target, inputs, t, k);
-    final double price = PRICER.price(data, option, ce, ALPHA, TOLERANCE, true);
+    final double price = irFutureOption.accept(new MyDerivativeVisitor(target, inputs));
     return Sets.newHashSet(new ComputedValue(getSpecification(target), price));
   }
 
@@ -181,45 +159,97 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
     return YieldCurveFunction.getCurveRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()), curveName,
         advisoryForward, advisoryFunding);
   }
-
-  private YieldCurveBundle getYieldCurves(final ComputationTarget target, final FunctionInputs inputs) {
-    final ValueRequirement forwardCurveRequirement = getCurveRequirement(target, _forwardCurveName, null, null);
-    final Object forwardCurveObject = inputs.getValue(forwardCurveRequirement);
-    if (forwardCurveObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + forwardCurveRequirement);
+  
+  private class MyDerivativeVisitor extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+    private final double _alpha = -0.5;
+    private final double _tolerance = 0.001;
+    private final InterestRateFutureDiscountingMethod _futurePricer = InterestRateFutureDiscountingMethod.getInstance();
+    private final FourierPricer _fourierPricer = new FourierPricer(new RungeKuttaIntegrator1D());
+    private final ComputationTarget _target;
+    private final FunctionInputs _inputs;
+    
+    public MyDerivativeVisitor(final ComputationTarget target, final FunctionInputs inputs) {
+      _target = target;
+      _inputs = inputs;
     }
-    Object fundingCurveObject = null;
-    if (!_forwardCurveName.equals(_fundingCurveName)) {
-      final ValueRequirement fundingCurveRequirement = getCurveRequirement(target, _fundingCurveName, null, null);
-      fundingCurveObject = inputs.getValue(fundingCurveRequirement);
-      if (fundingCurveObject == null) {
-        throw new OpenGammaRuntimeException("Could not get " + fundingCurveRequirement);
+    
+    @Override
+    public Double visitInterestRateFutureOptionPremiumSecurity(final InterestRateFutureOptionPremiumSecurity option) {
+      final double t = option.getExpirationTime();
+      final double k = option.getStrike();
+      final boolean isCall = option.isCall();
+      final InterestRateFuture irFuture = option.getUnderlyingFuture();
+      final double f = 1 - _futurePricer.price(irFuture, getYieldCurves(_target, _inputs));
+      final BlackFunctionData blackData = new BlackFunctionData(f, 1, 0);
+      final EuropeanVanillaOption vanillaOption = new EuropeanVanillaOption(k, t, isCall);
+      final HestonCharacteristicExponent ce = getModelParameters(_target, _inputs, t, k);
+      return _fourierPricer.price(blackData, vanillaOption, ce, _alpha, _tolerance, true);
+    }
+
+    @Override
+    public Double visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction option) {
+      return visitInterestRateFutureOptionPremiumSecurity(option.getUnderlyingOption());
+    }
+
+    @Override
+    public Double visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity option) {
+      final double t = option.getExpirationTime();
+      final double k = option.getStrike();
+      final boolean isCall = option.isCall();
+      final InterestRateFuture irFuture = option.getUnderlyingFuture();
+      final double f = 1 - _futurePricer.price(irFuture, getYieldCurves(_target, _inputs));
+      final BlackFunctionData blackData = new BlackFunctionData(f, 1, 1e-6);
+      final EuropeanVanillaOption vanillaOption = new EuropeanVanillaOption(k, t, isCall);
+      final HestonCharacteristicExponent ce = getModelParameters(_target, _inputs, t, k);
+      return _fourierPricer.price(blackData, vanillaOption, ce, _alpha, _tolerance, true);
+    }
+
+    @Override
+    public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option) {
+      return visitInterestRateFutureOptionMarginSecurity(option.getUnderlyingOption());
+    }
+    
+    @SuppressWarnings("synthetic-access")
+    private YieldCurveBundle getYieldCurves(final ComputationTarget target, final FunctionInputs inputs) {
+      final ValueRequirement forwardCurveRequirement = getCurveRequirement(target, _forwardCurveName, null, null);
+      final Object forwardCurveObject = inputs.getValue(forwardCurveRequirement);
+      if (forwardCurveObject == null) {
+        throw new OpenGammaRuntimeException("Could not get " + forwardCurveRequirement);
       }
+      Object fundingCurveObject = null;
+      if (!_forwardCurveName.equals(_fundingCurveName)) {
+        final ValueRequirement fundingCurveRequirement = getCurveRequirement(target, _fundingCurveName, null, null);
+        fundingCurveObject = inputs.getValue(fundingCurveRequirement);
+        if (fundingCurveObject == null) {
+          throw new OpenGammaRuntimeException("Could not get " + fundingCurveRequirement);
+        }
+      }
+      final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
+      final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve
+          : (YieldAndDiscountCurve) fundingCurveObject;
+      return new YieldCurveBundle(new String[] {_fundingCurveName, _forwardCurveName},
+          new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
     }
-    final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
-    final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve
-        : (YieldAndDiscountCurve) fundingCurveObject;
-    return new YieldCurveBundle(new String[] {_fundingCurveName, _forwardCurveName},
-        new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
-  }
 
-  private HestonCharacteristicExponent getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final double t, final double k) {
-    final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
-    final ValueRequirement surfacesRequirement = getSurfaceRequirement(target);
-    final Object surfacesObject = inputs.getValue(surfacesRequirement);
-    if (surfacesObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + surfacesRequirement);
+    private HestonCharacteristicExponent getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final double t, final double k) {
+      final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
+      @SuppressWarnings("synthetic-access")
+      final ValueRequirement surfacesRequirement = getSurfaceRequirement(target);
+      final Object surfacesObject = inputs.getValue(surfacesRequirement);
+      if (surfacesObject == null) {
+        throw new OpenGammaRuntimeException("Could not get " + surfacesRequirement);
+      }
+      final HestonFittedSurfaces surfaces = (HestonFittedSurfaces) surfacesObject;
+      if (!surfaces.getCurrency().equals(currency)) {
+        throw new OpenGammaRuntimeException("Don't know how this happened");
+      }
+      final VolatilitySurface kappaSurface = surfaces.getKappaSurface();
+      final VolatilitySurface thetaSurface = surfaces.getThetaSurface();
+      final VolatilitySurface vol0Surface = surfaces.getVol0Surface();
+      final VolatilitySurface omegaSurface = surfaces.getOmegaSurface();
+      final VolatilitySurface rhoSurface = surfaces.getRhoSurface();
+      return new HestonCharacteristicExponent(kappaSurface.getVolatility(t, k), thetaSurface.getVolatility(t, k), vol0Surface.getVolatility(t, k), omegaSurface.getVolatility(t, k),
+          rhoSurface.getVolatility(t, k));
     }
-    final HestonFittedSurfaces surfaces = (HestonFittedSurfaces) surfacesObject;
-    if (!surfaces.getCurrency().equals(currency)) {
-      throw new OpenGammaRuntimeException("Don't know how this happened");
-    }
-    final VolatilitySurface kappaSurface = surfaces.getKappaSurface();
-    final VolatilitySurface thetaSurface = surfaces.getThetaSurface();
-    final VolatilitySurface vol0Surface = surfaces.getVol0Surface();
-    final VolatilitySurface omegaSurface = surfaces.getOmegaSurface();
-    final VolatilitySurface rhoSurface = surfaces.getRhoSurface();
-    return new HestonCharacteristicExponent(kappaSurface.getVolatility(t, k), thetaSurface.getVolatility(t, k), vol0Surface.getVolatility(t, k), omegaSurface.getVolatility(t, k),
-        rhoSurface.getVolatility(t, k));
   }
 }

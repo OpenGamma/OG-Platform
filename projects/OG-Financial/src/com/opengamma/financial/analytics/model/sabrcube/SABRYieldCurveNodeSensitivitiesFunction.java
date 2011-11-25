@@ -40,7 +40,6 @@ import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProv
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
-import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
@@ -136,7 +135,7 @@ public class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFunction.No
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final InstrumentDefinition<?> definition = security.accept(_securityVisitor);
     final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, 
-        FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, _fundingCurveName, _forwardCurveName), dataSource);
+        new String[] {_fundingCurveName, _forwardCurveName}, dataSource);
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final Object forwardCurveObject = inputs.getValue(getForwardCurveRequirement(currency, _forwardCurveName, _fundingCurveName));
     if (forwardCurveObject == null) {

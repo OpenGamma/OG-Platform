@@ -53,8 +53,12 @@ public class VolatilityCubeDataBuilder implements FudgeBuilder<VolatilityCubeDat
     
     serializer.addToMessage(ret, DATA_POINTS_FIELD_NAME, null, object.getDataPoints());    
     serializer.addToMessage(ret, OTHER_DATA_FIELD_NAME, null, object.getOtherData());
-    serializer.addToMessage(ret, DATA_IDS_FIELD_NAME, null, object.getDataIds());
-    serializer.addToMessage(ret, DATA_RELATIVE_STRIKES_FIELD_NAME, null, object.getRelativeStrikes());
+    if (object.getDataIds() != null) {
+      serializer.addToMessage(ret, DATA_IDS_FIELD_NAME, null, object.getDataIds());
+    }
+    if (object.getRelativeStrikes() != null) {
+      serializer.addToMessage(ret, DATA_RELATIVE_STRIKES_FIELD_NAME, null, object.getRelativeStrikes());
+    }
     
     if (object.getATMStrikes() != null) {
       MutableFudgeMsg strikesMessage = serializer.newMessage();

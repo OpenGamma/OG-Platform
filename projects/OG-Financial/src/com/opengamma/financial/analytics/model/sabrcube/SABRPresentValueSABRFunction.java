@@ -27,7 +27,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
-import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
@@ -47,11 +46,13 @@ import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
+import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalIdBundle;
@@ -81,8 +82,7 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final InstrumentDefinition<?> definition = security.accept(getVisitor());
     final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(target, inputs));
-    final InstrumentDerivative derivative = getConverter().convert(security, definition, now, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security,
-        getFundingCurveName(), getForwardCurveName()), dataSource);
+    final InstrumentDerivative derivative = getConverter().convert(security, definition, now, new String[] {getFundingCurveName(), getForwardCurveName()}, dataSource);
     final Currency ccy = FinancialSecurityUtils.getCurrency(security);
     final PresentValueSABRSensitivityDataBundle presentValue = CALCULATOR.visit(derivative, data);
     final ValueProperties resultProperties = createValueProperties()
@@ -226,6 +226,16 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
 
     @Override
     public DoubleLabelledMatrix2D visitEquityVarianceSwapSecurity(EquityVarianceSwapSecurity security) {
+      return null;
+    }
+
+    @Override
+    public DoubleLabelledMatrix2D visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+      return null;
+    }
+
+    @Override
+    public DoubleLabelledMatrix2D visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
       return null;
     }
     
