@@ -39,7 +39,6 @@
             self.find('th').each(function (index, elm) {
                 index === len - 1 ? last = get_scrollbar_width() : last = 0;
                 $($dup[index]).width($(elm).width() + last);
-                console.log($dup[index]);
             });
         }());
         // deal with and css before and after content
