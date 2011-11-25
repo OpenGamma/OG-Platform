@@ -33,8 +33,8 @@ $.register_module({
                             if (isNaN(new Date(timestamp).getDate())) return timestamp;
                             var add_zero = function (n) {return n < 10 ? '0' + n : '' + n;},
                                 obj = new Date(timestamp),
-                                d = add_zero(obj.getDay()),
-                                M = add_zero(obj.getMonth()),
+                                d = add_zero(obj.getDate()),
+                                M = add_zero(obj.getMonth() + 1),
                                 y = obj.getFullYear(),
                                 h = add_zero(obj.getHours()),
                                 m = add_zero(obj.getMinutes()),

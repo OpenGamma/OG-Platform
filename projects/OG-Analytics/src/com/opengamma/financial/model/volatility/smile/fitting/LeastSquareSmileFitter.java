@@ -11,7 +11,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 
 /**
  * An interface for least-square fitting of option data to smile models
@@ -19,9 +19,10 @@ import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
  */
 public abstract class LeastSquareSmileFitter {
 
-  public abstract LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, BlackFunctionData[] data, double[] errors, final double[] initialFitParameters, final BitSet fixed);
+  public abstract LeastSquareResultsWithTransform getFitResult(final EuropeanVanillaOption[] options, BlackFunctionData[] data,
+      double[] errors, final double[] initialFitParameters, final BitSet fixed);
 
-  public abstract LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, BlackFunctionData[] data, final double[] initialFitParameters, final BitSet fixed);
+  public abstract LeastSquareResultsWithTransform getFitResult(final EuropeanVanillaOption[] options, BlackFunctionData[] data, final double[] initialFitParameters, final BitSet fixed);
 
   protected void testData(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] errors, final double[] initialFitParameters, final BitSet fixed,
       final int nParameters) {

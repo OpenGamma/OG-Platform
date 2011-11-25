@@ -25,6 +25,7 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
@@ -34,7 +35,6 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
   private static final double TIME_TO_EXPIRY = 7.0;
   private static final double F = 0.03;
   private static RandomEngine UNIFORM = new MersenneTwister();
-
 
   static {
 
@@ -93,8 +93,8 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     int nStartPoints = start.length;
     Validate.isTrue(fixed.length == nStartPoints);
     for (int trys = 0; trys < nStartPoints; trys++) {
-      final LeastSquareResults results = _fitter.solve(new DoubleMatrix1D(start[trys]), fixed[trys]);
-      final double[] res = results.getParameters().getData();
+      final LeastSquareResultsWithTransform results = _fitter.solve(new DoubleMatrix1D(start[trys]), fixed[trys]);
+      final double[] res = results.getModelParameters().getData();
 
       assertEquals(0.0, results.getChiSq(), _chiSqEps);
       final int n = res.length;
@@ -115,8 +115,8 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     int nStartPoints = start.length;
     Validate.isTrue(fixed.length == nStartPoints);
     for (int trys = 0; trys < nStartPoints; trys++) {
-      final LeastSquareResults results = _fitter.solve(new DoubleMatrix1D(start[trys]), fixed[trys]);
-      final double[] res = results.getParameters().getData();
+      final LeastSquareResultsWithTransform results = _fitter.solve(new DoubleMatrix1D(start[trys]), fixed[trys]);
+      final double[] res = results.getModelParameters().getData();
       final double eps = 1e-2;
       assertTrue(results.getChiSq() < 7);
       final int n = res.length;
@@ -171,7 +171,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
 
       //   int nStartPoints = start.length;
       LeastSquareResults lsRes = fitter.solve(new DoubleMatrix1D(start), fixed);
-      // System.out.println(this.toString() + lsRes.toString());
+      //     System.out.println(this.toString() + lsRes.toString());
       if (i == 0) {
         best = lsRes;
       } else {
@@ -184,7 +184,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     //    Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc = fitter.getModelJacobianFunction();
     //    System.out.println("model Jac: " + jacFunc.evaluate(best.getParameters()));
     //    System.out.println("fit invJac: " + best.getInverseJacobian());
-    //System.out.println("best" + this.toString() + best.toString());
+    //    System.out.println("best" + this.toString() + best.toString());
     assertTrue(best.getChiSq() < 24000, "chi square"); //average error 31.6% - not a good fit, but the data is horrible
   }
 

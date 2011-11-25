@@ -31,7 +31,7 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search,
+            search, layout,
             ui = common.util.ui,
             module = this,
             page_name = module.name.split('.').pop(),
@@ -90,24 +90,24 @@ $.register_module({
                 toolbar: {
                     'default': {
                         buttons: [
-                            {id: 'new', name: 'New', handler: toolbar_buttons['new']},
-                            {id: 'save', name: 'Save', enabled: 'OG-disabled'},
-                            {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
-                            {id: 'delete', name: 'Delete', enabled: 'OG-disabled'}
+                            {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
                         ],
                         location: '.OG-tools'
                     }
                 }
             },
-            toolbar = function (type) {
-                ui.toolbar(options.toolbar[type]);
+            toolbar = function (options) {
+                ui.toolbar(options);
                 if (config_types.length) return; // if we already have config_types, return
-                $('.OG-toolbar .og-js-new').addClass('OG-disabled').unbind();
+                $('.OG-tools .og-js-new').addClass('OG-disabled').unbind();
                 api.rest.configs.get({
                     meta: true,
                     handler: function (result) {
                         config_types = result.data.types.sort().map(function (val) {return {name: val, value: val};});
-                        $('.OG-toolbar .og-js-new').removeClass('OG-disabled').click(toolbar_buttons['new']);
+                        $('.OG-tools .og-js-new').removeClass('OG-disabled').click(toolbar_buttons['new']);
                     },
                     cache_for: 60 * 60 * 1000 // an hour
                 });
@@ -115,7 +115,7 @@ $.register_module({
             // toolbar here relies on dynamic data, so it is instantiated with a callback instead of having
             // options passed in (options is set to null for default_details)
             default_details = og.views.common.default_details
-                .partial(page_name, 'Configurations', null, toolbar.partial('default')),
+                .partial(page_name, 'Configurations', null, toolbar.partial(options.toolbar['default'])),
             details_page = function (args, new_config_type) {
                 var rest_options, is_new = !!new_config_type, rest_handler = function (result) {
                     if (result.error) return ui.dialog({type: 'error', message: result.message});
@@ -167,8 +167,7 @@ $.register_module({
                                 error_html = '\
                                     <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
                                         This configuration has been deleted\
-                                    </section>',
-                                layout = og.views.common.layout;
+                                    </section>';
                             if (json.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);
                                 layout.inner.sizePane('north', '0');
@@ -177,20 +176,20 @@ $.register_module({
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
                             }
-                            if (is_new || json.deleted) ui.toolbar({
+                            if (is_new || json.deleted) toolbar({
                                 buttons: [
-                                    {id: 'new', name: 'New', handler: toolbar_buttons['new']},
-                                    {id: 'save', name: 'Save', handler: form.submit.partial({as_new: true})},
-                                    {id: 'saveas', name: 'Save as', enabled: 'OG-disabled'},
-                                    {id: 'delete', name: 'Delete', enabled: 'OG-disabled'}
+                                    {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                                    {id: 'save', tooltip: 'Save', handler: form.submit.partial({as_new: true})},
+                                    {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                                    {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
                                 ],
                                 location: '.OG-tools'
-                            }); else ui.toolbar({
+                            }); else toolbar({
                                 buttons: [
-                                    {id: 'new', name: 'New', handler: toolbar_buttons['new']},
-                                    {id: 'save', name: 'Save', handler: form.submit},
-                                    {id: 'saveas', name: 'Save as', handler: form.submit.partial({as_new: true})},
-                                    {id: 'delete', name: 'Delete', handler: toolbar_buttons['delete']}
+                                    {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                                    {id: 'save', tooltip: 'Save', handler: form.submit},
+                                    {id: 'saveas', tooltip: 'Save as', handler: form.submit.partial({as_new: true})},
+                                    {id: 'delete', tooltip: 'Delete', handler: toolbar_buttons['delete']}
                                 ],
                                 location: '.OG-tools'
                             });
@@ -199,8 +198,7 @@ $.register_module({
                         },
                         selector: '.ui-layout-inner-center .ui-layout-content'
                     });
-                },
-                layout = og.views.common.layout;
+                };
                 layout.inner.options.south.onclose = null;
                 layout.inner.close('south');
                 rest_options = {
@@ -222,6 +220,7 @@ $.register_module({
         };
         return configs = {
             load: function (args) {
+                layout = og.views.common.layout;
                 check_state({args: args, conditions: [
                     {new_page: function (args) {
                         configs.search(args);

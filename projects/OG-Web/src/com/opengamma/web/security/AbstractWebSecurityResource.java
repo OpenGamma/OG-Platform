@@ -7,13 +7,13 @@ package com.opengamma.web.security;
 
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.google.common.collect.Maps;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
@@ -138,7 +138,7 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
   }
 
   private Map<String, Double> getBondFutureBasket(ManageableSecurity security) {
-    Map<String, Double> result = Maps.newHashMap();
+    Map<String, Double> result = new TreeMap<String, Double>();
     if (security instanceof BondFutureSecurity) {
       BondFutureSecurity bondFutureSecurity = (BondFutureSecurity) security;
       List<BondFutureDeliverable> basket = bondFutureSecurity.getBasket();
