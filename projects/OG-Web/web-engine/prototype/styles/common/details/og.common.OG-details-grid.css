@@ -20,7 +20,7 @@
   position: relative;
 }
 
-.OG-details-grid > div:first-child {
+.OG-details-grid > div:first-child > div {
   margin-right: 10px;
 }
 
