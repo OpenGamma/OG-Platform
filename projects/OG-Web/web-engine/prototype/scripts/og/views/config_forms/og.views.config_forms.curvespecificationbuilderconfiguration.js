@@ -21,7 +21,6 @@ $.register_module({
             INSP = /InstrumentProviders$/,
             CURV = 'curveSpecificationBuilderConfiguration',
             field_names = [],
-            config_type = 'com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration',
             data_types = {
                 'future': 'com.opengamma.financial.analytics.ircurve.BloombergFutureCurveInstrumentProvider',
                 'static': 'com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider',
@@ -44,7 +43,7 @@ $.register_module({
         form_builder = function (config) {
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
-                orig_name = config.data.template_data.name,
+                orig_name = config.data.template_data.name, config_type = config.type,
                 resource_id = config.data.template_data.object_id,
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler,
                 master = config.data.template_data.configJSON.data || {}, new_strip_item,

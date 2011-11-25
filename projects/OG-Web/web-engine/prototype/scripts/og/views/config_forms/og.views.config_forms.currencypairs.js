@@ -12,11 +12,10 @@ $.register_module({
         var module = this, Form = og.common.util.ui.Form,
             INDX = '<INDEX>';
         return og.views.config_forms['default'].preload({
-            type: 'com.opengamma.financial.currency.CurrencyPairs',
             type_map: [
-                ['0',       Form.type.STR],
-                ['*.*',     Form.type.STR],
-                ['*.*.*',   Form.type.STR]
+                ['0',                           Form.type.STR],
+                ['*.*',                         Form.type.STR],
+                [['*', '*', INDX].join('.'),    Form.type.STR]
             ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {})
         });
     }
