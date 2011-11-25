@@ -181,42 +181,48 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
     final ValueProperties.Builder constraints = desiredValue.getConstraints().copy();
     boolean matched = false;
     for (String propertyName : defaults.getValueName2PropertyNames().get(desiredValue.getValueName())) {
-      s_logger.debug("Matched default property {} for {}", propertyName, desiredValue);
       final Set<String> existingValues = desiredValue.getConstraints().getValues(propertyName);
-      final Set<String> defaultValues = getDefaultValue(context, target, desiredValue, propertyName);
-      if (defaultValues != null) {
-        if (defaultValues.isEmpty()) {
-          if (existingValues == null) {
-            s_logger.debug("Default ANY");
-            constraints.withAny(propertyName);
-            matched = true;
-          } else {
-            s_logger.debug("Default ANY but already had constraint {}", existingValues);
-          }
-        } else {
-          if (existingValues == null) {
-            s_logger.debug("Default {}", defaultValues);
-            constraints.with(propertyName, defaultValues);
-            matched = true;
-          } else {
-            if (existingValues.isEmpty()) {
-              s_logger.debug("Default {} better than ANY", defaultValues);
-              constraints.withoutAny(propertyName).with(propertyName, defaultValues);
+      if (isPermitWithout() || (existingValues == null) || desiredValue.getConstraints().isOptional(propertyName)) {
+        s_logger.debug("Matched default property {} for {}", propertyName, desiredValue);
+        final Set<String> defaultValues = getDefaultValue(context, target, desiredValue, propertyName);
+        if (defaultValues != null) {
+          if (defaultValues.isEmpty()) {
+            if (existingValues == null) {
+              s_logger.debug("Default ANY");
+              constraints.withAny(propertyName);
               matched = true;
             } else {
-              final Set<String> intersect = Sets.intersection(existingValues, defaultValues);
-              if (intersect.isEmpty()) {
-                s_logger.debug("Default {} incompatible with {}", defaultValues, existingValues);
-              } else {
-                s_logger.debug("Default {} reduced to {}", defaultValues, intersect);
-                constraints.withoutAny(propertyName).with(propertyName, intersect);
+              s_logger.debug("Default ANY but already had constraint {}", existingValues);
+            }
+          } else {
+            if (existingValues == null) {
+              s_logger.debug("Default {}", defaultValues);
+              constraints.with(propertyName, defaultValues);
+              matched = true;
+            } else {
+              if (existingValues.isEmpty()) {
+                s_logger.debug("Default {} better than ANY", defaultValues);
+                constraints.withoutAny(propertyName).with(propertyName, defaultValues);
                 matched = true;
+              } else {
+                final Set<String> intersect = Sets.intersection(existingValues, defaultValues);
+                if (intersect.isEmpty()) {
+                  s_logger.debug("Default {} incompatible with {}", defaultValues, existingValues);
+                } else {
+                  s_logger.debug("Default {} reduced to {}", defaultValues, intersect);
+                  constraints.withoutAny(propertyName).with(propertyName, intersect);
+                  matched = true;
+                }
               }
             }
           }
+        } else {
+          s_logger.debug("No default values");
         }
       } else {
-        s_logger.debug("No default values");
+        // If we don't permit constraint absence, and there is a mandatory requirement; that requires something deeper
+        // down in the graph to make a decision.
+        s_logger.debug("Does not match on property {} for {}", propertyName, desiredValue);
       }
     }
     if (!matched) {
@@ -242,7 +248,7 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
     for (Map.Entry<String, Set<String>> valueName2PropertyNames : defaults.getValueName2PropertyNames().entrySet()) {
       final String valueName = valueName2PropertyNames.getKey();
       for (String propertyName : valueName2PropertyNames.getValue()) {
-        result.add(new ValueSpecification(valueName, targetSpec, ValueProperties.all().withoutAny(propertyName)));
+        result.add(new ValueSpecification(valueName, targetSpec, isPermitWithout() ? ValueProperties.all() : ValueProperties.all().withoutAny(propertyName)));
       }
     }
     s_logger.debug("Produced results {} for {}", result, target);
