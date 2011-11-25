@@ -34,7 +34,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveData;
-import com.opengamma.financial.analytics.volatility.surface.IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -89,9 +88,9 @@ public class SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction extends Abs
   public void init(final FunctionCompilationContext context) {
     final ComputationTargetSpecification currencyTargetSpec = new ComputationTargetSpecification(_currency);
     final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, _definitionName)
-                                                             .with(IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction.PROPERTY_INSTRUMENT_TYPE, "IR_FUTURE_OPTION").get();
+                                                             .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION").get();
     final ValueProperties futurePriceProperties = ValueProperties.with(ValuePropertyNames.CURVE, _definitionName)
-                                                                 .with(IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction.PROPERTY_INSTRUMENT_TYPE, "IR_FUTURE_PRICE").get();
+                                                                 .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_PRICE").get();
     _surfaceRequirement = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, currencyTargetSpec, surfaceProperties);
     _futurePriceRequirement = new ValueRequirement(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA, currencyTargetSpec, futurePriceProperties);
     final ValueProperties resultProperties = createValueProperties()

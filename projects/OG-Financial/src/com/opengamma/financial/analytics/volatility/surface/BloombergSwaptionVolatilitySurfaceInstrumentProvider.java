@@ -70,19 +70,15 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProvider implements Sur
         final String result = monthsTable[months - 1];
         if (result.length() == 1 && prepadWithZero) {
           return "0" + result;
-        } else {
-          return result;
-        }
-      } else {
-        throw new OpenGammaRuntimeException("Cannot generate encoding for tenor " + tenor);
-      }
-    } else {
-      if (tenor.getPeriod().getYears() < 10 && prepadWithZero) {
-        return "0" + Integer.toString(tenor.getPeriod().getYears());
-      } else {
-        return Integer.toString(tenor.getPeriod().getYears());
-      }
-    }
+        } 
+        return result;
+      } 
+      throw new OpenGammaRuntimeException("Cannot generate encoding for tenor " + tenor);
+    } 
+    if (tenor.getPeriod().getYears() < 10 && prepadWithZero) {
+      return "0" + Integer.toString(tenor.getPeriod().getYears());
+    } 
+    return Integer.toString(tenor.getPeriod().getYears());    
   }
 
   /**

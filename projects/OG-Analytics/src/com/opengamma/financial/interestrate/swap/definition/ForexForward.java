@@ -6,14 +6,13 @@
 package com.opengamma.financial.interestrate.swap.definition;
 
 import com.opengamma.financial.forex.derivative.Forex;
-import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 
 /**
  * TODO This is a temporary class until ForexDerivative and InterestRateDerivative are in some way unified 
  */
-public class ForexForward extends Forex implements InstrumentDerivative {
+public class ForexForward extends Forex {
 
   private double _spotFX;
 

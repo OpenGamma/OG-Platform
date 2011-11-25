@@ -106,7 +106,6 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<InstrumentDefi
       throw new OpenGammaRuntimeException("Could not get convention for " + swapSecurity);
     }
     final AnnuityCouponFixedDefinition fixedLegDefinition = getFixedSwapLegDefinition(effectiveDate, maturityDate, fixedLeg, calendar, conventions, payFixed);
-    
     final AnnuityDefinition<? extends PaymentDefinition> floatingLegDefinition = hasSpread ? 
         getIborSwapLegWithSpreadDefinition(effectiveDate, maturityDate, (FloatingSpreadIRLeg) floatLeg, calendar, currency, !payFixed) : 
           getIborSwapLegDefinition(effectiveDate, maturityDate, floatLeg, calendar, currency, !payFixed);

@@ -35,9 +35,8 @@ public class DefaultVolatilitySurfaceShiftFunction extends StaticDefaultProperty
     // TODO: should probably check the target type (or other properties) so that shifts can be applied more selectively than to all surfaces
     if (config != null) {
       return config.getDefaultProperties().getValues(VOLATILITY_SURFACE_SHIFT);
-    } else {
-      return null;
-    }
+    } 
+    return null;
   }
 
 }
