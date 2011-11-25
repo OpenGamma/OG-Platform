@@ -20,11 +20,11 @@ public class CycleFragmentCompletedCall implements Function<ViewResultListener, 
   private final ViewComputationResultModelMerger _fullFragmentMerger = new ViewComputationResultModelMerger();
   private final ViewDeltaResultModelMerger _deltaFragmentMerger = new ViewDeltaResultModelMerger();
 
-  public CycleFragmentCompletedCall(ViewResultModel fullResult, ViewDeltaResultModel deltaResult) {
+  public CycleFragmentCompletedCall(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
     update(fullResult, deltaResult);
   }
 
-  public void update(ViewResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
+  public void update(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
     if (fullFragment != null) {
       _fullFragmentMerger.merge(fullFragment);
     }

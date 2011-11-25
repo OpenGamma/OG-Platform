@@ -63,8 +63,8 @@ public class BatchDbViewResultListener implements ViewResultListener {
   }
 
   @Override
-  public void jobResultReceived(ViewResultModel fullResult, ViewDeltaResultModel deltaResult) {
-    _batchRunMaster.addJobResults(_batch, fullResult);
+  public void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
+    _batchRunMaster.addJobResults(_batch, fullFragment);
   }
 
   @Override
