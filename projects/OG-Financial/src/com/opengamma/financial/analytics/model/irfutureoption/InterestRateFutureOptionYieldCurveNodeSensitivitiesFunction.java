@@ -40,7 +40,7 @@ import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProv
 import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecurityConverter;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
-import com.opengamma.financial.analytics.ircurve.OriginalMarketInstrumentImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
@@ -253,7 +253,7 @@ public class InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction extends
     ValueProperties result = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)
         .with(ValuePropertyNames.CURVE, _forwardCurveName).get();
     return new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), result);
   }
@@ -262,19 +262,19 @@ public class InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction extends
     ValueProperties result = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)
         .with(ValuePropertyNames.CURVE, _fundingCurveName).get();
     return new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), result);
   }
 
   protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName) {
     return YieldCurveFunction.getCurveRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()), curveName, _forwardCurveName, _fundingCurveName, 
-        OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+        MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
   }
 
   protected ValueRequirement getJacobianRequirement(final ComputationTarget target) {
     return YieldCurveFunction.getJacobianRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()), _forwardCurveName, _fundingCurveName, 
-        OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+        MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
   }
 
   protected ValueRequirement getCouponSensitivityRequirement(final ComputationTarget target) {

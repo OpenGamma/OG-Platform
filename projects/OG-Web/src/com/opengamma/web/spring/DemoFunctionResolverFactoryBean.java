@@ -11,7 +11,7 @@ import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionPriority;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
-import com.opengamma.financial.analytics.ircurve.OriginalMarketInstrumentImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondPV01CountryCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondPV01CurrencyCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondPresentValueCountryCurveFunction;
@@ -70,8 +70,8 @@ public class DemoFunctionResolverFactoryBean extends SingletonFactoryBean<Functi
           // to all of its inputs
           return -1;
         }
-        if (function instanceof OriginalMarketInstrumentImpliedYieldCurveFunction) {
-          OriginalMarketInstrumentImpliedYieldCurveFunction yieldCurveFunction = (OriginalMarketInstrumentImpliedYieldCurveFunction) function;
+        if (function instanceof MarketInstrumentImpliedYieldCurveFunction) {
+          MarketInstrumentImpliedYieldCurveFunction yieldCurveFunction = (MarketInstrumentImpliedYieldCurveFunction) function;
           return yieldCurveFunction.getPriority();
         }
         if (function instanceof CurrencyMatrixSourcingFunction) {

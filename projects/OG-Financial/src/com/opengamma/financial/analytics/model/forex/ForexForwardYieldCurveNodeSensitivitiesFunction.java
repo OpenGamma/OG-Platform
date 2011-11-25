@@ -22,7 +22,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
-import com.opengamma.financial.analytics.ircurve.OriginalMarketInstrumentImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
@@ -58,12 +58,12 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends ForexForwar
     final String receiveFundingCurveName = getReceiveFundingCurveName() + "_" + receiveCurrency.getCode();
     final String receiveForwardCurveName = getReceiveForwardCurveName() + "_" + receiveCurrency.getCode();
     final Object payJacobianObject = inputs.getValue(YieldCurveFunction.getJacobianRequirement(payCurrency, getPayForwardCurveName(), getPayFundingCurveName(),
-        OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+        MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     if (payJacobianObject == null) {
       throw new OpenGammaRuntimeException("Pay currency curve Jacobian was null");
     }
     final Object receiveJacobianObject = inputs.getValue(YieldCurveFunction.getJacobianRequirement(receiveCurrency, getReceiveForwardCurveName(), getReceiveFundingCurveName(),
-        OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+        MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     if (receiveJacobianObject == null) {
       throw new OpenGammaRuntimeException("Receive currency curve Jacobian was null");
     }
@@ -148,14 +148,14 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends ForexForwar
     final String receiveForwardCurveName = getReceiveForwardCurveName();
     final Currency payCurrency = fx.getPayCurrency();
     final Currency receiveCurrency = fx.getReceiveCurrency();
-    result.add(YieldCurveFunction.getCurveRequirement(payCurrency, payFundingCurveName, payForwardCurveName, payFundingCurveName, OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getCurveRequirement(payCurrency, payForwardCurveName, payForwardCurveName, payFundingCurveName, OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+    result.add(YieldCurveFunction.getCurveRequirement(payCurrency, payFundingCurveName, payForwardCurveName, payFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+    result.add(YieldCurveFunction.getCurveRequirement(payCurrency, payForwardCurveName, payForwardCurveName, payFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     result.add(YieldCurveFunction.getCurveRequirement(receiveCurrency, receiveFundingCurveName, receiveForwardCurveName, receiveFundingCurveName,
-        OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+        MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     result.add(YieldCurveFunction.getCurveRequirement(receiveCurrency, receiveForwardCurveName, receiveForwardCurveName, receiveFundingCurveName,
-        OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getJacobianRequirement(payCurrency, payForwardCurveName, payFundingCurveName, OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getJacobianRequirement(receiveCurrency, receiveForwardCurveName, receiveFundingCurveName, OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+        MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+    result.add(YieldCurveFunction.getJacobianRequirement(payCurrency, payForwardCurveName, payFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+    result.add(YieldCurveFunction.getJacobianRequirement(receiveCurrency, receiveForwardCurveName, receiveFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     result.add(YieldCurveFunction.getCouponSensitivityRequirement(payCurrency, payForwardCurveName, payFundingCurveName));
     result.add(YieldCurveFunction.getCouponSensitivityRequirement(receiveCurrency, receiveForwardCurveName, receiveFundingCurveName));
     result.add(getCurveSensitivitiesRequirement(target));

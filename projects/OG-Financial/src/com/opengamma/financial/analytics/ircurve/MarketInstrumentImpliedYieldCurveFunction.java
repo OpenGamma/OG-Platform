@@ -81,8 +81,8 @@ import com.opengamma.util.tuple.Triple;
 /**
  * 
  */
-public class OriginalMarketInstrumentImpliedYieldCurveFunction extends AbstractFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(OriginalMarketInstrumentImpliedYieldCurveFunction.class);
+public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(MarketInstrumentImpliedYieldCurveFunction.class);
   private static final LastDateCalculator LAST_DATE_CALCULATOR = LastDateCalculator.getInstance();
 
   /** Label setting this function to use the par rate of the instruments in root-finding */
@@ -116,19 +116,19 @@ public class OriginalMarketInstrumentImpliedYieldCurveFunction extends AbstractF
   private CombinedInterpolatorExtrapolator _forwardInterpolator;
   private final String _calculationType;
 
-  public OriginalMarketInstrumentImpliedYieldCurveFunction(final String currency, final String curveDefinitionName, final String calculatorType) {
+  public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String curveDefinitionName, final String calculatorType) {
     this(currency, curveDefinitionName, curveDefinitionName, calculatorType);
   }
 
-  public OriginalMarketInstrumentImpliedYieldCurveFunction(final String currency, final String fundingCurveDefinitionName, final String forwardCurveDefinitionName, final String calculatorType) {
+  public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String fundingCurveDefinitionName, final String forwardCurveDefinitionName, final String calculatorType) {
     this(Currency.of(currency), fundingCurveDefinitionName, forwardCurveDefinitionName, calculatorType);
   }
 
-  public OriginalMarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String curveDefinitionName, final String calculatorType) {
+  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String curveDefinitionName, final String calculatorType) {
     this(currency, curveDefinitionName, curveDefinitionName, calculatorType);
   }
 
-  public OriginalMarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String fundingCurveDefinitionName, final String forwardCurveDefinitionName, final String calculationType) {
+  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String fundingCurveDefinitionName, final String forwardCurveDefinitionName, final String calculationType) {
     _fundingHelper = new YieldCurveFunctionHelper(currency, fundingCurveDefinitionName);
     _forwardHelper = new YieldCurveFunctionHelper(currency, forwardCurveDefinitionName);
     _fundingCurveDefinitionName = fundingCurveDefinitionName;
