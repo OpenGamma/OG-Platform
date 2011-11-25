@@ -71,6 +71,7 @@
   <bundle id="common.details.css">
     <fragment>/styles/common/details/og.common.OG-details-content.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details-grid.css</fragment>
+    <fragment>/styles/common/details/og.common.OG-details-positions.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-timeseries.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-holiday.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-region.css</fragment>
