@@ -14,7 +14,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.property.StaticDefaultPropertyFunction;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -28,7 +28,7 @@ import com.opengamma.util.money.Currency;
  * </ul>
  * This should allow either specific curves to be adjusted or more global changes.
  */
-public class DefaultYieldCurveMarketDataShiftFunction extends DefaultPropertyFunction {
+public class DefaultYieldCurveMarketDataShiftFunction extends StaticDefaultPropertyFunction {
 
   /**
    * Property to shift all yield curve market data. 
@@ -36,7 +36,7 @@ public class DefaultYieldCurveMarketDataShiftFunction extends DefaultPropertyFun
   protected static final String YIELD_CURVE_MARKET_DATA_SHIFT = "YIELD_CURVE_MARKET_DATA_" + YieldCurveShiftFunction.SHIFT;
 
   public DefaultYieldCurveMarketDataShiftFunction() {
-    super(ComputationTargetType.PRIMITIVE, YieldCurveMarketDataShiftFunction.SHIFT, ValueRequirementNames.YIELD_CURVE_MARKET_DATA);
+    super(ComputationTargetType.PRIMITIVE, YieldCurveMarketDataShiftFunction.SHIFT, false, ValueRequirementNames.YIELD_CURVE_MARKET_DATA);
   }
 
   @Override

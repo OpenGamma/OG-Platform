@@ -7,12 +7,14 @@ package com.opengamma.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureOptionMarginTransactionSABRMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
+import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.method.CapFloorCMSSABRReplicationMethod;
 import com.opengamma.financial.interestrate.payments.method.CapFloorCMSSpreadSABRBinormalMethod;
 import com.opengamma.financial.interestrate.payments.method.CapFloorIborSABRMethod;
@@ -47,6 +49,13 @@ public final class PresentValueSABRSensitivitySABRCalculator extends AbstractIns
    * Private constructor.
    */
   private PresentValueSABRSensitivitySABRCalculator() {
+  }
+
+  @Override
+  public PresentValueSABRSensitivityDataBundle visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(derivative);
+    return derivative.accept(this, curves);
   }
 
   @Override
@@ -135,6 +144,17 @@ public final class PresentValueSABRSensitivitySABRCalculator extends AbstractIns
       return method.presentValueSABRSensitivity(option, sabrBundle);
     }
     throw new UnsupportedOperationException("The PresentValueSABRSensitivitySABRCalculator visitor visitInterestRateFutureOptionMarginTransaction requires a SABRInterestRateDataBundle as data.");
+  }
+
+  @Override
+  public PresentValueSABRSensitivityDataBundle visitGenericAnnuity(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(annuity);
+    PresentValueSABRSensitivityDataBundle pvss = new PresentValueSABRSensitivityDataBundle();
+    for (final Payment p : annuity.getPayments()) {
+      pvss = pvss.plus(visit(p, curves));
+    }
+    return pvss;
   }
 
 }

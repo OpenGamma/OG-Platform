@@ -46,6 +46,7 @@ import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
+import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -236,6 +237,11 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
 
     @Override
     public DoubleLabelledMatrix2D visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
+      return null;
+    }
+
+    @Override
+    public DoubleLabelledMatrix2D visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
       return null;
     }
     

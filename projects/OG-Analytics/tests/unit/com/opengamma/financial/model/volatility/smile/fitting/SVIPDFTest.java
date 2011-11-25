@@ -19,7 +19,7 @@ import com.opengamma.financial.model.volatility.smile.function.SVIVolatilityFunc
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 
 /**
  * 
@@ -67,10 +67,10 @@ public class SVIPDFTest {
     final BitSet fixed = new BitSet();
     final SABRHaganVolatilityFunction sabr = new SABRHaganVolatilityFunction();
     final SABRNonLinearLeastSquareFitter fitter = new SABRNonLinearLeastSquareFitter(sabr);
-    final LeastSquareResults result = fitter.getFitResult(options, data, errors, initialValues, fixed);
+    final LeastSquareResultsWithTransform result = fitter.getFitResult(options, data, errors, initialValues, fixed);
 
     final double chiSqr = result.getChiSq();
-    final DoubleMatrix1D params = result.getParameters();
+    final DoubleMatrix1D params = result.getModelParameters();
     final SABRFormulaData fittedData = new SABRFormulaData(params.getEntry(0), params.getEntry(1), params.getEntry(2), params.getEntry(3));
 
     final Function1D<Double, Double> sabrFunction = new Function1D<Double, Double>() {

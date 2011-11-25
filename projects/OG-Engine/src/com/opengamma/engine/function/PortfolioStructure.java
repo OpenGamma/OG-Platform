@@ -5,18 +5,23 @@
  */
 package com.opengamma.engine.function;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.position.impl.PositionAccumulator;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
 /**
- * Service to interrogate the portfolio structure. 
+ * Service to interrogate the portfolio structure.
+ * <p>
+ * The {@link PortfolioNode} object only contains the unique identifier of its parent
+ * nodes, requiring additional resolution steps and queries to a {@link PositionSource}.
+ * This is exposed to functions as part of the {@link FunctionExecutionContext} to
+ * allow such queries. At function execution, all child nodes, positions, trades and
+ * referenced securities will be resolved and can be queried directly from the node
+ * object or using utility methods from {@link PositionAccumulator}.
  */
 @PublicAPI
 public class PortfolioStructure {
@@ -122,28 +127,6 @@ public class PortfolioStructure {
       parent = node.getParentNodeId();
     }
     return node;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Returns <strong>all</strong> positions underneath a portfolio node.
-   * This is equivalent to traversing down the tree from the current node to all leaf nodes.
-   * 
-   * @param node  the node to search for, not null
-   * @return the list of all positions found, not null
-   */
-  public List<Position> getAllPositions(final PortfolioNode node) {
-    ArgumentChecker.notNull(node, "node");
-    final List<Position> result = new ArrayList<Position>();
-    getAllPositionsImpl(node, result);
-    return result;
-  }
-
-  private void getAllPositionsImpl(final PortfolioNode node, final List<Position> result) {
-    result.addAll(node.getPositions());
-    for (PortfolioNode child : node.getChildNodes()) {
-      getAllPositionsImpl(child, result);
-    }
   }
 
 }

@@ -152,7 +152,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
         final DoubleMatrix1D initialValues = new DoubleMatrix1D(new double[] {1, 2, 3, 4, 2, 3 });
         final ParameterizedFunction<Double, DoubleMatrix1D, Double> parameterizedFunction = MODEL.getParameterizedFunction();
         final LeastSquareResults result = MINIMISER.solve(new DoubleMatrix1D(t), new DoubleMatrix1D(ytm), parameterizedFunction, initialValues);
-        final DoubleMatrix1D parameters = result.getParameters();
+        final DoubleMatrix1D parameters = result.getFitParameters();
         final FunctionalDoublesCurve curve = FunctionalDoublesCurve.from(parameterizedFunction.asFunctionOfArguments(parameters));
         final YieldCurve yieldCurve = new YieldCurve(curve);
         return Sets.newHashSet(new ComputedValue(_result, yieldCurve));

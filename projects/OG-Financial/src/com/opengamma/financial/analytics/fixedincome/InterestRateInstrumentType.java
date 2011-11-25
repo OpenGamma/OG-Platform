@@ -20,6 +20,7 @@ import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
+import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -162,6 +163,11 @@ public enum InterestRateInstrumentType {
     @Override
     public InterestRateInstrumentType visitFXForwardSecurity(final FXForwardSecurity security) {
       throw new OpenGammaRuntimeException("Cannot handle FXForwardSecurity");
+    }
+    
+    @Override
+    public InterestRateInstrumentType visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
+      throw new OpenGammaRuntimeException("Cannot handle NonDeliverableFXForwardSecurity");
     }
 
     @Override

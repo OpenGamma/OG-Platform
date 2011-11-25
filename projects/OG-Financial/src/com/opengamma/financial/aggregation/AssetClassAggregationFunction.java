@@ -22,6 +22,7 @@ import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
+import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -55,6 +56,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String SWAPS = "Swaps";
   /* package */static final String FX = "FX";
   /* package */static final String FX_FORWARDS = "FX Forwards";
+  /* package */static final String NONDELIVERABLE_FX_FORWARDS = "Non-deliverable FX Forwards";
   /* package */static final String CAP_FLOOR = "Cap/Floor";
   /* package */static final String CAP_FLOOR_CMS_SPREAD = "Cap/Floor CMS Spread";
   /* package */static final String UNKNOWN = "Unknown Security Type";
@@ -146,6 +148,11 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
           return FX_FORWARDS;
         }
 
+        @Override
+        public String visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
+          return NONDELIVERABLE_FX_FORWARDS;
+        }
+        
         @Override
         public String visitCapFloorSecurity(final CapFloorSecurity security) {
           return CAP_FLOOR;
