@@ -348,32 +348,12 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(StandardEquityModelFunction.class));
     addBondCalculators(functionConfigs);
     addBondFutureCalculators(functionConfigs);
-<<<<<<< HEAD
     addSABRCalculators(functionConfigs);
-=======
-    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingFunction.class, "USD", "BLOOMBERG"));
-    addSwaptionCalculators(functionConfigs);
->>>>>>> b28cb1afbe070ad9f81088b7a5f02bbc7fa7994e
     addForexVanillaOptionCalculators(functionConfigs);
     addForexSingleBarrierOptionCalculators(functionConfigs);
     addForexForwardCalculators(functionConfigs);
     addInterestRateFutureOptionCalculators(functionConfigs);
-<<<<<<< HEAD
     addEquityFuturesFunctions(functionConfigs);
-=======
-    functionConfigs.add(functionConfiguration(EquityFuturesFunction.class, ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.MARK_TO_MARKET));
-    //functionConfigs.add(functionConfiguration(EquityFuturesFunction.class, ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.COST_OF_CARRY));
-    functionConfigs.add(functionConfiguration(EquityFuturesFunction.class, ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.DIVIDEND_YIELD));
-    functionConfigs.add(functionConfiguration(EquityFuturesFunction.class, ValueRequirementNames.PV01, EquityFuturePricerFactory.MARK_TO_MARKET));
-    //functionConfigs.add(functionConfiguration(EquityFuturesFunction.class, ValueRequirementNames.PV01, EquityFuturePricerFactory.COST_OF_CARRY));
-    functionConfigs.add(functionConfiguration(EquityFuturesFunction.class, ValueRequirementNames.PV01, EquityFuturePricerFactory.DIVIDEND_YIELD));
-    functionConfigs.add(functionConfiguration(EquityFuturesFunction.class, ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.MARK_TO_MARKET));
-    //functionConfigs.add(functionConfiguration(EquityFuturesFunction.class, ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.COST_OF_CARRY));
-    functionConfigs.add(functionConfiguration(EquityFuturesFunction.class, ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.DIVIDEND_YIELD));
-    functionConfigs.add(functionConfiguration(EquityFuturesFunction.class, ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.MARK_TO_MARKET));
-    //functionConfigs.add(functionConfiguration(EquityFuturesFunction.class, ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.COST_OF_CARRY));
-    functionConfigs.add(functionConfiguration(EquityFuturesFunction.class, ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.DIVIDEND_YIELD));
->>>>>>> b28cb1afbe070ad9f81088b7a5f02bbc7fa7994e
 
     addDummyFunction(functionConfigs, ValueRequirementNames.PAR_RATE);
     addDummyFunction(functionConfigs, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
@@ -688,7 +668,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT"));
   }
 
-<<<<<<< HEAD
   private static void addSABRCalculators(List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new ParameterizedFunctionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING")));
@@ -703,17 +682,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY)));
-=======
-  private static void addSwaptionCalculators(List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(SwaptionSABRPresentValueFunction.class, "USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING"));
-    functionConfigs.add(functionConfiguration(SwaptionSABRPresentValueCurveSensitivityFunction.class, "USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING"));
-    functionConfigs.add(functionConfiguration(SwaptionSABRPresentValueSABRFunction.class, "USD", "BLOOMBERG", "FORWARD_3M", "FUNDING"));
-    functionConfigs.add(functionConfiguration(SwaptionSABRYieldCurveNodeSensitivitiesFunction.class, "USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING"));
-    functionConfigs.add(functionConfiguration(SwaptionSABRVegaFunction.class, "USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING"));
-    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY);
-    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY);
-    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY);
->>>>>>> b28cb1afbe070ad9f81088b7a5f02bbc7fa7994e
   }
 
   private static void addFixedIncomeInstrumentCalculators(List<FunctionConfiguration> functionConfigs) {
