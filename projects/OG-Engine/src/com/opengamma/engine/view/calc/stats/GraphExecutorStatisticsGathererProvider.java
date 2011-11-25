@@ -21,7 +21,7 @@ public interface GraphExecutorStatisticsGathererProvider {
    * its performance to.
    * 
    * @param viewId the unique identifier of the view for which graphs are being executed
-   * @return The statistics gatherer, never {@code null}.
+   * @return The statistics gatherer, never null.
    */
   GraphExecutorStatisticsGatherer getStatisticsGatherer(UniqueId viewId);
 

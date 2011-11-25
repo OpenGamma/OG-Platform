@@ -6,30 +6,21 @@
 package com.opengamma.financial.view.rest;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.ws.rs.core.UriBuilder;
-
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeRuntimeException;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.rest.FudgeRestClient;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  * Remote implementation of {@link ViewDefinitionRepository}.
