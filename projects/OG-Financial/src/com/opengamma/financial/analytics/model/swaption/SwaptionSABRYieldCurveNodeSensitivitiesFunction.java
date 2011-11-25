@@ -35,7 +35,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
-import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.ircurve.OriginalMarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
@@ -212,7 +212,7 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
 
   private ValueRequirement getForwardCurveRequirement(final Currency currency, final String forwardCurveDefinitionName, final String fundingCurveDefinitionName) {
     final ValueRequirement forwardCurveRequirement = YieldCurveFunction.getCurveRequirement(currency, forwardCurveDefinitionName, forwardCurveDefinitionName, fundingCurveDefinitionName,
-        MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+        OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
     return forwardCurveRequirement;
   }
 
@@ -224,7 +224,7 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
 
   private ValueRequirement getFundingCurveRequirement(final Currency currency, final String forwardCurveDefinitionName, final String fundingCurveDefinitionName) {
     final ValueRequirement fundingCurveRequirement = YieldCurveFunction.getCurveRequirement(currency, fundingCurveDefinitionName, forwardCurveDefinitionName, fundingCurveDefinitionName,
-        MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+        OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
     return fundingCurveRequirement;
   }
 
@@ -239,7 +239,7 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
   }
 
   private ValueRequirement getJacobianRequirement(final Currency currency, final String forwardCurveDefinitionName, final String fundingCurveDefinitionName) {
-    return YieldCurveFunction.getJacobianRequirement(currency, forwardCurveDefinitionName, fundingCurveDefinitionName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+    return YieldCurveFunction.getJacobianRequirement(currency, forwardCurveDefinitionName, fundingCurveDefinitionName, OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
   }
 
   private ValueRequirement getCubeRequirement(final ComputationTarget target) {

@@ -20,7 +20,7 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.ircurve.OriginalMarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
@@ -86,24 +86,24 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
         final String currencyISO = currencyCurves.getKey();
         final Set<String> curveNames = currencyCurves.getValue();
         if (curveNames.contains("SECONDARY")) {
-          addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
-          addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+          addYieldCurveFunction(configs, currencyISO, "SECONDARY", OriginalMarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
+          addYieldCurveFunction(configs, currencyISO, "SECONDARY", OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
         }
         if (curveNames.contains("FUNDING") && curveNames.contains("FORWARD_3M")) {
-          addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD_3M", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-          addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD_3M", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
+          addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD_3M", OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+          addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD_3M", OriginalMarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
         } else if (curveNames.contains("FUNDING") && curveNames.contains("FORWARD_6M")) {
-          addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD_6M", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-          addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD_6M", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
+          addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD_6M", OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+          addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD_6M", OriginalMarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
         }
       }
     } else {
       //       [PLAT-1094] This is the wrong approach and should be disposed of at the earliest opportunity
       s_logger.warn("[PLAT-1094] Using hardcoded curve definitions");
-      addYieldCurveFunction(configs, "USD", "FUNDING", "FORWARD_3M", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-      addYieldCurveFunction(configs, "GBP", "FUNDING", "FORWARD_6M", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-      addYieldCurveFunction(configs, "USD", "FUNDING", "FORWARD_3M", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
-      addYieldCurveFunction(configs, "GBP", "FUNDING", "FORWARD_6M", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
+      addYieldCurveFunction(configs, "USD", "FUNDING", "FORWARD_3M", OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+      addYieldCurveFunction(configs, "GBP", "FUNDING", "FORWARD_6M", OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+      addYieldCurveFunction(configs, "USD", "FUNDING", "FORWARD_3M", OriginalMarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
+      addYieldCurveFunction(configs, "GBP", "FUNDING", "FORWARD_6M", OriginalMarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
     }
 
     //These need to be replaced with meaningful cube defns
@@ -140,7 +140,7 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
       throw new IllegalArgumentException();
     }
 
-    configs.add(new ParameterizedFunctionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class.getName(), parameters));
+    configs.add(new ParameterizedFunctionConfiguration(OriginalMarketInstrumentImpliedYieldCurveFunction.class.getName(), parameters));
     for (int i = 1; i < parameters.size() - 1; i++) {
       configs.add(new ParameterizedFunctionConfiguration(YieldCurveMarketDataFunction.class.getName(), Arrays.asList(parameters.get(0), parameters.get(i))));
       configs.add(new ParameterizedFunctionConfiguration(YieldCurveInterpolatingFunction.class.getName(), Arrays.asList(parameters.get(0), parameters.get(i))));

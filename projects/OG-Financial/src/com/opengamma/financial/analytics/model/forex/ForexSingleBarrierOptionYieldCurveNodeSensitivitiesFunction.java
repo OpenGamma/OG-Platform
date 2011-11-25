@@ -23,7 +23,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
-import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.ircurve.OriginalMarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
@@ -64,12 +64,12 @@ public class ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction extends
     final String callFundingCurveName = getCallFundingCurveName() + "_" + callCurrency.getCode();
     final String callForwardCurveName = getCallForwardCurveName() + "_" + callCurrency.getCode();
     final Object putJacobianObject = inputs.getValue(YieldCurveFunction.getJacobianRequirement(putCurrency, getPutForwardCurveName(), getPutFundingCurveName(),
-        MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+        OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     if (putJacobianObject == null) {
       throw new OpenGammaRuntimeException("Put currency curve Jacobian was null");
     }
     final Object callJacobianObject = inputs.getValue(YieldCurveFunction.getJacobianRequirement(callCurrency, getCallForwardCurveName(), getCallFundingCurveName(),
-        MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+        OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     if (callJacobianObject == null) {
       throw new OpenGammaRuntimeException("Call currency curve Jacobian was null");
     }
@@ -158,12 +158,12 @@ public class ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction extends
         .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
     final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(fxOption.getPutCurrency(), fxOption.getCallCurrency());
     final ValueRequirement fxVolatilitySurface = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
-    result.add(YieldCurveFunction.getCurveRequirement(putCurrency, putFundingCurveName, putForwardCurveName, putFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getCurveRequirement(putCurrency, putForwardCurveName, putForwardCurveName, putFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getCurveRequirement(callCurrency, callFundingCurveName, callForwardCurveName, callFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getCurveRequirement(callCurrency, callForwardCurveName, callForwardCurveName, callFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getJacobianRequirement(putCurrency, putForwardCurveName, putFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getJacobianRequirement(callCurrency, callForwardCurveName, callFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+    result.add(YieldCurveFunction.getCurveRequirement(putCurrency, putFundingCurveName, putForwardCurveName, putFundingCurveName, OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+    result.add(YieldCurveFunction.getCurveRequirement(putCurrency, putForwardCurveName, putForwardCurveName, putFundingCurveName, OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+    result.add(YieldCurveFunction.getCurveRequirement(callCurrency, callFundingCurveName, callForwardCurveName, callFundingCurveName, OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+    result.add(YieldCurveFunction.getCurveRequirement(callCurrency, callForwardCurveName, callForwardCurveName, callFundingCurveName, OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+    result.add(YieldCurveFunction.getJacobianRequirement(putCurrency, putForwardCurveName, putFundingCurveName, OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+    result.add(YieldCurveFunction.getJacobianRequirement(callCurrency, callForwardCurveName, callFundingCurveName, OriginalMarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     result.add(YieldCurveFunction.getCouponSensitivityRequirement(putCurrency, putForwardCurveName, putFundingCurveName));
     result.add(YieldCurveFunction.getCouponSensitivityRequirement(callCurrency, callForwardCurveName, callFundingCurveName));
     result.add(getCurveSensitivitiesRequirement(target));
