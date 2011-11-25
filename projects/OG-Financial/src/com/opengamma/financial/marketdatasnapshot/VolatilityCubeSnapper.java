@@ -67,7 +67,7 @@ public class VolatilityCubeSnapper extends
     }   
 
     Map<Pair<Tenor, Tenor>, ValueSnapshot> strikes = new HashMap<Pair<Tenor, Tenor>, ValueSnapshot>();
-    for (Entry<Pair<Tenor, Tenor>, Double> strike : volatilityCubeData.getStrikes().entrySet()) {
+    for (Entry<Pair<Tenor, Tenor>, Double> strike : volatilityCubeData.getATMStrikes().entrySet()) {
       strikes.put(strike.getKey(), new ValueSnapshot(strike.getValue()));
     }
 

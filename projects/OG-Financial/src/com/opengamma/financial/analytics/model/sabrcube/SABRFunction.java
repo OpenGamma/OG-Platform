@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.cms;
+package com.opengamma.financial.analytics.model.sabrcube;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,6 +13,8 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -23,15 +25,19 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.conversion.CapFloorCMSSpreadSecurityConverter;
+import com.opengamma.financial.analytics.conversion.CapFloorSecurityConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
+import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctionHelper;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.SABRInterestRateExtrapolationParameters;
@@ -40,15 +46,23 @@ import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionFactory;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
-public abstract class CMSwapSABRFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
+  /** String labelling the type of SABR calculation (with right extrapolation) */
+  public static final String SABR_RIGHT_EXTRAPOLATION = "SABRRightExtrapolation";
+  /** String labelling the type of SABR extrapolation (none) */
+  public static final String SABR_NO_EXTRAPOLATION = "SABRNoExtrapolation";
   @SuppressWarnings("unchecked")
   private static final VolatilityFunctionProvider<SABRFormulaData> SABR_FUNCTION = (VolatilityFunctionProvider<SABRFormulaData>) VolatilityFunctionFactory
       .getCalculator(VolatilityFunctionFactory.HAGAN);
@@ -59,14 +73,15 @@ public abstract class CMSwapSABRFunction extends AbstractFunction.NonCompiledInv
   private final String _forwardCurveName;
   private final String _fundingCurveName;
   private final VolatilityCubeFunctionHelper _helper;
-  private SwapSecurityConverter _swapVisitor;
-  private FixedIncomeConverterDataProvider _converter;
+  private FinancialSecurityVisitor<InstrumentDefinition<?>> _securityVisitor;
+  private SecuritySource _securitySource;
+  private FixedIncomeConverterDataProvider _definitionConverter;
 
-  public CMSwapSABRFunction(final String currency, final String definitionName, final String useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
+  public SABRFunction(final String currency, final String definitionName, final String useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
     this(Currency.of(currency), definitionName, Boolean.parseBoolean(useSABRExtrapolation), forwardCurveName, fundingCurveName);
   }
 
-  public CMSwapSABRFunction(final Currency currency, final String definitionName, final boolean useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
+  public SABRFunction(final Currency currency, final String definitionName, final boolean useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
     Validate.notNull(currency, "currency");
     Validate.notNull(definitionName, "cube definition name");
     Validate.notNull(forwardCurveName, "forward curve name");
@@ -82,8 +97,17 @@ public abstract class CMSwapSABRFunction extends AbstractFunction.NonCompiledInv
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
-    _swapVisitor = new SwapSecurityConverter(holidaySource, conventionSource, regionSource);
-    _converter = new FixedIncomeConverterDataProvider(conventionSource);
+    _securitySource = OpenGammaCompilationContext.getSecuritySource(context);    
+    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource);
+    final SwaptionSecurityConverter swaptionConverter = new SwaptionSecurityConverter(_securitySource, conventionSource, swapConverter);
+    final CapFloorSecurityConverter capFloorVisitor = new CapFloorSecurityConverter(holidaySource, conventionSource);
+    final CapFloorCMSSpreadSecurityConverter capFloorCMSSpreadSecurityVisitor = new CapFloorCMSSpreadSecurityConverter(holidaySource, conventionSource);
+    _securityVisitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
+        .swapSecurityVisitor(swapConverter)
+        .swaptionVisitor(swaptionConverter)
+        .capFloorVisitor(capFloorVisitor)
+        .capFloorCMSSpreadVisitor(capFloorCMSSpreadSecurityVisitor).create();
+    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
 
   @Override
@@ -109,11 +133,14 @@ public abstract class CMSwapSABRFunction extends AbstractFunction.NonCompiledInv
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    return security instanceof SwapSecurity && 
-       (SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_FIXED_CMS ||
-        SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS ||
-        SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS);
+    final Security security = target.getSecurity();
+    return security instanceof SwaptionSecurity || 
+       (security instanceof SwapSecurity && 
+         (SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_FIXED_CMS ||
+          SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS ||
+          SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS)) ||
+       security instanceof CapFloorSecurity || 
+       (security instanceof CapFloorCMSSpreadSecurity && !_useSABRExtrapolation); 
   }
 
   protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName,
@@ -123,28 +150,37 @@ public abstract class CMSwapSABRFunction extends AbstractFunction.NonCompiledInv
   }
 
   protected ValueRequirement getCubeRequirement(final ComputationTarget target) {
-    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CUBE, _helper.getDefinitionName()).get();
+    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CUBE, _helper.getDefinitionName())
+                                                      .with(ValuePropertyNames.CURRENCY, _helper.getCurrency().getCode()).get();
     return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, FinancialSecurityUtils.getCurrency(target.getSecurity()), properties);
   }
 
-  protected SwapSecurityConverter getVisitor() {
-    return _swapVisitor;
+  protected FinancialSecurityVisitor<InstrumentDefinition<?>> getVisitor() {
+    return _securityVisitor;
   }
 
   protected FixedIncomeConverterDataProvider getConverter() {
-    return _converter;
+    return _definitionConverter;
   }
   
   protected VolatilityCubeFunctionHelper getHelper() {
     return _helper;
   }
 
+  protected SecuritySource getSecuritySource() {
+    return _securitySource;
+  }
+  
   protected String getForwardCurveName() {
     return _forwardCurveName;
   }
 
   protected String getFundingCurveName() {
     return _fundingCurveName;    
+  }
+  
+  protected boolean isUseSABRExtrapolation() {
+    return _useSABRExtrapolation;
   }
   
   protected YieldCurveBundle getYieldCurves(final ComputationTarget target, final FunctionInputs inputs) {

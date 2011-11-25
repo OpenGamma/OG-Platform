@@ -199,6 +199,7 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
     private VolatilityCubeData buildMarketDataMap(final FunctionInputs inputs) {
       final HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
       final HashMap<VolatilityPoint, ExternalId> dataIds = new HashMap<VolatilityPoint, ExternalId>();
+      final HashMap<VolatilityPoint, Double> relativeStrikes = new HashMap<VolatilityPoint, Double>();
       final HashMap<Pair<Tenor, Tenor>, Double> strikes = new HashMap<Pair<Tenor, Tenor>, Double>();
 
       final HashMap<UniqueId, Double> otherData = new HashMap<UniqueId, Double>();
@@ -216,10 +217,12 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
           if (volatilityPoint.getRelativeStrike() > -50) {
             final Double previous = dataPoints.put(volatilityPoint, dValue);
             final ExternalId previousId = dataIds.put(volatilityPoint, value.getSpecification().getTargetSpecification().getIdentifier());
+            final Double previousRelativeStrike = relativeStrikes.put(volatilityPoint, volatilityPoint.getRelativeStrike()); 
             if (previous != null && previous > dValue) {
               //TODO: this is a hack because we don't understand which tickers are for straddles, so we presume that the straddle has lower vol
               dataPoints.put(volatilityPoint, previous);
               dataIds.put(volatilityPoint, previousId);
+              relativeStrikes.put(volatilityPoint, previousRelativeStrike);
             }
           }
         } else if (volatilityPoint == null && strikePoint != null) {
@@ -238,7 +241,8 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
       bundle.setDataPoints(otherData);
       volatilityCubeData.setOtherData(bundle);
       volatilityCubeData.setDataIds(dataIds);
-      volatilityCubeData.setStrikes(strikes);
+      volatilityCubeData.setRelativeStrikes(relativeStrikes);
+      volatilityCubeData.setATMStrikes(strikes);
       return volatilityCubeData;
     }
     

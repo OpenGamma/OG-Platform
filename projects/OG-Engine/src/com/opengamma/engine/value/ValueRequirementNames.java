@@ -41,6 +41,7 @@ public final class ValueRequirementNames {
   public static final String VOLATILITY_SURFACE_DATA = "VolatilitySurfaceData";
   public static final String FUTURE_PRICE_CURVE_DATA = "FuturePriceCurveData";
   public static final String STANDARD_VOLATILITY_SURFACE_DATA = "StandardVolatilitySurfaceData";
+  public static final String INTERPOLATED_VOLATILITY_SURFACE_DATA = "InterpolatedVolatilitySurfaceData";
   public static final String COST_OF_CARRY = "Cost Of Carry";  
   
   public static final String VOLATILITY_CUBE = "VolatilityCube";
@@ -289,7 +290,7 @@ public final class ValueRequirementNames {
   public static final String SABR_SURFACES = "SABR Surfaces";
   
   //Heston fitted surface parameters
-  public static final String HESTON_SURFACES = "Heston Fits";
+  public static final String HESTON_SURFACES = "Heston Surfaces";
 
   //FX analytics (temporary)
   public static final String FX_PRESENT_VALUE = "FX Present Value";
@@ -312,6 +313,6 @@ public final class ValueRequirementNames {
   public static final String DAILY_MARKET_CAP = "Last Market Cap";
   public static final String DAILY_PRICE = "Last Price";
   
-  public static final String EXTERNAL_IDS = "External ids";
+  public static final String VOLATILITY_CUBE_FITTED_POINTS = "Volatility Cube Fitted Points";
   //CSON
 }
