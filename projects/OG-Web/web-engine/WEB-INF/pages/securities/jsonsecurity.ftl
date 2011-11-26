@@ -81,7 +81,7 @@
 
         <#if futureSecurityType == "BondFuture">
             "underlyingBond":{<#list basket?keys as key>"${key}":"${basket[key]}"<#if key_has_next>,</#if></#list>},
-        <#else>
+        <#elseif underlyingSecurity??>
             "underlyingId":"${security.underlyingId.scheme.name}-${security.underlyingId.value}",
             "underlyingName":"${underlyingSecurity.name}",
             "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
