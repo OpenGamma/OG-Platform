@@ -83,6 +83,8 @@
             "underlyingBond":{<#list basket?keys as key>"${key}":"${basket[key]}"<#if key_has_next>,</#if></#list>},
         <#else>
             "underlyingId":"${security.underlyingId.scheme.name}-${security.underlyingId.value}",
+            "underlyingName":"${underlyingSecurity.name}",
+            "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
         </#if>
 
         <#break>
@@ -259,6 +261,9 @@
         "isLong":"${security.long?string?upper_case}",
         "isPayer":"${security.payer?string?upper_case}",
         "underlyingId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
+                "underlyingExternalId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
+        "underlyingName":"${underlyingSecurity.name}",
+        "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
         <#break>
        <#case "IRFUTURE_OPTION">
         "currency":"${security.currency}",
@@ -270,6 +275,9 @@
         "pointValue":"${security.pointValue}",
         "strike":"${security.strike}",
         "underlyingId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
+                "underlyingExternalId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
+        "underlyingName":"${underlyingSecurity.name}",
+        "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
         <#break>
     </#switch>
     "name": "${security.name}",

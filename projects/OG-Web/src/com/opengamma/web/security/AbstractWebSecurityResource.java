@@ -14,6 +14,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
@@ -29,6 +30,7 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
@@ -119,10 +121,18 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
       FutureSecurity futureSecurity = (FutureSecurity) security;
       out.put("futureSecurityType", futureSecurity.accept(new FutureSecurityTypeVisitor()));
       out.put("basket", getBondFutureBasket(security));
+      Security underlyingSecurity = getUnderlyingSecurity(futureSecurity);
+      if (underlyingSecurity != null) {
+        out.put("underlyingSecurity", underlyingSecurity);
+      }
     }
     if (security.getSecurityType().equals(EquityOptionSecurity.SECURITY_TYPE)) {
       EquityOptionSecurity equityOption = (EquityOptionSecurity) security;
       out.put("underlyingSecurity", getSecurity(equityOption.getUnderlyingId()));
+    }
+    if (security.getSecurityType().equals(IRFutureOptionSecurity.SECURITY_TYPE)) {
+      IRFutureOptionSecurity irFutureOption = (IRFutureOptionSecurity) security;
+      out.put("underlyingSecurity", getSecurity(irFutureOption.getUnderlyingId()));
     }
   }
 
@@ -148,6 +158,62 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
       }
     }
     return result;
+  }
+  
+  private Security getUnderlyingSecurity(FutureSecurity future) {
+    return future.accept(new FutureSecurityVisitor<Security>() {
+
+      @Override
+      public Security visitAgricultureFutureSecurity(AgricultureFutureSecurity security) {
+        return null;
+      }
+
+      @Override
+      public Security visitBondFutureSecurity(BondFutureSecurity security) {
+        return null;
+      }
+
+      @Override
+      public Security visitEnergyFutureSecurity(EnergyFutureSecurity security) {
+        return getSecurity(security.getUnderlyingId());
+      }
+
+      @Override
+      public Security visitEquityFutureSecurity(EquityFutureSecurity security) {
+        return getSecurity(security.getUnderlyingId());
+      }
+
+      @Override
+      public Security visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security) {
+        return getSecurity(security.getUnderlyingId());
+      }
+
+      @Override
+      public Security visitFXFutureSecurity(FXFutureSecurity security) {
+        return null;
+      }
+
+      @Override
+      public Security visitIndexFutureSecurity(IndexFutureSecurity security) {
+        return getSecurity(security.getUnderlyingId());
+      }
+
+      @Override
+      public Security visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
+        return getSecurity(security.getUnderlyingId());
+      }
+
+      @Override
+      public Security visitMetalFutureSecurity(MetalFutureSecurity security) {
+        return getSecurity(security.getUnderlyingId());
+      }
+
+      @Override
+      public Security visitStockFutureSecurity(StockFutureSecurity security) {
+        return getSecurity(security.getUnderlyingId());
+      }
+      
+    });
   }
 
   /**
