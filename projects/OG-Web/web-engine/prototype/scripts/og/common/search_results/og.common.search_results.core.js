@@ -58,8 +58,8 @@ $.register_module({
                         grid.render();
                     });
 
-                    $(grid.getHeaderRow()).delegate(":input", "change keyup", function(e) {
-                        obj.url[$(this).data("columnId")] = e.currentTarget.value;
+                    $(grid.getHeaderRow()).delegate(':input', 'change keyup', function(e) {
+                        obj.url[$(this).data('columnId')] = e.currentTarget.value;
                     });
 
                     // load the first page
