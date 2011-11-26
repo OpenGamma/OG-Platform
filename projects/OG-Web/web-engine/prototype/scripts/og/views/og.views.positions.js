@@ -91,7 +91,7 @@ $.register_module({
                         layout.inner.close('south');
                     } else layout.inner.open('south');
                     layout.inner.options.south.onclose = function () {
-                        routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
+                        routes.go(routes.hash(rule, args, {del: ['version']}));
                     };
                 }
             },

@@ -85,8 +85,7 @@ $.register_module({
                     })
                 },
                 'versions': function () {
-                    var rule = module.rules.load_portfolios,
-                        args = routes.current().args;
+                    var rule = module.rules.load_portfolios, args = routes.current().args;
                     routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
                     if (!layout.inner.state.south.isClosed && args.version) {
                         layout.inner.close('south');
