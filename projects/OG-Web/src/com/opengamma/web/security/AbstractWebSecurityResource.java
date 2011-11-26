@@ -31,6 +31,7 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
@@ -133,6 +134,10 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
     if (security.getSecurityType().equals(IRFutureOptionSecurity.SECURITY_TYPE)) {
       IRFutureOptionSecurity irFutureOption = (IRFutureOptionSecurity) security;
       out.put("underlyingSecurity", getSecurity(irFutureOption.getUnderlyingId()));
+    }
+    if (security.getSecurityType().equals(SwaptionSecurity.SECURITY_TYPE)) {
+      SwaptionSecurity swaptionSecurity = (SwaptionSecurity) security;
+      out.put("underlyingSecurity", getSecurity(swaptionSecurity.getUnderlyingId()));
     }
   }
 
