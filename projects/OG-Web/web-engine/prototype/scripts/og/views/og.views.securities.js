@@ -189,7 +189,8 @@ $.register_module({
                                     var id = json.template_data['underlyingOid'],
                                         rule = module.rules.load_securities,
                                         hash = routes.hash(rule, routes.current().args, {add: {id: id}}),
-                                        text = json.template_data['underlyingExternalId'],
+                                        text = json.template_data['underlyingName'] ||
+                                            json.template_data['underlyingExternalId'],
                                         anchor = '<a href="' + routes.prefix() + hash + '">' + text + '</a>';
                                         $('.ui-layout-inner-center .OG-js-underlying-id').html(anchor);
                                 }
