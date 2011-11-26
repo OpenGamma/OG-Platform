@@ -155,6 +155,7 @@ $.register_module({
                         var json = result.data, text_handler,
                             security_type = json.template_data['securityType'].toLowerCase(),
                             template = module.name + '.' + security_type;
+                        json.template_data.name = json.template_data.name || json.template_data.name.lang();
                         history.put({
                             name: json.template_data.name,
                             item: 'history.securities.recent',
@@ -198,7 +199,7 @@ $.register_module({
                                 $('.ui-layout-inner-north').html(error_html);
                                 layout.inner.sizePane('north', '0');
                                 layout.inner.open('north');
-                                $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                                $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
                             } else {
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
