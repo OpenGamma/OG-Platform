@@ -101,8 +101,10 @@
         "pointValue":"${security.pointValue}",
         "strike":"${security.strike}",
         "underlyingExternalId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
-        "underlyingName":"${underlyingSecurity.name}",
-        "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
+        <#if underlyingSecurity??>
+          "underlyingName":"${underlyingSecurity.name}",
+          "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
+        </#if>
         <#break>
       <#case "EQUITY_BARRIER_OPTION">
         "currency":"${security.currency}",
@@ -113,9 +115,10 @@
         "pointValue":"${security.pointValue}",
         "strike":"${security.strike}",
         "underlyingExternalId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
-        "underlyingName":"${underlyingSecurity.name}",
-        "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
-        
+        <#if underlyingSecurity??>
+          "underlyingName":"${underlyingSecurity.name}",
+          "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
+        </#if>
         
         "barrierDirection":"${security.barrierDirection}",
         "barrierLevel":"${security.barrierLevel}",
