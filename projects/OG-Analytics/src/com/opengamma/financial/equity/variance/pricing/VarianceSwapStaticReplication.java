@@ -237,7 +237,7 @@ public class VarianceSwapStaticReplication {
     final BlackVolatilitySurface volSurf = market.getVolatilitySurface();
 
     if (_cutoffType != null) {
-      if (volSurf instanceof BlackVolatilityDeltaSurface) {
+      if (volSurf.getStrikeParameterisation() == StrikeParameterization.PUTDELTA || volSurf.getStrikeParameterisation() == StrikeParameterization.CALLDELTA) {
         Validate.isTrue(_cutoffType == StrikeParameterization.PUTDELTA || _cutoffType == StrikeParameterization.CALLDELTA,
             "Left Tail extrapolation type is not consistent with Vol Surface, BlackVolatilityDeltaSurface. The cutoff must be of type PUTDELTA or CALLDELTA.");
 
@@ -257,7 +257,7 @@ public class VarianceSwapStaticReplication {
           }
         }
 
-      } else if (volSurf instanceof BlackVolatilityFixedStrikeSurface) {
+      } else if (volSurf.getStrikeParameterisation() == StrikeParameterization.STRIKE) {
         Validate.isTrue(_cutoffType == StrikeParameterization.STRIKE,
             "Left Tail extrapolation type is not consistent with Vol Surface, BlackVolatilityFixedStrikeSurface. The cutoff must be of type STRIKE.");
       } else {
