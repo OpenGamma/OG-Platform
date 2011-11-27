@@ -18,6 +18,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
+import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.equity.variance.VarianceSwapDataBundle;
 import com.opengamma.financial.equity.variance.VarianceSwapRatesSensitivityCalculator;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
@@ -66,9 +67,10 @@ public class EquityVarianceSwapVegaFunction extends EquityVarianceSwapFunction {
   protected ValueSpecification getValueSpecification(final ComputationTarget target) {
     final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
     final ValueProperties properties = createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode())
         .with(ValuePropertyNames.CURVE, getCurveDefinitionName())
-        .with(ValuePropertyNames.CURVE_CURRENCY, security.getCurrency().getCode())
-        .with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode()).get();
+        .with(ValuePropertyNames.SURFACE, getSurfaceName())
+        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION").get();
     return new ValueSpecification(ValueRequirementNames.VEGA_QUOTE_MATRIX, target.toSpecification(), properties);
   }
 

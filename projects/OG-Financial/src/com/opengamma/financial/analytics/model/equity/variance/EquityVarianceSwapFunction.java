@@ -138,7 +138,9 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
     return _curveDefinitionName;
   }
   
-  
+  protected String getSurfaceName() {
+    return _surfaceDefinitionName;
+  }
 //  private ValueRequirement getForwardRequirement(EquityVarianceSwapSecurity security) {
 //    ExternalId id = security.getSpotUnderlyingId();
 //    ValueProperties properties = ValueProperties.builder().with(EquityForwardFromSpotAndYieldCurveFunction.FORWARD_CALCULATION_METHOD, _forwardCalculationMethod)
