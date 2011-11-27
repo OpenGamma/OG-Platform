@@ -280,7 +280,7 @@ public class NonLinearLeastSquare {
     Validate.notNull(startPos, "startPos");
     final int n = observedValues.getNumberOfElements();
     Validate.isTrue(n == sigma.getNumberOfElements(), "observedValues and sigma must be same length");
-    Validate.isTrue(n >= startPos.getNumberOfElements(), "must have data points greater or equal to number of parameters");
+    Validate.isTrue(n >= startPos.getNumberOfElements(), "must have data points greater or equal to number of parameters" + n + " " + startPos.getNumberOfElements());
     DoubleMatrix2D alpha;
     DecompositionResult decmp;
     DoubleMatrix1D theta = startPos;
