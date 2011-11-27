@@ -16,6 +16,8 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -145,6 +147,24 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
       Security underlying = getSecurity(equityBarrierOptionSecurity.getUnderlyingId());
       if (underlying != null) {
         out.put("underlyingSecurity", underlying);
+      }
+    }
+    if (security.getSecurityType().equals(CapFloorSecurity.SECURITY_TYPE)) {
+      CapFloorSecurity capFloorSecurity = (CapFloorSecurity) security;
+      Security underlying = getSecurity(capFloorSecurity.getUnderlyingId());
+      if (underlying != null) {
+        out.put("underlyingSecurity", underlying);
+      }
+    }
+    if (security.getSecurityType().equals(CapFloorCMSSpreadSecurity.SECURITY_TYPE)) {
+      CapFloorCMSSpreadSecurity capFloorCMSSpreadSecurity = (CapFloorCMSSpreadSecurity) security;
+      Security shortUnderlying = getSecurity(capFloorCMSSpreadSecurity.getShortId());
+      Security longUnderlying = getSecurity(capFloorCMSSpreadSecurity.getLongId());
+      if (shortUnderlying != null) {
+        out.put("shortSecurity", shortUnderlying);
+      }
+      if (longUnderlying != null) {
+        out.put("longSecurity", longUnderlying);
       }
     }
   }
