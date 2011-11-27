@@ -62,6 +62,7 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
 
   private final String _curveDefinitionName;
   private final String _surfaceDefinitionName;
+  @SuppressWarnings("unused")
   private final String _forwardCalculationMethod;
   private final String _strikeParameterizationMethodName;
   private final StrikeParameterization _strikeParameterizationMethod;
@@ -101,7 +102,7 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
     VolatilitySurface volSurface = (VolatilitySurface) volSurfaceObject;
     BlackVolatilitySurface blackVolSurf = new BlackVolatilitySurface(volSurface.getSurface(), _strikeParameterizationMethod);
 
-    Object discountObject = inputs.getValue(getDiscountRequirement(security));
+    Object discountObject = inputs.getValue(getDiscountCurveRequirement(security));
     if (discountObject == null) {
       throw new OpenGammaRuntimeException("Could not get Discount Curve");
     }
@@ -155,7 +156,7 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
   }
 
   // Note that createValueProperties is _not_ used - use will mean the engine can't find the requirement
-  private ValueRequirement getDiscountRequirement(EquityVarianceSwapSecurity security) {
+  private ValueRequirement getDiscountCurveRequirement(EquityVarianceSwapSecurity security) {
     ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, _curveDefinitionName).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, security.getCurrency().getUniqueId(), properties);
   }
@@ -195,7 +196,7 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
     EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
-    return Sets.newHashSet(getDiscountRequirement(security), getVolatilitySurfaceRequirement(security), getSpotRequirement(security));
+    return Sets.newHashSet(getDiscountCurveRequirement(security), getVolatilitySurfaceRequirement(security), getSpotRequirement(security));
     //TODO
 //    return Sets.newHashSet(getForwardRequirement(security), getSpotRequirement(security), getDiscountRequirement(security), getVolatilitySurfaceRequirement(security));
   }
