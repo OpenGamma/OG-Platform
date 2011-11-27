@@ -38,7 +38,7 @@ public class VarianceSwapStaticReplication {
   // TODO CASE Review: Current treatment of forward vol attempts to disallow 'short' periods that may confuse intention of traders.
   // If the entire observation period is less than A_FEW_WEEKS, an error will be thrown.
   // If timeToFirstObs < A_FEW_WEEKS, the pricer will consider the volatility to be from now until timeToLastObs 
-  private static final double A_FEW_WEEKS = 0.05;
+  private static final double A_FEW_WEEKS = 0.0005;
 
   // Vol Extrapolation 
   private final StrikeParameterization _cutoffType; // Whether strike targets are specified as Absolute Strike or Spot Delta levels
@@ -206,7 +206,7 @@ public class VarianceSwapStaticReplication {
     final double timeToFirstObs = deriv.getTimeToObsStart();
 
     Validate.isTrue(timeToFirstObs + A_FEW_WEEKS < timeToLastObs, "timeToLastObs is not sufficiently longer than timeToFirstObs. "
-        + "This method is not intended to handle very short periods of volatility.");
+        + "This method is not intended to handle very short periods of volatility." + (timeToLastObs - timeToFirstObs));
 
     // Compute Variance from spot until last observation
     final double varianceSpotEnd = impliedVarianceFromSpot(timeToLastObs, market);
@@ -272,7 +272,7 @@ public class VarianceSwapStaticReplication {
     /******* Handle strike parameterisation cases separately *******/
 
     /******* Case 1: BlackVolatilityFixedStrikeSurface *******/
-    if (volSurf instanceof BlackVolatilityFixedStrikeSurface) {
+    if (volSurf.getStrikeParameterisation() == StrikeParameterization.STRIKE) {
 
       // 2. Fit the leftExtrapolator to the two target strikes, if provided
       final ShiftedLognormalVolModel leftExtrapolator;
@@ -341,7 +341,7 @@ public class VarianceSwapStaticReplication {
       return variance / expiry;
 
       /******* Case 2: BlackVolatilityDeltaSurface *******/
-    } else if (volSurf instanceof BlackVolatilityDeltaSurface) {
+    } else if (volSurf.getStrikeParameterisation() == StrikeParameterization.CALLDELTA || volSurf.getStrikeParameterisation() == StrikeParameterization.PUTDELTA) {
 
       final boolean axisOfCalls = ((BlackVolatilityDeltaSurface) volSurf).strikeAxisRepresentsCalls();
       final ShiftedLognormalVolModel leftExtrapolator;
