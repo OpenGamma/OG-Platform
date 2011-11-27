@@ -38,7 +38,7 @@ public class VarianceSwapStaticReplication {
   // TODO CASE Review: Current treatment of forward vol attempts to disallow 'short' periods that may confuse intention of traders.
   // If the entire observation period is less than A_FEW_WEEKS, an error will be thrown.
   // If timeToFirstObs < A_FEW_WEEKS, the pricer will consider the volatility to be from now until timeToLastObs 
-  private static final double A_FEW_WEEKS = 0.0005;
+  private static final double A_FEW_WEEKS = 0.05;
 
   // Vol Extrapolation 
   private final StrikeParameterization _cutoffType; // Whether strike targets are specified as Absolute Strike or Spot Delta levels
