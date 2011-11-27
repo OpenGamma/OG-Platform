@@ -14,8 +14,10 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -27,6 +29,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
+import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
+import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
@@ -76,13 +80,27 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
   }
 
   @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (target.getType() != ComputationTargetType.SECURITY) {
+      return false;
+    }
+    final Security security = target.getSecurity();
+    return security instanceof SwaptionSecurity || 
+       (security instanceof SwapSecurity && 
+         (SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_FIXED_CMS ||
+          SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS ||
+          SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS)) ||
+       security instanceof CapFloorSecurity; 
+  }
+  
+  @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final InstrumentDefinition<?> definition = security.accept(getVisitor());
-    final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(target, inputs));
+    final SABRInterestRateDataBundle data = getModelParameters(target, inputs);
     final InstrumentDerivative derivative = getConverter().convert(security, definition, now, new String[] {getFundingCurveName(), getForwardCurveName()}, dataSource);
     final Currency ccy = FinancialSecurityUtils.getCurrency(security);
     final PresentValueSABRSensitivityDataBundle presentValue = CALCULATOR.visit(derivative, data);
@@ -90,7 +108,8 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
         .with(ValuePropertyNames.CURRENCY, ccy.getCode())
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
-        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
+        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName())
+        .with(ValuePropertyNames.CALCULATION_METHOD, isUseSABRExtrapolation() ? SABR_RIGHT_EXTRAPOLATION : SABR_NO_EXTRAPOLATION).get();
     final ValueSpecification alphaSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.toSpecification(), resultProperties);
     final ValueSpecification nuSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.toSpecification(), resultProperties);
     final ValueSpecification rhoSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, target.toSpecification(), resultProperties);
@@ -217,12 +236,18 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
 
     @Override
     public DoubleLabelledMatrix2D visitCapFloorSecurity(CapFloorSecurity security) {
-      return null;
+      final Map.Entry<DoublesPair, Double> entry = _data.entrySet().iterator().next();
+      return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first},
+                                        new Double[] {entry.getKey().second},
+                                        new double[][] {new double[] {entry.getValue()}});
     }
 
     @Override
     public DoubleLabelledMatrix2D visitCapFloorCMSSpreadSecurity(CapFloorCMSSpreadSecurity security) {
-      return null;
+      final Map.Entry<DoublesPair, Double> entry = _data.entrySet().iterator().next();
+      return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first},
+                                        new Double[] {entry.getKey().second},
+                                        new double[][] {new double[] {entry.getValue()}});
     }
 
     @Override
