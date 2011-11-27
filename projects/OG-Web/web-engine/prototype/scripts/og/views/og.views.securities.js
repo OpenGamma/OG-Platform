@@ -1,5 +1,5 @@
 /*
- * @copyright 2009 - present by OpenGamma Inc
+ * @copyright 2011 - present by OpenGamma Inc
  * @license See distribution for license
  */
 $.register_module({
