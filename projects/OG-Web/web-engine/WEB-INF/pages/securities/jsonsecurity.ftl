@@ -82,7 +82,13 @@
         <#if futureSecurityType == "BondFuture">
             "underlyingBond":{<#list basket?keys as key>"${key}":"${basket[key]}"<#if key_has_next>,</#if></#list>},
         <#else>
-            "underlyingId":"${security.underlyingId.scheme.name}-${security.underlyingId.value}",
+            <#if security.underlyingId??>
+              "underlyingId":"${security.underlyingId.scheme.name}-${security.underlyingId.value}",
+            </#if>
+            <#if underlyingSecurity??>
+              "underlyingName":"${underlyingSecurity.name}",
+              "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
+            </#if>
         </#if>
 
         <#break>
@@ -95,8 +101,10 @@
         "pointValue":"${security.pointValue}",
         "strike":"${security.strike}",
         "underlyingExternalId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
-        "underlyingName":"${underlyingSecurity.name}",
-        "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
+        <#if underlyingSecurity??>
+          "underlyingName":"${underlyingSecurity.name}",
+          "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
+        </#if>
         <#break>
       <#case "EQUITY_BARRIER_OPTION">
         "currency":"${security.currency}",
@@ -107,9 +115,10 @@
         "pointValue":"${security.pointValue}",
         "strike":"${security.strike}",
         "underlyingExternalId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
-        "underlyingName":"${underlyingSecurity.name}",
-        "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
-        
+        <#if underlyingSecurity??>
+          "underlyingName":"${underlyingSecurity.name}",
+          "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
+        </#if>
         
         "barrierDirection":"${security.barrierDirection}",
         "barrierLevel":"${security.barrierLevel}",
@@ -259,6 +268,9 @@
         "isLong":"${security.long?string?upper_case}",
         "isPayer":"${security.payer?string?upper_case}",
         "underlyingId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
+                "underlyingExternalId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
+        "underlyingName":"${underlyingSecurity.name}",
+        "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
         <#break>
        <#case "IRFUTURE_OPTION">
         "currency":"${security.currency}",
@@ -270,6 +282,9 @@
         "pointValue":"${security.pointValue}",
         "strike":"${security.strike}",
         "underlyingId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
+                "underlyingExternalId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
+        "underlyingName":"${underlyingSecurity.name}",
+        "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
         <#break>
     </#switch>
     "name": "${security.name}",

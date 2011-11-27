@@ -91,7 +91,7 @@ $.register_module({
                         layout.inner.close('south');
                     } else layout.inner.open('south');
                     layout.inner.options.south.onclose = function () {
-                        routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
+                        routes.go(routes.hash(rule, args, {del: ['version']}));
                     };
                 }
             },
@@ -164,6 +164,10 @@ $.register_module({
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
                             $('.ui-layout-inner-center .ui-layout-content').html(content);
                             ui.toolbar(options.toolbar.active);
+                            (function () {
+                                /* load timeseries */
+                                //$('.OG-details-positions .og-timeseries').html('test');
+                            }());
                             if (json.template_data && json.template_data.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);
                                 layout.inner.sizePane('north', '0');

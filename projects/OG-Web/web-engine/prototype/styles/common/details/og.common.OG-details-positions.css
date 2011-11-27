@@ -1,0 +1,21 @@
+.OG-details-positions .OG-table {
+  margin-bottom: 2px;
+}
+
+.OG-details-positions > div {
+  background-color: #ecf5fa;
+  padding: 10px;
+}
+
+.OG-details-positions .og-securities td {
+  padding: 4px;
+}
+
+.OG-details-positions .og-securities tr td:first-child {
+  color: #999;
+  padding-right: 30px;
+}
+
+.OG-details-positions .og-timeseries {
+  float: right;
+}

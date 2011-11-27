@@ -71,6 +71,7 @@
   <bundle id="common.details.css">
     <fragment>/styles/common/details/og.common.OG-details-content.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details-grid.css</fragment>
+    <fragment>/styles/common/details/og.common.OG-details-positions.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-timeseries.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-holiday.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-region.css</fragment>
@@ -223,6 +224,7 @@
     <!-- config forms -->
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.default.js</fragment> <!-- keep this first! -->
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.currencymatrix.js</fragment>
+    <fragment>/scripts/og/views/config_forms/og.views.config_forms.currencypairs.js</fragment>
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.curvespecificationbuilderconfiguration.js</fragment>
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.futurepricecurvedefinition.js</fragment>
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.futurepricecurvespecification.js</fragment>

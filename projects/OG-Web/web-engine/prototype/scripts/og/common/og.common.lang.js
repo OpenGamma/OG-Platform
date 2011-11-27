@@ -1,17 +1,19 @@
 /*
- * @copyright 2009 - present by OpenGamma Inc
+ * @copyright 2011 - present by OpenGamma Inc
  * @license See distribution for license
  */
 $.register_module({
     name: 'og.common.lang',
     dependencies: [],
     obj: function () {
-        return function (str, bool) {
-            return ({
+        return function (str, skip_format) {
+            var map = {
+                '': '(empty value)',
                 'AUTO': 'Auto',
                 'BLOOMBERG_TICKER': 'Bloomberg Ticker',
                 'bloombergTicker': 'Bloomberg Ticker',
                 'BLOOMBERG_BUID': 'Bloomberg BUID',
+                'BLOOMBERG_TCM': 'Bloomberg TCM',
                 'buySell': 'Buy Sell',
                 'BUY_LONG': 'Buy Long',
                 'BUY': 'Buy',
@@ -33,12 +35,13 @@ $.register_module({
                 'PLAIN_VANILLA': 'Plain Vanilla',
                 'settlementDate': 'Settlement Date',
                 'SELL': 'Sell',
-                'SWAPTION': 'Swapton'
-            })[str] || (str.substring(0, 13) === 'com.opengamma' && str)
-                    || (bool === void 0 ? str
-                    .replace(/([a-z])([A-Z])/g, '$1 $2') // add space between uppercase character
-                    .replace(/^[a-z]/, function(txt){return txt.toUpperCase()}) : // uppercase first character
-                str);
+                'SWAPTION': 'Swaption'
+            }, og_class = 'com.opengamma';
+            if (map[str]) return map[str];
+            if (0 === str.indexOf(og_class)) return str;
+            if (skip_format) return str;
+            return str.replace(/([a-z])([A-Z])/g, '$1 $2') // first add space between uppercase characters
+                .replace(/^[a-z]/, function (chr) {return chr.toUpperCase();}); // then uppercase first character
         }
     }
 });
