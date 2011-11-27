@@ -253,7 +253,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           marketValues[i] = marketValue;
         }
         derivatives.add(derivative);
-        initialRatesGuess[i++] = 0.01;
+        initialRatesGuess[i] = marketValue;
+        i++;
         fundingNodeTimes[fundingIndex] = LAST_DATE_CALCULATOR.visit(derivative);
         fundingIndex++;
       }
@@ -265,11 +266,18 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         }
         final double marketValue = forwardMarketValue;
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
-        InstrumentDerivative derivative;
+        InstrumentDerivative derivative = null;
         final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper
             .getCurveNamesForForwardCurveInstrument(strip.getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
-        final InstrumentDefinition<?> definition = _securityConverter.visit(financialSecurity);
+        try {
+          final InstrumentDefinition<?> definition = _securityConverter.visit(financialSecurity);
         derivative = _definitionConverter.convert(financialSecurity, definition, now, curveNames, dataSource);
+        } catch(Exception e) {
+          
+          @SuppressWarnings("unused")
+          final InstrumentDefinition<?> definition = _securityConverter.visit(financialSecurity);
+          System.err.println(financialSecurity);          
+        }
         if (derivative == null) {
           throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);
         }
@@ -279,7 +287,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           marketValues[i] = marketValue;
         }
         derivatives.add(derivative);
-        initialRatesGuess[i++] = 0.01;
+        initialRatesGuess[i] = marketValues[i];
+        i++;
         forwardNodeTimes[forwardIndex] = LAST_DATE_CALCULATOR.visit(derivative);
         forwardIndex++;
       }
@@ -311,7 +320,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         s_logger.warn("Could not find root using SV decomposition and " + _calculationType + " method for curves " + _fundingCurveDefinitionName + " and " + _forwardCurveDefinitionName
             + ". Error was: " + eSV.getMessage());
         throw new OpenGammaRuntimeException("Could not find curves " + _fundingCurveDefinition.getName() + " (" + _fundingCurveDefinition.getCurrency() + "), " + _forwardCurveDefinitionName + " ("
-            + _forwardCurveDefinition.getCurrency() + ") using SV decomposition", eSV);
+            + _forwardCurveDefinition.getCurrency() + ") using SV decomposition and calculation method " + _calculationType);
       }
       final double[] fundingYields = Arrays.copyOfRange(yields, 0, fundingNodeTimes.length);
       final double[] forwardYields = Arrays.copyOfRange(yields, fundingNodeTimes.length, yields.length);

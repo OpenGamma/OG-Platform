@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
+import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -39,6 +40,8 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapFunction;
+import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.tuple.Pair;
@@ -96,7 +99,9 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
       throw new OpenGammaRuntimeException("Couldn't find Equity Option Volatility Surface Specification " + _specificationName);
     }
     _result = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition.getTarget().getUniqueId()),
-        createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName).with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType).get());
+        createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName)
+                               .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
+                               .with(EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD, VarianceSwapStaticReplication.StrikeParameterization.STRIKE.toString()).get());
     _results = Collections.singleton(_result);
   }
 
@@ -122,8 +127,9 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
         result.add(new ValueRequirement(provider.getDataFieldName(), callIdentifier));
       }
     }
-    // add the underlying
-    result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, definition.getTarget().getUniqueId()));
+    // add the underlying    
+    ExternalId temp = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, definition.getTarget().getUniqueId().getValue());
+    result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, temp));
     return result;
   }
 
@@ -170,7 +176,8 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) {
         final Clock snapshotClock = executionContext.getValuationClock();
-        final ValueRequirement underlyingSpotValueRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, _definition.getTarget().getUniqueId());
+        ExternalId temp = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, _definition.getTarget().getUniqueId().getValue());
+        final ValueRequirement underlyingSpotValueRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, temp);        
         final Double underlyingSpot = (Double) inputs.getValue(underlyingSpotValueRequirement);
         if (underlyingSpot == null) {
           s_logger.error("Could not get underlying spot value for " + _definition.getTarget().getUniqueId());

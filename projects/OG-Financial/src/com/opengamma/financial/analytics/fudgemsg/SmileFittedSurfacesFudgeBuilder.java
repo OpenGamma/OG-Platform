@@ -21,6 +21,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.volatility.cube.fitting.FittedSmileDataPoints;
 import com.opengamma.financial.analytics.volatility.fittedresults.HestonFittedSurfaces;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
+import com.opengamma.financial.analytics.volatility.surface.fitting.SurfaceFittedSmileDataPoints;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
@@ -190,7 +191,37 @@ import com.opengamma.util.tuple.Pair;
         serializer.addToMessageObject(message, EXTERNAL_IDS_ARRAY_FIELD_NAME, null, Arrays.asList(entry.getValue()), List.class);
         serializer.addToMessageObject(message, RELATIVE_STRIKES_ARRAY_FIELD_NAME, null, Arrays.asList(relativeStrikes.get(entry.getKey())), List.class);
       }
-    }
-  
+    }  
   }
+  
+  @FudgeBuilderFor(SurfaceFittedSmileDataPoints.class)
+  public static final class SurfaceFittedSmileDataPointsBuilder extends AbstractFudgeBuilder<SurfaceFittedSmileDataPoints> {
+    public static final String T_FIELD_NAME = "t field";
+    public static final String K_FIELD_NAME = "k field";
+    
+    @Override
+    public SurfaceFittedSmileDataPoints buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+      final List<FudgeField> tFields = message.getAllByName(T_FIELD_NAME);
+      final List<FudgeField> kFields = message.getAllByName(K_FIELD_NAME);
+      final Map<Double, List<Double>> map = new HashMap<Double, List<Double>>();
+      for (int i = 0; i < tFields.size(); i++) {
+        Double t = deserializer.fieldValueToObject(Double.class, tFields.get(i));
+        @SuppressWarnings("unchecked")
+        List<Double> ks = deserializer.fieldValueToObject(List.class, kFields.get(i));
+        map.put(t, ks);
+      }
+      return new SurfaceFittedSmileDataPoints(map);
+    }
+
+    @Override
+    protected void buildMessage(FudgeSerializer serializer, MutableFudgeMsg message, SurfaceFittedSmileDataPoints object) {
+      final Map<Double, List<Double>> map = object.getData();
+      for (final Map.Entry<Double, List<Double>> entry : map.entrySet()) {
+        message.add(T_FIELD_NAME, null, entry.getKey());
+        serializer.addToMessageObject(message, K_FIELD_NAME, null, entry.getValue(), List.class);
+      }
+    }
+    
+  }
+
 }

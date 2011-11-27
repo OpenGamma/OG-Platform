@@ -206,7 +206,7 @@ public class VarianceSwapStaticReplication {
     final double timeToFirstObs = deriv.getTimeToObsStart();
 
     Validate.isTrue(timeToFirstObs + A_FEW_WEEKS < timeToLastObs, "timeToLastObs is not sufficiently longer than timeToFirstObs. "
-        + "This method is not intended to handle very short periods of volatility.");
+        + "This method is not intended to handle very short periods of volatility." + (timeToLastObs - timeToFirstObs));
 
     // Compute Variance from spot until last observation
     final double varianceSpotEnd = impliedVarianceFromSpot(timeToLastObs, market);
@@ -237,7 +237,7 @@ public class VarianceSwapStaticReplication {
     final BlackVolatilitySurface volSurf = market.getVolatilitySurface();
 
     if (_cutoffType != null) {
-      if (volSurf instanceof BlackVolatilityDeltaSurface) {
+      if (volSurf.getStrikeParameterisation() == StrikeParameterization.PUTDELTA || volSurf.getStrikeParameterisation() == StrikeParameterization.CALLDELTA) {
         Validate.isTrue(_cutoffType == StrikeParameterization.PUTDELTA || _cutoffType == StrikeParameterization.CALLDELTA,
             "Left Tail extrapolation type is not consistent with Vol Surface, BlackVolatilityDeltaSurface. The cutoff must be of type PUTDELTA or CALLDELTA.");
 
@@ -257,7 +257,7 @@ public class VarianceSwapStaticReplication {
           }
         }
 
-      } else if (volSurf instanceof BlackVolatilityFixedStrikeSurface) {
+      } else if (volSurf.getStrikeParameterisation() == StrikeParameterization.STRIKE) {
         Validate.isTrue(_cutoffType == StrikeParameterization.STRIKE,
             "Left Tail extrapolation type is not consistent with Vol Surface, BlackVolatilityFixedStrikeSurface. The cutoff must be of type STRIKE.");
       } else {
@@ -272,7 +272,7 @@ public class VarianceSwapStaticReplication {
     /******* Handle strike parameterisation cases separately *******/
 
     /******* Case 1: BlackVolatilityFixedStrikeSurface *******/
-    if (volSurf instanceof BlackVolatilityFixedStrikeSurface) {
+    if (volSurf.getStrikeParameterisation() == StrikeParameterization.STRIKE) {
 
       // 2. Fit the leftExtrapolator to the two target strikes, if provided
       final ShiftedLognormalVolModel leftExtrapolator;
@@ -341,7 +341,7 @@ public class VarianceSwapStaticReplication {
       return variance / expiry;
 
       /******* Case 2: BlackVolatilityDeltaSurface *******/
-    } else if (volSurf instanceof BlackVolatilityDeltaSurface) {
+    } else if (volSurf.getStrikeParameterisation() == StrikeParameterization.CALLDELTA || volSurf.getStrikeParameterisation() == StrikeParameterization.PUTDELTA) {
 
       final boolean axisOfCalls = ((BlackVolatilityDeltaSurface) volSurf).strikeAxisRepresentsCalls();
       final ShiftedLognormalVolModel leftExtrapolator;

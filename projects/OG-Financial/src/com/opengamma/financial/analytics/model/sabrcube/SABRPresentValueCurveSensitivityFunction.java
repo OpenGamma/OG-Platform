@@ -59,7 +59,7 @@ public class SABRPresentValueCurveSensitivityFunction extends SABRFunction {
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final InstrumentDefinition<?> definition = security.accept(getVisitor());
-    final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(target, inputs));
+    final SABRInterestRateDataBundle data = getModelParameters(target, inputs);
     final InstrumentDerivative derivative = getConverter().convert(security, definition, now, new String[] {getFundingCurveName(), getForwardCurveName()}, dataSource);
     final Map<String, List<DoublesPair>> presentValueCurveSensitivity = _calculator.visit(derivative, data);
     final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(presentValueCurveSensitivity);

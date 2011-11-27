@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.volatility.surface.fitting;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
@@ -70,6 +71,7 @@ public class SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction extends Abs
   private String _definitionName;
   private ValueRequirement _surfaceRequirement;
   private ValueRequirement _futurePriceRequirement;
+  private ValueSpecification _fittedPointsSpecification;
 
   static {
     FIXED.set(1);
@@ -98,6 +100,7 @@ public class SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction extends Abs
           .with(ValuePropertyNames.SURFACE, _definitionName)
           .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION").get();
     _resultSpecification = new ValueSpecification(ValueRequirementNames.SABR_SURFACES, currencyTargetSpec, resultProperties);
+    _fittedPointsSpecification = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_FITTED_POINTS, currencyTargetSpec, resultProperties);
   }
 
   @Override
@@ -113,7 +116,7 @@ public class SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction extends Abs
       throw new OpenGammaRuntimeException("Could not get futures price data");
     }
     @SuppressWarnings("unchecked")
-    final FuturePriceCurveData<Double> futurePriceData = (FuturePriceCurveData<Double>) objectFuturePriceData;
+    final FuturePriceCurveData<Double> futurePriceData = (FuturePriceCurveData<Double>) objectFuturePriceData;    
     //assumes that the sorting is first x, then y
     if (volatilitySurfaceData.size() == 0) {
       throw new OpenGammaRuntimeException("Interest rate future option volatility surface definition name=" + _definitionName + " contains no data");
@@ -127,30 +130,37 @@ public class SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction extends Abs
     final DoubleArrayList rhoList = new DoubleArrayList();
     final DoubleArrayList chiSqList = new DoubleArrayList();
     final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = new HashMap<DoublesPair, DoubleMatrix2D>();
+    final Map<Double, List<Double>> dataPointsForStrip = new HashMap<Double, List<Double>>();
     for (Double t : x) {
-      List<ObjectsPair<Double, Double>> strip = volatilitySurfaceData.getYValuesForX(t);
-      int n = strip.size();
-      int strikeIndex = 0;
-      double[] errors = new double[n];
-      double[] strikes = new double[n];
-      double[] blackVols = new double[n];
-      double forward = futurePriceData.getFuturePrice(t);
-      if (strip.size() > 4) {
+      final List<Double> fittedPointsForStrip = new ArrayList<Double>();
+      final List<ObjectsPair<Double, Double>> strip = volatilitySurfaceData.getYValuesForX(t);
+      final DoubleArrayList errors = new DoubleArrayList();
+      final DoubleArrayList strikes = new DoubleArrayList();
+      final DoubleArrayList blackVols = new DoubleArrayList();
+      final Double forward = futurePriceData.getFuturePrice(t);      
+      if (strip.size() > 4 && forward != null) {        
         for (ObjectsPair<Double, Double> value : strip) {
-          strikes[strikeIndex] = 1 - value.first / 100;
-          blackVols[strikeIndex] = value.second;
-          errors[strikeIndex++] = ERROR;
+          if (value.second != null) {
+            strikes.add(1 - value.first / 100);
+            blackVols.add(value.second);
+            errors.add(ERROR);
+            fittedPointsForStrip.add(value.first);
+          }
         }
-        final LeastSquareResultsWithTransform fittedResult = new SABRModelFitter(forward, strikes, t, blackVols, errors, SABR_FUNCTION).solve(SABR_INITIAL_VALUES, FIXED);
-        final DoubleMatrix1D parameters = fittedResult.getModelParameters();
-        fittedOptionExpiryList.add(t);
-        futureDelayList.add(0);
-        alphaList.add(parameters.getEntry(0));
-        betaList.add(parameters.getEntry(1));
-        nuList.add(parameters.getEntry(2));
-        rhoList.add(parameters.getEntry(3));
-        inverseJacobians.put(DoublesPair.of(t.doubleValue(), 0.), fittedResult.getModelParameterSensitivityToData());
-        chiSqList.add(fittedResult.getChiSq());
+        if (blackVols.size() > 4) {
+          final LeastSquareResultsWithTransform fittedResult = 
+            new SABRModelFitter(forward, strikes.toDoubleArray(), t, blackVols.toDoubleArray(), errors.toDoubleArray(), SABR_FUNCTION).solve(SABR_INITIAL_VALUES, FIXED);
+          final DoubleMatrix1D parameters = fittedResult.getModelParameters();
+          fittedOptionExpiryList.add(t);
+          futureDelayList.add(0);
+          alphaList.add(parameters.getEntry(0));
+          betaList.add(parameters.getEntry(1));
+          nuList.add(parameters.getEntry(2));
+          rhoList.add(parameters.getEntry(3));
+          inverseJacobians.put(DoublesPair.of(t.doubleValue(), 0.), fittedResult.getModelParameterSensitivityToData());
+          chiSqList.add(fittedResult.getChiSq());
+          dataPointsForStrip.put(t, fittedPointsForStrip);
+        }
       }
     }
     if (fittedOptionExpiryList.size() < 5) { //don't have sufficient fits to construct a surface
@@ -167,7 +177,7 @@ public class SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction extends Abs
     final VolatilitySurface nuSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(fittedOptionExpiry, futureDelay, nu, INTERPOLATOR, "SABR nu surface"));
     final VolatilitySurface rhoSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(fittedOptionExpiry, futureDelay, rho, INTERPOLATOR, "SABR rho surface"));
     final SABRFittedSurfaces fittedSurfaces = new SABRFittedSurfaces(alphaSurface, betaSurface, nuSurface, rhoSurface, inverseJacobians, _currency, DAY_COUNT);
-    return Sets.newHashSet(new ComputedValue(_resultSpecification, fittedSurfaces));
+    return Sets.newHashSet(new ComputedValue(_resultSpecification, fittedSurfaces), new ComputedValue(_fittedPointsSpecification, new SurfaceFittedSmileDataPoints(dataPointsForStrip)));
   }
 
   @Override
@@ -190,6 +200,6 @@ public class SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction extends Abs
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Sets.newHashSet(_resultSpecification);
+    return Sets.newHashSet(_resultSpecification, _fittedPointsSpecification);
   }
 }

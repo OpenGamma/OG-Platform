@@ -30,6 +30,7 @@ import com.opengamma.financial.analytics.model.VegaMatrixHelper;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.analytics.volatility.cube.fitting.FittedSmileDataPoints;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
+import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -68,7 +69,7 @@ public class SABRVegaFunction extends SABRFunction {
   
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(target, inputs));
+    final SABRInterestRateDataBundle data = getModelParameters(target, inputs);
     final ValueProperties sensitivityProperties = getModelSensitivityProperties(FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
     final Object alphaSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.getSecurity(), sensitivityProperties));
     if (alphaSensitivityObject == null) {
@@ -156,12 +157,13 @@ public class SABRVegaFunction extends SABRFunction {
 
 
   private ValueSpecification getResultSpec(final ComputationTarget target) {
-    return new ValueSpecification(ValueRequirementNames.VEGA_QUOTE_MATRIX, target.toSpecification(),
+    return new ValueSpecification(ValueRequirementNames.VEGA_QUOTE_CUBE, target.toSpecification(),
         createValueProperties()
             .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode())
             .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
             .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
             .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName())
-            .with(ValuePropertyNames.CALCULATION_METHOD, isUseSABRExtrapolation() ? SABR_RIGHT_EXTRAPOLATION : SABR_NO_EXTRAPOLATION).get());
+            .with(ValuePropertyNames.CALCULATION_METHOD, isUseSABRExtrapolation() ? SABR_RIGHT_EXTRAPOLATION : SABR_NO_EXTRAPOLATION)
+            .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "SWAPTION_CUBE").get());
   }
 }
