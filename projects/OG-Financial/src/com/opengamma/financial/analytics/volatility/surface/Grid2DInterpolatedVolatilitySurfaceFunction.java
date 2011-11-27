@@ -5,14 +5,21 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+
 import java.util.Collections;
 import java.util.Set;
+
+import javax.time.calendar.Clock;
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -27,14 +34,20 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapFunction;
+import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.math.surface.Surface;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
  */
-public class Grid2DInterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
+public class Grid2DInterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker { //TODO rename or make less specific to equity vol surfaces
   private final String _definitionName;
   private final String _instrumentType;
   private final GridInterpolator2D _interpolator;
@@ -69,42 +82,50 @@ public class Grid2DInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
       throw new OpenGammaRuntimeException("Couldn't find Volatility Surface Definition for " + _instrumentType + " called " + _definitionName);
     }
     ValueProperties surfaceProperties = ValueProperties.builder()
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType).get();
+        .with(ValuePropertyNames.SURFACE, _definitionName)
+        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
+        .with(EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD, VarianceSwapStaticReplication.StrikeParameterization.STRIKE.toString()).get();
     _requirement = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, _definition.getTarget(), surfaceProperties);
-    _result = new ValueSpecification(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition.getTarget()),
-        createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName).with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType).get());
+    _result = new ValueSpecification(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, new ComputationTargetSpecification(_definition.getTarget()),
+        createValueProperties()
+          .with(ValuePropertyNames.SURFACE, _definitionName)
+          .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
+          .with(EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD, VarianceSwapStaticReplication.StrikeParameterization.STRIKE.toString()).get());
     _results = Collections.singleton(_result);
   }
 
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
-
-    return null;
-
-    /* FIXME Case START HERE 
-    ValueRequirement volatilitySurfaceRequirement = getVolatilitySurfaceRequirement();
-    final Object volatilitySurfaceDataObject = inputs.getValue(volatilitySurfaceRequirement);
+    final Clock snapshotClock = executionContext.getValuationClock();
+    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final Object volatilitySurfaceDataObject = inputs.getValue(_requirement);
     if (volatilitySurfaceDataObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + volatilitySurfaceRequirement);
+      throw new OpenGammaRuntimeException("Could not get " + _requirement);
     }
     @SuppressWarnings("unchecked")
-    VolatilitySurfaceData<Double, Double> volatilitySurfaceData = (VolatilitySurfaceData<Double, Double>) volatilitySurfaceDataObject;
-    int n = volatilitySurfaceData.getXs().length;
-    double[] t = new double[n];
-    double[] k = new double[n];
-    double[] sigma = new double[n];
-    Double[] x = volatilitySurfaceData.getXs();
-    Double[] y = volatilitySurfaceData.getYs();
+    final VolatilitySurfaceData<LocalDate, Double> volatilitySurfaceData = (VolatilitySurfaceData<LocalDate, Double>) volatilitySurfaceDataObject;
+    final int n = volatilitySurfaceData.getXs().length;
+    final int m = volatilitySurfaceData.getYs().length;
+    final DoubleArrayList t = new DoubleArrayList();
+    final DoubleArrayList k = new DoubleArrayList();
+    final DoubleArrayList sigma = new DoubleArrayList();
+    final LocalDate[] xDates = volatilitySurfaceData.getXs();
+    final Double[] y = volatilitySurfaceData.getYs();
     for (int i = 0; i < n; i++) {
-      t[i] = x[i];
-      k[i] = y[i];
-      sigma[i] = volatilitySurfaceData.getVolatility(x[i], y[i]);
+      Double time = DateUtils.getDifferenceInYears(now.toLocalDate(), xDates[i]);
+      for (int j = 0; j < m; j++) {
+        Double strike = y[j];
+        Double vol = volatilitySurfaceData.getVolatility(xDates[i], y[j]);
+        if (time != null && strike != null && vol != null) {
+          t.add(time);
+          k.add(strike);      
+          sigma.add(vol);
+        }
+      }
     }
-    Surface<Double, Double, Double> surface = InterpolatedDoublesSurface.from(t, k, sigma, _interpolator);
-    VolatilitySurface volatilitySurface = new VolatilitySurface(surface);
-    return null;
-    return Collections.singleton(new ComputedValue(getResultSpec(), volatilitySurface));
-    */
+    final Surface<Double, Double, Double> surface = InterpolatedDoublesSurface.from(t.toDoubleArray(), k.toDoubleArray(), sigma.toDoubleArray(), _interpolator);
+    final VolatilitySurface volatilitySurface = new VolatilitySurface(surface);
+    return Collections.singleton(new ComputedValue(_result, volatilitySurface));
   }
 
   @Override

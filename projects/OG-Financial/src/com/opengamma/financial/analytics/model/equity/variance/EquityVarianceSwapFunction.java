@@ -19,7 +19,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.position.impl.SimpleTrade;
+import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -39,7 +39,6 @@ import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurface
 import com.opengamma.financial.equity.variance.VarianceSwapDataBundle;
 import com.opengamma.financial.equity.variance.definition.VarianceSwapDefinition;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
-import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication.StrikeParameterization;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
@@ -49,15 +48,14 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
+import com.opengamma.util.time.TimeCalculator;
 
 /**
  * 
  */
-public class EquityVarianceSwapPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCompiledInvoker {
   /** */
   public static final String STRIKE_PARAMETERIZATION_METHOD = "StrikeParameterizationMethod";
-  private static final VarianceSwapStaticReplication CALCULATOR = new VarianceSwapStaticReplication();
-  private static final String VALUE_REQUIREMENT = ValueRequirementNames.PRESENT_VALUE;
   private static final String FIELD_NAME = HistoricalTimeSeriesFields.LAST_PRICE;
 
   private EquityVarianceSwapConverter _converter; // set in init()
@@ -68,7 +66,7 @@ public class EquityVarianceSwapPresentValueFunction extends AbstractFunction.Non
   private final String _strikeParameterizationMethodName;
   private final StrikeParameterization _strikeParameterizationMethod;
 
-  public EquityVarianceSwapPresentValueFunction(String curveDefinitionName, String surfaceDefinitionName, String forwardCalculationMethod, String strikeParameterizationMethodName) {
+  public EquityVarianceSwapFunction(String curveDefinitionName, String surfaceDefinitionName, String forwardCalculationMethod, String strikeParameterizationMethodName) {
     Validate.notNull(curveDefinitionName, "curve definition name");
     Validate.notNull(surfaceDefinitionName, "surface definition name");
     Validate.notNull(forwardCalculationMethod, "forward calculation method");
@@ -84,15 +82,14 @@ public class EquityVarianceSwapPresentValueFunction extends AbstractFunction.Non
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
 
     // 1. Build the analytic derivative to be priced
-    SimpleTrade trade = (SimpleTrade) target.getTrade(); // confirms that the ComputationTargetType == TRADE
-    EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) trade.getSecurity();
+    EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
     ExternalId id = security.getSpotUnderlyingId();
 
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
 
-    VarianceSwapDefinition defn = _converter.visitEquityVarianceSwapTrade(trade);
+    VarianceSwapDefinition defn = _converter.visitEquityVarianceSwapTrade(security);
     final HistoricalTimeSeries timeSeries = dataSource.getHistoricalTimeSeries(FIELD_NAME, ExternalIdBundle.of(id), null);
     VarianceSwap deriv = defn.toDerivative(now, timeSeries.getTimeSeries());
 
@@ -116,39 +113,43 @@ public class EquityVarianceSwapPresentValueFunction extends AbstractFunction.Non
     }
     double spot = (Double) spotObject;
 
-    Object forwardObject = inputs.getValue(getForwardRequirement(security));
-    if (forwardObject == null) {
-      throw new OpenGammaRuntimeException("Could not get Underlying's Forward Value");
-    }
-    double forward = (Double) forwardObject;
-
+//    Object forwardObject = inputs.getValue(getForwardRequirement(security));
+//    ValueRequirement temp = getForwardRequirement(security);
+//    if (forwardObject == null) {
+//      throw new OpenGammaRuntimeException("Could not get Underlying's Forward Value");
+//    }
+    
+    //TODO remove this when the forward is coming through the engine
+    double expiry = TimeCalculator.getTimeBetween(executionContext.getValuationClock().zonedDateTime(), security.getLastObservationDate());
+    final double discountFactor = discountCurve.getDiscountFactor(expiry);
+    Validate.isTrue(discountFactor != 0, "The discount curve has returned a zero value for a discount bond. Check rates.");
+    final double forward = spot / discountFactor;
+//
     VarianceSwapDataBundle market = new VarianceSwapDataBundle(blackVolSurf, discountCurve, spot, forward);
-
-    // 3. Compute and return the present value (ComputedValue)
-    // Note that this may later be done via a getComputedValues method specific to the Function ( e.g. for EquityVarianceSwapPV01Function ) 
-    double presentValue = CALCULATOR.presentValue(deriv, market);
-
-    ValueSpecification valueSpec = getValueSpecification(security);
-    return Collections.singleton(new ComputedValue(valueSpec, presentValue));
+//    // 3. Compute and return the value (ComputedValue)
+    return getResults(target, inputs, deriv, market);
   }
 
-  // Note that the properties are created using createValueProperties() - this sets the name of the function in the properties.
-  // Not using this means that this function will not work
-  private ValueSpecification getValueSpecification(EquityVarianceSwapSecurity security) {
-    ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode()).get();
-    ValueRequirement requirement = new ValueRequirement(VALUE_REQUIREMENT, ComputationTargetType.SECURITY, security.getUniqueId());
-    return new ValueSpecification(requirement, properties);
-  }
+  protected abstract Set<ComputedValue> getResults(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final VarianceSwapDataBundle market);
 
-  private ValueRequirement getForwardRequirement(EquityVarianceSwapSecurity security) {
-    ExternalId id = security.getSpotUnderlyingId();
-    ValueProperties properties = ValueProperties.builder().with(EquityForwardFromSpotAndYieldCurveFunction.FORWARD_CALCULATION_METHOD, _forwardCalculationMethod).get();
-    return new ValueRequirement(ValueRequirementNames.FORWARD, ComputationTargetType.SECURITY, UniqueId.of(id.getScheme().getName(), id.getValue()), properties);
+  protected abstract ValueSpecification getValueSpecification(final ComputationTarget target);
+  
+  protected String getCurveDefinitionName() {
+    return _curveDefinitionName;
   }
+  
+  
+//  private ValueRequirement getForwardRequirement(EquityVarianceSwapSecurity security) {
+//    ExternalId id = security.getSpotUnderlyingId();
+//    ValueProperties properties = ValueProperties.builder().with(EquityForwardFromSpotAndYieldCurveFunction.FORWARD_CALCULATION_METHOD, _forwardCalculationMethod)
+//                                                          .with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode())
+//                                                          .get();
+//    return new ValueRequirement(ValueRequirementNames.FORWARD, ComputationTargetType.PRIMITIVE, UniqueId.of(id.getScheme().getName(), id.getValue()), properties);
+//  }
 
   private ValueRequirement getSpotRequirement(EquityVarianceSwapSecurity security) {
     ExternalId id = security.getSpotUnderlyingId();
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, UniqueId.of(id.getScheme().getName(), id.getValue()));
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, UniqueId.of(id.getScheme().getName(), id.getValue()));
   }
 
   // Note that createValueProperties is _not_ used - use will mean the engine can't find the requirement
@@ -159,15 +160,18 @@ public class EquityVarianceSwapPresentValueFunction extends AbstractFunction.Non
 
   private ValueRequirement getVolatilitySurfaceRequirement(EquityVarianceSwapSecurity security) {
     ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, _surfaceDefinitionName)
-                                                          .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_VANILLA_OPTIONS")
+                                                          .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION")
                                                           .with(STRIKE_PARAMETERIZATION_METHOD, _strikeParameterizationMethodName)
                                                           .get();
-    ExternalId id = security.getSpotUnderlyingId(); // TODO Case - Review - when thinking about vol surface definitions
-    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, UniqueId.of(id.getScheme().getName(), id.getValue()), properties);
+    ExternalId id = security.getSpotUnderlyingId();
+    UniqueId newId = id.getScheme().equals(SecurityUtils.BLOOMBERG_TICKER) ? UniqueId.of(SecurityUtils.BLOOMBERG_TICKER_WEAK.getName(), id.getValue()) :
+                                                                              UniqueId.of(id.getScheme().getName(), id.getValue());
+    //UniqueId temp = UniqueId.of(SecurityUtils.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index");
+    return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, newId, properties);
   }
 
   @Override
-  public void init(final FunctionCompilationContext context) { // TODO Case - Review the init function
+  public void init(final FunctionCompilationContext context) { 
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     _converter = new EquityVarianceSwapConverter(holidaySource);
 
@@ -175,25 +179,27 @@ public class EquityVarianceSwapPresentValueFunction extends AbstractFunction.Non
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.TRADE;
+    return ComputationTargetType.SECURITY;
   }
 
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.TRADE) {
+    if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    return target.getTrade().getSecurity() instanceof EquityVarianceSwapSecurity;
+    return target.getSecurity() instanceof EquityVarianceSwapSecurity;
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
     EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
-    return Sets.newHashSet(getForwardRequirement(security), getSpotRequirement(security), getDiscountRequirement(security), getVolatilitySurfaceRequirement(security));
+    return Sets.newHashSet(getDiscountRequirement(security), getVolatilitySurfaceRequirement(security), getSpotRequirement(security));
+    //TODO
+//    return Sets.newHashSet(getForwardRequirement(security), getSpotRequirement(security), getDiscountRequirement(security), getVolatilitySurfaceRequirement(security));
   }
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    return Collections.singleton(getValueSpecification((EquityVarianceSwapSecurity) target.getSecurity()));
+    return Collections.singleton(getValueSpecification(target));
   }
 }
