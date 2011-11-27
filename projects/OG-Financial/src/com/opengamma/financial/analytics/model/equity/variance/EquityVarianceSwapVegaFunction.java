@@ -43,7 +43,7 @@ public class EquityVarianceSwapVegaFunction extends EquityVarianceSwapFunction {
     final Set<Double> ySet = new HashSet<Double>(Arrays.asList(yValues));
     final Double[] uniqueX = xSet.toArray(new Double[0]);
     final Double[] uniqueY = ySet.toArray(new Double[0]);
-    final double[][] values = new double[xSet.size()][ySet.size()];
+    final double[][] values = new double[ySet.size()][xSet.size()];
     int i = 0;
     for (final Double x : xSet) {
       int j = 0;
@@ -54,7 +54,7 @@ public class EquityVarianceSwapVegaFunction extends EquityVarianceSwapFunction {
         } catch (IllegalArgumentException e) {
           vega = 0;
         }
-        values[i][j++] = vega;
+        values[j++][i] = vega;
       }
       i++;
     }
