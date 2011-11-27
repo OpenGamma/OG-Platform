@@ -301,7 +301,8 @@ public final class ValueRequirementNames {
   //Vega matrix
   public static final String VEGA_MATRIX = "Vega Matrix";
   public static final String VEGA_QUOTE_MATRIX = "Vega Quote Matrix";
-  
+  public static final String VEGA_QUOTE_CUBE = "Vega Quote Cube";
+
   //Historical Data values
   public static final String DAILY_VOLUME = "Last Volume";
 //  public static final String DAILY_VOLUME_AVG_5D = "Last Volume Avg 5D";
@@ -314,5 +315,6 @@ public final class ValueRequirementNames {
   public static final String DAILY_PRICE = "Last Price";
   
   public static final String VOLATILITY_CUBE_FITTED_POINTS = "Volatility Cube Fitted Points";
+  public static final String VOLATILITY_SURFACE_FITTED_POINTS = "Volatility Surface Fitted Points";
   //CSON
 }
