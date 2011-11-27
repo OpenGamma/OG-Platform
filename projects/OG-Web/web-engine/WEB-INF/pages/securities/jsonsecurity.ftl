@@ -343,7 +343,7 @@
         </#if>
       <#break>
       <#case "EQUITY VARIANCE SWAP">
-        "underlyingSpotId":"${security.spotUnderlyingIdentifier}",
+        "underlyingSpotId":"${security.spotUnderlyingId}",
         "currency":"${security.currency}",
         "strike":"${security.strike}",
         "notional":"${security.notional}",
@@ -352,7 +352,7 @@
         "firstObservationDate":"${security.firstObservationDate.toLocalDate()} - ${security.firstObservationDate.zone}",
         "lastObservationDate":"${security.lastObservationDate.toLocalDate()} - ${security.lastObservationDate.zone}",
         "settlementDate":"${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}",     
-        "region":"${security.region.scheme} - ${security.region.value}",
+        "regionId":"${security.regionId.scheme} - ${security.regionId.value}",
         "observationFrequency":"${security.observationFrequency.conventionName}",
       <#break>  
     </#switch>
