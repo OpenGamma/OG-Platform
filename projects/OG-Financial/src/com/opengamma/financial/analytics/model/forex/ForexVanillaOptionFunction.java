@@ -31,7 +31,8 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  */
 public abstract class ForexVanillaOptionFunction extends ForexOptionFunction {
 
-  public ForexVanillaOptionFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName, final String surfaceName) {
+  public ForexVanillaOptionFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName, 
+      final String surfaceName) {
     super(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
   }
 
