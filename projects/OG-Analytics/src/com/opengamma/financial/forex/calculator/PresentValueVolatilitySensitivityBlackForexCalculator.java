@@ -16,25 +16,25 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 /**
  * Calculator of the volatility sensitivity for Forex derivatives in the Black (Garman-Kohlhagen) world.
  */
-public class PresentValueVolatilitySensitivityBlackCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, PresentValueVolatilitySensitivityDataBundle> {
+public class PresentValueVolatilitySensitivityBlackForexCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, PresentValueVolatilitySensitivityDataBundle> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final PresentValueVolatilitySensitivityBlackCalculator s_instance = new PresentValueVolatilitySensitivityBlackCalculator();
+  private static final PresentValueVolatilitySensitivityBlackForexCalculator s_instance = new PresentValueVolatilitySensitivityBlackForexCalculator();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static PresentValueVolatilitySensitivityBlackCalculator getInstance() {
+  public static PresentValueVolatilitySensitivityBlackForexCalculator getInstance() {
     return s_instance;
   }
 
   /**
    * Constructor.
    */
-  PresentValueVolatilitySensitivityBlackCalculator() {
+  PresentValueVolatilitySensitivityBlackForexCalculator() {
   }
 
   @Override
