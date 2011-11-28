@@ -9,6 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.TimeCalculator;
 
 /**
  * Each time a view is recalculated, the security definition 
@@ -29,8 +30,11 @@ public class EquityIndexDividendFutureDefinition extends EquityFutureDefinition 
 
   @Override
   public EquityIndexDividendFuture toDerivative(final ZonedDateTime date) {
-    return (EquityIndexDividendFuture) super.toDerivative(date);
+    double timeToFixing = TimeCalculator.getTimeBetween(date, getExpiryDate());
+    double timeToDelivery = TimeCalculator.getTimeBetween(date, getSettlementDate());
 
+    EquityIndexDividendFuture newDeriv = new EquityIndexDividendFuture(timeToFixing, timeToDelivery, getStrikePrice(), getCurrency(), getUnitAmount());
+    return newDeriv;
   }
 
 }

@@ -69,7 +69,9 @@ public class DependencyGraphBuilderResourceContextBean implements InitializingBe
 
   public void setCompiledFunctionService(final CompiledFunctionService cfs) {
     setFunctionCompilationContext(cfs.getFunctionCompilationContext());
-    setFunctionResolver(new DefaultFunctionResolver(cfs));
+    if (getFunctionResolver() == null) {
+      setFunctionResolver(new DefaultFunctionResolver(cfs));
+    }
   }
 
   @Override

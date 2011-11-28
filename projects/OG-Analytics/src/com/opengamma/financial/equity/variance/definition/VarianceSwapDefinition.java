@@ -104,8 +104,7 @@ public class VarianceSwapDefinition {
   }
 
   public static VarianceSwapDefinition fromVegaParams(ZonedDateTime obsStartDate, ZonedDateTime obsEndDate, ZonedDateTime settlementDate, PeriodFrequency obsFreq, Currency currency,
-      Calendar calendar,
-      double annualizationFactor, double volStrike, double volNotional) {
+      Calendar calendar, double annualizationFactor, double volStrike, double volNotional) {
     return new VarianceSwapDefinition(obsStartDate, obsEndDate, settlementDate, obsFreq, currency, calendar, annualizationFactor, volStrike, volNotional);
   }
 
@@ -130,8 +129,8 @@ public class VarianceSwapDefinition {
    */
   public VarianceSwap toDerivative(final ZonedDateTime valueDate, final DoubleTimeSeries<LocalDate> underlyingTimeSeries) {
     Validate.notNull(valueDate, "date");
-    double timeToObsStart = TimeCalculator.getTimeBetween(valueDate, _obsEndDate);
-    double timeToObsEnd = TimeCalculator.getTimeBetween(valueDate, _obsStartDate);
+    double timeToObsStart = TimeCalculator.getTimeBetween(valueDate, _obsStartDate);
+    double timeToObsEnd = TimeCalculator.getTimeBetween(valueDate, _obsEndDate);
     double timeToSettlement = TimeCalculator.getTimeBetween(valueDate, _settlementDate);
     
     Validate.notNull(underlyingTimeSeries, "A TimeSeries of observations must be provided. If observations have not begun, please pass an empty series.");

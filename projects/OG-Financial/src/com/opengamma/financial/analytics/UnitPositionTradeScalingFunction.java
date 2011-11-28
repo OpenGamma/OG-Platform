@@ -44,7 +44,8 @@ public class UnitPositionTradeScalingFunction extends PropertyPreservingFunction
     return Arrays.asList(
         ValuePropertyNames.CURVE,
         YieldCurveFunction.PROPERTY_FORWARD_CURVE,
-        YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+        YieldCurveFunction.PROPERTY_FUNDING_CURVE,
+        ValuePropertyNames.CALCULATION_METHOD);
   }
 
   private final String _requirementName;

@@ -35,7 +35,7 @@ public class DefaultRiskFactorsConfigurationProvider implements RiskFactorsConfi
   @Override
   public String getForwardCurve(Currency currency) {
     String suffix;
-    if (currency.equals(Currency.USD)) { 
+    if (currency.equals(Currency.USD) || currency.equals(Currency.NZD)) { 
       suffix = "3M";
     } else {
       suffix = "6M";

@@ -13,7 +13,7 @@
             <col style="width: 60%" />
             <thead>
               <tr>
-                <td>${securityType}</td><td></td>
+                <td colspan="2">${securityType}</td>
               </tr>
             </thead>
             <tbody class="og-mod-content">
@@ -23,7 +23,10 @@
               <tr><td><span>Point Value</span></td><td>${pointValue}</td></tr>
               <tr><td><span>Strike</span></td><td>${strike}</td></tr>
               <tr><td><span>Expiry Date</span></td><td>${expiry}</td></tr>
-              <tr><td><span>Underlying Identifier</span></td><td class="OG-js-underlying-id">${underlyingExternalId}</td></tr>
+              <tr>
+                <td><span>Underlying Identifier</span></td>
+                <td class="OG-js-underlying-id">${underlyingId}</td>
+              </tr>
               <tr><td><span>Currency</span></td><td>${currency}</td></tr>
             </tbody>
           </table>

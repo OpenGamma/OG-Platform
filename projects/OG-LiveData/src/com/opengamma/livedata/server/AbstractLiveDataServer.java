@@ -532,12 +532,24 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       LiveDataSpecification fullyQualifiedSpec = distributionSpec.getFullyQualifiedLiveDataSpecification();
       
       MarketDataDistributor currentlyActiveDistributor = getMarketDataDistributor(distributionSpec);
-      if (currentlyActiveDistributor != null 
-          && currentlyActiveDistributor.getSnapshot() != null) {
-        s_logger.info("Able to satisfy {} from existing LKV", liveDataSpecificationFromClient);
-        LiveDataValueUpdateBean snapshot = currentlyActiveDistributor.getSnapshot();
-        responses.add(getSnapshotResponse(liveDataSpecificationFromClient, snapshot));
-        continue;
+      if (currentlyActiveDistributor != null) {
+        if (currentlyActiveDistributor.getSnapshot() != null) {
+          //NOTE simon 28/11/2011: We presume that all the fields were provided in one go, all or nothing.
+          s_logger.info("Able to satisfy {} from existing LKV", liveDataSpecificationFromClient);
+          LiveDataValueUpdateBean snapshot = currentlyActiveDistributor.getSnapshot();
+          responses.add(getSnapshotResponse(liveDataSpecificationFromClient, snapshot));
+          continue;
+        } else if (snapshotOnSubscriptionStartRequired(currentlyActiveDistributor.getSubscription())) {
+          //BBG-91 - don't requery when an existing subscription indicates that the snapshot will fail
+          //NOTE simon 28/11/2011: Only in the case of requiring a snapshot is it safe to use an empty snapshot from a subscription, since in the other case we may still be waiting for values  
+          s_logger.info("Able to satisfy failed snapshot {} from existing LKV", liveDataSpecificationFromClient);
+          responses.add(getErrorResponse(liveDataSpecificationFromClient, LiveDataSubscriptionResult.INTERNAL_ERROR,
+              "Existing subscription for " + currentlyActiveDistributor.getDistributionSpec().getMarketDataId()
+                  + " failed to retrieve a snapshot.  Perhaps requeried fields are unavailable."));
+          continue;
+        } else {
+          s_logger.info("Can't use existing subscription to satisfy {} from existing LKV", liveDataSpecificationFromClient);
+        }
       }
       
       String securityUniqueId = fullyQualifiedSpec.getIdentifier(getUniqueIdDomain());

@@ -10,12 +10,12 @@ namespace com.opengamma.financial.security.capfloor {
    * A cap/floor security.
    */
   message CapFloorSecurity extends FinancialSecurity {
-    required string securityType [default = "CAP/FLOOR"];
+    required string securityType [default = "CAP-FLOOR"];
     
     required javax.time.calendar.ZonedDateTime startDate;
     required javax.time.calendar.ZonedDateTime maturityDate;
     required double notional;
-    required id.ExternalId underlyingIdentifier;
+    required id.ExternalId underlyingId;
     required double strike;
     required com.opengamma.financial.convention.frequency.Frequency frequency;
     required com.opengamma.util.money.Currency currency;

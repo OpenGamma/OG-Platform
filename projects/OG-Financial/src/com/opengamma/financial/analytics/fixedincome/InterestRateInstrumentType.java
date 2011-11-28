@@ -16,6 +16,7 @@ import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -101,6 +102,9 @@ public enum InterestRateInstrumentType {
     public InterestRateInstrumentType visitFutureSecurity(final FutureSecurity security) {
       if (security instanceof InterestRateFutureSecurity) {
         return IR_FUTURE;
+      }
+      if (security instanceof BondFutureSecurity) {
+        return BOND_FUTURE;
       }
       throw new OpenGammaRuntimeException("Cannot handle this FutureSecurity");
     }

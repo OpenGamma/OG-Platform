@@ -247,7 +247,9 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     } 
     FlexiBean out = super.createRootData();
     out.put("template", template);
-    out.put("type", configType);
+    if (typeClazz != null) {
+      out.put("type", typeClazz.getName());
+    }
     return getFreemarker().build("configs/jsontemplate.ftl", out);
   }
 

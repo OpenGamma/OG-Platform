@@ -38,7 +38,7 @@ $.register_module({
                 id_count = 0, prefix = 'viewdef_',
                 master = config.data.template_data.configJSON.data,
                 column_set_tabs,
-                config_type = 'com.opengamma.engine.view.ViewDefinition',
+                config_type = config.type,
                 type_map = [
                     ['0',                                                                           Form.type.STR],
                     // <constraints>

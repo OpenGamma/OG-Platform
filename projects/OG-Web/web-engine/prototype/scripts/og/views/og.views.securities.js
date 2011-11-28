@@ -1,5 +1,5 @@
 /*
- * @copyright 2009 - present by OpenGamma Inc
+ * @copyright 2011 - present by OpenGamma Inc
  * @license See distribution for license
  */
 $.register_module({
@@ -155,6 +155,7 @@ $.register_module({
                         var json = result.data, text_handler,
                             security_type = json.template_data['securityType'].toLowerCase(),
                             template = module.name + '.' + security_type;
+                        json.template_data.name = json.template_data.name || json.template_data.name.lang();
                         history.put({
                             name: json.template_data.name,
                             item: 'history.securities.recent',
@@ -188,7 +189,8 @@ $.register_module({
                                     var id = json.template_data['underlyingOid'],
                                         rule = module.rules.load_securities,
                                         hash = routes.hash(rule, routes.current().args, {add: {id: id}}),
-                                        text = json.template_data['underlyingExternalId'],
+                                        text = json.template_data['underlyingName'] ||
+                                            json.template_data['underlyingExternalId'],
                                         anchor = '<a href="' + routes.prefix() + hash + '">' + text + '</a>';
                                         $('.ui-layout-inner-center .OG-js-underlying-id').html(anchor);
                                 }
@@ -198,7 +200,7 @@ $.register_module({
                                 $('.ui-layout-inner-north').html(error_html);
                                 layout.inner.sizePane('north', '0');
                                 layout.inner.open('north');
-                                $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                                $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
                             } else {
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
