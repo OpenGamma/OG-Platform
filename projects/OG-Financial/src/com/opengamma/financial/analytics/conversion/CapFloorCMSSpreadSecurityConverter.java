@@ -12,6 +12,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -53,6 +54,8 @@ public class CapFloorCMSSpreadSecurityConverter implements CapFloorCMSSpreadSecu
     final ExternalId shortId = capFloorCMSSpreadSecurity.getShortId();
     final Currency currency = capFloorCMSSpreadSecurity.getCurrency();
     final Frequency tenor = capFloorCMSSpreadSecurity.getFrequency();
+    final Period longLegPeriod = getUnderlyingTenor(longId);
+    final Period shortLegPeriod = getUnderlyingTenor(shortId);
     final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, currency);
     final ConventionBundle longConvention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
     if (longConvention == null) {
@@ -61,14 +64,14 @@ public class CapFloorCMSSpreadSecurityConverter implements CapFloorCMSSpreadSecu
     final IborIndex iborIndex1 = new IborIndex(currency, getTenor(tenor), longConvention.getSwapFloatingLegSettlementDays(), calendar,
         longConvention.getSwapFloatingLegDayCount(), longConvention.getSwapFloatingLegBusinessDayConvention(), longConvention.isEOMConvention());
     final Period period = getTenor(capFloorCMSSpreadSecurity.getFrequency());
-    final CMSIndex cmsIndex1 = new CMSIndex(period, longConvention.getSwapFloatingLegDayCount(), iborIndex1, getTenor(tenor));
+    final CMSIndex cmsIndex1 = new CMSIndex(period, longConvention.getSwapFloatingLegDayCount(), iborIndex1, longLegPeriod);
     final ConventionBundle shortConvention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
     if (shortConvention == null) {
       throw new OpenGammaRuntimeException("Could not get convention for " + shortId);
     }
     final IborIndex iborIndex2 = new IborIndex(currency, getTenor(tenor), shortConvention.getSwapFloatingLegSettlementDays(), calendar,
         shortConvention.getSwapFloatingLegDayCount(), shortConvention.getSwapFloatingLegBusinessDayConvention(), shortConvention.isEOMConvention());
-    final CMSIndex cmsIndex2 = new CMSIndex(period, shortConvention.getSwapFloatingLegDayCount(), iborIndex2, getTenor(tenor));
+    final CMSIndex cmsIndex2 = new CMSIndex(period, shortConvention.getSwapFloatingLegDayCount(), iborIndex2, shortLegPeriod);
     final boolean isPayer = capFloorCMSSpreadSecurity.isPayer();
     final DayCount dayCount = capFloorCMSSpreadSecurity.getDayCount();
     final Period paymentPeriod = getTenor(capFloorCMSSpreadSecurity.getFrequency());
@@ -91,5 +94,15 @@ public class CapFloorCMSSpreadSecurityConverter implements CapFloorCMSSpreadSecu
           "Can only handle annual, semi-annual, quarterly and monthly frequencies for cap/floor CMS spreads");
     }
     return tenor;
+  }
+  
+  //TODO this is horrible - we need to add fields to the security
+  private Period getUnderlyingTenor(final ExternalId id) {
+    if (id.getScheme().equals(SecurityUtils.BLOOMBERG_TICKER)) {
+      final String bbgCode = id.getValue();
+      final String[] noSuffix = bbgCode.split(" ");
+      return Period.ofYears(Integer.parseInt(noSuffix[0].split("SW")[1]));
+    }
+    throw new OpenGammaRuntimeException("Cannot handle id");
   }
 }

@@ -69,7 +69,7 @@ public class SABRVegaCapFloorCMSSpreadFunction extends SABRVegaFunction {
 
       @Override
       public Double evaluate(Double x) {
-        return 1.;
+        return 0.5;
       }
       
     };
