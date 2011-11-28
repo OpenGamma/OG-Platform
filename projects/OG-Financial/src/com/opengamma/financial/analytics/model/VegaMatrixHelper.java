@@ -30,9 +30,6 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class VegaMatrixHelper {
-  /**
-   * 
-   */
   private static final Tenor[] EMPTY_TENOR_ARRAY = new Tenor[0];
   private static final DecimalFormat FX_OPTION_FORMATTER = new DecimalFormat("##");
   private static final DecimalFormat IR_FUTURE_OPTION_FORMATTER = new DecimalFormat("##.###");
@@ -126,7 +123,7 @@ public class VegaMatrixHelper {
       }      
     }
     final Double[] xKeys = xKeysList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
-    final Tenor[] xLabels = xLabelsList.toArray(EMPTY_TENOR_ARRAY);
+    final Double[] xLabels = xLabelsList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
     final Double[] yKeys = yKeysList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
     final Tenor[] yLabels = yLabelsList.toArray(EMPTY_TENOR_ARRAY);
     final Double[] zKeys = zKeysList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
