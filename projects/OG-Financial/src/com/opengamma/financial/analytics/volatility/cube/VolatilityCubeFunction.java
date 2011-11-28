@@ -117,8 +117,14 @@ public class VolatilityCubeFunction extends AbstractFunction {
               normalizedATMVols.put(tenorPair, vol);
             }
             normalizedVolatilityPoints.put(newPoint, vol);
-            normalizedVolatilityPointIds.put(newPoint, volatilityPointIds.get(oldPoint));
-            normalizedRelativeStrikes.put(newPoint, relativeStrikes.get(oldPoint));
+            if (volatilityPointIds != null) {
+              normalizedVolatilityPointIds.put(newPoint, volatilityPointIds.get(oldPoint));
+            }
+            if (relativeStrikes != null) {
+              normalizedRelativeStrikes.put(newPoint, relativeStrikes.get(oldPoint));
+            } else {
+              normalizedRelativeStrikes.put(newPoint, relativeStrike);
+            }
           }
         }
         normalizedData.setDataPoints(normalizedVolatilityPoints);
