@@ -50,6 +50,10 @@ final class ExtSqlParser {
    */
   private static final Pattern OFFSET_FETCH_PATTERN = Pattern.compile("[@]OFFSETFETCH[(][:]([A-Za-z0-9_]+)[ ]?[,][ ]?[:]([A-Za-z0-9_]+)[)](.*)");
   /**
+   * The regex for @FETCH(fetchVariable)
+   */
+  private static final Pattern FETCH_PATTERN = Pattern.compile("[@]FETCH[(][:]([A-Za-z0-9_]+)[)](.*)");
+  /**
    * The regex for text :variable text
    */
   private static final Pattern VARIABLE_PATTERN = Pattern.compile("([^:])*([:][A-Za-z0-9_]+)(.*)");
@@ -190,6 +194,9 @@ final class ExtSqlParser {
     } else  if (trimmed.contains("@OFFSETFETCH")) {
       parseOffsetFetchTag(container, line);
       
+    } else  if (trimmed.contains("@FETCH")) {
+      parseFetchTag(container, line);
+      
     } else if (trimmed.startsWith("@")) {
       throw new IllegalArgumentException("Unknown tag at start of line: " + line);
       
@@ -259,6 +266,28 @@ final class ExtSqlParser {
       remainder = matcher.group(3);
     }
     OffsetFetchSqlFragment pagingFragment = new OffsetFetchSqlFragment(offsetVariable, fetchVariable);
+    container.addFragment(textFragment);
+    container.addFragment(pagingFragment);
+    
+    Line subLine = new Line(remainder, line.lineNumber());
+    parseLine(container, subLine);
+  }
+
+  private void parseFetchTag(ContainerSqlFragment container, Line line) {
+    String trimmed = line.lineTrimmed();
+    int pos = trimmed.indexOf("@FETCH");
+    TextSqlFragment textFragment = new TextSqlFragment(trimmed.substring(0, pos));
+    String fetchVariable = "paging_fetch";
+    String remainder = trimmed.substring(pos + 6);
+    if (trimmed.substring(pos).startsWith("@FETCH(")) {
+      Matcher matcher = FETCH_PATTERN.matcher(trimmed.substring(pos));
+      if (matcher.matches() == false) {
+        throw new IllegalArgumentException("@FETCH found with invalid format: " + line);
+      }
+      fetchVariable = matcher.group(1);
+      remainder = matcher.group(2);
+    }
+    OffsetFetchSqlFragment pagingFragment = new OffsetFetchSqlFragment(fetchVariable);
     container.addFragment(textFragment);
     container.addFragment(pagingFragment);
     

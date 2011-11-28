@@ -26,6 +26,16 @@ public final class OffsetFetchSqlFragment extends ContainerSqlFragment {
   /**
    * Creates an instance.
    * 
+   * @param fetchVariable  the fetch variable, not null
+   */
+  public OffsetFetchSqlFragment(String fetchVariable) {
+    _offsetVariable = null;
+    _fetchVariable = fetchVariable;
+  }
+
+  /**
+   * Creates an instance.
+   * 
    * @param offsetVariable  the offset variable, not null
    * @param fetchVariable  the fetch variable, not null
    */
@@ -39,7 +49,7 @@ public final class OffsetFetchSqlFragment extends ContainerSqlFragment {
   protected void toSQL(StringBuilder buf, ExtSqlBundle bundle, SqlParameterSource paramSource) {
     int offset = 0;
     int fetchLimit = 0;
-    if (paramSource.hasValue(_offsetVariable)) {
+    if (_offsetVariable != null && paramSource.hasValue(_offsetVariable)) {
       offset = ((Number) paramSource.getValue(_offsetVariable)).intValue();
     }
     if (paramSource.hasValue(_fetchVariable)) {
