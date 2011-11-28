@@ -1,5 +1,5 @@
 /*
- * @copyright 2009 - present by OpenGamma Inc
+ * @copyright 2011 - present by OpenGamma Inc
  * @license See distribution for license
  *
  * API call for making and caching static requests
@@ -24,7 +24,7 @@ $.register_module({
             if (typeof config === 'undefined') throw new TypeError('static: config is undefined');
             if (typeof config.url !== 'string' && typeof config.module !== 'string')
                 throw new TypeError('static: either config.url or config.module must be a string');
-            var url = config.url || module_path(config.module),
+            var url = (config.url || module_path(config.module)).replace(/\s/g, '_'),
                 do_not_cache = config.do_not_cache, clear_cache = config.clear_cache,
                 handler = function (html, error) {
                     if (!do_not_cache) html_cache[url] = html;

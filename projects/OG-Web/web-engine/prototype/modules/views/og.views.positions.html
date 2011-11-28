@@ -4,29 +4,31 @@
     <h1>${name}</h1>
     <div class="OG-js-header-links"></div>
   </header>
-  <section>
+  <section style="width: 800px">
     <div class="OG-details-content OG-js-details-panel">
-      <section>
-        <table class="OG-table">
-          <thead>
-            <tr><th><span>Security</span></th><th>Quantity</th><th>Type</th></tr>
-          </thead>
-          <tbody>
+      <section class="OG-clearFix OG-details-positions">
+          <table class="OG-table">
+            <thead>
+            <tr>
+              <th><span>Position</span></th>
+              <th>&nbsp;</th>
+              <th>&nbsp;</th>
+            </tr>
+            </thead>
+            <tbody>
             <tr>
               <td><a href=#/securities/${security_unique_id}>${security_name}</a></td>
               <td><strong class="og-quantity" data-og-editable="quantity">${quantity}</strong></td>
               <td>${security_type}</td>
             </tr>
-          </tbody>
-        </table>
-      </section>
-      <section>
-        <table class="OG-table">
-          <thead>
-            <tr><th><span>Identifiers</span></th><th>&nbsp;</th></tr>
-          </thead>
-          <tbody class="og-js-identifiers"></tbody>
-        </table>
+            </tbody>
+          </table>
+          <div class="og-timeseries"></div>
+          <div>
+            <table class="og-securities">
+              <tbody class="og-js-identifiers"></tbody>
+            </table>
+          </div>
       </section>
       <section class="og-grid-last og-js-trades-table"></section>
     </div>

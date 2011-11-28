@@ -25,7 +25,7 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search,
+            search, layout,
             ui = common.util.ui,
             module = this,
             page_name = module.name.split('.').pop(),
@@ -162,7 +162,6 @@ $.register_module({
             },
             default_details = og.views.common.default_details.partial(page_name, 'Time Series', options),
             details_page = function (args) {
-                var layout = og.views.common.layout;
                 layout.inner.options.south.onclose = null;
                 layout.inner.close('south');
                 api.rest.timeseries.get({
@@ -170,7 +169,7 @@ $.register_module({
                         if (result.error) return alert(result.message);
                         var json = result.data;
                         api.text({module: module.name, handler: function (template) {
-                            var $html, error_html, layout = og.views.common.layout, json_id = json.identifiers, title,
+                            var $html, error_html, json_id = json.identifiers, title,
                                 stop_loading, header, content; // functions
                             error_html = '\
                                 <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
@@ -207,7 +206,7 @@ $.register_module({
                                 $('.ui-layout-inner-north').html(error_html);
                                 layout.inner.sizePane('north', '0');
                                 layout.inner.open('north');
-                                $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                                $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
                             } else {
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
@@ -256,6 +255,7 @@ $.register_module({
         };
         return timeseries = {
             load: function (args) {
+                layout = og.views.common.layout;
                 check_state({args: args, conditions: [
                     {new_page: function () {
                         timeseries.search(args);

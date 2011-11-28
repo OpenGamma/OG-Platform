@@ -38,7 +38,7 @@ public class CapFloorSecurity extends FinancialSecurity {
   /**
    * The security type.
    */
-  public static final String SECURITY_TYPE = "CAP/FLOOR";
+  public static final String SECURITY_TYPE = "CAP-FLOOR";
 
   /**
    * The start date.

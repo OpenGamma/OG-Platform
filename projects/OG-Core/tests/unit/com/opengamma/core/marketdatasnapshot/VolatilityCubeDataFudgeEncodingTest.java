@@ -66,7 +66,7 @@ public class VolatilityCubeDataFudgeEncodingTest extends AbstractFudgeBuilderTes
     strikes.put(Pair.of(Tenor.DAY, Tenor.DAY), 1.0);
     strikes.put(Pair.of(Tenor.WORKING_WEEK, Tenor.WORKING_WEEK), 50.0);
     strikes.put(Pair.of(Tenor.DAY, Tenor.WORKING_WEEK), 150.0);
-    data.setStrikes(strikes);
+    data.setATMStrikes(strikes);
     return data;
   }
 
@@ -99,7 +99,7 @@ public class VolatilityCubeDataFudgeEncodingTest extends AbstractFudgeBuilderTes
     
     assertEquals(1, data.getOtherData().getDataPoints().size());
     
-    Map<Pair<Tenor, Tenor>, Double> strikes = data.getStrikes();
+    Map<Pair<Tenor, Tenor>, Double> strikes = data.getATMStrikes();
     assertEquals(3, strikes.size());
     assertEquals(1.0, strikes.get(Pair.of(Tenor.DAY, Tenor.DAY)));
     assertEquals(50.0, strikes.get(Pair.of(Tenor.WORKING_WEEK, Tenor.WORKING_WEEK)));

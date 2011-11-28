@@ -12,7 +12,7 @@ namespace com.opengamma.financial.security.equity {
   message EquityVarianceSwapSecurity extends FinancialSecurity {
     required string securityType [default = "EQUITY VARIANCE SWAP"];
     
-    required id.ExternalId spotUnderlyingIdentifier;
+    required id.ExternalId spotUnderlyingId;
     required com.opengamma.util.money.Currency currency;
     required double strike;
     required double notional;  
@@ -21,7 +21,7 @@ namespace com.opengamma.financial.security.equity {
     required javax.time.calendar.ZonedDateTime firstObservationDate;
     required javax.time.calendar.ZonedDateTime lastObservationDate;
     required javax.time.calendar.ZonedDateTime settlementDate;
-    required id.ExternalId region;
+    required id.ExternalId regionId;
     required com.opengamma.financial.convention.frequency.Frequency observationFrequency;
   }
 

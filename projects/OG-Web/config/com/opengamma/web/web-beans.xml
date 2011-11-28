@@ -54,6 +54,7 @@
         <property name="compiledFunctionService" ref="demoFunctionCompilation" />
         <property name="marketDataProviderResolver" ref="marketDataProviderResolver" />
         <property name="computationTargetResolver" ref="demoTargetResolver" />
+        <property name="functionResolver" ref="demoFunctionResolver" />
       </bean>
     </property>
   </bean>

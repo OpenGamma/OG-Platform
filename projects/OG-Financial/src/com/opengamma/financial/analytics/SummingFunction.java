@@ -27,6 +27,8 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapFunction;
+import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.util.ArgumentChecker;
 
 // REVIEW kirk 2010-01-02 -- This version aggregates from the leaf positions for all inputs.
@@ -55,8 +57,7 @@ public class SummingFunction extends PropertyPreservingFunction {
 
   @Override
   protected Collection<String> getPreservedProperties() {
-    return Sets.newHashSet(ValuePropertyNames.CURRENCY,
-                           ValuePropertyNames.CALCULATION_METHOD);
+    return Sets.newHashSet(ValuePropertyNames.CURRENCY);
   }
 
   @Override
@@ -65,12 +66,15 @@ public class SummingFunction extends PropertyPreservingFunction {
         ValuePropertyNames.CUBE,
         ValuePropertyNames.CURVE,
         ValuePropertyNames.CURVE_CURRENCY,
+        ValuePropertyNames.CALCULATION_METHOD,
         YieldCurveFunction.PROPERTY_FORWARD_CURVE,
         YieldCurveFunction.PROPERTY_FUNDING_CURVE,
-        ValuePropertyNames.CURVE_CALCULATION_METHOD,
+        ValuePropertyNames.CURVE_CALCULATION_METHOD,        
         ValuePropertyNames.PAY_CURVE,
         ValuePropertyNames.RECEIVE_CURVE,
-        ValuePropertyNames.SMILE_FITTING_METHOD);
+        ValuePropertyNames.SMILE_FITTING_METHOD,
+        RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE,
+        EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD);
   }
 
   protected String getAggregationStyle() {

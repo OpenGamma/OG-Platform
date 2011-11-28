@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.interestrate;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
@@ -28,7 +30,6 @@ import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
-import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.payments.method.CouponCMSDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.method.CouponIborGearingDiscountingMethod;
@@ -42,8 +43,6 @@ import com.opengamma.financial.interestrate.swap.definition.OISSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * Calculates the present value of an instrument for a given YieldCurveBundle (set of yield curve that the instrument is sensitive to) 
@@ -230,17 +229,6 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
     double leg1 = visitFixedPayment(fx.getPaymentCurrency1(), data);
     double leg2 = visitFixedPayment(fx.getPaymentCurrency2(), data);
     return leg1 + fx.getSpotForexRate() * leg2;
-  }
-
-  @Override
-  public Double visitZZZCouponOIS(final ZZZCouponOIS payment, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(payment);
-    final YieldAndDiscountCurve fundingCurve = curves.getCurve(payment.getFundingCurveName());
-    final double ta = payment.getStartTime();
-    final double tb = payment.getEndTime();
-    final double rate = (fundingCurve.getInterestRate(tb) * tb - fundingCurve.getInterestRate(ta) * ta) / payment.getRateYearFraction();
-    return fundingCurve.getDiscountFactor(payment.getPaymentTime()) * (rate + payment.getSpread()) * payment.getPaymentYearFraction() * payment.getNotional();
   }
 
   @Override

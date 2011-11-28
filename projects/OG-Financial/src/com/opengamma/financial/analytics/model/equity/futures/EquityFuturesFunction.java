@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.equity.futures;
 import java.util.Collections;
 import java.util.Set;
 
+import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -36,7 +37,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.EquityFutureConverter;
-import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.equity.future.EquityFutureDataBundle;
 import com.opengamma.financial.equity.future.definition.EquityFutureDefinition;
@@ -57,22 +57,24 @@ import com.opengamma.util.money.Currency;
  * A trade may produce additional generic ones, e.g. date and number of contracts..  
  */
 public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
-
   private static final String DIVIDEND_YIELD_FIELD = "EQY_DVD_YLD_EST";
-  private static final String DATA_SOURCE = "BLOOMBERG"; // TODO Make DATA_SOURCE and DATA_PROVIDER inputs
-  private static final String DATA_PROVIDER = "UNKNOWN";
 
   private final String _valueRequirementName;
   private final EquityFuturesPricingMethod _pricingMethod;
+  private final String _fundingCurveName;
   private EquityFutureConverter _financialToAnalyticConverter;
   private final EquityFuturesPricer _pricer;
   private final String _pricingMethodName;
 
   /**
   * @param valueRequirementName String describes the value requested 
-  * @param pricingMethodName String corresponding to enum EquityFuturesPricingMethod {MARK_TO_MARKET or COST_OF_CARRY, DIVIDEND_YIELD} 
+  * @param pricingMethodName String corresponding to enum EquityFuturesPricingMethod {MARK_TO_MARKET or COST_OF_CARRY, DIVIDEND_YIELD}
+  * @param fundingCurveName The name of the curve that will be used for discounting 
   */
-  public EquityFuturesFunction(final String valueRequirementName, final String pricingMethodName) {
+  public EquityFuturesFunction(final String valueRequirementName, final String pricingMethodName, final String fundingCurveName) {
+    Validate.notNull(valueRequirementName, "value requirement name");
+    Validate.notNull(pricingMethodName, "pricing method name");
+    Validate.notNull(fundingCurveName, "funding curve name");
     Validate.isTrue(valueRequirementName.equals(ValueRequirementNames.PRESENT_VALUE)
             || valueRequirementName.equals(ValueRequirementNames.VALUE_RHO)
             || valueRequirementName.equals(ValueRequirementNames.PV01)
@@ -88,6 +90,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
     _pricingMethod = EquityFuturesPricingMethod.valueOf(pricingMethodName);
     _pricingMethodName = pricingMethodName;
+    _fundingCurveName = fundingCurveName;
     _pricer = EquityFuturePricerFactory.getMethod(pricingMethodName);
   }
 
@@ -104,13 +107,14 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
    * @param target The ComputationTarget is a TradeImpl
    */
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
-
+    final Clock snapshotClock = executionContext.getValuationClock();
+    final ZonedDateTime now = snapshotClock.zonedDateTime();
     final SimpleTrade trade = (SimpleTrade) target.getTrade();
     final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
 
     final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
 
-    final Double lastMarginPrice = getLatestValueFromTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, executionContext, security.getExternalIdBundle());
+    final Double lastMarginPrice = getLatestValueFromTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, executionContext, security.getExternalIdBundle(), now);
     trade.setPremium(lastMarginPrice); // TODO !!! Issue of futures and margining
 
     // Build the analytic's version of the security - the derivative    
@@ -131,9 +135,9 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
         break;
       case DIVIDEND_YIELD:
         Double spot = getSpot(security, inputs);
-        Double dividendYield = getLatestValueFromTimeSeries(DIVIDEND_YIELD_FIELD, executionContext, ExternalIdBundle.of(security.getUnderlyingId()));
+        Double dividendYield = getLatestValueFromTimeSeries(DIVIDEND_YIELD_FIELD, executionContext, ExternalIdBundle.of(security.getUnderlyingId()), now);
         dividendYield /= 100.0;
-        YieldAndDiscountCurve fundingCurve = getDiscountCurve(security, inputs);
+        YieldAndDiscountCurve fundingCurve = getYieldCurve(security, inputs);
         dataBundle = new EquityFutureDataBundle(fundingCurve, null, spot, dividendYield, null);
         break;
       default:
@@ -205,10 +209,11 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   private ValueRequirement getDiscountCurveRequirement(EquityFutureSecurity security) {
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, security.getCurrency().getUniqueId());
+    ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, _fundingCurveName).get();
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, security.getCurrency().getUniqueId(), properties);
   }
 
-  private YieldAndDiscountCurve getDiscountCurve(EquityFutureSecurity security, FunctionInputs inputs) {
+  private YieldAndDiscountCurve getYieldCurve(EquityFutureSecurity security, FunctionInputs inputs) {
 
     final ValueRequirement curveRequirement = getDiscountCurveRequirement(security);
     final Object curveObject = inputs.getValue(curveRequirement);
@@ -236,7 +241,6 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
   private ValueRequirement getSpotAssetRequirement(EquityFutureSecurity security) {
     ValueRequirement req = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, security.getUnderlyingId());
     return req;
-
   }
 
   private Double getSpot(EquityFutureSecurity security, FunctionInputs inputs) {
@@ -277,10 +281,10 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
   /**
    *  Returns the latest value of the historical time series keyed by idBundle and field. 
    */
-  Double getLatestValueFromTimeSeries(String field, FunctionExecutionContext executionContext, ExternalIdBundle idBundle) {
-
+  private Double getLatestValueFromTimeSeries(final String field, final FunctionExecutionContext executionContext, final ExternalIdBundle idBundle, final ZonedDateTime now) {
+    final ZonedDateTime startDate = now.minusDays(7);
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(idBundle, DATA_SOURCE, DATA_PROVIDER, field);
+    final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(field, idBundle, null, null, startDate.toLocalDate(), true, now.toLocalDate(), true);
 
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get " + field + " time series for " + idBundle.toString());
@@ -306,7 +310,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     final ValueProperties valueProps = properties
         .with(ValuePropertyNames.CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
-        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+        .with(ValuePropertyNames.CURVE, _fundingCurveName)
         .with(ValuePropertyNames.CALCULATION_METHOD, _pricingMethodName)
         .get();
 

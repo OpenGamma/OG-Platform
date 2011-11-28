@@ -33,7 +33,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.volatility.fittedresults.HestonFittedSurfaces;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveData;
-import com.opengamma.financial.analytics.volatility.surface.IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.model.volatility.smile.fitting.HestonModelFitter;
 import com.opengamma.financial.model.volatility.smile.function.HestonVolatilityFunction;
@@ -44,7 +43,7 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -56,7 +55,7 @@ import com.opengamma.util.tuple.ObjectsPair;
 public class HestonFourierIRFutureSurfaceFittingFunction extends AbstractFunction.NonCompiledInvoker {
   private static final double ERROR = 0.001;
   private static final HestonVolatilityFunction HESTON_FUNCTION = new HestonVolatilityFunction();
-  private static final DoubleMatrix1D HESTON_INITIAL_VALUES = new DoubleMatrix1D(new double[] {1.5, 0.1, 0.1, 0.5, 0.0});
+  private static final DoubleMatrix1D HESTON_INITIAL_VALUES = new DoubleMatrix1D(new double[] {1.5, 0.1, 0.1, 0.5, 0.0 });
   private static final LinearInterpolator1D LINEAR = (LinearInterpolator1D) Interpolator1DFactory.getInterpolator(Interpolator1DFactory.LINEAR);
   private static final FlatExtrapolator1D FLAT = new FlatExtrapolator1D();
   private static final GridInterpolator2D INTERPOLATOR = new GridInterpolator2D(LINEAR, LINEAR,
@@ -80,9 +79,9 @@ public class HestonFourierIRFutureSurfaceFittingFunction extends AbstractFunctio
   public void init(final FunctionCompilationContext context) {
     final ComputationTargetSpecification currencyTargetSpec = new ComputationTargetSpecification(_currency);
     final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, _definitionName)
-                                                             .with(IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction.PROPERTY_INSTRUMENT_TYPE, "IR_FUTURE_OPTION").get();
+                                                             .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION").get();
     final ValueProperties futurePriceProperties = ValueProperties.with(ValuePropertyNames.CURVE, _definitionName)
-                                                                 .with(IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction.PROPERTY_INSTRUMENT_TYPE, "IR_FUTURE_PRICE").get();
+                                                                 .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_PRICE").get();
     _surfaceRequirement = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, currencyTargetSpec, surfaceProperties);
     _futurePriceRequirement = new ValueRequirement(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA, currencyTargetSpec, futurePriceProperties);
     final ValueProperties resultProperties = createValueProperties()
@@ -130,13 +129,13 @@ public class HestonFourierIRFutureSurfaceFittingFunction extends AbstractFunctio
       final double[] errors = new double[n];
       double forward = 1 - futurePriceData.getFuturePrice(t);
       if (strip.size() > 4) {
-        for (ObjectsPair<Double, Double> value : strip) {          
+        for (ObjectsPair<Double, Double> value : strip) {
           strikes[strikeIndex] = 1 - value.first / 100;
           sigma[strikeIndex] = value.second;
           errors[strikeIndex--] = ERROR;
         }
-        final LeastSquareResults fittedResult = new HestonModelFitter(forward, strikes, t, sigma, errors, HESTON_FUNCTION).solve(HESTON_INITIAL_VALUES);
-        final DoubleMatrix1D parameters = fittedResult.getParameters();
+        final LeastSquareResultsWithTransform fittedResult = new HestonModelFitter(forward, strikes, t, sigma, errors, HESTON_FUNCTION).solve(HESTON_INITIAL_VALUES);
+        final DoubleMatrix1D parameters = fittedResult.getModelParameters();
         fittedOptionExpiryList.add(t);
         futureDelayList.add(0);
         kappaList.add(parameters.getEntry(0));
@@ -144,7 +143,7 @@ public class HestonFourierIRFutureSurfaceFittingFunction extends AbstractFunctio
         vol0List.add(parameters.getEntry(2));
         omegaList.add(parameters.getEntry(3));
         rhoList.add(parameters.getEntry(4));
-        inverseJacobians.put(DoublesPair.of(t.doubleValue(), 0.), fittedResult.getInverseJacobian());
+        inverseJacobians.put(DoublesPair.of(t.doubleValue(), 0.), fittedResult.getModelParameterSensitivityToData());
         chiSqList.add(fittedResult.getChiSq());
       }
     }

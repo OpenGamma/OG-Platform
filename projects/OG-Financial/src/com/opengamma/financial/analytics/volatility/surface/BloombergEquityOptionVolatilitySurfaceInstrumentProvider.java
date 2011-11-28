@@ -26,15 +26,15 @@ public class BloombergEquityOptionVolatilitySurfaceInstrumentProvider implements
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergEquityOptionVolatilitySurfaceInstrumentProvider.class);
   private static final ExternalScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
 
-  private final String _underlyingPrefix; //expecting something like USDJPY
-  private final String _postfix; //expecting Curncy
+  private final String _underlyingPrefix; //expecting something like DJX
+  private final String _postfix; //expecting Index or Equity
   private final String _dataFieldName; //expecting MarketDataRequirementNames.MARKET_VALUE
   private static final DateTimeFormatter s_dateFormatter = DateTimeFormatters.pattern("MM/dd/yy");
 
   private Boolean _generatePuts;
 
   public BloombergEquityOptionVolatilitySurfaceInstrumentProvider(final String underlyingPrefix, final String postfix, final String dataFieldName) {
-    Validate.notNull(underlyingPrefix, "undelrying prefix");
+    Validate.notNull(underlyingPrefix, "underlying prefix");
     Validate.notNull(postfix, "postfix");
     Validate.notNull(dataFieldName, "data field name");
     _underlyingPrefix = underlyingPrefix;
@@ -66,10 +66,10 @@ public class BloombergEquityOptionVolatilitySurfaceInstrumentProvider implements
 
   @Override
   public ExternalId getInstrument(final LocalDate expiry, final Double strike, final LocalDate surfaceDate) {
-    return createEquityOptionVolatilityCode(expiry, strike, surfaceDate);
+    return createEquityOptionVolatilityCode(expiry, strike);
   }
 
-  private ExternalId createEquityOptionVolatilityCode(final LocalDate expiry, final Double strike, final LocalDate surfaceDate) {
+  private ExternalId createEquityOptionVolatilityCode(final LocalDate expiry, final Double strike) {
     if (_generatePuts == null) {
       s_logger.error("Cannot create option volatility code until atm strike is set (use init method)");
     }

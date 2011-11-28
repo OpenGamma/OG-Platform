@@ -5,13 +5,13 @@
 .OG-table {
   width: 100%;
   position: relative;
-  top: 10px;
 }
 
 .OG-table:after {
   clear: both;
-  content: ".";
+  content: ' ';
   display: block;
+  font-size: 0;
   height: 0;
   visibility: hidden;
 }
@@ -27,13 +27,21 @@
   background-color: #ecf5fa;
 }
 
+.OG-table tr:first-child td {
+  padding-top: 10px;
+}
+
+.OG-table tr:last-child td {
+  padding-bottom: 10px;
+}
+
 .OG-table th:last-child,
 .OG-table td:last-child {
   padding-right: 0;
 }
 
 .OG-table td:first-child {
-  padding-left: 5px;
+  padding-left: 10px;
 }
 
 .OG-table th {

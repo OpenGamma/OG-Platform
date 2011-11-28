@@ -1,0 +1,65 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+.OG-details-grid h3 {
+  margin: 0;
+  position: relative;
+  display: inline-block;
+  font-size: 16px;
+  line-height: 12px;
+  padding: 8px 10px 8px 8px;
+  border-left: 2px solid #c6c6c6;
+  color: #555;
+  background-color: #f3f3f3;
+}
+
+.OG-details-grid > div {
+  float: left;
+  position: relative;
+}
+
+.OG-details-grid > div:first-child > div {
+  margin-right: 10px;
+}
+
+.OG-details-grid header {
+  border-bottom: 4px solid #eee;
+  line-height: 25px;
+}
+
+.OG-details-grid .og-divider {
+  height: 4px;
+  background: #f3f3f3;
+  margin-top: -4px;
+  margin-bottom: 1px;
+}
+
+.OG-details-grid .og-grid {
+  height: 400px;
+  border-bottom: 1px solid #E9EAEB;
+  padding-bottom: 3px;
+}
+
+.OG-details-grid .slick-viewport {
+  background: #ecf5fa;
+}
+
+.OG-details-grid .ui-widget-content.slick-row {
+  background: #ecf5fa;
+}
+
+.OG-details-grid .slick-header {
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  margin: 1px 0;
+  padding: 0;
+}
+
+.OG-details-grid .OG-link-add {
+  position: relative;
+  bottom: 4px;
+  left: 5px;
+}

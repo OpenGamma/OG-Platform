@@ -51,17 +51,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-//TODO this class needs to be re-written, as each instrument type needs a different set of inputs
 public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends AbstractFunction {
-  private static final DateAdjuster NEXT_EXPIRY_ADJUSTER = new NextExpiryAdjuster();
-  private static final DateAdjuster FIRST_OF_MONTH_ADJUSTER = DateAdjusters.firstDayOfMonth();
-
-  /**
-   * Value specification property for the surface result. This allows surface to be distinguished by instrument type (e.g. an FX volatility
-   * surface, swaption ATM volatility surface). 
-   */
-  public static final String PROPERTY_INSTRUMENT_TYPE = "InstrumentType";
-
   private VolatilitySurfaceDefinition<Object, Object> _volSurfaceDefinition;
   private FuturePriceCurveDefinition<Object> _priceCurveDefinition;
   private ValueSpecification _volSurfaceResult;
@@ -108,11 +98,11 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
     _volSurfaceResult = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA,
                                                new ComputationTargetSpecification(_volSurfaceDefinition.getTarget()),
                                                createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName)
-                                                                      .with(PROPERTY_INSTRUMENT_TYPE, _volSurfaceInstrumentType).get());
+                                                                      .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _volSurfaceInstrumentType).get());
     _futurePriceCurveResult = new ValueSpecification(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA,
                                                      new ComputationTargetSpecification(_priceCurveSpecification.getTarget()),
                                                      createValueProperties().with(ValuePropertyNames.CURVE, _definitionName)
-                                                                            .with(PROPERTY_INSTRUMENT_TYPE, _priceCurveInstrumentType).get());
+                                                                            .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _priceCurveInstrumentType).get());
     _results = Sets.newHashSet(_volSurfaceResult, _futurePriceCurveResult);
   }
 
@@ -149,30 +139,34 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
         atInstant));
     //TODO ENG-252 see MarketInstrumentImpliedYieldCurveFunction; need to work out the expiry more efficiently
     return new AbstractInvokingCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000)) {
+      private final DateAdjuster _nextExpiryAdjuster = new NextExpiryAdjuster();
+      private final DateAdjuster _firstOfMonthAdjuster = DateAdjusters.firstDayOfMonth();
 
       @Override
       public ComputationTargetType getTargetType() {
         return ComputationTargetType.PRIMITIVE;
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-        if (canApplyTo(context, target)) {
+      public Set<ValueSpecification> getResults(final FunctionCompilationContext myContext, final ComputationTarget target) {
+        if (canApplyTo(myContext, target)) {
           return _results;
         }
         return null;
       }
 
       @Override
-      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-        if (canApplyTo(context, target)) {
+      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext myContext, final ComputationTarget target, final ValueRequirement desiredValue) {
+        if (canApplyTo(myContext, target)) {
           return requirements;
         }
         return null;
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+      public boolean canApplyTo(final FunctionCompilationContext myContext, final ComputationTarget target) {
         if (target.getType() != ComputationTargetType.PRIMITIVE) {
           return false;
         }
@@ -180,7 +174,7 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
         return ObjectUtils.equals(target.getUniqueId(), _volSurfaceDefinition.getTarget().getUniqueId());
       }
 
-      @SuppressWarnings("unchecked")
+      @SuppressWarnings({"unchecked", "synthetic-access" })
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) {
@@ -205,12 +199,14 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
             final SurfaceInstrumentProvider<Number, Double> volSurfaceProvider = (SurfaceInstrumentProvider<Number, Double>) _volSurfaceSpecification.getSurfaceInstrumentProvider();
             identifier = volSurfaceProvider.getInstrument(xNum, yNum, now.toLocalDate());
             requirement = new ValueRequirement(volSurfaceProvider.getDataFieldName(), identifier);
+            final double k = yNum;
+            ts.add(t);
+            ks.add(k);
             if (inputs.getValue(requirement) != null) {
               final Double volatility = (Double) inputs.getValue(requirement);
-              final double k = yNum;
-              ts.add(t);
-              ks.add(k);
               volatilityValues.put(Pair.of(t, k), volatility / 100);
+            } else {
+              volatilityValues.put(Pair.of(t, k), null);
             }
           }
         }
@@ -233,13 +229,13 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
         final LocalDate today = now.toLocalDate();
         final int n = x.intValue();
         if (n == 1) {
-          final LocalDate nextExpiry = today.with(NEXT_EXPIRY_ADJUSTER);
+          final LocalDate nextExpiry = today.with(_nextExpiryAdjuster);
           final LocalDate previousMonday = nextExpiry.minusDays(2); //TODO this should take a calendar and do two business days, and should use a convention for the number of days
           return DateUtils.getDaysBetween(today, previousMonday) / 365.; //TODO or use daycount?          
         }
-        final LocalDate date = today.with(FIRST_OF_MONTH_ADJUSTER);
+        final LocalDate date = today.with(_firstOfMonthAdjuster);
         final LocalDate plusMonths = date.plusMonths(n * 3); //TODO this is hard-coding the futures to be quarterly
-        final LocalDate thirdWednesday = plusMonths.with(NEXT_EXPIRY_ADJUSTER);
+        final LocalDate thirdWednesday = plusMonths.with(_nextExpiryAdjuster);
         final LocalDate previousMonday = thirdWednesday.minusDays(2); //TODO this should take a calendar and do two business days and also use a convention for the number of days
         return DateUtils.getDaysBetween(today, previousMonday) / 365.; //TODO or use daycount?
       }

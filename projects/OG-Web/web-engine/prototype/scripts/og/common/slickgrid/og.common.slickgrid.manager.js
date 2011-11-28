@@ -22,7 +22,7 @@ $.register_module({
                     to_page = Math.floor(to / DEFAULT_PAGESIZE),
                     request_page_size,
                     request_page_number,
-                    data_already_cached = false,
+                    data_cached = false,
                     ui = og.common.util.ui,
                     filters = args.filters,
                     is_new_filter = args.filter_being_applied || false,
@@ -47,39 +47,30 @@ $.register_module({
                         from_num = request_page_number * request_page_size;
                         to_num = 'total' in data ? Math.min(from_num + request_page_size, data.total)
                             : from_num + request_page_size;
-                        for (i = from_num; i < to_num; i++) data_already_cached = data[i] !== undefined || false;
+                        for (i = from_num; i < to_num; i++) data_cached = data[i] !== undefined || false;
                     }
                 }());
                 // Rest handler
-                handle_data = function (r) {
+                handle_data = function (result) {
                     var from, to, json_header;
-                    if (r.error) {
-                        ui.message({
-                            location: '.OG-js-search',
-                            css: {bottom: '6px', left: '1px'},
-                            message: 'oops, something bad happened (' + r.message + ')'
-                        });
-                        return;
-                    }
-                    json_header = r.data.header;
+                    if (result.error) return ui.message({
+                        location: '.OG-js-search',
+                        css: {bottom: '6px', left: '1px'},
+                        message: 'oops, something bad happened (' + result.message + ')'
+                    });
+                    json_header = result.data.header;
                     from = from_page * DEFAULT_PAGESIZE;
                     to = from + json_header.pgSze;
                     data.length = parseInt(json_header.pgTtl);
                     // Create Data Object for slickgrid
-                    data.total = r.data.header.pgTtl;
-                    $.each(r.data.data, function (i, row) {
-                        var field_values = row.split('|'),
-                            field_names = json_header.dataFields,
-                            tmp_val;
-                        data[from + i] = {};
-                        $.each(field_names, function (k, field_name) {
-                            tmp_val = field_values[k];
-                            if (field_names[k] === 'type') {
-                                data[from + i][field_name] = tmp_val;
-                            } else data[from + i][field_name] = tmp_val;
+                    data.total = result.data.header.pgTtl;
+                    result.data.data.forEach(function (row, i) {
+                        var field_values = row.split('|'), field_names = json_header.dataFields, index = from + i;
+                        data[index] = {index: index};
+                        field_names.forEach(function (field_name, j) {
+                            data[index][field_name] = field_values[j] || field_values[j].lang();
                         });
-                        if (filters.type) data[from + i].type = filters.type.replace(/_/g, ' ');
-                        data[from + i].index = from + i;
+                        if (filters.type) data[index].type = filters.type.replace(/_/g, ' ');
                     });
                     on_data_loaded.notify({from: from,to: to});
                     ui.message({location: '.OG-js-search', destroy: true});
@@ -88,7 +79,7 @@ $.register_module({
                 /**
                  * Do rest request
                  */
-                if (!data_already_cached) {
+                if (!data_cached) {
                     og.api.rest.abort(request);
                     request = og.api.rest[obj.page_type].get($.extend({
                         handler: handle_data,
