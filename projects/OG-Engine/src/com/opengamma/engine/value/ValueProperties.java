@@ -210,14 +210,15 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
             _properties.put(optionalProperty, Collections.<String>emptySet());
           }
         }
-        return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.unmodifiableSet(_optional));
+        return new ValuePropertiesImpl(new HashMap<String, Set<String>>(_properties), new HashSet<String>(_optional));
       } else {
         if (_properties.isEmpty()) {
           return EMPTY;
         }
-        return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.<String>emptySet());
+        return new ValuePropertiesImpl(new HashMap<String, Set<String>>(_properties), Collections.<String>emptySet());
       }
     }
+
   }
 
   /**
