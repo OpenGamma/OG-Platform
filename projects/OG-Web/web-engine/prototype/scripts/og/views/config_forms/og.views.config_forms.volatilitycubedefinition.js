@@ -21,7 +21,6 @@ $.register_module({
             ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {}),
             arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
         return function (config) {
-            console.log('config', config);
             var load_handler = config.handler || $.noop, selector = config.selector, config_type = config.type,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.name,
