@@ -4,50 +4,48 @@
     <h1>${name}</h1>
     <div class="OG-js-header-links"></div>
   </header>
-  <section>
-    <div class="OG-details-content OG-security OG-js-details-panel">
+  <section style="width: 800px">
+    <div class="OG-details-content OG-js-details-panel">
       <section>
-        <div class="OG-mod-1 OG-c6">
-          <table>
-            <col style="width: 40%" />
-            <col style="width: 60%" />
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
             <thead>
+            <tr>
+              <th><span>Identifiers</span></th><th>&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody class="og-js-identifiers og-mod-content"></tbody>
+        </table>
+      </section>
+      <section>
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+          <thead>
+            <tr>
+              <th><span>${securityType}</span></th><th>&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span>Expiry Date</span></td><td>${expirydate.datetime} - ${expirydate.timezone}</td></tr>
+            <tr><td><span>Expiry Accuracy</span></td><td>${expiryAccuracy}</td></tr>
+            <tr><td><span>Trading Exchange</span></td><td>${tradingExchange}</td></tr>
+            <tr><td><span>Settlement Exchange</span></td><td>${settlementExchange}</td></tr>
+            <tr><td><span>Redemption Value</span></td><td>${redemptionValue}</td></tr>
+            {{if underlyingId}}
               <tr>
-                <td colspan="2">${securityType}</td>
+                <td><span>Underlying Identifier</span></td>
+                <td class="OG-js-underlying-id">${underlyingId}</td>
               </tr>
-            </thead>
-            <tbody class="og-mod-content">
-              <tr><td><span>Expiry Date</span></td><td>${expirydate.datetime} - ${expirydate.timezone}</td></tr>
-              <tr><td><span>Expiry Accuracy</span></td><td>${expiryAccuracy}</td></tr>
-              <tr><td><span>Trading Exchange</span></td><td>${tradingExchange}</td></tr>
-              <tr><td><span>Settlement Exchange</span></td><td>${settlementExchange}</td></tr>
-              <tr><td><span>Redemption Value</span></td><td>${redemptionValue}</td></tr>
-              {{if underlyingId}}
-                <tr>
-                  <td><span>Underlying Identifier</span></td>
-                  <td class="OG-js-underlying-id">${underlyingId}</td>
-                </tr>
-              {{/if}}
-              {{if underlyingBond}}
-                <tr><td style="vertical-align: top"><span>Underlying Bond</span></td><td>
-                  {{each underlyingBond}}${$index}: ${$value} <br />{{/each}}
-                </td></tr>
-              {{/if}}
-            </tbody>
-          </table>
-        </div>
-        <div class="OG-mod-1 og-style-2 OG-c4">
-          <table>
-            <col style="width: 40%" />
-            <col style="width: 60%" />
-              <thead>
-              <tr>
-                <td>Identifiers</td><td></td>
-              </tr>
-            </thead>
-            <tbody class="og-js-identifiers og-mod-content"></tbody>
-          </table>
-        </div>
+            {{/if}}
+            {{if underlyingBond}}
+              <tr><td style="vertical-align: top"><span>Underlying Bond</span></td><td>
+                {{each underlyingBond}}${$index}: ${$value} <br />{{/each}}
+              </td></tr>
+            {{/if}}
+          </tbody>
+        </table>
       </section>
     </div>
   </section>
