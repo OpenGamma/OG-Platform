@@ -21,10 +21,15 @@ import com.opengamma.financial.security.FinancialSecurity;
  */
 public class InterestRateInstrumentPresentValueFunction extends InterestRateInstrumentFunction {
 
+  /**
+   * The value name calculated by this function.
+   */
+  public static final String VALUE_REQUIREMENT = ValueRequirementNames.PRESENT_VALUE;
+
   private static final PresentValueCalculator CALCULATOR = PresentValueCalculator.getInstance();
 
   public InterestRateInstrumentPresentValueFunction() {
-    super(ValueRequirementNames.PRESENT_VALUE);
+    super(VALUE_REQUIREMENT);
   }
 
   @Override

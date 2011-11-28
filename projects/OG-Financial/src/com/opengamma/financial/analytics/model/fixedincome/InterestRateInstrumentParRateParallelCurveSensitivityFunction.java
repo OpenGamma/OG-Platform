@@ -26,10 +26,15 @@ import com.opengamma.financial.security.FinancialSecurity;
  */
 public class InterestRateInstrumentParRateParallelCurveSensitivityFunction extends InterestRateInstrumentFunction {
 
+  /**
+   * The value name calculated by this function.
+   */
+  public static final String VALUE_REQUIREMENT = ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT;
+
   private static final ParRateParallelSensitivityCalculator CALCULATOR = ParRateParallelSensitivityCalculator.getInstance();
 
   public InterestRateInstrumentParRateParallelCurveSensitivityFunction() {
-    super(ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
+    super(VALUE_REQUIREMENT);
   }
 
   @Override

@@ -26,10 +26,15 @@ import com.opengamma.financial.security.FinancialSecurity;
  */
 public class InterestRateInstrumentPV01Function extends InterestRateInstrumentFunction {
 
+  /**
+   * The value name calculated by this function.
+   */
+  public static final String VALUE_REQUIREMENT = ValueRequirementNames.PV01;
+
   private static final PV01Calculator CALCULATOR = PV01Calculator.getInstance();
 
   public InterestRateInstrumentPV01Function() {
-    super(ValueRequirementNames.PV01);
+    super(VALUE_REQUIREMENT);
   }
 
   @Override

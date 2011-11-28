@@ -72,13 +72,17 @@ import com.opengamma.util.money.Currency;
  */
 public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends AbstractFunction.NonCompiledInvoker {
 
+  /**
+   * The value name calculated by this function.
+   */
+  public static final String VALUE_REQUIREMENT = ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
+
   private static final String RESULT_PROPERTY_TYPE = "Type";
   private static final String REQUIREMENT_PROPERTY_TYPE = ValuePropertyNames.OUTPUT_RESERVED_PREFIX + RESULT_PROPERTY_TYPE;
   private static final String TYPE_FORWARD = "Forward";
   private static final String TYPE_FUNDING = "Funding";
 
   private static final InstrumentSensitivityCalculator CALCULATOR = InstrumentSensitivityCalculator.getInstance();
-  private static final String VALUE_REQUIREMENT = ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
   // TODO: This will be hit for a curve definition on each calculation cycle, so it really needs to cache stuff rather than do any I/O
   private FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> _visitor;
   private FixedIncomeConverterDataProvider _definitionConverter;

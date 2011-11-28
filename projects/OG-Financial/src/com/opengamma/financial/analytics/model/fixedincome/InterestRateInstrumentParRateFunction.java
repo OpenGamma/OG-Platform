@@ -21,10 +21,15 @@ import com.opengamma.financial.security.FinancialSecurity;
  */
 public class InterestRateInstrumentParRateFunction extends InterestRateInstrumentFunction {
 
+  /**
+   * The value name calculated by this function.
+   */
+  public static final String VALUE_REQUIREMENT = ValueRequirementNames.PAR_RATE;
+
   private static final ParRateCalculator CALCULATOR = ParRateCalculator.getInstance();
 
   public InterestRateInstrumentParRateFunction() {
-    super(ValueRequirementNames.PAR_RATE);
+    super(VALUE_REQUIREMENT);
   }
 
   @Override
