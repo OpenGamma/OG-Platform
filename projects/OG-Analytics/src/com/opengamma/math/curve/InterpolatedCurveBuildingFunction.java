@@ -17,9 +17,9 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 /**
  * For a given sets of knot points (x values) for named curves, and corresponding interpolators, produces a function that takes a set
  * of knot values (y values), which is the concatenation of all curve values as a DoubleMatrix1D, and returns a map between curve names
- * and interpolated curves. 
+ * and interpolated curves.
  */
-public class InterpolatedCurveBuildingFunction extends CurveBuildingFunction<Double> {
+public class InterpolatedCurveBuildingFunction {
 
   private final LinkedHashMap<String, double[]> _knotPoints;
   private final LinkedHashMap<String, Interpolator1D> _interpolators;
@@ -40,12 +40,11 @@ public class InterpolatedCurveBuildingFunction extends CurveBuildingFunction<Dou
     _nNodes = count;
   }
 
-  @Override
-  public LinkedHashMap<String, Curve<Double, Double>> evaluate(DoubleMatrix1D x) {
+  public LinkedHashMap<String, InterpolatedDoublesCurve> evaluate(DoubleMatrix1D x) {
     Validate.notNull(x, "null data x");
     Validate.isTrue(_nNodes == x.getNumberOfElements(), "x wrong length");
 
-    LinkedHashMap<String, Curve<Double, Double>> res = new LinkedHashMap<String, Curve<Double, Double>>();
+    LinkedHashMap<String, InterpolatedDoublesCurve> res = new LinkedHashMap<String, InterpolatedDoublesCurve>();
     int index = 0;
 
     for (final String name : _interpolators.keySet()) {
@@ -53,7 +52,7 @@ public class InterpolatedCurveBuildingFunction extends CurveBuildingFunction<Dou
       final double[] nodes = _knotPoints.get(name);
       final double[] values = Arrays.copyOfRange(x.getData(), index, index + nodes.length);
       index += nodes.length;
-      Curve<Double, Double> curve = InterpolatedDoublesCurve.from(nodes, values, interpolator);
+      InterpolatedDoublesCurve curve = InterpolatedDoublesCurve.from(nodes, values, interpolator);
       res.put(name, curve);
     }
 

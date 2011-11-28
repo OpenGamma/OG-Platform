@@ -52,7 +52,7 @@ public class SABRModelFitterConstained extends SmileModelFitter<SABRFormulaData>
   }
 
   @Override
-  protected Function1D<DoubleMatrix1D, Boolean> getConstaintFunction(final NonLinearParameterTransforms t) {
+  protected Function1D<DoubleMatrix1D, Boolean> getConstraintFunction(final NonLinearParameterTransforms t) {
     return new Function1D<DoubleMatrix1D, Boolean>() {
 
       @Override

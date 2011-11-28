@@ -18,12 +18,10 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVan
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.financial.model.volatility.VolatilityModel1D;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
-import com.opengamma.financial.model.volatility.smile.function.SABRHaganAlternativeVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
-import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.math.curve.Curve;
-import com.opengamma.math.curve.CurveBuildingFunction;
 import com.opengamma.math.curve.InterpolatedCurveBuildingFunction;
+import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.TransformedInterpolator1D;
@@ -49,15 +47,15 @@ public class CapletStrippingJacobian extends Function1D<DoubleMatrix1D, DoubleMa
 
   private final Set<String> _parameterNames;
   private final List<CapFloorPricer> _capPricers;
-  private final LinkedHashMap<String, Curve<Double, Double>> _knownParameterTermSturctures;
-  private final CurveBuildingFunction<Double> _curveBuilder;
+  private final LinkedHashMap<String, InterpolatedDoublesCurve> _knownParameterTermSturctures;
+  private final InterpolatedCurveBuildingFunction _curveBuilder;
   private final Interpolator1DDataBundleBuilderFunction _dataBundleBuilder;
 
   public CapletStrippingJacobian(final List<CapFloor> caps, final YieldCurveBundle yieldCurves,
       final LinkedHashMap<String, double[]> knotPoints,
       final LinkedHashMap<String, Interpolator1D> interpolators,
       final LinkedHashMap<String, ParameterLimitsTransform> parameterTransforms,
-      final LinkedHashMap<String, Curve<Double, Double>> knownParameterTermSturctures) {
+      final LinkedHashMap<String, InterpolatedDoublesCurve> knownParameterTermSturctures) {
     Validate.notNull(caps, "caps null");
     Validate.notNull(knotPoints, "null node points");
     Validate.notNull(interpolators, "null interpolators");
@@ -87,14 +85,14 @@ public class CapletStrippingJacobian extends Function1D<DoubleMatrix1D, DoubleMa
   public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
 
     LinkedHashMap<String, Interpolator1DDataBundle> db = _dataBundleBuilder.evaluate(x); //TODO merge these - they do the same work!
-    LinkedHashMap<String, Curve<Double, Double>> curves = _curveBuilder.evaluate(x);
+    LinkedHashMap<String, InterpolatedDoublesCurve> curves = _curveBuilder.evaluate(x);
 
     // set any known (i.e. fixed) curves
     if (_knownParameterTermSturctures != null) {
       curves.putAll(_knownParameterTermSturctures);
     }
 
-    //TODO make this general - not SABR specific 
+    //TODO make this general - not SABR specific
     Curve<Double, Double> cAlpha = curves.get(ALPHA);
     Curve<Double, Double> cBeta = curves.get(BETA);
     Curve<Double, Double> cRho = curves.get(RHO);
@@ -106,12 +104,12 @@ public class CapletStrippingJacobian extends Function1D<DoubleMatrix1D, DoubleMa
     double[][] jac = new double[nCaps][m];
     double f, k, t;
 
-    for (int i = 0; i < nCaps; i++) {//outer loop over caps 
+    for (int i = 0; i < nCaps; i++) {//outer loop over caps
 
       final CapFloorPricer capPricer = _capPricers.get(i);
       final double vega = capPricer.vega(volModel);
       final int nCaplets = capPricer.getNumberCaplets();
-      final double[][] greeks = new double[nCaplets][]; //the sensitivity of vol to the model parameters 
+      final double[][] greeks = new double[nCaplets][]; //the sensitivity of vol to the model parameters
       final double[] capletVega = new double[nCaplets];
       final double[] capletExpiries = capPricer.getExpiries();
       final double[] capletFwds = capPricer.getForwards();
@@ -119,12 +117,12 @@ public class CapletStrippingJacobian extends Function1D<DoubleMatrix1D, DoubleMa
       final double[][][] nodeSens = new double[_parameterNames.size()][nCaplets][]; //Sensitivity to the nodes of a particular curve at a particular time
       k = capPricer.getStrike();
 
-      //TODO There will be much repeated calculations here, as many of the caplets are shared across caps 
+      //TODO There will be much repeated calculations here, as many of the caplets are shared across caps
       for (int tIndex = 0; tIndex < nCaplets; tIndex++) {
         f = capletFwds[tIndex];
         t = capletExpiries[tIndex];
         EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
-        //TODO again this is SABR specific 
+        //TODO again this is SABR specific
         SABRFormulaData data = new SABRFormulaData(cAlpha.getYValue(t), cBeta.getYValue(t), cRho.getYValue(t), cNu.getYValue(t));
         greeks[tIndex] = SABR.getVolatilityAdjoint(option, f, data); //2nd and 3rd entries are forward & strike sensitivity which we don't use
         capletVega[tIndex] = capletDF[tIndex] * BlackFormulaRepository.vega(f, k, t, greeks[tIndex][0]);
@@ -140,7 +138,7 @@ public class CapletStrippingJacobian extends Function1D<DoubleMatrix1D, DoubleMa
       for (int tIndex = 0; tIndex < nCaplets; tIndex++) {
         int index = 0;
         for (int parmIndex = 0; parmIndex < _parameterNames.size(); parmIndex++) {
-          double temp = capletVega[tIndex] * greeks[tIndex][parmIndex + 3]; //1st 3 are vol, dForward & dStrike 
+          double temp = capletVega[tIndex] * greeks[tIndex][parmIndex + 3]; //1st 3 are vol, dForward & dStrike
           double[] ns = nodeSens[parmIndex][tIndex];
           for (int j = 0; j < ns.length; j++) {
             res[index] += ns[j] * temp;
