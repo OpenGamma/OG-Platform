@@ -28,7 +28,7 @@
  * <pre>
  *  -- an example comment
  *  @NAME(SelectBlogs)
- *    SELECT @INSERT(CommonFields)
+ *    SELECT @INCLUDE(CommonFields)
  *    FROM blogs
  *    WHERE id = :id
  *      @AND(:date)
@@ -51,8 +51,8 @@
  * The name tag creates a named block which can be referred to from the application
  * or another part of the extsql file. The tag must be on a line by itself.
  * <p>
- * @INSERT(nameOrVariable)<br />
- * The insert tag inserts the contents of a named block or a variable (prefixed by colon).
+ * @INCLUDE(nameOrVariable)<br />
+ * The include tag includes the contents of a named block or a variable (prefixed by colon).
  * The tag may be embedded in the middle of a line.
  * <p>
  * @WHERE<br />

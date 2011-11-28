@@ -42,9 +42,9 @@ final class ExtSqlParser {
    */
   private static final Pattern IF_PATTERN = Pattern.compile("[ ]*[@]IF[(]([:][A-Za-z0-9_]+)" + "([ ]?[=][ ]?[A-Za-z0-9_]+)?" + "[)][ ]*");
   /**
-   * The regex for @INSERT(key)
+   * The regex for @INCLUDE(key)
    */
-  private static final Pattern INSERT_PATTERN = Pattern.compile("[@]INSERT[(]([:]?[A-Za-z0-9_]+)[)](.*)");
+  private static final Pattern INCLUDE_PATTERN = Pattern.compile("[@]INCLUDE[(]([:]?[A-Za-z0-9_]+)[)](.*)");
   /**
    * The regex for text :variable text
    */
@@ -177,8 +177,8 @@ final class ExtSqlParser {
     if (trimmed.length() == 0) {
       return;
     }
-    if (trimmed.contains("@INSERT")) {
-      parseInsertTag(container, line);
+    if (trimmed.contains("@INCLUDE")) {
+      parseIncludeTag(container, line);
       
     } else  if (trimmed.contains("@LIKE")) {
       parseLikeTag(container, line);
@@ -195,18 +195,18 @@ final class ExtSqlParser {
     }
   }
 
-  private void parseInsertTag(ContainerSqlFragment container, Line line) {
+  private void parseIncludeTag(ContainerSqlFragment container, Line line) {
     String trimmed = line.lineTrimmed();
-    int pos = trimmed.indexOf("@INSERT");
+    int pos = trimmed.indexOf("@INCLUDE");
     TextSqlFragment textFragment = new TextSqlFragment(trimmed.substring(0, pos));
-    Matcher insertMatcher = INSERT_PATTERN.matcher(trimmed.substring(pos));
-    if (insertMatcher.matches() == false) {
-      throw new IllegalArgumentException("@INSERT found with invalid format: " + line);
+    Matcher includeMatcher = INCLUDE_PATTERN.matcher(trimmed.substring(pos));
+    if (includeMatcher.matches() == false) {
+      throw new IllegalArgumentException("@INCLUDE found with invalid format: " + line);
     }
-    InsertSqlFragment insertFragment = new InsertSqlFragment(insertMatcher.group(1));
-    String remainder = insertMatcher.group(2);
+    IncludeSqlFragment includeFragment = new IncludeSqlFragment(includeMatcher.group(1));
+    String remainder = includeMatcher.group(2);
     container.addFragment(textFragment);
-    container.addFragment(insertFragment);
+    container.addFragment(includeFragment);
     
     Line subLine = new Line(remainder, line.lineNumber());
     parseLine(container, subLine);

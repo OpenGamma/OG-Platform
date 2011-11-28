@@ -109,7 +109,7 @@ public class ExtSqlBundleTest {
   public void test_insert_name() {
     List<String> lines = Arrays.asList(
         "@NAME(Test1)",
-        "  SELECT * FROM @INSERT(Table) WHERE TRUE",
+        "  SELECT * FROM @INCLUDE(Table) WHERE TRUE",
         "  ",
         "@NAME(Table)",
         "  foo"
@@ -125,7 +125,7 @@ public class ExtSqlBundleTest {
   public void test_insert_name_notFound() {
     List<String> lines = Arrays.asList(
         "@NAME(Test1)",
-        "  SELECT * FROM @INSERT(Table) WHERE TRUE",
+        "  SELECT * FROM @INCLUDE(Table) WHERE TRUE",
         "  "
     );
     ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
@@ -136,7 +136,7 @@ public class ExtSqlBundleTest {
   public void test_insert_variable() {
     List<String> lines = Arrays.asList(
         "@NAME(Test1)",
-        "  SELECT * FROM @INSERT(:var) WHERE TRUE"
+        "  SELECT * FROM @INCLUDE(:var) WHERE TRUE"
     );
     ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", "foo"));
@@ -147,7 +147,7 @@ public class ExtSqlBundleTest {
   public void test_insert_variable_notFound() {
     List<String> lines = Arrays.asList(
         "@NAME(Test1)",
-        "  SELECT * FROM @INSERT(:var) WHERE TRUE",
+        "  SELECT * FROM @INCLUDE(:var) WHERE TRUE",
         "  "
     );
     ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
