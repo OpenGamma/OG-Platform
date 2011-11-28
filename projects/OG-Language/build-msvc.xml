@@ -17,6 +17,7 @@
 		<mkdir dir="${build.dir}/${msbuild.config}${msbuild.platform}" />
 		<exec executable="msbuild" failonerror="true">
 			<arg value="${basedir}\${ant.project.name}.vcxproj" />
+		    <arg value="/maxcpucount" />
 			<arg value="/p:SolutionDir=${basedir}\..\" />
 			<arg value="/p:Configuration=${msbuild.config}" />
 			<arg value="/p:Platform=${msbuild.platform}" />

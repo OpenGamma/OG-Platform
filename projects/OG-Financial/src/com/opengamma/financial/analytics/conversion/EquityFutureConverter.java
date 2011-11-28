@@ -5,10 +5,7 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import com.opengamma.core.exchange.ExchangeSource;
-import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.impl.SimpleTrade;
-import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 
@@ -18,9 +15,6 @@ import com.opengamma.financial.security.future.EquityFutureSecurity;
  * TODO - Not sure this should extend from what looks to be an InterestRateFutureConverter
  */
 public class EquityFutureConverter extends AbstractFutureSecurityVisitor<EquityFutureDefinition> {
-
-  public EquityFutureConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final ExchangeSource exchangeSource) {
-  }
 
   /**
    * Converts an EquityFutureSecurity Trade to an EquityFutureDefinition
