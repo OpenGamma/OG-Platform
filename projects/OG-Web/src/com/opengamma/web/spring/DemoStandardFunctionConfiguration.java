@@ -65,6 +65,7 @@ import com.opengamma.financial.analytics.model.bond.BondTenorFunction;
 import com.opengamma.financial.analytics.model.bond.BondYieldFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.BondZSpreadFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
+import com.opengamma.financial.analytics.model.equity.futures.EquityFutureYieldCurveNodeSensitivityFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaModelPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaModelPositionFunction;
@@ -79,6 +80,10 @@ import com.opengamma.financial.analytics.model.equity.portfoliotheory.TotalRiskA
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.TotalRiskAlphaPositionFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.TreynorRatioPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.TreynorRatioPositionFunction;
+import com.opengamma.financial.analytics.model.equity.variance.EquityForwardFromSpotAndYieldCurveFunction;
+import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapPresentValueFunction;
+import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapVegaFunction;
+import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapYieldCurveNodeSensitivityFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPV01Function;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateParallelCurveSensitivityFunction;
@@ -121,10 +126,15 @@ import com.opengamma.financial.analytics.model.pnl.SecurityPriceSeriesFunction;
 import com.opengamma.financial.analytics.model.pnl.TradeExchangeTradedDailyPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.TradeExchangeTradedPnLFunction;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRPresentValueCapFloorCMSSpreadFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRPresentValueCurveSensitivityCapFloorCMSSpreadFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRPresentValueFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRPresentValueSABRCapFloorCMSSpreadFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRPresentValueSABRFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRVegaCapFloorCMSSpreadFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRVegaFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRYieldCurveNodeSensitivitiesCapFloorCMSSpreadFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.var.OptionPortfolioParametricVaRCalculatorFunction;
 import com.opengamma.financial.analytics.model.var.OptionPositionParametricVaRCalculatorFunction;
@@ -147,6 +157,7 @@ import com.opengamma.financial.currency.PositionDefaultCurrencyFunction;
 import com.opengamma.financial.currency.SecurityCurrencyConversionFunction;
 import com.opengamma.financial.currency.SecurityDefaultCurrencyFunction;
 import com.opengamma.financial.equity.future.pricing.EquityFuturePricerFactory;
+import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.financial.property.PortfolioNodeCalcConfigDefaultPropertyFunction;
 import com.opengamma.financial.property.PositionCalcConfigDefaultPropertyFunction;
 import com.opengamma.financial.property.PositionDefaultPropertyFunction;
@@ -353,7 +364,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addForexSingleBarrierOptionCalculators(functionConfigs);
     addForexForwardCalculators(functionConfigs);
     addInterestRateFutureOptionCalculators(functionConfigs);
-    addEquityFuturesFunctions(functionConfigs);
+    addEquityDerivativesFunctions(functionConfigs);
 
     addDummyFunction(functionConfigs, ValueRequirementNames.PAR_RATE);
     addDummyFunction(functionConfigs, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
@@ -465,6 +476,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FX_PRESENT_VALUE);
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.VEGA_MATRIX);
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.VEGA_QUOTE_MATRIX);
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.VEGA_QUOTE_CUBE);
     addSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
     addSummingFunction(functionConfigs, ValueRequirementNames.PRICE_SERIES);
     addSummingFunction(functionConfigs, ValueRequirementNames.PNL_SERIES);
@@ -493,6 +505,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addSummingFunction(functionConfigs, ValueRequirementNames.VEGA_MATRIX);
     addScalingFunction(functionConfigs, ValueRequirementNames.VEGA_QUOTE_MATRIX);
     addSummingFunction(functionConfigs, ValueRequirementNames.VEGA_QUOTE_MATRIX);
+    addScalingFunction(functionConfigs, ValueRequirementNames.VEGA_QUOTE_CUBE);
+    addSummingFunction(functionConfigs, ValueRequirementNames.VEGA_QUOTE_CUBE);
     addScalingFunction(functionConfigs, ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES);
     addSummingFunction(functionConfigs, ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES);
 
@@ -501,6 +515,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_RHO);
     addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_RHO);
 
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.FORWARD);
+    addSummingFunction(functionConfigs, ValueRequirementNames.FORWARD);
     addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_DELTA);
     addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_GAMMA);
     addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_SPEED);
@@ -532,19 +548,35 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     return repoConfig;
   }
 
-  private static void addEquityFuturesFunctions(List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.MARK_TO_MARKET)));
+  private static void addEquityDerivativesFunctions(List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), 
+        Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.MARK_TO_MARKET, "FUNDING")));
     //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.COST_OF_CARRY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.DIVIDEND_YIELD)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PV01, EquityFuturePricerFactory.MARK_TO_MARKET)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), 
+        Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.DIVIDEND_YIELD, "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), 
+        Arrays.asList(ValueRequirementNames.PV01, EquityFuturePricerFactory.MARK_TO_MARKET, "FUNDING")));
     //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PV01, EquityFuturePricerFactory.COST_OF_CARRY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PV01, EquityFuturePricerFactory.DIVIDEND_YIELD)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.MARK_TO_MARKET)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), 
+        Arrays.asList(ValueRequirementNames.PV01, EquityFuturePricerFactory.DIVIDEND_YIELD, "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), 
+        Arrays.asList(ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.MARK_TO_MARKET, "FUNDING")));
     //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.COST_OF_CARRY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.DIVIDEND_YIELD)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.MARK_TO_MARKET)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), 
+        Arrays.asList(ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.DIVIDEND_YIELD, "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), 
+        Arrays.asList(ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.MARK_TO_MARKET, "FUNDING")));
     //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.COST_OF_CARRY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.DIVIDEND_YIELD)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), 
+        Arrays.asList(ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.DIVIDEND_YIELD, "FUNDING")));
+    functionConfigs.add(functionConfiguration(EquityFutureYieldCurveNodeSensitivityFunction.class, "FUNDING"));
+    functionConfigs.add(functionConfiguration(EquityForwardFromSpotAndYieldCurveFunction.class, "FUNDING"));
+    functionConfigs.add(functionConfiguration(EquityVarianceSwapPresentValueFunction.class, "FUNDING", "DEFAULT", EquityForwardFromSpotAndYieldCurveFunction.FORWARD_FROM_SPOT_AND_YIELD_CURVE, 
+        VarianceSwapStaticReplication.StrikeParameterization.STRIKE.toString()));
+    functionConfigs.add(functionConfiguration(EquityVarianceSwapYieldCurveNodeSensitivityFunction.class, "FUNDING", "DEFAULT", 
+        EquityForwardFromSpotAndYieldCurveFunction.FORWARD_FROM_SPOT_AND_YIELD_CURVE, VarianceSwapStaticReplication.StrikeParameterization.STRIKE.toString()));
+    functionConfigs.add(functionConfiguration(EquityVarianceSwapVegaFunction.class, "FUNDING", "DEFAULT", 
+        EquityForwardFromSpotAndYieldCurveFunction.FORWARD_FROM_SPOT_AND_YIELD_CURVE, VarianceSwapStaticReplication.StrikeParameterization.STRIKE.toString()));
   }
 
   private static void addBondFutureCalculators(List<FunctionConfiguration> functionConfigs) {
@@ -670,14 +702,15 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
   private static void addSABRCalculators(List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new ParameterizedFunctionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueSABRCapFloorCMSSpreadFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "FORWARD_3M", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueSABRFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "FORWARD_3M", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRVegaFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueCapFloorCMSSpreadFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "FORWARD_3M", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "false", "FORWARD_3M", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "false", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueCurveSensitivityCapFloorCMSSpreadFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "FORWARD_3M", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SABRYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "false", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRYieldCurveNodeSensitivitiesCapFloorCMSSpreadFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRVegaCapFloorCMSSpreadFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "FORWARD_3M", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SABRVegaFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "false", "FORWARD_3M", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY)));

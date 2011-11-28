@@ -199,12 +199,14 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
             final SurfaceInstrumentProvider<Number, Double> volSurfaceProvider = (SurfaceInstrumentProvider<Number, Double>) _volSurfaceSpecification.getSurfaceInstrumentProvider();
             identifier = volSurfaceProvider.getInstrument(xNum, yNum, now.toLocalDate());
             requirement = new ValueRequirement(volSurfaceProvider.getDataFieldName(), identifier);
+            final double k = yNum;
+            ts.add(t);
+            ks.add(k);
             if (inputs.getValue(requirement) != null) {
               final Double volatility = (Double) inputs.getValue(requirement);
-              final double k = yNum;
-              ts.add(t);
-              ks.add(k);
               volatilityValues.put(Pair.of(t, k), volatility / 100);
+            } else {
+              volatilityValues.put(Pair.of(t, k), null);
             }
           }
         }

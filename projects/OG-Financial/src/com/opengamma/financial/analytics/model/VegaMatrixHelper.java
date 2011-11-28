@@ -30,6 +30,7 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class VegaMatrixHelper {
+  private static final Tenor[] EMPTY_TENOR_ARRAY = new Tenor[0];
   private static final DecimalFormat FX_OPTION_FORMATTER = new DecimalFormat("##");
   private static final DecimalFormat IR_FUTURE_OPTION_FORMATTER = new DecimalFormat("##.###");
 
@@ -96,22 +97,22 @@ public class VegaMatrixHelper {
   
   public static DoubleLabelledMatrix3D getVegaSwaptionCubeQuoteMatrixInStandardForm(final FittedSmileDataPoints fittedPoints, final Map<Double, DoubleMatrix2D> matrices) {
     final List<Double> xKeysList = new ArrayList<Double>();
-    final List<Object> xLabelsList = new ArrayList<Object>();
+    final List<Double> xLabelsList = new ArrayList<Double>();
     final List<Double> yKeysList = new ArrayList<Double>();
-    final List<Object> yLabelsList = new ArrayList<Object>();
+    final List<Tenor> yLabelsList = new ArrayList<Tenor>();
     final List<Double> zKeysList = new ArrayList<Double>();
-    final List<Object> zLabelsList = new ArrayList<Object>();    
+    final List<Tenor> zLabelsList = new ArrayList<Tenor>();    
     final SortedMap<Pair<Tenor, Tenor>, Double[]> relativeStrikes = fittedPoints.getRelativeStrikes();
     for (final Entry<Pair<Tenor, Tenor>, Double[]> entry : relativeStrikes.entrySet()) {
       double swapMaturity = getTime(entry.getKey().getFirst());      
       if (!zKeysList.contains(swapMaturity)) {
         zKeysList.add(swapMaturity);
-        zLabelsList.add(entry.getKey().getFirst().getPeriod());
+        zLabelsList.add(entry.getKey().getFirst());
       }
       double swaptionExpiry = getTime(entry.getKey().getSecond());
       if (!yKeysList.contains(swaptionExpiry)) {
         yKeysList.add(swaptionExpiry);
-        yLabelsList.add(entry.getKey().getSecond().getPeriod());
+        yLabelsList.add(entry.getKey().getSecond());
       }
       if (xKeysList.size() == 0) {
         Double[] relativeStrikesArray = entry.getValue();
@@ -122,11 +123,11 @@ public class VegaMatrixHelper {
       }      
     }
     final Double[] xKeys = xKeysList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
-    final Object[] xLabels = xLabelsList.toArray();
+    final Double[] xLabels = xLabelsList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
     final Double[] yKeys = yKeysList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
-    final Object[] yLabels = yLabelsList.toArray();
+    final Tenor[] yLabels = yLabelsList.toArray(EMPTY_TENOR_ARRAY);
     final Double[] zKeys = zKeysList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
-    final Object[] zLabels = zLabelsList.toArray();
+    final Tenor[] zLabels = zLabelsList.toArray(EMPTY_TENOR_ARRAY);
     final double[][][] values = new double[zKeys.length][xKeys.length][yKeys.length];
     for (int i = 0; i < zKeys.length; i++) {
       values[i] = matrices.get(zKeys[i]).toArray();

@@ -37,7 +37,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.EquityFutureConverter;
-import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.equity.future.EquityFutureDataBundle;
 import com.opengamma.financial.equity.future.definition.EquityFutureDefinition;
@@ -58,22 +57,24 @@ import com.opengamma.util.money.Currency;
  * A trade may produce additional generic ones, e.g. date and number of contracts..  
  */
 public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
-
   private static final String DIVIDEND_YIELD_FIELD = "EQY_DVD_YLD_EST";
-  //private static final String DATA_SOURCE = "BLOOMBERG"; // TODO Make DATA_SOURCE and DATA_PROVIDER inputs
-  //private static final String DATA_PROVIDER = "UNKNOWN";
 
   private final String _valueRequirementName;
   private final EquityFuturesPricingMethod _pricingMethod;
+  private final String _fundingCurveName;
   private EquityFutureConverter _financialToAnalyticConverter;
   private final EquityFuturesPricer _pricer;
   private final String _pricingMethodName;
 
   /**
   * @param valueRequirementName String describes the value requested 
-  * @param pricingMethodName String corresponding to enum EquityFuturesPricingMethod {MARK_TO_MARKET or COST_OF_CARRY, DIVIDEND_YIELD} 
+  * @param pricingMethodName String corresponding to enum EquityFuturesPricingMethod {MARK_TO_MARKET or COST_OF_CARRY, DIVIDEND_YIELD}
+  * @param fundingCurveName The name of the curve that will be used for discounting 
   */
-  public EquityFuturesFunction(final String valueRequirementName, final String pricingMethodName) {
+  public EquityFuturesFunction(final String valueRequirementName, final String pricingMethodName, final String fundingCurveName) {
+    Validate.notNull(valueRequirementName, "value requirement name");
+    Validate.notNull(pricingMethodName, "pricing method name");
+    Validate.notNull(fundingCurveName, "funding curve name");
     Validate.isTrue(valueRequirementName.equals(ValueRequirementNames.PRESENT_VALUE)
             || valueRequirementName.equals(ValueRequirementNames.VALUE_RHO)
             || valueRequirementName.equals(ValueRequirementNames.PV01)
@@ -89,6 +90,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
     _pricingMethod = EquityFuturesPricingMethod.valueOf(pricingMethodName);
     _pricingMethodName = pricingMethodName;
+    _fundingCurveName = fundingCurveName;
     _pricer = EquityFuturePricerFactory.getMethod(pricingMethodName);
   }
 
@@ -207,7 +209,8 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   private ValueRequirement getDiscountCurveRequirement(EquityFutureSecurity security) {
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, security.getCurrency().getUniqueId());
+    ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, _fundingCurveName).get();
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, security.getCurrency().getUniqueId(), properties);
   }
 
   private YieldAndDiscountCurve getYieldCurve(EquityFutureSecurity security, FunctionInputs inputs) {
@@ -238,7 +241,6 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
   private ValueRequirement getSpotAssetRequirement(EquityFutureSecurity security) {
     ValueRequirement req = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, security.getUnderlyingId());
     return req;
-
   }
 
   private Double getSpot(EquityFutureSecurity security, FunctionInputs inputs) {
@@ -308,7 +310,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     final ValueProperties valueProps = properties
         .with(ValuePropertyNames.CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
-        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+        .with(ValuePropertyNames.CURVE, _fundingCurveName)
         .with(ValuePropertyNames.CALCULATION_METHOD, _pricingMethodName)
         .get();
 

@@ -26,6 +26,7 @@ import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySu
 import com.opengamma.financial.analytics.volatility.surface.EquityOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveDefinition;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpecification;
+import com.opengamma.financial.analytics.volatility.surface.Grid2DInterpolatedVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.volatility.surface.IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
@@ -67,11 +68,22 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
     addConfigFor(configs, RawVolatilitySurfaceDataFunction.class.getName(), new String[] {"DEFAULT", "IR_FUTURE_OPTION", "DEFAULT"});
     addConfigFor(configs, RawVolatilitySurfaceDataFunction.class.getName(), new String[] {"DEFAULT", "FX_VANILLA_OPTION", "DEFAULT"});
     addConfigFor(configs, EquityOptionVolatilitySurfaceDataFunction.class.getName(), new String[] {"DEFAULT", "EQUITY_OPTION", "DEFAULT"});
+    addConfigFor(configs, Grid2DInterpolatedVolatilitySurfaceFunction.class.getName(), new String[] {"DEFAULT", "EQUITY_OPTION", "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator", 
+      "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator"});
     configs.add(new ParameterizedFunctionConfiguration(ForexVolatilitySurfaceFunction.class.getName(), Arrays.asList("DEFAULT", "DEFAULT")));
     return new RepositoryConfiguration(configs);
   }
   
   private void addConfigFor(List<FunctionConfiguration> configurations, String className, String[] params) {
+    if (className.equals(Grid2DInterpolatedVolatilitySurfaceFunction.class.getName())) {
+      if (params.length != 8) {
+        s_logger.error("Not enough parameters for " + className);
+        s_logger.error(Arrays.asList(params).toString());
+        throw new OpenGammaRuntimeException("Not enough parameters for " + className);        
+      }
+      configurations.add(new ParameterizedFunctionConfiguration(className, Arrays.asList(params)));
+      return;
+    }
     if (className.equals(IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction.class.getName())) {
       if (params.length != 4) {
         s_logger.error("Not enough parameters for " + className);

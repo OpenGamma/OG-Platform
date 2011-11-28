@@ -56,7 +56,7 @@ public class SABRPresentValueFunction extends SABRFunction {
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final InstrumentDefinition<?> definition = security.accept(getVisitor());
-    final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(target, inputs));
+    final SABRInterestRateDataBundle data = getModelParameters(target, inputs);
     final InstrumentDerivative derivative = getConverter().convert(security, definition, now, new String[] {getFundingCurveName(), getForwardCurveName()}, dataSource);
     final double presentValue = _calculator.visit(derivative, data);
     return Sets.newHashSet(new ComputedValue(getSpecification(target), presentValue));

@@ -10,6 +10,7 @@ import java.util.Map;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.LabelledMatrix3D;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Converter for {@link LabelledMatrix3D} results.
@@ -41,7 +42,7 @@ public class LabelledMatrix3DConverter implements ResultConverter<LabelledMatrix
       int rowNumber = 0;
       for (int i = 0; i < tablesCount; i++) {
         for (int j = 0; j < rowCount; j++) {
-          yLabels[rowNumber] = value.getYLabels()[j].toString() + " x " + value.getZLabels()[i].toString();
+          yLabels[rowNumber] = ((Tenor) value.getYLabels()[j]).getPeriod().toString() + " x " + ((Tenor) value.getZLabels()[i]).getPeriod().toString();
           formattedValues[rowNumber++] = values[i][j];
         }
       }
