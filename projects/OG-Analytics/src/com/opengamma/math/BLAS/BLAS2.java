@@ -18,10 +18,12 @@ import com.opengamma.math.BLAS.BLAS2KernelImplementations.DGEMVForCOOMatrix;
 import com.opengamma.math.BLAS.BLAS2KernelImplementations.DGEMVForCSCMatrix;
 import com.opengamma.math.BLAS.BLAS2KernelImplementations.DGEMVForCSRMatrix;
 import com.opengamma.math.BLAS.BLAS2KernelImplementations.DGEMVForDenseMatrix;
+import com.opengamma.math.BLAS.BLAS2KernelImplementations.DGEMVForDenseSymmetricMatrix;
 import com.opengamma.math.BLAS.BLAS2KernelImplementations.DGEMVForPackedMatrix;
 import com.opengamma.math.matrix.CompressedSparseColumnFormatMatrix;
 import com.opengamma.math.matrix.CompressedSparseRowFormatMatrix;
 import com.opengamma.math.matrix.DenseMatrix;
+import com.opengamma.math.matrix.DenseSymmetricMatrix;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.MatrixPrimitive;
 import com.opengamma.math.matrix.PackedMatrix;
@@ -67,6 +69,7 @@ public class BLAS2 {
     s_dgemvFunctionPointers.put(CompressedSparseColumnFormatMatrix.class, DGEMVForCSCMatrix.getInstance());
     s_dgemvFunctionPointers.put(SparseCoordinateFormatMatrix.class, DGEMVForCOOMatrix.getInstance());
     s_dgemvFunctionPointers.put(PackedMatrix.class, DGEMVForPackedMatrix.getInstance());
+    s_dgemvFunctionPointers.put(DenseSymmetricMatrix.class, DGEMVForDenseSymmetricMatrix.getInstance());
   }
 
   /**

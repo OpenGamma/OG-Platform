@@ -22,6 +22,36 @@ public class PackedMatrix implements MatrixPrimitive {
   private int[] _rowPtr; // pointer to where the data should start on a given row
 
   /**
+   * Enumerator for where zeros are allowed within the packing.
+   */
+  public enum allowZerosOn {
+
+    /**
+     * Allow zeros to be packed on the left side of the matrix. For example
+     * pack({0 0 1 2 3 4 5 0}) -> {0 0 1 2 3 4 5}
+     */
+    leftSide,
+
+    /**
+     * Allow zeros to be packed on the right side of the matrix. For example
+     * pack({0 0 1 2 3 4 5 0}) -> {1 2 3 4 5 0}
+     */
+    rightSide,
+
+    /**
+     * Allow zeros to be packed on both sides of the matrix. For example
+     * pack({0 0 1 2 3 4 5 0}) -> {0 0 1 2 3 4 5 0}
+     */
+    bothSides,
+
+    /**
+     * Zeros are forbidden at either sides of the data
+     * pack({0 0 1 2 3 4 5 0}) -> {1 2 3 4 5}
+     */
+    none
+  }
+
+  /**
    * Constructors
    */
 
@@ -30,7 +60,7 @@ public class PackedMatrix implements MatrixPrimitive {
    * @param aMatrix is an n columns x m rows matrix stored as a row major array of arrays.
    */
   public PackedMatrix(double[][] aMatrix) {
-    this(aMatrix, false, aMatrix.length, aMatrix[0].length);
+    this(aMatrix, allowZerosOn.none, aMatrix.length, aMatrix[0].length);
   }
 
   /**
@@ -38,7 +68,7 @@ public class PackedMatrix implements MatrixPrimitive {
    * @param aMatrix is a DoubleMatrix2D
    */
   public PackedMatrix(DoubleMatrix2D aMatrix) {
-    this(aMatrix.toArray(), false, aMatrix.getNumberOfRows(), aMatrix.getNumberOfColumns());
+    this(aMatrix.toArray(), allowZerosOn.none, aMatrix.getNumberOfRows(), aMatrix.getNumberOfColumns());
   }
 
   /**
@@ -46,7 +76,7 @@ public class PackedMatrix implements MatrixPrimitive {
    * @param aMatrix is an n columns x m rows matrix stored as a row major array of arrays.
    * @param allowZeros is set to allow the packing of zeros in the packed data structure.
    */
-  public PackedMatrix(double[][] aMatrix, boolean allowZeros) {
+  public PackedMatrix(double[][] aMatrix, allowZerosOn allowZeros) {
     this(aMatrix, allowZeros, aMatrix.length, aMatrix[0].length);
   }
 
@@ -55,11 +85,11 @@ public class PackedMatrix implements MatrixPrimitive {
    * This is particularly useful for banded matrices in which
    * allowing some zero padding is beneficial in terms of making access patterns more simple.
    * @param aMatrix is an n columns x m rows matrix stored as a row major array of arrays.
-   * @param allowZeros is set to allow the packing of zeros in the packed data structure.
+   * @param zeroPattern is enumerated based on {@link allowZerosOn} to allow the packing of zeros in the packed data structure.
    * @param rows is the number of rows in the matrix that is to be represented
    * @param cols is the number of columns in the matrix that is to be represented
    */
-  public PackedMatrix(double[][] aMatrix, boolean allowZeros, int rows, int cols) {
+  public PackedMatrix(double[][] aMatrix, allowZerosOn zeroPattern, int rows, int cols) {
     Validate.notNull(aMatrix);
     // test if ragged
     if (MatrixPrimitiveUtils.isRagged(aMatrix)) {
@@ -79,34 +109,54 @@ public class PackedMatrix implements MatrixPrimitive {
     int count = 0;
     _colCount[0] = 0;
 
-    if (!allowZeros) {
-      // make flat!
-      for (int i = 0; i < _rows; i++) {
-        isSet = false; // init each starting point as not being set and look for it.
-
-        // THIS WILL FAIL:
-        // it is possible to have "contiguous" data that matches the zero bit pattern (essentially by fluke)
-        // that would break the notion of contiguous data.
-        //        // test to ensure data is contiguous
-        //        if (!MatrixPrimitiveUtils.arrayHasContiguousRowEntries(aMatrix[i])) {
-        //          throw new IllegalArgumentException("Matrix given does not contain contiguous nonzero entries, error was thrown due to bad data on row " + i);
-        //        }
-        // instead look for start and end positions of the block of data in a row and loop over these.
-
-        // search backwards and find the end point
-        int end = 0;
-        for (int j = _cols - 1; j >= 0; j--) {
-          val = aMatrix[i][j];
-          if (Double.doubleToLongBits(val) != 0L) { // test if not zero
-            end = j;
-            break;
+    switch (zeroPattern) {
+      case bothSides: {
+        // make flat!
+        for (int i = 0; i < _rows; i++) {
+          _rowPtr[i] = 0;
+          for (int j = 0; j < _cols; j++) { //for each col
+            tmp[count] = aMatrix[i][j]; // assign to tmp
+            count++;
           }
+          _colCount[i + 1] += count;
         }
+        break;
+      }
+      case rightSide: {
+        for (int i = 0; i < _rows; i++) {
+          isSet = false; // init each starting point as not being set and look for it.
+          for (int j = 0; j < cols; j++) { //for each col
+            val = aMatrix[i][j]; // get the value
+            if (Double.doubleToLongBits(val) != 0L || isSet) { // test if not zero and whether we have found the start of the data yet
+              tmp[count] = val; // assign to tmp
+              count++;
+              if (!isSet) { // if we haven't already set the starting point in the row
+                _rowPtr[i] = j; // assign this element as the starting point
+                isSet = true; // and ensure we don't come back here for this row
+              }
+            }
+          }
+          _colCount[i + 1] += count;
+        }
+        break;
+      }
+      case leftSide: {
+        for (int i = 0; i < _rows; i++) {
+          isSet = false; // init each starting point as not being set and look for it.
 
-        // flatten
-        for (int j = 0; j < end + 1; j++) { //for each col
-          val = aMatrix[i][j]; // get the value
-          if (Double.doubleToLongBits(val) != 0L) { // test if not zero
+          // search backwards and find the end point
+          int end = -1;
+          for (int j = _cols - 1; j >= 0; j--) {
+            val = aMatrix[i][j];
+            if (Double.doubleToLongBits(val) != 0L) { // test if not zero
+              end = j;
+              break;
+            }
+          }
+
+          // flatten
+          for (int j = 0; j < end + 1; j++) { //for each col
+            val = aMatrix[i][j]; // get the value
             tmp[count] = val; // assign to tmp
             count++;
             if (!isSet) { // if we haven't already set the starting point in the row
@@ -114,35 +164,101 @@ public class PackedMatrix implements MatrixPrimitive {
               isSet = true; // and ensure we don't come back here for this row
             }
           }
+          _colCount[i + 1] += count;
         }
-        _colCount[i + 1] += count;
-      }
-    } else {
-      /** ALLOWING ZEROS TO BE PACKED INTO THE ARRAY, BEHAVIOUR IS SLIGHTLY DIFFERENT! */
-      // make flat!
-      for (int i = 0; i < aMatrix.length; i++) {
-        isSet = false; // init each starting point as not being set and look for it.
-        // Don't do this in case a zero pattern accidentally occurs in the middle of a populated row.
-        //        // test to ensure data is contiguous
-        //        if (!MatrixPrimitiveUtils.arrayHasContiguousRowEntries(aMatrix[i])) {
-        //          throw new IllegalArgumentException("Matrix given does not contain contiguous nonzero entries, error was thrown due to bad data on row " + i);
-        //        }
 
-        // flatten
-        for (int j = 0; j < aMatrix[i].length; j++) { // for each col
-          val = aMatrix[i][j]; // get the value
-          tmp[count] = val; // assign to tmp
-          count++;
-          if (!isSet) { // if we haven't already set the starting point in the row
-            _rowPtr[i] = j; // assign this element as the starting point
-            isSet = true; // and ensure we don't come back here for this row
-          }
-        }
-        _colCount[i + 1] += count;
+        break;
       }
+      case none: {
+        // make flat!
+        for (int i = 0; i < _rows; i++) {
+          isSet = false; // init each starting point as not being set and look for it.
+          // search backwards and find the end point
+          int end = 0;
+          for (int j = _cols - 1; j >= 0; j--) {
+            val = aMatrix[i][j];
+            if (Double.doubleToLongBits(val) != 0L) { // test if not zero
+              end = j;
+              break;
+            }
+          }
+          // flatten
+          for (int j = 0; j < end + 1; j++) { //for each col
+            val = aMatrix[i][j]; // get the value
+            if (Double.doubleToLongBits(val) != 0L || isSet) { // test if not zero
+              tmp[count] = val; // assign to tmp
+              count++;
+              if (!isSet) { // if we haven't already set the starting point in the row
+                _rowPtr[i] = j; // assign this element as the starting point
+                isSet = true; // and ensure we don't come back here for this row
+              }
+            }
+          }
+          _colCount[i + 1] += count;
+        }
+        break;
+      }
+
     }
     _data = Arrays.copyOfRange(tmp, 0, count);
-  }
+  } // method end
+
+  // The old way, turns out our needs are more complicated!
+  //    if (!allowZeros) {
+  //      // make flat!
+  //      for (int i = 0; i < _rows; i++) {
+  //        isSet = false; // init each starting point as not being set and look for it.
+  //
+  //        // search backwards and find the end point
+  //        int end = 0;
+  //        for (int j = _cols - 1; j >= 0; j--) {
+  //          val = aMatrix[i][j];
+  //          if (Double.doubleToLongBits(val) != 0L) { // test if not zero
+  //            end = j;
+  //            break;
+  //          }
+  //        }
+  //
+  //        // flatten
+  //        for (int j = 0; j < end + 1; j++) { //for each col
+  //          val = aMatrix[i][j]; // get the value
+  //          if (Double.doubleToLongBits(val) != 0L) { // test if not zero
+  //            tmp[count] = val; // assign to tmp
+  //            count++;
+  //            if (!isSet) { // if we haven't already set the starting point in the row
+  //              _rowPtr[i] = j; // assign this element as the starting point
+  //              isSet = true; // and ensure we don't come back here for this row
+  //            }
+  //          }
+  //        }
+  //        _colCount[i + 1] += count;
+  //      }
+  //    } else {
+  //      /** ALLOWING ZEROS TO BE PACKED INTO THE ARRAY, BEHAVIOUR IS SLIGHTLY DIFFERENT! */
+  //      // make flat!
+  //      for (int i = 0; i < aMatrix.length; i++) {
+  //        isSet = false; // init each starting point as not being set and look for it.
+  //        // Don't do this in case a zero pattern accidentally occurs in the middle of a populated row.
+  //        //        // test to ensure data is contiguous
+  //        //        if (!MatrixPrimitiveUtils.arrayHasContiguousRowEntries(aMatrix[i])) {
+  //        //          throw new IllegalArgumentException("Matrix given does not contain contiguous nonzero entries, error was thrown due to bad data on row " + i);
+  //        //        }
+  //
+  //        // flatten
+  //        for (int j = 0; j < aMatrix[i].length; j++) { // for each col
+  //          val = aMatrix[i][j]; // get the value
+  //          tmp[count] = val; // assign to tmp
+  //          count++;
+  //          if (!isSet) { // if we haven't already set the starting point in the row
+  //            _rowPtr[i] = j; // assign this element as the starting point
+  //            isSet = true; // and ensure we don't come back here for this row
+  //          }
+  //        }
+  //        _colCount[i + 1] += count;
+  //      }
+  //    }
+  //    _data = Arrays.copyOfRange(tmp, 0, count);
+  //  }
 
   /**
    * Returns the cumulative column count data used which can be used for indexing purposes.
@@ -167,8 +283,6 @@ public class PackedMatrix implements MatrixPrimitive {
   public double[] getData() {
     return _data;
   }
-
-
 
   /**
    * {@inheritDoc}

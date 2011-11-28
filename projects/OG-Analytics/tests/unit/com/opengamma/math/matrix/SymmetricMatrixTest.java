@@ -21,12 +21,12 @@ public class SymmetricMatrixTest {
   private double[][] sym={{1,2,3,4},{2,1,5,6},{3,5,1,7},{4,6,7,1}};
 @Test
   public void testConstructFromFull() {
-    new SymmetricMatrix(sym);
+    new DenseSymmetricMatrix(sym);
   }
 
 @Test
   public void testConstructFromDoubleMatrix2D() {
-    new SymmetricMatrix(sym);
+    new DenseSymmetricMatrix(sym);
   }
 
 }
