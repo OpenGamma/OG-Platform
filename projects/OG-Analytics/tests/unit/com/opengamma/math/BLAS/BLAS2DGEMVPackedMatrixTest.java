@@ -11,7 +11,6 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.math.matrix.DenseMatrix;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.PackedMatrix;
 
@@ -151,7 +150,7 @@ public class BLAS2DGEMVPackedMatrixTest {
   /* Normal 2 inputs */
 @Test(expectedExceptions = AssertionError.class)
 public void testInputCatcherMatrix() {
-  DenseMatrix NullMat = null;
+  PackedMatrix NullMat = null;
   BLAS2.dgemvInputSanityChecker(NullMat, x5);
 }
 
@@ -169,7 +168,7 @@ public void testInputCatcherSizeWillNotCommute() {
 /* Normal 3 inputs */
 @Test(expectedExceptions = AssertionError.class)
 public void testInputCatcherMatrix3inputs() {
-  DenseMatrix NullMat = null;
+  PackedMatrix NullMat = null;
   BLAS2.dgemvInputSanityChecker(NullMat, x4, y5);
 }
 
@@ -198,7 +197,7 @@ public void testInputCatcherSizeWillNotCommuteWithReturnVector() {
 /* Transpose 2 inputs */
 @Test(expectedExceptions = AssertionError.class)
 public void testTransposeInputCatcherMatrix() {
-  DenseMatrix NullMat = null;
+  PackedMatrix NullMat = null;
   BLAS2.dgemvInputSanityCheckerTransposed(NullMat, x5);
 }
 
@@ -216,7 +215,7 @@ public void testTransposeInputCatcherSizeWillNotCommute() {
 /* Transpose 3 inputs */
 @Test(expectedExceptions = AssertionError.class)
 public void testTransposeInputCatcherMatrix3inputs() {
-  DenseMatrix NullMat = null;
+  PackedMatrix NullMat = null;
   BLAS2.dgemvInputSanityCheckerTransposed(NullMat, x4, y5);
 }
 

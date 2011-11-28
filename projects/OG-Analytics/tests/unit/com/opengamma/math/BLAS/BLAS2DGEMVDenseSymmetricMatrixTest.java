@@ -11,7 +11,6 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.math.matrix.DenseMatrix;
 import com.opengamma.math.matrix.DenseSymmetricMatrix;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 
@@ -115,7 +114,7 @@ public class BLAS2DGEMVDenseSymmetricMatrixTest {
   /* Normal 2 inputs */
   @Test(expectedExceptions = AssertionError.class)
   public void testInputCatcherMatrix() {
-    DenseMatrix NullMat = null;
+    DenseSymmetricMatrix NullMat = null;
     BLAS2.dgemvInputSanityChecker(NullMat, x5);
   }
 
@@ -133,7 +132,7 @@ public class BLAS2DGEMVDenseSymmetricMatrixTest {
   /* Normal 3 inputs */
   @Test(expectedExceptions = AssertionError.class)
   public void testInputCatcherMatrix3inputs() {
-    DenseMatrix NullMat = null;
+    DenseSymmetricMatrix NullMat = null;
     BLAS2.dgemvInputSanityChecker(NullMat, x5, y5);
   }
 
@@ -162,7 +161,7 @@ public class BLAS2DGEMVDenseSymmetricMatrixTest {
   /* Transpose 2 inputs */
   @Test(expectedExceptions = AssertionError.class)
   public void testTransposeInputCatcherMatrix() {
-    DenseMatrix NullMat = null;
+    DenseSymmetricMatrix NullMat = null;
     BLAS2.dgemvInputSanityCheckerTransposed(NullMat, x5);
   }
 
@@ -180,7 +179,7 @@ public class BLAS2DGEMVDenseSymmetricMatrixTest {
   /* Transpose 3 inputs */
   @Test(expectedExceptions = AssertionError.class)
   public void testTransposeInputCatcherMatrix3inputs() {
-    DenseMatrix NullMat = null;
+    DenseSymmetricMatrix NullMat = null;
     BLAS2.dgemvInputSanityCheckerTransposed(NullMat, x5, y5);
   }
 
