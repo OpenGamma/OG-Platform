@@ -1,0 +1,24 @@
+<table class="OG-table">
+  <thead>
+    <tr><th><span>Position</span></th><th>&nbsp;</th><th>&nbsp;</th></tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td><a href=#/securities/${template_data.security_unique_id}>${template_data.security_name}</a></td>
+    <td>
+      <strong class="og-quantity" {{if editable}} data-og-editable="quantity" {{/if}}>${template_data.quantity}</strong>
+    </td>
+    <td>${template_data.security_type}</td>
+  </tr>
+  </tbody>
+</table>
+<div class="og-timeseries"></div>
+<div>
+  <table class="og-securities">
+    <tbody class="og-js-identifiers">
+      {{each securities}}
+          <tr><td><span>${$value.scheme.lang()}</span></td><td>${$value.value.lang()}</td></tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
