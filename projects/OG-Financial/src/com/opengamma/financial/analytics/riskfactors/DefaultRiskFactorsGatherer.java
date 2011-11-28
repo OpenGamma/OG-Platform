@@ -281,7 +281,7 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
         .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
         .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()))
         .addAll(getSabrSensitivities())
-        .add(getPresentValue(ValueProperties.with(ValuePropertyNames.CUBE, "DEFAULT")))
+        .add(getPresentValue(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG")))
         .add(getVegaCubeMatrix(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG"))).build();
   }
 
@@ -417,12 +417,16 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
 
   @Override
   public Set<Pair<String, ValueProperties>> visitEquityFutureSecurity(EquityFutureSecurity security) {
-    return ImmutableSet.of();
+    return ImmutableSet.of(
+        getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
+        getPresentValue(ValueProperties.builder()));
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security) {
-    return ImmutableSet.of();
+    return ImmutableSet.of(
+        getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
+        getPresentValue(ValueProperties.builder()));
   }
 
   //-------------------------------------------------------------------------
