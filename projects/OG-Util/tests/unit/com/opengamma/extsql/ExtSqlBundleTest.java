@@ -223,7 +223,7 @@ public class ExtSqlBundleTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_offsetFetch() {
+  public void test_offsetFetch_bothDefaultVars() {
     List<String> lines = Arrays.asList(
         "@NAME(Test1)",
         "  SELECT * FROM foo",
@@ -233,6 +233,42 @@ public class ExtSqlBundleTest {
     MapSqlParameterSource paramSource = new MapSqlParameterSource("paging_offset", 7).addValue("paging_fetch", 3);
     String sql1 = bundle.getSql("Test1", paramSource);
     assertEquals("SELECT * FROM foo OFFSET 7 ROWS FETCH NEXT 3 ROWS ONLY ", sql1);
+  }
+
+  public void test_offsetFetch_offsetDefaultVar() {
+    List<String> lines = Arrays.asList(
+        "@NAME(Test1)",
+        "  SELECT * FROM foo",
+        "  @OFFSETFETCH"
+    );
+    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    MapSqlParameterSource paramSource = new MapSqlParameterSource("paging_offset", 7);
+    String sql1 = bundle.getSql("Test1", paramSource);
+    assertEquals("SELECT * FROM foo OFFSET 7 ROWS ", sql1);
+  }
+
+  public void test_offsetFetch_fetchDefaultVar() {
+    List<String> lines = Arrays.asList(
+        "@NAME(Test1)",
+        "  SELECT * FROM foo",
+        "  @OFFSETFETCH"
+    );
+    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    MapSqlParameterSource paramSource = new MapSqlParameterSource("paging_fetch", 3);
+    String sql1 = bundle.getSql("Test1", paramSource);
+    assertEquals("SELECT * FROM foo FETCH FIRST 3 ROWS ONLY ", sql1);
+  }
+
+  public void test_offsetFetch_specifiedVars() {
+    List<String> lines = Arrays.asList(
+        "@NAME(Test1)",
+        "  SELECT * FROM foo",
+        "  @OFFSETFETCH(:offset, :fetch) ENDFOO"
+    );
+    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    MapSqlParameterSource paramSource = new MapSqlParameterSource("offset", 7).addValue("fetch", 3);
+    String sql1 = bundle.getSql("Test1", paramSource);
+    assertEquals("SELECT * FROM foo OFFSET 7 ROWS FETCH NEXT 3 ROWS ONLY ENDFOO ", sql1);
   }
 
   //-------------------------------------------------------------------------

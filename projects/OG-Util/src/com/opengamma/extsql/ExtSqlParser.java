@@ -46,6 +46,10 @@ final class ExtSqlParser {
    */
   private static final Pattern INCLUDE_PATTERN = Pattern.compile("[@]INCLUDE[(]([:]?[A-Za-z0-9_]+)[)](.*)");
   /**
+   * The regex for @OFFSETFETCH(offsetVariable,fetchVariable)
+   */
+  private static final Pattern OFFSET_FETCH_PATTERN = Pattern.compile("[@]OFFSETFETCH[(][:]([A-Za-z0-9_]+)[ ]?[,][ ]?[:]([A-Za-z0-9_]+)[)](.*)");
+  /**
    * The regex for text :variable text
    */
   private static final Pattern VARIABLE_PATTERN = Pattern.compile("([^:])*([:][A-Za-z0-9_]+)(.*)");
@@ -242,8 +246,19 @@ final class ExtSqlParser {
     String trimmed = line.lineTrimmed();
     int pos = trimmed.indexOf("@OFFSETFETCH");
     TextSqlFragment textFragment = new TextSqlFragment(trimmed.substring(0, pos));
-    OffsetFetchSqlFragment pagingFragment = new OffsetFetchSqlFragment();
+    String offsetVariable = "paging_offset";
+    String fetchVariable = "paging_fetch";
     String remainder = trimmed.substring(pos + 12);
+    if (trimmed.substring(pos).startsWith("@OFFSETFETCH(")) {
+      Matcher matcher = OFFSET_FETCH_PATTERN.matcher(trimmed.substring(pos));
+      if (matcher.matches() == false) {
+        throw new IllegalArgumentException("@OFFSETFETCH found with invalid format: " + line);
+      }
+      offsetVariable = matcher.group(1);
+      fetchVariable = matcher.group(2);
+      remainder = matcher.group(3);
+    }
+    OffsetFetchSqlFragment pagingFragment = new OffsetFetchSqlFragment(offsetVariable, fetchVariable);
     container.addFragment(textFragment);
     container.addFragment(pagingFragment);
     
