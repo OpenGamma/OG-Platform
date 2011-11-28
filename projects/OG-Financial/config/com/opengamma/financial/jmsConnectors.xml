@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+  <!-- ================================================================== -->
+  <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+    <constructor-arg value="${activeMQ.brokerURL}" />
+    <property name="WatchTopicAdvisories" value="false" /> <!-- IGN-94 -->
+  </bean>
+  <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop"> 
+    <constructor-arg ref="activeMQConnectionFactory"/>
+  </bean>
+  <bean id="jmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean"> 
+    <property name="name" value="Masters"/>
+    <property name="connectionFactory" ref="jmsConnectionFactory"/>
+  </bean>
+
+</beans>
