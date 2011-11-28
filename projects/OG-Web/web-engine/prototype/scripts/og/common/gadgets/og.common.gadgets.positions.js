@@ -19,11 +19,13 @@ $.register_module({
                 });
             };
             api.rest.positions.get({
+                dependencies: ['id', 'node'],
                 handler: function (result) {
                     if (result.error) return alert(result.message);
                     api.text({module: 'og.views.gadgets.positions', handler: function (template) {
                         var args = routes.current();
-                        $(config.selector).html($.tmpl(template, $.extend(result.data, {editable: config.editable})));
+                        $(config.selector).html($.tmpl(template, $.extend(result.data, {editable: config.editable})))
+                            .hide().fadeIn();
                         timeseries(result);
                         if ((!args.version || args.version === '*') && config.editable) {
                             common.util.ui.content_editable({

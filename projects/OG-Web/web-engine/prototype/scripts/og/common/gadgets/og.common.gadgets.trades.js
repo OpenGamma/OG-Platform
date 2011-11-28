@@ -59,7 +59,7 @@ $.register_module({
                     }());
                     return acc;
                 }, []).join('');
-                $(selector).html(table.replace('{TBODY}', tbody));
+                $(selector).html(table.replace('{TBODY}', tbody)).hide().fadeIn();
                 if (!has_attributes) disable_expand(config); // remove all expand links if no attributes
                 $(selector + ' .OG-table > tbody > tr').each(function () { // remove expand links with no attributes
                     var $this = $(this);
@@ -72,6 +72,7 @@ $.register_module({
                 $(selector + ' .OG-table').awesometable({height: 400});
             };
             og.api.rest.positions.get({
+                dependencies: ['id', 'node'],
                 handler: function (result) {
                     if (result.error) return alert(result.message);
                     handler(result);
