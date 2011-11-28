@@ -4,7 +4,13 @@
   </thead>
   <tbody>
   <tr>
-    <td><a href=#/securities/${template_data.security_unique_id}>${template_data.security_name}</a></td>
+    <td><a href=#/securities/${template_data.security_unique_id}>
+     {{if template_data.security_name}}
+        ${template_data.security_name}
+     {{else}}
+        (no value)
+     {{/if}}
+    </a></td>
     <td>
       <strong class="og-quantity" {{if editable}} data-og-editable="quantity" {{/if}}>${template_data.quantity}</strong>
     </td>
@@ -16,9 +22,13 @@
 <div>
   <table class="og-securities">
     <tbody class="og-js-identifiers">
-      {{each securities}}
+      {{if securities[0]}}
+        {{each securities}}
           <tr><td><span>${$value.scheme.lang()}</span></td><td>${$value.value.lang()}</td></tr>
-      {{/each}}
+        {{/each}}
+      {{else}}
+        <tr><td colspan="2">(no value)</td></tr>
+      {{/if}}
     </tbody>
   </table>
 </div>
