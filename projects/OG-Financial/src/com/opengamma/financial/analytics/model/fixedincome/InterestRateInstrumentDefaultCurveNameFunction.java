@@ -42,7 +42,7 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
   }
 
   @Override
-  protected void getDefaults(final FunctionCompilationContext context, final ComputationTarget target, final PropertyDefaults defaults) {
+  protected void getDefaults(final PropertyDefaults defaults) {
     for (String valueName : _valueNames) {
       defaults.addValuePropertyName(valueName, YieldCurveFunction.PROPERTY_FORWARD_CURVE);
       defaults.addValuePropertyName(valueName, YieldCurveFunction.PROPERTY_FUNDING_CURVE);

@@ -10,7 +10,7 @@ package com.opengamma.extsql;
  * <p>
  * This is the top level named SQL fragment.
  */
-public final class NameSqlFragment extends ContainerSqlFragment {
+final class NameSqlFragment extends ContainerSqlFragment {
 
   private final String _name;
 

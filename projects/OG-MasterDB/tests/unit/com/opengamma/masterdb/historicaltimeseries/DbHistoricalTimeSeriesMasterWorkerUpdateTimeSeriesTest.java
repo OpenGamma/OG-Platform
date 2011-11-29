@@ -66,7 +66,7 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTimeSeriesTest extends Abst
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_atExistingPoint() {
-    LocalDate[] dates = {LocalDate.of(2011, 1, 2)};
+    LocalDate[] dates = {LocalDate.of(2011, 1, 3)};
     double[] values = {0.9d};
     LocalDateDoubleTimeSeries series = new ArrayLocalDateDoubleTimeSeries(dates, values);
     

@@ -12,7 +12,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
  * <p>
  * This outputs the contents if the conditional is true.
  */
-public final class IfSqlFragment extends ConditionalSqlFragment {
+final class IfSqlFragment extends ConditionalSqlFragment {
 
   /**
    * Creates an instance.
@@ -20,7 +20,7 @@ public final class IfSqlFragment extends ConditionalSqlFragment {
    * @param variable  the variable to determine whether to include the AND on, not null
    * @param matchValue  the value to match, null to match on existence
    */
-  public IfSqlFragment(String variable, String matchValue) {
+  IfSqlFragment(String variable, String matchValue) {
     super(variable, matchValue);
   }
 
