@@ -12,12 +12,12 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
  * <p>
  * This outputs a WHERE clause if at least one child was output.
  */
-public final class WhereSqlFragment extends ContainerSqlFragment {
+final class WhereSqlFragment extends ContainerSqlFragment {
 
   /**
    * Creates an instance.
    */
-  public WhereSqlFragment() {
+  WhereSqlFragment() {
   }
 
   //-------------------------------------------------------------------------
