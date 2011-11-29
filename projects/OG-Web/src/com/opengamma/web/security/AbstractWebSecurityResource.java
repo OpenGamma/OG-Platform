@@ -18,6 +18,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -31,7 +32,9 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
@@ -116,6 +119,7 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
   }
   
   protected void addSecuritySpecificMetaData(ManageableSecurity security, FlexiBean out) {
+    
     if (security.getSecurityType().equals(SwapSecurity.SECURITY_TYPE)) {
       SwapSecurity swapSecurity = (SwapSecurity) security;
       out.put("payLegType", swapSecurity.getPayLeg().accept(new SwapLegClassifierVisitor()));
@@ -125,36 +129,30 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
       FutureSecurity futureSecurity = (FutureSecurity) security;
       out.put("futureSecurityType", futureSecurity.accept(new FutureSecurityTypeVisitor()));
       out.put("basket", getBondFutureBasket(security));
-      Security underlyingSecurity = getUnderlyingSecurity(futureSecurity);
+      Security underlyingSecurity = getUnderlyingFutureSecurity(futureSecurity);
       if (underlyingSecurity != null) {
         out.put("underlyingSecurity", underlyingSecurity);
       }
     }
     if (security.getSecurityType().equals(EquityOptionSecurity.SECURITY_TYPE)) {
       EquityOptionSecurity equityOption = (EquityOptionSecurity) security;
-      out.put("underlyingSecurity", getSecurity(equityOption.getUnderlyingId()));
+      addUnderlyingSecurity(out, equityOption.getUnderlyingId());
     }
     if (security.getSecurityType().equals(IRFutureOptionSecurity.SECURITY_TYPE)) {
       IRFutureOptionSecurity irFutureOption = (IRFutureOptionSecurity) security;
-      out.put("underlyingSecurity", getSecurity(irFutureOption.getUnderlyingId()));
+      addUnderlyingSecurity(out, irFutureOption.getUnderlyingId());
     }
     if (security.getSecurityType().equals(SwaptionSecurity.SECURITY_TYPE)) {
       SwaptionSecurity swaptionSecurity = (SwaptionSecurity) security;
-      out.put("underlyingSecurity", getSecurity(swaptionSecurity.getUnderlyingId()));
+      addUnderlyingSecurity(out, swaptionSecurity.getUnderlyingId());
     }
     if (security.getSecurityType().equals(EquityBarrierOptionSecurity.SECURITY_TYPE)) {
       EquityBarrierOptionSecurity equityBarrierOptionSecurity = (EquityBarrierOptionSecurity) security;
-      Security underlying = getSecurity(equityBarrierOptionSecurity.getUnderlyingId());
-      if (underlying != null) {
-        out.put("underlyingSecurity", underlying);
-      }
+      addUnderlyingSecurity(out, equityBarrierOptionSecurity.getUnderlyingId());
     }
     if (security.getSecurityType().equals(CapFloorSecurity.SECURITY_TYPE)) {
       CapFloorSecurity capFloorSecurity = (CapFloorSecurity) security;
-      Security underlying = getSecurity(capFloorSecurity.getUnderlyingId());
-      if (underlying != null) {
-        out.put("underlyingSecurity", underlying);
-      }
+      addUnderlyingSecurity(out, capFloorSecurity.getUnderlyingId());
     }
     if (security.getSecurityType().equals(CapFloorCMSSpreadSecurity.SECURITY_TYPE)) {
       CapFloorCMSSpreadSecurity capFloorCMSSpreadSecurity = (CapFloorCMSSpreadSecurity) security;
@@ -166,6 +164,25 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
       if (longUnderlying != null) {
         out.put("longSecurity", longUnderlying);
       }
+    }
+    if (security.getSecurityType().equals(FXForwardSecurity.SECURITY_TYPE)) {
+      FXForwardSecurity fxforwardSecurity = (FXForwardSecurity) security;
+      addUnderlyingSecurity(out, fxforwardSecurity.getUnderlyingId());
+    }
+    if (security.getSecurityType().equals(EquityIndexOptionSecurity.SECURITY_TYPE)) {
+      EquityIndexOptionSecurity equityIndxOption = (EquityIndexOptionSecurity) security;
+      addUnderlyingSecurity(out, equityIndxOption.getUnderlyingId());
+    }
+    if (security.getSecurityType().equals(FRASecurity.SECURITY_TYPE)) {
+      FRASecurity fraSecurity = (FRASecurity) security;
+      addUnderlyingSecurity(out, fraSecurity.getUnderlyingId());
+    }
+  }
+
+  private void addUnderlyingSecurity(FlexiBean out, ExternalId externalId) {
+    Security underlyingSec = getSecurity(externalId);
+    if (underlyingSec != null) {
+      out.put("underlyingSecurity", underlyingSec);
     }
   }
 
@@ -193,7 +210,7 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
     return result;
   }
   
-  private Security getUnderlyingSecurity(FutureSecurity future) {
+  private Security getUnderlyingFutureSecurity(FutureSecurity future) {
     return future.accept(new FutureSecurityVisitor<Security>() {
 
       @Override

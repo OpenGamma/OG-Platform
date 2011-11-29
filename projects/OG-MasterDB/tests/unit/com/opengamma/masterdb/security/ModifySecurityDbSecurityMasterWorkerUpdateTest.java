@@ -113,7 +113,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
   @Test
   public void test_update_rollback() {
     DbSecurityMaster w = new DbSecurityMaster(_secMaster.getDbConnector());
-    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("Invalid"), DbSecurityMaster.class));
+    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("TestRollback"), DbSecurityMaster.class));
     final SecurityDocument base = _secMaster.get(UniqueId.of("DbSec", "101", "0"));
     UniqueId uniqueId = UniqueId.of("DbSec", "101", "0");
     ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", ExternalIdBundle.of("A", "B"));

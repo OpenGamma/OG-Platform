@@ -44,6 +44,51 @@ public class EquityFutureDefinition {
     _unitAmount = unitValue;
   }
 
+  /**
+   * Gets the _expiryDate.
+   * @return the _expiryDate
+   */
+  public ZonedDateTime getExpiryDate() {
+    return _expiryDate;
+  }
+
+
+  /**
+   * Gets the _settlementDate.
+   * @return the _settlementDate
+   */
+  public ZonedDateTime getSettlementDate() {
+    return _settlementDate;
+  }
+
+
+  /**
+   * Gets the _strikePrice.
+   * @return the _strikePrice
+   */
+  public double getStrikePrice() {
+    return _strikePrice;
+  }
+
+
+  /**
+   * Gets the _currency.
+   * @return the _currency
+   */
+  public Currency getCurrency() {
+    return _currency;
+  }
+
+
+  /**
+   * Gets the _unitAmount.
+   * @return the _unitAmount
+   */
+  public double getUnitAmount() {
+    return _unitAmount;
+  }
+
+
   public EquityFuture toDerivative(ZonedDateTime date) {
 
     double timeToFixing = TimeCalculator.getTimeBetween(date, _expiryDate);

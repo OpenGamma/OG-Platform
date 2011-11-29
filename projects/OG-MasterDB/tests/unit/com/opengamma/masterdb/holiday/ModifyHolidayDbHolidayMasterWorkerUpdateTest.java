@@ -119,7 +119,7 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
   @Test
   public void test_update_rollback() {
     DbHolidayMaster w = new DbHolidayMaster(_holMaster.getDbConnector());
-    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("Invalid"), DbHolidayMaster.class));
+    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("TestRollback"), DbHolidayMaster.class));
     final HolidayDocument base = _holMaster.get(UniqueId.of("DbHol", "101", "0"));
     UniqueId uniqueId = UniqueId.of("DbHol", "101", "0");
     ManageableHoliday holiday = new ManageableHoliday(Currency.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));

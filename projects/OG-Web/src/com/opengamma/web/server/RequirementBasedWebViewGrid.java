@@ -160,7 +160,6 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
         Map<String, Object> valuesToSend = createTargetResult(depGraphGrid.getParentGridCell().getRowId());
         Map<String, Object> columnMessage = new HashMap<String, Object>();
         columnMessage.put("dg", depGraphMessage);
-        s_logger.debug("Dep graph message: " + depGraphMessage);
         valuesToSend.put(Integer.toString(depGraphGrid.getParentGridCell().getColumnId()), columnMessage);
         getRemoteClient().deliver(getLocalClient(), getUpdateChannel(), valuesToSend, null);
       } 

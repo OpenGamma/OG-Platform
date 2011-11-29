@@ -35,7 +35,7 @@
 
 -- ==========================================================================
 @NAME(Search)
-  WITH cte_docs AS ( @INSERT(SearchInner) )
+  WITH cte_docs AS ( @INCLUDE(SearchInner) )
   SELECT
     main.id AS doc_id,
     main.oid AS doc_oid,
@@ -48,7 +48,7 @@
     exg_exchange main
     INNER JOIN cte_docs ON main.id = cte_docs.id
   ORDER BY
-    main.@INSERT(:sort_order)
+    main.@INCLUDE(:sort_order)
 
 
 -- ==========================================================================
@@ -57,9 +57,9 @@
     id
   FROM
     exg_exchange
-  @INSERT(SearchWhere)
+  @INCLUDE(SearchWhere)
   ORDER BY
-    @INSERT(:sort_order)
+    @INCLUDE(:sort_order)
   @OFFSETFETCH
 
 
@@ -69,7 +69,7 @@
     COUNT(id)
   FROM
     exg_exchange
-  @INSERT(SearchWhere)
+  @INCLUDE(SearchWhere)
 
 
 -- ==========================================================================
@@ -79,15 +79,15 @@
     @AND(:name)
       UPPER(name) @LIKE UPPER(:name)
     @AND(:sql_search_object_ids)
-      oid IN ( @INSERT(:sql_search_object_ids) )
+      oid IN ( @INCLUDE(:sql_search_object_ids) )
     @AND(:sql_search_external_ids_type = EXACT)
-      id IN ( @INSERT(SelectKeyValuesExact) )
+      id IN ( @INCLUDE(SelectKeyValuesExact) )
     @AND(:sql_search_external_ids_type = ALL)
-      id IN ( @INSERT(SelectKeyValuesAll) )
+      id IN ( @INCLUDE(SelectKeyValuesAll) )
     @AND(:sql_search_external_ids_type = ANY)
-      id IN ( @INSERT(SelectKeyValuesAny) )
+      id IN ( @INCLUDE(SelectKeyValuesAny) )
     @AND(:sql_search_external_ids_type = NONE)
-      id NOT IN ( @INSERT(SelectKeyValuesAny) )
+      id NOT IN ( @INCLUDE(SelectKeyValuesAny) )
 
 
 -- ==========================================================================
@@ -105,7 +105,7 @@
       WHERE exg_exchange2idkey.exchange_id = exg_exchange.id
         AND exg_exchange.ver_from_instant <= :version_as_of_instant AND exg_exchange.ver_to_instant > :version_as_of_instant
         AND exg_exchange.corr_from_instant <= :corrected_to_instant AND exg_exchange.corr_to_instant > :corrected_to_instant
-        AND idkey_id IN ( @INSERT(SelectKeyValuesOr) )
+        AND idkey_id IN ( @INCLUDE(SelectKeyValuesOr) )
       GROUP BY
         exchange_id
       HAVING
@@ -137,7 +137,7 @@
   WHERE exg_exchange2idkey.exchange_id = exg_exchange.id
     AND exg_exchange.ver_from_instant <= :version_as_of_instant AND exg_exchange.ver_to_instant > :version_as_of_instant
     AND exg_exchange.corr_from_instant <= :corrected_to_instant AND exg_exchange.corr_to_instant > :corrected_to_instant
-    AND idkey_id IN ( @INSERT(SelectKeyValuesOr) )
+    AND idkey_id IN ( @INCLUDE(SelectKeyValuesOr) )
     GROUP BY
       exchange_id
     HAVING
@@ -154,7 +154,7 @@
   WHERE exg_exchange2idkey.exchange_id = exg_exchange.id
     AND exg_exchange.ver_from_instant <= :version_as_of_instant AND exg_exchange.ver_to_instant > :version_as_of_instant
     AND exg_exchange.corr_from_instant <= :corrected_to_instant AND exg_exchange.corr_to_instant > :corrected_to_instant
-    AND idkey_id IN ( @INSERT(SelectKeyValuesOr) )
+    AND idkey_id IN ( @INCLUDE(SelectKeyValuesOr) )
 
 
 -- ==========================================================================
@@ -164,12 +164,12 @@
   FROM
     exg_idkey
   WHERE
-    @INSERT(:sql_search_external_ids)
+    @INCLUDE(:sql_search_external_ids)
 
 
 -- ==========================================================================
 @NAME(History)
-  WITH cte_docs AS ( @INSERT(HistoryInner) )
+  WITH cte_docs AS ( @INCLUDE(HistoryInner) )
   SELECT
     main.id AS doc_id,
     main.oid AS doc_oid,
@@ -192,7 +192,7 @@
     id
   FROM
     exg_exchange
-  @INSERT(HistoryWhere)
+  @INCLUDE(HistoryWhere)
   ORDER BY
     ver_from_instant DESC,
     corr_from_instant DESC
@@ -205,7 +205,7 @@
     COUNT(id)
   FROM
     exg_exchange 
-  @INSERT(HistoryWhere)
+  @INCLUDE(HistoryWhere)
 
 
 -- ==========================================================================
@@ -240,7 +240,7 @@
   INSERT INTO exg_exchange2idkey
     (exchange_id, idkey_id)
   VALUES
-    (:doc_id, ( @INSERT(SelectIdKey) ))
+    (:doc_id, ( @INCLUDE(SelectIdKey) ))
 
 
 -- ==========================================================================
