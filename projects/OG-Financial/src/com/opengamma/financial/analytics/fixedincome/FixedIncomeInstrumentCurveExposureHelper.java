@@ -26,31 +26,31 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
   public static String[] getCurveNamesForFundingCurveInstrument(final StripInstrumentType type, final String fundingCurveName, final String forwardCurveName) {
     switch (type) {
       case SWAP_3M:
-        return new String[] {fundingCurveName, forwardCurveName};
+        return new String[] {fundingCurveName, forwardCurveName };
       case SWAP_6M:
-        return new String[] {fundingCurveName, forwardCurveName};
+        return new String[] {fundingCurveName, forwardCurveName };
       case CASH:
-        return new String[] {fundingCurveName};
+        return new String[] {fundingCurveName };
       case FRA_3M:
-        return new String[] {fundingCurveName, forwardCurveName};
+        return new String[] {fundingCurveName, forwardCurveName };
       case FRA_6M:
-        return new String[] {fundingCurveName, forwardCurveName};
+        return new String[] {fundingCurveName, forwardCurveName };
       case FUTURE:
-        return new String[] {fundingCurveName, forwardCurveName};
+        return new String[] {fundingCurveName, forwardCurveName };
       case LIBOR:
-        return new String[] {fundingCurveName};
+        return new String[] {fundingCurveName };
       case EURIBOR:
-        return new String[] {fundingCurveName};
+        return new String[] {fundingCurveName };
       case CDOR:
-        return new String[] {fundingCurveName};
+        return new String[] {fundingCurveName };
       case CIBOR:
-        return new String[] {fundingCurveName};
+        return new String[] {fundingCurveName };
       case STIBOR:
-        return new String[] {fundingCurveName};
+        return new String[] {fundingCurveName };
       case TENOR_SWAP:
-        return new String[] {fundingCurveName, forwardCurveName, fundingCurveName};
+        return new String[] {fundingCurveName, forwardCurveName, fundingCurveName };
       case OIS_SWAP:
-        return new String[] {fundingCurveName, fundingCurveName};
+        return new String[] {fundingCurveName, fundingCurveName };
       default:
         throw new OpenGammaRuntimeException("Could not find " + type + " in funding curve instrument list");
     }
@@ -59,31 +59,31 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
   public static String[] getCurveNamesForForwardCurveInstrument(final StripInstrumentType type, final String fundingCurveName, final String forwardCurveName) {
     switch (type) {
       case SWAP_3M:
-        return new String[] {fundingCurveName, forwardCurveName};
+        return new String[] {fundingCurveName, forwardCurveName };
       case SWAP_6M:
-        return new String[] {fundingCurveName, forwardCurveName};
+        return new String[] {fundingCurveName, forwardCurveName };
       case CASH:
-        return new String[] {forwardCurveName};
+        return new String[] {forwardCurveName };
       case FRA_3M:
-        return new String[] {fundingCurveName, forwardCurveName};
+        return new String[] {fundingCurveName, forwardCurveName };
       case FRA_6M:
-        return new String[] {fundingCurveName, forwardCurveName};
+        return new String[] {fundingCurveName, forwardCurveName };
       case FUTURE:
-        return new String[] {fundingCurveName, forwardCurveName};
+        return new String[] {fundingCurveName, forwardCurveName };
       case LIBOR:
-        return new String[] {forwardCurveName};
+        return new String[] {forwardCurveName };
       case EURIBOR:
-        return new String[] {forwardCurveName};
+        return new String[] {forwardCurveName };
       case CDOR:
-        return new String[] {forwardCurveName};
+        return new String[] {forwardCurveName };
       case CIBOR:
-        return new String[] {forwardCurveName};
+        return new String[] {forwardCurveName };
       case STIBOR:
-        return new String[] {forwardCurveName};
+        return new String[] {forwardCurveName };
       case TENOR_SWAP:
-        return new String[] {fundingCurveName, fundingCurveName, forwardCurveName};
+        return new String[] {fundingCurveName, fundingCurveName, forwardCurveName };
       case OIS_SWAP:
-        return new String[] {fundingCurveName, fundingCurveName};
+        return new String[] {fundingCurveName, fundingCurveName };
       default:
         throw new OpenGammaRuntimeException("Could not find " + type + " in forward curve instrument list");
     }
@@ -93,23 +93,23 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
     final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
     switch (type) {
       case SWAP_FIXED_IBOR:
-        return new String[] {fundingCurveName, forwardCurveName};
+        return new String[] {fundingCurveName, forwardCurveName };
       case SWAP_IBOR_IBOR:
-        return new String[] {fundingCurveName, forwardCurveName, forwardCurveName};
+        return new String[] {fundingCurveName, forwardCurveName, forwardCurveName };
       case CASH:
-        return new String[] {fundingCurveName};
+        return new String[] {fundingCurveName };
       case FRA:
-        return new String[] {fundingCurveName, forwardCurveName};
+        return new String[] {fundingCurveName, forwardCurveName };
       case IR_FUTURE:
-        return new String[] {fundingCurveName, forwardCurveName};
+        return new String[] {fundingCurveName, forwardCurveName };
       case COUPON_BOND:
-        return new String[] {fundingCurveName, fundingCurveName};
+        return new String[] {fundingCurveName, fundingCurveName };
       case SWAP_FIXED_CMS:
-        return new String[] {fundingCurveName, forwardCurveName};
+        return new String[] {fundingCurveName, forwardCurveName };
       case SWAP_IBOR_CMS:
-        return new String[] {fundingCurveName, forwardCurveName};
+        return new String[] {fundingCurveName, forwardCurveName };
       case SWAP_CMS_CMS:
-        return new String[] {fundingCurveName, forwardCurveName};
+        return new String[] {fundingCurveName, forwardCurveName };
       case BOND_FUTURE:
         return new String[] {fundingCurveName, fundingCurveName};
       default:
@@ -117,13 +117,22 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
     }
   }
 
-  public static ValueProperties getValuePropertiesForSecurity(final FinancialSecurity security, final Builder properties) {
+  public static ValueProperties.Builder valuePropertiesForSecurity(final FinancialSecurity security, final ValueProperties.Builder properties) {
     final Currency ccy = FinancialSecurityUtils.getCurrency(security);
-    properties.with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode()).withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE).withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-        .with(ValuePropertyNames.CURRENCY, ccy.getCode());
-    return properties.get();
+    // REVIEW 2011-11-25 andrew -- Curve currency makes sense, but is adding the currency wise here? Are we always generating monetary values?
+    properties.with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode()).with(ValuePropertyNames.CURRENCY, ccy.getCode());
+    return properties;
   }
 
+  /**
+   * @param security the security
+   * @param fundingCurveName the funding curve name
+   * @param forwardCurveName the forward curve name
+   * @param properties the properties builder
+   * @deprecated Don't want to be passing curve names around like this
+   * @return the built properties
+   */
+  @Deprecated
   public static ValueProperties getValuePropertiesForSecurity(final FinancialSecurity security, final String fundingCurveName, final String forwardCurveName, final Builder properties) {
     final String[] curveNames = getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName);
     final Currency ccy = FinancialSecurityUtils.getCurrency(security);

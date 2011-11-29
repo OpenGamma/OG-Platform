@@ -6,30 +6,7 @@
   </header>
   <section style="width: 800px">
     <div class="OG-details-content OG-js-details-panel">
-      <section class="OG-clearFix OG-details-positions">
-          <table class="OG-table">
-            <thead>
-            <tr>
-              <th><span>Position</span></th>
-              <th>&nbsp;</th>
-              <th>&nbsp;</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-              <td><a href=#/securities/${security_unique_id}>${security_name}</a></td>
-              <td><strong class="og-quantity" data-og-editable="quantity">${quantity}</strong></td>
-              <td>${security_type}</td>
-            </tr>
-            </tbody>
-          </table>
-          <div class="og-timeseries"></div>
-          <div>
-            <table class="og-securities">
-              <tbody class="og-js-identifiers"></tbody>
-            </table>
-          </div>
-      </section>
+      <section class="OG-clearFix OG-details-positions og-js-details-positions"></section>
       <section class="og-grid-last og-js-trades-table"></section>
     </div>
   </section>

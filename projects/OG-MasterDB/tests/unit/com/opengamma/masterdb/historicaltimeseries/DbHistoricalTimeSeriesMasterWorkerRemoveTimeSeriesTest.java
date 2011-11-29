@@ -58,7 +58,7 @@ public class DbHistoricalTimeSeriesMasterWorkerRemoveTimeSeriesTest extends Abst
     ObjectId oid = ObjectId.of("DbHts", "DP101");
     UniqueId uniqueId = _htsMaster.removeTimeSeriesDataPoints(oid, LocalDate.of(2011, 1, 2), LocalDate.of(2011, 1, 2));
     
-    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uniqueId, null, null);
+    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uniqueId);
     assertEquals(uniqueId, testCorrected.getUniqueId());
     LocalDateDoubleTimeSeries timeSeries = testCorrected.getTimeSeries();
     assertEquals(2, timeSeries.size());
@@ -73,7 +73,7 @@ public class DbHistoricalTimeSeriesMasterWorkerRemoveTimeSeriesTest extends Abst
     ObjectId oid = ObjectId.of("DbHts", "DP101");
     UniqueId uniqueId = _htsMaster.removeTimeSeriesDataPoints(oid, LocalDate.of(2010, 7, 3), LocalDate.of(2011, 1, 2));
     
-    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uniqueId, null, null);
+    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uniqueId);
     assertEquals(uniqueId, testCorrected.getUniqueId());
     LocalDateDoubleTimeSeries timeSeries = testCorrected.getTimeSeries();
     assertEquals(1, timeSeries.size());
@@ -86,7 +86,7 @@ public class DbHistoricalTimeSeriesMasterWorkerRemoveTimeSeriesTest extends Abst
     ObjectId oid = ObjectId.of("DbHts", "DP101");
     UniqueId uniqueId = _htsMaster.removeTimeSeriesDataPoints(oid, LocalDate.of(2011, 1, 2), null);
     
-    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uniqueId, null, null);
+    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uniqueId);
     assertEquals(uniqueId, testCorrected.getUniqueId());
     LocalDateDoubleTimeSeries timeSeries = testCorrected.getTimeSeries();
     assertEquals(1, timeSeries.size());

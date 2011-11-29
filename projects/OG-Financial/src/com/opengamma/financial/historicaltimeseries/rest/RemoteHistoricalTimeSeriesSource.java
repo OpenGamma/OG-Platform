@@ -37,20 +37,17 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestRuntimeException;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A {@code HistoricalTimeSeriesSource} implementation that connects to a remote one with REST calls.
@@ -142,6 +139,11 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     } catch (RestRuntimeException e) {
       throw e.translate();
     }
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId) {
+    throw new UnsupportedOperationException();
   }
 
   //-------------------------------------------------------------------------
@@ -262,17 +264,6 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     } catch (RestRuntimeException e) {
       throw e.translate();
     }
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
-    throw new OpenGammaRuntimeException("Getting remote HTS summary not yet implemented");
-  }
-
-  @Override
-  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    throw new OpenGammaRuntimeException("Getting remote HTS summary not yet implemented");    
   }
 
   //-------------------------------------------------------------------------

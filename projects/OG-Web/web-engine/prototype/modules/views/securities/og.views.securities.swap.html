@@ -4,81 +4,80 @@
     <h1>${name}</h1>
     <div class="OG-js-header-links"></div>
   </header>
-  <section>
-    <div class="OG-details-content OG-security OG-js-details-panel">
+  <section style="width: 800px">
+    <div class="OG-details-content OG-js-details-panel">
       <section>
-        <div class="OG-mod-1 OG-c6">
-          <table>
-            <col style="width: 40%" />
-            <col style="width: 60%" />
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
             <thead>
-              <tr>
-                <td colspan="2">${securityType}</td>
-              </tr>
-            </thead>
-            <tbody class="og-mod-content">
-              <tr><td><span>Trade Date</span></td><td>${tradeDate.date} - ${tradeDate.zone}</td></tr>
-              <tr><td><span>Effective Date</span></td><td>${effectiveDate.date} - ${effectiveDate.zone}</td></tr>
-              <tr><td><span>Maturity Date</span></td><td>${maturityDate.date} - ${maturityDate.zone}</td></tr>
-              <tr><td><span>Counterparty</span></td><td>${counterparty}</td></tr>
-            </tbody>
-          </table>
-
-          <table>
-            <col style="width: 40%" />
-            <col style="width: 60%" />
-            <thead>
-              <tr>
-                <td>Pay Leg</td><td></td>
-              </tr>
-            </thead>
-            <tbody class="og-mod-content">
-              <tr><td><span>Day Count</span></td><td>${payLeg.dayCount}</td></tr>
-              <tr><td><span>Frequency</span></td><td>${payLeg.frequency}</td></tr>
-              <tr><td><span>Regional Identifier</span></td><td>${payLeg.regionId.value} (${payLeg.regionId.scheme})</td></tr>
-              <tr><td><span>Business Day Convention</span></td><td>${payLeg.businessDayConvention}</td></tr>
-              <tr><td><span>Notional</span></td><td>${payLeg.notional.amount} - ${payLeg.notional.currency}</td></tr>
-              <tr><td><span>Floating Reference Rate Id</span></td><td>${payLeg.floatingReferenceRateId}</td></tr>
-              <tr><td><span>Initial Floating Rate</span></td><td>${payLeg.initialFloatingRate}</td></tr>
-              <tr><td><span>Spread</span></td><td>${payLeg.spread}</td></tr>
-              <tr><td><span>Interest Rate Leg</span></td><td>${payLeg.interestRateLeg}</td></tr>
-            </tbody>
-          </table>
-
-          <table>
-            <col style="width: 40%" />
-            <col style="width: 60%" />
-            <thead>
-              <tr>
-                <td>Receive Leg</td><td></td>
-              </tr>
-            </thead>
-            <tbody class="og-mod-content">
-            <tr><td><span>Day Count</span></td><td>${receiveLeg.dayCount}</td></tr>
-            <tr><td><span>Frequency</span></td><td>${receiveLeg.frequency}</td></tr>
-            <tr><td><span>Regional Identifier</span></td><td>${receiveLeg.regionId.value} (${receiveLeg.regionId.scheme})</td></tr>
-            <tr><td><span>Business Day Convention</span></td><td>${receiveLeg.businessDayConvention}</td></tr>
-            <tr><td><span>Notional</span></td><td>${receiveLeg.notional.amount} ${receiveLeg.notional.currency}</td></tr>
-            <tr><td><span>Floating Reference Rate Id</span></td><td>${receiveLeg.floatingReferenceRateId}</td></tr>
-            <tr><td><span>Initial Floating Rate</span></td><td>${receiveLeg.initialFloatingRate}</td></tr>
-            <tr><td><span>Spread</span></td><td>${receiveLeg.spread}</td></tr>
-            <tr><td><span>Interest Rate Leg</span></td><td>${receiveLeg.interestRateLeg}</td></tr>
-            </tbody>
-          </table>
-
-        </div>
-        <div class="OG-mod-1 og-style-2 OG-c4">
-          <table>
-            <col style="width: 40%" />
-            <col style="width: 60%" />
-              <thead>
-              <tr>
-                <td>Identifiers</td><td></td>
-              </tr>
-            </thead>
-            <tbody class="og-js-identifiers og-mod-content"></tbody>
-          </table>
-        </div>
+            <tr>
+              <th><span>Identifiers</span></th><th>&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody class="og-js-identifiers"></tbody>
+        </table>
+      </section>
+      <section>
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+          <thead>
+            <tr>
+              <th><span>${securityType}</span></th><th>&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span>Trade Date</span></td><td>${tradeDate.date} - ${tradeDate.zone}</td></tr>
+            <tr><td><span>Effective Date</span></td><td>${effectiveDate.date} - ${effectiveDate.zone}</td></tr>
+            <tr><td><span>Maturity Date</span></td><td>${maturityDate.date} - ${maturityDate.zone}</td></tr>
+            <tr><td><span>Counterparty</span></td><td>${counterparty}</td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section>
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+          <thead>
+            <tr>
+              <th><span>Pay Leg</span></th><th>&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span>Day Count</span></td><td>${payLeg.dayCount}</td></tr>
+            <tr><td><span>Frequency</span></td><td>${payLeg.frequency}</td></tr>
+            <tr><td><span>Regional Identifier</span></td><td>${payLeg.regionId.value} (${payLeg.regionId.scheme})</td></tr>
+            <tr><td><span>Business Day Convention</span></td><td>${payLeg.businessDayConvention}</td></tr>
+            <tr><td><span>Notional</span></td><td>${payLeg.notional.amount} - ${payLeg.notional.currency}</td></tr>
+            <tr><td><span>Floating Reference Rate Id</span></td><td>${payLeg.floatingReferenceRateId}</td></tr>
+            <tr><td><span>Initial Floating Rate</span></td><td>${payLeg.initialFloatingRate}</td></tr>
+            <tr><td><span>Spread</span></td><td>${payLeg.spread}</td></tr>
+            <tr><td><span>Interest Rate Leg</span></td><td>${payLeg.interestRateLeg}</td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section>
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+          <thead>
+            <tr>
+              <th><span>Receive Leg</span></th><th>&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody>
+          <tr><td><span>Day Count</span></td><td>${receiveLeg.dayCount}</td></tr>
+          <tr><td><span>Frequency</span></td><td>${receiveLeg.frequency}</td></tr>
+          <tr><td><span>Regional Identifier</span></td><td>${receiveLeg.regionId.value} (${receiveLeg.regionId.scheme})</td></tr>
+          <tr><td><span>Business Day Convention</span></td><td>${receiveLeg.businessDayConvention}</td></tr>
+          <tr><td><span>Notional</span></td><td>${receiveLeg.notional.amount} ${receiveLeg.notional.currency}</td></tr>
+          <tr><td><span>Floating Reference Rate Id</span></td><td>${receiveLeg.floatingReferenceRateId}</td></tr>
+          <tr><td><span>Initial Floating Rate</span></td><td>${receiveLeg.initialFloatingRate}</td></tr>
+          <tr><td><span>Spread</span></td><td>${receiveLeg.spread}</td></tr>
+          <tr><td><span>Interest Rate Leg</span></td><td>${receiveLeg.interestRateLeg}</td></tr>
+          </tbody>
+        </table>
       </section>
     </div>
   </section>

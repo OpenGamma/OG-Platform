@@ -25,8 +25,7 @@ import com.opengamma.engine.value.ValueRequirement;
  */
 /* package */abstract class CalcConfigDefaultPropertyFunction extends DefaultPropertyFunction {
 
-  // TODO: a wildcard for the value name could be nice but requires [PLAT-1759]
-
+  private static final String WILDCARD = "*";
   private static final String SEP = ".DEFAULT_";
 
   private final boolean _identifier;
@@ -58,35 +57,43 @@ import com.opengamma.engine.value.ValueRequirement;
   }
 
   @Override
-  protected void getDefaults(final FunctionCompilationContext context, final ComputationTarget target, final PropertyDefaults defaults) {
+  protected void getDefaults(final PropertyDefaults defaults) {
     final String prefix = getTargetType().name() + ".";
     if (isIdentifier()) {
-      final List<String> identifiers = getIdentifiers(target);
+      final List<String> identifiers = getIdentifiers(defaults.getTarget());
       final List<String> suffixes = new ArrayList<String>(identifiers.size());
       for (String identifier : identifiers) {
         suffixes.add("." + identifier);
       }
-      for (String property : context.getViewCalculationConfiguration().getDefaultProperties().getProperties()) {
+      for (String property : defaults.getContext().getViewCalculationConfiguration().getDefaultProperties().getProperties()) {
         for (String suffix : suffixes) {
           if (property.startsWith(prefix) && property.endsWith(suffix)) {
             final int i = property.indexOf(SEP, prefix.length());
             if (i > 0) {
               final String valueName = property.substring(prefix.length(), i);
               final String propertyName = property.substring(i + SEP.length(), property.length() - suffix.length());
-              defaults.addValuePropertyName(valueName, propertyName);
+              if (WILDCARD.equals(valueName)) {
+                defaults.addAllValuesPropertyName(propertyName);
+              } else {
+                defaults.addValuePropertyName(valueName, propertyName);
+              }
             }
           }
         }
       }
     } else {
-      for (String property : context.getViewCalculationConfiguration().getDefaultProperties().getProperties()) {
+      for (String property : defaults.getContext().getViewCalculationConfiguration().getDefaultProperties().getProperties()) {
         if (property.startsWith(prefix)) {
           final int i = property.indexOf(SEP, prefix.length());
           if (i > 0) {
             if (property.indexOf('.', i + 1) < 0) {
               final String valueName = property.substring(prefix.length(), i);
               final String propertyName = property.substring(i + SEP.length());
-              defaults.addValuePropertyName(valueName, propertyName);
+              if (WILDCARD.equals(valueName)) {
+                defaults.addAllValuesPropertyName(propertyName);
+              } else {
+                defaults.addValuePropertyName(valueName, propertyName);
+              }
             }
           }
         }
@@ -124,8 +131,8 @@ import com.opengamma.engine.value.ValueRequirement;
       for (String property : defaults.getProperties()) {
         if (property.startsWith(prefix)) {
           final int i = property.indexOf(SEP, prefix.length());
-          if (i > 0) {
-            return (property.indexOf('.', i + 1) < 0);
+          if ((i > 0) && (property.indexOf('.', i + 1) < 0)) {
+            return true;
           }
         }
       }
@@ -135,26 +142,44 @@ import com.opengamma.engine.value.ValueRequirement;
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    final StringBuilder sb = new StringBuilder(getTargetType().name()).append('.').append(desiredValue.getValueName()).append(SEP).append(propertyName);
+    final StringBuilder sbSpecific = new StringBuilder(getTargetType().name()).append('.').append(desiredValue.getValueName()).append(SEP).append(propertyName);
+    final StringBuilder sbWildcard = new StringBuilder(getTargetType().name()).append("." + WILDCARD + SEP).append(propertyName);
     if (isIdentifier()) {
-      sb.append('.');
-      final int l = sb.length();
+      sbSpecific.append('.');
+      sbWildcard.append('.');
+      final int lSpecific = sbSpecific.length();
+      final int lWildcard = sbWildcard.length();
       for (String identifier : getIdentifiers(target)) {
-        sb.delete(l, sb.length()).append(identifier);
-        final Set<String> values = context.getViewCalculationConfiguration().getDefaultProperties().getValues(sb.toString());
+        sbSpecific.delete(lSpecific, sbSpecific.length()).append(identifier);
+        sbWildcard.delete(lWildcard, sbWildcard.length()).append(identifier);
+        Set<String> values = context.getViewCalculationConfiguration().getDefaultProperties().getValues(sbSpecific.toString());
+        if (values != null) {
+          return values;
+        }
+        values = context.getViewCalculationConfiguration().getDefaultProperties().getValues(sbWildcard.toString());
         if (values != null) {
           return values;
         }
       }
       return null;
     } else {
-      return context.getViewCalculationConfiguration().getDefaultProperties().getValues(sb.toString());
+      Set<String> values = context.getViewCalculationConfiguration().getDefaultProperties().getValues(sbSpecific.toString());
+      if (values != null) {
+        return values;
+      }
+      return context.getViewCalculationConfiguration().getDefaultProperties().getValues(sbWildcard.toString());
     }
   }
 
   @Override
   public PriorityClass getPriority() {
     return isIdentifier() ? PriorityClass.ABOVE_NORMAL : PriorityClass.NORMAL;
+  }
+
+  @Override
+  public String getShortName() {
+    final Class<?> clazz = getClass();
+    return clazz.getSuperclass().getSimpleName() + "." + clazz.getSimpleName();
   }
 
 }

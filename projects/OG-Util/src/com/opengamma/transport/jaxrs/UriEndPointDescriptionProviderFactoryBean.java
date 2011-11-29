@@ -67,12 +67,24 @@ public class UriEndPointDescriptionProviderFactoryBean extends SingletonFactoryB
     _port = port;
   }
   
+  public int getPort() {
+    return _port;
+  }
+
   public void setSecurePort(final int securePort) {
     _securePort = securePort;
   }
   
+  public int getSecurePort() {
+    return _securePort;
+  }
+
   public void setSecure(final boolean isSecure) {
     _secure = isSecure;
+  }
+
+  public boolean isSecure() {
+    return _secure;
   }
 
   //-------------------------------------------------------------------------

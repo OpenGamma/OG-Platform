@@ -38,4 +38,10 @@ public class DefaultCurrencyFunction extends StaticDefaultPropertyFunction {
     }
   }
 
+  @Override
+  public String getShortName() {
+    final Class<?> clazz = getClass();
+    return clazz.getSuperclass().getSimpleName() + "." + clazz.getSimpleName();
+  }
+
 }

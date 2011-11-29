@@ -23,6 +23,7 @@ import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.function.resolver.ComputationTargetResults;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -104,8 +105,20 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
   public static final class PropertyDefaults {
 
     private final Map<String, Set<String>> _valueName2PropertyNames = new HashMap<String, Set<String>>();
+    private final FunctionCompilationContext _context;
+    private final ComputationTarget _target;
 
-    private PropertyDefaults() {
+    private PropertyDefaults(final FunctionCompilationContext context, final ComputationTarget target) {
+      _context = context;
+      _target = target;
+    }
+
+    public FunctionCompilationContext getContext() {
+      return _context;
+    }
+
+    public ComputationTarget getTarget() {
+      return _target;
     }
 
     public void addValuePropertyName(final String valueName, final String propertyName) {
@@ -117,6 +130,26 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
       propertyNames.add(propertyName);
     }
 
+    /**
+     * Queries all available outputs on the target and adds those values to
+     * the default set if property name is defined on their finite outputs.
+     * 
+     * @param propertyName the property name a default is available for, not null
+     */
+    public void addAllValuesPropertyName(final String propertyName) {
+      final ComputationTargetResults resultsProvider = getContext().getComputationTargetResults();
+      if (resultsProvider == null) {
+        return;
+      }
+      for (ValueSpecification result : resultsProvider.getPartialResults(getTarget())) {
+        final Set<String> properties = result.getProperties().getProperties();
+        if ((properties != null) && properties.contains(propertyName)) {
+          s_logger.debug("Found {} defined on {}", propertyName, result);
+          addValuePropertyName(result.getValueName(), propertyName);
+        }
+      }
+    }
+
     private Map<String, Set<String>> getValueName2PropertyNames() {
       return _valueName2PropertyNames;
     }
@@ -126,15 +159,13 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
   /**
    * Returns the defaults that are available
    * 
-   * @param context the compilation context, not null
-   * @param target the target being evaluated, not null
    * @param defaults the callback object to return the property and value names on, not null
    */
-  protected abstract void getDefaults(FunctionCompilationContext context, ComputationTarget target, PropertyDefaults defaults);
+  protected abstract void getDefaults(PropertyDefaults defaults);
 
   private PropertyDefaults getDefaults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final PropertyDefaults defaults = new PropertyDefaults();
-    getDefaults(context, target, defaults);
+    final PropertyDefaults defaults = new PropertyDefaults(context, target);
+    getDefaults(defaults);
     if (defaults.getValueName2PropertyNames().isEmpty()) {
       s_logger.debug("No default properties for {}", target);
       return null;
