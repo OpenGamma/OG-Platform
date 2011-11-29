@@ -21,13 +21,12 @@ import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
-import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
@@ -35,6 +34,9 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A {@code HistoricalTimeSeriesSource} implemented using an underlying {@code HistoricalTimeSeriesMaster}.
@@ -125,13 +127,19 @@ public class MasterHistoricalTimeSeriesSource
     final VersionCorrection vc = getVersionCorrection();  // lock against change
     try {
       if (vc != null) {
-        return getMaster().getTimeSeries(uniqueId, vc, start, end);
+        return getMaster().getTimeSeries(uniqueId, vc, HistoricalTimeSeriesGetFilter.ofRange(start, end));
       } else {
-        return getMaster().getTimeSeries(uniqueId, start, end);
+        return getMaster().getTimeSeries(uniqueId, HistoricalTimeSeriesGetFilter.ofRange(start, end));
       }
     } catch (DataNotFoundException ex) {
       return null;
     }
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId) {
+    LocalDateDoubleTimeSeries ldmts = getMaster().getTimeSeries(uniqueId, HistoricalTimeSeriesGetFilter.ofLatestPoint()).getTimeSeries();
+    return new ObjectsPair<LocalDate, Double>(ldmts.getLatestTime(), ldmts.getLatestValue());
   }
 
   //-------------------------------------------------------------------------
@@ -206,7 +214,7 @@ public class MasterHistoricalTimeSeriesSource
     VersionCorrection vc = getVersionCorrection();  // lock against change
     vc = Objects.firstNonNull(vc, VersionCorrection.LATEST);
     try {
-      return getMaster().getTimeSeries(objectId, vc, start, end);
+      return getMaster().getTimeSeries(objectId, vc, HistoricalTimeSeriesGetFilter.ofRange(start, end));
     } catch (DataNotFoundException ex) {
       return null;
     }
@@ -266,15 +274,6 @@ public class MasterHistoricalTimeSeriesSource
       return null;
     }
     return doGetHistoricalTimeSeries(uniqueId, start, end);
-  }
-
-  //-------------------------------------------------------------------------
-  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
-    return getMaster().getSummary(uniqueId);
-  }
-
-  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    return getMaster().getSummary(objectId, versionCorrection);
   }
 
   //-------------------------------------------------------------------------

@@ -82,7 +82,7 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTimeSeriesTest extends Abst
     ObjectId oid = ObjectId.of("DbHts", "DP102");
     UniqueId uniqueId = _htsMaster.updateTimeSeriesDataPoints(oid, series);
     
-    ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(uniqueId, null, null);
+    ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(uniqueId);
     assertEquals(uniqueId, test.getUniqueId());
     assertEquals(series, test.getTimeSeries());
   }
@@ -100,7 +100,7 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTimeSeriesTest extends Abst
     assertEquals(uniqueId, testAdded.getUniqueId());
     assertEquals(series, testAdded.getTimeSeries());
     
-    ManageableHistoricalTimeSeries testAll = _htsMaster.getTimeSeries(uniqueId, null, null);
+    ManageableHistoricalTimeSeries testAll = _htsMaster.getTimeSeries(uniqueId);
     assertEquals(uniqueId, testAll.getUniqueId());
     assertEquals(6, testAll.getTimeSeries().size());
   }

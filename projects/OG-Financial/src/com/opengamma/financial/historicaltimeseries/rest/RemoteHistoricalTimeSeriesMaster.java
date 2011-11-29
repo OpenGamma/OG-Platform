@@ -14,10 +14,10 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryResult;
@@ -203,17 +203,22 @@ public class RemoteHistoricalTimeSeriesMaster implements HistoricalTimeSeriesMas
     throw new UnsupportedOperationException();
   }
 
-  @Override
-  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
-    throw new OpenGammaRuntimeException("Getting remote HTS summary not yet implemented");
-  }
-
-  @Override
-  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    // TODO: GET request to timeSeriesObject/objectId/...
-    throw new UnsupportedOperationException();    
+  public ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId) {
+    throw new UnsupportedOperationException();
   }
   
+  public ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId, HistoricalTimeSeriesGetFilter filter) {
+    throw new UnsupportedOperationException();
+  }
+  
+  public ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    throw new UnsupportedOperationException();
+  }
+  
+  public ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection, HistoricalTimeSeriesGetFilter filter) {
+    throw new UnsupportedOperationException();
+  }
+    
   @Override
   public UniqueId updateTimeSeriesDataPoints(ObjectIdentifiable objectId, LocalDateDoubleTimeSeries series) {
     try {
