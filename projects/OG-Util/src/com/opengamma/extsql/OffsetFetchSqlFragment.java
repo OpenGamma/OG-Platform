@@ -12,7 +12,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
  * <p>
  * This outputs an OFFSET-FETCH type clauses.
  */
-public final class OffsetFetchSqlFragment extends ContainerSqlFragment {
+final class OffsetFetchSqlFragment extends ContainerSqlFragment {
 
   /**
    * The offset variable.
@@ -28,7 +28,7 @@ public final class OffsetFetchSqlFragment extends ContainerSqlFragment {
    * 
    * @param fetchVariable  the fetch variable, not null
    */
-  public OffsetFetchSqlFragment(String fetchVariable) {
+  OffsetFetchSqlFragment(String fetchVariable) {
     _offsetVariable = null;
     _fetchVariable = fetchVariable;
   }
@@ -39,7 +39,7 @@ public final class OffsetFetchSqlFragment extends ContainerSqlFragment {
    * @param offsetVariable  the offset variable, not null
    * @param fetchVariable  the fetch variable, not null
    */
-  public OffsetFetchSqlFragment(String offsetVariable, String fetchVariable) {
+  OffsetFetchSqlFragment(String offsetVariable, String fetchVariable) {
     _offsetVariable = offsetVariable;
     _fetchVariable = fetchVariable;
   }

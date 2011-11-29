@@ -10,7 +10,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 /**
  * Representation of conditional SQL fragment.
  */
-public abstract class ConditionalSqlFragment extends ContainerSqlFragment {
+abstract class ConditionalSqlFragment extends ContainerSqlFragment {
 
   /**
    * The variable.
@@ -27,7 +27,7 @@ public abstract class ConditionalSqlFragment extends ContainerSqlFragment {
    * @param variable  the variable to determine whether to include the AND on, not null
    * @param matchValue  the value to match, null to match on existence
    */
-  public ConditionalSqlFragment(String variable, String matchValue) {
+  ConditionalSqlFragment(String variable, String matchValue) {
     if (variable == null) {
       throw new IllegalArgumentException("Variable must be specified");
     }

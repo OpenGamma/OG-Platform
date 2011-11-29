@@ -14,7 +14,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 /**
  * Representation of a list of child units.
  */
-public class ContainerSqlFragment extends SqlFragment {
+class ContainerSqlFragment extends SqlFragment {
 
   /**
    * The fragments.
@@ -24,7 +24,7 @@ public class ContainerSqlFragment extends SqlFragment {
   /**
    * Creates an empty container.
    */
-  public ContainerSqlFragment() {
+  ContainerSqlFragment() {
   }
 
   //-------------------------------------------------------------------------
