@@ -427,19 +427,23 @@
 -- ==========================================================================
 @NAME(SelectDataPoints)
   SELECT
-    point_date,
-    point_value
+    *
   FROM
-    hts_point
-  WHERE doc_oid = :doc_oid
-    AND ver_instant <= :version_as_of_instant
-    AND corr_instant <= :corrected_to_instant
-    AND point_date >= :start_date
-    AND point_date <= :end_date
-  ORDER BY
-    point_date,
-    corr_instant DESC
-
+    (
+      SELECT
+        point_date,
+        point_value
+      FROM
+        hts_point
+      WHERE doc_oid = :doc_oid
+        AND ver_instant <= :version_as_of_instant
+        AND corr_instant <= :corrected_to_instant
+        AND point_date >= :start_date
+        AND point_date <= :end_date
+      ORDER BY point_date @INCLUDE(:order), ver_instant @INCLUDE(:order), corr_instant @INCLUDE(:order) 
+      @OFFSETFETCH
+    ) AS points
+  ORDER BY point_date ASC
 
 -- ==========================================================================
 @NAME(SelectEarliestDataPoint)

@@ -14,6 +14,7 @@ import javax.time.Instant;
 
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.resolver.ComputationTargetResults;
 import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.ResolutionRule;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -62,6 +63,7 @@ public class ViewCompilationContext {
       final ViewCalculationConfiguration calcConfig = viewDefinition.getCalculationConfiguration(configName);
       compilationContext.setViewCalculationConfiguration(calcConfig);
       final Collection<ResolutionRule> transformedRules = calcConfig.getResolutionRuleTransform().transform(rules);
+      compilationContext.setComputationTargetResults(new ComputationTargetResults(transformedRules, compilationContext, compilationServices.getComputationTargetResolver()));
       builder.setFunctionResolver(new DefaultCompiledFunctionResolver(compilationContext, transformedRules));
       builder.setCompilationContext(compilationContext);
       result.put(configName, builder);
