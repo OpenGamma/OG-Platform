@@ -59,7 +59,7 @@
 
 -- ==========================================================================
 @NAME(Search)
-  WITH cte_docs AS ( @INSERT(SearchInner) )
+  WITH cte_docs AS ( @INCLUDE(SearchInner) )
   SELECT
     main.id AS doc_id,
     main.oid AS doc_oid,
@@ -82,7 +82,7 @@
     INNER JOIN cte_docs ON main.id = cte_docs.id
     LEFT JOIN hol_date d ON (d.holiday_id = main.id)
   ORDER BY
-    main.@INSERT(:sort_order),
+    main.@INCLUDE(:sort_order),
     main.id,
     d.hol_date
 
@@ -93,9 +93,9 @@
     id
   FROM
     hol_holiday
-  @INSERT(SearchWhere)
+  @INCLUDE(SearchWhere)
   ORDER BY
-    @INSERT(:sort_order),
+    @INCLUDE(:sort_order),
     id
   @OFFSETFETCH
 
@@ -106,7 +106,7 @@
     COUNT(id)
   FROM
     hol_holiday
-  @INSERT(SearchWhere)
+  @INCLUDE(SearchWhere)
 
 
 -- ==========================================================================
@@ -114,7 +114,7 @@
   WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
     AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
     @AND(:sql_search_object_ids)
-      oid IN ( @INSERT(:sql_search_object_ids) )
+      oid IN ( @INCLUDE(:sql_search_object_ids) )
     @AND(:hol_type)
       hol_type = :hol_type
     @AND(:provider_scheme)
@@ -126,14 +126,14 @@
     @AND(:name)
       UPPER(name) @LIKE UPPER(:name)
     @AND(:sql_search_region_ids)
-      ( @INSERT(:sql_search_region_ids) )
+      ( @INCLUDE(:sql_search_region_ids) )
     @AND(:sql_search_exchange_ids)
-      ( @INSERT(:sql_search_exchange_ids) )
+      ( @INCLUDE(:sql_search_exchange_ids) )
 
 
 -- ==========================================================================
 @NAME(History)
-  WITH cte_docs AS ( @INSERT(HistoryInner) )
+  WITH cte_docs AS ( @INCLUDE(HistoryInner) )
   SELECT
     main.id AS doc_id,
     main.oid AS doc_oid,
@@ -167,7 +167,7 @@
     id
   FROM
     hol_holiday
-  @INSERT(HistoryWhere)
+  @INCLUDE(HistoryWhere)
   ORDER BY
     ver_from_instant DESC,
     corr_from_instant DESC
@@ -180,7 +180,7 @@
     COUNT(id)
   FROM
     hol_holiday 
-  @INSERT(HistoryWhere)
+  @INCLUDE(HistoryWhere)
 
 
 -- ==========================================================================

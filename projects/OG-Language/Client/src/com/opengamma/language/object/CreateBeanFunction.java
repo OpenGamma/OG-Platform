@@ -1,4 +1,19 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.language.object;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
+import org.joda.beans.MetaProperty;
 
 import com.opengamma.language.Data;
 import com.opengamma.language.context.SessionContext;
@@ -8,15 +23,6 @@ import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
 import com.opengamma.util.ArgumentChecker;
-import org.apache.commons.lang.StringUtils;
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaBean;
-import org.joda.beans.MetaProperty;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A function that can create instances of a Joda {@link Bean} class.  The function's parameters are derived from
@@ -31,6 +37,7 @@ public class CreateBeanFunction implements PublishedFunction {
   /**
    * @param functionName The name of the function
    * @param beanClass The class of object that the function will create
+   * @param <T> Class of object to be created
    */
   public <T extends Bean> CreateBeanFunction(String functionName, Class<T> beanClass) {
     _metaBean = JodaBeanUtils.metaBean(beanClass);

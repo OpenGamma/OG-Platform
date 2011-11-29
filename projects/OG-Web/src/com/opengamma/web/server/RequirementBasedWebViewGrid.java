@@ -259,7 +259,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
       String gridName = getName() + ".depgraph-" + cell.getRowId() + "-" + cell.getColumnId();
       OperationTimer timer = new OperationTimer(s_logger, "depgraph");
       Pair<String, ValueSpecification> columnMappingPair = getGridStructure().findCellSpecification(cell, getViewClient().getLatestCompiledViewDefinition());
-      s_logger.warn("includeDepGraph took {}", timer.finished());
+      s_logger.debug("includeDepGraph took {}", timer.finished());
       WebViewDepGraphGrid grid = new WebViewDepGraphGrid(gridName, getViewClient(), getConverterCache(),
           getLocalClient(), getRemoteClient(), cell, columnMappingPair.getFirst(), columnMappingPair.getSecond());
       _depGraphGrids.putIfAbsent(cell, grid);

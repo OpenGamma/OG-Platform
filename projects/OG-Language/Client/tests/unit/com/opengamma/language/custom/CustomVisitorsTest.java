@@ -17,21 +17,39 @@ import org.testng.annotations.Test;
 public class CustomVisitorsTest {
 
   private class CustomMessage extends com.opengamma.language.connector.Custom {
+
+    private static final long serialVersionUID = 1L;
+
   }
 
   private class CustomSubMessage extends CustomMessage {
+
+    private static final long serialVersionUID = 1L;
+
   }
 
   private class CustomUnregisteredMessage extends com.opengamma.language.connector.Custom {
+
+    private static final long serialVersionUID = 1L;
+
   }
 
   private class CustomFunction extends com.opengamma.language.function.Custom {
+
+    private static final long serialVersionUID = 1L;
+
   }
 
   private class CustomLiveData extends com.opengamma.language.livedata.Custom {
+
+    private static final long serialVersionUID = 1L;
+
   }
 
   private class CustomProcedure extends com.opengamma.language.procedure.Custom {
+
+    private static final long serialVersionUID = 1L;
+
   }
 
   private void registerVisitors(final CustomVisitors<String, Integer> visitors) {

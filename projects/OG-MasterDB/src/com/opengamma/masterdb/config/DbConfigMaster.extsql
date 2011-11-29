@@ -39,7 +39,7 @@
 
 -- ==========================================================================
 @NAME(Search)
-  WITH cte_docs AS ( @INSERT(SearchInner) )
+  WITH cte_docs AS ( @INCLUDE(SearchInner) )
   SELECT
     main.id AS doc_id,
     main.oid AS doc_oid,
@@ -54,7 +54,7 @@
     cfg_config main
     INNER JOIN cte_docs ON main.id = cte_docs.id
   ORDER BY
-    main.@INSERT(:sort_order)
+    main.@INCLUDE(:sort_order)
 
 
 -- ==========================================================================
@@ -63,9 +63,9 @@
     id
   FROM
     cfg_config
-  @INSERT(SearchWhere)
+  @INCLUDE(SearchWhere)
   ORDER BY
-    @INSERT(:sort_order)
+    @INCLUDE(:sort_order)
   @OFFSETFETCH
 
 
@@ -75,7 +75,7 @@
     COUNT(id)
   FROM
     cfg_config
-  @INSERT(SearchWhere)
+  @INCLUDE(SearchWhere)
 
 
 -- ==========================================================================
@@ -83,7 +83,7 @@
   WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
     AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
     @AND(:sql_search_object_ids)
-      oid IN ( @INSERT(:sql_search_object_ids) )
+      oid IN ( @INCLUDE(:sql_search_object_ids) )
     @AND(:config_type)
       config_type = :config_type
     @AND(:name)
@@ -92,7 +92,7 @@
 
 -- ==========================================================================
 @NAME(History)
-  WITH cte_docs AS ( @INSERT(HistoryInner) )
+  WITH cte_docs AS ( @INCLUDE(HistoryInner) )
   SELECT
     main.id AS doc_id,
     main.oid AS doc_oid,
@@ -117,7 +117,7 @@
     id
   FROM
     cfg_config
-  @INSERT(HistoryWhere)
+  @INCLUDE(HistoryWhere)
   ORDER BY
     ver_from_instant DESC,
     corr_from_instant DESC
@@ -130,7 +130,7 @@
     COUNT(id)
   FROM
     cfg_config 
-  @INSERT(HistoryWhere)
+  @INCLUDE(HistoryWhere)
 
 
 -- ==========================================================================
