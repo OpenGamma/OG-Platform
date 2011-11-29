@@ -35,6 +35,7 @@ import com.opengamma.core.security.SecurityLink;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.DefaultComputationTargetResolver;
@@ -51,6 +52,7 @@ import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.PortfolioStructure;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
+import com.opengamma.engine.function.resolver.ComputationTargetResults;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionPriority;
 import com.opengamma.engine.function.resolver.FunctionResolver;
@@ -160,7 +162,7 @@ public class DefaultPropertyFunctionsTest {
     }
 
     @Override
-    protected void getDefaults(final FunctionCompilationContext context, final ComputationTarget target, final PropertyDefaults defaults) {
+    protected void getDefaults(final PropertyDefaults defaults) {
       defaults.addValuePropertyName(_valueName, "ForwardCurve");
       defaults.addValuePropertyName(_valueName, "FundingCurve");
     }
@@ -284,7 +286,7 @@ public class DefaultPropertyFunctionsTest {
     SimplePortfolioNode node = new SimplePortfolioNode("TradeAttr");
     SimpleTrade trade = createTrade(securities);
     trade.addAttribute("Present Value.DEFAULT_ForwardCurve", "FooForward");
-    trade.addAttribute("Present Value.DEFAULT_FundingCurve", "FooFunding");
+    trade.addAttribute("*.DEFAULT_FundingCurve", "FooFunding");
     SimplePosition position = createPosition(securities);
     position.addTrade(trade);
     node.addPosition(position);
@@ -300,7 +302,7 @@ public class DefaultPropertyFunctionsTest {
     node = new SimplePortfolioNode("PositionAttr");
     position = createPosition(securities);
     position.addAttribute("Present Value.DEFAULT_ForwardCurve", "FooForward");
-    position.addAttribute("Present Value.DEFAULT_FundingCurve", "FooFunding");
+    position.addAttribute("*.DEFAULT_FundingCurve", "FooFunding");
     node.addPosition(position);
     root.addChildNode(node);
     // Portfolio node with position without an attribute
@@ -373,10 +375,13 @@ public class DefaultPropertyFunctionsTest {
     builder.setCalculationConfigurationName("Default");
     ctx.setViewCalculationConfiguration(new ViewCalculationConfiguration(new ViewDefinition("Name", "User"), "Default"));
     builder.setCompilationContext(ctx);
-    builder.setFunctionResolver(createFunctionResolver(ctx));
+    final CompiledFunctionResolver cfr = createFunctionResolver(ctx);
+    final ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(ctx.getSecuritySource(), ctx.getPortfolioStructure().getPositionSource());
+    builder.setTargetResolver(targetResolver);
+    ctx.setComputationTargetResults(new ComputationTargetResults(cfr.getAllResolutionRules(), ctx, targetResolver));
+    builder.setFunctionResolver(cfr);
     builder.setMarketDataAvailabilityProvider(new DomainMarketDataAvailabilityProvider(ctx.getSecuritySource(), Arrays.asList(ExternalScheme.of("Foo")), Arrays
         .asList(MarketDataRequirementNames.MARKET_VALUE)));
-    builder.setTargetResolver(new DefaultComputationTargetResolver(ctx.getSecuritySource(), ctx.getPortfolioStructure().getPositionSource()));
     return builder;
   }
 
@@ -477,7 +482,7 @@ public class DefaultPropertyFunctionsTest {
   public void testPortfolioNodeGeneric() {
     final DependencyGraphBuilder builder = createBuilder();
     final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
-    config.setDefaultProperties(ValueProperties.with("PORTFOLIO_NODE.Present Value.DEFAULT_ForwardCurve", "BarForward").with("PORTFOLIO_NODE.Present Value.DEFAULT_FundingCurve", "BarFunding").get());
+    config.setDefaultProperties(ValueProperties.with("PORTFOLIO_NODE.Present Value.DEFAULT_ForwardCurve", "BarForward").with("PORTFOLIO_NODE.*.DEFAULT_FundingCurve", "BarFunding").get());
     final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
     final ValueRequirement req1 = createValueRequirement(getPortfolioNode(positions, "Position"), ValueProperties.none());
     final ValueRequirement req2 = createValueRequirement(getPortfolioNode(positions, "PositionAttr"), ValueProperties.none());
@@ -500,7 +505,7 @@ public class DefaultPropertyFunctionsTest {
     final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
     final PortfolioNode node1 = getPortfolioNode(positions, "PositionAttr");
     config.setDefaultProperties(ValueProperties.with("PORTFOLIO_NODE.Present Value.DEFAULT_ForwardCurve." + node1.getUniqueId(), "BarForward")
-        .with("PORTFOLIO_NODE.Present Value.DEFAULT_FundingCurve." + node1.getUniqueId(), "BarFunding").get());
+        .with("PORTFOLIO_NODE.*.DEFAULT_FundingCurve." + node1.getUniqueId(), "BarFunding").get());
     final ValueRequirement req1 = createValueRequirement(node1, ValueProperties.none());
     final ValueRequirement req2 = createValueRequirement(getPortfolioNode(positions, "Position"), ValueProperties.none());
     builder.addTarget(req1);
@@ -522,8 +527,8 @@ public class DefaultPropertyFunctionsTest {
     final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
     final PortfolioNode node1 = getPortfolioNode(positions, "PositionAttr");
     config.setDefaultProperties(ValueProperties.with("PORTFOLIO_NODE.Present Value.DEFAULT_ForwardCurve." + node1.getUniqueId(), "BarForward")
-        .with("PORTFOLIO_NODE.Present Value.DEFAULT_FundingCurve." + node1.getUniqueId(), "BarFunding").with("PORTFOLIO_NODE.Present Value.DEFAULT_ForwardCurve", "GenericForward")
-        .with("PORTFOLIO_NODE.Present Value.DEFAULT_FundingCurve", "GenericFunding").get());
+        .with("PORTFOLIO_NODE.Present Value.DEFAULT_FundingCurve." + node1.getUniqueId(), "BarFunding").with("PORTFOLIO_NODE.*.DEFAULT_ForwardCurve", "GenericForward")
+        .with("PORTFOLIO_NODE.*.DEFAULT_FundingCurve", "GenericFunding").get());
     final ValueRequirement req1 = createValueRequirement(node1, ValueProperties.none());
     final ValueRequirement req2 = createValueRequirement(getPortfolioNode(positions, "Position"), ValueProperties.none());
     builder.addTarget(req1);
@@ -542,7 +547,7 @@ public class DefaultPropertyFunctionsTest {
   public void testPositionGeneric() {
     final DependencyGraphBuilder builder = createBuilder();
     final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
-    config.setDefaultProperties(ValueProperties.with("POSITION.Present Value.DEFAULT_ForwardCurve", "BarForward").with("POSITION.Present Value.DEFAULT_FundingCurve", "BarFunding").get());
+    config.setDefaultProperties(ValueProperties.with("POSITION.*.DEFAULT_ForwardCurve", "BarForward").with("POSITION.Present Value.DEFAULT_FundingCurve", "BarFunding").get());
     final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
     final ValueRequirement req1 = createValueRequirement(getPosition(positions, "Position"), ValueProperties.none());
     final ValueRequirement req2 = createValueRequirement(getPosition(positions, "PositionAttr"), ValueProperties.none());
@@ -565,7 +570,7 @@ public class DefaultPropertyFunctionsTest {
     final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
     final Position position1 = getPosition(positions, "PositionAttr");
     config.setDefaultProperties(ValueProperties.with("POSITION.Present Value.DEFAULT_ForwardCurve." + position1.getUniqueId(), "BarForward")
-        .with("POSITION.Present Value.DEFAULT_FundingCurve." + position1.getUniqueId(), "BarFunding").get());
+        .with("POSITION.*.DEFAULT_FundingCurve." + position1.getUniqueId(), "BarFunding").get());
     final ValueRequirement req1 = createValueRequirement(position1, ValueProperties.none());
     final ValueRequirement req2 = createValueRequirement(getPosition(positions, "Position"), ValueProperties.none());
     builder.addTarget(req1);
@@ -587,7 +592,7 @@ public class DefaultPropertyFunctionsTest {
     final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
     final Position position1 = getPosition(positions, "PositionAttr");
     config.setDefaultProperties(ValueProperties.with("POSITION.Present Value.DEFAULT_ForwardCurve." + position1.getUniqueId(), "BarForward")
-        .with("POSITION.Present Value.DEFAULT_FundingCurve." + position1.getUniqueId(), "BarFunding").with("POSITION.Present Value.DEFAULT_ForwardCurve", "GenericForward")
+        .with("POSITION.*.DEFAULT_FundingCurve." + position1.getUniqueId(), "BarFunding").with("POSITION.*.DEFAULT_ForwardCurve", "GenericForward")
         .with("POSITION.Present Value.DEFAULT_FundingCurve", "GenericFunding").get());
     final ValueRequirement req1 = createValueRequirement(position1, ValueProperties.none());
     final ValueRequirement req2 = createValueRequirement(getPosition(positions, "Position"), ValueProperties.none());
@@ -619,7 +624,7 @@ public class DefaultPropertyFunctionsTest {
   public void testSecurityGeneric() {
     final DependencyGraphBuilder builder = createBuilder();
     final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
-    config.setDefaultProperties(ValueProperties.with("SECURITY.Present Value.DEFAULT_ForwardCurve", "BarForward").with("SECURITY.Present Value.DEFAULT_FundingCurve", "BarFunding").get());
+    config.setDefaultProperties(ValueProperties.with("SECURITY.Present Value.DEFAULT_ForwardCurve", "BarForward").with("SECURITY.*.DEFAULT_FundingCurve", "BarFunding").get());
     final ValueRequirement req1 = createValueRequirement(builder.getCompilationContext().getSecuritySource().getSecurity(ExternalIdBundle.of(ExternalId.of("Security", "Swap"))),
         ValueProperties.none());
     builder.addTarget(req1);
@@ -634,7 +639,7 @@ public class DefaultPropertyFunctionsTest {
     final DependencyGraphBuilder builder = createBuilder();
     final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
     config.setDefaultProperties(ValueProperties.with("SECURITY.Present Value.DEFAULT_ForwardCurve.Security~Swap", "BarForward")
-        .with("SECURITY.Present Value.DEFAULT_FundingCurve.Security~Swap", "BarFunding").get());
+        .with("SECURITY.*.DEFAULT_FundingCurve.Security~Swap", "BarFunding").get());
     final ValueRequirement req1 = createValueRequirement(builder.getCompilationContext().getSecuritySource().getSecurity(ExternalIdBundle.of(ExternalId.of("Security", "Swap"))),
         ValueProperties.none());
     builder.addTarget(req1);
@@ -648,7 +653,7 @@ public class DefaultPropertyFunctionsTest {
   public void testSecuritySpecificOverride() {
     final DependencyGraphBuilder builder = createBuilder();
     final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
-    config.setDefaultProperties(ValueProperties.with("SECURITY.Present Value.DEFAULT_ForwardCurve", "GenericForward").with("SECURITY.Present Value.DEFAULT_FundingCurve", "GenericFunding")
+    config.setDefaultProperties(ValueProperties.with("SECURITY.*.DEFAULT_ForwardCurve", "GenericForward").with("SECURITY.*.DEFAULT_FundingCurve", "GenericFunding")
         .with("SECURITY.Present Value.DEFAULT_ForwardCurve.Security~Swap", "BarForward").with("SECURITY.Present Value.DEFAULT_FundingCurve.Security~Swap", "BarFunding").get());
     final ValueRequirement req1 = createValueRequirement(builder.getCompilationContext().getSecuritySource().getSecurity(ExternalIdBundle.of(ExternalId.of("Security", "Swap"))),
         ValueProperties.none());
@@ -663,7 +668,7 @@ public class DefaultPropertyFunctionsTest {
   public void testTradeGeneric() {
     final DependencyGraphBuilder builder = createBuilder();
     final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
-    config.setDefaultProperties(ValueProperties.with("TRADE.Present Value.DEFAULT_ForwardCurve", "BarForward").with("TRADE.Present Value.DEFAULT_FundingCurve", "BarFunding").get());
+    config.setDefaultProperties(ValueProperties.with("TRADE.Present Value.DEFAULT_ForwardCurve", "BarForward").with("TRADE.*.DEFAULT_FundingCurve", "BarFunding").get());
     final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
     final ValueRequirement req1 = createValueRequirement(getTrade(positions, "Trade"), ValueProperties.none());
     final ValueRequirement req2 = createValueRequirement(getTrade(positions, "TradeAttr"), ValueProperties.none());
@@ -685,7 +690,7 @@ public class DefaultPropertyFunctionsTest {
     final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
     final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
     final Trade trade1 = getTrade(positions, "TradeAttr");
-    config.setDefaultProperties(ValueProperties.with("TRADE.Present Value.DEFAULT_ForwardCurve." + trade1.getUniqueId(), "BarForward")
+    config.setDefaultProperties(ValueProperties.with("TRADE.*.DEFAULT_ForwardCurve." + trade1.getUniqueId(), "BarForward")
         .with("TRADE.Present Value.DEFAULT_FundingCurve." + trade1.getUniqueId(), "BarFunding").get());
     final ValueRequirement req1 = createValueRequirement(trade1, ValueProperties.none());
     final ValueRequirement req2 = createValueRequirement(getTrade(positions, "Trade"), ValueProperties.none());
@@ -707,8 +712,8 @@ public class DefaultPropertyFunctionsTest {
     final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
     final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
     final Trade trade1 = getTrade(positions, "TradeAttr");
-    config.setDefaultProperties(ValueProperties.with("TRADE.Present Value.DEFAULT_ForwardCurve", "GenericForward").with("TRADE.Present Value.DEFAULT_FundingCurve", "GenericFunding")
-        .with("TRADE.Present Value.DEFAULT_ForwardCurve." + trade1.getUniqueId(), "BarForward").with("TRADE.Present Value.DEFAULT_FundingCurve." + trade1.getUniqueId(), "BarFunding").get());
+    config.setDefaultProperties(ValueProperties.with("TRADE.Present Value.DEFAULT_ForwardCurve", "GenericForward").with("TRADE.*.DEFAULT_FundingCurve", "GenericFunding")
+        .with("TRADE.*.DEFAULT_ForwardCurve." + trade1.getUniqueId(), "BarForward").with("TRADE.Present Value.DEFAULT_FundingCurve." + trade1.getUniqueId(), "BarFunding").get());
     final ValueRequirement req1 = createValueRequirement(trade1, ValueProperties.none());
     final ValueRequirement req2 = createValueRequirement(getTrade(positions, "Trade"), ValueProperties.none());
     builder.addTarget(req1);
