@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -23,7 +22,6 @@ import org.joda.beans.JodaBeanUtils;
 import com.google.common.base.Objects;
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeType;
@@ -260,43 +258,6 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
-    return getTimeSeries(uniqueId.getObjectId(), VersionCorrection.LATEST, fromDateInclusive, toDateInclusive);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectKey, VersionCorrection versionCorrection, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
-    return getTimeSeries(objectKey, versionCorrection, HistoricalTimeSeriesGetFilter.ofRange(fromDateInclusive, toDateInclusive));
-
-//    validateId(objectKey);
-//    fromDateInclusive = Objects.firstNonNull(fromDateInclusive, LocalDate.of(1000, 1, 1));  // TODO: JSR-310 min/max date
-//    toDateInclusive = Objects.firstNonNull(toDateInclusive, LocalDate.of(9999, 1, 1));
-//    ArgumentChecker.inOrderOrEqual(fromDateInclusive, toDateInclusive, "fromDateInclusive", "toDateInclusive");
-//    final ObjectId objectId = objectKey.getObjectId();
-//    
-//    final Instant now = Instant.now();
-//    LocalDateDoubleTimeSeries existingSeries = _storePoints.get(objectId);
-//    if (existingSeries == null) {
-//      if (_storeInfo.get(objectId) == null) {
-//        throw new DataNotFoundException("Historical time-series not found: " + objectId);
-//      }
-//      existingSeries = new ArrayLocalDateDoubleTimeSeries();
-//    }
-//    final LocalDateDoubleTimeSeries subSeries = existingSeries.subSeries(fromDateInclusive, toDateInclusive).toLocalDateDoubleTimeSeries();
-//    final ManageableHistoricalTimeSeries result = new ManageableHistoricalTimeSeries();
-//    result.setUniqueId(objectId.atLatestVersion());
-//    result.setTimeSeries(subSeries);
-////    result.setEarliestDate(subSeries.getEarliestTime());
-////    result.setLatestDate(subSeries.getLatestTime());
-////    result.setEarliestValue(subSeries.getEarliestValue());
-////    result.setLatestValue(subSeries.getLatestValue());
-//    result.setVersionInstant(now);
-//    result.setCorrectionInstant(now);
-//    return result;
-  }
-
   
   public ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId) {
     return getTimeSeries(uniqueId.getObjectId(), VersionCorrection.LATEST);

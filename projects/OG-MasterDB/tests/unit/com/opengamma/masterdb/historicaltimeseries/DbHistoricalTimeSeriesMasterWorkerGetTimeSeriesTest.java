@@ -96,7 +96,7 @@ public class DbHistoricalTimeSeriesMasterWorkerGetTimeSeriesTest extends Abstrac
   @Test
   public void test_get_OID_101_latest() {
     ObjectId oid = ObjectId.of("DbHts", "DP101");
-    ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(oid, VersionCorrection.LATEST, null, null);
+    ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(oid, VersionCorrection.LATEST);
     assertEquals(oid, test.getUniqueId().getObjectId());
     LocalDateDoubleTimeSeries timeSeries = test.getTimeSeries();
     assertEquals(3, timeSeries.size());
@@ -111,13 +111,13 @@ public class DbHistoricalTimeSeriesMasterWorkerGetTimeSeriesTest extends Abstrac
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_OID_101_pre1() {
     ObjectId oid = ObjectId.of("DbHts", "DP101");
-    _htsMaster.getTimeSeries(oid, VersionCorrection.ofVersionAsOf(_version1Instant.minusSeconds(1)), null, null);
+    _htsMaster.getTimeSeries(oid, VersionCorrection.ofVersionAsOf(_version1Instant.minusSeconds(1)));
   }
 
   @Test
   public void test_get_OID_101_post1() {
     ObjectId oid = ObjectId.of("DbHts", "DP101");
-    ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(oid, VersionCorrection.ofVersionAsOf(_version1Instant.plusSeconds(1)), null, null);
+    ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(oid, VersionCorrection.ofVersionAsOf(_version1Instant.plusSeconds(1)));
     assertEquals(oid, test.getUniqueId().getObjectId());
     LocalDateDoubleTimeSeries timeSeries = test.getTimeSeries();
     assertEquals(1, timeSeries.size());
@@ -128,7 +128,7 @@ public class DbHistoricalTimeSeriesMasterWorkerGetTimeSeriesTest extends Abstrac
   @Test
   public void test_get_OID_101_post2() {
     ObjectId oid = ObjectId.of("DbHts", "DP101");
-    ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(oid, VersionCorrection.ofVersionAsOf(_version2Instant.plusSeconds(1)), null, null);
+    ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(oid, VersionCorrection.ofVersionAsOf(_version2Instant.plusSeconds(1)));
     assertEquals(oid, test.getUniqueId().getObjectId());
     LocalDateDoubleTimeSeries timeSeries = test.getTimeSeries();
     assertEquals(3, timeSeries.size());
@@ -143,7 +143,7 @@ public class DbHistoricalTimeSeriesMasterWorkerGetTimeSeriesTest extends Abstrac
   @Test
   public void test_get_OID_101_correctPost2() {
     ObjectId oid = ObjectId.of("DbHts", "DP101");
-    ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(oid, VersionCorrection.of(_version2Instant.plusSeconds(1), _version2Instant.plusSeconds(1)), null, null);
+    ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(oid, VersionCorrection.of(_version2Instant.plusSeconds(1), _version2Instant.plusSeconds(1)));
     assertEquals(oid, test.getUniqueId().getObjectId());
     LocalDateDoubleTimeSeries timeSeries = test.getTimeSeries();
     assertEquals(3, timeSeries.size());
@@ -158,7 +158,7 @@ public class DbHistoricalTimeSeriesMasterWorkerGetTimeSeriesTest extends Abstrac
   @Test
   public void test_get_OID_101_correctPost3() {
     ObjectId oid = ObjectId.of("DbHts", "DP101");
-    ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(oid, VersionCorrection.of(_version2Instant.plusSeconds(1), _version3Instant.plusSeconds(1)), null, null);
+    ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(oid, VersionCorrection.of(_version2Instant.plusSeconds(1), _version3Instant.plusSeconds(1)));
     assertEquals(oid, test.getUniqueId().getObjectId());
     LocalDateDoubleTimeSeries timeSeries = test.getTimeSeries();
     assertEquals(3, timeSeries.size());
@@ -173,7 +173,7 @@ public class DbHistoricalTimeSeriesMasterWorkerGetTimeSeriesTest extends Abstrac
   @Test
   public void test_get_UID_101_correctPost3() {
     ObjectId oid = ObjectId.of("DbHts", "DP101");
-    ManageableHistoricalTimeSeries base = _htsMaster.getTimeSeries(oid, VersionCorrection.of(_version2Instant.plusSeconds(1), _version3Instant.plusSeconds(1)), null, null);
+    ManageableHistoricalTimeSeries base = _htsMaster.getTimeSeries(oid, VersionCorrection.of(_version2Instant.plusSeconds(1), _version3Instant.plusSeconds(1)));
     ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(base.getUniqueId());
     assertEquals(base, test);
   }
@@ -184,7 +184,7 @@ public class DbHistoricalTimeSeriesMasterWorkerGetTimeSeriesTest extends Abstrac
     ObjectId oid = ObjectId.of("DbHts", "DP101");
     ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(oid,
         VersionCorrection.of(_version2Instant.plusSeconds(1), _version3Instant.plusSeconds(1)),
-        null, LocalDate.of(2011, 1, 2));
+        HistoricalTimeSeriesGetFilter.ofRange(null, LocalDate.of(2011, 1, 2)));
     assertEquals(oid, test.getUniqueId().getObjectId());
     LocalDateDoubleTimeSeries timeSeries = test.getTimeSeries();
     assertEquals(2, timeSeries.size());
@@ -199,7 +199,7 @@ public class DbHistoricalTimeSeriesMasterWorkerGetTimeSeriesTest extends Abstrac
     ObjectId oid = ObjectId.of("DbHts", "DP101");
     ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(oid,
         VersionCorrection.of(_version2Instant.plusSeconds(1), _version3Instant.plusSeconds(1)),
-        LocalDate.of(2011, 1, 2), null);
+        HistoricalTimeSeriesGetFilter.ofRange(LocalDate.of(2011, 1, 2), null));
     assertEquals(oid, test.getUniqueId().getObjectId());
     LocalDateDoubleTimeSeries timeSeries = test.getTimeSeries();
     assertEquals(2, timeSeries.size());
@@ -214,7 +214,7 @@ public class DbHistoricalTimeSeriesMasterWorkerGetTimeSeriesTest extends Abstrac
     ObjectId oid = ObjectId.of("DbHts", "DP101");
     ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(oid,
         VersionCorrection.of(_version2Instant.plusSeconds(1), _version3Instant.plusSeconds(1)),
-        LocalDate.of(2011, 1, 2), LocalDate.of(2011, 1, 2));
+        HistoricalTimeSeriesGetFilter.ofRange(LocalDate.of(2011, 1, 2), LocalDate.of(2011, 1, 2)));
     assertEquals(oid, test.getUniqueId().getObjectId());
     LocalDateDoubleTimeSeries timeSeries = test.getTimeSeries();
     assertEquals(1, timeSeries.size());

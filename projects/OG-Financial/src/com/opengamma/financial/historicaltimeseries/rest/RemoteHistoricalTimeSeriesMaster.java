@@ -174,8 +174,16 @@ public class RemoteHistoricalTimeSeriesMaster implements HistoricalTimeSeriesMas
     throw new UnsupportedOperationException();
   }
 
-  @Override
-  public ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
+  public ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId) {
+    return getTimeSeries(uniqueId, HistoricalTimeSeriesGetFilter.ofRange(null, null));
+  }
+  
+  public ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId, HistoricalTimeSeriesGetFilter filter) {
+    
+    // TODO: handle maximum #points limit through REST
+    
+    LocalDate fromDateInclusive = filter.getEarliestDate();
+    LocalDate toDateInclusive = filter.getLatestDate();
     try {
       RestTarget target = getTargetBase().resolveBase("timeSeries").resolveBase(uniqueId.toString());
       if (fromDateInclusive != null) {
@@ -195,20 +203,6 @@ public class RemoteHistoricalTimeSeriesMaster implements HistoricalTimeSeriesMas
     } catch (RestRuntimeException ex) {
       throw ex.translate();
     }
-  }
-
-  @Override
-  public ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
-    // TODO: GET request to timeSeriesObject/objectId/...
-    throw new UnsupportedOperationException();
-  }
-
-  public ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId) {
-    throw new UnsupportedOperationException();
-  }
-  
-  public ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId, HistoricalTimeSeriesGetFilter filter) {
-    throw new UnsupportedOperationException();
   }
   
   public ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
