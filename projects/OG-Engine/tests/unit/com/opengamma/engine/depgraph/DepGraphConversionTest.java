@@ -18,7 +18,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
@@ -53,13 +52,6 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
         return Collections.singleton(new ValueSpecification(helper.getRequirement2Bar(), getUniqueId()));
-      }
-
-      @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
-        s_logger.debug("fnConv late resolving with inputs {}", inputs);
-        Assert.fail("getResults shouldn't be called on function without wildcard inputs");
-        return null;
       }
 
     };
