@@ -5,6 +5,7 @@
  */
 package com.opengamma.extsql;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 /**
@@ -19,7 +20,7 @@ final class OffsetFetchSqlFragment extends ContainerSqlFragment {
    */
   private final String _offsetVariable;
   /**
-   * The fetch variable.
+   * The fetch variable or numeric amount.
    */
   private final String _fetchVariable;
 
@@ -54,6 +55,8 @@ final class OffsetFetchSqlFragment extends ContainerSqlFragment {
     }
     if (paramSource.hasValue(_fetchVariable)) {
       fetchLimit = ((Number) paramSource.getValue(_fetchVariable)).intValue();
+    } else if (StringUtils.containsOnly(_fetchVariable, "0123456789")) {
+      fetchLimit = Integer.parseInt(_fetchVariable);
     }
     buf.append(bundle.getConfig().getPaging(offset, fetchLimit));
   }
