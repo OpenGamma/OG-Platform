@@ -150,6 +150,7 @@ $.register_module({
                     og.views.common.versions.load();
                 } else layout.inner.close('south');
                 api.rest.securities.get({
+                    dependencies: ['id'],
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var json = result.data, text_handler,

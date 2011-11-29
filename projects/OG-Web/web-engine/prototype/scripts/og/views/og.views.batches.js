@@ -79,6 +79,7 @@ $.register_module({
                 layout.inner.options.south.onclose = null;
                 layout.inner.close('south');
                 api.rest.batches.get({
+                    dependencies: ['id'],
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var f = details.batch_functions, json = result.data;
