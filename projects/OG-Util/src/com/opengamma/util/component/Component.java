@@ -8,13 +8,7 @@ package com.opengamma.util.component;
 /**
  * A principal component of the OpenGamma system.
  */
-public abstract class Component {
-
-  /**
-   * Creates an instance.
-   */
-  protected Component() {
-  }
+public interface Component {
 
   /**
    * Starts the component using the configuration.
@@ -24,6 +18,6 @@ public abstract class Component {
    * @param repo  the repository to register the component with, not null
    * @param config  the configuration to use, not null
    */
-  public abstract void start(ComponentRepository repo, ComponentConfig config);
+  void start(ComponentRepository repo, ComponentConfig config);
 
 }
