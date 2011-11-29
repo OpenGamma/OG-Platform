@@ -27,12 +27,12 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeType;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryResult;
@@ -268,9 +268,52 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
   //-------------------------------------------------------------------------
   @Override
   public ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectKey, VersionCorrection versionCorrection, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
+    return getTimeSeries(objectKey, versionCorrection, HistoricalTimeSeriesGetFilter.ofRange(fromDateInclusive, toDateInclusive));
+
+//    validateId(objectKey);
+//    fromDateInclusive = Objects.firstNonNull(fromDateInclusive, LocalDate.of(1000, 1, 1));  // TODO: JSR-310 min/max date
+//    toDateInclusive = Objects.firstNonNull(toDateInclusive, LocalDate.of(9999, 1, 1));
+//    ArgumentChecker.inOrderOrEqual(fromDateInclusive, toDateInclusive, "fromDateInclusive", "toDateInclusive");
+//    final ObjectId objectId = objectKey.getObjectId();
+//    
+//    final Instant now = Instant.now();
+//    LocalDateDoubleTimeSeries existingSeries = _storePoints.get(objectId);
+//    if (existingSeries == null) {
+//      if (_storeInfo.get(objectId) == null) {
+//        throw new DataNotFoundException("Historical time-series not found: " + objectId);
+//      }
+//      existingSeries = new ArrayLocalDateDoubleTimeSeries();
+//    }
+//    final LocalDateDoubleTimeSeries subSeries = existingSeries.subSeries(fromDateInclusive, toDateInclusive).toLocalDateDoubleTimeSeries();
+//    final ManageableHistoricalTimeSeries result = new ManageableHistoricalTimeSeries();
+//    result.setUniqueId(objectId.atLatestVersion());
+//    result.setTimeSeries(subSeries);
+////    result.setEarliestDate(subSeries.getEarliestTime());
+////    result.setLatestDate(subSeries.getLatestTime());
+////    result.setEarliestValue(subSeries.getEarliestValue());
+////    result.setLatestValue(subSeries.getLatestValue());
+//    result.setVersionInstant(now);
+//    result.setCorrectionInstant(now);
+//    return result;
+  }
+
+  
+  public ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId) {
+    return getTimeSeries(uniqueId.getObjectId(), VersionCorrection.LATEST);
+  }
+  
+  public ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId, HistoricalTimeSeriesGetFilter filter) {
+    return getTimeSeries(uniqueId.getObjectId(), VersionCorrection.LATEST, filter);
+  }
+  
+  public ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    return getTimeSeries(objectId, versionCorrection, HistoricalTimeSeriesGetFilter.ofRange(null, null));
+  }
+  
+  public ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectKey, VersionCorrection versionCorrection, HistoricalTimeSeriesGetFilter filter) {
     validateId(objectKey);
-    fromDateInclusive = Objects.firstNonNull(fromDateInclusive, LocalDate.of(1000, 1, 1));  // TODO: JSR-310 min/max date
-    toDateInclusive = Objects.firstNonNull(toDateInclusive, LocalDate.of(9999, 1, 1));
+    LocalDate fromDateInclusive = Objects.firstNonNull(filter.getEarliestDate(), LocalDate.of(1000, 1, 1));  // TODO: JSR-310 min/max date
+    LocalDate toDateInclusive = Objects.firstNonNull(filter.getLatestDate(), LocalDate.of(9999, 1, 1));
     ArgumentChecker.inOrderOrEqual(fromDateInclusive, toDateInclusive, "fromDateInclusive", "toDateInclusive");
     final ObjectId objectId = objectKey.getObjectId();
     
@@ -282,48 +325,34 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
       }
       existingSeries = new ArrayLocalDateDoubleTimeSeries();
     }
-    final LocalDateDoubleTimeSeries subSeries = existingSeries.subSeries(fromDateInclusive, toDateInclusive).toLocalDateDoubleTimeSeries();
+    
+    // Filter points by date range and max points to return
+    final LocalDateDoubleTimeSeries subSeries;
+    if (filter.getMaxPoints() == null) {
+      subSeries = existingSeries.subSeries(fromDateInclusive, toDateInclusive).toLocalDateDoubleTimeSeries();
+    } else {
+      int maxPoints = filter.getMaxPoints();
+      if (maxPoints > 0) {
+        // get first few points
+        subSeries = existingSeries.subSeries(fromDateInclusive, toDateInclusive).head(maxPoints).toLocalDateDoubleTimeSeries();
+      } else if (maxPoints < 0) {
+        // get last few points
+        subSeries = existingSeries.subSeries(fromDateInclusive, toDateInclusive).head(-maxPoints).toLocalDateDoubleTimeSeries();
+      } else {
+        // don't get any points
+        subSeries = new ArrayLocalDateDoubleTimeSeries();
+      }
+    }
+    
     final ManageableHistoricalTimeSeries result = new ManageableHistoricalTimeSeries();
     result.setUniqueId(objectId.atLatestVersion());
     result.setTimeSeries(subSeries);
-//    result.setEarliestDate(subSeries.getEarliestTime());
-//    result.setLatestDate(subSeries.getLatestTime());
-//    result.setEarliestValue(subSeries.getEarliestValue());
-//    result.setLatestValue(subSeries.getLatestValue());
     result.setVersionInstant(now);
     result.setCorrectionInstant(now);
-    return result;
+    return result;    
   }
-
-  @Override
-  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    return getSummary(uniqueId.getObjectId(), VersionCorrection.LATEST);
-  }
-
-  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectKey, VersionCorrection versionCorrection) {
-    validateId(objectKey);
-    final ObjectId objectId = objectKey.getObjectId();
-    LocalDateDoubleTimeSeries series = _storePoints.get(objectId);
-    if (series == null) {
-      if (_storeInfo.get(objectId) == null) {
-        throw new DataNotFoundException("Historical time-series not found: " + objectId);
-      }
-      series = new ArrayLocalDateDoubleTimeSeries();
-    }
-    
-    HistoricalTimeSeriesSummary result = new HistoricalTimeSeriesSummary();  
-    try {
-      result.setEarliestDate(series.getEarliestTime());
-      result.setEarliestValue(series.getEarliestValue());
-      result.setLatestDate(series.getLatestTime());
-      result.setLatestValue(series.getLatestValue());   
-    } catch (NoSuchElementException e) {
-      throw new OpenGammaRuntimeException("Could not get earliest/latest data points for time series" + objectId);
-    }
-    return result;
-  }
-
+  
+  
   //-------------------------------------------------------------------------
   @Override
   public UniqueId updateTimeSeriesDataPoints(ObjectIdentifiable objectKey, LocalDateDoubleTimeSeries series) {

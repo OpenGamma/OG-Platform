@@ -14,7 +14,6 @@ import javax.time.calendar.LocalDate;
 import com.google.common.base.Supplier;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -22,6 +21,8 @@ import com.opengamma.id.UniqueIdSupplier;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * In memory source, typically used for testing.
@@ -70,6 +71,12 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
       UniqueId uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean includeEnd) {
     HistoricalTimeSeries hts = getHistoricalTimeSeries(uniqueId);
     return getSubSeries(hts, start, inclusiveStart, end, includeEnd);
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId) {
+    HistoricalTimeSeries hts = getHistoricalTimeSeries(uniqueId);
+    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
   }
 
   //-------------------------------------------------------------------------
@@ -148,23 +155,6 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
       String dataField, ExternalIdBundle identifiers, LocalDate identifierValidityDate, String resolutionKey,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean includeEnd) {
     throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
-    LocalDateDoubleTimeSeries ts = getHistoricalTimeSeries(uniqueId).getTimeSeries();
-    HistoricalTimeSeriesSummary result = new HistoricalTimeSeriesSummary();
-    result.setEarliestDate(ts.getEarliestTime());
-    result.setLatestDate(ts.getLatestTime());
-    result.setEarliestValue(ts.getEarliestValue());
-    result.setLatestValue(ts.getLatestValue());
-    return result;
-  }
-
-  @Override
-  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    throw new UnsupportedOperationException("Does not support getting summary information by object id and version correction");
   }
 
   //-------------------------------------------------------------------------
