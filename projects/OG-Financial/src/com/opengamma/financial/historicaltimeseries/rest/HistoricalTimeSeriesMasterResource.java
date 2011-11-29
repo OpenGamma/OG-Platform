@@ -24,6 +24,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdFudgeBuilder;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
@@ -174,7 +175,7 @@ public class HistoricalTimeSeriesMasterResource {
     @Path("timeSeries")
     public FudgeMsgEnvelope getTimeSeries() {
       try {
-        return new FudgeMsgEnvelope(getFudgeSerializer().objectToFudgeMsg(getUnderlying().getTimeSeries(_uid, _from, _to)));
+        return new FudgeMsgEnvelope(getFudgeSerializer().objectToFudgeMsg(getUnderlying().getTimeSeries(_uid, HistoricalTimeSeriesGetFilter.ofRange(_from, _to))));
       } catch (DataNotFoundException e) {
         throw new WebApplicationException(Response.Status.NOT_FOUND);
       }

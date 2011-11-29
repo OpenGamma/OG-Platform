@@ -20,7 +20,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectIdentifiable;
@@ -35,6 +34,7 @@ import com.opengamma.language.invoke.TypeConverterProviderBean;
 import com.opengamma.language.test.TestUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests the {@link FetchTimeSeriesFunction} class.
@@ -51,6 +51,11 @@ public class FetchTimeSeriesFunctionTest {
 
     @Override
     public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean inclusiveEnd) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId) {
       throw new UnsupportedOperationException();
     }
 
@@ -103,36 +108,6 @@ public class FetchTimeSeriesFunctionTest {
         boolean inclusiveStart, LocalDate end, boolean inclusiveEnd) {
       throw new UnsupportedOperationException();
     }
-
-    @Override
-    public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-      throw new UnsupportedOperationException();
-    }
-
-//    @Override
-//    public LocalDate getEarliestDate(UniqueId uniqueId) {
-//      throw new UnsupportedOperationException();
-//    }
-//
-//    @Override
-//    public LocalDate getLatestDate(UniqueId uniqueId) {
-//      throw new UnsupportedOperationException();
-//    }
-//
-//    @Override
-//    public Double getEarliestValue(UniqueId uniqueId) {
-//      throw new UnsupportedOperationException();
-//    }
-//
-//    @Override
-//    public Double getLatestValue(UniqueId uniqueId) {
-//      throw new UnsupportedOperationException();
-//    }
 
   }
 
