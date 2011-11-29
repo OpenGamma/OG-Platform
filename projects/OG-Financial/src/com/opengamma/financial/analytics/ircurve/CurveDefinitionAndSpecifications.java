@@ -260,11 +260,8 @@ public class CurveDefinitionAndSpecifications {
 
   public static YieldCurveDefinition buildCADSixMonthForwardCurveDefinition() {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
-    for (final int i : new int[] {1, 2, 3, 6}) {
+    for (final int i : new int[] {6}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.CDOR, Tenor.ofMonths(i), "DEFAULT"));
-    }
-    for (final int i : new int[] {7, 8, 9, 10, 11}) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofMonths(i), "DEFAULT"));
     }
     strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofYears(1), "DEFAULT"));
     for (final int i : new int[] {15, 18}) {
@@ -337,7 +334,7 @@ public class CurveDefinitionAndSpecifications {
 
   public static YieldCurveDefinition buildDKKFundingCurveDefinition() {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
-    for (final int i : new int[] {2}) {
+    for (final int i : new int[] {1, 2}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.ofDays(i), "DEFAULT"));
     }
     for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}) {
@@ -354,10 +351,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {1, 2, 3, 6}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.CIBOR, Tenor.ofMonths(i), "DEFAULT"));
     }
-    for (final int i : new int[] {7, 8, 9, 10, 11}) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofMonths(i), "DEFAULT"));
-    }
-    for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20}) {
+    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofYears(i), "DEFAULT"));
     }
     return new YieldCurveDefinition(Currency.DKK, RegionUtils.countryRegionId(Country.DK), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
