@@ -105,7 +105,7 @@
 
 -- ==========================================================================
 @NAME(Search)
-  WITH cte_docs AS ( @INSERT(SearchInner) )
+  WITH cte_docs AS ( @INCLUDE(SearchInner) )
   SELECT
     main.id AS position_id,
     main.oid AS position_oid,
@@ -161,7 +161,7 @@
     pos_position.id AS id
   FROM
     pos_position
-  @INSERT(SearchWhere)
+  @INCLUDE(SearchWhere)
   ORDER BY
     oid
   @OFFSETFETCH
@@ -173,7 +173,7 @@
     COUNT(pos_position.id)
   FROM
     pos_position
-  @INSERT(SearchWhere)
+  @INCLUDE(SearchWhere)
 
 
 -- ==========================================================================
@@ -181,7 +181,7 @@
   WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
     AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
     @AND(:sql_search_position_ids)
-      oid IN ( @INSERT(:sql_search_position_ids) )
+      oid IN ( @INCLUDE(:sql_search_position_ids) )
     @AND(:min_quantity)
       quantity >= :min_quantity
     @AND(:max_quantity)
@@ -194,17 +194,17 @@
       oid IN (SELECT DISTINCT position_oid FROM pos_trade
         WHERE provider_scheme = :trade_provider_scheme AND provider_value = :trade_provider_value)
     @AND(:sql_search_trade_ids)
-      oid IN (SELECT DISTINCT position_oid FROM pos_trade WHERE oid IN ( @INSERT(:sql_search_trade_ids) ))
+      oid IN (SELECT DISTINCT position_oid FROM pos_trade WHERE oid IN ( @INCLUDE(:sql_search_trade_ids) ))
     @AND(:security_id_value)
-      id IN ( @INSERT(SelectSecurityKeyValue) )
+      id IN ( @INCLUDE(SelectSecurityKeyValue) )
     @AND(:sql_search_security_ids_type = EXACT)
-      id IN ( @INSERT(SelectSecurityKeyValuesExact) )
+      id IN ( @INCLUDE(SelectSecurityKeyValuesExact) )
     @AND(:sql_search_security_ids_type = ALL)
-      id IN ( @INSERT(SelectSecurityKeyValuesAll) )
+      id IN ( @INCLUDE(SelectSecurityKeyValuesAll) )
     @AND(:sql_search_security_ids_type = ANY)
-      id IN ( @INSERT(SelectSecurityKeyValuesAny) )
+      id IN ( @INCLUDE(SelectSecurityKeyValuesAny) )
     @AND(:sql_search_security_ids_type = NONE)
-      id NOT IN ( @INSERT(SelectSecurityKeyValuesAny) )
+      id NOT IN ( @INCLUDE(SelectSecurityKeyValuesAny) )
 
 
 -- ==========================================================================
@@ -235,7 +235,7 @@
       WHERE pos_position2idkey.position_id = pos_position.id
         AND pos_position.ver_from_instant <= :version_as_of_instant AND pos_position.ver_to_instant > :version_as_of_instant
         AND pos_position.corr_from_instant <= :corrected_to_instant AND pos_position.corr_to_instant > :corrected_to_instant
-        AND idkey_id IN ( @INSERT(SelectSecurityKeyValuesOr) )
+        AND idkey_id IN ( @INCLUDE(SelectSecurityKeyValuesOr) )
       GROUP BY
         position_id
       HAVING
@@ -267,7 +267,7 @@
   WHERE pos_position2idkey.position_id = pos_position.id
     AND pos_position.ver_from_instant <= :version_as_of_instant AND pos_position.ver_to_instant > :version_as_of_instant
     AND pos_position.corr_from_instant <= :corrected_to_instant AND pos_position.corr_to_instant > :corrected_to_instant
-    AND idkey_id IN ( @INSERT(SelectSecurityKeyValuesOr) )
+    AND idkey_id IN ( @INCLUDE(SelectSecurityKeyValuesOr) )
     GROUP BY
       position_id
     HAVING
@@ -284,7 +284,7 @@
   WHERE pos_position2idkey.position_id = pos_position.id
     AND pos_position.ver_from_instant <= :version_as_of_instant AND pos_position.ver_to_instant > :version_as_of_instant
     AND pos_position.corr_from_instant <= :corrected_to_instant AND pos_position.corr_to_instant > :corrected_to_instant
-    AND idkey_id IN ( @INSERT(SelectSecurityKeyValuesOr) )
+    AND idkey_id IN ( @INCLUDE(SelectSecurityKeyValuesOr) )
 
 
 -- ==========================================================================
@@ -294,12 +294,12 @@
   FROM
     pos_idkey
   WHERE
-    @INSERT(:sql_search_security_ids)
+    @INCLUDE(:sql_search_security_ids)
 
 
 -- ==========================================================================
 @NAME(History)
-  WITH cte_docs AS ( @INSERT(HistoryInner) )
+  WITH cte_docs AS ( @INCLUDE(HistoryInner) )
   SELECT
     main.id AS position_id,
     main.oid AS position_oid,
@@ -356,7 +356,7 @@
     id
   FROM
     pos_position
-  @INSERT(HistoryWhere)
+  @INCLUDE(HistoryWhere)
   ORDER BY
     ver_from_instant DESC,
     corr_from_instant DESC
@@ -369,7 +369,7 @@
     COUNT(id)
   FROM
     pos_position 
-  @INSERT(HistoryWhere)
+  @INCLUDE(HistoryWhere)
 
 
 -- ==========================================================================
@@ -414,7 +414,7 @@
   INSERT INTO pos_position2idkey
     (position_id, idkey_id)
   VALUES
-    (:position_id, ( @INSERT(SelectIdKey) ))
+    (:position_id, ( @INCLUDE(SelectIdKey) ))
 
 
 -- ==========================================================================
@@ -422,7 +422,7 @@
   INSERT INTO pos_trade2idkey
     (trade_id, idkey_id)
   VALUES
-    (:trade_id, ( @INSERT(SelectIdKey) ))
+    (:trade_id, ( @INCLUDE(SelectIdKey) ))
 
 
 -- ==========================================================================

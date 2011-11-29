@@ -35,7 +35,7 @@
 
 -- ==========================================================================
 @NAME(Search)
-  WITH cte_docs AS ( @INSERT(SearchInner) )
+  WITH cte_docs AS ( @INCLUDE(SearchInner) )
   SELECT
     main.id AS doc_id,
     main.oid AS doc_oid,
@@ -60,7 +60,7 @@
     snp_snapshot.id AS id
   FROM
     snp_snapshot
-  @INSERT(SearchWhere)
+  @INCLUDE(SearchWhere)
   ORDER BY
     snp_snapshot.id
   @OFFSETFETCH
@@ -72,7 +72,7 @@
     COUNT(snp_snapshot.id)
   FROM
     snp_snapshot
-  @INSERT(SearchWhere)
+  @INCLUDE(SearchWhere)
 
 
 -- ==========================================================================
@@ -85,7 +85,7 @@
 
 -- ==========================================================================
 @NAME(History)
-  WITH cte_docs AS ( @INSERT(HistoryInner) )
+  WITH cte_docs AS ( @INCLUDE(HistoryInner) )
   SELECT
     main.id AS doc_id,
     main.oid AS doc_oid,
@@ -111,7 +111,7 @@
     id
   FROM
     snp_snapshot
-  @INSERT(HistoryWhere)
+  @INCLUDE(HistoryWhere)
   ORDER BY
     ver_from_instant DESC,
     corr_from_instant DESC
@@ -124,7 +124,7 @@
     COUNT(id)
   FROM
     snp_snapshot 
-  @INSERT(HistoryWhere)
+  @INCLUDE(HistoryWhere)
 
 
 -- ==========================================================================

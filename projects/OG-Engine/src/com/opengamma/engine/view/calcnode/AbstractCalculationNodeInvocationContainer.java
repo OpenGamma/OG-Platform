@@ -46,7 +46,7 @@ public abstract class AbstractCalculationNodeInvocationContainer {
   /**
    * 
    */
-  protected static interface ExecutionReceiver {
+  protected interface ExecutionReceiver {
 
     void executionFailed(AbstractCalculationNode node, Exception exception);
 

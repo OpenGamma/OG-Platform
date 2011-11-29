@@ -26,6 +26,7 @@ public interface ManageableViewDefinitionRepository extends ViewDefinitionReposi
    * Adds a view definition to the repository.
    * 
    * @param request  the request, not null
+   * @return the unique identifier of the view added, not null
    * @throws IllegalArgumentException if the request is invalid
    */
   UniqueId addViewDefinition(AddViewDefinitionRequest request);
