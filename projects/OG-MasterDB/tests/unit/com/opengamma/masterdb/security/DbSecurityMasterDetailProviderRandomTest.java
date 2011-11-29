@@ -14,6 +14,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.masterdb.security.test.SecurityTestCaseMethods;
 import com.opengamma.util.test.DbTest;
 
 /**
