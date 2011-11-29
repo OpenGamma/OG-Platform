@@ -60,9 +60,25 @@ import com.opengamma.util.money.Currency;
  */
 public abstract class InterestRateInstrumentFunction extends AbstractFunction.NonCompiledInvoker {
 
-  private static final String PROPERTY_TYPE = ValuePropertyNames.OUTPUT_RESERVED_PREFIX + "Type";
-  private static final String TYPE_FORWARD = "Forward";
-  private static final String TYPE_FUNDING = "Funding";
+  /**
+   * 
+   */
+  protected static final String REQUIREMENT_PROPERTY_TYPE = ValuePropertyNames.OUTPUT_RESERVED_PREFIX + "Type";
+
+  /**
+   * 
+   */
+  protected static final String RESULT_PROPERTY_TYPE = "Type";
+
+  /**
+   * 
+   */
+  protected static final String TYPE_FORWARD = "Forward";
+
+  /**
+   * 
+   */
+  protected static final String TYPE_FUNDING = "Funding";
 
   private FixedIncomeConverterDataProvider _definitionConverter;
   private final String _valueRequirementName;
@@ -134,7 +150,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final ValueProperties.Builder properties = ValueProperties.with(ValuePropertyNames.CURVE, curveName);
     if (type != null) {
       // Use an optional property that the curve won't recognize
-      properties.withOptional(PROPERTY_TYPE).with(PROPERTY_TYPE, type);
+      properties.withOptional(REQUIREMENT_PROPERTY_TYPE).with(REQUIREMENT_PROPERTY_TYPE, type);
     }
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());
   }
@@ -173,7 +189,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
       String fundingCurveName = null;
       for (Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
         final String curveName = input.getKey().getProperty(ValuePropertyNames.CURVE);
-        final String type = input.getValue().getConstraint(PROPERTY_TYPE);
+        final String type = input.getValue().getConstraint(REQUIREMENT_PROPERTY_TYPE);
         if (TYPE_FORWARD.equals(type)) {
           assert forwardCurveName == null;
           forwardCurveName = curveName;

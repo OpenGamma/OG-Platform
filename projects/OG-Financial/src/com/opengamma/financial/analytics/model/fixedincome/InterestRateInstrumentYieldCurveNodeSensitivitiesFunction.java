@@ -166,6 +166,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
       // Can't support an unbound request; an injection function must be used (or declare all as optional and use [PLAT-1771])
       return null;
     }
+    // TODO: if "CURVE" is specified, check that it is one of the forward/funding curve names
     final String forwardCurve = forwardCurves.iterator().next();
     final String fundingCurve = fundingCurves.iterator().next();
     final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(6);
