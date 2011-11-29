@@ -296,6 +296,18 @@ public class ExtSqlBundleTest {
     assertEquals("SELECT * FROM foo FETCH FIRST 4 ROWS ONLY ENDFOO ", sql1);
   }
 
+  public void test_fetch_amount() {
+    List<String> lines = Arrays.asList(
+        "@NAME(Test1)",
+        "  SELECT * FROM foo",
+        "  @FETCH(5) ENDFOO"
+    );
+    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    MapSqlParameterSource paramSource = new MapSqlParameterSource();
+    String sql1 = bundle.getSql("Test1", paramSource);
+    assertEquals("SELECT * FROM foo FETCH FIRST 5 ROWS ONLY ENDFOO ", sql1);
+  }
+
   //-------------------------------------------------------------------------
   public void test_if_varAbsent() {
     List<String> lines = Arrays.asList(
