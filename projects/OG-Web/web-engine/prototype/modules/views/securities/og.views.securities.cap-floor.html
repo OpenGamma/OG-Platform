@@ -4,49 +4,47 @@
     <h1>${name}</h1>
     <div class="OG-js-header-links"></div>
   </header>
-  <section>
-    <div class="OG-details-content OG-security OG-js-details-panel">
+  <section style="width: 800px">
+    <div class="OG-details-content OG-js-details-panel">
       <section>
-        <div class="OG-mod-1 OG-c6">
-          <table>
-            <col style="width: 40%" />
-            <col style="width: 60%" />
-              <thead>
-                <tr>
-                  <td colspan="2">${securityType}</td>
-                </tr>
-              </thead>
-              <tbody class="og-mod-content">
-                <tr><td><span>Cap/Floor</span></td><td>${'Cap/Floor'}</td></tr>
-                <tr><td><span>Type</span></td><td>${Type}</td></tr>
-                <tr><td><span>Direction</span></td><td>${Direction}</td></tr>
-                <tr><td><span>Start Date</span></td><td>${startDate}</td></tr>
-                <tr><td><span>Maturity Date</span></td><td>${maturityDate}</td></tr>
-                <tr><td><span>Day Count</span></td><td>${dayCount}</td></tr>
-                <tr><td><span>Frequency</span></td><td>${frequency}</td></tr>
-                <tr><td><span>Notional</span></td><td>${notional}</td></tr>
-                <tr><td><span>Strike</span></td><td>${strike}</td></tr>
-                <tr><td><span>Currency</span></td><td>${currency}</td></tr>
-                <tr>
-                  <td><span>Underlying Identifier</span></td>
-                  <td class="OG-js-underlying-id">${underlyingId}</td>
-                </tr>
-              </tbody>
-            </table>
-        </div>
-        <div class="OG-mod-1 og-style-2 OG-c4">
-          <table>
-            <col style="width: 40%" />
-            <col style="width: 60%" />
-              <thead>
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+            <thead>
+            <tr>
+              <th><span>Identifiers</span></th><th>&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody class="og-js-identifiers og-mod-content"></tbody>
+        </table>
+      </section>
+      <section>
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+            <thead>
               <tr>
-                <td>Identifiers</td><td></td>
+                <th><span>${securityType}</span></th><th>&nbsp;</th>
               </tr>
             </thead>
-            <tbody class="og-js-identifiers og-mod-content"></tbody>
+            <tbody>
+              <tr><td><span>Cap/Floor</span></td><td>${'Cap/Floor'}</td></tr>
+              <tr><td><span>Type</span></td><td>${Type}</td></tr>
+              <tr><td><span>Direction</span></td><td>${Direction}</td></tr>
+              <tr><td><span>Start Date</span></td><td>${startDate}</td></tr>
+              <tr><td><span>Maturity Date</span></td><td>${maturityDate}</td></tr>
+              <tr><td><span>Day Count</span></td><td>${dayCount}</td></tr>
+              <tr><td><span>Frequency</span></td><td>${frequency}</td></tr>
+              <tr><td><span>Notional</span></td><td>${notional}</td></tr>
+              <tr><td><span>Strike</span></td><td>${strike}</td></tr>
+              <tr><td><span>Currency</span></td><td>${currency}</td></tr>
+              <tr>
+                <td><span>Underlying Identifier</span></td>
+                <td class="OG-js-underlying-id">${underlyingId}</td>
+              </tr>
+            </tbody>
           </table>
-        </div>
-      </section>
+        </section>
     </div>
   </section>
 </article>

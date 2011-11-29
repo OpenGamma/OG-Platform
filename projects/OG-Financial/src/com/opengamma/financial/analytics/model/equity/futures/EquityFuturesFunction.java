@@ -15,11 +15,9 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -34,10 +32,8 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.EquityFutureConverter;
-import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.equity.future.EquityFutureDataBundle;
 import com.opengamma.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.financial.equity.future.derivative.EquityFuture;
@@ -96,10 +92,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
-    final ExchangeSource exchangeSource = OpenGammaCompilationContext.getExchangeSource(context);
-    _financialToAnalyticConverter = new EquityFutureConverter(holidaySource, conventionSource, exchangeSource);
+    _financialToAnalyticConverter = new EquityFutureConverter();
   }
 
   @Override

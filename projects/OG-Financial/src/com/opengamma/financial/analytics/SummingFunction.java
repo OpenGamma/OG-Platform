@@ -73,6 +73,7 @@ public class SummingFunction extends PropertyPreservingFunction {
         ValuePropertyNames.PAY_CURVE,
         ValuePropertyNames.RECEIVE_CURVE,
         ValuePropertyNames.SMILE_FITTING_METHOD,
+        ValuePropertyNames.SURFACE,
         RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE,
         EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD);
   }

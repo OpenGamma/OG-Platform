@@ -153,6 +153,10 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
   private static final Comparator<Pair<ResolutionRule, Set<ValueSpecification>>> RULE_COMPARATOR = new Comparator<Pair<ResolutionRule, Set<ValueSpecification>>>() {
     @Override
     public int compare(Pair<ResolutionRule, Set<ValueSpecification>> o1, Pair<ResolutionRule, Set<ValueSpecification>> o2) {
+      int c = o1.getFirst().getFunction().getFunction().getFunctionDefinition().getUniqueId().compareTo(o2.getFirst().getFunction().getFunction().getFunctionDefinition().getUniqueId());
+      if (c != 0) {
+        return c;
+      }
       final Set<ValueSpecification> s1 = o1.getSecond();
       final Set<ValueSpecification> s2 = o2.getSecond();
       if (s1.size() < s2.size()) {
@@ -165,7 +169,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
       Collections.sort(s1list, VALUE_SPECIFICATION_COMPARATOR);
       Collections.sort(s2list, VALUE_SPECIFICATION_COMPARATOR);
       for (int i = 0; i < s1list.size(); i++) {
-        final int c = VALUE_SPECIFICATION_COMPARATOR.compare(s1list.get(i), s2list.get(i));
+        c = VALUE_SPECIFICATION_COMPARATOR.compare(s1list.get(i), s2list.get(i));
         if (c != 0) {
           return c;
         }

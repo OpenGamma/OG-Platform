@@ -12,10 +12,7 @@ import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -26,21 +23,18 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 public class InterestRateInstrumentParRateCurveSensitivityFunction extends InterestRateInstrumentFunction {
-  private static final ParRateCurveSensitivityCalculator CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
-  private static final String VALUE_REQUIREMENT = ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY;
 
-  public InterestRateInstrumentParRateCurveSensitivityFunction(final String forwardCurveName, final String fundingCurveName) {
-    super(forwardCurveName, fundingCurveName, VALUE_REQUIREMENT);
+  private static final ParRateCurveSensitivityCalculator CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
+
+  public InterestRateInstrumentParRateCurveSensitivityFunction() {
+    super(ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY);
   }
 
   @Override
   public Set<ComputedValue> getComputedValues(final InstrumentDerivative derivative, final YieldCurveBundle bundle,
-      final FinancialSecurity security, final ComputationTarget target) {
+      final FinancialSecurity security, final ComputationTarget target, final String forwardCurveName, final String fundingCurveName) {
     final Map<String, List<DoublesPair>> sensitivities = CALCULATOR.visit(derivative, bundle);
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(
-        VALUE_REQUIREMENT, security), FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(security,
-            getFundingCurveName(), getForwardCurveName(), createValueProperties()));
-    return Collections.singleton(new ComputedValue(specification, sensitivities));
+    return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName), sensitivities));
 
   }
 

@@ -1,14 +1,20 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.language.object;
+
+import org.joda.beans.MetaBean;
+import org.joda.beans.MetaProperty;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.joda.beans.MetaBean;
-import org.joda.beans.MetaProperty;
 
 /**
  *
  */
-public class BeanUtils {
+public final class BeanUtils {
 
   private BeanUtils() {
   }

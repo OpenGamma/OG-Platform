@@ -32,7 +32,7 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
   /**
    * Callback to receive notification when a computation cycle's caches are released.
    */
-  public static interface ReleaseCachesCallback {
+  public interface ReleaseCachesCallback {
 
     void onReleaseCaches(UniqueId viewCycleId);
 
@@ -41,7 +41,7 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
   /**
    * Callback to locate missing data.
    */
-  public static interface MissingValueLoader {
+  public interface MissingValueLoader {
 
     FudgeMsg findMissingValue(ViewComputationCacheKey cache, long identifier);
 

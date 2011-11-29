@@ -10,6 +10,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.util.ArgumentChecker;
 
@@ -20,6 +23,8 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 public class InMemoryFunctionRepository implements FunctionRepository {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(InMemoryFunctionRepository.class);
 
   private final Set<FunctionDefinition> _functions = new HashSet<FunctionDefinition>();
 
@@ -58,7 +63,12 @@ public class InMemoryFunctionRepository implements FunctionRepository {
   public void initFunctions(FunctionCompilationContext compilationContext) {
     compilationContext.setFunctionReinitializer(new DummyFunctionReinitializer());
     for (FunctionDefinition function : _functions) {
-      function.init(compilationContext);
+      try {
+        function.init(compilationContext);
+      } catch (Throwable t) {
+        s_logger.warn("Couldn't initialise function {}", function);
+        s_logger.debug("Caught exception", t);
+      }
     }
     compilationContext.setFunctionReinitializer(null);
   }

@@ -3,25 +3,17 @@
  *
  * Please see distribution for license.
  */
-
 package com.opengamma.language.financial.currency;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.financial.currency.rest.RemoteCurrencyPairsSource;
-import com.opengamma.financial.historicaltimeseries.rest.RemoteHistoricalTimeSeriesSource;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
-import com.opengamma.language.function.FunctionProviderBean;
-import com.opengamma.language.invoke.TypeConverterProviderBean;
-import com.opengamma.language.procedure.ProcedureProviderBean;
-import com.opengamma.language.timeseries.FetchTimeSeriesFunction;
-import com.opengamma.language.timeseries.HistoricalTimeSeriesConverter;
-import com.opengamma.language.timeseries.LocalDateDoubleTimeSeriesConverter;
-import com.opengamma.language.timeseries.StoreTimeSeriesProcedure;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Extends the contexts with currency pairs support.

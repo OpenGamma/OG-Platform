@@ -100,7 +100,7 @@ public class Functional {
    * @param <T> type if elements in unsorted collection (must implement Comparable interface)
    * @return list sorted using internal entries' {@link Comparable#compareTo(Object)} compareTo} method.
    */
-  public static <T extends Comparable> List<T> sort(Collection<T> c) {
+  public static <T extends Comparable<? super T>> List<T> sort(Collection<T> c) {
     List<T> list = new ArrayList<T>(c);
     Collections.sort(list);
     return list;
