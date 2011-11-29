@@ -10,9 +10,9 @@
             table_resizers.forEach(function (val) {val()});
         }, 300);
     });
-    $.fn.awesometable = function(options) {
+    $.fn.awesometable = function (options) {
         if (!this.is('table')) throw new TypeError('$.awesometable: needs to be called on a table element');
-        var self = this, cons = arguments.callee, $dup,
+        var self = this, $dup,
             get_scrollbar_width = function () {
                 var html = '<div style="width: 100px; height: 100px; position: absolute; overflow: auto" />';
                 return scrollbar_width || (scrollbar_width = 100 - $(html)
@@ -26,7 +26,7 @@
                 .wrap('<div class="js-awesometable"></div>');
             $dup = self.clone(), $dup.find('tbody').remove();
             self.parentsUntil('.js-awesometable').parent().prepend($dup);
-            table_resizers.push(function () {cons.call(self, options)});
+            table_resizers.push(function () {$.fn.awesometable.call(self, options)});
         }
         // resize the new header to mimic original
         (function () {
