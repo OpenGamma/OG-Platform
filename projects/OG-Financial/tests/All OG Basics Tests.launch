@@ -72,6 +72,7 @@
 <listEntry value="com.opengamma.financial.convention"/>
 <listEntry value="com.opengamma.financial.conversion"/>
 <listEntry value="com.opengamma.financial.currency"/>
+<listEntry value="com.opengamma.financial.exchange.rest"/>
 <listEntry value="com.opengamma.financial.filtering"/>
 <listEntry value="com.opengamma.financial.fudgemsg"/>
 <listEntry value="com.opengamma.financial.portfolio.rest"/>
