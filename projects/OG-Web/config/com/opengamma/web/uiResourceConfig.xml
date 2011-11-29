@@ -90,7 +90,6 @@
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-awesome-list.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-yc-strips.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-vol-surf-def.css</fragment>
-    <fragment>/styles/common/forms/og.common.forms.OG-form.og-vol-cube-def.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-csb.css</fragment>
   </bundle>
   <bundle id="views.css">

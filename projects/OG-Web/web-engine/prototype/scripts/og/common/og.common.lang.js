@@ -37,6 +37,7 @@ $.register_module({
                 'FRADeal': 'FRA Deal',
                 'GLOBAL': 'Global',
                 'IRFUTURE_OPTION': 'IR Future Option',
+                'IR_FUTURE_OPTION_LOADER': 'IR Future Option Loader',
                 'JavaClass': 'Java Class',
                 'KNOCK_IN': 'Knock In',
                 'MIXED_PORFOLIO_LOADER': 'Mixed Portfolio Loader',
