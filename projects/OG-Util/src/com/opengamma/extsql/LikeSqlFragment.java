@@ -13,7 +13,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
  * <p>
  * This handles switching between LIKE and = based on the presence of wildcards.
  */
-public final class LikeSqlFragment extends ContainerSqlFragment {
+final class LikeSqlFragment extends ContainerSqlFragment {
 
   /**
    * The variable.
@@ -25,7 +25,7 @@ public final class LikeSqlFragment extends ContainerSqlFragment {
    * 
    * @param variable  the variable to base the LIKE on, not null
    */
-  public LikeSqlFragment(String variable) {
+  LikeSqlFragment(String variable) {
     if (variable == null) {
       throw new IllegalArgumentException("Variable must be specified");
     }
