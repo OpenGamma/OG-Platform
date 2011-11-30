@@ -117,8 +117,6 @@ public class LanguageSpringContext {
     }
     File extDir = new File(extPath);
     s_logger.debug("Scanning '{}' for Spring XML config files to load", extDir.getAbsolutePath());
-    @SuppressWarnings({"unchecked" })
-    // listFiles always returns a collection of files but isn't generified
     List<File> xmlFiles = new ArrayList<File>(FileUtils.listFiles(extDir, new String[] {"xml" }, false));
     Collections.sort(xmlFiles, new Comparator<File>() {
       @Override

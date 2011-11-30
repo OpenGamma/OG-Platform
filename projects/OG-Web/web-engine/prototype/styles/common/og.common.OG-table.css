@@ -87,3 +87,9 @@
   padding-top: 2px;
   padding-bottom: 2px;
 }
+
+.OG-table .og-divider td {
+  background-color: #fff;
+  height: 2px;
+  padding: 0;
+}

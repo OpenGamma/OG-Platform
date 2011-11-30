@@ -8,47 +8,47 @@ package com.opengamma.extsql;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 /**
- * Representation of INSERT(key).
+ * Representation of INCLUDE(key).
  * <p>
- * This can insert another named SQL fragment or directly insert a parameter.
+ * This can include another named SQL fragment or directly include a parameter.
  */
-public final class InsertSqlFragment extends SqlFragment {
+final class IncludeSqlFragment extends SqlFragment {
 
   /**
-   * The insert key.
+   * The include key.
    */
-  private final String _insertKey;
+  private final String _includeKey;
 
   /**
    * Creates an instance.
    * 
-   * @param insertKey  the insert key, not null
+   * @param includeKey  the include key, not null
    */
-  InsertSqlFragment(String insertKey) {
-    if (insertKey == null) {
-      throw new IllegalArgumentException("Insert key must be specified");
+  IncludeSqlFragment(String includeKey) {
+    if (includeKey == null) {
+      throw new IllegalArgumentException("Include key must be specified");
     }
-    _insertKey = insertKey;
+    _includeKey = includeKey;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the insert key.
+   * Gets the include key.
    * 
-   * @return the insert key, not null
+   * @return the include key, not null
    */
-  public String getInsertKey() {
-    return _insertKey;
+  public String getIncludeKey() {
+    return _includeKey;
   }
 
   //-------------------------------------------------------------------------
   @Override
   protected void toSQL(StringBuilder buf, ExtSqlBundle bundle, SqlParameterSource paramSource) {
-    if (_insertKey.startsWith(":")) {
-      Object value = paramSource.getValue(_insertKey.substring(1));
+    if (_includeKey.startsWith(":")) {
+      Object value = paramSource.getValue(_includeKey.substring(1));
       buf.append(value).append(' ');
     } else {
-      NameSqlFragment unit = bundle.getFragment(_insertKey);
+      NameSqlFragment unit = bundle.getFragment(_includeKey);
       unit.toSQL(buf, bundle, paramSource);
     }
   }
@@ -56,7 +56,7 @@ public final class InsertSqlFragment extends SqlFragment {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return getClass().getSimpleName() + ":" + _insertKey;
+    return getClass().getSimpleName() + ":" + _includeKey;
   }
 
 }

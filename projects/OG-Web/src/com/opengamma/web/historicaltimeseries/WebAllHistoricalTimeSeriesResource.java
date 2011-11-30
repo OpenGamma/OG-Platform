@@ -310,7 +310,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     HistoricalTimeSeriesInfoDocument info = data().getHistoricalTimeSeriesMaster().get(UniqueId.parse(idStr));
     data().setInfo(info);
     ManageableHistoricalTimeSeries series = data().getHistoricalTimeSeriesMaster().getTimeSeries(
-        info.getInfo().getTimeSeriesObjectId(), VersionCorrection.LATEST, null, null);
+        info.getInfo().getTimeSeriesObjectId(), VersionCorrection.LATEST);
     data().setTimeSeries(series);
     return new WebHistoricalTimeSeriesResource(this);
   }

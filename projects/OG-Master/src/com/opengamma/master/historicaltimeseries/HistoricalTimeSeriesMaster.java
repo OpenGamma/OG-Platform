@@ -9,7 +9,6 @@ import javax.time.calendar.LocalDate;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeProvider;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -61,58 +60,49 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the time-series data points.
-   * <p>
-   * The main get request returns the document describing the time-series.
-   * This method gets the series itself.
+   * Returns a subset of the specified time-series data points, or the entire series. 
+   * Can be used to retrieve the last data point efficiently.
    * 
    * @param uniqueId  the time-series unique identifier, not null
-   * @param fromDateInclusive  the inclusive start date of the points to get, null for far past
-   * @param toDateInclusive  the inclusive end date of the points to get, null for far future
-   * @return the current state of the document, may be an update of the input document, not null
-   * @throws IllegalArgumentException if the identifier is invalid
-   * @throws DataNotFoundException if there is no document with that unique identifier
+   * @return the time-series subset requested, not null
+   * @throws IllegalArgumentException if the request is invalid
    */
-  ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive);
-
-  /**
-   * Gets the time-series data points.
-   * <p>
-   * The main get request returns the document describing the time-series.
-   * This method gets the series itself.
-   * 
-   * @param objectId  the time-series object identifier, not null
-   * @param versionCorrection  the version-correction locator to search at, not null
-   * @param fromDateInclusive  the inclusive start date of the points to get, null for far past
-   * @param toDateInclusive  the inclusive end date of the points to get, null for far future
-   * @return the current state of the document, may be an update of the input document, not null
-   * @throws IllegalArgumentException if the identifier is invalid
-   * @throws DataNotFoundException if there is no document with that unique identifier
-   */
-  ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection, LocalDate fromDateInclusive, LocalDate toDateInclusive);
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets a summary of the time-series data points.
-   * <p>
-   * The information includes the earliest and latest data points and their dates.
-   * 
-   * @param uniqueId  the unique id of the historic time series, not null
-   * @return a summary of the data points, not null
-   */
-  HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId);
+  ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId);
   
   /**
-   * Gets a summary of the time-series data points.
-   * <p>
-   * The information includes the earliest and latest data points and their dates.
+   * Returns a subset of the specified time-series data points, or the entire series. 
+   * Can be used to retrieve the last data point efficiently.
+   * 
+   * @param uniqueId  the time-series unique identifier, not null
+   * @param filter the time-series subset filter, not null
+   * @return the time-series subset requested, not null
+   * @throws IllegalArgumentException if the request is invalid
+   */
+  ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId, HistoricalTimeSeriesGetFilter filter);
+  
+  /**
+   * Returns a subset of the specified time-series data points, or the entire series. 
+   * Can be used to retrieve the last data point efficiently.
    * 
    * @param objectId  the time-series object identifier, not null
    * @param versionCorrection  the version-correction locator to search at, not null
-   * @return a summary of the data points, not null
+   * @return the time-series subset requested, not null
+   * @throws IllegalArgumentException if the request is invalid
    */
-  HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection);
+  ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection);
 
+  /**
+   * Returns a subset of the specified time-series data points, or the entire series. 
+   * Can be used to retrieve the last data point efficiently.
+   * 
+   * @param objectId  the time-series object identifier, not null
+   * @param versionCorrection  the version-correction locator to search at, not null
+   * @param filter the time-series subset filter, not null
+   * @return the time-series subset requested, not null
+   * @throws IllegalArgumentException if the request is invalid
+   */  
+  ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection, HistoricalTimeSeriesGetFilter filter);
+  
   //-------------------------------------------------------------------------
   /**
    * Adds to the time-series by appending new data points.

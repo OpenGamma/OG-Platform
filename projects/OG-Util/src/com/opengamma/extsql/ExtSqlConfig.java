@@ -109,6 +109,9 @@ public class ExtSqlConfig {
    */
   public String getPaging(int offset, int fetchLimit) {
     if (fetchLimit == 0 || fetchLimit == Integer.MAX_VALUE) {
+      if (offset > 0) {
+        return "OFFSET " + offset + " ROWS ";
+      }
       return "";
     }
     if (offset == 0) {
@@ -148,6 +151,9 @@ public class ExtSqlConfig {
     @Override
     public String getPaging(int offset, int fetchLimit) {
       if (fetchLimit == 0 || fetchLimit == Integer.MAX_VALUE) {
+        if (offset > 0) {
+          return "OFFSET " + offset + " ";
+        }
         return "";
       }
       if (offset == 0) {

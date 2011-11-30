@@ -51,7 +51,9 @@ public class ResolutionFailureFudgeBuilder implements FudgeBuilder<ResolutionFai
 
     private MutableFudgeMsg message(final ResolutionFailure.Status error, final ValueRequirement valueRequirement) {
       final MutableFudgeMsg msg = _serializer.newMessage();
-      _serializer.addToMessage(msg, ERROR_KEY, null, error);
+      if (error != null) {
+        _serializer.addToMessage(msg, ERROR_KEY, null, error.name());
+      }
       _serializer.addToMessage(msg, VALUE_REQUIREMENT_KEY, null, valueRequirement);
       return msg;
     }
