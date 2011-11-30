@@ -12,6 +12,8 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import com.google.common.collect.Sets;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.Security;
@@ -52,6 +54,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -217,6 +220,12 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
     @Override
     public DoubleLabelledMatrix2D visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
       return null;
+    }
+
+    @Override
+    public DoubleLabelledMatrix2D visitEquityIndexDividendFutureOptionSecurity(
+        EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+      throw new NotImplementedException();
     }
 
     @Override

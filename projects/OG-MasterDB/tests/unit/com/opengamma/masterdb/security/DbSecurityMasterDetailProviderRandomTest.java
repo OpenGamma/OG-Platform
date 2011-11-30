@@ -153,6 +153,12 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
 
   @Override
   @Test
+  public void testEquityIndexDividendFutureOptionSecurity() {
+    _testCase.testEquityIndexDividendFutureOptionSecurity();
+  }
+
+  @Override
+  @Test
   public void testGovernmentBondSecurity() {
     _testCase.testGovernmentBondSecurity();
   }
@@ -246,4 +252,5 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
   public void testEquityVarianceSwapSecurity() {
     _testCase.testEquityVarianceSwapSecurity();
   }
+
 }

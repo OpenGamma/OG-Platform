@@ -29,8 +29,6 @@ import com.opengamma.financial.security.FinancialSecurity;
  */
 public class InterestRateInstrumentPV01Function extends InterestRateInstrumentFunction {
 
-  private static final String RESULT_PROPERTY_TYPE = "Type";
-
   /**
    * The value name calculated by this function.
    */

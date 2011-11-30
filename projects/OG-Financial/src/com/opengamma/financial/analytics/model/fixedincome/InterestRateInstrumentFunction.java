@@ -63,11 +63,6 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
   /**
    * 
    */
-  protected static final String REQUIREMENT_PROPERTY_TYPE = ValuePropertyNames.OUTPUT_RESERVED_PREFIX + "Type";
-
-  /**
-   * 
-   */
   protected static final String RESULT_PROPERTY_TYPE = "Type";
 
   /**
@@ -145,12 +140,14 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
   // REVIEW 2011-11-25 andrew -- The property for the curve name should really be NAME when applied to the curve object;
   // it should only become CURVE when applied to something using it (like this).
 
-  protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String type) {
+  protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String advisoryForwardCurveName, final String advisoryFundingCurveName) {
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
     final ValueProperties.Builder properties = ValueProperties.with(ValuePropertyNames.CURVE, curveName);
-    if (type != null) {
-      // Use an optional property that the curve won't recognize
-      properties.withOptional(REQUIREMENT_PROPERTY_TYPE).with(REQUIREMENT_PROPERTY_TYPE, type);
+    if (advisoryForwardCurveName != null) {
+      properties.with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, advisoryForwardCurveName);
+    }
+    if (advisoryFundingCurveName != null) {
+      properties.with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, advisoryFundingCurveName);
     }
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());
   }
@@ -166,9 +163,9 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final String forwardCurve = forwardCurves.iterator().next();
     final String fundingCurve = fundingCurves.iterator().next();
     if (forwardCurve.equals(fundingCurve)) {
-      return Collections.singleton(getCurveRequirement(target, forwardCurve, null));
+      return Collections.singleton(getCurveRequirement(target, forwardCurve, null, null));
     } else {
-      return Sets.newHashSet(getCurveRequirement(target, forwardCurve, TYPE_FORWARD), getCurveRequirement(target, fundingCurve, TYPE_FUNDING));
+      return Sets.newHashSet(getCurveRequirement(target, forwardCurve, forwardCurve, fundingCurve), getCurveRequirement(target, fundingCurve, forwardCurve, fundingCurve));
     }
   }
 
@@ -185,20 +182,10 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
       return getResults(target, curveName, curveName);
     } else {
       assert inputs.size() == 2;
-      String forwardCurveName = null;
-      String fundingCurveName = null;
-      for (Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
-        final String curveName = input.getKey().getProperty(ValuePropertyNames.CURVE);
-        final String type = input.getValue().getConstraint(REQUIREMENT_PROPERTY_TYPE);
-        if (TYPE_FORWARD.equals(type)) {
-          assert forwardCurveName == null;
-          forwardCurveName = curveName;
-        } else {
-          assert TYPE_FUNDING.equals(type);
-          assert fundingCurveName == null;
-          fundingCurveName = curveName;
-        }
-      }
+      // Only need to check one; the advisory forward/funding will be correct on either
+      final ValueSpecification spec = inputs.keySet().iterator().next();
+      final String forwardCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+      final String fundingCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
       return getResults(target, forwardCurveName, fundingCurveName);
     }
   }
@@ -221,14 +208,14 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
     final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-    final ValueRequirement forwardCurveRequirement = getCurveRequirement(target, forwardCurveName, null);
+    final ValueRequirement forwardCurveRequirement = getCurveRequirement(target, forwardCurveName, null, null);
     final Object forwardCurveObject = inputs.getValue(forwardCurveRequirement);
     if (forwardCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + forwardCurveRequirement);
     }
     Object fundingCurveObject = null;
     if (!forwardCurveName.equals(fundingCurveName)) {
-      final ValueRequirement fundingCurveRequirement = getCurveRequirement(target, fundingCurveName, null);
+      final ValueRequirement fundingCurveRequirement = getCurveRequirement(target, fundingCurveName, null, null);
       fundingCurveObject = inputs.getValue(fundingCurveRequirement);
       if (fundingCurveObject == null) {
         throw new OpenGammaRuntimeException("Could not get " + fundingCurveRequirement);
