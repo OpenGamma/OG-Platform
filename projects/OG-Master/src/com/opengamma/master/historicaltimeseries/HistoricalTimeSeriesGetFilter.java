@@ -138,6 +138,24 @@ public class HistoricalTimeSeriesGetFilter extends DirectBean {
   }
   
   /**
+   * Creates an instance specifying a date range and an upperbound for the number of points returned.
+   * 
+   * @param earliestDate  the earliest date to retrieve, inclusive, null means far past
+   * @param latestDate  the latest date to retrieve, inclusive, null means far future
+   * @param maxPoints   the max number of points to retrieve, null means fetch max possible
+   *                     -ve fetches backwards commencing from the latest date, 
+   *                     +ve fetches forward from the earliest date
+   * @return the mutable request, not null
+   */
+  public static HistoricalTimeSeriesGetFilter ofRange(LocalDate earliestDate, LocalDate latestDate, Integer maxPoints) {
+    HistoricalTimeSeriesGetFilter request = new HistoricalTimeSeriesGetFilter();
+    request.setEarliestDate(earliestDate);
+    request.setLatestDate(latestDate);
+    request.setMaxPoints(maxPoints);
+    return request;
+  }
+  
+  /**
    * Creates an instance.
    */
   public HistoricalTimeSeriesGetFilter() {
