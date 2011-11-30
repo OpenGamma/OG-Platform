@@ -17,9 +17,9 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.greeks.AvailableGreeks;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
@@ -43,7 +43,7 @@ public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonMod
     }
     final double spot = spotAsObject;
     final YieldAndDiscountCurve curve = new YieldCurve(ConstantDoublesCurve.from(0.));
-    final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option));
+    final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(ValueRequirementNames.VOLATILITY_SURFACE);
     final double b = 0;
     return new StandardOptionDataBundle(curve, b, volatilitySurface, spot, now);
   }
@@ -64,29 +64,18 @@ public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonMod
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    if (canApplyTo(context, target)) {
-      final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
-      final SecuritySource secMaster = context.getSecuritySource();
-      final Security underlying = secMaster.getSecurity(ExternalIdBundle.of(option.getUnderlyingId()));
-      final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueId()));
-      requirements.add(getVolatilitySurfaceMarketDataRequirement(option));
-      return requirements;
+    final Set<String> curveNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
+    if ((curveNames == null) || (curveNames.size() != 1)) {
+      return null;
     }
-    return null;
-  }
-
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      final EquityOptionSecurity security = (EquityOptionSecurity) target.getSecurity();
-      final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-      for (final String valueName : AvailableGreeks.getAllGreekNames()) {
-        results.add(new ValueSpecification(new ValueRequirement(valueName, security), getUniqueId()));
-      }
-      return results;
-    }
-    return null;
+    final String curveName = curveNames.iterator().next();
+    final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
+    final SecuritySource secMaster = context.getSecuritySource();
+    final Security underlying = secMaster.getSecurity(ExternalIdBundle.of(option.getUnderlyingId()));
+    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueId()));
+    requirements.add(getVolatilitySurfaceMarketDataRequirement(option, curveName));
+    return requirements;
   }
 
   @Override

@@ -58,26 +58,29 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
       final Greek greek = AvailableGreeks.getGreekForValueRequirement(dV);
       assert greek != null : "Should have thrown IllegalArgumentException above.";
       final Double greekResult = greeks.get(greek);
-      final ComputedValue resultValue = new ComputedValue(getResultSpecification(dV.getValueName(), target, option), greekResult);
+      final ComputedValue resultValue = new ComputedValue(getResultSpecification(dV.getValueName(), target, option, dV.getConstraint(ValuePropertyNames.CURVE)), greekResult);
       results.add(resultValue);
     }
     return results;
   }
 
-  protected ValueSpecification getResultSpecification(final String valueName, final ComputationTarget target, final EquityOptionSecurity security) {
+  protected ValueSpecification getResultSpecification(final String valueName, final ComputationTarget target, final EquityOptionSecurity security, final String curveName) {
     // REVIEW 2010-10-28 Andrew -- Do all values produced have a currency? Aren't the derivitive greeks unitless?
-    return new ValueSpecification(valueName, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode()).get());
+    final ValueProperties.Builder properties = createValueProperties().with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode());
+    if (curveName != null) {
+      properties.with(ValuePropertyNames.CURVE, curveName);
+    } else {
+      properties.withAny(ValuePropertyNames.CURVE);
+    }
+    return new ValueSpecification(valueName, target.toSpecification(), properties.get());
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!canApplyTo(context, target)) {
-      return null;
-    }
     final EquityOptionSecurity security = (EquityOptionSecurity) target.getSecurity();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     for (final String valueName : AvailableGreeks.getAllGreekNames()) {
-      results.add(getResultSpecification(valueName, target, security));
+      results.add(getResultSpecification(valueName, target, security, null));
     }
     return results;
   }
@@ -92,17 +95,17 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, uid);
   }
 
-  protected ValueRequirement getYieldCurveMarketDataRequirement(final UniqueId uid) {
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, uid);
+  protected ValueRequirement getYieldCurveMarketDataRequirement(final UniqueId uid, final String curveName) {
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, uid, ValueProperties.with(ValuePropertyNames.CURVE, curveName).get());
   }
 
-  protected ValueRequirement getCostOfCarryMarketDataRequirement(final UniqueId uid) {
-    return new ValueRequirement(ValueRequirementNames.COST_OF_CARRY, ComputationTargetType.SECURITY, uid);
+  protected ValueRequirement getCostOfCarryMarketDataRequirement(final UniqueId uid, final String curveName) {
+    return new ValueRequirement(ValueRequirementNames.COST_OF_CARRY, ComputationTargetType.SECURITY, uid, ValueProperties.with(ValuePropertyNames.CURVE, curveName).get());
   }
 
-  protected ValueRequirement getVolatilitySurfaceMarketDataRequirement(final EquityOptionSecurity security) {
+  protected ValueRequirement getVolatilitySurfaceMarketDataRequirement(final EquityOptionSecurity security, final String curveName) {
     return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, security.getUniqueId(), ValueProperties.with(ValuePropertyNames.CURRENCY,
-        security.getCurrency().getCode()).get());
+        security.getCurrency().getCode()).with(ValuePropertyNames.CURVE, curveName).get());
   }
 
   protected abstract <S extends OptionDefinition, T extends StandardOptionDataBundle> AnalyticOptionModel<S, T> getModel();
