@@ -14,17 +14,16 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing the USD LIBOR 3M index.
+ * Class describing the DKK Cibor 6M index.
  */
-public final class UsdLibor3M extends IborIndex {
+public final class DKKCIBOR6M extends IborIndex {
 
   /**
    * Constructor.
-   * @param calendar A USD calendar.
+   * @param calendar A DKK calendar.
    */
-  public UsdLibor3M(Calendar calendar) {
-    super(Currency.USD, Period.ofMonths(3), 2, calendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), 
+  public DKKCIBOR6M(Calendar calendar) {
+    super(Currency.DKK, Period.ofMonths(6), 2, calendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), 
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), true);
   }
-  
 }
