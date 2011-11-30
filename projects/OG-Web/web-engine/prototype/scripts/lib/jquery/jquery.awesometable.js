@@ -14,7 +14,8 @@
         if (!this.is('table')) throw new TypeError('$.awesometable: needs to be called on a table element');
         var self = this, $dup,
             get_scrollbar_width = function () {
-                var html = '<div style="width: 100px; height: 100px; position: absolute; overflow: auto" />';
+                var html = '<div style="width: 100px; height: 100px; position: absolute; \
+                    visibility: hidden; overflow: auto; left: -10000px; z-index: -10000; bottom: 100px" />';
                 return scrollbar_width || (scrollbar_width = 100 - $(html)
                     .appendTo('body').append('<div />').find('div').css('height', '200px').width());
             };
