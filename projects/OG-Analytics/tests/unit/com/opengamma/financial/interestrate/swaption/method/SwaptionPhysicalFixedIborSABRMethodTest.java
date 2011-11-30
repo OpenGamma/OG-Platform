@@ -364,7 +364,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     assertEquals("Swaption Physical SABR: Present value using Hull-White by Monte Carlo", pvSABR.getAmount(), pvMC, 2.5E+4);
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /**
    * Test of performance. In normal testing, "enabled = false".
    */

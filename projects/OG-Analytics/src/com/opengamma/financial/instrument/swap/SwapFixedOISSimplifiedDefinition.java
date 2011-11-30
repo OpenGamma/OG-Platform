@@ -16,6 +16,10 @@ import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponOISSimplifiedDefinition;
 import com.opengamma.financial.instrument.index.IndexOIS;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.payments.Coupon;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 
 /**
  * Class describing a fixed for OIS swap. Both legs are in the same currency. 
@@ -104,6 +108,14 @@ public class SwapFixedOISSimplifiedDefinition extends SwapDefinition {
    */
   public AnnuityCouponOISSimplifiedDefinition getOISLeg() {
     return (AnnuityCouponOISSimplifiedDefinition) getSecondLeg();
+  }
+
+  @SuppressWarnings({"unchecked"})
+  @Override
+  public FixedCouponSwap<Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    final GenericAnnuity<CouponFixed> fixedLeg = this.getFixedLeg().toDerivative(date, yieldCurveNames);
+    final GenericAnnuity<? extends Coupon> oisLeg = (GenericAnnuity<? extends Coupon>) this.getOISLeg().toDerivative(date, yieldCurveNames);
+    return new FixedCouponSwap<Coupon>(fixedLeg, (GenericAnnuity<Coupon>) oisLeg);
   }
 
 }
