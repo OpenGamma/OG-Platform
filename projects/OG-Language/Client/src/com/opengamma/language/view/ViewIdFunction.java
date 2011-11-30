@@ -51,7 +51,7 @@ public class ViewIdFunction extends AbstractFunctionInvoker implements Published
   public UniqueId invoke(ViewDefinitionRepository repository, String viewDefinitionName) {
     ViewDefinition definition = repository.getDefinition(viewDefinitionName);
     if (definition == null) {
-      throw new DataNotFoundException("View definition not found");
+      throw new DataNotFoundException("No view definition found with name '" + viewDefinitionName + "'");
     }
     return definition.getUniqueId();
   }
