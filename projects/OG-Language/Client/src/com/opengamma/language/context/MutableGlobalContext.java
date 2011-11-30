@@ -15,6 +15,7 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.currency.CurrencyPairsSource;
 import com.opengamma.financial.user.rest.RemoteClient;
 import com.opengamma.language.function.AggregatingFunctionProvider;
@@ -58,6 +59,10 @@ public class MutableGlobalContext extends GlobalContext {
 
   public void setClient(final RemoteClient client) {
     removeOrReplaceValue(CLIENT, client);
+  }
+  
+  public void setCurrencyPairsSource(final CurrencyPairsSource currencyPairsSource) {
+    removeOrReplaceValue(CURRENCY_PAIRS_SOURCE, currencyPairsSource);
   }
 
   public void setExchangeSource(final ExchangeSource exchangeSource) {
@@ -152,9 +157,9 @@ public class MutableGlobalContext extends GlobalContext {
   public void setViewProcessor(final ViewProcessor viewProcessor) {
     removeOrReplaceValue(VIEW_PROCESSOR, viewProcessor);
   }
-
-  public void setCurrencyPairsSource(final CurrencyPairsSource currencyPairsSource) {
-    removeOrReplaceValue(CURRENCY_PAIRS_SOURCE, currencyPairsSource);
+  
+  public void setVolatilityCubeDefinitionSource(final VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
+    removeOrReplaceValue(VOLATILITY_CUBE_DEFINITION_SOURCE, volatilityCubeDefinitionSource);
   }
 
   // Arbitrary values

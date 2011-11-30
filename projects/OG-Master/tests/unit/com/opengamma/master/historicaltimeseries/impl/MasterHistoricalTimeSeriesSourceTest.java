@@ -100,11 +100,11 @@ public class MasterHistoricalTimeSeriesSourceTest {
     ManageableHistoricalTimeSeries hts = new ManageableHistoricalTimeSeries();
     hts.setUniqueId(UID);
     hts.setTimeSeries(randomTimeSeries());
-    when(_mockMaster.getTimeSeries(UID.getObjectId(), VersionCorrection.LATEST)).thenReturn(hts);
+    when(_mockMaster.getTimeSeries(UID.getObjectId(), VersionCorrection.LATEST, HistoricalTimeSeriesGetFilter.ofRange(null, null))).thenReturn(hts);
     
     HistoricalTimeSeries test = _tsSource.getHistoricalTimeSeries(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
     verify(_mockMaster, times(1)).search(request);
-    verify(_mockMaster, times(1)).getTimeSeries(UID.getObjectId(), VersionCorrection.LATEST);
+    verify(_mockMaster, times(1)).getTimeSeries(UID.getObjectId(), VersionCorrection.LATEST, HistoricalTimeSeriesGetFilter.ofRange(null, null));
     
     assertEquals(UID, test.getUniqueId());
   }
@@ -113,11 +113,11 @@ public class MasterHistoricalTimeSeriesSourceTest {
     ManageableHistoricalTimeSeries hts = new ManageableHistoricalTimeSeries();
     hts.setUniqueId(UID);
     hts.setTimeSeries(randomTimeSeries());
-    when(_mockMaster.getTimeSeries(UID)).thenReturn(hts);
+    when(_mockMaster.getTimeSeries(UID, HistoricalTimeSeriesGetFilter.ofRange(null, null))).thenReturn(hts);
     when(_mockResolver.resolve(HistoricalTimeSeriesFields.LAST_PRICE, IDENTIFIERS, LocalDate.now(), TEST_CONFIG)).thenReturn(UID);
     
     HistoricalTimeSeries test = _tsSource.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, IDENTIFIERS, TEST_CONFIG);
-    verify(_mockMaster, times(1)).getTimeSeries(UID);
+    verify(_mockMaster, times(1)).getTimeSeries(UID, HistoricalTimeSeriesGetFilter.ofRange(null, null));
     
     assertEquals(UID, test.getUniqueId());
     assertEquals(hts.getTimeSeries().times(), test.getTimeSeries().times());
@@ -169,10 +169,10 @@ public class MasterHistoricalTimeSeriesSourceTest {
     ManageableHistoricalTimeSeries hts = new ManageableHistoricalTimeSeries();
     hts.setUniqueId(UID);
     hts.setTimeSeries(randomTimeSeries());
-    when(_mockMaster.getTimeSeries(UID)).thenReturn(hts);
+    when(_mockMaster.getTimeSeries(UID, HistoricalTimeSeriesGetFilter.ofRange(null, null))).thenReturn(hts);
     
     HistoricalTimeSeries test = _tsSource.getHistoricalTimeSeries(UID);
-    verify(_mockMaster, times(1)).getTimeSeries(UID);
+    verify(_mockMaster, times(1)).getTimeSeries(UID, HistoricalTimeSeriesGetFilter.ofRange(null, null));
     
     assertEquals(UID, test.getUniqueId());
     assertEquals(hts.getTimeSeries().times(), test.getTimeSeries().times());
