@@ -1,16 +1,22 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.language.object;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.joda.beans.Bean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.language.function.AbstractFunctionProvider;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.util.ArgumentChecker;
-import org.joda.beans.Bean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Provider of functions that create instances of Joda {@link Bean} classes
@@ -28,7 +34,7 @@ public class BeanFunctionProvider extends AbstractFunctionProvider {
    * @param beanClassNames Fully-qualified class names of Joda {@link Bean} classes for which builder functions
    * will be exported
    */
-  @SuppressWarnings({"unchecked"})
+  @SuppressWarnings("unchecked")
   public BeanFunctionProvider(List<String> beanClassNames) {
     ArgumentChecker.notNull(beanClassNames, "beanClassNames");
     _functions = new ArrayList<CreateBeanFunction>(beanClassNames.size());

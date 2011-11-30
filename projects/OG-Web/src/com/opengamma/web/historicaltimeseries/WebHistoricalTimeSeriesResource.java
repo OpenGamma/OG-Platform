@@ -67,6 +67,15 @@ public class WebHistoricalTimeSeriesResource extends AbstractWebHistoricalTimeSe
   }
 
   @PUT
+  @Produces(MediaType.TEXT_HTML)
+  public Response put() {
+    HistoricalTimeSeriesInfoDocument tsDoc = data().getInfo();
+    updateTimeseries(tsDoc.getUniqueId());
+    URI uri = uri(data());
+    return Response.seeOther(uri).build();
+  }
+
+  @PUT
   @Produces(MediaType.APPLICATION_JSON)
   public Response putJSON() {
     HistoricalTimeSeriesInfoDocument tsDoc = data().getInfo();

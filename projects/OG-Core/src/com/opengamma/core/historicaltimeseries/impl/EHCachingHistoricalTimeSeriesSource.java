@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -51,7 +50,6 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
    * The cache name.
    */
   private static final String DATA_CACHE_NAME = "HistoricalTimeSeriesDataCache";
-  private static final String SUMMARY_CACHE_NAME = "HistoricalTimeSeriesSummaryCache";
 
   private static class MissHTS implements HistoricalTimeSeries, Serializable {
 
@@ -71,7 +69,6 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
 
   private static final MissHTS MISS = new MissHTS();
-  private static final HistoricalTimeSeriesSummary MISSSUMMARY = new HistoricalTimeSeriesSummary();
 
   /**
    * The underlying source.
@@ -81,7 +78,6 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
    * The cache.
    */
   private final Cache _dataCache;
-  private final Cache _summaryCache;
 
   /**
    * The clock.
@@ -116,10 +112,6 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
         eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners);
     _dataCache = EHCacheUtils.getCacheFromManager(cacheManager, DATA_CACHE_NAME);
     
-    // TODO adjust metadata cache parameters on the basis of the data cache parameters (and sort out duplicate listeners)
-    EHCacheUtils.addCache(cacheManager, SUMMARY_CACHE_NAME, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath,
-        eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners); 
-    _summaryCache = EHCacheUtils.getCacheFromManager(cacheManager, DATA_CACHE_NAME);
   } 
 
   /**
@@ -134,8 +126,6 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     _underlying = underlying;
     EHCacheUtils.addCache(cacheManager, DATA_CACHE_NAME);
     _dataCache = EHCacheUtils.getCacheFromManager(cacheManager, DATA_CACHE_NAME);
-    EHCacheUtils.addCache(cacheManager, SUMMARY_CACHE_NAME);
-    _summaryCache = EHCacheUtils.getCacheFromManager(cacheManager, SUMMARY_CACHE_NAME);
   }
 
   //-------------------------------------------------------------------------
@@ -155,10 +145,6 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
    */
   public CacheManager getDataCacheManager() {
     return _dataCache.getCacheManager();
-  }
-
-  public CacheManager getSummaryCacheManager() {
-    return _summaryCache.getCacheManager();
   }
 
   /**
@@ -199,6 +185,12 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     return getSubSeries(hts, start, includeStart, end, includeEnd);
   }
 
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId) {
+    LocalDateDoubleTimeSeries lddts = getHistoricalTimeSeries(uniqueId).getTimeSeries();
+    return new ObjectsPair<LocalDate, Double>(lddts.getLatestTime(), lddts.getLatestValue());
+  }  
+  
   //-------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
@@ -365,49 +357,6 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       }
     }
     return hts;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    HistoricalTimeSeriesSummary htss = getFromSummaryCache(uniqueId);
-    if (htss != null) {
-      if (htss == MISSSUMMARY) {
-        htss = null;
-      }
-    } else {
-      htss = _underlying.getSummary(uniqueId);
-      if (htss != null) {
-        s_logger.debug("Caching time-series {} summary", htss);
-        _summaryCache.put(new Element(uniqueId, htss));
-      } else {
-        s_logger.debug("Caching miss on {} summary", uniqueId);
-        _summaryCache.put(new Element(uniqueId, MISSSUMMARY));
-      }
-    }
-    return htss;
-  }
-
-  /**
-   * Attempt to get a HistoricalTimeSeriesSummary from the cache.
-   * 
-   * @param uniqueId  the unique id of the HTS, not null
-   * @return the summary information for the HTS, null if not found
-   */
-  private HistoricalTimeSeriesSummary getFromSummaryCache(UniqueId uniqueId) {
-    Element element = _summaryCache.get(uniqueId);
-    if (element == null) {
-      s_logger.debug("Cache miss on {} summary", uniqueId);
-      return null;
-    }
-    s_logger.debug("Cache hit on {} summary", uniqueId);
-    return (HistoricalTimeSeriesSummary) element.getValue();
-  }
-
-  @Override
-  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    throw new UnsupportedOperationException("Getting HTS summary by object id and version correction not supported");
   }
 
   //-------------------------------------------------------------------------

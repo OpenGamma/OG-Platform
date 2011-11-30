@@ -353,6 +353,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   /**
    * Gets the notional.
+   * TODO document how the sign of the notional implies pay / receive / fixed / realized
    * @return the value of the property
    */
   public double getNotional() {
@@ -361,6 +362,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
 
   /**
    * Sets the notional.
+   * TODO document how the sign of the notional implies pay / receive / fixed / realized
    * @param notional  the new value of the property
    */
   public void setNotional(double notional) {
@@ -369,6 +371,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
 
   /**
    * Gets the the {@code notional} property.
+   * TODO document how the sign of the notional implies pay / receive / fixed / realized
    * @return the property, not null
    */
   public final Property<Double> notional() {

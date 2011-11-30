@@ -12,7 +12,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
  * <p>
  * This can include another named SQL fragment or directly include a parameter.
  */
-public final class IncludeSqlFragment extends SqlFragment {
+final class IncludeSqlFragment extends SqlFragment {
 
   /**
    * The include key.

@@ -47,7 +47,7 @@ public class DemoFunctionResolverFactoryBean extends SingletonFactoryBean<Functi
           final DefaultPropertyFunction defaultPropertyFunction = (DefaultPropertyFunction) function;
           if (defaultPropertyFunction.isPermitWithout()) {
             // Place below the filtering summing function priority, or the filter may never be applied.
-            return -2;
+            return -2 + defaultPropertyFunction.getPriority().getPriorityAdjust() - DefaultPropertyFunction.PriorityClass.MAX_ADJUST;
           } else {
             // All other currency injections are important; e.g. the currency constraint can't be omitted for some functions
             return Integer.MAX_VALUE + defaultPropertyFunction.getPriority().getPriorityAdjust() - DefaultPropertyFunction.PriorityClass.MAX_ADJUST;

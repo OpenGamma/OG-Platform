@@ -128,4 +128,12 @@ public final class ValuePropertyNames {
    * A general name for a property describing how volatility smiles were modelled (e.g. Heston, SABR)
    */
   public static final String SMILE_FITTING_METHOD = "SmileFittingMethod";
+
+  /**
+   * A reserved output prefix. No function should ever produce output values with properties that start
+   * with this. It is therefore safe for functions to use it to prefix an optional constraint on inputs
+   * that can never influence resolution, but serve to distinguish one from the other. 
+   */
+  public static final String OUTPUT_RESERVED_PREFIX = ".";
+
 }

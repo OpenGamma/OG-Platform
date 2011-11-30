@@ -13,7 +13,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
  * This outputs an OR clause if the expression is true.
  * It also avoids outputting OR if the last thing in the buffer is WHERE.
  */
-public final class OrSqlFragment extends ConditionalSqlFragment {
+final class OrSqlFragment extends ConditionalSqlFragment {
 
   /**
    * Creates an instance.
@@ -21,7 +21,7 @@ public final class OrSqlFragment extends ConditionalSqlFragment {
    * @param variable  the variable to determine whether to include the OR on, not null
    * @param matchValue  the value to match, null to match on existence
    */
-  public OrSqlFragment(String variable, String matchValue) {
+  OrSqlFragment(String variable, String matchValue) {
     super(variable, matchValue);
   }
 

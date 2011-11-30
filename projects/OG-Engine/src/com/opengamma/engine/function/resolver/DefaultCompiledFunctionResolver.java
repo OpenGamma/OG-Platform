@@ -38,7 +38,8 @@ import com.opengamma.util.tuple.Pair;
  * In addition, a priority mechanism is used to return functions in priority order
  * from highest to lowest.
  * <p>
- * This class is not thread-safe.
+ * This class is not thread-safe. It is possible to call {@link #resolveFunction} concurrently
+ * from multiple threads, the rule manipulation methods require external locking.
  */
 public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver {
 
@@ -50,6 +51,10 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
    * The compilation context.
    */
   private final FunctionCompilationContext _functionCompilationContext;
+  /**
+   * Cache of targets.
+   */
+  private final ConcurrentMap<ComputationTarget, List<Pair<ResolutionRule, Set<ValueSpecification>>>> _targetCache = new MapMaker().weakKeys().makeMap();
 
   /**
    * Creates a resolver.
@@ -126,26 +131,6 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
     return _functionCompilationContext;
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Comparator to give a fixed ordering of value specifications for use by the rule comparator.
-   * This is not a robust implementation, working only within the confines of the rule comparator's limited use.
-   */
-  private static final Comparator<ValueSpecification> VALUE_SPECIFICATION_COMPARATOR = new Comparator<ValueSpecification>() {
-    @Override
-    public int compare(ValueSpecification o1, ValueSpecification o2) {
-      int c = o1.getValueName().compareTo(o2.getValueName());
-      if (c != 0) {
-        return c;
-      }
-      c = o1.getProperties().compareTo(o2.getProperties());
-      if (c != 0) {
-        return c;
-      }
-      return 0;
-    }
-  };
-
   /**
    * Comparator to give a fixed ordering of functions at the same priority so that we at
    * least have deterministic behavior between runs.
@@ -153,31 +138,14 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
   private static final Comparator<Pair<ResolutionRule, Set<ValueSpecification>>> RULE_COMPARATOR = new Comparator<Pair<ResolutionRule, Set<ValueSpecification>>>() {
     @Override
     public int compare(Pair<ResolutionRule, Set<ValueSpecification>> o1, Pair<ResolutionRule, Set<ValueSpecification>> o2) {
-      final Set<ValueSpecification> s1 = o1.getSecond();
-      final Set<ValueSpecification> s2 = o2.getSecond();
-      if (s1.size() < s2.size()) {
-        return -1;
-      } else if (s1.size() > s2.size()) {
-        return 1;
+      final int c = o1.getFirst().getFunction().getFunction().getFunctionDefinition().getUniqueId().compareTo(o2.getFirst().getFunction().getFunction().getFunctionDefinition().getUniqueId());
+      if (c != 0) {
+        return c;
       }
-      final List<ValueSpecification> s1list = new ArrayList<ValueSpecification>(s1);
-      final List<ValueSpecification> s2list = new ArrayList<ValueSpecification>(s2);
-      Collections.sort(s1list, VALUE_SPECIFICATION_COMPARATOR);
-      Collections.sort(s2list, VALUE_SPECIFICATION_COMPARATOR);
-      for (int i = 0; i < s1list.size(); i++) {
-        final int c = VALUE_SPECIFICATION_COMPARATOR.compare(s1list.get(i), s2list.get(i));
-        if (c != 0) {
-          return c;
-        }
-      }
+      // Have the same function, can't prioritize the "FunctionInputs"
       throw new OpenGammaRuntimeException("Rule priority conflict - cannot order " + o1 + " against " + o2);
     }
   };
-
-  /**
-   * Cache of targets.
-   */
-  private final ConcurrentMap<ComputationTarget, List<Pair<ResolutionRule, Set<ValueSpecification>>>> _targetCache = new MapMaker().weakKeys().makeMap();
 
   @SuppressWarnings("unchecked")
   @Override

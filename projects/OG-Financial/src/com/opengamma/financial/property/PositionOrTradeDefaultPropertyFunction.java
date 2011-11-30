@@ -27,8 +27,7 @@ import com.opengamma.engine.value.ValueRequirement;
 
   private static final Logger s_logger = LoggerFactory.getLogger(PositionOrTradeDefaultPropertyFunction.class);
 
-  // TODO: a wildcard for the value name could be nice but requires [PLAT-1759]
-
+  private static final String WILDCARD = "*";
   private static final String SEP = ".DEFAULT_";
 
   public PositionOrTradeDefaultPropertyFunction(final ComputationTargetType type) {
@@ -38,13 +37,17 @@ import com.opengamma.engine.value.ValueRequirement;
   protected abstract Map<String, String> getAttributes(ComputationTarget target);
 
   @Override
-  protected void getDefaults(final FunctionCompilationContext context, final ComputationTarget target, final PropertyDefaults defaults) {
-    for (Map.Entry<String, String> attribute : getAttributes(target).entrySet()) {
+  protected void getDefaults(final PropertyDefaults defaults) {
+    for (Map.Entry<String, String> attribute : getAttributes(defaults.getTarget()).entrySet()) {
       final int i = attribute.getKey().indexOf(SEP);
       if (i > 0) {
         final String valueName = attribute.getKey().substring(0, i);
         final String propertyName = attribute.getKey().substring(i + SEP.length());
-        defaults.addValuePropertyName(valueName, propertyName);
+        if (WILDCARD.equals(valueName)) {
+          defaults.addAllValuesPropertyName(propertyName);
+        } else {
+          defaults.addValuePropertyName(valueName, propertyName);
+        }
         s_logger.debug("Found default {}[{}]", valueName, propertyName);
       }
     }
@@ -70,7 +73,14 @@ import com.opengamma.engine.value.ValueRequirement;
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    return Collections.singleton(getAttributes(target).get(desiredValue.getValueName() + SEP + propertyName));
+    final Map<String, String> attributes = getAttributes(target);
+    String defaultValue = attributes.get(desiredValue.getValueName() + SEP + propertyName);
+    if (defaultValue != null) {
+      return Collections.singleton(defaultValue);
+    }
+    defaultValue = attributes.get(WILDCARD + SEP + propertyName);
+    assert defaultValue != null;
+    return Collections.singleton(defaultValue);
   }
 
   /**
