@@ -137,8 +137,7 @@ $.register_module({
                     columns = [
                         {id: 'time', name: 'Time', field: 'time', width: 160,
                             formatter: function (row, cell, value, columnDef, dataContext) {
-                                var date = new Date(value);
-                                return date.getDay() + ' / ' + date.getMonth() + ' / ' + date.getFullYear();
+                                return og.common.util.date(value);
                             }
                         },
                         {id: 'value', name: 'Value', field: 'value', width: 160}
