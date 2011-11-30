@@ -11,6 +11,7 @@ import java.io.File;
 import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.NotImplementedException;
 import org.json.JSONObject;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -38,6 +39,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -170,6 +172,12 @@ import com.opengamma.financial.security.swap.SwapSecurity;
   @Override
   public JSONObject visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
     return null;
+  }
+  
+  @Override
+  public JSONObject visitEquityIndexDividendFutureOptionSecurity(
+      EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+    throw new NotImplementedException();
   }
 
   @Override
