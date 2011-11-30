@@ -337,7 +337,7 @@ public class CurveDefinitionAndSpecifications {
 
   public static YieldCurveDefinition buildDKKFundingCurveDefinition() {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
-    for (final int i : new int[] {2}) {
+    for (final int i : new int[] {1, 2}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.ofDays(i), "DEFAULT"));
     }
     for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}) {

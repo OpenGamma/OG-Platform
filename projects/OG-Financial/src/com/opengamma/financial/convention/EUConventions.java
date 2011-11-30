@@ -116,7 +116,7 @@ public class EUConventions {
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUR012M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 12m")), "EURIBOR 12m", act360,
         modified, Period.ofMonths(12), 2, false, null);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EONIA Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR EONIA")),
-        "EUR EONIA", act360, modified, Period.ofMonths(12), 2, false, null);
+        "EUR EONIA", act360, modified, Period.ofDays(1), 0, false, null);
 
     //TODO need to check that these are right for deposit rates
     conventionMaster.addConventionBundle(
@@ -124,7 +124,7 @@ public class EUConventions {
         following, Period.ofDays(1), 0, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDR2T Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 2d")), "EUR DEPOSIT 2d", act360,
-        following, Period.ofDays(1), 0, false, null);
+        following, Period.ofDays(1), 1, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDR3T Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 3d")), "EUR DEPOSIT 3d", act360,
         following, Period.ofDays(1), 2, false, null);

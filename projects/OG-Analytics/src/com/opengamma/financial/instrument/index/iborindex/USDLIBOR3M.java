@@ -14,16 +14,17 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing the EURIBOR 3M index.
+ * Class describing the USD LIBOR 3M index.
  */
-public final class Euribor3M extends IborIndex {
+public final class USDLIBOR3M extends IborIndex {
 
   /**
    * Constructor.
-   * @param calendar A EUR calendar.
+   * @param calendar A USD calendar.
    */
-  public Euribor3M(Calendar calendar) {
-    super(Currency.EUR, Period.ofMonths(3), 2, calendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), 
+  public USDLIBOR3M(Calendar calendar) {
+    super(Currency.USD, Period.ofMonths(3), 2, calendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), 
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), true);
   }
+  
 }
