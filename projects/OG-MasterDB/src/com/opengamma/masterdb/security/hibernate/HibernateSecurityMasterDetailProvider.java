@@ -204,7 +204,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
         HibernateSecurityMasterDao secMasterSession = getHibernateSecurityMasterSession(session);
         SecurityBean security = secMasterSession.getSecurityBean(base, beanOperation);
         if (security == null) {
-          s_logger.debug("no detail found for security {}", base.getUniqueId());
+          s_logger.warn("no detail found for security {}", base.getUniqueId());
           return base;
         }
         security = beanOperation.resolve(getOperationContext(), secMasterSession, null, security);

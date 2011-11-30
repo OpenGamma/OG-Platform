@@ -5,6 +5,10 @@
  */
 package com.opengamma.language.context;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
@@ -13,6 +17,7 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.currency.CurrencyPairsSource;
 import com.opengamma.financial.user.rest.RemoteClient;
 import com.opengamma.language.function.AggregatingFunctionProvider;
@@ -33,10 +38,6 @@ import com.opengamma.language.procedure.AggregatingProcedureProvider;
 import com.opengamma.language.procedure.DefaultProcedureDefinitionFilter;
 import com.opengamma.language.procedure.ProcedureDefinitionFilter;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-
 /**
  * A global information context shared by all client instances. This corresponds to the
  * OpenGamma installation the language integration framework is connecting to.
@@ -47,6 +48,11 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    * Name under which the shared engine client is bound.
    */
   protected static final String CLIENT = "client";
+  
+  /**
+   * Name under which the currency pairs source is bound.
+   */
+  protected static final String CURRENCY_PAIRS_SOURCE = "currencyPairsSource";
 
   /**
    * Name under which the exchange source is bound.
@@ -157,11 +163,11 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    * Name under which the view processor is bound.
    */
   protected static final String VIEW_PROCESSOR = "viewProcessor";
-
+  
   /**
-   * Name under which the currency pairs source is bound.
+   * Name under which the volatility cube definition source is bound.
    */
-  protected static final String CURRENCY_PAIRS_SOURCE = "currencyPairsSource";
+  protected static final String VOLATILITY_CUBE_DEFINITION_SOURCE = "volatilityCubeDefinitionSource";
 
 
   private final Map<String, UserContext> _userContexts = new HashMap<String, UserContext>();
@@ -262,6 +268,10 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
   public RemoteClient getClient() {
     return getValue(CLIENT);
   }
+  
+  public CurrencyPairsSource getCurrencyPairsSource() {
+    return getValue(CURRENCY_PAIRS_SOURCE);
+  }
 
   public ExchangeSource getExchangeSource() {
     return getValue(EXCHANGE_SOURCE);
@@ -360,9 +370,9 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
   public ViewProcessor getViewProcessor() {
     return getValue(VIEW_PROCESSOR);
   }
-
-  public CurrencyPairsSource getCurrencyPairsSource() {
-    return getValue(CURRENCY_PAIRS_SOURCE);
+  
+  public VolatilityCubeDefinitionSource getVolatilityCubeDefinitionSource() {
+    return getValue(VOLATILITY_CUBE_DEFINITION_SOURCE);
   }
 
 }

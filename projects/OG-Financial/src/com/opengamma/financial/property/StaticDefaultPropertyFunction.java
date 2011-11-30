@@ -46,7 +46,7 @@ public abstract class StaticDefaultPropertyFunction extends DefaultPropertyFunct
   }
 
   @Override
-  protected void getDefaults(final FunctionCompilationContext context, final ComputationTarget target, final PropertyDefaults defaults) {
+  protected void getDefaults(final PropertyDefaults defaults) {
     for (String valueName : getValueNames()) {
       defaults.addValuePropertyName(valueName, getPropertyName());
     }

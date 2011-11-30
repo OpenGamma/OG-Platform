@@ -14,10 +14,10 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryResult;
@@ -174,8 +174,18 @@ public class RemoteHistoricalTimeSeriesMaster implements HistoricalTimeSeriesMas
     throw new UnsupportedOperationException();
   }
 
-  @Override
-  public ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
+  public ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId) {
+    return getTimeSeries(uniqueId, HistoricalTimeSeriesGetFilter.ofRange(null, null));
+  }
+  
+  public ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId, HistoricalTimeSeriesGetFilter filter) {
+    
+    // TODO: handle maximum #points limit through REST
+    
+    LocalDate fromDateInclusive = filter.getEarliestDate();
+    LocalDate toDateInclusive = filter.getLatestDate();
+    Integer maxPoints = filter.getMaxPoints();
+    
     try {
       RestTarget target = getTargetBase().resolveBase("timeSeries").resolveBase(uniqueId.toString());
       if (fromDateInclusive != null) {
@@ -191,29 +201,21 @@ public class RemoteHistoricalTimeSeriesMaster implements HistoricalTimeSeriesMas
           target = target.resolve(".");
         }
       }
+      
       return getFudgeDeserializer().fudgeMsgToObject(ManageableHistoricalTimeSeries.class, getRestClient().getMsg(target));
     } catch (RestRuntimeException ex) {
       throw ex.translate();
     }
   }
-
-  @Override
-  public ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
-    // TODO: GET request to timeSeriesObject/objectId/...
+  
+  public ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
     throw new UnsupportedOperationException();
   }
-
-  @Override
-  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
-    throw new OpenGammaRuntimeException("Getting remote HTS summary not yet implemented");
-  }
-
-  @Override
-  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    // TODO: GET request to timeSeriesObject/objectId/...
-    throw new UnsupportedOperationException();    
-  }
   
+  public ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection, HistoricalTimeSeriesGetFilter filter) {
+    throw new UnsupportedOperationException();
+  }
+    
   @Override
   public UniqueId updateTimeSeriesDataPoints(ObjectIdentifiable objectId, LocalDateDoubleTimeSeries series) {
     try {

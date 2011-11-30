@@ -20,7 +20,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
@@ -58,21 +57,22 @@ public class EHCachingHistoricalTimeSeriesSourceTest {
     assertEquals(series, series1);
     assertEquals(series, series2);
     assertEquals(series1, series2);
-    
-    HistoricalTimeSeriesSummary summary = new HistoricalTimeSeriesSummary();
-    
-    when(_underlyingSource.getSummary(UID)).thenReturn(summary);
-    
-    summary.setEarliestDate(dates[0]);
-    summary.setLatestDate(dates[0]);
-    summary.setEarliestValue(values[0]);
-    summary.setLatestValue(values[0]);
 
-    HistoricalTimeSeriesSummary summary1 = _cachingSource.getSummary(UID);
-    HistoricalTimeSeriesSummary summary2 = _cachingSource.getSummary(UID);
-   
-    assertEquals(summary, summary1);
-    assertEquals(summary1, summary2);
+    
+//    HistoricalTimeSeriesSummary summary = new HistoricalTimeSeriesSummary();
+//    
+//    when(_underlyingSource.getSummary(UID)).thenReturn(summary);
+//    
+//    summary.setEarliestDate(dates[0]);
+//    summary.setLatestDate(dates[0]);
+//    summary.setEarliestValue(values[0]);
+//    summary.setLatestValue(values[0]);
+//
+//    HistoricalTimeSeriesSummary summary1 = _cachingSource.getSummary(UID);
+//    HistoricalTimeSeriesSummary summary2 = _cachingSource.getSummary(UID);
+//   
+//    assertEquals(summary, summary1);
+//    assertEquals(summary1, summary2);
     
     verify(_underlyingSource, times(1)).getHistoricalTimeSeries(UID);
   }

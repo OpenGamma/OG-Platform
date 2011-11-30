@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
@@ -63,7 +64,7 @@ public class DbHistoricalTimeSeriesMasterWorkerCorrectTimeSeriesTest extends Abs
     ObjectId oid = ObjectId.of("DbHts", "DP101");
     UniqueId uniqueId = _htsMaster.correctTimeSeriesDataPoints(oid, series);
     
-    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uniqueId, null, null);
+    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uniqueId);
     assertEquals(uniqueId, testCorrected.getUniqueId());
     LocalDateDoubleTimeSeries timeSeries = testCorrected.getTimeSeries();
     assertEquals(3, timeSeries.size());
@@ -84,7 +85,7 @@ public class DbHistoricalTimeSeriesMasterWorkerCorrectTimeSeriesTest extends Abs
     ObjectId oid = ObjectId.of("DbHts", "DP101");
     UniqueId uniqueId = _htsMaster.correctTimeSeriesDataPoints(oid, series);
     
-    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uniqueId, null, null);
+    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uniqueId);
     assertEquals(uniqueId, testCorrected.getUniqueId());
     LocalDateDoubleTimeSeries timeSeries = testCorrected.getTimeSeries();
     assertEquals(4, timeSeries.size());
