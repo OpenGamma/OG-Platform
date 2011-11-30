@@ -260,6 +260,17 @@
         <@rowout label="Strike">${security.strike}</@rowout>
         <@rowout label="Underlying Identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
         <#break>
+      <#case "EQUITY_INDEX_FUTURE_OPTION">
+        <@rowout label="Currency">${security.currency}</@rowout>
+        <@rowout label="Exchange">${security.exchange}</@rowout>
+        <@rowout label="Exercise Type">${customRenderer.printExerciseType(security.exerciseType)}</@rowout>
+        <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
+        <@rowout label="Is Margined">${security.margined?string?upper_case}</@rowout>
+        <@rowout label="Option Type">${security.optionType}</@rowout>
+        <@rowout label="Point Value">${security.pointValue}</@rowout>
+        <@rowout label="Strike">${security.strike}</@rowout>
+        <@rowout label="Underlying Identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
+        <#break>
     </#switch>
 <@space />
 <#list security.externalIdBundle.externalIds as item>
