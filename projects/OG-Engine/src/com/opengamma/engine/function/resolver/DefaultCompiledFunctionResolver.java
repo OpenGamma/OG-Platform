@@ -19,6 +19,9 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
@@ -42,6 +45,8 @@ import com.opengamma.util.tuple.Pair;
  * from multiple threads, the rule manipulation methods require external locking.
  */
 public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(DefaultCompiledFunctionResolver.class);
 
   /**
    * The rules by target type, where the inner map is sorted high to low.
@@ -153,33 +158,38 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
     List<Pair<ResolutionRule, Set<ValueSpecification>>> cached = _targetCache.get(target);
     if (cached == null) {
       final LinkedList<Pair<ResolutionRule, Set<ValueSpecification>>> applicableRules = new LinkedList<Pair<ResolutionRule, Set<ValueSpecification>>>();
-      for (Collection<ResolutionRule> rules : _type2Priority2Rules.get(target.getType()).values()) {
-        int rulesFound = 0;
-        for (ResolutionRule rule : rules) {
-          final Set<ValueSpecification> results = rule.getResults(target, getFunctionCompilationContext());
-          if ((results != null) && !results.isEmpty()) {
-            applicableRules.add(Pair.of(rule, results));
-            rulesFound++;
+      final SortedMap<Integer, Collection<ResolutionRule>> priority2Rules = _type2Priority2Rules.get(target.getType());
+      if (priority2Rules != null) {
+        for (Collection<ResolutionRule> rules : priority2Rules.values()) {
+          int rulesFound = 0;
+          for (ResolutionRule rule : rules) {
+            final Set<ValueSpecification> results = rule.getResults(target, getFunctionCompilationContext());
+            if ((results != null) && !results.isEmpty()) {
+              applicableRules.add(Pair.of(rule, results));
+              rulesFound++;
+            }
+          }
+          if (rulesFound > 1) {
+            // sort only the sub-list of rules associated with the priority
+            final Iterator<Pair<ResolutionRule, Set<ValueSpecification>>> iterator = applicableRules.descendingIterator();
+            final Pair<ResolutionRule, Set<ValueSpecification>>[] found = new Pair[rulesFound];
+            for (int i = 0; i < rulesFound; i++) {
+              found[i] = iterator.next();
+              iterator.remove();
+            }
+            // TODO [ENG-260] re-order the last "rulesFound" rules in the list with a cost-based heuristic (cheapest first)
+            // TODO [ENG-260] throw an exception if there are two rules which can't be re-ordered
+            // REVIEW 2010-10-27 Andrew -- Could the above be done with a Comparator<Pair<ParameterizedFunction, ValueSpecification>>
+            // provided in the compilation context? This could do away with the need for our "priority" levels as that can do ALL ordering.
+            // We should wrap it at construction in something that will detect the equality case and trigger an exception.
+            Arrays.sort(found, RULE_COMPARATOR);
+            for (int i = 0; i < rulesFound; i++) {
+              applicableRules.add(found[i]);
+            }
           }
         }
-        if (rulesFound > 1) {
-          // sort only the sub-list of rules associated with the priority
-          final Iterator<Pair<ResolutionRule, Set<ValueSpecification>>> iterator = applicableRules.descendingIterator();
-          final Pair<ResolutionRule, Set<ValueSpecification>>[] found = new Pair[rulesFound];
-          for (int i = 0; i < rulesFound; i++) {
-            found[i] = iterator.next();
-            iterator.remove();
-          }
-          // TODO [ENG-260] re-order the last "rulesFound" rules in the list with a cost-based heuristic (cheapest first)
-          // TODO [ENG-260] throw an exception if there are two rules which can't be re-ordered
-          // REVIEW 2010-10-27 Andrew -- Could the above be done with a Comparator<Pair<ParameterizedFunction, ValueSpecification>>
-          // provided in the compilation context? This could do away with the need for our "priority" levels as that can do ALL ordering.
-          // We should wrap it at construction in something that will detect the equality case and trigger an exception.
-          Arrays.sort(found, RULE_COMPARATOR);
-          for (int i = 0; i < rulesFound; i++) {
-            applicableRules.add(found[i]);
-          }
-        }
+      } else {
+        s_logger.warn("No rules for target type {}", target);
       }
       final List<Pair<ResolutionRule, Set<ValueSpecification>>> existing = _targetCache.putIfAbsent(target, applicableRules);
       cached = (existing != null) ? existing : applicableRules;

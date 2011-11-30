@@ -38,7 +38,6 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-lang/jars/commons-lang-2.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-dbcp/jars/commons-dbcp-1.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-pool/jars/commons-pool-1.5.6.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-io/jars/commons-io-1.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-cli/jars/commons-cli-1.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.httpcomponents/httpclient/jars/httpclient-4.0.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.httpcomponents/httpcore/jars/httpcore-4.0.1.jar!/" />
@@ -135,11 +134,13 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.postgresql/postgresql-jdbc/jars/postgresql-jdbc3-9.1-901.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-beans/jars/joda-beans-0.5.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-convert/jars/joda-convert-1.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-io/jars/commons-io-2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring/jars/spring-test-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/net.sf.opencsv/opencsv/jars/opencsv-2.1.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-lang/javadocs/commons-lang-docs-2.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-dbcp/javadocs/commons-dbcp-javadoc-1.4.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-io/javadocs/commons-io-javadoc-1.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-cli/javadocs/commons-cli-javadoc-1.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.httpcomponents/httpcore/javadocs/javadoc-4.0.1.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-logging/javadocs/commons-logging-javadoc-1.1.1.jar!/" />
@@ -161,12 +162,12 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/it.unimi.dsi/fastutil/javadocs/fastutil-javadoc-6.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-beans/javadocs/joda-beans-javadoc-0.5.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-convert/javadocs/joda-convert-javadoc-1.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-io/javadocs/commons-io-javadoc-2.1.jar!/" />
         </JAVADOC>
         <SOURCES>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-lang/sources/commons-lang-src-2.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-dbcp/sources/commons-dbcp-src-1.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-pool/sources/commons-pool-src-1.5.6.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-io/sources/commons-io-src-1.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-cli/sources/commons-cli-src-1.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.httpcomponents/httpclient/sources/httpclient-src-4.0.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.httpcomponents/httpcore/sources/source-4.0.1.zip!/" />
@@ -227,6 +228,9 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.postgresql/postgresql-jdbc/sources/postgresql-9.1-901.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-beans/sources/joda-beans-sources-0.5.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-convert/sources/joda-convert-sources-1.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-io/sources/commons-io-sources-2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring/sources/spring-test-src-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/net.sf.opencsv/opencsv/sources/opencsv-src-2.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
