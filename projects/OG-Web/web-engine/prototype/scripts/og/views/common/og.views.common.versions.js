@@ -27,22 +27,6 @@ $.register_module({
                                 og.views[page].rules['load_' + page], $.extend({}, current, {version: version})
                             );
                         },
-                        // TODO: split off into lib
-                        format_date = function (timestamp) {
-                            // the timestamp format isnt supported by for IE or safari, we need to change the format
-                            if (isNaN(new Date(timestamp).getDate())) return timestamp;
-                            var add_zero = function (n) {return n < 10 ? '0' + n : '' + n;},
-                                obj = new Date(timestamp),
-                                d = add_zero(obj.getDate()),
-                                M = add_zero(obj.getMonth() + 1),
-                                y = obj.getFullYear(),
-                                h = add_zero(obj.getHours()),
-                                m = add_zero(obj.getMinutes()),
-                                s = add_zero(obj.getSeconds()),
-                                date = d + '<span> / </span>' + M + '<span> / </span>' + y,
-                                time = '<span>' + h + ':' + m + ':' + s + '</span>';
-                            return '<time title="day / month / year">' + date + '<span> @ </span>' + time + '</time>';
-                        },
                         $list = $(r.data.data.reduce(function (acc, val, i) {
                             var arr = val.split('|'), cur, sel, ver = routes.current().args.version;
                             //version_id
@@ -52,7 +36,7 @@ $.register_module({
                                 '<tr' + sel + '>' +
                                     '<td><a href="#' + build_url(arr[0]) + '">' + arr[0] + '</a>' + cur + '</td>' +
                                     '<td>' + arr[1] + '</td>' +
-                                    '<td>' + format_date(arr[2]) + '</td>' +
+                                    '<td>' + og.common.util.date(arr[2]) + '</td>' +
                                 '</tr>';
                         }, '<div class="og-container"><table>' + cols) + '</table></div>')
                         .click(function (e) {

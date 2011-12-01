@@ -184,6 +184,7 @@
   <bundle id="util.js">
     <fragment>/scripts/og/common/util/og.common.util.hashqueue.js</fragment>
     <fragment>/scripts/og/common/util/og.common.util.history.js</fragment>
+    <fragment>/scripts/og/common/util/og.common.util.date.js</fragment>
   </bundle>
   <bundle id="util_ui.js">
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.form.js</fragment>

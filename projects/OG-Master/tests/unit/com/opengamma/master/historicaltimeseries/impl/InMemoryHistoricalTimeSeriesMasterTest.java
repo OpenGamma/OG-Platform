@@ -273,7 +273,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getTS_UID_otherId() {
-    testEmpty.getTimeSeries(OTHER_UID, null, null);
+    testEmpty.getTimeSeries(OTHER_UID);
   }
 
   public void test_points_update_correct() {
@@ -284,7 +284,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     UniqueId uniqueId = testPopulated.updateTimeSeriesDataPoints(doc1.getUniqueId(), input);
     assertEquals(doc1.getUniqueId().getObjectId(), uniqueId.getObjectId());
     
-    ManageableHistoricalTimeSeries test = testPopulated.getTimeSeries(uniqueId, null, null);
+    ManageableHistoricalTimeSeries test = testPopulated.getTimeSeries(uniqueId);
     assertEquals(uniqueId, test.getUniqueId());
     assertEquals(input, test.getTimeSeries());
     
@@ -298,7 +298,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     LocalDate[] expectedDates = {LocalDate.of(2011, 1, 1), LocalDate.of(2011, 1, 2), LocalDate.of(2011, 1, 3)};
     double[] expectedValues = {1.5d, 2.2d, 2.5d};
     LocalDateDoubleTimeSeries expected = new ArrayLocalDateDoubleTimeSeries(expectedDates, expectedValues);
-    ManageableHistoricalTimeSeries test2 = testPopulated.getTimeSeries(uniqueId, null, null);
+    ManageableHistoricalTimeSeries test2 = testPopulated.getTimeSeries(uniqueId);
     assertEquals(uniqueId, test2.getUniqueId());
     assertEquals(expected, test2.getTimeSeries());
   }
@@ -311,7 +311,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     UniqueId uniqueId = testPopulated.updateTimeSeriesDataPoints(doc1.getUniqueId(), input);
     assertEquals(doc1.getUniqueId().getObjectId(), uniqueId.getObjectId());
     
-    ManageableHistoricalTimeSeries test = testPopulated.getTimeSeries(uniqueId, null, null);
+    ManageableHistoricalTimeSeries test = testPopulated.getTimeSeries(uniqueId);
     assertEquals(uniqueId, test.getUniqueId());
     assertEquals(input, test.getTimeSeries());
     
@@ -321,7 +321,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     LocalDate[] expectedDates = {LocalDate.of(2011, 1, 1)};
     double[] expectedValues = {1.1d};
     LocalDateDoubleTimeSeries expected = new ArrayLocalDateDoubleTimeSeries(expectedDates, expectedValues);
-    ManageableHistoricalTimeSeries test2 = testPopulated.getTimeSeries(uniqueId, null, null);
+    ManageableHistoricalTimeSeries test2 = testPopulated.getTimeSeries(uniqueId);
     assertEquals(uniqueId, test2.getUniqueId());
     assertEquals(expected, test2.getTimeSeries());
   }
