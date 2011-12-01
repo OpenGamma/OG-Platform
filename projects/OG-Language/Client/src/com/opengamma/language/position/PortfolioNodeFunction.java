@@ -44,8 +44,8 @@ public class PortfolioNodeFunction extends AbstractFunctionInvoker implements Pu
 
   private static List<MetaParameter> parameters() {
     final MetaParameter name = new MetaParameter("name", JavaTypeInfo.builder(String.class).allowNull().get());
-    final MetaParameter nodes = new MetaParameter("nodes", JavaTypeInfo.builder(PortfolioNode.class).get().arrayOfWithAllowNull(true));
-    final MetaParameter positions = new MetaParameter("positions", JavaTypeInfo.builder(Position.class).get().arrayOfWithAllowNull(true));
+    final MetaParameter nodes = new MetaParameter("nodes", JavaTypeInfo.builder(List.class).allowNull().parameter(JavaTypeInfo.builder(PortfolioNode.class).get()).get());
+    final MetaParameter positions = new MetaParameter("positions", JavaTypeInfo.builder(List.class).allowNull().parameter(JavaTypeInfo.builder(Position.class).get()).get());
     return Arrays.asList(name, nodes, positions);
   }
 
@@ -58,7 +58,7 @@ public class PortfolioNodeFunction extends AbstractFunctionInvoker implements Pu
     this(new DefinitionAnnotater(PortfolioNodeFunction.class));
   }
 
-  public static PortfolioNode invoke(final String name, final PortfolioNode[] nodes, final Position[] positions) {
+  public static PortfolioNode invoke(final String name, final List<PortfolioNode> nodes, final List<Position> positions) {
     s_logger.warn("Name = {}", name);
     s_logger.warn("Nodes = {}", nodes);
     s_logger.warn("Positions = {}", positions);
@@ -81,9 +81,10 @@ public class PortfolioNodeFunction extends AbstractFunctionInvoker implements Pu
 
   // AbstractFunctionInvoker
 
+  @SuppressWarnings("unchecked")
   @Override
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
-    return invoke((String) parameters[NAME], (PortfolioNode[]) parameters[NODES], (Position[]) parameters[POSITIONS]);
+    return invoke((String) parameters[NAME], (List<PortfolioNode>) parameters[NODES], (List<Position>) parameters[POSITIONS]);
   }
 
   // PublishedFunction
