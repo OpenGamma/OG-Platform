@@ -53,6 +53,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -302,6 +303,12 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
           .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION"))).build();
   }
 
+  @Override
+  public Set<Pair<String, ValueProperties>> visitEquityIndexDividendFutureOptionSecurity(
+      EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+    throw new NotImplementedException();
+  }
+  
   @Override
   public Set<Pair<String, ValueProperties>> visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()

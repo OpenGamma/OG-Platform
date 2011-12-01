@@ -29,6 +29,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.extsql.ExtSqlBundle;
 import com.opengamma.id.ObjectIdentifiable;
@@ -452,6 +453,9 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
             dates.add(date);
             values.add(value);
           }
+        } else {
+          // The data points query should return no more than one value per date
+          throw new OpenGammaRuntimeException("Unexpected duplicate data point entry");
         }
       }
       return new ArrayLocalDateDoubleTimeSeries(dates, values);

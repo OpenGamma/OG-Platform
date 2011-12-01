@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.security;
+package com.opengamma.masterdb.security.test;
 
 /**
  * Generic tests for all security types implementation.
@@ -45,6 +45,8 @@ public interface SecurityTestCaseMethods {
   void testEquityBarrierOptionSecurity();
 
   void testIRFutureOptionSecurity();
+  
+  void testEquityIndexDividendFutureOptionSecurity();
 
   void testFXOptionSecurity();
   
