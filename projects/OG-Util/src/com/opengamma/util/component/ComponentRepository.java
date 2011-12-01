@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -28,6 +29,14 @@ public class ComponentRepository {
    * The repository of components.
    */
   private final ConcurrentMap<Class<?>, Repo> _repoMap = new ConcurrentHashMap<Class<?>, Repo>();
+  /**
+   * The published objects.
+   */
+  private final CopyOnWriteArrayList<Object> _publish = new CopyOnWriteArrayList<Object>();
+  /**
+   * The thread-local instance.
+   */
+  private static final ThreadLocal<ComponentRepository> s_threadRepo = new InheritableThreadLocal<ComponentRepository>();
 
   /**
    * Creates an instance.
@@ -35,6 +44,7 @@ public class ComponentRepository {
   public ComponentRepository() {
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Gets an instance of a component.
    * <p>
@@ -49,9 +59,9 @@ public class ComponentRepository {
   public <T> T get(Class<T> type, String tag) {
     ArgumentChecker.notNull(type, "type");
     ArgumentChecker.notNull(tag, "tag");
-    Repo repo = _repoMap.get(tag);
+    Repo repo = _repoMap.get(type);
     if (repo == null) {
-      throw new IllegalArgumentException("No component available for specified type: " + type.getName());
+      throw new IllegalArgumentException("No component available for specified type: " + type.getName() + " with tag: " + tag);
     }
     return repo.bestMatch(type, tag);
   }
@@ -88,6 +98,42 @@ public class ComponentRepository {
     _repoMap.putIfAbsent(type, new Repo());
     Repo repo = _repoMap.get(type);
     repo.register(component, tags);
+  }
+
+  /**
+   * Publishes the component as a RESTful API.
+   * 
+   * @param type  the type of the component, not null
+   * @param resource  the resource, not null
+   */
+  public void publish(Class<?> type, Object resource) {
+    _publish.add(resource);
+  }
+
+  /**
+   * Gets the published components.
+   * 
+   * @return a modifiable copy of the published components, not null
+   */
+  public List<Object> getPublished() {
+    return new ArrayList<Object>(_publish);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Sets this instance as the thread-local instance.
+   */
+  public void pushThreadLocal() {
+    s_threadRepo.set(this);
+  }
+
+  /**
+   * Gets the thread-local instance.
+   * 
+   * @return the thread-local instance
+   */
+  public static ComponentRepository getThreadLocal() {
+    return s_threadRepo.get();
   }
 
   //-------------------------------------------------------------------------
@@ -163,9 +209,17 @@ public class ComponentRepository {
      * @param tags  the tags to help distinguish the component, not null
      */
     void register(Object component, String... tags) {
+      if (_repo.containsKey("DEFAULT") == false) {
+        _repo.put("DEFAULT", component);
+      }
       for (String tag : tags) {
         _repo.putIfAbsent(tag, component);
       }
+    }
+
+    @Override
+    public String toString() {
+      return _repo.toString();
     }
   }
 

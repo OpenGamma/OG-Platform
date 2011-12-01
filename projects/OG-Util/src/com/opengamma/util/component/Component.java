@@ -16,8 +16,7 @@ public interface Component {
    * The started component must be registered with the repository.
    * 
    * @param repo  the repository to register the component with, not null
-   * @param config  the configuration to use, not null
    */
-  void start(ComponentRepository repo, ComponentConfig config);
+  void start(ComponentRepository repo);
 
 }
