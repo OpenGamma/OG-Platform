@@ -9,9 +9,6 @@ package com.opengamma.language.position;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
@@ -28,8 +25,6 @@ import com.opengamma.language.function.PublishedFunction;
  * Creates a portfolio node from one or more positions or other nodes
  */
 public class PortfolioNodeFunction extends AbstractFunctionInvoker implements PublishedFunction {
-
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioNodeFunction.class);
 
   /**
    * Default instance.
@@ -59,23 +54,17 @@ public class PortfolioNodeFunction extends AbstractFunctionInvoker implements Pu
   }
 
   public static PortfolioNode invoke(final String name, final List<PortfolioNode> nodes, final List<Position> positions) {
-    s_logger.warn("Name = {}", name);
-    s_logger.warn("Nodes = {}", nodes);
-    s_logger.warn("Positions = {}", positions);
     final SimplePortfolioNode node = new SimplePortfolioNode(name);
     if (nodes != null) {
       for (PortfolioNode child : nodes) {
-        s_logger.warn("Child = {}", child);
         node.addChildNode(child);
       }
     }
     if (positions != null) {
       for (Position position : positions) {
-        s_logger.warn("Position = {}", position);
         node.addPosition(position);
       }
     }
-    s_logger.warn("Node = {}", node);
     return node;
   }
 
