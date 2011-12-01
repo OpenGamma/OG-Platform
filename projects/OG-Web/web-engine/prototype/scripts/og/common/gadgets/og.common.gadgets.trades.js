@@ -69,6 +69,7 @@ $.register_module({
                         });
                     } else $this.find('.og-icon-expand').css('visibility', 'hidden');
                 });
+                $(selector + ' > .OG-table > tbody > tr:not(".og-js-attribute"):last td').css('padding-bottom', '10px');
                 $(selector + ' .OG-table').awesometable({height: 400});
             };
             og.api.rest.positions.get({
