@@ -107,14 +107,14 @@ public class EquityBarrierOptionSecurity extends FinancialSecurity {
     super();
   }
 
-  public EquityBarrierOptionSecurity(OptionType optionType, double strike, Currency currency, ExternalId underlyingIdentifier,
-      ExerciseType exerciseType, Expiry expiry, double pointValue, String exchange, BarrierType barrierType, BarrierDirection barrierDirection, MonitoringType monitoringType,
-      SamplingFrequency samplingFrequency, double barrierLevel) {
+  public EquityBarrierOptionSecurity(OptionType optionType, double strike, Currency currency, ExternalId underlyingId,
+      ExerciseType exerciseType, Expiry expiry, double pointValue, String exchange, BarrierType barrierType,
+      BarrierDirection barrierDirection, MonitoringType monitoringType, SamplingFrequency samplingFrequency, double barrierLevel) {
     super(SECURITY_TYPE);
     setOptionType(optionType);
     setStrike(strike);
     setCurrency(currency);
-    setUnderlyingId(underlyingIdentifier);
+    setUnderlyingId(underlyingId);
     setExerciseType(exerciseType);
     setExpiry(expiry);
     setPointValue(pointValue);

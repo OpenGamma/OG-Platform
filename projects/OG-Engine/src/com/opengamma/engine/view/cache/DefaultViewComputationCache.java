@@ -37,7 +37,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
   /**
    * Callback to locate missing data.
    */
-  public static interface MissingValueLoader {
+  public interface MissingValueLoader {
 
     FudgeMsg findMissingValue(long identifier);
 

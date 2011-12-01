@@ -20,7 +20,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectIdentifiable;
@@ -35,6 +34,7 @@ import com.opengamma.language.invoke.TypeConverterProviderBean;
 import com.opengamma.language.test.TestUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests the {@link FetchTimeSeriesFunction} class.
@@ -51,6 +51,11 @@ public class FetchTimeSeriesFunctionTest {
 
     @Override
     public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean inclusiveEnd) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId) {
       throw new UnsupportedOperationException();
     }
 
@@ -105,34 +110,37 @@ public class FetchTimeSeriesFunctionTest {
     }
 
     @Override
-    public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
+    public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
       throw new UnsupportedOperationException();
     }
 
-//    @Override
-//    public LocalDate getEarliestDate(UniqueId uniqueId) {
-//      throw new UnsupportedOperationException();
-//    }
-//
-//    @Override
-//    public LocalDate getLatestDate(UniqueId uniqueId) {
-//      throw new UnsupportedOperationException();
-//    }
-//
-//    @Override
-//    public Double getEarliestValue(UniqueId uniqueId) {
-//      throw new UnsupportedOperationException();
-//    }
-//
-//    @Override
-//    public Double getLatestValue(UniqueId uniqueId) {
-//      throw new UnsupportedOperationException();
-//    }
+    @Override
+    public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
+        boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
+        boolean includeStart, LocalDate end, boolean includeEnd) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart,
+        LocalDate end, boolean includeEnd, int maxPoints) {
+      throw new UnsupportedOperationException();
+    }
 
   }
 

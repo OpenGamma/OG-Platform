@@ -27,6 +27,7 @@ import com.opengamma.financial.analytics.FilteringSummingFunction;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.BondSecurity;
@@ -52,6 +53,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -263,7 +265,8 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
       .add(getVegaMatrix(ValueProperties
           .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
           .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
-          .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())))
+          .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())
+          .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION")))
       .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
       .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
       .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
@@ -281,7 +284,7 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
         .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
         .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()))
         .addAll(getSabrSensitivities())
-        .add(getPresentValue(ValueProperties.with(ValuePropertyNames.CUBE, "DEFAULT")))
+        .add(getPresentValue(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG")))
         .add(getVegaCubeMatrix(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG"))).build();
   }
 
@@ -296,9 +299,16 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
       .add(getVegaMatrix(ValueProperties
           .with(ValuePropertyNames.SURFACE, "DEFAULT")
           .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurve())
-          .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurve(ccy)))).build();
+          .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurve(ccy))
+          .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION"))).build();
   }
 
+  @Override
+  public Set<Pair<String, ValueProperties>> visitEquityIndexDividendFutureOptionSecurity(
+      EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+    throw new NotImplementedException();
+  }
+  
   @Override
   public Set<Pair<String, ValueProperties>> visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
@@ -363,7 +373,9 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
        .add(getPresentValue(ValueProperties.builder()))
        .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
-       .add(getVegaMatrix(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT"))).build();
+       .add(getVegaMatrix(ValueProperties
+           .with(ValuePropertyNames.SURFACE, "DEFAULT")
+           .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION"))).build();
   }
 
   //-------------------------------------------------------------------------
@@ -417,12 +429,16 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
 
   @Override
   public Set<Pair<String, ValueProperties>> visitEquityFutureSecurity(EquityFutureSecurity security) {
-    return ImmutableSet.of();
+    return ImmutableSet.of(
+        getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
+        getPresentValue(ValueProperties.builder()));
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security) {
-    return ImmutableSet.of();
+    return ImmutableSet.of(
+        getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
+        getPresentValue(ValueProperties.builder()));
   }
 
   //-------------------------------------------------------------------------

@@ -292,9 +292,7 @@ $.register_module({
                             json.positions, display_columns.concat(data_columns));
                         slick.setColumns(display_columns);
                         slick.onClick.subscribe(function (e, dd) {
-                            var rule = og.views.positions.rules['load_positions'], row = json.positions[dd.row],
-                                position = row.id, position_name = row.name,
-                                href = routes.hash(rule, {id: position});
+                            var row = json.positions[dd.row], position = row.id, position_name = row.name;
                             if ($(e.target).hasClass('og-icon-unhook')) {
                                 ui.dialog({
                                     type: 'confirm',
@@ -315,8 +313,11 @@ $.register_module({
                                         $(this).dialog('close');
                                     }}
                                 });
-                            } else routes.go(href);
-
+                            } else {
+                                common.gadgets.positions({
+                                    id: position, selector: '.og-js-details-positions', editable: false});
+                                common.gadgets.trades({id: position, selector: '.og-js-trades-table'});
+                            }
                         });
                         slick.onMouseEnter.subscribe(function (e) {
                            $(e.currentTarget).closest('.slick-row').find('.og-button').show();
@@ -331,6 +332,7 @@ $.register_module({
                     if (args.sync) og.views.portfolios_sync.load(args);
                 } else layout.inner.close('south');
                 api.rest.portfolios.get({
+                    dependencies: ['id'],
                     handler: function (result) {
                         if (result.error) return alert(result.message); // TODO: replace with UI error dialog
                         json = result.data;

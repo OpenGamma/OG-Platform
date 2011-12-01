@@ -150,6 +150,7 @@ $.register_module({
                     og.views.common.versions.load();
                 } else layout.inner.close('south');
                 api.rest.securities.get({
+                    dependencies: ['id'],
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var json = result.data, text_handler,
@@ -177,9 +178,11 @@ $.register_module({
                             content = $.outer($html.find('> section')[0]);
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
                             $('.ui-layout-inner-center .ui-layout-content').html(content);
-                            for (id in json_id) {
+                            if (!Object.keys(json_id)[0]) $('.ui-layout-inner-center .og-js-identifiers')
+                                .html('<tr><td><span>(empty value)</span></td><td></td></tr>');
+                            else for (id in json_id) {
                                 if (json_id.hasOwnProperty(id)) {
-                                    html.push('<tr><td><span>', id,
+                                    html.push('<tr><td><span>', id.lang(),
                                               '<span></td><td>', json_id[id].replace(id + '-', ''), '</td></tr>');
                                 }
                                 $('.ui-layout-inner-center .og-js-identifiers').html(html.join(''));

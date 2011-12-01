@@ -1,0 +1,26 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.financial.security.option {
+
+  /**
+   * An Equity Index Dividend future option security.
+   */
+  message EquityIndexDividendFutureOptionSecurity extends FinancialSecurity {
+    required string securityType [default = "EQUITY_INDEX_FUTURE_OPTION"];
+    
+    required string exchange;
+    required util.time.Expiry expiry;
+    required ExerciseType exerciseType;
+    required id.ExternalId underlyingIdentifier;
+    required double pointValue;
+    required boolean isMargined; 
+    required com.opengamma.util.money.Currency currency;
+    required double strike; 
+    required OptionType optionType;
+  }
+
+}

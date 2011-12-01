@@ -90,7 +90,6 @@
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-awesome-list.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-yc-strips.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-vol-surf-def.css</fragment>
-    <fragment>/styles/common/forms/og.common.forms.OG-form.og-vol-cube-def.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-csb.css</fragment>
   </bundle>
   <bundle id="views.css">
@@ -175,7 +174,7 @@
     <fragment>/scripts/og/og.dev.js</fragment>
     <fragment>/scripts/og/og.app.js</fragment>
     <fragment>/scripts/og/api/og.api.common.js</fragment>
-    <fragment>/scripts/og/views/og.views.common.layout.js</fragment>
+    <fragment>/scripts/og/views/common/og.views.common.layout.js</fragment>
     <fragment>/scripts/og/common/og.common.routes.js</fragment>
     <fragment>/scripts/og/common/og.common.lang.js</fragment>
     <fragment>/scripts/og/api/og.api.text.js</fragment>
@@ -185,6 +184,7 @@
   <bundle id="util.js">
     <fragment>/scripts/og/common/util/og.common.util.hashqueue.js</fragment>
     <fragment>/scripts/og/common/util/og.common.util.history.js</fragment>
+    <fragment>/scripts/og/common/util/og.common.util.date.js</fragment>
   </bundle>
   <bundle id="util_ui.js">
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.form.js</fragment>
@@ -210,12 +210,13 @@
     <fragment>/scripts/og/common/search_results/og.common.search_results.core.js</fragment>
   </bundle>
   <bundle id="common_module.js">
-    <fragment>/scripts/og/common/module/og.common.module.trades_table.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.trades.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.positions.js</fragment>
   </bundle>
   <bundle id="views_common.js">
-    <fragment>/scripts/og/views/og.views.common.state.js</fragment>
-    <fragment>/scripts/og/views/og.views.common.versions.js</fragment>
-    <fragment>/scripts/og/views/og.views.common.default_details.js</fragment>
+    <fragment>/scripts/og/views/common/og.views.common.state.js</fragment>
+    <fragment>/scripts/og/views/common/og.views.common.versions.js</fragment>
+    <fragment>/scripts/og/views/common/og.views.common.default_details.js</fragment>
   </bundle>
   <bundle id="views_default.js">
     <fragment>/scripts/og/views/forms/og.views.forms.constraints.js</fragment>

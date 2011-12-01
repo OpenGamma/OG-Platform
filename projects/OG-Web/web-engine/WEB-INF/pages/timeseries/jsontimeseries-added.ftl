@@ -2,7 +2,7 @@
 {
 	"header" : {
 	    "type":"Added Time Series",
-	    "scheme":"${requestScheme.name}"
+	    "scheme":"${requestScheme}"
 	},
 	"data" : [
 	<#list addedSeries?keys as key>

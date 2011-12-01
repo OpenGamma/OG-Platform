@@ -160,7 +160,6 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
         Map<String, Object> valuesToSend = createTargetResult(depGraphGrid.getParentGridCell().getRowId());
         Map<String, Object> columnMessage = new HashMap<String, Object>();
         columnMessage.put("dg", depGraphMessage);
-        s_logger.warn("Dep graph message: " + depGraphMessage);
         valuesToSend.put(Integer.toString(depGraphGrid.getParentGridCell().getColumnId()), columnMessage);
         getRemoteClient().deliver(getLocalClient(), getUpdateChannel(), valuesToSend, null);
       } 
@@ -260,7 +259,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
       String gridName = getName() + ".depgraph-" + cell.getRowId() + "-" + cell.getColumnId();
       OperationTimer timer = new OperationTimer(s_logger, "depgraph");
       Pair<String, ValueSpecification> columnMappingPair = getGridStructure().findCellSpecification(cell, getViewClient().getLatestCompiledViewDefinition());
-      s_logger.warn("includeDepGraph took {}", timer.finished());
+      s_logger.debug("includeDepGraph took {}", timer.finished());
       WebViewDepGraphGrid grid = new WebViewDepGraphGrid(gridName, getViewClient(), getConverterCache(),
           getLocalClient(), getRemoteClient(), cell, columnMappingPair.getFirst(), columnMappingPair.getSecond());
       _depGraphGrids.putIfAbsent(cell, grid);

@@ -125,13 +125,19 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
         if (n != blackVols.length) {
           throw new OpenGammaRuntimeException("Strike and Black volatility arrays were not the same length; should never happen");
         }
-        final ExternalId[] externalIds = smileIds.get(swapMaturityEntry.getKey()).get(swaptionExpiryEntry.getKey());
-        if (n != externalIds.length) {
-          throw new OpenGammaRuntimeException("Strike and id arrays were not the same length; should never happen");
+        ExternalId[] externalIds = new ExternalId[0];
+        if (smileIds != null) {
+          externalIds = smileIds.get(swapMaturityEntry.getKey()).get(swaptionExpiryEntry.getKey());        
+          if (n != externalIds.length) {
+            throw new OpenGammaRuntimeException("Strike and id arrays were not the same length; should never happen");
+          }
         }
-        final Double[] relativeStrikes = smileRelativeStrikes.get(swapMaturityEntry.getKey()).get(swaptionExpiryEntry.getKey());
-        if (n != relativeStrikes.length) {
-          throw new OpenGammaRuntimeException("Strike and relative strike arrays were not the same length; should never happen");
+        Double[] relativeStrikes = new Double[0];
+        if (smileRelativeStrikes != null) {
+          relativeStrikes = smileRelativeStrikes.get(swapMaturityEntry.getKey()).get(swaptionExpiryEntry.getKey());
+          if (n != relativeStrikes.length) {
+            throw new OpenGammaRuntimeException("Strike and relative strike arrays were not the same length; should never happen");
+          }
         }
         final double[] errors = new double[n];
         final Pair<Tenor, Tenor> tenorPair = Pair.of(swapMaturityEntry.getKey(), swaptionExpiryEntry.getKey()); 

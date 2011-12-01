@@ -3,7 +3,7 @@
   "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.masterdb.security.hibernate.option">
-  <union-subclass name="EquityOptionSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_equityoption">
+  <union-subclass name="EquityIndexOptionSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_equityindexoption">
     <property name="optionExerciseType" column="option_exercise_type" type="com.opengamma.masterdb.security.hibernate.option.OptionExerciseTypeUserType" not-null="true" />
     <property name="optionType" column="option_type" type="com.opengamma.masterdb.security.hibernate.option.OptionTypeUserType" not-null="true" />
     <property name="strike" type="double" not-null="true" />

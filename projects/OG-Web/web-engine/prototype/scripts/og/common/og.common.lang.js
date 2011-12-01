@@ -10,6 +10,7 @@ $.register_module({
             var map = {
                 '': '(empty value)',
                 'AUTO': 'Auto',
+                'ACTIVFEED_TICKER': 'Activfeed Ticker',
                 'BLOOMBERG_TICKER': 'Bloomberg Ticker',
                 'bloombergTicker': 'Bloomberg Ticker',
                 'BLOOMBERG_BUID': 'Bloomberg BUID',
@@ -23,19 +24,32 @@ $.register_module({
                 'dealAttributes': 'Deal Attributes',
                 'userAttributes': 'User Attributes',
                 'expirationDate': 'Expiration Date',
+                'EQUITY_INDEX_OPTION': 'Equity Index Option',
+                'EQUITY_OPTION': 'Equity Option',
+                'EQUITY_BARRIER_OPTION': 'Equity Barrier Option',
                 'EUROPEAN': 'European',
                 'FLOAT': 'Float',
+                'FX_GENERATOR': 'FX Generator',
+                'FX_BARRIER_OPTION': 'FX Barrier Option',
+                'FX_FORWARD': 'FX Forward',
+                'FX_OPTION': 'FX Option',
                 'FIXED': 'Fixed',
                 'FRADeal': 'FRA Deal',
                 'GLOBAL': 'Global',
+                'IRFUTURE_OPTION': 'IR Future Option',
+                'IR_FUTURE_OPTION_LOADER': 'IR Future Option Loader',
                 'JavaClass': 'Java Class',
+                'KNOCK_IN': 'Knock In',
+                'MIXED_PORFOLIO_LOADER': 'Mixed Portfolio Loader',
+                'NONDELIVERABLE_FX_OPTION': 'Non-Deliverable FX Option',
                 'OptionDeal': 'Option Deal',
                 'putCall': 'Put Call',
                 'PUT': 'Put',
                 'PLAIN_VANILLA': 'Plain Vanilla',
                 'settlementDate': 'Settlement Date',
                 'SELL': 'Sell',
-                'SWAPTION': 'Swaption'
+                'SWAPTION': 'Swaption',
+                'SWAP_GENERATOR': 'Swap Generator'
             }, og_class = 'com.opengamma';
             if (map[str]) return map[str];
             if (0 === str.indexOf(og_class)) return str;

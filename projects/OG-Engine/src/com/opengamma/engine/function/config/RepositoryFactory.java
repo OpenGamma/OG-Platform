@@ -7,7 +7,9 @@ package com.opengamma.engine.function.config;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +24,6 @@ import com.opengamma.engine.function.InMemoryFunctionRepository;
  */
 public class RepositoryFactory {
   private static final Logger s_logger = LoggerFactory.getLogger(RepositoryFactory.class);
-  private static final Class<?> STRING_ARRAY_CLASS = (new String[0]).getClass();
 
   public static InMemoryFunctionRepository constructRepository(RepositoryConfiguration configuration) {
     InMemoryFunctionRepository repository = new InMemoryFunctionRepository();
@@ -69,34 +70,44 @@ public class RepositoryFactory {
 
   protected static AbstractFunction instantiateDefinition(Class<?> definitionClass, List<String> parameterList) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException,
       InstantiationException {
-    try {
-      Class<?>[] parameterTypes = new Class<?>[parameterList.size()];
-      Object[] parameters = new Object[parameterList.size()];
-      for (int i = 0; i < parameterList.size(); i++) {
-        parameters[i] = parameterList.get(i);
-        parameterTypes[i] = String.class;
+    //CSOFF
+    constructors:
+    //CSON
+    for (Constructor<?> constructor : definitionClass.getConstructors()) {
+      final Class<?>[] parameters = constructor.getParameterTypes();
+      final Object[] args = new Object[parameters.length];
+      int used = 0;
+      for (int i = 0; i < parameters.length; i++) {
+        if (parameters[i] == String.class) {
+          if (i < parameterList.size()) {
+            args[i] = (String) parameterList.get(i);
+            used++;
+          } else {
+            continue constructors;
+          }
+        } else {
+          if (i == parameters.length - 1) {
+            used = parameterList.size();
+            if (parameters[i] == String[].class) {
+              args[i] = parameterList.subList(i, used).toArray(new String[used - i]);
+            } else if (parameters[i].isAssignableFrom(List.class)) {
+              args[i] = parameterList.subList(i, used);
+            } else if (parameters[i].isAssignableFrom(Set.class)) {
+              args[i] = new HashSet<String>(parameterList.subList(i, used));
+            } else {
+              continue constructors;
+            }
+          } else {
+            continue constructors;
+          }
+        }
       }
-      Constructor<?> constructor = definitionClass.getConstructor(parameterTypes);
-      return (AbstractFunction) constructor.newInstance(parameters);
-    } catch (NoSuchMethodException nsme) {
-      // This is fine. Next trap will check as well.
+      if (used != parameterList.size()) {
+        continue;
+      }
+      return (AbstractFunction) constructor.newInstance(args);
     }
-
-    try {
-      Class<?>[] parameterTypes = new Class<?>[1];
-      parameterTypes[0] = STRING_ARRAY_CLASS;
-      Object[] parameters = new Object[1];
-      String[] actualParameters = parameterList.toArray(new String[0]);
-      parameters[0] = actualParameters;
-      Constructor<?> constructor = definitionClass.getConstructor(parameterTypes);
-      return (AbstractFunction) constructor.newInstance(parameters);
-    } catch (NoSuchMethodException nsme) {
-      // This is fine. Next trap will check as well.
-    }
-
-    // TODO kirk 2010-05-24 -- Support Collection constructors as well.
-
-    throw new NoSuchMethodException("No constructor for individual strings or string arrays found in class " + definitionClass);
+    throw new NoSuchMethodException("No suitable constructor found in class " + definitionClass);
   }
 
   protected static void addStaticFunctionConfiguration(InMemoryFunctionRepository repository, StaticFunctionConfiguration functionConfig) {

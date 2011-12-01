@@ -214,8 +214,15 @@ public final class FutureSecurityBeanOperation extends
 
           @Override
           public FutureSecurity visitEquityIndexDividendFutureType() {
-            // TODO Auto-generated method stub
-            return null;
+            final EquityIndexDividendFutureSecurity security = new EquityIndexDividendFutureSecurity(
+                expiryBeanToExpiry(bean.getExpiry()),
+                bean.getTradingExchange().getName(),
+                bean.getSettlementExchange().getName(),
+                currencyBeanToCurrency(bean.getCurrency1()),
+                bean.getUnitAmount(),
+                expiryBeanToExpiry(bean.getExpiry()).getExpiry(), // TODO: this is a temporary hack as settlementDate isn't being stored in database
+                externalIdBeanToExternalId(bean.getUnderlying()));
+            return security;
           }
 
         });

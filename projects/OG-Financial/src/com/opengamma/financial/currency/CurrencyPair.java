@@ -11,7 +11,7 @@ import com.opengamma.util.money.Currency;
 /**
  * An ordered pair of currencies for quoting rates in FX deals.
  */
-public class CurrencyPair {
+public final class CurrencyPair {
 
   /** The first currency in the pair */
   private final Currency _base;

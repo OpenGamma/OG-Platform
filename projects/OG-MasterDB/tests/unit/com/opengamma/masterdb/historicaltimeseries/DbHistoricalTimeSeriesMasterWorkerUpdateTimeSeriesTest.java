@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
@@ -65,7 +66,7 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTimeSeriesTest extends Abst
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_atExistingPoint() {
-    LocalDate[] dates = {LocalDate.of(2011, 1, 2)};
+    LocalDate[] dates = {LocalDate.of(2011, 1, 3)};
     double[] values = {0.9d};
     LocalDateDoubleTimeSeries series = new ArrayLocalDateDoubleTimeSeries(dates, values);
     
@@ -82,7 +83,7 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTimeSeriesTest extends Abst
     ObjectId oid = ObjectId.of("DbHts", "DP102");
     UniqueId uniqueId = _htsMaster.updateTimeSeriesDataPoints(oid, series);
     
-    ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(uniqueId, null, null);
+    ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(uniqueId);
     assertEquals(uniqueId, test.getUniqueId());
     assertEquals(series, test.getTimeSeries());
   }
@@ -96,11 +97,11 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTimeSeriesTest extends Abst
     ObjectId oid = ObjectId.of("DbHts", "DP101");
     UniqueId uniqueId = _htsMaster.updateTimeSeriesDataPoints(oid, series);
     
-    ManageableHistoricalTimeSeries testAdded = _htsMaster.getTimeSeries(uniqueId, LocalDate.of(2011, 7, 1), null);
+    ManageableHistoricalTimeSeries testAdded = _htsMaster.getTimeSeries(uniqueId, HistoricalTimeSeriesGetFilter.ofRange(LocalDate.of(2011, 7, 1), null));
     assertEquals(uniqueId, testAdded.getUniqueId());
     assertEquals(series, testAdded.getTimeSeries());
     
-    ManageableHistoricalTimeSeries testAll = _htsMaster.getTimeSeries(uniqueId, null, null);
+    ManageableHistoricalTimeSeries testAll = _htsMaster.getTimeSeries(uniqueId);
     assertEquals(uniqueId, testAll.getUniqueId());
     assertEquals(6, testAll.getTimeSeries().size());
   }

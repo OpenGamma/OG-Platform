@@ -65,7 +65,7 @@
 
 -- ==========================================================================
 @NAME(Search)
-  WITH cte_docs AS ( @INSERT(SearchInner) )
+  WITH cte_docs AS ( @INCLUDE(SearchInner) )
   SELECT
     main.id AS doc_id,
     main.oid AS doc_oid,
@@ -102,7 +102,7 @@
     id
   FROM
     hts_document
-  @INSERT(SearchWhere)
+  @INCLUDE(SearchWhere)
   ORDER BY
     id
   @OFFSETFETCH
@@ -114,7 +114,7 @@
     COUNT(id)
   FROM
     hts_document
-  @INSERT(SearchWhere)
+  @INCLUDE(SearchWhere)
 
 
 -- ==========================================================================
@@ -147,17 +147,17 @@
         WHERE UPPER(name) @LIKE UPPER(:observation_time)
       )
     @AND(:sql_search_object_ids)
-      oid IN ( @INSERT(:sql_search_object_ids) )
+      oid IN ( @INCLUDE(:sql_search_object_ids) )
     @AND(:external_id_value)
-      id IN ( @INSERT(SelectKeyValue) )
+      id IN ( @INCLUDE(SelectKeyValue) )
     @AND(:sql_search_external_ids_type = EXACT)
-      id IN ( @INSERT(SelectKeyValuesExact) )
+      id IN ( @INCLUDE(SelectKeyValuesExact) )
     @AND(:sql_search_external_ids_type = ALL)
-      id IN ( @INSERT(SelectKeyValuesAll) )
+      id IN ( @INCLUDE(SelectKeyValuesAll) )
     @AND(:sql_search_external_ids_type = ANY)
-      id IN ( @INSERT(SelectKeyValuesAny) )
+      id IN ( @INCLUDE(SelectKeyValuesAny) )
     @AND(:sql_search_external_ids_type = NONE)
-      id NOT IN ( @INSERT(SelectKeyValuesAny) )
+      id NOT IN ( @INCLUDE(SelectKeyValuesAny) )
 
 
 -- ==========================================================================
@@ -192,7 +192,7 @@
         AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant
         @AND(:id_validity_date)
           hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date
-        AND idkey_id IN ( @INSERT(SelectKeyValuesOr) )
+        AND idkey_id IN ( @INCLUDE(SelectKeyValuesOr) )
       GROUP BY
         doc_id
       HAVING
@@ -228,7 +228,7 @@
     AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant
     @AND(:id_validity_date)
       hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date
-    AND idkey_id IN ( @INSERT(SelectKeyValuesOr) )
+    AND idkey_id IN ( @INCLUDE(SelectKeyValuesOr) )
     GROUP BY
       doc_id
     HAVING
@@ -247,7 +247,7 @@
     AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant
     @AND(:id_validity_date)
       hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date
-    AND idkey_id IN ( @INSERT(SelectKeyValuesOr) )
+    AND idkey_id IN ( @INCLUDE(SelectKeyValuesOr) )
 
 
 -- ==========================================================================
@@ -257,12 +257,12 @@
   FROM
     hts_idkey
   WHERE
-    @INSERT(:sql_search_external_ids)
+    @INCLUDE(:sql_search_external_ids)
 
 
 -- ==========================================================================
 @NAME(History)
-  WITH cte_docs AS ( @INSERT(HistoryInner) )
+  WITH cte_docs AS ( @INCLUDE(HistoryInner) )
   SELECT
     main.id AS doc_id,
     main.oid AS doc_oid,
@@ -300,7 +300,7 @@
     id
   FROM
     hts_document
-  @INSERT(HistoryWhere)
+  @INCLUDE(HistoryWhere)
   ORDER BY
     ver_from_instant DESC,
     corr_from_instant DESC
@@ -313,7 +313,7 @@
     COUNT(id)
   FROM
     hts_document 
-  @INSERT(HistoryWhere)
+  @INCLUDE(HistoryWhere)
 
 
 -- ==========================================================================
@@ -350,7 +350,7 @@
   INSERT INTO hts_doc2idkey
     (doc_id, idkey_id, valid_from, valid_to)
   VALUES
-    (:doc_id, ( @INSERT(SelectIdKey) ), :valid_from, :valid_to)
+    (:doc_id, ( @INCLUDE(SelectIdKey) ), :valid_from, :valid_to)
 
 
 -- ==========================================================================
@@ -401,7 +401,7 @@
     common.*
   FROM
     hts_document main
-    LEFT JOIN ( @INSERT(SelectDataPointsCommonInner) ) common ON main.oid = common.doc_oid
+    LEFT JOIN ( @INCLUDE(SelectDataPointsCommonInner) ) common ON main.oid = common.doc_oid
   WHERE main.oid = :doc_oid
     AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant
     AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant
@@ -427,19 +427,34 @@
 -- ==========================================================================
 @NAME(SelectDataPoints)
   SELECT
-    point_date,
-    point_value
+    *
   FROM
-    hts_point
-  WHERE doc_oid = :doc_oid
-    AND ver_instant <= :version_as_of_instant
-    AND corr_instant <= :corrected_to_instant
-    AND point_date >= :start_date
-    AND point_date <= :end_date
-  ORDER BY
-    point_date,
-    corr_instant DESC
-
+    (
+      SELECT
+        point_date,
+        point_value
+      FROM
+        hts_point p
+      WHERE doc_oid = :doc_oid
+        AND ver_instant <= :version_as_of_instant
+        AND corr_instant <= :corrected_to_instant
+        AND point_date >= :start_date
+        AND point_date <= :end_date
+        AND corr_instant =
+          (
+            SELECT
+              max(corr_instant)
+            FROM 
+              hts_point 
+            WHERE doc_oid = :doc_oid
+              AND ver_instant <= :version_as_of_instant
+              AND corr_instant <= :corrected_to_instant
+              AND point_date = p.point_date
+          )
+      ORDER BY point_date @INCLUDE(:order) 
+      @OFFSETFETCH
+    ) AS points
+  ORDER BY point_date ASC
 
 -- ==========================================================================
 @NAME(SelectEarliestDataPoint)
@@ -507,13 +522,17 @@
 
 
 -- ==========================================================================
+-- should not have to ORDER/FETCH1 within inner SELECT, but bad DB data causes
+-- problems if we do not double check here
 @NAME(InsertCorrectDataPoint)
   INSERT INTO hts_point
     (doc_oid, point_date, ver_instant, corr_instant, point_value)
   VALUES
     (:doc_oid, :point_date,
       COALESCE(
-        (SELECT ver_instant FROM hts_point WHERE doc_oid = :doc_oid AND point_date = :point_date AND ver_instant = corr_instant),
+        (SELECT ver_instant FROM hts_point
+         WHERE doc_oid = :doc_oid AND point_date = :point_date AND ver_instant = corr_instant
+         ORDER BY ver_instant @FETCH(1) ),
         :corr_instant
       ),
     :corr_instant, :point_value)
@@ -539,7 +558,7 @@
     instants.*
   FROM
     hts_document main
-    LEFT JOIN ( @INSERT(SelectUniqueIdByVersionCorrectionInner) ) instants ON main.oid = instants.doc_oid
+    LEFT JOIN ( @INCLUDE(SelectUniqueIdByVersionCorrectionInner) ) instants ON main.oid = instants.doc_oid
   WHERE main.oid = :doc_oid
     AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant
     AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant

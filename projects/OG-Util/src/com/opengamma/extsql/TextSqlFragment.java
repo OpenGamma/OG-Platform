@@ -12,7 +12,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
  * <p>
  * This would typically be straightforward SQL.
  */
-public final class TextSqlFragment extends SqlFragment {
+final class TextSqlFragment extends SqlFragment {
 
   /**
    * The text of the fragment.
@@ -24,7 +24,7 @@ public final class TextSqlFragment extends SqlFragment {
    * 
    * @param text  the text of the fragment, not null
    */
-  public TextSqlFragment(String text) {
+  TextSqlFragment(String text) {
     if (text == null) {
       throw new IllegalArgumentException("Text must be specified");
     }

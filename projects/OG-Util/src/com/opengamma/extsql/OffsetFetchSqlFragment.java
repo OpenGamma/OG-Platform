@@ -5,6 +5,7 @@
  */
 package com.opengamma.extsql;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 /**
@@ -12,12 +13,36 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
  * <p>
  * This outputs an OFFSET-FETCH type clauses.
  */
-public final class OffsetFetchSqlFragment extends ContainerSqlFragment {
+final class OffsetFetchSqlFragment extends ContainerSqlFragment {
+
+  /**
+   * The offset variable.
+   */
+  private final String _offsetVariable;
+  /**
+   * The fetch variable or numeric amount.
+   */
+  private final String _fetchVariable;
 
   /**
    * Creates an instance.
+   * 
+   * @param fetchVariable  the fetch variable, not null
    */
-  public OffsetFetchSqlFragment() {
+  OffsetFetchSqlFragment(String fetchVariable) {
+    _offsetVariable = null;
+    _fetchVariable = fetchVariable;
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param offsetVariable  the offset variable, not null
+   * @param fetchVariable  the fetch variable, not null
+   */
+  OffsetFetchSqlFragment(String offsetVariable, String fetchVariable) {
+    _offsetVariable = offsetVariable;
+    _fetchVariable = fetchVariable;
   }
 
   //-------------------------------------------------------------------------
@@ -25,11 +50,13 @@ public final class OffsetFetchSqlFragment extends ContainerSqlFragment {
   protected void toSQL(StringBuilder buf, ExtSqlBundle bundle, SqlParameterSource paramSource) {
     int offset = 0;
     int fetchLimit = 0;
-    if (paramSource.hasValue("paging_offset")) {
-      offset = ((Number) paramSource.getValue("paging_offset")).intValue();
+    if (_offsetVariable != null && paramSource.hasValue(_offsetVariable)) {
+      offset = ((Number) paramSource.getValue(_offsetVariable)).intValue();
     }
-    if (paramSource.hasValue("paging_fetch")) {
-      fetchLimit = ((Number) paramSource.getValue("paging_fetch")).intValue();
+    if (paramSource.hasValue(_fetchVariable)) {
+      fetchLimit = ((Number) paramSource.getValue(_fetchVariable)).intValue();
+    } else if (StringUtils.containsOnly(_fetchVariable, "0123456789")) {
+      fetchLimit = Integer.parseInt(_fetchVariable);
     }
     buf.append(bundle.getConfig().getPaging(offset, fetchLimit));
   }

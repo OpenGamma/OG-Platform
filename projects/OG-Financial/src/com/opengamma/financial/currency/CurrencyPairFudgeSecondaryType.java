@@ -14,6 +14,8 @@ import org.fudgemsg.wire.types.FudgeWireType;
  */
 public class CurrencyPairFudgeSecondaryType extends SecondaryFieldType<CurrencyPair, String> {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
   /**
    * Singleton instance of the type.
    */

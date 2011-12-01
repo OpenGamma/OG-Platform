@@ -23,6 +23,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
@@ -99,11 +100,11 @@ public class MasterHistoricalTimeSeriesSourceTest {
     ManageableHistoricalTimeSeries hts = new ManageableHistoricalTimeSeries();
     hts.setUniqueId(UID);
     hts.setTimeSeries(randomTimeSeries());
-    when(_mockMaster.getTimeSeries(UID.getObjectId(), VersionCorrection.LATEST, null, null)).thenReturn(hts);
+    when(_mockMaster.getTimeSeries(UID.getObjectId(), VersionCorrection.LATEST, HistoricalTimeSeriesGetFilter.ofRange(null, null))).thenReturn(hts);
     
     HistoricalTimeSeries test = _tsSource.getHistoricalTimeSeries(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
     verify(_mockMaster, times(1)).search(request);
-    verify(_mockMaster, times(1)).getTimeSeries(UID.getObjectId(), VersionCorrection.LATEST, null, null);
+    verify(_mockMaster, times(1)).getTimeSeries(UID.getObjectId(), VersionCorrection.LATEST, HistoricalTimeSeriesGetFilter.ofRange(null, null));
     
     assertEquals(UID, test.getUniqueId());
   }
@@ -112,11 +113,11 @@ public class MasterHistoricalTimeSeriesSourceTest {
     ManageableHistoricalTimeSeries hts = new ManageableHistoricalTimeSeries();
     hts.setUniqueId(UID);
     hts.setTimeSeries(randomTimeSeries());
-    when(_mockMaster.getTimeSeries(UID, null, null)).thenReturn(hts);
+    when(_mockMaster.getTimeSeries(UID, HistoricalTimeSeriesGetFilter.ofRange(null, null))).thenReturn(hts);
     when(_mockResolver.resolve(HistoricalTimeSeriesFields.LAST_PRICE, IDENTIFIERS, LocalDate.now(), TEST_CONFIG)).thenReturn(UID);
     
     HistoricalTimeSeries test = _tsSource.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, IDENTIFIERS, TEST_CONFIG);
-    verify(_mockMaster, times(1)).getTimeSeries(UID, null, null);
+    verify(_mockMaster, times(1)).getTimeSeries(UID, HistoricalTimeSeriesGetFilter.ofRange(null, null));
     
     assertEquals(UID, test.getUniqueId());
     assertEquals(hts.getTimeSeries().times(), test.getTimeSeries().times());
@@ -154,7 +155,7 @@ public class MasterHistoricalTimeSeriesSourceTest {
         ManageableHistoricalTimeSeries hts = new ManageableHistoricalTimeSeries();
         hts.setUniqueId(UID);
         hts.setTimeSeries(timeSeries.subSeries(start, includeStart, end, includeEnd).toLocalDateDoubleTimeSeries());
-        when(_mockMaster.getTimeSeries(UID.getObjectId(), VersionCorrection.LATEST, startInput, endInput)).thenReturn(hts);
+        when(_mockMaster.getTimeSeries(UID.getObjectId(), VersionCorrection.LATEST, HistoricalTimeSeriesGetFilter.ofRange(startInput, endInput))).thenReturn(hts);
         when(_mockMaster.search(request)).thenReturn(searchResult);
         
         HistoricalTimeSeries test = _tsSource.getHistoricalTimeSeries(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, start, includeStart, end, includeEnd);
@@ -168,10 +169,10 @@ public class MasterHistoricalTimeSeriesSourceTest {
     ManageableHistoricalTimeSeries hts = new ManageableHistoricalTimeSeries();
     hts.setUniqueId(UID);
     hts.setTimeSeries(randomTimeSeries());
-    when(_mockMaster.getTimeSeries(UID, null, null)).thenReturn(hts);
+    when(_mockMaster.getTimeSeries(UID, HistoricalTimeSeriesGetFilter.ofRange(null, null))).thenReturn(hts);
     
     HistoricalTimeSeries test = _tsSource.getHistoricalTimeSeries(UID);
-    verify(_mockMaster, times(1)).getTimeSeries(UID, null, null);
+    verify(_mockMaster, times(1)).getTimeSeries(UID, HistoricalTimeSeriesGetFilter.ofRange(null, null));
     
     assertEquals(UID, test.getUniqueId());
     assertEquals(hts.getTimeSeries().times(), test.getTimeSeries().times());

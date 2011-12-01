@@ -4,34 +4,45 @@
     <h1>${name}</h1>
     <div class="OG-js-header-links"></div>
   </header>
-  <section>
-    <div class="OG-details-content OG-security OG-js-details-panel">
-    <section>
-      <div class="OG-mod-1 OG-c6">
-        <table>
+  <section style="width: 800px">
+    <div class="OG-details-content OG-js-details-panel">
+      <section>
+          <table class="OG-table">
+            <col style="width: 40%" />
+            <col style="width: 60%" />
+              <thead>
+              <tr>
+                <th><span>Identifiers</span></th><th>&nbsp;</th>
+              </tr>
+            </thead>
+            <tbody class="og-js-identifiers"></tbody>
+          </table>
+      </section>
+      <section>
+        <table class="OG-table">
           <col style="width: 40%" />
           <col style="width: 60%" />
           <thead>
             <tr>
-              <td colspan="2">${securityType}</td>
+              <th><span>${securityType}</span></th><th>&nbsp;</th>
             </tr>
           </thead>
-          <tbody class="og-mod-content">
+          <tbody>
             <tr><td><span>Issuer name</span></td><td>${issuerName}</td></tr>
             <tr><td><span>Issuer Type</span></td><td>${issuerType}</td></tr>
             <tr><td><span>Issuer Domicile</span></td><td>${issuerDomicile}</td></tr>
-            <tr class="og-break"><td></td><td></td></tr>
+            <tr class="og-divider"><td></td><td></td></tr>
             <tr><td><span>Market</span></td><td>${market}</td></tr>
             <tr><td><span>Currency</span></td><td>${currency}</td></tr>
             <tr><td><span>Yield convention</span></td><td>${yieldConvention}</td></tr>
-            <tr class="og-break"><td></td><td></td></tr>
+            <tr class="og-divider"><td></td><td></td></tr>
             <tr><td><span>Last Trade Date</span></td><td>${lastTradeDate}</td></tr>
             <tr><td><span>Last Trade Accuracy</span></td><td>${lastTradeAccuracy}</td></tr>
-            <tr class="og-break"><td></td><td></td></tr>
+            <tr class="og-divider"><td></td><td></td></tr>
             <tr><td><span>Coupon Type</span></td><td>${couponType}</td></tr>
             <tr><td><span>Coupon Rate</span></td><td>${couponRate}</td></tr>
             <tr><td><span>Coupon Frequency</span></td><td>${couponFrequency}</td></tr>
-            <tr class="og-break"><td></td><td></td></tr>
+            <tr class="og-divider"><td></td><td></td></tr>
             <tr><td><span>Day Count</span></td><td>${dayCount}</td></tr>
             <tr><td><span>Guarantee Type</span></td><td>${guaranteeType}</td></tr>
             <tr><td><span>Business Day Convention</span></td><td>${businessDayConvention}</td></tr>
@@ -50,21 +61,7 @@
             <tr><td><span>Redemption Value</span></td><td>${redemptionValue}</td></tr>
           </tbody>
         </table>
-      </div>
-      <div class="OG-mod-1 og-style-2 OG-c4">
-        <table>
-          <col style="width: 40%" />
-          <col style="width: 60%" />
-            <thead>
-            <tr>
-              <td>Identifiers</td><td></td>
-            </tr>
-          </thead>
-          <tbody class="og-js-identifiers og-mod-content"></tbody>
-        </table>
-      </div>
-    </section>
-
-  </div>
+      </section>
+    </div>
   </section>
 </article>

@@ -130,8 +130,9 @@ public final class Profiler {
       insertNoClash(report, arg, profiler._name.lastIndexOf('.'));
     }
     for (Map.Entry<String, Object[]> entry : report.entrySet()) {
-      entry.getValue()[0] = entry.getKey();
-      s_logger.info("{} - {} in {}ms", entry.getValue());
+      final Object[] values = entry.getValue();
+      values[0] = entry.getKey();
+      s_logger.info("{} - {} in {}ms", values);
     }
     s_logger.debug("{} active profiler instances", s_profilers.size());
   }

@@ -11,10 +11,15 @@
           },
         "rate":"${security.rate}",
         "region":"${security.regionId?replace("_", " ")}",
+        "underlyingId":"${security.underlyingId?replace("_", " ")}",
         "startDate": {
               "date": "${security.startDate.toLocalDate()}",
               "zone": "${security.startDate.zone}"
          },
+         <#if underlyingSecurity??>
+          "underlyingName":"${underlyingSecurity.name}",
+          "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
+        </#if>
       <#break>
       <#case "CASH">
         "amount":"${security.amount}",
@@ -208,6 +213,10 @@
         "forwardDate":"${security.forwardDate.toLocalDate()} - ${security.forwardDate.zone}",
         "region":"${security.regionId.scheme}-${security.regionId.value}",
         "underlyingId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
+        <#if underlyingSecurity??>
+              "underlyingName":"${underlyingSecurity.name}",
+              "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
+        </#if>
       <#break>
       <#case "FX">
         "payAmount":"${security.payAmount}",
@@ -258,6 +267,10 @@
         "pointValue":"${security.pointValue}",
         "strike":"${security.strike}",
         "underlyingId":"${security.underlyingId.scheme} - ${security.underlyingId.value}",
+        <#if underlyingSecurity??>
+          "underlyingName":"${underlyingSecurity.name}",
+          "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
+        </#if>
       <#break>
       <#case "SWAPTION">
         "currency":"${security.currency}",
@@ -266,9 +279,11 @@
         "isLong":"${security.long?string?upper_case}",
         "isPayer":"${security.payer?string?upper_case}",
         "underlyingId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
-                "underlyingExternalId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
-        "underlyingName":"${underlyingSecurity.name}",
-        "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
+        "underlyingExternalId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
+        <#if underlyingSecurity??>
+          "underlyingName":"${underlyingSecurity.name}",
+          "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
+        </#if>
       <#break>
       <#case "IRFUTURE_OPTION">
         "currency":"${security.currency}",
@@ -280,9 +295,27 @@
         "pointValue":"${security.pointValue}",
         "strike":"${security.strike}",
         "underlyingId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
-                "underlyingExternalId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
-        "underlyingName":"${underlyingSecurity.name}",
-        "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
+        "underlyingExternalId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
+        <#if underlyingSecurity??>
+          "underlyingName":"${underlyingSecurity.name}",
+          "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
+        </#if>
+      <#break>
+       <#case "EQUITY_INDEX_FUTURE_OPTION">
+        "currency":"${security.currency}",
+        "exchange":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
+        "exerciseType":"${customRenderer.printExerciseType(security.exerciseType)}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
+        "isMargined":"${security.margined?string?upper_case}",
+        "optionType":"${security.optionType}",
+        "pointValue":"${security.pointValue}",
+        "strike":"${security.strike}",
+        "underlyingId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
+        "underlyingExternalId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
+        <#if underlyingSecurity??>
+          "underlyingName":"${underlyingSecurity.name}",
+          "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
+        </#if>
       <#break>
       <#case "CAP-FLOOR">
         "startDate":"${security.startDate.toLocalDate()} - ${security.startDate.zone}",
