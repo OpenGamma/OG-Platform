@@ -5,12 +5,11 @@
  */
 package com.opengamma.financial.currency;
 
+import java.util.Set;
+
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
-
-import java.util.Set;
 
 /**
  * Contains a set of market convention {@link CurrencyPair}s and allows the pair to be looked up for two

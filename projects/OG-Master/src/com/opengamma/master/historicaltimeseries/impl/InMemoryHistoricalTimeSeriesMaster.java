@@ -288,26 +288,15 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
     }
     
     // Filter points by date range and max points to return
-    final LocalDateDoubleTimeSeries subSeries;
-    if (filter.getMaxPoints() == null) {
-      subSeries = existingSeries.subSeries(fromDateInclusive, toDateInclusive).toLocalDateDoubleTimeSeries();
-    } else {
-      int maxPoints = filter.getMaxPoints();
-      if (maxPoints > 0) {
-        // get first few points
-        subSeries = existingSeries.subSeries(fromDateInclusive, toDateInclusive).head(maxPoints).toLocalDateDoubleTimeSeries();
-      } else if (maxPoints < 0) {
-        // get last few points
-        subSeries = existingSeries.subSeries(fromDateInclusive, toDateInclusive).head(-maxPoints).toLocalDateDoubleTimeSeries();
-      } else {
-        // don't get any points
-        subSeries = new ArrayLocalDateDoubleTimeSeries();
-      }
+    LocalDateDoubleTimeSeries subSeries = existingSeries.subSeries(fromDateInclusive, toDateInclusive);
+    Integer maxPoints = filter.getMaxPoints();
+    if (((maxPoints != null) && (Math.abs(maxPoints) < subSeries.size()))) {
+      subSeries = maxPoints >= 0 ? subSeries.head(maxPoints) : subSeries.tail(-maxPoints);
     }
     
     final ManageableHistoricalTimeSeries result = new ManageableHistoricalTimeSeries();
     result.setUniqueId(objectId.atLatestVersion());
-    result.setTimeSeries(subSeries);
+    result.setTimeSeries(subSeries.toLocalDateDoubleTimeSeries());
     result.setVersionInstant(now);
     result.setCorrectionInstant(now);
     return result;    
