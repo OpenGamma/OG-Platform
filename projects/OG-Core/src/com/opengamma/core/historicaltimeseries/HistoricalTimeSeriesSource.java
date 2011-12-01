@@ -63,6 +63,26 @@ public interface HistoricalTimeSeriesSource {
       UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd);
 
   /**
+   * Finds a specific time-series by unique identifier.
+   * <p>
+   * This returns a subset of the data points filtered by the dates provided, up to the limit 
+   * specified by maxPoints:
+   * +ve maxPoints returns at most maxPoints data points counting forwards from the earliest date
+   * -ve maxPoints returns at most -maxPoints data points counting backwards from the latest date 
+   * 
+   * @param uniqueId  the unique identifier, not null
+   * @param start  the start date, null will load the earliest date 
+   * @param includeStart  whether or not the start date is included in the result
+   * @param end  the end date, null will load the latest date
+   * @param includeEnd  whether or not the end date is included in the result
+   * @param maxPoints the maximum number of points to be returned
+   * @return the time-series, null if not found
+   * @throws IllegalArgumentException if the unique identifier is invalid
+   */  
+  HistoricalTimeSeries getHistoricalTimeSeries(
+      UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints);
+
+  /**
    * Returns the latest data point from the specified time series.
    * 
    * @param uniqueId  the unique identifier, not null
@@ -70,6 +90,18 @@ public interface HistoricalTimeSeriesSource {
    */
   Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId);
 
+  /**
+   * Returns the latest data point from the specified date range in the time series.
+   * 
+   * @param uniqueId  the unique identifier, not null
+   * @param start  the start date, null will load the earliest date 
+   * @param includeStart  whether or not the start date is included in the result
+   * @param end  the end date, null will load the latest date
+   * @param includeEnd  whether or not the end date is included in the result
+   * @return  a pair containing the latest data point value and its date
+   */
+  Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd);
+  
   //-------------------------------------------------------------------------
   /**
    * Finds a time-series from identifierBundle, source, provider and field.
@@ -141,6 +173,88 @@ public interface HistoricalTimeSeriesSource {
    */
   HistoricalTimeSeries getHistoricalTimeSeries(
       ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, 
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd);
+
+  /**
+   * Finds a time-series from identifierBundle, source, provider and field checking
+   * the validity of the identifierBundle by date.
+   * <p>
+   * The validity date for identifiers is set to today's date.
+   * This returns a subset of the data points filtered by the dates provided and limited to the 
+   * specified maximum number of points:
+   * +ve maxPoints returns at most maxPoints data points counting forwards from the earliest date
+   * -ve maxPoints returns at most -maxPoints data points counting backwards from the latest date 
+   * 
+   * @param identifierBundle  the identifier bundle, not null
+   * @param identifierValidityDate  the date that the identifier must be valid on, null to use all identifierBundle
+   * @param dataSource  the data source, not null
+   * @param dataProvider  the data provider, not null
+   * @param dataField  the dataField, not null
+   * @param start  the start date, null will load the earliest date 
+   * @param includeStart  whether or not the start date is included in the result
+   * @param end  the end date, null will load the latest date
+   * @param includeEnd  whether or not the end date is included in the result
+   * @param maxPoints the maximum number of points to be returned
+   * @return the historical time-series, null if not found
+   */
+  HistoricalTimeSeries getHistoricalTimeSeries(
+      ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, 
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints);
+
+  /**
+   * Finds a time-series from identifierBundle, source, provider and field checking
+   * the validity of the identifierBundle by date.
+   * <p>
+   * This returns a subset of the data points filtered by the dates provided and limited to the 
+   * specified maximum number of points:
+   * +ve maxPoints returns at most maxPoints data points counting forwards from the earliest date
+   * -ve maxPoints returns at most -maxPoints data points counting backwards from the latest date 
+   * 
+   * @param identifierBundle  the identifier bundle, not null
+   * @param identifierValidityDate  the date that the identifier must be valid on, null to use all identifierBundle
+   * @param dataSource  the data source, not null
+   * @param dataProvider  the data provider, not null
+   * @param dataField  the dataField, not null
+   * @param start  the start date, null will load the earliest date 
+   * @param includeStart  whether or not the start date is included in the result
+   * @param end  the end date, null will load the latest date
+   * @param includeEnd  whether or not the end date is included in the result
+   * @param maxPoints the maximum number of points to be returned
+   * @return the historical time-series, null if not found
+   */
+  HistoricalTimeSeries getHistoricalTimeSeries(
+      ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, 
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints);
+
+  /**
+   * Returns the latest data point from the specified time series.
+   * 
+   * @param identifierBundle  the identifier bundle, not null
+   * @param identifierValidityDate  the date that the identifier must be valid on, null to use all identifierBundle
+   * @param dataSource  the data source, not null
+   * @param dataProvider  the data provider, not null
+   * @param dataField  the dataField, not null
+   * @return  a pair containing the latest data point value and its date
+   */
+  Pair<LocalDate, Double> getLatestDataPoint(
+      ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField);
+
+  /**
+   * Returns the latest data point from the specified date range in the time series.
+   * 
+   * @param identifierBundle  the identifier bundle, not null
+   * @param identifierValidityDate  the date that the identifier must be valid on, null to use all identifierBundle
+   * @param dataSource  the data source, not null
+   * @param dataProvider  the data provider, not null
+   * @param dataField  the dataField, not null
+   * @param start  the start date, null will load the earliest date 
+   * @param includeStart  whether or not the start date is included in the result
+   * @param end  the end date, null will load the latest date
+   * @param includeEnd  whether or not the end date is included in the result
+   * @return  a pair containing the latest data point value and its date
+   */
+  Pair<LocalDate, Double> getLatestDataPoint(
+      ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd);
 
   //-------------------------------------------------------------------------

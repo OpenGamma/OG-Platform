@@ -61,8 +61,8 @@ public class DbHistoricalTimeSeriesMasterWorkerGetTimeSeriesTest extends Abstrac
     UniqueId uniqueId = UniqueId.of("DbHts", "DP101");
     ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(uniqueId);
     assertEquals(uniqueId.getObjectId(), test.getUniqueId().getObjectId());
-    assertEquals(LocalDate.of(2011, 1, 1), _htsMaster.getTimeSeries(uniqueId, HistoricalTimeSeriesGetFilter.ofEarliestPoint()));
-    assertEquals(LocalDate.of(2011, 1, 3), _htsMaster.getTimeSeries(uniqueId, HistoricalTimeSeriesGetFilter.ofLatestPoint()));
+    assertEquals(LocalDate.of(2011, 1, 1), _htsMaster.getTimeSeries(uniqueId, HistoricalTimeSeriesGetFilter.ofEarliestPoint()).getTimeSeries().getEarliestTime());
+    assertEquals(LocalDate.of(2011, 1, 3), _htsMaster.getTimeSeries(uniqueId, HistoricalTimeSeriesGetFilter.ofLatestPoint()).getTimeSeries().getLatestTime());
     assertEquals(_version2Instant, test.getVersionInstant());
     assertEquals(_version4Instant, test.getCorrectionInstant());
     LocalDateDoubleTimeSeries timeSeries = test.getTimeSeries();
@@ -222,6 +222,22 @@ public class DbHistoricalTimeSeriesMasterWorkerGetTimeSeriesTest extends Abstrac
     assertEquals(3.21d, timeSeries.getValueAt(0), 0.0001d);
   }
 
+  @Test
+  public void test_get_nPointsFromEarliest() {
+    ObjectId oid = ObjectId.of("DbHts", "DP101");
+    HistoricalTimeSeriesGetFilter filter = new HistoricalTimeSeriesGetFilter();
+    filter.setMaxPoints(2);
+    ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(oid,
+        VersionCorrection.of(_version2Instant.plusSeconds(1), _version3Instant.plusSeconds(1)), filter);
+    assertEquals(oid, test.getUniqueId().getObjectId());
+    LocalDateDoubleTimeSeries timeSeries = test.getTimeSeries();
+    assertEquals(2, timeSeries.size());
+    assertEquals(LocalDate.of(2011, 1, 1), timeSeries.getTimeAt(0));
+    assertEquals(3.1d, timeSeries.getValueAt(0), 0.0001d);
+    assertEquals(LocalDate.of(2011, 1, 2), timeSeries.getTimeAt(1));
+    assertEquals(3.21d, timeSeries.getValueAt(1), 0.0001d);
+  }
+  
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {

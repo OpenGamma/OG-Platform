@@ -142,6 +142,22 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
   }
 
   @Override
+  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart,
+      LocalDate end, boolean includeEnd, int maxPoints) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId) {
     throw new UnsupportedOperationException();
   }
@@ -264,6 +280,23 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     } catch (RestRuntimeException e) {
       throw e.translate();
     }
+  }
+
+  @Override
+  public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
+      boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
+      boolean includeStart, LocalDate end, boolean includeEnd) {
+    throw new UnsupportedOperationException();
   }
 
   //-------------------------------------------------------------------------
