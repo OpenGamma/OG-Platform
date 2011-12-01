@@ -2,31 +2,32 @@
  * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
-(function($, undefined) {
+(function ($, undefined) {
     var table_resizers = [], t, scrollbar_width;
     $(window).resize(function () {
         if (t) clearTimeout(t);
         t = setTimeout(function () {
-            table_resizers.forEach(function (val) {val()});
+            table_resizers.forEach(function (val) {val();});
         }, 300);
     });
-    $.fn.awesometable = function(options) {
+    $.fn.awesometable = function (options) {
         if (!this.is('table')) throw new TypeError('$.awesometable: needs to be called on a table element');
-        var self = this, cons = arguments.callee, $dup,
+        var self = this, $dup,
             get_scrollbar_width = function () {
-                var html = '<div style="width: 100px; height: 100px; position: absolute; overflow: auto" />';
+                var html = '<div style="width: 100px; height: 100px; position: absolute; \
+                    visibility: hidden; overflow: auto; left: -10000px; z-index: -10000; bottom: 100px" />';
                 return scrollbar_width || (scrollbar_width = 100 - $(html)
                     .appendTo('body').append('<div />').find('div').css('height', '200px').width());
-        };
+            };
         if (!self.parent().parent().hasClass('js-awesometable')) { // initialize
             if (self.height() - self.find('thead').height() <= options.height) return;
             self.css('margin-top', '-1px'); // compensate for thead height being 1px
             self.wrap('<div />').parent()
                 .css({height: options.height + 'px', overflow: 'auto'})
                 .wrap('<div class="js-awesometable"></div>');
-            $dup = self.clone(), $dup.find('tbody').remove();
+            ($dup = self.clone()).find('tbody').remove();
             self.parentsUntil('.js-awesometable').parent().prepend($dup);
-            table_resizers.push(function () {cons.call(self, options)});
+            table_resizers.push(function () {$.fn.awesometable.call(self, options)});
         }
         // resize the new header to mimic original
         (function () {
@@ -37,7 +38,7 @@
                 };
             self.find('thead').css(reset_css).find('*').css(reset_css);
             self.find('th').each(function (index, elm) {
-                index === len - 1 ? last = get_scrollbar_width() : last = 0;
+                last = index === len - 1 ? get_scrollbar_width() : 0;
                 $($dup[index]).width($(elm).width() + last);
             });
         }());

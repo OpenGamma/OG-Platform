@@ -1,16 +1,18 @@
-<section>
-  <div class="OG-details-content OG-config OG-grid">
-    <div class="OG-c6 og-grid-last OG-max-width-l OG-form og-vol-cube-def">
-      <section class="OG-mod-0 og-grid-last OG-c9">
-        <div class="og-mod-content">
-          <label>
-            <span>Name</span>
-            <span><input name="name" value="${name}" type="text" /></span>
-          </label>
-        </div>
-      </section>
-      <section class="OG-mod-0 og-mod-al OG-c3">
-        <h3>Swap Tenors</h3>
+<section style="width: 800px">
+  <div class="OG-details-content OG-config OG-grid OG-form">
+    <section>
+      <table class="OG-table">
+        <thead>
+          <tr><th><span>Name</span></th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span><input name="name" value="${name}" type="text" /></span></td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section>
+      <section class="OG-mod-0 og-mod-al OG-c3" style="width: 33.3%">
+        <h3><span>Swap Tenors</span></h3>
         <div class="og-mod-content og-js-holder">
           {{html item_0}}
           <div class="og-footer">
@@ -18,8 +20,8 @@
           </div>
         </div>
       </section>
-      <section class="OG-mod-0 og-mod-al OG-c3">
-        <h3>Option Expiries</h3>
+      <section class="OG-mod-0 og-mod-al OG-c3" style="width: 33.3%">
+        <h3><span>Option Expiries</span></h3>
         <div class="og-mod-content og-js-holder">
           {{html item_1}}
           <div class="og-footer">
@@ -27,8 +29,8 @@
           </div>
         </div>
       </section>
-      <section class="OG-mod-0 OG-c3 og-mod-al og-grid-last">
-        <h3>Relative Strikes</h3>
+      <section class="OG-mod-0 og-mod-al OG-c3 og-grid-last" style="width: 33.3%">
+        <h3><span>Relative Strikes</span></h3>
         <div class="og-mod-content og-js-holder">
           {{html item_2}}
           <div class="og-footer">
@@ -36,6 +38,6 @@
           </div>
         </div>
       </section>
-    </div>
+    </section>
   </div>
 </section>
