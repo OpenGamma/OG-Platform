@@ -137,8 +137,7 @@ $.register_module({
                     columns = [
                         {id: 'time', name: 'Time', field: 'time', width: 160,
                             formatter: function (row, cell, value, columnDef, dataContext) {
-                                var date = new Date(value);
-                                return date.getDay() + ' / ' + date.getMonth() + ' / ' + date.getFullYear();
+                                return og.common.util.date(value);
                             }
                         },
                         {id: 'value', name: 'Value', field: 'value', width: 160}
@@ -320,7 +319,8 @@ $.register_module({
             update_legend = function () {
                 var $legends = $(selector + ' .legendLabel'),
                     axes = $p1.getAxes(), j, dataset = $p1.getData(), i = dataset.length, series, y, p1, p2,
-                    $date_elm = $legend.find('.og-date'), date, format_date;
+                    $date_elm = $legend.find('.og-date'), date, format_date, legend_height,
+                    rel_cursor_pos = hover_pos.pageX - ($(selector).offset().left) + 25;
                 format_date = function (date) {
                     return ('' + new Date(date)).replace(/(^.*:[0-9]{2}\s).*$/, '$1');
                 };
@@ -331,10 +331,13 @@ $.register_module({
                     return;
                 }
                 $legends.each(function () {$(this).css('line-height', 0)});
+                legend_height = $legend.find('table').prev().height() + 30;
                 $legend.css({
-                    left: hover_pos.pageX - ($(selector).offset().left),
-                    visibility: 'visible', position: 'absolute', top: '13px', width: '250px'
-                });
+                    left: rel_cursor_pos > $(selector).width() - 310 ? rel_cursor_pos - 141 : rel_cursor_pos,
+                    visibility: 'visible', position: 'absolute', top: '13px', width: '140px',
+                    'background-color': '#f9f9f9', 'height': legend_height + 'px', 'border': '1px solid #e5e5e5'
+                }).fadeTo(0, 0.9);
+                $legend.find('div, table').css({'left': '5px', 'background': 'none'});
                 while(i--) {
                     if (!dataset[i].data.length) continue;
                     series = dataset[i];
@@ -348,7 +351,7 @@ $.register_module({
                     if ($date_elm.length) $date_elm.html(date);
                     else {
                         $('<div class="og-date"></div>').css({
-                            position: 'absolute', top: '15px', 'left': '31px', 'white-space': 'nowrap',
+                            position: 'absolute', top: '15px', 'white-space': 'nowrap',
                             padding: '0 0 0 2px', 'font-size': '10px', 'color': '#999'
                         }).prependTo($legend);
                     }

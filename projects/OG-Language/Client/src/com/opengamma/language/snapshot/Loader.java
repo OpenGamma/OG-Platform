@@ -94,6 +94,7 @@ public class Loader extends ContextInitializationBean {
         SetYieldCurvePointFunction.INSTANCE,
         SnapshotsFunction.INSTANCE,
         SnapshotVersionsFunction.INSTANCE,
+        TakeSnapshotNowFunction.INSTANCE,
         new GetAttributeFunction(Categories.MARKET_DATA, "GetSnapshotName", "Fetches the name of a snapshot", ManageableMarketDataSnapshot.meta().name(),
             new MetaParameter("snapshot", JavaTypeInfo.builder(ManageableMarketDataSnapshot.class).get()).description("The snapshot to query")),
         new SetAttributeFunction(Categories.MARKET_DATA, "SetSnapshotName", "Updates the name of a snapshot, returning the updated snapshot", ManageableMarketDataSnapshot.meta().name(),

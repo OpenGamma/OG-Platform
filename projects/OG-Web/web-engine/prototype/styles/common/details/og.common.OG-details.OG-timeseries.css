@@ -189,6 +189,14 @@
   margin-bottom: 30px
 }
 
+.OG-timeseries .og-data-points time {
+  color: #555;
+}
+
+.OG-timeseries .og-data-points time span {
+  color: #999;
+}
+
 .OG-timeseries .og-container {
   min-width: 717px;
   white-space: nowrap;

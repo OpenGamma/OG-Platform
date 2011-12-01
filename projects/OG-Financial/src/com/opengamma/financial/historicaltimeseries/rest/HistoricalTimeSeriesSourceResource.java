@@ -17,6 +17,14 @@ import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSe
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_INCLUDE_START;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_MULTIPLE;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_START;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_ALL;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_ALL_BY_DATE;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_ALL_BY_DATE_LIMIT;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_UID;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_UID_BY_DATE;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_UID_BY_DATE_LIMIT;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_RESOLVED;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_RESOLVED_BY_DATE;
 
 import java.util.List;
 import java.util.Map;
@@ -112,13 +120,13 @@ public class HistoricalTimeSeriesSourceResource {
 
   //-------------------------------------------------------------------------
   @GET
-  @Path("uid/{uid}")
+  @Path(REQUEST_UID + "/{uid}")
   public FudgeMsgEnvelope getUid(@PathParam("uid") String uid) {
     return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(UniqueId.parse(uid)));
   }
 
   @GET
-  @Path("uidByDate/{uid}/{start}/{includeStart}/{end}/{includeEnd}")
+  @Path(REQUEST_UID_BY_DATE + "/{uid}/{start}/{includeStart}/{end}/{includeEnd}")
   public FudgeMsgEnvelope getUidByDate(@PathParam("uid") String uid, 
       @PathParam("start") String start, 
       @PathParam("includeStart") String includeStart,
@@ -132,9 +140,26 @@ public class HistoricalTimeSeriesSourceResource {
         Boolean.valueOf(includeEnd)));
   }
 
+  @GET
+  @Path(REQUEST_UID_BY_DATE_LIMIT + "/{uid}/{start}/{includeStart}/{end}/{includeEnd}/{maxPoints}")
+  public FudgeMsgEnvelope getUidByDateLimit(@PathParam("uid") String uid, 
+      @PathParam("start") String start, 
+      @PathParam("includeStart") String includeStart,
+      @PathParam("end") String end,
+      @PathParam("includeEnd") String includeEnd,
+      @PathParam("maxPoints") String maxPoints) {
+    return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
+        UniqueId.parse(uid), 
+        NULL_VALUE.equals(start) ? null : LocalDate.parse(start),
+        Boolean.valueOf(includeStart),
+        NULL_VALUE.equals(end) ? null : LocalDate.parse(end),
+        Boolean.valueOf(includeEnd),
+        Integer.parseInt(maxPoints)));
+  }
+
   //-------------------------------------------------------------------------
   @GET
-  @Path("all/{currentDate}/{dataSource}/{dataProvider}/{dataField}")
+  @Path(REQUEST_ALL + "/{currentDate}/{dataSource}/{dataProvider}/{dataField}")
   public FudgeMsgEnvelope getAllWithCurrentDate(@PathParam("currentDate") String currentDate, 
       @PathParam("dataSource") String dataSource, 
       @PathParam("dataProvider") String dataProvider, 
@@ -149,7 +174,7 @@ public class HistoricalTimeSeriesSourceResource {
   }
   
   @GET
-  @Path("all/{dataSource}/{dataProvider}/{dataField}")
+  @Path(REQUEST_ALL + "/{dataSource}/{dataProvider}/{dataField}")
   public FudgeMsgEnvelope getAll(@PathParam("dataSource") String dataSource, 
       @PathParam("dataProvider") String dataProvider, 
       @PathParam("dataField") String dataField,
@@ -162,7 +187,7 @@ public class HistoricalTimeSeriesSourceResource {
   }
 
   @GET
-  @Path("allByDate/{currentDate}/{dataSource}/{dataProvider}/{dataField}/{start}/{includeStart}/{end}/{includeEnd}")
+  @Path(REQUEST_ALL_BY_DATE + "/{currentDate}/{dataSource}/{dataProvider}/{dataField}/{start}/{includeStart}/{end}/{includeEnd}")
   public FudgeMsgEnvelope getAllByDate(@PathParam("currentDate") String currentDate,
       @PathParam("dataSource") String dataSource, 
       @PathParam("dataProvider") String dataProvider, 
@@ -187,7 +212,34 @@ public class HistoricalTimeSeriesSourceResource {
   }
 
   @GET
-  @Path("resolved/{dataField}/{currentDate}/{resolutionKey}")
+  @Path(REQUEST_ALL_BY_DATE_LIMIT + "/{currentDate}/{dataSource}/{dataProvider}/{dataField}/{start}/{includeStart}/{end}/{includeEnd}/{maxPoints}")
+  public FudgeMsgEnvelope getAllByDateLimit(@PathParam("currentDate") String currentDate,
+      @PathParam("dataSource") String dataSource, 
+      @PathParam("dataProvider") String dataProvider, 
+      @PathParam("dataField") String dataField,
+      @PathParam("start") String start, 
+      @PathParam("includeStart") String includeStart,
+      @PathParam("end") String end, 
+      @PathParam("includeEnd") String includeEnd,
+      @PathParam("maxPoints") String maxPoints,
+      @QueryParam("id") List<String> identifiers) {
+    
+    HistoricalTimeSeries hts = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
+        identifiersToBundle(identifiers),
+        NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate),
+        dataSource, 
+        NULL_VALUE.equals(dataProvider) ? null : dataProvider,
+        dataField,
+        NULL_VALUE.equals(start) ? null : LocalDate.parse(start),
+        Boolean.valueOf(includeStart),
+        NULL_VALUE.equals(end) ? null : LocalDate.parse(end),
+        Boolean.valueOf(includeEnd),
+        Integer.parseInt(maxPoints));
+    return encodeMessage(hts);
+  }
+
+  @GET
+  @Path(REQUEST_RESOLVED + "/{dataField}/{currentDate}/{resolutionKey}")
   public FudgeMsgEnvelope getResolved(@PathParam("currentDate") String currentDate, 
       @PathParam("dataField") String dataField, 
       @PathParam("resolutionKey") String resolutionKey, 
@@ -200,7 +252,7 @@ public class HistoricalTimeSeriesSourceResource {
   }
 
   @GET
-  @Path("resolvedByDate/{dataField}/{currentDate}/{resolutionKey}/{start}/{includeStart}/{end}/{includeEnd}")
+  @Path(REQUEST_RESOLVED_BY_DATE + "/{dataField}/{currentDate}/{resolutionKey}/{start}/{includeStart}/{end}/{includeEnd}")
   public FudgeMsgEnvelope getResolvedByDate(@PathParam("currentDate") String currentDate,
       @PathParam("dataField") String dataField, 
       @PathParam("resolutionKey") String resolutionKey, 

@@ -68,6 +68,7 @@ $.register_module({
                 layout.inner.options.south.onclose = null;
                 layout.inner.close('south');
                 api.regions.get({
+                    dependencies: ['id'],
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var f = details.region_functions;

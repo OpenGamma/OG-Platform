@@ -500,7 +500,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       return hts;
     }
     LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) hts.getTimeSeries().subSeries(start, includeStart, end, includeEnd);
-    if (maxPoints != null) {
+    if ((maxPoints != null) && (Math.abs(maxPoints) < timeSeries.size())) {
       timeSeries = maxPoints >= 0 ? timeSeries.head(maxPoints) : timeSeries.tail(-maxPoints);
     }
     return new SimpleHistoricalTimeSeries(hts.getUniqueId(), timeSeries);
