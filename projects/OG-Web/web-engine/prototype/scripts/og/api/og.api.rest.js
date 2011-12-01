@@ -23,7 +23,7 @@ $.register_module({
                 positions: true, regions: true, securities: true, timeseries: false
             },
             request_id = 0,
-            MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1, TIMEOUT = 120000, // 2 minute timeout
+            MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1, SOON = 120000 /* 2m */, FOREVER = 7200000 /* 2h */,
             /** @ignore */
             register = function (obj) {
                 var url = obj.url, current = obj.current, update = obj.config.meta.update,
@@ -64,6 +64,7 @@ $.register_module({
             /** @ignore */
             request = function (method, config) {
                 var id = request_id++, no_post_body = {GET: 0, DELETE: 0},
+                    is_get = config.meta.type === 'GET',
                     url = config.meta.type in no_post_body ? // build GET/DELETE URLs instead of letting $.ajax do it
                         [live_data_root + method.map(encode).join('/'), $.param(config.data, true)]
                             .filter(Boolean).join('?')
@@ -71,24 +72,24 @@ $.register_module({
                     current = routes.current(),
                     /** @ignore */
                     send = function () {
+                        // GETs are being POSTed with method=GET so they do not cache. TODO: change this
                         outstanding_requests[id].ajax = $.ajax({
                             url: url,
-                            // the following 2 lines are a hack to make sure GETs do not cachce, they need to be removed
-                            type: config.meta.type === 'GET' ? 'POST' : config.meta.type,
-                            data: config.meta.type in no_post_body ? config.meta.type === 'GET' ? {method: 'GET'} : {}
-                                : config.data,
+                            type: is_get ? 'POST' : config.meta.type,
+                            data: config.meta.type in no_post_body ? (is_get ? {method: 'GET'} : {}) : config.data,
                             headers: {'Accept': 'application/json'},
                             dataType: 'json',
-                            timeout: TIMEOUT,
+                            timeout: is_get ? SOON : FOREVER,
                             beforeSend: function (xhr, req) {
                                 var aborted = !(id in outstanding_requests),
                                     message = (aborted ? 'ABORTED: ' : '') + req.type + ' ' + req.url + ' HTTP/1.1' +
-                                        (req.type !== 'GET' ? '\n\n' + req.data : '');
+                                        (!is_get ? '\n\n' + req.data : '');
                                 og.dev.log(message);
                                 if (aborted) return false;
                             },
                             error: function (xhr, status, error) {
-                                if (error === 'timeout') return send(); // re-send requests that have timed out
+                                // re-send requests that have timed out only if the are GETs
+                                if (error === 'timeout' && is_get) return send();
                                 delete outstanding_requests[id];
                                 if (error === 'abort') return; // do not call handler if request was cancelled
                                 config.meta.handler({
@@ -111,14 +112,14 @@ $.register_module({
                         });
                         return id;
                     };
-                if (config.meta.type === 'GET')
+                if (is_get)
                     register({id: id, config: config, current: current, url: url});
                 else
                     if (og.app.READ_ONLY) return setTimeout(config.meta.handler.partial({
                         error: true, data: null, meta: {}, message: 'This application is in read-only mode.'
                     }), 0), id;
-                if (config.meta.update && config.meta.type !== 'GET') og.dev.warn('update functions are only for GETs');
-                if (config.meta.cache_for && config.meta.type !== 'GET')
+                if (config.meta.update && !is_get) og.dev.warn('update functions are only for GETs');
+                if (config.meta.cache_for && !is_get)
                     og.dev.warn('only GETs can be cached'), delete config.meta.cache_for;
                 start_loading(config.meta.loading);
                 if (get_cache(url) && typeof get_cache(url) === 'object')
