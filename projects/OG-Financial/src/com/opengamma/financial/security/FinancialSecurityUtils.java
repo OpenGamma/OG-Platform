@@ -30,6 +30,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -166,6 +167,12 @@ public class FinancialSecurityUtils {
         public ExternalId visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
           return null;
         }
+
+        @Override
+        public ExternalId visitEquityIndexDividendFutureOptionSecurity(
+            EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+          return null;
+        }
         
         @Override
         public ExternalId visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
@@ -279,6 +286,12 @@ public class FinancialSecurityUtils {
         @Override
         public ExternalId visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
           return null;
+        }
+        
+        @Override
+        public ExternalId visitEquityIndexDividendFutureOptionSecurity(
+            EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+          throw new NotImplementedException();
         }
         
         @Override
@@ -400,6 +413,12 @@ public class FinancialSecurityUtils {
         @Override
         public Currency visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
           return security.getCurrency();
+        }
+        
+        @Override
+        public Currency visitEquityIndexDividendFutureOptionSecurity(
+            EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+          return equityIndexDividendFutureOptionSecurity.getCurrency();
         }
         
         @Override
@@ -536,6 +555,12 @@ public class FinancialSecurityUtils {
         public Collection<Currency> visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
           return Collections.singletonList(security.getCurrency());
         }
+        
+        @Override
+        public Collection<Currency> visitEquityIndexDividendFutureOptionSecurity(
+            EquityIndexDividendFutureOptionSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
 
         @Override
         public Collection<Currency> visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
@@ -662,6 +687,12 @@ public class FinancialSecurityUtils {
         }
 
         @Override
+        public Boolean visitEquityIndexDividendFutureOptionSecurity(
+            EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+          throw new NotImplementedException();
+        }
+        
+        @Override
         public Boolean visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
           return null;
         }
@@ -695,6 +726,7 @@ public class FinancialSecurityUtils {
         public Boolean visitEquityVarianceSwapSecurity(EquityVarianceSwapSecurity security) {
           return null;
         }
+
       });
       
       result = isExchangeTraded == null ? false : isExchangeTraded;

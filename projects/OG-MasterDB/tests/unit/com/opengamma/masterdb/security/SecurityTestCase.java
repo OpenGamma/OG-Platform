@@ -79,6 +79,7 @@ import com.opengamma.financial.security.option.BermudanExerciseType;
 import com.opengamma.financial.security.option.CappedPoweredPayoffStyle;
 import com.opengamma.financial.security.option.CashOrNothingPayoffStyle;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
@@ -118,6 +119,7 @@ import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.RawSecurity;
+import com.opengamma.masterdb.security.test.SecurityTestCaseMethods;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
@@ -762,6 +764,12 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
     assertSecurities(IRFutureOptionSecurity.class);
   }
 
+  @Override
+  @Test
+  public void testEquityIndexDividendFutureOptionSecurity() {
+    assertSecurities(EquityIndexDividendFutureOptionSecurity.class);
+  }
+  
   @Override
   @Test
   public void testGovernmentBondSecurity() {
