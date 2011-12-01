@@ -94,6 +94,7 @@ public class Loader extends ContextInitializationBean {
         SetYieldCurvePointFunction.INSTANCE,
         SnapshotsFunction.INSTANCE,
         SnapshotVersionsFunction.INSTANCE,
+        TakeSnapshotNowFunction.INSTANCE,
         // REVIEW 2011-12-01 andrew -- Why did I do the following? Why not put entries into ObjectFunctionProvider?
         new GetAttributeFunction(Categories.MARKET_DATA, "GetSnapshotName", "Fetches the name of a snapshot", ManageableMarketDataSnapshot.meta().name(),
             new MetaParameter("snapshot", JavaTypeInfo.builder(ManageableMarketDataSnapshot.class).get()).description("The snapshot to query")),

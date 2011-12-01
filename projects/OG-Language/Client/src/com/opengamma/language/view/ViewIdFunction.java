@@ -39,11 +39,11 @@ public class ViewIdFunction extends AbstractFunctionInvoker implements Published
     return ImmutableList.of(name);
   }
   
-  public ViewIdFunction() {
+  protected ViewIdFunction() {
     this(new DefinitionAnnotater(ViewIdFunction.class));
   }
   
-  public ViewIdFunction(final DefinitionAnnotater info) {
+  private ViewIdFunction(final DefinitionAnnotater info) {
     super(info.annotate(parameters()));
     _meta = info.annotate(new MetaFunction(Categories.VIEW, "ViewId", getParameters(), this));
   }
