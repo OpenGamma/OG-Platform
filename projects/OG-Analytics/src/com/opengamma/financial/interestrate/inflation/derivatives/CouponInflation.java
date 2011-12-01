@@ -8,7 +8,7 @@ package com.opengamma.financial.interestrate.inflation.derivatives;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.util.money.Currency;
@@ -21,7 +21,7 @@ public abstract class CouponInflation extends Coupon {
   /**
    * The price index associated to the coupon.
    */
-  private final PriceIndex _priceIndex;
+  private final IndexPrice _priceIndex;
 
   /**
    * Inflation coupon constructor.
@@ -32,7 +32,7 @@ public abstract class CouponInflation extends Coupon {
    * @param notional Coupon notional.
    * @param priceIndex The price index associated to the coupon.
    */
-  public CouponInflation(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, PriceIndex priceIndex) {
+  public CouponInflation(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, IndexPrice priceIndex) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
     Validate.notNull(priceIndex, "Price index");
     _priceIndex = priceIndex;
@@ -42,7 +42,7 @@ public abstract class CouponInflation extends Coupon {
    * Gets the price index associated to the coupon.
    * @return The price index.
    */
-  public PriceIndex getPriceIndex() {
+  public IndexPrice getPriceIndex() {
     return _priceIndex;
   }
 

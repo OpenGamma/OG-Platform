@@ -21,7 +21,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCapFloorCMSSpreadDefinition;
-import com.opengamma.financial.instrument.index.CMSIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurityVisitor;
@@ -64,14 +64,14 @@ public class CapFloorCMSSpreadSecurityConverter implements CapFloorCMSSpreadSecu
     final IborIndex iborIndex1 = new IborIndex(currency, getTenor(tenor), longConvention.getSwapFloatingLegSettlementDays(), calendar,
         longConvention.getSwapFloatingLegDayCount(), longConvention.getSwapFloatingLegBusinessDayConvention(), longConvention.isEOMConvention());
     final Period period = getTenor(capFloorCMSSpreadSecurity.getFrequency());
-    final CMSIndex cmsIndex1 = new CMSIndex(period, longConvention.getSwapFloatingLegDayCount(), iborIndex1, longLegPeriod);
+    final IndexSwap cmsIndex1 = new IndexSwap(period, longConvention.getSwapFloatingLegDayCount(), iborIndex1, longLegPeriod);
     final ConventionBundle shortConvention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
     if (shortConvention == null) {
       throw new OpenGammaRuntimeException("Could not get convention for " + shortId);
     }
     final IborIndex iborIndex2 = new IborIndex(currency, getTenor(tenor), shortConvention.getSwapFloatingLegSettlementDays(), calendar,
         shortConvention.getSwapFloatingLegDayCount(), shortConvention.getSwapFloatingLegBusinessDayConvention(), shortConvention.isEOMConvention());
-    final CMSIndex cmsIndex2 = new CMSIndex(period, shortConvention.getSwapFloatingLegDayCount(), iborIndex2, shortLegPeriod);
+    final IndexSwap cmsIndex2 = new IndexSwap(period, shortConvention.getSwapFloatingLegDayCount(), iborIndex2, shortLegPeriod);
     final boolean isPayer = capFloorCMSSpreadSecurity.isPayer();
     final DayCount dayCount = capFloorCMSSpreadSecurity.getDayCount();
     final Period paymentPeriod = getTenor(capFloorCMSSpreadSecurity.getFrequency());

@@ -28,7 +28,7 @@ import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
-import com.opengamma.financial.instrument.index.CMSIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.instrument.swap.SwapDefinition;
@@ -258,7 +258,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<InstrumentDefi
     final DayCount fixedLegDayCount = swapRateConvention.getSwapFixedLegDayCount();
     final Period fixedLegPeriod = tenor;
     final DayCount dayCount = swapRateConvention.getSwapFloatingLegDayCount();
-    final CMSIndex cmsIndex = new CMSIndex(fixedLegPeriod, fixedLegDayCount, iborIndex, tenor);
+    final IndexSwap cmsIndex = new IndexSwap(fixedLegPeriod, fixedLegDayCount, iborIndex, tenor);
     return AnnuityCouponCMSDefinition.from(effectiveDate, maturityDate, notional, cmsIndex, tenor, dayCount, isPayer);
   }
 
