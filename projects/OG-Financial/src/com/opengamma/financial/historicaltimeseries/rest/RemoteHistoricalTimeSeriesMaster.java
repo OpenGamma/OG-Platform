@@ -184,6 +184,8 @@ public class RemoteHistoricalTimeSeriesMaster implements HistoricalTimeSeriesMas
     
     LocalDate fromDateInclusive = filter.getEarliestDate();
     LocalDate toDateInclusive = filter.getLatestDate();
+    Integer maxPoints = filter.getMaxPoints();
+    
     try {
       RestTarget target = getTargetBase().resolveBase("timeSeries").resolveBase(uniqueId.toString());
       if (fromDateInclusive != null) {
@@ -199,6 +201,7 @@ public class RemoteHistoricalTimeSeriesMaster implements HistoricalTimeSeriesMas
           target = target.resolve(".");
         }
       }
+      
       return getFudgeDeserializer().fudgeMsgToObject(ManageableHistoricalTimeSeries.class, getRestClient().getMsg(target));
     } catch (RestRuntimeException ex) {
       throw ex.translate();
