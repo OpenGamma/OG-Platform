@@ -32,7 +32,8 @@ public class ViewDefinitionNamesResource {
   @Produces(MediaType.APPLICATION_JSON)
   public String getViewDefinitionNamesJson() {
     Map<String, Set<String>> names = new HashMap<String, Set<String>>();
-    names.put(VIEW_DEFINITION_NAMES, _viewDefinitionRepository.getDefinitionNames());
+    // TODO this has been replaced by a map<id, name>
+    //names.put(VIEW_DEFINITION_NAMES, _viewDefinitionRepository.getDefinitionNames());
     return new JSONObject(names).toString();
   }
 }
