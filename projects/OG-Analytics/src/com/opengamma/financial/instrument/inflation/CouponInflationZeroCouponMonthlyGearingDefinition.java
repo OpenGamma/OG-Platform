@@ -12,7 +12,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.InstrumentDefinitionWithData;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -78,7 +78,7 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
    * @param factor The multiplicative factor.
    */
   public CouponInflationZeroCouponMonthlyGearingDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double paymentYearFraction,
-      double notional, PriceIndex priceIndex, int monthLag, ZonedDateTime referenceStartDate, double indexStartValue, ZonedDateTime referenceEndDate, ZonedDateTime fixingEndDate, boolean payNotional,
+      double notional, IndexPrice priceIndex, int monthLag, ZonedDateTime referenceStartDate, double indexStartValue, ZonedDateTime referenceEndDate, ZonedDateTime fixingEndDate, boolean payNotional,
       double factor) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
     Validate.notNull(referenceStartDate, "Reference start date");
@@ -107,7 +107,7 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
    * @param factor The multiplicative factor.
    * @return The coupon.
    */
-  public static CouponInflationZeroCouponMonthlyGearingDefinition from(ZonedDateTime accrualStartDate, ZonedDateTime paymentDate, double notional, PriceIndex priceIndex, int monthLag,
+  public static CouponInflationZeroCouponMonthlyGearingDefinition from(ZonedDateTime accrualStartDate, ZonedDateTime paymentDate, double notional, IndexPrice priceIndex, int monthLag,
       double indexStartValue, ZonedDateTime referenceEndDate, ZonedDateTime fixingEndDate, double factor) {
     Validate.notNull(priceIndex, "Price index");
     return new CouponInflationZeroCouponMonthlyGearingDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, monthLag, accrualStartDate,
@@ -127,7 +127,7 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
    * @param factor The multiplicative factor.
    * @return The inflation zero-coupon.
    */
-  public static CouponInflationZeroCouponMonthlyGearingDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional, final PriceIndex priceIndex,
+  public static CouponInflationZeroCouponMonthlyGearingDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional, final IndexPrice priceIndex,
       final double indexStartValue, final int monthLag, boolean payNotional, double factor) {
     ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(monthLag);
     ZonedDateTime referenceEndDate = paymentDate.minusMonths(monthLag);
@@ -152,7 +152,7 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
    * @return The inflation zero-coupon.
    */
   public static CouponInflationZeroCouponMonthlyGearingDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
-      final double notional, final PriceIndex priceIndex, final double indexStartValue, final int monthLag, boolean payNotional, double factor) {
+      final double notional, final IndexPrice priceIndex, final double indexStartValue, final int monthLag, boolean payNotional, double factor) {
     ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(monthLag);
     ZonedDateTime referenceEndDate = paymentDate.minusMonths(monthLag);
     referenceStartDate = referenceStartDate.withDayOfMonth(1);

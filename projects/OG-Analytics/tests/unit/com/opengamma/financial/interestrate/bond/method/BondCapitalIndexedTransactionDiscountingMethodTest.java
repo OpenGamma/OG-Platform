@@ -22,7 +22,7 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
 import com.opengamma.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
@@ -40,8 +40,8 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 public class BondCapitalIndexedTransactionDiscountingMethodTest {
 
   private static final MarketBundle MARKET = MarketDataSets.createMarket1();
-  private static final PriceIndex[] PRICE_INDEXES = MARKET.getPriceIndexes().toArray(new PriceIndex[0]);
-  private static final PriceIndex PRICE_INDEX_USCPI = PRICE_INDEXES[0];
+  private static final IndexPrice[] PRICE_INDEXES = MARKET.getPriceIndexes().toArray(new IndexPrice[0]);
+  private static final IndexPrice PRICE_INDEX_USCPI = PRICE_INDEXES[0];
   private static final String[] ISSUER_NAMES = MARKET.getIssuers().toArray(new String[0]);
   private static final String ISSUER_US_GOVT = ISSUER_NAMES[1];
   private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 8);

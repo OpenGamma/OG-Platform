@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.instrument.inflation.CouponInflationGearing;
 import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.market.MarketBundle;
@@ -66,7 +66,7 @@ public class CouponInflationZeroCouponInterpolationGearing extends CouponInflati
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    * @param factor The multiplicative factor.
    */
-  public CouponInflationZeroCouponInterpolationGearing(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, PriceIndex priceIndex,
+  public CouponInflationZeroCouponInterpolationGearing(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, IndexPrice priceIndex,
       double indexStartValue, double[] referenceEndTime, double weight, double fixingEndTime, boolean payNotional, double factor) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, priceIndex);
     this._indexStartValue = indexStartValue;

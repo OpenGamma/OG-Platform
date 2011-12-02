@@ -6,19 +6,14 @@
 package com.opengamma.language.view;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
-import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.InfiniteViewCycleExecutionSequence;
@@ -292,14 +287,9 @@ public final class ViewClientDescriptor {
       final String timeSeriesResolverKey, final String timeSeriesFieldResolverKey) {
     final Instant firstValuationTimeValue = Instant.of(firstValuationTime);
     final Instant lastValuationTimeValue = Instant.of(lastValuationTime);
-    final Collection<ViewCycleExecutionOptions> cycles = new ArrayList<ViewCycleExecutionOptions>(
-        ((int) (lastValuationTimeValue.getEpochSeconds() - firstValuationTimeValue.getEpochSeconds()) + samplePeriod - 1) / samplePeriod);
-    for (Instant valuationTime = firstValuationTimeValue; !valuationTime.isAfter(lastValuationTimeValue); valuationTime = valuationTime.plus(samplePeriod, TimeUnit.SECONDS)) {
-      final ViewCycleExecutionOptions options = new ViewCycleExecutionOptions(valuationTime);
-      options.setMarketDataSpecification(MarketData.historical(ZonedDateTime.ofInstant(valuationTime, TimeZone.UTC).toLocalDate(), timeSeriesResolverKey, timeSeriesFieldResolverKey));
-      cycles.add(options);
-    }
-    final ViewExecutionOptions options = ExecutionOptions.of(new ArbitraryViewCycleExecutionSequence(cycles), null, ExecutionFlags.none().waitForInitialTrigger().get());
+    ViewCycleExecutionSequence executionSequence = HistoricalExecutionSequenceFunction.generate(
+        firstValuationTimeValue, lastValuationTimeValue, samplePeriod, timeSeriesResolverKey, timeSeriesFieldResolverKey);
+    final ViewExecutionOptions options = ExecutionOptions.of(executionSequence, null, ExecutionFlags.none().waitForInitialTrigger().get());
     StringBuilder encoded = append(append(append(new StringBuilder(MARKET_DATA_HISTORICAL), viewId), firstValuationTimeValue), lastValuationTimeValue);
     if (samplePeriod != DEFAULT_SAMPLE_PERIOD) {
       encoded = append(encoded, samplePeriod);

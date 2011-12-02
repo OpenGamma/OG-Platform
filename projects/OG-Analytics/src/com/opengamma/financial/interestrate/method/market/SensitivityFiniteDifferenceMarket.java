@@ -8,7 +8,7 @@ package com.opengamma.financial.interestrate.method.market;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketDiscountingTimeDecorated;
@@ -124,7 +124,7 @@ public class SensitivityFiniteDifferenceMarket {
     throw new IllegalArgumentException("Can only handle forward, backward and central differencing");
   }
 
-  public static double[] curveSensitivity(final InstrumentDerivative instrument, final MarketBundle market, PriceIndex index, double[] nodeTimes, double deltaShift, PricingMarketMethod method,
+  public static double[] curveSensitivity(final InstrumentDerivative instrument, final MarketBundle market, IndexPrice index, double[] nodeTimes, double deltaShift, PricingMarketMethod method,
       final FiniteDifferenceType differenceType) {
     Validate.notNull(instrument, "Instrument");
     Validate.notNull(method, "Method");
