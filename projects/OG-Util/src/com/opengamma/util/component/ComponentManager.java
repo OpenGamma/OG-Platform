@@ -14,7 +14,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 /**
- * Access to configuration for a component.
+ * Manages the process of starting OpenGamma components.
+ * <p>
+ * The OpenGamma logical architecture consists of a set of components.
+ * This class loads and starts the components, using a {@link ComponentRepository}.
  */
 public class ComponentManager {
 
@@ -39,8 +42,6 @@ public class ComponentManager {
         startComponent(groupData, repo);
       }
     }
-    
-    System.out.println(config.toString());
   }
 
   private void startComponent(LinkedHashMap<String, String> groupData, ComponentRepository repo) {

@@ -14,6 +14,8 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * The component configuration.
+ * <p>
+ * This is an object representation of the configuration typically read from a file.
  */
 public class ComponentConfig {
 
