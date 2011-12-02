@@ -5,40 +5,68 @@
  */
 package com.opengamma.financial.analytics.model.fixedincome;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Sets;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.ParRateParallelSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
 public class InterestRateInstrumentParRateParallelCurveSensitivityFunction extends InterestRateInstrumentFunction {
   private static final ParRateParallelSensitivityCalculator CALCULATOR = ParRateParallelSensitivityCalculator
-      .getInstance();
+  .getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT;
 
-  public InterestRateInstrumentParRateParallelCurveSensitivityFunction(String forwardCurveName, String fundingCurveName) {
+  public InterestRateInstrumentParRateParallelCurveSensitivityFunction(final String forwardCurveName, final String fundingCurveName) {
     super(forwardCurveName, fundingCurveName, VALUE_REQUIREMENT);
   }
 
   @Override
-  public Set<ComputedValue> getComputedValues(InterestRateDerivative derivative, YieldCurveBundle bundle,
-      FinancialSecurity security) {
-    Map<String, Double> sensitivities = CALCULATOR.visit(derivative, bundle);
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(
-        VALUE_REQUIREMENT, security), FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(security,
-            getFundingCurveName(), getForwardCurveName(), createValueProperties()));
-    return Collections.singleton(new ComputedValue(specification, sensitivities.values().iterator().next()));
+  public Set<ComputedValue> getComputedValues(final InstrumentDerivative derivative, final YieldCurveBundle bundle,
+      final FinancialSecurity security, final ComputationTarget target) {
+    final Map<String, Double> sensitivities = CALCULATOR.visit(derivative, bundle);
+    final Currency ccy = FinancialSecurityUtils.getCurrency(security);
+    Set<ComputedValue> result = new HashSet<ComputedValue>();
+    result.add(new ComputedValue(getFundingCurveSpec(ccy, target), sensitivities.containsKey(getFundingCurveName()) ? sensitivities.get(getFundingCurveName()) : 0));
+    result.add(new ComputedValue(getForwardCurveSpec(ccy, target), sensitivities.containsKey(getForwardCurveName()) ? sensitivities.get(getForwardCurveName()) : 0));
+    return result;
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getSecurity());
+    return Sets.newHashSet(getFundingCurveSpec(ccy, target), getForwardCurveSpec(ccy, target));
+  }
+
+  private ValueSpecification getFundingCurveSpec(final Currency ccy, final ComputationTarget target) {
+    final ValueProperties properties = createValueProperties()
+      .with(ValuePropertyNames.CURVE, getFundingCurveName())
+      .with(ValuePropertyNames.CURRENCY, ccy.getCode())
+      .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode()).get();
+    return new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), properties);
+  }
+
+  private ValueSpecification getForwardCurveSpec(final Currency ccy, final ComputationTarget target) {
+    final ValueProperties properties = createValueProperties()
+      .with(ValuePropertyNames.CURVE, getForwardCurveName())
+      .with(ValuePropertyNames.CURRENCY, ccy.getCode())
+      .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode()).get();
+    return new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), properties);
   }
 
 }

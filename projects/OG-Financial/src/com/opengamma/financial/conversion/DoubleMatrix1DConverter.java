@@ -20,7 +20,7 @@ public class DoubleMatrix1DConverter implements ResultConverter<DoubleMatrix1D> 
     Map<String, Double> returnValue = new HashMap<String, Double>();
     double[] data = value.getData();
     for (int i = 0; i < data.length; i++) {
-      returnValue.put(valueName + "[" + i + "]", data[i]);      
+      returnValue.put(valueName + "[" + i + "]", data[i]);
     }
     return returnValue;
   }

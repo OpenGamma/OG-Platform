@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.time.Instant;
@@ -23,6 +24,7 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.language.config.ConfigurationItem;
 import com.opengamma.language.context.UserContext;
 import com.opengamma.livedata.UserPrincipal;
 
@@ -34,7 +36,7 @@ public final class UserViewClient implements UniqueIdentifiable {
 
   private static final ViewResultListener[] EMPTY = new ViewResultListener[0];
 
-  private static interface ViewResultListenerEvent {
+  private interface ViewResultListenerEvent {
 
     void callback(ViewResultListener listener);
 
@@ -49,8 +51,16 @@ public final class UserViewClient implements UniqueIdentifiable {
   private volatile Map<Object, UserViewClientData> _data;
   private volatile ViewResultListener[] _listeners = EMPTY;
   private volatile boolean _attached;
+  private Set<ConfigurationItem> _appliedConfiguration;
 
   private final ViewResultListener _listener = new ViewResultListener() {
+
+    @Override
+    public void cycleFragmentCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
+      for (ViewResultListener listener : _listeners) {
+        listener.cycleFragmentCompleted(fullResult, deltaResult);
+      }
+    }
 
     @Override
     public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
@@ -210,7 +220,7 @@ public final class UserViewClient implements UniqueIdentifiable {
       synchronized (this) {
         if (!_attached) {
           final ViewClientDescriptor vcd = getViewClientKey().getClientDescriptor();
-          _viewClient.attachToViewProcess(vcd.getViewName(), vcd.getExecutionOptions(), !getViewClientKey().isSharedProcess());
+          _viewClient.attachToViewProcess(vcd.getViewId(), vcd.getExecutionOptions(), !getViewClientKey().isSharedProcess());
           _attached = true;
         }
       }
@@ -330,6 +340,12 @@ public final class UserViewClient implements UniqueIdentifiable {
         return;
       }
     }
+  }
+
+  protected synchronized Set<ConfigurationItem> getAndSetConfiguration(final Set<ConfigurationItem> configurationItems) {
+    final Set<ConfigurationItem> previouslyApplied = _appliedConfiguration;
+    _appliedConfiguration = configurationItems;
+    return previouslyApplied;
   }
 
 }

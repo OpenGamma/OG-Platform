@@ -10,12 +10,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.Session;
-import javax.jms.TemporaryQueue;
 import javax.ws.rs.core.UriBuilder;
 
 import org.fudgemsg.FudgeContext;
@@ -29,6 +24,8 @@ import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
+import com.opengamma.transport.jms.JmsTemporaryQueueHost;
+import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.rest.FudgeRestClient;
 
 /**
@@ -53,9 +50,9 @@ public abstract class AbstractRestfulJmsResultConsumer {
    */
   private final ScheduledFuture<?> _scheduledHeartbeat;
   /**
-   * The connection factory.
+   * The JMS connector.
    */
-  private final ConnectionFactory _connectionFactory;
+  private final JmsConnector _jmsConnector;
   /**
    * The Fudge context
    */
@@ -65,17 +62,13 @@ public abstract class AbstractRestfulJmsResultConsumer {
    */
   private long _listenerDemand;
   /**
-   * The message consumer.
+   * The temporary queue host.
    */
-  private MessageConsumer _consumer;
-  /**
-   * The connection.
-   */
-  private Connection _connection;
+  private JmsTemporaryQueueHost _queueHost;
   
-  protected AbstractRestfulJmsResultConsumer(URI baseUri, FudgeContext fudgeContext, ConnectionFactory connectionFactory, ScheduledExecutorService scheduler, long heartbeatPeriodMillis) {
+  protected AbstractRestfulJmsResultConsumer(URI baseUri, FudgeContext fudgeContext, JmsConnector jmsConnector, ScheduledExecutorService scheduler, long heartbeatPeriodMillis) {
     _baseUri = baseUri;
-    _connectionFactory = connectionFactory;
+    _jmsConnector = jmsConnector;
     _fudgeContext = fudgeContext;
     _client = FudgeRestClient.create();
     Runnable runnable = new Runnable() {
@@ -148,11 +141,7 @@ public abstract class AbstractRestfulJmsResultConsumer {
   
   private String startJms() throws JMSException {
     try {
-      _connection = _connectionFactory.createConnection();
-      Session session = _connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      TemporaryQueue tempQueue = session.createTemporaryQueue();
-      _consumer = session.createConsumer(tempQueue);
-      _consumer.setMessageListener(new JmsByteArrayMessageDispatcher(new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
+      ByteArrayFudgeMessageReceiver bafmr = new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
         @SuppressWarnings("unchecked")
         @Override
         public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
@@ -167,10 +156,11 @@ public abstract class AbstractRestfulJmsResultConsumer {
           }
           dispatchListenerCall(listenerCall);
         }
-      }, _fudgeContext)));
-      _connection.start();
-      s_logger.info("Set up result JMS subscription to {}", tempQueue);
-      return tempQueue.getQueueName();
+      }, _fudgeContext);
+      _queueHost = new JmsTemporaryQueueHost(_jmsConnector, new JmsByteArrayMessageDispatcher(bafmr));
+      
+      s_logger.info("Set up result JMS subscription to {}", _queueHost.getQueueName());
+      return _queueHost.getQueueName();
     } catch (JMSException e) {
       s_logger.error("Exception setting up JMS result listener", e);
       closeJms();
@@ -179,14 +169,11 @@ public abstract class AbstractRestfulJmsResultConsumer {
   }
   
   private void closeJms() {
-    if (_consumer != null) {
+    if (_queueHost != null) {
       try {
-        _connection.close();
+        _queueHost.close();
       } catch (Exception e) {
-        s_logger.error("Error closing JMS connection", e);
-      } finally {
-        _connection = null;
-        _consumer = null;
+        s_logger.error("Error closing JMS queue host", e);
       }
     }
   }

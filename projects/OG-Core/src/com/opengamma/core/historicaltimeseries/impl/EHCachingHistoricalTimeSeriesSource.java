@@ -5,11 +5,13 @@
  */
 package com.opengamma.core.historicaltimeseries.impl;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
 import net.sf.ehcache.Cache;
@@ -18,13 +20,17 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -40,10 +46,32 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(EHCachingHistoricalTimeSeriesSource.class);
+
   /**
    * The cache name.
    */
-  private static final String CACHE_NAME = "HistoricalTimeSeriesCache";
+  private static final String DATA_CACHE_NAME = "HistoricalTimeSeriesDataCache";
+  private static final String SUMMARY_CACHE_NAME = "HistoricalTimeSeriesSummaryCache";
+
+  private static class MissHTS implements HistoricalTimeSeries, Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    public UniqueId getUniqueId() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeries getTimeSeries() {
+      throw new UnsupportedOperationException();
+    }
+
+  };
+
+
+  private static final MissHTS MISS = new MissHTS();
+  private static final HistoricalTimeSeriesSummary MISSSUMMARY = new HistoricalTimeSeriesSummary();
 
   /**
    * The underlying source.
@@ -52,7 +80,13 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   /**
    * The cache.
    */
-  private final Cache _cache;
+  private final Cache _dataCache;
+  private final Cache _summaryCache;
+
+  /**
+   * The clock.
+   */
+  private final Clock _clock = Clock.systemDefaultZone();  // TODO: TIMEZONE
 
   /**
    * Creates an instance.
@@ -78,10 +112,15 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     _underlying = underlying;
-    EHCacheUtils.addCache(cacheManager, CACHE_NAME, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath,
+    EHCacheUtils.addCache(cacheManager, DATA_CACHE_NAME, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath,
         eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners);
-    _cache = EHCacheUtils.getCacheFromManager(cacheManager, CACHE_NAME);
-  }
+    _dataCache = EHCacheUtils.getCacheFromManager(cacheManager, DATA_CACHE_NAME);
+    
+    // TODO adjust metadata cache parameters on the basis of the data cache parameters (and sort out duplicate listeners)
+    EHCacheUtils.addCache(cacheManager, SUMMARY_CACHE_NAME, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath,
+        eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners); 
+    _summaryCache = EHCacheUtils.getCacheFromManager(cacheManager, DATA_CACHE_NAME);
+  } 
 
   /**
    * Creates an instance.
@@ -93,8 +132,10 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNull(cacheManager, "Cache Manager");
     _underlying = underlying;
-    EHCacheUtils.addCache(cacheManager, CACHE_NAME);
-    _cache = EHCacheUtils.getCacheFromManager(cacheManager, CACHE_NAME);
+    EHCacheUtils.addCache(cacheManager, DATA_CACHE_NAME);
+    _dataCache = EHCacheUtils.getCacheFromManager(cacheManager, DATA_CACHE_NAME);
+    EHCacheUtils.addCache(cacheManager, SUMMARY_CACHE_NAME);
+    _summaryCache = EHCacheUtils.getCacheFromManager(cacheManager, SUMMARY_CACHE_NAME);
   }
 
   //-------------------------------------------------------------------------
@@ -112,20 +153,40 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
    * 
    * @return the cache manager, not null
    */
-  public CacheManager getCacheManager() {
-    return _cache.getCacheManager();
+  public CacheManager getDataCacheManager() {
+    return _dataCache.getCacheManager();
+  }
+
+  public CacheManager getSummaryCacheManager() {
+    return _summaryCache.getCacheManager();
+  }
+
+  /**
+   * Gets the clock.
+   * 
+   * @return the clock, not null
+   */
+  public Clock getClock() {
+    return _clock;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    HistoricalTimeSeries hts = getFromCache(uniqueId);
-    if (hts == null) {
+    HistoricalTimeSeries hts = getFromDataCache(uniqueId);
+    if (hts != null) {
+      if (hts == MISS) {
+        hts = null;
+      }
+    } else {
       hts = _underlying.getHistoricalTimeSeries(uniqueId);
       if (hts != null) {
         s_logger.debug("Caching time-series {}", hts);
-        _cache.put(new Element(uniqueId, hts));
+        _dataCache.put(new Element(uniqueId, hts));
+      } else {
+        s_logger.debug("Caching miss on {}", uniqueId);
+        _dataCache.put(new Element(uniqueId, MISS));
       }
     }
     return hts;
@@ -142,7 +203,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       ExternalIdBundle identifiers, String dataSource, String dataProvider, String dataField) {
-    return getHistoricalTimeSeries(identifiers, (LocalDate) null, dataSource, dataProvider, dataField);
+    return getHistoricalTimeSeries(identifiers, LocalDate.now(getClock()), dataSource, dataProvider, dataField);
   }
 
   @Override
@@ -150,13 +211,20 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       ExternalIdBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, identifierValidityDate, identifiers, dataSource, dataProvider, dataField);
-    HistoricalTimeSeries hts = getFromCache(key);
-    if (hts == null) {
+    HistoricalTimeSeries hts = getFromDataCache(key);
+    if (hts != null) {
+      if (hts == MISS) {
+        hts = null;
+      }
+    } else {
       hts = _underlying.getHistoricalTimeSeries(identifiers, identifierValidityDate, dataSource, dataProvider, dataField);
       if (hts != null) {
         s_logger.debug("Caching time-series {}", hts);
-        _cache.put(new Element(key, hts.getUniqueId()));
-        _cache.put(new Element(hts.getUniqueId(), hts));
+        _dataCache.put(new Element(key, hts));
+        _dataCache.put(new Element(hts.getUniqueId(), hts));
+      } else {
+        s_logger.debug("Caching miss on {}", key);
+        _dataCache.put(new Element(key, MISS));
       }
     }
     return hts;
@@ -167,7 +235,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       ExternalIdBundle identifiers, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean includeStart, LocalDate end, boolean includeEnd) {
     return getHistoricalTimeSeries(
-        identifiers, (LocalDate) null, dataSource, dataProvider, dataField,
+        identifiers, LocalDate.now(getClock()), dataSource, dataProvider, dataField,
         start, includeStart, end, includeEnd);
   }
 
@@ -183,7 +251,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifierBundle, String resolutionKey) {
-    return getHistoricalTimeSeries(dataField, identifierBundle, null, resolutionKey);
+    return getHistoricalTimeSeries(dataField, identifierBundle, LocalDate.now(getClock()), resolutionKey);
   }
 
   @Override
@@ -192,13 +260,20 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     ArgumentChecker.notNull(dataField, "dataField");
     ArgumentChecker.notEmpty(identifierBundle, "identifierBundle");
     HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(resolutionKey, identifierValidityDate, identifierBundle, null, null, dataField);
-    HistoricalTimeSeries hts = getFromCache(key);
-    if (hts == null) {
+    HistoricalTimeSeries hts = getFromDataCache(key);
+    if (hts != null) {
+      if (hts == MISS) {
+        hts = null;
+      }
+    } else {
       hts = _underlying.getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey);
       if (hts != null) {
         s_logger.debug("Caching time-series {}", hts);
-        _cache.put(new Element(key, hts.getUniqueId()));
-        _cache.put(new Element(hts.getUniqueId(), hts));
+        _dataCache.put(new Element(key, hts));
+        _dataCache.put(new Element(hts.getUniqueId(), hts));
+      } else {
+        s_logger.debug("Caching miss on {}", key);
+        _dataCache.put(new Element(key, MISS));
       }
     }
     return hts;
@@ -208,7 +283,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifierBundle, String resolutionKey, 
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-    return getHistoricalTimeSeries(dataField, identifierBundle, (LocalDate) null, resolutionKey, start, includeStart, end, includeEnd);
+    return getHistoricalTimeSeries(dataField, identifierBundle, LocalDate.now(getClock()), resolutionKey, start, includeStart, end, includeEnd);
   }
 
   /*
@@ -232,12 +307,13 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     public int hashCode() {
       final int prime = 31;
       int result = 1;
-      result = prime * result + _end.hashCode();
+      result = prime * result + ObjectUtils.hashCode(_end);
       result = prime * result + (_includeEnd ? 1231 : 1237);
       result = prime * result + (_includeStart ? 1231 : 1237);
-      result = prime * result + _start.hashCode();
+      result = prime * result + ObjectUtils.hashCode(_start);
       return result;
     }
+
     @Override
     public boolean equals(Object obj) {
       if (this == obj) {
@@ -253,10 +329,10 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       if (_includeStart != other._includeStart) {
         return false;
       }
-      if (!_end.equals(other._end)) {
+      if (!ObjectUtils.equals(_end, other._end)) {
         return false;
       }
-      if (!_start.equals(other._start)) {
+      if (!ObjectUtils.equals(_start, other._start)) {
         return false;
       }
       return true;
@@ -267,23 +343,71 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle,
       LocalDate identifierValidityDate, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-    
     HistoricalTimeSeriesKey seriesKey = new HistoricalTimeSeriesKey(resolutionKey, identifierValidityDate, identifierBundle, null, null, dataField);
     SubSeriesKey subseriesKey = new SubSeriesKey(start, includeStart, end, includeEnd);
     ObjectsPair<HistoricalTimeSeriesKey, SubSeriesKey> key = Pair.of(seriesKey, subseriesKey);
-    Element element = _cache.get(key);
-    if (element == null) {
-      //TODO: if we have the full series cached computing a subseries could be faster
-      //TODO: use the uid cache to make the underlying query easier?
-      HistoricalTimeSeries sub = _underlying.getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, start, includeStart, end, includeEnd);
-      if (sub != null) {
-        s_logger.debug("Caching sub time-series {}", sub);
-        //TODO should probably split all these caches out
-        element = new Element(key, sub);
-        _cache.put(element);
+    Element element = _dataCache.get(key);
+    HistoricalTimeSeries hts;
+    if (element != null) {
+      hts = (HistoricalTimeSeries) element.getValue();
+      if (hts == MISS) {
+        hts = null;
+      }
+    } else {
+      //TODO: if we have the full series cached computing a sub-series could be faster
+      hts = _underlying.getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, start, includeStart, end, includeEnd);
+      if (hts != null) {
+        s_logger.debug("Caching sub time-series {}", hts);
+        _dataCache.put(new Element(key, hts));
+      } else {
+        s_logger.debug("Caching miss {}", key);
+        _dataCache.put(new Element(key, MISS));
       }
     }
-    return element == null ? null : (HistoricalTimeSeries) element.getValue();
+    return hts;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    HistoricalTimeSeriesSummary htss = getFromSummaryCache(uniqueId);
+    if (htss != null) {
+      if (htss == MISSSUMMARY) {
+        htss = null;
+      }
+    } else {
+      htss = _underlying.getSummary(uniqueId);
+      if (htss != null) {
+        s_logger.debug("Caching time-series {} summary", htss);
+        _summaryCache.put(new Element(uniqueId, htss));
+      } else {
+        s_logger.debug("Caching miss on {} summary", uniqueId);
+        _summaryCache.put(new Element(uniqueId, MISSSUMMARY));
+      }
+    }
+    return htss;
+  }
+
+  /**
+   * Attempt to get a HistoricalTimeSeriesSummary from the cache.
+   * 
+   * @param uniqueId  the unique id of the HTS, not null
+   * @return the summary information for the HTS, null if not found
+   */
+  private HistoricalTimeSeriesSummary getFromSummaryCache(UniqueId uniqueId) {
+    Element element = _summaryCache.get(uniqueId);
+    if (element == null) {
+      s_logger.debug("Cache miss on {} summary", uniqueId);
+      return null;
+    }
+    s_logger.debug("Cache hit on {} summary", uniqueId);
+    return (HistoricalTimeSeriesSummary) element.getValue();
+  }
+
+  @Override
+  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    throw new UnsupportedOperationException("Getting HTS summary by object id and version correction not supported");
   }
 
   //-------------------------------------------------------------------------
@@ -297,10 +421,14 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     // caching works individually but all misses can be passed to underlying as one request
     for (ExternalIdBundle identifiers : identifierSet) {
       HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, null, identifiers, dataSource, dataProvider, dataField);
-      HistoricalTimeSeries hts = getFromCache(key);
+      HistoricalTimeSeries hts = getFromDataCache(key);
       if (hts != null) {
-        hts = getSubSeries(hts, start, includeStart, end, includeEnd);
-        result.put(identifiers, hts);
+        if (hts != MISS) {
+          hts = getSubSeries(hts, start, includeStart, end, includeEnd);
+          result.put(identifiers, hts);
+        } else {
+          result.put(identifiers, null);
+        }
       } else {
         remainingIds.add(identifiers);
       }
@@ -314,9 +442,12 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
         HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, null, identifiers, dataSource, dataProvider, dataField);
         if (hts != null) {
           s_logger.debug("Caching time-series {}", hts);
-          _cache.put(new Element(key, hts.getUniqueId()));
-          _cache.put(new Element(hts.getUniqueId(), hts));
+          _dataCache.put(new Element(key, hts));
+          _dataCache.put(new Element(hts.getUniqueId(), hts));
           hts = getSubSeries(hts, start, includeStart, end, includeEnd);
+        } else {
+          s_logger.debug("Caching miss {}", key);
+          _dataCache.put(new Element(key, MISS));
         }
         result.put(identifiers, hts);
       }
@@ -331,14 +462,14 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
    * @param key  the key, not null
    * @return the time-series, null if no match
    */
-  private HistoricalTimeSeries getFromCache(HistoricalTimeSeriesKey key) {
-    Element element = _cache.get(key);
-    if (element == null || element.getValue() instanceof UniqueId == false) {
-      s_logger.debug("Cache miss on {}", key.getExternalIdBundle());
+  private HistoricalTimeSeries getFromDataCache(HistoricalTimeSeriesKey key) {
+    Element element = _dataCache.get(key);
+    if (element == null) {
+      s_logger.debug("Cache miss on {}", key);
       return null;
     }
-    s_logger.debug("Cache hit on {}", key.getExternalIdBundle());
-    return getFromCache((UniqueId) element.getValue());
+    s_logger.debug("Cache hit on {}", key);
+    return (HistoricalTimeSeries) element.getValue();
   }
 
   /**
@@ -347,9 +478,9 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
    * @param uniqueId  the unique identifier, not null
    * @return the time-series, null if no match
    */
-  private HistoricalTimeSeries getFromCache(UniqueId uniqueId) {
-    Element element = _cache.get(uniqueId);
-    if (element == null || element.getValue() instanceof HistoricalTimeSeries == false) {
+  private HistoricalTimeSeries getFromDataCache(UniqueId uniqueId) {
+    Element element = _dataCache.get(uniqueId);
+    if (element == null) {
       s_logger.debug("Cache miss on {}", uniqueId);
       return null;
     }

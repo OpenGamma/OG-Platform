@@ -7,8 +7,6 @@ package com.opengamma.masterdb.historicaltimeseries;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.TimeZone;
-
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
@@ -20,6 +18,8 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.extsql.ExtSqlBundle;
+import com.opengamma.extsql.ExtSqlConfig;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdWithDates;
@@ -28,7 +28,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocumen
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryResult;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests DbHistoricalTimeSeriesMaster.
@@ -38,11 +38,10 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTest extends AbstractDbHist
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbHistoricalTimeSeriesMasterWorkerUpdateTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbHistoricalTimeSeriesMasterWorkerUpdateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------
@@ -145,11 +144,8 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTest extends AbstractDbHist
 
   @Test
   public void test_update_rollback() {
-    DbHistoricalTimeSeriesMaster w = new DbHistoricalTimeSeriesMaster(_htsMaster.getDbSource()) {
-      protected String sqlInsertIdKey() {
-        return "INSERT";  // bad sql
-      }
-    };
+    DbHistoricalTimeSeriesMaster w = new DbHistoricalTimeSeriesMaster(_htsMaster.getDbConnector());
+    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("Invalid"), DbHistoricalTimeSeriesMaster.class));
     final HistoricalTimeSeriesInfoDocument base = _htsMaster.get(UniqueId.of("DbHts", "101", "0"));
     ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
     info.setUniqueId(UniqueId.of("DbHts", "101", "0"));

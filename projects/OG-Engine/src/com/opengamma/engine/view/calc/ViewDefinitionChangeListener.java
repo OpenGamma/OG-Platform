@@ -7,6 +7,7 @@ package com.opengamma.engine.view.calc;
 
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
+import com.opengamma.id.UniqueId;
 
 /**
  * Change listener for a single view definition which notifies a computation job.
@@ -14,15 +15,20 @@ import com.opengamma.core.change.ChangeListener;
 public class ViewDefinitionChangeListener implements ChangeListener {
 
   private final ViewComputationJob _computationJob;
-  private final String _viewDefinitionName;
-  
-  public ViewDefinitionChangeListener(ViewComputationJob computationJob, String viewDefinitionName) {
+  private final UniqueId _viewDefinitionId;
+
+  public ViewDefinitionChangeListener(ViewComputationJob computationJob, UniqueId viewDefinitionId) {
     _computationJob = computationJob;
-    _viewDefinitionName = viewDefinitionName;
+    _viewDefinitionId = viewDefinitionId;
   }
-  
+
   @Override
-  public void entityChanged(ChangeEvent event) {
+  public void entityChanged(ChangeEvent event) { 
+    if (getViewDefinitionId().isVersioned()) {
+      // TODO: probably still interested in corrections, but would need to update the computation job with the new ID
+      // Locked to a specific version
+      return;
+    }
     if (event.getBeforeId() == null) {
       // View definition created 
       return;
@@ -31,17 +37,17 @@ public class ViewDefinitionChangeListener implements ChangeListener {
       // View definition could have been deleted - do we want to stop the process?
       return;
     }
-    if (event.getBeforeId().getValue().equals(getViewDefinitionName())) {
+    if (event.getBeforeId().getObjectId().equals(getViewDefinitionId().getObjectId())) {
       getViewComputationJob().dirtyViewDefinition();
     }
   }
-  
-  private String getViewDefinitionName() {
-    return _viewDefinitionName;
+
+  private UniqueId getViewDefinitionId() {
+    return _viewDefinitionId;
   }
-  
+
   private ViewComputationJob getViewComputationJob() {
     return _computationJob;
   }
-  
+
 }

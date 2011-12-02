@@ -5,7 +5,8 @@
  */
 package com.opengamma.financial.interestrate.payments;
 
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -18,9 +19,11 @@ public class CouponIborFixed extends CouponFixed {
   private final CouponIbor _couponIbor;
 
   public CouponIborFixed(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double rate,
-      final double fixingTime, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final double spread, final String forwardCurveName) {
+      final double fixingTime, IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final double spread,
+      final String forwardCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, rate);
-    _couponIbor = new CouponIbor(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, forwardCurveName);
+    _couponIbor = new CouponIbor(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime, index, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, spread,
+        forwardCurveName);
   }
 
   public CouponIbor toCouponIbor() {
@@ -64,12 +67,12 @@ public class CouponIborFixed extends CouponFixed {
   }
 
   @Override
-  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitCouponIborFixed(this, data);
   }
 
   @Override
-  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitCouponIborFixed(this);
   }
 

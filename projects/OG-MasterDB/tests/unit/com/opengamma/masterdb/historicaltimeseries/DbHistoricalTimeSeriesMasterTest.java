@@ -17,18 +17,18 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Test DbHistoricalTimeSeriesMaster.
  */
-public class DbHistoricalTimeSeriesMasterTest extends DBTest {
+public class DbHistoricalTimeSeriesMasterTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbHistoricalTimeSeriesMasterTest.class);
 
   private DbHistoricalTimeSeriesMaster _htsMaster;
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbHistoricalTimeSeriesMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -52,7 +52,7 @@ public class DbHistoricalTimeSeriesMasterTest extends DBTest {
   public void test_basics() throws Exception {
     assertNotNull(_htsMaster);
     assertEquals(true, _htsMaster.getUniqueIdScheme().equals("DbHts"));
-    assertNotNull(_htsMaster.getDbSource());
+    assertNotNull(_htsMaster.getDbConnector());
     assertNotNull(_htsMaster.getTimeSource());
   }
 

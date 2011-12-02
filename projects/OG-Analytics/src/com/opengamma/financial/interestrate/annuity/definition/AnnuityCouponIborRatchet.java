@@ -9,8 +9,8 @@ import java.util.ArrayList;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
@@ -33,7 +33,7 @@ public class AnnuityCouponIborRatchet extends GenericAnnuity<Coupon> {
      * The calibration instruments are caps at strike given by the coupon in the forward curve.
      */
     FORWARD_COUPON
-  };
+  }
 
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
 
@@ -64,8 +64,8 @@ public class AnnuityCouponIborRatchet extends GenericAnnuity<Coupon> {
     return _isFixed;
   }
 
-  public InterestRateDerivative[] calibrationBasket(final RatchetIborCalibrationType type, final YieldCurveBundle curves) {
-    ArrayList<InterestRateDerivative> calibration = new ArrayList<InterestRateDerivative>();
+  public InstrumentDerivative[] calibrationBasket(final RatchetIborCalibrationType type, final YieldCurveBundle curves) {
+    ArrayList<InstrumentDerivative> calibration = new ArrayList<InstrumentDerivative>();
     switch (type) {
       case FORWARD_COUPON:
         int nbCpn = getNumberOfPayments();
@@ -78,8 +78,8 @@ public class AnnuityCouponIborRatchet extends GenericAnnuity<Coupon> {
             double cpnFloor = cpn.getFloorCoefficients()[0] * cpnRate[loopcpn - 1] + cpn.getFloorCoefficients()[1] * ibor + cpn.getFloorCoefficients()[2];
             double cpnCap = cpn.getCapCoefficients()[0] * cpnRate[loopcpn - 1] + cpn.getCapCoefficients()[1] * ibor + cpn.getCapCoefficients()[2];
             cpnRate[loopcpn] = Math.min(Math.max(cpnFloor, cpnMain), cpnCap);
-            calibration.add(new CapFloorIbor(cpn.getCurrency(), cpn.getPaymentTime(), cpn.getFundingCurveName(), cpn.getPaymentYearFraction(), cpn.getNotional(), cpn.getFixingTime(), cpn
-                .getFixingPeriodStartTime(), cpn.getFixingPeriodEndTime(), cpn.getFixingYearFraction(), cpn.getForwardCurveName(), cpnRate[loopcpn], true));
+            calibration.add(new CapFloorIbor(cpn.getCurrency(), cpn.getPaymentTime(), cpn.getFundingCurveName(), cpn.getPaymentYearFraction(), cpn.getNotional(), cpn.getFixingTime(), cpn.getIndex(),
+                cpn.getFixingPeriodStartTime(), cpn.getFixingPeriodEndTime(), cpn.getFixingYearFraction(), cpn.getForwardCurveName(), cpnRate[loopcpn], true));
           } else {
             if (getNthPayment(loopcpn) instanceof CouponFixed) {
               CouponFixed cpn = (CouponFixed) getNthPayment(loopcpn);
@@ -96,16 +96,16 @@ public class AnnuityCouponIborRatchet extends GenericAnnuity<Coupon> {
       default:
         break;
     }
-    return calibration.toArray(new InterestRateDerivative[0]);
+    return calibration.toArray(new InstrumentDerivative[0]);
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitAnnuityCouponIborRatchet(this, data);
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitAnnuityCouponIborRatchet(this);
   }
 

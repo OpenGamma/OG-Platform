@@ -15,7 +15,6 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.ParallelArrayBinarySort;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.surface.Surface;
 import com.opengamma.util.tuple.Triple;
 
@@ -34,7 +33,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @return A cube with an automatically-generated name
    */
   public static InterpolatedFromSurfacesDoublesCube from(final SurfacePlane plane, final double[] points, final Surface<Double, Double, Double>[] surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+      final Interpolator1D interpolator) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, false);
   }
 
@@ -47,7 +46,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @return A cube with an automatically-generated name
    */
   public static InterpolatedFromSurfacesDoublesCube from(final SurfacePlane plane, final Double[] points, final Surface<Double, Double, Double>[] surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+      final Interpolator1D interpolator) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, false);
   }
 
@@ -60,7 +59,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @return A cube with an automatically-generated name
    */
   public static InterpolatedFromSurfacesDoublesCube from(final SurfacePlane plane, final List<Double> points, final List<Surface<Double, Double, Double>> surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+      final Interpolator1D interpolator) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, false);
   }
 
@@ -72,7 +71,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @return A cube with an automatically-generated name
    */
   public static InterpolatedFromSurfacesDoublesCube from(final SurfacePlane plane, final Map<Double, Surface<Double, Double, Double>> surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+      final Interpolator1D interpolator) {
     return new InterpolatedFromSurfacesDoublesCube(plane, surfaces, interpolator, false);
   }
 
@@ -86,7 +85,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @return A cube 
    */
   public static InterpolatedFromSurfacesDoublesCube from(final SurfacePlane plane, final double[] points, final Surface<Double, Double, Double>[] surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+      final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, false, name);
   }
 
@@ -100,7 +99,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @return A cube 
    */
   public static InterpolatedFromSurfacesDoublesCube from(final SurfacePlane plane, final Double[] points, final Surface<Double, Double, Double>[] surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+      final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, false, name);
   }
   
@@ -114,7 +113,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @return A cube 
    */
   public static InterpolatedFromSurfacesDoublesCube from(final SurfacePlane plane, final List<Double> points, final List<Surface<Double, Double, Double>> surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+      final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, false, name);
   }
 
@@ -127,7 +126,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @return A cube 
    */
   public static InterpolatedFromSurfacesDoublesCube from(final SurfacePlane plane, final Map<Double, Surface<Double, Double, Double>> surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+      final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromSurfacesDoublesCube(plane, surfaces, interpolator, false, name);
   }
 
@@ -140,7 +139,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @return A cube with an automatically-generated name
    */
   public static InterpolatedFromSurfacesDoublesCube fromSorted(final SurfacePlane plane, final double[] points, final Surface<Double, Double, Double>[] surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+      final Interpolator1D interpolator) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, true);
   }
 
@@ -153,7 +152,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @return A cube with an automatically-generated name
    */
   public static InterpolatedFromSurfacesDoublesCube fromSorted(final SurfacePlane plane, final Double[] points, final Surface<Double, Double, Double>[] surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+      final Interpolator1D interpolator) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, true);
   }
 
@@ -166,7 +165,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @return A cube with an automatically-generated name
    */
   public static InterpolatedFromSurfacesDoublesCube fromSorted(final SurfacePlane plane, final List<Double> points, final List<Surface<Double, Double, Double>> surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+      final Interpolator1D interpolator) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, true);
   }
 
@@ -178,7 +177,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @return A cube with an automatically-generated name
    */
   public static InterpolatedFromSurfacesDoublesCube fromSorted(final SurfacePlane plane, final Map<Double, Surface<Double, Double, Double>> surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+      final Interpolator1D interpolator) {
     return new InterpolatedFromSurfacesDoublesCube(plane, surfaces, interpolator, true);
   }
 
@@ -192,7 +191,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @return A cube 
    */
   public static InterpolatedFromSurfacesDoublesCube fromSorted(final SurfacePlane plane, final double[] points, final Surface<Double, Double, Double>[] surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+      final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, true, name);
   }
 
@@ -206,7 +205,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @return A cube 
    */
   public static InterpolatedFromSurfacesDoublesCube fromSorted(final SurfacePlane plane, final Double[] points, final Surface<Double, Double, Double>[] surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+      final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, false, name);
   }
 
@@ -220,7 +219,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @return A cube 
    */
   public static InterpolatedFromSurfacesDoublesCube fromSorted(final SurfacePlane plane, final List<Double> points, final List<Surface<Double, Double, Double>> surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+      final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, false, name);
   }
 
@@ -233,7 +232,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @return A cube 
    */
   public static InterpolatedFromSurfacesDoublesCube fromSorted(final SurfacePlane plane, final Map<Double, Surface<Double, Double, Double>> surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+      final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromSurfacesDoublesCube(plane, surfaces, interpolator, false, name);
   }
 
@@ -251,7 +250,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
   private final double[] _points;
   private final Surface<Double, Double, Double>[] _surfaces;
   private final int _nSurfaces;
-  private final Interpolator1D<? extends Interpolator1DDataBundle> _interpolator;
+  private final Interpolator1D _interpolator;
 
   /**
    * @param plane The plane in which the surfaces lie
@@ -262,7 +261,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @param isSorted Is the intersection point data sorted 
    */
   public InterpolatedFromSurfacesDoublesCube(final SurfacePlane plane, final double[] points, final Surface<Double, Double, Double>[] surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted) {
+      final Interpolator1D interpolator, final boolean isSorted) {
     super();
     Validate.notNull(plane, "plane");
     Validate.notNull(points, "points");
@@ -292,7 +291,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    */
   @SuppressWarnings("unchecked")
   public InterpolatedFromSurfacesDoublesCube(final SurfacePlane plane, final Double[] points, final Surface<Double, Double, Double>[] surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted) {
+      final Interpolator1D interpolator, final boolean isSorted) {
     super();
     Validate.notNull(plane, "plane");
     Validate.notNull(points, "points");
@@ -327,7 +326,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    */
   @SuppressWarnings("unchecked")
   public InterpolatedFromSurfacesDoublesCube(final SurfacePlane plane, final List<Double> points, final List<Surface<Double, Double, Double>> surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted) {
+      final Interpolator1D interpolator, final boolean isSorted) {
     super();
     Validate.notNull(plane, "plane");
     Validate.notNull(points, "points");
@@ -361,7 +360,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    */
   @SuppressWarnings("unchecked")
   public InterpolatedFromSurfacesDoublesCube(final SurfacePlane plane, final Map<Double, Surface<Double, Double, Double>> surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted) {
+      final Interpolator1D interpolator, final boolean isSorted) {
     super();
     Validate.notNull(plane, "plane");
     Validate.notNull(surfaces, "surfaces");
@@ -396,7 +395,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @param name The name of the cube 
    */
   public InterpolatedFromSurfacesDoublesCube(final SurfacePlane plane, final double[] points, final Surface<Double, Double, Double>[] surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted, final String name) {
+      final Interpolator1D interpolator, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(plane, "plane");
     Validate.notNull(points, "points");
@@ -427,7 +426,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    */
   @SuppressWarnings("unchecked")
   public InterpolatedFromSurfacesDoublesCube(final SurfacePlane plane, final Double[] points, final Surface<Double, Double, Double>[] surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted, final String name) {
+      final Interpolator1D interpolator, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(plane, "plane");
     Validate.notNull(points, "points");
@@ -463,7 +462,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    */
   @SuppressWarnings("unchecked")
   public InterpolatedFromSurfacesDoublesCube(final SurfacePlane plane, final List<Double> points, final List<Surface<Double, Double, Double>> surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted, final String name) {
+      final Interpolator1D interpolator, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(plane, "plane");
     Validate.notNull(points, "points");
@@ -498,7 +497,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    */
   @SuppressWarnings("unchecked")
   public InterpolatedFromSurfacesDoublesCube(final SurfacePlane plane, final Map<Double, Surface<Double, Double, Double>> surfaces,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted, final String name) {
+      final Interpolator1D interpolator, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(plane, "plane");
     Validate.notNull(surfaces, "surfaces");
@@ -636,7 +635,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
   /**
    * @return The interpolator
    */
-  public Interpolator1D<? extends Interpolator1DDataBundle> getInterpolator() {
+  public Interpolator1D getInterpolator() {
     return _interpolator;
   }
 

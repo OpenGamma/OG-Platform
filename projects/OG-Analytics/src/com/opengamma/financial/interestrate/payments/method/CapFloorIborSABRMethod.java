@@ -12,11 +12,11 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
@@ -77,7 +77,7 @@ public final class CapFloorIborSABRMethod implements PricingMethod {
   }
 
   @Override
-  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof CapFloorIbor, "Cap/Floor on Ibor");
     Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "SABR interest rate data bundle required");
     return presentValue((CapFloorIbor) instrument, (SABRInterestRateDataBundle) curves);
@@ -89,12 +89,12 @@ public final class CapFloorIborSABRMethod implements PricingMethod {
    * @param sabrData The SABR data bundle. The SABR function need to be the Hagan function.
    * @return The present value curve sensitivity.
    */
-  public PresentValueSensitivity presentValueSensitivity(final CapFloorIbor cap, final SABRInterestRateDataBundle sabrData) {
+  public InterestRateCurveSensitivity presentValueSensitivity(final CapFloorIbor cap, final SABRInterestRateDataBundle sabrData) {
     Validate.notNull(cap);
     Validate.notNull(sabrData);
     final EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
     final double forward = PRC.visit(cap, sabrData);
-    final PresentValueSensitivity forwardDr = new PresentValueSensitivity(PRSC.visit(cap, sabrData));
+    final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(PRSC.visit(cap, sabrData));
     final double df = sabrData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getPaymentTime());
     final double dfDr = -cap.getPaymentTime() * df;
     final double maturity = cap.getFixingPeriodEndTime() - cap.getFixingPeriodStartTime();
@@ -105,7 +105,7 @@ public final class CapFloorIborSABRMethod implements PricingMethod {
     list.add(new DoublesPair(cap.getPaymentTime(), dfDr));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
     resultMap.put(cap.getFundingCurveName(), list);
-    PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
+    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     result = result.multiply(bsAdjoint[0]);
     result = result.add(forwardDr.multiply(df * (bsAdjoint[1] + bsAdjoint[2] * volatilityAdjoint[1])));
     result = result.multiply(cap.getNotional() * cap.getPaymentYearFraction());

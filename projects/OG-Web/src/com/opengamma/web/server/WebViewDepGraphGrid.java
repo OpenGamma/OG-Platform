@@ -5,6 +5,24 @@
  */
 package com.opengamma.web.server;
 
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.cometd.Client;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -19,21 +37,6 @@ import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ResultConverter;
 import com.opengamma.web.server.conversion.ResultConverterCache;
-import it.unimi.dsi.fastutil.ints.IntArraySet;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Represents a dependency graph grid. This is slightly special since, unlike the other grids, the columns are known
@@ -45,18 +48,25 @@ public class WebViewDepGraphGrid extends WebViewGrid {
 
   private final AtomicBoolean _init = new AtomicBoolean();
   private final IntSet _historyOutputs = new IntOpenHashSet();
+  private final WebGridCell _parentGridCell;
+  private final String _parentCalcConfigName;
+  private final ValueSpecification _parentValueSpecification;
+  
   private final Set<ValueSpecification> _typedRows = new HashSet<ValueSpecification>();
-
   private Map<ValueSpecification, IntSet> _rowIdMap;
   private List<Object> _rowStructure;
   private ComputationCacheQuery _cacheQuery;
   
-  protected WebViewDepGraphGrid(String name, ViewClient viewClient, ResultConverterCache resultConverterCache) {
-    super(name, viewClient, resultConverterCache);
+  protected WebViewDepGraphGrid(String name, ViewClient viewClient, ResultConverterCache resultConverterCache,
+      Client local, Client remote, WebGridCell parentGridCell, String parentCalcConfigName,
+      ValueSpecification parentValueSpecification) {
+    super(name, viewClient, resultConverterCache, local, remote);
+    _parentGridCell = parentGridCell;
+    _parentCalcConfigName = parentCalcConfigName;
+    _parentValueSpecification = parentValueSpecification;
   }
   
   //-------------------------------------------------------------------------
-  
   /*package*/ boolean isInit() {
     return _init.get();
   }
@@ -83,6 +93,18 @@ public class WebViewDepGraphGrid extends WebViewGrid {
     }
     setViewport(viewportMap);
     return true;
+  }
+  
+  /*package*/ WebGridCell getParentGridCell() {
+    return _parentGridCell;
+  }
+  
+  /*package*/ String getParentCalcConfigName() {
+    return _parentCalcConfigName;
+  }
+  
+  /*package*/ ValueSpecification getParentValueSpecification() {
+    return _parentValueSpecification;
   }
   
   private List<Object> generateRowStructure(DependencyGraph depGraph, ValueSpecification output, Map<ValueSpecification, IntSet> rowIdMap) {
@@ -138,7 +160,7 @@ public class WebViewDepGraphGrid extends WebViewGrid {
     // These are static cell values which are not updated on each tick
     addCellValue(row, "targetType", targetType);
     addCellValue(row, "function", functionName);
-    addCellValue(row, "valueName", valueSpecification.getValueName());
+    addCellValue(row, "valueName", valueSpecification.getValueName().toString());
     if (displayProperties != null) {
       addCellValue(row, "properties", displayProperties);
     }
@@ -176,7 +198,7 @@ public class WebViewDepGraphGrid extends WebViewGrid {
       }
       for (int rowId : rowIds) {
         WebGridCell cell = WebGridCell.of(rowId, 0);
-        Map<String, Object> cellValue = getCellValue(cell, specification, value, resultTimestamp, converter);
+        Map<String, Object> cellValue = processCellValue(cell, specification, value, resultTimestamp, converter);
         if (cellValue != null) {
           if (converter != null) {
             cellValue.put("t", converter.getFormatterName());

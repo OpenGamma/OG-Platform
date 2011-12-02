@@ -67,6 +67,25 @@ public interface CompiledFunctionDefinition {
   Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue);
 
   /**
+   * Tests whether the function may be able to execute correctly when one or more of its declared
+   * requirements are not available. If the function may, the call to {@link #getResults(FunctionCompilationContext, ComputationTarget, Map)}
+   * will only include the matched subset. If only certain subsets of inputs are valid for
+   * execution, the function may reject invalid ones during the second call to {@code getResults}
+   * by returning null. Note that such rejection can increase the cost of graph building; it may
+   * be more efficient to create multiple function instances with mandatory requirements for the
+   * viable subsets.
+   * <p>
+   * Note the difference between this and {@link FunctionInvoker#canHandleMissingInputs}. The
+   * method here controls graph building; whether a dependency graph will be built that does not
+   * produce values satisfying the original requirements. The invoker method controls graph
+   * execution; whether the function should be called when values that the dependency graph should
+   * have produced have not been because of error or lack of market data.
+   * 
+   * @return true to continue graph building if one or more requirements are not available, false otherwise
+   */
+  boolean canHandleMissingRequirements();
+
+  /**
    * Determine any additional input requirements needed as a result of input and output resolution.
    * In general, implementations <b>should not</b> override the implementation in {@link AbstractFunction}. It
    * is only valid to call this on a function which has previously returned true to {@link #canApplyTo}
@@ -100,10 +119,11 @@ public interface CompiledFunctionDefinition {
    * <b>Actual</b> computed values will be trimmed. The default implementation from {@link AbstractFunction}
    * will return the same value as {@link #getResults (FunctionCompilationContext, ComputationTarget)}. If
    * a function specified both its outputs and inputs using a wildcard, with the outputs depending on the
-   * inputs, it should override this to implement that dependency. If it is not possible to generate any
-   * results using the inputs given, an empty set must be returned. It is only valid to call this on a
-   * function which has previously returned true to {@link #canApplyTo} for the given target, its
-   * behavior is otherwise undefined.
+   * inputs, it should override this to implement that dependency.
+   * <p>
+   * If it is not possible to generate any results using the inputs given, an empty set must be returned.
+   * It is only valid to call this on a function which has previously returned true to {@link #canApplyTo}
+   * for the given target, its behavior is otherwise undefined.
    * 
    * @param context  the compilation context with view-specific parameters and configurations
    * @param target  the target for which calculation is desired

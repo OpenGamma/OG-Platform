@@ -5,19 +5,14 @@
  */
 package com.opengamma.financial.analytics.model.forex;
 
-import java.util.Collections;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import javax.time.calendar.Clock;
-import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -29,17 +24,15 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
-import com.opengamma.financial.forex.calculator.ForexConverter;
-import com.opengamma.financial.forex.calculator.ForexDerivative;
+import com.opengamma.financial.forex.method.FXMatrix;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.option.definition.SmileDeltaParameter;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureParameter;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -47,45 +40,50 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
-import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
 public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledInvoker {
-  private final String _putCurveName;
-  private final String _callCurveName;
+  private final String _putFundingCurveName;
+  private final String _putForwardCurveName;
+  private final String _callFundingCurveName;
+  private final String _callForwardCurveName;
   private final String _surfaceName;
-  private final String _valueRequirementName;
   private ForexSecurityConverter _visitor;
 
-  public ForexOptionFunction(final String putCurveName, final String callCurveName, final String surfaceName, final String valueRequirementName) {
-    Validate.notNull(putCurveName, "put curve name");
-    Validate.notNull(callCurveName, "call curve name");
+  public ForexOptionFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName, final String surfaceName) {
+    Validate.notNull(putFundingCurveName, "put funding curve name");
+    Validate.notNull(putForwardCurveName, "put forward curve name");
+    Validate.notNull(callFundingCurveName, "call funding curve name");
+    Validate.notNull(callForwardCurveName, "call forward curve name");
     Validate.notNull(surfaceName, "surface name");
-    Validate.notNull(valueRequirementName, "value requirement name");
-    _putCurveName = putCurveName;
-    _callCurveName = callCurveName;
+    _putFundingCurveName = putFundingCurveName;
+    _putForwardCurveName = putForwardCurveName;
+    _callFundingCurveName = callFundingCurveName;
+    _callForwardCurveName = callForwardCurveName;
     _surfaceName = surfaceName;
-    _valueRequirementName = valueRequirementName;
   }
 
-  protected String getPutCurveName() {
-    return _putCurveName;
+  protected String getPutFundingCurveName() {
+    return _putFundingCurveName;
   }
 
-  protected String getCallCurveName() {
-    return _callCurveName;
+  protected String getPutForwardCurveName() {
+    return _putForwardCurveName;
+  }
+
+  protected String getCallFundingCurveName() {
+    return _callFundingCurveName;
+  }
+
+  protected String getCallForwardCurveName() {
+    return _callForwardCurveName;
   }
 
   protected String getSurfaceName() {
     return _surfaceName;
-  }
-
-  protected String getValueRequirementName() {
-    return _valueRequirementName;
   }
 
   @Override
@@ -98,36 +96,57 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final ForexConverter<?> definition = getDefinition(security);
+    final InstrumentDefinition<?> definition = getDefinition(security);
     final Currency putCurrency = getPutCurrency(security);
     final Currency callCurrency = getCallCurrency(security);
     final ExternalId spotIdentifier = getSpotIdentifier(security);
-    final String putCurveName = _putCurveName + "_" + putCurrency.getCode();
-    final String callCurveName = _callCurveName + "_" + callCurrency.getCode();
+    final String putFundingCurveName = _putFundingCurveName + "_" + putCurrency.getCode();
+    final String callFundingCurveName = _callFundingCurveName + "_" + callCurrency.getCode();
+    final String putForwardCurveName = _putForwardCurveName + "_" + putCurrency.getCode();
+    final String callForwardCurveName = _callForwardCurveName + "_" + callCurrency.getCode();
     final String[] curveNames;
     if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
-      curveNames = new String[] {putCurveName, callCurveName};
+      curveNames = new String[] {putFundingCurveName, callFundingCurveName};
     } else {
-      curveNames = new String[] {callCurveName, putCurveName};
+      curveNames = new String[] {callFundingCurveName, putFundingCurveName};
     }
-    final Object putCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(putCurrency, _putCurveName, _putCurveName, _putCurveName));
-    if (putCurveObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + putCurveName + " curve");
+    final Object putFundingCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(putCurrency, _putFundingCurveName, _putForwardCurveName, _putFundingCurveName));
+    if (putFundingCurveObject == null) {
+      throw new OpenGammaRuntimeException("Could not get " + putFundingCurveName + " curve");
     }
-    final YieldAndDiscountCurve putCurve = (YieldAndDiscountCurve) putCurveObject;
-    final Object callCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(callCurrency, _callCurveName, _callCurveName, _callCurveName));
-    if (callCurveObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + callCurveName + " curve");
+    final YieldAndDiscountCurve putFundingCurve = (YieldAndDiscountCurve) putFundingCurveObject;
+    final Object putForwardCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(putCurrency, _putForwardCurveName, _putForwardCurveName, _putFundingCurveName));
+    if (putForwardCurveObject == null) {
+      throw new OpenGammaRuntimeException("Could not get " + putForwardCurveName + " curve");
     }
-    final YieldAndDiscountCurve callCurve = (YieldAndDiscountCurve) callCurveObject;
+    final YieldAndDiscountCurve putForwardCurve = (YieldAndDiscountCurve) putForwardCurveObject;
+    final Object callFundingCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(callCurrency, _callFundingCurveName, _callForwardCurveName, _callFundingCurveName));
+    if (callFundingCurveObject == null) {
+      throw new OpenGammaRuntimeException("Could not get " + callFundingCurveName + " curve");
+    }
+    final YieldAndDiscountCurve callFundingCurve = (YieldAndDiscountCurve) callFundingCurveObject;
+    final Object callForwardCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(callCurrency, _callForwardCurveName, _callForwardCurveName, _callFundingCurveName));
+    if (callForwardCurveObject == null) {
+      throw new OpenGammaRuntimeException("Could not get " + callForwardCurveName + " curve");
+    }
+    final YieldAndDiscountCurve callForwardCurve = (YieldAndDiscountCurve) callForwardCurveObject;
     final YieldAndDiscountCurve[] curves;
+    final String[] allCurveNames;
+    final Currency ccy1;
+    final Currency ccy2;
     if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
-      curves = new YieldAndDiscountCurve[] {putCurve, callCurve};
+      ccy1 = putCurrency;
+      ccy2 = callCurrency;
+      curves = new YieldAndDiscountCurve[] {putFundingCurve, putForwardCurve, callFundingCurve, callForwardCurve};
+      allCurveNames = new String[] {putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName};
     } else {
-      curves = new YieldAndDiscountCurve[] {callCurve, putCurve};
+      curves = new YieldAndDiscountCurve[] {callFundingCurve, callForwardCurve, putFundingCurve, putForwardCurve};
+      allCurveNames = new String[] {callFundingCurveName, callForwardCurveName, putFundingCurveName, putForwardCurveName};
+      ccy1 = callCurrency;
+      ccy2 = putCurrency;
     }
-    final ForexDerivative fxOption = definition.toDerivative(now, curveNames);
-    final YieldCurveBundle yieldCurves = new YieldCurveBundle(curveNames, curves);
+    final InstrumentDerivative fxOption = definition.toDerivative(now, curveNames);
+    final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
     final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
     final Object spotObject = inputs.getValue(spotRequirement);
     double spot;
@@ -145,36 +164,14 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, _surfaceName)
         .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
     final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(putCurrency, callCurrency);
-    final ValueRequirement fxVolatilitySurfaceRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
+    final ValueRequirement fxVolatilitySurfaceRequirement = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
     final Object volatilitySurfaceObject = inputs.getValue(fxVolatilitySurfaceRequirement);
     if (volatilitySurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + fxVolatilitySurfaceRequirement);
     }
-    @SuppressWarnings("unchecked")
-    final VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>> fxVolatilitySurface = (VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>>) volatilitySurfaceObject;
-    final Object[] objectTenors = fxVolatilitySurface.getXs();
-    final Tenor[] tenors = convertTenors(objectTenors); //TODO why is the necessary?
-    final Pair<Number, FXVolQuoteType>[] quotes = sortQuotes(fxVolatilitySurface.getYs());
-    final int nPoints = tenors.length;
-    final SmileDeltaParameter[] smile = new SmileDeltaParameter[nPoints];
-    final int nSmiles = (quotes.length - 1) / 2;
-    for (int i = 0; i < tenors.length; i++) {
-      final Tenor tenor = tenors[i];
-      final double t = getTime(tenor);
-      final double atm = fxVolatilitySurface.getVolatility(tenor, quotes[0]);
-      final double[] deltas = new double[nSmiles];
-      final double[] riskReversals = new double[nSmiles];
-      final double[] butterflies = new double[nSmiles];
-      //TODO this is gross
-      for (int j = 1, k = 0; j < quotes.length; j += 2, k++) {
-        deltas[k] = quotes[j].getFirst().doubleValue() / 100;
-        riskReversals[k] = fxVolatilitySurface.getVolatility(tenors[i], quotes[j]);
-        butterflies[k] = fxVolatilitySurface.getVolatility(tenors[i], quotes[j + 1]);
-      }
-      smile[i] = new SmileDeltaParameter(t, atm, deltas, riskReversals, butterflies);
-    }
-    final SmileDeltaTermStructureParameter smiles = new SmileDeltaTermStructureParameter(smile);
-    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(smiles, spot, yieldCurves);
+    final SmileDeltaTermStructureParameter smiles = (SmileDeltaTermStructureParameter) volatilitySurfaceObject;
+    final FXMatrix fxMatrix = new FXMatrix(ccy1, ccy2, spot);
+    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(yieldCurves, fxMatrix, smiles, Pair.of(ccy1, ccy2));
     return getResult(fxOption, smileBundle, inputs, target);
   }
 
@@ -182,9 +179,9 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     return _visitor;
   }
 
-  protected abstract Set<ComputedValue> getResult(ForexDerivative fxOption, SmileDeltaTermStructureDataBundle data, FunctionInputs inputs, ComputationTarget target);
+  protected abstract Set<ComputedValue> getResult(InstrumentDerivative forex, SmileDeltaTermStructureDataBundle data, FunctionInputs inputs, ComputationTarget target);
 
-  protected abstract ForexConverter<?> getDefinition(FinancialSecurity target);
+  protected abstract InstrumentDefinition<?> getDefinition(FinancialSecurity target);
 
   protected abstract Currency getPutCurrency(FinancialSecurity target);
 
@@ -199,57 +196,4 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     return ComputationTargetType.SECURITY;
   }
 
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, _putCurveName).with(ValuePropertyNames.RECEIVE_CURVE, _callCurveName)
-        .with(ValuePropertyNames.SURFACE, _surfaceName).get();
-    return Collections.singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(), properties));
-  }
-
-  private Tenor[] convertTenors(final Object[] objectTenors) {
-    final int n = objectTenors.length;
-    final Tenor[] result = new Tenor[n];
-    for (int i = 0; i < n; i++) {
-      result[i] = (Tenor) objectTenors[i];
-    }
-    return result;
-  }
-
-  //TODO this should not be done in here
-  private double getTime(final Tenor tenor) {
-    final Period period = tenor.getPeriod();
-    if (period.getYears() != 0) {
-      return period.getYears();
-    }
-    if (period.getMonths() != 0) {
-      return ((double) period.getMonths()) / 12;
-    }
-    if (period.getDays() != 0) {
-      return ((double) period.getDays()) / 365;
-    }
-    throw new OpenGammaRuntimeException("Should never happen");
-  }
-
-  //TODO this is not the right way to do this
-  @SuppressWarnings("unchecked")
-  private Pair<Number, FXVolQuoteType>[] sortQuotes(final Object[] quotes) {
-    final int n = quotes.length;
-    @SuppressWarnings("rawtypes")
-    final Pair[] sorted = new Pair[n];
-    final SortedSet<Number> deltas = new TreeSet<Number>();
-    for (final Object quote : quotes) {
-      final Pair<Number, FXVolQuoteType> pair = (Pair<Number, FXVolQuoteType>) quote;
-      deltas.add(pair.getFirst());
-    }
-    int i = 0;
-    for (final Number delta : deltas) {
-      if (delta.intValue() != 0) {
-        sorted[i++] = ObjectsPair.of(delta, FXVolQuoteType.RISK_REVERSAL);
-        sorted[i++] = ObjectsPair.of(delta, FXVolQuoteType.BUTTERFLY);
-      } else {
-        sorted[i++] = ObjectsPair.of(delta, FXVolQuoteType.ATM);
-      }
-    }
-    return sorted;
-  }
 }

@@ -16,7 +16,7 @@ import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -26,7 +26,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class FRASecurityConverter implements FRASecurityVisitor<FixedIncomeInstrumentConverter<?>> {
+public class FRASecurityConverter implements FRASecurityVisitor<InstrumentDefinition<?>> {
   private final HolidaySource _holidaySource;
   private final RegionSource _regionSource;
   private final ConventionBundleSource _conventionSource;
@@ -52,10 +52,8 @@ public class FRASecurityConverter implements FRASecurityVisitor<FixedIncomeInstr
     final ZonedDateTime accrualEndDate = security.getEndDate();
     final double notional = security.getAmount();
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, RegionUtils.currencyRegionId(currency)); //TODO exchange region?
-    final IborIndex iborIndex = new IborIndex(currency, fraConvention.getPeriod(), fraConvention.getSettlementDays(),
-        calendar, fraConvention.getDayCount(), fraConvention.getBusinessDayConvention(),
+    final IborIndex iborIndex = new IborIndex(currency, fraConvention.getPeriod(), fraConvention.getSettlementDays(), calendar, fraConvention.getDayCount(), fraConvention.getBusinessDayConvention(),
         fraConvention.isEOMConvention());
-    final double rate = security.getRate() / 100; //TODO should not be done here
-    return ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, notional, iborIndex, rate);
+    return ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, notional, iborIndex, security.getRate());
   }
 }

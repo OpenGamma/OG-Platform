@@ -17,9 +17,6 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.LinearInterpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.money.Currency;
 
@@ -29,23 +26,22 @@ import com.opengamma.util.money.Currency;
 public class MultipleYieldCurveFinderFunctionTest {
   private static final Currency CUR = Currency.AUD;
   private static final String CURVE_NAME = "Test";
-  private static final List<InterestRateDerivative> DERIVATIVES;
+  private static final List<InstrumentDerivative> DERIVATIVES;
   private static final double[] SIMPLE_RATES;
   private static final double[] CONTINUOUS_RATES;
   private static final double[] TIMES;
 
-  private static final InterestRateDerivativeVisitor<YieldCurveBundle, Double> CALCULATOR = ParRateCalculator.getInstance();
+  private static final InstrumentDerivativeVisitor<YieldCurveBundle, Double> CALCULATOR = ParRateCalculator.getInstance();
 
-  private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = new LinearInterpolator1D();
+  private static final Interpolator1D INTERPOLATOR = new LinearInterpolator1D();
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> FINDER;
   private static final LinkedHashMap<String, double[]> NODES = new LinkedHashMap<String, double[]>();
-  private static final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> INTERPOLATORS = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
-  private static final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> SENSITIVITY_CALCULATORS = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+  private static final LinkedHashMap<String, Interpolator1D> INTERPOLATORS = new LinkedHashMap<String, Interpolator1D>();
   private static final MultipleYieldCurveFinderDataBundle DATA;
 
   static {
     final int n = 10;
-    DERIVATIVES = new ArrayList<InterestRateDerivative>();
+    DERIVATIVES = new ArrayList<InstrumentDerivative>();
     SIMPLE_RATES = new double[n];
     CONTINUOUS_RATES = new double[n];
     TIMES = new double[n];
@@ -59,8 +55,7 @@ public class MultipleYieldCurveFinderFunctionTest {
     }
     NODES.put(CURVE_NAME, TIMES);
     INTERPOLATORS.put(CURVE_NAME, INTERPOLATOR);
-    SENSITIVITY_CALCULATORS.put(CURVE_NAME, new LinearInterpolator1DNodeSensitivityCalculator());
-    DATA = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, SIMPLE_RATES, null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
+    DATA = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, SIMPLE_RATES, null, NODES, INTERPOLATORS, false);
     FINDER = new MultipleYieldCurveFinderFunction(DATA, CALCULATOR);
   }
 
@@ -86,10 +81,10 @@ public class MultipleYieldCurveFinderFunctionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongNodeNumber() {
-    final List<InterestRateDerivative> list = new ArrayList<InterestRateDerivative>();
+    final List<InstrumentDerivative> list = new ArrayList<InstrumentDerivative>();
     list.add(new Cash(CUR, 1, 1, 0.01, CURVE_NAME));
     list.add(new Cash(CUR, 0.5, 1, 0.01, CURVE_NAME));
-    new MultipleYieldCurveFinderFunction(new MultipleYieldCurveFinderDataBundle(list, new double[list.size()], null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS), CALCULATOR);
+    new MultipleYieldCurveFinderFunction(new MultipleYieldCurveFinderDataBundle(list, new double[list.size()], null, NODES, INTERPOLATORS, false), CALCULATOR);
   }
 
   @Test

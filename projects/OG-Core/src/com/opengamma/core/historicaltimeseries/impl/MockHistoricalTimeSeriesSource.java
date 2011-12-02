@@ -14,9 +14,12 @@ import javax.time.calendar.LocalDate;
 import com.google.common.base.Supplier;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSupplier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -80,7 +83,7 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
   public HistoricalTimeSeries getHistoricalTimeSeries(
       ExternalIdBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
     ArgumentChecker.notNull(identifiers, "identifiers");
-    HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, identifierValidityDate, identifiers, dataSource, dataProvider, dataField);
+    HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, null, identifiers, dataSource, dataProvider, dataField);
     UniqueId uniqueId = _metaUniqueIdStore.get(key);
     if (uniqueId == null) {
       return null;
@@ -104,18 +107,34 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
     return getSubSeries(hts, start, inclusiveStart, end, includeEnd);
   }
 
-  //-------------------------------------------------------------------------
+  private HistoricalTimeSeries getAnyMatching(final String dataField, final ExternalIdBundle identifiers) {
+    for (Map.Entry<HistoricalTimeSeriesKey, UniqueId> ts : _metaUniqueIdStore.entrySet()) {
+      if (dataField.equals(ts.getKey().getDataField()) && identifiers.equals(ts.getKey().getExternalIdBundle())) {
+        return _timeSeriesStore.get(ts.getValue());
+      }
+    }
+    return null;
+  }
+
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifiers, String resolutionKey) {
-    throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
+    if (resolutionKey == null) {
+      return getAnyMatching(dataField, identifiers);
+    } else {
+      throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
+    }
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifiers, String configName, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean includeEnd) {
-    throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
+    if (configName == null) {
+      return getSubSeries(getAnyMatching(dataField, identifiers), start, inclusiveStart, end, includeEnd);
+    } else {
+      throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
+    }
   }
 
   @Override
@@ -129,6 +148,23 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
       String dataField, ExternalIdBundle identifiers, LocalDate identifierValidityDate, String resolutionKey,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean includeEnd) {
     throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
+    LocalDateDoubleTimeSeries ts = getHistoricalTimeSeries(uniqueId).getTimeSeries();
+    HistoricalTimeSeriesSummary result = new HistoricalTimeSeriesSummary();
+    result.setEarliestDate(ts.getEarliestTime());
+    result.setLatestDate(ts.getLatestTime());
+    result.setEarliestValue(ts.getEarliestValue());
+    result.setLatestValue(ts.getLatestValue());
+    return result;
+  }
+
+  @Override
+  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    throw new UnsupportedOperationException("Does not support getting summary information by object id and version correction");
   }
 
   //-------------------------------------------------------------------------

@@ -7,8 +7,6 @@ package com.opengamma.masterdb.portfolio;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.TimeZone;
-
 import javax.time.Instant;
 
 import org.slf4j.Logger;
@@ -23,7 +21,7 @@ import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioHistoryRequest;
 import com.opengamma.master.portfolio.PortfolioHistoryResult;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests ModifyPortfolioDbPortfolioMasterWorker.
@@ -33,11 +31,10 @@ public class ModifyPortfolioDbPortfolioMasterWorkerCorrectTest extends AbstractD
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPortfolioDbPortfolioMasterWorkerCorrectTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyPortfolioDbPortfolioMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------

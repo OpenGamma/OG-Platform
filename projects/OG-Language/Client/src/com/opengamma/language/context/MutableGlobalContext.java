@@ -5,16 +5,18 @@
  */
 package com.opengamma.language.context;
 
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.financial.currency.CurrencyPairsSource;
+import com.opengamma.financial.user.rest.RemoteClient;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.function.FunctionDefinitionFilter;
 import com.opengamma.language.invoke.AggregatingTypeConverterProvider;
@@ -54,14 +56,12 @@ public class MutableGlobalContext extends GlobalContext {
 
   // Standard context members
 
-  public void setSystemSettings(final Properties properties) {
-    ArgumentChecker.notNull(properties, "properties");
-    setValue(SYSTEM_SETTINGS, properties);
+  public void setClient(final RemoteClient client) {
+    removeOrReplaceValue(CLIENT, client);
   }
 
-  public void replaceSystemSettings(final Properties properties) {
-    ArgumentChecker.notNull(properties, "properties");
-    replaceValue(SYSTEM_SETTINGS, properties);
+  public void setExchangeSource(final ExchangeSource exchangeSource) {
+    removeOrReplaceValue(EXCHANGE_SOURCE, exchangeSource);
   }
 
   public void setFunctionDefinitionFilter(final FunctionDefinitionFilter functionDefinitionFilter) {
@@ -69,9 +69,45 @@ public class MutableGlobalContext extends GlobalContext {
     replaceValue(FUNCTION_DEFINITION_FILTER, functionDefinitionFilter);
   }
 
+  public void setFunctionParameterConverter(final ParameterConverter parameterConverter) {
+    removeOrReplaceValue(FUNCTION_PARAMETER_CONVERTER, parameterConverter);
+  }
+
+  public void setFunctionResultConverter(final ResultConverter resultConverter) {
+    removeOrReplaceValue(FUNCTION_RESULT_CONVERTER, resultConverter);
+  }
+
+  public void setHistoricalTimeSeriesSource(final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
+    removeOrReplaceValue(HISTORICAL_TIME_SERIES_SOURCE, historicalTimeSeriesSource);
+  }
+
+  public void setHolidaySource(final HolidaySource holidaySource) {
+    removeOrReplaceValue(HOLIDAY_SOURCE, holidaySource);
+  }
+
   public void setLiveDataDefinitionFilter(final LiveDataDefinitionFilter liveDataDefinitionFilter) {
     ArgumentChecker.notNull(liveDataDefinitionFilter, "liveDataDefinitionFilter");
     replaceValue(LIVEDATA_DEFINITION_FILTER, liveDataDefinitionFilter);
+  }
+
+  public void setLiveDataParameterConverter(final ParameterConverter parameterConverter) {
+    removeOrReplaceValue(LIVEDATA_PARAMETER_CONVERTER, parameterConverter);
+  }
+
+  public void setLiveDataResultConverter(final ResultConverter resultConverter) {
+    removeOrReplaceValue(LIVEDATA_RESULT_CONVERTER, resultConverter);
+  }
+
+  public void setMarketDataSnapshotSource(final MarketDataSnapshotSource marketDataSnapshotSource) {
+    removeOrReplaceValue(MARKET_DATA_SNAPSHOT_SOURCE, marketDataSnapshotSource);
+  }
+
+  public void setParameterConverter(final ParameterConverter parameterConverter) {
+    removeOrReplaceValue(PARAMETER_CONVERTER, parameterConverter);
+  }
+
+  public void setPositionSource(final PositionSource positionSource) {
+    removeOrReplaceValue(POSITION_SOURCE, positionSource);
   }
 
   public void setProcedureDefinitionFilter(final ProcedureDefinitionFilter procedureDefinitionFilter) {
@@ -79,41 +115,28 @@ public class MutableGlobalContext extends GlobalContext {
     replaceValue(PROCEDURE_DEFINITION_FILTER, procedureDefinitionFilter);
   }
 
-  public void setParameterConverter(final ParameterConverter parameterConverter) {
-    removeOrReplaceValue(PARAMETER_CONVERTER, parameterConverter);
-  }
-
-  public void setFunctionParameterConverter(final ParameterConverter parameterConverter) {
-    removeOrReplaceValue(FUNCTION_PARAMETER_CONVERTER, parameterConverter);
-  }
-
-  public void setLiveDataParameterConverter(final ParameterConverter parameterConverter) {
-    removeOrReplaceValue(LIVEDATA_PARAMETER_CONVERTER, parameterConverter);
-  }
-
   public void setProcedureParameterConverter(final ParameterConverter parameterConverter) {
     removeOrReplaceValue(PROCEDURE_PARAMETER_CONVERTER, parameterConverter);
-  }
-
-  public void setResultConverter(final ResultConverter resultConverter) {
-    removeOrReplaceValue(RESULT_CONVERTER, resultConverter);
-  }
-
-  public void setFunctionResultConverter(final ResultConverter resultConverter) {
-    removeOrReplaceValue(FUNCTION_RESULT_CONVERTER, resultConverter);
-  }
-
-  public void setLiveDataResultConverter(final ResultConverter resultConverter) {
-    removeOrReplaceValue(LIVEDATA_RESULT_CONVERTER, resultConverter);
   }
 
   public void setProcedureResultConverter(final ResultConverter resultConverter) {
     removeOrReplaceValue(PROCEDURE_RESULT_CONVERTER, resultConverter);
   }
 
-  public void setValueConverter(final ValueConverter valueConverter) {
-    ArgumentChecker.notNull(valueConverter, "valueConverter");
-    replaceValue(VALUE_CONVERTER, valueConverter);
+  public void setRegionSource(final RegionSource regionSource) {
+    removeOrReplaceValue(REGION_SOURCE, regionSource);
+  }
+
+  public void setResultConverter(final ResultConverter resultConverter) {
+    removeOrReplaceValue(RESULT_CONVERTER, resultConverter);
+  }
+
+  public void setSaturatingExecutor(final ExecutorService executorService) {
+    setValue(SATURATING_EXECUTOR, executorService);
+  }
+
+  public void setSecuritySource(final SecuritySource securitySource) {
+    removeOrReplaceValue(SECURITY_SOURCE, securitySource);
   }
 
   @Override
@@ -121,36 +144,17 @@ public class MutableGlobalContext extends GlobalContext {
     return getTypeConverterProviderImpl();
   }
 
-  public void setHistoricalTimeSeriesSource(final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
-    removeOrReplaceValue(HISTORICAL_TIME_SERIES_SOURCE, historicalTimeSeriesSource);
+  public void setValueConverter(final ValueConverter valueConverter) {
+    ArgumentChecker.notNull(valueConverter, "valueConverter");
+    replaceValue(VALUE_CONVERTER, valueConverter);
   }
-  
+
   public void setViewProcessor(final ViewProcessor viewProcessor) {
     removeOrReplaceValue(VIEW_PROCESSOR, viewProcessor);
   }
 
-  public void setPositionSource(final PositionSource positionSource) {
-    removeOrReplaceValue(POSITION_SOURCE, positionSource);
-  }
-
-  public void setSecuritySource(final SecuritySource securitySource) {
-    removeOrReplaceValue(SECURITY_SOURCE, securitySource);
-  }
-
-  public void setSaturatingExecutor(final ExecutorService executorService) {
-    setValue(SATURATING_EXECUTOR, executorService);
-  }
-
-  public void setExchangeSource(final ExchangeSource exchangeSource) {
-    removeOrReplaceValue(EXCHANGE_SOURCE, exchangeSource);
-  }
-
-  public void setRegionSource(final RegionSource regionSource) {
-    removeOrReplaceValue(REGION_SOURCE, regionSource);
-  }
-
-  public void setHolidaySource(final HolidaySource holidaySource) {
-    removeOrReplaceValue(HOLIDAY_SOURCE, holidaySource);
+  public void setCurrencyPairsSource(final CurrencyPairsSource currencyPairsSource) {
+    removeOrReplaceValue(CURRENCY_PAIRS_SOURCE, currencyPairsSource);
   }
 
   // Arbitrary values

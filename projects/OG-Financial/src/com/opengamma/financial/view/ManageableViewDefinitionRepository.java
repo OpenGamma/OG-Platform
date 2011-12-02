@@ -7,6 +7,7 @@ package com.opengamma.financial.view;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.view.ViewDefinitionRepository;
+import com.opengamma.id.UniqueId;
 
 /**
  * A view definition repository that can be managed. 
@@ -27,7 +28,7 @@ public interface ManageableViewDefinitionRepository extends ViewDefinitionReposi
    * @param request  the request, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  void addViewDefinition(AddViewDefinitionRequest request);
+  UniqueId addViewDefinition(AddViewDefinitionRequest request);
   
   /**
    * Updates a view definition in the repository.
@@ -41,9 +42,9 @@ public interface ManageableViewDefinitionRepository extends ViewDefinitionReposi
   /**
    * Removes a view definition from the repository.
    * 
-   * @param name  the name of the view definition to remove, not null
+   * @param definitionId  the Id of the view definition to remove, not null
    * @throws DataNotFoundException if the view definition is not found
    */
-  void removeViewDefinition(String name);
+  void removeViewDefinition(UniqueId definitionId);
   
 }

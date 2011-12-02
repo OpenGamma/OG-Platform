@@ -166,8 +166,8 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
       final int cols = data[0].length;
       final double[][] res = new double[cols][rows];
       int i, j;
-      for (i = 0; i < rows; i++) {
-        for (j = 0; j < cols; j++) {
+      for (i = 0; i < cols; i++) {
+        for (j = 0; j < rows; j++) {
           res[i][j] = data[j][i];
         }
       }
@@ -213,7 +213,8 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     final double[][] a = m1.getData();
     final double[][] b = m2.getData();
     final int p = b.length;
-    Validate.isTrue(a[0].length == p, "Matrix size mismatch");
+    Validate.isTrue(a[0].length == p, "Matrix size mismatch. m1 is " + m1.getNumberOfRows() + " by "
+        + m1.getNumberOfColumns() + ", but m2 is " + m2.getNumberOfRows() + " by " + m2.getNumberOfColumns());
     final int m = a.length;
     final int n = b[0].length;
     double sum;

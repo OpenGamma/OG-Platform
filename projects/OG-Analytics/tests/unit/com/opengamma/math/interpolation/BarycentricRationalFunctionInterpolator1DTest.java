@@ -17,7 +17,6 @@ import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.RealPolynomialFunction1D;
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
@@ -26,7 +25,7 @@ public class BarycentricRationalFunctionInterpolator1DTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final Function1D<Double, Double> F = new RealPolynomialFunction1D(new double[] {RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble(),
       RANDOM.nextDouble()});
-  private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = new BarycentricRationalFunctionInterpolator1D(5);
+  private static final Interpolator1D INTERPOLATOR = new BarycentricRationalFunctionInterpolator1D(5, 1e-12);
   private static final double EPS = 1;
 
   @Test(expectedExceptions = IllegalArgumentException.class)

@@ -18,11 +18,15 @@ import com.opengamma.financial.instrument.index.iborindex.Euribor3M;
 import com.opengamma.financial.instrument.index.iborindex.Euribor6M;
 import com.opengamma.financial.instrument.index.iborindex.UsdLibor3M;
 import com.opengamma.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.financial.model.interestrate.curve.SeasonalCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.curve.Curve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.math.curve.MultiplyCurveSpreadFunction;
+import com.opengamma.math.curve.SpreadDoublesCurve;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
@@ -91,6 +95,10 @@ public class MarketDataSets {
     MARKET_1.setCurve(ISSUER_UK_GOVT, CURVE_GBP_30);
     MARKET_1.setCurve(ISSUER_US_GOVT, CURVE_USD_30);
   }
+  // Seasonal factors (from February/January to December/November)
+  //  private static final double[] SEASONAL_FACTOR_EUR = new double[] {1.0010, 1.0010, 1.0020, 0.9990, 0.9990, 0.9990, 0.9990, 1.0000, 1.0010, 1.0010, 1.0010};
+  private static final double[] SEASONAL_FACTOR_USD = new double[] {1.0010, 1.0010, 1.0020, 0.9990, 0.9990, 0.9990, 0.9990, 1.0000, 1.0010, 1.0010, 1.0010};
+  //  private static final double[] SEASONAL_FACTOR_GBP = new double[] {1.0010, 1.0010, 1.0020, 0.9990, 0.9990, 0.9990, 0.9990, 1.0000, 1.0010, 1.0010, 1.0010};
   // Price index data
   private static final double[] UKRPI_VALUE = new double[] {217.9, 219.2, 220.7, 222.8, 223.6, 224.1, 223.6, 224.5, 225.3, 225.8, 226.8, 228.4, 229, 231.3, 232.5, 234.4, 235.2, 235.2};
   private static final ZonedDateTime[] UKRPI_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 1, 1), DateUtils.getUTCDate(2010, 2, 1), DateUtils.getUTCDate(2010, 3, 1),
@@ -117,6 +125,29 @@ public class MarketDataSets {
       DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 6, 1)};
   private static final ArrayZonedDateTimeDoubleTimeSeries USCPI_TIME_SERIES = new ArrayZonedDateTimeDoubleTimeSeries(USCPI_DATE, USCPI_VALUE);
 
+  // Europe : EURO HICP-X 2009-2011
+  private static final double[] EUROHICPX_VALUE_2008 = new double[] {105.80, 106.17, 107.21, 107.55, 108.23, 108.64, 108.47, 108.32, 108.52, 108.55, 108.02, 107.88};
+  private static final double[] EUROHICPX_VALUE_2009 = new double[] {106.98, 107.42, 107.82, 108.21, 108.27, 108.48, 107.77, 108.14, 108.16, 108.41, 108.54, 108.88};
+  private static final double[] EUROHICPX_VALUE_2010 = new double[] {107.99, 108.33, 109.53, 109.98, 110.10, 110.10, 109.63, 109.85, 110.19, 110.52, 110.62, 111.29};
+  private static final double[] EUROHICPX_VALUE_2011 = new double[] {110.50, 110.96, 112.47, 113.10, 113.11, 113.10};
+  private static final double[] EUROHICPX_VALUE = new double[3 * 12 + USCPI_VALUE_2011.length];
+  static {
+    System.arraycopy(EUROHICPX_VALUE_2008, 0, EUROHICPX_VALUE, 0, 12);
+    System.arraycopy(EUROHICPX_VALUE_2009, 0, EUROHICPX_VALUE, 12, 12);
+    System.arraycopy(EUROHICPX_VALUE_2010, 0, EUROHICPX_VALUE, 24, 12);
+    System.arraycopy(EUROHICPX_VALUE_2011, 0, EUROHICPX_VALUE, 36, USCPI_VALUE_2011.length);
+  }
+  private static final ZonedDateTime[] EUROHICPX_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2008, 1, 1), DateUtils.getUTCDate(2008, 2, 1), DateUtils.getUTCDate(2008, 3, 1),
+      DateUtils.getUTCDate(2008, 4, 1), DateUtils.getUTCDate(2008, 5, 1), DateUtils.getUTCDate(2008, 6, 1), DateUtils.getUTCDate(2008, 7, 1), DateUtils.getUTCDate(2008, 8, 1),
+      DateUtils.getUTCDate(2008, 9, 1), DateUtils.getUTCDate(2008, 10, 1), DateUtils.getUTCDate(2008, 11, 1), DateUtils.getUTCDate(2008, 12, 1), DateUtils.getUTCDate(2009, 1, 1),
+      DateUtils.getUTCDate(2009, 2, 1), DateUtils.getUTCDate(2009, 3, 1), DateUtils.getUTCDate(2009, 4, 1), DateUtils.getUTCDate(2009, 5, 1), DateUtils.getUTCDate(2009, 6, 1),
+      DateUtils.getUTCDate(2009, 7, 1), DateUtils.getUTCDate(2009, 8, 1), DateUtils.getUTCDate(2009, 9, 1), DateUtils.getUTCDate(2009, 10, 1), DateUtils.getUTCDate(2009, 11, 1),
+      DateUtils.getUTCDate(2009, 12, 1), DateUtils.getUTCDate(2010, 1, 1), DateUtils.getUTCDate(2010, 2, 1), DateUtils.getUTCDate(2010, 3, 1), DateUtils.getUTCDate(2010, 4, 1),
+      DateUtils.getUTCDate(2010, 5, 1), DateUtils.getUTCDate(2010, 6, 1), DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 1), DateUtils.getUTCDate(2010, 9, 1),
+      DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1), DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2011, 1, 1), DateUtils.getUTCDate(2011, 2, 1),
+      DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 4, 1), DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 6, 1)};
+  private static final ArrayZonedDateTimeDoubleTimeSeries EUROHICPX_TIME_SERIES = new ArrayZonedDateTimeDoubleTimeSeries(EUROHICPX_DATE, EUROHICPX_VALUE);
+
   /**
    * Returns a market with three currencies (EUR, USD, GBP), three Ibor indexes (Euribor3M, Euribor6M, UsdLibor3M) and three inflation (Euro HICP x, UK RPI and US CPI-U).
    * @return The market.
@@ -127,7 +158,8 @@ public class MarketDataSets {
 
   /**
    * Creates a market with three currencies (EUR, USD, GBP), three Ibor indexes (Euribor3M, Euribor6M, UsdLibor3M) and three inflation (Euro HICP x, UK RPI and US CPI-U).
-   * The US CPI-U price curve is constructed to have the correct past data (if available in the time series) and a fake 2% inflation for the future.
+   * The US CPI-U price curve is constructed to have the correct past data (if available in the time series) and a fake 2% inflation for the future. 
+   * No seasonal adjustment is done.
    * @param pricingDate The data for which the curve is constructed.
    * @return The market.
    */
@@ -149,22 +181,36 @@ public class MarketDataSets {
     referenceDate[0] = referenceInterpolatedDate.withDayOfMonth(1);
     referenceDate[1] = referenceDate[0].plusMonths(1);
     int[] yearUs = new int[] {1, 5, 10, 20, 50};
-    double[] indexValueUs = new double[2 + yearUs.length];
-    double[] timeValueUs = new double[2 + yearUs.length];
+    double[] indexValueUs = new double[2 + 2 * yearUs.length];
+    double[] timeValueUs = new double[2 + 2 * yearUs.length];
     indexValueUs[0] = USCPI_TIME_SERIES.getValue(referenceDate[0]);
     indexValueUs[1] = USCPI_TIME_SERIES.getValue(referenceDate[1]);
     timeValueUs[0] = TimeCalculator.getTimeBetween(pricingDate, referenceDate[0]);
     timeValueUs[1] = TimeCalculator.getTimeBetween(pricingDate, referenceDate[1]);
-    ZonedDateTime[] maturityDateUs = new ZonedDateTime[yearUs.length];
+    ZonedDateTime[] maturityDateUs = new ZonedDateTime[2 * yearUs.length];
     //    double[] maturityTimeUs = new double[yearUs.length];
     for (int loopus = 0; loopus < yearUs.length; loopus++) {
-      maturityDateUs[loopus] = ScheduleCalculator.getAdjustedDate(spotUs, BUSINESS_DAY_USD, CALENDAR_USD, yearUs[loopus]);
-      timeValueUs[loopus + 2] = TimeCalculator.getTimeBetween(pricingDate, maturityDateUs[loopus]);
-      indexValueUs[loopus + 2] = indexValueUs[1] * Math.pow(1 + 0.02, yearUs[loopus]); // 2% inflation a year.
+      maturityDateUs[2 * loopus] = ScheduleCalculator.getAdjustedDate(referenceDate[0], BUSINESS_DAY_USD, CALENDAR_USD, Period.ofYears(yearUs[loopus]));
+      maturityDateUs[2 * loopus + 1] = ScheduleCalculator.getAdjustedDate(referenceDate[1], BUSINESS_DAY_USD, CALENDAR_USD, Period.ofYears(yearUs[loopus]));
+      timeValueUs[2 + 2 * loopus] = TimeCalculator.getTimeBetween(pricingDate, maturityDateUs[2 * loopus]);
+      timeValueUs[2 + 2 * loopus + 1] = TimeCalculator.getTimeBetween(pricingDate, maturityDateUs[2 * loopus + 1]);
+      indexValueUs[2 + 2 * loopus] = indexValueUs[0] * Math.pow(1 + 0.02, yearUs[loopus]); // 2% inflation a year.
+      indexValueUs[2 + 2 * loopus + 1] = indexValueUs[1] * Math.pow(1 + 0.02, yearUs[loopus]); // 2% inflation a year.
     }
     InterpolatedDoublesCurve curveUs = InterpolatedDoublesCurve.from(timeValueUs, indexValueUs, new LinearInterpolator1D(), NAME_USD_PRICE_INDEX);
     PriceIndexCurve priceIndexCurveUs = new PriceIndexCurve(curveUs);
     market.setCurve(PRICE_INDEX_USD, priceIndexCurveUs);
+    return market;
+  }
+
+  public static MarketBundle createMarket2(ZonedDateTime pricingDate) {
+    MarketBundle market = createMarket1(pricingDate);
+    Curve<Double, Double> curveNoAdj = market.getCurve(PRICE_INDEX_USD).getCurve();
+    Curve<Double, Double> adj = new SeasonalCurve(curveNoAdj.getXData()[0], SEASONAL_FACTOR_USD);
+    @SuppressWarnings("unchecked")
+    Curve<Double, Double>[] curveSet = new Curve[] {curveNoAdj, adj};
+    Curve<Double, Double> curveAdj = new SpreadDoublesCurve(new MultiplyCurveSpreadFunction(), curveSet);
+    market.replaceCurve(PRICE_INDEX_USD, new PriceIndexCurve(curveAdj));
     return market;
   }
 
@@ -182,6 +228,22 @@ public class MarketDataSets {
    */
   public static DoubleTimeSeries<ZonedDateTime> usCpiFrom2009() {
     return USCPI_TIME_SERIES;
+  }
+
+  /**
+   * Returns the EURO HICP-X time series (2009-2011).
+   * @return The time series.
+   */
+  public static DoubleTimeSeries<ZonedDateTime> euroHICPXFrom2009() {
+    return EUROHICPX_TIME_SERIES;
+  }
+
+  public static PriceIndex[] getPriceIndexes() {
+    return new PriceIndex[] {PRICE_INDEX_EUR, PRICE_INDEX_GBP, PRICE_INDEX_USD};
+  }
+
+  public static IborIndex[] getIborIndexes() {
+    return new IborIndex[] {EURIBOR_3M, EURIBOR_6M, USDLIBOR_3M};
   }
 
 }

@@ -42,8 +42,8 @@ import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveE
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -56,7 +56,7 @@ import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 public abstract class InterestRateInstrumentFunction extends AbstractFunction.NonCompiledInvoker {
   private FixedIncomeConverterDataProvider _definitionConverter;
   private final String _valueRequirementName;
-  private FinancialSecurityVisitorAdapter<FixedIncomeInstrumentConverter<?>> _visitor;
+  private FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> _visitor;
   private final String _forwardCurveName;
   private final String _fundingCurveName;
 
@@ -74,7 +74,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext
-        .getConventionBundleSource(context);
+    .getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, conventionSource);
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
@@ -85,10 +85,10 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
     final FutureSecurityConverter futureConverter = new FutureSecurityConverter(bondFutureConverter, irFutureConverter);
     _visitor =
-        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>>builder()
-            .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
-            .futureSecurityVisitor(futureConverter)
-            .bondSecurityVisitor(bondConverter).create();
+      FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
+        .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
+        .futureSecurityVisitor(futureConverter)
+        .bondSecurityVisitor(bondConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
 
@@ -115,18 +115,18 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
     final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve
         : (YieldAndDiscountCurve) fundingCurveObject;
-    final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {_forwardCurveName, _fundingCurveName},
-        new YieldAndDiscountCurve[] {forwardCurve, fundingCurve});
-    final FixedIncomeInstrumentConverter<?> definition = security.accept(_visitor);
+    final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {_fundingCurveName, _forwardCurveName},
+        new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
+    final InstrumentDefinition<?> definition = security.accept(_visitor);
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
-    final InterestRateDerivative derivative = _definitionConverter.convert(security, definition, now, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security,
+    final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security,
         _fundingCurveName, _forwardCurveName), dataSource);
-    return getComputedValues(derivative, bundle, security);
+    return getComputedValues(derivative, bundle, security, target);
   }
 
-  public abstract Set<ComputedValue> getComputedValues(InterestRateDerivative derivative, YieldCurveBundle bundle, FinancialSecurity security);
+  public abstract Set<ComputedValue> getComputedValues(InstrumentDerivative derivative, YieldCurveBundle bundle, FinancialSecurity security, ComputationTarget target);
 
   @Override
   public ComputationTargetType getTargetType() {

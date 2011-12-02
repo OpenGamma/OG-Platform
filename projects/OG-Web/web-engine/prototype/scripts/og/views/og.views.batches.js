@@ -25,7 +25,7 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search,
+            search, layout,
             ui = common.util.ui,
             module = this,
             page_name = module.name.split('.').pop(),
@@ -56,22 +56,28 @@ $.register_module({
                 toolbar: {
                     'default': {
                         buttons: [
-                            {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'new', enabled: 'OG-disabled'}
+                            {id: 'new', tooltip: 'New', enabled: 'OG-disabled'},
+                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     },
                     active: {
                         buttons: [
-                            {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'new', enabled: 'OG-disabled'}
+                            {id: 'new', tooltip: 'New', enabled: 'OG-disabled'},
+                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     }
                 }
             },
             default_details = og.views.common.default_details.partial(page_name, 'Batches', options),
             details_page = function (args){
+                layout.inner.options.south.onclose = null;
+                layout.inner.close('south');
                 api.rest.batches.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
@@ -82,8 +88,7 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            var layout = og.views.common.layout, header, content,
-                                $html = $.tmpl(template, json.template_data);
+                            var header, content, $html = $.tmpl(template, json.template_data);
                             header = $.outer($html.find('> header')[0]);
                             content = $.outer($html.find('> section')[0]);
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
@@ -112,6 +117,7 @@ $.register_module({
         };
         return batches = {
             load: function (args) {
+                layout = og.views.common.layout;
                 check_state({args: args, conditions: [
                     {new_page: function (args) {
                         batches.search(args);

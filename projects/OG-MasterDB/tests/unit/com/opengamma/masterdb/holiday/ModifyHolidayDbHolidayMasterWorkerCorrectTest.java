@@ -8,7 +8,6 @@ package com.opengamma.masterdb.holiday;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
-import java.util.TimeZone;
 
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
@@ -25,7 +24,7 @@ import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests ModifyHolidayDbHolidayMasterWorker.
@@ -35,11 +34,10 @@ public class ModifyHolidayDbHolidayMasterWorkerCorrectTest extends AbstractDbHol
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyHolidayDbHolidayMasterWorkerCorrectTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyHolidayDbHolidayMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------

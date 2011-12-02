@@ -12,10 +12,10 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
@@ -118,7 +118,7 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
   }
 
   @Override
-  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof CapFloorCMSSpread, "CMS spread cap/floor");
     Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "Bundle should contain SABR data");
     return presentValue((CapFloorCMSSpread) instrument, (SABRInterestRateDataBundle) curves);
@@ -146,7 +146,7 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
    * @param sabrData The SABR data bundle.
    * @return The present value curve sensitivity.
    */
-  public PresentValueSensitivity presentValueSensitivity(final CapFloorCMSSpread cmsSpread, final SABRInterestRateDataBundle sabrData) {
+  public InterestRateCurveSensitivity presentValueSensitivity(final CapFloorCMSSpread cmsSpread, final SABRInterestRateDataBundle sabrData) {
     // Forward sweep
     double forward1 = PRC.visit(cmsSpread.getUnderlyingSwap1(), sabrData);
     double forward2 = PRC.visit(cmsSpread.getUnderlyingSwap2(), sabrData);
@@ -195,16 +195,16 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
     double cmsCap1PriceBar = 1.0 / cmsCap1PriceNormalDerivative[1] * cmsCap1ImpliedVolatilityBar;
     double cmsCoupon2PriceBar = expectation2Bar / factor;
     double cmsCoupon1PriceBar = expectation1Bar / factor;
-    PresentValueSensitivity cmsCoupon1CurveSensitivity = METHOD_CMS_COUPON.presentValueSensitivity(cmsCoupon1, sabrData);
-    PresentValueSensitivity cmsCoupon2CurveSensitivity = METHOD_CMS_COUPON.presentValueSensitivity(cmsCoupon2, sabrData);
-    PresentValueSensitivity cmsCap1CurveSensitivity = METHOD_CMS_CAP.presentValueSensitivity(cmsCap1, sabrData);
-    PresentValueSensitivity cmsCap2CurveSensitivity = METHOD_CMS_CAP.presentValueSensitivity(cmsCap2, sabrData);
+    InterestRateCurveSensitivity cmsCoupon1CurveSensitivity = METHOD_CMS_COUPON.presentValueCurveSensitivity(cmsCoupon1, sabrData);
+    InterestRateCurveSensitivity cmsCoupon2CurveSensitivity = METHOD_CMS_COUPON.presentValueCurveSensitivity(cmsCoupon2, sabrData);
+    InterestRateCurveSensitivity cmsCap1CurveSensitivity = METHOD_CMS_CAP.presentValueSensitivity(cmsCap1, sabrData);
+    InterestRateCurveSensitivity cmsCap2CurveSensitivity = METHOD_CMS_CAP.presentValueSensitivity(cmsCap2, sabrData);
     final List<DoublesPair> list = new ArrayList<DoublesPair>();
     list.add(new DoublesPair(cmsSpread.getPaymentTime(), -cmsSpread.getPaymentTime() * discountFactorPayment));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
     resultMap.put(cmsSpread.getFundingCurveName(), list);
-    PresentValueSensitivity dfCurveSensitivity = new PresentValueSensitivity(resultMap);
-    PresentValueSensitivity result;
+    InterestRateCurveSensitivity dfCurveSensitivity = new InterestRateCurveSensitivity(resultMap);
+    InterestRateCurveSensitivity result;
     result = dfCurveSensitivity.multiply(discountFactorPaymentBar);
     result = result.add(cmsCoupon1CurveSensitivity.multiply(cmsCoupon1PriceBar));
     result = result.add(cmsCoupon2CurveSensitivity.multiply(cmsCoupon2PriceBar));

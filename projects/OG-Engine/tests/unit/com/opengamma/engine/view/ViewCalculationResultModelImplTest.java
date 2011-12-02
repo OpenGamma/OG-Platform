@@ -5,13 +5,11 @@
  */
 package com.opengamma.engine.view;
 
-import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertTrue;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Map;
 
 import org.testng.annotations.Test;
@@ -49,36 +47,23 @@ public class ViewCalculationResultModelImplTest {
     PORTFOLIO_ROOT_NODE.addPosition(POSITION);
   }
 
-  // REVIEW jonathan 2010-07-06 -- see the TODO on the part this used to test. For the moment, we are allowing any
-  // requirement to be added, so this test makes no sense. It might be needed again depending on what happens with the
-  // TODO.
-  /*
-   * @Test(expected=IllegalArgumentException.class)
-   * public void illegalAddValue() {
-   * ViewCalculationResultModelImpl calcResult = new ViewCalculationResultModelImpl();
-   * calcResult.addValue(COMPUTED_VALUE);
-   * }
-   */
-
   public void addValue() {
     InMemoryViewResultModel resultModel = new InMemoryViewResultModel() {
       private static final long serialVersionUID = 1L;
     };
-    resultModel.ensureCalculationConfigurationNames(Arrays.asList("Default"));
     ViewCalculationResultModelImpl calcResult = resultModel.getCalculationResultModelImpl("Default");
+    assertNull(calcResult);
+
+    resultModel.addValue("Default", COMPUTED_VALUE);
+    resultModel.addValue("Default", COMPUTED_VALUE);
+
+    calcResult = resultModel.getCalculationResultModelImpl("Default");
     assertNotNull(calcResult);
-    assertNull(calcResult.getValues(SPEC));
-    assertTrue(calcResult.getAllTargets().isEmpty());
-
-    resultModel.setPortfolio(PORTFOLIO);
-    resultModel.addValue("Default", COMPUTED_VALUE);
-    resultModel.addValue("Default", COMPUTED_VALUE);
-
     Map<Pair<String, ValueProperties>, ComputedValue> targetResults = calcResult.getValues(SPEC);
     assertEquals(1, targetResults.size());
     assertEquals("DATA", targetResults.keySet().iterator().next().getFirst());
     assertEquals(COMPUTED_VALUE, targetResults.values().iterator().next());
-    assertEquals(Sets.newHashSet(SPEC, new ComputationTargetSpecification(PORTFOLIO_ROOT_NODE)), Sets.newHashSet(calcResult.getAllTargets()));
+    assertEquals(Sets.newHashSet(SPEC), Sets.newHashSet(calcResult.getAllTargets()));
 
     assertNull(calcResult.getValues(new ComputationTargetSpecification("nonexistent")));
   }

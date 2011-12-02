@@ -201,6 +201,7 @@ public final class ValueRequirementNames {
   public static final String RETURN_SERIES = "Return Series";
   public static final String PNL_SERIES = "P&L Series";
   public static final String PNL = "PnL";
+  public static final String DAILY_PNL = "Daily PnL";
   public static final String UNDERLYING_RETURN_SERIES = "Underlying Return Series";
   public static final String SKEW = "Skew";
   public static final String FISHER_KURTOSIS = "Fisher Kurtosis";
@@ -249,7 +250,9 @@ public final class ValueRequirementNames {
   
   //Equity values
   public static final String DIVIDEND_YIELD = "Dividend Yield";
-  
+  public static final String SECURITY_MARKET_PRICE = "Security Market Price";
+  public static final String SECURITY_IMPLIED_VOLATLITY = "Security Implied Volatility";
+
   //CAPM equity model
   public static final String CAPM_BETA = "CAPM Beta";
 
@@ -284,25 +287,9 @@ public final class ValueRequirementNames {
 
   //SABR fitted surface parameters
   public static final String SABR_SURFACES = "SABR Surfaces";
-  public static final String SABR_ALPHA_SURFACE = "SABR Alpha Surface";
-  public static final String SABR_BETA_SURFACE = "SABR Beta Surface";
-  public static final String SABR_NU_SURFACE = "SABR Nu Surface";
-  public static final String SABR_RHO_SURFACE = "SABR Rho Surface";
   
-  //SABR fitted surface parameters
-  public static final String SABR_FITS = "SABR Fits";
-  public static final String SABR_ALPHA_FITS= "SABR Alpha Fits";
-  public static final String SABR_BETA_FITS = "SABR Beta Fits";
-  public static final String SABR_NU_FITS = "SABR Nu Fits";
-  public static final String SABR_RHO_FITS = "SABR Rho Fits";
-
-  //Heston fitted parameters
-  public static final String HESTON_FITS = "Heston Fits";
-  public static final String HESTON_KAPPA_FITS = "Heston Kappa Fits";
-  public static final String HESTON_THETA_FITS = "Heston Theta Fits";
-  public static final String HESTON_VOL0_FITS = "Heston Vol0 Fits";
-  public static final String HESTON_OMEGA_FITS = "Heston Omega Fits";
-  public static final String HESTON_RHO_FITS = "Heston Rho Fits";
+  //Heston fitted surface parameters
+  public static final String HESTON_SURFACES = "Heston Fits";
 
   //FX analytics (temporary)
   public static final String FX_PRESENT_VALUE = "FX Present Value";
@@ -312,6 +299,7 @@ public final class ValueRequirementNames {
   
   //Vega matrix
   public static final String VEGA_MATRIX = "Vega Matrix";
+  public static final String VEGA_QUOTE_MATRIX = "Vega Quote Matrix";
   
   //Historical Data values
   public static final String DAILY_VOLUME = "Last Volume";
@@ -322,5 +310,8 @@ public final class ValueRequirementNames {
   
   public static final String DAILY_APPLIED_BETA = "Last Raw Beta";
   public static final String DAILY_MARKET_CAP = "Last Market Cap";
+  public static final String DAILY_PRICE = "Last Price";
+  
+  public static final String EXTERNAL_IDS = "External ids";
   //CSON
 }

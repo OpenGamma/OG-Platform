@@ -9,11 +9,18 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.financial.user.rest.RemoteClient;
+import com.opengamma.language.context.AbstractGlobalContextEventHandler;
+import com.opengamma.language.context.AbstractSessionContextEventHandler;
+import com.opengamma.language.context.AbstractUserContextEventHandler;
+import com.opengamma.language.context.DefaultGlobalContextEventHandler;
 import com.opengamma.language.context.DefaultSessionContextEventHandler;
 import com.opengamma.language.context.DefaultUserContextEventHandler;
 import com.opengamma.language.context.GlobalContextEventHandler;
 import com.opengamma.language.context.GlobalContextFactoryBean;
 import com.opengamma.language.context.MutableGlobalContext;
+import com.opengamma.language.context.MutableSessionContext;
+import com.opengamma.language.context.MutableUserContext;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.context.SessionContextEventHandler;
 import com.opengamma.language.context.SessionContextFactoryBean;
@@ -57,6 +64,9 @@ public class TestUtils {
   private ViewProcessor _viewProcessor;
   private SecuritySource _securitySource;
   private PositionSource _positionSource;
+  private RemoteClient _globalClient;
+  private RemoteClient _userClient;
+  private RemoteClient _sessionClient;
 
   public TestUtils() {
   }
@@ -101,10 +111,36 @@ public class TestUtils {
     return _positionSource;
   }
 
+  public void setGlobalClient(final RemoteClient client) {
+    _globalClient = client;
+  }
+
+  public RemoteClient getGlobalClient() {
+    return _globalClient;
+  }
+
+  public void setUserClient(final RemoteClient client) {
+    _userClient = client;
+  }
+
+  public RemoteClient getUserClient() {
+    return _userClient;
+  }
+
+  public void setSessionClient(final RemoteClient client) {
+    _sessionClient = client;
+  }
+
+  public RemoteClient getSessionClient() {
+    return _sessionClient;
+  }
+
   protected GlobalContextEventHandler createGlobalContextEventHandler() {
-    return new GlobalContextEventHandler() {
+    final DefaultGlobalContextEventHandler base = new DefaultGlobalContextEventHandler();
+    base.setSystemSettings(System.getProperties());
+    return new AbstractGlobalContextEventHandler(base) {
       @Override
-      public void initContext(final MutableGlobalContext globalContext) {
+      public void initContextImpl(final MutableGlobalContext globalContext) {
         if (getHistoricalTimeSeriesSource() != null) {
           globalContext.setHistoricalTimeSeriesSource(getHistoricalTimeSeriesSource());
         }
@@ -120,16 +156,35 @@ public class TestUtils {
         if (getPositionSource() != null) {
           globalContext.setPositionSource(getPositionSource());
         }
+        if (getGlobalClient() != null) {
+          globalContext.setClient(getGlobalClient());
+        }
       }
     };
   }
 
   protected UserContextEventHandler createUserContextEventHandler() {
-    return new DefaultUserContextEventHandler();
+    final DefaultUserContextEventHandler base = new DefaultUserContextEventHandler();
+    return new AbstractUserContextEventHandler(base) {
+      @Override
+      public void initContextImpl(final MutableUserContext userContext) {
+        if (getUserClient() != null) {
+          userContext.setClient(getUserClient());
+        }
+      }
+    };
   }
 
   protected SessionContextEventHandler createSessionContextEventHandler() {
-    return new DefaultSessionContextEventHandler();
+    final DefaultSessionContextEventHandler base = new DefaultSessionContextEventHandler();
+    return new AbstractSessionContextEventHandler(base) {
+      @Override
+      public void initContextImpl(final MutableSessionContext sessionContext) {
+        if (getSessionClient() != null) {
+          sessionContext.setClient(getSessionClient());
+        }
+      }
+    };
   }
 
   public SessionContext createSessionContext() {

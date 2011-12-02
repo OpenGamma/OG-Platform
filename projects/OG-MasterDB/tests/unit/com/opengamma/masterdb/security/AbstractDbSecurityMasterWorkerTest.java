@@ -10,8 +10,6 @@ import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
-import java.util.TimeZone;
-
 import javax.time.Instant;
 import javax.time.TimeSource;
 
@@ -28,12 +26,12 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Base tests for DbSecurityMasterWorker via DbSecurityMaster.
  */
-public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
+public abstract class AbstractDbSecurityMasterWorkerTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbSecurityMasterWorkerTest.class);
 
@@ -45,7 +43,6 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
   public AbstractDbSecurityMasterWorkerTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   @BeforeMethod
@@ -68,7 +65,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
     _version2Instant = now.minusSeconds(50);
     s_logger.debug("test data now:   {}", _version1Instant);
     s_logger.debug("test data later: {}", _version2Instant);
-    final SimpleJdbcTemplate template = _secMaster.getDbSource().getJdbcTemplate();
+    final SimpleJdbcTemplate template = _secMaster.getDbConnector().getJdbcTemplate();
     template.update("INSERT INTO sec_security VALUES (?,?,?,?,?, ?,?,?,?)",
         101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestSecurity101", "EQUITY", "D");
     template.update("INSERT INTO sec_security VALUES (?,?,?,?,?, ?,?,?,?)",

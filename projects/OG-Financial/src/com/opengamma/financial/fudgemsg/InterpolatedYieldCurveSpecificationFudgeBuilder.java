@@ -50,7 +50,7 @@ public class InterpolatedYieldCurveSpecificationFudgeBuilder implements FudgeBui
     String name = message.getString("name");
     Currency currency = deserializer.fieldValueToObject(Currency.class, message.getByName("currency"));
     ExternalId region = deserializer.fieldValueToObject(ExternalId.class, message.getByName("region"));
-    Interpolator1D<?> interpolator = deserializer.fieldValueToObject(Interpolator1D.class, message.getByName("interpolator"));
+    Interpolator1D interpolator = deserializer.fieldValueToObject(Interpolator1D.class, message.getByName("interpolator"));
     List<FudgeField> resolvedStripFields = message.getAllByName("resolvedStrips");
     List<FixedIncomeStripWithIdentifier> resolvedStrips = new ArrayList<FixedIncomeStripWithIdentifier>();
     for (FudgeField resolvedStripField : resolvedStripFields) {

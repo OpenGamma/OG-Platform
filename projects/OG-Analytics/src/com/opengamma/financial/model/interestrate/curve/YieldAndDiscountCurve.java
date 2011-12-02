@@ -18,7 +18,7 @@ import org.apache.commons.lang.Validate;
  * maturity <i>t</i>).
  */
 
-public abstract class YieldAndDiscountCurve implements InterestRateModel<Double> {
+public abstract class YieldAndDiscountCurve  implements InterestRateModel<Double> {
   private final Curve<Double, Double> _curve;
 
   public YieldAndDiscountCurve(final Curve<Double, Double> curve) {

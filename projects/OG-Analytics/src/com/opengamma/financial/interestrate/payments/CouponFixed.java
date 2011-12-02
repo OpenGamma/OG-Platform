@@ -9,7 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -123,13 +123,9 @@ public class CouponFixed extends Coupon {
     return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), 1);
   }
 
-  /**
-   * Creates a new coupon with the same characteristics, except the notional which is the one given.
-   * @param notional The notional of the new coupon.
-   * @return The new coupon.
-   */
+  @Override
   public CouponFixed withNotional(double notional) {
-    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixedRate());
+    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixedRate(), getAccrualStartDate(), getAccrualEndDate());
   }
 
   /**
@@ -141,12 +137,12 @@ public class CouponFixed extends Coupon {
   }
 
   @Override
-  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitFixedCouponPayment(this, data);
   }
 
   @Override
-  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitFixedCouponPayment(this);
   }
 

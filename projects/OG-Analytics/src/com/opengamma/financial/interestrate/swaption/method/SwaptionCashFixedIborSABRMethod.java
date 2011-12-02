@@ -12,23 +12,27 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  *  Class used to compute the price and sensitivity of cash-settled swaptions with SABR model.
  */
-public final class SwaptionCashFixedIborSABRMethod {
+public final class SwaptionCashFixedIborSABRMethod implements PricingMethod {
 
   /**
    * The par rate sensitivity calculator.
@@ -50,7 +54,7 @@ public final class SwaptionCashFixedIborSABRMethod {
    * @param sabrData The SABR data.
    * @return The present value.
    */
-  public double presentValue(final SwaptionCashFixedIbor swaption, final SABRInterestRateDataBundle sabrData) {
+  public CurrencyAmount presentValue(final SwaptionCashFixedIbor swaption, final SABRInterestRateDataBundle sabrData) {
     Validate.notNull(swaption);
     Validate.notNull(sabrData);
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
@@ -65,7 +69,14 @@ public final class SwaptionCashFixedIborSABRMethod {
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, discountFactorSettle * pvbp, volatility);
     final Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(swaption);
     final double price = func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0);
-    return price;
+    return CurrencyAmount.of(swaption.getCurrency(), price);
+  }
+
+  @Override
+  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof SwaptionCashFixedIbor, "Cash settlement swaption");
+    Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "Bundle should contain SABR data");
+    return presentValue((SwaptionCashFixedIbor) instrument, (SABRInterestRateDataBundle) curves);
   }
 
   /**
@@ -74,14 +85,14 @@ public final class SwaptionCashFixedIborSABRMethod {
    * @param sabrData The SABR data. The SABR function need to be the Hagan function.
    * @return The present value curve sensitivity.
    */
-  public PresentValueSensitivity presentValueSensitivity(final SwaptionCashFixedIbor swaption, final SABRInterestRateDataBundle sabrData) {
+  public InterestRateCurveSensitivity presentValueSensitivity(final SwaptionCashFixedIbor swaption, final SABRInterestRateDataBundle sabrData) {
     Validate.notNull(swaption);
     Validate.notNull(sabrData);
     final ParRateCalculator prc = ParRateCalculator.getInstance();
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     final double forward = prc.visit(swaption.getUnderlyingSwap(), sabrData);
     // Derivative of the forward with respect to the rates.
-    final PresentValueSensitivity forwardDr = new PresentValueSensitivity(PRSC.visit(swaption.getUnderlyingSwap(), sabrData));
+    final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(PRSC.visit(swaption.getUnderlyingSwap(), sabrData));
     final double pvbp = SwapFixedIborMethod.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
     // Derivative of the cash annuity with respect to the forward.
     final double pvbpDf = SwapFixedIborMethod.getAnnuityCashDerivative(swaption.getUnderlyingSwap(), forward);
@@ -97,7 +108,7 @@ public final class SwaptionCashFixedIborSABRMethod {
     list.add(new DoublesPair(swaption.getSettlementTime(), sensiDF));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
     resultMap.put(annuityFixed.getNthPayment(0).getFundingCurveName(), list);
-    PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
+    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     result = result.add(forwardDr.multiply(discountFactorSettle * (pvbpDf * bsAdjoint[0] + pvbp * (bsAdjoint[1] + bsAdjoint[2] * volatilityAdjoint[1]))));
     if (!swaption.isLong()) {
       result = result.multiply(-1);

@@ -43,7 +43,7 @@ public interface ViewCycle extends UniqueIdentifiable {
   /**
    * Gets the duration of the cycle's execution. If the cycle is currently executing, this is the current duration.
    * 
-   * @return the cycle's execution duration, or {@code null} if the cycle has not started executing or failed to
+   * @return the cycle's execution duration, or null if the cycle has not started executing or failed to
    *         execute successfully
    */
   Duration getDuration();
@@ -61,7 +61,7 @@ public interface ViewCycle extends UniqueIdentifiable {
    * @return the output of the view cycle, not null
    */
   ViewComputationResultModel getResultModel();
-  
+
   /**
    * Queries the view cycle for values.
    * <p>

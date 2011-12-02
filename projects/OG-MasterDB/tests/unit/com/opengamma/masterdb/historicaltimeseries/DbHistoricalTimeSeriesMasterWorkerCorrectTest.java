@@ -7,8 +7,6 @@ package com.opengamma.masterdb.historicaltimeseries;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.TimeZone;
-
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
@@ -26,7 +24,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocumen
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryResult;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests DbHistoricalTimeSeriesMaster.
@@ -36,11 +34,10 @@ public class DbHistoricalTimeSeriesMasterWorkerCorrectTest extends AbstractDbHis
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbHistoricalTimeSeriesMasterWorkerCorrectTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbHistoricalTimeSeriesMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------

@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.depgraph.DependencyGraphBuilderPLAT1049.GraphBuildingContext;
+import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -25,7 +25,7 @@ import com.opengamma.engine.value.ValueSpecification;
 
   // TODO: the locking here is not very efficient; rewrite if this causes a bottleneck
 
-  private final class Callback implements ResolutionPump, Cancellable {
+  private final class Callback implements ResolutionPump, Cancelable {
 
     private final int _objectId = s_nextObjectId.getAndIncrement();
     private final ResolvedValueCallback _callback;
@@ -96,6 +96,7 @@ import com.opengamma.engine.value.ValueSpecification;
       synchronized (AbstractResolvedValueProducer.this) {
         assert !_closed;
         _closed = true;
+        _pumped.remove(this);
       }
       release(context);
     }
@@ -138,7 +139,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public Cancellable addCallback(final GraphBuildingContext context, final ResolvedValueCallback valueCallback) {
+  public Cancelable addCallback(final GraphBuildingContext context, final ResolvedValueCallback valueCallback) {
     addRef();
     final Callback callback = new Callback(valueCallback);
     ResolvedValue firstResult = null;
@@ -174,7 +175,14 @@ import com.opengamma.engine.value.ValueSpecification;
   protected boolean pushResult(final GraphBuildingContext context, final ResolvedValue value) {
     assert value != null;
     assert !_finished;
-    assert getValueRequirement().isSatisfiedBy(value.getValueSpecification());
+    if (!getValueRequirement().isSatisfiedBy(value.getValueSpecification())) {
+      // Happens when a task was selected early on for satisfying the requirement as part of
+      // an aggregation feed. Late resolution then produces different specifications which
+      // would have caused in-line failures, but the delegating subscriber will receive them
+      // as-is. This would be bad.
+      s_logger.debug("Rejecting {} not satisfying {}", value, this);
+      return false;
+    }
     Collection<Callback> pumped = null;
     final ResolvedValue[] newResults;
     synchronized (this) {
@@ -245,22 +253,22 @@ import com.opengamma.engine.value.ValueSpecification;
     if (failure != null) {
       synchronized (this) {
         if (_failure == null) {
-          if (_results.length == 0) {
-            _failure = (ResolutionFailure) failure.clone();
-            return;
-          }
-          _failure = ResolutionFailure.resolvedValue(getValueRequirement(), _results[0]);
-        }
-        while (_failure.getResultCount() < _results.length) {
-          _failure.resolvedValue(_results[_failure.getResultCount()]);
+          _failure = (ResolutionFailure) failure.clone();
+          return;
         }
         _failure.merge(failure);
       }
     }
   }
 
-  protected ResolvedValue[] getResults() {
-    assert _finished;
+  /**
+   * Returns the current results in the order they were produced. If the producer is not
+   * in a "finished" state, the results are the current intermediate values. The caller
+   * must not modify the content of the array.
+   * 
+   * @return the current results
+   */
+  protected synchronized ResolvedValue[] getResults() {
     return _results;
   }
 

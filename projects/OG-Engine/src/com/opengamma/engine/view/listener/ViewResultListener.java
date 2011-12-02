@@ -9,6 +9,7 @@ import javax.time.Instant;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.livedata.UserPrincipal;
@@ -58,10 +59,21 @@ public interface ViewResultListener {
   /**
    * Called following the successful completion of a computation cycle.
    * 
-   * @param fullResult  the entire computation cycle result, not null
-   * @param deltaResult  the delta result representing only the differences since the previous result, not null
+   * @param fullResult  the entire computation cycle result
+   * @param deltaResult  the delta result representing only the differences since the previous result
    */
   void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult);
+
+  /**
+   * Called following the successful completion of a fragment of a computation cycle.
+   * <p>
+   * A computation cycle may be broken into many fragments, each representing internal groups of calculations. This
+   * allows the results to be received as they are calculated, without waiting for the cycle to complete.
+   *
+   * @param fullFragment  the full computation cycle result fragment
+   * @param deltaFragment  the delta fragment representing only the differences since the previous cycle
+   */
+  void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment);
   
   /**
    * Called to indicate that execution of a view cycle failed.

@@ -11,7 +11,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
@@ -204,12 +204,12 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
   }
 
   @Override
-  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitCouponIbor(this, data);
   }
 
   @Override
-  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitCouponIbor(this);
   }
 
@@ -227,7 +227,7 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
     final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, getFixingPeriodStartDate());
     final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, getFixingPeriodEndDate());
     //TODO: Definition has no spread and time version has one: to be standardized.
-    return new CouponIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+    return new CouponIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, _index, fixingPeriodStartTime, fixingPeriodEndTime,
         getFixingPeriodAccrualFactor(), forwardCurveName);
   }
 
@@ -238,7 +238,6 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    //    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final String fundingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
@@ -271,7 +270,7 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
         fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, getFixingPeriodStartDate());
       }
       final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, getFixingPeriodEndDate());
-      return new CouponIborFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixedRate, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+      return new CouponIborFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixedRate, fixingTime, _index, fixingPeriodStartTime, fixingPeriodEndTime,
           getFixingPeriodAccrualFactor(), 0.0, forwardCurveName);
     }
 
@@ -279,7 +278,7 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
     final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, getFixingPeriodStartDate());
     final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, getFixingPeriodEndDate());
     //TODO: Definition has no spread and time version has one: to be standardized.
-    return new CouponIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+    return new CouponIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, _index, fixingPeriodStartTime, fixingPeriodEndTime,
         getFixingPeriodAccrualFactor(), forwardCurveName);
   }
 }

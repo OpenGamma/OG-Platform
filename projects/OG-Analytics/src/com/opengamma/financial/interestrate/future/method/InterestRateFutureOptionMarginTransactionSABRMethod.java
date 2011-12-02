@@ -7,9 +7,9 @@ package com.opengamma.financial.interestrate.future.method;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -60,7 +60,7 @@ public final class InterestRateFutureOptionMarginTransactionSABRMethod extends I
   }
 
   @Override
-  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof InterestRateFutureOptionMarginTransaction, "Interest rate future option transaction");
     Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "SABR data required");
     return presentValue((InterestRateFutureOptionMarginTransaction) instrument, (SABRInterestRateDataBundle) curves);
@@ -72,8 +72,8 @@ public final class InterestRateFutureOptionMarginTransactionSABRMethod extends I
    * @param sabrData The SABR data bundle. 
    * @return The present value curve sensitivity.
    */
-  public PresentValueSensitivity presentValueCurveSensitivity(final InterestRateFutureOptionMarginTransaction transaction, final SABRInterestRateDataBundle sabrData) {
-    PresentValueSensitivity securitySensitivity = METHOD_SECURITY.priceCurveSensitivity(transaction.getUnderlyingOption(), sabrData);
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final InterestRateFutureOptionMarginTransaction transaction, final SABRInterestRateDataBundle sabrData) {
+    InterestRateCurveSensitivity securitySensitivity = METHOD_SECURITY.priceCurveSensitivity(transaction.getUnderlyingOption(), sabrData);
     return securitySensitivity.multiply(transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
         * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor());
   }

@@ -13,7 +13,6 @@ import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.math.Axis;
 import com.opengamma.math.curve.Curve;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.surface.Surface;
 import com.opengamma.math.surface.SurfaceShiftFunctionFactory;
 import com.opengamma.math.surface.SurfaceSliceFunction;
@@ -52,7 +51,7 @@ public class VolatilitySurface implements VolatilityModel<DoublesPair> {
     return getVolatility(temp);
   }
 
-  public VolatilityCurve getSlice(final Axis axis, final double here, final Interpolator1D<Interpolator1DDataBundle> interpolator) {
+  public VolatilityCurve getSlice(final Axis axis, final double here, final Interpolator1D interpolator) {
     final Curve<Double, Double> curve = SurfaceSliceFunction.cut(_surface, axis, here, interpolator);
     return new VolatilityCurve(curve);
   }
@@ -70,15 +69,27 @@ public class VolatilitySurface implements VolatilityModel<DoublesPair> {
   }
 
   public VolatilitySurface withParallelShift(final double shift) {
-    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, shift));
+    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, shift, true));
   }
 
-  public VolatilitySurface withSingleShift(final double x, final double y, final double shift) {
-    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, x, y, shift));
+  public VolatilitySurface withSingleAdditiveShift(final double x, final double y, final double shift) {
+    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, x, y, shift, true));
   }
 
-  public VolatilitySurface withMultipleShifts(final double[] x, final double[] y, final double[] shifts) {
-    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, x, y, shifts));
+  public VolatilitySurface withMultipleAdditiveShifts(final double[] x, final double[] y, final double[] shifts) {
+    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, x, y, shifts, true));
+  }
+
+  public VolatilitySurface withConstantMultiplicativeShift(final double shift) {
+    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, shift, false));
+  }
+
+  public VolatilitySurface withSingleMultiplicativeShift(final double x, final double y, final double shift) {
+    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, x, y, shift, false));
+  }
+
+  public VolatilitySurface withMultipleMultiplicativeShifts(final double[] x, final double[] y, final double[] shifts) {
+    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, x, y, shifts, false));
   }
 
   @Override

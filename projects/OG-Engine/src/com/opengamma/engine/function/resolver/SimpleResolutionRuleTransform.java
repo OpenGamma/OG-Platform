@@ -7,6 +7,7 @@ package com.opengamma.engine.function.resolver;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,8 +20,6 @@ import org.testng.collections.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.ParameterizedFunction;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Resolution rule transform that matches on the short name of the function.
@@ -44,7 +43,6 @@ public class SimpleResolutionRuleTransform implements ResolutionRuleTransform {
    * 
    * @return the set of transformations, not null
    */
-  @SuppressWarnings("unchecked")
   public Map<String, Action> getFunctionTransformations() {
     return Collections.unmodifiableMap(_functionTransformations);
   }
@@ -281,7 +279,6 @@ public class SimpleResolutionRuleTransform implements ResolutionRuleTransform {
     private MultipleAdjust() {
     }
 
-    @SuppressWarnings("unchecked")
     public List<Adjust> getAdjusts() {
       return Collections.unmodifiableList(_adjusts);
     }

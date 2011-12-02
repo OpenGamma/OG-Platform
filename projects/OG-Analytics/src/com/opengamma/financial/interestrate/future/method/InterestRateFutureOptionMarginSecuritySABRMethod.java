@@ -6,7 +6,7 @@
 package com.opengamma.financial.interestrate.future.method;
 
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
@@ -37,7 +37,7 @@ public final class InterestRateFutureOptionMarginSecuritySABRMethod {
   /**
    * The method used to compute the future price. It is a method without convexity adjustment.
    */
-  private static final InterestRateFutureSecurityDiscountingMethod METHOD_FUTURE = InterestRateFutureSecurityDiscountingMethod.getInstance();
+  private static final InterestRateFutureDiscountingMethod METHOD_FUTURE = InterestRateFutureDiscountingMethod.getInstance();
 
   /**
    * Computes the option security price from future price.
@@ -74,7 +74,7 @@ public final class InterestRateFutureOptionMarginSecuritySABRMethod {
    * @param sabrData The SABR data bundle. 
    * @return The security price curve sensitivity.
    */
-  public PresentValueSensitivity priceCurveSensitivity(final InterestRateFutureOptionMarginSecurity security, final SABRInterestRateDataBundle sabrData) {
+  public InterestRateCurveSensitivity priceCurveSensitivity(final InterestRateFutureOptionMarginSecurity security, final SABRInterestRateDataBundle sabrData) {
     // Forward sweep
     double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), sabrData);
     double rateStrike = 1.0 - security.getStrike();
@@ -89,7 +89,7 @@ public final class InterestRateFutureOptionMarginSecuritySABRMethod {
     double volatilityBar = priceAdjoint[2] * priceBar;
     double forwardBar = priceAdjoint[1] * priceBar + volatilityAdjoint[1] * volatilityBar;
     double priceFutureBar = -forwardBar;
-    PresentValueSensitivity priceFutureDerivative = METHOD_FUTURE.priceCurveSensitivity(security.getUnderlyingFuture(), sabrData);
+    InterestRateCurveSensitivity priceFutureDerivative = METHOD_FUTURE.priceCurveSensitivity(security.getUnderlyingFuture(), sabrData);
     return priceFutureDerivative.multiply(priceFutureBar);
   }
 

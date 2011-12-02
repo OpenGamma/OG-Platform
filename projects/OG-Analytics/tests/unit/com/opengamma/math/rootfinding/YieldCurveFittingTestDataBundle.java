@@ -12,13 +12,11 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -31,8 +29,8 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
     ANALYTIC_JACOBIAN, FD_JACOBIAN, FD_CURVE_SENITIVITY
   }
 
-  private InterestRateDerivativeVisitor<YieldCurveBundle, Double> _marketValueCalculator;
-  private InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> _marketValueSensitivityCalculator;
+  private InstrumentDerivativeVisitor<YieldCurveBundle, Double> _marketValueCalculator;
+  private InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> _marketValueSensitivityCalculator;
 
   private double[] _marketRates;
   private HashMap<String, double[]> _curveYields;
@@ -55,19 +53,24 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
     _testType = testType;
   }
 
+//  public YieldCurveFittingTestDataBundle(List<InterestRateDerivative> derivatives, YieldCurveBundle knownCurves, LinkedHashMap<String, double[]> unknownCurveNodePoints,
+//      LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators,
+//      InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator, InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
+//      double[] marketRates, DoubleMatrix1D startPosition) {
+//    this(derivatives, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators, marketValueCalculator, marketValueSensitivityCalculator, marketRates, startPosition, false);
+//  }
+
   /**
    * @param derivatives
    * @param knownCurves
    * @param unknownCurveNodePoints
    * @param unknownCurveInterpolators
-   * @param unknownCurveNodeSensitivityCalculators
    */
-  public YieldCurveFittingTestDataBundle(List<InterestRateDerivative> derivatives, YieldCurveBundle knownCurves, LinkedHashMap<String, double[]> unknownCurveNodePoints,
-      LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators,
-      LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators,
-      InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator, InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
-      double[] marketRates, DoubleMatrix1D startPosition) {
-    super(derivatives, marketRates, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators, unknownCurveNodeSensitivityCalculators);
+  public YieldCurveFittingTestDataBundle(List<InstrumentDerivative> derivatives, YieldCurveBundle knownCurves, LinkedHashMap<String, double[]> unknownCurveNodePoints,
+      LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators,
+      InstrumentDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator, InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
+      double[] marketRates, DoubleMatrix1D startPosition, boolean useFiniteDifferenceByDefault) {
+    super(derivatives, marketRates, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators, useFiniteDifferenceByDefault);
     Validate.notNull(marketValueCalculator);
     Validate.notNull(marketValueSensitivityCalculator);
     Validate.notNull(marketRates);
@@ -97,12 +100,18 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
     _curveYields = curveYields;
   }
 
-  public YieldCurveFittingTestDataBundle(List<InterestRateDerivative> derivatives, YieldCurveBundle knownCurves, LinkedHashMap<String, double[]> unknownCurveNodePoints,
-      LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators,
-      LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators,
-      InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator, InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
-      double[] marketRates, DoubleMatrix1D startPosition, HashMap<String, double[]> curveYields) {
-    super(derivatives, marketRates, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators, unknownCurveNodeSensitivityCalculators);
+//  public YieldCurveFittingTestDataBundle(List<InterestRateDerivative> derivatives, YieldCurveBundle knownCurves, LinkedHashMap<String, double[]> unknownCurveNodePoints,
+//      LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators,
+//      InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator, InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
+//      double[] marketRates, DoubleMatrix1D startPosition, HashMap<String, double[]> curveYields) {
+//    this(derivatives, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators, marketValueCalculator, marketValueSensitivityCalculator, marketRates, startPosition, curveYields, false);
+//  }
+
+  public YieldCurveFittingTestDataBundle(List<InstrumentDerivative> derivatives, YieldCurveBundle knownCurves, LinkedHashMap<String, double[]> unknownCurveNodePoints,
+      LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators,
+      InstrumentDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator, InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
+      double[] marketRates, DoubleMatrix1D startPosition, HashMap<String, double[]> curveYields, boolean useFiniteDifferenceByDefault) {
+    super(derivatives, marketRates, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators, useFiniteDifferenceByDefault);
     Validate.notNull(marketValueCalculator);
     Validate.notNull(marketValueSensitivityCalculator);
     Validate.notNull(marketRates);
@@ -125,7 +134,7 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
    * Gets the marketValueSensitivityCalculator field.
    * @return the marketValueSensitivityCalculator
    */
-  public InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> getMarketValueSensitivityCalculator() {
+  public InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> getMarketValueSensitivityCalculator() {
     return _marketValueSensitivityCalculator;
   }
 
@@ -133,7 +142,7 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
    * Sets the marketValueSensitivityCalculator field.
    * @param marketValueSensitivityCalculator  the marketValueSensitivityCalculator
    */
-  public void setMarketValueSensitivityCalculator(InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator) {
+  public void setMarketValueSensitivityCalculator(InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator) {
     _marketValueSensitivityCalculator = marketValueSensitivityCalculator;
   }
 
@@ -173,7 +182,7 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
    * Gets the marketValueCalculator field.
    * @return the marketValueCalculator
    */
-  public InterestRateDerivativeVisitor<YieldCurveBundle, Double> getMarketValueCalculator() {
+  public InstrumentDerivativeVisitor<YieldCurveBundle, Double> getMarketValueCalculator() {
     return _marketValueCalculator;
   }
 
@@ -181,7 +190,7 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
    * Sets the marketValueCalculator field.
    * @param marketValueCalculator  the marketValueCalculator
    */
-  public void setMarketValueCalculator(InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator) {
+  public void setMarketValueCalculator(InstrumentDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator) {
     _marketValueCalculator = marketValueCalculator;
   }
 

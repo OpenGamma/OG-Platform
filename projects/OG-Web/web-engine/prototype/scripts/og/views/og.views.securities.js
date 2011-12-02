@@ -26,7 +26,7 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search,
+            search, layout,
             ui = common.util.ui,
             module = this,
             page_name = module.name.split('.').pop(),
@@ -90,7 +90,17 @@ $.register_module({
                             api.rest.securities.del(obj);
                         }
                     }
-                })}
+                })},
+                'versions': function () {
+                    var rule = module.rules.load_securities, args = routes.current().args;
+                    routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
+                    if (!layout.inner.state.south.isClosed && args.version) {
+                        layout.inner.close('south');
+                    } else layout.inner.open('south');
+                    layout.inner.options.south.onclose = function () {
+                        routes.go(routes.hash(rule, args, {del: ['version']}));
+                    };
+                }
             },
             options = {
                 slickgrid: {
@@ -107,17 +117,22 @@ $.register_module({
                 toolbar: {
                     'default': {
                         buttons: [
-                            {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'new', handler: toolbar_buttons['new']}
+                            {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     },
                     active: {
                         buttons: [
-                            {name: 'delete', handler: toolbar_buttons['delete']},
-                            {name: 'new', handler: toolbar_buttons['new']}
+                            {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', tooltip: 'Delete', divider: true, handler: toolbar_buttons['delete']},
+                            {id: 'versions', label: 'versions', handler: toolbar_buttons['versions']}
                         ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     }
                 }
             },
@@ -129,11 +144,16 @@ $.register_module({
             },
             default_details = og.views.common.default_details.partial(page_name, 'Securities', options),
             details_page = function (args) {
+                // load versions
+                if (args.version) {
+                    layout.inner.open('south');
+                    og.views.common.versions.load();
+                } else layout.inner.close('south');
                 api.rest.securities.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var json = result.data, text_handler,
-                            security_type = json.template_data.securityType.toLowerCase(),
+                            security_type = json.template_data['securityType'].toLowerCase(),
                             template = module.name + '.' + security_type;
                         history.put({
                             name: json.template_data.name,
@@ -150,30 +170,29 @@ $.register_module({
                                         This security has been deleted\
                                     </section>\
                                 ',
-                                $html = $.tmpl(template, json.template_data),
-                                layout = og.views.common.layout, header, content,
+                                $html = $.tmpl(template, json.template_data), header, content,
                                 html = [], id, json_id = json.identifiers;
-                            (function () {
-                                if (json.template_data.underlyingOid) {
-                                    var id = json.template_data.underlyingOid,
-                                        rule = module.rules.load_securities,
-                                        hash = routes.hash(rule, $.extend(true, routes.current().args, {id: id})),
-                                        text = json.template_data.underlyingExternalId,
-                                        anchor = '<a href="#' + hash + '">' + text + '</a>';
-                                        $html.find('.OG-js-underlying-id').html(anchor);
-                                }
-                            }());
-                            for (id in json_id) {
-                                if (json_id.hasOwnProperty(id)) {
-                                    html.push('<tr><td><span>', json_id[id].split('-')[0],
-                                              '<span></td><td>', json_id[id].split('-')[1], '</td></tr>');
-                                }
-                                $html.find('.og-js-identifiers').html(html.join(''));
-                            }
                             header = $.outer($html.find('> header')[0]);
                             content = $.outer($html.find('> section')[0]);
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
                             $('.ui-layout-inner-center .ui-layout-content').html(content);
+                            for (id in json_id) {
+                                if (json_id.hasOwnProperty(id)) {
+                                    html.push('<tr><td><span>', id,
+                                              '<span></td><td>', json_id[id].replace(id + '-', ''), '</td></tr>');
+                                }
+                                $('.ui-layout-inner-center .og-js-identifiers').html(html.join(''));
+                            }
+                            (function () {
+                                if (json.template_data['underlyingOid']) {
+                                    var id = json.template_data['underlyingOid'],
+                                        rule = module.rules.load_securities,
+                                        hash = routes.hash(rule, routes.current().args, {add: {id: id}}),
+                                        text = json.template_data['underlyingExternalId'],
+                                        anchor = '<a href="' + routes.prefix() + hash + '">' + text + '</a>';
+                                        $('.ui-layout-inner-center .OG-js-underlying-id').html(anchor);
+                                }
+                            }());
                             ui.toolbar(options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);
@@ -189,8 +208,8 @@ $.register_module({
                         }});
                     },
                     id: args.id,
+                    version: args.version && args.version !== '*' ? args.version : void 0,
                     loading: function () {
-                        if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions()}
                         ui.message({
                             location: '.ui-layout-inner-center',
                             message: {0: 'loading...', 3000: 'still loading...'}
@@ -207,7 +226,7 @@ $.register_module({
                 route: '/' + page_name + '/:id/deleted:/name:?/type:?', method: module.name + '.load_delete'
             },
             load_securities: {
-                route: '/' + page_name + '/:id/name:?/type:?', method: module.name + '.load_' + page_name
+                route: '/' + page_name + '/:id/name:?/version:?/type:?', method: module.name + '.load_' + page_name
             },
             load_new_securities: {
                 route: '/' + page_name + '/:id/new:/name:?/type:?', method: module.name + '.load_new_' + page_name
@@ -215,6 +234,7 @@ $.register_module({
         };
         return securities = {
             load: function (args) {
+                layout = og.views.common.layout;
                 check_state({args: args, conditions: [
                     {new_page: function () {
                         securities.search(args);
@@ -241,13 +261,22 @@ $.register_module({
                     }}
                 ]});
                 delete args['filter'];
-                securities.search(args);
                 search_filter();
             },
             load_delete: function (args) {securities.search(args), routes.go(routes.hash(module.rules.load, {}));},
             load_new_securities: load_securities_without.partial('new'),
             load_securities: function (args) {
-                check_state({args: args, conditions: [{new_page: securities.load}]});
+                check_state({args: args, conditions: [
+                    {new_page: function () {
+                        securities.load(args);
+                        layout.inner.options.south.onclose = null;
+                        layout.inner.close.partial('south');
+                    }},
+                    {new_value: 'id', method: function () {
+                        layout.inner.options.south.onclose = null;
+                        layout.inner.close.partial('south');
+                    }}
+                ]});
                 securities.details(args);
             },
             search: function (args) {

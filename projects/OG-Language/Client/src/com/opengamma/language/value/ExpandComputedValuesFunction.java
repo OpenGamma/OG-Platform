@@ -23,6 +23,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
@@ -50,7 +51,7 @@ public class ExpandComputedValuesFunction extends AbstractFunctionInvoker implem
 
   private ExpandComputedValuesFunction(final DefinitionAnnotater info) {
     super(info.annotate(parameters()));
-    _meta = info.annotate(new MetaFunction("ExpandComputedValues", getParameters(), this));
+    _meta = info.annotate(new MetaFunction(Categories.VALUE, "ExpandComputedValues", getParameters(), this));
   }
 
   public ExpandComputedValuesFunction() {

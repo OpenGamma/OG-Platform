@@ -20,11 +20,14 @@ import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
+import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
@@ -55,6 +58,7 @@ public enum InterestRateInstrumentType {
   /** Bond future */
   BOND_FUTURE;
 
+  @SuppressWarnings("synthetic-access")
   private static final FinancialSecurityVisitor<InterestRateInstrumentType> TYPE_IDENTIFIER = new TypeIdentifier();
 
   public static InterestRateInstrumentType getInstrumentTypeFromSecurity(final FinancialSecurity security) {
@@ -98,9 +102,6 @@ public enum InterestRateInstrumentType {
       if (security instanceof InterestRateFutureSecurity) {
         return IR_FUTURE;
       }
-      //      if (security instanceof BondFutureSecurity) {
-      //        return BOND_FUTURE;
-      //      }
       throw new OpenGammaRuntimeException("Cannot handle this FutureSecurity");
     }
 
@@ -123,6 +124,11 @@ public enum InterestRateInstrumentType {
     public InterestRateInstrumentType visitEquityOptionSecurity(final EquityOptionSecurity security) {
       throw new OpenGammaRuntimeException("Cannot handle EquityOptionSecurity");
     }
+    
+    @Override
+    public InterestRateInstrumentType visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+      throw new OpenGammaRuntimeException("Cannot handle EquityBarrierOptionSecurity");
+    }
 
     @Override
     public InterestRateInstrumentType visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
@@ -132,6 +138,11 @@ public enum InterestRateInstrumentType {
     @Override
     public InterestRateInstrumentType visitFXOptionSecurity(final FXOptionSecurity security) {
       throw new OpenGammaRuntimeException("Cannot handle FXOptionSecurity");
+    }
+
+    @Override
+    public InterestRateInstrumentType visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
+      throw new OpenGammaRuntimeException("Cannot handle NonDeliverableFXOptionSecurity");
     }
 
     @Override
@@ -153,6 +164,11 @@ public enum InterestRateInstrumentType {
     public InterestRateInstrumentType visitFXForwardSecurity(final FXForwardSecurity security) {
       throw new OpenGammaRuntimeException("Cannot handle FXForwardSecurity");
     }
+    
+    @Override
+    public InterestRateInstrumentType visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
+      throw new OpenGammaRuntimeException("Cannot handle NonDeliverableFXForwardSecurity");
+    }
 
     @Override
     public InterestRateInstrumentType visitCapFloorSecurity(final CapFloorSecurity security) {
@@ -163,6 +179,5 @@ public enum InterestRateInstrumentType {
     public InterestRateInstrumentType visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
       throw new OpenGammaRuntimeException("Cannot handle CapFloorCMSSpreadSecurity");
     }
-
   }
 }

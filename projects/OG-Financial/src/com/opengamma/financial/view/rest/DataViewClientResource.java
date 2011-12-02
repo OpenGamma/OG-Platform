@@ -7,7 +7,6 @@ package com.opengamma.financial.view.rest;
 
 import java.net.URI;
 
-import javax.jms.ConnectionFactory;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -31,6 +30,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.jms.JmsConnector;
 
 /**
  * RESTful resource for a view client.
@@ -50,6 +50,7 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   public static final String PATH_DETACH = "detach";
   public static final String PATH_LIVE_DATA_OVERRIDE_INJECTOR = "overrides";
   public static final String PATH_RESULT_MODE = "resultMode";
+  public static final String PATH_FRAGMENT_RESULT_MODE = "fragmentResultMode";
   public static final String PATH_RESUME = "resume";
   public static final String PATH_PAUSE = "pause";
   public static final String PATH_COMPLETED = "completed";
@@ -72,8 +73,8 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   private final ViewClient _viewClient;
   private final DataEngineResourceManagerResource<ViewCycle> _viewCycleManagerResource;
 
-  public DataViewClientResource(ViewClient viewClient, DataEngineResourceManagerResource<ViewCycle> viewCycleManagerResource, ConnectionFactory connectionFactory) {
-    super(new ViewClientJmsResultPublisher(viewClient, OpenGammaFudgeContext.getInstance(), connectionFactory));
+  public DataViewClientResource(ViewClient viewClient, DataEngineResourceManagerResource<ViewCycle> viewCycleManagerResource, JmsConnector jmsConnector) {
+    super(new ViewClientJmsResultPublisher(viewClient, OpenGammaFudgeContext.getInstance(), jmsConnector));
     _viewClient = viewClient;
     _viewCycleManagerResource = viewCycleManagerResource;
   }
@@ -128,10 +129,10 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   @Path(PATH_ATTACH_SEARCH)
   public Response attachToViewProcess(AttachToViewProcessRequest request) {
     updateLastAccessed();
-    ArgumentChecker.notNull(request.getViewDefinitionName(), "viewDefinitionName");
+    ArgumentChecker.notNull(request.getViewDefinitionId(), "viewDefinitionId");
     ArgumentChecker.notNull(request.getExecutionOptions(), "executionOptions");
     ArgumentChecker.notNull(request.isNewBatchProcess(), "isNewBatchProcess");
-    getViewClient().attachToViewProcess(request.getViewDefinitionName(), request.getExecutionOptions(), request.isNewBatchProcess());
+    getViewClient().attachToViewProcess(request.getViewDefinitionId(), request.getExecutionOptions(), request.isNewBatchProcess());
     return Response.ok().build();
   }
   
@@ -191,7 +192,23 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
     getViewClient().setResultMode(viewResultMode);
     return Response.ok().build();
   }
-  
+
+  //-------------------------------------------------------------------------
+  @GET
+  @Path(PATH_FRAGMENT_RESULT_MODE)
+  public Response getFragmentResultMode() {
+    updateLastAccessed();
+    return Response.ok(getViewClient().getFragmentResultMode()).build();
+  }
+
+  @PUT
+  @Path(PATH_FRAGMENT_RESULT_MODE)
+  public Response setFragmentResultMode(ViewResultMode viewResultMode) {
+    updateLastAccessed();
+    getViewClient().setFragmentResultMode(viewResultMode);
+    return Response.ok().build();
+  }
+
   //-------------------------------------------------------------------------
   @POST
   @Path(PATH_PAUSE)

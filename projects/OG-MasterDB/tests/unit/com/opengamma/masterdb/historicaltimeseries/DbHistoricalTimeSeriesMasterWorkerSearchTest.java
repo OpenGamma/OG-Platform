@@ -8,7 +8,6 @@ package com.opengamma.masterdb.historicaltimeseries;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
-import java.util.TimeZone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +21,8 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
-import com.opengamma.util.PagingRequest;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests DbHistoricalTimeSeriesMaster.
@@ -33,11 +32,10 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbHistoricalTimeSeriesMasterWorkerSearchTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbHistoricalTimeSeriesMasterWorkerSearchTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------
@@ -187,6 +185,16 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
   }
 
   @Test
+  public void test_search_twoKeys_Any_2_oneMatches() {
+    HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
+    request.addExternalIds(ExternalId.of("TICKER", "V501"), ExternalId.of("TICKER", "RUBBISH"));
+    HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    assert101(test.getDocuments().get(0));
+  }
+
+  @Test
   public void test_search_twoKeys_Any_2_noMatch() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
     request.addExternalIds(ExternalId.of("E", "H"), ExternalId.of("A", "D"));
@@ -195,6 +203,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
     assertEquals(0, test.getDocuments().size());
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void test_search_identifier() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();

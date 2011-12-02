@@ -239,9 +239,9 @@
       <sysproperty key="test.properties.dir" value="${test.properties.dir}"/>
       <!-- Read in TestProperties.java -->
       <sysproperty key="test.database.type" value="${test.database.type}"/>
-      <!-- Read in DBTest.java -->
+      <!-- Read in DbTest.java -->
       <sysproperty key="test.database.previousVersions" value="${test.database.previousVersions}"/>
-      <!-- Read in DBTest.java -->
+      <!-- Read in DbTest.java -->
       <sysproperty key="disable.instrumentation.sensitive" value="${clover.installed}" />
     </junit>
   </target>
@@ -298,7 +298,7 @@
     <property name="junit.logback.jvmarg" value="-Dcom.opengamma.ogbuild=0" />
     <testng suitename="Ant tests for ${ant.project.name}" outputdir="${tests.junit.dir}" workingDir="${basedir}" classpathref="testng.run.path">
 
-      <classfileset dir="${tests.classes.dir}" includes="**/*Test.class" excludes="**/Abstract*" />
+      <classfileset dir="${tests.classes.dir}" includes="${tests.classes.pattern}" excludes="**/Abstract*" />
       <jvmarg value="${junit.logback.jvmarg}" />
       <jvmarg value="-Xmx${junit.maxheap}" />
       <jvmarg value="-XX:MaxPermSize=${junit.maxpermgen}" />
@@ -308,9 +308,9 @@
       <sysproperty key="test.properties.dir" value="${test.properties.dir}" />
       <!-- Read in TestProperties.java -->
       <sysproperty key="test.database.type" value="${test.database.type}" />
-      <!-- Read in DBTest.java -->
+      <!-- Read in DbTest.java -->
       <sysproperty key="test.database.previousVersions" value="${test.database.previousVersions}" />
-      <!-- Read in DBTest.java -->
+      <!-- Read in DbTest.java -->
       <sysproperty key="disable.instrumentation.sensitive" value="${clover.installed}" />
     </testng>
     <move file="${tests.junit.dir}/junitreports" tofile="${tests.junit.dir}/xml" />
@@ -575,7 +575,7 @@
     <taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask"
       classpath="${lib.path.jar.file}" />
     <mkdir dir="${dbscript.dir}" />
-    <taskdef name="dbtool" classname="com.opengamma.util.test.DBTool" classpath="${lib.path.jar.file}" />
+    <taskdef name="dbtool" classname="com.opengamma.util.test.DbTool" classpath="${lib.path.jar.file}" />
     <dbtool dbServerHost="${jdbc.url}"
           user="${hibernate.connection.username}"
         password="${hibernate.connection.password}"
@@ -696,7 +696,7 @@
     <attribute name="scriptDir" />
     <attribute name="catalog" />
     <sequential>
-      <taskdef name="dbtool" classname="com.opengamma.util.test.DBTool" classpathref="lib.path.id" />
+      <taskdef name="dbtool" classname="com.opengamma.util.test.DbTool" classpathref="lib.path.id" />
       <dbtool 
     jdbcUrl="jdbc:hsqldb:file:@{path}" 
     catalog="@{catalog}" 

@@ -5,6 +5,8 @@
  */
 package com.opengamma.web.config;
 
+import static com.opengamma.web.json.AbstractJSONBuilder.fudgeToJson;
+
 import java.net.URI;
 
 import javax.ws.rs.Consumes;
@@ -25,8 +27,6 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
@@ -38,9 +38,7 @@ import com.opengamma.web.json.JSONBuilder;
  */
 @Path("/configs/{configId}")
 public class WebConfigResource extends AbstractWebConfigResource {
-  
-  private static final Logger s_logger = LoggerFactory.getLogger(WebConfigResource.class);
-  
+    
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
@@ -69,7 +67,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
     }
     FlexiBean out = createRootData();
     ConfigDocument<?> doc = data().getConfig();
-    String jsonConfig = toJSON(doc.getValue(), doc.getType());
+    String jsonConfig = StringUtils.stripToNull(toJSON(doc.getValue(), doc.getType()));
     if (jsonConfig != null) {
       out.put("configJSON", jsonConfig);
     } else {
@@ -81,17 +79,17 @@ public class WebConfigResource extends AbstractWebConfigResource {
   }
   
   @SuppressWarnings("unchecked")
-  private <T> String toJSON(Object object, Class<T> configType) {
+  private <T> String toJSON(final Object configObj, final Class<T> configType) {
     JSONBuilder<T> jsonBuilder = (JSONBuilder<T>) data().getJsonBuilderMap().get(configType);
     String result = null;
     if (jsonBuilder != null) {
-      result = jsonBuilder.toJSON((T) object);
+      result = jsonBuilder.toJSON((T) configObj);
     } else {
-      s_logger.warn("No custom JSON builder for " + configType);
+      result = fudgeToJson(configObj);
     }
     return result;
   }
-
+  
   //-------------------------------------------------------------------------
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -117,7 +115,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
       return Response.ok(html).build();
     }
     
-    URI uri = updateConfig(name, parseXML(xml).getFirst());
+    URI uri = updateConfig(name, parseXML(xml));
     return Response.seeOther(uri).build();
   }
 
@@ -141,9 +139,9 @@ public class WebConfigResource extends AbstractWebConfigResource {
     }
     Object configValue = null;
     if (json != null) {
-      configValue = parseJSON(json).getFirst();
+      configValue = parseJSON(json);
     } else if (xml != null) {
-      configValue = parseXML(xml).getFirst();
+      configValue = parseXML(xml);
     }
     updateConfig(name, configValue);
     return Response.ok().build();

@@ -16,33 +16,48 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * A base class for interpolation in one dimension.
- * @param <T> Type of Interpolator1DDataBundle
  */
 
-public abstract class Interpolator1D<T extends Interpolator1DDataBundle> implements Interpolator<T, Double>, Serializable {
+public abstract class Interpolator1D implements Interpolator<Interpolator1DDataBundle, Double>, Serializable {
   private static final long serialVersionUID = 1L;
-  /**
-   * Default accuracy
-   */
-  private final double _eps;
+  private static final double EPS = 1e-6;
 
-  public Interpolator1D() {
-    _eps = 1e-12;
+  @Override
+  public abstract Double interpolate(Interpolator1DDataBundle data, Double value);
+
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value, boolean useFiniteDifferenceSensitivities) {
+    return useFiniteDifferenceSensitivities ? getFiniteDifferenceSensitivities(data, value) : getNodeSensitivitiesForValue(data, value);
   }
-
-  public Interpolator1D(final double eps) {
-    _eps = eps;
+  
+  public abstract double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value);
+  
+  protected double[] getFiniteDifferenceSensitivities(Interpolator1DDataBundle data, Double value) {
+    Validate.notNull(data, "data");
+    final double[] x = data.getKeys();
+    final double[] y = data.getValues();
+    final int n = x.length;
+    final double[] result = new double[n];
+    final Interpolator1DDataBundle dataUp = getDataBundleFromSortedArrays(x, y);
+    final Interpolator1DDataBundle dataDown = getDataBundleFromSortedArrays(x, y);
+    for (int i = 0; i < n; i++) {
+      if (i != 0) {
+        dataUp.setYValueAtIndex(i - 1, y[i - 1]);
+        dataDown.setYValueAtIndex(i - 1, y[i - 1]);
+      }
+      dataUp.setYValueAtIndex(i, y[i] + EPS);
+      dataDown.setYValueAtIndex(i, y[i] - EPS);
+      final double up = interpolate(dataUp, value);
+      final double down = interpolate(dataDown, value);
+      result[i] = (up - down) / 2 / EPS;
+    }
+    return result;
   }
+  
+  public abstract Interpolator1DDataBundle getDataBundle(double[] x, double[] y);
 
-  public double getEPS() {
-    return _eps;
-  }
+  public abstract Interpolator1DDataBundle getDataBundleFromSortedArrays(double[] x, double[] y);
 
-  public abstract T getDataBundle(double[] x, double[] y);
-
-  public abstract T getDataBundleFromSortedArrays(double[] x, double[] y);
-
-  public T getDataBundle(final Map<Double, Double> data) {
+  public Interpolator1DDataBundle getDataBundle(final Map<Double, Double> data) {
     Validate.notNull(data, "Backing data for interpolation must not be null.");
     Validate.notEmpty(data, "Backing data for interpolation must not be empty.");
     if (data instanceof SortedMap) {
@@ -82,10 +97,7 @@ public abstract class Interpolator1D<T extends Interpolator1DDataBundle> impleme
     }
     return true;
   }
-
-  @Override
-  public abstract Double interpolate(T data, Double value);
-
+  
   protected boolean classEquals(final Object o) {
     if (o == null) {
       return false;

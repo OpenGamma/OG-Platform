@@ -5,14 +5,12 @@
  */
 package com.opengamma.financial.interestrate;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -26,28 +24,24 @@ public class PresentValueNodeSensitivityCalculator extends NodeSensitivityCalcul
     return DEFAULT_INSTANCE;
   }
 
-  public static PresentValueNodeSensitivityCalculator using(final AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> presentValueSensitivityCalculator) {
+  public static PresentValueNodeSensitivityCalculator using(final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> presentValueSensitivityCalculator) {
     Validate.notNull(presentValueSensitivityCalculator, "present value sensitivity calculator");
     return new PresentValueNodeSensitivityCalculator(presentValueSensitivityCalculator);
   }
 
-  private final AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> _presentValueSensitivityCalculator;
+  private final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> _presentValueSensitivityCalculator;
 
   public PresentValueNodeSensitivityCalculator() {
-    _presentValueSensitivityCalculator = PresentValueSensitivityCalculator.getInstance();
+    _presentValueSensitivityCalculator = PresentValueCurveSensitivityCalculator.getInstance();
   }
 
-  public PresentValueNodeSensitivityCalculator(final AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> presentValueSensitivityCalculator) {
+  public PresentValueNodeSensitivityCalculator(final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> presentValueSensitivityCalculator) {
     Validate.notNull(presentValueSensitivityCalculator, "present value sensitivity calculator");
     _presentValueSensitivityCalculator = presentValueSensitivityCalculator;
   }
 
   @Override
-  public DoubleMatrix1D calculateSensitivities(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves) {
-    return calculateSensitivities(ird, _presentValueSensitivityCalculator, fixedCurves, interpolatedCurves);
-  }
-
-  public DoubleMatrix1D calculateSensitivities(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves) {
+  public DoubleMatrix1D calculateSensitivities(final InstrumentDerivative ird, final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves) {
     return calculateSensitivities(ird, _presentValueSensitivityCalculator, fixedCurves, interpolatedCurves);
   }
 

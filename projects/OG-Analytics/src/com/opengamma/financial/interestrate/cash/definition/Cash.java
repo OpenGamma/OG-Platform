@@ -8,15 +8,15 @@ package com.opengamma.financial.interestrate.cash.definition;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
  * A cash loan with a unit amount borrowed on some some trade date (which could be now), and an amount (1+r*t) paid at maturity, where r is the Libor rate and t is the time (in years) 
  * between the trade date and the maturity in some day count convention.  
  */
-public class Cash implements InterestRateDerivative {
+public class Cash implements InstrumentDerivative {
   private final Currency _currency;
   private final double _tradeTime;
   private final double _maturity;
@@ -34,7 +34,7 @@ public class Cash implements InterestRateDerivative {
    * @param yieldCurveName Name of yield curve used to price loan
    */
   public Cash(final Currency currency, final double maturity, final double notional, final double rate, final String yieldCurveName) {
-    checkInputs(maturity, rate, yieldCurveName);
+    checkInputs(maturity, yieldCurveName);
     Validate.notNull(currency, "currency");
     _currency = currency;
     _maturity = maturity;
@@ -56,7 +56,7 @@ public class Cash implements InterestRateDerivative {
    * @param yieldCurveName Name of yield curve used to price loan
    */
   public Cash(final Currency currency, final double maturity, final double notional, final double rate, final double tradeTime, final double yearFraction, final String yieldCurveName) {
-    checkInputs(maturity, rate, yieldCurveName);
+    checkInputs(maturity, yieldCurveName);
     Validate.notNull(currency, "currency");
     Validate.isTrue(tradeTime >= 0, "trade time is negative");
     Validate.isTrue(yearFraction >= 0, "year fraction is negative");
@@ -70,7 +70,7 @@ public class Cash implements InterestRateDerivative {
     _notional = notional;
   }
 
-  private void checkInputs(final double maturity, final double rate, final String yieldCurveName) {
+  private void checkInputs(final double maturity, final String yieldCurveName) {
     Validate.isTrue(maturity >= 0, "maturity is negative");
     Validate.notNull(yieldCurveName);
   }
@@ -104,12 +104,12 @@ public class Cash implements InterestRateDerivative {
   }
 
   @Override
-  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitCash(this, data);
   }
 
   @Override
-  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitCash(this);
   }
 

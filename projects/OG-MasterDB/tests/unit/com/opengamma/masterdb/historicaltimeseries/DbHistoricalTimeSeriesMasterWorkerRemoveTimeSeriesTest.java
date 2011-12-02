@@ -7,8 +7,6 @@ package com.opengamma.masterdb.historicaltimeseries;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.TimeZone;
-
 import javax.time.calendar.LocalDate;
 
 import org.slf4j.Logger;
@@ -20,7 +18,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
@@ -31,11 +29,10 @@ public class DbHistoricalTimeSeriesMasterWorkerRemoveTimeSeriesTest extends Abst
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbHistoricalTimeSeriesMasterWorkerRemoveTimeSeriesTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbHistoricalTimeSeriesMasterWorkerRemoveTimeSeriesTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------

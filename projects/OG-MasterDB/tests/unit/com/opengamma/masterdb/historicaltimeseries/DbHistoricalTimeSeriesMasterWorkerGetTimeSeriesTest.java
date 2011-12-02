@@ -7,8 +7,6 @@ package com.opengamma.masterdb.historicaltimeseries;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.TimeZone;
-
 import javax.time.calendar.LocalDate;
 
 import org.slf4j.Logger;
@@ -17,11 +15,12 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
@@ -32,11 +31,10 @@ public class DbHistoricalTimeSeriesMasterWorkerGetTimeSeriesTest extends Abstrac
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbHistoricalTimeSeriesMasterWorkerGetTimeSeriesTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbHistoricalTimeSeriesMasterWorkerGetTimeSeriesTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------
@@ -62,9 +60,10 @@ public class DbHistoricalTimeSeriesMasterWorkerGetTimeSeriesTest extends Abstrac
   public void test_get_UID_101_latest() {
     UniqueId uniqueId = UniqueId.of("DbHts", "DP101");
     ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(uniqueId, null, null);
+    HistoricalTimeSeriesSummary summary = _htsMaster.getSummary(uniqueId);
     assertEquals(uniqueId.getObjectId(), test.getUniqueId().getObjectId());
-    assertEquals(LocalDate.of(2011, 1, 1), test.getEarliest());
-    assertEquals(LocalDate.of(2011, 1, 3), test.getLatest());
+    assertEquals(LocalDate.of(2011, 1, 1), summary.getEarliestDate());
+    assertEquals(LocalDate.of(2011, 1, 3), summary.getLatestDate());
     assertEquals(_version2Instant, test.getVersionInstant());
     assertEquals(_version4Instant, test.getCorrectionInstant());
     LocalDateDoubleTimeSeries timeSeries = test.getTimeSeries();

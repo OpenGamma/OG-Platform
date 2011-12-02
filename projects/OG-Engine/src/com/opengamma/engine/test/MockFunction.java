@@ -112,10 +112,6 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
     return new ValueSpecification(requirement, getUniqueId());
   }
 
-  public ComputedValue getResult(ValueSpecification spec, Object result) {
-    return new ComputedValue(spec, result);
-  }
-
   public void addResult(ValueRequirement value, Object result) {
     ValueSpecification resultSpec = toValueSpecification(value);
     ComputedValue computedValue = new ComputedValue(resultSpec, result);

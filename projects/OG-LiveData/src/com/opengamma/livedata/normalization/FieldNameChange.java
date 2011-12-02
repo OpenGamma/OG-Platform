@@ -13,8 +13,6 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Changes the name of a field, leaving its value and all other fields unaffected.
- *
- * @author pietari
  */
 public class FieldNameChange implements NormalizationRule {
   
@@ -29,18 +27,14 @@ public class FieldNameChange implements NormalizationRule {
   }
   
   @Override
-  public MutableFudgeMsg apply(
-      MutableFudgeMsg msg,
-      FieldHistoryStore fieldHistory) {
-    
+  public MutableFudgeMsg apply(MutableFudgeMsg msg, String securityUniqueId, FieldHistoryStore fieldHistory) {
     FudgeField field = msg.getByName(_from);
     if (field != null) {
       Object value = field.getValue();
       msg.remove(_from);
-      msg.add(_to, value);
+      msg.add(_to, null, field.getType(), value);
     }
     return msg;
-    
   }
 
 }

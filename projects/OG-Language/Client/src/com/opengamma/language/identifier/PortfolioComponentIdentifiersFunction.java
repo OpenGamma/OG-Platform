@@ -28,6 +28,7 @@ import com.opengamma.language.DataUtils;
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtils;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
@@ -63,7 +64,7 @@ public class PortfolioComponentIdentifiersFunction extends AbstractFunctionInvok
 
   private PortfolioComponentIdentifiersFunction(final DefinitionAnnotater info) {
     super(info.annotate(parameters()));
-    _meta = info.annotate(new MetaFunction("PortfolioComponentIdentifiers", getParameters(), this));
+    _meta = info.annotate(new MetaFunction(Categories.IDENTIFIER, "PortfolioComponentIdentifiers", getParameters(), this));
   }
 
   protected PortfolioComponentIdentifiersFunction() {

@@ -6,6 +6,8 @@
 package com.opengamma.financial.model.volatility.smile.function;
 
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.math.function.Function1D;
@@ -15,13 +17,17 @@ import com.opengamma.util.CompareUtils;
  * This is the form given in Obloj, Fine-Tune Your Smile (2008), and supposedly corresponds to that given in Hagan, Managing Smile Risk (2002). However it differs from Hagan
  * {@link SABRBerestyckiVolatilityFunction}   
  */
-public class SABRHaganAlternativeVolatilityFunction implements VolatilityFunctionProvider<SABRFormulaData> {
+public class SABRHaganAlternativeVolatilityFunction extends VolatilityFunctionProvider<SABRFormulaData> {
+  private static final Logger s_logger = LoggerFactory.getLogger(SABRHaganAlternativeVolatilityFunction.class);
+
+  private static final double CUTOFF_MONEYNESS = 1e-6;
+
   private static final double EPS = 1e-15;
 
   @Override
-  public Function1D<SABRFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option) {
+  public Function1D<SABRFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option, final double forward) {
     Validate.notNull(option, "option");
-    final double k = option.getStrike();
+    final double strike = option.getStrike();
     final double t = option.getTimeToExpiry();
     return new Function1D<SABRFormulaData, Double>() {
 
@@ -32,32 +38,41 @@ public class SABRHaganAlternativeVolatilityFunction implements VolatilityFunctio
         final double beta = data.getBeta();
         final double rho = data.getRho();
         final double nu = data.getNu();
-        final double f = data.getForward();
+
+        final double cutoff = forward * CUTOFF_MONEYNESS;
+        final double k;
+        if (strike < cutoff) {
+          s_logger.info("Given strike of " + strike + " is less than cutoff at " + cutoff + ", therefore the strike is taken as " + cutoff);
+          k = cutoff;
+        } else {
+          k = strike;
+        }
+
         double i0;
         final double beta1 = 1 - beta;
-        if (CompareUtils.closeEquals(f, k, EPS)) {
+        if (CompareUtils.closeEquals(forward, k, EPS)) {
           i0 = alpha / Math.pow(k, beta1);
         } else {
-          final double x = Math.log(f / k);
+          final double x = Math.log(forward / k);
           if (CompareUtils.closeEquals(nu, 0, EPS)) {
             if (CompareUtils.closeEquals(beta, 1.0, EPS)) {
               return alpha; // this is just log-normal
             }
-            i0 = x * alpha * beta1 / (Math.pow(f, beta1) - Math.pow(k, beta1));
+            i0 = x * alpha * beta1 / (Math.pow(forward, beta1) - Math.pow(k, beta1));
           } else {
             double z, zeta;
             if (beta == 1.0) {
               z = nu * x / alpha;
               zeta = z;
             } else {
-              z = nu * (Math.pow(f, beta1) - Math.pow(k, beta1)) / alpha / beta1;
-              zeta = nu * (f - k) / alpha / Math.pow(f * k, beta / 2);
+              z = nu * (Math.pow(forward, beta1) - Math.pow(k, beta1)) / alpha / beta1;
+              zeta = nu * (forward - k) / alpha / Math.pow(forward * k, beta / 2);
             }
             final double temp = (Math.sqrt(1 + zeta * (zeta - 2 * rho)) + zeta - rho) / (1 - rho);
             i0 = nu * x * zeta / z / Math.log(temp);
           }
         }
-        final double f1sqrt = Math.pow(f * k, beta1 / 2);
+        final double f1sqrt = Math.pow(forward * k, beta1 / 2);
         final double i1 = beta1 * beta1 * alpha * alpha / 24 / f1sqrt / f1sqrt + rho * alpha * beta * nu / 4 / f1sqrt + nu * nu * (2 - 3 * rho * rho) / 24;
         return i0 * (1 + i1 * t);
       }

@@ -8,7 +8,6 @@ package com.opengamma.masterdb.holiday;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
-import java.util.TimeZone;
 
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
@@ -21,13 +20,15 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.extsql.ExtSqlBundle;
+import com.opengamma.extsql.ExtSqlConfig;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests ModifyHolidayDbHolidayMasterWorker.
@@ -37,11 +38,10 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyHolidayDbHolidayMasterWorkerUpdateTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyHolidayDbHolidayMasterWorkerUpdateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------
@@ -118,12 +118,8 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
 
   @Test
   public void test_update_rollback() {
-    DbHolidayMaster w = new DbHolidayMaster(_holMaster.getDbSource()) {
-      @Override
-      protected String sqlInsertDate() {
-        return "INSERT";  // bad sql
-      };
-    };
+    DbHolidayMaster w = new DbHolidayMaster(_holMaster.getDbConnector());
+    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("Invalid"), DbHolidayMaster.class));
     final HolidayDocument base = _holMaster.get(UniqueId.of("DbHol", "101", "0"));
     UniqueId uniqueId = UniqueId.of("DbHol", "101", "0");
     ManageableHoliday holiday = new ManageableHoliday(Currency.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));

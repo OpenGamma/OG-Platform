@@ -13,17 +13,7 @@
     </property>
   </bean>
   
-  <import resource="classpath:com/opengamma/financial/common.xml" />
   <import resource="classpath:com/opengamma/financial/demoMasters.xml" />
-  
-  <!-- Active MQ -->
-  <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-    <constructor-arg value="${activeMQ.brokerURL}" />
-    <property name="WatchTopicAdvisories" value="false" /> <!-- IGN-94 -->
-  </bean>
-  <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
-    <constructor-arg ref="activeMQConnectionFactory"/>
-  </bean>
   
   <!-- User supplied data storage -->
   <bean id="userFinancialDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
@@ -32,19 +22,19 @@
     <property name="username" value="${opengamma.financial-user.jdbc.username}" />
     <property name="password" value="${opengamma.financial-user.jdbc.password}" />
   </bean>
-  <bean id="userFinancialDbSource" parent="abstractDbSource">
+  <bean id="userFinancialDbConnector" parent="abstractDbConnector">
     <property name="name" value="UserFinancial"/>
     <property name="dataSource" ref="userFinancialDataSource"/>
-    <property name="dialect" value="${opengamma.financial-user.db.dbhelper}"/>
+    <property name="dialectName" value="${opengamma.financial-user.db.dialect}"/>
   </bean>
 
   <!-- User supplied Positions --> 
   <bean id="userFinancialPortfolioMaster" class="com.opengamma.masterdb.portfolio.DbPortfolioMaster">
-    <constructor-arg ref="userFinancialDbSource" />
+    <constructor-arg ref="userFinancialDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.financial-user.db.portfoliomaster.scheme}" />
   </bean>
   <bean id="userFinancialPositionMaster" class="com.opengamma.masterdb.position.DbPositionMaster">
-    <constructor-arg ref="userFinancialDbSource" />
+    <constructor-arg ref="userFinancialDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.financial-user.db.positionmaster.scheme}" />
   </bean>
   <bean id="userFinancialPositionSource" class="com.opengamma.master.position.impl.MasterPositionSource">
@@ -63,7 +53,7 @@
   <!-- User supplied Securities -->
   <bean id="securityMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
   <bean id="userFinancialSecurityMaster" class="com.opengamma.masterdb.security.DbSecurityMaster">
-    <constructor-arg ref="userFinancialDbSource" />
+    <constructor-arg ref="userFinancialDbConnector" />
     <property name="changeManager" ref="securityMasterChangeManager" />
     <property name="uniqueIdScheme" value="${opengamma.financial-user.db.securitymaster.scheme}" />
   </bean>
@@ -84,10 +74,13 @@
   </bean>
   
   <!-- User market data snapshots -->
-  <bean id="snapshotMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
+    <bean id="userSnapshotMasterChangeManager" class="com.opengamma.core.change.JmsChangeManager" init-method="start" >
+    <constructor-arg ref="jmsConnector" />
+    <constructor-arg value="userSnapshotMasterChangeManager" />
+  </bean>
   <bean id="userFinancialSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
-    <constructor-arg ref="userFinancialDbSource" />
-    <property name="changeManager" ref="snapshotMasterChangeManager" />
+    <constructor-arg ref="userFinancialDbConnector" />
+    <property name="changeManager" ref="userSnapshotMasterChangeManager" />
     <property name="uniqueIdScheme" value="${opengamma.financial-user.db.snapshotmaster.scheme}" />
   </bean>
   <bean id="userFinancialSnapshotSource" class="com.opengamma.master.marketdatasnapshot.impl.MasterSnapshotSource">
@@ -168,6 +161,9 @@
     <property name="holidaySource" ref="sharedHolidaySource" />
     <property name="exchangeSource" ref="sharedExchangeSource" />
   </bean>
+  <bean id="demoOverrideOperationCompiler" class="com.opengamma.financial.marketdata.MarketDataELCompiler">
+    <constructor-arg ref="sharedSecuritySource" />
+  </bean>
   <bean id="demoFunctionExecutionContext" class="com.opengamma.financial.OpenGammaExecutionContextFactoryBean">
     <property name="historicalTimeSeriesSource" ref="sharedHistoricalTimeSeriesSource" />
     <property name="securitySource" ref="combinedSecuritySource" />
@@ -177,6 +173,7 @@
     <property name="holidaySource" ref="sharedHolidaySource"/>
     <property name="conventionBundleSource" ref="conventionBundleSource"/>
     <property name="configSource" ref="sharedConfigSource" />
+    <property name="overrideOperationCompiler" ref="demoOverrideOperationCompiler" />
   </bean>
   <bean id="demoFunctionCompilation" class="com.opengamma.engine.function.CompiledFunctionService">
     <constructor-arg>
@@ -328,6 +325,7 @@
     <property name="viewPermissionProvider">
       <bean class="com.opengamma.engine.view.permission.DefaultViewPermissionProvider" />
     </property>
+    <property name="overrideOperationCompiler" ref="demoOverrideOperationCompiler" />
   </bean>
   
   <bean id="viewProcessorManager" class="com.opengamma.financial.view.ViewProcessorManager" init-method="start">

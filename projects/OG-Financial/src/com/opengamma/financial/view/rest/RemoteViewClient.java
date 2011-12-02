@@ -10,7 +10,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.ws.rs.core.Response.Status;
 
@@ -39,6 +38,7 @@ import com.opengamma.financial.rest.AbstractRestfulJmsResultConsumer;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.jms.JmsConnector;
 import com.sun.jersey.api.client.ClientResponse;
 
 /**
@@ -82,11 +82,11 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
    * @param viewProcessor  the view processor
    * @param baseUri  the base URI to connect to
    * @param fudgeContext  the Fudge context
-   * @param connectionFactory  the connection factory
+   * @param jmsConnector  the JMS connector
    * @param scheduler  the scheduler
    */
-  public RemoteViewClient(ViewProcessor viewProcessor, URI baseUri, FudgeContext fudgeContext, ConnectionFactory connectionFactory, ScheduledExecutorService scheduler) {
-    super(baseUri, fudgeContext, connectionFactory, scheduler, DataViewProcessorResource.VIEW_CLIENT_TIMEOUT_MILLIS / 2);
+  public RemoteViewClient(ViewProcessor viewProcessor, URI baseUri, FudgeContext fudgeContext, JmsConnector jmsConnector, ScheduledExecutorService scheduler) {
+    super(baseUri, fudgeContext, jmsConnector, scheduler, DataViewProcessorResource.VIEW_CLIENT_TIMEOUT_MILLIS / 2);
     _viewProcessor = viewProcessor;
     _scheduler = scheduler;
     _internalResultListener = new AbstractViewResultListener() {
@@ -136,14 +136,14 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   }
 
   @Override
-  public void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions) {
-    attachToViewProcess(viewDefinitionName, executionOptions, false);
+  public void attachToViewProcess(UniqueId definitionId, ViewExecutionOptions executionOptions) {
+    attachToViewProcess(definitionId, executionOptions, false);
   }
 
   @Override
-  public void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions, boolean newBatchProcess) {
+  public void attachToViewProcess(UniqueId definitionId, ViewExecutionOptions executionOptions, boolean newBatchProcess) {
     AttachToViewProcessRequest request = new AttachToViewProcessRequest();
-    request.setViewDefinitionName(viewDefinitionName);
+    request.setViewDefinitionId(definitionId);
     request.setExecutionOptions(executionOptions);
     request.setNewBatchProcess(newBatchProcess);
     _listenerLock.lock();
@@ -232,6 +232,18 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   @Override
   public void setResultMode(ViewResultMode viewResultMode) {
     URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_RESULT_MODE);
+    getClient().access(uri).put(viewResultMode);
+  }
+
+  @Override
+  public ViewResultMode getFragmentResultMode() {
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_FRAGMENT_RESULT_MODE);
+    return getClient().access(uri).get(ViewResultMode.class);
+  }
+
+  @Override
+  public void setFragmentResultMode(ViewResultMode viewResultMode) {
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_FRAGMENT_RESULT_MODE);
     getClient().access(uri).put(viewResultMode);
   }
 

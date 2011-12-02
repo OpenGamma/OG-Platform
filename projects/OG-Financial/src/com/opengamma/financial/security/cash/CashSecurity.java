@@ -64,12 +64,8 @@ public class CashSecurity extends FinancialSecurity {
   @PropertyDefinition
   private double _amount;
 
-  /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  public CashSecurity() {
+  CashSecurity() { //For builder
+    super();
   }
 
   public CashSecurity(Currency currency, ExternalId region, ZonedDateTime maturity, double rate, double amount) {

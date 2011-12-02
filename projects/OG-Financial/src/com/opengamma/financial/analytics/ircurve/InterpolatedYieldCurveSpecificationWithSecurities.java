@@ -35,10 +35,10 @@ public class InterpolatedYieldCurveSpecificationWithSecurities implements Serial
   private final LocalDate _curveDate;
   private final Currency _currency;
   private final String _name;
-  private final Interpolator1D<?> _interpolator;
+  private final Interpolator1D _interpolator;
   private final SortedSet<FixedIncomeStripWithSecurity> _strips = new TreeSet<FixedIncomeStripWithSecurity>();
 
-  public InterpolatedYieldCurveSpecificationWithSecurities(final LocalDate curveDate, final String name, final Currency currency, final Interpolator1D<?> interpolator,
+  public InterpolatedYieldCurveSpecificationWithSecurities(final LocalDate curveDate, final String name, final Currency currency, final Interpolator1D interpolator,
       final Collection<FixedIncomeStripWithSecurity> resolvedStrips) {
     Validate.notNull(curveDate, "CurveDate");
     Validate.notNull(currency, "Currency");
@@ -83,7 +83,7 @@ public class InterpolatedYieldCurveSpecificationWithSecurities implements Serial
   /**
    * @return the interpolator
    */
-  public Interpolator1D<?> getInterpolator() {
+  public Interpolator1D getInterpolator() {
     return _interpolator;
   }
 

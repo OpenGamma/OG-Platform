@@ -14,15 +14,15 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 /**
  * 
  */
-public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<Interpolator1DDataBundle> {
+public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
   private final int _degree;
+  private final double _eps;
 
-  public BarycentricRationalFunctionInterpolator1D(final int degree) {
-    if (degree < 1) {
-      throw new IllegalArgumentException("Cannot perform interpolation with rational functions of degree < 1");
-    }
+  public BarycentricRationalFunctionInterpolator1D(final int degree, double eps) {
+    Validate.isTrue(degree > 0, "Cannot perform interpolation with rational functions of degree < 1");
     _degree = degree;
+    _eps = eps;
   }
 
   @Override
@@ -43,7 +43,7 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<In
     double delta, temp, num = 0, den = 0;
     for (int i = 0; i < n; i++) {
       delta = value - x[i];
-      if (Math.abs(delta) < getEPS()) {
+      if (Math.abs(delta) < _eps) {
         return y[i];
       }
       temp = w[i] / delta;
@@ -109,6 +109,11 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<In
   @Override
   public int hashCode() {
     return getClass().hashCode() * 17 + _degree;
+  }
+
+  @Override
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value) {
+    return getFiniteDifferenceSensitivities(data, value);
   }
 
 }

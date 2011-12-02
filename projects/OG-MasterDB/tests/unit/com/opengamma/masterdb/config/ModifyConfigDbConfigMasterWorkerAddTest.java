@@ -9,8 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.util.TimeZone;
-
 import javax.time.Instant;
 
 import org.slf4j.Logger;
@@ -21,7 +19,7 @@ import org.testng.annotations.Test;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests ModifyConfigDbConfigMasterWorker.
@@ -31,11 +29,10 @@ public class ModifyConfigDbConfigMasterWorkerAddTest extends AbstractDbConfigMas
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigMasterWorkerAddTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyConfigDbConfigMasterWorkerAddTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------

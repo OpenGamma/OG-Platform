@@ -28,6 +28,7 @@ import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ExecutionOptions;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 
 /**
@@ -106,11 +107,11 @@ public class ManagementServiceTest {
   }
 
   private void addAnotherView(ViewProcessorImpl viewprocessor) {
-    ViewDefinition anotherDefinition = new ViewDefinition(ANOTHER_TEST_VIEW, ViewProcessorTestEnvironment.TEST_USER);
+    ViewDefinition anotherDefinition = new ViewDefinition(UniqueId.of("boo", "far"), ANOTHER_TEST_VIEW, ViewProcessorTestEnvironment.TEST_USER);
     anotherDefinition.addViewCalculationConfiguration(_env.getViewDefinition().getCalculationConfiguration(ViewProcessorTestEnvironment.TEST_CALC_CONFIG_NAME));
     _env.getMockViewDefinitionRepository().addDefinition(anotherDefinition);
     ViewClient client = viewprocessor.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(ANOTHER_TEST_VIEW, ExecutionOptions.infinite(MarketData.live()), false);
+    client.attachToViewProcess(anotherDefinition.getUniqueId(), ExecutionOptions.infinite(MarketData.live()), false);
   }
   
   

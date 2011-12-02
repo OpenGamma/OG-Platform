@@ -22,7 +22,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests ModifyExchangeDbExchangeMasterWorker.
@@ -32,11 +32,10 @@ public class ModifyExchangeDbExchangeMasterWorkerRemoveTest extends AbstractDbEx
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyExchangeDbExchangeMasterWorkerRemoveTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyExchangeDbExchangeMasterWorkerRemoveTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------

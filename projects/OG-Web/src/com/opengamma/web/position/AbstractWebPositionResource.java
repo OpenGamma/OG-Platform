@@ -76,9 +76,10 @@ public abstract class AbstractWebPositionResource extends AbstractWebResource {
     out.put("uris", new WebPositionsUris(data()));
     WebSecuritiesData secData = new WebSecuritiesData(data().getUriInfo());
     out.put("securityUris", new WebSecuritiesUris(secData));
+    
     return out;
   }
-
+  
   //-------------------------------------------------------------------------
   /**
    * Gets the backing bean.

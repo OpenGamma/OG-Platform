@@ -12,7 +12,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.index.IndexOIS;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -70,7 +70,7 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
   }
 
   /**
-   * Builder from financial details. The payment and fixing start and end dates are the same. The day count for the payment is the same as the one for the index.
+   * Builder from financial details. The accrual and fixing dates (start and end) are the same. The day count for the payment is the same as the one for the index.
    * @param index The OIS index.
    * @param settlementDate The coupon settlement date.
    * @param tenor The coupon tenor.
@@ -83,11 +83,20 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
   public static CouponOISSimplifiedDefinition from(final IndexOIS index, final ZonedDateTime settlementDate, final Period tenor, final double notional, final int settlementDays,
       final BusinessDayConvention businessDayConvention, final boolean isEOM) {
     ZonedDateTime endFixingPeriodDate = ScheduleCalculator.getAdjustedDate(settlementDate, businessDayConvention, index.getCalendar(), isEOM, tenor);
-    return CouponOISSimplifiedDefinition.from(index, settlementDate, endFixingPeriodDate, notional, settlementDays, businessDayConvention, isEOM);
+    return CouponOISSimplifiedDefinition.from(index, settlementDate, endFixingPeriodDate, notional, settlementDays);
   }
 
-  public static CouponOISSimplifiedDefinition from(final IndexOIS index, final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final int settlementDays,
-      final BusinessDayConvention businessDayConvention, final boolean isEOM) {
+  /**
+   * Builder from the financial details.  The accrual and fixing dates (start and end) are the same. The day count for the payment is the same as the one for the index. 
+   * The payment date is computed from the endFixingPeriodDate by moving backward by one day (overnight), then forward by the index publication lag and finally by the settlementDays days.
+   * @param index The OIS index.
+   * @param settlementDate The coupon settlement date.
+   * @param endFixingPeriodDate The end date of the fixing period (also used for the end accrual date).
+   * @param notional The notional.
+   * @param settlementDays The number of days between last fixing and the payment (also called spot lag). 
+   * @return The OIS coupon.
+   */
+  public static CouponOISSimplifiedDefinition from(final IndexOIS index, final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final int settlementDays) {
     ZonedDateTime lastFixingDate = ScheduleCalculator.getAdjustedDate(endFixingPeriodDate, index.getCalendar(), -1); // Overnight
     lastFixingDate = ScheduleCalculator.getAdjustedDate(lastFixingDate, index.getCalendar(), index.getPublicationLag()); // Lag
     ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(lastFixingDate, index.getCalendar(), settlementDays);
@@ -182,12 +191,12 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
   }
 
   @Override
-  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
     return visitor.visitCouponOISSimplified(this, data);
   }
 
   @Override
-  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitCouponOISSimplified(this);
   }
 

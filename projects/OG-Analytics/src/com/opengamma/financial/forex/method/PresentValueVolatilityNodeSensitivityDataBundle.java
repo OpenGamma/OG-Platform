@@ -94,6 +94,27 @@ public class PresentValueVolatilityNodeSensitivityDataBundle {
     return _delta;
   }
 
+  /**
+   * Computes the volatility sensitivities with respect to quoted data (ATM, RR, strangle) related to the (strike) node sensitivity.
+   * @return The volatility quote sensitivities. The sensitivity figures are in the same currency as the node sensitivity.
+   * The first dimension is the expiration and the second dimension the quotes: ATM, Risk Reversal, Strangle.
+   */
+  public PresentValueVolatilityQuoteSensitivityDataBundle quoteSensitivity() {
+    double[][] vegaStrike = getVega().getData();
+    int nbStrike = vegaStrike[0].length;
+    double[][] result = new double[vegaStrike.length][nbStrike];
+    int nbQuote = (vegaStrike[0].length - 1) / 2;
+    for (int loopexp = 0; loopexp < vegaStrike.length; loopexp++) {
+      result[loopexp][0] = vegaStrike[loopexp][nbQuote]; // ATM
+      for (int loopstrike = 0; loopstrike < nbQuote; loopstrike++) {
+        result[loopexp][loopstrike + 1] = -vegaStrike[loopexp][loopstrike] / 2.0 + vegaStrike[loopexp][nbStrike - 1 - loopstrike] / 2.0; // Risk Reversal
+        result[loopexp][loopstrike + nbQuote + 1] = vegaStrike[loopexp][loopstrike] + vegaStrike[loopexp][nbStrike - 1 - loopstrike]; // Strangle
+        result[loopexp][0] += vegaStrike[loopexp][loopstrike] + vegaStrike[loopexp][nbStrike - 1 - loopstrike];
+      }
+    }
+    return new PresentValueVolatilityQuoteSensitivityDataBundle(_currencyPair.getFirst(), _currencyPair.getSecond(), _expiries.getData(), _delta.getData(), result);
+  }
+
   //TODO Add possibility to add a sensitivity?
 
   @Override

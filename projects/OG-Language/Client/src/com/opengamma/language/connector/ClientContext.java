@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
 public final class ClientContext {
 
   private final FudgeContext _fudgeContext;
-  private final ScheduledExecutorService _scheduler;
+  private final ScheduledExecutorService _housekeepingScheduler;
   private final ClientExecutor _executor;
   private final int _messageTimeout;
   private final int _heartbeatTimeout;
@@ -29,15 +29,15 @@ public final class ClientContext {
   private final FudgeMsgEnvelope _heartbeatMessage;
   private final UserMessagePayloadVisitor<UserMessagePayload, SessionContext> _messageHandler;
 
-  public ClientContext(final FudgeContext fudgeContext, final ScheduledExecutorService scheduler,
+  public ClientContext(final FudgeContext fudgeContext, final ScheduledExecutorService housekeepingScheduler,
       final ClientExecutor executor, final int messageTimeout, final int heartbeatTimeout,
       final int terminationTimeout, final UserMessagePayloadVisitor<UserMessagePayload, SessionContext> messageHandler) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
-    ArgumentChecker.notNull(scheduler, "scheduler");
+    ArgumentChecker.notNull(housekeepingScheduler, "housekeepingScheduler");
     ArgumentChecker.notNull(executor, "executor");
     ArgumentChecker.notNull(messageHandler, "messageHandler");
     _fudgeContext = fudgeContext;
-    _scheduler = scheduler;
+    _housekeepingScheduler = housekeepingScheduler;
     _executor = executor;
     _messageTimeout = messageTimeout;
     _heartbeatTimeout = heartbeatTimeout;
@@ -51,8 +51,8 @@ public final class ClientContext {
     return _fudgeContext;
   }
 
-  public ScheduledExecutorService getScheduler() {
-    return _scheduler;
+  public ScheduledExecutorService getHousekeepingScheduler() {
+    return _housekeepingScheduler;
   }
 
   public ExecutorService createExecutor() {

@@ -41,19 +41,21 @@ public class DoubleConverter implements ResultConverter<Object> {
     addConversion(ValueRequirementNames.YIELD_CURVE, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     addConversion(ValueRequirementNames.VOLATILITY_SURFACE, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     addConversion(ValueRequirementNames.VOLATILITY_SURFACE_DATA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.COST_OF_CARRY, DoubleValueDecimalPlaceFormatter.CCY_2DP);
+    addConversion(ValueRequirementNames.COST_OF_CARRY, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
 
     // Pricing
-    addConversion(ValueRequirementNames.PRESENT_VALUE, DoubleValueDecimalPlaceFormatter.CCY_2DP);
-    addConversion(ValueRequirementNames.PV01, DoubleValueDecimalPlaceFormatter.CCY_2DP);
+    addConversion(ValueRequirementNames.PRESENT_VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    addConversion(ValueRequirementNames.PV01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     addConversion(ValueRequirementNames.PAR_RATE, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);
     addConversion(ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);
-    addConversion(ValueRequirementNames.FAIR_VALUE, DoubleValueDecimalPlaceFormatter.CCY_4DP);
-    addConversion(ValueRequirementNames.POSITION_FAIR_VALUE, DoubleValueDecimalPlaceFormatter.CCY_4DP);
-    addConversion(ValueRequirementNames.VALUE_FAIR_VALUE, DoubleValueDecimalPlaceFormatter.CCY_2DP);
+    addConversion(ValueRequirementNames.FAIR_VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    addConversion(ValueRequirementNames.POSITION_FAIR_VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    addConversion(ValueRequirementNames.VALUE_FAIR_VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    addConversion(ValueRequirementNames.SECURITY_MARKET_PRICE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     
     // PnL
-    addConversion(ValueRequirementNames.PNL, DoubleValueDecimalPlaceFormatter.CCY_2DP);
+    addConversion(ValueRequirementNames.PNL, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    addConversion(ValueRequirementNames.DAILY_PNL, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
 
     // Greeks
     addConversion(ValueRequirementNames.DELTA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
@@ -85,7 +87,7 @@ public class DoubleConverter implements ResultConverter<Object> {
     addConversion(ValueRequirementNames.VARIANCE_VOMMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
 
     // Position/value greeks
-    addBulkConversion("(POSITION_|VALUE_).*", DoubleValueDecimalPlaceFormatter.CCY_2DP);
+    addBulkConversion("(POSITION_|VALUE_).*", DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
 
     // Series analysis
     addConversion(ValueRequirementNames.SKEW, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
@@ -93,8 +95,8 @@ public class DoubleConverter implements ResultConverter<Object> {
     addConversion(ValueRequirementNames.PEARSON_KURTOSIS, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
 
     // VaR
-    addConversion(ValueRequirementNames.HISTORICAL_VAR, DoubleValueDecimalPlaceFormatter.CCY_2DP);
-    addConversion(ValueRequirementNames.PARAMETRIC_VAR, DoubleValueDecimalPlaceFormatter.CCY_2DP);
+    addConversion(ValueRequirementNames.HISTORICAL_VAR, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    addConversion(ValueRequirementNames.PARAMETRIC_VAR, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
 
     // Capital Asset Pricing
     addConversion(ValueRequirementNames.CAPM_BETA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
@@ -137,11 +139,11 @@ public class DoubleConverter implements ResultConverter<Object> {
     addConversion(ValueRequirementNames.NSS_BOND_CURVE, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     
     // FX
-    addConversion(ValueRequirementNames.FX_PRESENT_VALUE, DoubleValueDecimalPlaceFormatter.CCY_2DP);
+    addConversion(ValueRequirementNames.FX_PRESENT_VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
   }
 
   private static void addBulkConversion(String valueRequirementFieldNamePattern,
-      DoubleValueDecimalPlaceFormatter conversionSettings) {
+      DoubleValueFormatter conversionSettings) {
     Pattern pattern = Pattern.compile(valueRequirementFieldNamePattern);
     for (Field field : ValueRequirementNames.class.getFields()) {
       if ((field.getModifiers() & (Modifier.STATIC | Modifier.PUBLIC)) == (Modifier.STATIC | Modifier.PUBLIC)

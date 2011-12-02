@@ -73,7 +73,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModelTest {
       spot = 2 * RANDOM.nextDouble() + 10;
       strike = 2 * RANDOM.nextDouble() + 10;
       curve = new YieldCurve(ConstantDoublesCurve.from(RANDOM.nextDouble() / 10));
-      b = RANDOM.nextDouble() / 20;
+      b = 0;//RANDOM.nextDouble() / 20;
       isCall = RANDOM.nextDouble() < 0.5 ? true : false;
       definition = new EuropeanVanillaOptionDefinition(strike, expiry, isCall);
       initialData = new StandardOptionDataBundle(curve, b, null, spot, DATE);

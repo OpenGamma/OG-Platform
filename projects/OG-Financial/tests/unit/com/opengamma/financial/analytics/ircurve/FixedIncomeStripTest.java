@@ -5,8 +5,13 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
+import java.util.Iterator;
+import java.util.Set;
+import java.util.TreeSet;
+
 import javax.time.calendar.Period;
 
+import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.time.Tenor;
@@ -50,5 +55,89 @@ public class FixedIncomeStripTest {
   public void test_constructor1_future() {
     new FixedIncomeStrip(StripInstrumentType.FUTURE, new Tenor(Period.ofYears(5)), "Test");
   }
+  
+  @Test(expectedExceptions = IllegalStateException.class)
+  public void testSwapNumberOfFutures() {
+    new FixedIncomeStrip(StripInstrumentType.SWAP, new Tenor(Period.ofYears(5)), "Test").getNumberOfFuturesAfterTenor();
+  }
 
+  @Test
+  public void testComparator() {
+    FixedIncomeStrip strip1 = new FixedIncomeStrip(StripInstrumentType.CASH, new Tenor(Period.ofDays(1)), "Test");
+    FixedIncomeStrip strip2 = new FixedIncomeStrip(StripInstrumentType.CASH, new Tenor(Period.ofDays(7)), "Test");
+    FixedIncomeStrip strip3 = new FixedIncomeStrip(StripInstrumentType.FRA_3M, new Tenor(Period.ofMonths(3)), "Test");
+    FixedIncomeStrip strip4 = new FixedIncomeStrip(StripInstrumentType.FRA_3M, new Tenor(Period.ofMonths(6)), "Test");
+    FixedIncomeStrip strip5 = new FixedIncomeStrip(StripInstrumentType.FUTURE, new Tenor(Period.ofYears(1)), 1, "Test");
+    FixedIncomeStrip strip6 = new FixedIncomeStrip(StripInstrumentType.FUTURE, new Tenor(Period.ofYears(1)), 2, "Test");
+    FixedIncomeStrip strip7 = new FixedIncomeStrip(StripInstrumentType.SWAP_3M, new Tenor(Period.ofYears(2)), "Test");
+    FixedIncomeStrip strip8 = new FixedIncomeStrip(StripInstrumentType.SWAP_3M, new Tenor(Period.ofYears(4)), "Test");
+    FixedIncomeStrip strip9 = new FixedIncomeStrip(StripInstrumentType.SWAP_3M, new Tenor(Period.ofYears(7)), "Test");
+    FixedIncomeStrip[] array = new FixedIncomeStrip[]{strip1, strip2, strip3, strip4, strip5, strip6, strip7, strip8, strip9};
+    Set<FixedIncomeStrip> set = new TreeSet<FixedIncomeStrip>();
+    set.add(strip1);
+    set.add(strip9);
+    set.add(strip2);
+    set.add(strip8);
+    set.add(strip4);
+    set.add(strip7);
+    set.add(strip3);
+    set.add(strip5);
+    set.add(strip6);
+    Iterator<FixedIncomeStrip> iter = set.iterator();
+    AssertJUnit.assertEquals(array.length, set.size());
+    for(FixedIncomeStrip strip : array) {
+      AssertJUnit.assertTrue(set.contains(strip));
+      AssertJUnit.assertEquals(iter.next(), strip);
+    }
+    strip1 = new FixedIncomeStrip(StripInstrumentType.CASH, new Tenor(Period.ofDays(1)), "Test");
+    strip2 = new FixedIncomeStrip(StripInstrumentType.CASH, new Tenor(Period.ofDays(7)), "Test");
+    strip3 = new FixedIncomeStrip(StripInstrumentType.FRA_3M, new Tenor(Period.ofMonths(3)), "Test");
+    strip4 = new FixedIncomeStrip(StripInstrumentType.FRA_3M, new Tenor(Period.ofMonths(6)), "Test");
+    strip5 = new FixedIncomeStrip(StripInstrumentType.FUTURE, new Tenor(Period.ofYears(0)), 4, "Test");
+    strip6 = new FixedIncomeStrip(StripInstrumentType.FUTURE, new Tenor(Period.ofYears(0)), 6, "Test");
+    strip7 = new FixedIncomeStrip(StripInstrumentType.SWAP_3M, new Tenor(Period.ofYears(2)), "Test");
+    strip8 = new FixedIncomeStrip(StripInstrumentType.SWAP_3M, new Tenor(Period.ofYears(6)), "Test");
+    strip9 = new FixedIncomeStrip(StripInstrumentType.SWAP_3M, new Tenor(Period.ofYears(7)), "Test");
+    array = new FixedIncomeStrip[]{strip1, strip2, strip3, strip4, strip5, strip6, strip7, strip8, strip9};
+    set = new TreeSet<FixedIncomeStrip>();
+    set.add(strip1);
+    set.add(strip9);
+    set.add(strip2);
+    set.add(strip8);
+    set.add(strip4);
+    set.add(strip7);
+    set.add(strip3);
+    set.add(strip5);
+    set.add(strip6);
+    iter = set.iterator();
+    for(FixedIncomeStrip strip : array) {
+      AssertJUnit.assertTrue(set.contains(strip));
+      AssertJUnit.assertEquals(iter.next(), strip);
+    }    
+    strip1 = new FixedIncomeStrip(StripInstrumentType.CASH, new Tenor(Period.ofDays(1)), "Test");
+    strip2 = new FixedIncomeStrip(StripInstrumentType.CASH, new Tenor(Period.ofDays(7)), "Test");
+    strip3 = new FixedIncomeStrip(StripInstrumentType.FUTURE, new Tenor(Period.ofMonths(0)), 1, "Test");
+    strip4 = new FixedIncomeStrip(StripInstrumentType.FUTURE, new Tenor(Period.ofMonths(0)), 2, "Test");
+    strip5 = new FixedIncomeStrip(StripInstrumentType.SWAP_3M, new Tenor(Period.ofYears(1)), "Test");
+    strip6 = new FixedIncomeStrip(StripInstrumentType.FUTURE, new Tenor(Period.ofYears(1)), 1, "Test");
+    strip7 = new FixedIncomeStrip(StripInstrumentType.FUTURE, new Tenor(Period.ofYears(2)), 2, "Test");
+    strip8 = new FixedIncomeStrip(StripInstrumentType.SWAP_3M, new Tenor(Period.ofYears(6)), "Test");
+    strip9 = new FixedIncomeStrip(StripInstrumentType.SWAP_3M, new Tenor(Period.ofYears(7)), "Test");
+    array = new FixedIncomeStrip[]{strip1, strip2, strip3, strip4, strip5, strip6, strip7, strip8, strip9};
+    set = new TreeSet<FixedIncomeStrip>();
+    set.add(strip1);
+    set.add(strip9);
+    set.add(strip2);
+    set.add(strip8);
+    set.add(strip4);
+    set.add(strip7);
+    set.add(strip3);
+    set.add(strip5);
+    set.add(strip6);
+    iter = set.iterator();
+    for(FixedIncomeStrip strip : array) {
+      AssertJUnit.assertTrue(set.contains(strip));
+      AssertJUnit.assertEquals(iter.next(), strip);
+    } 
+  }
 }

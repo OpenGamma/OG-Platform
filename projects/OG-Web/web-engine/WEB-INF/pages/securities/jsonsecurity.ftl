@@ -98,6 +98,25 @@
         "underlyingName":"${underlyingSecurity.name}",
         "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
         <#break>
+      <#case "EQUITY_BARRIER_OPTION">
+        "currency":"${security.currency}",
+        "exchange":"${security.exchange}",
+        "exerciseType":"${customRenderer.printExerciseType(security.exerciseType)}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
+        "optionType":"${security.optionType}",
+        "pointValue":"${security.pointValue}",
+        "strike":"${security.strike}",
+        "underlyingExternalId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
+        "underlyingName":"${underlyingSecurity.name}",
+        "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
+        
+        
+        "barrierDirection":"${security.barrierDirection}",
+        "barrierLevel":"${security.barrierLevel}",
+        "barrierType":"${security.barrierType}",
+        "monitoringType":"${security.monitoringType}",
+        "samplingFrequency":"${security.samplingFrequency}",
+        <#break>
 
       <#case "SWAP">
         "tradeDate": {
@@ -131,9 +150,18 @@
 	        <#break>
 	        <#case "FloatingInterestRateLeg">
               "floatingReferenceRateId":"${security.payLeg.floatingReferenceRateId}",
+              "initialFloatingRate":"${security.payLeg.initialFloatingRate}"
+	        <#break>
+	        <#case "FloatingSpreadInterestRateLeg">
+              "floatingReferenceRateId":"${security.payLeg.floatingReferenceRateId}",
               "initialFloatingRate":"${security.payLeg.initialFloatingRate}",
               "spread":"${security.payLeg.spread}"
-	        <#break>
+          <#break>
+          <#case "FloatingGearingInterestRateLeg">
+              "floatingReferenceRateId":"${security.payLeg.floatingReferenceRateId}",
+              "initialFloatingRate":"${security.payLeg.initialFloatingRate}",
+              "gearing":"${security.payLeg.gearing}"
+          <#break>
 	      </#switch>
         },
         "receiveLeg":{
@@ -154,8 +182,17 @@
             <#break>
             <#case "FloatingInterestRateLeg">
               "floatingReferenceRateId":"${security.receiveLeg.floatingReferenceRateId}",
+              "initialFloatingRate":"${security.receiveLeg.initialFloatingRate}"
+            <#break>
+            <#case "FloatingSpreadInterestRateLeg">
+              "floatingReferenceRateId":"${security.receiveLeg.floatingReferenceRateId}",
               "initialFloatingRate":"${security.receiveLeg.initialFloatingRate}",
               "spread":"${security.receiveLeg.spread}"
+            <#break>
+            <#case "FloatingGearingInterestRateLeg">
+              "floatingReferenceRateId":"${security.receiveLeg.floatingReferenceRateId}",
+              "initialFloatingRate":"${security.receiveLeg.initialFloatingRate}",
+              "gearing":"${security.receiveLeg.gearing}"
             <#break>
           </#switch>
         },
@@ -179,7 +216,7 @@
         "callAmount":"${security.callAmount}",
         "callCurrency":"${security.callCurrency}",
         "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
-        "isLong":"${security.isLong?string?upper_case}",
+        "isLong":"${security.long?string?upper_case}",
         "monitoringType":"${security.monitoringType}",
         "putAmount":"${security.putAmount}",
         "putCurrency":"${security.putCurrency}",
@@ -190,10 +227,20 @@
         "callAmount":"${security.callAmount}",
         "callCurrency":"${security.callCurrency}",
         "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
-        "isLong":"${security.isLong?string?upper_case}",
+        "isLong":"${security.long?string?upper_case}",
         "putAmount":"${security.putAmount}",
         "putCurrency":"${security.putCurrency}",
         "settlementDate":"${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}",
+        <#break>
+       <#case "NONDELIVERABLE_FX_OPTION">
+        "callAmount":"${security.callAmount}",
+        "callCurrency":"${security.callCurrency}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
+        "isLong":"${security.long?string?upper_case}",
+        "putAmount":"${security.putAmount}",
+        "putCurrency":"${security.putCurrency}",
+        "settlementDate":"${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}",
+        "deliveryCurrency":"${security.deliveryCurrency}",
         <#break>
        <#case "EQUITY_INDEX_OPTION">
         "currency":"${security.currency}",
@@ -209,7 +256,7 @@
         "currency":"${security.currency}",
         "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "isCashSettled":"${security.cashSettled?string?upper_case}",
-        "isLong":"${security.isLong?string?upper_case}",
+        "isLong":"${security.long?string?upper_case}",
         "isPayer":"${security.payer?string?upper_case}",
         "underlyingId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
         <#break>

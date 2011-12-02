@@ -21,11 +21,11 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsDocument;
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsMaster;
+import com.opengamma.extsql.ExtSqlBundle;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.PagingRequest;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.db.DbSource;
 
 /**
  * Database storage of function costs.
@@ -38,9 +38,13 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
   private static final Logger s_logger = LoggerFactory.getLogger(DbFunctionCostsMaster.class);
 
   /**
-   * The database source.
+   * External SQL bundle.
    */
-  private final DbSource _dbSource;
+  private ExtSqlBundle _externalSqlBundle;
+  /**
+   * The database connector.
+   */
+  private final DbConnector _dbConnector;
   /**
    * The time-source to use.
    */
@@ -49,22 +53,42 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
   /**
    * Creates an instance.
    * 
-   * @param dbSource  the database source combining all configuration, not null
+   * @param dbConnector  the database connector, not null
    */
-  public DbFunctionCostsMaster(final DbSource dbSource) {
-    ArgumentChecker.notNull(dbSource, "dbSource");
-    s_logger.debug("installed DbSource: {}", dbSource);
-    _dbSource = dbSource;
+  public DbFunctionCostsMaster(final DbConnector dbConnector) {
+    ArgumentChecker.notNull(dbConnector, "dbConnector");
+    s_logger.debug("installed DbConnector: {}", dbConnector);
+    _dbConnector = dbConnector;
+    _externalSqlBundle = ExtSqlBundle.of(dbConnector.getDialect().getExtSqlConfig(), DbFunctionCostsMaster.class);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the database source.
+   * Gets the external SQL bundle.
    * 
-   * @return the database source, not null
+   * @return the external SQL bundle, not null
    */
-  public DbSource getDbSource() {
-    return _dbSource;
+  public ExtSqlBundle getExtSqlBundle() {
+    return _externalSqlBundle;
+  }
+
+  /**
+   * Sets the external SQL bundle.
+   * 
+   * @param bundle  the external SQL bundle, not null
+   */
+  public void setExtSqlBundle(ExtSqlBundle bundle) {
+    _externalSqlBundle = bundle;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the database connector.
+   * 
+   * @return the database connector, not null
+   */
+  public DbConnector getDbConnector() {
+    return _dbConnector;
   }
 
   //-------------------------------------------------------------------------
@@ -98,26 +122,14 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("configuration", configuration)
       .addValue("function", functionId)
-      .addTimestamp("version_instant", versionAsOf);
+      .addTimestamp("version_instant", versionAsOf)
+      .addValue("paging_offset", 0)
+      .addValue("paging_fetch", 1);
     final FunctionCostsDocumentExtractor extractor = new FunctionCostsDocumentExtractor();
-    final NamedParameterJdbcOperations namedJdbc = getDbSource().getJdbcTemplate().getNamedParameterJdbcOperations();
-    final List<FunctionCostsDocument> docs = namedJdbc.query(sqlSelectCosts(), args, extractor);
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final String sql = getExtSqlBundle().getSql("GetCosts", args);
+    final List<FunctionCostsDocument> docs = namedJdbc.query(sql, args, extractor);
     return docs.isEmpty() ? null : docs.get(0);
-  }
-
-  /**
-   * Gets the SQL for getting costs.
-   * @return the SQL, not null
-   */
-  protected String sqlSelectCosts() {
-    String selectFrom =
-      "SELECT configuration, function, version_instant, invocation_cost, data_input_cost, data_output_cost " +
-      "FROM eng_functioncosts ";
-    String where =
-      "WHERE configuration = :configuration " +
-        "AND function = :function " +
-        "AND version_instant <= :version_instant ";
-    return getDbSource().getDialect().sqlApplyPaging(selectFrom + where, "ORDER BY version_instant DESC ", PagingRequest.ONE);
   }
 
   //-------------------------------------------------------------------------
@@ -135,19 +147,9 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
       .addValue("invocation_cost", costs.getInvocationCost())
       .addValue("data_input_cost", costs.getDataInputCost())
       .addValue("data_output_cost", costs.getDataOutputCost());
-    getDbSource().getJdbcTemplate().update(sqlInsertCosts(), args);
+    final String sql = getExtSqlBundle().getSql("InsertCosts", args);
+    getDbConnector().getJdbcTemplate().update(sql, args);
     return costs;
-  }
-
-  /**
-   * Gets the SQL for getting costs.
-   * @return the SQL, not null
-   */
-  protected String sqlInsertCosts() {
-    return "INSERT INTO eng_functioncosts " +
-              "(configuration, function, version_instant, invocation_cost, data_input_cost, data_output_cost) " +
-            "VALUES " +
-              "(:configuration, :function, :version_instant, :invocation_cost, :data_input_cost, :data_output_cost)";
   }
 
   //-------------------------------------------------------------------------

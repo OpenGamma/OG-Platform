@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.function.AbstractFunctionProvider;
@@ -287,10 +288,12 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
         throw npe;
       }
     }
-    return new CreateSecurityFunction(object.getObjectClass(), object.getConstructorDescription(), parameterNames, parameterDescriptions).getMetaFunction();
+    final MetaFunction function = new CreateSecurityFunction(object.getObjectClass(), object.getConstructorDescription(), parameterNames, parameterDescriptions).getMetaFunction();
+    function.setCategory(Categories.SECURITY);
+    return function;
   }
 
-  protected MetaFunction getObjectValuesInstance(final ObjectInfo object) {
+  protected MetaFunction getObjectValuesInstance(final ObjectInfo object, final String category) {
     // TODO: the string constants here should be at the top of the file
     final Class<?> clazz = object.getObjectClass();
     final String name = "Expand" + object.getName();
@@ -308,7 +311,7 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
         readers.put(info.getLabel(), read);
       }
     }
-    return new ObjectValuesFunction(name, description, readers, target).getMetaFunction();
+    return new ObjectValuesFunction(category, name, description, readers, target).getMetaFunction();
   }
 
   protected void loadManageableSecurityDefinitions(final ObjectInfo object, final Collection<MetaFunction> definitions) {
@@ -316,41 +319,41 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
       definitions.add(getCreateSecurityInstance(object));
     }
     if (object.getLabel() != null) {
-      definitions.add(getObjectValuesInstance(object));
+      definitions.add(getObjectValuesInstance(object, Categories.SECURITY));
     }
-    loadGetAndSet(object, definitions);
+    loadGetAndSet(object, definitions, Categories.SECURITY);
   }
 
   @SuppressWarnings("unchecked")
-  protected MetaFunction getCreateObjectInstance(final ObjectInfo object) {
+  protected MetaFunction getCreateObjectInstance(final ObjectInfo object, final String category) {
     final String[] parameterNames = object.getConstructorParameters();
     final String[] parameterDescriptions = new String[parameterNames.length];
     for (int i = 0; i < parameterNames.length; i++) {
       parameterDescriptions[i] = object.getParameterDescription(parameterNames[i]);
     }
-    return new CreateObjectFunction(object.getObjectClass(), object.getConstructorDescription(), parameterNames, parameterDescriptions).getMetaFunction();
+    return new CreateObjectFunction(category, object.getObjectClass(), object.getConstructorDescription(), parameterNames, parameterDescriptions).getMetaFunction();
   }
 
-  protected void loadObjectDefinitions(final ObjectInfo object, final Collection<MetaFunction> definitions) {
+  protected void loadObjectDefinitions(final ObjectInfo object, final Collection<MetaFunction> definitions, final String category) {
     if (!object.isAbstract() && (object.getConstructorDescription() != null)) {
-      definitions.add(getCreateObjectInstance(object));
+      definitions.add(getCreateObjectInstance(object, category));
     }
     if (object.getLabel() != null) {
-      definitions.add(getObjectValuesInstance(object));
+      definitions.add(getObjectValuesInstance(object, category));
     }
-    loadGetAndSet(object, definitions);
+    loadGetAndSet(object, definitions, category);
   }
 
-  protected MetaFunction getGetAttributeInstance(final ObjectInfo object, final AttributeInfo attribute, final Method read) {
+  protected MetaFunction getGetAttributeInstance(final ObjectInfo object, final AttributeInfo attribute, final Method read, final String category) {
     // TODO: the string constants here should be at the top of the file
     final String name = "Get" + object.getName() + capitalize(attribute.getAlias());
     final String description = "Returns the " + attribute.getLabel() + " from " + object.getLabel();
     final MetaParameter target = new MetaParameter(uncapitalize(object.getName()), JavaTypeInfo.builder(object.getObjectClass()).get());
     target.setDescription(capitalize(object.getLabel()) + " to query");
-    return new GetAttributeFunction(name, description, read, target).getMetaFunction();
+    return new GetAttributeFunction(category, name, description, read, target).getMetaFunction();
   }
 
-  protected MetaFunction getSetAttributeInstance(final ObjectInfo object, final AttributeInfo attribute, final Method write) {
+  protected MetaFunction getSetAttributeInstance(final ObjectInfo object, final AttributeInfo attribute, final Method write, final String category) {
     // TODO: the string constants here should be at the top of the file
     final String name = "Set" + object.getName() + capitalize(attribute.getAlias());
     final String description = "Updates the " + attribute.getLabel() + " of " + object.getLabel() +
@@ -359,18 +362,18 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
     target.setDescription(capitalize(object.getLabel()) + " to update");
     final MetaParameter value = new MetaParameter(attribute.getName(), JavaTypeInfo.builder(write.getParameterTypes()[0]).allowNull().get());
     value.setDescription(attribute.getDescription());
-    return new SetAttributeFunction(name, description, write, target, value).getMetaFunction();
+    return new SetAttributeFunction(category, name, description, write, target, value).getMetaFunction();
   }
 
-  protected void loadObjectGetter(final ObjectInfo object, final AttributeInfo attribute, final Method read, final Collection<MetaFunction> definitions) {
-    definitions.add(getGetAttributeInstance(object, attribute, read));
+  protected void loadObjectGetter(final ObjectInfo object, final AttributeInfo attribute, final Method read, final Collection<MetaFunction> definitions, final String category) {
+    definitions.add(getGetAttributeInstance(object, attribute, read, category));
   }
 
-  protected void loadObjectSetter(final ObjectInfo object, final AttributeInfo attribute, final Method write, final Collection<MetaFunction> definitions) {
-    definitions.add(getSetAttributeInstance(object, attribute, write));
+  protected void loadObjectSetter(final ObjectInfo object, final AttributeInfo attribute, final Method write, final Collection<MetaFunction> definitions, final String category) {
+    definitions.add(getSetAttributeInstance(object, attribute, write, category));
   }
 
-  protected void loadGetAndSet(final ObjectInfo object, final Collection<MetaFunction> definitions) {
+  protected void loadGetAndSet(final ObjectInfo object, final Collection<MetaFunction> definitions, final String category) {
     if (object.getLabel() != null) {
       final Class<?> clazz = object.getObjectClass();
       final Set<String> attributes = new HashSet<String>(object.getDirectAttributes());
@@ -380,14 +383,14 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
           if (attribute.isReadable()) {
             final Method read = PropertyUtils.getReadMethod(prop);
             if (read != null) {
-              loadObjectGetter(object, attribute, read, definitions);
+              loadObjectGetter(object, attribute, read, definitions, category);
               attributes.remove(prop.getName());
             }
           }
           if (attribute.isWriteable()) {
             final Method write = PropertyUtils.getWriteMethod(prop);
             if (write != null) {
-              loadObjectSetter(object, attribute, write, definitions);
+              loadObjectSetter(object, attribute, write, definitions, category);
               attributes.remove(prop.getName());
             }
           }
@@ -401,12 +404,19 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
     }
   }
 
+  protected String categoriseObject(final Class<?> clazz) {
+    if (clazz.getName().startsWith("com.opengamma.financial.security.")) {
+      return Categories.SECURITY;
+    }
+    return null;
+  }
+
   protected void loadDefinitions(final ObjectInfo object, final Collection<MetaFunction> definitions) {
     s_logger.debug("Loading definitions for {}", object);
     if (ManageableSecurity.class.isAssignableFrom(object.getObjectClass())) {
       loadManageableSecurityDefinitions(object, definitions);
     } else {
-      loadObjectDefinitions(object, definitions);
+      loadObjectDefinitions(object, definitions, categoriseObject(object.getObjectClass()));
     }
   }
 
@@ -454,7 +464,7 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
     final Collection<ObjectInfo> objects = functions.values();
     for (ObjectInfo object : objects) {
       Class<?> superClazz = object.getObjectClass().getSuperclass();
-      while (!Object.class.equals(superClazz)) {
+      while ((superClazz != null) && !Object.class.equals(superClazz)) {
         final ObjectInfo superclass = functions.get(superClazz.getName());
         if (superclass != null) {
           object.setSuperclass(superclass);

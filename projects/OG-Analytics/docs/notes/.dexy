@@ -1,4 +1,4 @@
 {
-    "finance.bib|dexy" : {},
-    "*.tex|fn|bib|jinja|latex" : { "allinputs" : true}
+    "finance.bib" : {},
+    "*.tex|fn|jinja|bib|latex" : { "allinputs" : true, "priority" : 100 }
 }

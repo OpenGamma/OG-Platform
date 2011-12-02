@@ -10,7 +10,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.math.BigDecimal;
-import java.util.TimeZone;
 
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
@@ -29,7 +28,7 @@ import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests ModifyPositionDbPositionMasterWorker.
@@ -39,11 +38,10 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPositionDbPositionMasterWorkerAddPositionTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyPositionDbPositionMasterWorkerAddPositionTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------
@@ -85,10 +83,9 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(1, secKey.size());
     assertTrue(secKey.getExternalIds().contains(ExternalId.of("A", "B")));
   }
-  
+
   @Test
   public void test_addWithOneTrade_add() {
-    
     LocalDate tradeDate = _now.toLocalDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     
@@ -199,10 +196,14 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
     PositionDocument added = _posMaster.add(doc);
+    assertNotNull(added);
+    assertNotNull(added.getUniqueId());
     
-    PositionDocument test = _posMaster.get(added.getUniqueId());
+    PositionDocument fromDb = _posMaster.get(added.getUniqueId());
+    assertNotNull(fromDb);
+    assertNotNull(fromDb.getUniqueId());
         
-    assertEquals(added, test);
+    assertEquals(added, fromDb);
   }
 
   @Test
@@ -257,11 +258,16 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
     PositionDocument added = _posMaster.add(doc);
+    assertNotNull(added);
+    assertNotNull(added.getUniqueId());
     
-    PositionDocument test = _posMaster.get(added.getUniqueId());
-    assertEquals(added, test);
+    PositionDocument fromDb = _posMaster.get(added.getUniqueId());
+    assertNotNull(fromDb);
+    assertNotNull(fromDb.getUniqueId());
+    
+    assertEquals(added, fromDb);
   }
-  
+
   @Test
   public void test_addWithTradesAndAttributes_addThenGet() {
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
@@ -286,9 +292,14 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
     PositionDocument added = _posMaster.add(doc);
+    assertNotNull(added);
+    assertNotNull(added.getUniqueId());
     
-    PositionDocument test = _posMaster.get(added.getUniqueId());
-    assertEquals(added, test);
+    PositionDocument fromDb = _posMaster.get(added.getUniqueId());
+    assertNotNull(fromDb);
+    assertNotNull(fromDb.getUniqueId());
+    
+    assertEquals(added, fromDb);
   }
 
   @Test
@@ -303,10 +314,14 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
     PositionDocument added = _posMaster.add(doc);
+    assertNotNull(added);
+    assertNotNull(added.getUniqueId());
     
-    PositionDocument test = _posMaster.get(added.getUniqueId());
-        
-    assertEquals(added, test);
+    PositionDocument fromDb = _posMaster.get(added.getUniqueId());
+    assertNotNull(fromDb);
+    assertNotNull(fromDb.getUniqueId());
+    
+    assertEquals(added, fromDb);
   }
 
   @Test
@@ -321,9 +336,86 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
     PositionDocument added = _posMaster.add(doc);
+    assertNotNull(added);
+    assertNotNull(added.getUniqueId());
     
-    PositionDocument test = _posMaster.get(added.getUniqueId());
-    assertEquals(added, test);
+    PositionDocument fromDb = _posMaster.get(added.getUniqueId());
+    assertNotNull(fromDb);
+    assertNotNull(fromDb.getUniqueId());
+    
+    assertEquals(added, fromDb);
+  }
+
+  @Test
+  public void test_addTradeDeal_add() {
+    Instant now = Instant.now(_posMaster.getTimeSource());
+    
+    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
+        
+    LocalDate tradeDate = _now.toLocalDate();
+    OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
+    ManageableTrade trade = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
+    trade.addAttribute("TA1", "C");
+    trade.addAttribute("TA2", "D");
+    trade.setDeal(new MockDeal("propOne", "propTwo"));
+    position.getTrades().add(trade);
+    
+    PositionDocument doc = new PositionDocument();
+    doc.setPosition(position);
+    PositionDocument test = _posMaster.add(doc);
+    
+    UniqueId uniqueId = test.getUniqueId();
+    assertNotNull(uniqueId);
+    assertEquals("DbPos", uniqueId.getScheme());
+    assertTrue(uniqueId.isVersioned());
+    assertTrue(Long.parseLong(uniqueId.getValue()) >= 1000);
+    assertEquals("0", uniqueId.getVersion());
+    assertEquals(now, test.getVersionFromInstant());
+    assertEquals(null, test.getVersionToInstant());
+    assertEquals(now, test.getCorrectionFromInstant());
+    assertEquals(null, test.getCorrectionToInstant());
+    ManageablePosition testPosition = test.getPosition();
+    assertNotNull(testPosition);
+    assertEquals(uniqueId, testPosition.getUniqueId());
+    assertEquals(BigDecimal.TEN, testPosition.getQuantity());
+    ExternalIdBundle secKey = testPosition.getSecurityLink().getExternalId();
+    assertEquals(1, secKey.size());
+    assertTrue(secKey.getExternalIds().contains(ExternalId.of("A", "B")));
+    
+    assertNotNull(testPosition.getTrades());
+    assertEquals(1, testPosition.getTrades().size());
+    ManageableTrade testTrade = testPosition.getTrades().get(0);
+    assertNotNull(testTrade);
+    assertEquals(BigDecimal.TEN, testTrade.getQuantity());
+    assertEquals(tradeDate, testTrade.getTradeDate());
+    assertEquals(tradeTime, testTrade.getTradeTime());
+    assertEquals(ExternalId.of("CPS", "CPV"), testTrade.getCounterpartyExternalId());
+    assertEquals(secKey, testTrade.getSecurityLink().getExternalId());
+  }
+
+  @Test
+  public void test_addTradeDeal_addThenGet() {
+    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
+    
+    LocalDate tradeDate = _now.toLocalDate();
+    OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
+    ManageableTrade trade = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
+    trade.addAttribute("TA1", "C");
+    trade.addAttribute("TA2", "D");
+//    trade.setDeal(new MockDeal("propOne", "propTwo"));  // TODO: test deal persistence
+    position.getTrades().add(trade);
+    
+    PositionDocument doc = new PositionDocument();
+    doc.setPosition(position);
+    PositionDocument added = _posMaster.add(doc);
+    assertNotNull(added);
+    assertNotNull(added.getUniqueId());
+    
+    PositionDocument fromDb = _posMaster.get(added.getUniqueId());
+    assertNotNull(fromDb);
+    assertNotNull(fromDb.getUniqueId());
+    
+    assertEquals(added, fromDb);
   }
 
   //-------------------------------------------------------------------------

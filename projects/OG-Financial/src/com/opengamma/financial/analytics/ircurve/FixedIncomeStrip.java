@@ -9,8 +9,6 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -21,7 +19,7 @@ import com.opengamma.financial.fudgemsg.FixedIncomeStripFudgeBuilder;
 import com.opengamma.util.time.Tenor;
 
 /**
- * A fixed income strip.
+ * A fixed income strip. <b>Note that the futures are assumed to be quarterly.</b>
  */
 public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStrip> {
 
@@ -112,10 +110,20 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     return _conventionName;
   }
 
+  /**
+   * Calculates the tenor of a strip. For all instruments except futures, this is the same as that entered on construction.
+   * For futures, this is the start tenor + (3 * future number)
+   * @return The effective tenor of the strip
+   */
+  public Tenor getEffectiveTenor() {
+    return new Tenor(getInstrumentType() == StripInstrumentType.FUTURE ? 
+        getCurveNodePointTime().getPeriod().plusMonths(3 * getNumberOfFuturesAfterTenor()) : getCurveNodePointTime().getPeriod());    
+  }
+  
   //-------------------------------------------------------------------------
   @Override
   public int compareTo(final FixedIncomeStrip other) {
-    int result = getCurveNodePointTime().getPeriod().toPeriodFields().toEstimatedDuration().compareTo(other.getCurveNodePointTime().getPeriod().toPeriodFields().toEstimatedDuration());
+    int result = getEffectiveTenor().getPeriod().toPeriodFields().toEstimatedDuration().compareTo(other.getEffectiveTenor().getPeriod().toPeriodFields().toEstimatedDuration());
     if (result != 0) {
       return result;
     }
@@ -153,7 +161,22 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    StringBuffer sb = new StringBuffer("FixedIncomeStrip[");
+    sb.append("instrument type=");
+    sb.append(getInstrumentType());
+    sb.append(", ");
+    sb.append("tenor=");
+    sb.append(getCurveNodePointTime());
+    sb.append(", ");
+    if (getInstrumentType() == StripInstrumentType.FUTURE) {
+      sb.append("future number after tenor=");
+      sb.append(getNumberOfFuturesAfterTenor());
+      sb.append(", ");
+    }
+    sb.append("convention name=");
+    sb.append(getConventionName());
+    sb.append("]");
+    return sb.toString();
   }
 
   //-------------------------------------------------------------------------

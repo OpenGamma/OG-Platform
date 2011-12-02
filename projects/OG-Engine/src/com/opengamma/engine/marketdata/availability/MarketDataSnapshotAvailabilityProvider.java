@@ -6,7 +6,6 @@
 package com.opengamma.engine.marketdata.availability;
 
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.depgraph.UnsatisfiableDependencyGraphException;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.UserMarketDataSnapshot;
 import com.opengamma.engine.value.ValueRequirement;
@@ -31,19 +30,19 @@ public class MarketDataSnapshotAvailabilityProvider implements MarketDataAvailab
   }
   
   @Override
-  public boolean isAvailable(ValueRequirement requirement) {
+  public MarketDataAvailability getAvailability(final ValueRequirement requirement) {
     if (requirement.getTargetSpecification().getType() == ComputationTargetType.PORTFOLIO_NODE ||
         requirement.getTargetSpecification().getType() == ComputationTargetType.POSITION ||
         requirement.getTargetSpecification().getType() == ComputationTargetType.TRADE) {
-      return false;
+      return MarketDataAvailability.NOT_AVAILABLE;
     }
     if (getSnapshot().query(requirement) != null) {
-      return true;
+      return MarketDataAvailability.AVAILABLE;
     }
     if (UserMarketDataSnapshot.getStructuredKey(requirement) != null) {
-      throw new UnsatisfiableDependencyGraphException(requirement); //PLAT-1419 make sure this structured data is not resolved another way 
+      return MarketDataAvailability.MISSING;
     }
-    return false;
+    return MarketDataAvailability.NOT_AVAILABLE;
   }
   
   //-------------------------------------------------------------------------

@@ -29,6 +29,8 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public final class ComputationTargetSpecification implements Serializable {
 
+  private static final long serialVersionUID = 1L;
+  
   /**
    * The type of the target.
    */
@@ -58,9 +60,6 @@ public final class ComputationTargetSpecification implements Serializable {
           _uniqueId = ((UniqueIdentifiable) target).getUniqueId();
         } else if (target instanceof ExternalIdentifiable) {
           final ExternalId id = ((ExternalIdentifiable) target).getExternalId();
-          _uniqueId = UniqueId.of(id.getScheme().getName(), id.getValue());
-        } else if (target instanceof ExternalId) {
-          final ExternalId id = (ExternalId) target;
           _uniqueId = UniqueId.of(id.getScheme().getName(), id.getValue());
         } else {
           _uniqueId = null;

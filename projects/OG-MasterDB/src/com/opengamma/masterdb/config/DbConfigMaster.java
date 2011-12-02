@@ -22,7 +22,7 @@ import com.opengamma.master.config.ConfigMetaDataResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.masterdb.AbstractDbMaster;
-import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbConnector;
 
 /**
  * A config master implementation using a database for persistence.
@@ -30,7 +30,9 @@ import com.opengamma.util.db.DbSource;
  * This is a full implementation of the config master using an SQL database.
  * Full details of the API are in {@link ConfigMaster}.
  * <p>
- * This class uses SQL via JDBC. The SQL may be changed by subclassing the relevant methods.
+ * The SQL is stored externally in {@code DbConfigMaster.extsql}.
+ * Alternate databases or specific SQL requirements can be handled using database
+ * specific overrides, such as {@code DbConfigMaster-MySpecialDB.extsql}.
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  * 
@@ -54,11 +56,11 @@ public class DbConfigMaster extends AbstractDbMaster implements ConfigMaster {
   /**
    * Creates an instance.
    * 
-   * @param dbSource  the database source combining all configuration, not null
+   * @param dbConnector  the database connector, not null
    */
-  public DbConfigMaster(DbSource dbSource) {
-    super(dbSource, IDENTIFIER_SCHEME_DEFAULT);
-    _worker = new DbConfigWorker(dbSource, IDENTIFIER_SCHEME_DEFAULT);
+  public DbConfigMaster(DbConnector dbConnector) {
+    super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
+    _worker = new DbConfigWorker(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
     _worker.setChangeManager(_changeManager);
   }
 

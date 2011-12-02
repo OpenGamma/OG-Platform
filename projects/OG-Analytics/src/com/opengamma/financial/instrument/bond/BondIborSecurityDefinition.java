@@ -12,20 +12,30 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityPaymentFixedDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondSecurity;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.schedule.ScheduleCalculator;
+import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.time.TimeCalculator;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
 /**
  * Describes a floating coupon bond (or Floating Rate Note) issue with Ibor-like coupon.
  */
-public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFixedDefinition, CouponIborDefinition> {
+public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFixedDefinition, CouponIborDefinition> implements
+    InstrumentDefinitionWithData<BondSecurity<? extends Payment, ? extends Coupon>, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * The default notional for the security.
@@ -88,18 +98,48 @@ public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFi
   }
 
   @Override
-  public BondSecurity<? extends Payment, ? extends Coupon> toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    return null;
-    // TODO
+  public BondIborSecurity toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getCalendar(), getSettlementDays());
+    return toDerivative(date, new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(1800, 1, 1)}, new double[] {0.0}), spot, yieldCurveNames);
+
   }
 
   @Override
-  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public BondIborSecurity toDerivative(ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getCalendar(), getSettlementDays());
+    return toDerivative(date, indexFixingTS, spot, yieldCurveNames);
+  }
+
+  public BondIborSecurity toDerivative(ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, ZonedDateTime settlementDate, String... yieldCurveNames) {
+    // Implementation note: First yield curve used for coupon and notional (credit), the second for risk free settlement.
+    Validate.notNull(date, "date");
+    Validate.notNull(indexFixingTS, "fixing time series");
+    Validate.notNull(settlementDate, "settlement date");
+    Validate.notNull(yieldCurveNames, "yield curve names");
+    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+    final String creditCurveName = yieldCurveNames[0];
+    final String riskFreeCurveName = yieldCurveNames[1];
+    double settlementTime;
+    if (settlementDate.isBefore(date)) {
+      settlementTime = 0.0;
+    } else {
+      settlementTime = TimeCalculator.getTimeBetween(date, settlementDate);
+    }
+    final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getNominal().toDerivative(date, creditCurveName);
+    @SuppressWarnings("unchecked")
+    GenericAnnuity<Coupon> coupon = (GenericAnnuity<Coupon>) getCoupon().toDerivative(date, indexFixingTS, yieldCurveNames);
+    return new BondIborSecurity(nominal.trimBefore(settlementTime), coupon.trimBefore(settlementTime), settlementTime, riskFreeCurveName);
+  }
+
+  @Override
+  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
     return visitor.visitBondIborSecurityDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitBondIborSecurityDefinition(this);
   }
 

@@ -6,8 +6,6 @@
 
 package com.opengamma.language.timeseries;
 
-import java.util.Collection;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,10 +13,9 @@ import com.opengamma.financial.historicaltimeseries.rest.RemoteHistoricalTimeSer
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
-import com.opengamma.language.function.AbstractFunctionProvider;
-import com.opengamma.language.function.MetaFunction;
-import com.opengamma.language.invoke.AbstractTypeConverterProvider;
-import com.opengamma.language.invoke.TypeConverter;
+import com.opengamma.language.function.FunctionProviderBean;
+import com.opengamma.language.invoke.TypeConverterProviderBean;
+import com.opengamma.language.procedure.ProcedureProviderBean;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
@@ -66,19 +63,13 @@ public class Loader extends ContextInitializationBean {
     }
     s_logger.info("Configuring time-series support");
     globalContext.setHistoricalTimeSeriesSource(new RemoteHistoricalTimeSeriesSource(getConfiguration().getFudgeContext(), restTarget));
-    globalContext.getFunctionProvider().addProvider(new AbstractFunctionProvider() {
-      @Override
-      protected void loadDefinitions(final Collection<MetaFunction> definitions) {
-        definitions.add(FetchTimeSeriesFunction.INSTANCE.getMetaFunction());
-      }
-    });
-    globalContext.getTypeConverterProvider().addTypeConverterProvider(new AbstractTypeConverterProvider() {
-      @Override
-      protected void loadTypeConverters(final Collection<TypeConverter> converters) {
-        converters.add(HistoricalTimeSeriesConverter.INSTANCE);
-        converters.add(LocalDateDoubleTimeSeriesConverter.INSTANCE);
-      }
-    });
+    globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
+        FetchTimeSeriesFunction.INSTANCE));
+    globalContext.getProcedureProvider().addProvider(new ProcedureProviderBean(
+        StoreTimeSeriesProcedure.INSTANCE));
+    globalContext.getTypeConverterProvider().addTypeConverterProvider(new TypeConverterProviderBean(
+        HistoricalTimeSeriesConverter.INSTANCE,
+        LocalDateDoubleTimeSeriesConverter.INSTANCE));
   }
 
 }

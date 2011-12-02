@@ -5,6 +5,8 @@
  */
 package com.opengamma.core.position;
 
+import java.util.Map.Entry;
+
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -29,6 +31,8 @@ public class PortfolioFudgeBuilder implements FudgeBuilder<Portfolio> {
   public static final String NAME_FIELD_NAME = "name";
   /** Field name. */
   public static final String ROOT_FIELD_NAME = "root";
+  /** Field name. */
+  public static final String ATTRIBUTES_FIELD_NAME = "attributes";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, Portfolio portfolio) {
@@ -36,7 +40,18 @@ public class PortfolioFudgeBuilder implements FudgeBuilder<Portfolio> {
     serializer.addToMessage(message, IDENTIFIER_FIELD_NAME, null, portfolio.getUniqueId());
     message.add(NAME_FIELD_NAME, portfolio.getName());
     serializer.addToMessage(message, ROOT_FIELD_NAME, null, portfolio.getRootNode());
+    if (haveAttributes(portfolio)) {
+      final MutableFudgeMsg attributesMsg = serializer.newMessage();
+      for (Entry<String, String> entry : portfolio.getAttributes().entrySet()) {
+        attributesMsg.add(entry.getKey(), entry.getValue());
+      }
+      serializer.addToMessage(message, ATTRIBUTES_FIELD_NAME, null, attributesMsg);
+    }
     return message;
+  }
+
+  private boolean haveAttributes(Portfolio portfolio) {
+    return portfolio.getAttributes() != null && !portfolio.getAttributes().isEmpty();
   }
 
   @Override
@@ -51,6 +66,16 @@ public class PortfolioFudgeBuilder implements FudgeBuilder<Portfolio> {
       portfolio.setUniqueId(id);
     }
     portfolio.setRootNode((SimplePortfolioNode) node);
+    if (message.hasField(ATTRIBUTES_FIELD_NAME)) {
+      FudgeMsg attributesMsg = message.getMessage(ATTRIBUTES_FIELD_NAME);
+      for (FudgeField fudgeField : attributesMsg) {
+        String key = fudgeField.getName();
+        Object value = fudgeField.getValue();
+        if (key != null && value != null) {
+          portfolio.addAttribute(key, (String) value);
+        }
+      }
+    }
     return portfolio;
   }
 

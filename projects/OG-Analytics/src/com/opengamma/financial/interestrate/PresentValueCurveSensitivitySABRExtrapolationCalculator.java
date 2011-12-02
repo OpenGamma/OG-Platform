@@ -27,7 +27,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Present value curve sensitivity calculator for interest rate instruments using SABR with extrapolation for high strike methods.
  */
-public final class PresentValueCurveSensitivitySABRExtrapolationCalculator extends PresentValueSensitivityCalculator {
+public final class PresentValueCurveSensitivitySABRExtrapolationCalculator extends PresentValueCurveSensitivityCalculator {
 
   /**
    * The instance of the calculator.
@@ -105,7 +105,7 @@ public final class PresentValueCurveSensitivitySABRExtrapolationCalculator exten
       if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameters) {
         final SABRInterestRateExtrapolationParameters sabrExtrapolation = (SABRInterestRateExtrapolationParameters) sabr.getSABRParameter();
         final CouponCMSSABRExtrapolationRightReplicationMethod replication = new CouponCMSSABRExtrapolationRightReplicationMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
-        return replication.presentValueSensitivity(payment, sabr).getSensitivities();
+        return replication.presentValueCurveSensitivity(payment, sabr).getSensitivities();
       }
     }
     throw new UnsupportedOperationException("The PresentValueCurveSensitivitySABRExtrapolationCalculator visitor visitCouponCMS requires a SABRInterestRateExtrapolationParameter as data.");

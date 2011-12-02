@@ -6,8 +6,9 @@
 package com.opengamma.masterdb.portfolio;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
-import java.util.TimeZone;
+import java.util.Map;
 
 import javax.time.Instant;
 
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolio;
@@ -23,7 +25,7 @@ import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioHistoryRequest;
 import com.opengamma.master.portfolio.PortfolioHistoryResult;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests ModifyPortfolioDbPortfolioMasterWorker.
@@ -33,11 +35,10 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPortfolioDbPortfolioMasterWorkerUpdateTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyPortfolioDbPortfolioMasterWorkerUpdateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------
@@ -85,9 +86,13 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
     
     UniqueId oldPortfolioId = UniqueId.of("DbPrt", "101", "0");
     PortfolioDocument base = _prtMaster.get(oldPortfolioId);
+    Map<String, String> oldAttr = base.getPortfolio().getAttributes();
+    assertNotNull(oldAttr);
     ManageablePortfolio port = new ManageablePortfolio("NewName");
     port.setUniqueId(oldPortfolioId);
     port.setRootNode(base.getPortfolio().getRootNode());
+    Map<String, String> newAttr = getNewAttributes();
+    port.setAttributes(newAttr);
     PortfolioDocument input = new PortfolioDocument(port);
     
     PortfolioDocument updated = _prtMaster.update(input);
@@ -107,6 +112,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
     assertEquals(base.getCorrectionToInstant(), old.getCorrectionToInstant());
     assertEquals("TestPortfolio101", old.getPortfolio().getName());
     assertEquals("TestNode111", old.getPortfolio().getRootNode().getName());
+    assertEquals(base.getPortfolio().getAttributes(), old.getPortfolio().getAttributes());
     
     PortfolioDocument newer = _prtMaster.get(updated.getUniqueId());
     assertEquals(updated.getUniqueId(), newer.getUniqueId());
@@ -120,12 +126,24 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
         newer.getPortfolio().getRootNode().getUniqueId().toLatest());
     assertEquals(false, old.getPortfolio().getRootNode().getUniqueId().getVersion().equals(
         newer.getPortfolio().getRootNode().getUniqueId().getVersion()));
+    assertEquals(newAttr, newer.getPortfolio().getAttributes());
     
     PortfolioHistoryRequest search = new PortfolioHistoryRequest(base.getUniqueId(), null, now);
     PortfolioHistoryResult searchResult = _prtMaster.history(search);
     assertEquals(2, searchResult.getDocuments().size());
     assertEquals(updated.getUniqueId(), searchResult.getDocuments().get(0).getUniqueId());
     assertEquals(oldPortfolioId, searchResult.getDocuments().get(1).getUniqueId());
+    
+    assertEquals(newAttr, searchResult.getDocuments().get(0).getPortfolio().getAttributes());
+    assertEquals(oldAttr, searchResult.getDocuments().get(1).getPortfolio().getAttributes());
+  }
+
+  private Map<String, String> getNewAttributes() {
+    Map<String, String> newAttr = Maps.newHashMap();
+    newAttr.put("NA1", "VA1");
+    newAttr.put("NA2", "VA2");
+    newAttr.put("NA3", "VA3");
+    return newAttr;
   }
 
   //-------------------------------------------------------------------------

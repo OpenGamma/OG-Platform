@@ -12,17 +12,16 @@ import static com.opengamma.masterdb.security.hibernate.Converters.dayCountBeanT
 import static com.opengamma.masterdb.security.hibernate.Converters.expiryBeanToExpiry;
 import static com.opengamma.masterdb.security.hibernate.Converters.expiryToExpiryBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
+import static com.opengamma.masterdb.security.hibernate.Converters.yieldConventionBeanToYieldConvention;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.convention.yield.YieldConvention;
-import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.BondSecurityVisitor;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.Converters;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
 
@@ -38,17 +37,6 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
 
   private BondSecurityBeanOperation() {
     super("BOND", BondSecurity.class, BondSecurityBean.class);
-  }
-
-  public static YieldConvention yieldConventionBeanToYieldConvention(final YieldConventionBean yieldConventionBean) {
-    if (yieldConventionBean == null) {
-      return null;
-    }
-    final YieldConvention yc = YieldConventionFactory.INSTANCE.getYieldConvention(yieldConventionBean.getName());
-    if (yc == null) {
-      throw new OpenGammaRuntimeException("Bad value for yieldConventionBean (" + yieldConventionBean.getName() + ")");
-    }
-    return yc;
   }
 
   @Override
@@ -110,6 +98,10 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
 
   @Override
   public BondSecurityBean createBean(final OperationContext context, final HibernateSecurityMasterDao secMasterSession, final BondSecurity security) {
+    Converters.validateYieldConvention(security.getYieldConvention().getConventionName());
+    Converters.validateDayCount(security.getDayCount().getConventionName());
+    Converters.validateFrequency(security.getCouponFrequency().getConventionName());
+    
     final BondSecurityBean bond = new BondSecurityBean();
     bond.setBondType(BondType.identify(security));
     bond.setIssuerName(security.getIssuerName());
@@ -124,7 +116,10 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
     bond.setCouponRate(security.getCouponRate());
     bond.setCouponFrequency(secMasterSession.getOrCreateFrequencyBean(security.getCouponFrequency().getConventionName()));
     bond.setDayCountConvention(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getConventionName()));
-    bond.setBusinessDayConvention(security.getBusinessDayConvention() != null ? secMasterSession.getOrCreateBusinessDayConventionBean(security.getBusinessDayConvention().getConventionName()) : null);
+    if (security.getBusinessDayConvention() != null) {
+      Converters.validateBusinessDayConvention(security.getBusinessDayConvention().getConventionName());
+      bond.setBusinessDayConvention(secMasterSession.getOrCreateBusinessDayConventionBean(security.getBusinessDayConvention().getConventionName()));
+    }
     bond.setAnnouncementDate(security.getAnnouncementDate() != null ? dateTimeWithZoneToZonedDateTimeBean(security.getAnnouncementDate()) : null);
     bond.setInterestAccrualDate(dateTimeWithZoneToZonedDateTimeBean(security.getInterestAccrualDate()));
     bond.setSettlementDate(dateTimeWithZoneToZonedDateTimeBean(security.getSettlementDate()));

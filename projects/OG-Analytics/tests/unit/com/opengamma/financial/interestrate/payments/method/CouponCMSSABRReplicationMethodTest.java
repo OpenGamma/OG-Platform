@@ -30,11 +30,11 @@ import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
@@ -110,7 +110,7 @@ public class CouponCMSSABRReplicationMethodTest {
   private static final CouponCMSGenericMethod METHOD_GENERIC = new CouponCMSGenericMethod(METHOD_CAP);
 
   @Test
-  public void testPriceReplicationPayerReceiver() {
+  public void presentValueSABRReplicationPayerReceiver() {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
@@ -123,7 +123,7 @@ public class CouponCMSSABRReplicationMethodTest {
   /**
    * Tests the method against the present value calculator.
    */
-  public void presentValueMethodVsCalculator() {
+  public void presentValueSABRReplicationMethodVsCalculator() {
     final double pvMethod = METHOD.presentValue(CMS_COUPON_PAYER, SABR_BUNDLE);
     final double pvCalculator = PVC_SABR.visit(CMS_COUPON_PAYER, SABR_BUNDLE);
     assertEquals("Coupon CMS SABR: method and calculator", pvMethod, pvCalculator);
@@ -133,7 +133,7 @@ public class CouponCMSSABRReplicationMethodTest {
   /**
    * Tests the method against the present value calculator.
    */
-  public void presentValueMethodSpecificVsGeneric() {
+  public void presentValueSABRReplicationMethodSpecificVsGeneric() {
     final double pvSpecific = METHOD.presentValue(CMS_COUPON_PAYER, SABR_BUNDLE);
     final CurrencyAmount pvGeneric = METHOD_GENERIC.presentValue(CMS_COUPON_PAYER, SABR_BUNDLE);
     assertEquals("Coupon CMS SABR: method : Specific vs Generic", pvSpecific, pvGeneric.getAmount());
@@ -143,11 +143,11 @@ public class CouponCMSSABRReplicationMethodTest {
   /**
    * Tests the method against the present value curve sensitivity calculator.
    */
-  public void presentValueCurveSensitivityMethodVsCalculator() {
+  public void presentValueSABRReplicationCurveSensitivityMethodVsCalculator() {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    final PresentValueSensitivity pvsMethod = METHOD.presentValueSensitivity(CMS_COUPON_PAYER, sabrBundle);
+    final InterestRateCurveSensitivity pvsMethod = METHOD.presentValueCurveSensitivity(CMS_COUPON_PAYER, sabrBundle);
     final Map<String, List<DoublesPair>> pvsCalculator = PVCSC_SABR.visit(CMS_COUPON_PAYER, sabrBundle);
     assertEquals("Coupon CMS SABR: method and calculator", pvsMethod.getSensitivities(), pvsCalculator);
   }
@@ -156,12 +156,12 @@ public class CouponCMSSABRReplicationMethodTest {
   /**
    * Test the present value sensitivity to the rates.
    */
-  public void testPresentValueRateSensitivitySABRParameters() {
+  public void presentValueSABRReplicationCurveSensitivity() {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     // Swaption sensitivity
-    PresentValueSensitivity pvsReceiver = METHOD.presentValueSensitivity(CMS_COUPON_RECEIVER, sabrBundle);
+    InterestRateCurveSensitivity pvsReceiver = METHOD.presentValueCurveSensitivity(CMS_COUPON_RECEIVER, sabrBundle);
     // Present value sensitivity comparison with finite difference.
     final double deltaTolerance = 1E+2; //Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
     final double deltaShift = 1e-9;
@@ -236,7 +236,7 @@ public class CouponCMSSABRReplicationMethodTest {
   /**
    * Test the present value sensitivity to the SABR parameters.
    */
-  public void testPresentValueSABRSensitivitySABRParameters() {
+  public void presentValueSABRReplicationSABRSensitivity() {
     // Swaption sensitivity
     final PresentValueSABRSensitivityDataBundle pvsReceiver = METHOD.presentValueSABRSensitivity(CMS_COUPON_RECEIVER, SABR_BUNDLE);
     final PresentValueSABRSensitivityDataBundle pvsPayer = METHOD.presentValueSABRSensitivity(CMS_COUPON_PAYER, SABR_BUNDLE);
@@ -278,7 +278,7 @@ public class CouponCMSSABRReplicationMethodTest {
   /**
    * Tests the present value SABR parameters sensitivity: Method vs Calculator.
    */
-  public void presentValueSABRSensitivityMethodVsCalculator() {
+  public void presentValueSABRReplicationSABRSensitivityMethodVsCalculator() {
     final PresentValueSABRSensitivityDataBundle pvssMethod = METHOD.presentValueSABRSensitivity(CMS_COUPON_RECEIVER, SABR_BUNDLE);
     final PresentValueSABRSensitivityDataBundle pvssCalculator = PVSSC_SABR.visit(CMS_COUPON_RECEIVER, SABR_BUNDLE);
     assertEquals("CMS cap/floor SABR: Present value SABR sensitivity: method vs calculator", pvssMethod, pvssCalculator);
@@ -288,9 +288,9 @@ public class CouponCMSSABRReplicationMethodTest {
   /**
    * Tests of performance. "enabled = false" for the standard testing.
    */
-  public void testPerformance() {
+  public void performance() {
     long startTime, endTime;
-    final int nbTest = 100;
+    final int nbTest = 1000;
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       PVC_SABR.visit(CMS_COUPON_RECEIVER, SABR_BUNDLE);

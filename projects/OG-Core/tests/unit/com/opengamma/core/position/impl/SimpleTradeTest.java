@@ -82,7 +82,7 @@ public class SimpleTradeTest {
   public void test_construction_UniqueId_Security_BigDecimal_Counterparty_Instant() {
     ExternalIdBundle securityKey = ExternalIdBundle.of(ExternalId.of("A", "B"));
     SimpleSecurity security = new SimpleSecurity("A");
-    security.setIdentifiers(securityKey);
+    security.setExternalIdBundle(securityKey);
     
     SimpleTrade test = new SimpleTrade(POSITION_UID, security, BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     assertNull(test.getUniqueId());

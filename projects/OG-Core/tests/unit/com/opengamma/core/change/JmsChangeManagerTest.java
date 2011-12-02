@@ -9,11 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.List;
 
-import javax.jms.ConnectionFactory;
 import javax.time.Instant;
 
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -21,6 +18,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Lists;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.GUIDGenerator;
+import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.test.ActiveMQTestUtils;
 import com.opengamma.util.tuple.Pair;
 
@@ -31,53 +29,30 @@ import com.opengamma.util.tuple.Pair;
 public class JmsChangeManagerTest {
 
   private static final long WAIT_TIMEOUT = 30000;
-  private JmsTemplate _jmsTemplate;
   private TestChangeClient _testListener;
   private JmsChangeManager _changeManager;
-  private String _topic;
-  private DefaultMessageListenerContainer _container;
 
   @BeforeMethod
   public void setUp() throws Exception {
-    ConnectionFactory cf = ActiveMQTestUtils.createTestConnectionFactory();
-    JmsTemplate jmsTemplate = new JmsTemplate();
-    jmsTemplate.setConnectionFactory(cf);
-    jmsTemplate.setPubSubDomain(true);
-    _jmsTemplate = jmsTemplate;
-    
-    // setup topic
     long currentTimeMillis = System.currentTimeMillis();
     String user = System.getProperty("user.name");
-    _topic = "JmsSourceChange-" + user + "-" + currentTimeMillis;
+    String topic = "JmsSourceChange-" + user + "-" + currentTimeMillis;
+    JmsConnector connector = ActiveMQTestUtils.createJmsConnector();
     
     _testListener = new TestChangeClient();
-    _changeManager = new JmsChangeManager();
-    _changeManager.setJmsTemplate(_jmsTemplate);
-    _changeManager.setTopic(_topic);
-    
-    _container = new DefaultMessageListenerContainer();
-    _container.setConnectionFactory(cf);
-    _container.setPubSubDomain(true);
-    _container.setDestinationName(_topic);
-    _container.setMessageListener(_changeManager);
+    _changeManager = new JmsChangeManager(connector, topic);
+    _changeManager.start();
   }
 
   @AfterMethod
   public void tearDown() throws Exception {
-    if (_container != null) {
-      _container.stop();
-      _container.destroy();
+    if (_changeManager != null) {
+      _changeManager.stop();
     }
   }
 
   private void startContainer() throws Exception {
-    _container.afterPropertiesSet();
-    _container.start();
-    while (!_container.isRunning()) {
-      Thread.sleep(10l);
-    }
-    //TODO: this is a hack.  The context doesn't seem to have always set up the consumer completely yet
-    Thread.sleep(500l);
+    //No-op
   }
 
   //-------------------------------------------------------------------------

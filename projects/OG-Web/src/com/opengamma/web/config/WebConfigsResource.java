@@ -27,6 +27,8 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.google.common.collect.BiMap;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
@@ -35,9 +37,9 @@ import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
-import com.opengamma.util.Paging;
-import com.opengamma.util.PagingRequest;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.master.config.ConfigSearchSortOrder;
+import com.opengamma.util.paging.Paging;
+import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.web.WebPaging;
 import com.opengamma.web.json.JSONBuilder;
 import com.sun.jersey.api.client.ClientResponse.Status;
@@ -50,7 +52,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 @Path("/configs")
 public class WebConfigsResource extends AbstractWebConfigResource {
-
+  
   /**
    * Creates the resource.
    * @param configMaster  the config master, not null
@@ -66,12 +68,14 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
       @QueryParam("pgSze") Integer pgSze,
+      @QueryParam("sort") String sort,
       @QueryParam("name") String name,
       @QueryParam("type") String type,
       @QueryParam("configId") List<String> configIdStrs,
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
-    FlexiBean out = search(pr, name, type, configIdStrs, uriInfo);
+    ConfigSearchSortOrder so = buildSortOrder(sort, ConfigSearchSortOrder.NAME_ASC);
+    FlexiBean out = search(pr, so, name, type, configIdStrs, uriInfo);
     return getFreemarker().build("configs/configs.ftl", out);
   }
 
@@ -81,17 +85,20 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
       @QueryParam("pgSze") Integer pgSze,
+      @QueryParam("sort") String sort,
       @QueryParam("name") String name,
       @QueryParam("type") String type,
       @QueryParam("configId") List<String> configIdStrs,
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
-    FlexiBean out = search(pr, name, type, configIdStrs, uriInfo);
+    ConfigSearchSortOrder so = buildSortOrder(sort, ConfigSearchSortOrder.NAME_ASC);
+    FlexiBean out = search(pr, so, name, type, configIdStrs, uriInfo);
     return getFreemarker().build("configs/jsonconfigs.ftl", out);
   }
 
   @SuppressWarnings("unchecked")
-  private FlexiBean search(PagingRequest request, String name, String type, List<String> configIdStrs, UriInfo uriInfo) {
+  private FlexiBean search(PagingRequest request, ConfigSearchSortOrder so, String name,
+      String type, List<String> configIdStrs, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     @SuppressWarnings("rawtypes")
@@ -104,6 +111,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       searchRequest.setType(Object.class);
     }
     searchRequest.setPagingRequest(request);
+    searchRequest.setSortOrder(so);
     searchRequest.setName(StringUtils.trimToNull(name));
     out.put("searchRequest", searchRequest);
     out.put("type", type);
@@ -131,10 +139,13 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   @Produces(MediaType.TEXT_HTML)
   public Response postHTML(
       @FormParam("name") String name,
-      @FormParam("configxml") String xml) {
+      @FormParam("configxml") String xml,
+      @FormParam("type") String type) {
     name = StringUtils.trimToNull(name);
     xml = StringUtils.trimToNull(xml);
-    if (name == null || xml == null) {
+    type = StringUtils.trimToNull(type);
+    
+    if (name == null || xml == null || type == null) {
       FlexiBean out = createRootData();
       if (name == null) {
         out.put("err_nameMissing", true);
@@ -142,16 +153,32 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       if (xml == null) {
         out.put("err_xmlMissing", true);
       }
+      if (type == null) {
+        out.put("err_typeMissing", true);
+      }
       String html = getFreemarker().build("configs/config-add.ftl", out);
       return Response.ok(html).build();
     }
-    final Pair<Object, Class<?>> typedValue = parseXML(xml);
-    ConfigDocument<Object> doc = new ConfigDocument<Object>(typedValue.getSecond());
+     
+    final Object configObj = parseXML(xml);
+    final Class<?> logicalClazz = getLogicalClazz(type);
+    
+    ConfigDocument<Object> doc = new ConfigDocument<Object>(logicalClazz);
     doc.setName(name);
-    doc.setValue(typedValue.getFirst());
+    doc.setValue(configObj);
     ConfigDocument<?> added = data().getConfigMaster().add(doc);
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
     return Response.seeOther(uri).build();
+  }
+
+  private Class<?> getLogicalClazz(final String type) {
+    final Class<?> logicalClass;
+    try {
+      logicalClass = Class.forName(type);
+    } catch (Throwable t) {
+      throw new OpenGammaRuntimeException("Invalid logical class name from form param type[" + type + "]");
+    }
+    return logicalClass;
   }
 
   @POST
@@ -160,26 +187,29 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   public Response postJSON(
       @FormParam("name") String name,
       @FormParam("configJSON") String json,
-      @FormParam("configXML") String xml) {
+      @FormParam("configXML") String xml,
+      @FormParam("type") String type) {
     name = StringUtils.trimToNull(name);
     json = StringUtils.trimToNull(json);
     xml = StringUtils.trimToNull(xml);
+    type = StringUtils.trimToNull(type);
     Response result = null;
-    if (isEmptyName(name) || isEmptyConfigData(json, xml)) {
+    if (name == null || type == null || isEmptyConfigData(json, xml)) {
       result = Response.status(Status.BAD_REQUEST).build();
     } else {
-      Pair<Object, Class<?>> typedValue = null;
+      Object configObj = null;
       if (json != null) {
-        typedValue = parseJSON(json);
+        configObj = parseJSON(json);
       } else if (xml != null) {
-        typedValue = parseXML(xml);
+        configObj = parseXML(xml);
       }
-      if (typedValue == null) {
+      if (configObj == null) {
         result = Response.status(Status.BAD_REQUEST).build();
       } else {
-        ConfigDocument<Object> doc = new ConfigDocument<Object>(typedValue.getSecond());
+        final Class<?> logicalClazz = getLogicalClazz(type);
+        ConfigDocument<Object> doc = new ConfigDocument<Object>(logicalClazz);
         doc.setName(name);
-        doc.setValue(typedValue.getFirst());
+        doc.setValue(configObj);
         ConfigDocument<?> added = data().getConfigMaster().add(doc);
         URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
         result = Response.created(uri).build();
@@ -190,10 +220,6 @@ public class WebConfigsResource extends AbstractWebConfigResource {
 
   private boolean isEmptyConfigData(String json, String xml) {
     return (json == null && xml == null);
-  }
-
-  private boolean isEmptyName(String name) {
-    return name == null;
   }
 
   //-------------------------------------------------------------------------
@@ -256,6 +282,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     searchRequest.setType(Object.class);
     out.put("searchRequest", searchRequest);
     out.put("typeMap", data().getTypeMap());
+    out.put("curveSpecs", CurveSpecificationBuilderConfiguration.s_curveSpecNames);
     return out;
   }
 

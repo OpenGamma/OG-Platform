@@ -18,9 +18,9 @@ public interface ResultConverter<T> {
   
   /**
    * Converts from a function result into a String/Double map suitable for writing into a database.
-   * To guarantee uniqueness of risk names, the Strings should be of form valueName + {something}. 
-   * 
-   * @param valueName Name of {@link ValueRequirement} that is being converted 
+   * To guarantee uniqueness of risk names, the Strings should be of form valueName + {something}.
+   *
+   * @param valueName Name of {@link ValueRequirement} that is being converted
    * @param value  a function result, not null
    * @return  the converted value. 
    */

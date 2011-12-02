@@ -69,6 +69,7 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
+import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
 import com.opengamma.financial.security.option.AssetOrNothingPayoffStyle;
@@ -77,6 +78,7 @@ import com.opengamma.financial.security.option.BarrierPayoffStyle;
 import com.opengamma.financial.security.option.BermudanExerciseType;
 import com.opengamma.financial.security.option.CappedPoweredPayoffStyle;
 import com.opengamma.financial.security.option.CashOrNothingPayoffStyle;
+import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
@@ -89,6 +91,7 @@ import com.opengamma.financial.security.option.FixedStrikeLookbackPayoffStyle;
 import com.opengamma.financial.security.option.FloatingStrikeLookbackPayoffStyle;
 import com.opengamma.financial.security.option.GapPayoffStyle;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.PayoffStyle;
 import com.opengamma.financial.security.option.PoweredPayoffStyle;
 import com.opengamma.financial.security.option.SimpleChooserPayoffStyle;
@@ -97,7 +100,9 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.option.VanillaPayoffStyle;
 import com.opengamma.financial.security.swap.CommodityNotional;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.Notional;
@@ -248,6 +253,26 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
         values.add(RandomStringUtils.randomAlphabetic(16));
         values.add(RandomStringUtils.randomNumeric(16));
         values.add(RandomStringUtils.randomAlphanumeric(16));
+      }
+    });
+    s_dataProviders.put(Map.class, new TestDataProvider<Map>() {
+      private Map generateRandomMap(int count){
+        Map<String, String> map = new HashMap<String, String>(count);
+        while(count>0){
+          map.put(RandomStringUtils.randomAlphanumeric(16), RandomStringUtils.randomAlphanumeric(16));
+          count--;
+        }
+        return map;
+      }
+      @Override
+      public void getValues(final Collection<Map> values) {
+        Random random = new Random();
+        double qty = 1 + random.nextInt(9);
+        while(qty>0){
+          values.add(generateRandomMap(1 + random.nextInt(9)));
+          qty--;
+        }
+        values.add(new HashMap());
       }
     });
     s_dataProviders.put(Double.class, provider = new TestDataProvider<Double>() {
@@ -412,6 +437,8 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
     s_dataProviders.put(SwapLeg.class, new TestDataProvider<SwapLeg>() {
       @Override
       public void getValues(final Collection<SwapLeg> values) {
+        values.addAll(permuteTestObjects(FloatingSpreadIRLeg.class));
+        values.addAll(permuteTestObjects(FloatingGearingIRLeg.class));
         values.addAll(permuteTestObjects(FixedInterestRateLeg.class));
         values.addAll(permuteTestObjects(FloatingInterestRateLeg.class));
       }
@@ -533,10 +560,7 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   }
 
   private static <T extends ManageableSecurity> Collection<T> permuteTestSecurities(final Class<T> clazz) {
-    try {
-      clazz.newInstance();
-    } catch (Exception ex) {
-    }
+    intializeClass(clazz);
     MetaBean mb = JodaBeanUtils.metaBean(clazz);
     List<MetaProperty<Object>> mps = new ArrayList<MetaProperty<Object>>(mb.metaPropertyMap().values());
     
@@ -579,6 +603,31 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
       s_logger.debug("{}", o);
     }
     return objects;
+  }
+
+  private static <T> void intializeClass(final Class<T> clazz) {
+    // call the default constructor to initialize the class
+    try {
+      Constructor<T> defaultConstructor = getDefaultConstructor(clazz);
+      if (defaultConstructor != null) {
+        defaultConstructor.setAccessible(true);
+        defaultConstructor.newInstance();
+      }
+    } catch (Exception ex) {
+    }
+  }
+
+  private static <T> Constructor<T> getDefaultConstructor(final Class<T> clazz) {
+    Constructor<T> defaultConstructor = null;
+    Constructor<?>[] declaredConstructors = clazz.getDeclaredConstructors();
+    for (Constructor<?> constructor : declaredConstructors) {
+      Class<?>[] parameterTypes = constructor.getParameterTypes();
+      if (parameterTypes.length == 0) {
+        defaultConstructor = (Constructor<T>) constructor;
+        break;
+      }
+    }
+    return defaultConstructor;
   }
 
   protected abstract <T extends ManageableSecurity> void assertSecurity(final Class<T> securityClass, final T security);
@@ -658,6 +707,12 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   public void testEquityOptionSecurity() {
     assertSecurities(EquityOptionSecurity.class);
   }
+  
+  @Override
+  @Test
+  public void testEquityBarrierOptionSecurity() {
+    assertSecurities(EquityBarrierOptionSecurity.class);
+  }
 
   @Override
   @Test
@@ -681,6 +736,12 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   @Test
   public void testFXOptionSecurity() {
     assertSecurities(FXOptionSecurity.class);
+  }
+  
+  @Override
+  @Test
+  public void testNonDeliverableFXOptionSecurity() {
+    assertSecurities(NonDeliverableFXOptionSecurity.class);
   }
   
   @Override
@@ -765,7 +826,13 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   public void testFXForwardSecurity() {
     assertSecurities(FXForwardSecurity.class);
   }
-
+  
+  @Override
+  @Test
+  public void testNonDeliverableFXForwardSecurity() {
+    assertSecurities(NonDeliverableFXForwardSecurity.class);
+  }
+  
   @Override
   @Test
   public void testCapFloorSecurity() {

@@ -7,13 +7,13 @@
 package com.opengamma.language.function;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.springframework.beans.factory.InitializingBean;
 
 import com.opengamma.util.ArgumentChecker;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Produce a {@link FunctionProvider} from a set of {@link PublishedFunction} objects.
@@ -21,6 +21,17 @@ import edu.emory.mathcs.backport.java.util.Collections;
 public class FunctionProviderBean extends AbstractFunctionProvider implements InitializingBean {
   
   private Collection<PublishedFunction> _functions;
+
+  public FunctionProviderBean(final Collection<PublishedFunction> functions) {
+    setFunctions(functions);
+  }
+
+  public FunctionProviderBean(final PublishedFunction... functions) {
+    setFunctions(Arrays.asList(functions));
+  }
+
+  public FunctionProviderBean() {
+  }
 
   public void setFunctions(final Collection<PublishedFunction> functions) {
     ArgumentChecker.notNull(functions, "functions");
@@ -31,7 +42,6 @@ public class FunctionProviderBean extends AbstractFunctionProvider implements In
     return _functions;
   }
 
-  @SuppressWarnings("unchecked")
   public Collection<PublishedFunction> getFunctions() {
     return Collections.unmodifiableCollection(getFunctionsInternal());
   }

@@ -7,7 +7,7 @@ package com.opengamma.financial.interestrate.method;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -34,7 +34,7 @@ public class SensitivityFiniteDifference {
    * Indicates how the finite difference is computed. Not null
    * @return The array of sensitivity with respect the to the given node times.
    */
-  public static double[] curveSensitivity(final InterestRateDerivative instrument, YieldCurveBundle curves, double pv, String curveToBumpName, String curveBumpedName, double[] nodeTimes,
+  public static double[] curveSensitivity(final InstrumentDerivative instrument, YieldCurveBundle curves, double pv, String curveToBumpName, String curveBumpedName, double[] nodeTimes,
       double deltaShift, PricingMethod method, final FiniteDifferenceType differenceType) {
     Validate.notNull(instrument, "Instrument");
     Validate.notNull(curves, "Curves");
@@ -99,7 +99,7 @@ public class SensitivityFiniteDifference {
    * @param method The method to compute the present value sensitivity.
    * @return The array of sensitivity with respect the to the given node times.
    */
-  public static double[] curveSensitivity(final InterestRateDerivative instrument, final YieldCurveBundle curves, double pv, String curveToBumpName, String curveBumpedName, double[] nodeTimes,
+  public static double[] curveSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves, double pv, String curveToBumpName, String curveBumpedName, double[] nodeTimes,
       double deltaShift, PricingMethod method) {
     return curveSensitivity(instrument, curves, pv, curveToBumpName, curveBumpedName, nodeTimes, deltaShift, method, FiniteDifferenceType.FORWARD);
   }
@@ -115,7 +115,7 @@ public class SensitivityFiniteDifference {
    * @param method The method to compute the present value sensitivity.
    * @return The array of sensitivity with respect the to the given node times.
    */
-  public static double[] curveSensitivity(final InterestRateDerivative instrument, final YieldCurveBundle curves, String curveToBumpName, String curveBumpedName, double[] nodeTimes,
+  public static double[] curveSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves, String curveToBumpName, String curveBumpedName, double[] nodeTimes,
       double deltaShift, PricingMethod method) {
     return curveSensitivity(instrument, curves, 0.0, curveToBumpName, curveBumpedName, nodeTimes, deltaShift, method, FiniteDifferenceType.CENTRAL);
   }

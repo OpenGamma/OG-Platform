@@ -40,7 +40,7 @@ public class BracketRoot {
       f1 = f.evaluate(x1);
       f2 = f.evaluate(x2);
       if (f1 * f2 < 0) {
-        return new double[] {x1, x2};
+        return new double[] {x1, x2 };
       }
       if (Math.abs(f1) < Math.abs(f2)) {
         x1 += RATIO * (x1 - x2);
@@ -49,6 +49,34 @@ public class BracketRoot {
       }
     }
     throw new MathException("Failed to bracket root");
+  }
+
+  public double[] getBracketedPoints(final Function1D<Double, Double> f, final double xLower, final double xUpper, final double minX, final double maxX) {
+    Validate.notNull(f, "f");
+    Validate.isTrue(xLower >= minX, "xLower < minX");
+    Validate.isTrue(xUpper <= maxX, "xUpper < maxX");
+    double x1 = xLower;
+    double x2 = xUpper;
+    double f1 = 0;
+    double f2 = 0;
+    for (int count = 0; count < MAX_STEPS; count++) {
+      f1 = f.evaluate(x1);
+      f2 = f.evaluate(x2);
+      if (f1 * f2 < 0) {
+        return new double[] {x1, x2 };
+      }
+      if (x1 == minX && x2 == maxX) {
+        throw new MathException("Failed to bracket root: no root between minX and maxX");
+      }
+      if (Math.abs(f1) < Math.abs(f2)) {
+        x1 += RATIO * (x1 - x2);
+        x1 = Math.max(minX, x1);
+      } else {
+        x2 += RATIO * (x2 - x1);
+        x2 = Math.min(maxX, x2);
+      }
+    }
+    throw new MathException("Failed to bracket root: max interations");
   }
 
 }

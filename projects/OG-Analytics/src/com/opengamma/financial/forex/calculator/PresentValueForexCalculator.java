@@ -6,18 +6,19 @@
 package com.opengamma.financial.forex.calculator;
 
 import com.opengamma.financial.forex.derivative.Forex;
-import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.financial.forex.derivative.ForexSwap;
 import com.opengamma.financial.forex.method.ForexDiscountingMethod;
-import com.opengamma.financial.forex.method.ForexOptionVanillaBlackMethod;
+import com.opengamma.financial.forex.method.ForexNonDeliverableForwardDiscountingMethod;
 import com.opengamma.financial.forex.method.ForexSwapDiscountingMethod;
+import com.opengamma.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculator of the present value for Forex derivatives.
  */
-public class PresentValueForexCalculator extends AbstractForexDerivativeVisitor<YieldCurveBundle, MultipleCurrencyAmount> {
+public class PresentValueForexCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -35,25 +36,29 @@ public class PresentValueForexCalculator extends AbstractForexDerivativeVisitor<
   /**
    * Constructor.
    */
-  /* package */PresentValueForexCalculator() {
+  PresentValueForexCalculator() {
   }
+
+  /**
+   * The methods used by the different instruments.
+   */
+  private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
+  private static final ForexSwapDiscountingMethod METHOD_FXSWAP = ForexSwapDiscountingMethod.getInstance();
+  private static final ForexNonDeliverableForwardDiscountingMethod METHOD_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
 
   @Override
   public MultipleCurrencyAmount visitForex(final Forex derivative, final YieldCurveBundle data) {
-    final ForexDiscountingMethod method = ForexDiscountingMethod.getInstance();
-    return method.presentValue(derivative, data);
+    return METHOD_FOREX.presentValue(derivative, data);
   }
 
   @Override
   public MultipleCurrencyAmount visitForexSwap(final ForexSwap derivative, final YieldCurveBundle data) {
-    final ForexSwapDiscountingMethod method = ForexSwapDiscountingMethod.getInstance();
-    return method.presentValue(derivative, data);
+    return METHOD_FXSWAP.presentValue(derivative, data);
   }
 
   @Override
-  public MultipleCurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
-    final ForexOptionVanillaBlackMethod method = ForexOptionVanillaBlackMethod.getInstance();
-    return method.presentValue(derivative, data);
+  public MultipleCurrencyAmount visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative, final YieldCurveBundle data) {
+    return METHOD_NDF.presentValue(derivative, data);
   }
 
 }

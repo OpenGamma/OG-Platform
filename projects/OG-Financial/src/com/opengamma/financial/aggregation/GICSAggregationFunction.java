@@ -26,7 +26,7 @@ import com.opengamma.id.ExternalIdBundle;
 public class GICSAggregationFunction implements AggregationFunction<String> {
 
   private static final String UNKNOWN = "Unknown";
-  private static final boolean s_useAttributes = true;
+  private boolean _useAttributes;
 
   /**
    * Enumerated type representing how specific the GICS code should be interpreted.
@@ -36,14 +36,14 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
   private Level _level;
   private SecuritySource _secSource;;
   
-  /* to make dep injection easier */
-  public GICSAggregationFunction(SecuritySource secSource, String levelString) {
-    this(secSource, Level.valueOf(levelString));
+  public GICSAggregationFunction(SecuritySource secSource, Level level) {
+    this(secSource, level, true);
   }
   
-  public GICSAggregationFunction(SecuritySource secSource, Level level) {
+  public GICSAggregationFunction(SecuritySource secSource, Level level, boolean useAttributes) {
     _secSource = secSource;
     _level = level;
+    _useAttributes = useAttributes;
   }
   
   private EquitySecurityVisitor<String> _equitySecurityVisitor = new EquitySecurityVisitor<String>() {
@@ -87,7 +87,7 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
   
   @Override
   public String classifyPosition(Position position) {
-    if (s_useAttributes) {
+    if (_useAttributes) {
       Map<String, String> attributes = position.getAttributes();
       if (attributes.containsKey(getName())) {
         return attributes.get(getName());

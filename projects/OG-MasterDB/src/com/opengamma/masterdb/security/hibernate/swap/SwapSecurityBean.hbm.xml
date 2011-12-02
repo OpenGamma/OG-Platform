@@ -41,12 +41,16 @@
         </component>
       </component>
       <property name="rate" type="double" column="pay_rate" />
-      <property name="IBOR" type="boolean" column="pay_isibor" />
+      <property name="eom" type="boolean" column="pay_iseom" not-null="true" />
+      <property name="floatingRateType" column="pay_floating_rate_type" type="com.opengamma.masterdb.security.hibernate.swap.FloatingRateTypeUserType" />
       <property name="spread" type="double" column="pay_spread" />
       <component name="rateIdentifier" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
         <property name="scheme" type="string" column="pay_rateidentifierscheme" />
         <property name="identifier" type="string" column="pay_rateidentifierid" />
       </component>
+      <property name="settlementDays" type="integer" column="pay_settlement_days" />
+      <property name="gearing" type="double" column="pay_gearing" />
+      <many-to-one name="offsetFixing" class="com.opengamma.masterdb.security.hibernate.FrequencyBean" column="pay_offset_fixing_id" />
     </component>
     <component name="receiveLeg" class="SwapLegBean">
       <property name="swapLegType" type="com.opengamma.masterdb.security.hibernate.swap.SwapLegTypeUserType" column="receive_legtype" not-null="true" />
@@ -67,12 +71,16 @@
         </component>
       </component>
       <property name="rate" type="double" column="receive_rate" />
-      <property name="IBOR" type="boolean" column="receive_isibor" />
+      <property name="eom" type="boolean" column="receive_iseom" not-null="true" />
+      <property name="floatingRateType" column="receive_floating_rate_type" type="com.opengamma.masterdb.security.hibernate.swap.FloatingRateTypeUserType" />
       <property name="spread" type="double" column="receive_spread" />
       <component name="rateIdentifier" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
         <property name="scheme" type="string" column="receive_rateidentifierscheme" />
         <property name="identifier" type="string" column="receive_rateidentifierid" />
       </component>
+      <property name="settlementDays" type="integer" column="receive_settlement_days" />
+      <property name="gearing" type="double" column="receive_gearing" />
+      <many-to-one name="offsetFixing" class="com.opengamma.masterdb.security.hibernate.FrequencyBean" column="receive_offset_fixing_id" />
     </component>
   </union-subclass>
 

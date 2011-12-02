@@ -8,8 +8,6 @@ package com.opengamma.masterdb.config;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
-import java.util.TimeZone;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -23,22 +21,21 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Test DbConfigMaster.
  */
-public class DbConfigMasterTest extends DBTest {
+public class DbConfigMasterTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbConfigMasterTest.class);
 
   private DbConfigMaster _cfgMaster;
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbConfigMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   @BeforeMethod
@@ -60,7 +57,7 @@ public class DbConfigMasterTest extends DBTest {
   public void test_basics() throws Exception {
     assertNotNull(_cfgMaster);
     assertEquals(true, _cfgMaster.getUniqueIdScheme().equals("DbCfg"));
-    assertNotNull(_cfgMaster.getDbSource());
+    assertNotNull(_cfgMaster.getDbConnector());
     assertNotNull(_cfgMaster.getTimeSource());
   }
 

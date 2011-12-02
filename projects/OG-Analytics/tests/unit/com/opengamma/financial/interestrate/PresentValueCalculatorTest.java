@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.interestrate;
 
+import static com.opengamma.financial.interestrate.SimpleInstrumentFactory.makeCrossCurrencySwap;
+import static com.opengamma.financial.interestrate.SimpleInstrumentFactory.makeForexForward;
+import static com.opengamma.financial.interestrate.SimpleInstrumentFactory.makeOISSwap;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
@@ -14,31 +17,40 @@ import javax.time.calendar.Period;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
+import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.ForexForward;
+import com.opengamma.financial.interestrate.swap.definition.OISSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * 
@@ -51,6 +63,14 @@ public class PresentValueCalculatorTest {
   private static final String ZERO_PC_CURVE_NAME = "0%";
   private static final YieldCurveBundle CURVES;
   private static final Currency CUR = Currency.USD;
+
+  private static final Period TENOR = Period.ofMonths(6);
+  private static final int SETTLEMENT_DAYS = 2;
+  private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
+  private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final boolean IS_EOM = true;
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
 
   static {
     YieldAndDiscountCurve curve = new YieldCurve(ConstantDoublesCurve.from(0.05));
@@ -120,19 +140,20 @@ public class PresentValueCalculatorTest {
     final double fixingPeriodEndTime = 1.75;
     final double fixingPeriodAccrualFactor = 0.267;
     final double paymentAccrualFactor = 0.25;
+    final double referencePrice = 0.0; // TODO CASE - Future refactor - referencePrice = 0.0
     final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
     final double rate = (curve.getDiscountFactor(fixingPeriodStartTime) / curve.getDiscountFactor(fixingPeriodEndTime) - 1.0) / fixingPeriodAccrualFactor;
     final double price = 1 - rate;
     final double notional = 1;
-    InterestRateFutureTransaction ir = new InterestRateFutureTransaction(new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime,
-        fixingPeriodAccrualFactor, notional, paymentAccrualFactor, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME), 1, price);
+    InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice, notional, paymentAccrualFactor,
+        "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     double pv = PVC.visit(ir, CURVES);
-    assertEquals(0.0, pv, 1e-12);
+    assertEquals(price * notional * paymentAccrualFactor, pv, 1e-12);
     final double deltaPrice = 0.01;
-    ir = new InterestRateFutureTransaction(new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, notional,
-        paymentAccrualFactor, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME), 1, price + deltaPrice);
+    ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, deltaPrice, notional, paymentAccrualFactor, "A", FIVE_PC_CURVE_NAME,
+        FIVE_PC_CURVE_NAME);
     pv = PVC.visit(ir, CURVES);
-    assertEquals(-deltaPrice * paymentAccrualFactor, pv, 1e-12);
+    assertEquals((price - deltaPrice) * notional * paymentAccrualFactor, pv, 1e-12);
   }
 
   @Test
@@ -182,21 +203,22 @@ public class PresentValueCalculatorTest {
       forwardYearFracs[i] = alpha;
       spreads[i] = spread;
     }
-    AnnuityCouponIbor annuity = new AnnuityCouponIbor(CUR, paymentTimes, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME, true);
+    AnnuityCouponIbor annuity = new AnnuityCouponIbor(CUR, paymentTimes, INDEX, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME, true);
     double pv = PVC.visit(annuity, CURVES);
     assertEquals(0.0, pv, 1e-12);
 
-    annuity = new AnnuityCouponIbor(CUR, paymentTimes, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, false);
+    annuity = new AnnuityCouponIbor(CUR, paymentTimes, INDEX, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, false);
     double forward = 1 / alpha * (1 / CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(alpha) - 1);
     pv = PVC.visit(annuity, CURVES);
     assertEquals(alpha * forward * n, pv, 1e-12);
 
     forward = 1 / alpha * (1 / CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(alpha) - 1);
-    annuity = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, indexFixing, indexMaturity, paymentYearFracs, forwardYearFracs, spreads, Math.E, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, false);
+    annuity = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, paymentYearFracs, forwardYearFracs, spreads, Math.E, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME,
+        false);
     pv = PVC.visit(annuity, CURVES);
     assertEquals(yearFrac * (spread + forward) * n * Math.E, pv, 1e-12);
-    final AnnuityCouponIbor annuityPayer = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, indexFixing, indexMaturity, paymentYearFracs, forwardYearFracs, spreads, Math.E, ZERO_PC_CURVE_NAME,
-        FIVE_PC_CURVE_NAME, true);
+    final AnnuityCouponIbor annuityPayer = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, paymentYearFracs, forwardYearFracs, spreads, Math.E,
+        ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
     assertEquals(pv, -PVC.visit(annuityPayer, CURVES), 1e-12);
   }
 
@@ -207,21 +229,13 @@ public class PresentValueCalculatorTest {
     final double yearFrac = 180 / 365.0;
     final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
     final double coupon = (1.0 / curve.getDiscountFactor(tau) - 1.0) / yearFrac;
-    final double[] coupons = new double[n];
-    final double[] yearFracs = new double[n];
-    final double[] paymentTimes = new double[n];
+    final CouponFixed[] coupons = new CouponFixed[n];
     for (int i = 0; i < n; i++) {
-      paymentTimes[i] = tau * (i + 1);
-      coupons[i] = coupon;
-      yearFracs[i] = yearFrac;
+      coupons[i] = new CouponFixed(CUR, tau * (i + 1), FIVE_PC_CURVE_NAME, yearFrac, coupon);
     }
-
-    Bond bond = new Bond(CUR, paymentTimes, 0.0, ZERO_PC_CURVE_NAME);
+    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, tau * n, 1, FIVE_PC_CURVE_NAME)});
+    BondFixedSecurity bond = new BondFixedSecurity(nominal, new AnnuityCouponFixed(coupons), 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FIVE_PC_CURVE_NAME, "S");
     double pv = PVC.visit(bond, CURVES);
-    assertEquals(1.0, pv, 1e-12);
-
-    bond = new Bond(CUR, paymentTimes, coupons, yearFracs, 0.3, FIVE_PC_CURVE_NAME);
-    pv = PVC.visit(bond, CURVES);
     assertEquals(1.0, pv, 1e-12);
   }
 
@@ -241,17 +255,69 @@ public class PresentValueCalculatorTest {
     }
     final double swapRate = (1 - curve.getDiscountFactor(10.0)) / 0.5 / sum;
 
-    final Swap<?, ?> swap = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, swapRate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, false);
+    final Swap<?, ?> swap = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, INDEX, swapRate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, false);
     final double pv = PVC.visit(swap, CURVES);
     assertEquals(0.0, pv, 1e-12);
 
     final double swapRateNonATM = 0.05;
-    final Swap<?, ?> swapPayer = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, swapRateNonATM, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
-    final Swap<?, ?> swapReceiver = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, swapRateNonATM, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, false);
+    final Swap<?, ?> swapPayer = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, INDEX, swapRateNonATM, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
+    final Swap<?, ?> swapReceiver = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, INDEX, swapRateNonATM, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, false);
     final double pvPayer = PVC.visit(swapPayer, CURVES);
     final double pvReceiver = PVC.visit(swapReceiver, CURVES);
     assertEquals(0.0, pvPayer + pvReceiver, 1e-12);
 
+  }
+
+  @Test
+  public void testOISSwap() {
+    double notional = 1e8;
+    double maturity = 10.0;
+    double rate = Math.exp(0.05) - 1;
+
+    OISSwap swap = makeOISSwap(maturity, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, rate, notional);
+    double pv = PVC.visit(swap, CURVES);
+    assertEquals(0.0, pv, 1e-7); //NB the notional is 100M
+
+    swap = makeOISSwap(maturity, FOUR_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, rate, notional);
+    pv = PVC.visit(swap, CURVES);
+    assertEquals(0.0, pv, 1e-7);
+  }
+
+  @Test
+  public void testCrossCurrencySwap() {
+    double fxRate = 76.755;
+
+    CurrencyAmount usd = CurrencyAmount.of(CUR, 1e6);
+    CurrencyAmount jpy = CurrencyAmount.of(Currency.JPY, fxRate * 1e6);
+    SimpleFrequency dFq = SimpleFrequency.QUARTERLY;
+    SimpleFrequency fFq = SimpleFrequency.SEMI_ANNUAL;
+
+    CrossCurrencySwap ccs = makeCrossCurrencySwap(usd, jpy, 15, dFq, fFq, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, FOUR_PC_CURVE_NAME, FOUR_PC_CURVE_NAME, 0.0);
+
+    double pv = PVC.visit(ccs, CURVES);
+    assertEquals(0.0, pv, 1e-9); //NB the notional is 1M
+
+    double tau = 0.5;
+    double spread = (Math.exp(0.04 * tau) - Math.exp(0.05 * tau)) / tau; //this is negative
+
+    ccs = makeCrossCurrencySwap(usd, jpy, 10, dFq, fFq, FOUR_PC_CURVE_NAME, FOUR_PC_CURVE_NAME, FOUR_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, spread);
+    pv = PVC.visit(ccs, CURVES);
+    assertEquals(0.0, pv, 1e-9); //NB the notional is 1M    
+  }
+
+  @Test
+  public void testForexForward() {
+    double t = 3.0;
+    double spotFX = 1.5394;
+    double fwdFX = spotFX * Math.exp(0.01 * t);
+
+    CurrencyAmount dom = CurrencyAmount.of(Currency.GBP, 3.5e9);
+    CurrencyAmount frn = CurrencyAmount.of(Currency.USD, -fwdFX * 3.5e9);
+
+    ForexForward fxFwd = makeForexForward(dom, frn, 3.0, 1 / spotFX, FOUR_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+
+    double pv = PVC.visit(fxFwd, CURVES);
+    assertEquals(0.0, pv, 1e-9);
   }
 
   @Test
@@ -273,8 +339,8 @@ public class PresentValueCalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
-    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME,
+    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
+    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME,
         ZERO_PC_CURVE_NAME, false);
 
     final Swap<?, ?> swap = new TenorSwap<CouponIbor>(payLeg, receiveLeg);
@@ -299,7 +365,7 @@ public class PresentValueCalculatorTest {
     temp = new CouponFixed(CUR, time, FIVE_PC_CURVE_NAME, yearFrac, notional, coupon);
     expected += notional * yearFrac * coupon * CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(time);
     list.add(temp);
-    temp = new CouponIbor(CUR, time, ZERO_PC_CURVE_NAME, yearFrac, notional, resetTime, resetTime, time, yearFrac, 0.0, FIVE_PC_CURVE_NAME);
+    temp = new CouponIbor(CUR, time, ZERO_PC_CURVE_NAME, yearFrac, notional, resetTime, INDEX, resetTime, time, yearFrac, 0.0, FIVE_PC_CURVE_NAME);
     expected += notional * (CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(resetTime) / CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(time) - 1);
     list.add(temp);
 
@@ -341,12 +407,12 @@ public class PresentValueCalculatorTest {
     final double spread = 0.04;
     final double notional = 4.53;
 
-    CouponIbor payment = new CouponIbor(CUR, time, FIVE_PC_CURVE_NAME, paymentYF, notional, resetTime, resetTime, maturity, forwardYF, spread, ZERO_PC_CURVE_NAME);
+    CouponIbor payment = new CouponIbor(CUR, time, FIVE_PC_CURVE_NAME, paymentYF, notional, resetTime, INDEX, resetTime, maturity, forwardYF, spread, ZERO_PC_CURVE_NAME);
     double expected = notional * paymentYF * spread * CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(time);
     double pv = PVC.visit(payment, CURVES);
     assertEquals(expected, pv, 1e-8);
 
-    payment = new CouponIbor(CUR, time, ZERO_PC_CURVE_NAME, paymentYF, 1.0, resetTime, resetTime, maturity, forwardYF, spread, FIVE_PC_CURVE_NAME);
+    payment = new CouponIbor(CUR, time, ZERO_PC_CURVE_NAME, paymentYF, 1.0, resetTime, INDEX, resetTime, maturity, forwardYF, spread, FIVE_PC_CURVE_NAME);
     final double forward = (Math.exp(0.05 * (maturity - resetTime)) - 1) / forwardYF;
 
     expected = paymentYF * (forward + spread);
@@ -372,7 +438,7 @@ public class PresentValueCalculatorTest {
       }
       floatPaymentTimes[i] = (i + 1) * 0.25 + settleTime;
     }
-    final FixedCouponSwap<? extends Payment> swap = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, 1.0, discountCurve, forwardCurve, true);
+    final FixedCouponSwap<? extends Payment> swap = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, INDEX, 1.0, discountCurve, forwardCurve, true);
     // CMS coupon
     final double notional = 10000000.0; //10m
     final double paymentYearFraction = 0.51;

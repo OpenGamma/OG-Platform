@@ -14,8 +14,11 @@ import java.util.List;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrBuilder;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializer;
 
 import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.PortfolioNodeFudgeBuilder;
 import com.opengamma.core.position.Position;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -434,6 +437,12 @@ public class SimplePortfolioNode implements PortfolioNode, MutableUniqueIdentifi
         .append(getPositions().size())
         .append(" positions]")
         .toString();
+  }
+
+  // The no-arg constructor may cause the bean based Fudge deserializer to be used instead
+  // of the generic form. This will force correct deserialization.
+  public static PortfolioNode fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    return new PortfolioNodeFudgeBuilder().buildObject(deserializer, message);
   }
 
 }

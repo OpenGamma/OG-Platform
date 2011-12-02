@@ -15,9 +15,9 @@ import com.opengamma.financial.model.option.pricing.fourier.FourierPricer;
 import com.opengamma.financial.model.option.pricing.fourier.MartingaleCharacteristicExponent;
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.minimization.TransformParameters;
+import com.opengamma.math.minimization.UncoupledParameterTransforms;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -28,14 +28,15 @@ public class HestonFourierSmileFitter extends HestonFFTSmileFitter {
   private static final FourierPricer FOURIER_PRICER = new FourierPricer();
 
   /**
-   * @param fixVol0 True if initial value of vol the same as mean reversion level 
+   * @param fixVol0 True if initial value of vol the same as mean reversion level
    */
   public HestonFourierSmileFitter(boolean fixVol0) {
     super(fixVol0);
   }
 
   @Override
-  public LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] errors, final double[] initialFitParameters, final BitSet fixed) {
+  public LeastSquareResultsWithTransform getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] errors, final double[] initialFitParameters,
+      final BitSet fixed) {
     testData(options, data, errors, initialFitParameters, fixed, getnParams());
     final int n = options.length;
     final double[] strikes = new double[n];
@@ -50,7 +51,7 @@ public class HestonFourierSmileFitter extends HestonFFTSmileFitter {
       strikes[i] = options[i].getStrike();
       blackVols[i] = data[i].getBlackVolatility();
     }
-    final TransformParameters transforms = new TransformParameters(new DoubleMatrix1D(initialFitParameters), getTransforms(), fixed);
+    final UncoupledParameterTransforms transforms = new UncoupledParameterTransforms(new DoubleMatrix1D(initialFitParameters), getTransforms(), fixed);
     final double limitSigma = (blackVols[0] + blackVols[blackVols.length - 1]) / 2.0;
     final BlackFunctionData blackData = new BlackFunctionData(forward, 1, limitSigma);
     final ParameterizedFunction<Double, DoubleMatrix1D, Double> function = new ParameterizedFunction<Double, DoubleMatrix1D, Double>() {
@@ -60,16 +61,21 @@ public class HestonFourierSmileFitter extends HestonFFTSmileFitter {
       public Double evaluate(final Double strike, final DoubleMatrix1D fp) {
         final MartingaleCharacteristicExponent ce = getCharacteristicExponent(transforms, fp);
         final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, maturity, true);
-        final double price = FOURIER_PRICER.priceFromVol(blackData, option, ce, getAlpha(), getLimitTolerance(), true);
-        final double vol = BLACK_IMPLIED_VOL_FORMULA.getImpliedVolatility(blackData, option, price);
-        return vol;
+        try {
+          final double price = FOURIER_PRICER.priceFromVol(blackData, option, ce, getAlpha(), getLimitTolerance(), true);
+          final double vol = BLACK_IMPLIED_VOL_FORMULA.getImpliedVolatility(blackData, option, price);
+          return vol;
+        } catch (Exception e) {
+          return 0.;
+        }
       }
     };
 
     final DoubleMatrix1D fp = transforms.transform(new DoubleMatrix1D(initialFitParameters));
     final LeastSquareResults results = errors == null ? SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), function, fp) : SOLVER.solve(new DoubleMatrix1D(strikes),
         new DoubleMatrix1D(blackVols), new DoubleMatrix1D(errors), function, fp);
-    return new LeastSquareResults(results.getChiSq(), transforms.inverseTransform(results.getParameters()), new DoubleMatrix2D(new double[getnParams()][getnParams()]));
+    return new LeastSquareResultsWithTransform(results, transforms);
+    //  return new LeastSquareResults(results.getChiSq(), transforms.inverseTransform(results.getFitParameters()), new DoubleMatrix2D(new double[getnParams()][getnParams()]));
   }
 
 }

@@ -18,7 +18,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  * 
  */
 public class StepInterpolator1DTest {
-  private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = new StepInterpolator1D();
+  private static final Interpolator1D INTERPOLATOR = new StepInterpolator1D();
   private static final Interpolator1DDataBundle DATA;
   private static final double EPS = 1e-13;
 

@@ -19,6 +19,10 @@ public class CurrencyLabelledMatrix1D extends LabelledMatrix1D<Currency, Currenc
   public CurrencyLabelledMatrix1D(final Currency[] keys, final Object[] labels, final double[] values) {
     super(keys, labels, values, null);
   }
+  
+  public CurrencyLabelledMatrix1D(final Currency[] keys, final Object[] labels, final String labelsTitle, final double[] values, final String valuesTitle) {
+    super(keys, labels, labelsTitle, values, valuesTitle, null);
+  }
 
   @Override
   public int compare(final Currency key1, final Currency key2, final Currency tolerance) {
@@ -26,12 +30,17 @@ public class CurrencyLabelledMatrix1D extends LabelledMatrix1D<Currency, Currenc
   }
 
   @Override
-  protected LabelledMatrix1D<Currency, Currency> getMatrix(final Currency[] keys, final Object[] labels, final double[] values) {
+  public LabelledMatrix1D<Currency, Currency> getMatrix(final Currency[] keys, final Object[] labels, final String labelsTitle, final double[] values, final String valuesTitle) {
+    return new CurrencyLabelledMatrix1D(keys, labels, labelsTitle, values, valuesTitle);
+  }
+  
+  @Override
+  public LabelledMatrix1D<Currency, Currency> getMatrix(final Currency[] keys, final Object[] labels, final double[] values) {
     return new CurrencyLabelledMatrix1D(keys, labels, values);
   }
 
   @Override
-  protected LabelledMatrix1D<Currency, Currency> getMatrix(final Currency[] keys, final double[] values) {
+  public LabelledMatrix1D<Currency, Currency> getMatrix(final Currency[] keys, final double[] values) {
     return new CurrencyLabelledMatrix1D(keys, values);
   }
 

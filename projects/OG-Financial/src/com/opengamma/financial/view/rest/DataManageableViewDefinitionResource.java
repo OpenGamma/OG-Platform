@@ -12,6 +12,7 @@ import javax.ws.rs.core.Response;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.UpdateViewDefinitionRequest;
+import com.opengamma.id.UniqueId;
 
 /**
  * RESTful resource for a {@link ViewDefinition} that can be modified.
@@ -20,11 +21,16 @@ public class DataManageableViewDefinitionResource extends DataViewDefinitionReso
 
   private final ManageableViewDefinitionRepository _repository;
   
+  public DataManageableViewDefinitionResource(UniqueId definitionId, ManageableViewDefinitionRepository repository) {
+    super(definitionId, repository);
+    _repository = repository;
+  }
+  
   public DataManageableViewDefinitionResource(String definitionName, ManageableViewDefinitionRepository repository) {
     super(definitionName, repository);
     _repository = repository;
   }
-  
+
   //-------------------------------------------------------------------------
   @PUT
   public Response updateViewDefinition(UpdateViewDefinitionRequest updateRequest) {
@@ -35,7 +41,7 @@ public class DataManageableViewDefinitionResource extends DataViewDefinitionReso
   
   @DELETE
   public Response removeViewDefinition() {
-    _repository.removeViewDefinition(getViewDefinitionName());
+    _repository.removeViewDefinition(getViewDefinitionId());
     return Response.ok().build();
   }
   

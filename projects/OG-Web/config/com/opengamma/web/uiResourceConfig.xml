@@ -11,15 +11,12 @@
     <fragment>/styles/common/og.common.fonts.css</fragment>
     <fragment>/styles/common/og.common.links.css</fragment>
     <fragment>/styles/common/og.common.buttons.css</fragment>
-    <fragment>/styles/common/og.common.OG-toolbar.css</fragment>
     <fragment>/styles/common/og.common.OG-tabs.css</fragment>
     <fragment>/styles/common/og.common.buttons.OG-smallButton.css</fragment>
     <fragment>/styles/common/og.common.OG-masthead.css</fragment>
     <fragment>/styles/common/og.common.OG-main.css</fragment>
     <fragment>/styles/common/og.common.OG-mod-0.css</fragment>
     <fragment>/styles/common/og.common.OG-mod-0.og-mod-al.css</fragment><!-- awesome list module -->
-    <fragment>/styles/common/og.common.OG-mod-1.css</fragment>
-    <fragment>/styles/common/og.common.OG-mod-1.slick-viewport.css</fragment>
     <fragment>/styles/common/og.common.OG-mod-1.table.css</fragment>
     <fragment>/styles/common/og.common.OG-mod-1.og-style-2.css</fragment>
     <fragment>/styles/common/og.common.OG-filter.css</fragment>
@@ -30,6 +27,9 @@
     <fragment>/styles/common/og.common.OG-box-history.css</fragment>
     <fragment>/styles/common/og.common.data.editable.css</fragment>
     <fragment>/styles/common/og.common.OG-versions.css</fragment>
+    <fragment>/styles/common/og.common.OG-sync.css</fragment>
+    <fragment>/styles/common/og.common.OG-table.css</fragment>
+    <fragment>/styles/common/og.common.OG-tools.css</fragment>
   </bundle>
   <bundle id="common.util.css">
     <fragment>/styles/common/util/og.common.util.OG-clearFix.css</fragment>
@@ -41,7 +41,11 @@
     <fragment>/styles/common/classes/og.common.classes.OG-list.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-link.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-link-add.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-link-small.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-link-cancel.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-expand.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-collapse.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-tools.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-field-box.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-gradient-01.css</fragment>
@@ -56,26 +60,23 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-table.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-delete.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-unhook.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-download.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-sync.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-background-01.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
   </bundle>
   <bundle id="common.search.css">
-    <fragment>/styles/common/search/og.common.search.OG-search-panel.css</fragment>
     <fragment>/styles/common/search/og.common.search.OG-search.css</fragment>
   </bundle>
   <bundle id="common.details.css">
-    <fragment>/styles/common/details/og.common.OG-details.css</fragment>
-    <fragment>/styles/common/details/og.common.OG-details.OG-security.css</fragment>
+    <fragment>/styles/common/details/og.common.OG-details-content.css</fragment>
+    <fragment>/styles/common/details/og.common.OG-details-grid.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-timeseries.css</fragment>
-    <fragment>/styles/common/details/og.common.OG-details.OG-position.css</fragment>
-    <fragment>/styles/common/details/og.common.OG-details.OG-portfolio.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-holiday.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-region.css</fragment>
-    <fragment>/styles/common/details/og.common.OG-details.OG-exchange.css</fragment>
-    <fragment>/styles/common/details/og.common.OG-details.OG-batch.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-config.css</fragment>
-    <fragment>/styles/common/details/og.common.OG-details.OG-default.css</fragment>
   </bundle>
   <bundle id="common.forms.css">
-    <fragment>/styles/common/forms/og.common.forms.OG-form.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-grid-box.css</fragment>
     <fragment>/styles/views/forms/configs/og.views.forms.configs.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-id-cur.css</fragment>
@@ -88,6 +89,7 @@
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-awesome-list.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-yc-strips.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-vol-surf-def.css</fragment>
+    <fragment>/styles/common/forms/og.common.forms.OG-form.og-vol-cube-def.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-csb.css</fragment>
   </bundle>
   <bundle id="views.css">
@@ -132,6 +134,8 @@
     <fragment>/scripts/lib/js.ext.array.prototype.map.js</fragment>
     <fragment>/scripts/lib/js.ext.array.prototype.reduce.js</fragment>
     <fragment>/scripts/lib/js.ext.array.prototype.some.js</fragment>
+    <fragment>/scripts/lib/js.ext.string.prototype.lang.js</fragment>
+    <fragment>/scripts/lib/js.ext.object.keys.js</fragment>
     <fragment>/scripts/lib/js.ext.function.prototype.partial.js</fragment>
     <fragment>/scripts/lib/js.ext.function.prototype.preload.js</fragment>
     <fragment>/scripts/lib/json2.js</fragment>
@@ -163,12 +167,16 @@
     <fragment>/scripts/lib/jquery/slick_grid/slick.rowselectionmodel.js</fragment>
     <fragment>/scripts/lib/routemap.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.layout.js</fragment>
+    <fragment>/scripts/lib/jquery/jquery.awesometable.js</fragment>
   </bundle>
   <bundle id="api.js">
     <fragment>/scripts/og/common/og.common.core.js</fragment>
     <fragment>/scripts/og/og.dev.js</fragment>
+    <fragment>/scripts/og/og.app.js</fragment>
     <fragment>/scripts/og/api/og.api.common.js</fragment>
+    <fragment>/scripts/og/views/og.views.common.layout.js</fragment>
     <fragment>/scripts/og/common/og.common.routes.js</fragment>
+    <fragment>/scripts/og/common/og.common.lang.js</fragment>
     <fragment>/scripts/og/api/og.api.text.js</fragment>
     <fragment>/scripts/og/api/og.api.live.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.js</fragment>
@@ -185,6 +193,7 @@
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.message.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.dialog.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.toolbar.js</fragment>
+    <fragment>/scripts/og/common/util/ui/og.common.util.ui.tooltip.js</fragment>
   </bundle>
   <bundle id="common.js">
     <fragment>/scripts/og/common/slickgrid/formatters/og.common.slickgrid.formatters.timeseries.js</fragment>
@@ -192,29 +201,39 @@
     <fragment>/scripts/og/common/slickgrid/formatters/og.common.slickgrid.formatters.positions.js</fragment>
     <fragment>/scripts/og/common/slickgrid/og.common.slickgrid.manager.js</fragment>
     <fragment>/scripts/og/common/masthead/og.common.masthead.menu.js</fragment>
-    <fragment>/scripts/og/common/details/og.common.details.timeseries_functions.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.region_functions.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.batch_functions.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.favorites.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.calendar_ui_changes.js</fragment>
     <fragment>/scripts/og/common/search_results/og.common.search.filter.js</fragment>
-    <fragment>/scripts/og/common/search_results/og.common.search_results.minimize.js</fragment>
     <fragment>/scripts/og/common/search_results/og.common.search_results.core.js</fragment>
+  </bundle>
+  <bundle id="common_module.js">
+    <fragment>/scripts/og/common/module/og.common.module.trades_table.js</fragment>
   </bundle>
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/og.views.common.state.js</fragment>
     <fragment>/scripts/og/views/og.views.common.versions.js</fragment>
-    <fragment>/scripts/og/views/og.views.common.layout.js</fragment>
     <fragment>/scripts/og/views/og.views.common.default_details.js</fragment>
   </bundle>
   <bundle id="views_default.js">
     <fragment>/scripts/og/views/forms/og.views.forms.constraints.js</fragment>
     <fragment>/scripts/og/views/forms/og.views.forms.dropdown.js</fragment>
     <fragment>/scripts/og/views/forms/og.views.forms.ruletransform.js</fragment>
-    <fragment>/scripts/og/views/configs/og.views.configs.default.js</fragment>
-    <fragment>/scripts/og/views/configs/og.views.configs.viewdefinition.js</fragment>
-    <fragment>/scripts/og/views/configs/og.views.configs.yieldcurvedefinition.js</fragment>
-    <fragment>/scripts/og/views/configs/og.views.configs.curvespecificationbuilderconfiguration.js</fragment>
+    <!-- config forms -->
+    <fragment>/scripts/og/views/config_forms/og.views.config_forms.default.js</fragment> <!-- keep this first! -->
+    <fragment>/scripts/og/views/config_forms/og.views.config_forms.currencymatrix.js</fragment>
+    <fragment>/scripts/og/views/config_forms/og.views.config_forms.curvespecificationbuilderconfiguration.js</fragment>
+    <fragment>/scripts/og/views/config_forms/og.views.config_forms.futurepricecurvedefinition.js</fragment>
+    <fragment>/scripts/og/views/config_forms/og.views.config_forms.futurepricecurvespecification.js</fragment>
+    <fragment>/scripts/og/views/config_forms/og.views.config_forms.historicaltimeseriesrating.js</fragment>
+    <fragment>/scripts/og/views/config_forms/og.views.config_forms.viewdefinition.js</fragment>
+    <fragment>/scripts/og/views/config_forms/og.views.config_forms.volatilitycubedefinition.js</fragment>
+    <fragment>/scripts/og/views/config_forms/og.views.config_forms.volatilitysurfacedefinition.js</fragment>
+    <fragment>/scripts/og/views/config_forms/og.views.config_forms.volatilitysurfacespecification.js</fragment>
+    <fragment>/scripts/og/views/config_forms/og.views.config_forms.yieldcurvedefinition.js</fragment>
+    <!-- /config forms -->
+    <fragment>/scripts/og/views/og.views.portfolios_sync.js</fragment>
     <fragment>/scripts/og/views/og.views.portfolios.js</fragment>
     <fragment>/scripts/og/views/og.views.positions.js</fragment>
     <fragment>/scripts/og/views/og.views.securities.js</fragment>
@@ -238,6 +257,7 @@
     <bundle idref="util.js" />
     <bundle idref="util_ui.js" />
     <bundle idref="common.js" />
+    <bundle idref="common_module.js" />
     <bundle idref="views_common.js" />
   </bundle>
   <bundle id="og_main.js">

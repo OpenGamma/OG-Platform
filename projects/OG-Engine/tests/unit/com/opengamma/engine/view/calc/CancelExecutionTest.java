@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -43,6 +44,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionResolver;
+import com.opengamma.engine.marketdata.DummyOverrideOperationCompiler;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.SingletonMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
@@ -54,12 +56,14 @@ import com.opengamma.engine.test.MockViewDefinitionRepository;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
+import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.LocalCalculationNode;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
@@ -69,6 +73,7 @@ import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGa
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsGatherer;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.listener.ComputationResultListener;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueId;
@@ -115,6 +120,13 @@ public class CancelExecutionTest {
     }
   }
 
+  private ComputationResultListener computationCycleResultListener = new ComputationResultListener() {
+    @Override
+    public void resultAvailable(ViewComputationResultModel result) {
+      //ignore
+    }
+  };
+
   private Future<?> executeTestJob(DependencyGraphExecutorFactory<?> factory) {
     final InMemoryLKVMarketDataProvider marketDataProvider = new InMemoryLKVMarketDataProvider();
     final MarketDataProviderResolver marketDataProviderResolver = new SingleMarketDataProviderResolver(new SingletonMarketDataProviderFactory(marketDataProvider));
@@ -159,7 +171,7 @@ public class CancelExecutionTest {
     
     final ViewProcessContext vpc = new ViewProcessContext(viewDefinitionRepository, viewPermissionProvider, marketDataProviderResolver, compilationService, functionResolver, positionSource, securitySource,
         new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils.createCacheManager()), computationCacheSource, jobDispatcher,
-        viewProcessorQueryReceiver, factory, graphExecutorStatisticsProvider);
+        viewProcessorQueryReceiver, factory, graphExecutorStatisticsProvider, new DummyOverrideOperationCompiler());
     final DependencyGraph graph = new DependencyGraph("Default");
     DependencyNode previous = null;
     for (int i = 0; i < JOB_SIZE; i++) {
@@ -180,11 +192,12 @@ public class CancelExecutionTest {
     final SingleComputationCycle cycle = new SingleComputationCycle(
         UniqueId.of("Test", "Cycle1"),
         UniqueId.of("Test", "ViewProcess1"),
+        computationCycleResultListener,
         vpc, 
         viewEvaluationModel, 
         cycleOptions,
         VersionCorrection.of(Instant.ofEpochMillis(1), Instant.ofEpochMillis(1)));
-    return cycle.getDependencyGraphExecutor().execute(graph, cycle.getStatisticsGatherer());
+    return cycle.getDependencyGraphExecutor().execute(graph, new LinkedBlockingQueue<CalculationJobResult>(), cycle.getStatisticsGatherer());
   }
 
   private boolean jobFinished() {

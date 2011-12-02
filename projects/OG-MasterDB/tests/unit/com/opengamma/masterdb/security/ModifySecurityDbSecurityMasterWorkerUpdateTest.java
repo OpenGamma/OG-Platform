@@ -7,8 +7,6 @@ package com.opengamma.masterdb.security;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.TimeZone;
-
 import javax.time.Instant;
 
 import org.slf4j.Logger;
@@ -19,13 +17,15 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.extsql.ExtSqlBundle;
+import com.opengamma.extsql.ExtSqlConfig;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests ModifySecurityDbSecurityMasterWorker.
@@ -35,11 +35,10 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifySecurityDbSecurityMasterWorkerUpdateTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifySecurityDbSecurityMasterWorkerUpdateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------
@@ -113,12 +112,8 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
 
   @Test
   public void test_update_rollback() {
-    DbSecurityMaster w = new DbSecurityMaster(_secMaster.getDbSource()) {
-      @Override
-      protected String sqlInsertSecurityIdKey() {
-        return "INSERT";  // bad sql
-      }
-    };
+    DbSecurityMaster w = new DbSecurityMaster(_secMaster.getDbConnector());
+    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("Invalid"), DbSecurityMaster.class));
     final SecurityDocument base = _secMaster.get(UniqueId.of("DbSec", "101", "0"));
     UniqueId uniqueId = UniqueId.of("DbSec", "101", "0");
     ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", ExternalIdBundle.of("A", "B"));

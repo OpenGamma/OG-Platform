@@ -16,20 +16,22 @@ import com.opengamma.financial.model.volatility.smile.function.SVIVolatilityFunc
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.MatrixAlgebraFactory;
+import com.opengamma.math.minimization.DoubleRangeLimitTransform;
 import com.opengamma.math.minimization.NullTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.math.minimization.SingleRangeLimitTransform;
-import com.opengamma.math.minimization.TransformParameters;
+import com.opengamma.math.minimization.UncoupledParameterTransforms;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.CompareUtils;
 
 /**
- * 
+ * @deprecated Please use SVIModelFitter
  */
+@Deprecated
 public class SVINonLinearLeastSquareFitter extends LeastSquareSmileFitter {
   private static final int N_PARAMETERS = 5;
   private static final ParameterLimitsTransform[] TRANSFORMS;
@@ -38,11 +40,11 @@ public class SVINonLinearLeastSquareFitter extends LeastSquareSmileFitter {
 
   static {
     TRANSFORMS = new ParameterLimitsTransform[N_PARAMETERS];
-    TRANSFORMS[0] = new NullTransform();
-    TRANSFORMS[1] = new NullTransform();
-    TRANSFORMS[2] = new NullTransform();
-    TRANSFORMS[3] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN);
-    TRANSFORMS[4] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN);
+    TRANSFORMS[0] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); //a
+    TRANSFORMS[1] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); //b
+    TRANSFORMS[2] = new DoubleRangeLimitTransform(-1.0, 1.0); //rho
+    TRANSFORMS[3] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); //sigma
+    TRANSFORMS[4] = new NullTransform(); //m
   }
 
   public SVINonLinearLeastSquareFitter() {
@@ -55,26 +57,31 @@ public class SVINonLinearLeastSquareFitter extends LeastSquareSmileFitter {
   }
 
   @Override
-  public LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] initialFitParameters, final BitSet fixed) {
+  public LeastSquareResultsWithTransform getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] initialFitParameters, final BitSet fixed) {
     return getFitResult(options, data, null, initialFitParameters, fixed);
   }
 
   @Override
-  public LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] errors, final double[] initialFitParameters, final BitSet fixed) {
+  public LeastSquareResultsWithTransform getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] errors, final double[] initialFitParameters,
+      final BitSet fixed) {
     testData(options, data, errors, initialFitParameters, fixed, N_PARAMETERS);
     final int n = options.length;
     final double[] strikes = new double[n];
+    final double[] forwards = new double[n];
     final double[] blackVols = new double[n];
     final double maturity = options[0].getTimeToExpiry();
     strikes[0] = options[0].getStrike();
     blackVols[0] = data[0].getBlackVolatility();
+    forwards[0] = data[0].getForward();
     for (int i = 1; i < n; i++) {
       Validate.isTrue(CompareUtils.closeEquals(options[i].getTimeToExpiry(), maturity),
           "All options must have the same maturity " + maturity + "; have one with maturity " + options[i].getTimeToExpiry());
       strikes[i] = options[i].getStrike();
       blackVols[i] = data[i].getBlackVolatility();
+      forwards[i] = data[i].getForward();
     }
-    final TransformParameters transforms = new TransformParameters(new DoubleMatrix1D(initialFitParameters), TRANSFORMS, fixed);
+    final double forward = data[0].getForward();
+    final UncoupledParameterTransforms transforms = new UncoupledParameterTransforms(new DoubleMatrix1D(initialFitParameters), TRANSFORMS, fixed);
 
     final ParameterizedFunction<Double, DoubleMatrix1D, Double> function = new ParameterizedFunction<Double, DoubleMatrix1D, Double>() {
       @SuppressWarnings("synthetic-access")
@@ -87,15 +94,16 @@ public class SVINonLinearLeastSquareFitter extends LeastSquareSmileFitter {
         final double sigma = mp.getEntry(3);
         final double m = mp.getEntry(4);
         final SVIFormulaData newData = new SVIFormulaData(a, b, rho, sigma, m);
-        return FORMULA.getVolatilityFunction(new EuropeanVanillaOption(strike, maturity, true)).evaluate(newData);
+        return FORMULA.getVolatilityFunction(new EuropeanVanillaOption(strike, maturity, true), forward).evaluate(newData);
       }
     };
 
     final DoubleMatrix1D fp = transforms.transform(new DoubleMatrix1D(initialFitParameters));
     final LeastSquareResults lsRes = errors == null ? _solver.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), function, fp) : _solver.solve(new DoubleMatrix1D(strikes),
         new DoubleMatrix1D(blackVols), new DoubleMatrix1D(errors), function, fp);
-    final DoubleMatrix1D mp = transforms.inverseTransform(lsRes.getParameters());
-    return new LeastSquareResults(lsRes.getChiSq(), mp, new DoubleMatrix2D(new double[N_PARAMETERS][N_PARAMETERS]));
+    // final DoubleMatrix1D mp = transforms.inverseTransform(lsRes.getFitParameters());
+    return new LeastSquareResultsWithTransform(lsRes, transforms);
+    // return new LeastSquareResults(lsRes.getChiSq(), mp, new DoubleMatrix2D(new double[N_PARAMETERS][N_PARAMETERS]));
 
   }
 }

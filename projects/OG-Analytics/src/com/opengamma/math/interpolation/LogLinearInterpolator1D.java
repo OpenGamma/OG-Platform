@@ -16,13 +16,13 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  * <i>y</i> at <i>x</i> between two data points <i>(x<sub>1</sub>,
  * y<sub>1</sub>)</i> and <i>(x<sub>2</sub>, y<sub>2</sub>)</i> is given by:<br>
  * <i>y = y<sub>1</sub> (y<sub>2</sub> / y<sub>1</sub>) ^ ((x - x<sub>1</sub>) /
- * (x<sub>2</sub> - x<sub>1</sub>))<br>
+ * (x<sub>2</sub> - x<sub>1</sub>))</i><br>
  * It is the equivalent of performing a linear interpolation on a data set after
  * taking the logarithm of the y-values.
  * 
  */
 
-public class LogLinearInterpolator1D extends Interpolator1D<Interpolator1DDataBundle> {
+public class LogLinearInterpolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
 
   @Override
@@ -48,5 +48,10 @@ public class LogLinearInterpolator1D extends Interpolator1D<Interpolator1DDataBu
   @Override
   public Interpolator1DDataBundle getDataBundleFromSortedArrays(final double[] x, final double[] y) {
     return new ArrayInterpolator1DDataBundle(x, y, true);
+  }
+
+  @Override
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value) {
+    return getFiniteDifferenceSensitivities(data, value);
   }
 }

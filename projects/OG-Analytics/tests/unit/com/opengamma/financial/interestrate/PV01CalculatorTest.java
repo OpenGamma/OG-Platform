@@ -16,19 +16,26 @@ import javax.time.calendar.Period;
 import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
@@ -52,6 +59,14 @@ public class PV01CalculatorTest {
   private static final String LIBOR_CURVE_NAME = "libor";
   private static YieldCurveBundle CURVES;
   private static final Currency CUR = Currency.USD;
+
+  private static final Period TENOR = Period.ofMonths(6);
+  private static final int SETTLEMENT_DAYS = 2;
+  private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
+  private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final boolean IS_EOM = true;
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
 
   static {
     CURVES = new YieldCurveBundle();
@@ -95,8 +110,8 @@ public class PV01CalculatorTest {
     final double fixingPeriodAccrualFactor = 0.267;
     final double paymentAccrualFactor = 0.25;
     final double price = 0.973;
-    final InterestRateFutureTransaction ir = new InterestRateFutureTransaction(new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime,
-        fixingPeriodAccrualFactor, 1, paymentAccrualFactor, "K", FUNDING_CURVE_NAME, LIBOR_CURVE_NAME), 1, price);
+    final InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, price, 1, paymentAccrualFactor, "K",
+        FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
     doTest(ir, CURVES);
   }
 
@@ -139,7 +154,7 @@ public class PV01CalculatorTest {
       spreads[i] = spread + 0.001 * i;
     }
 
-    final AnnuityCouponIbor annuity = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, indexFixing, indexMaturity, paymentYearFracs, forwardYearFracs, spreads, Math.E, FUNDING_CURVE_NAME,
+    final AnnuityCouponIbor annuity = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, paymentYearFracs, forwardYearFracs, spreads, Math.E, FUNDING_CURVE_NAME,
         LIBOR_CURVE_NAME, true);
     doTest(annuity, CURVES);
 
@@ -150,18 +165,17 @@ public class PV01CalculatorTest {
     final int n = 20;
     final double tau = 0.5;
     final double yearFrac = 180 / 365.0;
-    final double initalCoupon = 0.015;
+    final double initialCoupon = 0.015;
     final double ramp = 0.0025;
-    final double[] coupons = new double[n];
-    final double[] yearFracs = new double[n];
-    final double[] paymentTimes = new double[n];
+    final CouponFixed[] coupons = new CouponFixed[n];
     for (int i = 0; i < n; i++) {
-      paymentTimes[i] = tau * (i + 1);
-      coupons[i] = initalCoupon + i * ramp;
-      yearFracs[i] = yearFrac;
+      coupons[i] = new CouponFixed(CUR, tau * (i + 1), FUNDING_CURVE_NAME, yearFrac, initialCoupon + i * ramp);
     }
-    final Bond bond = new Bond(CUR, paymentTimes, coupons, yearFracs, 0.0, FUNDING_CURVE_NAME);
+    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, tau * n, 1, FUNDING_CURVE_NAME)});
+    final BondFixedSecurity bond = new BondFixedSecurity(nominal, new AnnuityCouponFixed(coupons), 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FUNDING_CURVE_NAME, "S");
     doTest(bond, CURVES);
+    final BondFixedTransaction trade = new BondFixedTransaction(bond, 100, 100, bond, 90);
+    doTest(trade, CURVES);
   }
 
   @Test
@@ -178,7 +192,7 @@ public class PV01CalculatorTest {
     }
     final double swapRate = 0.04;
 
-    final Swap<?, ?> swap = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, swapRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, false);
+    final Swap<?, ?> swap = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, INDEX, swapRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, false);
     doTest(swap, CURVES);
   }
 
@@ -199,15 +213,15 @@ public class PV01CalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
-    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FUNDING_CURVE_NAME,
+    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexMaturity, yearFracs, 1.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
+    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FUNDING_CURVE_NAME,
         FUNDING_CURVE_NAME, false);
 
     final Swap<?, ?> swap = new TenorSwap<CouponIbor>(payLeg, receiveLeg);
     doTest(swap, CURVES);
   }
 
-  private void doTest(final InterestRateDerivative ird, final YieldCurveBundle curves) {
+  private void doTest(final InstrumentDerivative ird, final YieldCurveBundle curves) {
     final Map<String, Double> ana = PV01.visit(ird, curves);
     final Map<String, Double> fd = finiteDifferancePV01(ird, curves);
     final Set<String> names = curves.getAllNames();
@@ -220,7 +234,7 @@ public class PV01CalculatorTest {
     }
   }
 
-  private Map<String, Double> finiteDifferancePV01(final InterestRateDerivative ird, final YieldCurveBundle curves) {
+  private Map<String, Double> finiteDifferancePV01(final InstrumentDerivative ird, final YieldCurveBundle curves) {
     final Map<String, Double> result = new HashMap<String, Double>();
     final Set<String> names = curves.getAllNames();
     for (final String name : names) {

@@ -68,7 +68,7 @@ public class PresentValueSABRHullWhiteMonteCarloCalculator extends PresentValueC
 
   @Override
   /**
-   * The calculator is for test purposes only! It calibrate a Hull-White on a swaption priced with SABR and then price the same swaption in the Hull-White model by Monte Carlo.
+   * The calculator is for test purposes only! It calibrates a Hull-White on a swaption priced with SABR and then price the same swaption in the Hull-White model by Monte Carlo.
    * Do not use this calculator in production.
    */
   public Double visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final YieldCurveBundle curves) {
@@ -88,7 +88,7 @@ public class PresentValueSABRHullWhiteMonteCarloCalculator extends PresentValueC
     HullWhiteOneFactorPiecewiseConstantDataBundle hwBundle = new HullWhiteOneFactorPiecewiseConstantDataBundle(hwParameters, curves);
     // Pricing
     HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), DEFAULT_NB_PATH);
-    CurrencyAmount pvMC = methodMC.presentValue(swaption, swaption.getCurrency(), curves.getCurve(swaption.getUnderlyingSwap().getFirstLeg().getDiscountCurve()), hwBundle);
+    CurrencyAmount pvMC = methodMC.presentValue(swaption, swaption.getCurrency(), swaption.getUnderlyingSwap().getFirstLeg().getDiscountCurve(), hwBundle);
     return pvMC.getAmount();
   }
 
@@ -102,17 +102,16 @@ public class PresentValueSABRHullWhiteMonteCarloCalculator extends PresentValueC
     HullWhiteOneFactorPiecewiseConstantParameters hwParameters = new HullWhiteOneFactorPiecewiseConstantParameters(DEFAULT_MEAN_REVERSION, new double[] {0.01}, new double[0]);
     CapFloorHullWhiteCalibrationObjective objective = new CapFloorHullWhiteCalibrationObjective(hwParameters);
     SuccessiveRootFinderCalibrationEngine calibrationEngine = new CapFloorHullWhiteSuccessiveRootFinderCalibrationEngine(objective);
-    InterestRateDerivative[] calibrationBasket = annuity.calibrationBasket(RatchetIborCalibrationType.FORWARD_COUPON, curves);
+    // Calibration instruments
+    InstrumentDerivative[] calibrationBasket = annuity.calibrationBasket(RatchetIborCalibrationType.FORWARD_COUPON, curves);
     //TODO: set a way to chose the calibration type.
-    for (int loopbasket = 0; loopbasket < calibrationBasket.length; loopbasket++) {
-      calibrationEngine.addInstrument(calibrationBasket[loopbasket], METHOD_CAP_SABR);
-    }
+    calibrationEngine.addInstrument(calibrationBasket, METHOD_CAP_SABR);
     // Calibration
     calibrationEngine.calibrate(curves);
     HullWhiteOneFactorPiecewiseConstantDataBundle hwBundle = new HullWhiteOneFactorPiecewiseConstantDataBundle(hwParameters, curves);
     // Pricing
     HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), DEFAULT_NB_PATH);
-    CurrencyAmount pvMC = methodMC.presentValue(annuity, annuity.getCurrency(), curves.getCurve(annuity.getDiscountCurve()), hwBundle);
+    CurrencyAmount pvMC = methodMC.presentValue(annuity, annuity.getCurrency(), annuity.getDiscountCurve(), hwBundle);
     return pvMC.getAmount();
   }
 

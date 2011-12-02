@@ -8,19 +8,19 @@ package com.opengamma.financial.interestrate.future.definition;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
  * Description of an interest rate future option with up-front margin security.
  */
-public class InterestRateFutureOptionPremiumSecurity implements InterestRateDerivative {
+public class InterestRateFutureOptionPremiumSecurity implements InstrumentDerivative {
 
   /**
    * Underlying future security.
    */
-  private final InterestRateFutureSecurity _underlyingFuture;
+  private final InterestRateFuture _underlyingFuture;
   /**
    * Expiration date.
    */
@@ -49,7 +49,7 @@ public class InterestRateFutureOptionPremiumSecurity implements InterestRateDeri
    * @param strike The option strike.
    * @param isCall The cap (true) / floor (false) flag.
    */
-  public InterestRateFutureOptionPremiumSecurity(final InterestRateFutureSecurity underlyingFuture, final double expirationTime, final double strike, final boolean isCall) {
+  public InterestRateFutureOptionPremiumSecurity(final InterestRateFuture underlyingFuture, final double expirationTime, final double strike, final boolean isCall) {
     Validate.notNull(underlyingFuture, "underlying future");
     this._underlyingFuture = underlyingFuture;
     this._expirationTime = expirationTime;
@@ -63,7 +63,7 @@ public class InterestRateFutureOptionPremiumSecurity implements InterestRateDeri
    * Gets the underlying future security.
    * @return The underlying future security.
    */
-  public InterestRateFutureSecurity getUnderlyingFuture() {
+  public InterestRateFuture getUnderlyingFuture() {
     return _underlyingFuture;
   }
 
@@ -116,12 +116,12 @@ public class InterestRateFutureOptionPremiumSecurity implements InterestRateDeri
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitInterestRateFutureOptionPremiumSecurity(this, data);
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitInterestRateFutureOptionPremiumSecurity(this);
   }
 

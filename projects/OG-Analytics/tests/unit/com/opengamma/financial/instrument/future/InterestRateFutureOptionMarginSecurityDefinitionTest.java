@@ -9,11 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
-import org.testng.annotations.Test;
-
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -21,11 +16,16 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
+
+import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 /**
  * Tests the interest rate future option with margin security description.
@@ -45,8 +45,9 @@ public class InterestRateFutureOptionMarginSecurityDefinitionTest {
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, CALENDAR, -SETTLEMENT_DAYS);
   private static final double NOTIONAL = 1000000.0; // 1m
   private static final double FUTURE_FACTOR = 0.25;
+  private static final double REFERENCE_PRICE = 0.0; // TODO - CASE - Future refactor - 0.0 Reference Price here
   private static final String NAME = "ERU2";
-  private static final InterestRateFutureSecurityDefinition ERU2 = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME);
+  private static final InterestRateFutureDefinition ERU2 = new InterestRateFutureDefinition(LAST_TRADING_DATE, IBOR_INDEX, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR, NAME);
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
   private static final double STRIKE = 0.9895;
   private static final boolean IS_CALL = true;
@@ -56,7 +57,7 @@ public class InterestRateFutureOptionMarginSecurityDefinitionTest {
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final String DISCOUNTING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAMES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES_NAMES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME };
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlying() {
@@ -99,7 +100,7 @@ public class InterestRateFutureOptionMarginSecurityDefinitionTest {
   @Test
   public void toDerivative() {
     double expirationTime = ACT_ACT.getDayCountFraction(REFERENCE_DATE, EXPIRATION_DATE);
-    InterestRateFutureSecurity underlyingFuture = ERU2.toDerivative(REFERENCE_DATE, CURVES_NAMES);
+    InterestRateFuture underlyingFuture = ERU2.toDerivative(REFERENCE_DATE, REFERENCE_PRICE, CURVES_NAMES);
     InterestRateFutureOptionMarginSecurity security = new InterestRateFutureOptionMarginSecurity(underlyingFuture, expirationTime, STRIKE, IS_CALL);
     InterestRateFutureOptionMarginSecurity convertedSecurity = OPTION_ERU2.toDerivative(REFERENCE_DATE, CURVES_NAMES);
     assertTrue("Rate future option with margining security converter", security.equals(convertedSecurity));

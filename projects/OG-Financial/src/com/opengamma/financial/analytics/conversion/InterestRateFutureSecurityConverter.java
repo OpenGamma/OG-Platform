@@ -17,8 +17,8 @@ import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
-import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
+import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.util.money.Currency;
@@ -26,7 +26,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityVisitor<FixedIncomeInstrumentConverter<?>> {
+public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityVisitor<InstrumentDefinition<?>> {
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
   private final RegionSource _regionSource;
@@ -42,7 +42,7 @@ public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityV
   }
 
   @Override
-  public FixedIncomeInstrumentConverter<?> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+  public InstrumentDefinition<?> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
     Validate.notNull(security, "security");
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();
@@ -56,7 +56,8 @@ public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityV
         calendar, iborConvention.getDayCount(), iborConvention.getBusinessDayConvention(),
         iborConvention.isEOMConvention());
     final double notional = security.getUnitAmount();
-    return new InterestRateFutureSecurityDefinition(lastTradeDate, iborIndex, notional, paymentAccrualFactor);
+    final double referencePrice = 0.0; // TODO CASE - Future refactor - Confirm referencePrice
+    return new InterestRateFutureDefinition(lastTradeDate, iborIndex, referencePrice, notional, paymentAccrualFactor);
   }
 
   private double getAccrualFactor(final Period period) {

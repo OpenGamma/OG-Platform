@@ -13,6 +13,7 @@
 #define SETTINGS_BUSY_TIMEOUT				TEXT ("busyTimeout")
 #define SETTINGS_CONNECTION_PIPE			SERVICE_SETTINGS_CONNECTION_PIPE
 #define SETTINGS_CONNECTION_TIMEOUT			TEXT ("connectionTimeout")
+#define SETTINGS_EXT_PATH					TEXT ("exts")
 #define SETTINGS_IDLE_TIMEOUT				TEXT ("idleTimeout")
 #define SETTINGS_JAR_PATH					TEXT ("jars")
 #ifdef _WIN32
@@ -20,6 +21,9 @@
 #else
 #define SETTINGS_JVM_LIBRARY				TEXT ("jvmLibrary")
 #endif
+#define SETTINGS_JVM_MIN_HEAP				TEXT ("jvmMinHeap")
+#define SETTINGS_JVM_MAX_HEAP				TEXT ("jvmMaxHeap")
+#define SETTINGS_JVM_PROPERTY				TEXT ("jvmProperty")
 #define SETTINGS_LOG_CONFIGURATION			TEXT ("serviceLogConfiguration")
 #define SETTINGS_SERVICE_NAME				SERVICE_SETTINGS_SERVICE_NAME
 #ifdef _WIN32
@@ -33,9 +37,13 @@ private:
 	unsigned long GetBusyTimeout (unsigned long dwDefault) const { return Get (SETTINGS_BUSY_TIMEOUT, dwDefault); }
 	const TCHAR *GetConnectionPipe (const TCHAR *pszDefault) const { return Get (SETTINGS_CONNECTION_PIPE, pszDefault); }
 	unsigned long GetConnectionTimeout (unsigned long dwDefault) const { return Get (SETTINGS_CONNECTION_TIMEOUT, dwDefault); }
+	const TCHAR *GetExtPath (const CAbstractSettingProvider *poDefault) const { return Get (SETTINGS_EXT_PATH, poDefault); }
 	unsigned long GetIdleTimeout (unsigned long dwDefault) const { return Get (SETTINGS_IDLE_TIMEOUT, dwDefault); }
 	const TCHAR *GetJarPath (const CAbstractSettingProvider *poDefault) const { return Get (SETTINGS_JAR_PATH, poDefault); }
 	const TCHAR *GetJvmLibrary (const CAbstractSettingProvider *poDefault) const { return Get (SETTINGS_JVM_LIBRARY, poDefault); }
+	unsigned long GetJvmMinHeap (unsigned long dwDefault) const { return Get (SETTINGS_JVM_MIN_HEAP, dwDefault); }
+	unsigned long GetJvmMaxHeap (unsigned long dwDefault) const { return Get (SETTINGS_JVM_MAX_HEAP, dwDefault); }
+	
 	const TCHAR *GetLogConfiguration (const TCHAR *pszDefault) const { return Get (SETTINGS_LOG_CONFIGURATION, pszDefault); }
 	const TCHAR *GetServiceName (const TCHAR *pszDefault) const { return Get (SETTINGS_SERVICE_NAME, pszDefault); }
 #ifdef _WIN32
@@ -46,9 +54,13 @@ public:
 	unsigned  long GetBusyTimeout () const;
 	const TCHAR *GetConnectionPipe () const;
 	unsigned long GetConnectionTimeout () const;
+	const TCHAR *GetExtPath () const;
 	unsigned long GetIdleTimeout () const;
 	const TCHAR *GetJarPath () const;
 	const TCHAR *GetJvmLibrary () const;
+	unsigned long GetJvmMinHeap () const;
+	unsigned long GetJvmMaxHeap () const;
+	void GetJvmProperties (const CEnumerator *poEnum) const;
 	const TCHAR *GetLogConfiguration () const;
 	const TCHAR *GetServiceName () const;
 #ifdef _WIN32

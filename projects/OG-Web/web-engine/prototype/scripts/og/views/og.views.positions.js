@@ -26,7 +26,7 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search,
+            search, layout,
             ui = common.util.ui,
             module = this, positions,
             page_name = module.name.split('.').pop(),
@@ -54,11 +54,11 @@ $.register_module({
                         'OK': function () {
                             api.rest.positions.put({
                                 handler: function (r) {
+                                    var args = routes.last().args;
                                     if (r.error) return ui.dialog({type: 'error', message: r.message});
                                     ui.dialog({type: 'input', action: 'close'});
-                                    routes.go(routes.hash(module.rules.load_new_positions,
-                                            $.extend({}, routes.last().args, {id: r.meta.id, 'new': true})
-                                    ));
+                                    positions.search(args);
+                                    routes.go(routes.hash(module.rules.load_positions, args, {add: {id: r.meta.id}}));
                                 },
                                 quantity: ui.dialog({return_field_value: 'quantity'}),
                                 scheme_type: ui.dialog({return_field_value: 'scheme-type'}),
@@ -77,14 +77,23 @@ $.register_module({
                                 handler: function (r) {
                                     if (r.error) return ui.dialog({type: 'error', message: r.message});
                                     ui.dialog({type: 'confirm', action: 'close'});
-                                    routes.go(routes.hash(module.rules.load_delete,
-                                            $.extend({}, routes.last().args, {deleted: true})
-                                    ));
+                                    positions.search(args);
+                                    routes.go(routes.hash(module.rules.load, {}));
                                 }, id: routes.last().args.id
                             });
                         }
                     }
-                })}
+                })},
+                'versions': function () {
+                    var rule = module.rules.load_positions, args = routes.current().args;
+                    routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
+                    if (!layout.inner.state.south.isClosed && args.version) {
+                        layout.inner.close('south');
+                    } else layout.inner.open('south');
+                    layout.inner.options.south.onclose = function () {
+                        routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
+                    };
+                }
             },
             options = {
                 slickgrid: {
@@ -103,46 +112,41 @@ $.register_module({
                 toolbar: {
                     'default': {
                         buttons: [
-                            {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'new', handler: toolbar_buttons['new']}
+                            {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     },
                     active: {
                         buttons: [
-                            {name: 'delete', handler: toolbar_buttons['delete']},
-                            {name: 'new', handler: toolbar_buttons['new']}
+                            {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', tooltip: 'Delete', divider: true, handler: toolbar_buttons['delete']},
+                            {id: 'versions', label: 'versions', handler: toolbar_buttons['versions']}
                         ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     }
                 }
-            },
-            load_positions_without = function (field, args) {
-                check_state({args: args, conditions: [{new_page: positions.load, stop: true}]});
-                delete args[field];
-                positions.search(args);
-                routes.go(routes.hash(module.rules.load_positions, args));
             },
             details_page = function (args) {
                 var render_identifiers = function (json) {
                         $('.OG-js-details-panel .og-js-identifiers').html(json.reduce(function (acc, val) {
-                            acc.push('<tr><td><span>' + val.scheme + '</span></td><td>' + val.value + '</td></tr>');
+                            acc.push('<tr><td><span>' + val.scheme.lang() + '</span></td><td>' + val.value + '</td></tr>');
                             return acc
                         }, []).join(''));
-                    },
-                    render_trades = function (json) {
-                        var fields = ['id', 'quantity', 'counterParty', 'date'], start = '<tr><td>', end = '</td></tr>',
-                            selector = '.OG-js-details-panel .og-js-trades';
-                        if (!json[0]) return $(selector).html('<tr><td colspan="4">No Trades</td></tr>');
-                        $(selector).html(json.reduce(function (acc, trade) {
-                            acc.push(start, fields.map(function (field) {return trade[field];}).join('</td><td>'), end);
-                            return acc;
-                        }, []).join(''));
                     };
+                // load versions
+                if (args.version) {
+                    layout.inner.open('south');
+                    og.views.common.versions.load();
+                } else layout.inner.close('south');
                 api.rest.positions.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        json = result.data;
+                        var json = result.data;
                         history.put({
                             name: json.template_data.name,
                             item: 'history.positions.recent',
@@ -154,8 +158,7 @@ $.register_module({
                                         This position has been deleted\
                                     </section>\
                                 ',
-                                $html = $.tmpl(template, json.template_data),
-                                layout = og.views.common.layout, header, content;
+                                $html = $.tmpl(template, json.template_data), header, content;
                             header = $.outer($html.find('> header')[0]);
                             content = $.outer($html.find('> section')[0]);
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
@@ -165,30 +168,32 @@ $.register_module({
                                 $('.ui-layout-inner-north').html(error_html);
                                 layout.inner.sizePane('north', '0');
                                 layout.inner.open('north');
-                                $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                                $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
                             } else {
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
                             }
                             render_identifiers(json.securities);
-                            render_trades(json.trades);
-                            ui.content_editable({
-                                attribute: 'data-og-editable',
-                                handler: function () {
-                                    routes.go(routes.hash(module.rules.load_edit_positions, $.extend(args, {
-                                        edit: 'true'
-                                    })));
-                                }
+                            og.common.module.trade_table({
+                                trades: json.trades,
+                                selector: '.og-js-trades-table'
                             });
+                            if (!args.version || args.version === '*') {
+                                ui.content_editable({
+                                    attribute: 'data-og-editable',
+                                    handler: function () {positions.search(args), routes.handler();}
+                                });
+                            }
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             layout.inner.resizeAll();
                         }});
                     },
                     id: args.id,
+                    version: args.version && args.version !== '*' ? args.version : void 0,
                     loading: function () {
-                        if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions()}
                         ui.message({
                             location: '.ui-layout-inner-center',
+                            css: {left: 0},
                             message: {0: 'loading...', 3000: 'still loading...'}
                         });
                     }
@@ -198,15 +203,8 @@ $.register_module({
         module.rules = {
             load: {route: '/' + page_name + '/quantity:?', method: module.name + '.load'},
             load_filter: {route: '/' + page_name + '/filter:/:id?/quantity:?', method: module.name + '.load_filter'},
-            load_delete: {route: '/' + page_name + '/deleted:/quantity:?', method: module.name + '.load_delete'},
             load_positions: {
-                route: '/' + page_name + '/:id/:node?/quantity:?', method: module.name + '.load_' + page_name
-            },
-            load_new_positions: {
-                route: '/' + page_name + '/:id/:node?/new:/quantity:?', method: module.name + '.load_new_' + page_name
-            },
-            load_edit_positions: {
-                route: '/' + page_name + '/:id/:node?/edit:/quantity:?', method: module.name + '.load_edit_' + page_name
+                route: '/' + page_name + '/:id/:node?/version:?/quantity:?', method: module.name + '.load_' + page_name
             }
         };
         /**
@@ -235,14 +233,11 @@ $.register_module({
         };
         return positions = {
             load: function (args) {
+                layout = og.views.common.layout;
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        positions.search(args);
-                        masthead.menu.set_tab(page_name);
-                    }}
+                    {new_page: function () {positions.search(args), masthead.menu.set_tab(page_name);}}
                 ]});
-                if (args.id) return;
-                default_details();
+                if (!args.id) default_details();
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [
@@ -257,14 +252,18 @@ $.register_module({
                 delete args['filter'];
                 search.filter($.extend(true, args, {filter: true}, get_quantities(args.quantity)));
             },
-            load_delete: function (args) {
-                positions.search(args);
-                routes.go(routes.hash(module.rules.load, {}));
-            },
-            load_new_positions: load_positions_without.partial('new'),
-            load_edit_positions: load_positions_without.partial('edit'),
             load_positions: function (args) {
-                check_state({args: args, conditions: [{new_page: positions.load}]});
+                check_state({args: args, conditions: [
+                    {new_page: function () {
+                        positions.load(args);
+                        layout.inner.options.south.onclose = null;
+                        layout.inner.close.partial('south');
+                    }},
+                    {new_value: 'id', method: function () {
+                        layout.inner.options.south.onclose = null;
+                        layout.inner.close.partial('south');
+                    }}
+                ]});
                 positions.details(args);
             },
             search: function (args) {

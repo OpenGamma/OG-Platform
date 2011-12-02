@@ -57,6 +57,7 @@ public class WebPositionResource extends AbstractWebPositionResource {
     return getFreemarker().build("positions/jsonposition.ftl", out);
   }
 
+
   //-------------------------------------------------------------------------
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -149,9 +150,19 @@ public class WebPositionResource extends AbstractWebPositionResource {
     out.put("position", doc.getPosition());
     out.put("security", doc.getPosition().getSecurity());
     out.put("deleted", !doc.isLatest());
+    
+    TradeAttributesModel tradeAttributesModel = getTradeAttributesModel();
+    out.put("tradeAttrModel", tradeAttributesModel);
+    
     return out;
   }
 
+  private TradeAttributesModel getTradeAttributesModel() {
+    PositionDocument doc = data().getPosition();
+    TradeAttributesModel getTradeAttributesModel = new TradeAttributesModel(doc.getPosition());
+    return getTradeAttributesModel;
+  }
+  
   //-------------------------------------------------------------------------
   @Path("versions")
   public WebPositionVersionsResource findVersions() {
@@ -178,5 +189,5 @@ public class WebPositionResource extends AbstractWebPositionResource {
     String positionId = data.getBestPositionUriId(overridePositionId);
     return data.getUriInfo().getBaseUriBuilder().path(WebPositionResource.class).build(positionId);
   }
-
+ 
 }

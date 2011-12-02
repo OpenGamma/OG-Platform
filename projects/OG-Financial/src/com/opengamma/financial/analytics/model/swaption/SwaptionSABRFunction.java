@@ -28,7 +28,7 @@ import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctionHelper;
-import com.opengamma.financial.analytics.volatility.sabr.SABRFittedSurfaces;
+import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -39,7 +39,6 @@ import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionFactory;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.util.money.Currency;
@@ -119,7 +118,8 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
   }
 
   protected ValueRequirement getCubeRequirement(final ComputationTarget target) {
-    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CUBE, _helper.getDefinitionName()).get();
+    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CUBE, _helper.getDefinitionName())
+                                                      .with(ValuePropertyNames.CURRENCY, _helper.getCurrency().getCode()).get();
     return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, FinancialSecurityUtils.getCurrency(target.getSecurity()), properties);
   }
 
@@ -160,8 +160,8 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
     final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve
         : (YieldAndDiscountCurve) fundingCurveObject;
-    return new YieldCurveBundle(new String[] {_forwardCurveName, _fundingCurveName},
-        new YieldAndDiscountCurve[] {forwardCurve, fundingCurve});
+    return new YieldCurveBundle(new String[] {_fundingCurveName, _forwardCurveName},
+        new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
   }
 
   protected SABRInterestRateParameters getModelParameters(final ComputationTarget target, final FunctionInputs inputs) {
@@ -183,13 +183,4 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
     return _useSABRExtrapolation ? new SABRInterestRateExtrapolationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, CUT_OFF, MU) :
         new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, SABR_FUNCTION);
   }
-
-  protected ValueProperties getResultProperties(final FinancialSecurity security) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(security).getCode())
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, _fundingCurveName)
-        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, _forwardCurveName)
-        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
-  }
-
 }

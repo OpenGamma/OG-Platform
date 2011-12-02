@@ -8,7 +8,6 @@ package com.opengamma.financial.view.rest;
 import java.net.URI;
 import java.util.concurrent.ScheduledExecutorService;
 
-import javax.jms.ConnectionFactory;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 
@@ -23,6 +22,7 @@ import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.rest.FudgeRestClient;
 import com.sun.jersey.api.client.ClientResponse;
 
@@ -32,15 +32,22 @@ import com.sun.jersey.api.client.ClientResponse;
 public class RemoteViewProcessor implements ViewProcessor {
 
   private final URI _baseUri;
-  private final ScheduledExecutorService _scheduler;
+  private final ScheduledExecutorService _heartbeatScheduler;
   private final FudgeRestClient _client;
-  private final ConnectionFactory _connectionFactory;
+  private final JmsConnector _jmsConnector;
   
-  public RemoteViewProcessor(URI baseUri, ConnectionFactory connectionFactory, ScheduledExecutorService scheduler) {
+  /**
+   * Constructs an instance.
+   * 
+   * @param baseUri  the base URI of the remote view processor
+   * @param jmsConnector  the JMS connector
+   * @param heartbeatScheduler  the scheduler to be used to send heartbeats to the remote view processor
+   */
+  public RemoteViewProcessor(URI baseUri, JmsConnector jmsConnector, ScheduledExecutorService heartbeatScheduler) {
     _baseUri = baseUri;
-    _scheduler = scheduler;
+    _heartbeatScheduler = heartbeatScheduler;
     _client = FudgeRestClient.create();
-    _connectionFactory = connectionFactory;
+    _jmsConnector = jmsConnector;
   }
 
   @Override
@@ -77,21 +84,21 @@ public class RemoteViewProcessor implements ViewProcessor {
       throw new OpenGammaRuntimeException("Could not create view client: " + response);
     }
     URI clientLocation = response.getLocation();
-    return new RemoteViewClient(this, clientLocation, OpenGammaFudgeContext.getInstance(), _connectionFactory, _scheduler);
+    return new RemoteViewClient(this, clientLocation, OpenGammaFudgeContext.getInstance(), _jmsConnector, _heartbeatScheduler);
   }
 
   @Override
   public ViewClient getViewClient(UniqueId clientId) {
     URI clientsBaseUri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_CLIENTS).build();
     URI clientUri = DataViewProcessorResource.uriClient(clientsBaseUri, clientId);
-    return new RemoteViewClient(this, clientUri, OpenGammaFudgeContext.getInstance(), _connectionFactory, _scheduler);
+    return new RemoteViewClient(this, clientUri, OpenGammaFudgeContext.getInstance(), _jmsConnector, _heartbeatScheduler);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public EngineResourceManager<ViewCycle> getViewCycleManager() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_CYCLES).build();
-    return new RemoteViewCycleManager(uri, _scheduler);
+    return new RemoteViewCycleManager(uri, _heartbeatScheduler);
   }
 
 }

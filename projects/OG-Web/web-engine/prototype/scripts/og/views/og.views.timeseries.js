@@ -25,7 +25,7 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search,
+            search, layout,
             ui = common.util.ui,
             module = this,
             page_name = module.name.split('.').pop(),
@@ -136,17 +136,21 @@ $.register_module({
                 toolbar: {
                     'default':  {
                         buttons: [
-                            {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'new', handler: toolbar_buttons['new']}
+                            {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     },
                     active: {
                         buttons: [
-                            {name: 'delete', handler: toolbar_buttons['delete']},
-                            {name: 'new', handler: toolbar_buttons['new']}
+                            {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', tooltip: 'Delete', handler: toolbar_buttons['delete']}
                         ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     }
                 }
             },
@@ -158,29 +162,40 @@ $.register_module({
             },
             default_details = og.views.common.default_details.partial(page_name, 'Time Series', options),
             details_page = function (args) {
+                layout.inner.options.south.onclose = null;
+                layout.inner.close('south');
                 api.rest.timeseries.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        var f = details.timeseries_functions,
-                            json = result.data;
-                        history.put({
-                            name: json.template_data.object_id,
-                            item: 'history.timeseries.recent',
-                            value: routes.current().hash
-                        });
+                        var json = result.data;
                         api.text({module: module.name, handler: function (template) {
-                            var $html, error_html, layout = og.views.common.layout, json_id = json.identifiers,
+                            var $html, error_html, json_id = json.identifiers, title,
                                 stop_loading, header, content; // functions
                             error_html = '\
                                 <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
                                     This position has been deleted\
                                 </section>\
                             ';
-                            $html = $.tmpl(template, json.template_data);
-                            stop_loading = function () {
-                                ui.message({location: '.ui-layout-inner-center', destroy: true});
-                                layout.inner.resizeAll();
-                            };
+                            // check if any of the following scheme types are in json.identifiers, in
+                            // reverse order of preference, delimiting if multiple, then assign to title
+                            ['ISIN', 'SEDOL1', 'CUSIP', 'BLOOMBERG_BUID', 'BLOOMBERG_TICKER'].forEach(function (val) {
+                                title = (function (type) {
+                                    return json.identifiers.reduce(function (acc, val) {
+                                        if (val.scheme === type) acc = acc
+                                            ? acc + ', ' + val.value
+                                            : type.lang() + ' - ' + val.value;
+                                        return acc
+                                    }, '')
+                                }(val)) || title;
+                            });
+                            $html = $.tmpl(template, $.extend(json.template_data, {
+                                title: title || json.template_data.object_id
+                            }));
+                            history.put({
+                                name: title + ' (' + json.template_data.data_field + ')',
+                                item: 'history.timeseries.recent',
+                                value: routes.current().hash
+                            });
                             // Initial html setup
                             header = $.outer($html.find('> header')[0]);
                             content = $.outer($html.find('> section')[0]);
@@ -204,20 +219,13 @@ $.register_module({
                             );
                             // Plot
                             ui.render_plot({
-                                selector: '.OG-timeseries .og-js-timeseriesPlot',
+                                selector: '.OG-timeseries .og-plots',
                                 data: result, // sending the whole result to be in sync with future requested objects
                                 identifier: json.identifiers[0].value,
                                 init_data_field: json.template_data.data_field,
                                 init_ob_time: json.template_data.observation_time
                             });
-                            // Data points
-                            f.render_table('.OG-timeseries .og-js-table', {
-                                'fieldLabels': json.timeseries.fieldLabels, 'data': json.timeseries.data
-                            }, stop_loading);
-                            // Hookup data download link
-                            $('.og-js-timeSeriesCsv').click(function () {
-                                window.location.href = '/jax/timeseries/' + args.id + '.csv';
-                            });
+                            ui.message({location: '.ui-layout-inner-center', destroy: true});
                             layout.inner.resizeAll();
                         }});
                     },
@@ -247,6 +255,7 @@ $.register_module({
         };
         return timeseries = {
             load: function (args) {
+                layout = og.views.common.layout;
                 check_state({args: args, conditions: [
                     {new_page: function () {
                         timeseries.search(args);

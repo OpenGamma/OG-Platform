@@ -1,0 +1,109 @@
+.OG-icon.og-icon-tools-new {
+  height: 22px;
+  width: 18px;
+  position: relative;
+  top: 5px;
+}
+
+.OG-icon.og-icon-tools-new:after {
+  background-position: -1px -116px;
+  background-color: transparent;
+  height: 22px;
+  width: 18px;
+  position: absolute;
+}
+
+.OG-icon.og-icon-tools-new.OG-disabled:after {
+  background-position: -1px -139px;
+}
+
+.OG-icon.og-icon-tools-save {
+  height: 20px;
+  width: 19px;
+  position: relative;
+  top: 5px;
+}
+
+.OG-icon.og-icon-tools-save:after {
+  background-position: -22px -118px;
+  background-color: transparent;
+  height: 20px;
+  width: 19px;
+  position: absolute;
+}
+
+.OG-icon.og-icon-tools-save.OG-disabled:after {
+  background-position: -22px -141px;
+}
+
+.OG-icon.og-icon-tools-saveas {
+  height: 20px;
+  width: 19px;
+  position: relative;
+  top: 5px;
+}
+
+.OG-icon.og-icon-tools-saveas:after {
+  background-position: -82px -118px;
+  background-color: transparent;
+  height: 20px;
+  width: 19px;
+  position: absolute;
+}
+
+.OG-icon.og-icon-tools-saveas.OG-disabled:after {
+  background-position: -82px -141px;
+}
+
+
+.OG-icon.og-icon-tools-delete {
+  height: 20px;
+  width: 17px;
+  position: relative;
+  top: 5px;
+}
+
+.OG-icon.og-icon-tools-delete:after {
+  background-position: -44px -118px;
+  background-color: transparent;
+  height: 20px;
+  width: 17px;
+  position: absolute;
+}
+
+.OG-icon.og-icon-tools-delete.OG-disabled:after {
+  background-position: -44px -141px;
+}
+
+.OG-icon.og-icon-tools-versions {
+  height: 22px;
+  position: relative;
+  top: 5px;
+  padding-left: 23px;
+}
+
+.OG-icon.og-icon-tools-versions:after {
+  background-position: -103px -116px;
+  background-color: transparent;
+  height: 22px;
+  width: 17px;
+  position: absolute;
+  left: 0;
+}
+
+.OG-icon.og-icon-tools-sync {
+  height: 20px;
+  position: relative;
+  top: 3px;
+  padding-left: 23px;
+}
+
+.OG-icon.og-icon-tools-sync:after {
+  background-position: -128px -118px;
+  background-color: transparent;
+  height: 20px;
+  width: 18px;
+  position: absolute;
+  left: 0;
+  top: 2px;
+}

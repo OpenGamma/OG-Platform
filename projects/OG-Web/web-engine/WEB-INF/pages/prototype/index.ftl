@@ -6,6 +6,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 <meta name="SKYPE_TOOLBAR" content="SKYPE_TOOLBAR_PARSER_COMPATIBLE" />
+<meta name="google" value="notranslate">
 <title>OpenGamma</title>
 <!--[if lt IE 9]><script type="text/javascript" src="/prototype/scripts/lib/html5.js"></script><![endif]-->
 ${ogStyle.print('og_all.css', 'all',false)}
@@ -19,14 +20,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
       <div class="ui-layout-content">&nbsp;</div>
     </div>
     <div class="ui-layout-inner-north">&nbsp;</div>
-    <div class="ui-layout-inner-south OG-versions">
-      <div class="ui-layout-header">
-        <div>
-          <header><h2>Version History</h2></header>
-        </div>
-      </div>
-      <div class="ui-layout-content"></div>
-    </div>
+    <div class="ui-layout-inner-south"></div>
   </div>
   <div class="ui-layout-north">
     <#include "modules/common/og.common.masthead.ftl">
@@ -34,9 +28,9 @@ ${ogStyle.print('og_all.css', 'all',false)}
   <div class="ui-layout-south">
     <#include "modules/common/og.common.footer.ftl">
   </div>
-  <div class="ui-layout-east">&nbsp;</div>
+  <div class="ui-layout-east"></div>
   <div class="ui-layout-west">
-      <#include "modules/common/og.common.search_results.ftl">
+    <#include "modules/common/og.common.search_results.ftl">
   </div>
 </div>
 ${ogScript.print('og_common.js',false)}

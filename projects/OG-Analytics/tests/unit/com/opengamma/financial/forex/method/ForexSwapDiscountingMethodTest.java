@@ -13,12 +13,11 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.forex.calculator.CurrencyExposureForexCalculator;
-import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueForexCalculator;
 import com.opengamma.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.financial.forex.derivative.ForexSwap;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -69,7 +68,7 @@ public class ForexSwapDiscountingMethodTest {
     final MultipleCurrencyAmount pvMethod = METHOD.presentValue(FX_SWAP, CURVES);
     final MultipleCurrencyAmount pvCalculator = PVC_FX.visit(FX_SWAP, CURVES);
     assertEquals("Forex present value: Method vs Calculator", pvMethod, pvCalculator);
-    final ForexDerivative fxSwap = FX_SWAP;
+    final InstrumentDerivative fxSwap = FX_SWAP;
     final MultipleCurrencyAmount pvMethod2 = METHOD.presentValue(fxSwap, CURVES);
     assertEquals("Forex present value: Method ForexSwap vs Method ForexDerivative", pvMethod, pvMethod2);
   }
@@ -91,13 +90,13 @@ public class ForexSwapDiscountingMethodTest {
    * Test the present value sensitivity to interest rate.
    */
   public void presentValueCurveSensitivity() {
-    final PresentValueSensitivity pvs = METHOD.presentValueCurveSensitivity(FX_SWAP, CURVES);
+    final MultipleCurrencyInterestRateCurveSensitivity pvs = METHOD.presentValueCurveSensitivity(FX_SWAP, CURVES);
     pvs.clean();
-    PresentValueSensitivity pvsNear = METHOD_FX.presentValueCurveSensitivity(FX_SWAP.getNearLeg(), CURVES);
-    final PresentValueSensitivity pvsFar = METHOD_FX.presentValueCurveSensitivity(FX_SWAP.getFarLeg(), CURVES);
-    pvsNear = pvsNear.add(pvsFar);
+    MultipleCurrencyInterestRateCurveSensitivity pvsNear = METHOD_FX.presentValueCurveSensitivity(FX_SWAP.getNearLeg(), CURVES);
+    final MultipleCurrencyInterestRateCurveSensitivity pvsFar = METHOD_FX.presentValueCurveSensitivity(FX_SWAP.getFarLeg(), CURVES);
+    pvsNear = pvsNear.plus(pvsFar);
     pvsNear.clean();
-    assertTrue(pvs.equals(pvsNear));
+    assertTrue("Forex swap present value curve sensitivity", pvs.equals(pvsNear));
   }
 
   @Test
@@ -105,9 +104,8 @@ public class ForexSwapDiscountingMethodTest {
    * Test the present value curve sensitivity through the method and through the calculator.
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    final PresentValueSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(FX_SWAP, CURVES);
-    final PresentValueSensitivity pvcsCalculator = PVCSC_FX.visit(FX_SWAP, CURVES);
-    assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvcsMethod, pvcsCalculator);
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(FX_SWAP, CURVES);
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsCalculator = PVCSC_FX.visit(FX_SWAP, CURVES);
+    assertEquals("Forex swap present value curve sensitivity: Method vs Calculator", pvcsMethod, pvcsCalculator);
   }
-
 }

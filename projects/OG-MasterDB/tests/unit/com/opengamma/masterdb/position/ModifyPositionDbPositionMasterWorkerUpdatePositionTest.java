@@ -11,7 +11,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.math.BigDecimal;
-import java.util.TimeZone;
 
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
@@ -25,6 +24,8 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.extsql.ExtSqlBundle;
+import com.opengamma.extsql.ExtSqlConfig;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
@@ -32,7 +33,7 @@ import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionHistoryRequest;
 import com.opengamma.master.position.PositionHistoryResult;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests ModifyPositionDbPositionMasterWorker.
@@ -42,11 +43,10 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPositionDbPositionMasterWorkerUpdatePositionTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyPositionDbPositionMasterWorkerUpdatePositionTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------
@@ -253,11 +253,8 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
 
   @Test
   public void test_update_rollback() {
-    DbPositionMaster w = new DbPositionMaster(_posMaster.getDbSource()) {
-      protected String sqlInsertIdKey() {
-        return "INSERT";  // bad sql
-      }
-    };
+    DbPositionMaster w = new DbPositionMaster(_posMaster.getDbConnector());
+    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("Invalid"), DbPositionMaster.class));
     final PositionDocument base = _posMaster.get(UniqueId.of("DbPos", "121", "0"));
     ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     pos.setUniqueId(UniqueId.of("DbPos", "121", "0"));

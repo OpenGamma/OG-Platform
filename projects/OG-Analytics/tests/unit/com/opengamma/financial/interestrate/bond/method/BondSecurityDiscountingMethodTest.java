@@ -24,14 +24,14 @@ import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.bond.calculator.CleanPriceFromCurvesCalculator;
 import com.opengamma.financial.interestrate.bond.calculator.DirtyPriceFromCurvesCalculator;
-import com.opengamma.financial.interestrate.bond.calculator.MacauleyDurationFromCurvesCalculator;
+import com.opengamma.financial.interestrate.bond.calculator.MacaulayDurationFromCurvesCalculator;
 import com.opengamma.financial.interestrate.bond.calculator.ModifiedDurationFromCurvesCalculator;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -335,7 +335,7 @@ public class BondSecurityDiscountingMethodTest {
    */
   public void macauleyDurationFromYieldUSStreet() {
     final double yield = 0.04;
-    final double mc = METHOD.macauleyDurationFromYield(BOND_FIXED_SECURITY_1, yield);
+    final double mc = METHOD.macaulayDurationFromYield(BOND_FIXED_SECURITY_1, yield);
     double dirty = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
     double mcExpected = 4.851906106 / dirty;
     assertEquals("Fixed coupon bond security: Macauley duration from yield US Street: harcoded value", mcExpected, mc, 1E-8);
@@ -349,8 +349,8 @@ public class BondSecurityDiscountingMethodTest {
    */
   public void macauleyDurationFromCurvesUSStreet() {
     final double yield = METHOD.yieldFromCurves(BOND_FIXED_SECURITY_1, CURVES);
-    final double macauleyDurationExpected = METHOD.macauleyDurationFromYield(BOND_FIXED_SECURITY_1, yield);
-    final double macauleyDuration = METHOD.macauleyDurationFromCurves(BOND_FIXED_SECURITY_1, CURVES);
+    final double macauleyDurationExpected = METHOD.macaulayDurationFromYield(BOND_FIXED_SECURITY_1, yield);
+    final double macauleyDuration = METHOD.macaulayDurationFromCurves(BOND_FIXED_SECURITY_1, CURVES);
     assertEquals("Fixed coupon bond security: Macauley duration from curves US Street", macauleyDurationExpected, macauleyDuration, 1E-8);
   }
 
@@ -361,8 +361,8 @@ public class BondSecurityDiscountingMethodTest {
   public void macauleyDurationFromDirtyPriceUSStreet() {
     final double dirtyPrice = 0.95;
     final double yield = METHOD.yieldFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
-    final double macauleyDurationExpected = METHOD.macauleyDurationFromYield(BOND_FIXED_SECURITY_1, yield);
-    final double macauleyDuration = METHOD.macauleyDurationFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
+    final double macauleyDurationExpected = METHOD.macaulayDurationFromYield(BOND_FIXED_SECURITY_1, yield);
+    final double macauleyDuration = METHOD.macaulayDurationFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
     assertEquals("Fixed coupon bond security: Macauley duration from curves US Street", macauleyDurationExpected, macauleyDuration, 1E-8);
   }
 
@@ -371,8 +371,8 @@ public class BondSecurityDiscountingMethodTest {
    * Tests Macauley duration: Method vs Calculator (US Street convention).
    */
   public void macauleyDurationFromCurvesUSStreetMethodVsCalculator() {
-    final double mcMethod = METHOD.macauleyDurationFromCurves(BOND_FIXED_SECURITY_1, CURVES);
-    final MacauleyDurationFromCurvesCalculator calculator = MacauleyDurationFromCurvesCalculator.getInstance();
+    final double mcMethod = METHOD.macaulayDurationFromCurves(BOND_FIXED_SECURITY_1, CURVES);
+    final MacaulayDurationFromCurvesCalculator calculator = MacaulayDurationFromCurvesCalculator.getInstance();
     final double mcCalculator = calculator.visit(BOND_FIXED_SECURITY_1, CURVES);
     assertEquals("Fixed coupon bond security: Macauley duration from curves US Street : Method vs Calculator", mcMethod, mcCalculator, 1E-8);
   }
@@ -419,7 +419,7 @@ public class BondSecurityDiscountingMethodTest {
 
   @Test
   public void dirtyPriceCurveSensitivity() {
-    PresentValueSensitivity sensi = METHOD.dirtyPriceCurveSensitivity(BOND_FIXED_SECURITY_1, CURVES);
+    InterestRateCurveSensitivity sensi = METHOD.dirtyPriceCurveSensitivity(BOND_FIXED_SECURITY_1, CURVES);
     sensi = sensi.clean();
     final double pv = METHOD.presentValue(BOND_FIXED_SECURITY_1, CURVES);
     final double dfSettle = CURVES.getCurve(REPO_CURVE_NAME).getDiscountFactor(BOND_FIXED_SECURITY_1.getSettlementTime());
@@ -550,7 +550,7 @@ public class BondSecurityDiscountingMethodTest {
   @Test
   public void macauleyDurationFromYieldUKExDividend() {
     final double yield = 0.04;
-    final double macauleyDuration = METHOD.macauleyDurationFromYield(BOND_FIXED_SECURITY_G, yield);
+    final double macauleyDuration = METHOD.macaulayDurationFromYield(BOND_FIXED_SECURITY_G, yield);
     final double macauleyDurationExpected = 2.909894241 / METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_G, yield); // To be check with another source.
     assertEquals("Fixed coupon bond security: Macauley duration from yield UK DMO - hard coded value", macauleyDurationExpected, macauleyDuration, 1E-8);
   }

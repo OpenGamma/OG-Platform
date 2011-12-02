@@ -5,10 +5,15 @@
  */
 package com.opengamma.livedata.server;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.UnmodifiableFudgeField;
 
 /**
  * A store of historical message field values.
@@ -20,37 +25,44 @@ import org.fudgemsg.MutableFudgeMsg;
 public class FieldHistoryStore {
   
   private final FudgeContext _context = FudgeContext.GLOBAL_DEFAULT;
-  private final MutableFudgeMsg _lastKnownValues;
+  private final Map<String, UnmodifiableFudgeField> _lastKnownValues;
   
   public FieldHistoryStore() {
-    _lastKnownValues = _context.newMessage();
+    _lastKnownValues = new HashMap<String, UnmodifiableFudgeField>();
   }
   
   public FieldHistoryStore(FudgeMsg history) {
-    _lastKnownValues = _context.newMessage(history);   
+    this();
+    liveDataReceived(history);
   }
   
   public FieldHistoryStore(FieldHistoryStore original) {
-    _lastKnownValues = _context.newMessage(original._lastKnownValues);   
+    this(original.getLastKnownValues());   
   }
   
   public synchronized void liveDataReceived(FudgeMsg msg) {
-    for (FudgeField field : msg.getAllFields()) {
-      _lastKnownValues.remove(field.getName());
-      _lastKnownValues.add(field);
+    for (FudgeField field : msg) {
+      _lastKnownValues.put(field.getName(), UnmodifiableFudgeField.of(field)); //NOTE: duplicates are discarded
     }
   }
   
-  public void clear() {
+  public synchronized void clear() {
     _lastKnownValues.clear();
   }
   
-  public boolean isEmpty() {
+  public synchronized boolean isEmpty() {
     return _lastKnownValues.isEmpty();
   }
   
   public synchronized FudgeMsg getLastKnownValues() {
-    return _lastKnownValues;
+    return getMessage(_lastKnownValues);
   }
 
+  private FudgeMsg getMessage(Map<String, UnmodifiableFudgeField> lastKnownValues) {
+    MutableFudgeMsg newMessage = _context.newMessage();
+    for (Entry<String, UnmodifiableFudgeField> entry : _lastKnownValues.entrySet()) {
+      newMessage.add(entry.getValue());
+    }
+    return newMessage;
+  }
 }

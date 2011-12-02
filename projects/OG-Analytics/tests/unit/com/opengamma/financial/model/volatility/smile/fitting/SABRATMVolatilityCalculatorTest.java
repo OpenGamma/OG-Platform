@@ -16,7 +16,7 @@ import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatili
  */
 public class SABRATMVolatilityCalculatorTest {
   private static final SABRATMVolatilityCalculator CALCULATOR = new SABRATMVolatilityCalculator(new SABRHaganVolatilityFunction());
-  private static final SABRFormulaData DATA = new SABRFormulaData(100, 0.5, 1, 0.3, 0.5);
+  private static final SABRFormulaData DATA = new SABRFormulaData(0.5, 1, 0.5, 0.3);
   private static final EuropeanVanillaOption OPTION = new EuropeanVanillaOption(100, 2, true);
   private static final double ATM_VOL = 0.24;
 
@@ -27,17 +27,17 @@ public class SABRATMVolatilityCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
-    CALCULATOR.calculate(null, OPTION, ATM_VOL);
+    CALCULATOR.calculate(null, OPTION, 100, ATM_VOL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOption() {
-    CALCULATOR.calculate(DATA, null, ATM_VOL);
+    CALCULATOR.calculate(DATA, null, 100, ATM_VOL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeVol() {
-    CALCULATOR.calculate(DATA, OPTION, -ATM_VOL);
+    CALCULATOR.calculate(DATA, OPTION, 100, -ATM_VOL);
   }
 
   //TODO test result

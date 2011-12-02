@@ -212,17 +212,30 @@ public class ExecutionOptions implements ViewExecutionOptions {
    * Creates an execution sequence to run a single cycle.
    * 
    * @param valuationTimeProvider  the valuation time provider, or null to use the market data time
-   * @param marketDataSpec  the market data specificaiton, not null
+   * @param marketDataSpec  the market data specification, not null
    * @return an execution sequence representing the single cycle, not null
    */
   public static ViewExecutionOptions singleCycle(InstantProvider valuationTimeProvider, MarketDataSpecification marketDataSpec) {
+    return singleCycle(valuationTimeProvider, marketDataSpec, ExecutionFlags.none().runAsFastAsPossible().awaitMarketData().get());
+  }
+
+  /**
+   * Creates an execution sequence to run a single cycle.
+   * 
+   * @param valuationTimeProvider  the valuation time provider, or null to use the market data time
+   * @param marketDataSpec  the market data specification, not null
+   * @param flags  the execution flags, not null
+   * @return an execution sequence representing the single cycle, not null
+   */
+  public static ViewExecutionOptions singleCycle(InstantProvider valuationTimeProvider, MarketDataSpecification marketDataSpec, EnumSet<ViewExecutionFlags> flags) {
     ArgumentChecker.notNull(marketDataSpec, "marketDataSpec");
+    ArgumentChecker.notNull(flags, "flags");
     ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(marketDataSpec);
     if (valuationTimeProvider != null) {
       cycleOptions.setValuationTime(valuationTimeProvider);
     }
     ViewCycleExecutionSequence sequence = new ArbitraryViewCycleExecutionSequence(Arrays.asList(cycleOptions));
-    return of(sequence, ExecutionFlags.none().runAsFastAsPossible().awaitMarketData().get());
+    return of(sequence, flags);
   }
   
 }

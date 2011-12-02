@@ -14,6 +14,8 @@ import com.opengamma.engine.value.ComputedValue;
  */
 public class ViewTargetResultModelImpl extends AbstractResultModel<String> implements ViewTargetResultModel {
 
+  private static final long serialVersionUID = 1L;
+
   @Override
   public Collection<String> getCalculationConfigurationNames() {
     return getKeys();

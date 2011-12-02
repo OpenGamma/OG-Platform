@@ -93,4 +93,12 @@
 	    </zip>
 	</target>
 	
+  <target name="antlr" description="Build the grammar for expression parsers">
+    <exec executable="antlr3" dir="src">
+      <arg value="-o" />
+      <arg value="." />
+      <arg value="com/opengamma/financial/expression/deprecated/Expr.g" />
+    </exec>
+  </target>
+
 </project>

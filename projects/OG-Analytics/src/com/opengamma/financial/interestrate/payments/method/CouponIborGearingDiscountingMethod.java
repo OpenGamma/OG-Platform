@@ -12,8 +12,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
@@ -56,7 +56,7 @@ public final class CouponIborGearingDiscountingMethod implements PricingMethod {
   }
 
   @Override
-  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof CouponIborGearing, "Forward rate agreement");
     return presentValue((CouponIborGearing) instrument, curves);
   }
@@ -67,7 +67,7 @@ public final class CouponIborGearingDiscountingMethod implements PricingMethod {
    * @param curves The yield curves. Should contain the discounting and forward curves associated. 
    * @return The present value sensitivity.
    */
-  public PresentValueSensitivity presentValueCurveSensitivity(final CouponIborGearing coupon, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final CouponIborGearing coupon, final YieldCurveBundle curves) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());
@@ -90,7 +90,7 @@ public final class CouponIborGearingDiscountingMethod implements PricingMethod {
     listForward.add(new DoublesPair(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
     listForward.add(new DoublesPair(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
     resultMap.put(coupon.getForwardCurveName(), listForward);
-    final PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
+    final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     return result;
   }
 

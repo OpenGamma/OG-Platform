@@ -5,11 +5,15 @@
  */
 package com.opengamma.web;
 
+import java.util.Locale;
+
 import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.PagingRequest;
+import com.opengamma.util.paging.PagingRequest;
 
 /**
  * Abstract base class for RESTful resources intended for websites.
@@ -78,6 +82,8 @@ public abstract class AbstractWebResource {
   //-------------------------------------------------------------------------
   /**
    * Builds the paging request.
+   * <p>
+   * This method is lenient, applying sensible default values.
    * 
    * @param pgIdx  the paging first-item index, null if not input
    * @param pgNum  the paging page, null if not input
@@ -92,6 +98,36 @@ public abstract class AbstractWebResource {
       return PagingRequest.ofPage(pgNum, size);
     } else {
       return PagingRequest.ofPage(1, size);
+    }
+  }
+
+  /**
+   * Builds the sort order.
+   * <p>
+   * This method is lenient, returning the default in case of error.
+   * 
+   * @param <T>  the sort order type
+   * @param order  the sort order, null or empty returns default
+   * @param defaultOrder  the default order, not null
+   * @return the sort order, not null
+   */
+  protected <T extends Enum<T>> T buildSortOrder(String order, T defaultOrder) {
+    if (StringUtils.isEmpty(order)) {
+      return defaultOrder;
+    }
+    order = order.toUpperCase(Locale.ENGLISH);
+    if (order.endsWith(" ASC")) {
+      order = StringUtils.replace(order, " ASC", "_ASC");
+    } else if (order.endsWith(" DESC")) {
+      order = StringUtils.replace(order, " DESC", "_DESC");
+    } else if (order.endsWith("_ASC") == false && order.endsWith("_DESC") == false) {
+      order = order + "_ASC";
+    }
+    try {
+      Class<T> cls = defaultOrder.getDeclaringClass();
+      return Enum.valueOf(cls, order);
+    } catch (IllegalArgumentException ex) {
+      return defaultOrder;
     }
   }
 

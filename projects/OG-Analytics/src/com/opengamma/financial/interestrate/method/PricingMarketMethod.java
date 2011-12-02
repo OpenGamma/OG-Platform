@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.interestrate.method;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.util.money.CurrencyAmount;
 
@@ -20,6 +20,6 @@ public interface PricingMarketMethod {
    * @param market The curves market.
    * @return The present value.
    */
-  CurrencyAmount presentValue(final InterestRateDerivative instrument, final MarketBundle market);
+  CurrencyAmount presentValue(final InstrumentDerivative instrument, final MarketBundle market);
 
 }

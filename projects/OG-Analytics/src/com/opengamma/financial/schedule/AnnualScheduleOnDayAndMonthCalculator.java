@@ -8,7 +8,6 @@ package com.opengamma.financial.schedule;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthDay;
 import javax.time.calendar.MonthOfYear;
@@ -20,14 +19,20 @@ import org.apache.commons.lang.Validate;
  * 
  */
 public class AnnualScheduleOnDayAndMonthCalculator extends Schedule {
-  private final int _dayOfMonth;
-  private final MonthOfYear _monthOfYear;
 
+  /**
+   * The month and day.
+   */
+  private final MonthDay _monthDay;
+
+  /**
+   * Creates a calculator from day and month.
+   * 
+   * @param dayOfMonth  the day-of-month
+   * @param monthOfYear  the month-of-year, not null
+   */
   public AnnualScheduleOnDayAndMonthCalculator(final int dayOfMonth, final MonthOfYear monthOfYear) {
-    Validate.isTrue(dayOfMonth > 0);
-    Validate.isTrue(monthOfYear.maxLengthInDays() > dayOfMonth);
-    _dayOfMonth = dayOfMonth;
-    _monthOfYear = monthOfYear;
+    _monthDay = MonthDay.of(monthOfYear, dayOfMonth);
   }
 
   @Override
@@ -40,13 +45,12 @@ public class AnnualScheduleOnDayAndMonthCalculator extends Schedule {
     Validate.notNull(endDate, "end date");
     Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
     if (startDate.equals(endDate)) {
-      if (startDate.getDayOfMonth() == _dayOfMonth && startDate.getMonthOfYear() == _monthOfYear) {
+      if (startDate.matches(_monthDay)) {
         return new LocalDate[] {startDate};
       }
       throw new IllegalArgumentException("Start date and end date were the same but the day of month and month of year were not those required");
     }
-    final DateAdjuster dateAdjuster = MonthDay.of(_monthOfYear, _dayOfMonth);
-    LocalDate date = startDate.with(dateAdjuster);
+    LocalDate date = startDate.with(_monthDay);
     if (date.isBefore(startDate)) {
       date = date.plusYears(1);
     }
@@ -68,13 +72,12 @@ public class AnnualScheduleOnDayAndMonthCalculator extends Schedule {
     Validate.notNull(endDate, "end date");
     Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
     if (startDate.equals(endDate)) {
-      if (startDate.getDayOfMonth() == _dayOfMonth && startDate.getMonthOfYear() == _monthOfYear) {
+      if (startDate.matches(_monthDay)) {
         return new ZonedDateTime[] {startDate};
       }
       throw new IllegalArgumentException("Start date and end date were the same but the day of month and month of year were not those required");
     }
-    final DateAdjuster dateAdjuster = MonthDay.of(_monthOfYear, _dayOfMonth);
-    ZonedDateTime date = startDate.with(dateAdjuster);
+    ZonedDateTime date = startDate.with(_monthDay);
     if (date.isBefore(startDate)) {
       date = date.plusYears(1);
     }
@@ -84,15 +87,6 @@ public class AnnualScheduleOnDayAndMonthCalculator extends Schedule {
       date = date.plusYears(1);
     }
     return dates.toArray(EMPTY_ZONED_DATE_TIME_ARRAY);
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + _dayOfMonth;
-    result = prime * result + _monthOfYear.hashCode();
-    return result;
   }
 
   @Override
@@ -107,9 +101,12 @@ public class AnnualScheduleOnDayAndMonthCalculator extends Schedule {
       return false;
     }
     final AnnualScheduleOnDayAndMonthCalculator other = (AnnualScheduleOnDayAndMonthCalculator) obj;
-    if (_dayOfMonth != other._dayOfMonth) {
-      return false;
-    }
-    return _monthOfYear == other._monthOfYear;
+    return _monthDay.equals(other._monthDay);
   }
+
+  @Override
+  public int hashCode() {
+    return _monthDay.hashCode();
+  }
+
 }

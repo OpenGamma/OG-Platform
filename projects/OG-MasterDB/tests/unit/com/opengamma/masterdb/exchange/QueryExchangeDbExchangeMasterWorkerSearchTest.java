@@ -8,7 +8,6 @@ package com.opengamma.masterdb.exchange;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
-import java.util.TimeZone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +22,8 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
-import com.opengamma.util.PagingRequest;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests QueryExchangeDbExchangeMasterWorker.
@@ -34,11 +33,10 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryExchangeDbExchangeMasterWorkerSearchTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public QueryExchangeDbExchangeMasterWorkerSearchTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------
@@ -201,7 +199,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   }
 
   @Test
-  public void test_search_noKeys_None_noMatch() {
+  public void test_search_noKeys_None_allMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.setExternalIdSearch(new ExternalIdSearch());
     request.getExternalIdSearch().setSearchType(ExternalIdSearchType.NONE);

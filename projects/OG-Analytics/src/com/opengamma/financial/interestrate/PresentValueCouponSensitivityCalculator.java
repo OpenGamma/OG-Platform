@@ -9,12 +9,12 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -26,7 +26,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
  * Calculates the change in present value (PV) when an instruments fixed payments changes (for bonds this is the coupon rate, for swaps is is then rate on the fixed leg etc) dPV/dC
  * This can be used to convert between sensitivities of PV to the yield curve and sensitivities of Par rate to the yield curve
  */
-public final class PresentValueCouponSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> {
+public final class PresentValueCouponSensitivityCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
   private static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final PresentValueCouponSensitivityCalculator s_instance = new PresentValueCouponSensitivityCalculator();
@@ -39,18 +39,24 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInter
   }
 
   @Override
-  public Double visit(final InterestRateDerivative ird, final YieldCurveBundle curves) {
+  public Double visit(final InstrumentDerivative ird, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(ird);
     return ird.accept(this, curves);
   }
 
   @Override
-  public Double visitBond(final Bond bond, final YieldCurveBundle curves) {
-    final double pvann = PVC.visit(bond.getUnitCouponAnnuity(), curves);
-    return pvann;
+  public Double visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
+    final GenericAnnuity<CouponFixed> coupons = bond.getCoupon();
+    final int n = coupons.getNumberOfPayments();
+    final CouponFixed[] unitCoupons = new CouponFixed[n];
+    for (int i = 0; i < n; i++) {
+      unitCoupons[i] = coupons.getNthPayment(i).withUnitCoupon();
+    }
+    final GenericAnnuity<CouponFixed> unitCouponAnnuity = new GenericAnnuity<CouponFixed>(unitCoupons);
+    return PVC.visit(unitCouponAnnuity, curves);    
   }
-
+  
   @Override
   public Double visitCash(final Cash cash, final YieldCurveBundle curves) {
     final YieldAndDiscountCurve curve = curves.getCurve(cash.getYieldCurveName());
@@ -64,13 +70,8 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInter
   }
 
   @Override
-  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
     return future.getPaymentAccrualFactor();
-  }
-
-  @Override
-  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    return future.getUnderlyingFuture().getPaymentAccrualFactor();
   }
 
   @Override

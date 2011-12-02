@@ -19,6 +19,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
@@ -82,8 +83,14 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBVolatilitySurfaceDefinitionSource volSurfaceDefinitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
     _definition = volSurfaceDefinitionSource.getDefinition(_definitionName, _instrumentType);
+    if (_definition == null) {
+      throw new OpenGammaRuntimeException("Couldn't find Volatility Surface Definition for " + _instrumentType + " called " + _definitionName);
+    }
     final ConfigDBVolatilitySurfaceSpecificationSource volatilitySurfaceSpecificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
     _specification = volatilitySurfaceSpecificationSource.getSpecification(_specificationName, _instrumentType);
+    if (_specification == null) {
+      throw new OpenGammaRuntimeException("Couldn't find Volatility Surface Specification for " + _instrumentType + " called " + _specificationName);
+    }
     _result = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition.getTarget()),
         createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName).with(PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType).get());
     _results = Collections.singleton(_result);
@@ -96,8 +103,7 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
 
   @SuppressWarnings("unchecked")
   public static <X, Y> Set<ValueRequirement> buildRequirements(final VolatilitySurfaceSpecification specification,
-                                                        final VolatilitySurfaceDefinition<X, Y> definition,
-                                                        final FunctionCompilationContext context,
+                                                        final VolatilitySurfaceDefinition<X, Y> definition,                                                        
                                                         final ZonedDateTime atInstant) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     final SurfaceInstrumentProvider<X, Y> provider = (SurfaceInstrumentProvider<X, Y>) specification.getSurfaceInstrumentProvider();
@@ -114,7 +120,7 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
     final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
-    final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(_specification, _definition, context, atInstant));
+    final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(_specification, _definition, atInstant));
     //TODO ENG-252 see MarketInstrumentImpliedYieldCurveFunction; need to work out the expiry more efficiently
     return new AbstractInvokingCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000)) {
 
@@ -123,8 +129,9 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
         return ComputationTargetType.PRIMITIVE;
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+      public Set<ValueSpecification> getResults(@SuppressWarnings("hiding") final FunctionCompilationContext context, final ComputationTarget target) {
         if (canApplyTo(context, target)) {
           return _results;
         }
@@ -132,23 +139,23 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
       }
 
       @Override
-      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+      public Set<ValueRequirement> getRequirements(@SuppressWarnings("hiding") final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
         if (canApplyTo(context, target)) {
           return requirements;
         }
         return null;
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+      public boolean canApplyTo(@SuppressWarnings("hiding") final FunctionCompilationContext context, final ComputationTarget target) {
         if (target.getType() != ComputationTargetType.PRIMITIVE) {
           return false;
         }
-        // REVIEW: jim 23-July-2010 is this enough? Probably not, but I'm not entirely sure what the deal with the Ids is...
         return ObjectUtils.equals(target.getUniqueId(), _definition.getTarget().getUniqueId());
       }
 
-      @SuppressWarnings("unchecked")
+      @SuppressWarnings({"unchecked", "synthetic-access" })
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) {
@@ -162,7 +169,7 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
             final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), identifier);
             if (inputs.getValue(requirement) != null) {
               final Double volatility = (Double) inputs.getValue(requirement);
-              volatilityValues.put(Pair.of(x, y), volatility / 100);
+              volatilityValues.put(Pair.of(x, y), volatility);
             }
           }
         }

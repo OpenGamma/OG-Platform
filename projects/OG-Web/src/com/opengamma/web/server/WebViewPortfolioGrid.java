@@ -44,7 +44,7 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
         EnumSet.of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION), resultConverterCache, "Loading...");
     _rowIdToRowMap = new HashMap<Integer, PortfolioRow>();
     for (PortfolioRow row : rows) {
-      int rowId = getGridStructure().getRowId(row.getTarget().getUniqueId());
+      int rowId = getGridStructure().getRowId(row.getTarget());
       _rowIdToRowMap.put(rowId, row);
     }
   }
@@ -54,7 +54,7 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
     PortfolioRow row = _rowIdToRowMap.get(rowId);
     details.put("indent", row.getDepth());
     if (row.getParentRow() != null) {
-      int parentRowId = getGridStructure().getRowId(row.getParentRow().getTarget().getUniqueId());
+      int parentRowId = getGridStructure().getRowId(row.getParentRow().getTarget());
       details.put("parentRowId", parentRowId);
     }
     ComputationTargetType targetType = row.getTarget().getType();
@@ -75,10 +75,10 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
     return rowName;
   }
   
-  private static List<UniqueId> getTargets(List<PortfolioRow> rows) {
-    List<UniqueId> targets = new ArrayList<UniqueId>();
+  private static List<ComputationTargetSpecification> getTargets(List<PortfolioRow> rows) {
+    List<ComputationTargetSpecification> targets = new ArrayList<ComputationTargetSpecification>(rows.size());
     for (PortfolioRow row : rows) {
-      targets.add(row.getTarget().getUniqueId());
+      targets.add(row.getTarget());
     }
     return targets;
   }
@@ -135,7 +135,7 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
   protected void supplementCsvRowData(int rowId, ComputationTargetSpecification target, String[] row) {
     PortfolioRow portfolioRow = _rowIdToRowMap.get(rowId);
     PortfolioRow parentRow = portfolioRow.getParentRow();
-    String parentRowIdText = parentRow != null ? getGridStructure().getRowId(parentRow.getTarget().getUniqueId()).toString() : null;
+    String parentRowIdText = parentRow != null ? getGridStructure().getRowId(parentRow.getTarget()).toString() : null;
     row[0] = Integer.toString(rowId);
     row[1] = parentRowIdText;
     row[2] = getRowName(portfolioRow, target.getType());

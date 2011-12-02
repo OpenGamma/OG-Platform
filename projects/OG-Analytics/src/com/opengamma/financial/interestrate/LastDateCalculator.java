@@ -10,18 +10,20 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
+import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
-import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
@@ -32,7 +34,7 @@ import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixe
 /**
  * Get the last date (time in years from now) on a yield curve for which an instrument will be sensitive - any change in the yield curve behold this point cannot affect the present value
  */
-public final class LastDateCalculator extends AbstractInterestRateDerivativeVisitor<Object, Double> {
+public final class LastDateCalculator extends AbstractInstrumentDerivativeVisitor<Object, Double> {
   private static final LastDateCalculator CALCULATOR = new LastDateCalculator();
 
   public static LastDateCalculator getInstance() {
@@ -43,7 +45,7 @@ public final class LastDateCalculator extends AbstractInterestRateDerivativeVisi
   }
 
   @Override
-  public Double visit(final InterestRateDerivative ird, final Object data) {
+  public Double visit(final InstrumentDerivative ird, final Object data) {
     Validate.notNull(ird, "ird");
     return ird.accept(this);
   }
@@ -51,11 +53,6 @@ public final class LastDateCalculator extends AbstractInterestRateDerivativeVisi
   @Override
   public Double visitTenorSwap(final TenorSwap<? extends Payment> swap) {
     return visitSwap(swap);
-  }
-
-  @Override
-  public Double visitBond(final Bond bond) {
-    return bond.getPrinciplePayment().getPaymentTime();
   }
 
   @Override
@@ -79,13 +76,8 @@ public final class LastDateCalculator extends AbstractInterestRateDerivativeVisi
   }
 
   @Override
-  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future) {
+  public Double visitInterestRateFutureSecurity(final InterestRateFuture future) {
     return future.getFixingPeriodEndTime();
-  }
-
-  @Override
-  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future) {
-    return future.getUnderlyingFuture().getFixingPeriodEndTime();
   }
 
   @Override
@@ -141,19 +133,33 @@ public final class LastDateCalculator extends AbstractInterestRateDerivativeVisi
   }
 
   @Override
-  public Double visitCouponCMS(final CouponCMS payment, final Object data) {
+  public Double visitCouponCMS(final CouponCMS payment) {
     final double swapLastTime = visit(payment.getUnderlyingSwap());
     final double paymentTime = payment.getPaymentTime();
     return Math.max(swapLastTime, paymentTime);
   }
 
   @Override
-  public Double visitCouponIborFixed(CouponIborFixed payment, Object data) {
+  public Double visitCouponIborFixed(CouponIborFixed payment) {
     return visitFixedCouponPayment(payment);
+  }
+  @Override
+  public Double visitBondFixedSecurity(final BondFixedSecurity bond) {
+    return visit(bond.getCoupon());
   }
 
   @Override
-  public Double visitCouponIborFixed(CouponIborFixed payment) {
-    return visitFixedCouponPayment(payment);
+  public Double visitBondFixedTransaction(final BondFixedTransaction bond) {
+    return visit(bond.getBondStandard().getCoupon());
+  }
+
+  @Override
+  public Double visitBondIborSecurity(final BondIborSecurity bond) {
+    return visit(bond.getCoupon());
+  }
+
+  @Override
+  public Double visitBondIborTransaction(final BondIborTransaction bond) {
+    return visit(bond.getBondStandard().getCoupon());
   }
 }

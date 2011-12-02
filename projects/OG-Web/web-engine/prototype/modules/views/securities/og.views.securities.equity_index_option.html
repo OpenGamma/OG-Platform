@@ -1,12 +1,13 @@
 <article>
   <header class="OG-header-generic">
-    <div class="OG-toolbar"></div>
+    <div class="OG-tools"></div>
     <h1>${name}</h1>
+    <div class="OG-js-header-links"></div>
   </header>
   <section>
-    <div class="og-details-content OG-security OG-js-details-panel">
-      <div class="OG-c10 og-grid-last OG-max-width-l">
-        <section class="OG-mod-1 OG-c6">
+    <div class="OG-details-content OG-security OG-js-details-panel">
+      <section>
+        <div class="OG-mod-1 OG-c6">
           <table>
             <col style="width: 40%" />
             <col style="width: 60%" />
@@ -23,11 +24,11 @@
             <tr><td><span>Option Type</span></td><td>${optionType}</td></tr>
             <tr><td><span>Point Value</span></td><td>${pointValue}</td></tr>
             <tr><td><span>Strike</span></td><td>${strike}</td></tr>
-            <tr><td><span>Underlying Identifier</span></td><td>${underlyingIdentifier}</td></tr>
+            <tr><td><span>Underlying Identifier</span></td><td>${underlyingId}</td></tr>
             </tbody>
           </table>
-        </section>
-        <section class="OG-mod-1 og-style-2 OG-c4">
+        </div>
+        <div class="OG-mod-1 og-style-2 OG-c4">
           <table>
             <col style="width: 40%" />
             <col style="width: 60%" />
@@ -38,8 +39,8 @@
             </thead>
             <tbody class="og-js-identifiers og-mod-content"></tbody>
           </table>
-        </section>
-      </div>
+        </div>
+      </section>
     </div>
   </section>
 </article>

@@ -8,7 +8,7 @@ package com.opengamma.financial.interestrate.payments;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.util.money.Currency;
 
@@ -74,6 +74,11 @@ public class CouponCMS extends CouponFloating {
   }
 
   @Override
+  public CouponCMS withNotional(double notional) {
+    return new CouponCMS(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getFixingTime(), _underlyingSwap, _settlementTime);
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
@@ -100,12 +105,12 @@ public class CouponCMS extends CouponFloating {
   }
 
   @Override
-  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitCouponCMS(this, data);
   }
 
   @Override
-  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitCouponCMS(this);
   }
 

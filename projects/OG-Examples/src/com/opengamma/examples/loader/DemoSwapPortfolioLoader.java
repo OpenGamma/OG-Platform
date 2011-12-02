@@ -47,6 +47,7 @@ import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.SwapLeg;
@@ -251,7 +252,7 @@ public class DemoSwapPortfolioLoader {
     double fixedNotionalAmount = Double.parseDouble(getWithException(swapDetails, FIXED_LEG_NOTIONAL));
     Notional fixedNotional = new InterestRateNotional(fixedCurrency, fixedNotionalAmount);
     double fixedRate = Double.parseDouble(getWithException(swapDetails, FIXED_LEG_RATE));
-    FixedInterestRateLeg fixedLeg = new FixedInterestRateLeg(fixedDayCount, fixedFrequency, fixedRegionIdentifier, fixedBusinessDayConvention, fixedNotional, fixedRate);
+    FixedInterestRateLeg fixedLeg = new FixedInterestRateLeg(fixedDayCount, fixedFrequency, fixedRegionIdentifier, fixedBusinessDayConvention, fixedNotional, false, fixedRate);
     
     DayCount floatingDayCount = DayCountFactory.INSTANCE.getDayCount(getWithException(swapDetails, FLOATING_LEG_DAYCOUNT));
     Frequency floatingFrequency = SimpleFrequencyFactory.INSTANCE.getFrequency(getWithException(swapDetails, FLOATING_LEG_FREQUENCY));
@@ -265,8 +266,8 @@ public class DemoSwapPortfolioLoader {
     ExternalId floatingReferenceRateIdentifier = ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, floatingReferenceRate);
     double floatingInitialRate = Double.parseDouble(getWithException(swapDetails, FLOATING_LEG_RATE));
     FloatingInterestRateLeg floatingLeg = new FloatingInterestRateLeg(floatingDayCount, floatingFrequency,
-        floatingRegionIdentifier, floatingBusinessDayConvention, floatingNotional, floatingReferenceRateIdentifier,
-        floatingInitialRate, 0.0, true);
+        floatingRegionIdentifier, floatingBusinessDayConvention, floatingNotional, false, floatingReferenceRateIdentifier, FloatingRateType.IBOR);
+    floatingLeg.setInitialFloatingRate(floatingInitialRate);
     
     LocalDateTime tradeDate = LocalDateTime.of(LocalDate.parse(getWithException(swapDetails, TRADE_DATE), CSV_DATE_FORMATTER), LocalTime.MIDNIGHT);
     LocalDateTime effectiveDate = LocalDateTime.of(LocalDate.parse(getWithException(swapDetails, EFFECTIVE_DATE), CSV_DATE_FORMATTER), LocalTime.MIDNIGHT);

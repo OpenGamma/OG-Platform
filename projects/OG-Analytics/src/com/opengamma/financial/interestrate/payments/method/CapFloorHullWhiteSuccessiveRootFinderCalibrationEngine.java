@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationEngine;
@@ -40,15 +40,31 @@ public class CapFloorHullWhiteSuccessiveRootFinderCalibrationEngine extends Succ
   /**
    * Add an instrument to the basket and the associated calculator.
    * @param instrument An interest rate derivative.
-   * @param method A calculator.
+   * @param method A pricing method.
    */
   @Override
-  public void addInstrument(final InterestRateDerivative instrument, final PricingMethod method) {
+  public void addInstrument(final InstrumentDerivative instrument, final PricingMethod method) {
     Validate.isTrue(instrument instanceof CapFloorIbor, "Calibration instruments should be cap/floor");
     getBasket().add(instrument);
     getMethod().add(method);
     getCalibrationPrice().add(0.0);
     _calibrationTimes.add(((CapFloorIbor) instrument).getFixingTime());
+  }
+
+  /**
+   * Add an array of instruments to the basket and the associated calculator. The same method is used for all the instruments.
+   * @param instrument An interest rate derivative array.
+   * @param method A pricing method.
+   */
+  @Override
+  public void addInstrument(final InstrumentDerivative[] instrument, final PricingMethod method) {
+    for (int loopinstrument = 0; loopinstrument < instrument.length; loopinstrument++) {
+      Validate.isTrue(instrument[loopinstrument] instanceof CapFloorIbor, "Calibration instruments should be cap/floor");
+      getBasket().add(instrument[loopinstrument]);
+      getMethod().add(method);
+      getCalibrationPrice().add(0.0);
+      _calibrationTimes.add(((CapFloorIbor) instrument[loopinstrument]).getFixingTime());
+    }
   }
 
   @Override
@@ -59,7 +75,7 @@ public class CapFloorHullWhiteSuccessiveRootFinderCalibrationEngine extends Succ
     final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(getCalibrationObjective().getFunctionValueAccuracy(), getCalibrationObjective().getVariableAbsoluteAccuracy());
     final BracketRoot bracketer = new BracketRoot();
     for (int loopins = 0; loopins < nbInstruments; loopins++) {
-      InterestRateDerivative instrument = getBasket().get(loopins);
+      InstrumentDerivative instrument = getBasket().get(loopins);
       getCalibrationObjective().setInstrument(instrument);
       getCalibrationObjective().setPrice(getCalibrationPrice().get(loopins));
       final double[] range = bracketer.getBracketedPoints(getCalibrationObjective(), getCalibrationObjective().getMinimumParameter(), getCalibrationObjective().getMaximumParameter());

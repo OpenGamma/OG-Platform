@@ -7,13 +7,13 @@
 package com.opengamma.language.livedata;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.springframework.beans.factory.InitializingBean;
 
 import com.opengamma.util.ArgumentChecker;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Produce a {@link LiveDataProvider} from a set of {@link PublishedLiveData} objects.
@@ -21,6 +21,17 @@ import edu.emory.mathcs.backport.java.util.Collections;
 public class LiveDataProviderBean extends AbstractLiveDataProvider implements InitializingBean {
 
   private Collection<PublishedLiveData> _liveData;
+
+  public LiveDataProviderBean(final Collection<PublishedLiveData> liveData) {
+    setLiveData(liveData);
+  }
+
+  public LiveDataProviderBean(final PublishedLiveData... liveData) {
+    setLiveData(Arrays.asList(liveData));
+  }
+
+  public LiveDataProviderBean() {
+  }
 
   public void setLiveData(final Collection<PublishedLiveData> liveData) {
     ArgumentChecker.notNull(liveData, "liveData");
@@ -31,7 +42,6 @@ public class LiveDataProviderBean extends AbstractLiveDataProvider implements In
     return _liveData;
   }
 
-  @SuppressWarnings("unchecked")
   public Collection<PublishedLiveData> getLiveData() {
     return Collections.unmodifiableCollection(getLiveDataInternal());
   }

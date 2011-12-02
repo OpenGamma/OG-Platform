@@ -9,7 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.Arrays;
-import java.util.TimeZone;
 
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
@@ -24,7 +23,7 @@ import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.ManageableHoliday;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests ModifyHolidayDbHolidayMasterWorker.
@@ -34,11 +33,10 @@ public class ModifyHolidayDbHolidayMasterWorkerRemoveTest extends AbstractDbHoli
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyHolidayDbHolidayMasterWorkerRemoveTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyHolidayDbHolidayMasterWorkerRemoveTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------

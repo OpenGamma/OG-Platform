@@ -26,8 +26,8 @@ import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
-import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
@@ -69,7 +69,7 @@ public class CouponIborGearingDiscountingMethodTest {
   private static final CouponIborGearingDiscountingMethod METHOD = CouponIborGearingDiscountingMethod.getInstance();
   private static final CouponIborGearing COUPON = COUPON_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAMES);
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
-  private static final PresentValueSensitivityCalculator PVCSC = PresentValueSensitivityCalculator.getInstance();
+  private static final PresentValueCurveSensitivityCalculator PVCSC = PresentValueCurveSensitivityCalculator.getInstance();
 
   @Test
   /**
@@ -102,7 +102,7 @@ public class CouponIborGearingDiscountingMethodTest {
    * Test the present value curves sensitivity.
    */
   public void presentValueCurveSensitivity() {
-    final PresentValueSensitivity pvsFuture = METHOD.presentValueCurveSensitivity(COUPON, CURVES_BUNDLE);
+    final InterestRateCurveSensitivity pvsFuture = METHOD.presentValueCurveSensitivity(COUPON, CURVES_BUNDLE);
     pvsFuture.clean();
     final double deltaTolerancePrice = 1.0E+2;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
@@ -137,7 +137,7 @@ public class CouponIborGearingDiscountingMethodTest {
    * Tests the present value curve sensitivity in method vs calculator.
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    PresentValueSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(COUPON, CURVES_BUNDLE);
+    InterestRateCurveSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(COUPON, CURVES_BUNDLE);
     Map<String, List<DoublesPair>> pvcsCalculator = PVCSC.visit(COUPON, CURVES_BUNDLE);
     assertEquals("Coupon with gearing and spread - present value curve sensitivity: Method vs Calculator", pvcsMethod.getSensitivities(), pvcsCalculator);
   }

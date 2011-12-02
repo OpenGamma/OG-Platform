@@ -15,9 +15,14 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
+import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -137,6 +142,47 @@ public class LiveDataServerMBean {
     }
   }
   
+  @ManagedOperation(description = "Subscribes to market data. The subscription will be persistent."
+      + " If the server already subscribes to the given market data, this method will make the "
+      + " subscription persistent. Returns the name of the JMS topic market data will be published on.")
+  @ManagedOperationParameters({ @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
+  public String subscribePersistently(String securityUniqueId) {
+    try {
+      LiveDataSpecification spec = _server.getLiveDataSpecification(securityUniqueId);
+      LiveDataSubscriptionResponse response = _server.subscribe(spec, true);
+      if (response.getSubscriptionResult() != LiveDataSubscriptionResult.SUCCESS) {
+        throw new RuntimeException("Unsuccessful subscription: " + response.getUserMessage());
+      }
+      return response.getTickDistributionSpecification();
+    } catch (RuntimeException e) {
+      s_logger.error("subscribe(" + securityUniqueId + ") failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+  
+  @ManagedOperation(description = "Converts all subscriptions to persistent.")
+  public void subscribeAllPersistently() {
+    setPersitenceForAll(true);
+  }
+  
+  @ManagedOperation(description = "Converts all subscriptions to non-persistent.")
+  public void unpersistAllSubscribtions() {
+    setPersitenceForAll(false);
+  }
+
+  private void setPersitenceForAll(boolean persistent) {
+    try {
+      Set<String> activeSubscriptionIds = _server.getActiveSubscriptionIds();
+      for (String string : activeSubscriptionIds) {
+        MarketDataDistributor marketDataDistributor = _server.getMarketDataDistributor(string);
+        marketDataDistributor.setPersistent(persistent);
+      }
+    } catch (RuntimeException e) {
+      s_logger.error("Setting all susbcriptions to persistent=" + persistent + " failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+  
   @ManagedOperation(description = "Unsubscribes from market data. "
       + "Works even if the subscription is persistent. "
       + "Returns true if a market data subscription was actually removed,"
@@ -152,4 +198,77 @@ public class LiveDataServerMBean {
     }
   }
 
+  
+  @ManagedOperation(description = "Gets the current snapshot of a security. Will not cause an underlying snapshot.")
+  @ManagedOperationParameters({
+       @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
+  public String getSnapshot(String securityUniqueId) {
+    try {
+      MarketDataDistributor marketDataDistributor = _server.getMarketDataDistributor(securityUniqueId);
+      return marketDataDistributor.getSnapshot().toString();
+    } catch (RuntimeException e) {
+      s_logger.error("getSnapshot() failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+  
+  @ManagedOperation(description = "Gets the current snapshot of all active securities. Will not cause any underlying snapshots.")
+  public String[] getAllSnapshots() {
+    try {
+      Set<String> activeSubscriptionIds = _server.getActiveSubscriptionIds();
+      Iterable<String> results = Iterables.transform(activeSubscriptionIds, new Function<String, String>() {
+
+        @Override
+        public String apply(String from) {
+          try {
+            return getSnapshot(from);
+          } catch (RuntimeException e) {
+            return e.getMessage();
+          }
+        }
+      });
+      return Iterators.toArray(results.iterator(), String.class);
+    } catch (RuntimeException e) {
+      s_logger.error("getAllSnapshots() failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+  
+  @ManagedOperation(description = "Gets the current field history of a security. Will not cause an underlying snapshot.")
+  @ManagedOperationParameters({ @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
+  public String getFieldHistory(String securityUniqueId) {
+    try {
+      Subscription subscription = _server.getSubscription(securityUniqueId);
+      if (subscription == null) {
+        return null;
+      }
+      return subscription.getLiveDataHistory().getLastKnownValues().toString();
+    } catch (RuntimeException e) {
+      s_logger.error("getFieldHistory() failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+
+  @ManagedOperation(description = "Gets the current field history of all active securities. Will not cause any underlying snapshots.")
+  public String[] getAllFieldHistories() {
+    try {
+      Set<String> activeSubscriptionIds = _server.getActiveSubscriptionIds();
+      Iterable<String> results = Iterables.transform(activeSubscriptionIds, new Function<String, String>() {
+
+        @Override
+        public String apply(String from) {
+          try {
+            return getFieldHistory(from);
+          } catch (RuntimeException e) {
+            return e.getMessage();
+          }
+        }
+      });
+      return Iterators.toArray(results.iterator(), String.class);
+    } catch (RuntimeException e) {
+      s_logger.error("getAllFieldHistories() failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+  
 }

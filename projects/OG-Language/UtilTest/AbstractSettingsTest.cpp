@@ -73,7 +73,7 @@ static void Provider () {
 }
 
 /// Tests the default values passed to CAbstractSettings::Get methods
-class CTestSettings : public CAbstractSettings {
+class CGetTest : public CAbstractSettings {
 private:
 	const TCHAR *GetTest (const TCHAR *pszDefault) { return Get (TEXT ("test"), pszDefault); }
 	const TCHAR *GetTest (const CTestSettingProvider *poDefault) { return Get (TEXT ("test"), poDefault); }
@@ -106,10 +106,54 @@ public:
 
 /// Tests the default values passed to CAbstractSettings::Get methods
 static void DefaultSetting () {
-	CTestSettings oSettings;
+	CGetTest oSettings;
 	ASSERT (!_tcscmp (oSettings.GetTest1 (), TEXT ("Bar")));
 	ASSERT (!_tcscmp (oSettings.GetTest2 (), TEXT ("Foo")));
 	ASSERT (oSettings.GetTest3 () == 42);
+}
+
+/// Tests the enumeration of prefixed keys
+class CEnumerateTestHelper : public CAbstractSettings::CEnumerator {
+private:
+	mutable int m_nSettings;
+public:
+	CEnumerateTestHelper () {
+		m_nSettings = 0;
+	}
+	void Setting (const TCHAR *pszKey, const TCHAR *pszValue) const {
+		LOGDEBUG (TEXT ("Key=") << pszKey << TEXT (", Value=") << pszValue);
+		m_nSettings++;
+	}
+	int GetSettingCount () {
+		LOGINFO (TEXT ("Enumerated settings = ") << m_nSettings);
+		return m_nSettings;
+	}
+};
+
+/// Tests the enumeration of prefixed keys
+class CEnumerateTest : public CAbstractSettings {
+public:
+
+	/// Lookup keys starting jvmProperty. (e.g. jvmProperty.opengamma.configuration.url)
+	bool GetJvmProperty () {
+		CEnumerateTestHelper oCallback;
+		Enumerate (TEXT ("jvmProperty."), &oCallback);
+		return oCallback.GetSettingCount () != 0;
+	}
+
+	/// Dummy implementation.
+	const TCHAR *GetLogConfiguration () const {
+		// Should never be called
+		ASSERT (0);
+		return TEXT ("");
+	}
+
+};
+
+/// Tests the search for prefixed keys
+static void Enumerate () {
+	CEnumerateTest oSettings;
+	ASSERT (oSettings.GetJvmProperty ());
 }
 
 /// Tests the functions and objects in Util/AbstractSettings.cpp
@@ -118,4 +162,5 @@ BEGIN_TESTS (AbstractSettingsTest)
 	TEST (Caching)
 	TEST (Provider)
 	TEST (DefaultSetting)
+	TEST (Enumerate)
 END_TESTS

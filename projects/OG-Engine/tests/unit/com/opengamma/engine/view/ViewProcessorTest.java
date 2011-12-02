@@ -71,7 +71,7 @@ public class ViewProcessorTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
     
     vp.stop();
   }
@@ -91,7 +91,7 @@ public class ViewProcessorTest {
     Thread tryAttach = new Thread() {
       @Override
       public void run() {
-        client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
+        client2.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
         client2.shutdown();
         latch.countDown();
       }
@@ -117,7 +117,7 @@ public class ViewProcessorTest {
     Thread tryAttach = new Thread() {
       @Override
       public void run() {
-        client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
+        client2.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
         client2.shutdown();
         latch.countDown();
       }
@@ -140,7 +140,7 @@ public class ViewProcessorTest {
     CycleCountingViewResultListener listener = new CycleCountingViewResultListener(10);
     client.setResultListener(listener);
     ViewExecutionOptions executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), new ViewCycleExecutionOptions(MarketData.live()), ExecutionFlags.none().runAsFastAsPossible().get());
-    client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     listener.awaitCycles(10 * Timeout.standardTimeoutMillis());
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
@@ -161,7 +161,7 @@ public class ViewProcessorTest {
     
     final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10), new ViewCycleExecutionOptions(MarketData.live()));
-    client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     client.waitForCompletion();
     client.shutdown();
     
@@ -195,7 +195,7 @@ public class ViewProcessorTest {
     };
     client.setResultListener(resultListener);
     ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10), new ViewCycleExecutionOptions(MarketData.live()));
-    client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     UniqueId viewProcessId = viewProcess.getUniqueId();

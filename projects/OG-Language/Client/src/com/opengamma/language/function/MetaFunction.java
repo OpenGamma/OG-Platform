@@ -35,21 +35,27 @@ public class MetaFunction extends Definition {
 
   private final FunctionInvoker _invoker;
 
-  public MetaFunction(final String name, final List<? extends Parameter> parameters, final FunctionInvoker invoker) {
+  public MetaFunction(final String category, final String name, final List<? extends Parameter> parameters, final FunctionInvoker invoker) {
     super(name);
     ArgumentChecker.notNull(invoker, "invoker");
     _invoker = invoker;
+    setCategory(category);
     setParameter(parameters);
   }
 
-  public MetaFunction(final String name, final List<? extends Parameter> parameters, final FunctionInvoker invoker, final int returnCount) {
-    this (name, parameters, invoker);
+  public MetaFunction(final String category, final String name, final List<? extends Parameter> parameters, final FunctionInvoker invoker, final int returnCount) {
+    this(category, name, parameters, invoker);
     setReturnCount(returnCount);
   }
 
   protected MetaFunction(final MetaFunction copyFrom) {
     super(copyFrom);
     _invoker = copyFrom.getInvoker();
+  }
+
+  public MetaFunction description(final String description) {
+    super.setDescription(description);
+    return this;
   }
 
   public FunctionInvoker getInvoker() {

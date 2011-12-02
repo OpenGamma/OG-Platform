@@ -31,20 +31,22 @@ public class DependencyGraphBuilderFactory {
     public Thread newThread(final Runnable r) {
       final Thread t = new Thread(r) {
         @Override
-        public void start() {
-          super.start();
+        public void run() {
           s_logger.info("Starting background thread {}", this);
+          super.run();
+          s_logger.info("Finished background thread {}", this);
         }
       };
       t.setDaemon(true);
-      t.setName(DependencyGraphBuilderPLAT1049.class.getSimpleName() + "-" + _nextJobThreadId.incrementAndGet());
+      t.setName(DependencyGraphBuilder.class.getSimpleName() + "-" + _nextJobThreadId.incrementAndGet());
       return t;
     }
 
   });
 
-  private int _maxAdditionalThreadsPerBuilder = DependencyGraphBuilderPLAT1049.getDefaultMaxAdditionalThreads();
-  private int _maxAdditionalThreads = DependencyGraphBuilderPLAT1049.getDefaultMaxAdditionalThreads();
+  private int _maxAdditionalThreadsPerBuilder = DependencyGraphBuilder.getDefaultMaxAdditionalThreads();
+  private int _maxAdditionalThreads = DependencyGraphBuilder.getDefaultMaxAdditionalThreads();
+  private final Executor _executor = createExecutor();
 
   public DependencyGraphBuilderFactory() {
   }
@@ -65,17 +67,13 @@ public class DependencyGraphBuilderFactory {
     return _maxAdditionalThreads;
   }
 
-  //  public DependencyGraphBuilder_PLAT1049 newInstance() {
-  //    final DependencyGraphBuilder_PLAT1049 builder = new DependencyGraphBuilder_PLAT1049(createExecutor());
-  //    configureBuilder(builder);
-  //    return builder;
-  //  }
-
   public DependencyGraphBuilder newInstance() {
-    return new DependencyGraphBuilder();
+    final DependencyGraphBuilder builder = new DependencyGraphBuilder(getExecutor());
+    configureBuilder(builder);
+    return builder;
   }
 
-  protected void configureBuilder(final DependencyGraphBuilderPLAT1049 builder) {
+  protected void configureBuilder(final DependencyGraphBuilder builder) {
     builder.setMaxAdditionalThreads(getMaxAdditionalThreadsPerBuilder());
   }
 
@@ -91,10 +89,10 @@ public class DependencyGraphBuilderFactory {
           @Override
           public void run() {
             try {
-              s_logger.info("Starting job execution");
+              s_logger.debug("Starting job execution");
               command.run();
             } finally {
-              s_logger.info("Job execution complete");
+              s_logger.debug("Job execution complete");
               threadExit();
               s_logger.debug("Thread exit complete");
             }
@@ -107,32 +105,36 @@ public class DependencyGraphBuilderFactory {
       }
 
       private void threadExit() {
-        while (_threads.decrementAndGet() < getMaxAdditionalThreads()) {
+        int threads = _threads.decrementAndGet();
+        while (threads < getMaxAdditionalThreads()) {
           final Runnable command = _commands.poll();
           if (command == null) {
-            s_logger.debug("No pending commands to run");
+            s_logger.debug("No pending commands to run - {}", threads);
             return;
           }
-          s_logger.debug("Thread capacity available");
-          if (_threads.incrementAndGet() <= getMaxAdditionalThreads()) {
-            s_logger.debug("Thread capacity acquired for execution");
+          s_logger.debug("Thread capacity available - {}", threads);
+          threads = _threads.incrementAndGet();
+          if (threads <= getMaxAdditionalThreads()) {
+            s_logger.debug("Thread capacity {} acquired for execution", threads);
             executeImpl(command);
             return;
           }
-          s_logger.debug("Too many threads - requeuing job");
+          s_logger.debug("Too many threads {} - requeuing job", threads);
           _commands.add(command);
+          threads = _threads.decrementAndGet();
         }
       }
 
       @Override
       public void execute(final Runnable command) {
-        if (_threads.incrementAndGet() <= getMaxAdditionalThreads()) {
-          s_logger.debug("Direct execution");
+        final int threads = _threads.incrementAndGet();
+        if (threads <= getMaxAdditionalThreads()) {
+          s_logger.debug("Direct execution - {} threads", threads);
           executeImpl(command);
           return;
         }
         // Already started too many jobs
-        s_logger.debug("Too many threads - queuing job");
+        s_logger.debug("Too many threads {} - queuing job", threads);
         _commands.add(command);
         threadExit();
       }
@@ -141,6 +143,10 @@ public class DependencyGraphBuilderFactory {
 
   protected static Executor getDefaultExecutor() {
     return s_executor;
+  }
+
+  protected Executor getExecutor() {
+    return _executor;
   }
 
 }

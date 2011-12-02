@@ -14,12 +14,12 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Test DbSecurityMaster.
  */
-public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements SecurityTestCaseMethods {
+public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements SecurityTestCaseMethods {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMasterDetailProviderRandomTest.class);
@@ -30,7 +30,7 @@ public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements 
    * @param databaseType
    * @param databaseVersion
    */
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbSecurityMasterDetailProviderRandomTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running test for database={} version={}", databaseType, databaseVersion);
@@ -94,6 +94,13 @@ public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements 
   public void testEquityOptionSecurity() {
     _testCase.testEquityOptionSecurity();
   }
+  
+
+  @Override
+  @Test
+  public void testEquityBarrierOptionSecurity() {
+    _testCase.testEquityBarrierOptionSecurity();
+  }
 
   @Override
   @Test
@@ -119,6 +126,12 @@ public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements 
     _testCase.testFXOptionSecurity();
   } 
 
+  @Override
+  @Test
+  public void testNonDeliverableFXOptionSecurity() {
+    _testCase.testNonDeliverableFXOptionSecurity();
+  } 
+  
   @Override
   @Test
   public void testFXBarrierOptionSecurity() {
@@ -205,6 +218,12 @@ public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements 
 
   @Override
   @Test
+  public void testNonDeliverableFXForwardSecurity() {
+    _testCase.testNonDeliverableFXOptionSecurity();
+  }
+  
+  @Override
+  @Test
   public void testCapFloorSecurity() {
     _testCase.testCapFloorSecurity();
   }
@@ -226,5 +245,4 @@ public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements 
   public void testEquityVarianceSwapSecurity() {
     _testCase.testEquityVarianceSwapSecurity();
   }
-  
 }

@@ -5,8 +5,11 @@
  */
 package com.opengamma.util.tuple;
 
+import static org.testng.Assert.assertEquals;
+
 import javax.time.calendar.LocalDate;
 
+import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
@@ -66,8 +69,28 @@ public class PairFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
     assertEncodeDecodeCycle(Pair.class, object);
   }
 
+  public void test_staticTypedMethods() {
+    ObjectsPair<Tenor, Tenor> in = Pair.of(Tenor.DAY, Tenor.WORKING_DAYS_IN_MONTH);
+    FudgeMsg msg = ObjectsPairFudgeBuilder.buildMessage(getFudgeSerializer(), in, Tenor.class, Tenor.class);
+    ObjectsPair<Tenor, Tenor> out = ObjectsPairFudgeBuilder.buildObject(getFudgeDeserializer(), msg, Tenor.class, Tenor.class);
+    assertEquals(out, in);
+    msg = cycleMessage(msg);
+    out = ObjectsPairFudgeBuilder.buildObject(getFudgeDeserializer(), msg, Tenor.class, Tenor.class);
+    assertEquals(out, in);
+  }
+
   public void test_TypeWithSecondaryTypeAndReducedNumber() {
     Pair<LocalDate, Long> object = Pair.of(LocalDate.of(2011, 6, 30), 6L);
+    assertEncodeDecodeCycle(Pair.class, object);
+  }
+
+  public void test_nullFirst() {
+    Pair<String, String> object = Pair.of(null, "B");
+    assertEncodeDecodeCycle(Pair.class, object);
+  }
+
+  public void test_nullSecond() {
+    Pair<String, String> object = Pair.of("A", null);
     assertEncodeDecodeCycle(Pair.class, object);
   }
 

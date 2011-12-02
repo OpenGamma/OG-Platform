@@ -54,16 +54,14 @@ public class FieldFilter implements NormalizationRule {
   }
 
   @Override
-  public MutableFudgeMsg apply(
-      MutableFudgeMsg msg,
-      FieldHistoryStore fieldHistory) {
+  public MutableFudgeMsg apply(MutableFudgeMsg msg, String securityUniqueId, FieldHistoryStore fieldHistory) {
     
     MutableFudgeMsg normalizedMsg = getContext().newMessage();
     // REVIEW kirk 2010-04-15 -- Run through the fields in the order of the
     // original message and check for containment in _fieldsToAccept as it's
     // faster for large messages.
     // It also supports multiple values with the same name.
-    for (FudgeField field : msg.getAllFields()) {
+    for (FudgeField field : msg) {
       if (field.getName() == null) {
         // Don't allow non-named fields.
         continue;

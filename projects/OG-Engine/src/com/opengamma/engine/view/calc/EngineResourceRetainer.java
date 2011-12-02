@@ -23,7 +23,7 @@ public class EngineResourceRetainer {
   /**
    * Replaces any existing retained resource with a new resource.
    * 
-   * @param resourceId  the unique identifier of the new resource to retain, or {@code null} if there is nothing new to retain 
+   * @param resourceId  the unique identifier of the new resource to retain, or null if there is nothing new to retain 
    */
   public void replaceRetainedCycle(UniqueId resourceId) {
     if (_retainedResourceId != null) {

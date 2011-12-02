@@ -9,19 +9,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
@@ -51,6 +54,10 @@ public class MasterHistoricalTimeSeriesSource
    * The resolver.
    */
   private final HistoricalTimeSeriesResolver _resolver;
+  /**
+   * The clock.
+   */
+  private final Clock _clock = Clock.systemDefaultZone();  // TODO: TIMEZONE
 
   /**
    * Creates an instance with an underlying master which does not override versions.
@@ -85,6 +92,15 @@ public class MasterHistoricalTimeSeriesSource
    */
   public HistoricalTimeSeriesResolver getResolver() {
     return _resolver;
+  }
+
+  /**
+   * Gets the clock.
+   * 
+   * @return the clock, not null
+   */
+  public Clock getClock() {
+    return _clock;
   }
 
   //-------------------------------------------------------------------------
@@ -122,7 +138,8 @@ public class MasterHistoricalTimeSeriesSource
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       ExternalIdBundle securityBundle, String dataSource, String dataProvider, String dataField) {
-    return doGetHistoricalTimeSeries(securityBundle, (LocalDate) null, dataSource, dataProvider, dataField, (LocalDate) null, (LocalDate) null);
+    // TODO: TIMEZONE
+    return doGetHistoricalTimeSeries(securityBundle, LocalDate.now(getClock()), dataSource, dataProvider, dataField, (LocalDate) null, (LocalDate) null);
   }
 
   @Override
@@ -141,7 +158,8 @@ public class MasterHistoricalTimeSeriesSource
     if (end != null && !includeEnd) {
       end = end.minusDays(1);
     }
-    return doGetHistoricalTimeSeries(securityBundle, (LocalDate) null, dataSource, dataProvider, dataField, start, end);
+    // TODO: TIMEZONE
+    return doGetHistoricalTimeSeries(securityBundle, LocalDate.now(getClock()), dataSource, dataProvider, dataField, start, end);
   }
 
   @Override
@@ -198,7 +216,14 @@ public class MasterHistoricalTimeSeriesSource
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifierBundle, String resolutionKey) {
-    return doGetHistoricalTimeSeries(dataField, identifierBundle, (LocalDate) null, resolutionKey, (LocalDate) null, (LocalDate) null);
+    // TODO: TIMEZONE
+    return doGetHistoricalTimeSeries(dataField, identifierBundle, LocalDate.now(getClock()), resolutionKey, (LocalDate) null, (LocalDate) null);
+  }
+
+  @Override
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey) {
+    return doGetHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, null, null);
   }
 
   @Override
@@ -211,13 +236,8 @@ public class MasterHistoricalTimeSeriesSource
     if (end != null && !includeEnd) {
       end = end.minusDays(1);
     }
-    return doGetHistoricalTimeSeries(dataField, identifierBundle, (LocalDate) null, resolutionKey, start, end);
-  }
-
-  @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey) {
-    return doGetHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, null, null);
+    // TODO: TIMEZONE
+    return doGetHistoricalTimeSeries(dataField, identifierBundle, LocalDate.now(getClock()), resolutionKey, start, end);
   }
 
   @Override
@@ -249,12 +269,26 @@ public class MasterHistoricalTimeSeriesSource
   }
 
   //-------------------------------------------------------------------------
+  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
+    return getMaster().getSummary(uniqueId);
+  }
+
+  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    return getMaster().getSummary(objectId, versionCorrection);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
       Set<ExternalIdBundle> identifierSet, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean includeStart, LocalDate end, boolean includeEnd) {
-    // TODO [PLAT-1046]
-    throw new NotImplementedException();
+    ArgumentChecker.notNull(identifierSet, "identifierSet");
+    Map<ExternalIdBundle, HistoricalTimeSeries> result = Maps.newHashMap();
+    for (ExternalIdBundle externalIdBundle : identifierSet) {
+      HistoricalTimeSeries historicalTimeSeries = getHistoricalTimeSeries(externalIdBundle, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd);
+      result.put(externalIdBundle, historicalTimeSeries);
+    }
+    return result;
   }
 
   //-------------------------------------------------------------------------

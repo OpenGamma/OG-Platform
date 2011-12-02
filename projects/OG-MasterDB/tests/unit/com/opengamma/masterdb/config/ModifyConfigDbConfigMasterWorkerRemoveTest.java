@@ -7,8 +7,6 @@ package com.opengamma.masterdb.config;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.TimeZone;
-
 import javax.time.Instant;
 
 import org.slf4j.Logger;
@@ -20,7 +18,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests ModifyConfigDbConfigMasterWorker.
@@ -30,11 +28,10 @@ public class ModifyConfigDbConfigMasterWorkerRemoveTest extends AbstractDbConfig
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigMasterWorkerRemoveTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyConfigDbConfigMasterWorkerRemoveTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------

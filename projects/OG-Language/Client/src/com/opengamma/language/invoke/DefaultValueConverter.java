@@ -283,7 +283,7 @@ public class DefaultValueConverter extends ValueConverter {
               if (!explore.visited(alternativeType.getKey()) && consideredConverters.add(alternativeType.getKey())) {
                 final State nextState = new State(alternativeType.getKey(), converter, explore, alternativeType.getValue());
                 final Integer key = (Integer) nextState.getCost();
-                if (key > 80) {
+                if (key > 100) {
                   // Ignore expensive chains 
                   continue;
                 }

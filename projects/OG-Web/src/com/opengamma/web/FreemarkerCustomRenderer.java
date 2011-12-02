@@ -5,12 +5,8 @@
  */
 package com.opengamma.web;
 
-import com.opengamma.financial.security.option.AmericanExerciseType;
-import com.opengamma.financial.security.option.AsianExerciseType;
-import com.opengamma.financial.security.option.BermudanExerciseType;
-import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
-import com.opengamma.financial.security.option.ExerciseTypeVisitor;
+import com.opengamma.financial.security.option.ExerciseTypeNameVisitor;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -31,28 +27,7 @@ public final class FreemarkerCustomRenderer {
 
   public String printExerciseType(ExerciseType exerciseType) {
     ArgumentChecker.notNull(exerciseType, "exerciseType");
-    String result = exerciseType.accept(new ExerciseTypeVisitor<String>() {
-
-      @Override
-      public String visitAmericanExerciseType(AmericanExerciseType exerciseType) {
-        return "AMERICAN";
-      }
-
-      @Override
-      public String visitAsianExerciseType(AsianExerciseType exerciseType) {
-        return "ASIAN";
-      }
-
-      @Override
-      public String visitBermudanExerciseType(BermudanExerciseType exerciseType) {
-        return "BERMUDAN";
-      }
-
-      @Override
-      public String visitEuropeanExerciseType(EuropeanExerciseType exerciseType) {
-        return "EUROPEAN";
-      }
-    });
+    String result = exerciseType.accept(new ExerciseTypeNameVisitor());
     return result;
   }
 }

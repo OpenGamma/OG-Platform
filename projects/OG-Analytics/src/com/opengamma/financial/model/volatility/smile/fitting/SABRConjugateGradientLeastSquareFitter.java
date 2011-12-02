@@ -24,8 +24,9 @@ import com.opengamma.math.minimization.ParameterLimitsTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.math.minimization.ScalarMinimizer;
 import com.opengamma.math.minimization.SingleRangeLimitTransform;
-import com.opengamma.math.minimization.TransformParameters;
+import com.opengamma.math.minimization.UncoupledParameterTransforms;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -50,12 +51,13 @@ public class SABRConjugateGradientLeastSquareFitter extends LeastSquareSmileFitt
   }
 
   @Override
-  public LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] initialFitParameters, final BitSet fixed) {
+  public LeastSquareResultsWithTransform getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] initialFitParameters, final BitSet fixed) {
     throw new UnsupportedOperationException("Cannot calculate SABR parameters using conjugate gradient method without error estimates for the black volatilities");
   }
 
   @Override
-  public LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] errors, final double[] initialFitParameters, final BitSet fixed) {
+  public LeastSquareResultsWithTransform getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] errors, final double[] initialFitParameters,
+      final BitSet fixed) {
     testData(options, data, errors, initialFitParameters, fixed, N_PARAMETERS);
     final int n = options.length;
     final double forward = data[0].getForward();
@@ -64,7 +66,7 @@ public class SABRConjugateGradientLeastSquareFitter extends LeastSquareSmileFitt
       Validate.isTrue(CompareUtils.closeEquals(options[i].getTimeToExpiry(), maturity),
           "All options must have the same maturity " + maturity + "; have one with maturity " + options[i].getTimeToExpiry());
     }
-    final TransformParameters transforms = new TransformParameters(new DoubleMatrix1D(initialFitParameters), TRANSFORMS, fixed);
+    final UncoupledParameterTransforms transforms = new UncoupledParameterTransforms(new DoubleMatrix1D(initialFitParameters), TRANSFORMS, fixed);
     final Function1D<DoubleMatrix1D, Double> function = new Function1D<DoubleMatrix1D, Double>() {
 
       @SuppressWarnings("synthetic-access")
@@ -76,9 +78,9 @@ public class SABRConjugateGradientLeastSquareFitter extends LeastSquareSmileFitt
         final double nu = mp.getEntry(2);
         final double rho = mp.getEntry(3);
         double chiSqr = 0;
-        final SABRFormulaData sabrFormulaData = new SABRFormulaData(forward, alpha, beta, nu, rho);
+        final SABRFormulaData sabrFormulaData = new SABRFormulaData(alpha, beta, rho, nu);
         for (int i = 0; i < n; i++) {
-          chiSqr += FunctionUtils.square((data[i].getBlackVolatility() - _formula.getVolatilityFunction(options[i]).evaluate(sabrFormulaData)) / errors[i]);
+          chiSqr += FunctionUtils.square((data[i].getBlackVolatility() - _formula.getVolatilityFunction(options[i], forward).evaluate(sabrFormulaData)) / errors[i]);
         }
         return chiSqr;
       }
@@ -89,7 +91,8 @@ public class SABRConjugateGradientLeastSquareFitter extends LeastSquareSmileFitt
     final DoubleMatrix1D minPos = minimzer.minimize(function, fp);
     final double chiSquare = function.evaluate(minPos);
     final DoubleMatrix1D res = transforms.inverseTransform(minPos);
-    return new LeastSquareResults(chiSquare, res, new DoubleMatrix2D(new double[N_PARAMETERS][N_PARAMETERS]));
+    return new LeastSquareResultsWithTransform(new LeastSquareResults(chiSquare, res, new DoubleMatrix2D(new double[N_PARAMETERS][N_PARAMETERS])), transforms);
+    // return new LeastSquareResults(chiSquare, res, new DoubleMatrix2D(new double[N_PARAMETERS][N_PARAMETERS]));
   }
 
   //TODO add method that recovers ATM vol

@@ -20,7 +20,7 @@ $.register_module({
     ],
     obj: function () {
         var api = og.api.rest, routes = og.common.routes, module = this, regions,
-            masthead = og.common.masthead, search, details = og.common.details,
+            masthead = og.common.masthead, search, layout, details = og.common.details,
             ui = og.common.util.ui, history = og.common.util.history,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
@@ -28,17 +28,21 @@ $.register_module({
                 toolbar: {
                     active: {
                         buttons: [
-                            {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'new', enabled: 'OG-disabled'}
+                            {id: 'new', tooltip: 'New', enabled: 'OG-disabled'},
+                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     },
                     'default': {
                         buttons: [
-                            {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'new', enabled: 'OG-disabled'}
+                            {id: 'new', tooltip: 'New', enabled: 'OG-disabled'},
+                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar'
+                        location: '.OG-tools'
                     }
                 },
                 slickgrid: {
@@ -61,6 +65,8 @@ $.register_module({
         };
         return regions = {
             details: function (args) {
+                layout.inner.options.south.onclose = null;
+                layout.inner.close('south');
                 api.regions.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
@@ -72,8 +78,7 @@ $.register_module({
                             value: routes.current().hash
                         });
                         og.api.text({module: module.name, handler: function (template) {
-                            var layout = og.views.common.layout, header, content,
-                                $html = $.tmpl(template, json.template_data);
+                            var header, content, $html = $.tmpl(template, json.template_data);
                             header = $.outer($html.find('> header')[0]);
                             content = $.outer($html.find('> section')[0]);
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
@@ -98,6 +103,7 @@ $.register_module({
                 });
             },
             load: function (args) {
+                layout = og.views.common.layout;
                 check_state({args: args, conditions: [{new_page: new_page}]});
                 if (!args.id) default_details();
             },

@@ -21,7 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.util.PagingRequest;
+import com.opengamma.util.paging.PagingRequest;
 
 /**
  * Request for searching for batches.

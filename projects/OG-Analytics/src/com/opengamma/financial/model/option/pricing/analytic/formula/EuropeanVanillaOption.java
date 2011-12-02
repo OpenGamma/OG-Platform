@@ -54,6 +54,18 @@ public class EuropeanVanillaOption {
     return new EuropeanVanillaOption(definition.getStrike(), definition.getTimeToExpiry(date), definition.isCall());
   }
 
+  public EuropeanVanillaOption withStrike(final double strike) {
+    return new EuropeanVanillaOption(strike, _t, _isCall);
+  }
+
+  public EuropeanVanillaOption withTimeToExpiry(final double timeToExpiry) {
+    return new EuropeanVanillaOption(_k, timeToExpiry, _isCall);
+  }
+
+  public EuropeanVanillaOption withIsCall(final boolean isCall) {
+    return new EuropeanVanillaOption(_k, _t, isCall);
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;

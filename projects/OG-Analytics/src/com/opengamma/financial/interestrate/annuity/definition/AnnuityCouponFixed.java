@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.util.money.Currency;
 
@@ -59,6 +59,19 @@ public class AnnuityCouponFixed extends GenericAnnuity<CouponFixed> {
   }
 
   /**
+   * Creates a new annuity with the same characteristics, except that the notional all coupons is the one given.
+   * @param notional The notional.
+   * @return The new annuity.
+   */
+  public AnnuityCouponFixed withNotional(double notional) {
+    CouponFixed[] cpn = new CouponFixed[getNumberOfPayments()];
+    for (int loopcpn = 0; loopcpn < getNumberOfPayments(); loopcpn++) {
+      cpn[loopcpn] = getNthPayment(loopcpn).withNotional(notional);
+    }
+    return new AnnuityCouponFixed(cpn);
+  }
+
+  /**
    * Remove the payments paying on or before the given time.
    * @param trimTime The time.
    * @return The trimmed annuity.
@@ -68,6 +81,22 @@ public class AnnuityCouponFixed extends GenericAnnuity<CouponFixed> {
     List<CouponFixed> list = new ArrayList<CouponFixed>();
     for (CouponFixed payment : getPayments()) {
       if (payment.getPaymentTime() > trimTime) {
+        list.add(payment);
+      }
+    }
+    return new AnnuityCouponFixed(list.toArray(new CouponFixed[0]));
+  }
+
+  /**
+   * Remove the payments paying strictly after before the given time.
+   * @param trimTime The time.
+   * @return The trimmed annuity.
+   */
+  @Override
+  public AnnuityCouponFixed trimAfter(double trimTime) {
+    List<CouponFixed> list = new ArrayList<CouponFixed>();
+    for (CouponFixed payment : getPayments()) {
+      if (payment.getPaymentTime() <= trimTime) {
         list.add(payment);
       }
     }
@@ -111,12 +140,12 @@ public class AnnuityCouponFixed extends GenericAnnuity<CouponFixed> {
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitFixedCouponAnnuity(this, data);
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitFixedCouponAnnuity(this);
   }
 

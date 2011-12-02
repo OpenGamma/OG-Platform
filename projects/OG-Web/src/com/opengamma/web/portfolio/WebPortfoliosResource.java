@@ -23,7 +23,6 @@ import com.opengamma.web.server.push.MasterType;
 import com.opengamma.web.server.push.Subscribe;
 import com.opengamma.web.server.push.SubscribeMaster;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.DataNotFoundException;
@@ -36,8 +35,9 @@ import com.opengamma.master.portfolio.PortfolioHistoryResult;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
+import com.opengamma.master.portfolio.PortfolioSearchSortOrder;
 import com.opengamma.master.position.PositionMaster;
-import com.opengamma.util.PagingRequest;
+import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.web.WebPaging;
 
 /**
@@ -65,12 +65,13 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
       @QueryParam("pgSze") Integer pgSze,
+      @QueryParam("sort") String sort,
       @QueryParam("name") String name,
-      @QueryParam("depth") String depthStr,
       @QueryParam("portfolioId") List<String> portfolioIdStrs,
       @QueryParam("nodeId") List<String> nodeIdStrs) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
-    FlexiBean out = createSearchResultData(pr, name, depthStr, portfolioIdStrs, nodeIdStrs);
+    PortfolioSearchSortOrder so = buildSortOrder(sort, PortfolioSearchSortOrder.NAME_ASC);
+    FlexiBean out = createSearchResultData(pr, so, name, portfolioIdStrs, nodeIdStrs);
     return getFreemarker().build("portfolios/portfolios.ftl", out);
   }
 
@@ -81,23 +82,25 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
       @QueryParam("pgSze") Integer pgSze,
+      @QueryParam("sort") String sort,
       @QueryParam("name") String name,
-      @QueryParam("depth") String depthStr,
       @QueryParam("portfolioId") List<String> portfolioIdStrs,
       @QueryParam("nodeId") List<String> nodeIdStrs) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
-    FlexiBean out = createSearchResultData(pr, name, depthStr, portfolioIdStrs, nodeIdStrs);
+    PortfolioSearchSortOrder so = buildSortOrder(sort, PortfolioSearchSortOrder.NAME_ASC);
+    FlexiBean out = createSearchResultData(pr, so, name, portfolioIdStrs, nodeIdStrs);
     return getFreemarker().build("portfolios/jsonportfolios.ftl", out);
   }
 
-  private FlexiBean createSearchResultData(PagingRequest pr, String name, String depthStr,
+  private FlexiBean createSearchResultData(PagingRequest pr, PortfolioSearchSortOrder sort, String name, 
       List<String> portfolioIdStrs, List<String> nodeIdStrs) {
     FlexiBean out = createRootData();
     
     PortfolioSearchRequest searchRequest = new PortfolioSearchRequest();
     searchRequest.setPagingRequest(pr);
+    searchRequest.setSortOrder(sort);
     searchRequest.setName(StringUtils.trimToNull(name));
-    searchRequest.setDepth(NumberUtils.toInt(depthStr, -1));
+    searchRequest.setDepth(0);    //PLAT-1733 NOTE: we assume no depth here since the ftl throws the data away 
     for (String portfolioIdStr : portfolioIdStrs) {
       searchRequest.addPortfolioObjectId(ObjectId.parse(portfolioIdStr));
     }

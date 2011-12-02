@@ -19,36 +19,51 @@ import com.opengamma.id.UniqueId;
 @Test
 public class ViewClientDescriptorTest {
 
-  private static final String[] VIEW_NAMES = new String[] {"Foo", "Foo~", "Foo$" };
+  private static final UniqueId[] VIEW_IDENTIFIERS = new UniqueId[] {UniqueId.of("Foo", "Bar"), UniqueId.of("LiveMarketData", "Bar"), UniqueId.of("UserMarketData", "Bar") };
 
   private void assertCycle(final ViewClientDescriptor viewClientDescriptor) {
     final String encoded = viewClientDescriptor.encode();
-    System.out.println(encoded);
     final ViewClientDescriptor decoded = ViewClientDescriptor.decode(encoded);
     assertEquals(decoded, viewClientDescriptor);
   }
 
   public void testTickingMarketData() {
-    for (String viewName : VIEW_NAMES) {
-      assertCycle(ViewClientDescriptor.tickingMarketData(viewName));
+    for (UniqueId viewId : VIEW_IDENTIFIERS) {
+      assertCycle(ViewClientDescriptor.tickingMarketData(viewId, null));
+      assertCycle(ViewClientDescriptor.tickingMarketData(viewId, "bloomberg"));
     }
   }
 
   public void testStaticMarketData() {
-    for (String viewName : VIEW_NAMES) {
-      assertCycle(ViewClientDescriptor.staticMarketData(viewName, Instant.now()));
+    for (UniqueId viewId : VIEW_IDENTIFIERS) {
+      assertCycle(ViewClientDescriptor.staticMarketData(viewId, null));
+      assertCycle(ViewClientDescriptor.staticMarketData(viewId, "bloomberg"));
+    }
+  }
+
+  public void testHistoricalMarketData() {
+    for (UniqueId viewId : VIEW_IDENTIFIERS) {
+      assertCycle(ViewClientDescriptor.historicalMarketData(viewId, Instant.now(), Instant.now()));
+      assertCycle(ViewClientDescriptor.historicalMarketData(viewId, Instant.now(), Instant.now(), 3600));
     }
   }
 
   public void testTickingSnapshot() {
-    for (String viewName : VIEW_NAMES) {
-      assertCycle(ViewClientDescriptor.tickingSnapshot(viewName, UniqueId.of("Foo", "Bar")));
+    for (UniqueId viewId : VIEW_IDENTIFIERS) {
+      assertCycle(ViewClientDescriptor.tickingSnapshot(viewId, UniqueId.of("Foo", "Bar")));
     }
   }
 
   public void testStaticSnapshot() {
-    for (String viewName : VIEW_NAMES) {
-      assertCycle(ViewClientDescriptor.staticSnapshot(viewName, UniqueId.of("Foo", "Bar")));
+    for (UniqueId viewId : VIEW_IDENTIFIERS) {
+      assertCycle(ViewClientDescriptor.staticSnapshot(viewId, UniqueId.of("Foo", "Bar")));
+    }
+  }
+
+  public void testUnescapedViewName() {
+    for (UniqueId viewId : VIEW_IDENTIFIERS) {
+      final ViewClientDescriptor decoded = ViewClientDescriptor.decode(viewId.toString());
+      assertEquals(decoded, ViewClientDescriptor.tickingMarketData(viewId, null));
     }
   }
 

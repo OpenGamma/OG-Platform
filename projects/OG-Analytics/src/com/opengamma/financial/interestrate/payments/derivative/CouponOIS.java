@@ -9,7 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.index.IndexOIS;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.util.money.Currency;
 
@@ -120,13 +120,24 @@ public class CouponOIS extends Coupon {
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public CouponOIS withNotional(double notional) {
+    return new CouponOIS(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, _index, _fixingPeriodStartTime, _fixingPeriodEndTime, _fixingPeriodAccrualFactor,
+        _notionalAccrued / getNotional() * notional, _forwardCurveName);
+  }
+
+  @Override
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitCouponOIS(this, data);
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitCouponOIS(this);
+  }
+
+  @Override
+  public String toString() {
+    return super.toString() + ", period = [" + _fixingPeriodStartTime + ", " + _fixingPeriodEndTime + "-" + _fixingPeriodAccrualFactor + "]";
   }
 
   @Override

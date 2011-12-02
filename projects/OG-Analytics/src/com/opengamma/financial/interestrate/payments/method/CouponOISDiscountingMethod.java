@@ -12,8 +12,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
@@ -45,7 +45,7 @@ public class CouponOISDiscountingMethod implements PricingMethod {
   }
 
   @Override
-  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof CouponOIS, "Coupon OIS");
     return presentValue((CouponOIS) instrument, curves);
   }
@@ -56,7 +56,7 @@ public class CouponOISDiscountingMethod implements PricingMethod {
    * @param curves The yield curves. Should contain the discounting and forward curves associated. 
    * @return The present value curve sensitivities.
    */
-  public PresentValueSensitivity presentValueCurveSensitivity(final CouponOIS coupon, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final CouponOIS coupon, final YieldCurveBundle curves) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());
@@ -71,15 +71,17 @@ public class CouponOISDiscountingMethod implements PricingMethod {
     final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / coupon.getFixingPeriodAccrualFactor() * forwardBar;
     final double dfForwardStartBar = 1.0 / (coupon.getFixingPeriodAccrualFactor() * dfForwardEnd) * forwardBar;
     final double dfBar = coupon.getNotionalAccrued() * coupon.getPaymentYearFraction() * forward * pvBar;
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
-    resultMap.put(coupon.getFundingCurveName(), listDiscounting);
+    resultMapDsc.put(coupon.getFundingCurveName(), listDiscounting);
+    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMapDsc);
+    final Map<String, List<DoublesPair>> resultMapFwd = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
     listForward.add(new DoublesPair(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
     listForward.add(new DoublesPair(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
-    resultMap.put(coupon.getForwardCurveName(), listForward);
-    final PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
+    resultMapFwd.put(coupon.getForwardCurveName(), listForward);
+    result = result.add(new InterestRateCurveSensitivity(resultMapFwd));
     return result;
   }
 
@@ -105,7 +107,7 @@ public class CouponOISDiscountingMethod implements PricingMethod {
    * @param curves The curves.
    * @return The sensitivities.
    */
-  public PresentValueSensitivity parRateCurveSensitivity(final CouponOIS coupon, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity parRateCurveSensitivity(final CouponOIS coupon, final YieldCurveBundle curves) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());
@@ -120,7 +122,7 @@ public class CouponOISDiscountingMethod implements PricingMethod {
     listForward.add(new DoublesPair(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
     listForward.add(new DoublesPair(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
     resultMap.put(coupon.getForwardCurveName(), listForward);
-    final PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
+    final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     return result;
   }
 

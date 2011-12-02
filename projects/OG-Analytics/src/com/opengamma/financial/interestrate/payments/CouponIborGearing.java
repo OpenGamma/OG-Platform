@@ -9,7 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -147,12 +147,18 @@ public class CouponIborGearing extends CouponFloating {
   }
 
   @Override
-  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+  public CouponIborGearing withNotional(double notional) {
+    return new CouponIborGearing(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixingTime(), _index, _fixingPeriodStartTime, _fixingPeriodEndTime,
+        _fixingAccrualFactor, _spread, _factor, _forwardCurveName);
+  }
+
+  @Override
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitCouponIborGearing(this, data);
   }
 
   @Override
-  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitCouponIborGearing(this);
   }
 

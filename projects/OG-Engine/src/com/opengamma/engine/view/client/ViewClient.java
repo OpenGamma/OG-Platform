@@ -94,11 +94,11 @@ public interface ViewClient extends UniqueIdentifiable {
    * As part of this call, the client is updated with the latest state of the view process which may result in
    * listeners being invoked, depending on the state of the client.
    * 
-   * @param viewDefinitionName  the name of the view definition, not null
+   * @param definitionId  the unique ID of the view definition, not null
    * @param executionOptions  the view execution options, not null
    * @throws IllegalStateException if the client is already attached to a process 
    */
-  void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions);
+  void attachToViewProcess(UniqueId definitionId, ViewExecutionOptions executionOptions);
   
   /**
    * Attaches the client to a view process, which might involve creating a new process.
@@ -106,12 +106,12 @@ public interface ViewClient extends UniqueIdentifiable {
    * As part of this call, the client is updated with the latest state of the view process which may result in
    * listeners being invoked, depending on the state of the client.
    * 
-   * @param viewDefinitionName  the name of the view definition, not null
+   * @param definitionId  the unique ID of the view definition, not null
    * @param executionOptions  the view execution options, not null
    * @param newPrivateProcess  true to attach to a new process, false to attach to a shared process
    * @throws IllegalStateException if the client is already attached to a process 
    */
-  void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions, boolean newPrivateProcess);
+  void attachToViewProcess(UniqueId definitionId, ViewExecutionOptions executionOptions, boolean newPrivateProcess);
   
   /**
    * Attaches the client to a specific, existing view process.
@@ -174,18 +174,32 @@ public interface ViewClient extends UniqueIdentifiable {
   void setUpdatePeriod(long periodMillis);
   
   /**
-   * Gets the result mode in which this view client is operating. Defaults to {@link ViewResultMode#FULL_ONLY}.
+   * Gets the result mode for sending full cycle results to the listener. Defaults to {@link ViewResultMode#FULL_ONLY}.
    * 
    * @return the result mode, not null
    */
   ViewResultMode getResultMode();
   
   /**
-   * Sets the result mode in which this view client should operate.
+   * Sets the result mode for sending full cycle results to the listener. Defaults to {@link ViewResultMode#FULL_ONLY}.
    * 
-   * @param viewResultMode  the result mode, not null
+   * @param resultMode  the result mode, not null
    */
-  void setResultMode(ViewResultMode viewResultMode);
+  void setResultMode(ViewResultMode resultMode);
+
+  /**
+   * Gets the mode for sending cycle fragment results to the listener. Defaults to {@link ViewResultMode#NONE}.
+   *
+   * @return the result mode, not null
+   */
+  ViewResultMode getFragmentResultMode();
+
+  /**
+   * Sets the mode for sending cycle fragment results to the listener. Defaults to {@link ViewResultMode#NONE}.
+   *
+   * @param fragmentResultMode  the result mode, not null
+   */
+  void setFragmentResultMode(ViewResultMode fragmentResultMode);
 
   //-------------------------------------------------------------------------
   /**

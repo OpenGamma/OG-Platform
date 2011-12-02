@@ -4,7 +4,7 @@
  */
 $.register_module({
     name: 'og.views.common.layout',
-    dependencies: ['og.views.common.versions'],
+    dependencies: [],
     obj: function () {
         var main_layout_settings = {
             defaults: {
@@ -21,8 +21,8 @@ $.register_module({
                 size: 36
             },
             east: {
-                initClosed: true,
-                spacing_closed: 0
+              initClosed: true,
+              spacing_closed: 0
             },
             west: {
               size: '33%',
@@ -53,11 +53,10 @@ $.register_module({
             south: {
                 paneSelector: '.ui-layout-inner-south',
                 paneClass: 'ui-layout-inner-south',
-                size: 200,
+                size: '50%',
                 initClosed: true,
                 spacing_closed: 0,
-                enableCursorHotkey: true,
-                onopen: og.views.common.versions
+                onopen_start: function () {$('.ui-layout-inner-south').empty()}
             }
         },
         analytics = {

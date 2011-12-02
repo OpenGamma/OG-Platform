@@ -37,12 +37,17 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.transport.jaxrs.RestClient;
+import com.opengamma.transport.jaxrs.RestRuntimeException;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -114,7 +119,11 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     final RestTarget target = getTargetBase().resolveBase(REQUEST_UID).resolve(uniqueId.toString());
-    return decodeMessage(getRestClient().getMsg(target));
+    try {
+      return decodeMessage(getRestClient().getMsg(target));
+    } catch (RestRuntimeException e) {
+      throw e.translate();
+    }
   }
 
   @Override
@@ -123,20 +132,33 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(start, "start");
     ArgumentChecker.notNull(end, "end");
-    
     final RestTarget target = getTargetBase().resolveBase(REQUEST_UID_BY_DATE).resolveBase(uniqueId.toString())
-      .resolveBase(start.toString())
-      .resolveBase(String.valueOf(includeStart))
-      .resolveBase(end.toString())
-      .resolveBase(String.valueOf(includeEnd));
-    return decodeMessage(getRestClient().getMsg(target));
+        .resolveBase(start.toString())
+        .resolveBase(String.valueOf(includeStart))
+        .resolveBase(end.toString())
+        .resolveBase(String.valueOf(includeEnd));
+    try {
+      return decodeMessage(getRestClient().getMsg(target));
+    } catch (RestRuntimeException e) {
+      throw e.translate();
+    }
   }
 
   //-------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField) {
-    return getHistoricalTimeSeries(identifierBundle, (LocalDate) null, dataSource, dataProvider, dataField);
+    ArgumentChecker.notNull(identifierBundle, "identifierBundle");
+    ArgumentChecker.notNull(dataSource, "dataSource");
+    ArgumentChecker.notNull(dataField, "dataField");
+    final RestTarget target = getTargetBase().resolveBase(REQUEST_ALL)
+      .resolveBase(dataSource).resolveBase((dataProvider != null) ? dataProvider : NULL_VALUE)
+      .resolveBase(dataField).resolveQuery("id", identifierBundle.toStringList());
+    try {
+      return decodeMessage(getRestClient().getMsg(target));
+    } catch (RestRuntimeException e) {
+      throw e.translate();
+    }
   }
 
   @Override
@@ -146,10 +168,14 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataField, "dataField");
     final RestTarget target = getTargetBase().resolveBase(REQUEST_ALL)
-      .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
-      .resolveBase(dataSource).resolveBase((dataProvider != null) ? dataProvider : NULL_VALUE)
-      .resolveBase(dataField).resolveQuery("id", identifierBundle.toStringList());
-    return decodeMessage(getRestClient().getMsg(target));
+        .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
+        .resolveBase(dataSource).resolveBase((dataProvider != null) ? dataProvider : NULL_VALUE)
+        .resolveBase(dataField).resolveQuery("id", identifierBundle.toStringList());
+    try {
+      return decodeMessage(getRestClient().getMsg(target));
+    } catch (RestRuntimeException e) {
+      throw e.translate();
+    }
   }
 
   @Override
@@ -161,23 +187,26 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      ExternalIdBundle identifierBundle, LocalDate currentDate, String dataSource, 
+      ExternalIdBundle identifierBundle, LocalDate currentDate, String dataSource,
       String dataProvider, String dataField, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     ArgumentChecker.notNull(identifierBundle, "identifierBundle");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataField, "dataField");
     ArgumentChecker.notNull(start, "start");
     ArgumentChecker.notNull(end, "end");
-    
     final RestTarget target = getTargetBase().resolveBase(REQUEST_ALL_BY_DATE)
-      .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
-      .resolveBase(dataSource).resolveBase((dataProvider != null) ? dataProvider : NULL_VALUE).resolveBase(dataField)
-      .resolveBase(start.toString())
-      .resolveBase(String.valueOf(includeStart))
-      .resolveBase(end.toString())
-      .resolveBase(String.valueOf(includeEnd))
-      .resolveQuery("id", identifierBundle.toStringList());
-    return decodeMessage(getRestClient().getMsg(target));
+        .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
+        .resolveBase(dataSource).resolveBase((dataProvider != null) ? dataProvider : NULL_VALUE).resolveBase(dataField)
+        .resolveBase(start.toString())
+        .resolveBase(String.valueOf(includeStart))
+        .resolveBase(end.toString())
+        .resolveBase(String.valueOf(includeEnd))
+        .resolveQuery("id", identifierBundle.toStringList());
+    try {
+      return decodeMessage(getRestClient().getMsg(target));
+    } catch (RestRuntimeException e) {
+      throw e.translate();
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -193,39 +222,57 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     ArgumentChecker.notNull(dataField, "dataField");
     ArgumentChecker.notEmpty(identifierBundle, "identifierBundle");
     final RestTarget target = getTargetBase().resolveBase(REQUEST_RESOLVED)
-      .resolveBase(dataField)
-      .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
-      .resolveBase((resolutionKey != null) ? resolutionKey : NULL_VALUE)
-      .resolveQuery("id", identifierBundle.toStringList());
-    return decodeMessage(getRestClient().getMsg(target));
+        .resolveBase(dataField)
+        .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
+        .resolveBase((resolutionKey != null) ? resolutionKey : NULL_VALUE)
+        .resolveQuery("id", identifierBundle.toStringList());
+    try {
+      return decodeMessage(getRestClient().getMsg(target));
+    } catch (RestRuntimeException e) {
+      throw e.translate();
+    }
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, ExternalIdBundle identifierBundle, String resolutionKey, 
+      String dataField, ExternalIdBundle identifierBundle, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     return getHistoricalTimeSeries(dataField, identifierBundle, (LocalDate) null, resolutionKey, start, includeStart, end, includeEnd);
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, ExternalIdBundle identifierBundle, LocalDate currentDate, String resolutionKey, 
+      String dataField, ExternalIdBundle identifierBundle, LocalDate currentDate, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     ArgumentChecker.notNull(dataField, "dataField");
     ArgumentChecker.notEmpty(identifierBundle, "identifierBundle");
     ArgumentChecker.notNull(start, "start");
     ArgumentChecker.notNull(end, "end");
-    
     final RestTarget target = getTargetBase().resolveBase(REQUEST_RESOLVED_BY_DATE)
-      .resolveBase(dataField)
-      .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
-      .resolveBase((resolutionKey != null) ? resolutionKey : NULL_VALUE)
-      .resolveBase(start.toString())
-      .resolveBase(String.valueOf(includeStart))
-      .resolveBase(end.toString())
-      .resolveBase(String.valueOf(includeEnd))
-      .resolveQuery("id", identifierBundle.toStringList());
-    return decodeMessage(getRestClient().getMsg(target));
+        .resolveBase(dataField)
+        .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
+        .resolveBase((resolutionKey != null) ? resolutionKey : NULL_VALUE)
+        .resolveBase(start.toString())
+        .resolveBase(String.valueOf(includeStart))
+        .resolveBase(end.toString())
+        .resolveBase(String.valueOf(includeEnd))
+        .resolveQuery("id", identifierBundle.toStringList());
+    try {
+      return decodeMessage(getRestClient().getMsg(target));
+    } catch (RestRuntimeException e) {
+      throw e.translate();
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
+    throw new OpenGammaRuntimeException("Getting remote HTS summary not yet implemented");
+  }
+
+  @Override
+  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    throw new OpenGammaRuntimeException("Getting remote HTS summary not yet implemented");    
   }
 
   //-------------------------------------------------------------------------
@@ -245,8 +292,12 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     serializationContext.addToMessage(msg, REQUEST_INCLUDE_START, null, includeStart);
     serializationContext.addToMessage(msg, REQUEST_END, null, end);
     serializationContext.addToMessage(msg, REQUEST_INCLUDE_END, null, includeEnd);
-    
-    FudgeMsgEnvelope result = getRestClient().post(target, msg);
+    final FudgeMsgEnvelope result;
+    try {
+      result = getRestClient().post(target, msg);
+    } catch (RestRuntimeException e) {
+      throw e.translate();
+    }
     FudgeDeserializer deserializationContext = new FudgeDeserializer(getRestClient().getFudgeContext());
     return deserializationContext.fudgeMsgToObject(Map.class, result.getMessage().getMessage(HISTORICALTIMESERIESSOURCE_TIMESERIES));
   }

@@ -21,15 +21,23 @@ import com.opengamma.math.ParallelArrayBinarySort;
 public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Comparable<T>> {
   private final S[] _xKeys;
   private final Object[] _xLabels;
+  private final String _xTitle;
   private final T[] _yKeys;
   private final Object[] _yLabels;
+  private final String _yTitle;
   private final double[][] _values;
+  private final String _valuesTitle;
 
   public LabelledMatrix2D(final S[] xKeys, final T[] yKeys, final double[][] values) {
     this(xKeys, LabelledMatrix1D.toString(xKeys), yKeys, LabelledMatrix1D.toString(yKeys), values);
   }
-
+  
   public LabelledMatrix2D(final S[] xKeys, final Object[] xLabels, final T[] yKeys, final Object[] yLabels, final double[][] values) {
+    this(xKeys, xLabels, null, yKeys, yLabels, null, values, null);
+  }
+
+  public LabelledMatrix2D(final S[] xKeys, final Object[] xLabels, final String xTitle, final T[] yKeys,
+      final Object[] yLabels, final String yTitle, final double[][] values, final String valuesTitle) {
     Validate.notNull(xKeys, "x keys");
     final int m = xKeys.length;
     Validate.notNull(xLabels, "x labels");
@@ -44,6 +52,8 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
     _yKeys = Arrays.copyOf(yKeys, n);
     _xLabels = new Object[m];
     _yLabels = new Object[n];
+    _xTitle = xTitle;
+    _yTitle = yTitle;
     _values = new double[n][m];
     for (int i = 0; i < n; i++) {
       Validate.isTrue(values[i].length == m, "number of columns of data and x keys must be the same length");
@@ -55,6 +65,7 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
         _values[i][j] = values[i][j];
       }
     }
+    _valuesTitle = valuesTitle;
     quickSortX();
     quickSortY();
   }
@@ -66,6 +77,10 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
   public Object[] getXLabels() {
     return _xLabels;
   }
+  
+  public String getXTitle() {
+    return _xTitle;
+  }
 
   public T[] getYKeys() {
     return _yKeys;
@@ -74,15 +89,25 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
   public Object[] getYLabels() {
     return _yLabels;
   }
+  
+  public String getYTitle() {
+    return _yTitle;
+  }
 
   public double[][] getValues() {
     return _values;
+  }
+  
+  public String getValuesTitle() {
+    return _valuesTitle;
   }
 
   public abstract <X> int compareX(S key1, S key2, X tolerance);
 
   public abstract <Y> int compareY(T key1, T key2, Y tolerance);
 
+  public abstract LabelledMatrix2D<S, T> getMatrix(S[] xKeys, Object[] xLabels, String xTitle, T[] yKeys, Object[] yLabels, String yTitle, double[][] values, String valuesTitle);
+  
   public abstract LabelledMatrix2D<S, T> getMatrix(S[] xKeys, Object[] xLabels, T[] yKeys, Object[] yLabels, double[][] values);
 
   //TODO this needs rewriting
@@ -142,7 +167,7 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
         newValues[indexY][indexX] += other._values[i][j];
       }
     }
-    return getMatrix(newXKeys, newXLabels, newYKeys, newYLabels, newValues);
+    return getMatrix(newXKeys, newXLabels, getXTitle(), newYKeys, newYLabels, getYTitle(), newValues, getValuesTitle());
   }
 
   protected <X> int binarySearchInXWithTolerance(final S[] keys, final S key, final X tolerance) {
@@ -225,10 +250,13 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
     final int prime = 31;
     int result = 1;
     result = prime * result + Arrays.hashCode(_values);
+    result = prime * result + ((_valuesTitle == null) ? 0 : _valuesTitle.hashCode());
     result = prime * result + Arrays.hashCode(_xKeys);
     result = prime * result + Arrays.hashCode(_xLabels);
+    result = prime * result + ((_xTitle == null) ? 0 : _xTitle.hashCode());
     result = prime * result + Arrays.hashCode(_yKeys);
     result = prime * result + Arrays.hashCode(_yLabels);
+    result = prime * result + ((_yTitle == null) ? 0 : _yTitle.hashCode());
     return result;
   }
 
@@ -248,16 +276,37 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
         return false;
       }
     }
+    if (_valuesTitle == null) {
+      if (other._valuesTitle != null) {
+        return false;
+      }
+    } else if (!_valuesTitle.equals(other._valuesTitle)) {
+      return false;
+    }
     if (!Arrays.equals(_xKeys, other._xKeys)) {
       return false;
     }
     if (!Arrays.equals(_xLabels, other._xLabels)) {
       return false;
     }
+    if (_xTitle == null) {
+      if (other._xTitle != null) {
+        return false;
+      }
+    } else if (!_xTitle.equals(other._xTitle)) {
+      return false;
+    }
     if (!Arrays.equals(_yKeys, other._yKeys)) {
       return false;
     }
     if (!Arrays.equals(_yLabels, other._yLabels)) {
+      return false;
+    }
+    if (_yTitle == null) {
+      if (other._yTitle != null) {
+        return false;
+      }
+    } else if (!_yTitle.equals(other._yTitle)) {
       return false;
     }
     return true;

@@ -28,6 +28,7 @@ import com.opengamma.engine.marketdata.LiveMarketDataSnapshot;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
@@ -80,7 +81,7 @@ public class ViewComputationJobTest {
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
-    client.attachToViewProcess("Something random", ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
+    client.attachToViewProcess(UniqueId.of("not", "here"), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
   }
   
   @Test
@@ -97,7 +98,7 @@ public class ViewComputationJobTest {
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
     
     // Consume the initial result
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
@@ -134,7 +135,7 @@ public class ViewComputationJobTest {
     ViewCycleExecutionOptions cycleExecutionOptions = new ViewCycleExecutionOptions(Instant.now(), MarketData.live());
     EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().awaitMarketData().get();
     ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.single(cycleExecutionOptions), flags);
-    client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     
@@ -145,7 +146,6 @@ public class ViewComputationJobTest {
     underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 123d);
     underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), 456d);
     recalcThread.join();
-    
     resultListener.assertCycleCompleted(TIMEOUT);
     
     Map<String, Object> resultValues = new HashMap<String, Object>();
@@ -180,7 +180,7 @@ public class ViewComputationJobTest {
     ViewCycleExecutionOptions cycleExecutionOptions = new ViewCycleExecutionOptions(Instant.now(), MarketData.live());
     EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().get();
     ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.single(cycleExecutionOptions), flags);
-    client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
@@ -212,7 +212,39 @@ public class ViewComputationJobTest {
     ViewCycleExecutionOptions cycle2 = new ViewCycleExecutionOptions(valuationTime, MarketData.live(SOURCE_2_NAME));
     EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().runAsFastAsPossible().get();
     ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.of(cycle1, cycle2), flags);
-    client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
+    
+    resultListener.assertViewDefinitionCompiled(TIMEOUT);
+    resultListener.assertCycleCompleted(TIMEOUT);
+    resultListener.assertViewDefinitionCompiled(TIMEOUT);
+    // Change of market data provider should cause a further compilation
+    resultListener.assertCycleCompleted(TIMEOUT);
+    resultListener.assertProcessCompleted(TIMEOUT);
+  }
+  
+  
+  @Test
+  public void testChangeMarketDataProviderBetweenCyclesWithCycleFragmentCompletedCalls() throws InterruptedException {
+    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    InMemoryLKVMarketDataProvider underlyingProvider1 = new InMemoryLKVMarketDataProvider();
+    MarketDataProvider provider1 = new TestLiveMarketDataProvider(SOURCE_1_NAME, underlyingProvider1);
+    InMemoryLKVMarketDataProvider underlyingProvider2 = new InMemoryLKVMarketDataProvider();
+    MarketDataProvider provider2 = new TestLiveMarketDataProvider(SOURCE_2_NAME, underlyingProvider2);
+    env.setMarketDataProviderResolver(new DualLiveMarketDataProviderResolver(SOURCE_1_NAME, provider1, SOURCE_2_NAME, provider2));
+    env.init();
+    
+    ViewProcessorImpl vp = env.getViewProcessor();
+    vp.start();
+    
+    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    TestViewResultListener resultListener = new TestViewResultListener();
+    client.setResultListener(resultListener);
+    Instant valuationTime = Instant.now();
+    ViewCycleExecutionOptions cycle1 = new ViewCycleExecutionOptions(valuationTime, MarketData.live(SOURCE_1_NAME));
+    ViewCycleExecutionOptions cycle2 = new ViewCycleExecutionOptions(valuationTime, MarketData.live(SOURCE_2_NAME));
+    EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().runAsFastAsPossible().get();
+    ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.of(cycle1, cycle2), flags);
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
@@ -235,7 +267,7 @@ public class ViewComputationJobTest {
     client.setResultListener(resultListener);
     EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().get();
     ViewExecutionOptions viewExecutionOptions = ExecutionOptions.infinite(MarketData.live(), flags);
-    client.attachToViewProcess(env.getViewDefinition().getName(), viewExecutionOptions);
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), viewExecutionOptions);
     
     ViewComputationJob computationJob = env.getCurrentComputationJob(env.getViewProcess(vp, client.getUniqueId()));
     
@@ -261,7 +293,8 @@ public class ViewComputationJobTest {
     client.setResultListener(resultListener);
     EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().get();
     ViewExecutionOptions viewExecutionOptions = ExecutionOptions.infinite(MarketData.live(), flags);
-    client.attachToViewProcess(env.getViewDefinition().getName(), viewExecutionOptions);
+    final UniqueId viewDefinitionId = env.getViewDefinition().getUniqueId();
+    client.attachToViewProcess(viewDefinitionId, viewExecutionOptions);
     
     ViewComputationJob computationJob = env.getCurrentComputationJob(env.getViewProcess(vp, client.getUniqueId()));
     
@@ -269,7 +302,6 @@ public class ViewComputationJobTest {
     resultListener.assertCycleCompleted(TIMEOUT);
     computationJob.triggerCycle();
     resultListener.assertCycleCompleted(TIMEOUT);
-    UniqueId viewDefinitionId = UniqueId.of("AnyScheme", ViewProcessorTestEnvironment.TEST_VIEW_DEFINITION_NAME);
     env.getViewDefinitionRepository().changeManager().entityChanged(ChangeType.UPDATED, viewDefinitionId, viewDefinitionId, Instant.now());
     computationJob.triggerCycle();
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
@@ -405,10 +437,10 @@ public class ViewComputationJobTest {
     }
 
     @Override
-    public boolean isAvailable(ValueRequirement requirement) {
+    public MarketDataAvailability getAvailability(ValueRequirement requirement) {
       // Want the market data provider to indicate that data is available even before it's really available
-      return requirement.equals(ViewProcessorTestEnvironment.getPrimitive1())
-          || requirement.equals(ViewProcessorTestEnvironment.getPrimitive2());
+      return (requirement.equals(ViewProcessorTestEnvironment.getPrimitive1()) || requirement.equals(ViewProcessorTestEnvironment.getPrimitive2())) ? MarketDataAvailability.AVAILABLE
+          : MarketDataAvailability.NOT_AVAILABLE;
     }
 
     @Override

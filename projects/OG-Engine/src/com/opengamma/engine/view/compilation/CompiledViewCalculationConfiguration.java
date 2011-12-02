@@ -23,36 +23,37 @@ public interface CompiledViewCalculationConfiguration {
   /**
    * Gets the name of the view calculation configuration.
    * 
-   * @return the name of the view calculation configuration, not {@code null}
+   * @return the name of the view calculation configuration, not null
    */
   String getName();
 
   /**
-   * Gets the set of terminal output {@link ValueSpecification} for the calculation configuration.
+   * Gets the map of terminal output {@link ValueSpecification} to all satisfying requirements {@link ValueRequirement}
+   * for the calculation configuration.
    * 
-   * @return the set of terminal output {@link ValueSpecification} for the calculation configuration, not {@code null}
+   * @return the map of terminal output {@link ValueSpecification} to all satisfying requirements {@link ValueRequirement}
+   * for the calculation configuration., not null
    */
-  Set<ValueSpecification> getTerminalOutputSpecifications();
+  Map<ValueSpecification, Set<ValueRequirement>> getTerminalOutputSpecifications();
 
   /**
    * Gets the set of terminal output values for the calculation configuration.
    * 
-   * @return the set of terminal output values, not {@code null}
+   * @return the set of terminal output values, not null
    */
   Set<Pair<String, ValueProperties>> getTerminalOutputValues();
 
   /**
    * Gets the computation targets for the calculation configuration.
    * 
-   * @return the set of computation targets, not {@code null}
+   * @return the set of computation targets, not null
    */
   Set<ComputationTarget> getComputationTargets();
 
   /**
    * Gets the market data requirements of the calculation configuration.
    * 
-   * @return a map from each stated value requirement to the resolved value specification for market data, not
-   *         {@code null}
+   * @return a map from each stated value requirement to the resolved value specification for market data, not null
    */
   Map<ValueRequirement, ValueSpecification> getMarketDataRequirements();
 

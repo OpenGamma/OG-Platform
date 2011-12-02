@@ -28,6 +28,10 @@ public abstract class AbstractViewResultListener implements ViewResultListener {
   @Override
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
   }
+  
+  @Override
+  public void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
+  }
 
   @Override
   public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {

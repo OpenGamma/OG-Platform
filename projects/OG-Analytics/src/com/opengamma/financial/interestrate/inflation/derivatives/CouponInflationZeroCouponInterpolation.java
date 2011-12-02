@@ -8,7 +8,7 @@ package com.opengamma.financial.interestrate.inflation.derivatives;
 import java.util.Arrays;
 
 import com.opengamma.financial.instrument.index.PriceIndex;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.util.money.Currency;
 
@@ -108,6 +108,12 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
   }
 
   @Override
+  public CouponInflationZeroCouponInterpolation withNotional(double notional) {
+    return new CouponInflationZeroCouponInterpolation(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getPriceIndex(), _indexStartValue, _referenceEndTime,
+        _weight, _fixingEndTime, _payNotional);
+  }
+
+  @Override
   public double estimatedIndex(MarketBundle market) {
     double estimatedIndexMonth0 = market.getPriceIndex(getPriceIndex(), _referenceEndTime[0]);
     double estimatedIndexMonth1 = market.getPriceIndex(getPriceIndex(), _referenceEndTime[1]);
@@ -116,12 +122,12 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitCouponInflationZeroCouponInterpolation(this, data);
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitCouponInflationZeroCouponInterpolation(this);
   }
 

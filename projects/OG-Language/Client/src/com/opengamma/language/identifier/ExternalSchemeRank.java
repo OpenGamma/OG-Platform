@@ -6,18 +6,17 @@
 package com.opengamma.language.identifier;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Map.Entry;
+import java.util.ResourceBundle;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Ranks schemes, allowing the preferred ones to be extracted from identifier bundles.

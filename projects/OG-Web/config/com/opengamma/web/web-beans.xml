@@ -31,17 +31,31 @@
     <constructor-arg ref="fudgeContext" />
     <property name="underlying" ref="sharedHistoricalTimeSeriesSource" />
   </bean>
+  <bean id="historicalTimeSeriesMasterRestBean" class="com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesMasterService">
+    <constructor-arg ref="fudgeContext" />
+    <property name="underlying" ref="dbHtsMaster" />
+  </bean>
   
   <!-- View processor service -->
   <bean id="viewProcessorRestBean" class="com.opengamma.financial.view.rest.RestViewProcessorFactoryBean">
     <property name="viewProcessor" ref="demoViewProcessor" />
-    <property name="connectionFactory" ref="activeMQConnectionFactory" />
+    <property name="jmsConnector" ref="jmsConnector" />
     <property name="fudgeContext" ref="fudgeContext" />
     <property name="executorService" ref="scheduler" />
   </bean>
   <bean id="availableOutputsRestBean" class="com.opengamma.financial.view.rest.AvailableOutputsService">
     <constructor-arg ref="demoAvailableOutputsProvider" />
     <constructor-arg ref="fudgeContext" />
+  </bean>
+  <bean id="dependencyGraphDebugRestBean" class="com.opengamma.financial.depgraph.rest.DependencyGraphBuilderService">
+    <constructor-arg ref="fudgeContext" />
+    <property name="underlying">
+      <bean class="com.opengamma.financial.depgraph.rest.DependencyGraphBuilderResourceContextBean">
+        <property name="compiledFunctionService" ref="demoFunctionCompilation" />
+        <property name="marketDataProviderResolver" ref="marketDataProviderResolver" />
+        <property name="computationTargetResolver" ref="demoTargetResolver" />
+      </bean>
+    </property>
   </bean>
   
   <!-- Snapshotter service -->
@@ -52,7 +66,7 @@
   
   <!-- Security source/master service -->
   <bean id="testSecurityMaster" class="com.opengamma.master.security.impl.InMemorySecurityMaster" />
-  <bean id="securitySourceRestBean" class="com.opengamma.financial.rest.security.SecuritySourceService">
+  <bean id="securitySourceRestBean" class="com.opengamma.financial.security.rest.SecuritySourceService">
     <constructor-arg ref="fudgeContext" />
     <property name="underlyingMap">
       <map>
@@ -99,6 +113,11 @@
   <bean id="currencyMatrixSourceRestBean" class="com.opengamma.financial.currency.rest.CurrencyMatrixSourceService">
     <constructor-arg ref="fudgeContext" />
     <property name="underlying" ref="sharedCurrencyMatrixSource" />
+  </bean>
+
+  <bean id="currencyPairsSourceRestBean" class="com.opengamma.financial.currency.rest.CurrencyPairsSourceService">
+    <constructor-arg ref="fudgeContext" />
+    <property name="underlying" ref="sharedCurrencyPairsSource" />
   </bean>
   
   <!-- Ad hoc batches -->
@@ -233,6 +252,9 @@
       <map>
         <entry key="0">
           <map>
+            <entry key="activeMQ">
+              <value>${activeMQ.brokerURL}</value>
+            </entry>
             <entry key="adHocBatchDbManager">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/adHocBatchDbManager/" />
@@ -251,6 +273,18 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
+            <entry key="currencyPairsSource">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/currencyPairsSource/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="dependencyGraphBuilder">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/dependencyGraphBuilder/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
             <entry key="exchangeSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/exchangeSource/0/" />
@@ -260,6 +294,12 @@
             <entry key="functionRepositoryConfiguration">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/repositoryConfigurationSource/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="historicalTimeSeriesMaster">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/historicalTimeSeriesMaster/0/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
@@ -287,9 +327,39 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
-           <entry key="volatilityCubeDefinitionSource"> 
+            <entry key="marketDataSnapshotMaster">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/marketDataSnapshotMaster/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="marketDataSnapshotSource">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/marketDataSnapshotSource/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="marketDataSnapshotter">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/data/marketDataSnapshotters/Vp~0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="volatilityCubeDefinitionSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/volatilityCubeDefinitionSource/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="portfolioMaster">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/data/portfolios" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="positionMaster">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/data/positions" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
@@ -306,12 +376,19 @@
               </bean>
             </entry>
             <entry key="remoteCalcNode" value-ref="calcNodeSocketConfig" />
+            <entry key="securityMaster">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/securityMaster/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
             <entry key="securitySource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/securitySource/0/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
+            <!-- BEGIN DEPRECATED -->
             <entry key="sharedPositionMaster">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/data/positions" />
@@ -336,12 +413,7 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
-            <entry key="marketDataSnapshotter">
-              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-              <property name="local" value="/jax/data/marketDataSnapshotters/Vp~0/" />
-                <property name="port" value="${jetty.port}" />
-            </bean>
-            </entry>
+            <!-- END DEPRECATED -->
             <entry key="userData">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/data/users/" />
@@ -353,9 +425,6 @@
                 <property name="local" value="/jax/data/viewProcessors/Vp~0/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
-            </entry>
-            <entry key="activeMQ">
-              <value>${activeMQ.brokerURL}</value>
             </entry>
           </map>
         </entry>
@@ -424,61 +493,89 @@
     <constructor-arg ref="bundleCompressor" />
     <constructor-arg value="${bundle.mode}"/>
   </bean>
-
+  
+  <!-- Portfolio aggregators -->
+  <bean id="portfolioAggregationFunctions" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+      <list>
+        <!-- TODO: shared aggregation function config -->
+        <bean class="com.opengamma.financial.aggregation.AssetClassAggregationFunction" />
+        <bean class="com.opengamma.financial.aggregation.CurrencyAggregationFunction" />
+        <bean class="com.opengamma.financial.aggregation.DetailedAssetClassAggregationFunction" />
+        <bean class="com.opengamma.financial.aggregation.RegionAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg ref="regionSource" />
+          <constructor-arg ref="sharedExchangeSource" />
+          <constructor-arg value="false" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.UnderlyingAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg value="BLOOMBERG_TICKER" />
+          <constructor-arg value="false" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg value="SECTOR" />
+          <constructor-arg value="false" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg value="INDUSTRY_GROUP" />
+          <constructor-arg value="false" />        
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg value="INDUSTRY" />
+          <constructor-arg value="false" />        
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg value="SUB_INDUSTRY" />
+          <constructor-arg value="false" />        
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.EquityBetaAggregationFunction">
+          <constructor-arg ref="sharedHistoricalTimeSeriesSource" />
+          <constructor-arg value="false" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.CurrentMarketCapAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg ref="sharedHistoricalTimeSeriesSource" />
+          <constructor-arg value="false" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.LiquidityAggregationFunction">
+          <constructor-arg ref="sharedHistoricalTimeSeriesSource" />
+          <constructor-arg value="false" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.LongShortAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg value="false" />
+        </bean>
+      </list>
+    </property>
+  </bean>
+  
   <!-- Web-interface -->
-  <bean id="liveResultsService" class="com.opengamma.web.server.LiveResultsService">
-    <constructor-arg ref="demoViewProcessor" />
-    <constructor-arg ref="testUser" />
-    <constructor-arg ref="fudgeContext" />
+  <bean id="webInterfaceBean" class="com.opengamma.web.server.LiveResultsServiceBean">
+    <property name="user" ref="testUser" />
+    <property name="viewProcessor" ref="demoViewProcessor" />
+    <property name="positionSource" ref="combinedPositionSource" />
+    <property name="securitySource" ref="combinedSecuritySource" />
+    <property name="userPortfolioMaster" ref="userFinancialPortfolioMaster" />
+    <property name="userPositionMaster" ref="userFinancialPositionMaster" />
+    <property name="userViewDefinitionRepository" ref="userViewDefinitionRepository" />
+    <property name="portfolioAggregators" ref="portfolioAggregationFunctions" />
+    <property name="snapshotMaster" ref="dbSnapshotMaster" />
+    <property name="executorService">
+      <bean class="com.opengamma.util.ExecutorServiceFactoryBean">
+        <property name="styleName" value="CACHED" />
+      </bean>
+    </property>
+    <property name="fudgeContext" ref="fudgeContext" />
   </bean>
-
-  <bean id="longPollingConnectionManager" class="com.opengamma.web.server.push.LongPollingConnectionManager">
-    <constructor-arg ref="updateManager"/>
+  <bean class="com.opengamma.web.analytics.WebAnalyticsResource">
+    <constructor-arg ref="webInterfaceBean" />
   </bean>
-
-  <bean id="updateManager" class="com.opengamma.web.server.push.RestUpdateManagerImpl">
-    <constructor-arg index="0" ref="changeManager"/>
-    <constructor-arg index="1" ref="masterChangeManager"/>
-    <constructor-arg index="2" ref="liveResultsService"/>
-  </bean>
-
-  <bean id="webViewportsRestBean" class="com.opengamma.web.server.push.ViewportsResource">
-    <constructor-arg ref="updateManager"/>
-  </bean>
-
-  <bean id="changeManager" class="com.opengamma.core.change.AggregatingChangeManager">
-    <constructor-arg>
-      <list>
-        <ref bean="dbPortfolioMaster"/>
-        <ref bean="dbPositionMaster"/>
-        <!--TODO what other data are we interested in?-->
-      </list>
-    </constructor-arg>
-  </bean>
-
-  <bean id="masterChangeManager" class="com.opengamma.web.server.push.MasterChangeManagerImpl">
-    <constructor-arg>
-      <list>
-        <bean class="com.opengamma.util.tuple.ObjectsPair">
-          <constructor-arg index="0" ref="dbPositionMaster"/>
-          <constructor-arg index="1">
-            <value type="com.opengamma.web.server.push.MasterType">POSITION</value>
-          </constructor-arg>
-        </bean>
-        <bean class="com.opengamma.util.tuple.ObjectsPair">
-          <constructor-arg index="0" ref="dbPositionMaster"/>
-          <constructor-arg index="1">
-            <value type="com.opengamma.web.server.push.MasterType">POSITION</value>
-          </constructor-arg>
-        </bean>
-        <!--TODO what other data are we interested in?-->
-      </list>
-    </constructor-arg>
-  </bean>
-
-  <!--TODO make sure this still works-->
-  <bean id="jsonToViewport" class="com.opengamma.web.server.push.ViewportDefinitionReader" scope="singleton"/>
-
+  
   <!-- MarketDataSnapshot master service -->
   <bean id="testSnapshotMaster" class="com.opengamma.master.marketdatasnapshot.impl.InMemorySnapshotMaster" />
   <bean id="snapshotMasterRestBean" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotMasterService">
@@ -490,5 +587,15 @@
       </map>
     </property>
   </bean>
-
+  <bean id="snapshotSourceRestBean" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotSourceService">
+    <constructor-arg ref="fudgeContext" />
+    <property name="underlyingMap">
+      <map>
+        <entry key="0" value-ref="combinedSnapshotSource" />
+        <entry key="shared" value-ref="sharedSnapshotSource" />
+        <entry key="user" value-ref="userFinancialSnapshotSource" />
+      </map>
+    </property>
+  </bean>
+  
 </beans>

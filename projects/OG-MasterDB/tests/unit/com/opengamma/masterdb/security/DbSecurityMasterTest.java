@@ -9,7 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.LinkedList;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -37,23 +36,22 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 import com.opengamma.util.time.Expiry;
 
 /**
  * Test DbSecurityMaster.
  */
-public class DbSecurityMasterTest extends DBTest {
+public class DbSecurityMasterTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMasterTest.class);
 
   private DbSecurityMaster _secMaster;
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbSecurityMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   @BeforeMethod
@@ -74,7 +72,7 @@ public class DbSecurityMasterTest extends DBTest {
   public void test_basics() throws Exception {
     assertNotNull(_secMaster);
     assertEquals(true, _secMaster.getUniqueIdScheme().equals("DbSec"));
-    assertNotNull(_secMaster.getDbSource());
+    assertNotNull(_secMaster.getDbConnector());
     assertNotNull(_secMaster.getTimeSource());
   }
 

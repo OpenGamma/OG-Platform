@@ -5,11 +5,13 @@
  */
 package com.opengamma.financial.forex.calculator;
 
+import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.financial.forex.method.ForexNonDeliverableOptionBlackMethod;
 import com.opengamma.financial.forex.method.ForexOptionSingleBarrierBlackMethod;
 import com.opengamma.financial.forex.method.ForexOptionVanillaBlackMethod;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 
 /**
@@ -37,16 +39,26 @@ public class PresentValueCurveSensitivityBlackForexCalculator extends PresentVal
   PresentValueCurveSensitivityBlackForexCalculator() {
   }
 
+  /**
+   * The methods used by the different instruments.
+   */
+  private static final ForexOptionVanillaBlackMethod METHOD_FXOPTION = ForexOptionVanillaBlackMethod.getInstance();
+  private static final ForexOptionSingleBarrierBlackMethod METHOD_FXOPTIONBARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
+  private static final ForexNonDeliverableOptionBlackMethod METHOD_NDO = ForexNonDeliverableOptionBlackMethod.getInstance();
+
   @Override
-  public PresentValueSensitivity visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
-    final ForexOptionVanillaBlackMethod method = ForexOptionVanillaBlackMethod.getInstance();
-    return method.presentValueCurveSensitivity(derivative, data);
+  public MultipleCurrencyInterestRateCurveSensitivity visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
+    return METHOD_FXOPTION.presentValueCurveSensitivity(derivative, data);
   }
 
   @Override
-  public PresentValueSensitivity visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative, final YieldCurveBundle data) {
-    final ForexOptionSingleBarrierBlackMethod method = ForexOptionSingleBarrierBlackMethod.getInstance();
-    return method.presentValueCurveSensitivity(derivative, data);
+  public MultipleCurrencyInterestRateCurveSensitivity visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative, final YieldCurveBundle data) {
+    return METHOD_FXOPTIONBARRIER.presentValueCurveSensitivity(derivative, data);
+  }
+
+  @Override
+  public MultipleCurrencyInterestRateCurveSensitivity visitForexNonDeliverableOption(final ForexNonDeliverableOption derivative, final YieldCurveBundle data) {
+    return METHOD_NDO.presentValueCurveSensitivity(derivative, data);
   }
 
 }

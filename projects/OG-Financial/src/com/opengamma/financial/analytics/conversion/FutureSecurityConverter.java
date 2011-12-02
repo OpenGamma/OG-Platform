@@ -7,14 +7,14 @@ package com.opengamma.financial.analytics.conversion;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 
 /**
  * 
  */
-public class FutureSecurityConverter extends AbstractFutureSecurityVisitor<FixedIncomeInstrumentConverter<?>> {
+public class FutureSecurityConverter extends AbstractFutureSecurityVisitor<InstrumentDefinition<?>> {
   private final BondFutureSecurityConverter _bondFutureConverter;
   private final InterestRateFutureSecurityConverter _irFutureConverter;
 
@@ -26,12 +26,12 @@ public class FutureSecurityConverter extends AbstractFutureSecurityVisitor<Fixed
   }
 
   @Override
-  public FixedIncomeInstrumentConverter<?> visitBondFutureSecurity(final BondFutureSecurity security) {
+  public InstrumentDefinition<?> visitBondFutureSecurity(final BondFutureSecurity security) {
     return security.accept(_bondFutureConverter);
   }
 
   @Override
-  public FixedIncomeInstrumentConverter<?> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+  public InstrumentDefinition<?> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
     return security.accept(_irFutureConverter);
   }
 

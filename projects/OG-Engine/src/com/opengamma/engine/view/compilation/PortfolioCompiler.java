@@ -28,7 +28,7 @@ import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.monitor.OperationTimer;
 
@@ -128,8 +128,8 @@ public final class PortfolioCompiler {
    * @param versionCorrection  the version-correction at which the portfolio is required, not null
    */
   private static Portfolio getPortfolio(ViewCompilationContext compilationContext, VersionCorrection versionCorrection) {
-    ObjectId portfolioOid = compilationContext.getViewDefinition().getPortfolioOid();
-    if (portfolioOid == null) {
+    UniqueId portfolioId = compilationContext.getViewDefinition().getPortfolioId();
+    if (portfolioId == null) {
       throw new OpenGammaRuntimeException("The view definition '" + compilationContext.getViewDefinition().getName() + "' contains required portfolio outputs, but it does not reference a portfolio.");
     }
     PositionSource positionSource = compilationContext.getServices().getPositionSource();
@@ -137,9 +137,14 @@ public final class PortfolioCompiler {
       throw new OpenGammaRuntimeException("The view definition '" + compilationContext.getViewDefinition().getName()
           + "' contains required portfolio outputs, but the compiler does not have access to a position source.");
     }
-    Portfolio portfolio = positionSource.getPortfolio(portfolioOid, versionCorrection);
+    // NOTE jonathan 2011-11-11 -- not sure what the right thing to do is here. Reasonable compromise seems to be to
+    // follow the cycle VersionCorrection if no specific portfolio version has been specified, otherwise to use the
+    // exact portfolio version requested (which is an important requirement for e.g. PnL Explain). Perhaps the
+    // portfolio should be loaded independently of the cycle version correction, so latest always means latest?
+    Portfolio portfolio = portfolioId.isVersioned() ?
+        positionSource.getPortfolio(portfolioId) : positionSource.getPortfolio(portfolioId.getObjectId(), versionCorrection);
     if (portfolio == null) {
-      throw new OpenGammaRuntimeException("Unable to resolve portfolio '" + portfolioOid + "' in position source '" + positionSource + "' used by view definition '"
+      throw new OpenGammaRuntimeException("Unable to resolve portfolio '" + portfolioId + "' in position source '" + positionSource + "' used by view definition '"
           + compilationContext.getViewDefinition().getName() + "'");
     }
     Portfolio cloned = new SimplePortfolio(portfolio);

@@ -5,14 +5,14 @@
  */
 package com.opengamma.engine.depgraph;
 
-import com.opengamma.engine.depgraph.DependencyGraphBuilderPLAT1049.GraphBuildingContext;
+import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 
 /**
  * Deferred source of a {@link ResolvedValue}.
  */
 /* package */interface ResolvedValueProducer {
 
-  interface Cancellable {
+  interface Cancelable {
     boolean cancel(GraphBuildingContext context);
   }
 
@@ -21,11 +21,11 @@ import com.opengamma.engine.depgraph.DependencyGraphBuilderPLAT1049.GraphBuildin
    * been produced it may be called immediately.
    * 
    * @param context graph building context
-   * @param callback callback object to receive the notifications, not {@code null}
-   * @return a handle for removing the callback, or {@code null} if there is nothing to cancel (e.g. a failure call was made
+   * @param callback callback object to receive the notifications, not null
+   * @return a handle for removing the callback, or null if there is nothing to cancel (e.g. a failure call was made
    *         inline) or a cancellation can't be supported. 
    */
-  Cancellable addCallback(GraphBuildingContext context, ResolvedValueCallback callback);
+  Cancelable addCallback(GraphBuildingContext context, ResolvedValueCallback callback);
 
   /**
    * Increment the reference count on the object.

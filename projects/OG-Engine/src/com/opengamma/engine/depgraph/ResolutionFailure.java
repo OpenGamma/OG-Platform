@@ -5,17 +5,20 @@
  */
 package com.opengamma.engine.depgraph;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.ParameterizedFunction;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -25,23 +28,57 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public final class ResolutionFailure implements Cloneable {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(ResolutionFailure.class);
-
-  private static enum Status {
+  /**
+   * Standard status constants relating to the method calls available here and the callbacks
+   * in the visitor.
+   */
+  public static enum Status {
+    /**
+     * An additional requirement (requested by {@link CompiledFunctionDefinition#getAdditionalRequirements}) could
+     * not be resolved. 
+     */
     ADDITIONAL_REQUIREMENT,
+    /**
+     * The {@link ComputationTargetResolver} could not resolve the target.
+     */
     COULD_NOT_RESOLVE,
+    /**
+     * A problem occurred with the call to, or result from, {@link CompiledFunctionDefinition#getAdditionalRequirements}.
+     */
     GET_ADDITIONAL_REQUIREMENTS_FAILED,
+    /**
+     * A problem occurred with the call to, or result from, {@link CompiledFunctionDefinition#getResults}.
+     */
     GET_RESULTS_FAILED,
+    /**
+     * A problem occurred with the call to, or result from, {@link CompiledFunctionDefinition#getRequirements}.
+     */
     GET_REQUIREMENTS_FAILED,
+    /**
+     * A problem occurred with the call to, or result from, the second {@link CompiledFunctionDefinition#getResults} method.
+     */
     LATE_RESOLUTION_FAILURE,
+    /**
+     * The {@link MarketDataAvailabilityProvider} requested that the requirement not be satisfied as market data is
+     * explicitly absent.
+     */
+    MARKET_DATA_MISSING,
+    /**
+     * No functions could be found producing outputs that satisfy the requirement.
+     */
     NO_FUNCTIONS,
+    /**
+     * The explored route is not valid as it would introduce a loop into the dependency graph.
+     */
     RECURSIVE_REQUIREMENT,
+    /**
+     * Miscellaneous inability to satisfy the requirement. No further information available.
+     */
     UNSATISFIED
   }
 
   private final ValueRequirement _valueRequirement;
   private final LinkedList<Object> _events = new LinkedList<Object>();
-  private int _resultCount;
 
   // Construction
 
@@ -57,10 +94,6 @@ public final class ResolutionFailure implements Cloneable {
     return new ResolutionFailure(valueRequirement).appendEvent(function).appendEvent(outputSpecification);
   }
 
-  protected static ResolutionFailure resolvedValue(final ValueRequirement valueRequirement, final ResolvedValue value) {
-    return new ResolutionFailure(valueRequirement).appendEvent(value);
-  }
-
   protected static ResolutionFailure noFunctions(final ValueRequirement valueRequirement) {
     return new ResolutionFailure(valueRequirement).appendEvent(Status.NO_FUNCTIONS);
   }
@@ -71,6 +104,10 @@ public final class ResolutionFailure implements Cloneable {
 
   protected static ResolutionFailure unsatisfied(final ValueRequirement valueRequirement) {
     return new ResolutionFailure(valueRequirement).appendEvent(Status.UNSATISFIED);
+  }
+
+  protected static ResolutionFailure marketDataMissing(final ValueRequirement valueRequirement) {
+    return new ResolutionFailure(valueRequirement).appendEvent(Status.MARKET_DATA_MISSING);
   }
 
   protected ResolutionFailure additionalRequirement(final ValueRequirement valueRequirement, final ResolutionFailure failure) {
@@ -113,7 +150,8 @@ public final class ResolutionFailure implements Cloneable {
   }
 
   @SuppressWarnings("unchecked")
-  public synchronized void accept(final ResolutionFailureVisitor visitor) {
+  public synchronized <T> Collection<T> accept(final ResolutionFailureVisitor<T> visitor) {
+    final LinkedList<T> result = new LinkedList<T>();
     final Iterator<?> itr = _events.iterator();
     ParameterizedFunction function = null;
     ValueSpecification outputSpecification = null;
@@ -124,19 +162,13 @@ public final class ResolutionFailure implements Cloneable {
       final Object event = itr.next();
       if (event instanceof ParameterizedFunction) {
         if (function != null) {
-          visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional);
+          result.add(visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional));
         }
         function = (ParameterizedFunction) event;
         outputSpecification = (ValueSpecification) itr.next();
         satisfied.clear();
         unsatisfied.clear();
         unsatisfiedAdditional.clear();
-      } else if (event instanceof ResolvedValue) {
-        if (function != null) {
-          visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional);
-          function = null;
-        }
-        visitor.visitResolvedValue(getValueRequirement(), (ResolvedValue) event);
       } else if (event instanceof Status) {
         switch ((Status) event) {
           case ADDITIONAL_REQUIREMENT: {
@@ -151,51 +183,58 @@ public final class ResolutionFailure implements Cloneable {
           }
           case COULD_NOT_RESOLVE:
             if (function != null) {
-              visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional);
+              result.add(visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional));
               function = null;
             }
             visitor.visitCouldNotResolve(getValueRequirement());
             break;
           case GET_ADDITIONAL_REQUIREMENTS_FAILED:
             assert function != null;
-            visitor.visitGetAdditionalRequirementsFailed(getValueRequirement(), function, outputSpecification, satisfied);
+            result.add(visitor.visitGetAdditionalRequirementsFailed(getValueRequirement(), function, outputSpecification, satisfied));
             function = null;
             break;
           case GET_RESULTS_FAILED:
             assert function != null;
-            visitor.visitGetResultsFailed(getValueRequirement(), function, outputSpecification);
+            result.add(visitor.visitGetResultsFailed(getValueRequirement(), function, outputSpecification));
             function = null;
             break;
           case GET_REQUIREMENTS_FAILED:
             assert function != null;
-            visitor.visitGetRequirementsFailed(getValueRequirement(), function, outputSpecification);
+            result.add(visitor.visitGetRequirementsFailed(getValueRequirement(), function, outputSpecification));
             function = null;
             break;
           case LATE_RESOLUTION_FAILURE:
             assert function != null;
-            visitor.visitLateResolutionFailure(getValueRequirement(), function, outputSpecification, satisfied);
+            result.add(visitor.visitLateResolutionFailure(getValueRequirement(), function, outputSpecification, satisfied));
             function = null;
+            break;
+          case MARKET_DATA_MISSING:
+            if (function != null) {
+              result.add(visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional));
+              function = null;
+            }
+            result.add(visitor.visitMarketDataMissing(getValueRequirement()));
             break;
           case NO_FUNCTIONS:
             if (function != null) {
-              visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional);
+              result.add(visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional));
               function = null;
             }
-            visitor.visitNoFunctions(getValueRequirement());
+            result.add(visitor.visitNoFunctions(getValueRequirement()));
             break;
           case RECURSIVE_REQUIREMENT:
             if (function != null) {
-              visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional);
+              result.add(visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional));
               function = null;
             }
-            visitor.visitRecursiveRequirement(getValueRequirement());
+            result.add(visitor.visitRecursiveRequirement(getValueRequirement()));
             break;
           case UNSATISFIED:
             if (function != null) {
-              visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional);
+              result.add(visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional));
               function = null;
             }
-            visitor.visitUnsatisfied(getValueRequirement());
+            result.add(visitor.visitUnsatisfied(getValueRequirement()));
             break;
           default:
             throw new IllegalStateException("event = " + event);
@@ -214,20 +253,12 @@ public final class ResolutionFailure implements Cloneable {
       }
     }
     if (function != null) {
-      visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional);
+      result.add(visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional));
     }
+    return result;
   }
 
   // Composition
-
-  protected synchronized int getResultCount() {
-    return _resultCount;
-  }
-
-  protected synchronized void resolvedValue(final ResolvedValue value) {
-    appendEvent(value);
-    _resultCount++;
-  }
 
   /**
    * Merge the causes of failure from the other into this.
@@ -238,20 +269,134 @@ public final class ResolutionFailure implements Cloneable {
     assert getValueRequirement().getTargetSpecification().equals(failure.getValueRequirement().getTargetSpecification())
         && getValueRequirement().getValueName().equals(failure.getValueRequirement().getValueName());
     synchronized (failure) {
-      final Iterator<Object> itrThis = _events.descendingIterator();
-      final Iterator<Object> itrNew = failure._events.descendingIterator();
-      boolean match = true;
-      while (itrNew.hasNext() && itrThis.hasNext()) {
-        if (!itrThis.next().equals(itrNew.next())) {
-          match = false;
-          break;
+      final Iterator<Object> itrNew = failure._events.iterator();
+      Object eventNew = itrNew.next();
+      do {
+        if (eventNew instanceof ParameterizedFunction) {
+          final ParameterizedFunction function = (ParameterizedFunction) eventNew;
+          final ValueSpecification outputSpecification = (ValueSpecification) itrNew.next();
+          // Extract the events that correspond to this function application
+          final List<Object> newEvents = new LinkedList<Object>();
+          //CSOFF
+          scan:
+          // CSON
+          do {
+            eventNew = itrNew.next();
+            if (eventNew instanceof ParameterizedFunction) {
+              break scan;
+            } else if (eventNew instanceof Status) {
+              switch ((Status) eventNew) {
+                case COULD_NOT_RESOLVE:
+                case MARKET_DATA_MISSING:
+                case NO_FUNCTIONS:
+                case RECURSIVE_REQUIREMENT:
+                case UNSATISFIED:
+                  break scan;
+              }
+            }
+            newEvents.add(eventNew);
+            if (!itrNew.hasNext()) {
+              eventNew = null;
+              break scan;
+            }
+          } while (true);
+          // If the function application already exists, append the events
+          final ListIterator<Object> itrThis = _events.listIterator();
+          boolean matched = false;
+          //CSOFF
+          scanStartEvent:
+          //CSON
+          while (itrThis.hasNext()) {
+            Object eventThis = itrThis.next();
+            if (function.equals(eventThis)) {
+              eventThis = itrThis.next();
+              if (outputSpecification.equals(eventThis)) {
+                // Have found a match; consider the existing failure events
+                //CSOFF
+                scanFailureEvent:
+                //CSON
+                while (itrThis.hasNext()) {
+                  eventThis = itrThis.next();
+                  if (eventThis instanceof ParameterizedFunction) {
+                    itrThis.previous();
+                    break scanFailureEvent;
+                  } else if (eventThis instanceof Status) {
+                    switch ((Status) eventThis) {
+                      case ADDITIONAL_REQUIREMENT:
+                        // Discard any matching "new" event
+                        eventThis = itrThis.next();
+                        final ListIterator<Object> itrNewEvents = newEvents.listIterator();
+                        while (itrNewEvents.hasNext()) {
+                          Object newEvent = itrNewEvents.next();
+                          if (newEvent == Status.ADDITIONAL_REQUIREMENT) {
+                            newEvent = itrNewEvents.next();
+                            if (eventThis.equals(newEvent)) {
+                              itrNewEvents.remove();
+                              itrNewEvents.previous();
+                              itrNewEvents.remove();
+                              break;
+                            }
+                          }
+                        }
+                        break;
+                      case GET_ADDITIONAL_REQUIREMENTS_FAILED:
+                      case GET_RESULTS_FAILED:
+                      case GET_REQUIREMENTS_FAILED:
+                      case LATE_RESOLUTION_FAILURE:
+                        // Discard any matching "new" event
+                        newEvents.remove(eventThis);
+                        continue scanStartEvent;
+                      case COULD_NOT_RESOLVE:
+                      case MARKET_DATA_MISSING:
+                      case NO_FUNCTIONS:
+                      case RECURSIVE_REQUIREMENT:
+                      case UNSATISFIED:
+                        break scanFailureEvent;
+                      default:
+                        throw new IllegalStateException("event = " + eventThis);
+                    }
+                  } else {
+                    // Discard any matching "new" event
+                    final Iterator<Object> itrNewEvents = newEvents.iterator();
+                    while (itrNewEvents.hasNext()) {
+                      final Object newEvent = itrNewEvents.next();
+                      if (eventThis.equals(newEvent)) {
+                        itrNewEvents.remove();
+                        break;
+                      } else if (newEvent == Status.ADDITIONAL_REQUIREMENT) {
+                        itrNewEvents.next();
+                      }
+                    }
+                  }
+                }
+                // Iterator is now positioned just before the next "start" event
+                for (Object newEvent : newEvents) {
+                  itrThis.add(newEvent);
+                }
+                matched = true;
+                break;
+              }
+            }
+          }
+          // If the function application didn't exist, append the application and events
+          if (!matched && !newEvents.isEmpty()) {
+            _events.add(function);
+            _events.add(outputSpecification);
+            _events.addAll(newEvents);
+          }
+        } else if (eventNew instanceof Status) {
+          if (!_events.contains(eventNew)) {
+            _events.add(eventNew);
+          }
+          if (itrNew.hasNext()) {
+            eventNew = itrNew.next();
+          } else {
+            eventNew = null;
+          }
+        } else {
+          throw new IllegalStateException("event = " + eventNew);
         }
-      }
-      if (match) {
-        s_logger.debug("Discarding merge of {} event(s) into existing {} event(s)", failure._events.size(), _events.size());
-      } else {
-        _events.addAll(failure._events);
-      }
+      } while (eventNew != null);
     }
   }
 
@@ -265,7 +410,6 @@ public final class ResolutionFailure implements Cloneable {
   @Override
   public synchronized Object clone() {
     final ResolutionFailure copy = new ResolutionFailure(getValueRequirement());
-    copy._resultCount = _resultCount;
     copy._events.addAll(_events);
     return copy;
   }

@@ -87,7 +87,7 @@ public class CoupledForwardFiniteDifferenceTest {
 
   }
 
-  @Test(enabled = false)
+  @Test(enabled=false)
   public void testMCSmile() {
     final int timeNodes = 51;
     final int spaceNodes = 151;

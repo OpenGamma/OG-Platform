@@ -1,12 +1,13 @@
 <article>
   <header class="OG-header-generic">
-    <div class="OG-toolbar"></div>
+    <div class="OG-tools"></div>
     <h1>${name}</h1>
+    <div class="OG-js-header-links"></div>
   </header>
   <section>
-    <div class="og-details-content OG-security OG-js-details-panel">
-      <div class="OG-c10 og-grid-last OG-max-width-l">
-        <section class="OG-mod-1 OG-c6">
+    <div class="OG-details-content OG-security OG-js-details-panel">
+      <section>
+        <div class="OG-mod-1 OG-c6">
           <table>
             <col style="width: 40%" />
             <col style="width: 60%" />
@@ -21,10 +22,16 @@
               <tr><td><span>Trading Exchange</span></td><td>${tradingExchange}</td></tr>
               <tr><td><span>Settlement Exchange</span></td><td>${settlementExchange}</td></tr>
               <tr><td><span>Redemption Value</span></td><td>${redemptionValue}</td></tr>
+              <tr><td><span>Underlying Id</span></td><td>${underlyingId}</td></tr>
+              {{if underlyingBond}}
+                <tr><td style="vertical-align: top"><span>Underlying Bond</span></td><td>
+                  {{each underlyingBond}}${$index}: ${$value} <br />{{/each}}
+                </td></tr>
+              {{/if}}
             </tbody>
           </table>
-        </section>
-        <section class="OG-mod-1 og-style-2 OG-c4">
+        </div>
+        <div class="OG-mod-1 og-style-2 OG-c4">
           <table>
             <col style="width: 40%" />
             <col style="width: 60%" />
@@ -35,8 +42,8 @@
             </thead>
             <tbody class="og-js-identifiers og-mod-content"></tbody>
           </table>
-        </section>
-      </div>
+        </div>
+      </section>
     </div>
   </section>
 </article>

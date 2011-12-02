@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -17,9 +18,9 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
-import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueForexVegaSensitivityCalculator;
 import com.opengamma.financial.forex.method.PresentValueVolatilityNodeSensitivityDataBundle;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 
 /**
@@ -29,12 +30,13 @@ public class ForexVanillaOptionVegaFunction extends ForexVanillaOptionFunction {
   private static final PresentValueForexVegaSensitivityCalculator CALCULATOR = PresentValueForexVegaSensitivityCalculator.getInstance();
   private static final DecimalFormat DELTA_FORMATTER = new DecimalFormat("##");
 
-  public ForexVanillaOptionVegaFunction(final String putCurveName, final String callCurveName, final String surfaceName) {
-    super(putCurveName, callCurveName, surfaceName, ValueRequirementNames.VEGA_MATRIX);
+  public ForexVanillaOptionVegaFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName,
+      final String surfaceName) {
+    super(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final ForexDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
     final PresentValueVolatilityNodeSensitivityDataBundle result = CALCULATOR.visit(fxOption, data);
     final double[] expiries = result.getExpiries().getData();
     final double[] delta = result.getDelta().getData();
@@ -57,10 +59,17 @@ public class ForexVanillaOptionVegaFunction extends ForexVanillaOptionFunction {
         values[i][j] = vega[j][i];
       }
     }
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutCurveName()).with(ValuePropertyNames.RECEIVE_CURVE, getCallCurveName())
-        .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties);
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName(), getPutForwardCurveName())
+        .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName()).with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VEGA_MATRIX, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, new DoubleLabelledMatrix2D(rowValues, rowLabels, columnValues, columnLabels, values)));
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName(), getPutForwardCurveName())
+        .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName()).with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.VEGA_MATRIX, target.toSpecification(), properties));
   }
 
   private String getFormattedExpiry(final double expiry) {

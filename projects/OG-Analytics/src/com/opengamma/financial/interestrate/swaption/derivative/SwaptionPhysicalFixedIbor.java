@@ -8,8 +8,9 @@ package com.opengamma.financial.interestrate.swaption.derivative;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -18,7 +19,18 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing a European swaption on a vanilla swap.
  */
-public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption implements InterestRateDerivative {
+public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption implements InstrumentDerivative {
+
+  /**
+   * List of calibration types for the physical swaption.
+   */
+  public enum SwaptionPhysicalFixedIborCalibrationType {
+    /**
+     * The calibration instruments are long swaptions with one maturity for each fixed coupon and strikes equal to the original strikes on the relevant periods.
+     * The notional for all coupons is set to the first fixed leg coupon notional.
+     */
+    FIXEDLEG_STRIKE
+  }
 
   /**
    * Swap underlying the swaption. The swap should be of vanilla type.
@@ -92,6 +104,14 @@ public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption imple
   }
 
   /**
+   * Gets the time difference between the last fixed leg payment and the settlement.
+   * @return The maturity time.
+   */
+  public double getMaturityTime() {
+    return _underlyingSwap.getFixedLeg().getNthPayment(_underlyingSwap.getFixedLeg().getNumberOfPayments() - 1).getPaymentTime() - _settlementTime;
+  }
+
+  /**
    * Gets the swaption currency.
    * @return The currency.
    */
@@ -104,13 +124,39 @@ public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption imple
     return "Swaption: Expiry=" + getTimeToExpiry() + ", is long=" + _isLong + "\n" + _underlyingSwap;
   }
 
+  /**
+   * Create a calibration basket for the swaption.
+   * @param type The calibration type.
+   * @return The basket.
+   */
+  public SwaptionPhysicalFixedIbor[] calibrationBasket(final SwaptionPhysicalFixedIborCalibrationType type) { //, final YieldCurveBundle curves
+    SwaptionPhysicalFixedIbor[] calibration = new SwaptionPhysicalFixedIbor[0];
+    switch (type) {
+      case FIXEDLEG_STRIKE:
+        AnnuityCouponFixed legFixed = getUnderlyingSwap().getFixedLeg();
+        int nbCal = legFixed.getNumberOfPayments();
+        calibration = new SwaptionPhysicalFixedIbor[nbCal];
+        double notional = Math.abs(legFixed.getNthPayment(0).getNotional());
+        for (int loopcal = 0; loopcal < nbCal; loopcal++) {
+          double maturity = legFixed.getNthPayment(loopcal).getPaymentTime();
+          FixedCouponSwap<? extends Payment> swap = getUnderlyingSwap().trimAfter(maturity).withNotional(notional);
+          calibration[loopcal] = SwaptionPhysicalFixedIbor.from(getTimeToExpiry(), swap, _settlementTime, true);
+        }
+        break;
+
+      default:
+        break;
+    }
+    return calibration;
+  }
+
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitSwaptionPhysicalFixedIbor(this, data);
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitSwaptionPhysicalFixedIbor(this);
   }
 

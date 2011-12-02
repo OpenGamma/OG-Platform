@@ -8,8 +8,8 @@ package com.opengamma.financial.interestrate.swap.definition;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.Payment;
 
@@ -18,7 +18,7 @@ import com.opengamma.financial.interestrate.payments.Payment;
  * @param <P1> The type of the payments in the payLeg
  * @param <P2> The type of the payments in the receiveLeg
  */
-public class Swap<P1 extends Payment, P2 extends Payment> implements InterestRateDerivative {
+public class Swap<P1 extends Payment, P2 extends Payment> implements InstrumentDerivative {
   private final GenericAnnuity<P1> _firstLeg;
   private final GenericAnnuity<P2> _secondLeg;
 
@@ -38,13 +38,22 @@ public class Swap<P1 extends Payment, P2 extends Payment> implements InterestRat
     return _secondLeg;
   }
 
+  /**
+   * Create a new swap with the payments of both legs of the original one paying before or on the given time.
+   * @param trimTime The time.
+   * @return The trimmed annuity.
+   */
+  public Swap<P1, P2> trimAfter(double trimTime) {
+    return new Swap<P1, P2>(_firstLeg.trimAfter(trimTime), _secondLeg.trimAfter(trimTime));
+  }
+
   @Override
-  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitSwap(this, data);
   }
 
   @Override
-  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitSwap(this);
   }
 

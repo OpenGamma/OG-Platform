@@ -8,8 +8,6 @@ package com.opengamma.masterdb.security;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
-import java.util.TimeZone;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
@@ -18,8 +16,8 @@ import org.testng.annotations.Test;
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
-import com.opengamma.util.PagingRequest;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests QuerySecurityDbSecurityMasterWorker.
@@ -29,11 +27,10 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
 
   private static final Logger s_logger = LoggerFactory.getLogger(QuerySecurityDbSecurityMasterWorkerHistoryTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public QuerySecurityDbSecurityMasterWorkerHistoryTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------

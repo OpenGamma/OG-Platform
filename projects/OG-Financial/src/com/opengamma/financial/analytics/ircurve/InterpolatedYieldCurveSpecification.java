@@ -8,8 +8,9 @@ package com.opengamma.financial.analytics.ircurve;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.time.calendar.LocalDate;
 
@@ -36,12 +37,12 @@ public class InterpolatedYieldCurveSpecification implements Serializable {
   private final LocalDate _curveDate;
   private final Currency _currency;
   private final String _name;
-  private final Interpolator1D<?> _interpolator;
-  private final Set<FixedIncomeStripWithIdentifier> _strips = new LinkedHashSet<FixedIncomeStripWithIdentifier>();
+  private final Interpolator1D _interpolator;
+  private final SortedSet<FixedIncomeStripWithIdentifier> _strips = new TreeSet<FixedIncomeStripWithIdentifier>();
   private final ExternalId _region;
-  
+    
   public InterpolatedYieldCurveSpecification(LocalDate curveDate, String name, Currency currency,  
-      Interpolator1D<?> interpolator, Collection<FixedIncomeStripWithIdentifier> resolvedStrips, 
+      Interpolator1D interpolator, Collection<FixedIncomeStripWithIdentifier> resolvedStrips, 
       ExternalId region) {
     Validate.notNull(curveDate, "CurveDate");
     Validate.notNull(currency, "Currency");
@@ -60,7 +61,7 @@ public class InterpolatedYieldCurveSpecification implements Serializable {
   }
   
   public InterpolatedYieldCurveSpecification(LocalDate curveDate, String name, Currency currency,  
-      Interpolator1D<?> interpolator, Collection<FixedIncomeStripWithIdentifier> resolvedStrips, 
+      Interpolator1D interpolator, Collection<FixedIncomeStripWithIdentifier> resolvedStrips, 
       ExternalId region, Tenor fraBasis, Tenor swapBasis) {
     Validate.notNull(curveDate, "CurveDate");
     Validate.notNull(currency, "Currency");
@@ -115,15 +116,15 @@ public class InterpolatedYieldCurveSpecification implements Serializable {
   /**
    * @return the interpolator
    */
-  public Interpolator1D<?> getInterpolator() {
+  public Interpolator1D getInterpolator() {
     return _interpolator;
   }
 
   /**
    * @return the strips
    */
-  public Set<FixedIncomeStripWithIdentifier> getStrips() {
-    return Collections.unmodifiableSet(_strips);
+  public SortedSet<FixedIncomeStripWithIdentifier> getStrips() {
+    return Collections.unmodifiableSortedSet(_strips);
   }
   
   @Override

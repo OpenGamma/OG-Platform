@@ -7,8 +7,6 @@ package com.opengamma.masterdb.security;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.TimeZone;
-
 import javax.time.Instant;
 
 import org.slf4j.Logger;
@@ -23,7 +21,7 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests ModifySecurityDbSecurityMasterWorker.
@@ -33,11 +31,10 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifySecurityDbSecurityMasterWorkerCorrectTest.class);
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifySecurityDbSecurityMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------

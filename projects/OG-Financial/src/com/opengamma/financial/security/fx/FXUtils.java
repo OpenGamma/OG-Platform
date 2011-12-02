@@ -128,6 +128,24 @@ public class FXUtils {
   }
 
   /**
+   * Returns a bundle containing all known identifiers for the spot rate of this FXBarrierOptionSecurity. 
+   * The identifier respect the market base/quote currencies.
+   * @param fxBarrierOptionSecurity the fx option security
+   * @return an Identifier containing identifier for the spot rate, not null
+   */
+  public static final ExternalId getSpotIdentifier(final FXBarrierOptionSecurity fxBarrierOptionSecurity) {
+    final Currency putCurrency = fxBarrierOptionSecurity.getPutCurrency();
+    final Currency callCurrency = fxBarrierOptionSecurity.getCallCurrency();
+    ExternalId bloomberg;
+    if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) {
+      bloomberg = SecurityUtils.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
+    } else {
+      bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
+    }
+    return bloomberg;
+  }
+  
+  /**
    * Returns a bundle containing all known identifiers for the spot rate of this FXOptionSecurity. 
    * The identifier respect the market base/quote currencies.
    * @param fxOptionSecurity the fx option security

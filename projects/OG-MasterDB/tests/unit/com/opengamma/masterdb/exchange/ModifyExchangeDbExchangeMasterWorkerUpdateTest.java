@@ -7,8 +7,6 @@ package com.opengamma.masterdb.exchange;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.TimeZone;
-
 import javax.time.Instant;
 
 import org.slf4j.Logger;
@@ -19,13 +17,15 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.extsql.ExtSqlBundle;
+import com.opengamma.extsql.ExtSqlConfig;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeHistoryRequest;
 import com.opengamma.master.exchange.ExchangeHistoryResult;
 import com.opengamma.master.exchange.ManageableExchange;
-import com.opengamma.util.test.DBTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests ModifyExchangeDbExchangeMasterWorker.
@@ -37,11 +37,10 @@ public class ModifyExchangeDbExchangeMasterWorkerUpdateTest extends AbstractDbEx
   private static final ExternalIdBundle BUNDLE = ExternalIdBundle.of("A", "B");
   private static final ExternalIdBundle REGION = ExternalIdBundle.of("C", "D");
 
-  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyExchangeDbExchangeMasterWorkerUpdateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------
@@ -118,12 +117,8 @@ public class ModifyExchangeDbExchangeMasterWorkerUpdateTest extends AbstractDbEx
 
   @Test
   public void test_update_rollback() {
-    DbExchangeMaster w = new DbExchangeMaster(_exgMaster.getDbSource()) {
-      @Override
-      protected String sqlSelectIdKey() {
-        return "SELECT";  // bad sql
-      };
-    };
+    DbExchangeMaster w = new DbExchangeMaster(_exgMaster.getDbConnector());
+    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("Invalid"), DbExchangeMaster.class));
     final ExchangeDocument base = _exgMaster.get(UniqueId.of("DbExg", "101", "0"));
     UniqueId uniqueId = UniqueId.of("DbExg", "101", "0");
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);

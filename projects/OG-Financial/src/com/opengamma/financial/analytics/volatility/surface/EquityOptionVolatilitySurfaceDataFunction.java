@@ -22,6 +22,7 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
@@ -99,8 +100,14 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBVolatilitySurfaceDefinitionSource volSurfaceDefinitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
     _definition = volSurfaceDefinitionSource.getDefinition(_definitionName, _instrumentType);
+    if (_definition == null) {
+      throw new OpenGammaRuntimeException("Couldn't find Equity Option Volatility Surface Definition " + _definitionName);
+    }
     final ConfigDBVolatilitySurfaceSpecificationSource volatilitySurfaceSpecificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
     _specification = volatilitySurfaceSpecificationSource.getSpecification(_specificationName, _instrumentType);
+    if (_specification == null) {
+      throw new OpenGammaRuntimeException("Couldn't find Equity Option Volatility Surface Specification " + _specificationName);
+    }
     _result = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition.getTarget().getUniqueId()),
         createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName).with(PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType).get());
     _results = Collections.singleton(_result);

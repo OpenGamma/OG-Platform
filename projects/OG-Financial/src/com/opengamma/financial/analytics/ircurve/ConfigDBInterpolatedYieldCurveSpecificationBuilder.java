@@ -23,38 +23,31 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
  */
 public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements InterpolatedYieldCurveSpecificationBuilder {
   private final ConfigSource _configSource;
-  // REVIEW: maybe we shouldn't cache these and rely on the repo doing that, but this prevents changes flowing through while we're running.
-  private final Map<String, CurveSpecificationBuilderConfiguration> _specBuilderCache = new HashMap<String, CurveSpecificationBuilderConfiguration>();
 
   public ConfigDBInterpolatedYieldCurveSpecificationBuilder(final ConfigSource configSource) {
     _configSource = configSource;
   }
 
-  private void clearConfigCache() {
-    _specBuilderCache.clear(); // specifically so if the config is changed, we don't cache stale values outside a single curve build.
-  }
-
-  // this is factored out into a method so it's easier to remove if we want to disable caching.
-  private CurveSpecificationBuilderConfiguration getBuilderConfig(final String conventionName) {
-    if (_specBuilderCache.containsKey(conventionName)) {
-      return _specBuilderCache.get(conventionName);
-    } else {
-      final CurveSpecificationBuilderConfiguration builderSpecDoc = _configSource.getLatestByName(CurveSpecificationBuilderConfiguration.class, conventionName);
-      if (builderSpecDoc != null) {
-        _specBuilderCache.put(conventionName, builderSpecDoc);
-        return builderSpecDoc;
-      } else {
-        return null;
-      }
+  // This is factored out into a method so it's easier to remove if we want to disable caching.
+  private CurveSpecificationBuilderConfiguration getBuilderConfig(final Map<String, CurveSpecificationBuilderConfiguration> cache, final String conventionName) {
+    CurveSpecificationBuilderConfiguration builderSpecDoc = cache.get(conventionName);
+    if (builderSpecDoc != null) {
+      return builderSpecDoc;
     }
+    builderSpecDoc = _configSource.getLatestByName(CurveSpecificationBuilderConfiguration.class, conventionName);
+    if (builderSpecDoc != null) {
+      cache.put(conventionName, builderSpecDoc);
+    }
+    return builderSpecDoc;
   }
 
   @Override
   public InterpolatedYieldCurveSpecification buildCurve(final LocalDate curveDate, final YieldCurveDefinition curveDefinition) {
-    clearConfigCache();
+    final Map<String, CurveSpecificationBuilderConfiguration> cache = new HashMap<String, CurveSpecificationBuilderConfiguration>();
     final Collection<FixedIncomeStripWithIdentifier> securities = new ArrayList<FixedIncomeStripWithIdentifier>();
     for (final FixedIncomeStrip strip : curveDefinition.getStrips()) {
-      final CurveSpecificationBuilderConfiguration builderConfig = getBuilderConfig(strip.getConventionName() + "_" + curveDefinition.getCurrency().getCode());
+      final String conventionName = strip.getConventionName() + "_" + curveDefinition.getCurrency().getCode();
+      final CurveSpecificationBuilderConfiguration builderConfig = getBuilderConfig(cache, conventionName);
       if (builderConfig == null) {
         throw new OpenGammaRuntimeException("Could not get specification builder configuration for curve=" + curveDefinition.getName() + ", currency=" + curveDefinition.getCurrency() + ", strip="
             + strip);
@@ -116,7 +109,7 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
       }
       securities.add(new FixedIncomeStripWithIdentifier(strip, identifier));
     }
-    final Interpolator1D<?> interpolator = Interpolator1DFactory.getInterpolator(curveDefinition.getInterpolatorName());
+    final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(curveDefinition.getInterpolatorName());
     return new InterpolatedYieldCurveSpecification(curveDate, curveDefinition.getName(), curveDefinition.getCurrency(), interpolator, securities, curveDefinition.getRegionId());
   }
 }

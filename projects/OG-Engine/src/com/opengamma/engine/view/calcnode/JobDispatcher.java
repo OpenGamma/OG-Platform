@@ -31,7 +31,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.calcnode.stats.CalculationNodeStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.stats.DiscardingNodeStatisticsGatherer;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.Cancellable;
+import com.opengamma.util.Cancelable;
 
 /**
  * Manages a set of JobInvokers and dispatches jobs to them for execution.
@@ -117,7 +117,7 @@ public class JobDispatcher implements JobInvokerRegister {
 
   }
 
-  private final class DispatchJob implements JobInvocationReceiver, Cancellable {
+  private final class DispatchJob implements JobInvocationReceiver, Cancelable {
 
     private final CalculationJob _rootJob;
     private final ConcurrentMap<CalculationJobSpecification, JobResultReceiver> _resultReceivers;
@@ -556,7 +556,7 @@ public class JobDispatcher implements JobInvokerRegister {
    * @param resultReceiver callback to receive the results
    * @return A {@link Cancellable} callback to attempt to abort the job
    */
-  public Cancellable dispatchJob(final CalculationJob job, final JobResultReceiver resultReceiver) {
+  public Cancelable dispatchJob(final CalculationJob job, final JobResultReceiver resultReceiver) {
     ArgumentChecker.notNull(job, "job");
     ArgumentChecker.notNull(resultReceiver, "resultReceiver");
     s_logger.info("Dispatching job {}", job.getSpecification().getJobId());

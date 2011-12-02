@@ -34,23 +34,27 @@ import com.opengamma.financial.analytics.DummyLabelledMatrix2DPortfolioNodeFunct
 import com.opengamma.financial.analytics.DummyLabelledMatrix2DPositionFunction;
 import com.opengamma.financial.analytics.DummyPortfolioNodeFunction;
 import com.opengamma.financial.analytics.DummyPortfolioNodeMultipleCurrencyAmountFunction;
-import com.opengamma.financial.analytics.FXSummingFunction;
+import com.opengamma.financial.analytics.FilteringSummingFunction;
 import com.opengamma.financial.analytics.LastHistoricalValueFunction;
-import com.opengamma.financial.analytics.PV01SummingFunction;
 import com.opengamma.financial.analytics.PositionScalingFunction;
 import com.opengamma.financial.analytics.PositionTradeScalingFunction;
 import com.opengamma.financial.analytics.PositionWeightFromNAVFunction;
-import com.opengamma.financial.analytics.PresentValueSummingFunction;
 import com.opengamma.financial.analytics.SummingFunction;
 import com.opengamma.financial.analytics.UnitPositionScalingFunction;
 import com.opengamma.financial.analytics.UnitPositionTradeScalingFunction;
-import com.opengamma.financial.analytics.VegaMatrixSummingFunction;
+import com.opengamma.financial.analytics.equity.SecurityMarketPriceFunction;
+import com.opengamma.financial.analytics.ircurve.DefaultYieldCurveMarketDataShiftFunction;
+import com.opengamma.financial.analytics.ircurve.DefaultYieldCurveShiftFunction;
 import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataShiftFunction;
+import com.opengamma.financial.analytics.ircurve.YieldCurveShiftFunction;
 import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromYieldFunction;
 import com.opengamma.financial.analytics.model.bond.BondCouponPaymentDiaryFunction;
 import com.opengamma.financial.analytics.model.bond.BondDirtyPriceFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.BondDirtyPriceFromYieldFunction;
+import com.opengamma.financial.analytics.model.bond.BondMacaulayDurationFromCurvesFunction;
+import com.opengamma.financial.analytics.model.bond.BondMacaulayDurationFromYieldFunction;
 import com.opengamma.financial.analytics.model.bond.BondMarketCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.BondMarketDirtyPriceFunction;
 import com.opengamma.financial.analytics.model.bond.BondMarketYieldFunction;
@@ -58,6 +62,7 @@ import com.opengamma.financial.analytics.model.bond.BondModifiedDurationFromCurv
 import com.opengamma.financial.analytics.model.bond.BondModifiedDurationFromYieldFunction;
 import com.opengamma.financial.analytics.model.bond.BondTenorFunction;
 import com.opengamma.financial.analytics.model.bond.BondYieldFromCurvesFunction;
+import com.opengamma.financial.analytics.model.bond.BondZSpreadFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaModelPortfolioNodeFunction;
@@ -78,7 +83,6 @@ import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumen
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateParallelCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPresentValueFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentYieldCurveNodeSensitivitiesFunction;
-import com.opengamma.financial.analytics.model.fixedincome.YieldCurveNodeSensitivitiesSummingFunction;
 import com.opengamma.financial.analytics.model.forex.ForexForwardCurrencyExposureFunction;
 import com.opengamma.financial.analytics.model.forex.ForexForwardPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.ForexForwardPresentValueFunction;
@@ -87,39 +91,51 @@ import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionCur
 import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionPresentValueVolatilitySensitivityFunction;
+import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionVegaFunction;
+import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionVegaQuoteFunction;
+import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionCurrencyExposureFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionPresentValueVolatilitySensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionVegaFunction;
+import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionVegaQuoteFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureGrossBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureNetBasisFromCurvesFunction;
+import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionHestonPresentValueFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionPresentValueFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionSABRSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionVegaFunction;
+import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.option.BlackScholesMertonModelFunction;
 import com.opengamma.financial.analytics.model.option.BlackScholesModelCostOfCarryFunction;
 import com.opengamma.financial.analytics.model.pnl.EquityPnLFunction;
+import com.opengamma.financial.analytics.model.pnl.PortfolioExchangeTradedDailyPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.PortfolioExchangeTradedPnLFunction;
+import com.opengamma.financial.analytics.model.pnl.PositionExchangeTradedDailyPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.PositionExchangeTradedPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.PositionValueGreekSensitivityPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.SecurityPriceSeriesFunction;
+import com.opengamma.financial.analytics.model.pnl.TradeExchangeTradedDailyPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.TradeExchangeTradedPnLFunction;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRPresentValueFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRPresentValueSABRFunction;
-import com.opengamma.financial.analytics.model.swaption.SwaptionSABRSummingFunction;
+import com.opengamma.financial.analytics.model.swaption.SwaptionSABRVegaFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.var.OptionPortfolioParametricVaRCalculatorFunction;
 import com.opengamma.financial.analytics.model.var.OptionPositionParametricVaRCalculatorFunction;
 import com.opengamma.financial.analytics.model.var.PortfolioHistoricalVaRCalculatorFunction;
 import com.opengamma.financial.analytics.model.var.PositionHistoricalVaRCalculatorFunction;
 import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunctionFactory;
-import com.opengamma.financial.analytics.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceFunction;
-import com.opengamma.financial.analytics.volatility.surface.SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction;
-import com.opengamma.financial.analytics.volatility.surface.SABRNonLinearLeastSquaresSwaptionCubeFittingFunction;
+import com.opengamma.financial.analytics.volatility.cube.fitting.SABRNonLinearLeastSquaresSwaptionCubeFittingFunction;
+import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySurfaceShiftFunction;
+import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
+import com.opengamma.financial.analytics.volatility.surface.fitting.BlackScholesMertonImpliedVolatilitySurfaceFunction;
+import com.opengamma.financial.analytics.volatility.surface.fitting.HestonFourierIRFutureSurfaceFittingFunction;
+import com.opengamma.financial.analytics.volatility.surface.fitting.SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.DefaultCurrencyInjectionFunction;
@@ -174,11 +190,13 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfig);
   }
 
+  protected static void addFilteredSummingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Collections.singleton(requirementName)));
+  }
+
   protected static void addValueGreekAndSummingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
-    ParameterizedFunctionConfiguration converterFunctionConfig = new ParameterizedFunctionConfiguration(OptionGreekToValueGreekConverterFunction.class.getName(),
-        Collections.singleton(requirementName));
-    functionConfigs.add(converterFunctionConfig);
-    addSummingFunction(functionConfigs, requirementName);
+    functionConfigs.add(new ParameterizedFunctionConfiguration(OptionGreekToValueGreekConverterFunction.class.getName(), Collections.singleton(requirementName)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Collections.singleton(requirementName)));
   }
 
   protected static void addCurrencyConversionFunctions(List<FunctionConfiguration> functionConfigs, String requirementName) {
@@ -193,6 +211,9 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   public static RepositoryConfiguration constructRepositoryConfiguration() {
     List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
 
+    functionConfigs.add(new StaticFunctionConfiguration(SecurityMarketPriceFunction.class.getName()));
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.SECURITY_IMPLIED_VOLATLITY);
+    
     functionConfigs.add(new StaticFunctionConfiguration(BondTenorFunction.class.getName()));
 
     // options
@@ -203,6 +224,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     // equity and portfolio
     functionConfigs.add(new StaticFunctionConfiguration(PositionExchangeTradedPnLFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(PortfolioExchangeTradedPnLFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(PortfolioExchangeTradedDailyPnLFunction.class.getName()));;
+    
 
     String returnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_STRICT;
     String startDate = "2008-09-22";
@@ -216,6 +239,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     String marketStandardDeviationCalculatorName = StatisticsCalculatorFactory.SAMPLE_STANDARD_DEVIATION;
 
     functionConfigs.add(new ParameterizedFunctionConfiguration(TradeExchangeTradedPnLFunction.class.getName(), Arrays.asList(DEFAULT_CONFIG_NAME, LAST_PRICE, "COST_OF_CARRY")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(TradeExchangeTradedDailyPnLFunction.class.getName(), Arrays.asList(DEFAULT_CONFIG_NAME, LAST_PRICE, "COST_OF_CARRY")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(PositionExchangeTradedDailyPnLFunction.class.getName(), Arrays.asList(DEFAULT_CONFIG_NAME, LAST_PRICE, "COST_OF_CARRY")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SecurityPriceSeriesFunction.class.getName(), Arrays.asList(DEFAULT_CONFIG_NAME, LAST_PRICE, startDate, scheduleName,
         samplingCalculatorName)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityPnLFunction.class.getName(), Collections.singleton(returnCalculatorName)));
@@ -258,62 +283,25 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(DummyLabelledMatrix2DPortfolioNodeFunction.class.getName()));
 
     functionConfigs.add(new StaticFunctionConfiguration(StandardEquityModelFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(BondCouponPaymentDiaryFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(BondTenorFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(BondMarketCleanPriceFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(BondMarketDirtyPriceFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(BondMarketYieldFunction.class.getName()));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BondYieldFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BondCleanPriceFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BondDirtyPriceFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BondModifiedDurationFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BondCleanPriceFromYieldFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BondDirtyPriceFromYieldFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BondModifiedDurationFromYieldFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BondFutureGrossBasisFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BondFutureNetBasisFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(NelsonSiegelSvenssonBondCurveFunction.class.getName(), Arrays.asList("USD")));
+    addBondCalculators(functionConfigs);
+    addBondFutureCalculators(functionConfigs);
     functionConfigs.add(new ParameterizedFunctionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueSABRFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING", "DEFAULT")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionCurrencyExposureFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING", "DEFAULT")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING", "DEFAULT")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueVolatilitySensitivityFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING", "DEFAULT")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING", "DEFAULT")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionVegaFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING", "DEFAULT")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionPresentValueFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING", "DEFAULT")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionCurrencyExposureFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING", "DEFAULT")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING", "DEFAULT")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionPresentValueVolatilitySensitivityFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING", "DEFAULT")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardPresentValueFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardCurrencyExposureFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction.class.getName(), Arrays.asList("USD", "DEFAULT")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionPresentValueFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING", "DEFAULT")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING", "DEFAULT")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionVegaFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING", "DEFAULT")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionPresentValueFunction.class.getName(), Arrays.asList("FORWARD", "FUNDING", "DEFAULT")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class.getName(), Arrays.asList("FORWARD", "FUNDING", "DEFAULT")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionVegaFunction.class.getName(), Arrays.asList("FORWARD", "FUNDING", "DEFAULT")));
-    
+    addSwaptionCalculators(functionConfigs);
+    addForexVanillaOptionCalculators(functionConfigs);
+    addForexSingleBarrierOptionCalculators(functionConfigs);
+    addForexForwardCalculators(functionConfigs);
+    addInterestRateFutureOptionCalculators(functionConfigs);
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.MARK_TO_MARKET)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.COST_OF_CARRY)));
+    //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.COST_OF_CARRY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.DIVIDEND_YIELD)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PV01, EquityFuturePricerFactory.MARK_TO_MARKET)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PV01, EquityFuturePricerFactory.COST_OF_CARRY)));
+    //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PV01, EquityFuturePricerFactory.COST_OF_CARRY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PV01, EquityFuturePricerFactory.DIVIDEND_YIELD)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.MARK_TO_MARKET)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.COST_OF_CARRY)));
+    //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.COST_OF_CARRY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.DIVIDEND_YIELD)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.MARK_TO_MARKET)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.COST_OF_CARRY)));
+    //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.COST_OF_CARRY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.DIVIDEND_YIELD)));
 
     addDummyFunction(functionConfigs, ValueRequirementNames.PAR_RATE);
@@ -420,13 +408,13 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
     addDummyFunction(functionConfigs, ValueRequirementNames.BOND_TENOR);
 
-    functionConfigs.add(new StaticFunctionConfiguration(PresentValueSummingFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(PV01SummingFunction.class.getName()));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(FXSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.FX_PRESENT_VALUE)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(FXSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.FX_CURRENCY_EXPOSURE)));
-    functionConfigs.add(new StaticFunctionConfiguration(VegaMatrixSummingFunction.class.getName()));
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE);
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.PV01);
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FX_PRESENT_VALUE);
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.VEGA_MATRIX);
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.VEGA_QUOTE_MATRIX);
     addSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
-
     addSummingFunction(functionConfigs, ValueRequirementNames.PRICE_SERIES);
     addSummingFunction(functionConfigs, ValueRequirementNames.PNL_SERIES);
     addSummingFunction(functionConfigs, ValueRequirementNames.WEIGHT);
@@ -446,12 +434,14 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addScalingFunction(functionConfigs, ValueRequirementNames.BOND_COUPON_PAYMENT_TIMES);
 
     addScalingFunction(functionConfigs, ValueRequirementNames.FX_PRESENT_VALUE);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
+    addScalingFunction(functionConfigs, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
     addDummyFunction(functionConfigs, ValueRequirementNames.FX_CURVE_SENSITIVITIES);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.FX_CURVE_SENSITIVITIES);
 
     addScalingFunction(functionConfigs, ValueRequirementNames.VEGA_MATRIX);
     addSummingFunction(functionConfigs, ValueRequirementNames.VEGA_MATRIX);
+    addScalingFunction(functionConfigs, ValueRequirementNames.VEGA_QUOTE_MATRIX);
+    addSummingFunction(functionConfigs, ValueRequirementNames.VEGA_QUOTE_MATRIX);
     addScalingFunction(functionConfigs, ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES);
     addSummingFunction(functionConfigs, ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES);
 
@@ -469,6 +459,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.FAIR_VALUE);
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.PV01);
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.PRESENT_VALUE);
+    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.DAILY_PNL);
     //TODO PRESENT_VALUE_CURVE_SENSITIVITY
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_DELTA);
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_GAMMA);
@@ -487,6 +478,13 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(SortedPositionValues.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(TopPositionValues.class.getName()));
     
+    functionConfigs.add(new StaticFunctionConfiguration(VolatilitySurfaceShiftFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(DefaultVolatilitySurfaceShiftFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(YieldCurveShiftFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(DefaultYieldCurveShiftFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(YieldCurveMarketDataShiftFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(DefaultYieldCurveMarketDataShiftFunction.class.getName()));
+    
     // Historical data functions.
     addDummyFunction(functionConfigs, ValueRequirementNames.DAILY_VOLUME);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.DAILY_VOLUME);
@@ -497,7 +495,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addDummyFunction(functionConfigs, ValueRequirementNames.DAILY_APPLIED_BETA);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.DAILY_APPLIED_BETA);
     functionConfigs.add(new ParameterizedFunctionConfiguration(LastHistoricalValueFunction.class.getName(), Collections.singleton(ValueRequirementNames.DAILY_APPLIED_BETA)));
-
+    addDummyFunction(functionConfigs, ValueRequirementNames.DAILY_PRICE);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.DAILY_PRICE);
+    functionConfigs.add(new ParameterizedFunctionConfiguration(LastHistoricalValueFunction.class.getName(), Collections.singleton(ValueRequirementNames.DAILY_PRICE)));
+    
+    
     RepositoryConfiguration repoConfig = new RepositoryConfiguration(functionConfigs);
 
     if (OUTPUT_REPO_CONFIGURATION) {
@@ -519,9 +521,194 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     return repoConfig;
   }
 
-  /**
-   * @param functionConfigs
-   */
+  private static void addBondFutureCalculators(List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondFutureGrossBasisFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondFutureNetBasisFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+  }
+
+  private static void addBondCalculators(List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(new StaticFunctionConfiguration(BondCouponPaymentDiaryFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BondTenorFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BondMarketCleanPriceFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BondMarketDirtyPriceFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BondMarketYieldFunction.class.getName()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondYieldFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondCleanPriceFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondDirtyPriceFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondMacaulayDurationFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondModifiedDurationFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondCleanPriceFromYieldFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondDirtyPriceFromYieldFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondMacaulayDurationFromYieldFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondModifiedDurationFromYieldFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BondZSpreadFromCurvesFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(NelsonSiegelSvenssonBondCurveFunction.class.getName(), Arrays.asList("USD")));
+  }
+
+  private static void addForexSingleBarrierOptionCalculators(List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionPresentValueFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionPresentValueFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionPresentValueFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionPresentValueFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionCurrencyExposureFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionCurrencyExposureFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionCurrencyExposureFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionCurrencyExposureFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionPresentValueCurveSensitivityFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionPresentValueCurveSensitivityFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionPresentValueCurveSensitivityFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionPresentValueCurveSensitivityFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionPresentValueVolatilitySensitivityFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionPresentValueVolatilitySensitivityFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionPresentValueVolatilitySensitivityFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionPresentValueVolatilitySensitivityFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionVegaFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionVegaFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionVegaFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionVegaFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionVegaQuoteFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionVegaQuoteFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionVegaQuoteFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionVegaQuoteFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+  }
+
+  private static void addForexVanillaOptionCalculators(List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionCurrencyExposureFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionCurrencyExposureFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionCurrencyExposureFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionCurrencyExposureFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueCurveSensitivityFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueCurveSensitivityFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueCurveSensitivityFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueCurveSensitivityFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueVolatilitySensitivityFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueVolatilitySensitivityFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueVolatilitySensitivityFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueVolatilitySensitivityFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionYieldCurveNodeSensitivitiesFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionYieldCurveNodeSensitivitiesFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionYieldCurveNodeSensitivitiesFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionYieldCurveNodeSensitivitiesFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionVegaFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionVegaFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionVegaFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionVegaFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionVegaQuoteFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionVegaQuoteFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionVegaQuoteFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionVegaQuoteFunction.class.getName(), 
+        Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT")));
+  }
+
+  private static void addForexForwardCalculators(List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardPresentValueFunction.class.getName(), Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardPresentValueFunction.class.getName(), Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardPresentValueFunction.class.getName(), Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardPresentValueFunction.class.getName(), Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardCurrencyExposureFunction.class.getName(), Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardCurrencyExposureFunction.class.getName(), Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardCurrencyExposureFunction.class.getName(), Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardCurrencyExposureFunction.class.getName(), Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M")));
+  }
+
+  private static void addInterestRateFutureOptionCalculators(List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionPresentValueFunction.class.getName(), Arrays.asList("FORWARD_3M", "FUNDING", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionPresentValueFunction.class.getName(), Arrays.asList("FORWARD_6M", "FUNDING", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class.getName(), Arrays.asList("FORWARD_3M", "FUNDING", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class.getName(), Arrays.asList("FORWARD_6M", "FUNDING", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionVegaFunction.class.getName(), Arrays.asList("FORWARD_3M", "FUNDING", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionVegaFunction.class.getName(), Arrays.asList("FORWARD_6M", "FUNDING", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class.getName(), Arrays.asList("FORWARD_3M", "FUNDING", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class.getName(), Arrays.asList("FORWARD_6M", "FUNDING", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("FORWARD_3M", "FUNDING", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("FORWARD_6M", "FUNDING", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction.class.getName(), Arrays.asList("USD", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class.getName(), Arrays.asList("USD", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class.getName(), Arrays.asList("FORWARD_3M", "FUNDING", "DEFAULT")));
+  }
+
+  private static void addSwaptionCalculators(List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueSABRFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRVegaFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "FORWARD_3M", "FUNDING")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY)));
+  }
+
   private static void addFixedIncomeInstrumentCalculators(List<FunctionConfiguration> functionConfigs) {
     //forward/funding
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentParRateFunction.class.getName(), Arrays.asList("FORWARD_3M", "FUNDING")));
@@ -540,7 +727,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         .asList("FORWARD_6M", "FUNDING", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays
         .asList("FORWARD_6M", "FUNDING", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)));
-    functionConfigs.add(new StaticFunctionConfiguration(YieldCurveNodeSensitivitiesSummingFunction.class.getName()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)));
     
     // Secondary
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentPresentValueFunction.class.getName(), Arrays.asList("SECONDARY", "SECONDARY")));

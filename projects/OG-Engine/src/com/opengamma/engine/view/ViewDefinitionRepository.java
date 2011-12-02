@@ -5,9 +5,12 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.core.change.ChangeProvider;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 
 /**
  * Allows modules, specifically the {@link ViewProcessor}, access to
@@ -18,18 +21,33 @@ import com.opengamma.core.change.ChangeProvider;
 public interface ViewDefinitionRepository extends ChangeProvider {
   
   /**
-   * Returns the set of all currently defined views.
+   * Returns the set of Ids of all currently defined views.
    * 
-   * @return the definition names, not {@code null}
+   * @return the definition Ids, not null
    */
-  Set<String> getDefinitionNames();
+  Set<ObjectId> getDefinitionIds();
+    
+  /**
+   * Returns the current set of ViewId/ViewName pairs
+   * 
+   * @return the current set of ViewId/ViewName pairs
+   */
+  Map<UniqueId, String> getDefinitionEntries();
   
   /**
-   * Returns the named definition.
+   * Returns a view definition matching the supplied name (KV: this should really return a matching set)
    * 
-   * @param definitionName the name of the view, not {@code null}
-   * @return the view definition, or {@code null} if the name does not exist
+   * @param definitionName the name of the view definitions to be returned
+   * @return a view definitions matching the supplied name, or null if none found
    */
   ViewDefinition getDefinition(String definitionName);
+  
+  /**
+   * Returns the view definition with the supplied unique id.
+   * 
+   * @param definitionId the unique id of the view, not null
+   * @return the view definition, or null if the name does not exist
+   */
+  ViewDefinition getDefinition(UniqueId definitionId);
 
 }

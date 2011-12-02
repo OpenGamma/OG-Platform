@@ -16,20 +16,21 @@ import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctio
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.math.minimization.DoubleRangeLimitTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.math.minimization.SingleRangeLimitTransform;
-import com.opengamma.math.minimization.TransformParameters;
+import com.opengamma.math.minimization.UncoupledParameterTransforms;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.CompareUtils;
 
 /**
- * 
+ * @deprecated Please use SABRModelFitter
  */
+@Deprecated
 public class SABRNonLinearLeastSquareFitter extends LeastSquareSmileFitter {
   private static final NonLinearLeastSquare SOLVER = new NonLinearLeastSquare(DecompositionFactory.SV_COLT, MatrixAlgebraFactory.OG_ALGEBRA, 1e-4);
   private static final int N_PARAMETERS = 4;
@@ -39,8 +40,9 @@ public class SABRNonLinearLeastSquareFitter extends LeastSquareSmileFitter {
     TRANSFORMS = new ParameterLimitsTransform[4];
     TRANSFORMS[0] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // alpha > 0
     TRANSFORMS[1] = new DoubleRangeLimitTransform(0, 2.0); // 0 <= beta <= 2
-    TRANSFORMS[2] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // nu > 0
-    TRANSFORMS[3] = new DoubleRangeLimitTransform(-1.0, 1.0); // -1 <= rho <= 1
+    TRANSFORMS[2] = new DoubleRangeLimitTransform(-1.0, 1.0); // -1 <= rho <= 1
+    TRANSFORMS[3] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // nu > 0
+
   }
   private final VolatilityFunctionProvider<SABRFormulaData> _formula;
   private final SABRATMVolatilityCalculator _atmCalculator;
@@ -56,21 +58,24 @@ public class SABRNonLinearLeastSquareFitter extends LeastSquareSmileFitter {
   }
 
   @Override
-  public LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] initialFitParameters, final BitSet fixed) {
+  public LeastSquareResultsWithTransform getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] initialFitParameters, final BitSet fixed) {
     return getFitResult(options, data, initialFitParameters, fixed, 0, false);
   }
 
   @Override
-  public LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] errors, final double[] initialFitParameters, final BitSet fixed) {
+  public LeastSquareResultsWithTransform getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] errors, final double[] initialFitParameters,
+      final BitSet fixed) {
     return getFitResult(options, data, errors, initialFitParameters, fixed, 0, false);
   }
 
-  public LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] initialFitParameters, final BitSet fixed, final double atmVol,
+  public LeastSquareResultsWithTransform getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] initialFitParameters, final BitSet fixed,
+      final double atmVol,
       final boolean recoverATMVol) {
     return getFitResult(options, data, null, initialFitParameters, fixed, atmVol, recoverATMVol);
   }
 
-  public LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] errors, final double[] initialFitParameters, final BitSet fixed,
+  public LeastSquareResultsWithTransform getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] errors, final double[] initialFitParameters,
+      final BitSet fixed,
       final double atmVol, final boolean recoverATMVol) {
     testData(options, data, errors, initialFitParameters, fixed, N_PARAMETERS);
     if (recoverATMVol) {
@@ -90,7 +95,7 @@ public class SABRNonLinearLeastSquareFitter extends LeastSquareSmileFitter {
       strikes[i] = options[i].getStrike();
       blackVols[i] = data[i].getBlackVolatility();
     }
-    final TransformParameters transforms = new TransformParameters(new DoubleMatrix1D(initialFitParameters), TRANSFORMS, fixed);
+    final UncoupledParameterTransforms transforms = new UncoupledParameterTransforms(new DoubleMatrix1D(initialFitParameters), TRANSFORMS, fixed);
     final EuropeanVanillaOption atmOption = new EuropeanVanillaOption(forward, maturity, true);
     final ParameterizedFunction<Double, DoubleMatrix1D, Double> function = new ParameterizedFunction<Double, DoubleMatrix1D, Double>() {
 
@@ -100,33 +105,36 @@ public class SABRNonLinearLeastSquareFitter extends LeastSquareSmileFitter {
         final DoubleMatrix1D mp = transforms.inverseTransform(fp);
         double alpha = mp.getEntry(0);
         final double beta = mp.getEntry(1);
-        final double nu = mp.getEntry(2);
-        final double rho = mp.getEntry(3);
+        final double rho = mp.getEntry(2);
+        final double nu = mp.getEntry(3);
+
         final SABRFormulaData sabrFormulaData;
         if (recoverATMVol) {
-          alpha = _atmCalculator.calculate(new SABRFormulaData(forward, alpha, beta, nu, rho), atmOption, atmVol);
-          sabrFormulaData = new SABRFormulaData(forward, alpha, beta, nu, rho);
+          alpha = _atmCalculator.calculate(new SABRFormulaData(alpha, beta, rho, nu), atmOption, forward, atmVol);
+          sabrFormulaData = new SABRFormulaData(alpha, beta, rho, nu);
         } else {
-          sabrFormulaData = new SABRFormulaData(forward, alpha, beta, nu, rho);
+          sabrFormulaData = new SABRFormulaData(alpha, beta, rho, nu);
         }
         final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, maturity, true);
-        return _formula.getVolatilityFunction(option).evaluate(sabrFormulaData);
+        return _formula.getVolatilityFunction(option, forward).evaluate(sabrFormulaData);
       }
     };
 
     final DoubleMatrix1D fp = transforms.transform(new DoubleMatrix1D(initialFitParameters));
-    final LeastSquareResults lsRes = errors == null ? SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), function, fp)
-                                                    : SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), new DoubleMatrix1D(errors), function, fp);
-    final double[] mp = transforms.inverseTransform(lsRes.getParameters()).toArray();
+    LeastSquareResults lsRes = errors == null ? SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), function, fp)
+        : SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), new DoubleMatrix1D(errors), function, fp);
+    final double[] mp = transforms.inverseTransform(lsRes.getFitParameters()).toArray();
     if (recoverATMVol) {
       final double beta = mp[1];
       final double nu = mp[2];
       final double rho = mp[3];
       final EuropeanVanillaOption option = new EuropeanVanillaOption(forward, maturity, true);
-      final SABRFormulaData sabrFormulaData = new SABRFormulaData(forward, mp[0], beta, nu, rho);
-      final double value = _atmCalculator.calculate(sabrFormulaData, option, atmVol);
+      final SABRFormulaData sabrFormulaData = new SABRFormulaData(mp[0], beta, rho, nu);
+      final double value = _atmCalculator.calculate(sabrFormulaData, option, forward, atmVol);
       mp[0] = value;
+      lsRes = new LeastSquareResults(lsRes.getChiSq(), new DoubleMatrix1D(mp), lsRes.getCovariance());
     }
-    return new LeastSquareResults(lsRes.getChiSq(), new DoubleMatrix1D(mp), new DoubleMatrix2D(new double[N_PARAMETERS][N_PARAMETERS]), lsRes.getInverseJacobian());
+    return new LeastSquareResultsWithTransform(lsRes, transforms);
+    //return new LeastSquareResults(lsRes.getChiSq(), new DoubleMatrix1D(mp), new DoubleMatrix2D(new double[N_PARAMETERS][N_PARAMETERS]), lsRes.getFittingParameterSensitivityToData());
   }
 }

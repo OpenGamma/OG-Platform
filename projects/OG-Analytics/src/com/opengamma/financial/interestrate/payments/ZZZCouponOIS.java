@@ -8,7 +8,7 @@ package com.opengamma.financial.interestrate.payments;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -21,8 +21,8 @@ public class ZZZCouponOIS extends Coupon {
   private final double _spread;
   private final String _indexCurveName;
 
-  public ZZZCouponOIS(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double rateYearFraction,
-      double startTime, double endTime, double spread, String indexCurveName) {
+  public ZZZCouponOIS(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double rateYearFraction, double startTime, double endTime,
+      double spread, String indexCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
     Validate.isTrue(startTime >= 0, "startTime < 0");
     Validate.isTrue(endTime > startTime && endTime <= paymentTime, "endTime < startTime or endTime > paymentTime");
@@ -75,6 +75,11 @@ public class ZZZCouponOIS extends Coupon {
   }
 
   @Override
+  public ZZZCouponOIS withNotional(double notional) {
+    return new ZZZCouponOIS(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getRateYearFraction(), _startTime, _endTime, _spread, getIndexCurveName());
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
@@ -122,12 +127,12 @@ public class ZZZCouponOIS extends Coupon {
   }
 
   @Override
-  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitZZZCouponOIS(this, data);
   }
 
   @Override
-  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitZZZCouponOIS(this);
   }
 }

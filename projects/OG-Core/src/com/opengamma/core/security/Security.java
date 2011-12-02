@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.security;
 
+import com.opengamma.core.Attributable;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -21,7 +22,7 @@ import com.opengamma.util.PublicAPI;
  * Implementations may be mutable.
  */
 @PublicAPI
-public interface Security extends UniqueIdentifiable {
+public interface Security extends UniqueIdentifiable, Attributable {
 
   /**
    * Gets the unique identifier of the security.

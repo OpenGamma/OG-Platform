@@ -13,6 +13,8 @@ import static org.testng.AssertJUnit.fail;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.ClassPathResource;
@@ -31,6 +33,7 @@ import com.opengamma.util.PlatformConfigUtils;
  */
 public abstract class AbstractSpringContextValidationTestNG {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractSpringContextValidationTestNG.class);
   private ThreadLocal<GenericApplicationContext> _springContext = new ThreadLocal<GenericApplicationContext>();
 
   @DataProvider(name = "runModes")
@@ -97,6 +100,21 @@ public abstract class AbstractSpringContextValidationTestNG {
     }
   }
 
+  /**
+   * Populates the Spring context from multiple XML configuration files.  The file paths must have a prefix to
+   * indicate what kind of resource they are, e.g. {@code file:} or {@code classpath:}.
+   */
+  protected void loadResources(final String opengammaPlatformRunmode, final String... filePaths) {
+    PlatformConfigUtils.configureSystemProperties(opengammaPlatformRunmode);
+
+    GenericApplicationContext springContext = createSpringContext();
+    XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(getSpringContext());
+    for (String path : filePaths) {
+      xmlReader.loadBeanDefinitions(path);
+    }
+    springContext.refresh();
+  }
+
   @AfterMethod
   public void runAfter() {
     getSpringContext().close();
@@ -112,9 +130,9 @@ public abstract class AbstractSpringContextValidationTestNG {
     if (beans.length == 0) {
       fail("No beans created");
     }
-    System.out.println("Beans created");
+    s_logger.info("{} beans created by {}", beans.length, getClass());
     for (String bean : beans) {
-      System.out.println("\t" + bean);
+      s_logger.debug("Bean name {}", bean);
     }
   }
 

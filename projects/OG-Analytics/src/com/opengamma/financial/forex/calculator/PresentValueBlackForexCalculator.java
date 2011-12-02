@@ -5,8 +5,10 @@
  */
 package com.opengamma.financial.forex.calculator;
 
+import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.financial.forex.method.ForexNonDeliverableOptionBlackMethod;
 import com.opengamma.financial.forex.method.ForexOptionSingleBarrierBlackMethod;
 import com.opengamma.financial.forex.method.ForexOptionVanillaBlackMethod;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -36,16 +38,26 @@ public final class PresentValueBlackForexCalculator extends PresentValueForexCal
   private PresentValueBlackForexCalculator() {
   }
 
+  /**
+   * The methods used by the different instruments.
+   */
+  private static final ForexOptionVanillaBlackMethod METHOD_FXOPTION = ForexOptionVanillaBlackMethod.getInstance();
+  private static final ForexOptionSingleBarrierBlackMethod METHOD_FXOPTIONBARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
+  private static final ForexNonDeliverableOptionBlackMethod METHOD_NDO = ForexNonDeliverableOptionBlackMethod.getInstance();
+
   @Override
   public MultipleCurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
-    final ForexOptionVanillaBlackMethod method = ForexOptionVanillaBlackMethod.getInstance();
-    return method.presentValue(derivative, data);
+    return METHOD_FXOPTION.presentValue(derivative, data);
   }
 
   @Override
   public MultipleCurrencyAmount visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative, final YieldCurveBundle data) {
-    final ForexOptionSingleBarrierBlackMethod method = ForexOptionSingleBarrierBlackMethod.getInstance();
-    return method.presentValue(derivative, data);
+    return METHOD_FXOPTIONBARRIER.presentValue(derivative, data);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitForexNonDeliverableOption(final ForexNonDeliverableOption derivative, final YieldCurveBundle data) {
+    return METHOD_NDO.presentValue(derivative, data);
   }
 
 }
