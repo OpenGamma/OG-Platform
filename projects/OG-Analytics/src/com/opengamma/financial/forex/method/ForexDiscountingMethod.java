@@ -10,9 +10,10 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.payments.method.PaymentFixedDiscountingMethod;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -40,9 +41,9 @@ public final class ForexDiscountingMethod implements ForexPricingMethod {
   }
 
   /**
-   * Interest rate present value calculator by discounting.
+   * Fixed payments method.
    */
-  private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
+  private static final PaymentFixedDiscountingMethod METHOD_PAY = new PaymentFixedDiscountingMethod();
   /**
    * Interest rate present value rate sensitivity by discounting.
    */
@@ -55,10 +56,9 @@ public final class ForexDiscountingMethod implements ForexPricingMethod {
    * @return The multi-currency present value.
    */
   public MultipleCurrencyAmount presentValue(final Forex fx, final YieldCurveBundle curves) {
-    final double pv1 = PVC.visit(fx.getPaymentCurrency1(), curves);
-    final MultipleCurrencyAmount pv = MultipleCurrencyAmount.of(fx.getCurrency1(), pv1);
-    final double pv2 = PVC.visit(fx.getPaymentCurrency2(), curves);
-    return pv.plus(fx.getCurrency2(), pv2);
+    CurrencyAmount pv1 = METHOD_PAY.presentValue(fx.getPaymentCurrency1(), curves);
+    CurrencyAmount pv2 = METHOD_PAY.presentValue(fx.getPaymentCurrency2(), curves);
+    return MultipleCurrencyAmount.of(pv1, pv2);
   }
 
   @Override
@@ -70,6 +70,19 @@ public final class ForexDiscountingMethod implements ForexPricingMethod {
   @Override
   public MultipleCurrencyAmount currencyExposure(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     return presentValue(instrument, curves);
+  }
+
+  /**
+   * Computes the forward exchange rate associated to the Forex instrument (1 Cyy1 = fwd Cyy2).
+   * @param fx The Forex derivative.
+   * @param curves The curve bundle (with FX rates).
+   * @return The forward rate.
+   */
+  public double forwardForexRate(final Forex fx, final YieldCurveWithFXBundle curves) {
+    final double dfDomestic = curves.getCurve(fx.getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(fx.getPaymentTime());
+    final double dfForeign = curves.getCurve(fx.getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(fx.getPaymentTime());
+    final double spot = curves.getFxRate(fx.getCurrency1(), fx.getCurrency2());
+    return spot * dfForeign / dfDomestic;
   }
 
   /**
