@@ -69,7 +69,7 @@ public abstract class PushRequirementBasedWebViewGrid extends PushWebViewGrid {
     super(name, viewClient, resultConverterCache);
     
     List<RequirementBasedColumnKey> requirements = getRequirements(compiledViewDefinition.getViewDefinition(), targetTypes);
-    // TODO signature has changed
+    // TODO signature has changed - targets needs to be a List<ComputationTargetSpecification>
     //_gridStructure = new RequirementBasedGridStructure(compiledViewDefinition, targetTypes, requirements, targets);
     _gridStructure = null;
     _nullCellValue = nullCellValue;

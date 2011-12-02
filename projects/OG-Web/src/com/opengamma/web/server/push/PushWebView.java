@@ -92,7 +92,8 @@ public class PushWebView implements Viewport {
   // TODO make sure an update event is published when the view defs compile?
   private void initGrids(CompiledViewDefinition compiledViewDefinition) {
     synchronized (_lock) {
-      WebViewPortfolioGrid portfolioGrid = new WebViewPortfolioGrid(_viewClient, compiledViewDefinition, _resultConverterCache);
+      // TODO grid now needs a local and remote cometd Client - need to see what they're used for and implement it
+      WebViewPortfolioGrid portfolioGrid = null;//new WebViewPortfolioGrid(_viewClient, compiledViewDefinition, _resultConverterCache);
 
       _gridStructures = new HashMap<String, Object>();
 
