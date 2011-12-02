@@ -165,6 +165,7 @@ $.register_module({
                 layout.inner.options.south.onclose = null;
                 layout.inner.close('south');
                 api.rest.timeseries.get({
+                    dependencies: ['id'],
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var json = result.data;

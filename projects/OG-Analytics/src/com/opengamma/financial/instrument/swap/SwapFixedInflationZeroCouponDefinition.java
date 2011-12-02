@@ -14,7 +14,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.instrument.inflation.CouponInflationDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
@@ -60,7 +60,7 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
    * @param priceIndexTimeSeries The time series with the relevant price index values.
    * @return The zero coupon inflation swap.
    */
-  public static SwapFixedInflationZeroCouponDefinition fromInterpolation(final PriceIndex index, final ZonedDateTime settlementDate, int tenor, double fixedRate, double notional,
+  public static SwapFixedInflationZeroCouponDefinition fromInterpolation(final IndexPrice index, final ZonedDateTime settlementDate, int tenor, double fixedRate, double notional,
       final boolean isPayer, final BusinessDayConvention businessDayConvention, final Calendar calendar, final boolean endOfMonth, final int monthLag,
       final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries) {
     Validate.notNull(index, "Price index");
