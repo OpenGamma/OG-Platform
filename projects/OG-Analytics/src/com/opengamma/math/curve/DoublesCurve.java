@@ -62,10 +62,14 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     _xData = new double[_n];
     _yData = new double[_n];
     for (int i = 0; i < _n; i++) {
-      Validate.notNull(xData[i], "element " + i + " of x data");
-      Validate.notNull(yData[i], "element " + i + " of y data");
-      _xData[i] = xData[i];
-      _yData[i] = yData[i];
+      Double x = xData[i];
+      Double y = yData[i];
+      if (x == null || y == null) {
+        Validate.notNull(x, "element " + i + " of x data");
+        Validate.notNull(y, "element " + i + " of y data");
+      }
+      _xData[i] = x;
+      _yData[i] = y;
     }
     if (!isSorted) {
       ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
@@ -85,10 +89,14 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     _yData = new double[_n];
     int i = 0;
     for (final Map.Entry<Double, Double> entry : data.entrySet()) {
-      Validate.notNull(entry.getKey(), "element " + i + " of x data");
-      Validate.notNull(entry.getValue(), "element " + i + " of y data");
-      _xData[i] = entry.getKey();
-      _yData[i++] = entry.getValue();
+      Double x = entry.getKey();
+      Double y = entry.getValue();
+      if (x == null || y == null) {
+        Validate.notNull(x, "element " + i + " of x data");
+        Validate.notNull(y, "element " + i + " of y data");
+      }
+      _xData[i] = x;
+      _yData[i++] = y;
     }
     if (!isSorted) {
       ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
@@ -107,9 +115,12 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     _xData = new double[_n];
     _yData = new double[_n];
     for (int i = 0; i < _n; i++) {
-      Validate.notNull(data[i], "element " + i + " of data");
-      _xData[i] = data[i].first;
-      _yData[i] = data[i].second;
+      DoublesPair pair = data[i];
+      if (pair == null) {
+        Validate.notNull(data[i], "element " + i + " of data");
+      }
+      _xData[i] = pair.first;
+      _yData[i] = pair.second;
     }
     if (!isSorted) {
       ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
@@ -129,7 +140,9 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     _yData = new double[_n];
     int i = 0;
     for (final DoublesPair entry : data) {
-      Validate.notNull(entry, "element " + i + " of data");
+      if (entry == null) {
+        Validate.notNull(entry, "element " + i + " of data");
+      }
       _xData[i] = entry.first;
       _yData[i++] = entry.second;
     }
@@ -153,10 +166,14 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     _xData = new double[_n];
     _yData = new double[_n];
     for (int i = 0; i < _n; i++) {
-      Validate.notNull(xData.get(i), "element " + i + " of data");
-      Validate.notNull(yData.get(i), "element " + i + " of data");
-      _xData[i] = xData.get(i);
-      _yData[i] = yData.get(i);
+      Double x = xData.get(i);
+      Double y = yData.get(i);
+      if (x == null || y == null) {
+        Validate.notNull(x, "element " + i + " of x data");
+        Validate.notNull(y, "element " + i + " of y data");
+      }
+      _xData[i] = x;
+      _yData[i] = y;
     }
     if (!isSorted) {
       ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
@@ -221,8 +238,10 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     _xData = new double[_n];
     _yData = new double[_n];
     for (int i = 0; i < _n; i++) {
-      Validate.notNull(xData[i], "element " + i + " of x data");
-      Validate.notNull(yData[i], "element " + i + " of y data");
+      if (xData[i] == null || yData[i] == null) {
+        Validate.notNull(xData[i], "element " + i + " of x data");
+        Validate.notNull(yData[i], "element " + i + " of y data");
+      }
       _xData[i] = xData[i];
       _yData[i] = yData[i];
     }

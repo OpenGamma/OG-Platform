@@ -13,7 +13,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.instrument.index.iborindex.EURIBOR3M;
 import com.opengamma.financial.instrument.index.iborindex.EURIBOR6M;
 import com.opengamma.financial.instrument.index.iborindex.USDLIBOR3M;
@@ -55,7 +55,7 @@ public class MarketDataSets {
 
   private static final String NAME_EUR_PRICE_INDEX = "Euro HICP x";
   private static final Period LAG_EUR = Period.ofDays(14);
-  private static final PriceIndex PRICE_INDEX_EUR = new PriceIndex(NAME_EUR_PRICE_INDEX, Currency.EUR, Currency.EUR, LAG_EUR);
+  private static final IndexPrice PRICE_INDEX_EUR = new IndexPrice(NAME_EUR_PRICE_INDEX, Currency.EUR, Currency.EUR, LAG_EUR);
   private static final double[] INDEX_VALUE_EUR = new double[] {113.11, 113.10, 115.12, 123.23, 133.33, 155.55}; // May11, June11, 1Y, 5Y, 10Y, 20Y
   private static final double[] TIME_VALUE_EUR = new double[] {-3.0 / 12.0, -2.0 / 12.0, 9.0 / 12.0, 4.0 + 9.0 / 12.0, 9.0 + 9.0 / 12.0, 19.0 + 9.0 / 12.0};
   private static final InterpolatedDoublesCurve CURVE_EUR = InterpolatedDoublesCurve.from(TIME_VALUE_EUR, INDEX_VALUE_EUR, new LinearInterpolator1D(), NAME_EUR_PRICE_INDEX);
@@ -63,7 +63,7 @@ public class MarketDataSets {
 
   private static final String NAME_GBP_PRICE_INDEX = "UK RPI";
   private static final Period LAG_GBP = Period.ofDays(14);
-  private static final PriceIndex PRICE_INDEX_GBP = new PriceIndex(NAME_GBP_PRICE_INDEX, Currency.GBP, Currency.GBP, LAG_GBP);
+  private static final IndexPrice PRICE_INDEX_GBP = new IndexPrice(NAME_GBP_PRICE_INDEX, Currency.GBP, Currency.GBP, LAG_GBP);
   private static final double[] INDEX_VALUE_GBP = new double[] {228.4, 232.0, 240.0, 251.1, 275.2, 456.7}; // Dec10, 1Y, 5Y, 10Y, 20Y, 50Y
   private static final double[] TIME_VALUE_GBP = new double[] {-8.0 / 12.0, 4.0 / 12.0, 4.0 + 4.0 / 12.0, 9.0 + 4.0 / 12.0, 19.0 + 4.0 / 12.0, 49.0 + 4.0 / 12.0};
   private static final InterpolatedDoublesCurve CURVE_GBP = InterpolatedDoublesCurve.from(TIME_VALUE_GBP, INDEX_VALUE_GBP, new LinearInterpolator1D(), NAME_GBP_PRICE_INDEX);
@@ -71,7 +71,7 @@ public class MarketDataSets {
 
   private static final String NAME_USD_PRICE_INDEX = "US CPI-U";
   private static final Period LAG_USD = Period.ofDays(14);
-  private static final PriceIndex PRICE_INDEX_USD = new PriceIndex(NAME_USD_PRICE_INDEX, Currency.USD, Currency.USD, LAG_USD);
+  private static final IndexPrice PRICE_INDEX_USD = new IndexPrice(NAME_USD_PRICE_INDEX, Currency.USD, Currency.USD, LAG_USD);
   private static final double[] INDEX_VALUE_USD = new double[] {225.964, 225.722, 230.0, 251.1, 280.2, 452.7}; // May11, June11, 1Y, 5Y, 10Y, 20Y, 50Y
   private static final double[] TIME_VALUE_USD = new double[] {-8.0 / 12.0, 4.0 / 12.0, 4.0 + 4.0 / 12.0, 9.0 + 4.0 / 12.0, 19.0 + 4.0 / 12.0, 49.0 + 4.0 / 12.0};
   private static final InterpolatedDoublesCurve CURVE_USD = InterpolatedDoublesCurve.from(TIME_VALUE_USD, INDEX_VALUE_USD, new LinearInterpolator1D(), NAME_USD_PRICE_INDEX);
@@ -238,8 +238,8 @@ public class MarketDataSets {
     return EUROHICPX_TIME_SERIES;
   }
 
-  public static PriceIndex[] getPriceIndexes() {
-    return new PriceIndex[] {PRICE_INDEX_EUR, PRICE_INDEX_GBP, PRICE_INDEX_USD};
+  public static IndexPrice[] getPriceIndexes() {
+    return new IndexPrice[] {PRICE_INDEX_EUR, PRICE_INDEX_GBP, PRICE_INDEX_USD};
   }
 
   public static IborIndex[] getIborIndexes() {

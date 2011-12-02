@@ -1,5 +1,7 @@
 package com.opengamma.financial.analytics.ircurve;
 
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.util.ArrayList;
 
 import org.testng.AssertJUnit;
@@ -32,6 +34,12 @@ public class YieldCurveInterpolatingFunctionTests {
       double x = interpolatedCurve.getXData()[i];
       double y = interpolatedCurve.getYData()[i];
       AssertJUnit.assertEquals(inputCurve.getYValue(x), y);
+    }
+    
+    for (int i = 1; i < interpolatedCurve.getXData().length; i++) {
+      double x = interpolatedCurve.getXData()[i];
+      double prevX = interpolatedCurve.getXData()[i-1];
+      assertTrue(prevX < x);
     }
   }
 }

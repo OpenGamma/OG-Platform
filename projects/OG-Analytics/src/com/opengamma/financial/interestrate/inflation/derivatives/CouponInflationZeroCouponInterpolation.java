@@ -7,7 +7,7 @@ package com.opengamma.financial.interestrate.inflation.derivatives;
 
 import java.util.Arrays;
 
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.util.money.Currency;
@@ -57,7 +57,7 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
    * @param fixingEndTime The time on which the end index is expected to be known.
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    */
-  public CouponInflationZeroCouponInterpolation(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, PriceIndex priceIndex,
+  public CouponInflationZeroCouponInterpolation(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, IndexPrice priceIndex,
       double indexStartValue, double[] referenceEndTime, double weight, double fixingEndTime, boolean payNotional) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, priceIndex);
     this._indexStartValue = indexStartValue;
