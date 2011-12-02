@@ -17,6 +17,7 @@ import com.opengamma.engine.view.calc.ComputationCacheResponse;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.web.server.WebGridCell;
 import com.opengamma.web.server.conversion.ResultConverter;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 import it.unimi.dsi.fastutil.ints.IntArraySet;

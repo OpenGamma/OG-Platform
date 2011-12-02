@@ -62,7 +62,9 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
 
   private RestUpdateManager getUpdateManager() {
     ApplicationContext context = WebApplicationContextUtils.getRequiredWebApplicationContext(_servletContext);
-    return context.getBean(RestUpdateManager.class);
+    // TODO commented out until the push config can be merged back into the master config
+    //return context.getBean(RestUpdateManager.class);
+    return null;
   }
 
   private ResourceFilter createEntitySubscriptionFilter(AbstractMethod abstractMethod) {
