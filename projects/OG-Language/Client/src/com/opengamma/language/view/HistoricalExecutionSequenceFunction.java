@@ -28,6 +28,7 @@ import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Generates an execution sequence that causes historical market data to be used.
@@ -62,6 +63,8 @@ public class HistoricalExecutionSequenceFunction extends AbstractFunctionInvoker
   }
   
   public static ViewCycleExecutionSequence generate(Instant from, Instant to, Integer samplePeriodSeconds, String timeSeriesResolverKey, String timeSeriesFieldResolverKey) {
+    ArgumentChecker.notNull(from, "from");
+    ArgumentChecker.notNull(to, "to");
     if (samplePeriodSeconds == null) {
       samplePeriodSeconds = DEFAULT_SAMPLE_PERIOD_SECONDS;
     }
