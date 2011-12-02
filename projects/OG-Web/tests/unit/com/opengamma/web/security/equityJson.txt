@@ -9,6 +9,7 @@
     "name": "APPLE INC",
     "object_id": "MemSec~1",
     "version_id": "",
+    "hts_id": "",
     "securityType":"EQUITY" },
     "identifiers": { "BLOOMBERG_BUID":"BLOOMBERG_BUID-EQ0010169500001000",  "BLOOMBERG_TICKER":"BLOOMBERG_TICKER-AAPL US Equity",  "CUSIP":"CUSIP-037833100",  "ISIN":"ISIN-US0378331005",  "SEDOL1":"SEDOL1-2046251" }
 }
