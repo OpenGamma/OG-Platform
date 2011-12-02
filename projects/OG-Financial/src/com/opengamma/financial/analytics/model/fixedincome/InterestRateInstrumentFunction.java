@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.fixedincome;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
@@ -26,7 +27,10 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
@@ -49,24 +53,39 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
 public abstract class InterestRateInstrumentFunction extends AbstractFunction.NonCompiledInvoker {
+
+  /**
+   * 
+   */
+  protected static final String RESULT_PROPERTY_TYPE = "Type";
+
+  /**
+   * 
+   */
+  protected static final String TYPE_FORWARD = "Forward";
+
+  /**
+   * 
+   */
+  protected static final String TYPE_FUNDING = "Funding";
+
   private FixedIncomeConverterDataProvider _definitionConverter;
   private final String _valueRequirementName;
   private FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> _visitor;
-  private final String _forwardCurveName;
-  private final String _fundingCurveName;
 
-  public InterestRateInstrumentFunction(final String forwardCurveName, final String fundingCurveName, final String valueRequirementName) {
-    Validate.notNull(forwardCurveName, "forward curve name");
-    Validate.notNull(fundingCurveName, "funding curve name");
+  public InterestRateInstrumentFunction(final String valueRequirementName) {
     Validate.notNull(valueRequirementName, "value requirement name");
-    _forwardCurveName = forwardCurveName;
-    _fundingCurveName = fundingCurveName;
     _valueRequirementName = valueRequirementName;
+  }
+
+  protected String getValueRequirementName() {
+    return _valueRequirementName;
   }
 
   @Override
@@ -74,7 +93,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext
-    .getConventionBundleSource(context);
+        .getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, conventionSource);
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
@@ -85,48 +104,12 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
     final FutureSecurityConverter futureConverter = new FutureSecurityConverter(bondFutureConverter, irFutureConverter);
     _visitor =
-      FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
-        .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
-        .futureSecurityVisitor(futureConverter)
-        .bondSecurityVisitor(bondConverter).create();
+        FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
+            .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
+            .futureSecurityVisitor(futureConverter)
+            .bondSecurityVisitor(bondConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
-
-  @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-      final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    final ValueRequirement forwardCurveRequirement = getCurveRequirement(target, _forwardCurveName, _forwardCurveName, _fundingCurveName);
-    final Object forwardCurveObject = inputs.getValue(forwardCurveRequirement);
-    if (forwardCurveObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + forwardCurveRequirement);
-    }
-    Object fundingCurveObject = null;
-    if (!_forwardCurveName.equals(_fundingCurveName)) {
-      final ValueRequirement fundingCurveRequirement = getCurveRequirement(target, _fundingCurveName, _forwardCurveName, _fundingCurveName);
-      fundingCurveObject = inputs.getValue(fundingCurveRequirement);
-      if (fundingCurveObject == null) {
-        throw new OpenGammaRuntimeException("Could not get " + fundingCurveRequirement);
-      }
-    }
-    final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
-    final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve
-        : (YieldAndDiscountCurve) fundingCurveObject;
-    final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {_fundingCurveName, _forwardCurveName},
-        new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
-    final InstrumentDefinition<?> definition = security.accept(_visitor);
-    if (definition == null) {
-      throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
-    }
-    final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security,
-        _fundingCurveName, _forwardCurveName), dataSource);
-    return getComputedValues(derivative, bundle, security, target);
-  }
-
-  public abstract Set<ComputedValue> getComputedValues(InstrumentDerivative derivative, YieldCurveBundle bundle, FinancialSecurity security, ComputationTarget target);
 
   @Override
   public ComputationTargetType getTargetType() {
@@ -135,31 +118,76 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     if (!(target.getSecurity() instanceof FinancialSecurity)) {
       return false;
     }
     return InterestRateInstrumentType.isFixedIncomeInstrumentType((FinancialSecurity) target.getSecurity());
   }
 
-  @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target,
-      final ValueRequirement desiredValue) {
-    if (_forwardCurveName.equals(_fundingCurveName)) {
-      return Collections.singleton(getCurveRequirement(target, _forwardCurveName, _forwardCurveName, _fundingCurveName));
-    }
-    return Sets.newHashSet(getCurveRequirement(target, _forwardCurveName, _forwardCurveName, _fundingCurveName),
-        getCurveRequirement(target, _fundingCurveName, _forwardCurveName, _fundingCurveName));
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
+    final ValueProperties.Builder properties = createValueProperties();
+    FixedIncomeInstrumentCurveExposureHelper.valuePropertiesForSecurity((FinancialSecurity) target.getSecurity(), properties);
+    return properties;
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(
-        new ValueSpecification(_valueRequirementName, target.toSpecification(),
-            FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(
-                (FinancialSecurity) target.getSecurity(), _fundingCurveName, _forwardCurveName, createValueProperties())));
+    final ValueProperties.Builder properties = createValueProperties(target);
+    properties.withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE).withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get()));
+  }
+
+  // REVIEW 2011-11-25 andrew -- The property for the curve name should really be NAME when applied to the curve object;
+  // it should only become CURVE when applied to something using it (like this).
+
+  protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String advisoryForwardCurveName, final String advisoryFundingCurveName) {
+    final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
+    final ValueProperties.Builder properties = ValueProperties.with(ValuePropertyNames.CURVE, curveName);
+    if (advisoryForwardCurveName != null) {
+      properties.with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, advisoryForwardCurveName);
+    }
+    if (advisoryFundingCurveName != null) {
+      properties.with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, advisoryFundingCurveName);
+    }
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());
+  }
+
+  @Override
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final Set<String> forwardCurves = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+    final Set<String> fundingCurves = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+    if ((forwardCurves == null) || (fundingCurves == null) || (forwardCurves.size() != 1) || (fundingCurves.size() != 1)) {
+      // Can't support an unbound request; an injection function must be used (or declare all as optional and use [PLAT-1771])
+      return null;
+    }
+    final String forwardCurve = forwardCurves.iterator().next();
+    final String fundingCurve = fundingCurves.iterator().next();
+    if (forwardCurve.equals(fundingCurve)) {
+      return Collections.singleton(getCurveRequirement(target, forwardCurve, null, null));
+    } else {
+      return Sets.newHashSet(getCurveRequirement(target, forwardCurve, forwardCurve, fundingCurve), getCurveRequirement(target, fundingCurve, forwardCurve, fundingCurve));
+    }
+  }
+
+  protected Set<ValueSpecification> getResults(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName) {
+    final ValueProperties.Builder properties = createValueProperties(target).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE,
+        fundingCurveName);
+    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get()));
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    if (inputs.size() == 1) {
+      final String curveName = inputs.keySet().iterator().next().getProperty(ValuePropertyNames.CURVE);
+      return getResults(target, curveName, curveName);
+    } else {
+      assert inputs.size() == 2;
+      // Only need to check one; the advisory forward/funding will be correct on either
+      final ValueSpecification spec = inputs.keySet().iterator().next();
+      final String forwardCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+      final String fundingCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+      return getResults(target, forwardCurveName, fundingCurveName);
+    }
   }
 
   @Override
@@ -167,16 +195,48 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     return "InterestRateInstrumentFunction";
   }
 
-  protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName,
-      final String forwardCurveName, final String fundingCurveName) {
-    return YieldCurveFunction.getCurveRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity()), curveName, forwardCurveName, fundingCurveName);
+  public abstract Set<ComputedValue> getComputedValues(InstrumentDerivative derivative, YieldCurveBundle bundle, FinancialSecurity security, ComputationTarget target, String forwardCurveName,
+      String fundingCurveName);
+
+  @Override
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
+      final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Clock snapshotClock = executionContext.getValuationClock();
+    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
+    final String forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+    final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+    final ValueRequirement forwardCurveRequirement = getCurveRequirement(target, forwardCurveName, null, null);
+    final Object forwardCurveObject = inputs.getValue(forwardCurveRequirement);
+    if (forwardCurveObject == null) {
+      throw new OpenGammaRuntimeException("Could not get " + forwardCurveRequirement);
+    }
+    Object fundingCurveObject = null;
+    if (!forwardCurveName.equals(fundingCurveName)) {
+      final ValueRequirement fundingCurveRequirement = getCurveRequirement(target, fundingCurveName, null, null);
+      fundingCurveObject = inputs.getValue(fundingCurveRequirement);
+      if (fundingCurveObject == null) {
+        throw new OpenGammaRuntimeException("Could not get " + fundingCurveRequirement);
+      }
+    }
+    final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
+    final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve
+        : (YieldAndDiscountCurve) fundingCurveObject;
+    final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName }, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve });
+    final InstrumentDefinition<?> definition = security.accept(_visitor);
+    if (definition == null) {
+      throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
+    }
+    final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security,
+        fundingCurveName, forwardCurveName), dataSource);
+    return getComputedValues(derivative, bundle, security, target, forwardCurveName, fundingCurveName);
   }
 
-  protected String getForwardCurveName() {
-    return _forwardCurveName;
+  protected ValueSpecification getResultSpec(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName) {
+    return new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).get());
   }
 
-  protected String getFundingCurveName() {
-    return _fundingCurveName;
-  }
 }

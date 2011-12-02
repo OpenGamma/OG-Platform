@@ -16,6 +16,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.analytics.volatility.surface.IRFutureOptionSurfaceConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
+import com.opengamma.financial.currency.CurrencyPairsConfigPopulator;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
@@ -67,6 +68,7 @@ public final class DemoMastersHelper {
     InMemoryConfigMaster cfgMaster = new InMemoryConfigMaster();
     YieldCurveConfigPopulator.populateCurveConfigMaster(cfgMaster);
     CurrencyMatrixConfigPopulator.populateCurrencyMatrixConfigMaster(cfgMaster);
+    CurrencyPairsConfigPopulator.populateCurrencyPairsConfigMaster(cfgMaster);
     FXOptionVolatilitySurfaceConfigPopulator.populateVolatilitySurfaceConfigMaster(cfgMaster);
     IRFutureOptionSurfaceConfigPopulator.populateVolatilitySurfaceConfigMaster(cfgMaster);
     _configMaster = cfgMaster;

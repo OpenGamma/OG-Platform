@@ -145,7 +145,7 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTest extends AbstractDbHist
   @Test
   public void test_update_rollback() {
     DbHistoricalTimeSeriesMaster w = new DbHistoricalTimeSeriesMaster(_htsMaster.getDbConnector());
-    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("Invalid"), DbHistoricalTimeSeriesMaster.class));
+    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("TestRollback"), DbHistoricalTimeSeriesMaster.class));
     final HistoricalTimeSeriesInfoDocument base = _htsMaster.get(UniqueId.of("DbHts", "101", "0"));
     ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
     info.setUniqueId(UniqueId.of("DbHts", "101", "0"));

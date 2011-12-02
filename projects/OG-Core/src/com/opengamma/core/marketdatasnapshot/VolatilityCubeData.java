@@ -17,7 +17,6 @@ import java.util.TreeMap;
 import com.google.common.collect.Lists;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -36,13 +35,17 @@ public class VolatilityCubeData {
    */
   private Map<VolatilityPoint, ExternalId> _dataIds;
   /**
+   * The relative strikes of the market data points;
+   */
+  private Map<VolatilityPoint, Double> _relativeStrikes;
+  /**
    * The other market data needed
    */
   private SnapshotDataBundle _otherData;
   /**
    * The ATM strikes
    */
-  private Map<Pair<Tenor, Tenor>, Double> _strikes;
+  private Map<Pair<Tenor, Tenor>, Double> _atmStrikes;
   /**
    * The ATM vols
    */
@@ -55,6 +58,10 @@ public class VolatilityCubeData {
    * The ids of the smiles
    */
   private SortedMap<Tenor, SortedMap<Tenor, ExternalId[]>> _smileIds;
+  /** 
+   * The relative strikes of the smiles
+   */
+  private SortedMap<Tenor, SortedMap<Tenor, Double[]>> _smileRelativeStrikes;
   /**
    * Gets the volatilities in the bundle.
    * 
@@ -85,10 +92,28 @@ public class VolatilityCubeData {
   /**
    * Sets the ids of the volatilities in the bundle.
    * 
-   * @param dataPoints  the ids of the volatilities in the bundle
+   * @param dataIds  the ids of the volatilities in the bundle
    */
   public void setDataIds(Map<VolatilityPoint, ExternalId> dataIds) {
     _dataIds = dataIds;
+  }
+  
+  /**
+   * Sets the relative strikes of the volatilities in the bundle.
+   * 
+   * @param relativeStrikes  the relative strikes of the volatilities in the bundle
+   */
+  public void setRelativeStrikes(Map<VolatilityPoint, Double> relativeStrikes) {
+    _relativeStrikes = relativeStrikes;
+  }
+  
+  /**
+   * Gets the relative strikes of the volatilities in the bundle.
+   * 
+   * @return the relative strikes of the volatilities in the bundle
+   */
+  public Map<VolatilityPoint, Double> getRelativeStrikes() {
+    return _relativeStrikes;
   }
   
   /**
@@ -112,19 +137,19 @@ public class VolatilityCubeData {
   /**
    * Gets the ATM strikes.
    * 
-   * @return the strikes
+   * @return the ATM strikes
    */
-  public Map<Pair<Tenor, Tenor>, Double> getStrikes() {
-    return _strikes;
+  public Map<Pair<Tenor, Tenor>, Double> getATMStrikes() {
+    return _atmStrikes;
   }
 
   /**
    * Sets the ATM strikes.
    * 
-   * @param strikes  the strikes
+   * @param atmStrikes  the ATM strikes
    */
-  public void setStrikes(Map<Pair<Tenor, Tenor>, Double> strikes) {
-    _strikes = strikes;
+  public void setATMStrikes(Map<Pair<Tenor, Tenor>, Double> atmStrikes) {
+    _atmStrikes = atmStrikes;
   }
 
   /**
@@ -151,33 +176,70 @@ public class VolatilityCubeData {
    * 
    * @return the smiles
    */
+  @SuppressWarnings("unchecked")
   public SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> getSmiles() {
     // TODO: this is slow.  Would start to matter if we got more data
     // Could avoid it on deserialization, which is the repeated case
-    _smiles = _smiles == null ? getSmiles(_dataPoints) : _smiles;
+    if (_smiles == null) {
+      @SuppressWarnings("rawtypes")
+      final Map[] smileArray = createSmiles(_dataPoints, _dataIds, _relativeStrikes);
+      _smiles = (SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>>) smileArray[0];
+      _smileIds = (SortedMap<Tenor, SortedMap<Tenor, ExternalId[]>>) smileArray[1];
+      _smileRelativeStrikes = (SortedMap<Tenor, SortedMap<Tenor, Double[]>>) smileArray[2];
+    }
     return _smiles;
   }
-
+  
   /**
-   * Gets the smiles and smile ids fields.
-   * smile = Swap Tenor -> Option Expiry -> (relative strikes in bps[], volatility[]).
-   * smileId = Swap Tenor -> Option Expiry -> ExternalIds[]
-   * @return the smiles and smile ids
+   * Gets the smile ids field.
+   * Swap Tenor -> Option Expiry -> (External Id[]).
+   * 
+   * @return the smiles
    */
-  public Pair<SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>>, SortedMap<Tenor, SortedMap<Tenor, ExternalId[]>>> getSmilesAndSmileIds() {
+  @SuppressWarnings("unchecked")
+  public SortedMap<Tenor, SortedMap<Tenor, ExternalId[]>> getSmileIds() {
     // TODO: this is slow.  Would start to matter if we got more data
-    // Could avoid it on deserialization, which is the repeated case    
-    final Pair<SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>>, SortedMap<Tenor, SortedMap<Tenor, ExternalId[]>>> result = _smiles == null ? getSmilesAndIds(_dataPoints, _dataIds) : 
-      Pair.of(_smiles, _smileIds);
-    _smiles = result.getFirst();
-    _smileIds = result.getSecond();
-    return result;
+    // Could avoid it on deserialization, which is the repeated case
+    if (_dataIds == null) {
+      throw new UnsupportedOperationException("Data ids were not set");
+    }
+    if (_smiles == null) {
+      @SuppressWarnings("rawtypes")
+      final Map[] smileArray = createSmiles(_dataPoints, _dataIds, _relativeStrikes);
+      _smiles = (SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>>) smileArray[0];
+      _smileIds = (SortedMap<Tenor, SortedMap<Tenor, ExternalId[]>>) smileArray[1];
+      _smileRelativeStrikes = (SortedMap<Tenor, SortedMap<Tenor, Double[]>>) smileArray[2];
+    }
+    return _smileIds;
   }
   
-  public static Pair<SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>>, SortedMap<Tenor, SortedMap<Tenor, ExternalId[]>>> getSmilesAndIds(final Map<VolatilityPoint, Double> dataPoints,
-      final Map<VolatilityPoint, ExternalId> dataIds) {
+  /**
+   * Gets the smile relative strikes field.
+   * Swap Tenor -> Option Expiry -> (relative strike[]).
+   * 
+   * @return the smiles
+   */
+  @SuppressWarnings("unchecked")
+  public SortedMap<Tenor, SortedMap<Tenor, Double[]>> getSmileRelativeStrikes() {
+    // TODO: this is slow.  Would start to matter if we got more data
+    // Could avoid it on deserialization, which is the repeated case
+    if (_relativeStrikes == null) {
+      throw new UnsupportedOperationException("Relative strikes data were not set");
+    }
+    if (_smiles == null) {
+      @SuppressWarnings("rawtypes")
+      final Map[] smileArray = createSmiles(_dataPoints, _dataIds, _relativeStrikes);
+      _smiles = (SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>>) smileArray[0];
+      _smileIds = (SortedMap<Tenor, SortedMap<Tenor, ExternalId[]>>) smileArray[1];
+      _smileRelativeStrikes = (SortedMap<Tenor, SortedMap<Tenor, Double[]>>) smileArray[2];
+    }
+    return _smileRelativeStrikes;
+  }
+  
+  @SuppressWarnings("rawtypes")
+  private static Map[] createSmiles(final Map<VolatilityPoint, Double> dataPoints, final Map<VolatilityPoint, ExternalId> dataIds, final Map<VolatilityPoint, Double> relativeStrikePoints) {
     if (dataPoints == null) {
-      return null;
+      return new Map[] {null, null, null};
     }
     ArrayList<Entry<VolatilityPoint, Double>> entries = Lists.newArrayList(dataPoints.entrySet());
     Collections.sort(entries, new Comparator<Entry<VolatilityPoint, Double>>() {
@@ -205,11 +267,13 @@ public class VolatilityCubeData {
     
     SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> smiles = new TreeMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>>();
     SortedMap<Tenor, SortedMap<Tenor, ExternalId[]>> smileIds = new TreeMap<Tenor, SortedMap<Tenor, ExternalId[]>>();
+    SortedMap<Tenor, SortedMap<Tenor, Double[]>> smileRelativeStrikes = new TreeMap<Tenor, SortedMap<Tenor, Double[]>>();
     Tenor currentSwapTenor = null;
     Tenor currentOptionExpiry = null;
     ArrayList<Double> strikes = null;
     ArrayList<Double> vols = null;
     ArrayList<ExternalId> ids = null;
+    ArrayList<Double> relativeStrikes = null;
     
     for (Entry<VolatilityPoint, Double> entry : entries) {
       Tenor swapTenor = entry.getKey().getSwapTenor();
@@ -221,13 +285,14 @@ public class VolatilityCubeData {
         if (!smiles.containsKey(swapTenor)) {
           smiles.put(swapTenor, new TreeMap<Tenor, Pair<double[], double[]>>());
           smileIds.put(swapTenor, new TreeMap<Tenor, ExternalId[]>());
+          smileRelativeStrikes.put(swapTenor, new TreeMap<Tenor, Double[]>());
         }
       }
       if (newSwapTenor || newExpiry) {
         if (currentOptionExpiry != null) {
-          ObjectsPair<ObjectsPair<double[], double[]>, ExternalId[]> pairsAndIds = getPair(strikes, vols, ids);
-          smiles.get(currentSwapTenor).put(currentOptionExpiry, pairsAndIds.getFirst());
-          smileIds.get(currentSwapTenor).put(currentOptionExpiry, pairsAndIds.getSecond());
+          smiles.get(currentSwapTenor).put(currentOptionExpiry, Pair.of(getNativeArray(strikes), getNativeArray(vols)));
+          smileIds.get(currentSwapTenor).put(currentOptionExpiry, ids.toArray(new ExternalId[ids.size()]));
+          smileRelativeStrikes.get(currentSwapTenor).put(currentOptionExpiry, relativeStrikes.toArray(new Double[relativeStrikes.size()]));
         }
         
         currentSwapTenor = swapTenor;
@@ -235,19 +300,28 @@ public class VolatilityCubeData {
         strikes = new ArrayList<Double>();
         vols = new ArrayList<Double>();
         ids = new ArrayList<ExternalId>();
+        relativeStrikes = new ArrayList<Double>();
       }
-      
       strikes.add(entry.getKey().getRelativeStrike());
       vols.add(entry.getValue());
-      ids.add(dataIds.get(entry.getKey()));
+      if (dataIds != null) {
+        ids.add(dataIds.get(entry.getKey()));
+      }
+      if (relativeStrikePoints != null) {
+        relativeStrikes.add(relativeStrikePoints.get(entry.getKey()));
+      }
     }
     
-    if (currentOptionExpiry != null) {
-      ObjectsPair<ObjectsPair<double[], double[]>, ExternalId[]> pairsAndIds = getPair(strikes, vols, ids);
-      smiles.get(currentSwapTenor).put(currentOptionExpiry, pairsAndIds.getFirst());
-      smileIds.get(currentSwapTenor).put(currentOptionExpiry, pairsAndIds.getSecond());
-    }
-    return Pair.of(smiles, smileIds);
+    if (currentOptionExpiry != null) {      
+      smiles.get(currentSwapTenor).put(currentOptionExpiry, Pair.of(getNativeArray(strikes), getNativeArray(vols)));
+      if (dataIds != null) {
+        smileIds.get(currentSwapTenor).put(currentOptionExpiry, ids.toArray(new ExternalId[ids.size()]));
+      }
+      if (relativeStrikePoints != null) {
+        smileRelativeStrikes.get(currentSwapTenor).put(currentOptionExpiry, relativeStrikes.toArray(new Double[relativeStrikes.size()]));
+      }
+    }    
+    return new Map[] {smiles, smileIds, smileRelativeStrikes};
   }
 
   public static SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> getSmiles(Map<VolatilityPoint, Double> dataPoints) {
@@ -320,12 +394,6 @@ public class VolatilityCubeData {
     double[] nStrikes = getNativeArray(strikes);
     double[] nVols = getNativeArray(vols);
     return Pair.of(nStrikes, nVols);
-  }
-
-  private static ObjectsPair<ObjectsPair<double[], double[]>, ExternalId[]> getPair(ArrayList<Double> strikes, ArrayList<Double> vols, ArrayList<ExternalId> ids) {
-    double[] nStrikes = getNativeArray(strikes);
-    double[] nVols = getNativeArray(vols);
-    return Pair.of(Pair.of(nStrikes, nVols), ids.toArray(new ExternalId[ids.size()]));
   }
   
   private static double[] getNativeArray(ArrayList<Double> strikes) {

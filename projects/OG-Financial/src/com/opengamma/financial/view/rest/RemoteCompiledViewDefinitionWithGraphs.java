@@ -8,6 +8,7 @@ package com.opengamma.financial.view.rest;
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -63,7 +64,7 @@ public class RemoteCompiledViewDefinitionWithGraphs implements CompiledViewDefin
   @Override
   public Collection<CompiledViewCalculationConfiguration> getCompiledCalculationConfigurations() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_COMPILED_CALCULATION_CONFIGURATIONS).build();
-    return _client.access(uri).get(Collection.class);
+    return _client.access(uri).get(List.class);
   }
 
   @SuppressWarnings("unchecked")

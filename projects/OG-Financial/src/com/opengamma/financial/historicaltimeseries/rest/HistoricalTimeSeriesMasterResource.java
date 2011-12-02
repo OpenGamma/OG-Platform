@@ -24,6 +24,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdFudgeBuilder;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
@@ -147,20 +148,22 @@ public class HistoricalTimeSeriesMasterResource {
     private final UniqueId _uid;
     private final LocalDate _from;
     private final LocalDate _to;
+    private final Integer _maxPoints;
 
     public TimeSeriesResource(final UniqueId uid) {
-      this(uid, null, null);
+      this(uid, null, null, null);
     }
 
-    private TimeSeriesResource(final UniqueId uid, final LocalDate from, final LocalDate to) {
+    private TimeSeriesResource(final UniqueId uid, final LocalDate from, final LocalDate to, final Integer maxPoints) {
       _uid = uid;
       _from = from;
       _to = to;
+      _maxPoints = maxPoints;
     }
 
     @GET
     public FudgeMsgEnvelope get() {
-      if ((_from != null) || (_to != null)) {
+      if ((_from != null) || (_to != null) || (_maxPoints != null)) {
         return getTimeSeries();
       }
       try {
@@ -174,7 +177,7 @@ public class HistoricalTimeSeriesMasterResource {
     @Path("timeSeries")
     public FudgeMsgEnvelope getTimeSeries() {
       try {
-        return new FudgeMsgEnvelope(getFudgeSerializer().objectToFudgeMsg(getUnderlying().getTimeSeries(_uid, _from, _to)));
+        return new FudgeMsgEnvelope(getFudgeSerializer().objectToFudgeMsg(getUnderlying().getTimeSeries(_uid, HistoricalTimeSeriesGetFilter.ofRange(_from, _to, _maxPoints))));
       } catch (DataNotFoundException e) {
         throw new WebApplicationException(Response.Status.NOT_FOUND);
       }
@@ -197,12 +200,17 @@ public class HistoricalTimeSeriesMasterResource {
 
     @Path("from/{from}")
     public TimeSeriesResource from(@PathParam("from") final String fromString) {
-      return new TimeSeriesResource(_uid, LocalDate.parse(fromString), _to);
+      return new TimeSeriesResource(_uid, LocalDate.parse(fromString), _to, _maxPoints);
     }
 
     @Path("to/{to}")
     public TimeSeriesResource to(@PathParam("to") final String toString) {
-      return new TimeSeriesResource(_uid, _from, LocalDate.parse(toString));
+      return new TimeSeriesResource(_uid, _from, LocalDate.parse(toString), _maxPoints);
+    }
+    
+    @Path("maxPoints/{maxPoints}")
+    public TimeSeriesResource maxPoints(@PathParam("maxPoints") final String maxString) {
+      return new TimeSeriesResource(_uid, _from, _to, Integer.parseInt(maxString));
     }
 
   }

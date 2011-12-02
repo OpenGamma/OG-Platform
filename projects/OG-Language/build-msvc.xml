@@ -17,6 +17,7 @@
 		<mkdir dir="${build.dir}/${msbuild.config}${msbuild.platform}" />
 		<exec executable="msbuild" failonerror="true">
 			<arg value="${basedir}\${ant.project.name}.vcxproj" />
+		    <arg value="/maxcpucount" />
 			<arg value="/p:SolutionDir=${basedir}\..\" />
 			<arg value="/p:Configuration=${msbuild.config}" />
 			<arg value="/p:Platform=${msbuild.platform}" />
@@ -25,17 +26,17 @@
 			<param name="compile.type" value="${msbuild.config}${msbuild.platform}" />
 		</antcall>
 	</target>
-	<target name="compile-win32-debug" if="msvc.Debug">
+	<target name="compile-win32-debug" unless="msvc.disable.Debug">
 		<antcall target="run-msbuild">
 			<param name="msbuild.config" value="Debug" />
 		</antcall>
 	</target>
-	<target name="compile-win32-release" if="msvc.Release">
+	<target name="compile-win32-release" unless="msvc.disable.Release">
 		<antcall target="run-msbuild">
 			<param name="msbuild.config" value="Release" />
 		</antcall>
 	</target>
-	<target name="compile-win32" if="msvc.Win32">
+	<target name="compile-win32" unless="msvc.disable.Win32">
 		<antcall target="compile-win32-debug">
 			<param name="msbuild.platform" value="Win32" />
 		</antcall>
@@ -43,17 +44,17 @@
 			<param name="msbuild.platform" value="Win32" />
 		</antcall>
 	</target>
-	<target name="compile-x64-debug" if="msvc.Debug">
+	<target name="compile-x64-debug" unless="msvc.disable.Debug">
 		<antcall target="run-msbuild">
 			<param name="msbuild.config" value="Debug" />
 		</antcall>
 	</target>
-	<target name="compile-x64-release" if="msvc.Release">
+	<target name="compile-x64-release" unless="msvc.disable.Release">
 		<antcall target="run-msbuild">
 			<param name="msbuild.config" value="Release" />
 		</antcall>
 	</target>
-	<target name="compile-x64" if="msvc.x64">
+	<target name="compile-x64" unless="msvc.disable.x64">
 		<antcall target="compile-x64-debug">
 			<param name="msbuild.platform" value="x64" />
 		</antcall>
@@ -93,17 +94,17 @@
 			<arg value="${tests.results.dir}" />
 		</java>
 	</target>
-	<target name="tests-win32-debug" if="msvc.Debug">
+	<target name="tests-win32-debug" unless="msvc.disable.Debug">
 		<antcall target="run-mstest">
 			<param name="msbuild.config" value="Debug" />
 		</antcall>
 	</target>
-	<target name="tests-win32-release" if="msvc.Release">
+	<target name="tests-win32-release" unless="msvc.disable.Release">
 		<antcall target="run-mstest">
 			<param name="msbuild.config" value="Release" />
 		</antcall>
 	</target>
-	<target name="tests-win32" if="msvc.Win32">
+	<target name="tests-win32" unless="msvc.disable.Win32">
 		<antcall target="tests-win32-debug">
 			<param name="msbuild.platform" value="Win32" />
 		</antcall>
@@ -111,7 +112,7 @@
 			<param name="msbuild.platform" value="Win32" />
 		</antcall>
 	</target>
-	<target name="tests-x64-debug" if="msvc.Debug">
+	<target name="tests-x64-debug" unless="msvc.disable.Debug">
 		<echo>Can't run 64-bit tests using MS-TEST</echo>
 		<!--
 		<antcall target="run-mstest">
@@ -119,7 +120,7 @@
 		</antcall>
 		-->
 	</target>
-	<target name="tests-x64-release" if="msvc.Release">
+	<target name="tests-x64-release" unless="msvc.disable.Release">
 		<echo>Can't run 64-bit tests using MS-TEST</echo>
 		<!--
 		<antcall target="run-mstest">
@@ -127,7 +128,7 @@
 		</antcall>
 		-->
 	</target>
-	<target name="tests-x64" if="msvc.x64">
+	<target name="tests-x64" unless="msvc.disable.x64">
 		<antcall target="tests-x64-debug">
 			<param name="msbuild.platform" value="x64" />
 		</antcall>

@@ -15,7 +15,6 @@ $.register_module({
             VLRQ = 'valueReq', VLNM = 'valueName', CPTI = 'computationTargetIdentifier',
             CPTT = 'computationTargetType', RECP = 'reciprocal';
         return og.views.config_forms['default'].preload({
-            type: 'com.opengamma.financial.currency.CurrencyMatrix',
             type_map: [
                 [['0', INDX].join('.'),             Form.type.STR],
                 [[CRCV, '*', '*'].join('.'),        Form.type.STR],

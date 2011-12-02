@@ -27,7 +27,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 
 /**
- * A security for FX forwards.
+ * A security for Non-deliverable FX forwards.
  */
 @BeanDefinition
 public class NonDeliverableFXForwardSecurity extends FinancialSecurity {

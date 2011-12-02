@@ -25,7 +25,7 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search,
+            search, layout,
             ui = common.util.ui,
             module = this,
             page_name = module.name.split('.').pop(),
@@ -74,10 +74,10 @@ $.register_module({
             },
             default_details = og.views.common.default_details.partial(page_name, 'Holidays', options),
             details_page = function (args) {
-                var layout = og.views.common.layout;
                 layout.inner.options.south.onclose = null;
                 layout.inner.close('south');
                 api.rest.holidays.get({
+                    dependencies: ['id'],
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var json = result.data;
@@ -87,8 +87,7 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            var layout = og.views.common.layout, header, content
-                                $html = $.tmpl(template, json.template_data);
+                            var header, content, $html = $.tmpl(template, json.template_data);
                             header = $.outer($html.find('> header')[0]);
                             content = $.outer($html.find('> section')[0]);
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
@@ -127,6 +126,7 @@ $.register_module({
         };
         return holidays = {
             load: function (args) {
+                layout = og.views.common.layout;
                 check_state({args: args, conditions: [
                     {new_page: function () {
                         holidays.search(args);

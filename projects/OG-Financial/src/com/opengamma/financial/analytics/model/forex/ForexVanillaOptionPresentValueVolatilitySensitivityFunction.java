@@ -24,7 +24,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
-import com.opengamma.financial.forex.calculator.PresentValueVolatilitySensitivityBlackCalculator;
+import com.opengamma.financial.forex.calculator.PresentValueVolatilitySensitivityBlackForexCalculator;
 import com.opengamma.financial.forex.method.PresentValueVolatilitySensitivityDataBundle;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
@@ -37,7 +37,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public class ForexVanillaOptionPresentValueVolatilitySensitivityFunction extends ForexVanillaOptionFunction {
   private static final Double[] EMPTY_ARRAY = ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY;
-  private static final PresentValueVolatilitySensitivityBlackCalculator CALCULATOR = PresentValueVolatilitySensitivityBlackCalculator.getInstance();
+  private static final PresentValueVolatilitySensitivityBlackForexCalculator CALCULATOR = PresentValueVolatilitySensitivityBlackForexCalculator.getInstance();
   private static final DecimalFormat TIME_FORMATTER = new DecimalFormat("##.###");
   private static final DecimalFormat STRIKE_FORMATTER = new DecimalFormat("###.#####");
 

@@ -26,7 +26,7 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search,
+            search, layout,
             ui = common.util.ui,
             module = this, positions,
             page_name = module.name.split('.').pop(),
@@ -83,7 +83,17 @@ $.register_module({
                             });
                         }
                     }
-                })}
+                })},
+                'versions': function () {
+                    var rule = module.rules.load_positions, args = routes.current().args;
+                    routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
+                    if (!layout.inner.state.south.isClosed && args.version) {
+                        layout.inner.close('south');
+                    } else layout.inner.open('south');
+                    layout.inner.options.south.onclose = function () {
+                        routes.go(routes.hash(rule, args, {del: ['version']}));
+                    };
+                }
             },
             options = {
                 slickgrid: {
@@ -115,50 +125,20 @@ $.register_module({
                             {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
                             {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
                             {id: 'delete', tooltip: 'Delete', divider: true, handler: toolbar_buttons['delete']},
-                            {id: 'versions', label: 'versions'}
-
+                            {id: 'versions', label: 'versions', handler: toolbar_buttons['versions']}
                         ],
                         location: '.OG-tools'
                     }
                 }
             },
             details_page = function (args) {
-                var layout = og.views.common.layout,
-                    render_identifiers = function (json) {
-                        $('.OG-js-details-panel .og-js-identifiers').html(json.reduce(function (acc, val) {
-                            acc.push('<tr><td><span>' + val.scheme.lang() + '</span></td><td>' + val.value + '</td></tr>');
-                            return acc
-                        }, []).join(''));
-                    },
-                    setup_header_links = function () {
-                        var $version_link,
-                            rule = module.rules.load_positions;
-                        $version_link = $('.OG-tools .og-icon-tools-versions')
-                            .addClass('og-js-version-link')
-                            .unbind('click').bind('click', function (e) {
-                                var layout = og.views.common.layout;
-                                routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
-                                if (!layout.inner.state.south.isClosed && args.version) {
-                                    layout.inner.close('south');
-                                } else layout.inner.open('south');
-                            });
-                        layout.inner.options.south.onclose = function () {
-                            routes.go(routes.hash(rule, args, {del: ['version']}));
-                        };
-                    };
-                // if new page, close south panel
-                check_state({args: args, conditions: [{
-                    new_page: function () {
-                        layout.inner.options.south.onclose = null;
-                        layout.inner.close.partial('south');
-                    }
-                }]});
                 // load versions
                 if (args.version) {
                     layout.inner.open('south');
                     og.views.common.versions.load();
                 } else layout.inner.close('south');
                 api.rest.positions.get({
+                    dependencies: ['id'],
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var json = result.data;
@@ -173,14 +153,13 @@ $.register_module({
                                         This position has been deleted\
                                     </section>\
                                 ',
-                                $html = $.tmpl(template, json.template_data),
-                                layout = og.views.common.layout, header, content;
+                                header, content;
+                            var $html = $.tmpl(template, json.template_data);
                             header = $.outer($html.find('> header')[0]);
                             content = $.outer($html.find('> section')[0]);
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
                             $('.ui-layout-inner-center .ui-layout-content').html(content);
                             ui.toolbar(options.toolbar.active);
-                            setup_header_links();
                             if (json.template_data && json.template_data.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);
                                 layout.inner.sizePane('north', '0');
@@ -190,22 +169,14 @@ $.register_module({
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
                             }
-                            render_identifiers(json.securities);
-                            og.common.module.trade_table({
-                                trades: json.trades,
-                                selector: '.og-js-trades-table'
-                            });
-                            if (!args.version || args.version === '*') {
-                                ui.content_editable({
-                                    attribute: 'data-og-editable',
-                                    handler: function () {positions.search(args), routes.handler();}
-                                });
-                            }
+                            common.gadgets.positions({id: args.id, selector: '.og-js-details-positions', editable: true});
+                            common.gadgets.trades({id: args.id, selector: '.og-js-trades-table'});
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             layout.inner.resizeAll();
                         }});
                     },
                     id: args.id,
+                    cache_for: 10000,
                     version: args.version && args.version !== '*' ? args.version : void 0,
                     loading: function () {
                         ui.message({
@@ -250,6 +221,7 @@ $.register_module({
         };
         return positions = {
             load: function (args) {
+                layout = og.views.common.layout;
                 check_state({args: args, conditions: [
                     {new_page: function () {positions.search(args), masthead.menu.set_tab(page_name);}}
                 ]});
@@ -269,7 +241,17 @@ $.register_module({
                 search.filter($.extend(true, args, {filter: true}, get_quantities(args.quantity)));
             },
             load_positions: function (args) {
-                check_state({args: args, conditions: [{new_page: positions.load}]});
+                check_state({args: args, conditions: [
+                    {new_page: function () {
+                        positions.load(args);
+                        layout.inner.options.south.onclose = null;
+                        layout.inner.close.partial('south');
+                    }},
+                    {new_value: 'id', method: function () {
+                        layout.inner.options.south.onclose = null;
+                        layout.inner.close.partial('south');
+                    }}
+                ]});
                 positions.details(args);
             },
             search: function (args) {

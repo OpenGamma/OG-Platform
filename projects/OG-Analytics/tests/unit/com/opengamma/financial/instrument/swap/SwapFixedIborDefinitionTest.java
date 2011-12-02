@@ -21,7 +21,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
-import com.opengamma.financial.instrument.index.CMSIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
@@ -94,7 +94,7 @@ public class SwapFixedIborDefinitionTest {
     assertEquals(swap.getSecondLeg(), iborAnnuity);
 
     // CMS index builder
-    CMSIndex cmsIndex = new CMSIndex(FIXED_PAYMENT_FREQUENCY.getPeriod(), FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR);
+    IndexSwap cmsIndex = new IndexSwap(FIXED_PAYMENT_FREQUENCY.getPeriod(), FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR);
     SwapFixedIborDefinition swapFromCMSIndex = SwapFixedIborDefinition.from(SETTLEMENT_DATE, cmsIndex, NOTIONAL, RATE, FIXED_IS_PAYER);
     assertEquals(swap, swapFromCMSIndex);
   }

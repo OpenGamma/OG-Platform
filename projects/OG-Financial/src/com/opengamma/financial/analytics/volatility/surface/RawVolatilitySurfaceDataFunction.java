@@ -131,16 +131,16 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
 
       @SuppressWarnings("synthetic-access")
       @Override
-      public Set<ValueSpecification> getResults(@SuppressWarnings("hiding") final FunctionCompilationContext context, final ComputationTarget target) {
-        if (canApplyTo(context, target)) {
+      public Set<ValueSpecification> getResults(final FunctionCompilationContext myContext, final ComputationTarget target) {
+        if (canApplyTo(myContext, target)) {
           return _results;
         }
         return null;
       }
 
       @Override
-      public Set<ValueRequirement> getRequirements(@SuppressWarnings("hiding") final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-        if (canApplyTo(context, target)) {
+      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext myContext, final ComputationTarget target, final ValueRequirement desiredValue) {
+        if (canApplyTo(myContext, target)) {
           return requirements;
         }
         return null;
@@ -148,7 +148,7 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
 
       @SuppressWarnings("synthetic-access")
       @Override
-      public boolean canApplyTo(@SuppressWarnings("hiding") final FunctionCompilationContext context, final ComputationTarget target) {
+      public boolean canApplyTo(final FunctionCompilationContext myContext, final ComputationTarget target) {
         if (target.getType() != ComputationTargetType.PRIMITIVE) {
           return false;
         }

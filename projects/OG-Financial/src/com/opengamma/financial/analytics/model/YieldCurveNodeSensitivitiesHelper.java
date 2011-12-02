@@ -26,11 +26,10 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
  */
 public class YieldCurveNodeSensitivitiesHelper {
 
-  public static Set<ComputedValue> getSensitivitiesForCurve(final String curveName, final YieldCurveBundle bundle,
+  public static Set<ComputedValue> getSensitivitiesForCurve(final YieldAndDiscountCurve curve,
       final DoubleMatrix1D sensitivitiesForCurve, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec, 
       final ValueSpecification resultSpec) {
     final int n = sensitivitiesForCurve.getNumberOfElements();
-    final YieldAndDiscountCurve curve = bundle.getCurve(curveName);
     final Double[] keys = curve.getCurve().getXData();
     final double[] values = new double[n];
     final Object[] labels = YieldCurveLabelGenerator.getLabels(curveSpec);
@@ -39,6 +38,12 @@ public class YieldCurveNodeSensitivitiesHelper {
       labelledMatrix = (DoubleLabelledMatrix1D) labelledMatrix.add(keys[i], labels[i], sensitivitiesForCurve.getEntry(i));
     }
     return Collections.singleton(new ComputedValue(resultSpec, labelledMatrix));
+  }
+  
+  public static Set<ComputedValue> getSensitivitiesForCurve(final String curveName, final YieldCurveBundle bundle,
+      final DoubleMatrix1D sensitivitiesForCurve, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec, 
+      final ValueSpecification resultSpec) {
+    return getSensitivitiesForCurve(bundle.getCurve(curveName), sensitivitiesForCurve, curveSpec, resultSpec);
   }
 
   //TODO at some point this needs to deal with more than two curves

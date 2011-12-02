@@ -26,7 +26,7 @@ public class VolatilityCubeDataConverter implements ResultConverter<VolatilityCu
 
   @Override
   public String convertToText(ResultConverterCache context, ValueSpecification valueSpec, VolatilityCubeData value) {
-    return "Volatility Cube data (" + value.getDataPoints().size() + " volatility points, " + value.getStrikes().size()
+    return "Volatility Cube data (" + value.getDataPoints().size() + " volatility points, " + value.getATMStrikes().size()
         + " strikes, " + value.getOtherData().getDataPoints().size() + " other data points " + ")";
     
   }

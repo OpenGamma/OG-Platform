@@ -12,7 +12,6 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -42,10 +41,6 @@ public class EquityForwardFromSpotAndYieldCurveFunction extends AbstractFunction
   public static final String FORWARD_FROM_SPOT_AND_YIELD_CURVE = "ForwardFromSpotAndYieldCurve";
   private final String _curveDefinitionName;
 
-  /**
-   * TODO
-   * @param curveDefinitionName TODO Case - Find out what a curve definition is
-   */
   public EquityForwardFromSpotAndYieldCurveFunction(String curveDefinitionName) {
     Validate.notNull(curveDefinitionName);
     _curveDefinitionName = curveDefinitionName;
@@ -57,8 +52,7 @@ public class EquityForwardFromSpotAndYieldCurveFunction extends AbstractFunction
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
 
     // 1. Get the expiry _time_ from the trade
-    SimpleTrade trade = (SimpleTrade) target.getTrade(); // confirms that the ComputationTargetType == TRADE
-    EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) trade.getSecurity();
+    EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
     double expiry = TimeCalculator.getTimeBetween(executionContext.getValuationClock().zonedDateTime(), security.getLastObservationDate());
 
     // ExternalId id = security.getSpotUnderlyingIdentifier();
@@ -87,15 +81,15 @@ public class EquityForwardFromSpotAndYieldCurveFunction extends AbstractFunction
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.TRADE;
+    return ComputationTargetType.SECURITY;
   }
 
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.TRADE) {
+    if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    return target.getTrade().getSecurity() instanceof EquityVarianceSwapSecurity;
+    return target.getSecurity() instanceof EquityVarianceSwapSecurity;
   }
 
   @Override
@@ -112,7 +106,7 @@ public class EquityForwardFromSpotAndYieldCurveFunction extends AbstractFunction
 
   private ValueRequirement getSpotRequirement(EquityVarianceSwapSecurity security) {
     ExternalId id = security.getSpotUnderlyingId();
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, UniqueId.of(id.getScheme().getName(), id.getValue())); //TODO is this right?
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, id); 
   }
 
   @Override
@@ -127,7 +121,7 @@ public class EquityForwardFromSpotAndYieldCurveFunction extends AbstractFunction
                                                         .with(FORWARD_CALCULATION_METHOD, FORWARD_FROM_SPOT_AND_YIELD_CURVE)
                                                         .get();
     ExternalId id = security.getSpotUnderlyingId();
-    ValueRequirement requirement = new ValueRequirement(VALUE_REQUIREMENT, ComputationTargetType.SECURITY, UniqueId.of(id.getScheme().getName(), id.getValue()));
+    ValueRequirement requirement = new ValueRequirement(VALUE_REQUIREMENT, ComputationTargetType.PRIMITIVE, UniqueId.of(id.getScheme().getName(), id.getValue()));
     return new ValueSpecification(requirement, properties);
   }
 }

@@ -97,6 +97,11 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
    */
   @PropertyDefinition
   private ExternalIdSearch _exchangeExternalIdSearch;
+  /**
+   * The sort order to use.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private HolidaySearchSortOrder _sortOrder = HolidaySearchSortOrder.NAME_ASC;
 
   /**
    * Creates an instance.
@@ -346,6 +351,8 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
         return getRegionExternalIdSearch();
       case 585750481:  // exchangeExternalIdSearch
         return getExchangeExternalIdSearch();
+      case -26774448:  // sortOrder
+        return getSortOrder();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -378,8 +385,17 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
       case 585750481:  // exchangeExternalIdSearch
         setExchangeExternalIdSearch((ExternalIdSearch) newValue);
         return;
+      case -26774448:  // sortOrder
+        setSortOrder((HolidaySearchSortOrder) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_sortOrder, "sortOrder");
+    super.validate();
   }
 
   @Override
@@ -397,6 +413,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getRegionExternalIdSearch(), other.getRegionExternalIdSearch()) &&
           JodaBeanUtils.equal(getExchangeExternalIdSearch(), other.getExchangeExternalIdSearch()) &&
+          JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
           super.equals(obj);
     }
     return false;
@@ -413,6 +430,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionExternalIdSearch());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeExternalIdSearch());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
     return hash ^ super.hashCode();
   }
 
@@ -627,6 +645,32 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the sort order to use.
+   * @return the value of the property, not null
+   */
+  public HolidaySearchSortOrder getSortOrder() {
+    return _sortOrder;
+  }
+
+  /**
+   * Sets the sort order to use.
+   * @param sortOrder  the new value of the property, not null
+   */
+  public void setSortOrder(HolidaySearchSortOrder sortOrder) {
+    JodaBeanUtils.notNull(sortOrder, "sortOrder");
+    this._sortOrder = sortOrder;
+  }
+
+  /**
+   * Gets the the {@code sortOrder} property.
+   * @return the property, not null
+   */
+  public final Property<HolidaySearchSortOrder> sortOrder() {
+    return metaBean().sortOrder().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code HolidaySearchRequest}.
    */
   public static class Meta extends AbstractSearchRequest.Meta {
@@ -677,6 +721,11 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
     private final MetaProperty<ExternalIdSearch> _exchangeExternalIdSearch = DirectMetaProperty.ofReadWrite(
         this, "exchangeExternalIdSearch", HolidaySearchRequest.class, ExternalIdSearch.class);
     /**
+     * The meta-property for the {@code sortOrder} property.
+     */
+    private final MetaProperty<HolidaySearchSortOrder> _sortOrder = DirectMetaProperty.ofReadWrite(
+        this, "sortOrder", HolidaySearchRequest.class, HolidaySearchSortOrder.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
@@ -688,7 +737,8 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
         "dateToCheck",
         "currency",
         "regionExternalIdSearch",
-        "exchangeExternalIdSearch");
+        "exchangeExternalIdSearch",
+        "sortOrder");
 
     /**
      * Restricted constructor.
@@ -715,6 +765,8 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
           return _regionExternalIdSearch;
         case 585750481:  // exchangeExternalIdSearch
           return _exchangeExternalIdSearch;
+        case -26774448:  // sortOrder
+          return _sortOrder;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -797,6 +849,14 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
      */
     public final MetaProperty<ExternalIdSearch> exchangeExternalIdSearch() {
       return _exchangeExternalIdSearch;
+    }
+
+    /**
+     * The meta-property for the {@code sortOrder} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<HolidaySearchSortOrder> sortOrder() {
+      return _sortOrder;
     }
 
   }

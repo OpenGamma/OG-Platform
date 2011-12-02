@@ -210,14 +210,15 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
             _properties.put(optionalProperty, Collections.<String>emptySet());
           }
         }
-        return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.unmodifiableSet(_optional));
+        return new ValuePropertiesImpl(new HashMap<String, Set<String>>(_properties), new HashSet<String>(_optional));
       } else {
         if (_properties.isEmpty()) {
           return EMPTY;
         }
-        return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.<String>emptySet());
+        return new ValuePropertiesImpl(new HashMap<String, Set<String>>(_properties), Collections.<String>emptySet());
       }
     }
+
   }
 
   /**
@@ -1052,7 +1053,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
   /**
    * Gets an immutable set of the defined property names.
    * 
-   * @return the property names, not null
+   * @return the property names, null if there are no properties, or the empty set for an infinite(ish) set 
    */
   public abstract Set<String> getProperties();
 

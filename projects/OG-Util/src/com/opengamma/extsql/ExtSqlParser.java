@@ -42,9 +42,21 @@ final class ExtSqlParser {
    */
   private static final Pattern IF_PATTERN = Pattern.compile("[ ]*[@]IF[(]([:][A-Za-z0-9_]+)" + "([ ]?[=][ ]?[A-Za-z0-9_]+)?" + "[)][ ]*");
   /**
-   * The regex for @INSERT(key)
+   * The regex for @INCLUDE(key)
    */
-  private static final Pattern INSERT_PATTERN = Pattern.compile("[@]INSERT[(]([:]?[A-Za-z0-9_]+)[)](.*)");
+  private static final Pattern INCLUDE_PATTERN = Pattern.compile("[@]INCLUDE[(]([:]?[A-Za-z0-9_]+)[)](.*)");
+  /**
+   * The regex for @OFFSETFETCH(offsetVariable,fetchVariable)
+   */
+  private static final Pattern OFFSET_FETCH_PATTERN = Pattern.compile("[@]OFFSETFETCH[(][:]([A-Za-z0-9_]+)[ ]?[,][ ]?[:]([A-Za-z0-9_]+)[)](.*)");
+  /**
+   * The regex for @FETCH(fetchVariable)
+   */
+  private static final Pattern FETCH_PATTERN = Pattern.compile("[@]FETCH[(][:]([A-Za-z0-9_]+)[)](.*)");
+  /**
+   * The regex for @FETCH(numberRows)
+   */
+  private static final Pattern FETCH_ROWS_PATTERN = Pattern.compile("[@]FETCH[(]([0-9]+)[)](.*)");
   /**
    * The regex for text :variable text
    */
@@ -177,14 +189,17 @@ final class ExtSqlParser {
     if (trimmed.length() == 0) {
       return;
     }
-    if (trimmed.contains("@INSERT")) {
-      parseInsertTag(container, line);
+    if (trimmed.contains("@INCLUDE")) {
+      parseIncludeTag(container, line);
       
     } else  if (trimmed.contains("@LIKE")) {
       parseLikeTag(container, line);
       
     } else  if (trimmed.contains("@OFFSETFETCH")) {
       parseOffsetFetchTag(container, line);
+      
+    } else  if (trimmed.contains("@FETCH")) {
+      parseFetchTag(container, line);
       
     } else if (trimmed.startsWith("@")) {
       throw new IllegalArgumentException("Unknown tag at start of line: " + line);
@@ -195,18 +210,18 @@ final class ExtSqlParser {
     }
   }
 
-  private void parseInsertTag(ContainerSqlFragment container, Line line) {
+  private void parseIncludeTag(ContainerSqlFragment container, Line line) {
     String trimmed = line.lineTrimmed();
-    int pos = trimmed.indexOf("@INSERT");
+    int pos = trimmed.indexOf("@INCLUDE");
     TextSqlFragment textFragment = new TextSqlFragment(trimmed.substring(0, pos));
-    Matcher insertMatcher = INSERT_PATTERN.matcher(trimmed.substring(pos));
-    if (insertMatcher.matches() == false) {
-      throw new IllegalArgumentException("@INSERT found with invalid format: " + line);
+    Matcher includeMatcher = INCLUDE_PATTERN.matcher(trimmed.substring(pos));
+    if (includeMatcher.matches() == false) {
+      throw new IllegalArgumentException("@INCLUDE found with invalid format: " + line);
     }
-    InsertSqlFragment insertFragment = new InsertSqlFragment(insertMatcher.group(1));
-    String remainder = insertMatcher.group(2);
+    IncludeSqlFragment includeFragment = new IncludeSqlFragment(includeMatcher.group(1));
+    String remainder = includeMatcher.group(2);
     container.addFragment(textFragment);
-    container.addFragment(insertFragment);
+    container.addFragment(includeFragment);
     
     Line subLine = new Line(remainder, line.lineNumber());
     parseLine(container, subLine);
@@ -242,8 +257,46 @@ final class ExtSqlParser {
     String trimmed = line.lineTrimmed();
     int pos = trimmed.indexOf("@OFFSETFETCH");
     TextSqlFragment textFragment = new TextSqlFragment(trimmed.substring(0, pos));
-    OffsetFetchSqlFragment pagingFragment = new OffsetFetchSqlFragment();
+    String offsetVariable = "paging_offset";
+    String fetchVariable = "paging_fetch";
     String remainder = trimmed.substring(pos + 12);
+    if (trimmed.substring(pos).startsWith("@OFFSETFETCH(")) {
+      Matcher matcher = OFFSET_FETCH_PATTERN.matcher(trimmed.substring(pos));
+      if (matcher.matches() == false) {
+        throw new IllegalArgumentException("@OFFSETFETCH found with invalid format: " + line);
+      }
+      offsetVariable = matcher.group(1);
+      fetchVariable = matcher.group(2);
+      remainder = matcher.group(3);
+    }
+    OffsetFetchSqlFragment pagingFragment = new OffsetFetchSqlFragment(offsetVariable, fetchVariable);
+    container.addFragment(textFragment);
+    container.addFragment(pagingFragment);
+    
+    Line subLine = new Line(remainder, line.lineNumber());
+    parseLine(container, subLine);
+  }
+
+  private void parseFetchTag(ContainerSqlFragment container, Line line) {
+    String trimmed = line.lineTrimmed();
+    int pos = trimmed.indexOf("@FETCH");
+    TextSqlFragment textFragment = new TextSqlFragment(trimmed.substring(0, pos));
+    String fetchVariable = "paging_fetch";
+    String remainder = trimmed.substring(pos + 6);
+    if (trimmed.substring(pos).startsWith("@FETCH(")) {
+      Matcher matcher = FETCH_PATTERN.matcher(trimmed.substring(pos));
+      Matcher matcherRows = FETCH_ROWS_PATTERN.matcher(trimmed.substring(pos));
+      if (matcher.matches()) {
+        fetchVariable = matcher.group(1);
+        remainder = matcher.group(2);
+      } else if (matcherRows.matches()) {
+        fetchVariable = matcherRows.group(1);
+        remainder = matcherRows.group(2);
+      } else {
+        throw new IllegalArgumentException("@FETCH found with invalid format: " + line);
+      }
+    }
+    OffsetFetchSqlFragment pagingFragment = new OffsetFetchSqlFragment(fetchVariable);
     container.addFragment(textFragment);
     container.addFragment(pagingFragment);
     

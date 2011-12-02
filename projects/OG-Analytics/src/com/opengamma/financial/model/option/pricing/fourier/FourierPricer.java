@@ -61,7 +61,6 @@ public class FourierPricer {
       return diff + black;
     }
     
-//    return discountFactor * forward * integral;
     if (isCall) {
       if (alpha > 0.0) {
         return discountFactor * forward * integral;
