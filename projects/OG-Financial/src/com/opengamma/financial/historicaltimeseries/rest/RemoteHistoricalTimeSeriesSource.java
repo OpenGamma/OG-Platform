@@ -10,6 +10,7 @@ import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSe
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.NULL_VALUE;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_ALL;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_ALL_BY_DATE;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_ALL_BY_DATE_LIMIT;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DATA_FIELD;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DATA_PROVIDER;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DATA_SOURCE;
@@ -23,6 +24,7 @@ import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSe
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_START;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_UID;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_UID_BY_DATE;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_UID_BY_DATE_LIMIT;
 
 import java.util.Map;
 import java.util.Set;
@@ -47,6 +49,7 @@ import com.opengamma.transport.jaxrs.RestRuntimeException;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -142,24 +145,61 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
-    throw new UnsupportedOperationException();
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    ArgumentChecker.notNull(start, "start");
+    ArgumentChecker.notNull(end, "end");
+    final RestTarget target = getTargetBase().resolveBase(REQUEST_UID_BY_DATE_LIMIT).resolveBase(uniqueId.toString())
+        .resolveBase(start.toString())
+        .resolveBase(String.valueOf(includeStart))
+        .resolveBase(end.toString())
+        .resolveBase(String.valueOf(includeEnd))
+        .resolveBase(String.valueOf(maxPoints));
+    try {
+      return decodeMessage(getRestClient().getMsg(target));
+    } catch (RestRuntimeException e) {
+      throw e.translate();
+    }
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart,
-      LocalDate end, boolean includeEnd, int maxPoints) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-    throw new UnsupportedOperationException();
+  public Pair<LocalDate, Double> getLatestDataPoint(
+      UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    ArgumentChecker.notNull(start, "start");
+    ArgumentChecker.notNull(end, "end");
+    HistoricalTimeSeries hts;
+    final RestTarget target = getTargetBase().resolveBase(REQUEST_UID_BY_DATE).resolveBase(uniqueId.toString())
+        .resolveBase(start.toString())
+        .resolveBase(String.valueOf(includeStart))
+        .resolveBase(end.toString())
+        .resolveBase(String.valueOf(includeEnd))
+        .resolveBase("-1");
+    try {
+      hts = decodeMessage(getRestClient().getMsg(target));
+      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+    } catch (RestRuntimeException e) {
+      throw e.translate();
+    }
   }
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId) {
-    throw new UnsupportedOperationException();
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    HistoricalTimeSeries hts;
+    final RestTarget target = getTargetBase().resolveBase(REQUEST_UID_BY_DATE).resolveBase(uniqueId.toString())
+        .resolveBase(NULL_VALUE)
+        .resolveBase(String.valueOf(true))
+        .resolveBase(NULL_VALUE)
+        .resolveBase(String.valueOf(true))
+        .resolveBase("-1");
+    try {
+      hts = decodeMessage(getRestClient().getMsg(target));
+      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+    } catch (RestRuntimeException e) {
+      throw e.translate();
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -227,6 +267,54 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     }
   }
 
+  @Override
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      ExternalIdBundle identifierBundle, LocalDate currentDate, String dataSource, String dataProvider, String dataField, 
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
+    ArgumentChecker.notNull(identifierBundle, "identifierBundle");
+    ArgumentChecker.notNull(dataSource, "dataSource");
+    ArgumentChecker.notNull(dataField, "dataField");
+    ArgumentChecker.notNull(start, "start");
+    ArgumentChecker.notNull(end, "end");
+    final RestTarget target = getTargetBase().resolveBase(REQUEST_ALL_BY_DATE_LIMIT)
+        .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
+        .resolveBase(dataSource).resolveBase((dataProvider != null) ? dataProvider : NULL_VALUE).resolveBase(dataField)
+        .resolveBase(start.toString())
+        .resolveBase(String.valueOf(includeStart))
+        .resolveBase(end.toString())
+        .resolveBase(String.valueOf(includeEnd))
+        .resolveBase(String.valueOf(maxPoints))
+        .resolveQuery("id", identifierBundle.toStringList());
+    try {
+      return decodeMessage(getRestClient().getMsg(target));
+    } catch (RestRuntimeException e) {
+      throw e.translate();
+    }
+
+  }
+
+  @Override
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, 
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
+    return getHistoricalTimeSeries(identifierBundle, (LocalDate) null, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, maxPoints);
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(
+      ExternalIdBundle identifierBundle, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
+    HistoricalTimeSeries hts = getHistoricalTimeSeries(identifierBundle, currentDate, dataSource, dataProvider, dataField, null, true, null, true, -1);
+    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getEarliestTime(), hts.getTimeSeries().getEarliestValue());
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(
+      ExternalIdBundle identifierBundle, LocalDate currentDate, String dataSource, String dataProvider, String dataField, 
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
+    HistoricalTimeSeries hts = getHistoricalTimeSeries(identifierBundle, currentDate, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, -1);
+    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getEarliestTime(), hts.getTimeSeries().getEarliestValue());    
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
@@ -280,23 +368,6 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     } catch (RestRuntimeException e) {
       throw e.translate();
     }
-  }
-
-  @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
-      boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
-      boolean includeStart, LocalDate end, boolean includeEnd) {
-    throw new UnsupportedOperationException();
   }
 
   //-------------------------------------------------------------------------

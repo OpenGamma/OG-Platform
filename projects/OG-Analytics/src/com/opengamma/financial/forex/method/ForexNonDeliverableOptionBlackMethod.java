@@ -129,6 +129,17 @@ public final class ForexNonDeliverableOptionBlackMethod implements ForexPricingM
   }
 
   /**
+   * Computes the forward exchange rate associated to the NOF (1 Cyy2 = fwd Cyy1).
+   * @param ndo The non-deliverable option.
+   * @param smile The curve and smile data.
+   * @return The forward rate.
+   */
+  public double forwardForexRate(final ForexNonDeliverableOption ndo, final SmileDeltaTermStructureDataBundle smile) {
+    ForexNonDeliverableForwardDiscountingMethod method = ForexNonDeliverableForwardDiscountingMethod.getInstance();
+    return method.forwardForexRate(ndo.getUnderlyingNDF(), smile);
+  }
+
+  /**
    * Computes the present value curve sensitivities of Forex non-deliverable option with the Black function and a volatility surface.
    * @param optionForex The Forex option.
    * @param smile The curve and smile data.

@@ -166,14 +166,11 @@ public class MasterHistoricalTimeSeriesSource
   private HistoricalTimeSeries doGetHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, LocalDate end, Integer maxPoints) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     final VersionCorrection vc = getVersionCorrection();  // lock against change
-    HistoricalTimeSeriesGetFilter htsgf = HistoricalTimeSeriesGetFilter.ofRange(start, end);
-    htsgf.setMaxPoints(maxPoints);
-    
     try {
       if (vc != null) {
-        return getMaster().getTimeSeries(uniqueId, vc, htsgf);
+        return getMaster().getTimeSeries(uniqueId, vc, HistoricalTimeSeriesGetFilter.ofRange(start, end, maxPoints));
       } else {
-        return getMaster().getTimeSeries(uniqueId, htsgf);
+        return getMaster().getTimeSeries(uniqueId, HistoricalTimeSeriesGetFilter.ofRange(start, end, maxPoints));
       }
     } catch (DataNotFoundException ex) {
       return null;
@@ -273,8 +270,8 @@ public class MasterHistoricalTimeSeriesSource
     }
     HistoricalTimeSeries hts = doGetHistoricalTimeSeries(identifierBundle, identifierValidityDate, dataSource, dataProvider, dataField, start, end, -1);
     if (hts != null) {
-      LocalDateDoubleTimeSeries ldmts = hts.getTimeSeries();
-      return new ObjectsPair<LocalDate, Double>(ldmts.getLatestTime(), ldmts.getLatestValue());
+      LocalDateDoubleTimeSeries lddts = hts.getTimeSeries();
+      return new ObjectsPair<LocalDate, Double>(lddts.getLatestTime(), lddts.getLatestValue());
     } else {
       return null;
     }
@@ -310,10 +307,8 @@ public class MasterHistoricalTimeSeriesSource
     ArgumentChecker.notNull(objectId, "objectId");
     VersionCorrection vc = getVersionCorrection();  // lock against change
     vc = Objects.firstNonNull(vc, VersionCorrection.LATEST);
-    HistoricalTimeSeriesGetFilter htsgf = HistoricalTimeSeriesGetFilter.ofRange(start, end);
-    htsgf.setMaxPoints(maxPoints);
     try {
-      return getMaster().getTimeSeries(objectId, vc, htsgf);
+      return getMaster().getTimeSeries(objectId, vc, HistoricalTimeSeriesGetFilter.ofRange(start, end, maxPoints));
     } catch (DataNotFoundException ex) {
       return null;
     }
