@@ -11,6 +11,7 @@ import java.util.Set;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
@@ -25,6 +26,7 @@ import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguratio
  * Fudge message builder for {@link CompiledViewCalculationConfiguration}.
  */
 @GenericFudgeBuilderFor(CompiledViewCalculationConfiguration.class)
+@FudgeBuilderFor(CompiledViewCalculationConfigurationImpl.class)
 public class CompiledViewCalculationConfigurationFudgeBuilder implements FudgeBuilder<CompiledViewCalculationConfiguration> {
 
   private static final String NAME_FIELD = "name";
@@ -44,7 +46,7 @@ public class CompiledViewCalculationConfigurationFudgeBuilder implements FudgeBu
 
   @SuppressWarnings("unchecked")
   @Override
-  public CompiledViewCalculationConfiguration buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+  public CompiledViewCalculationConfigurationImpl buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     String name = message.getString(NAME_FIELD);
     Set<ComputationTarget> computationTargets = deserializer.fieldValueToObject(Set.class, message.getByName(COMPUTATION_TARGETS_FIELD));
     Map<ValueSpecification, Set<ValueRequirement>> terminalOutputSpecifications = deserializer.fieldValueToObject(Map.class, message.getByName(TERMINAL_OUTPUT_SPECIFICATIONS_FIELD));

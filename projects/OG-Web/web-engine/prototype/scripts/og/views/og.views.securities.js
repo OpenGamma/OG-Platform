@@ -1,5 +1,5 @@
 /*
- * @copyright 2009 - present by OpenGamma Inc
+ * @copyright 2011 - present by OpenGamma Inc
  * @license See distribution for license
  */
 $.register_module({
@@ -150,11 +150,13 @@ $.register_module({
                     og.views.common.versions.load();
                 } else layout.inner.close('south');
                 api.rest.securities.get({
+                    dependencies: ['id'],
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var json = result.data, text_handler,
                             security_type = json.template_data['securityType'].toLowerCase(),
                             template = module.name + '.' + security_type;
+                        json.template_data.name = json.template_data.name || json.template_data.name.lang();
                         history.put({
                             name: json.template_data.name,
                             item: 'history.securities.recent',
@@ -176,9 +178,11 @@ $.register_module({
                             content = $.outer($html.find('> section')[0]);
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
                             $('.ui-layout-inner-center .ui-layout-content').html(content);
-                            for (id in json_id) {
+                            if (!Object.keys(json_id)[0]) $('.ui-layout-inner-center .og-js-identifiers')
+                                .html('<tr><td><span>(empty value)</span></td><td></td></tr>');
+                            else for (id in json_id) {
                                 if (json_id.hasOwnProperty(id)) {
-                                    html.push('<tr><td><span>', id,
+                                    html.push('<tr><td><span>', id.lang(),
                                               '<span></td><td>', json_id[id].replace(id + '-', ''), '</td></tr>');
                                 }
                                 $('.ui-layout-inner-center .og-js-identifiers').html(html.join(''));
@@ -188,7 +192,8 @@ $.register_module({
                                     var id = json.template_data['underlyingOid'],
                                         rule = module.rules.load_securities,
                                         hash = routes.hash(rule, routes.current().args, {add: {id: id}}),
-                                        text = json.template_data['underlyingExternalId'],
+                                        text = json.template_data['underlyingName'] ||
+                                            json.template_data['underlyingExternalId'],
                                         anchor = '<a href="' + routes.prefix() + hash + '">' + text + '</a>';
                                         $('.ui-layout-inner-center .OG-js-underlying-id').html(anchor);
                                 }
@@ -198,7 +203,7 @@ $.register_module({
                                 $('.ui-layout-inner-north').html(error_html);
                                 layout.inner.sizePane('north', '0');
                                 layout.inner.open('north');
-                                $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                                $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
                             } else {
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();

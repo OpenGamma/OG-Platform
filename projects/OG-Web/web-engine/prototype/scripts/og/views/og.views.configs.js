@@ -120,14 +120,14 @@ $.register_module({
                 var rest_options, is_new = !!new_config_type, rest_handler = function (result) {
                     if (result.error) return ui.dialog({type: 'error', message: result.message});
                     if (is_new) {
-                        if (!result.data) result.data = {template_data: {type: new_config_type, configJSON: {}}};
+                        if (!result.data)
+                            return ui.dialog({type: 'error', message: 'No template for: ' + new_config_type});
                         if (!result.data.template_data.configJSON) result.data.template_data.configJSON = {};
                         result.data.template_data.name = 'UNTITLED';
                         result.data.template_data.configJSON.name = 'UNTITLED';
                     }
                     var details_json = result.data,
-                        config_type = details_json.template_data.type.toLowerCase(),
-                        template = module.name + '.' + config_type, text_handler;
+                        config_type = details_json.template_data.type.toLowerCase().split('.').reverse()[0];
                     if (!is_new) history.put({
                         name: details_json.template_data.name,
                         item: 'history.configs.recent',
@@ -135,7 +135,7 @@ $.register_module({
                     });
                     if (!og.views.config_forms[config_type]) {
                         ui.message({location: '.ui-layout-inner-center', destroy: true});
-                        return ui.dialog({type: 'error', message: 'There is no template for: ' + config_type});
+                        return ui.dialog({type: 'error', message: 'No renderer for: ' + config_type});
                     }
                     og.views.config_forms[config_type]({
                         is_new: is_new,
@@ -196,12 +196,14 @@ $.register_module({
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             layout.inner.resizeAll();
                         },
-                        selector: '.ui-layout-inner-center .ui-layout-content'
+                        selector: '.ui-layout-inner-center .ui-layout-content',
+                        type: details_json.template_data.type
                     });
                 };
                 layout.inner.options.south.onclose = null;
                 layout.inner.close('south');
                 rest_options = {
+                    dependencies: ['id'],
                     handler: rest_handler,
                     loading: function () {
                         ui.message({

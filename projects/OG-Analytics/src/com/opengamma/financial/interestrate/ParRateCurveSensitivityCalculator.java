@@ -29,7 +29,6 @@ import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
-import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.payments.method.CouponOISDiscountingMethod;
 import com.opengamma.financial.interestrate.swap.definition.CrossCurrencySwap;
@@ -257,21 +256,6 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInstrumentD
   @Override
   public Map<String, List<DoublesPair>> visitCapFloorIbor(final CapFloorIbor payment, final YieldCurveBundle data) {
     return visitCouponIbor(payment, data);
-  }
-
-  @Override
-  public Map<String, List<DoublesPair>> visitZZZCouponOIS(final ZZZCouponOIS payment, final YieldCurveBundle data) {
-    final double ta = payment.getStartTime();
-    final double tb = payment.getEndTime();
-
-    final DoublesPair s1 = new DoublesPair(ta, -ta / payment.getRateYearFraction());
-    final DoublesPair s2 = new DoublesPair(tb, tb / payment.getRateYearFraction());
-    final List<DoublesPair> temp = new ArrayList<DoublesPair>();
-    temp.add(s1);
-    temp.add(s2);
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    result.put(payment.getFundingCurveName(), temp);
-    return result;
   }
 
   @Override

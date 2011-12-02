@@ -14,6 +14,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.masterdb.security.test.SecurityTestCaseMethods;
 import com.opengamma.util.test.DbTest;
 
 /**
@@ -152,6 +153,12 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
 
   @Override
   @Test
+  public void testEquityIndexDividendFutureOptionSecurity() {
+    _testCase.testEquityIndexDividendFutureOptionSecurity();
+  }
+
+  @Override
+  @Test
   public void testGovernmentBondSecurity() {
     _testCase.testGovernmentBondSecurity();
   }
@@ -245,4 +252,5 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
   public void testEquityVarianceSwapSecurity() {
     _testCase.testEquityVarianceSwapSecurity();
   }
+
 }

@@ -7,10 +7,7 @@ package com.opengamma.web.spring;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -20,10 +17,10 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
+import com.opengamma.financial.analytics.ircurve.YieldCurveSpecificationFunction;
 import com.opengamma.financial.analytics.volatility.cube.BloombergVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunction;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeInstrumentProvider;
@@ -67,7 +64,6 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
       searchRequest.setType(YieldCurveDefinition.class);
 
       final ConfigSearchResult<YieldCurveDefinition> searchResult = _configMaster.search(searchRequest);
-      final Map<String, Set<String>> currencyToCurves = new HashMap<String, Set<String>>();
       for (ConfigDocument<YieldCurveDefinition> configDocument : searchResult.getDocuments()) {
         final String documentName = configDocument.getName();
         final int underscore = documentName.lastIndexOf('_');
@@ -77,33 +73,17 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
         final String curveName = documentName.substring(0, underscore);
         final String currencyISO = documentName.substring(underscore + 1);
         s_logger.debug("Found {} curve for {}", curveName, currencyISO);
-        if (!currencyToCurves.containsKey(currencyISO)) {
-          currencyToCurves.put(currencyISO, new HashSet<String>());
-        }
-        currencyToCurves.get(currencyISO).add(curveName);
-      }
-      for (Map.Entry<String, Set<String>> currencyCurves : currencyToCurves.entrySet()) {
-        final String currencyISO = currencyCurves.getKey();
-        final Set<String> curveNames = currencyCurves.getValue();
-        if (curveNames.contains("SECONDARY")) {
-          addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
-          addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-        }
-        if (curveNames.contains("FUNDING") && curveNames.contains("FORWARD_3M")) {
-          addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD_3M", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-          addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD_3M", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
-        } else if (curveNames.contains("FUNDING") && curveNames.contains("FORWARD_6M")) {
-          addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD_6M", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-          addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD_6M", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
-        }
+        addYieldCurveFunction(configs, currencyISO, curveName);
       }
     } else {
-      //       [PLAT-1094] This is the wrong approach and should be disposed of at the earliest opportunity
+      // [PLAT-1094] This is the wrong approach and should be disposed of at the earliest opportunity
       s_logger.warn("[PLAT-1094] Using hardcoded curve definitions");
-      addYieldCurveFunction(configs, "USD", "FUNDING", "FORWARD_3M", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-      addYieldCurveFunction(configs, "GBP", "FUNDING", "FORWARD_6M", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-      addYieldCurveFunction(configs, "USD", "FUNDING", "FORWARD_3M", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
-      addYieldCurveFunction(configs, "GBP", "FUNDING", "FORWARD_6M", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
+      addYieldCurveFunction(configs, "USD", "FUNDING");
+      addYieldCurveFunction(configs, "USD", "FORWARD_3M");
+      addYieldCurveFunction(configs, "GBP", "FUNDING");
+      addYieldCurveFunction(configs, "GBP", "FORWARD_6M");
+      addYieldCurveFunction(configs, "USD", "SECONDARY");
+      addYieldCurveFunction(configs, "GBP", "SECONDARY");
     }
 
     //These need to be replaced with meaningful cube defns
@@ -118,6 +98,12 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     return new RepositoryConfiguration(configs);
   }
 
+  private void addYieldCurveFunction(final List<FunctionConfiguration> configs, final String currency, final String curveName) {
+    configs.add(new ParameterizedFunctionConfiguration(YieldCurveMarketDataFunction.class.getName(), Arrays.asList(currency, curveName)));
+    configs.add(new ParameterizedFunctionConfiguration(YieldCurveInterpolatingFunction.class.getName(), Arrays.asList(currency, curveName)));
+    configs.add(new ParameterizedFunctionConfiguration(YieldCurveSpecificationFunction.class.getName(), Arrays.asList(currency, curveName)));
+  }
+
   private void addVolatilityCubeFunction(List<FunctionConfiguration> configs, String... parameters) {
     addVolatilityCubeFunction(configs, Arrays.asList(parameters));
   }
@@ -129,22 +115,6 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
 
     configs.add(new ParameterizedFunctionConfiguration(VolatilityCubeFunction.class.getName(), parameters));
     configs.add(new ParameterizedFunctionConfiguration(VolatilityCubeMarketDataFunction.class.getName(), parameters));
-  }
-
-  private void addYieldCurveFunction(final List<FunctionConfiguration> configs, String... parameters) {
-    addYieldCurveFunction(configs, Arrays.asList(parameters));
-  }
-
-  private void addYieldCurveFunction(final List<FunctionConfiguration> configs, List<String> parameters) {
-    if (parameters.size() < 2) {
-      throw new IllegalArgumentException();
-    }
-
-    configs.add(new ParameterizedFunctionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class.getName(), parameters));
-    for (int i = 1; i < parameters.size() - 1; i++) {
-      configs.add(new ParameterizedFunctionConfiguration(YieldCurveMarketDataFunction.class.getName(), Arrays.asList(parameters.get(0), parameters.get(i))));
-      configs.add(new ParameterizedFunctionConfiguration(YieldCurveInterpolatingFunction.class.getName(), Arrays.asList(parameters.get(0), parameters.get(i))));
-    }
   }
 
   public RepositoryConfigurationSource constructRepositoryConfigurationSource() {

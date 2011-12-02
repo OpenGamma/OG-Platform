@@ -1,5 +1,5 @@
 /**
- * @copyright 2009 - present by OpenGamma Inc
+ * @copyright 2011 - present by OpenGamma Inc
  * @license See distribution for license
  */
 $.register_module({
@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         var HashQueue = og.common.util.HashQueue, queues = {}, queue, module = this;
         queue = function (item) {
-            if (typeof item !== 'string') throw new TypeError(module.name + ': "item" should be a string');
+            if (typeof item !== 'string') throw new TypeError(module.name + ': item should be a string');
             if (queues[item]) return queues[item];
             try {
                 queues[item] = new HashQueue(localStorage.getItem(item) || 10);
@@ -29,7 +29,12 @@ $.register_module({
             put: function (obj) {
                 // TODO use interface checker to validate object
                 var item = obj.item, value = obj.value, name = obj.name, history = queue(item).set(name, value);
-                localStorage.setItem(item, history.serialize());
+                try {
+                    localStorage.setItem(item, history.serialize());
+                } catch (error) {
+                    og.dev.warn(item + ' storage failed\n', error);
+                    localStorage.removeItem(item);
+                }
             }
         }
     }

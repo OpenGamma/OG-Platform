@@ -10,12 +10,14 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.analytics.volatility.surface.IRFutureOptionSurfaceConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
+import com.opengamma.financial.currency.CurrencyPairsConfigPopulator;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
@@ -58,6 +60,7 @@ public final class DemoMastersHelper {
   private final MarketDataSnapshotSource _snapshotSource;
   private final ExchangeSource _exchangeSource;
   private final HolidaySource _holidaySource;
+  private final PositionSource _positionSource;
   private ClassPathXmlApplicationContext _applicationContext;
   
   private DemoMastersHelper() {
@@ -67,6 +70,7 @@ public final class DemoMastersHelper {
     InMemoryConfigMaster cfgMaster = new InMemoryConfigMaster();
     YieldCurveConfigPopulator.populateCurveConfigMaster(cfgMaster);
     CurrencyMatrixConfigPopulator.populateCurrencyMatrixConfigMaster(cfgMaster);
+    CurrencyPairsConfigPopulator.populateCurrencyPairsConfigMaster(cfgMaster);
     FXOptionVolatilitySurfaceConfigPopulator.populateVolatilitySurfaceConfigMaster(cfgMaster);
     IRFutureOptionSurfaceConfigPopulator.populateVolatilitySurfaceConfigMaster(cfgMaster);
     _configMaster = cfgMaster;
@@ -89,6 +93,7 @@ public final class DemoMastersHelper {
     _portfolioMaster = _applicationContext.getBean("dbPortfolioMaster", DbPortfolioMaster.class);
     _positionMaster = _applicationContext.getBean("dbPositionMaster", DbPositionMaster.class);
     _dbConfigMaster = _applicationContext.getBean("sharedConfigMaster", DbConfigMaster.class);
+    _positionSource = _applicationContext.getBean("sharedPositionSource", PositionSource.class);
   }
 
   public synchronized void tearDown() {
@@ -201,6 +206,14 @@ public final class DemoMastersHelper {
    */
   public DbConfigMaster getDbConfigMaster() {
     return _dbConfigMaster;
+  }
+
+  /**
+   * Gets the positionSource.
+   * @return the positionSource
+   */
+  public PositionSource getPositionSource() {
+    return _positionSource;
   }
 
 }

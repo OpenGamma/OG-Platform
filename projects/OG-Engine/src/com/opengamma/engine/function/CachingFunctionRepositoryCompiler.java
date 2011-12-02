@@ -14,6 +14,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
@@ -134,17 +135,14 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
             s_logger.debug("Compiling {}", function);
             return function.compile(context, atInstant);
           } catch (Exception e) {
-            System.out.println(e.getMessage());
-            for (StackTraceElement el : e.getStackTrace()) {
-              System.err.println(el);
-            }
-            s_logger.error("Compiling {} threw {}", function.getShortName(), e);
+            s_logger.warn("Compiling {} threw {}", function.getShortName(), e);
             throw e;
           }
         }
       });
       numCompiles++;
     }
+    final AtomicInteger failures = new AtomicInteger();
     for (int i = 0; i < numCompiles; i++) {
       Future<CompiledFunctionDefinition> future;
       try {
@@ -157,9 +155,13 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
         CompiledFunctionDefinition compiledFunction = future.get();
         compiled.addFunction(compiledFunction);
       } catch (Exception e) {
-        s_logger.debug("Error compiling function definition", e);
         // Don't propagate the error outwards; it just won't be in the compiled repository
+        s_logger.debug("Error compiling function definition", e);
+        failures.incrementAndGet();
       }
+    }
+    if (failures.get() != 0) {
+      s_logger.error("Encountered {} errors while compiling repository", failures);
     }
     return compiled;
   }

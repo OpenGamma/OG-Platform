@@ -5,9 +5,6 @@
  */
 package com.opengamma.financial.analytics.model;
 
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,21 +12,25 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 
+import javax.time.calendar.Period;
+
 import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix3D;
+import com.opengamma.financial.analytics.volatility.cube.fitting.FittedSmileDataPoints;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.financial.forex.method.PresentValueVolatilityQuoteSensitivityDataBundle;
-import com.opengamma.id.ExternalId;
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
 public class VegaMatrixHelper {
+  private static final Tenor[] EMPTY_TENOR_ARRAY = new Tenor[0];
   private static final DecimalFormat FX_OPTION_FORMATTER = new DecimalFormat("##");
   private static final DecimalFormat IR_FUTURE_OPTION_FORMATTER = new DecimalFormat("##.###");
 
@@ -94,43 +95,39 @@ public class VegaMatrixHelper {
     return new DoubleLabelledMatrix2D(columnValues, columnLabels, rowValues, rowLabels, values);
   }
   
-  public static DoubleLabelledMatrix3D getVegaSwaptionCubeQuoteMatrixInStandardForm(final SortedMap<DoublesPair, ExternalId[]> smileIds, final Map<Double, DoubleMatrix2D> matrices) {
+  public static DoubleLabelledMatrix3D getVegaSwaptionCubeQuoteMatrixInStandardForm(final FittedSmileDataPoints fittedPoints, final Map<Double, DoubleMatrix2D> matrices) {
     final List<Double> xKeysList = new ArrayList<Double>();
-    final List<Object> xLabelsList = new ArrayList<Object>();
+    final List<Double> xLabelsList = new ArrayList<Double>();
     final List<Double> yKeysList = new ArrayList<Double>();
-    final List<Object> yLabelsList = new ArrayList<Object>();
+    final List<Tenor> yLabelsList = new ArrayList<Tenor>();
     final List<Double> zKeysList = new ArrayList<Double>();
-    final List<Object> zLabelsList = new ArrayList<Object>();    
-    for (final Entry<DoublesPair, ExternalId[]> entry : smileIds.entrySet()) {
-      if (!zKeysList.contains(entry.getKey().first)) {
-        zKeysList.add(entry.getKey().first);
-        zLabelsList.add(entry.getKey().first);
+    final List<Tenor> zLabelsList = new ArrayList<Tenor>();    
+    final SortedMap<Pair<Tenor, Tenor>, Double[]> relativeStrikes = fittedPoints.getRelativeStrikes();
+    for (final Entry<Pair<Tenor, Tenor>, Double[]> entry : relativeStrikes.entrySet()) {
+      double swapMaturity = getTime(entry.getKey().getFirst());      
+      if (!zKeysList.contains(swapMaturity)) {
+        zKeysList.add(swapMaturity);
+        zLabelsList.add(entry.getKey().getFirst());
       }
-      if (!yKeysList.contains(entry.getKey().second)) {
-        yKeysList.add(entry.getKey().second);
-        yLabelsList.add(entry.getKey().second);
+      double swaptionExpiry = getTime(entry.getKey().getSecond());
+      if (!yKeysList.contains(swaptionExpiry)) {
+        yKeysList.add(swaptionExpiry);
+        yLabelsList.add(entry.getKey().getSecond());
       }
       if (xKeysList.size() == 0) {
-        Object idsObject = entry.getValue();
-        final String[] ids;
-        if (idsObject instanceof ArrayList) {
-          ArrayList<String> temp1 = (ArrayList<String>) idsObject;
-          ids = temp1.toArray(new String[temp1.size()]);
-        } else {
-          ids = (String[]) idsObject;
-        }
-        for (int i = 0; i < ids.length; i++) {
-          xKeysList.add(Double.valueOf(i));
-          xLabelsList.add(i);
+        Double[] relativeStrikesArray = entry.getValue();
+        for (Double relativeStrike : relativeStrikesArray) {
+          xKeysList.add(relativeStrike);
+          xLabelsList.add(relativeStrike);
         }
       }      
     }
     final Double[] xKeys = xKeysList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
-    final Object[] xLabels = xLabelsList.toArray();
+    final Double[] xLabels = xLabelsList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
     final Double[] yKeys = yKeysList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
-    final Object[] yLabels = yLabelsList.toArray();
+    final Tenor[] yLabels = yLabelsList.toArray(EMPTY_TENOR_ARRAY);
     final Double[] zKeys = zKeysList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
-    final Object[] zLabels = zLabelsList.toArray();
+    final Tenor[] zLabels = zLabelsList.toArray(EMPTY_TENOR_ARRAY);
     final double[][][] values = new double[zKeys.length][xKeys.length][yKeys.length];
     for (int i = 0; i < zKeys.length; i++) {
       values[i] = matrices.get(zKeys[i]).toArray();
@@ -152,5 +149,12 @@ public class VegaMatrixHelper {
       return months + "M";
     }
     return ((int) Math.ceil(expiry)) + "Y";
+  }
+  
+
+  private static double getTime(final Tenor tenor) { //TODO this should be moved into a utils class
+    final Period period = tenor.getPeriod();
+    final double months = period.totalMonths();
+    return months / 12.;
   }
 }

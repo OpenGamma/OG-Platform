@@ -36,104 +36,104 @@ public class DKConventions {
 
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("CIBO01W Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 1w")), "DKK CIBOR 1w", act360,
-        following, Period.ofDays(7), 1, false, null);
+        following, Period.ofDays(7), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("CIBO02W Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 2w")), "DKK CIBOR 2w", act360,
-        following, Period.ofDays(14), 1, false, null);
+        following, Period.ofDays(14), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("CIBO01M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 1m")), "DKK CIBOR 1m", act360,
-        following, Period.ofMonths(1), 1, false, null);
+        following, Period.ofMonths(1), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("CIBO02M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 2m")), "DKK CIBOR 2m", act360,
-        following, Period.ofMonths(1), 1, false, null);
+        following, Period.ofMonths(2), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("CIBO03M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 3m")), "DKK CIBOR 3m", act360,
-        following, Period.ofMonths(1), 1, false, null);
+        following, Period.ofMonths(3), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("CIBO04M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 4m")), "DKK CIBOR 4m", act360,
-        following, Period.ofMonths(1), 1, false, null);
+        following, Period.ofMonths(4), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("CIBO05M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 5m")), "DKK CIBOR 5m", act360,
-        following, Period.ofMonths(1), 1, false, null);
+        following, Period.ofMonths(5), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("CIBO06M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 6m")), "DKK CIBOR 6m", act360,
-        following, Period.ofMonths(1), 1, false, null);
+        following, Period.ofMonths(6), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("CIBO07M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 7m")), "DKK CIBOR 7m", act360,
-        following, Period.ofMonths(1), 1, false, null);
+        following, Period.ofMonths(7), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("CIBO08M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 8m")), "DKK CIBOR 8m", act360,
-        following, Period.ofMonths(1), 1, false, null);
+        following, Period.ofMonths(8), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("CIBO09M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 9m")), "DKK CIBOR 9m", act360,
-        following, Period.ofMonths(1), 1, false, null);
+        following, Period.ofMonths(9), 2, false, null);
 
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDR1T Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 1d")), "DKK DEPOSIT 1d", act360,
         following, Period.ofDays(1), 0, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDR2T Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 2d")), "DKK DEPOSIT 2d", act360,
-        following, Period.ofDays(1), 0, false, null);
-    conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDR3T Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 3d")), "DKK DEPOSIT 3d", act360,
         following, Period.ofDays(1), 1, false, null);
     conventionMaster.addConventionBundle(
+        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDR3T Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 3d")), "DKK DEPOSIT 3d", act360,
+        following, Period.ofDays(1), 2, false, null);
+    conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDR1Z Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 1w")), "DKK DEPOSIT 1w", act360,
-        following, Period.ofDays(7), 1, false, null);
+        following, Period.ofDays(7), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDR2Z Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 2w")), "DKK DEPOSIT 2w", act360,
-        following, Period.ofDays(14), 1, false, null);
+        following, Period.ofDays(14), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDR3Z Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 3w")), "DKK DEPOSIT 3w", act360,
-        following, Period.ofDays(21), 1, false, null);
+        following, Period.ofDays(21), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDRA Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 1m")), "DKK DEPOSIT 1m", act360,
-        following, Period.ofMonths(1), 1, false, null);
+        following, Period.ofMonths(1), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDRB Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 2m")), "DKK DEPOSIT 2m", act360,
-        following, Period.ofMonths(2), 1, false, null);
+        following, Period.ofMonths(2), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDRC Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 3m")), "DKK DEPOSIT 3m", act360,
-        following, Period.ofMonths(3), 1, false, null);
+        following, Period.ofMonths(3), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDRD Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 4m")), "DKK DEPOSIT 4m", act360,
-        following, Period.ofMonths(4), 1, false, null);
+        following, Period.ofMonths(4), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDRE Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 5m")), "DKK DEPOSIT 5m", act360,
-        following, Period.ofMonths(5), 1, false, null);
+        following, Period.ofMonths(5), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDRF Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 6m")), "DKK DEPOSIT 6m", act360,
-        following, Period.ofMonths(6), 1, false, null);
+        following, Period.ofMonths(6), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDRG Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 7m")), "DKK DEPOSIT 7m", act360,
-        following, Period.ofMonths(7), 1, false, null);
+        following, Period.ofMonths(7), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDRH Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 8m")), "DKK DEPOSIT 8m", act360,
-        following, Period.ofMonths(8), 1, false, null);
+        following, Period.ofMonths(8), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDRI Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 9m")), "DKK DEPOSIT 9m", act360,
-        following, Period.ofMonths(9), 1, false, null);
+        following, Period.ofMonths(9), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDRJ Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 10m")), "DKK DEPOSIT 10m", act360,
-        following, Period.ofMonths(10), 1, false, null);
+        following, Period.ofMonths(10), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDRK Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 11m")), "DKK DEPOSIT 11m", act360,
-        following, Period.ofMonths(11), 1, false, null);
+        following, Period.ofMonths(11), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDR1 Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 1y")), "DKK DEPOSIT 1y", act360,
-        following, Period.ofYears(1), 1, false, null);
+        following, Period.ofYears(1), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDR2 Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 2y")), "DKK DEPOSIT 2y", act360,
-        following, Period.ofYears(2), 1, false, null);
+        following, Period.ofYears(2), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDR3 Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 3y")), "DKK DEPOSIT 3y", act360,
-        following, Period.ofYears(3), 1, false, null);
+        following, Period.ofYears(3), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDR4 Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 4y")), "DKK DEPOSIT 4y", act360,
-        following, Period.ofYears(4), 1, false, null);
+        following, Period.ofYears(4), 2, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDR5 Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 5y")), "DKK DEPOSIT 5y", act360,
-        following, Period.ofYears(5), 1, false, null);
+        following, Period.ofYears(5), 2, false, null);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DETNT/N Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK T/N")),
         "DKK T/N", act360, following, Period.ofDays(1), 1, false, null);
 

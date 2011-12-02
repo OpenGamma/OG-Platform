@@ -10,7 +10,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 /**
  * Single fragment in the extsql AST.
  */
-public abstract class SqlFragment {
+abstract class SqlFragment {
 
   /**
    * Convert this fragment to SQL, appending it to the specified buffer.

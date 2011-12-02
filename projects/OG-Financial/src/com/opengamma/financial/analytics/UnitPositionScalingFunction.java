@@ -45,7 +45,8 @@ public class UnitPositionScalingFunction extends PropertyPreservingFunction {
         YieldCurveFunction.PROPERTY_FORWARD_CURVE,
         YieldCurveFunction.PROPERTY_FUNDING_CURVE,
         ValuePropertyNames.PAY_CURVE,
-        ValuePropertyNames.RECEIVE_CURVE);
+        ValuePropertyNames.RECEIVE_CURVE,
+        ValuePropertyNames.CALCULATION_METHOD);
   }
 
   private final String _requirementName;

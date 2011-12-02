@@ -13,7 +13,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
  * This outputs an AND clause if the expression is true.
  * It also avoids outputting AND if the last thing in the buffer is WHERE.
  */
-public final class AndSqlFragment extends ConditionalSqlFragment {
+final class AndSqlFragment extends ConditionalSqlFragment {
 
   /**
    * Creates an instance.
@@ -21,7 +21,7 @@ public final class AndSqlFragment extends ConditionalSqlFragment {
    * @param variable  the variable to determine whether to include the AND on, not null
    * @param matchValue  the value to match, null to match on existence
    */
-  public AndSqlFragment(String variable, String matchValue) {
+  AndSqlFragment(String variable, String matchValue) {
     super(variable, matchValue);
   }
 

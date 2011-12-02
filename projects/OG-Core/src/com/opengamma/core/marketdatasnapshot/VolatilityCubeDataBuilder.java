@@ -32,6 +32,8 @@ public class VolatilityCubeDataBuilder implements FudgeBuilder<VolatilityCubeDat
   /** Field name. */
   public static final String DATA_IDS_FIELD_NAME = "dataIds";
   /** Field name. */
+  public static final String DATA_RELATIVE_STRIKES_FIELD_NAME = "dataRelativeStrikes";
+  /** Field name. */
   public static final String OTHER_DATA_FIELD_NAME = "otherData";
   /** Field name. */
   public static final String STRIKES_FIELD_NAME = "strikes";
@@ -51,11 +53,16 @@ public class VolatilityCubeDataBuilder implements FudgeBuilder<VolatilityCubeDat
     
     serializer.addToMessage(ret, DATA_POINTS_FIELD_NAME, null, object.getDataPoints());    
     serializer.addToMessage(ret, OTHER_DATA_FIELD_NAME, null, object.getOtherData());
-    serializer.addToMessage(ret, DATA_IDS_FIELD_NAME, null, object.getDataIds());
+    if (object.getDataIds() != null) {
+      serializer.addToMessage(ret, DATA_IDS_FIELD_NAME, null, object.getDataIds());
+    }
+    if (object.getRelativeStrikes() != null) {
+      serializer.addToMessage(ret, DATA_RELATIVE_STRIKES_FIELD_NAME, null, object.getRelativeStrikes());
+    }
     
-    if (object.getStrikes() != null) {
+    if (object.getATMStrikes() != null) {
       MutableFudgeMsg strikesMessage = serializer.newMessage();
-      for (Entry<Pair<Tenor, Tenor>, Double> entry : object.getStrikes().entrySet()) {
+      for (Entry<Pair<Tenor, Tenor>, Double> entry : object.getATMStrikes().entrySet()) {
         MutableFudgeMsg strikeMessage = serializer.newMessage();
         serializer.addToMessage(strikeMessage, SWAP_TENOR_FIELD_NAME, null, entry.getKey().getFirst());
         serializer.addToMessage(strikeMessage, OPTION_EXPIRY_FIELD_NAME, null, entry.getKey().getSecond());
@@ -85,11 +92,14 @@ public class VolatilityCubeDataBuilder implements FudgeBuilder<VolatilityCubeDat
     Class<?> mapClass = (Class<?>) Map.class;
     FudgeField pointsField = message.getByName(DATA_POINTS_FIELD_NAME);
     FudgeField idsField = message.getByName(DATA_IDS_FIELD_NAME);
+    FudgeField relativeStrikesField = message.getByName(DATA_RELATIVE_STRIKES_FIELD_NAME);
     
     @SuppressWarnings("unchecked")
     Map<VolatilityPoint, Double> dataPoints = (Map<VolatilityPoint, Double>) (pointsField == null ? null : deserializer.fieldValueToObject(mapClass, pointsField));
     @SuppressWarnings("unchecked")
     Map<VolatilityPoint, ExternalId> dataIds = (Map<VolatilityPoint, ExternalId>) (idsField == null ? null : deserializer.fieldValueToObject(mapClass, idsField));
+    @SuppressWarnings("unchecked")
+    Map<VolatilityPoint, Double> relativeStrikes = (Map<VolatilityPoint, Double>) (relativeStrikesField == null ? null : deserializer.fieldValueToObject(mapClass, relativeStrikesField));
     
     FudgeField otherField = message.getByName(OTHER_DATA_FIELD_NAME);
     SnapshotDataBundle otherData = otherField == null ? null : deserializer.fieldValueToObject(SnapshotDataBundle.class, otherField);
@@ -97,6 +107,7 @@ public class VolatilityCubeDataBuilder implements FudgeBuilder<VolatilityCubeDat
     VolatilityCubeData ret = new VolatilityCubeData();
     ret.setDataPoints(dataPoints);
     ret.setDataIds(dataIds);
+    ret.setRelativeStrikes(relativeStrikes);
     ret.setOtherData(otherData);
     
     FudgeMsg strikesMsg = message.getMessage(STRIKES_FIELD_NAME);
@@ -110,7 +121,7 @@ public class VolatilityCubeDataBuilder implements FudgeBuilder<VolatilityCubeDat
         Double strike = deserializer.fieldValueToObject(Double.class, strikeMsg.getByName(STRIKE_FIELD_NAME));
         strikes.put(Pair.of(swapTenor, optionExpiry), strike);
       }
-      ret.setStrikes(strikes);
+      ret.setATMStrikes(strikes);
     }
     
     FudgeMsg atmVolatilitiesMsg = message.getMessage(ATM_VOLS_FIELD_NAME);

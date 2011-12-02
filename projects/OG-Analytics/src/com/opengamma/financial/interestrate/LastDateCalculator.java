@@ -23,7 +23,7 @@ import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
-import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
+import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
@@ -103,11 +103,6 @@ public final class LastDateCalculator extends AbstractInstrumentDerivativeVisito
   }
 
   @Override
-  public Double visitZZZCouponOIS(final ZZZCouponOIS payment) {
-    return payment.getPaymentTime();
-  }
-
-  @Override
   public Double visitFixedCouponAnnuity(final AnnuityCouponFixed annuity) {
     return visitGenericAnnuity(annuity);
   }
@@ -140,9 +135,15 @@ public final class LastDateCalculator extends AbstractInstrumentDerivativeVisito
   }
 
   @Override
+  public Double visitCouponOIS(final CouponOIS payment) {
+    return payment.getPaymentTime();
+  }
+
+  @Override
   public Double visitCouponIborFixed(CouponIborFixed payment) {
     return visitFixedCouponPayment(payment);
   }
+
   @Override
   public Double visitBondFixedSecurity(final BondFixedSecurity bond) {
     return visit(bond.getCoupon());

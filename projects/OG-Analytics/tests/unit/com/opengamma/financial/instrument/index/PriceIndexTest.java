@@ -23,26 +23,26 @@ public class PriceIndexTest {
   private static final Currency CUR = Currency.EUR;
   private static final Currency REGION = Currency.EUR;
   private static final Period LAG = Period.ofDays(14);
-  private static final PriceIndex PRICE_INDEX = new PriceIndex(NAME, CUR, REGION, LAG);
+  private static final IndexPrice PRICE_INDEX = new IndexPrice(NAME, CUR, REGION, LAG);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName() {
-    new PriceIndex(null, CUR, REGION, LAG);
+    new IndexPrice(null, CUR, REGION, LAG);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrency() {
-    new PriceIndex(NAME, null, REGION, LAG);
+    new IndexPrice(NAME, null, REGION, LAG);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRegion() {
-    new PriceIndex(NAME, CUR, null, LAG);
+    new IndexPrice(NAME, CUR, null, LAG);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLag() {
-    new PriceIndex(NAME, CUR, REGION, null);
+    new IndexPrice(NAME, CUR, REGION, null);
   }
 
   @Test
@@ -56,15 +56,15 @@ public class PriceIndexTest {
   @Test
   public void testEqualHash() {
     assertEquals(PRICE_INDEX, PRICE_INDEX);
-    PriceIndex indexDuplicate = new PriceIndex("Euro HICP x", CUR, REGION, LAG);
+    IndexPrice indexDuplicate = new IndexPrice("Euro HICP x", CUR, REGION, LAG);
     assertEquals(PRICE_INDEX, indexDuplicate);
     assertEquals(PRICE_INDEX.hashCode(), indexDuplicate.hashCode());
-    PriceIndex modified;
-    modified = new PriceIndex("xxx", CUR, REGION, LAG);
+    IndexPrice modified;
+    modified = new IndexPrice("xxx", CUR, REGION, LAG);
     assertFalse(PRICE_INDEX.equals(modified));
-    modified = new PriceIndex(NAME, Currency.AUD, REGION, LAG);
+    modified = new IndexPrice(NAME, Currency.AUD, REGION, LAG);
     assertFalse(PRICE_INDEX.equals(modified));
-    modified = new PriceIndex(NAME, CUR, Currency.AUD, LAG);
+    modified = new IndexPrice(NAME, CUR, Currency.AUD, LAG);
     assertFalse(PRICE_INDEX.equals(modified));
   }
 }

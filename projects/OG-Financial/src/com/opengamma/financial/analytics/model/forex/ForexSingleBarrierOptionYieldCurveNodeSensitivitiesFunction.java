@@ -117,16 +117,8 @@ public class ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction extends
     final YieldCurveBundle callCurveBundle = new YieldCurveBundle(new String[] {callFundingCurveName, callForwardCurveName}, new YieldAndDiscountCurve[] {callFundingCurve, callForwardCurve});
     final Map<String, List<DoublesPair>> curveSensitivities = ((InterestRateCurveSensitivity) curveSensitivitiesObject).getSensitivities();
     final Map<String, DoubleMatrix1D> putArrayResult, callArrayResult;
-    try {
-      putArrayResult = CALCULATOR.calculate(curveSensitivities, putCurveBundle, putCouponSensitivity, putJacobian);
-    } catch (Exception e) {
-      throw new OpenGammaRuntimeException("Could not get sensitivities for " + putCurrency + ", " + getPutFundingCurveName() + " and " + getPutForwardCurveName() + ", error was: " + e.getMessage());
-    }
-    try {
-      callArrayResult = CALCULATOR.calculate(curveSensitivities, callCurveBundle, callCouponSensitivity, callJacobian);
-    } catch (Exception e) {
-      throw new OpenGammaRuntimeException("Could not get sensitivities for " + callCurrency + ", " + getCallFundingCurveName() + " and " + getCallForwardCurveName() + ", error was: " + e.getMessage());
-    }
+    putArrayResult = CALCULATOR.calculate(curveSensitivities, putCurveBundle, putCouponSensitivity, putJacobian);
+    callArrayResult = CALCULATOR.calculate(curveSensitivities, callCurveBundle, callCouponSensitivity, callJacobian);
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
     result.addAll(YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(putFundingCurveName, data, putArrayResult.get(putFundingCurveName), putFundingCurveSpec,
         getResultSpecForCurve(target, putCurrency.getCode(), getPutFundingCurveName())));

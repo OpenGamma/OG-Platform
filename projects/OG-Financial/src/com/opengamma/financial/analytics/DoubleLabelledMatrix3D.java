@@ -26,6 +26,14 @@ public class DoubleLabelledMatrix3D extends LabelledMatrix3D<Double, Double, Dou
     return new DoubleLabelledMatrix3D(xKeys, xLabels, yKeys, yLabels, zKeys, zLabels, values);
   }
 
+  public DoubleLabelledMatrix3D getMatrix(Double[] xKeys, Object[] xLabels, Double[] yKeys, Object[] yLabels, Double[] zKeys, Object[] zLabels, double[][][] values) {
+    return new DoubleLabelledMatrix3D(xKeys, xLabels, yKeys, yLabels, zKeys, zLabels, values);
+  }
+
+  public DoubleLabelledMatrix3D getMatrix(final Double[] xKeys, final Double[] yKeys, final Double[] zKeys, final double[][][] values) {
+    return new DoubleLabelledMatrix3D(xKeys, yKeys, zKeys, values);
+  }
+  
   @Override
   public Double getDefaultToleranceX() {
     return Double.MIN_NORMAL;
