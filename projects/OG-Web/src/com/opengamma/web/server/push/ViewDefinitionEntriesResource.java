@@ -1,15 +1,12 @@
 package com.opengamma.web.server.push;
 
 import com.opengamma.engine.view.ViewDefinitionRepository;
-import com.opengamma.id.UniqueId;
 import org.json.JSONObject;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * REST interface that produces a JSON list of view definition names for populating the web client.
