@@ -56,7 +56,13 @@ public class PresentValueSABRSensitivityDataBundle {
     _nu = SurfaceValue.from(nu);
   }
 
-  private PresentValueSABRSensitivityDataBundle(final SurfaceValue alpha, final SurfaceValue rho, final SurfaceValue nu) {
+  /**
+   * Constructor from existing SurfaceValue for alpha, rho and nu. The SurfaceValue are not copied but used directly.
+   * @param alpha The alpha sensitivities.
+   * @param rho The rho sensitivities.
+   * @param nu The nu sensitivities.
+   */
+  public PresentValueSABRSensitivityDataBundle(final SurfaceValue alpha, final SurfaceValue rho, final SurfaceValue nu) {
     Validate.notNull(alpha, "alpha");
     Validate.notNull(rho, "rho");
     Validate.notNull(nu, "nu");

@@ -55,7 +55,7 @@ public class SurfaceValue {
   }
 
   /**
-   * Builder from a map. A new map is created with the same value.
+   * Builder from a map. A new map is created with the same values.
    * @param map The map.
    * @return The surface value.
    */
@@ -63,6 +63,18 @@ public class SurfaceValue {
     Validate.notNull(map, "Map");
     HashMap<DoublesPair, Double> data = new HashMap<DoublesPair, Double>();
     data.putAll(map);
+    return new SurfaceValue(data);
+  }
+
+  /**
+   * Builder from a SurfaceValue. A new map is created with the same values.
+   * @param surface The SurfaceValue
+   * @return The surface value.
+   */
+  public static SurfaceValue from(final SurfaceValue surface) {
+    Validate.notNull(surface, "Surface value");
+    HashMap<DoublesPair, Double> data = new HashMap<DoublesPair, Double>();
+    data.putAll(surface.getMap());
     return new SurfaceValue(data);
   }
 
@@ -157,6 +169,11 @@ public class SurfaceValue {
       }
     }
     return true;
+  }
+
+  @Override
+  public String toString() {
+    return _data.toString();
   }
 
   @Override

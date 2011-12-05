@@ -11,8 +11,8 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -20,17 +20,16 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 public class SABRFittedSurfaces {
-  private final VolatilitySurface _alphaSurface;
-  private final VolatilitySurface _betaSurface;
-  private final VolatilitySurface _nuSurface;
-  private final VolatilitySurface _rhoSurface;
+  private final InterpolatedDoublesSurface _alphaSurface;
+  private final InterpolatedDoublesSurface _betaSurface;
+  private final InterpolatedDoublesSurface _nuSurface;
+  private final InterpolatedDoublesSurface _rhoSurface;
   private final Map<DoublesPair, DoubleMatrix2D> _inverseJacobian;
   private final Currency _currency;
   private final DayCount _dayCount;
 
-
-  public SABRFittedSurfaces(final VolatilitySurface alphaSurface, final VolatilitySurface betaSurface, final VolatilitySurface nuSurface, final VolatilitySurface rhoSurface,
-      final Map<DoublesPair, DoubleMatrix2D> inverseJacobian, final Currency currency, final DayCount dayCount) {
+  public SABRFittedSurfaces(final InterpolatedDoublesSurface alphaSurface, final InterpolatedDoublesSurface betaSurface, final InterpolatedDoublesSurface nuSurface,
+      final InterpolatedDoublesSurface rhoSurface, final Map<DoublesPair, DoubleMatrix2D> inverseJacobian, final Currency currency, final DayCount dayCount) {
     Validate.notNull(alphaSurface, "alpha surface");
     Validate.notNull(betaSurface, "beta surface");
     Validate.notNull(nuSurface, "nu surface");
@@ -46,19 +45,19 @@ public class SABRFittedSurfaces {
     _dayCount = dayCount;
   }
 
-  public VolatilitySurface getAlphaSurface() {
+  public InterpolatedDoublesSurface getAlphaSurface() {
     return _alphaSurface;
   }
 
-  public VolatilitySurface getBetaSurface() {
+  public InterpolatedDoublesSurface getBetaSurface() {
     return _betaSurface;
   }
 
-  public VolatilitySurface getNuSurface() {
+  public InterpolatedDoublesSurface getNuSurface() {
     return _nuSurface;
   }
 
-  public VolatilitySurface getRhoSurface() {
+  public InterpolatedDoublesSurface getRhoSurface() {
     return _rhoSurface;
   }
 

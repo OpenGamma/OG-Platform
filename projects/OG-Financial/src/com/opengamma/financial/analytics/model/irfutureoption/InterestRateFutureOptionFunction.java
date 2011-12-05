@@ -49,9 +49,9 @@ import com.opengamma.financial.model.option.definition.SABRInterestRateParameter
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionFactory;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -67,7 +67,7 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
   private InterestRateFutureOptionTradeConverter _converter;
   private FixedIncomeConverterDataProvider _dataConverter;
 
-  public InterestRateFutureOptionFunction(String forwardCurveName, String fundingCurveName, final String surfaceName) { 
+  public InterestRateFutureOptionFunction(String forwardCurveName, String fundingCurveName, final String surfaceName) {
     Validate.notNull(forwardCurveName, "forward curve name");
     Validate.notNull(fundingCurveName, "funding curve name");
     Validate.notNull(surfaceName, "surface name");
@@ -99,8 +99,8 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
     return getResults(irFutureOption, data, desiredValues, inputs, target);
   }
 
-  protected abstract Set<ComputedValue> getResults(InstrumentDerivative irFutureOption, SABRInterestRateDataBundle data, Set<ValueRequirement> desiredValues,
-      final FunctionInputs inputs, ComputationTarget target);
+  protected abstract Set<ComputedValue> getResults(InstrumentDerivative irFutureOption, SABRInterestRateDataBundle data, Set<ValueRequirement> desiredValues, final FunctionInputs inputs,
+      ComputationTarget target);
 
   @Override
   public ComputationTargetType getTargetType() {
@@ -128,17 +128,14 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
     return requirements;
   }
 
-  private ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName,
-      final String advisoryForward, final String advisoryFunding) {
-    return YieldCurveFunction.getCurveRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()), curveName,
-        advisoryForward, advisoryFunding);
+  private ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String advisoryForward, final String advisoryFunding) {
+    return YieldCurveFunction.getCurveRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()), curveName, advisoryForward, advisoryFunding);
   }
 
   protected ValueRequirement getSurfaceRequirement(final ComputationTarget target) {
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
-    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CURRENCY, currency.getCode())
-                                                      .with(ValuePropertyNames.SURFACE, _surfaceName)
-                                                      .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION").get();
+    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CURRENCY, currency.getCode()).with(ValuePropertyNames.SURFACE, _surfaceName)
+        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION").get();
     return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency, properties);
   }
 
@@ -157,10 +154,8 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
       }
     }
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
-    final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve
-        : (YieldAndDiscountCurve) fundingCurveObject;
-    return new YieldCurveBundle(new String[] {_fundingCurveName, _forwardCurveName},
-        new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
+    final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve : (YieldAndDiscountCurve) fundingCurveObject;
+    return new YieldCurveBundle(new String[] {_fundingCurveName, _forwardCurveName}, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
   }
 
   protected SABRInterestRateParameters getModelParameters(final ComputationTarget target, final FunctionInputs inputs) {
@@ -174,10 +169,10 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
     if (!surfaces.getCurrency().equals(currency)) {
       throw new OpenGammaRuntimeException("Don't know how this happened");
     }
-    final VolatilitySurface alphaSurface = surfaces.getAlphaSurface();
-    final VolatilitySurface betaSurface = surfaces.getBetaSurface();
-    final VolatilitySurface nuSurface = surfaces.getNuSurface();
-    final VolatilitySurface rhoSurface = surfaces.getRhoSurface();
+    final InterpolatedDoublesSurface alphaSurface = surfaces.getAlphaSurface();
+    final InterpolatedDoublesSurface betaSurface = surfaces.getBetaSurface();
+    final InterpolatedDoublesSurface nuSurface = surfaces.getNuSurface();
+    final InterpolatedDoublesSurface rhoSurface = surfaces.getRhoSurface();
     final DayCount dayCount = surfaces.getDayCount();
     return new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, SABR_FUNCTION);
   }
@@ -185,11 +180,11 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
   protected String getForwardCurveName() {
     return _forwardCurveName;
   }
-  
+
   protected String getFundingCurveName() {
     return _fundingCurveName;
   }
-  
+
   protected String getSurfaceName() {
     return _surfaceName;
   }

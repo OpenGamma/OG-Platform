@@ -35,9 +35,9 @@ import com.opengamma.financial.model.option.definition.SABRInterestRateParameter
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionFactory;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
+import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -102,10 +102,8 @@ public abstract class CapFloorCMSSpreadSABRFunction extends AbstractFunction.Non
     return target.getSecurity() instanceof CapFloorCMSSpreadSecurity;
   }
 
-  protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName,
-      final String advisoryForward, final String advisoryFunding) {
-    return YieldCurveFunction.getCurveRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity()), curveName,
-        advisoryForward, advisoryFunding);
+  protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String advisoryForward, final String advisoryFunding) {
+    return YieldCurveFunction.getCurveRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity()), curveName, advisoryForward, advisoryFunding);
   }
 
   protected ValueRequirement getCubeRequirement(final ComputationTarget target) {
@@ -120,7 +118,7 @@ public abstract class CapFloorCMSSpreadSABRFunction extends AbstractFunction.Non
   protected FixedIncomeConverterDataProvider getConverter() {
     return _converter;
   }
-  
+
   protected VolatilityCubeFunctionHelper getHelper() {
     return _helper;
   }
@@ -130,9 +128,9 @@ public abstract class CapFloorCMSSpreadSABRFunction extends AbstractFunction.Non
   }
 
   protected String getFundingCurveName() {
-    return _fundingCurveName;    
+    return _fundingCurveName;
   }
-  
+
   protected YieldCurveBundle getYieldCurves(final ComputationTarget target, final FunctionInputs inputs) {
     final ValueRequirement forwardCurveRequirement = getCurveRequirement(target, _forwardCurveName, _forwardCurveName, _fundingCurveName);
     final Object forwardCurveObject = inputs.getValue(forwardCurveRequirement);
@@ -141,17 +139,15 @@ public abstract class CapFloorCMSSpreadSABRFunction extends AbstractFunction.Non
     }
     Object fundingCurveObject = null;
     if (!_forwardCurveName.equals(_fundingCurveName)) {
-      final ValueRequirement fundingCurveRequirement = getCurveRequirement(target, _fundingCurveName,  _forwardCurveName, _fundingCurveName);
+      final ValueRequirement fundingCurveRequirement = getCurveRequirement(target, _fundingCurveName, _forwardCurveName, _fundingCurveName);
       fundingCurveObject = inputs.getValue(fundingCurveRequirement);
       if (fundingCurveObject == null) {
         throw new OpenGammaRuntimeException("Could not get " + fundingCurveRequirement);
       }
     }
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
-    final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve
-        : (YieldAndDiscountCurve) fundingCurveObject;
-    return new YieldCurveBundle(new String[] {_fundingCurveName, _forwardCurveName},
-        new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
+    final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve : (YieldAndDiscountCurve) fundingCurveObject;
+    return new YieldCurveBundle(new String[] {_fundingCurveName, _forwardCurveName}, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
   }
 
   protected SABRInterestRateParameters getModelParameters(final ComputationTarget target, final FunctionInputs inputs) {
@@ -165,10 +161,10 @@ public abstract class CapFloorCMSSpreadSABRFunction extends AbstractFunction.Non
     if (!surfaces.getCurrency().equals(currency)) {
       throw new OpenGammaRuntimeException("Don't know how this happened");
     }
-    final VolatilitySurface alphaSurface = surfaces.getAlphaSurface();
-    final VolatilitySurface betaSurface = surfaces.getBetaSurface();
-    final VolatilitySurface nuSurface = surfaces.getNuSurface();
-    final VolatilitySurface rhoSurface = surfaces.getRhoSurface();
+    final InterpolatedDoublesSurface alphaSurface = surfaces.getAlphaSurface();
+    final InterpolatedDoublesSurface betaSurface = surfaces.getBetaSurface();
+    final InterpolatedDoublesSurface nuSurface = surfaces.getNuSurface();
+    final InterpolatedDoublesSurface rhoSurface = surfaces.getRhoSurface();
     final DayCount dayCount = surfaces.getDayCount();
     return new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, SABR_FUNCTION);
   }
