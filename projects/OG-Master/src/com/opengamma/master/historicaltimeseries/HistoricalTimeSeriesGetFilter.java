@@ -9,9 +9,9 @@ package com.opengamma.master.historicaltimeseries;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.Period;
 
 import org.joda.beans.BeanBuilder;
-import javax.time.calendar.Period;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
