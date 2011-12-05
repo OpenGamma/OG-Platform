@@ -9,6 +9,7 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * 
@@ -20,7 +21,7 @@ public class ByteArrayFudgeMessageSender implements FudgeMessageSender {
   private final FudgeContext _fudgeContext;
   
   public ByteArrayFudgeMessageSender(ByteArrayMessageSender underlying) {
-    this(underlying, new FudgeContext());
+    this(underlying, OpenGammaFudgeContext.getInstance());
   }
   
   public ByteArrayFudgeMessageSender(ByteArrayMessageSender underlying, FudgeContext fudgeContext) {
