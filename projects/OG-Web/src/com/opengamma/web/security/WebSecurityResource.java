@@ -19,10 +19,25 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import sun.awt.AppContext;
+
+import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.engine.marketdata.DefaultHistoricalMarketDataFieldResolver;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver;
+import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.web.FreemarkerCustomRenderer;
 
@@ -120,8 +135,12 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     SecurityDocument doc = data().getSecurity();
-    out.put("securityDoc", doc);
+    
+    UniqueId htsId = htsResolver().resolve("PX_LAST", doc.getSecurity().getExternalIdBundle(), null, null);
+    
+    out.put("securityDoc", doc); 
     out.put("security", doc.getSecurity());
+    out.put("timeSeriesId", htsId == null ? null : htsId.getObjectId());
     out.put("deleted", !doc.isLatest());
     addSecuritySpecificMetaData(doc.getSecurity(), out);
     out.put("customRenderer", FreemarkerCustomRenderer.INSTANCE);

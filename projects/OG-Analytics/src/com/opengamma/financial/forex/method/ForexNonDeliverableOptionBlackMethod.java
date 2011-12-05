@@ -25,6 +25,7 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.surface.SurfaceValue;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -129,6 +130,17 @@ public final class ForexNonDeliverableOptionBlackMethod implements ForexPricingM
   }
 
   /**
+   * Computes the forward exchange rate associated to the NOF (1 Cyy2 = fwd Cyy1).
+   * @param ndo The non-deliverable option.
+   * @param smile The curve and smile data.
+   * @return The forward rate.
+   */
+  public double forwardForexRate(final ForexNonDeliverableOption ndo, final SmileDeltaTermStructureDataBundle smile) {
+    ForexNonDeliverableForwardDiscountingMethod method = ForexNonDeliverableForwardDiscountingMethod.getInstance();
+    return method.forwardForexRate(ndo.getUnderlyingNDF(), smile);
+  }
+
+  /**
    * Computes the present value curve sensitivities of Forex non-deliverable option with the Black function and a volatility surface.
    * @param optionForex The Forex option.
    * @param smile The curve and smile data.
@@ -192,7 +204,7 @@ public final class ForexNonDeliverableOptionBlackMethod implements ForexPricingM
    * @param smile The curve and smile data.
    * @return The currency exposure
    */
-  public PresentValueVolatilitySensitivityDataBundle presentValueVolatilitySensitivity(final ForexNonDeliverableOption optionForex, final SmileDeltaTermStructureDataBundle smile) {
+  public PresentValueForexBlackVolatilitySensitivity presentValueVolatilitySensitivity(final ForexNonDeliverableOption optionForex, final SmileDeltaTermStructureDataBundle smile) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smile, "Smile");
     Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -213,9 +225,10 @@ public final class ForexNonDeliverableOptionBlackMethod implements ForexPricingM
     // Backward sweep
     final double volatilitySensitivityValue = priceAdjoint[2] * Math.abs(optionForex.getUnderlyingNDF().getNotionalCurrency1()) * (optionForex.isLong() ? 1.0 : -1.0);
     final DoublesPair point = DoublesPair.of(optionForex.getExpiryTime(), (optionForex.getCurrency1() == smile.getCurrencyPair().getFirst()) ? strike : 1.0 / strike);
-    final Map<DoublesPair, Double> result = new HashMap<DoublesPair, Double>();
-    result.put(point, volatilitySensitivityValue);
-    final PresentValueVolatilitySensitivityDataBundle sensi = new PresentValueVolatilitySensitivityDataBundle(optionForex.getCurrency1(), optionForex.getCurrency2(), result);
+    SurfaceValue result = SurfaceValue.from(point, volatilitySensitivityValue);
+    //    final Map<DoublesPair, Double> result = new HashMap<DoublesPair, Double>();
+    //    result.put(point, volatilitySensitivityValue);
+    final PresentValueForexBlackVolatilitySensitivity sensi = new PresentValueForexBlackVolatilitySensitivity(optionForex.getCurrency1(), optionForex.getCurrency2(), result);
     return sensi;
   }
 
@@ -234,7 +247,7 @@ public final class ForexNonDeliverableOptionBlackMethod implements ForexPricingM
     final double strike = 1.0 / optionForex.getStrike(); // The strike is 1 ccy2=X ccy1; we want the price in ccy2 => we need 1 ccy1 = 1/X ccy2.
     final String deliveryCurveName = optionForex.getUnderlyingNDF().getDiscountingCurve2Name();
     final String nonDeliveryCurveName = optionForex.getUnderlyingNDF().getDiscountingCurve1Name();
-    final PresentValueVolatilitySensitivityDataBundle pointSensitivity = presentValueVolatilitySensitivity(optionForex, smile); // In ccy2
+    final PresentValueForexBlackVolatilitySensitivity pointSensitivity = presentValueVolatilitySensitivity(optionForex, smile); // In ccy2
     final double[][] nodeWeight = new double[smile.getSmile().getNumberExpiration()][smile.getSmile().getNumberStrike()];
     final double dfDelivery = smile.getCurve(deliveryCurveName).getDiscountFactor(paymentTime);
     final double dfNonDelivery = smile.getCurve(nonDeliveryCurveName).getDiscountFactor(paymentTime);
@@ -245,7 +258,7 @@ public final class ForexNonDeliverableOptionBlackMethod implements ForexPricingM
     final double[][] vega = new double[smile.getSmile().getNumberExpiration()][smile.getSmile().getNumberStrike()];
     for (int loopexp = 0; loopexp < smile.getSmile().getNumberExpiration(); loopexp++) {
       for (int loopstrike = 0; loopstrike < smile.getSmile().getNumberStrike(); loopstrike++) {
-        vega[loopexp][loopstrike] = nodeWeight[loopexp][loopstrike] * pointSensitivity.getVega().get(point);
+        vega[loopexp][loopstrike] = nodeWeight[loopexp][loopstrike] * pointSensitivity.getVega().getMap().get(point);
       }
     }
     return new PresentValueVolatilityNodeSensitivityDataBundle(optionForex.getCurrency1(), optionForex.getCurrency2(), new DoubleMatrix1D(smile.getSmile().getTimeToExpiration()), new DoubleMatrix1D(
