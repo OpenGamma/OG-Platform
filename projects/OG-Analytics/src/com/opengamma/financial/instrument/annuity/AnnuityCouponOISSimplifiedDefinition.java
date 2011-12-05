@@ -10,7 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.instrument.index.IndexOIS;
+import com.opengamma.financial.instrument.index.IndexON;
 import com.opengamma.financial.instrument.payment.CouponOISSimplifiedDefinition;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 
@@ -40,7 +40,7 @@ public class AnnuityCouponOISSimplifiedDefinition extends AnnuityDefinition<Coup
    * @param isEOM The end-of-month convention to compute the end date of the coupon.
    * @return The annuity.
    */
-  public static AnnuityCouponOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final Period tenorAnnuity, final Period tenorCoupon, final double notional, final IndexOIS index,
+  public static AnnuityCouponOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final Period tenorAnnuity, final Period tenorCoupon, final double notional, final IndexON index,
       final boolean isPayer, final int settlementDays, final BusinessDayConvention businessDayConvention, final boolean isEOM) {
     final ZonedDateTime[] endFixingPeriodDate = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, tenorAnnuity, tenorCoupon, businessDayConvention, index.getCalendar(), isEOM);
     return AnnuityCouponOISSimplifiedDefinition.from(settlementDate, endFixingPeriodDate, notional, index, isPayer, settlementDays);
@@ -59,7 +59,7 @@ public class AnnuityCouponOISSimplifiedDefinition extends AnnuityDefinition<Coup
    * @param isEOM The end-of-month convention to compute the end date of the coupon.
    * @return The annuity.
    */
-  public static AnnuityCouponOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final Frequency frequency, final double notional, final IndexOIS index,
+  public static AnnuityCouponOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final Frequency frequency, final double notional, final IndexON index,
       final boolean isPayer, final int settlementDays, final BusinessDayConvention businessDayConvention, final boolean isEOM) {
     final ZonedDateTime[] endFixingPeriodDate = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, frequency, businessDayConvention, index.getCalendar(), isEOM);
     return AnnuityCouponOISSimplifiedDefinition.from(settlementDate, endFixingPeriodDate, notional, index, isPayer, settlementDays);
@@ -75,7 +75,7 @@ public class AnnuityCouponOISSimplifiedDefinition extends AnnuityDefinition<Coup
    * @param settlementDays The number of days between last fixing of each coupon and the coupon payment (also called spot lag). 
    * @return
    */
-  private static AnnuityCouponOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final IndexOIS index,
+  private static AnnuityCouponOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final IndexON index,
       final boolean isPayer, final int settlementDays) {
     final double sign = isPayer ? -1.0 : 1.0;
     double notionalSigned = sign * notional;

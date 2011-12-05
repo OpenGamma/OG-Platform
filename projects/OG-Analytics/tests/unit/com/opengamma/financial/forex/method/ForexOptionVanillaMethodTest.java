@@ -19,6 +19,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.forex.calculator.CurrencyExposureBlackForexCalculator;
+import com.opengamma.financial.forex.calculator.ForwardRateForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueBlackForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueForexVegaQuoteSensitivityCalculator;
@@ -334,6 +335,17 @@ public class ForexOptionVanillaMethodTest {
     double fwd = METHOD_OPTION.forwardForexRate(FOREX_CALL_OPTION, SMILE_BUNDLE);
     double fwdExpected = METHOD_DISC.forwardForexRate(FOREX_CALL_OPTION.getUnderlyingForex(), SMILE_BUNDLE);
     assertEquals("Forex vanilla option: forward forex rate", fwd, fwdExpected, 1.0E-10);
+  }
+
+  @Test
+  /**
+   * Tests the forward Forex rate through the method and through the calculator.
+   */
+  public void forwardRateMethodVsCalculator() {
+    double fwdMethod = METHOD_OPTION.forwardForexRate(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    ForwardRateForexCalculator FWDC = ForwardRateForexCalculator.getInstance();
+    double fwdCalculator = FWDC.visit(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    assertEquals("Forex: forward rate", fwdMethod, fwdCalculator, 1.0E-10);
   }
 
   @Test

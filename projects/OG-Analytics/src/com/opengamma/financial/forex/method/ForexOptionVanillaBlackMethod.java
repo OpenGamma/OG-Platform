@@ -124,12 +124,12 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
   /**
    * Computes the forward exchange rate associated to the Forex option (1 Cyy1 = fwd Cyy2).
    * @param optionForex The Forex option.
-   * @param smile The curve and smile data.
+   * @param curves The curve and fx data.
    * @return The forward rate.
    */
-  public double forwardForexRate(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile) {
+  public double forwardForexRate(final ForexOptionVanilla optionForex, final YieldCurveWithFXBundle curves) {
     ForexDiscountingMethod methodForex = ForexDiscountingMethod.getInstance();
-    return methodForex.forwardForexRate(optionForex.getUnderlyingForex(), smile);
+    return methodForex.forwardForexRate(optionForex.getUnderlyingForex(), curves);
   }
 
   /**
