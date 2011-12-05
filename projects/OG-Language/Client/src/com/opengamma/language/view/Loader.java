@@ -113,10 +113,12 @@ public class Loader extends ContextInitializationBean {
         ViewClientDescriptorFunction.TICKING_MARKET_DATA,
         ViewClientDescriptorFunction.TICKING_SNAPSHOT,
         ViewClientFunction.INSTANCE,
+        ViewDefinitionFunction.INSTANCE,
         ViewsFunction.INSTANCE,
         ViewIdFunction.INSTANCE));
     globalContext.getProcedureProvider().addProvider(new ProcedureProviderBean(
         ConfigureViewClientProcedure.INSTANCE,
+        StoreViewDefinitionProcedure.INSTANCE,
         TriggerViewCycleProcedure.INSTANCE));
     globalContext.getTypeConverterProvider().addTypeConverterProvider(new TypeConverterProviderBean(
         UserViewClientConverter.INSTANCE));

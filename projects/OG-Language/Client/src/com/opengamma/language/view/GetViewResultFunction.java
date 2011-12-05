@@ -112,13 +112,15 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
 
     @Override
     public void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
-      s_logger.debug("Ignoring partial results.");
+      // Ignore
+      s_logger.debug("Ignoring partial results");
     }
 
     @Override
     public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
       if (fullResult != null) {
         if (!fullResult.getViewCycleId().equals(_lastViewCycleId)) {
+          s_logger.debug("Posting full result");
           postResult(fullResult);
         } else {
           // This probably shouldn't happen
@@ -129,12 +131,14 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
         if (!_resultPosted.getAndSet(true)) {
           final ViewComputationResultModel result;
           try {
+            s_logger.debug("Querying full result after receiving delta result");
             result = _viewClientHandle.get().getViewClient().getLatestResult();
           } finally {
             _resultPosted.set(false);
           }
           if (result != null) {
             if (!result.getViewCycleId().equals(result)) {
+              s_logger.debug("Posting full result");
               postResult(result);
             } else {
               // This probably shouldn't happen
@@ -144,6 +148,8 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
             s_logger.warn("Cycle completed, but latest result not available");
             postResult("No result after cycle completion");
           }
+        } else {
+          s_logger.debug("Ignoring delta result; result already posted");
         }
       }
     }
@@ -177,6 +183,7 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
     @Override
     public void viewDefinitionCompiled(final CompiledViewDefinition compiledViewDefinition, final boolean hasMarketDataPermissions) {
       // Ignore
+      s_logger.debug("View definition compiled");
     }
 
     // Cancellable

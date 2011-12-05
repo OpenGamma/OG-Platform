@@ -165,10 +165,10 @@ public class ForexNonDeliverableOptionBlackMethodTest {
    */
   public void presentValueVolatilitySensitivity() {
     double tolerance = 1.0E-2;
-    PresentValueVolatilitySensitivityDataBundle pvvsNDO = METHOD_NDO.presentValueVolatilitySensitivity(NDO, SMILE_BUNDLE);
-    PresentValueVolatilitySensitivityDataBundle pvvsFXO = METHOD_FXO.presentValueVolatilitySensitivity(FOREX_OPT, SMILE_BUNDLE);
+    PresentValueForexBlackVolatilitySensitivity pvvsNDO = METHOD_NDO.presentValueVolatilitySensitivity(NDO, SMILE_BUNDLE);
+    PresentValueForexBlackVolatilitySensitivity pvvsFXO = METHOD_FXO.presentValueVolatilitySensitivity(FOREX_OPT, SMILE_BUNDLE);
     final DoublesPair point = DoublesPair.of(NDO.getExpiryTime(), NDO.getStrike());
-    assertEquals("Forex non-deliverable option: present value curve sensitivity", pvvsFXO.getVega().get(point), pvvsNDO.getVega().get(point), tolerance);
+    assertEquals("Forex non-deliverable option: present value curve sensitivity", pvvsFXO.getVega().getMap().get(point), pvvsNDO.getVega().getMap().get(point), tolerance);
   }
 
   @Test

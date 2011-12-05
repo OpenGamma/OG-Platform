@@ -110,7 +110,7 @@ public class SwapFixedOISSimplifiedDefinition extends SwapDefinition {
     return (AnnuityCouponOISSimplifiedDefinition) getSecondLeg();
   }
 
-  @SuppressWarnings({"unchecked"})
+  @SuppressWarnings({"unchecked" })
   @Override
   public FixedCouponSwap<Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final GenericAnnuity<CouponFixed> fixedLeg = this.getFixedLeg().toDerivative(date, yieldCurveNames);

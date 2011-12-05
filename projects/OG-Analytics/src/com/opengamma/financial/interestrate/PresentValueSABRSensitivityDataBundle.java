@@ -5,12 +5,12 @@
  */
 package com.opengamma.financial.interestrate;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.util.surface.SurfaceValue;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -20,25 +20,25 @@ public class PresentValueSABRSensitivityDataBundle {
 
   //TODO: Should the currency/instrument (swaption, cap) be included in the map description?
   /**
-   * The map containing the alpha sensitivity. The map linked the pair (expiry time, tenor) to a double (sensitivity).
+   * The object containing the alpha sensitivity.
    */
-  private final Map<DoublesPair, Double> _alpha;
+  private final SurfaceValue _alpha;
   /**
-  * The map containing the rho (correlation) sensitivity. The map linked the pair (expiry time, tenor) to a double (sensitivity).
-  */
-  private final Map<DoublesPair, Double> _rho;
+   * The object containing the rho (correlation) sensitivity.
+   */
+  private final SurfaceValue _rho;
   /**
-    * The map containing the nu (volatility of volatility) sensitivity. The map linked the pair (expiry time, tenor) to a double (sensitivity).
-    */
-  private final Map<DoublesPair, Double> _nu;
+   * The object containing the nu (vol of vol) sensitivity.
+   */
+  private final SurfaceValue _nu;
 
   /**
    * Constructor with empty sensitivities.
    */
   public PresentValueSABRSensitivityDataBundle() {
-    this._alpha = new HashMap<DoublesPair, Double>();
-    this._rho = new HashMap<DoublesPair, Double>();
-    this._nu = new HashMap<DoublesPair, Double>();
+    _alpha = new SurfaceValue();
+    _rho = new SurfaceValue();
+    _nu = new SurfaceValue();
   }
 
   /**
@@ -51,18 +51,28 @@ public class PresentValueSABRSensitivityDataBundle {
     Validate.notNull(alpha, "alpha");
     Validate.notNull(rho, "rho");
     Validate.notNull(nu, "nu");
-    this._alpha = new HashMap<DoublesPair, Double>(alpha);
-    this._rho = new HashMap<DoublesPair, Double>(rho);
-    this._nu = new HashMap<DoublesPair, Double>(nu);
+    _alpha = SurfaceValue.from(alpha);
+    _rho = SurfaceValue.from(rho);
+    _nu = SurfaceValue.from(nu);
+  }
+
+  private PresentValueSABRSensitivityDataBundle(final SurfaceValue alpha, final SurfaceValue rho, final SurfaceValue nu) {
+    Validate.notNull(alpha, "alpha");
+    Validate.notNull(rho, "rho");
+    Validate.notNull(nu, "nu");
+    _alpha = alpha;
+    _rho = rho;
+    _nu = nu;
   }
 
   /**
-   * Add one sensitivity to the alpha sensitivity.
+   * Add one sensitivity to the alpha sensitivity. The existing object is modified. If the point is not in the existing points of the sensitivity, it is put in the map.
+   * If a point is already in the existing points of the object, the value is added to the existing value.
    * @param expiryMaturity The expirytime/maturity pair.
    * @param sensitivity The sensitivity.
    */
   public void addAlpha(final DoublesPair expiryMaturity, final double sensitivity) {
-    _alpha.put(expiryMaturity, sensitivity);
+    _alpha.add(expiryMaturity, sensitivity);
   }
 
   /**
@@ -71,7 +81,7 @@ public class PresentValueSABRSensitivityDataBundle {
    * @param sensitivity The sensitivity.
    */
   public void addRho(final DoublesPair expiryMaturity, final double sensitivity) {
-    _rho.put(expiryMaturity, sensitivity);
+    _rho.add(expiryMaturity, sensitivity);
   }
 
   /**
@@ -80,79 +90,50 @@ public class PresentValueSABRSensitivityDataBundle {
    * @param sensitivity The sensitivity.
    */
   public void addNu(final DoublesPair expiryMaturity, final double sensitivity) {
-    _nu.put(expiryMaturity, sensitivity);
+    _nu.add(expiryMaturity, sensitivity);
   }
 
   /**
-   * Multiply all the sensitivities by a common factor. 
+   * Create a new sensitivity object with all the sensitivities multiplied by a common factor. 
+   * @param sensi The SABR sensitivity.
    * @param factor The multiplicative factor.
+   * @return The multiplied sensitivity.
    */
-  public void multiply(final double factor) {
-    for (final DoublesPair p : _alpha.keySet()) {
-      _alpha.put(p, _alpha.get(p) * factor);
-    }
-    for (final DoublesPair p : _rho.keySet()) {
-      _rho.put(p, _rho.get(p) * factor);
-    }
-    for (final DoublesPair p : _nu.keySet()) {
-      _nu.put(p, _nu.get(p) * factor);
-    }
+  public static PresentValueSABRSensitivityDataBundle multiplyBy(final PresentValueSABRSensitivityDataBundle sensi, final double factor) {
+    return new PresentValueSABRSensitivityDataBundle(SurfaceValue.multiplyBy(sensi._alpha, factor), SurfaceValue.multiplyBy(sensi._rho, factor), SurfaceValue.multiplyBy(sensi._nu, factor));
   }
 
   /**
-   * Return the sum of to sensitivities in a new one. The original sensitivities are unchanged.
-   * @param other Another SABR sensitivity.
+   * Return the sum of to sensitivities in a new one. The original sensitivities are unchanged. 
+   * @param sensi1 The first SABR sensitivity. 
+   * @param sensi2 The second SABR sensitivity.
    * @return The sum sensitivity.
    */
-  public PresentValueSABRSensitivityDataBundle plus(final PresentValueSABRSensitivityDataBundle other) {
-    final Map<DoublesPair, Double> alpha = new HashMap<DoublesPair, Double>(_alpha);
-    final Map<DoublesPair, Double> rho = new HashMap<DoublesPair, Double>(_rho);
-    final Map<DoublesPair, Double> nu = new HashMap<DoublesPair, Double>(_nu);
-    for (final DoublesPair p : other.getAlpha().keySet()) {
-      if (_alpha.containsKey(p)) {
-        alpha.put(p, other.getAlpha().get(p) + _alpha.get(p));
-      } else {
-        alpha.put(p, other.getAlpha().get(p));
-      }
-    }
-    for (final DoublesPair p : other.getRho().keySet()) {
-      if (_rho.containsKey(p)) {
-        rho.put(p, other.getRho().get(p) + _rho.get(p));
-      } else {
-        rho.put(p, other.getRho().get(p));
-      }
-    }
-    for (final DoublesPair p : other.getNu().keySet()) {
-      if (_nu.containsKey(p)) {
-        nu.put(p, other.getNu().get(p) + _nu.get(p));
-      } else {
-        nu.put(p, other.getNu().get(p));
-      }
-    }
-    return new PresentValueSABRSensitivityDataBundle(alpha, rho, nu);
+  public static PresentValueSABRSensitivityDataBundle plus(final PresentValueSABRSensitivityDataBundle sensi1, final PresentValueSABRSensitivityDataBundle sensi2) {
+    return new PresentValueSABRSensitivityDataBundle(SurfaceValue.plus(sensi1._alpha, sensi2._alpha), SurfaceValue.plus(sensi1._rho, sensi2._rho), SurfaceValue.plus(sensi1._nu, sensi2._nu));
   }
 
   /**
-   * Gets the _alpha field.
+   * Gets the alpha sensitivity.
    * @return The alpha sensitivity.
    */
-  public Map<DoublesPair, Double> getAlpha() {
+  public SurfaceValue getAlpha() {
     return _alpha;
   }
 
   /**
-   * Gets the _rho field.
+   * Gets the rho sensitivity.
    * @return The rho sensitivity.
    */
-  public Map<DoublesPair, Double> getRho() {
+  public SurfaceValue getRho() {
     return _rho;
   }
 
   /**
-   * Gets the _nu field.
+   * Gets the nu sensitivity.
    * @return The nu sensitivity.
    */
-  public Map<DoublesPair, Double> getNu() {
+  public SurfaceValue getNu() {
     return _nu;
   }
 

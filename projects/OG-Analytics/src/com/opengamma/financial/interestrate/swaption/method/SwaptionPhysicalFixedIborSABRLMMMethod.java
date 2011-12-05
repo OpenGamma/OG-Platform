@@ -10,8 +10,8 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.PricingMethod;
@@ -146,10 +146,10 @@ public class SwaptionPhysicalFixedIborSABRLMMMethod implements PricingMethod {
     double[][] dPvCaldNu = new double[nbCal][nbCal];
     for (int loopcal = 0; loopcal < nbCal; loopcal++) {
       dPvCaldSABR[loopcal] = METHOD_SWAPTION_SABR.presentValueSABRSensitivity(swaptionCalibration[loopcal], curves);
-      DoublesPair[] keySet = dPvCaldSABR[loopcal].getAlpha().keySet().toArray(new DoublesPair[0]);
-      dPvCaldAlpha[loopcal][loopcal] = dPvCaldSABR[loopcal].getAlpha().get(keySet[0]);
-      dPvCaldRho[loopcal][loopcal] = dPvCaldSABR[loopcal].getRho().get(keySet[0]);
-      dPvCaldNu[loopcal][loopcal] = dPvCaldSABR[loopcal].getNu().get(keySet[0]);
+      DoublesPair[] keySet = dPvCaldSABR[loopcal].getAlpha().getMap().keySet().toArray(new DoublesPair[0]);
+      dPvCaldAlpha[loopcal][loopcal] = dPvCaldSABR[loopcal].getAlpha().getMap().get(keySet[0]);
+      dPvCaldRho[loopcal][loopcal] = dPvCaldSABR[loopcal].getRho().getMap().get(keySet[0]);
+      dPvCaldNu[loopcal][loopcal] = dPvCaldSABR[loopcal].getNu().getMap().get(keySet[0]);
     }
     DoubleMatrix1D dPvAmdLambdaMatrix = new DoubleMatrix1D(dPvAmdLambda);
     DoubleMatrix2D dPvCaldAlphaMatrix = new DoubleMatrix2D(dPvCaldAlpha);
@@ -352,10 +352,10 @@ public class SwaptionPhysicalFixedIborSABRLMMMethod implements PricingMethod {
     double[][] dPvCaldNu = new double[nbCal][nbCal];
     for (int loopcal = 0; loopcal < nbCal; loopcal++) {
       dPvCaldSABR[loopcal] = METHOD_SWAPTION_SABR.presentValueSABRSensitivity(swaptionCalibration[loopcal], curves);
-      DoublesPair[] keySet = dPvCaldSABR[loopcal].getAlpha().keySet().toArray(new DoublesPair[0]);
-      dPvCaldAlpha[loopcal][loopcal] = dPvCaldSABR[loopcal].getAlpha().get(keySet[0]);
-      dPvCaldRho[loopcal][loopcal] = dPvCaldSABR[loopcal].getRho().get(keySet[0]);
-      dPvCaldNu[loopcal][loopcal] = dPvCaldSABR[loopcal].getNu().get(keySet[0]);
+      DoublesPair[] keySet = dPvCaldSABR[loopcal].getAlpha().getMap().keySet().toArray(new DoublesPair[0]);
+      dPvCaldAlpha[loopcal][loopcal] = dPvCaldSABR[loopcal].getAlpha().getMap().get(keySet[0]);
+      dPvCaldRho[loopcal][loopcal] = dPvCaldSABR[loopcal].getRho().getMap().get(keySet[0]);
+      dPvCaldNu[loopcal][loopcal] = dPvCaldSABR[loopcal].getNu().getMap().get(keySet[0]);
     }
     DoubleMatrix1D dPvAmdLambdaMatrix = new DoubleMatrix1D(dPvAmdLambda);
     DoubleMatrix2D dPvCaldAlphaMatrix = new DoubleMatrix2D(dPvCaldAlpha);

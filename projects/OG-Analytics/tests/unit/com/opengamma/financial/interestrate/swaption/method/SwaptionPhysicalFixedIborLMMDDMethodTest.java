@@ -23,12 +23,12 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
-import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
@@ -367,9 +367,9 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     // SABR parameters sensitivity (all-in-one)
     for (int loopcal = 0; loopcal < swaptionCalibration.length; loopcal++) {
       DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopcal].getTimeToExpiry(), swaptionCalibration[loopcal].getMaturityTime());
-      assertEquals("Sensitivity swaption pv to alpha", pvss1.getAlpha().get(expiryMaturity), pvss.getAlpha().get(expiryMaturity), 1E-2);
-      assertEquals("Sensitivity swaption pv to rho", pvss1.getRho().get(expiryMaturity), pvss.getRho().get(expiryMaturity), 1E-2);
-      assertEquals("Sensitivity swaption pv to nu", pvss1.getNu().get(expiryMaturity), pvss.getNu().get(expiryMaturity), 1E-2);
+      assertEquals("Sensitivity swaption pv to alpha", pvss1.getAlpha().getMap().get(expiryMaturity), pvss.getAlpha().getMap().get(expiryMaturity), 1E-2);
+      assertEquals("Sensitivity swaption pv to rho", pvss1.getRho().getMap().get(expiryMaturity), pvss.getRho().getMap().get(expiryMaturity), 1E-2);
+      assertEquals("Sensitivity swaption pv to nu", pvss1.getNu().getMap().get(expiryMaturity), pvss.getNu().getMap().get(expiryMaturity), 1E-2);
     }
     // SABR parameters sensitivity (parallel shift check)
     SABRInterestRateParameters sabrParameterShift;
@@ -382,10 +382,10 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     LiborMarketModelDisplacedDiffusionDataBundle lmmBundleShift = new LiborMarketModelDisplacedDiffusionDataBundle(lmmParametersShift, CURVES);
 
     double alphaVegaTotalComputed = 0.0;
-    assertEquals("Number of alpha sensitivity", pvss.getAlpha().keySet().size(), swaptionCalibration.length);
+    assertEquals("Number of alpha sensitivity", pvss.getAlpha().getMap().keySet().size(), swaptionCalibration.length);
     for (int loopcal = 0; loopcal < swaptionCalibration.length; loopcal++) {
       DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopcal].getTimeToExpiry(), swaptionCalibration[loopcal].getMaturityTime());
-      alphaVegaTotalComputed += pvss.getAlpha().get(expiryMaturity);
+      alphaVegaTotalComputed += pvss.getAlpha().getMap().get(expiryMaturity);
     }
     double shiftAlpha = 0.00001;
     sabrParameterShift = TestsDataSets.createSABR1AlphaBumped(shiftAlpha);
@@ -396,10 +396,10 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     assertEquals("Alpha sensitivity value", alphaVegaTotalExpected, alphaVegaTotalComputed, 1.0E+2);
 
     double rhoVegaTotalComputed = 0.0;
-    assertEquals("Number of alpha sensitivity", pvss.getRho().keySet().size(), swaptionCalibration.length);
+    assertEquals("Number of alpha sensitivity", pvss.getRho().getMap().keySet().size(), swaptionCalibration.length);
     for (int loopcal = 0; loopcal < swaptionCalibration.length; loopcal++) {
       DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopcal].getTimeToExpiry(), swaptionCalibration[loopcal].getMaturityTime());
-      rhoVegaTotalComputed += pvss.getRho().get(expiryMaturity);
+      rhoVegaTotalComputed += pvss.getRho().getMap().get(expiryMaturity);
     }
     double shiftRho = 0.00001;
     sabrParameterShift = TestsDataSets.createSABR1RhoBumped(shiftRho);
@@ -410,10 +410,10 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     assertEquals("Rho sensitivity value", rhoVegaTotalExpected, rhoVegaTotalComputed, 1.0E+1);
 
     double nuVegaTotalComputed = 0.0;
-    assertEquals("Number of alpha sensitivity", pvss.getNu().keySet().size(), swaptionCalibration.length);
+    assertEquals("Number of alpha sensitivity", pvss.getNu().getMap().keySet().size(), swaptionCalibration.length);
     for (int loopcal = 0; loopcal < swaptionCalibration.length; loopcal++) {
       DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopcal].getTimeToExpiry(), swaptionCalibration[loopcal].getMaturityTime());
-      nuVegaTotalComputed += pvss.getNu().get(expiryMaturity);
+      nuVegaTotalComputed += pvss.getNu().getMap().get(expiryMaturity);
     }
     double shiftNu = 0.00001;
     sabrParameterShift = TestsDataSets.createSABR1NuBumped(shiftNu);

@@ -44,6 +44,9 @@ import com.opengamma.livedata.UserPrincipal;
  */
 public class TakeSnapshotNowFunction extends AbstractFunctionInvoker implements PublishedFunction {
 
+  // REVIEW 2011-12-01 andrew -- This is not a good function. It partially duplicates the SnapshotViewResultFunction
+  // but more importantly should be a procedure as it has a side-effect (triggering a cycle on the view client).
+
   private static final int DEFAULT_TIMEOUT_MILLIS = 30000;
   
   /**
