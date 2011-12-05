@@ -70,8 +70,10 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
    * Creates the resource.
    * @param securityMaster  the security master, not null
    * @param securityLoader  the security loader, not null
+   * @param htsMaster       the HTS master, not null (for resolving relevant HTS Id)
+   * @param cfgSource       the config master, not null (for resolving relevant HTS Id)
    */
-  public WebSecuritiesResource( //final SecurityMaster securityMaster, final SecurityLoader securityLoader) {
+  public WebSecuritiesResource(
     final SecurityMaster securityMaster, final SecurityLoader securityLoader, 
     final HistoricalTimeSeriesMaster htsMaster, final ConfigSource cfgSource) {
     super(securityMaster, securityLoader, htsMaster, cfgSource);
