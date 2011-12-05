@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.util.Map;
 
 import javax.time.Instant;
-import javax.time.calendar.LocalDate;
 
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -69,31 +68,6 @@ public class ManageableHistoricalTimeSeries extends DirectBean
    */
   @PropertyDefinition
   private LocalDateDoubleTimeSeries _timeSeries;
-
-// KV: These members have been superseded by the HistoricalTimeSeriesSummary class
-//  /**
-//   * The earliest value of time-series.
-//   */
-//  @PropertyDefinition
-//  private double _earliestValue;
-//  /**
-//   * The latest value of time-series.
-//   */
-//  @PropertyDefinition
-//  private double _latestValue;
-//  
-//  /**
-//   * The earliest date of time-series.
-//   * This field is only returned if requested from the master.
-//   */
-//  @PropertyDefinition
-//  private LocalDate _earliestDate;
-//  /**
-//   * The latest date of time-series.
-//   * This field is only returned if requested from the master.
-//   */
-//  @PropertyDefinition
-//  private LocalDate _latestDate; 
 
   /**
    * Creates an instance.
