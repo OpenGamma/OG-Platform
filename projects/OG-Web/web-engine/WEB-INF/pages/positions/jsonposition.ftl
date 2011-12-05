@@ -4,6 +4,7 @@
         "name": "${position.name}",
         "object_id": "${position.uniqueId.objectId}",
         "version_id": "${position.uniqueId.version}",
+	"hts_id": "${timeSeriesId}",
         <#if deleted>
         "deleted": "${positionDoc.versionToInstant}",
         </#if>
