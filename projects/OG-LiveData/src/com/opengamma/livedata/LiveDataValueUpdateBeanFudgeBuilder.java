@@ -8,15 +8,15 @@ package com.opengamma.livedata;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
-import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
 /**
  * Fudge message builder for {@code LiveDataValueUpdate}.
  */
-@GenericFudgeBuilderFor(LiveDataValueUpdate.class)
-public class LiveDataValueUpdateFudgeBuilder implements FudgeBuilder<LiveDataValueUpdate> {
+@FudgeBuilderFor(LiveDataValueUpdateBean.class)
+public class LiveDataValueUpdateBeanFudgeBuilder implements FudgeBuilder<LiveDataValueUpdateBean> {
 
   /** Field name. */
   public static final String SEQUENCE_NUMBER_FIELD_NAME = "sequenceNumber";
@@ -26,17 +26,17 @@ public class LiveDataValueUpdateFudgeBuilder implements FudgeBuilder<LiveDataVal
   public static final String FIELDS_FIELD_NAME = "fields";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, LiveDataValueUpdate object) {
-    return LiveDataValueUpdateFudgeBuilder.toFudgeMsg(serializer, object);
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, LiveDataValueUpdateBean object) {
+    return LiveDataValueUpdateBeanFudgeBuilder.toFudgeMsg(serializer, object);
   }
 
-  public static MutableFudgeMsg toFudgeMsg(FudgeSerializer serializer, LiveDataValueUpdate object) {
+  public static MutableFudgeMsg toFudgeMsg(FudgeSerializer serializer, LiveDataValueUpdateBean object) {
     final MutableFudgeMsg msg = serializer.newMessage();
-    LiveDataValueUpdateFudgeBuilder.toFudgeMsg(serializer, object, msg);
+    LiveDataValueUpdateBeanFudgeBuilder.toFudgeMsg(serializer, object, msg);
     return msg;
   }
 
-  public static void toFudgeMsg(FudgeSerializer serializer, LiveDataValueUpdate object, final MutableFudgeMsg msg) {
+  public static void toFudgeMsg(FudgeSerializer serializer, LiveDataValueUpdateBean object, final MutableFudgeMsg msg) {
     msg.add(SEQUENCE_NUMBER_FIELD_NAME, object.getSequenceNumber());
     if (object.getSpecification() != null) {
       msg.add(SPECIFICATION_FIELD_NAME, LiveDataSpecificationFudgeBuilder.toFudgeMsg(serializer, object.getSpecification()));
@@ -44,11 +44,12 @@ public class LiveDataValueUpdateFudgeBuilder implements FudgeBuilder<LiveDataVal
     if (object.getFields() != null) {
       msg.add(FIELDS_FIELD_NAME, object.getFields());
     }
+//    FudgeSerializer.addClassHeader(msg, LiveDataValueUpdateBean.class, LiveDataValueUpdate.class);
   }
 
   @Override
-  public LiveDataValueUpdate buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    return LiveDataValueUpdateFudgeBuilder.fromFudgeMsg(deserializer, msg);
+  public LiveDataValueUpdateBean buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
+    return LiveDataValueUpdateBeanFudgeBuilder.fromFudgeMsg(deserializer, msg);
   }
 
   public static LiveDataValueUpdateBean fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {

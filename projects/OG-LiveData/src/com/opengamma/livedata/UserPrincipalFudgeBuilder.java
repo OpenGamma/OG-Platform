@@ -8,14 +8,14 @@ package com.opengamma.livedata;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
-import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
 /**
  * Fudge message builder for {@code UserPrincipal}.
  */
-@GenericFudgeBuilderFor(UserPrincipal.class)
+@FudgeBuilderFor(UserPrincipal.class)
 public class UserPrincipalFudgeBuilder implements FudgeBuilder<UserPrincipal> {
 
   /** Field name. */

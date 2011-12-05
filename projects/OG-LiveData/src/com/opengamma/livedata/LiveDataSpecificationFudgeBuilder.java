@@ -8,9 +8,9 @@ package com.opengamma.livedata;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
-import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdBundleFudgeBuilder;
@@ -18,13 +18,13 @@ import com.opengamma.id.ExternalIdBundleFudgeBuilder;
 /**
  * Fudge message builder for {@code LiveDataSpecification}.
  */
-@GenericFudgeBuilderFor(LiveDataSpecification.class)
+@FudgeBuilderFor(LiveDataSpecification.class)
 public class LiveDataSpecificationFudgeBuilder implements FudgeBuilder<LiveDataSpecification> {
 
   /** Field name. */
-  public static final String NORMALIZATION_RULE_SET_ID_FIELD_NAME = "NormalizationRuleSetId";
+  public static final String NORMALIZATION_RULE_SET_ID_FIELD_NAME = "normalizationRuleSetId";
   /** Field name. */
-  public static final String DOMAIN_SPECIFIC_IDS_FIELD_NAME = "DomainSpecificIdentifiers";
+  public static final String DOMAIN_SPECIFIC_IDS_FIELD_NAME = "identifiers";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, LiveDataSpecification object) {

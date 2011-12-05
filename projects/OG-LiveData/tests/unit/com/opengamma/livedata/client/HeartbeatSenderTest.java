@@ -28,6 +28,7 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataSpecificationFudgeBuilder;
 import com.opengamma.livedata.test.CollectingLiveDataListener;
 import com.opengamma.transport.CollectingByteArrayMessageSender;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  *
@@ -61,14 +62,14 @@ public class HeartbeatSenderTest {
     valueDistributor.addListener(spec2, listener1);
     
     @SuppressWarnings("unused")
-    HeartbeatSender heartbeatSender = new HeartbeatSender(messageSender, valueDistributor, new FudgeContext(), _timer, 100l);
+    HeartbeatSender heartbeatSender = new HeartbeatSender(messageSender, valueDistributor, OpenGammaFudgeContext.getInstance(), _timer, 100l);
     // Wait 250ms to make sure we get two ticks.
     Thread.sleep(250l);
     
     List<byte[]> messages = messageSender.getMessages();
     assertTrue(messages.size() >= 2);
     
-    FudgeContext fudgeContext = new FudgeContext();
+    FudgeContext fudgeContext = OpenGammaFudgeContext.getInstance();
     
     for (byte[] message : messages) {
       FudgeMsgEnvelope fudgeMsgEnvelope = fudgeContext.deserialize(message);

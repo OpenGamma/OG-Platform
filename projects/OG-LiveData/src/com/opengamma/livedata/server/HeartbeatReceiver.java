@@ -16,6 +16,7 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.Heartbeat;
 import com.opengamma.transport.ByteArrayMessageReceiver;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Receives heartbeat messages and extends the subscription time.
@@ -28,7 +29,7 @@ public class HeartbeatReceiver implements ByteArrayMessageReceiver {
   private final FudgeContext _fudgeContext;
   
   public HeartbeatReceiver(ExpirationManager activeSecurityPublicationManager) {
-    this(activeSecurityPublicationManager, new FudgeContext());
+    this(activeSecurityPublicationManager, OpenGammaFudgeContext.getInstance());
   }
   
   public HeartbeatReceiver(ExpirationManager activeSecurityPublicationManager, FudgeContext fudgeContext) {

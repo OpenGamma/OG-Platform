@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.MessageCreator;
 
 import com.opengamma.livedata.LiveDataValueUpdateBean;
-import com.opengamma.livedata.LiveDataValueUpdateFudgeBuilder;
+import com.opengamma.livedata.LiveDataValueUpdateBeanFudgeBuilder;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.ArgumentChecker;
@@ -117,7 +117,7 @@ public class JmsSender implements MarketDataSender {
         _cumulativeDelta.getLastKnownValues());
     s_logger.debug("{}: Sending Live Data update {}", this, liveDataValueUpdateBean);
     
-    FudgeMsg fudgeMsg = LiveDataValueUpdateFudgeBuilder.toFudgeMsg(new FudgeSerializer(_fudgeContext), liveDataValueUpdateBean);
+    FudgeMsg fudgeMsg = LiveDataValueUpdateBeanFudgeBuilder.toFudgeMsg(new FudgeSerializer(_fudgeContext), liveDataValueUpdateBean);
     String destinationName = distributionSpec.getJmsTopic();
     final byte[] bytes = _fudgeContext.toByteArray(fudgeMsg);
     

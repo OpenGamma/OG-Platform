@@ -7,12 +7,12 @@ package com.opengamma.livedata.normalization;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.livedata.server.FieldHistoryStore;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * 
@@ -25,7 +25,7 @@ public class StandardRulesTest {
   public void noNormalization() {
     NormalizationRuleSet ruleSet = StandardRules.getNoNormalization();
     
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add("Foo", "1");
     msg.add("Bar", 2.0);
     msg.add("Baz", 500);

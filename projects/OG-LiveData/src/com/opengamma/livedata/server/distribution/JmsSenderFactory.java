@@ -18,6 +18,7 @@ import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
 
 /**
@@ -54,7 +55,7 @@ public class JmsSenderFactory implements MarketDataSenderFactory {
     final ThreadPoolExecutor executor = new ThreadPoolExecutor(threads, threads, 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
     executor.allowCoreThreadTimeOut(true);
     _executor = executor;
-    setFudgeContext(new FudgeContext());
+    setFudgeContext(OpenGammaFudgeContext.getInstance());
   }
 
   /**

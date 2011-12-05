@@ -15,6 +15,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.UnmodifiableFudgeField;
 
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+
 /**
  * A store of historical message field values.
  * <p>
@@ -24,7 +26,7 @@ import org.fudgemsg.UnmodifiableFudgeField;
  */
 public class FieldHistoryStore {
   
-  private final FudgeContext _context = FudgeContext.GLOBAL_DEFAULT;
+  private final FudgeContext _context = OpenGammaFudgeContext.getInstance();
   private final Map<String, UnmodifiableFudgeField> _lastKnownValues;
   
   public FieldHistoryStore() {
