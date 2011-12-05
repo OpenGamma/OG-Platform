@@ -258,6 +258,9 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
         for (ValueSpecification outputValue : node.getOutputValues()) {
           if (outputValue.getValueName().equals(ValueRequirementNames.YIELD_CURVE)) {
             addAll(ret, outputValue);
+          } else if (outputValue.getValueName().equals(ValueRequirementNames.YIELD_CURVE_SPEC)) {
+            YieldCurveKey key = _yieldCurveSnapper.getKey(outputValue);
+            add(ret, key, outputValue.toRequirementSpecification());
           }
         }
       }
@@ -269,12 +272,6 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     YieldCurveKey key = _yieldCurveSnapper.getKey(yieldCurveSpec);
 
     add(ret, key, yieldCurveSpec.toRequirementSpecification());
-
-    //This is a hack: the spec value will be pruned from the dep graph but will be in the computation cache,
-    //  and we know how its properties relate to the sCurve value
-    ValueRequirement specSpec = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC,
-        yieldCurveSpec.getTargetSpecification(), getSpecProperties(yieldCurveSpec));
-    add(ret, key, specSpec);
 
     //We know how the properties of this relate
     ValueRequirement interpolatedSpec = new ValueRequirement(
@@ -290,10 +287,6 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
       ret.put(key, ycMap);
     }
     ycMap.put(outputValue.getValueName(), outputValue);
-  }
-
-  private ValueProperties getSpecProperties(ValueSpecification curveSpec) {
-    return curveSpec.getProperties().withoutAny(ValuePropertyNames.CURVE_CALCULATION_METHOD);
   }
 
   private ValueProperties getCurveProperties(ValueSpecification curveSpec) {

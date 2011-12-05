@@ -124,4 +124,19 @@ public class ForexDiscountingMethodTest {
     assertEquals("Currency exposure: Method vs Calculator", exposureMethod, exposureCalculator);
   }
 
+  @Test
+  /**
+   * Tests the currency exposure computation.
+   */
+  public void forwardRate() {
+    double fxToday = 1.4123;
+    FXMatrix fxMatrix = new FXMatrix(CUR_1, CUR_2, fxToday);
+    YieldCurveWithFXBundle curvesFx = new YieldCurveWithFXBundle(fxMatrix, CURVES);
+    double fwd = METHOD.forwardForexRate(FX, curvesFx);
+    double dfDomestic = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(FX.getPaymentTime());
+    double dfForeign = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(FX.getPaymentTime());
+    double fwdExpected = fxToday * dfForeign / dfDomestic;
+    assertEquals("Forex: forward rate", fwdExpected, fwd, 1.0E-10);
+  }
+
 }

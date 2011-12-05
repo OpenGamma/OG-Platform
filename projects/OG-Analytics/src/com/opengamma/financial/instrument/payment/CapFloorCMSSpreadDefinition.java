@@ -11,7 +11,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.instrument.index.CMSIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.interestrate.payments.Coupon;
@@ -36,7 +36,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
   /**
    * The index associated to the first CMS.
    */
-  private final CMSIndex _cmsIndex1;
+  private final IndexSwap _cmsIndex1;
   /**
    * The swap underlying the second CMS.
    */
@@ -44,7 +44,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
   /**
    * The index associated to the second CMS.
    */
-  private final CMSIndex _cmsIndex2;
+  private final IndexSwap _cmsIndex2;
   /**
    * The cap/floor strike.
    */
@@ -71,8 +71,8 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
    * @param isCap The cap (true) /floor (false) flag.
    */
   public CapFloorCMSSpreadDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
-      final double notional, final ZonedDateTime fixingDate, final SwapFixedIborDefinition underlyingSwap1, final CMSIndex cmsIndex1, final SwapFixedIborDefinition underlyingSwap2,
-      final CMSIndex cmsIndex2, final double strike, final boolean isCap) {
+      final double notional, final ZonedDateTime fixingDate, final SwapFixedIborDefinition underlyingSwap1, final IndexSwap cmsIndex1, final SwapFixedIborDefinition underlyingSwap2,
+      final IndexSwap cmsIndex2, final double strike, final boolean isCap) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
     Validate.notNull(underlyingSwap1, "underlying swap");
     Validate.notNull(cmsIndex1, "CMS index");
@@ -102,7 +102,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
    * @return The CMS spread cap/floor.
    */
   public static CapFloorCMSSpreadDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
-      final double notional, final CMSIndex cmsIndex1, final CMSIndex cmsIndex2, final double strike, final boolean isCap) {
+      final double notional, final IndexSwap cmsIndex1, final IndexSwap cmsIndex2, final double strike, final boolean isCap) {
     Validate.notNull(accrualStartDate, "Accrual start date.");
     Validate.notNull(cmsIndex1, "CMS index");
     Validate.notNull(cmsIndex2, "CMS index");
@@ -127,7 +127,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
    * Gets the index associated to the first CMS.
    * @return The CMS index.
    */
-  public CMSIndex getCmsIndex1() {
+  public IndexSwap getCmsIndex1() {
     return _cmsIndex1;
   }
 
@@ -143,7 +143,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
    * Gets the index associated to the second CMS.
    * @return The CMS index.
    */
-  public CMSIndex getCmsIndex2() {
+  public IndexSwap getCmsIndex2() {
     return _cmsIndex2;
   }
 

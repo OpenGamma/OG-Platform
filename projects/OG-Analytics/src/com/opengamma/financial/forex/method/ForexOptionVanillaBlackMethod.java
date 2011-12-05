@@ -121,6 +121,17 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
   }
 
   /**
+   * Computes the forward exchange rate associated to the Forex option (1 Cyy1 = fwd Cyy2).
+   * @param optionForex The Forex option.
+   * @param smile The curve and smile data.
+   * @return The forward rate.
+   */
+  public double forwardForexRate(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile) {
+    ForexDiscountingMethod methodForex = ForexDiscountingMethod.getInstance();
+    return methodForex.forwardForexRate(optionForex.getUnderlyingForex(), smile);
+  }
+
+  /**
    * Computes the curve sensitivity of the option present value. The sensitivity of the volatility on the forward (and on the curves) is not taken into account. It is the curve
    * sensitivity in the Black model where the volatility is suppose to be constant for curve and forward changes.
    * @param optionForex The Forex option.

@@ -13,7 +13,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexDeposit;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.money.Currency;
@@ -34,7 +34,7 @@ public class MarketBundle {
   /**
    * A map with one price curve by price index.
    */
-  private final Map<PriceIndex, PriceIndexCurve> _priceIndexCurves;
+  private final Map<IndexPrice, PriceIndexCurve> _priceIndexCurves;
   /**
    * A map with issuer discounting curves.
    */
@@ -46,7 +46,7 @@ public class MarketBundle {
   public MarketBundle() {
     _discountingCurves = new HashMap<Currency, YieldAndDiscountCurve>();
     _forwardCurves = new HashMap<IndexDeposit, YieldAndDiscountCurve>();
-    _priceIndexCurves = new HashMap<PriceIndex, PriceIndexCurve>();
+    _priceIndexCurves = new HashMap<IndexPrice, PriceIndexCurve>();
     _issuerCurves = new HashMap<String, YieldAndDiscountCurve>();
   }
 
@@ -95,7 +95,7 @@ public class MarketBundle {
    * @param time The reference time.
    * @return The price index.
    */
-  public double getPriceIndex(PriceIndex index, Double time) {
+  public double getPriceIndex(IndexPrice index, Double time) {
     if (_priceIndexCurves.containsKey(index)) {
       return _priceIndexCurves.get(index).getPriceIndex(time);
     }
@@ -131,7 +131,7 @@ public class MarketBundle {
    * @param index The Price index.
    * @return The curve.
    */
-  public PriceIndexCurve getCurve(PriceIndex index) {
+  public PriceIndexCurve getCurve(IndexPrice index) {
     if (_priceIndexCurves.containsKey(index)) {
       return _priceIndexCurves.get(index);
     }
@@ -170,7 +170,7 @@ public class MarketBundle {
    * Gets the set of price indexes defined in the market.
    * @return The set of index.
    */
-  public Set<PriceIndex> getPriceIndexes() {
+  public Set<IndexPrice> getPriceIndexes() {
     return _priceIndexCurves.keySet();
   }
 
@@ -215,7 +215,7 @@ public class MarketBundle {
    * @param index The price index.
    * @param curve The curve.
    */
-  public void setCurve(final PriceIndex index, final PriceIndexCurve curve) {
+  public void setCurve(final IndexPrice index, final PriceIndexCurve curve) {
     Validate.notNull(index, "index");
     Validate.notNull(curve, "curve");
     if (_priceIndexCurves.containsKey(index)) {
@@ -259,7 +259,7 @@ public class MarketBundle {
    * @param curve The price curve for the index.
    *  @throws IllegalArgumentException if curve name NOT already present 
    */
-  public void replaceCurve(final PriceIndex index, final PriceIndexCurve curve) {
+  public void replaceCurve(final IndexPrice index, final PriceIndexCurve curve) {
     Validate.notNull(index, "Price index");
     Validate.notNull(curve, "curve");
     if (!_priceIndexCurves.containsKey(index)) {
