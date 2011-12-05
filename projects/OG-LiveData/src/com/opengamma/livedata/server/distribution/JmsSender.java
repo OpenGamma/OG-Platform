@@ -34,32 +34,62 @@ import com.opengamma.util.jms.JmsConnector;
  * the sender reconnects.
  */
 public class JmsSender implements MarketDataSender {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(JmsSender.class);
-  
+
+  /**
+   * The JMS connector.
+   */
   private final JmsConnector _jmsConnector;
+  /**
+   * The Fudge context.
+   */
   private final FudgeContext _fudgeContext;
+  /**
+   * The distributor.
+   */
   private final MarketDataDistributor _distributor;
-  
+  /**
+   * The field value history.
+   */
   private final FieldHistoryStore _cumulativeDelta = new FieldHistoryStore();
+  /**
+   * The last sequence number.
+   */
   private long _lastSequenceNumber;
-  
-  private volatile boolean _interrupted; // = false;
+  /**
+   * Whether the sender is interrupted.
+   */
+  private volatile boolean _interrupted;
+  /**
+   * The internal lock.
+   */
   private final Semaphore _lock = new Semaphore(1);
-  
+
+  /**
+   * Creates an instance.
+   * 
+   * @param jmsConnector  the JMS connector, not null
+   * @param distributor  the distributor, not null
+   * @param fudgeContext  the Fudge context, not null
+   */
   public JmsSender(JmsConnector jmsConnector, MarketDataDistributor distributor, FudgeContext fudgeContext) {
     ArgumentChecker.notNull(jmsConnector, "jmsConnector");
     ArgumentChecker.notNull(distributor, "Market data distributor");
-    
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _jmsConnector = jmsConnector;
     _fudgeContext = fudgeContext;
     _distributor = distributor;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public MarketDataDistributor getDistributor() {
     return _distributor;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public void sendMarketData(LiveDataValueUpdateBean data) {
     _lock.acquireUninterruptibly();
@@ -77,7 +107,7 @@ public class JmsSender implements MarketDataSender {
       _lock.release();
     }
   }
-  
+
   private void send() {
     DistributionSpecification distributionSpec = getDistributor().getDistributionSpec();
     
@@ -103,11 +133,20 @@ public class JmsSender implements MarketDataSender {
     
     _cumulativeDelta.clear();
   }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if the sender is interrupted.
+   * 
+   * @return true if interrupted
+   */
   public boolean isInterrupted() {
     return _interrupted;
   }
-  
+
+  /**
+   * Indicates that the transport was interrupted, setting the flag.
+   */
   public void transportInterrupted() {
     s_logger.error("Transport interrupted {}", this);
     _interrupted = true;
@@ -137,10 +176,10 @@ public class JmsSender implements MarketDataSender {
       }
     }
   }
-  
+
   @Override
   public String toString() {
     return "JmsSender[" + _distributor.getDistributionSpec().toString() +  "]";    
   }
-  
+
 }

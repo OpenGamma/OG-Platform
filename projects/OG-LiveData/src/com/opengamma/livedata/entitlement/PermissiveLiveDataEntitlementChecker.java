@@ -8,7 +8,6 @@ package com.opengamma.livedata.entitlement;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
 
-
 /**
  * Always allows the user access to LiveData.
  */
