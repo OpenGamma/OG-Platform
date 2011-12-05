@@ -5,24 +5,21 @@
  */
 package com.opengamma.masterdb;
 
-import java.math.BigDecimal;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import javax.time.Instant;
-import javax.time.TimeSource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.transaction.support.TransactionTemplate;
-
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.DbConnector;
+import com.opengamma.util.db.DbDialect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import javax.time.Instant;
+import javax.time.TimeSource;
+import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * An abstract master for rapid implementation of a database backed master.
@@ -51,6 +48,11 @@ public abstract class AbstractDbMaster {
   private String _uniqueIdScheme;
 
   /**
+   * The maximum number of retries.
+   */
+  private int _maxRetries = 10;
+
+  /**
    * Creates an instance.
    * 
    * @param dbConnector  the database connector, not null
@@ -62,6 +64,27 @@ public abstract class AbstractDbMaster {
     _dbConnector = dbConnector;
     _timeSource = dbConnector.timeSource();
     _uniqueIdScheme = defaultScheme;
+  }
+
+  /**
+   * Gets the maximum number of retries.
+   * The default is ten.
+   *
+   * @return the maximum number of retries, not null
+   */
+  public int getMaxRetries() {
+    return _maxRetries;
+  }
+
+  /**
+   * Sets the maximum number of retries.
+   * The default is ten.
+   *
+   * @param maxRetries  the maximum number of retries, not negative
+   */
+  public void setMaxRetries(final int maxRetries) {
+    ArgumentChecker.notNegative(maxRetries, "maxRetries");
+    _maxRetries = maxRetries;
   }
 
   //-------------------------------------------------------------------------
@@ -121,6 +144,15 @@ public abstract class AbstractDbMaster {
    */
   protected TransactionTemplate getTransactionTemplate() {
     return getDbConnector().getTransactionTemplate();
+  }
+
+  /**
+   * Gets the retrying transaction template.
+   *
+   * @return the transaction template, not null if correctly initialized
+   */
+  protected DbConnector.TransactionTemplateRetrying getTransactionTemplateRetrying(int retries) {
+    return getDbConnector().getTransactionTemplateRetrying(retries);
   }
 
   /**
@@ -234,24 +266,6 @@ public abstract class AbstractDbMaster {
       return stripped.setScale(0);
     }
     return stripped;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Improves the exception message.
-   * 
-   * @param ex  the exception to fix, not null
-   * @return the original exception, not null
-   */
-  protected DataAccessException fixSQLExceptionCause(DataAccessException ex) {
-    Throwable cause = ex.getCause();
-    if (cause instanceof SQLException && cause.getCause() == null) {
-      SQLException next = ((SQLException) cause).getNextException();
-      if (next != null) {
-        cause.initCause(next);
-      }
-    }
-    return ex;
   }
 
   //-------------------------------------------------------------------------

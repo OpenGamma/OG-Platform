@@ -5,20 +5,24 @@
  */
 package com.opengamma.util.db;
 
-import java.sql.Timestamp;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtils;
+import org.hibernate.SessionFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionException;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
 import javax.time.Instant;
 import javax.time.TimeSource;
+import java.sql.Timestamp;
 
-import org.hibernate.SessionFactory;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
-
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.time.DateUtils;
+import static com.opengamma.util.db.DbUtil.fixSQLExceptionCause;
 
 /**
  * Connector used to access SQL databases.
@@ -172,6 +176,16 @@ public class DbConnector {
     return _transactionTemplate;
   }
 
+
+  /**
+   * Gets the retrying transaction template.
+   * <p>
+   * @param retries how many maximum retires should be tried
+   * @return the retrying transaction template
+   */
+  public TransactionTemplateRetrying getTransactionTemplateRetrying(int retries) {
+    return new TransactionTemplateRetrying(retries);
+  }
   //-------------------------------------------------------------------------
   /**
    * Gets the current instant using the database clock.
@@ -208,6 +222,31 @@ public class DbConnector {
   @Override
   public String toString() {
     return getClass().getSimpleName() + "[" + _name + "]";
+  }
+
+  public class TransactionTemplateRetrying {
+    final private int _retries;
+    final private TransactionTemplate _tt;
+
+    TransactionTemplateRetrying(int retries) {
+      _retries = retries;
+      _tt = getTransactionTemplate();
+    }
+
+    public <T> T execute(TransactionCallback<T> action) throws TransactionException {
+      // retry to handle concurrent conflicting inserts into unique content tables
+      for (int retry = 0; true; retry++) {
+        try {
+          return _tt.execute(action);
+        } catch (DataIntegrityViolationException ex) {
+          if (retry == _retries) {
+            throw ex;
+          }
+        } catch (DataAccessException ex) {
+          throw fixSQLExceptionCause(ex);
+        }
+      }
+    }
   }
 
 }
