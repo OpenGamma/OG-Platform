@@ -20,15 +20,25 @@ import com.opengamma.util.PublicAPI;
  * A simple JavaBean-based implementation of {@link LiveDataValueUpdate}.
  */
 @PublicAPI
-public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
-    Serializable {
+public class LiveDataValueUpdateBean implements LiveDataValueUpdate, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   private static final String SEQUENCE_NUMBER_FIELD_NAME = "sequenceNumber";
   private static final String SPECIFICATION_FIELD_NAME = "specification";
   private static final String FIELDS_FIELD_NAME = "fields";
   private final long _sequenceNumber;
   private final LiveDataSpecification _specification;
   private final FudgeMsg _fieldContainer;
-  
+
+  /**
+   * Creates an instance.
+   * 
+   * @param sequenceNumber  the sequence number
+   * @param specification  the specification
+   * @param fieldContainer  the fields held as a Fudge message
+   */
   public LiveDataValueUpdateBean(long sequenceNumber, LiveDataSpecification specification, FudgeMsg fieldContainer) {
     // TODO kirk 2009-09-29 -- Check Inputs.
     _sequenceNumber = sequenceNumber;
@@ -36,6 +46,7 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
     _fieldContainer = fieldContainer;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public FudgeMsg getFields() {
     return _fieldContainer;
@@ -61,7 +72,6 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
       msg.add(FIELDS_FIELD_NAME, getFields());
     }
     return msg;
-  
   }
 
   public static LiveDataValueUpdateBean fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {

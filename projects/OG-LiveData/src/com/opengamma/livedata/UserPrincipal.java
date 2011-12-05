@@ -5,58 +5,30 @@
  */
 package com.opengamma.livedata;
 
+import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import com.opengamma.util.PublicAPI;
 
 /**
  * User credentials.
  * <p>
- * In LiveData, user credentials include user name and the IP address of the user.
+ * These user credentials include the user name and the IP address of the user.
  */
 @PublicAPI
-public class UserPrincipal implements java.io.Serializable {
+public class UserPrincipal implements Serializable {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = -9633023788096L;
   /**
-   * Gets a local user by user name.
-   * 
-   * @param userName user name, not null
-   * @return user with the specified user name and IP address {@code java.net.InetAddress.getLocalHost().toString()}
+   * The test user.
    */
-  public static UserPrincipal getLocalUser(String userName) {
-    try {
-      UserPrincipal user = new UserPrincipal(userName, java.net.InetAddress.getLocalHost().toString());
-      return user;
-    } catch (java.net.UnknownHostException e) {
-      throw new com.opengamma.OpenGammaRuntimeException("Could not initialize local user", e);
-    }
-  }
-
-  /**
-   * Gets a local user.
-   * 
-   * @return user with user name {@code System.getProperty("user.name")} and
-   * IP address {@code java.net.InetAddress.getLocalHost().toString()}
-   */
-  public static UserPrincipal getLocalUser() {
-    String userName = System.getProperty("user.name");
-    if (userName == null) {
-      userName = "Unknown User";
-    }
-    return UserPrincipal.getLocalUser(userName);
-  }
-
   private static final UserPrincipal TEST_USER = new UserPrincipal("Test user", "127.0.0.1");
 
-  /**
-   * Gets a test user.
-   * 
-   * @return user with user name {@code Test user} and IP address {@code 127.0.0.1}
-   */
-  public static UserPrincipal getTestUser() {
-    return TEST_USER;
-  }
+  private static final String USER_NAME_KEY = "userName";
+  private static final String IP_ADDRESS_KEY = "ipAddress";
 
-  private static final long serialVersionUID = -9633023788096L;
-  
   /**
    * User name
    */
@@ -66,15 +38,58 @@ public class UserPrincipal implements java.io.Serializable {
    * IP address
    */
   private final String _ipAddress;
-  
-  private static final String USER_NAME_KEY = "userName";
-  private static final String IP_ADDRESS_KEY = "ipAddress";
 
+  /**
+   * Gets a local user by user name.
+   * <p>
+   * This creates a user with the specified name.
+   * The IP address is derived from {@code java.net.InetAddress.getLocalHost().toString()}.
+   * 
+   * @param userName  the user name, not null
+   * @return the user, not null
+   */
+  public static UserPrincipal getLocalUser(String userName) {
+    try {
+      UserPrincipal user = new UserPrincipal(userName, InetAddress.getLocalHost().toString());
+      return user;
+    } catch (UnknownHostException ex) {
+      throw new com.opengamma.OpenGammaRuntimeException("Could not initialize local user", ex);
+    }
+  }
+
+  /**
+   * Gets a local user by system properties.
+   * <p>
+   * This creates a user based on {@code System.getProperty("user.name")}.
+   * The IP address is derived from {@code java.net.InetAddress.getLocalHost().toString()}.
+   * 
+   * @return the user, not null
+   */
+  public static UserPrincipal getLocalUser() {
+    String userName = System.getProperty("user.name");
+    if (userName == null) {
+      userName = "Unknown User";
+    }
+    return UserPrincipal.getLocalUser(userName);
+  }
+
+  /**
+   * Gets a test user.
+   * <p>
+   * The name is "Test user" and the IP address is {@code 127.0.0.1}
+   * 
+   * @return user  the test user, not null
+   */
+  public static UserPrincipal getTestUser() {
+    return TEST_USER;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Constructs a new user.
    * 
-   * @param userName user name, not null
-   * @param ipAddress IP address, not null
+   * @param userName  the user name, not null
+   * @param ipAddress  the IP address, not null
    */
   public UserPrincipal(String userName, String ipAddress) {
     if (userName == null) {
@@ -117,6 +132,11 @@ public class UserPrincipal implements java.io.Serializable {
     _ipAddress = source._ipAddress;
   }
 
+  /**
+   * Creates a clone of this user.
+   * 
+   * @return the cloned user, not null
+   */
   public UserPrincipal clone() {
     return new UserPrincipal(this);
   }
