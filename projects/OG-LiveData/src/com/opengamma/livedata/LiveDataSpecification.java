@@ -7,14 +7,8 @@ package com.opengamma.livedata;
 
 import java.util.Collection;
 
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializer;
-import org.fudgemsg.mapping.FudgeSerializer;
-
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ExternalIdBundleFudgeBuilder;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
@@ -24,12 +18,11 @@ import com.opengamma.util.PublicAPI;
  * <p>
  * Live data represents updating data, typically from a market.
  * This class defines the data required and the format.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 @PublicAPI
 public class LiveDataSpecification {
-
-  private static final String NORMALIZATION_RULE_SET_ID_FIELD_NAME = "NormalizationRuleSetId";
-  private static final String DOMAIN_SPECIFIC_IDS_FIELD_NAME = "DomainSpecificIdentifiers";
 
   /**
    * The external identifier bundle describing the desired data, such as the ticker.
@@ -119,21 +112,6 @@ public class LiveDataSpecification {
    */
   public String getIdentifier(ExternalScheme scheme) {
     return _externalIdBundle.getValue(scheme);
-  }
-
-  //-------------------------------------------------------------------------
-  public static LiveDataSpecification fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg fudgeMsg) {
-    String normalizationRuleSetId = fudgeMsg.getString(NORMALIZATION_RULE_SET_ID_FIELD_NAME);
-    ExternalIdBundle ids = ExternalIdBundleFudgeBuilder.fromFudgeMsg(deserializer, fudgeMsg.getMessage(DOMAIN_SPECIFIC_IDS_FIELD_NAME));
-    return new LiveDataSpecification(normalizationRuleSetId, ids);
-  }
-
-  public FudgeMsg toFudgeMsg(FudgeSerializer serializer) {
-    ArgumentChecker.notNull(serializer, "FudgeSerializer");
-    MutableFudgeMsg msg = serializer.newMessage();
-    msg.add(NORMALIZATION_RULE_SET_ID_FIELD_NAME, _normalizationRuleSetId);
-    msg.add(DOMAIN_SPECIFIC_IDS_FIELD_NAME, ExternalIdBundleFudgeBuilder.toFudgeMsg(serializer, _externalIdBundle));
-    return msg;
   }
 
   //-------------------------------------------------------------------------

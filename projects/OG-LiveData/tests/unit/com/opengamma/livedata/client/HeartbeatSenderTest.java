@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.LiveDataSpecificationFudgeBuilder;
 import com.opengamma.livedata.test.CollectingLiveDataListener;
 import com.opengamma.transport.CollectingByteArrayMessageSender;
 
@@ -69,7 +70,7 @@ public class HeartbeatSenderTest {
     
     FudgeContext fudgeContext = new FudgeContext();
     
-    for(byte[] message : messages) {
+    for (byte[] message : messages) {
       FudgeMsgEnvelope fudgeMsgEnvelope = fudgeContext.deserialize(message);
       FudgeMsg fudgeMsg = fudgeMsgEnvelope.getMessage();
       assertNotNull(fudgeMsg);
@@ -77,7 +78,7 @@ public class HeartbeatSenderTest {
       for(FudgeField field : fudgeMsg.getAllFields()) {
         assertNull(field.getOrdinal());
         assertTrue(field.getValue() instanceof FudgeMsg);
-        LiveDataSpecification lsdi = LiveDataSpecification.fromFudgeMsg(new FudgeDeserializer(fudgeContext), (FudgeMsg) field.getValue());
+        LiveDataSpecification lsdi = LiveDataSpecificationFudgeBuilder.fromFudgeMsg(new FudgeDeserializer(fudgeContext), (FudgeMsg) field.getValue());
         assertTrue(lsdi.equals(spec1) || lsdi.equals(spec2));
       }
     }

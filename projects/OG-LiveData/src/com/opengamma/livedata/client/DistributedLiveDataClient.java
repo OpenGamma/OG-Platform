@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
+import com.opengamma.livedata.LiveDataValueUpdateFudgeBuilder;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.LiveDataSubscriptionRequest;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
@@ -378,7 +379,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   public void messageReceived(FudgeContext fudgeContext,
       FudgeMsgEnvelope msgEnvelope) {
     FudgeMsg fudgeMsg = msgEnvelope.getMessage();
-    LiveDataValueUpdateBean update = LiveDataValueUpdateBean.fromFudgeMsg(new FudgeDeserializer(fudgeContext), fudgeMsg);
+    LiveDataValueUpdateBean update = LiveDataValueUpdateFudgeBuilder.fromFudgeMsg(new FudgeDeserializer(fudgeContext), fudgeMsg);
     valueUpdate(update);
   }
 

@@ -9,6 +9,7 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.livedata.LiveDataValueUpdateBean;
+import com.opengamma.livedata.LiveDataValueUpdateFudgeBuilder;
 import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.ArgumentChecker;
 
@@ -41,7 +42,7 @@ public class FudgeSender implements MarketDataSender {
   @Override
   public void sendMarketData(LiveDataValueUpdateBean data) {
     FudgeSerializer serializer = new FudgeSerializer(getFudgeMessageSender().getFudgeContext());
-    FudgeMsg fudgeMsg = data.toFudgeMsg(serializer);
+    FudgeMsg fudgeMsg = LiveDataValueUpdateFudgeBuilder.toFudgeMsg(serializer, data);
     getFudgeMessageSender().send(fudgeMsg);
   }
 

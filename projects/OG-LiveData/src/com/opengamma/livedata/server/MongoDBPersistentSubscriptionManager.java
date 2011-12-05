@@ -20,6 +20,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.LiveDataSpecificationFudgeBuilder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.mongo.MongoConnector;
 
@@ -64,7 +65,7 @@ public class MongoDBPersistentSubscriptionManager extends AbstractPersistentSubs
       DBObject mainObject = cursor.next();
       DBObject fieldData = (DBObject) mainObject.get("fieldData");
       MutableFudgeMsg msg = serializer.objectToFudgeMsg(fieldData);
-      LiveDataSpecification spec = LiveDataSpecification.fromFudgeMsg(deserializer, msg);
+      LiveDataSpecification spec = LiveDataSpecificationFudgeBuilder.fromFudgeMsg(deserializer, msg);
       addPersistentSubscription(new PersistentSubscription(spec));
     }
   }
@@ -76,7 +77,7 @@ public class MongoDBPersistentSubscriptionManager extends AbstractPersistentSubs
     FudgeDeserializer deserializer = new FudgeDeserializer(FudgeContext.GLOBAL_DEFAULT);
     List<DBObject> objects = new ArrayList<DBObject>();
     for (PersistentSubscription sub : newState) {
-      FudgeMsg msg = sub.getFullyQualifiedSpec().toFudgeMsg(serializer);
+      FudgeMsg msg = LiveDataSpecificationFudgeBuilder.toFudgeMsg(serializer, sub.getFullyQualifiedSpec());
       DBObject fieldData = deserializer.fudgeMsgToObject(DBObject.class, msg);
       BasicDBObject mainObject = new BasicDBObject();
       mainObject.append("fieldData", fieldData);

@@ -20,6 +20,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.livedata.LiveDataValueUpdateBean;
+import com.opengamma.livedata.LiveDataValueUpdateFudgeBuilder;
 import com.opengamma.transport.CollectingByteArrayMessageReceiver;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.util.jms.JmsConnector;
@@ -99,7 +100,7 @@ public class JmsSenderTest {
     FudgeDeserializer deserializer = new FudgeDeserializer(fudgeContext);
     for (byte[] byteArray : _collectingReceiver.getMessages()) {
       FudgeMsgEnvelope msgEnvelope = fudgeContext.deserialize(byteArray);
-      LiveDataValueUpdateBean update = LiveDataValueUpdateBean.fromFudgeMsg(deserializer, msgEnvelope.getMessage());
+      LiveDataValueUpdateBean update = LiveDataValueUpdateFudgeBuilder.fromFudgeMsg(deserializer, msgEnvelope.getMessage());
       assertEquals(msg, update.getFields());
     }
   }
@@ -140,7 +141,7 @@ public class JmsSenderTest {
     FudgeDeserializer deserializer = new FudgeDeserializer(fudgeContext);
     for (int i = 0; i < _collectingReceiver.getMessages().size(); i++) {
       FudgeMsgEnvelope msgEnvelope = fudgeContext.deserialize(_collectingReceiver.getMessages().get(i));
-      LiveDataValueUpdateBean update = LiveDataValueUpdateBean.fromFudgeMsg(deserializer, msgEnvelope.getMessage());
+      LiveDataValueUpdateBean update = LiveDataValueUpdateFudgeBuilder.fromFudgeMsg(deserializer, msgEnvelope.getMessage());
       updates[i] = update;
     }
     
