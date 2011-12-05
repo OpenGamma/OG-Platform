@@ -11,7 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.instrument.index.CMSIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 
@@ -42,7 +42,7 @@ public class AnnuityCapFloorCMSDefinition extends AnnuityDefinition<CapFloorCMSD
    * @param isCap The cap (true) / floor (false) flag.
    * @return The CMS coupon leg.
    */
-  public static AnnuityCapFloorCMSDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final double notional, final CMSIndex index, final Period paymentPeriod,
+  public static AnnuityCapFloorCMSDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final double notional, final IndexSwap index, final Period paymentPeriod,
       final DayCount dayCount, final boolean isPayer, final double strike, final boolean isCap) {
     Validate.notNull(settlementDate, "settlement date");
     Validate.notNull(maturityDate, "maturity date");

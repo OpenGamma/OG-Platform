@@ -23,7 +23,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 import com.opengamma.DataDuplicationException;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSummary;
 import com.opengamma.extsql.ExtSqlBundle;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
@@ -34,6 +33,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryResult;
@@ -396,26 +396,43 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public ManageableHistoricalTimeSeries getTimeSeries(
-      UniqueId uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
-    return getDataPointsWorker().getTimeSeries(uniqueId, fromDateInclusive, toDateInclusive);
+ 
+  public ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    checkScheme(uniqueId);
+    
+    final VersionCorrection vc;
+    if (uniqueId.isVersioned() && uniqueId.getValue().startsWith(DATA_POINT_PREFIX)) {
+      vc = extractTimeSeriesInstants(uniqueId);
+    } else {
+      vc = VersionCorrection.LATEST;
+    }
+    return getTimeSeries(uniqueId.getObjectId(), vc);
+  }
+  
+  public ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    HistoricalTimeSeriesGetFilter filter = HistoricalTimeSeriesGetFilter.ofRange(null, null);
+    return getTimeSeries(objectId, versionCorrection, filter);
+  }
+  
+  public ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId, HistoricalTimeSeriesGetFilter filter) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    checkScheme(uniqueId);
+    
+    final VersionCorrection vc;
+    if (uniqueId.isVersioned() && uniqueId.getValue().startsWith(DATA_POINT_PREFIX)) {
+      vc = extractTimeSeriesInstants(uniqueId);
+    } else {
+      vc = VersionCorrection.LATEST;
+    }
+    return getTimeSeries(uniqueId.getObjectId(), vc, filter);    
+  }
+  
+  public ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection, HistoricalTimeSeriesGetFilter filter) {
+    return getDataPointsWorker().getTimeSeries(objectId, versionCorrection, filter);
   }
 
-  @Override
-  public ManageableHistoricalTimeSeries getTimeSeries(
-      ObjectIdentifiable objectId, VersionCorrection versionCorrection, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
-    return getDataPointsWorker().getTimeSeries(objectId, versionCorrection, fromDateInclusive, toDateInclusive);
-  }
-
-  @Override
-  public HistoricalTimeSeriesSummary getSummary(UniqueId uniqueId) {
-    return getDataPointsWorker().getSummary(uniqueId);
-  }
-
-  public HistoricalTimeSeriesSummary getSummary(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    return getDataPointsWorker().getSummary(objectId, versionCorrection);
-  }
+  //-------------------------------------------------------------------------
 
   @Override
   public UniqueId updateTimeSeriesDataPoints(final ObjectIdentifiable objectId, final LocalDateDoubleTimeSeries series) {

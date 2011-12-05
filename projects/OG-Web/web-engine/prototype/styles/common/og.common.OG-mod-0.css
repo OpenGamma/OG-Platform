@@ -4,13 +4,19 @@
  */
 
 .OG-mod-0 h3 {
-  border-bottom: 4px solid #ededed;
+  border-bottom: 4px solid #F3F3F3;
   margin-bottom: 1px;
   margin-right: 10px;
 }
 
 .OG-mod-0 h3 span {
   vertical-align: middle;
+  background-color: #F3F3F3;
+  border-left: 2px solid #C6C6C6;
+  padding: 5px 10px 5px 8px;
+  display: inline-block;
+  position: relative;
+  bottom: -4px;
 }
 
 

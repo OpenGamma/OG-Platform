@@ -64,8 +64,16 @@ public final class FudgeTypeConverter extends AbstractTypeConverter {
   @SuppressWarnings("unchecked")
   @Override
   public void convertValue(final ValueConversionContext conversionContext, final Object value, final JavaTypeInfo<?> type) {
-    if ((value == null) && type.isAllowNull()) {
-      conversionContext.setResult(null);
+    if (value == null) {
+      if (type.isAllowNull()) {
+        conversionContext.setResult(null);
+      } else {
+        conversionContext.setFail();
+      }
+      return;
+    }
+    if ((value.getClass() == Data.class) || (value.getClass() == Value.class)) {
+      conversionContext.setFail();
       return;
     }
     final FudgeFieldType fieldType = getFudgeContext().getTypeDictionary().getByJavaType(type.getRawClass());

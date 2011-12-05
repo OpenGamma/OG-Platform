@@ -203,6 +203,7 @@ $.register_module({
                 layout.inner.options.south.onclose = null;
                 layout.inner.close('south');
                 rest_options = {
+                    dependencies: ['id'],
                     handler: rest_handler,
                     loading: function () {
                         ui.message({

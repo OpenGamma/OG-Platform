@@ -138,6 +138,7 @@ $.register_module({
                     og.views.common.versions.load();
                 } else layout.inner.close('south');
                 api.rest.positions.get({
+                    dependencies: ['id'],
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var json = result.data;

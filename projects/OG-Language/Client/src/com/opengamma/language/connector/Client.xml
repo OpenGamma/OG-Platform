@@ -266,4 +266,10 @@
     </property>
   </bean>
   
+  <!-- Volatility cube definition -->
+  <bean id="volatilityLoader" class="com.opengamma.language.volatility.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+  
 </beans>

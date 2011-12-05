@@ -38,4 +38,8 @@ public class YieldCurveWithFXBundle extends YieldCurveBundle {
     return _fxRates.getFxRate(ccy1, ccy2);
   }
 
+  // TODO: forward rate
+
+  // public double getForwardFxRate(final Currency ccy1, final Currency ccy2, final double time){
+
 }

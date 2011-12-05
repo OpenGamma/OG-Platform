@@ -15,7 +15,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing an price index, like the one used in inflation instruments.
  */
-public class PriceIndex {
+public class IndexPrice {
 
   /**
    * Name of the index.
@@ -41,7 +41,7 @@ public class PriceIndex {
    * @param region The reference region for the price index. Not null.
    * @param publicationLag The lag between the month end and the index publication.
    */
-  public PriceIndex(final String name, final Currency ccy, final Currency region, final Period publicationLag) {
+  public IndexPrice(final String name, final Currency ccy, final Currency region, final Period publicationLag) {
     Validate.notNull(name, "Name");
     Validate.notNull(ccy, "Currency");
     Validate.notNull(region, "Region");
@@ -110,7 +110,7 @@ public class PriceIndex {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    PriceIndex other = (PriceIndex) obj;
+    IndexPrice other = (IndexPrice) obj;
     if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
     }
