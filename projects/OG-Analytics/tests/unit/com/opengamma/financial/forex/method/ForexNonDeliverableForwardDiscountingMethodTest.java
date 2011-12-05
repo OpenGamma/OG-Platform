@@ -122,6 +122,16 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
 
   @Test
   /**
+   * Checks that the NDF forward rate is coherent with the standard FX forward present value.
+   */
+  public void forwardRateVsForex() {
+    double fwdNDF = METHOD_NDF.forwardForexRate(NDF, CURVESFX);
+    double fwdFX = METHOD_FX.forwardForexRate(FOREX, CURVESFX);
+    assertEquals("Forward rate - non-deliverable forward", fwdNDF, fwdFX, 1.0E-2);
+  }
+
+  @Test
+  /**
    * Tests the present value curve sensitivity using the Forex instrument curve sensitivity as reference.
    */
   public void presentValueCurveSensitivity() {

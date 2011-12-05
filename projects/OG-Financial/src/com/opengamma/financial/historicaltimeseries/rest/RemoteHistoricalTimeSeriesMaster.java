@@ -180,8 +180,6 @@ public class RemoteHistoricalTimeSeriesMaster implements HistoricalTimeSeriesMas
   
   public ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId, HistoricalTimeSeriesGetFilter filter) {
     
-    // TODO: handle maximum #points limit through REST
-    
     LocalDate fromDateInclusive = filter.getEarliestDate();
     LocalDate toDateInclusive = filter.getLatestDate();
     Integer maxPoints = filter.getMaxPoints();
@@ -193,14 +191,14 @@ public class RemoteHistoricalTimeSeriesMaster implements HistoricalTimeSeriesMas
       }
       if (toDateInclusive != null) {
         target = target.resolveBase("to").resolve(toDateInclusive.toString());
-      } else {
-        if (fromDateInclusive == null) {
-          // Append "timeSeries" to distinguish from the basic "get" method
-          target = target.resolve("timeSeries");
-        } else {
-          target = target.resolve(".");
-        }
       }
+      if (maxPoints != null) {
+        target = target.resolveBase("maxPoints").resolve(maxPoints.toString());
+      }      
+      if (toDateInclusive == null && fromDateInclusive == null && maxPoints == null) {
+        // Append "timeSeries" to distinguish from the basic "get" method
+        target = target.resolve("timeSeries");
+      } 
       
       return getFudgeDeserializer().fudgeMsgToObject(ManageableHistoricalTimeSeries.class, getRestClient().getMsg(target));
     } catch (RestRuntimeException ex) {

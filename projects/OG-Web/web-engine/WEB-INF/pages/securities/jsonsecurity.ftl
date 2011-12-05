@@ -392,6 +392,7 @@
     "name": "${security.name}",
     "object_id": "${security.uniqueId.objectId}",
     "version_id": "${security.uniqueId.version}",
+    "hts_id": "${timeSeriesId}",
     <#if deleted>
       "deleted": "${securityDoc.versionToInstant}",
     </#if>

@@ -14,6 +14,8 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Map;
 
+import javax.time.Instant;
+
 import org.apache.commons.io.FileUtils;
 import org.joda.beans.JodaBeanUtils;
 import org.json.JSONException;
@@ -24,9 +26,17 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Maps;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.config.impl.InMemoryConfigMaster;
+import com.opengamma.master.config.impl.MasterConfigSource;
+import com.opengamma.master.config.impl.MockConfigSource;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.impl.InMemoryHistoricalTimeSeriesMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
@@ -40,6 +50,9 @@ public class WebSecuritiesResourceTest {
   private SecurityMaster _secMaster;
   
   private SecurityLoader _secLoader;
+  
+  private HistoricalTimeSeriesMaster _htsMaster;
+  private ConfigSource _cfgSource;
   
   private WebSecuritiesResource _webSecuritiesResource;
   private Map<FinancialSecurity, UniqueId> _sec2UniqueId = Maps.newHashMap();
@@ -61,10 +74,14 @@ public class WebSecuritiesResourceTest {
       }
     };
     
+    _htsMaster = new InMemoryHistoricalTimeSeriesMaster();
+    
+    _cfgSource = new MasterConfigSource(new InMemoryConfigMaster());
+    
     addSecurity(WebSecuritiesResourceTestUtils.getEquitySecurity());
     addSecurity(WebSecuritiesResourceTestUtils.getBondFutureSecurity());
         
-    _webSecuritiesResource = new WebSecuritiesResource(_secMaster, _secLoader);
+    _webSecuritiesResource = new WebSecuritiesResource(_secMaster, _secLoader, _htsMaster, _cfgSource);
     _webSecuritiesResource.setServletContext(new MockServletContext("/web-engine", new FileSystemResourceLoader()));
   }
   
