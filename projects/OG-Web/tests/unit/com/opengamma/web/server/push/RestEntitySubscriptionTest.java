@@ -43,7 +43,7 @@ public class RestEntitySubscriptionTest {
     Pair<Server,WebApplicationContext> serverAndContext = createJettyServer("classpath:/com/opengamma/web/rest-subscription-test.xml");
     _server = serverAndContext.getFirst();
     WebApplicationContext context = serverAndContext.getSecond();
-    _changeManager = context.getBean(TestChangeManager.class);
+    _changeManager = context.getBean("changeManager", TestChangeManager.class);
   }
 
   @AfterClass

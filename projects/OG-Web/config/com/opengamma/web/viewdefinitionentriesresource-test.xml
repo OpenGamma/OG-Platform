@@ -3,16 +3,16 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <bean id="viewDefinitionNamesResource" class="com.opengamma.web.server.push.ViewDefinitionNamesResource">
+  <bean id="viewDefinitionNamesResource" class="com.opengamma.web.server.push.ViewDefinitionEntriesResource">
     <constructor-arg ref="viewDefinitionRespository"/>
   </bean>
 
   <bean id="viewDefinitionRespository" class="com.opengamma.web.server.push.TestViewDefinitionRepository">
     <constructor-arg>
-      <array>
-        <value>viewDef1</value>
-        <value>viewDef2</value>
-      </array>
+      <map>
+        <entry key="TST~vd1" value="viewDef1"/>
+        <entry key="TST~vd2" value="viewDef2"/>
+      </map>
     </constructor-arg>
   </bean>
 

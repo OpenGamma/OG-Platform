@@ -8,6 +8,7 @@ package com.opengamma.web.server.push;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.UniqueId;
 
@@ -18,7 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  *
  */
-public class TestChangeManager implements ChangeManager {
+public class TestChangeManager implements ChangeManager, ChangeProvider {
 
   private final List<ChangeListener> _listeners = new CopyOnWriteArrayList<ChangeListener>();
 
@@ -38,5 +39,10 @@ public class TestChangeManager implements ChangeManager {
     for (ChangeListener listener : _listeners) {
       listener.entityChanged(event);
     }
+  }
+
+  @Override
+  public ChangeManager changeManager() {
+    return this;
   }
 }

@@ -6,26 +6,23 @@ import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Trivial implementation for testing {@link ViewDefinitionNamesResource}.
+ * Trivial implementation for testing {@link ViewDefinitionEntriesResource}.
  * TODO signature has changed significantly
  */
 public class TestViewDefinitionRepository implements ViewDefinitionRepository {
 
-  private final Set<String> _names;
+  private final Map<UniqueId, String> _viewDefs;
 
-  public TestViewDefinitionRepository(String... names) {
-    _names = new HashSet<String>(Arrays.asList(names));
-  }
-
-  //@Override
-  public Set<String> getDefinitionNames() {
-    return _names;
+  public TestViewDefinitionRepository(Map<String, String> viewDefs) {
+    _viewDefs = new HashMap<UniqueId, String>();
+    for (Map.Entry<String, String> entry : viewDefs.entrySet()) {
+      _viewDefs.put(UniqueId.parse(entry.getKey()), entry.getValue());
+    }
   }
 
   @Override
@@ -40,7 +37,7 @@ public class TestViewDefinitionRepository implements ViewDefinitionRepository {
 
   @Override
   public Map<UniqueId, String> getDefinitionEntries() {
-    throw new UnsupportedOperationException("getDefinitionEntries not implemented");
+    return _viewDefs;
   }
 
   @Override

@@ -55,6 +55,7 @@ package com.opengamma.web.server.push;
  * <pre>
  *   {"viewportUrl": "/jax/viewports/567"}</pre>
  *
+ * TODO use the same format as the current cometd implementation
  * <p>The request must contain JSON which defines the viewport:</p>
  * <pre>
  *   {"viewDefinitionName": ...
@@ -84,10 +85,10 @@ package com.opengamma.web.server.push;
  * <h3>Querying Available View Definitions and Market Data Snapshots</h3>
  * <p>The view definitions and market data snapshots available in the system can be queried as follows:</p>
  * <pre>
- *   /jax/viewdefinitionnames</pre>
+ *   /jax/viewdefinitions</pre>
  * <p>returns</p>
  * <pre>
- *   {"viewDefinitionNames": [viewDef1, viewDef2, ...]}
+ *   {viewDefId1: viewDefName1, viewDefId2: viewDefName2, ...}
  * </pre>
  * <p>and</p>
  * <pre>
