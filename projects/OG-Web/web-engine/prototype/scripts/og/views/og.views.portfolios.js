@@ -315,7 +315,8 @@ $.register_module({
                                 });
                             } else {
                                 common.gadgets.positions({
-                                    id: position, selector: '.og-js-details-positions', editable: false});
+                                    id: position, selector: '.og-js-details-positions', editable: false
+                                });
                                 common.gadgets.trades({id: position, selector: '.og-js-trades-table'});
                             }
                         });
