@@ -206,10 +206,7 @@ $.register_module({
                                         $(this).dialog('close');
                                     }}
                                 });
-                            } else {
-                                slick.setSelectedRows(slick.getCellFromEvent(e).row);
-                                routes.go(href);
-                            }
+                            } else routes.go(href);
                         });
                         slick.onMouseEnter.subscribe(function (e) {
                            $(e.currentTarget).closest('.slick-row').find('.og-button').show();
@@ -318,13 +315,11 @@ $.register_module({
                                         $(this).dialog('close');
                                     }}
                                 });
-                            } else {
-                                slick.setSelectedRows(slick.getCellFromEvent(e).row);
-                                common.gadgets.positions({
-                                    id: position, selector: '.og-js-details-positions', editable: false
-                                });
-                                common.gadgets.trades({id: position, selector: '.og-js-trades-table'});
                             }
+                            common.gadgets.positions({
+                                id: position, selector: '.og-js-details-positions', editable: false
+                            });
+                            common.gadgets.trades({id: position, selector: '.og-js-trades-table'});
                         });
                         slick.onMouseEnter.subscribe(function (e) {
                            $(e.currentTarget).closest('.slick-row').find('.og-button').show();
