@@ -27,8 +27,11 @@ public class ArrayTypeConverter extends AbstractTypeConverter {
 
   private static final JavaTypeInfo<Object> OBJECT = JavaTypeInfo.builder(Object.class).get();
   private static final JavaTypeInfo<Value[]> VALUE_1 = JavaTypeInfo.builder(Value.class).arrayOf().get();
+  private static final JavaTypeInfo<Value[]> VALUE_1_ALLOW_NULL = JavaTypeInfo.builder(Value.class).arrayOf().allowNull().get();
   private static final JavaTypeInfo<Value[][]> VALUE_2 = JavaTypeInfo.builder(Value.class).arrayOf().arrayOf().get();
+  private static final JavaTypeInfo<Value[][]> VALUE_2_ALLOW_NULL = JavaTypeInfo.builder(Value.class).arrayOf().arrayOf().allowNull().get();
   private static final Map<JavaTypeInfo<?>, Integer> TO_OBJECT = TypeMap.ofWeighted(ZERO_LOSS, VALUE_1, VALUE_2);
+  private static final Map<JavaTypeInfo<?>, Integer> TO_OBJECT_ALLOW_NULL = TypeMap.ofWeighted(ZERO_LOSS, VALUE_1_ALLOW_NULL, VALUE_2_ALLOW_NULL);
   private static final Map<JavaTypeInfo<?>, Integer> TO_VALUE = TypeMap.of(ZERO_LOSS, OBJECT);
 
   protected ArrayTypeConverter() {
@@ -41,6 +44,16 @@ public class ArrayTypeConverter extends AbstractTypeConverter {
 
   @Override
   public void convertValue(final ValueConversionContext conversionContext, final Object value, final JavaTypeInfo<?> type) {
+    if (value == null) {
+      if (type.isDefaultValue()) {
+        conversionContext.setResult(type.getDefaultValue());
+      } else if (type.isAllowNull()) {
+        conversionContext.setResult(null);
+      } else {
+        conversionContext.setFail();
+      }
+      return;
+    }
     if (!value.getClass().isArray()) {
       conversionContext.setFail();
       return;
@@ -72,7 +85,7 @@ public class ArrayTypeConverter extends AbstractTypeConverter {
     if ((targetType.getRawClass() == Value[].class) || (targetType.getRawClass() == Value[][].class)) {
       return TO_VALUE;
     } else {
-      return TO_OBJECT;
+      return targetType.isAllowNull() ? TO_OBJECT_ALLOW_NULL : TO_OBJECT;
     }
   }
 

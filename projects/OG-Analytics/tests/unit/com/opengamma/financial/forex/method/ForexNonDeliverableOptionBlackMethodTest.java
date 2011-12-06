@@ -18,6 +18,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.forex.calculator.CurrencyExposureBlackForexCalculator;
+import com.opengamma.financial.forex.calculator.ForwardRateForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueBlackForexCalculator;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexNonDeliverableForwardDefinition;
@@ -161,14 +162,25 @@ public class ForexNonDeliverableOptionBlackMethodTest {
 
   @Test
   /**
+   * Tests the forward Forex rate through the method and through the calculator.
+   */
+  public void forwardRateMethodVsCalculator() {
+    double fwdMethod = METHOD_NDO.forwardForexRate(NDO, SMILE_BUNDLE);
+    ForwardRateForexCalculator FWDC = ForwardRateForexCalculator.getInstance();
+    double fwdCalculator = FWDC.visit(NDO, SMILE_BUNDLE);
+    assertEquals("Forex: forward rate", fwdMethod, fwdCalculator, 1.0E-10);
+  }
+
+  @Test
+  /**
    * Tests the present value curve sensitivity of NDO by comparison with vanilla European options.
    */
   public void presentValueVolatilitySensitivity() {
     double tolerance = 1.0E-2;
-    PresentValueVolatilitySensitivityDataBundle pvvsNDO = METHOD_NDO.presentValueVolatilitySensitivity(NDO, SMILE_BUNDLE);
-    PresentValueVolatilitySensitivityDataBundle pvvsFXO = METHOD_FXO.presentValueVolatilitySensitivity(FOREX_OPT, SMILE_BUNDLE);
+    PresentValueForexBlackVolatilitySensitivity pvvsNDO = METHOD_NDO.presentValueVolatilitySensitivity(NDO, SMILE_BUNDLE);
+    PresentValueForexBlackVolatilitySensitivity pvvsFXO = METHOD_FXO.presentValueVolatilitySensitivity(FOREX_OPT, SMILE_BUNDLE);
     final DoublesPair point = DoublesPair.of(NDO.getExpiryTime(), NDO.getStrike());
-    assertEquals("Forex non-deliverable option: present value curve sensitivity", pvvsFXO.getVega().get(point), pvvsNDO.getVega().get(point), tolerance);
+    assertEquals("Forex non-deliverable option: present value curve sensitivity", pvvsFXO.getVega().getMap().get(point), pvvsNDO.getVega().getMap().get(point), tolerance);
   }
 
   @Test

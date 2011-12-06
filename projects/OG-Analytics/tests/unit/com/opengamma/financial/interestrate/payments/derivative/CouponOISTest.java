@@ -19,7 +19,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.index.IndexOIS;
+import com.opengamma.financial.instrument.index.IndexON;
 import com.opengamma.financial.instrument.payment.CouponOISSimplifiedDefinition;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -41,14 +41,14 @@ public class CouponOISTest {
   private static final Calendar EUR_CALENDAR = new MondayToFridayCalendar("EUR");
   private static final int EUR_PUBLICATION_LAG = 0;
   private static final DayCount EUR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IndexOIS EUR_OIS = new IndexOIS(EUR_OIS_NAME, EUR_CUR, EUR_DAY_COUNT, EUR_PUBLICATION_LAG, EUR_CALENDAR);
+  private static final IndexON EUR_OIS = new IndexON(EUR_OIS_NAME, EUR_CUR, EUR_DAY_COUNT, EUR_PUBLICATION_LAG, EUR_CALENDAR);
   // USD OIS
   private static final String US_OIS_NAME = "US OIS";
   private static final Currency US_CUR = Currency.USD;
   private static final DayCount US_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final int US_PUBLICATION_LAG = 1;
   private static final Calendar US_CALENDAR = new MondayToFridayCalendar("A");
-  private static final IndexOIS US_OIS = new IndexOIS(US_OIS_NAME, US_CUR, US_DAY_COUNT, US_PUBLICATION_LAG, US_CALENDAR);
+  private static final IndexON US_OIS = new IndexON(US_OIS_NAME, US_CUR, US_DAY_COUNT, US_PUBLICATION_LAG, US_CALENDAR);
 
   // Coupon EONIA 3m
   private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2011, 9, 7);

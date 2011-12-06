@@ -15,17 +15,17 @@ import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurf
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.model.option.definition.SABRInterestRateCorrelationParameters;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.math.function.DoubleFunction1D;
+import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
 public class SABRPresentValueSABRCapFloorCMSSpreadFunction extends SABRPresentValueSABRFunction {
-  
+
   public SABRPresentValueSABRCapFloorCMSSpreadFunction(final String currency, final String definitionName, String forwardCurveName, String fundingCurveName) {
     this(Currency.of(currency), definitionName, forwardCurveName, fundingCurveName);
   }
@@ -33,15 +33,15 @@ public class SABRPresentValueSABRCapFloorCMSSpreadFunction extends SABRPresentVa
   public SABRPresentValueSABRCapFloorCMSSpreadFunction(final Currency currency, final String definitionName, String forwardCurveName, String fundingCurveName) {
     super(currency, definitionName, forwardCurveName, fundingCurveName);
   }
-  
+
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    return target.getSecurity() instanceof CapFloorCMSSpreadSecurity && !isUseSABRExtrapolation(); 
+    return target.getSecurity() instanceof CapFloorCMSSpreadSecurity && !isUseSABRExtrapolation();
   }
-  
+
   @Override
   protected SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs) {
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
@@ -54,16 +54,16 @@ public class SABRPresentValueSABRCapFloorCMSSpreadFunction extends SABRPresentVa
     if (!surfaces.getCurrency().equals(currency)) {
       throw new OpenGammaRuntimeException("Don't know how this happened");
     }
-    final VolatilitySurface alphaSurface = surfaces.getAlphaSurface();
-    final VolatilitySurface betaSurface = surfaces.getBetaSurface();
-    final VolatilitySurface nuSurface = surfaces.getNuSurface();
-    final VolatilitySurface rhoSurface = surfaces.getRhoSurface();
+    final InterpolatedDoublesSurface alphaSurface = surfaces.getAlphaSurface();
+    final InterpolatedDoublesSurface betaSurface = surfaces.getBetaSurface();
+    final InterpolatedDoublesSurface nuSurface = surfaces.getNuSurface();
+    final InterpolatedDoublesSurface rhoSurface = surfaces.getRhoSurface();
     final DayCount dayCount = surfaces.getDayCount();
     final DoubleFunction1D correlationFunction = getCorrelationFunction();
     final SABRInterestRateCorrelationParameters modelParameters = new SABRInterestRateCorrelationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, correlationFunction);
     return new SABRInterestRateDataBundle(modelParameters, getYieldCurves(target, inputs));
   }
-  
+
   private DoubleFunction1D getCorrelationFunction() {
     return new DoubleFunction1D() {
 
@@ -71,7 +71,7 @@ public class SABRPresentValueSABRCapFloorCMSSpreadFunction extends SABRPresentVa
       public Double evaluate(Double x) {
         return 1.;
       }
-      
+
     };
   }
 }

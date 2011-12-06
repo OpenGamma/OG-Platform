@@ -23,6 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 public class Loader extends ContextInitializationBean {
 
   private List<FunctionProvider> _functionProviders;
+  private FunctionDefinitionFilter _definitionFilter;
 
   public void setFunctionProvider(final FunctionProvider functionProvider) {
     ArgumentChecker.notNull(functionProvider, "functionProvider");
@@ -53,26 +54,38 @@ public class Loader extends ContextInitializationBean {
     }
   }
 
+  public FunctionDefinitionFilter getDefinitionFilter() {
+    return _definitionFilter;
+  }
+
+  public void setDefinitionFilter(final FunctionDefinitionFilter definitionFilter) {
+    _definitionFilter = definitionFilter;
+  }
+
   // ContextInitializationBean
 
   @Override
-  protected void assertPropertiesSet() {
-    ArgumentChecker.notNull(getFunctionProviders(), "functionProviders");
-  }
-
-  @Override
   protected void initContext(final MutableSessionContext sessionContext) {
-    addProviders(sessionContext.getFunctionProvider());
+    if (getFunctionProviders() != null) {
+      addProviders(sessionContext.getFunctionProvider());
+    }
   }
 
   @Override
   protected void initContext(final MutableUserContext userContext) {
-    addProviders(userContext.getFunctionProvider());
+    if (getFunctionProviders() != null) {
+      addProviders(userContext.getFunctionProvider());
+    }
   }
 
   @Override
   protected void initContext(final MutableGlobalContext globalContext) {
-    addProviders(globalContext.getFunctionProvider());
+    if (getFunctionProviders() != null) {
+      addProviders(globalContext.getFunctionProvider());
+    }
+    if (getDefinitionFilter() != null) {
+      globalContext.setFunctionDefinitionFilter(getDefinitionFilter());
+    }
   }
 
 }

@@ -23,8 +23,8 @@ public final class USDLIBOR3M extends IborIndex {
    * @param calendar A USD calendar.
    */
   public USDLIBOR3M(Calendar calendar) {
-    super(Currency.USD, Period.ofMonths(3), 2, calendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), 
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), true);
+    super(Currency.USD, Period.ofMonths(3), 2, calendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
+        true, "USDLIBOR3M");
   }
-  
+
 }

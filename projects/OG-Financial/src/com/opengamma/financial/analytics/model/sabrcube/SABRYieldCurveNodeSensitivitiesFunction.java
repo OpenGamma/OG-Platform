@@ -65,7 +65,6 @@ import com.opengamma.financial.model.option.definition.SABRInterestRateParameter
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionFactory;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
@@ -75,6 +74,7 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -93,19 +93,17 @@ public class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFunction.No
   private final String _forwardCurveName;
   private final String _fundingCurveName;
   private final VolatilityCubeFunctionHelper _helper;
-  private boolean _useSABRExtrapolation;
+  private final boolean _useSABRExtrapolation;
   private FixedIncomeConverterDataProvider _definitionConverter;
 
-  public SABRYieldCurveNodeSensitivitiesFunction(final String currency, final String definitionName, final String useSABRExtrapolation, final String forwardCurveName,
-      final String fundingCurveName) {
+  public SABRYieldCurveNodeSensitivitiesFunction(final String currency, final String definitionName, final String useSABRExtrapolation, final String forwardCurveName, final String fundingCurveName) {
     this(Currency.of(currency), definitionName, Boolean.parseBoolean(useSABRExtrapolation), forwardCurveName, fundingCurveName);
   }
 
-  public SABRYieldCurveNodeSensitivitiesFunction(final Currency currency, final String definitionName, final boolean useSABRExtrapolation, final String forwardCurveName,
+  public SABRYieldCurveNodeSensitivitiesFunction(final Currency currency, final String definitionName, final boolean useSABRExtrapolation, final String forwardCurveName, 
       final String fundingCurveName) {
-    _nodeSensitivityCalculator = useSABRExtrapolation ?
-        PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivitySABRExtrapolationCalculator.getInstance()) :
-        PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivitySABRCalculator.getInstance());
+    _nodeSensitivityCalculator = useSABRExtrapolation ? PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivitySABRExtrapolationCalculator.getInstance())
+        : PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivitySABRCalculator.getInstance());
     _helper = new VolatilityCubeFunctionHelper(currency, definitionName);
     _fundingCurveName = fundingCurveName;
     _forwardCurveName = forwardCurveName;
@@ -122,10 +120,7 @@ public class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFunction.No
     final SwaptionSecurityConverter swaptionConverter = new SwaptionSecurityConverter(_securitySource, conventionSource, swapConverter);
     final CapFloorSecurityConverter capFloorConverter = new CapFloorSecurityConverter(holidaySource, conventionSource);
     final CapFloorCMSSpreadSecurityConverter capFloorCMSSpreadSecurityVisitor = new CapFloorCMSSpreadSecurityConverter(holidaySource, conventionSource);
-    _securityVisitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
-        .swapSecurityVisitor(swapConverter)
-        .swaptionVisitor(swaptionConverter)
-        .capFloorVisitor(capFloorConverter)
+    _securityVisitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().swapSecurityVisitor(swapConverter).swaptionVisitor(swaptionConverter).capFloorVisitor(capFloorConverter)
         .capFloorCMSSpreadVisitor(capFloorCMSSpreadSecurityVisitor).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
@@ -137,8 +132,7 @@ public class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFunction.No
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final InstrumentDefinition<?> definition = security.accept(_securityVisitor);
-    final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, 
-        new String[] {_fundingCurveName, _forwardCurveName}, dataSource);
+    final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, new String[] {_fundingCurveName, _forwardCurveName}, dataSource);
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final Object forwardCurveObject = inputs.getValue(getForwardCurveRequirement(currency, _forwardCurveName, _fundingCurveName));
     if (forwardCurveObject == null) {
@@ -190,8 +184,8 @@ public class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFunction.No
     final Map<String, InterpolatedYieldCurveSpecificationWithSecurities> curveSpecs = new HashMap<String, InterpolatedYieldCurveSpecificationWithSecurities>();
     curveSpecs.put(_fundingCurveName, fundingCurveSpec);
     curveSpecs.put(_forwardCurveName, forwardCurveSpec);
-    return YieldCurveNodeSensitivitiesHelper.getSensitivitiesForMultipleCurves(_forwardCurveName, _fundingCurveName, getForwardResultSpec(target, currency), 
-        getFundingResultSpec(target, currency), bundle, result, curveSpecs);
+    return YieldCurveNodeSensitivitiesHelper.getSensitivitiesForMultipleCurves(_forwardCurveName, _fundingCurveName, getForwardResultSpec(target, currency), getFundingResultSpec(target, currency),
+        bundle, result, curveSpecs);
   }
 
   @Override
@@ -205,11 +199,11 @@ public class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFunction.No
       return false;
     }
     final Security security = target.getSecurity();
-    return security instanceof SwaptionSecurity || (security instanceof SwapSecurity && 
-       (SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_FIXED_CMS ||
-        SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS ||
-        SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS)) ||
-       security instanceof CapFloorSecurity;
+    return security instanceof SwaptionSecurity
+        || (security instanceof SwapSecurity && (SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_FIXED_CMS
+            || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS 
+            || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
+        || security instanceof CapFloorSecurity;
   }
 
   @Override
@@ -242,7 +236,7 @@ public class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFunction.No
   protected boolean isUseSABRExtrapolation() {
     return _useSABRExtrapolation;
   }
-  
+
   private ValueRequirement getForwardCurveRequirement(final Currency currency, final String forwardCurveDefinitionName, final String fundingCurveDefinitionName) {
     final ValueRequirement forwardCurveRequirement = YieldCurveFunction.getCurveRequirement(currency, forwardCurveDefinitionName, forwardCurveDefinitionName, fundingCurveDefinitionName,
         MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
@@ -281,23 +275,19 @@ public class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFunction.No
   }
 
   private ValueSpecification getForwardResultSpec(final ComputationTarget target, final Currency ccy) {
-    ValueProperties result = createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, ccy.getCode())
-        .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
+    ValueProperties result = createValueProperties().with(ValuePropertyNames.CURRENCY, ccy.getCode()).with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.CURVE, _forwardCurveName)
         .with(ValuePropertyNames.CALCULATION_METHOD, _useSABRExtrapolation ? SABRFunction.SABR_RIGHT_EXTRAPOLATION : SABRFunction.SABR_NO_EXTRAPOLATION).get();
     return new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), result);
   }
-  
+
   private ValueSpecification getFundingResultSpec(final ComputationTarget target, final Currency ccy) {
-    ValueProperties result = createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, ccy.getCode())
-        .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
+    ValueProperties result = createValueProperties().with(ValuePropertyNames.CURRENCY, ccy.getCode()).with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.CURVE, _fundingCurveName)
         .with(ValuePropertyNames.CALCULATION_METHOD, _useSABRExtrapolation ? SABRFunction.SABR_RIGHT_EXTRAPOLATION : SABRFunction.SABR_NO_EXTRAPOLATION).get();
     return new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), result);
   }
-  
+
   protected SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final YieldCurveBundle bundle) {
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
     final ValueRequirement surfacesRequirement = getCubeRequirement(target);
@@ -309,13 +299,13 @@ public class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFunction.No
     if (!surfaces.getCurrency().equals(currency)) {
       throw new OpenGammaRuntimeException("Don't know how this happened");
     }
-    final VolatilitySurface alphaSurface = surfaces.getAlphaSurface();
-    final VolatilitySurface betaSurface = surfaces.getBetaSurface();
-    final VolatilitySurface nuSurface = surfaces.getNuSurface();
-    final VolatilitySurface rhoSurface = surfaces.getRhoSurface();
+    final InterpolatedDoublesSurface alphaSurface = surfaces.getAlphaSurface();
+    final InterpolatedDoublesSurface betaSurface = surfaces.getBetaSurface();
+    final InterpolatedDoublesSurface nuSurface = surfaces.getNuSurface();
+    final InterpolatedDoublesSurface rhoSurface = surfaces.getRhoSurface();
     final DayCount dayCount = surfaces.getDayCount();
-    return _useSABRExtrapolation ? new SABRInterestRateDataBundle(new SABRInterestRateExtrapolationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, CUT_OFF, MU), bundle) :
-        new SABRInterestRateDataBundle(new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, SABR_FUNCTION), bundle);
+    return _useSABRExtrapolation ? new SABRInterestRateDataBundle(new SABRInterestRateExtrapolationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, CUT_OFF, MU), bundle)
+        : new SABRInterestRateDataBundle(new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, SABR_FUNCTION), bundle);
   }
 
 }
