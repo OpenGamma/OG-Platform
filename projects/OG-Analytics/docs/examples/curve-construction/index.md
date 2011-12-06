@@ -33,50 +33,26 @@ The [ColtMatrixAlgebra](/{{ OG_VERSION }}/java/javadocs/com/opengamma/math/matri
 {{ d['matrix-output.json']['matrixAlgebraDemo'] }}
 </pre>
 
-{{ d['CurveConstructionExample.java|idio']['identityMatrix'] }}
-
-Now we can create DoubleMatrix2D objects by passing these 2D arrays to the
-constructor:
-
-{{ d['CurveConstructionExample.java|idio']['matrixDemo'] }}
-
-<pre>
-{{ d['output.json']['matrixDemo'] }}
-</pre>
-
-We used Arrays.toString to print the array items, while DoubleMatrix2D has a
-nice toString method:
-
-{% set matrix_class = d['/jsondocs/javadoc-data.json|javadocs']['packages']['com.opengamma.math.matrix']['classes']['DoubleMatrix2D'] %}
-{{ matrix_class['methods']['toString()']['source-html'] }}
-
-Now we create a DoubleMatrix1D (a vector) and do some matrix multiplication:
-
-{{ d['CurveConstructionExample.java|idio']['matrixMultiplyDemo'] }}
-
-<pre>
-{{ d['output.json']['matrixMultiplyDemo'] }}
-</pre>
-
-We see that multiplication by the identity matrix preserves the vector, as we expect.
 
 ## Functions
 
-Now we want to work with some functions. Here is the polynomial we will work with:
+The [com.opengamma.math.function](/{{ OG_VERSION }}/java/javadocs/com/opengamma/math/function/package-summary.html) package includes the [Function](/{{ OG_VERSION }}/java/javadocs/com/opengamma/math/function/Function.html) interface. We will look at some examples of using this interface.
+
+Here is the polynomial we will work with:
 
 \\begin{eqnarray}
 f(x) &=& (x-5)^3 \\\\
 &=& x^3 - 15x^2 + 75x - 125
 \\end{eqnarray}
 
-We create a RealPolynomialFunction1D with these coefficients, verify that 5 is a zero, and take a derivative:
+We create a [RealPolynomialFunction1D](/{{ OG_VERSION }}/java/javadocs/com/opengamma/math/function/RealPolynomialFunction1D.html) with these coefficients, verify that 5 is a zero, and take a derivative:
 
-{{ d['CurveConstructionExample.java|idio']['polyDerivativeDemo'] }}
+{{ d['FunctionExample.java|idio']['polyDerivativeDemo'] }}
 
 Here are the coefficients of the derivative:
 
 <pre>
-{{ d['output.json']['polyDerivativeDemo'] }}
+{{ d['function-output.json']['polyDerivativeDemo'] }}
 </pre>
 
 ## Rootfinding

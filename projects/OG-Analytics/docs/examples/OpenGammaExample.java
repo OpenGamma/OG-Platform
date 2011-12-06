@@ -1,13 +1,10 @@
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.File;
 import java.io.FileWriter;
-import org.json.simple.JSONObject;
-import java.util.Arrays;
-import java.lang.reflect.Method;
+import java.io.PrintStream;
 import java.lang.Exception;
-import java.lang.Math;
+import java.lang.reflect.Method;
+import org.json.simple.JSONObject;
 
 public class OpenGammaExample {
     public static void runMethod(Method method, PrintStream out, ByteArrayOutputStream byteStream, JSONObject outputStreams) throws Exception {
