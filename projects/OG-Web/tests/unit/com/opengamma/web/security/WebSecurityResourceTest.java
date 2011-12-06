@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Maps;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.test.SecurityTestCaseMethods;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
@@ -38,9 +39,9 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
 
 /**
- * Test {@link WebSecuritiesResource}.
+ * Test {@link WebSecurityResource}.
  */
-public class WebSecuritiesResourceTest {
+public class WebSecurityResourceTest implements SecurityTestCaseMethods {
   
   private SecurityMaster _secMaster;
   private SecurityLoader _secLoader;
@@ -96,6 +97,154 @@ public class WebSecuritiesResourceTest {
     String expectedJsonStr = FileUtils.readFileToString(new File(jsonResource.getPath()));
     JSONObject expectedJson = new JSONObject(expectedJsonStr);
     return expectedJson;
+  }
+
+  @Override
+  public void testCorporateBondSecurity() {
+  }
+
+  @Override
+  public void testGovernmentBondSecurity() {
+  }
+
+  @Override
+  public void testMunicipalBondSecurity() {
+  }
+
+  @Override
+  public void testCashSecurity() {
+  }
+
+  @Test
+  @Override
+  public void testEquitySecurity() throws Exception {
+    assertGetSecurity(WebSecuritiesResourceTestUtils.getEquitySecurity());
+  }
+
+  @Override
+  public void testFRASecurity() {
+  }
+
+  @Override
+  public void testAgricultureFutureSecurity() {
+  }
+
+  @Test
+  @Override
+  public void testBondFutureSecurity() throws Exception {
+    assertGetSecurity(WebSecuritiesResourceTestUtils.getBondFutureSecurity());
+  }
+
+  @Override
+  public void testEnergyFutureSecurity() {
+  }
+
+  @Override
+  public void testFXFutureSecurity() {
+  }
+
+  @Override
+  public void testNonDeliverableFXForwardSecurity() {
+  }
+
+  @Override
+  public void testIndexFutureSecurity() {
+  }
+
+  @Override
+  public void testInterestRateFutureSecurity() {
+  }
+
+  @Override
+  public void testMetalFutureSecurity() {
+  }
+
+  @Override
+  public void testStockFutureSecurity() {
+  }
+
+  @Override
+  public void testEquityOptionSecurity() {
+  }
+
+  @Override
+  public void testEquityBarrierOptionSecurity() {
+  }
+
+  @Override
+  public void testIRFutureOptionSecurity() {
+  }
+
+  @Override
+  public void testEquityIndexDividendFutureOptionSecurity() {
+  }
+
+  @Override
+  public void testFXOptionSecurity() {
+  }
+
+  @Override
+  public void testNonDeliverableFXOptionSecurity() {
+  }
+
+  @Override
+  public void testFXBarrierOptionSecurity() {
+  }
+
+  @Override
+  public void testSwaptionSecurity() {
+  }
+
+  @Override
+  public void testForwardSwapSecurity() {
+  }
+
+  @Override
+  public void testSwapSecurity() {
+  }
+
+  @Override
+  public void testEquityIndexOptionSecurity() {
+  }
+
+  @Override
+  public void testFXSecurity() {
+  }
+
+  @Override
+  public void testFXForwardSecurity() {
+  }
+
+  @Override
+  public void testCapFloorSecurity() {
+  }
+
+  @Override
+  public void testCapFloorCMSSpreadSecurity() {
+  }
+
+  @Override
+  public void testRawSecurity() {
+  }
+
+  @Override
+  public void testEquityVarianceSwapSecurity() {
+  }
+  
+  private void assertGetSecurity(FinancialSecurity finSecurity) throws Exception {
+    assertNotNull(finSecurity);
+    UniqueId uniqueId = _sec2UniqueId.get(finSecurity);
+    assertNotNull(uniqueId);
+    
+    WebSecurityResource securityResource = _webSecuritiesResource.findSecurity(uniqueId.toString());
+    assertNotNull(securityResource);
+    String json = securityResource.getJSON();
+    assertNotNull(json);
+    JSONObject actualJson = new JSONObject(json); 
+    
+    JSONObject expectedJson = finSecurity.accept(new ExpectedSecurityJsonProvider());
+    assertNotNull(expectedJson);
+    assertEquals(expectedJson.toString(), actualJson.toString());
   }
   
 }
