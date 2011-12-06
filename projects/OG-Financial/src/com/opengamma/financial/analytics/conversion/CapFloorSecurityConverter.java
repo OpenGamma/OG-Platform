@@ -20,7 +20,7 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCapFloorCMSDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCapFloorIborDefinition;
-import com.opengamma.financial.instrument.index.CMSIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurityVisitor;
@@ -66,7 +66,7 @@ public class CapFloorSecurityConverter implements CapFloorSecurityVisitor<Instru
       return AnnuityCapFloorIborDefinition.from(settlementDate, maturityDate, notional, index, dayCount, getTenor(tenor), isPayer, strike, isCap);
     } 
     final Period period = getTenor(tenor);
-    final CMSIndex cmsIndex = new CMSIndex(period, dayCount, index, period); //TODO two periods correct?
+    final IndexSwap cmsIndex = new IndexSwap(period, dayCount, index, period); //TODO two periods correct?
     return AnnuityCapFloorCMSDefinition.from(settlementDate, maturityDate, notional, cmsIndex, getTenor(tenor), dayCount, isPayer, strike, isCap);
   }
 

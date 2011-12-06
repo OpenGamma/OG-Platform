@@ -72,6 +72,7 @@ public class ForexNonDeliverableOptionBlackMethodTest {
 
   private static final ForexNonDeliverableOptionBlackMethod METHOD_NDO = ForexNonDeliverableOptionBlackMethod.getInstance();
   private static final ForexOptionVanillaBlackMethod METHOD_FXO = ForexOptionVanillaBlackMethod.getInstance();
+  private static final ForexNonDeliverableForwardDiscountingMethod METHOD_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
   private static final PresentValueBlackForexCalculator PVC_BLACK = PresentValueBlackForexCalculator.getInstance();
   private static final CurrencyExposureBlackForexCalculator CE_BLACK = CurrencyExposureBlackForexCalculator.getInstance();
 
@@ -146,6 +147,16 @@ public class ForexNonDeliverableOptionBlackMethodTest {
     MultipleCurrencyInterestRateCurveSensitivity pvcsNDO = METHOD_NDO.presentValueCurveSensitivity(NDO, SMILE_BUNDLE);
     MultipleCurrencyInterestRateCurveSensitivity pvcsFXO = METHOD_FXO.presentValueCurveSensitivity(FOREX_OPT, SMILE_BUNDLE);
     assertTrue("Forex non-deliverable option: present value curve sensitivity", InterestRateCurveSensitivity.compare(pvcsFXO.getSensitivity(USD), pvcsNDO.getSensitivity(USD), tolerance));
+  }
+
+  @Test
+  /**
+   * Tests the forward rate of NDO.
+   */
+  public void forwardForexRate() {
+    double fwd = METHOD_NDO.forwardForexRate(NDO, SMILE_BUNDLE);
+    double fwdExpected = METHOD_NDF.forwardForexRate(NDO.getUnderlyingNDF(), SMILE_BUNDLE);
+    assertEquals("Forex non-deliverable option: forward rate", fwdExpected, fwd, 1.0E-10);
   }
 
   @Test

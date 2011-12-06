@@ -12,7 +12,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.InstrumentDefinitionWithData;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthly;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -72,7 +72,7 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    */
   public CouponInflationZeroCouponMonthlyDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double paymentYearFraction,
-      double notional, PriceIndex priceIndex, int monthLag, ZonedDateTime referenceStartDate, double indexStartValue, ZonedDateTime referenceEndDate, ZonedDateTime fixingEndDate, 
+      double notional, IndexPrice priceIndex, int monthLag, ZonedDateTime referenceStartDate, double indexStartValue, ZonedDateTime referenceEndDate, ZonedDateTime fixingEndDate, 
       boolean payNotional) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
     Validate.notNull(referenceStartDate, "Reference start date");
@@ -99,7 +99,7 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
    * @param fixingEndDate The date on which the end index is expected to be known.
    * @return The coupon.
    */
-  public static CouponInflationZeroCouponMonthlyDefinition from(ZonedDateTime accrualStartDate, ZonedDateTime paymentDate, double notional, PriceIndex priceIndex, int monthLag,
+  public static CouponInflationZeroCouponMonthlyDefinition from(ZonedDateTime accrualStartDate, ZonedDateTime paymentDate, double notional, IndexPrice priceIndex, int monthLag,
       double indexStartValue, ZonedDateTime referenceEndDate, ZonedDateTime fixingEndDate) {
     Validate.notNull(priceIndex, "Price index");
     return new CouponInflationZeroCouponMonthlyDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, monthLag, accrualStartDate, indexStartValue,
@@ -117,7 +117,7 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    * @return The inflation zero-coupon.
    */
-  public static CouponInflationZeroCouponMonthlyDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional, final PriceIndex priceIndex,
+  public static CouponInflationZeroCouponMonthlyDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional, final IndexPrice priceIndex,
       final double indexStartValue, final int monthLag, boolean payNotional) {
     ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(monthLag);
     ZonedDateTime referenceEndDate = paymentDate.minusMonths(monthLag);

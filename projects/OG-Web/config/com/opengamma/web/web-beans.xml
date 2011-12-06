@@ -198,6 +198,8 @@
   <bean id="webSecuritiesRestBean" class="com.opengamma.web.security.WebSecuritiesResource" scope="request">
     <constructor-arg ref="dbSecurityMaster" />
     <constructor-arg ref="securityLoader"/>
+    <constructor-arg ref="dbHtsMaster"/>
+    <constructor-arg ref="sharedConfigSource"/>
   </bean>
   
   <!-- Portfolios RESTful service -->

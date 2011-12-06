@@ -18,7 +18,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
@@ -37,10 +37,10 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
   private static final MarketBundle MARKET = MarketDataSets.createMarket1();
-  private static final PriceIndex[] PRICE_INDEXES = MarketDataSets.getPriceIndexes();
-  private static final PriceIndex PRICE_INDEX_EUR = PRICE_INDEXES[0];
+  private static final IndexPrice[] PRICE_INDEXES = MarketDataSets.getPriceIndexes();
+  private static final IndexPrice PRICE_INDEX_EUR = PRICE_INDEXES[0];
   //  private static final PriceIndex PRICE_INDEX_UK = PRICE_INDEXES[1];
-  private static final PriceIndex PRICE_INDEX_US = PRICE_INDEXES[2];
+  private static final IndexPrice PRICE_INDEX_US = PRICE_INDEXES[2];
   private static final IborIndex[] IBOR_INDEXES = MarketDataSets.getIborIndexes();
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
   //  private static final IborIndex EURIBOR6M = IBOR_INDEXES[1];

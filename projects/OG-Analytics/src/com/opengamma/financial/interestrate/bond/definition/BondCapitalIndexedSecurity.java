@@ -9,7 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.yield.YieldConvention;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflation;
@@ -109,7 +109,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * Gets the price index associated to the bond.
    * @return The price index.
    */
-  public PriceIndex getPriceIndex() {
+  public IndexPrice getPriceIndex() {
     return _settlement.getPriceIndex();
   }
 

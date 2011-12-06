@@ -19,7 +19,7 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.instrument.inflation.CouponInflationDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationGearing;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
@@ -76,7 +76,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
   /**
    * The price index associated to the bond.
    */
-  private final PriceIndex _priceIndex;
+  private final IndexPrice _priceIndex;
 
   /**
    * Constructor of the Capital inflation indexed bond. The repo type is set to "". 
@@ -156,7 +156,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
    * @param issuer The bond issuer name.
    * @return The bond.
    */
-  public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> fromMonthly(final PriceIndex priceIndex, final int monthLag, ZonedDateTime startDate,
+  public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> fromMonthly(final IndexPrice priceIndex, final int monthLag, ZonedDateTime startDate,
       double indexStartValue, ZonedDateTime maturityDate, Period couponPeriod, double notional, double realRate, BusinessDayConvention businessDay, int settlementDays, Calendar calendar,
       DayCount dayCount, YieldConvention yieldConvention, boolean isEOM, String issuer) {
     // Nominal construction
@@ -199,7 +199,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
    * @param issuer The bond issuer name.
    * @return The bond.
    */
-  public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> fromMonthly(final PriceIndex priceIndex, final int monthLag, ZonedDateTime startDate,
+  public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> fromMonthly(final IndexPrice priceIndex, final int monthLag, ZonedDateTime startDate,
       double indexStartValue, ZonedDateTime firstCouponDate, ZonedDateTime maturityDate, Period couponPeriod, double notional, double realRate, BusinessDayConvention businessDay, int settlementDays,
       Calendar calendar, DayCount dayCount, YieldConvention yieldConvention, boolean isEOM, String issuer) {
     // Nominal construction
@@ -243,7 +243,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
    * @param issuer The bond issuer name.
    * @return The bond.
    */
-  public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> fromInterpolation(final PriceIndex priceIndex, final int monthLag,
+  public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> fromInterpolation(final IndexPrice priceIndex, final int monthLag,
       ZonedDateTime startDate, double indexStartValue, ZonedDateTime maturityDate, Period couponPeriod, double notional, double realRate, BusinessDayConvention businessDay, int settlementDays,
       Calendar calendar, DayCount dayCount, YieldConvention yieldConvention, boolean isEOM, String issuer) {
     // Nominal construction
@@ -317,7 +317,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
    * Gets the price index associated to the bond.
    * @return The price index.
    */
-  public PriceIndex getPriceIndex() {
+  public IndexPrice getPriceIndex() {
     return _priceIndex;
   }
 

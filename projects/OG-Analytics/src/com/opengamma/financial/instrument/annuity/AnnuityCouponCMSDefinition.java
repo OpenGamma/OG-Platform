@@ -11,7 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.instrument.index.CMSIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 
@@ -40,7 +40,7 @@ public class AnnuityCouponCMSDefinition extends AnnuityDefinition<CouponCMSDefin
    * @param isPayer Payer (true) / receiver (false) flag.
    * @return The CMS coupon leg.
    */
-  public static AnnuityCouponCMSDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final double notional, final CMSIndex index, final Period paymentPeriod,
+  public static AnnuityCouponCMSDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final double notional, final IndexSwap index, final Period paymentPeriod,
       final DayCount dayCount, final boolean isPayer) {
     Validate.notNull(settlementDate, "settlement date");
     Validate.notNull(maturityDate, "maturity date");
