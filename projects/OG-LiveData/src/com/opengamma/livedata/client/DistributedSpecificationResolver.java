@@ -23,6 +23,7 @@ import com.opengamma.livedata.msg.ResolveResponse;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Maps client LiveData IDs to server LiveData IDs by contacting a remote LiveData server. 
@@ -35,7 +36,7 @@ public class DistributedSpecificationResolver {
   private final FudgeContext _fudgeContext;
   
   public DistributedSpecificationResolver(FudgeRequestSender requestSender) {
-    this(requestSender, new FudgeContext());
+    this(requestSender, OpenGammaFudgeContext.getInstance());
   }
   
   public DistributedSpecificationResolver(FudgeRequestSender requestSender, FudgeContext fudgeContext) {

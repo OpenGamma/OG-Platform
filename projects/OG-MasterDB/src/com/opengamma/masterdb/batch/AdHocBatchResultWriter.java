@@ -12,19 +12,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.view.ViewComputationResultModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.financial.conversion.ResultConverter;
 import com.opengamma.financial.conversion.ResultConverterCache;
 import com.opengamma.util.db.DbConnector;
-
-import static com.opengamma.util.functional.Functional.reverseMap;
 
 /**
  * This writer is used to write risk that originates from an ad hoc batch job.

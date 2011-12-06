@@ -22,7 +22,6 @@ import com.opengamma.financial.view.rest.DataViewProcessorsResource;
  */
 @Path("/data/marketDataSnapshotters")
 public class MarketDataSnapshottersResource {
-  //private final Map<UniqueId, MarketDataSnapshotterResource> _resourceMap = new HashMap<UniqueId, MarketDataSnapshotterResource>();
   private final DataViewProcessorsResource _processors;
   private final VolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
   
@@ -39,6 +38,6 @@ public class MarketDataSnapshottersResource {
   
   @GET
   public Response get() {
-    return _processors.get();
+    return Response.ok().build();
   }
 }
