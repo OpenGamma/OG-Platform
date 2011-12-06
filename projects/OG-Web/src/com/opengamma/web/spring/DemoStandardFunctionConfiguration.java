@@ -31,8 +31,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.aggregation.BottomPositionValues;
 import com.opengamma.financial.aggregation.SortedPositionValues;
 import com.opengamma.financial.aggregation.TopPositionValues;
-import com.opengamma.financial.analytics.DummyLabelledMatrix2DPortfolioNodeFunction;
-import com.opengamma.financial.analytics.DummyLabelledMatrix2DPositionFunction;
 import com.opengamma.financial.analytics.DummyPortfolioNodeFunction;
 import com.opengamma.financial.analytics.DummyPortfolioNodeMultipleCurrencyAmountFunction;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
@@ -120,12 +118,14 @@ import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFuture
 import com.opengamma.financial.analytics.model.option.AnalyticOptionDefaultCurveFunction;
 import com.opengamma.financial.analytics.model.option.BlackScholesMertonModelFunction;
 import com.opengamma.financial.analytics.model.option.BlackScholesModelCostOfCarryFunction;
+import com.opengamma.financial.analytics.model.pnl.EquityPnLDefaultPropertyFunction;
 import com.opengamma.financial.analytics.model.pnl.EquityPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.PortfolioExchangeTradedDailyPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.PortfolioExchangeTradedPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.PositionExchangeTradedDailyPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.PositionExchangeTradedPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.PositionValueGreekSensitivityPnLFunction;
+import com.opengamma.financial.analytics.model.pnl.SecurityPriceSeriesDefaultPropertyFunction;
 import com.opengamma.financial.analytics.model.pnl.SecurityPriceSeriesFunction;
 import com.opengamma.financial.analytics.model.pnl.TradeExchangeTradedDailyPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.TradeExchangeTradedPnLFunction;
@@ -327,8 +327,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(TradeExchangeTradedPnLFunction.class, DEFAULT_CONFIG_NAME, LAST_PRICE, "COST_OF_CARRY"));
     functionConfigs.add(functionConfiguration(TradeExchangeTradedDailyPnLFunction.class, DEFAULT_CONFIG_NAME, LAST_PRICE, "COST_OF_CARRY"));
     functionConfigs.add(functionConfiguration(PositionExchangeTradedDailyPnLFunction.class, DEFAULT_CONFIG_NAME, LAST_PRICE, "COST_OF_CARRY"));
-    functionConfigs.add(functionConfiguration(SecurityPriceSeriesFunction.class, DEFAULT_CONFIG_NAME, LAST_PRICE, startDate, scheduleName, samplingCalculatorName));
-    functionConfigs.add(functionConfiguration(EquityPnLFunction.class, returnCalculatorName));
+    functionConfigs.add(functionConfiguration(SecurityPriceSeriesFunction.class, DEFAULT_CONFIG_NAME, LAST_PRICE));
+    functionConfigs.add(functionConfiguration(SecurityPriceSeriesDefaultPropertyFunction.class, "P2Y", ScheduleCalculatorFactory.DAILY, 
+        TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING));
+    functionConfigs.add(functionConfiguration(EquityPnLFunction.class));
+    functionConfigs.add(functionConfiguration(EquityPnLDefaultPropertyFunction.class, TimeSeriesReturnCalculatorFactory.SIMPLE_NET_STRICT));
     functionConfigs.add(functionConfiguration(PositionHistoricalVaRCalculatorFunction.class, StatisticsCalculatorFactory.MEAN, StatisticsCalculatorFactory.SAMPLE_STANDARD_DEVIATION, "0.99"));
     functionConfigs.add(functionConfiguration(PortfolioHistoricalVaRCalculatorFunction.class, StatisticsCalculatorFactory.MEAN, StatisticsCalculatorFactory.SAMPLE_STANDARD_DEVIATION, "0.99"));
     functionConfigs.add(functionConfiguration(OptionPositionParametricVaRCalculatorFunction.class, DEFAULT_CONFIG_NAME, startDate, returnCalculatorName, scheduleName, samplingCalculatorName, "0.99",
@@ -356,9 +359,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(PositionWeightFromNAVFunction.class, "56000000"));
 
     addFixedIncomeInstrumentCalculators(functionConfigs);
-    // Something to return a LabelledMatrix2D
-    functionConfigs.add(functionConfiguration(DummyLabelledMatrix2DPositionFunction.class));
-    functionConfigs.add(functionConfiguration(DummyLabelledMatrix2DPortfolioNodeFunction.class));
 
     functionConfigs.add(functionConfiguration(StandardEquityModelFunction.class));
     addBondCalculators(functionConfigs);
