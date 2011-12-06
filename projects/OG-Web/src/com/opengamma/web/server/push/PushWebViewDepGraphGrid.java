@@ -46,14 +46,25 @@ public class PushWebViewDepGraphGrid extends PushWebViewGrid {
 
   private final AtomicBoolean _init = new AtomicBoolean();
   private final IntSet _historyOutputs = new IntOpenHashSet();
+  private final WebGridCell _parentGridCell;
+  private final String _parentCalcConfigName;
+  private final ValueSpecification _parentValueSpecification;
   private final Set<ValueSpecification> _typedRows = new HashSet<ValueSpecification>();
 
   private Map<ValueSpecification, IntSet> _rowIdMap;
   private List<Object> _rowStructure;
   private ComputationCacheQuery _cacheQuery;
-  
-  protected PushWebViewDepGraphGrid(String name, ViewClient viewClient, ResultConverterCache resultConverterCache) {
+
+  protected PushWebViewDepGraphGrid(String name,
+                                    ViewClient viewClient,
+                                    ResultConverterCache resultConverterCache,
+                                    WebGridCell parentGridCell,
+                                    String parentCalcConfigName,
+                                    ValueSpecification parentValueSpecification) {
     super(name, viewClient, resultConverterCache);
+    _parentGridCell = parentGridCell;
+    _parentCalcConfigName = parentCalcConfigName;
+    _parentValueSpecification = parentValueSpecification;
   }
   
   //-------------------------------------------------------------------------
@@ -86,6 +97,18 @@ public class PushWebViewDepGraphGrid extends PushWebViewGrid {
     return true;
   }
   
+  /*package*/ WebGridCell getParentGridCell() {
+    return _parentGridCell;
+  }
+
+  /*package*/ String getParentCalcConfigName() {
+    return _parentCalcConfigName;
+  }
+
+  /*package*/ ValueSpecification getParentValueSpecification() {
+    return _parentValueSpecification;
+  }
+
   private List<Object> generateRowStructure(DependencyGraph depGraph, ValueSpecification output, Map<ValueSpecification, IntSet> rowIdMap) {
     List<Object> rowStructure = new ArrayList<Object>();
     addRowIdAssociation(0, output, rowIdMap);

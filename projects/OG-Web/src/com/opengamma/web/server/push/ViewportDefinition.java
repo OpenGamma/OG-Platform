@@ -37,7 +37,7 @@ public class ViewportDefinition {
   private static final String ROWS = "rows";
   private static final String MARKET_DATA_TYPE = "marketDataType";
   private static final String MARKET_DATA_PROVIDER = "marketDataProvider";
-  public static final String DEFAULT_LIVE_MARKET_DATA_NAME = "Automatic";
+  private static final String DEFAULT_LIVE_MARKET_DATA_NAME = "Automatic";
 
   /** Row timestamp keyed on row number */
   private final SortedMap<Integer, Long> _portfolioRowTimstamps;

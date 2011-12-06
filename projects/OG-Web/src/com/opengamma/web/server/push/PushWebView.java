@@ -92,13 +92,11 @@ public class PushWebView implements Viewport {
   // TODO make sure an update event is published when the view defs compile?
   private void initGrids(CompiledViewDefinition compiledViewDefinition) {
     synchronized (_lock) {
-      // TODO grid now needs a local and remote cometd Client - need to see what they're used for and implement it
-      WebViewPortfolioGrid portfolioGrid = null;//new WebViewPortfolioGrid(_viewClient, compiledViewDefinition, _resultConverterCache);
+      PushWebViewPortfolioGrid portfolioGrid =
+          new PushWebViewPortfolioGrid(_viewClient, compiledViewDefinition, _resultConverterCache);
 
       _gridStructures = new HashMap<String, Object>();
 
-      // TODO package-scoped and package has changed
-/*
       if (portfolioGrid.getGridStructure().isEmpty()) {
         _portfolioGrid = null;
       } else {
@@ -106,10 +104,10 @@ public class PushWebView implements Viewport {
         _gridStructures.put("portfolio", _portfolioGrid.getInitialJsonGridStructure());
         _gridStructures.put("portfolio", _portfolioGrid.getInitialJsonGridStructure());
       }
-*/
 
-      // TODO package-scoped and package has changed
-      PushRequirementBasedWebViewGrid primitivesGrid = null;//new WebViewPrimitivesGrid(_viewClient, compiledViewDefinition, _resultConverterCache);
+      PushRequirementBasedWebViewGrid primitivesGrid =
+          new PushWebViewPrimitivesGrid(_viewClient, compiledViewDefinition, _resultConverterCache);
+
       if (primitivesGrid.getGridStructure().isEmpty()) {
         _primitivesGrid = null;
       } else {
@@ -232,6 +230,7 @@ public class PushWebView implements Viewport {
             }
         }
       }
+      // TODO on master the call to handle the dep graphs has moved to the equivalent of this point - put the dep graphs in _latestResults?
       _latestResults.clear();
       _latestResults.put("portfolio", portfolioResult);
       _latestResults.put("primitive", primitiveResult);
@@ -242,7 +241,7 @@ public class PushWebView implements Viewport {
     }
   }
 
-  // TODO this logic need to go in configureViewport
+  // TODO this logic needs to go in configureViewport
   private void setIncludeDepGraph(WebGridCell cell, boolean includeDepGraph) {
     // TODO this is ugly, the dep graph count belongs in the portfolio grid
     if (includeDepGraph) {

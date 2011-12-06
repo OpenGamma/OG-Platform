@@ -22,6 +22,7 @@ import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.RequirementBasedColumnKey;
 import com.opengamma.web.server.RequirementBasedGridStructure;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -62,89 +64,143 @@ public abstract class PushRequirementBasedWebViewGrid extends PushWebViewGrid {
   protected PushRequirementBasedWebViewGrid(String name,
                                             ViewClient viewClient,
                                             CompiledViewDefinition compiledViewDefinition,
-                                            List<UniqueId> targets,
+                                            List<ComputationTargetSpecification> targets,
                                             EnumSet<ComputationTargetType> targetTypes,
                                             ResultConverterCache resultConverterCache,
                                             String nullCellValue) {
     super(name, viewClient, resultConverterCache);
     
     List<RequirementBasedColumnKey> requirements = getRequirements(compiledViewDefinition.getViewDefinition(), targetTypes);
-    // TODO signature has changed - targets needs to be a List<ComputationTargetSpecification>
-    //_gridStructure = new RequirementBasedGridStructure(compiledViewDefinition, targetTypes, requirements, targets);
-    _gridStructure = null;
+    _gridStructure = new RequirementBasedGridStructure(compiledViewDefinition, targetTypes, requirements, targets);
     _nullCellValue = nullCellValue;
   }
   
   //-------------------------------------------------------------------------
 
-  // publishes results to the client TODO would it be better if it returned the value?
-
   /**
+   * @param target The target whose result is required
+   * @param resultModel The model containing the results
+   * @param resultTimestamp The timestamp of the results
    * @return {@code {"rowId": rowId, "0": col0Val, "1": col1Val, ...}}
-   * cell values: {"v": value, "h": [historyVal1, historyVal2, ...], "dg", depGraph}
+   * cell values: {@code {"v": value, "h": [historyVal1, historyVal2, ...]}}
    */
   public Map<String, Object> getTargetResult(ComputationTargetSpecification target,
                                              ViewTargetResultModel resultModel,
                                              Long resultTimestamp) {
-    // TODO signature has changed
-    Integer rowId = null;//getGridStructure().getRowId(target.getUniqueId());
+    Integer rowId = getGridStructure().getRowId(target);
     if (rowId == null) {
       // Result not in the grid
-      return null; // TODO empty map?
+      return Collections.emptyMap();
     }
 
-    Map<String, Object> valuesToSend = createDefaultTargetResult(rowId);
-    
+    Map<String, Object> valuesToSend = createTargetResult(rowId);
+    // insert nulls into the results for cells which are unsatisfied in the dependency graph
+    for (Integer unsatisfiedColId : getGridStructure().getUnsatisfiedCells(rowId)) {
+      valuesToSend.put(Integer.toString(unsatisfiedColId), null);
+    }
+
     // Whether or not the row is in the viewport, we may have to store history
-    for (String calcConfigName : resultModel.getCalculationConfigurationNames()) {
-      
-      for (ComputedValue value : resultModel.getAllValues(calcConfigName)) {
-        ValueSpecification specification = value.getSpecification();
-        Collection<WebViewGridColumn> columns = getGridStructure().getColumns(calcConfigName, specification);
-        if (columns == null) {
-          // Expect a column for every value
-          s_logger.warn("Could not find column for calculation configuration {} with value specification {}", calcConfigName, specification);
-          continue;
-        }
-        
-        Object originalValue = value.getValue();        
-        for (WebViewGridColumn column : columns) {
-          int colId = column.getId();
-          WebGridCell cell = WebGridCell.of(rowId, colId);
-          ResultConverter<Object> converter;
-          if (originalValue == null) {
-            converter = null;
-          } else {
-            converter = getConverter(column, value.getSpecification().getValueName(), originalValue.getClass());
+    if (resultModel != null) {
+      for (String calcConfigName : resultModel.getCalculationConfigurationNames()) {
+        for (ComputedValue value : resultModel.getAllValues(calcConfigName)) {
+          ValueSpecification specification = value.getSpecification();
+          Collection<WebViewGridColumn> columns = getGridStructure().getColumns(calcConfigName, specification);
+          if (columns == null) {
+            // Expect a column for every value
+            s_logger.warn("Could not find column for calculation configuration {} with value specification {}", calcConfigName, specification);
+            continue;
           }
-          // TODO signature has changed
-          Map<String, Object> cellData = null;//getCellValue(cell, specification, originalValue, resultTimestamp, converter);
-          Object depGraph = getDepGraphIfRequested(cell, calcConfigName, specification, resultTimestamp);
-          if (depGraph != null) {
-            if (cellData == null) {
-              cellData = new HashMap<String, Object>();
+
+          Object originalValue = value.getValue();
+          for (WebViewGridColumn column : columns) {
+            int colId = column.getId();
+            WebGridCell cell = WebGridCell.of(rowId, colId);
+            ResultConverter<Object> converter;
+            if (originalValue == null) {
+              converter = null;
+            } else {
+              converter = getConverter(column, value.getSpecification().getValueName(), originalValue.getClass());
             }
-            cellData.put("dg", depGraph);
-          }
-          if (cellData != null) {
-            valuesToSend.put(Integer.toString(colId), cellData);
+            Map<String, Object> cellData = getCellValue(cell, specification, originalValue, resultTimestamp, converter);
+            if (cellData != null) {
+              valuesToSend.put(Integer.toString(colId), cellData);
+            }
           }
         }
       }
     }
-    return valuesToSend; // TODO empty map if null?
-  }
-  
-  private Map<String, Object> createDefaultTargetResult(Integer rowId) {
-    Map<String, Object> valuesToSend;
-    valuesToSend = new HashMap<String, Object>();
-    valuesToSend.put("rowId", rowId);
-    for (Integer unsatisfiedColId : getGridStructure().getUnsatisfiedCells(rowId)) {
-      valuesToSend.put(Integer.toString(unsatisfiedColId), null);
-    }
     return valuesToSend;
   }
 
+  /**
+   * Creates a blank set of results for a row.
+   * @param rowId The zero-based index of the row
+   * @return {@code {rowId: rowId}}
+   */
+  private Map<String, Object> createTargetResult(Integer rowId) {
+    Map<String, Object> valuesToSend = new HashMap<String, Object>();
+    valuesToSend.put("rowId", rowId);
+    return valuesToSend;
+  }
+
+  // TODO return type? need to define the JSON structure, there's no equivalent in the old code, the data is sent a piece at a time
+
+  /**
+   * Returns all the dependency graphs for the grid.
+   * @param resultTimestamp Timestamp of the set of results
+   * @return {@code [{rowId: rowId1, dg, depGraph1}, {rowId: rowId2, dg, depGraph2}, ...]}
+   */
+  public List<Map<String, Object>> getDepGraphs(long resultTimestamp) {
+    if (_depGraphGrids.isEmpty()) {
+      return Collections.emptyList();
+    }
+    // TODO: this may not be the cycle corresponding to the result - some tracking of cycle IDs required
+    EngineResourceReference<? extends ViewCycle> cycleReference = getViewClient().createLatestCycleReference();
+    if (cycleReference == null) {
+      // Unable to get a cycle reference - perhaps no cycle has completed since enabling introspection
+      s_logger.warn("Unable to get a cycle reference");
+      return Collections.emptyList();
+    }
+    List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+
+    try {
+      for (PushWebViewDepGraphGrid depGraphGrid : _depGraphGrids.values()) {
+        Object gridStructure = null;
+        if (!depGraphGrid.isInit()) {
+          String calcConfigName = depGraphGrid.getParentCalcConfigName();
+          ValueSpecification valueSpecification = depGraphGrid.getParentValueSpecification();
+          DependencyGraphExplorer explorer = cycleReference.get().getCompiledViewDefinition().getDependencyGraphExplorer(calcConfigName);
+          DependencyGraph subgraph = explorer.getSubgraphProducing(valueSpecification);
+          if (subgraph == null) {
+            s_logger.warn("No subgraph producing value specification {}", valueSpecification);
+            continue;
+          }
+          if (depGraphGrid.init(subgraph, calcConfigName, valueSpecification)) {
+            gridStructure = depGraphGrid.getInitialJsonGridStructure();
+          }
+        }
+        Map<String, Object> depGraph = depGraphGrid.processViewCycle(cycleReference.get(), resultTimestamp);
+        Object depGraphMessage;
+        if (gridStructure != null) {
+          Map<String, Object> structureMessage = new HashMap<String, Object>();
+          structureMessage.put("grid", gridStructure);
+          structureMessage.put("update", depGraph);
+          depGraphMessage = structureMessage;
+        } else {
+          depGraphMessage = depGraph;
+        }
+        Map<String, Object> valuesToSend = createTargetResult(depGraphGrid.getParentGridCell().getRowId());
+        Map<String, Object> columnMessage = new HashMap<String, Object>();
+        columnMessage.put("dg", depGraphMessage);
+        valuesToSend.put(Integer.toString(depGraphGrid.getParentGridCell().getColumnId()), columnMessage);
+        results.add(valuesToSend);
+      }
+    } finally {
+      cycleReference.release();
+    }
+    return results;
+  }
+  
   // TODO this publishes to the client. not nice for a method named get*
   @SuppressWarnings("unchecked")
   private ResultConverter<Object> getConverter(WebViewGridColumn column, String valueName, Class<?> valueType) {
@@ -167,17 +223,14 @@ public abstract class PushRequirementBasedWebViewGrid extends PushWebViewGrid {
   @Override
   protected List<Object> getInitialJsonRowStructures() {
     List<Object> rowStructures = new ArrayList<Object>();
-    // TODO signature has changed
-/*
-    for (Map.Entry<UniqueId, Integer> targetEntry : getGridStructure().getTargets().entrySet()) {
+    for (Map.Entry<ComputationTargetSpecification, Integer> targetEntry : getGridStructure().getTargets().entrySet()) {
       Map<String, Object> rowDetails = new HashMap<String, Object>();
-      UniqueId target = targetEntry.getKey();
+      UniqueId target = targetEntry.getKey().getUniqueId();
       int rowId = targetEntry.getValue();
       rowDetails.put("rowId", rowId);
       addRowDetails(target, rowId, rowDetails);
       rowStructures.add(rowDetails);
     }
-*/
     return rowStructures;
   }
   
@@ -243,54 +296,23 @@ public abstract class PushRequirementBasedWebViewGrid extends PushWebViewGrid {
   }
 
   // TODO move this logic to updateDepGraphCells
+  // TODO where was / should this be called from?
   public PushWebViewGrid setIncludeDepGraph(WebGridCell cell, boolean includeDepGraph) {
     if (includeDepGraph) {
       String gridName = getName() + ".depgraph-" + cell.getRowId() + "-" + cell.getColumnId();      
-      PushWebViewDepGraphGrid grid = new PushWebViewDepGraphGrid(gridName, getViewClient(), getConverterCache());
+      OperationTimer timer = new OperationTimer(s_logger, "depgraph");
+      Pair<String, ValueSpecification> columnMappingPair = getGridStructure().findCellSpecification(cell, getViewClient().getLatestCompiledViewDefinition());
+      s_logger.debug("includeDepGraph took {}", timer.finished());
+      PushWebViewDepGraphGrid grid = new PushWebViewDepGraphGrid(gridName,
+                                                                 getViewClient(),
+                                                                 getConverterCache(),
+                                                                 cell,
+                                                                 columnMappingPair.getFirst(),
+                                                                 columnMappingPair.getSecond());
       _depGraphGrids.putIfAbsent(cell, grid);
       return grid;
     } else {
       return _depGraphGrids.remove(cell);
-    }
-  }
-  
-  private Object getDepGraphIfRequested(WebGridCell cell, String calcConfigName, ValueSpecification valueSpecification, Long resultTimestamp) {
-    PushWebViewDepGraphGrid depGraphGrid = _depGraphGrids.get(cell);
-    if (depGraphGrid == null) {
-      return null;
-    }
-    
-    // TODO: this may not be the cycle corresponding to the result - some tracking of cycle IDs required
-    EngineResourceReference<? extends ViewCycle> cycleReference = getViewClient().createLatestCycleReference();
-    if (cycleReference == null) {
-      // Unable to get a cycle reference - perhaps no cycle has completed since enabling introspection
-      return null;
-    }
-    
-    try {
-      Object gridStructure = null;
-      if (!depGraphGrid.isInit()) {
-        DependencyGraphExplorer explorer = cycleReference.get().getCompiledViewDefinition().getDependencyGraphExplorer(calcConfigName);
-        DependencyGraph subgraph = explorer.getSubgraphProducing(valueSpecification);
-        if (subgraph == null) {
-          s_logger.warn("No subgraph producing value specification {}", valueSpecification);
-          return null;
-        }
-        if (depGraphGrid.init(subgraph, calcConfigName, valueSpecification)) {
-          gridStructure = depGraphGrid.getInitialJsonGridStructure();
-        }
-      }
-      Map<String, Object> depGraph = depGraphGrid.processViewCycle(cycleReference.get(), resultTimestamp);
-      if (gridStructure != null) {
-        Map<String, Object> structureMessage = new HashMap<String, Object>();
-        structureMessage.put("grid", gridStructure);
-        structureMessage.put("update", depGraph);
-        return structureMessage;
-      } else {
-        return depGraph;
-      }
-    } finally {
-      cycleReference.release();
     }
   }
   
@@ -318,8 +340,7 @@ public abstract class PushRequirementBasedWebViewGrid extends PushWebViewGrid {
     int columnCount = getGridStructure().getColumns().size() + getAdditionalCsvColumnCount();
     int offset = getCsvDataColumnOffset();
     for (ComputationTargetSpecification target : result.getAllTargets()) {
-      // TODO signature has changed
-      Integer rowId = null;//getGridStructure().getRowId(target.getUniqueId());
+      Integer rowId = getGridStructure().getRowId(target);
       if (rowId == null) {
         continue;
       }
@@ -342,7 +363,7 @@ public abstract class PushRequirementBasedWebViewGrid extends PushWebViewGrid {
           }
           for (WebViewGridColumn column : columns) {
             int colId = column.getId();
-            ResultConverter<Object> converter = originalValue != null ? getConverter(column, value.getSpecification().getValueName(), originalValue.getClass()) : null;
+            ResultConverter<Object> converter = getConverter(column, value.getSpecification().getValueName(), originalValue.getClass());
             values[offset + colId] = converter.convertToText(getConverterCache(), value.getSpecification(), originalValue);
           }
         }

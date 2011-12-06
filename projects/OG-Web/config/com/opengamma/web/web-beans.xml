@@ -21,9 +21,7 @@
   <!-- Bundle Property file configuration -->
   <bean id="bundleProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="ignoreUnresolvablePlaceholders" value="true" />
-    <property name="location">
-      <value>classpath:com/opengamma/web/bundle.properties</value>
-    </property>
+    <property name="location" value="classpath:com/opengamma/web/bundle.properties"/>
   </bean>
 
   <!-- Historical data source service -->
@@ -35,7 +33,7 @@
     <constructor-arg ref="fudgeContext" />
     <property name="underlying" ref="dbHtsMaster" />
   </bean>
-  
+
   <!-- View processor service -->
   <bean id="viewProcessorRestBean" class="com.opengamma.financial.view.rest.RestViewProcessorFactoryBean">
     <property name="viewProcessor" ref="demoViewProcessor" />
@@ -58,7 +56,7 @@
       </bean>
     </property>
   </bean>
-  
+
   <!-- Snapshotter service -->
   <bean id="snapshotterRest" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshottersResource">
     <constructor-arg name="processors" ref="viewProcessorRestBean" />
@@ -115,12 +113,12 @@
     <constructor-arg ref="fudgeContext" />
     <property name="underlying" ref="sharedCurrencyMatrixSource" />
   </bean>
-
+  
   <bean id="currencyPairsSourceRestBean" class="com.opengamma.financial.currency.rest.CurrencyPairsSourceService">
     <constructor-arg ref="fudgeContext" />
     <property name="underlying" ref="sharedCurrencyPairsSource" />
   </bean>
-  
+
   <!-- Ad hoc batches -->
   <bean id="adHocBatchRestBean" class="com.opengamma.financial.batch.AdHocBatchDbManagerService">
     <constructor-arg ref="dbBatchMaster" />
@@ -348,7 +346,7 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
-            <entry key="volatilityCubeDefinitionSource">
+           <entry key="volatilityCubeDefinitionSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/volatilityCubeDefinitionSource/0/" />
                 <property name="port" value="${jetty.port}" />
@@ -496,7 +494,7 @@
     <constructor-arg ref="bundleCompressor" />
     <constructor-arg value="${bundle.mode}"/>
   </bean>
-  
+
   <!-- Portfolio aggregators -->
   <bean id="portfolioAggregationFunctions" class="org.springframework.beans.factory.config.ListFactoryBean">
     <property name="sourceList">
@@ -524,17 +522,17 @@
         <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
           <constructor-arg ref="combinedSecuritySource" />
           <constructor-arg value="INDUSTRY_GROUP" />
-          <constructor-arg value="false" />        
+          <constructor-arg value="false" />
         </bean>
         <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
           <constructor-arg ref="combinedSecuritySource" />
           <constructor-arg value="INDUSTRY" />
-          <constructor-arg value="false" />        
+          <constructor-arg value="false" />
         </bean>
         <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
           <constructor-arg ref="combinedSecuritySource" />
           <constructor-arg value="SUB_INDUSTRY" />
-          <constructor-arg value="false" />        
+          <constructor-arg value="false" />
         </bean>
         <bean class="com.opengamma.financial.aggregation.EquityBetaAggregationFunction">
           <constructor-arg ref="sharedHistoricalTimeSeriesSource" />
@@ -556,8 +554,62 @@
       </list>
     </property>
   </bean>
-  
-  <!-- Web-interface -->
+
+  <!-- new Web-interface -->
+  <bean id="liveResultsService" class="com.opengamma.web.server.push.PushLiveResultsService">
+    <constructor-arg ref="demoViewProcessor" />
+    <constructor-arg ref="testUser" />
+    <constructor-arg ref="fudgeContext" />
+  </bean>
+
+  <bean id="longPollingConnectionManager" class="com.opengamma.web.server.push.LongPollingConnectionManager">
+    <constructor-arg ref="updateManager"/>
+  </bean>
+
+  <bean id="updateManager" class="com.opengamma.web.server.push.RestUpdateManagerImpl">
+    <constructor-arg index="0" ref="changeManager"/>
+    <constructor-arg index="1" ref="masterChangeManager"/>
+    <constructor-arg index="2" ref="liveResultsService"/>
+  </bean>
+
+  <bean id="webViewportsRestBean" class="com.opengamma.web.server.push.ViewportsResource">
+    <constructor-arg ref="updateManager"/>
+  </bean>
+
+  <bean id="changeManager" class="com.opengamma.core.change.AggregatingChangeManager">
+    <constructor-arg>
+      <list>
+        <ref bean="dbPortfolioMaster"/>
+        <ref bean="dbPositionMaster"/>
+        <!--TODO what other data are we interested in?-->
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="masterChangeManager" class="com.opengamma.web.server.push.MasterChangeManagerImpl">
+    <constructor-arg>
+      <list>
+        <bean class="com.opengamma.util.tuple.ObjectsPair">
+          <constructor-arg index="0" ref="dbPositionMaster"/>
+          <constructor-arg index="1">
+            <value type="com.opengamma.web.server.push.MasterType">POSITION</value>
+          </constructor-arg>
+        </bean>
+        <bean class="com.opengamma.util.tuple.ObjectsPair">
+          <constructor-arg index="0" ref="dbPositionMaster"/>
+          <constructor-arg index="1">
+            <value type="com.opengamma.web.server.push.MasterType">POSITION</value>
+          </constructor-arg>
+        </bean>
+        <!--TODO what other data are we interested in?-->
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <!--TODO make sure this still works-->
+  <bean id="jsonToViewport" class="com.opengamma.web.server.push.ViewportDefinitionReader" scope="singleton"/>
+
+  <!-- old Cometd Web-interface -->
   <bean id="webInterfaceBean" class="com.opengamma.web.server.LiveResultsServiceBean">
     <property name="user" ref="testUser" />
     <property name="viewProcessor" ref="demoViewProcessor" />
@@ -578,7 +630,7 @@
   <bean class="com.opengamma.web.analytics.WebAnalyticsResource">
     <constructor-arg ref="webInterfaceBean" />
   </bean>
-  
+
   <!-- MarketDataSnapshot master service -->
   <bean id="testSnapshotMaster" class="com.opengamma.master.marketdatasnapshot.impl.InMemorySnapshotMaster" />
   <bean id="snapshotMasterRestBean" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotMasterService">
@@ -600,5 +652,5 @@
       </map>
     </property>
   </bean>
-  
+
 </beans>
