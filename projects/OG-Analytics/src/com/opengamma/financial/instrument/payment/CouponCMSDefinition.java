@@ -89,7 +89,7 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
   public static CouponCMSDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor, final double notional,
       final IndexSwap cmsIndex) {
     ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, cmsIndex.getIborIndex().getBusinessDayConvention(), cmsIndex.getIborIndex().getCalendar(), -cmsIndex.getIborIndex()
-        .getSettlementDays());
+        .getSpotLag());
     // Implementation comment: the underlying swap is used for forward. The notional, rate and payer flag are irrelevant.
     final SwapFixedIborDefinition underlyingSwap = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex, 1.0, 1.0, true);
     return new CouponCMSDefinition(underlyingSwap.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap, cmsIndex);
@@ -119,7 +119,7 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
     Validate.notNull(coupon, "floating coupon");
     Validate.notNull(cmsIndex, "CMS index");
     final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(coupon.getFixingDate(), cmsIndex.getIborIndex().getBusinessDayConvention(), cmsIndex.getIborIndex().getCalendar(), cmsIndex
-        .getIborIndex().getSettlementDays());
+        .getIborIndex().getSpotLag());
     // Implementation comment: the underlying swap is used for forward. The notional, rate and payer flag are irrelevant.
     final SwapFixedIborDefinition underlyingSwap = SwapFixedIborDefinition.from(settlementDate, cmsIndex, 1.0, 1.0, true);
     return new CouponCMSDefinition(coupon.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(),
@@ -180,8 +180,7 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
         fixedRate = indexFixingTimeSeries.getValue(fixingDateAtLiborFixingTime);
       }
       if (fixedRate == null) {
-        final ZonedDateTime previousBusinessDay = 
-          BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(getCMSIndex().getIborIndex().getConvention().getWorkingDayCalendar(),
+        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(getCMSIndex().getIborIndex().getCalendar(),
             getFixingDate().minusDays(1));
         fixedRate = indexFixingTimeSeries.getValue(previousBusinessDay);
         //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
@@ -196,9 +195,9 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
       }
       return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixedRate);
     }
-//    if (date.isAfter(getFixingDate()) || date.equals(getFixingDate())) { // The CMS coupon has already fixed, it is now a fixed coupon.
-//      final double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
-//    }
+    //    if (date.isAfter(getFixingDate()) || date.equals(getFixingDate())) { // The CMS coupon has already fixed, it is now a fixed coupon.
+    //      final double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+    //    }
     // CMS is not fixed yet, all the details are required.
     final double fixingTime = TimeCalculator.getTimeBetween(date, getFixingDate());
     final double settlementTime = TimeCalculator.getTimeBetween(date, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());

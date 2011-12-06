@@ -18,7 +18,6 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.Convention;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -71,16 +70,14 @@ public class IborIndexTest {
   public void getter() {
     assertEquals(INDEX.getCurrency(), CUR);
     assertEquals(INDEX.getTenor(), TENOR);
-    assertEquals(INDEX.getSettlementDays(), SETTLEMENT_DAYS);
+    assertEquals(INDEX.getSpotLag(), SETTLEMENT_DAYS);
     assertEquals(INDEX.getCalendar(), CALENDAR);
     assertEquals(INDEX.getDayCount(), DAY_COUNT);
     assertEquals(INDEX.getBusinessDayConvention(), BUSINESS_DAY);
     assertEquals(INDEX.isEndOfMonth(), IS_EOM);
-    String name = "Ibor"; // CUR.toString() + TENOR.toString();
+    String name = "Ibor";
     assertEquals(name, INDEX.getName());
     assertEquals(name, INDEX.toString());
-    Convention convention = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, "Ibor conventions");
-    assertEquals(convention, INDEX.getConvention());
     assertEquals(NAME, INDEX2.getName());
   }
 
