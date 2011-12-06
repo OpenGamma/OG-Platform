@@ -68,7 +68,7 @@ import com.opengamma.id.ExternalIdBundle;
     if ((object instanceof HistoricalTimeSeriesKey)) {
       HistoricalTimeSeriesKey other = (HistoricalTimeSeriesKey) object;
       return
- ObjectUtils.equals(_externalIdBundle, other._externalIdBundle) &&
+          ObjectUtils.equals(_externalIdBundle, other._externalIdBundle) &&
           ObjectUtils.equals(_currentDate, other._currentDate) &&
           ObjectUtils.equals(_dataProvider, other._dataProvider) &&
           ObjectUtils.equals(_dataSource, other._dataSource) &&

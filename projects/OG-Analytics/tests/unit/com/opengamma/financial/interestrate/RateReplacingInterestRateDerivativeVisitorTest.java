@@ -108,7 +108,7 @@ public class RateReplacingInterestRateDerivativeVisitorTest {
     final double fixingPeriodEndTime = 1.75;
     final double fixingPeriodAccrualFactor = 0.267;
     final double paymentAccrualFactor = 0.25;
-    final double referencePrice = 0.0; // TODO CASE - Future refactor - referencePrice = 0.0
+//    final double referencePrice = 0.0; // TODO CASE - Future refactor - referencePrice = 0.0
     final InterestRateFuture ir1 = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, 1 - R1, 1, paymentAccrualFactor, "K", N1,
         N2);
     final InterestRateFuture ir2 = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, 1 - R2, 1, paymentAccrualFactor, "K", N1,

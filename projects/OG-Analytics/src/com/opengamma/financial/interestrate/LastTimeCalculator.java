@@ -32,16 +32,16 @@ import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 
 /**
- * Get the last date (time in years from now) on a yield curve for which an instrument will be sensitive - any change in the yield curve behold this point cannot affect the present value
+ * Get the last time (in years from now) referenced in the instrument description.
  */
-public final class LastDateCalculator extends AbstractInstrumentDerivativeVisitor<Object, Double> {
-  private static final LastDateCalculator CALCULATOR = new LastDateCalculator();
+public final class LastTimeCalculator extends AbstractInstrumentDerivativeVisitor<Object, Double> {
+  private static final LastTimeCalculator CALCULATOR = new LastTimeCalculator();
 
-  public static LastDateCalculator getInstance() {
+  public static LastTimeCalculator getInstance() {
     return CALCULATOR;
   }
 
-  private LastDateCalculator() {
+  private LastTimeCalculator() {
   }
 
   @Override
@@ -146,21 +146,21 @@ public final class LastDateCalculator extends AbstractInstrumentDerivativeVisito
 
   @Override
   public Double visitBondFixedSecurity(final BondFixedSecurity bond) {
-    return visit(bond.getCoupon());
+    return Math.max(visit(bond.getCoupon()), visit(bond.getNominal()));
   }
 
   @Override
   public Double visitBondFixedTransaction(final BondFixedTransaction bond) {
-    return visit(bond.getBondStandard().getCoupon());
+    return visit(bond.getBondStandard());
   }
 
   @Override
   public Double visitBondIborSecurity(final BondIborSecurity bond) {
-    return visit(bond.getCoupon());
+    return Math.max(visit(bond.getCoupon()), visit(bond.getNominal()));
   }
 
   @Override
   public Double visitBondIborTransaction(final BondIborTransaction bond) {
-    return visit(bond.getBondStandard().getCoupon());
+    return visit(bond.getBondStandard());
   }
 }

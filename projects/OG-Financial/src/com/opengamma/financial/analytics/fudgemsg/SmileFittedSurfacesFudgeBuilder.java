@@ -24,9 +24,9 @@ import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurf
 import com.opengamma.financial.analytics.volatility.surface.fitting.SurfaceFittedSmileDataPoints;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.id.ExternalId;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.DoublesPair;
@@ -62,10 +62,10 @@ import com.opengamma.util.tuple.Pair;
 
     @Override
     public SABRFittedSurfaces buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final VolatilitySurface alphaSurface = deserializer.fieldValueToObject(VolatilitySurface.class, message.getByName(ALPHA_SURFACE_FIELD_NAME));
-      final VolatilitySurface betaSurface = deserializer.fieldValueToObject(VolatilitySurface.class, message.getByName(BETA_SURFACE_FIELD_NAME));
-      final VolatilitySurface nuSurface = deserializer.fieldValueToObject(VolatilitySurface.class, message.getByName(NU_SURFACE_FIELD_NAME));
-      final VolatilitySurface rhoSurface = deserializer.fieldValueToObject(VolatilitySurface.class, message.getByName(RHO_SURFACE_FIELD_NAME));
+      final InterpolatedDoublesSurface alphaSurface = deserializer.fieldValueToObject(InterpolatedDoublesSurface.class, message.getByName(ALPHA_SURFACE_FIELD_NAME));
+      final InterpolatedDoublesSurface betaSurface = deserializer.fieldValueToObject(InterpolatedDoublesSurface.class, message.getByName(BETA_SURFACE_FIELD_NAME));
+      final InterpolatedDoublesSurface nuSurface = deserializer.fieldValueToObject(InterpolatedDoublesSurface.class, message.getByName(NU_SURFACE_FIELD_NAME));
+      final InterpolatedDoublesSurface rhoSurface = deserializer.fieldValueToObject(InterpolatedDoublesSurface.class, message.getByName(RHO_SURFACE_FIELD_NAME));
       final Currency currency = deserializer.fieldValueToObject(Currency.class, message.getByName(CURRENCY_FIELD_NAME));
       final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(deserializer.fieldValueToObject(String.class, message.getByName(DAYCOUNT_FIELD_NAME)));
       final List<FudgeField> pairFields = message.getAllByName(INVERSE_JACOBIANS_PAIRS_FIELD_NAME);
@@ -96,7 +96,7 @@ import com.opengamma.util.tuple.Pair;
       }
     }
   }
-  
+
   @FudgeBuilderFor(HestonFittedSurfaces.class)
   public static final class HestonFittedSurfacesFudgeBuilder extends AbstractFudgeBuilder<HestonFittedSurfaces> {
     /** Field name. */
@@ -118,11 +118,11 @@ import com.opengamma.util.tuple.Pair;
 
     @Override
     public HestonFittedSurfaces buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final VolatilitySurface kappaSurface = deserializer.fieldValueToObject(VolatilitySurface.class, message.getByName(KAPPA_SURFACE_FIELD_NAME));
-      final VolatilitySurface thetaSurface = deserializer.fieldValueToObject(VolatilitySurface.class, message.getByName(THETA_SURFACE_FIELD_NAME));
-      final VolatilitySurface vol0Surface = deserializer.fieldValueToObject(VolatilitySurface.class, message.getByName(VOL0_SURFACE_FIELD_NAME));
-      final VolatilitySurface omegaSurface = deserializer.fieldValueToObject(VolatilitySurface.class, message.getByName(OMEGA_SURFACE_FIELD_NAME));
-      final VolatilitySurface rhoSurface = deserializer.fieldValueToObject(VolatilitySurface.class, message.getByName(RHO_SURFACE_FIELD_NAME));
+      final InterpolatedDoublesSurface kappaSurface = deserializer.fieldValueToObject(InterpolatedDoublesSurface.class, message.getByName(KAPPA_SURFACE_FIELD_NAME));
+      final InterpolatedDoublesSurface thetaSurface = deserializer.fieldValueToObject(InterpolatedDoublesSurface.class, message.getByName(THETA_SURFACE_FIELD_NAME));
+      final InterpolatedDoublesSurface vol0Surface = deserializer.fieldValueToObject(InterpolatedDoublesSurface.class, message.getByName(VOL0_SURFACE_FIELD_NAME));
+      final InterpolatedDoublesSurface omegaSurface = deserializer.fieldValueToObject(InterpolatedDoublesSurface.class, message.getByName(OMEGA_SURFACE_FIELD_NAME));
+      final InterpolatedDoublesSurface rhoSurface = deserializer.fieldValueToObject(InterpolatedDoublesSurface.class, message.getByName(RHO_SURFACE_FIELD_NAME));
       final Currency currency = deserializer.fieldValueToObject(Currency.class, message.getByName(CURRENCY_FIELD_NAME));
       final List<FudgeField> pairFields = message.getAllByName(INVERSE_JACOBIANS_PAIRS_FIELD_NAME);
       final List<FudgeField> matricesFields = message.getAllByName(INVERSE_JACOBIANS_MATRICES_FIELD_NAME);
@@ -152,7 +152,7 @@ import com.opengamma.util.tuple.Pair;
       }
     }
   }
-  
+
   @FudgeBuilderFor(FittedSmileDataPoints.class)
   public static final class FittedSmileDataPointsBuilder extends AbstractFudgeBuilder<FittedSmileDataPoints> {
     /** Field name */
@@ -161,6 +161,7 @@ import com.opengamma.util.tuple.Pair;
     public static final String EXTERNAL_IDS_ARRAY_FIELD_NAME = "External ids";
     /** Field name */
     public static final String RELATIVE_STRIKES_ARRAY_FIELD_NAME = "Relative strikes";
+
     @SuppressWarnings("unchecked")
     @Override
     public FittedSmileDataPoints buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
@@ -191,14 +192,14 @@ import com.opengamma.util.tuple.Pair;
         serializer.addToMessageObject(message, EXTERNAL_IDS_ARRAY_FIELD_NAME, null, Arrays.asList(entry.getValue()), List.class);
         serializer.addToMessageObject(message, RELATIVE_STRIKES_ARRAY_FIELD_NAME, null, Arrays.asList(relativeStrikes.get(entry.getKey())), List.class);
       }
-    }  
+    }
   }
-  
+
   @FudgeBuilderFor(SurfaceFittedSmileDataPoints.class)
   public static final class SurfaceFittedSmileDataPointsBuilder extends AbstractFudgeBuilder<SurfaceFittedSmileDataPoints> {
     public static final String T_FIELD_NAME = "t field";
     public static final String K_FIELD_NAME = "k field";
-    
+
     @Override
     public SurfaceFittedSmileDataPoints buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
       final List<FudgeField> tFields = message.getAllByName(T_FIELD_NAME);
@@ -221,7 +222,7 @@ import com.opengamma.util.tuple.Pair;
         serializer.addToMessageObject(message, K_FIELD_NAME, null, entry.getValue(), List.class);
       }
     }
-    
+
   }
 
 }

@@ -8,7 +8,7 @@ package com.opengamma.financial.interestrate.payments.derivative;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.index.IndexOIS;
+import com.opengamma.financial.instrument.index.IndexON;
 import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.util.money.Currency;
@@ -22,7 +22,7 @@ public class CouponOIS extends Coupon {
   /**
    * The OIS-like index on which the coupon fixes. The index currency should be the same as the coupon currency. Not null.
    */
-  private final IndexOIS _index;
+  private final IndexON _index;
   /**
    * The fixing period start time (in years). The fixing period does take into account the already fixed period, 
    * i.e. the fixing period start time is the first date for which the coupon is not fixed yet.
@@ -59,7 +59,7 @@ public class CouponOIS extends Coupon {
    * @param notionalAccrued The notional accrued by the interest periods already fixed.
    * @param forwardCurveName The name of the forward curve.
    */
-  public CouponOIS(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, IndexOIS index, double fixingPeriodStartTime,
+  public CouponOIS(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, IndexON index, double fixingPeriodStartTime,
       double fixingPeriodEndTime, double fixingPeriodAccrualFactor, double notionalAccrued, String forwardCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
     Validate.notNull(index, "Coupon OIS: index");
@@ -75,7 +75,7 @@ public class CouponOIS extends Coupon {
    * Gets the OIS index of the instrument.
    * @return The index.
    */
-  public IndexOIS getIndex() {
+  public IndexON getIndex() {
     return _index;
   }
 

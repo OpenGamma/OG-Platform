@@ -10,13 +10,9 @@ import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -186,7 +182,6 @@ public interface HistoricalTimeSeriesSource {
    * -ve maxPoints returns at most -maxPoints data points counting backwards from the latest date 
    * 
    * @param identifierBundle  the identifier bundle, not null
-   * @param identifierValidityDate  the date that the identifier must be valid on, null to use all identifierBundle
    * @param dataSource  the data source, not null
    * @param dataProvider  the data provider, not null
    * @param dataField  the dataField, not null

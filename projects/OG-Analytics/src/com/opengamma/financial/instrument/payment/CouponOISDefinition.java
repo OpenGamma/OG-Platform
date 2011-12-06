@@ -19,7 +19,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.InstrumentDefinitionWithData;
-import com.opengamma.financial.instrument.index.IndexOIS;
+import com.opengamma.financial.instrument.index.IndexON;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
@@ -36,7 +36,7 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
   /**
    * The OIS-like index on which the coupon fixes. The index currency should be the same as the coupon currency.
    */
-  private final IndexOIS _index;
+  private final IndexON _index;
   /**
    * The dates of the fixing periods (start and end). There is one date more than period.
    */
@@ -59,7 +59,7 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
    * @param fixingPeriodEndDate The end date of the fixing period.
    */
   public CouponOISDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double paymentYearFraction,
-      final double notional, final IndexOIS index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate) {
+      final double notional, final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional);
     Validate.notNull(index, "Coupon OIS Simplified: index");
     Validate.notNull(fixingPeriodStartDate, "Coupon OIS Simplified: fixingPeriodStartDate");
@@ -93,7 +93,7 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
    * @param isEOM The end-of-month convention to compute the end date of the coupon.
    * @return The OIS coupon.
    */
-  public static CouponOISDefinition from(final IndexOIS index, final ZonedDateTime settlementDate, final Period tenor, final double notional, final int settlementDays,
+  public static CouponOISDefinition from(final IndexON index, final ZonedDateTime settlementDate, final Period tenor, final double notional, final int settlementDays,
       final BusinessDayConvention businessDayConvention, final boolean isEOM) {
     final ZonedDateTime endFixingPeriodDate = ScheduleCalculator.getAdjustedDate(settlementDate, businessDayConvention, index.getCalendar(), isEOM, tenor);
     final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(endFixingPeriodDate, index.getCalendar(), -1 + index.getPublicationLag() + settlementDays);
@@ -105,7 +105,7 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
    * Gets the OIS index of the instrument.
    * @return The index.
    */
-  public IndexOIS getIndex() {
+  public IndexON getIndex() {
     return _index;
   }
 

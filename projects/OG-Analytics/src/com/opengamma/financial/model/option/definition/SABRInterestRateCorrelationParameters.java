@@ -8,8 +8,8 @@ package com.opengamma.financial.model.option.definition;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.function.DoubleFunction1D;
+import com.opengamma.math.surface.InterpolatedDoublesSurface;
 
 /**
  * Class describing the SABR parameter surfaces used in interest rate modeling and the correlation parameters for CMS spread modeling.
@@ -30,7 +30,8 @@ public class SABRInterestRateCorrelationParameters extends SABRInterestRateParam
    * @param dayCount The standard day count for which the parameter surfaces are valid.
    * @param correlation The correlation function.
    */
-  public SABRInterestRateCorrelationParameters(VolatilitySurface alpha, VolatilitySurface beta, VolatilitySurface rho, VolatilitySurface nu, DayCount dayCount, final DoubleFunction1D correlation) {
+  public SABRInterestRateCorrelationParameters(final InterpolatedDoublesSurface alpha, final InterpolatedDoublesSurface beta, final InterpolatedDoublesSurface rho,
+      final InterpolatedDoublesSurface nu, DayCount dayCount, final DoubleFunction1D correlation) {
     super(alpha, beta, rho, nu, dayCount);
     Validate.notNull(correlation, "Correlation");
     _correlation = correlation;

@@ -58,7 +58,7 @@ public class SABRVegaFunction extends SABRFunction {
     super(currency, cubeName, useSABRExtrapolation, forwardCurveName, fundingCurveName);
   }
 
-  @Override 
+  @Override
   public void init(final FunctionCompilationContext context) {
     super.init(context);
     _definition = getHelper().init(context, this);
@@ -66,7 +66,7 @@ public class SABRVegaFunction extends SABRFunction {
       throw new OpenGammaRuntimeException("Could not get volatility cube definition for swaption cube called " + getHelper().getDefinitionName());
     }
   }
-  
+
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final SABRInterestRateDataBundle data = getModelParameters(target, inputs);
@@ -89,8 +89,8 @@ public class SABRVegaFunction extends SABRFunction {
       throw new OpenGammaRuntimeException("Could not get SABR fitted surfaces");
     }
     final SABRFittedSurfaces sabrFittedSurfaces = (SABRFittedSurfaces) sabrSurfacesObject;
-    final ValueRequirement fittedPointsRequirement = 
-      new ValueRequirement(ValueRequirementNames.VOLATILITY_CUBE_FITTED_POINTS, FinancialSecurityUtils.getCurrency(target.getSecurity()), getFittedPointsProperties());
+    final ValueRequirement fittedPointsRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_CUBE_FITTED_POINTS, FinancialSecurityUtils.getCurrency(target.getSecurity()),
+        getFittedPointsProperties());
     final Object fittedDataPointsObject = inputs.getValue(fittedPointsRequirement);
     if (fittedDataPointsObject == null) {
       throw new OpenGammaRuntimeException("Could not get fitted points for cube");
@@ -105,19 +105,19 @@ public class SABRVegaFunction extends SABRFunction {
     final double alpha = alphaSensitivity.getValues()[0][0];
     final double nu = nuSensitivity.getValues()[0][0];
     final double rho = rhoSensitivity.getValues()[0][0];
-    final InterpolatedDoublesSurface alphaSurface = (InterpolatedDoublesSurface) data.getSABRParameter().getAlphaSurface().getSurface();
+    final InterpolatedDoublesSurface alphaSurface = data.getSABRParameter().getAlphaSurface();
     @SuppressWarnings("unchecked")
     final Map<Double, Interpolator1DDataBundle> alphaDataBundle = (Map<Double, Interpolator1DDataBundle>) alphaSurface.getInterpolatorData();
-    final InterpolatedDoublesSurface nuSurface = (InterpolatedDoublesSurface) data.getSABRParameter().getNuSurface().getSurface();
+    final InterpolatedDoublesSurface nuSurface = data.getSABRParameter().getNuSurface();
     @SuppressWarnings("unchecked")
     final Map<Double, Interpolator1DDataBundle> nuDataBundle = (Map<Double, Interpolator1DDataBundle>) nuSurface.getInterpolatorData();
-    final InterpolatedDoublesSurface rhoSurface = (InterpolatedDoublesSurface) data.getSABRParameter().getRhoSurface().getSurface();
+    final InterpolatedDoublesSurface rhoSurface = data.getSABRParameter().getRhoSurface();
     @SuppressWarnings("unchecked")
     final Map<Double, Interpolator1DDataBundle> rhoDataBundle = (Map<Double, Interpolator1DDataBundle>) rhoSurface.getInterpolatorData();
     final DoublesPair expiryMaturity = DoublesPair.of(expiry, maturity);
-    
-    final Map<Double, DoubleMatrix2D> result = 
-      SABRVegaCalculationUtils.getVegaCube(alpha, rho, nu, alphaDataBundle, rhoDataBundle, nuDataBundle, inverseJacobians, expiryMaturity, NODE_SENSITIVITY_CALCULATOR);
+
+    final Map<Double, DoubleMatrix2D> result = SABRVegaCalculationUtils.getVegaCube(alpha, rho, nu, alphaDataBundle, rhoDataBundle, nuDataBundle, inverseJacobians, expiryMaturity,
+        NODE_SENSITIVITY_CALCULATOR);
     final DoubleLabelledMatrix3D labelledMatrix = VegaMatrixHelper.getVegaSwaptionCubeQuoteMatrixInStandardForm(fittedDataPoints, result);
     return Collections.singleton(new ComputedValue(getResultSpec(target), labelledMatrix));
   }
@@ -134,36 +134,27 @@ public class SABRVegaFunction extends SABRFunction {
     requirements.add(new ValueRequirement(ValueRequirementNames.VOLATILITY_CUBE_FITTED_POINTS, ccy, getFittedPointsProperties())); //TODO add fitting method information
     return requirements;
   }
-  
+
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Sets.newHashSet(getResultSpec(target));
   }
 
   private ValueProperties getModelSensitivityProperties(String ccyCode) {
-    return ValueProperties.builder()
-      .with(ValuePropertyNames.CURRENCY, ccyCode)
-      .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
-      .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
-      .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName())
-      .with(ValuePropertyNames.CALCULATION_METHOD, isUseSABRExtrapolation() ? SABR_RIGHT_EXTRAPOLATION : SABR_NO_EXTRAPOLATION).get();    
+    return ValueProperties.builder().with(ValuePropertyNames.CURRENCY, ccyCode).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName()).with(ValuePropertyNames.CUBE, getHelper().getDefinitionName())
+        .with(ValuePropertyNames.CALCULATION_METHOD, isUseSABRExtrapolation() ? SABR_RIGHT_EXTRAPOLATION : SABR_NO_EXTRAPOLATION).get();
   }
 
   private ValueProperties getFittedPointsProperties() {
-    return ValueProperties.builder()
-        .with(ValuePropertyNames.CURRENCY, getHelper().getCurrency().getCode())
-        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
+    return ValueProperties.builder().with(ValuePropertyNames.CURRENCY, getHelper().getCurrency().getCode()).with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
   }
 
-
   private ValueSpecification getResultSpec(final ComputationTarget target) {
-    return new ValueSpecification(ValueRequirementNames.VEGA_QUOTE_CUBE, target.toSpecification(),
-        createValueProperties()
-            .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode())
-            .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
-            .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
-            .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName())
-            .with(ValuePropertyNames.CALCULATION_METHOD, isUseSABRExtrapolation() ? SABR_RIGHT_EXTRAPOLATION : SABR_NO_EXTRAPOLATION)
-            .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "SWAPTION_CUBE").get());
+    return new ValueSpecification(ValueRequirementNames.VEGA_QUOTE_CUBE, target.toSpecification(), createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode()).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName()).with(ValuePropertyNames.CUBE, getHelper().getDefinitionName())
+        .with(ValuePropertyNames.CALCULATION_METHOD, isUseSABRExtrapolation() ? SABR_RIGHT_EXTRAPOLATION : SABR_NO_EXTRAPOLATION)
+        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "SWAPTION_CUBE").get());
   }
 }

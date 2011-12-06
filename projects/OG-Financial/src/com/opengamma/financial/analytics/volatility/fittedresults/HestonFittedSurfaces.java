@@ -10,8 +10,8 @@ import java.util.Map;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -19,21 +19,21 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 public class HestonFittedSurfaces {
-  private final VolatilitySurface _kappaSurface;
-  private final VolatilitySurface _thetaSurface;
-  private final VolatilitySurface _vol0Surface;
-  private final VolatilitySurface _omegaSurface;
-  private final VolatilitySurface _rhoSurface;
+  private final InterpolatedDoublesSurface _kappaSurface;
+  private final InterpolatedDoublesSurface _thetaSurface;
+  private final InterpolatedDoublesSurface _vol0Surface;
+  private final InterpolatedDoublesSurface _omegaSurface;
+  private final InterpolatedDoublesSurface _rhoSurface;
   private final Map<DoublesPair, DoubleMatrix2D> _inverseJacobian;
   private final Currency _currency;
 
-  public HestonFittedSurfaces(final VolatilitySurface kappaSurface, final VolatilitySurface thetaSurface, final VolatilitySurface vol0Surface, final VolatilitySurface omegaSurface,
-      final VolatilitySurface rhoSurface, final Currency currency) {
+  public HestonFittedSurfaces(final InterpolatedDoublesSurface kappaSurface, final InterpolatedDoublesSurface thetaSurface, final InterpolatedDoublesSurface vol0Surface,
+      final InterpolatedDoublesSurface omegaSurface, final InterpolatedDoublesSurface rhoSurface, final Currency currency) {
     this(kappaSurface, thetaSurface, vol0Surface, omegaSurface, rhoSurface, null, currency);
   }
 
-  public HestonFittedSurfaces(final VolatilitySurface kappaSurface, final VolatilitySurface thetaSurface, final VolatilitySurface vol0Surface, final VolatilitySurface omegaSurface,
-      final VolatilitySurface rhoSurface, final Map<DoublesPair, DoubleMatrix2D> inverseJacobian, final Currency currency) {
+  public HestonFittedSurfaces(final InterpolatedDoublesSurface kappaSurface, final InterpolatedDoublesSurface thetaSurface, final InterpolatedDoublesSurface vol0Surface,
+      final InterpolatedDoublesSurface omegaSurface, final InterpolatedDoublesSurface rhoSurface, final Map<DoublesPair, DoubleMatrix2D> inverseJacobian, final Currency currency) {
     Validate.notNull(kappaSurface, "kappa surface");
     Validate.notNull(thetaSurface, "theta surface");
     Validate.notNull(vol0Surface, "vol0 surface");
@@ -49,23 +49,23 @@ public class HestonFittedSurfaces {
     _currency = currency;
   }
 
-  public VolatilitySurface getKappaSurface() {
+  public InterpolatedDoublesSurface getKappaSurface() {
     return _kappaSurface;
   }
 
-  public VolatilitySurface getThetaSurface() {
+  public InterpolatedDoublesSurface getThetaSurface() {
     return _thetaSurface;
   }
 
-  public VolatilitySurface getVol0Surface() {
+  public InterpolatedDoublesSurface getVol0Surface() {
     return _vol0Surface;
   }
 
-  public VolatilitySurface getOmegaSurface() {
+  public InterpolatedDoublesSurface getOmegaSurface() {
     return _omegaSurface;
   }
 
-  public VolatilitySurface getRhoSurface() {
+  public InterpolatedDoublesSurface getRhoSurface() {
     return _rhoSurface;
   }
 

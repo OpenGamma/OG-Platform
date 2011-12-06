@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.instrument.index.swapgenerator;
+package com.opengamma.financial.instrument.index.generator;
 
 import javax.time.calendar.Period;
 

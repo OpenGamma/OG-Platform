@@ -23,7 +23,7 @@ public final class EURIBOR3M extends IborIndex {
    * @param calendar A EUR calendar.
    */
   public EURIBOR3M(Calendar calendar) {
-    super(Currency.EUR, Period.ofMonths(3), 2, calendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), 
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), true);
+    super(Currency.EUR, Period.ofMonths(3), 2, calendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
+        true, "EURIBOR3M");
   }
 }

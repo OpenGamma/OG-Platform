@@ -18,6 +18,7 @@ import com.opengamma.financial.marketdata.MarketDataMultiplyOperation;
 import com.opengamma.language.config.ConfigurationDelta;
 import com.opengamma.language.config.ConfigurationItem;
 import com.opengamma.language.config.ConfigurationItemVisitor;
+import com.opengamma.language.config.EnableCycleAccess;
 import com.opengamma.language.config.MarketDataOverride;
 import com.opengamma.language.config.ValueProperty;
 import com.opengamma.language.config.ViewCalculationRate;
@@ -93,6 +94,13 @@ public class ConfigureViewClientProcedure extends AbstractProcedureInvoker.NoRes
     }
 
     @Override
+    public Boolean visitEnableCycleAccess(final EnableCycleAccess enableCycleAccess) {
+      s_logger.debug("Applying {}", enableCycleAccess);
+      getViewClient().getViewClient().setViewCycleAccessSupported(true);
+      return Boolean.TRUE;
+    }
+
+    @Override
     public Boolean visitMarketDataOverride(final MarketDataOverride marketDataOverride) {
       s_logger.debug("Applying {}", marketDataOverride);
       final MarketDataInjector injector = getViewClient().getViewClient().getLiveDataOverrideInjector();
@@ -131,6 +139,13 @@ public class ConfigureViewClientProcedure extends AbstractProcedureInvoker.NoRes
 
     public RemoveConfiguration(final UserViewClient viewClient) {
       super(viewClient);
+    }
+
+    @Override
+    public Boolean visitEnableCycleAccess(final EnableCycleAccess enableCycleAccess) {
+      s_logger.debug("Removing {}", enableCycleAccess);
+      getViewClient().getViewClient().setViewCycleAccessSupported(false);
+      return Boolean.TRUE;
     }
 
     @Override

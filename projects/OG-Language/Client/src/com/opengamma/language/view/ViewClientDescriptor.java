@@ -251,7 +251,8 @@ public final class ViewClientDescriptor {
   }
 
   /**
-   * Returns a descriptor for a static live market data view. The view will recalculate when manually triggered. 
+   * Returns a descriptor for a static live market data view. The view will recalculate when manually triggered and will not start
+   * until the first trigger is received (allowing injected overrides to be set up before the first). 
    * 
    * @param viewId  unique identifier of the view, not null
    * @param dataSource  the data source, null for the default
@@ -261,7 +262,7 @@ public final class ViewClientDescriptor {
     final ViewCycleExecutionSequence cycleSequence = new InfiniteViewCycleExecutionSequence();
     final LiveMarketDataSpecification marketDataSpec = dataSource == null ? MarketData.live() : MarketData.live(dataSource);
     final ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(null, marketDataSpec);
-    final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions, ExecutionFlags.none().awaitMarketData().get());
+    final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions, ExecutionFlags.none().waitForInitialTrigger().awaitMarketData().get());
     StringBuilder encodingBuilder = append(new StringBuilder(MARKET_DATA_LIVE), viewId);
     if (dataSource != null) {
       append(encodingBuilder, dataSource);
@@ -363,7 +364,8 @@ public final class ViewClientDescriptor {
 
   /**
    * Returns a descriptor for a view that will use market data from a snapshot. The view will recalculate when triggered
-   * manually. E.g. if created with an unversioned snapshot identifier, changes to the snapshot will not trigger a cycle
+   * manually and will not start until the first trigger is received (allowing injected overrides to be set up before the
+   * first). E.g. if created with an unversioned snapshot identifier, changes to the snapshot will not trigger a cycle
    * but will be observed (the latest version will be taken) when a cycle is manually triggered.
    * 
    * @param viewId unique identifier of the view, not null
@@ -373,7 +375,7 @@ public final class ViewClientDescriptor {
   public static ViewClientDescriptor staticSnapshot(final UniqueId viewId, final UniqueId snapshotId) {
     final ViewCycleExecutionSequence cycleSequence = new InfiniteViewCycleExecutionSequence();
     final ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(MarketData.user(snapshotId));
-    final ExecutionFlags flags = ExecutionFlags.none();
+    final ExecutionFlags flags = ExecutionFlags.none().waitForInitialTrigger();
     final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions, flags.get());
     final String encoded = append(append(new StringBuilder(MARKET_DATA_USER), viewId), snapshotId).toString();
     return new ViewClientDescriptor(Type.STATIC_SNAPSHOT, viewId, options, encoded);
