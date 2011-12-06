@@ -15,7 +15,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing an OIS-like index. The fixing period is always one business day.
  */
-public class IndexOIS extends IndexDeposit {
+public class IndexON extends IndexDeposit {
 
   /**
    * The day count convention associated to the overnight rate. Not null.
@@ -35,7 +35,7 @@ public class IndexOIS extends IndexDeposit {
    * @param publicationLag The number of days between start of the fixing period and the publication of the index value.
    * @param calendar The calendar associated to the index. Not null.
    */
-  public IndexOIS(String name, Currency currency, DayCount dayCount, int publicationLag, Calendar calendar) {
+  public IndexON(String name, Currency currency, DayCount dayCount, int publicationLag, Calendar calendar) {
     super(name, currency, calendar);
     Validate.notNull(dayCount, "OIS index: day count");
     _publicationLag = publicationLag;
@@ -78,7 +78,7 @@ public class IndexOIS extends IndexDeposit {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    IndexOIS other = (IndexOIS) obj;
+    IndexON other = (IndexON) obj;
     if (!ObjectUtils.equals(_dayCount, other._dayCount)) {
       return false;
     }

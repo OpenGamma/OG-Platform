@@ -68,6 +68,10 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
    * The backing bean.
    */
   private final WebSecuritiesData _data;
+  
+  /**
+   * The HTS resolver (for getting an HTS Id)
+   */
   private final HistoricalTimeSeriesResolver _htsResolver;
   
   /**
@@ -134,6 +138,10 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
     return _data;
   }
   
+  /**
+   * Gets the HTS resolver
+   * @return the HTS resolver, not null
+   */
   protected HistoricalTimeSeriesResolver htsResolver() {
     return _htsResolver;
   }
