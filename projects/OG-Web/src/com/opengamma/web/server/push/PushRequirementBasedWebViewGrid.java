@@ -47,7 +47,8 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * An abstract base class for dynamically-structured, requirement-based grids.
- */
+ * TODO temporary name just to distinguish it from the similarly named class in the parent package
+*/
 public abstract class PushRequirementBasedWebViewGrid extends PushWebViewGrid {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PushRequirementBasedWebViewGrid.class);

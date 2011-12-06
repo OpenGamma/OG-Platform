@@ -21,7 +21,7 @@ import java.util.Map;
 
 /**
  * Connects the REST interface to the engine.
- * TODO REST interface for live market data source details - formerly pushlished over Cometd, see getLiveMarketDataSourceDetails from old versions of this file
+ * TODO temporary name just to distinguish it from the similarly named class in the parent package
  */
 public class PushLiveResultsService implements ViewportFactory {
 

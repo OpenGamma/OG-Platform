@@ -29,7 +29,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Stores state relating to an individual grid in a web client instance.
- */
+ * TODO temporary name just to distinguish it from the similarly named class in the parent package
+*/
 public abstract class PushWebViewGrid {
   private static final Logger s_logger = LoggerFactory.getLogger(PushWebViewGrid.class);
   private static final int HISTORY_SIZE = 20;

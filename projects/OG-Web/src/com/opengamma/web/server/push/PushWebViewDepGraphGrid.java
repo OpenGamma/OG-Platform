@@ -39,7 +39,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Represents a dependency graph grid. This is slightly special since, unlike the other grids, the columns are known
  * statically and each value may differ in type.
- */
+ * TODO temporary name just to distinguish it from the similarly named class in the parent package
+*/
 public class PushWebViewDepGraphGrid extends PushWebViewGrid {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PushWebViewDepGraphGrid.class);
