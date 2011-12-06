@@ -10,19 +10,19 @@ import javax.time.calendar.Period;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.SwapGenerator;
-import com.opengamma.financial.instrument.index.iborindex.EURIBOR6M;
+import com.opengamma.financial.instrument.index.iborindex.USDLIBOR3M;
 
 /**
- * Swap generator for the EUR Annual 30/360 vs Euribor 6M.
+ * Swap generator for the USD Annual ACT/360 vs Libor 3M.
  */
-public class EUR1YEURIBOR6M extends SwapGenerator {
+public class USD1YLIBOR3M extends SwapGenerator {
 
   /**
    * Constructor.
-   * @param calendar A EUR calendar.
+   * @param calendar A USD calendar.
    */
-  public EUR1YEURIBOR6M(Calendar calendar) {
-    super(Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("30/360"), new EURIBOR6M(calendar));
+  public USD1YLIBOR3M(Calendar calendar) {
+    super(Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("ACT/360"), new USDLIBOR3M(calendar));
   }
 
 }
