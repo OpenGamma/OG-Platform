@@ -262,8 +262,26 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     Set<ExternalId> identifiers = buildSecurityRequest(scheme, idValue);
     Map<ExternalId, UniqueId> added = addTimeSeries(dataProvider, dataField, identifiers, startDate, endDate);
     
-    FlexiBean out = createPostJSONOutput(added, idScheme);    
-    return Response.ok(getFreemarker().build("timeseries/jsontimeseries-added.ftl", out)).build();
+    //FlexiBean out = createPostJSONOutput(added, idScheme);    
+    //return Response.ok(getFreemarker().build("timeseries/jsontimeseries-added.ftl", out)).build();
+    
+    URI uri = null;
+    if (!identifiers.isEmpty()) {
+      if (identifiers.size() == 1) {
+        ExternalId requestIdentifier = identifiers.iterator().next();
+        UniqueId uniqueId = added.get(requestIdentifier);
+        if (uniqueId != null) {
+          uri = data().getUriInfo().getAbsolutePathBuilder().path(uniqueId.toString()).build();
+        } else {
+          s_logger.warn("No time-series added for {} ", requestIdentifier);
+          uri = uri(data());
+        }
+      } else {
+        uri = uri(data(), identifiers);
+      }
+    } 
+    
+    return Response.created(uri).build();
   }
 
   private FlexiBean createPostJSONOutput(Map<ExternalId, UniqueId> added, String idScheme) {
