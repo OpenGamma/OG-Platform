@@ -22,9 +22,9 @@ import com.opengamma.id.ExternalIdBundleFudgeBuilder;
 public class LiveDataSpecificationFudgeBuilder implements FudgeBuilder<LiveDataSpecification> {
 
   /** Field name. */
-  public static final String NORMALIZATION_RULE_SET_ID_FIELD_NAME = "normalizationRuleSetId";
+  public static final String NORMALIZATION_RULE_SET_ID_FIELD_NAME = "NormalizationRuleSetId";
   /** Field name. */
-  public static final String DOMAIN_SPECIFIC_IDS_FIELD_NAME = "identifiers";
+  public static final String DOMAIN_SPECIFIC_IDS_FIELD_NAME = "DomainSpecificIdentifiers";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, LiveDataSpecification object) {
