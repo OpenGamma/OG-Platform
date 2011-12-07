@@ -228,7 +228,11 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       if (fullHtsElement != null) {
         hts = getSubSeries((HistoricalTimeSeries) fullHtsElement.getValue(), start, includeStart, end, includeEnd, maxPoints);
       } else {
-        hts = _underlying.getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd, maxPoints);
+        if (maxPoints == null) {
+          hts = _underlying.getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
+        } else {
+          hts = _underlying.getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd, maxPoints);
+        }
         if (hts != null) {
           s_logger.debug("Caching sub time-series {}", hts);
           _dataCache.put(new Element(key, hts));
@@ -359,8 +363,13 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       if (fullHtsElement != null) {
         hts = getSubSeries((HistoricalTimeSeries) fullHtsElement.getValue(), start, includeStart, end, includeEnd, maxPoints);
       } else {
-        hts = _underlying.getHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField, 
-            start, includeStart, end, includeEnd, maxPoints);
+        if (maxPoints == null) {
+          hts = _underlying.getHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField, 
+              start, includeStart, end, includeEnd);
+        } else {
+          hts = _underlying.getHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField, 
+              start, includeStart, end, includeEnd, maxPoints);
+        }
         if (hts != null) {
           s_logger.debug("Caching sub time-series {}", hts);
           _dataCache.put(new Element(key, hts));
@@ -546,7 +555,11 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       if (fullHtsElement != null) {
         hts = getSubSeries((HistoricalTimeSeries) fullHtsElement.getValue(), start, includeStart, end, includeEnd, maxPoints);
       } else {
-        hts = _underlying.getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, start, includeStart, end, includeEnd, maxPoints);
+        if (maxPoints == null) {
+          hts = _underlying.getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, start, includeStart, end, includeEnd);
+        } else {
+          hts = _underlying.getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, start, includeStart, end, includeEnd, maxPoints);          
+        }
         if (hts != null) {
           s_logger.debug("Caching sub time-series {}", hts);
           _dataCache.put(new Element(key, hts));
