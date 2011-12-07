@@ -10,11 +10,12 @@
     <ROW Property="DialogBitmap" Value="dialog" MultiBuildValue="MSI_32:opengamma_dialog.bmp#MSI_64:opengamma_dialog.bmp" Type="1" MsiKey="DialogBitmap"/>
     <ROW Property="Manufacturer" Value="OpenGamma Ltd" ValueLocId="*"/>
     <ROW Property="ProductCode" Value="1033:{0FE3D4EA-B175-4F6A-98D4-E1AF3011ACF3} " Type="16"/>
+    <ROW Property="ProductKey32" Value="LanguageIntegration"/>
+    <ROW Property="ProductKey64" Value="LanguageIntegration"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Language Integration Service" ValueLocId="*"/>
     <ROW Property="ProductVersion" Value="0.9.0"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
-    <ROW Property="ServiceUserPassword" Value="Og4&quot;n9dn£$1b359ZL"/>
     <ROW Property="UpgradeCode" Value="{98DEC07C-8C4F-4775-B835-8AF302783200}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="MSI_32:Windows 9x/ME#MSI_64:Windows 9x/ME" ValueLocId="-"/>
     <ROW Property="WindowsType9XDisplay" MultiBuildValue="MSI_32:Windows 9x/ME#MSI_64:Windows 9x/ME" ValueLocId="-"/>
@@ -36,24 +37,22 @@
     <ROW Component="Connector" ComponentId="{0E995452-78B5-414D-B4B1-DB9B3BA6DD7F}" Directory_="Connector_Dir" Attributes="0" KeyPath="stdafx.h" Type="0"/>
     <ROW Component="D47E8ACA_EC67_4483_872C_C8478728E5E9" ComponentId="{3CF23DCC-5066-4104-BFA7-3708DF5FF133}" Directory_="APPDIR" Attributes="4" KeyPath="D47E8ACA_EC67_4483_872C_C8478728E5E9" Options="2"/>
     <ROW Component="Service" ComponentId="{8CACED3E-2484-4704-B456-C84D2A072E38}" Directory_="Service_Dir" Attributes="0" KeyPath="stdafx.h_1" Type="0"/>
-    <ROW Component="ServiceRunner.exe_32" ComponentId="{D4D07BB2-AF73-4D33-A3E7-B9B38831227C}" Directory_="bin32_Dir" Attributes="0" KeyPath="ServiceRunner.exe"/>
-    <ROW Component="ServiceRunner.exe_64" ComponentId="{C173072E-35F5-41F3-9F9B-16B43333FAE8}" Directory_="bin64_Dir" Attributes="256" Condition="VersionNT64" KeyPath="ServiceRunner.exe_1"/>
+    <ROW Component="ServiceRunner.exe_32" ComponentId="{D4D07BB2-AF73-4D33-A3E7-B9B38831227C}" Directory_="bin32_Dir" Attributes="0" KeyPath="ServiceRunner32.exe"/>
+    <ROW Component="ServiceRunner.exe_64" ComponentId="{C173072E-35F5-41F3-9F9B-16B43333FAE8}" Directory_="bin64_Dir" Attributes="256" Condition="VersionNT64" KeyPath="ServiceRunner64.exe"/>
+    <ROW Component="Settings" ComponentId="{B84C8F66-FCCC-4DF2-A081-741E2EB354F6}" Directory_="APPDIR" Attributes="4" KeyPath="ProductName"/>
+    <ROW Component="Settings64" ComponentId="{C3337D29-E1C9-4C71-B34F-2936B4BF7BB4}" Directory_="APPDIR" Attributes="260" Condition="VersionNT64" KeyPath="Version64"/>
     <ROW Component="Util" ComponentId="{9402417B-708A-4700-AEEA-F76B9EB7C135}" Directory_="Util_Dir" Attributes="0" KeyPath="AbstractSettings.h" Type="0"/>
     <ROW Component="client.jar" ComponentId="{E51B43F9-6269-4B88-AD09-CDA336721F27}" Directory_="APPDIR" Attributes="0" KeyPath="client.jar"/>
-    <ROW Component="core" ComponentId="{B84C8F66-FCCC-4DF2-A081-741E2EB354F6}" Directory_="APPDIR" Attributes="4" KeyPath="ProductName_"/>
     <ROW Component="dll_32" ComponentId="{B684DCA0-388C-472C-A05C-DC4073638C88}" Directory_="bin32_Dir" Attributes="0" KeyPath="apr.dll"/>
     <ROW Component="dll_64" ComponentId="{50CF50B3-9870-4945-83AB-EBEE28CC6051}" Directory_="bin64_Dir" Attributes="256" Condition="VersionNT64" KeyPath="apr.dll_1"/>
     <ROW Component="jars" ComponentId="{B1FD9514-9D7C-47FE-95D1-3E363FE63EFD}" Directory_="jar_Dir" Attributes="0" KeyPath="cern_colt_colt.jar"/>
-    <ROW Component="jvmProperty" ComponentId="{C320C208-C96E-4DD0-B6CB-F0840397CD8A}" Directory_="APPDIR" Attributes="4" KeyPath="jvmProperty.opengamma.configuration.url"/>
     <ROW Component="lib_32" ComponentId="{021AA5D2-3C12-488B-9EFB-88B0E54E7414}" Directory_="bin32_Dir" Attributes="0" KeyPath="Connector.lib"/>
     <ROW Component="lib_64" ComponentId="{920E683F-B17B-45D3-8365-59390F4EB333}" Directory_="bin64_Dir" Attributes="256" Condition="VersionNT64" KeyPath="Connector.lib_1"/>
     <ROW Component="og_language.xml" ComponentId="{A8D9EB24-FCA8-4EC4-9DA2-0A9A0FD19762}" Directory_="ext_Dir" Attributes="0" KeyPath="og_language.xml"/>
-    <ROW Component="service" ComponentId="{1FCAA561-3F98-416E-9B59-9DC777E6B39C}" Directory_="APPDIR" Attributes="4" KeyPath="serviceSDDL"/>
-    <ROW Component="serviceLogConfiguration" ComponentId="{3A206CF3-F505-4B21-A396-51974B741C4A}" Directory_="APPDIR" Attributes="4" KeyPath="serviceLogConfiguration"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
     <ROW Feature="A36DC7A_AF70_4CF0_B489_B30E0828F882" Title="A36DC7A_AF70_4CF0_B489_B30E0828F882" Description="Visual C++ 2010 Redistributable x86" Display="13" Level="1" Attributes="0" Components="A36DC7A_AF70_4CF0_B489_B30E0828F882"/>
-    <ROW Feature="Config" Title="Default Configuration" Description="Default system configuration" Display="5" Level="1" Directory_="APPDIR" Attributes="0" Components="core jvmProperty service serviceLogConfiguration"/>
+    <ROW Feature="Config" Title="Default Configuration" Description="Default system configuration" Display="5" Level="1" Directory_="APPDIR" Attributes="0" Components="Settings Settings64"/>
     <ROW Feature="D47E8ACA_EC67_4483_872C_C8478728E5E9" Title="D47E8ACA_EC67_4483_872C_C8478728E5E9" Description="Visual C++ 2010 Redistributable x64" Display="15" Level="1" Attributes="0" Components="D47E8ACA_EC67_4483_872C_C8478728E5E9"/>
     <ROW Feature="Java" Title="Java" Description="Java libraries and components" Display="3" Level="1" Directory_="APPDIR" Attributes="0" Components="client.jar jars og_language.xml"/>
     <ROW Feature="client_32" Feature_Parent="core_32" Title="32-bit Client SDK" Description="Support for 32 bit API clients" Display="3" Level="4" Directory_="APPDIR" Attributes="0" Components="lib_32"/>
@@ -102,10 +101,10 @@
     <ROW File="RequestBuilder.h" Component_="Connector" FileName="Reques~1.h|RequestBuilder.h" Attributes="0" SourcePath="..\Connector\RequestBuilder.h" SelfReg="false" NextFile="Settings.h"/>
     <ROW File="Semaphore.h" Component_="Util" FileName="Semaph~1.h|Semaphore.h" Attributes="0" SourcePath="..\Util\Semaphore.h" SelfReg="false" NextFile="stdafx.h_2"/>
     <ROW File="Service.h" Component_="Service" FileName="Service.h" Attributes="0" SourcePath="..\Service\Service.h" SelfReg="false" NextFile="Settings.h_1"/>
-    <ROW File="Service.lib" Component_="lib_32" FileName="Service.lib" Attributes="0" SourcePath="..\build\ReleaseWin32\Service.lib" SelfReg="false" NextFile="ServiceRunner.exe"/>
+    <ROW File="Service.lib" Component_="lib_32" FileName="Service.lib" Attributes="0" SourcePath="..\build\ReleaseWin32\Service.lib" SelfReg="false" NextFile="ServiceRunner32.exe"/>
     <ROW File="Service.lib_1" Component_="lib_64" FileName="Service.lib" Attributes="0" SourcePath="..\build\Releasex64\Service.lib" SelfReg="false" NextFile="Util.lib_1"/>
-    <ROW File="ServiceRunner.exe" Component_="ServiceRunner.exe_32" FileName="Servic~1.exe|ServiceRunner.exe" Attributes="0" SourcePath="..\build\ReleaseWin32\ServiceRunner.exe" SelfReg="false" NextFile="Util.lib"/>
-    <ROW File="ServiceRunner.exe_1" Component_="ServiceRunner.exe_64" FileName="Servic~1.exe|ServiceRunner.exe" Attributes="0" SourcePath="..\build\Releasex64\ServiceRunner.exe" SelfReg="false" NextFile="og_language.xml"/>
+    <ROW File="ServiceRunner32.exe" Component_="ServiceRunner.exe_32" FileName="Servic~1.exe|ServiceRunner.exe" Attributes="0" SourcePath="..\build\ReleaseWin32\ServiceRunner.exe" SelfReg="false" NextFile="Util.lib"/>
+    <ROW File="ServiceRunner64.exe" Component_="ServiceRunner.exe_64" FileName="Servic~1.exe|ServiceRunner.exe" Attributes="0" SourcePath="..\build\Releasex64\ServiceRunner.exe" SelfReg="false" NextFile="og_language.xml"/>
     <ROW File="Settings.h" Component_="Connector" FileName="Settings.h" Attributes="0" SourcePath="..\Connector\Settings.h" SelfReg="false" NextFile="stdafx.h"/>
     <ROW File="Settings.h_1" Component_="Service" FileName="Settings.h" Attributes="0" SourcePath="..\Service\Settings.h" SelfReg="false" NextFile="stdafx.h_1"/>
     <ROW File="String.h" Component_="Util" FileName="String.h" Attributes="0" SourcePath="..\Util\String.h" SelfReg="false" NextFile="Thread.h"/>
@@ -310,7 +309,10 @@
     <ROW File="stdafx.h" Component_="Connector" FileName="stdafx.h" Attributes="0" SourcePath="..\Connector\stdafx.h" SelfReg="false" NextFile="SynchronousCalls.h"/>
     <ROW File="stdafx.h_1" Component_="Service" FileName="stdafx.h" Attributes="0" SourcePath="..\Service\stdafx.h" SelfReg="false" NextFile="AbstractSettings.h"/>
     <ROW File="stdafx.h_2" Component_="Util" FileName="stdafx.h" Attributes="0" SourcePath="..\Util\stdafx.h" SelfReg="false" NextFile="String.h"/>
-    <ROW File="us.fed.fs_optimization_optimization.jar" Component_="jars" FileName="usfedf~1.jar|us.fed.fs-optimization-optimization.jar" Attributes="0" SourcePath="..\build\jar\us.fed.fs-optimization-optimization.jar" SelfReg="false" NextFile="ServiceRunner.exe_1"/>
+    <ROW File="us.fed.fs_optimization_optimization.jar" Component_="jars" FileName="usfedf~1.jar|us.fed.fs-optimization-optimization.jar" Attributes="0" SourcePath="..\build\jar\us.fed.fs-optimization-optimization.jar" SelfReg="false" NextFile="ServiceRunner64.exe"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.BootstrOptComponent">
+    <ROW BootstrOptKey="GlobalOptions" GeneralOptions="o" EulaPathLocId="*" IntroTextPathLocId="*"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
     <ROW BuildKey="MSI_32" BuildName="MSI_32" BuildOrder="1" BuildType="1" PackageFolder="." PackageFileName="OG-Language-[|ProductVersion]-32-bit" Languages="en" InstallationType="4"/>
@@ -320,6 +322,10 @@
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
     <ROW Path="&lt;AI_DICTS&gt;ui.ail"/>
     <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.FirewallExceptionComponent">
+    <ROW FirewallException="bit_service" DisplayName="64-bit service" Enabled="1" Scope="*" Condition="((?ServiceRunner.exe_64=2) AND ($ServiceRunner.exe_64=3))" Profiles="0" AppPath="[#ServiceRunner64.exe]"/>
+    <ROW FirewallException="bit_service_1" DisplayName="32-bit service" Enabled="1" Scope="*" Condition="((?ServiceRunner.exe_32=2) AND ($ServiceRunner.exe_32=3))" Profiles="0" AppPath="[#ServiceRunner32.exe]"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
     <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
@@ -333,6 +339,11 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiActionTextComponent">
     <ROW Action="AI_DownloadPrereq" Description="Downloading prerequisite software" Template="Downloading [1]{[2] completed}" DescriptionLocId="ActionText.Description.AI_DownloadPrereq" TemplateLocId="ActionText.Template.AI_DownloadPrereq"/>
     <ROW Action="AI_ExtractPrereq" Description="Extracting prerequisite software" Template="Extracting [1]{[2] completed}" DescriptionLocId="ActionText.Description.AI_ExtractPrereq" TemplateLocId="ActionText.Template.AI_ExtractPrereq"/>
+    <ROW Action="AI_FwConfig" Description="Executing Windows Firewall configurations" Template="Configuring Windows Firewall rule: &quot;[1]&quot;" DescriptionLocId="ActionText.Description.AI_FwConfig" TemplateLocId="ActionText.Template.AI_FwConfig"/>
+    <ROW Action="AI_FwInstall" Description="Generating actions to configure Windows Firewall" DescriptionLocId="ActionText.Description.AI_FwInstall"/>
+    <ROW Action="AI_FwRemove" Description="Executing Windows Firewall configurations" Template="Configuring Windows Firewall rule:  &quot;[1]&quot;" DescriptionLocId="ActionText.Description.AI_FwRemove" TemplateLocId="ActionText.Template.AI_FwRemove"/>
+    <ROW Action="AI_FwRollback" Description="Rolling back Windows Firewall configurations." Template="Rolling back Windows Firewall configurations." DescriptionLocId="ActionText.Description.AI_FwRollback" TemplateLocId="ActionText.Template.AI_FwRollback"/>
+    <ROW Action="AI_FwUninstall" Description="Generating actions to configure Windows Firewall" DescriptionLocId="ActionText.Description.AI_FwUninstall"/>
     <ROW Action="AI_InstallPostPrerequisite" Description="Installing prerequisite software" Template="Installing [1]{[2] completed}" DescriptionLocId="ActionText.Description.AI_InstallPrerequisite" TemplateLocId="ActionText.Template.AI_InstallPrerequisite"/>
     <ROW Action="AI_InstallPrerequisite" Description="Installing prerequisite software" Template="Installing [1]{[2] completed}" DescriptionLocId="ActionText.Description.AI_InstallPrerequisite" TemplateLocId="ActionText.Template.AI_InstallPrerequisite"/>
     <ROW Action="AI_TxtUpdaterCommit" Description="Commit text file changes. " Template="Commit text file changes." DescriptionLocId="ActionText.Description.AI_TxtUpdaterCommit" TemplateLocId="ActionText.Template.AI_TxtUpdaterCommit"/>
@@ -351,6 +362,7 @@
     <ROW Property="OPENGAMMA.CONFIGURATION.URL" Signature_="AppSearchSign"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
+    <ROW Name="NetFirewall.dll" SourcePath="&lt;AI_CUSTACTS&gt;NetFirewall.dll"/>
     <ROW Name="Prereq.dll" SourcePath="&lt;AI_CUSTACTS&gt;Prereq.dll"/>
     <ROW Name="TxtUpdater.dll" SourcePath="&lt;AI_CUSTACTS&gt;TxtUpdater.dll"/>
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
@@ -405,6 +417,11 @@
     <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
     <ROW Action="AI_DownloadPrereq" Type="1" Source="Prereq.dll" Target="DownloadPrereq"/>
     <ROW Action="AI_ExtractPrereq" Type="65" Source="Prereq.dll" Target="ExtractPrereq"/>
+    <ROW Action="AI_FwConfig" Type="11265" Source="NetFirewall.dll" Target="OnFwConfig" WithoutSeq="true"/>
+    <ROW Action="AI_FwInstall" Type="1" Source="NetFirewall.dll" Target="OnFwInstall"/>
+    <ROW Action="AI_FwRemove" Type="11265" Source="NetFirewall.dll" Target="OnFwRemove" WithoutSeq="true"/>
+    <ROW Action="AI_FwRollback" Type="11521" Source="NetFirewall.dll" Target="OnFwRollback" WithoutSeq="true"/>
+    <ROW Action="AI_FwUninstall" Type="1" Source="NetFirewall.dll" Target="OnFwUninstall"/>
     <ROW Action="AI_InstallPostPrerequisite" Type="1" Source="Prereq.dll" Target="InstallPostPrereq"/>
     <ROW Action="AI_InstallPrerequisite" Type="65" Source="Prereq.dll" Target="InstallPrereq"/>
     <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
@@ -448,6 +465,8 @@
     <ROW Action="AI_XmlInstall" Condition="(REMOVE &lt;&gt; &quot;ALL&quot;)" Sequence="5101"/>
     <ROW Action="AI_XmlUninstall" Condition="(REMOVE)" Sequence="3101"/>
     <ROW Action="AI_VerifyPrereq" Sequence="1201"/>
+    <ROW Action="AI_FwInstall" Condition="(VersionNT &gt;= 501) AND (REMOVE &lt;&gt; &quot;ALL&quot;)" Sequence="5849"/>
+    <ROW Action="AI_FwUninstall" Condition="(VersionNT &gt;= 501) AND (REMOVE=&quot;ALL&quot;)" Sequence="1699"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="745"/>
@@ -469,22 +488,30 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
     <ROW Registry="A36DC7A_AF70_4CF0_B489_B30E0828F882" Root="-1" Key="Software\Caphyon\Advanced Installer\Prereqs\[ProductCode]\[ProductVersion]" Name="A36DC7A_AF70_4CF0_B489_B30E0828F882" Value="1" Component_="A36DC7A_AF70_4CF0_B489_B30E0828F882"/>
     <ROW Registry="D47E8ACA_EC67_4483_872C_C8478728E5E9" Root="-1" Key="Software\Caphyon\Advanced Installer\Prereqs\[ProductCode]\[ProductVersion]" Name="D47E8ACA_EC67_4483_872C_C8478728E5E9" Value="1" Component_="D47E8ACA_EC67_4483_872C_C8478728E5E9"/>
-    <ROW Registry="Path" Root="-1" Key="Software\OpenGammaLtd\LanguageIntegration" Name="Path" Value="[APPDIR]" Component_="core"/>
-    <ROW Registry="ProductName_" Root="-1" Key="Software\OpenGammaLtd\LanguageIntegration" Name="+" Component_="core"/>
-    <ROW Registry="Version" Root="-1" Key="Software\OpenGammaLtd\LanguageIntegration" Name="Version" Value="[ProductVersion]" Component_="core"/>
-    <ROW Registry="jvmProperty.opengamma.configuration.failOnInvalid" Root="-1" Key="Software\OpenGammaLtd\LanguageIntegration" Name="jvmProperty.opengamma.configuration.failOnInvalid" Value="TRUE" Component_="jvmProperty"/>
-    <ROW Registry="jvmProperty.opengamma.configuration.failOnMissing" Root="-1" Key="Software\OpenGammaLtd\LanguageIntegration" Name="jvmProperty.opengamma.configuration.failOnMissing" Value="FALSE" Component_="jvmProperty"/>
-    <ROW Registry="jvmProperty.opengamma.configuration.url" Root="-1" Key="Software\OpenGammaLtd\LanguageIntegration" Name="jvmProperty.opengamma.configuration.url" Value="[OPENGAMMA.CONFIGURATION.URL]" Component_="jvmProperty"/>
-    <ROW Registry="serviceLogConfiguration" Root="-1" Key="Software\OpenGammaLtd\LanguageIntegration" Name="serviceLogConfiguration" Value="[APPDIR]log4cxx.service.properties" Component_="serviceLogConfiguration"/>
-    <ROW Registry="serviceSDDL" Root="-1" Key="Software\OpenGammaLtd\LanguageIntegration" Name="serviceSDDL" Value="D:(A;;GA;;;WD)" Component_="service"/>
+    <ROW Registry="Path" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="Path" Value="[APPDIR]" Component_="Settings"/>
+    <ROW Registry="Path64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="Path" Value="[APPDIR]" Component_="Settings64"/>
+    <ROW Registry="ProductName64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="+" Component_="Settings64"/>
+    <ROW Registry="ProductName" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="+" Component_="Settings"/>
+    <ROW Registry="Version" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="Version" Value="[ProductVersion]" Component_="Settings"/>
+    <ROW Registry="Version64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="Version" Value="[ProductVersion]" Component_="Settings64"/>
+    <ROW Registry="jvmProperty.opengamma.configuration.failOnInvalid" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="jvmProperty.opengamma.configuration.failOnInvalid" Value="TRUE" Component_="Settings"/>
+    <ROW Registry="jvmProperty.opengamma.configuration.failOnInvalid64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="jvmProperty.opengamma.configuration.failOnInvalid" Value="TRUE" Component_="Settings64"/>
+    <ROW Registry="jvmProperty.opengamma.configuration.failOnMissing" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="jvmProperty.opengamma.configuration.failOnMissing" Value="FALSE" Component_="Settings"/>
+    <ROW Registry="jvmProperty.opengamma.configuration.failOnMissing64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="jvmProperty.opengamma.configuration.failOnMissing" Value="FALSE" Component_="Settings64"/>
+    <ROW Registry="jvmProperty.opengamma.configuration.url" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="jvmProperty.opengamma.configuration.url" Value="[OPENGAMMA.CONFIGURATION.URL]" Component_="Settings"/>
+    <ROW Registry="jvmProperty.opengamma.configuration.url64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="jvmProperty.opengamma.configuration.url" Value="[OPENGAMMA.CONFIGURATION.URL]" Component_="Settings64"/>
+    <ROW Registry="serviceLogConfiguration" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="serviceLogConfiguration" Value="[APPDIR]log4cxx.service.properties" Component_="Settings"/>
+    <ROW Registry="serviceLogConfiguration64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="serviceLogConfiguration" Value="[APPDIR]log4cxx.service.properties" Component_="Settings64"/>
+    <ROW Registry="serviceSDDL" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="serviceSDDL" Value="D:(A;;GA;;;WD)" Component_="Settings"/>
+    <ROW Registry="serviceSDDL64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="serviceSDDL" Value="D:(A;;GA;;;WD)" Component_="Settings64"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiServCtrlComponent">
-    <ROW ServiceControl="ServiceRunner.exe" Name="OpenGammaLanguageAPI" Event="161" Wait="1" Component_="ServiceRunner.exe_64"/>
-    <ROW ServiceControl="ServiceRunner.exe_1" Name="OpenGammaLanguageAPI" Event="161" Wait="1" Component_="ServiceRunner.exe_32"/>
+    <ROW ServiceControl="ServiceRunner64.exe" Name="OpenGammaLanguageAPI" Event="161" Wait="1" Component_="ServiceRunner.exe_64"/>
+    <ROW ServiceControl="ServiceRunner32.exe" Name="OpenGammaLanguageAPI" Event="161" Wait="1" Component_="ServiceRunner.exe_32"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiServInstComponent">
-    <ROW ServiceInstall="ServiceRunner.exe" Name="OpenGammaLanguageAPI" DisplayName="OpenGamma Language Integration" ServiceType="16" StartType="3" ErrorControl="1" Component_="ServiceRunner.exe_64" Description="Integration API for using OpenGamma Tools from other environments"/>
-    <ROW ServiceInstall="ServiceRunner.exe_1" Name="OpenGammaLanguageAPI" DisplayName="OpenGamma Language Integration" ServiceType="16" StartType="3" ErrorControl="1" Component_="ServiceRunner.exe_32" Description="Integration API for using OpenGamma Tools from other environments"/>
+    <ROW ServiceInstall="ServiceRunner64.exe" Name="OpenGammaLanguageAPI" DisplayName="OpenGamma Language Integration" ServiceType="16" StartType="3" ErrorControl="1" Component_="ServiceRunner.exe_64" Description="Integration API for using OpenGamma Tools from other environments"/>
+    <ROW ServiceInstall="ServiceRunner32.exe" Name="OpenGammaLanguageAPI" DisplayName="OpenGamma Language Integration" ServiceType="16" StartType="3" ErrorControl="1" Component_="ServiceRunner.exe_32" Description="Integration API for using OpenGamma Tools from other environments"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
     <ATTRIBUTE name="UsedTheme" value="classic"/>
@@ -502,8 +529,8 @@
   <COMPONENT cid="caphyon.advinst.msicomp.PreReqSearchComponent">
     <ROW SearchKey="A36DC7A_AF70_4CF0_B489_B30E0828F882_VC_2010_SEARCH_1" Prereq="A36DC7A_AF70_4CF0_B489_B30E0828F882" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86\Rbld" RefContent="G1" Order="2" Property="AI_VC_2010_PREREQSEARCH_1_PROP_1"/>
     <ROW SearchKey="A36DC7A_AF70_4CF0_B489_B30E0828F882_VC_2010_SEARCH_2" Prereq="A36DC7A_AF70_4CF0_B489_B30E0828F882" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86\Rbld" RefContent="M1" Order="1" Property="AI_VC_2010_PREREQSEARCH_1_PROP"/>
-    <ROW SearchKey="D47E8ACA_EC67_4483_872C_C8478728E5E9_VC_2010_X64_SEARCH_1" Prereq="D47E8ACA_EC67_4483_872C_C8478728E5E9" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x64\Rbld" RefContent="G1" Order="2" Property="AI_VC_2010_X64_PREREQSEARCH_1_PROP"/>
-    <ROW SearchKey="D47E8ACA_EC67_4483_872C_C8478728E5E9_VC_2010_X64_SEARCH_2" Prereq="D47E8ACA_EC67_4483_872C_C8478728E5E9" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x64\Rbld" RefContent="M1" Order="1" Property="AI_VC_2010_X64_PREREQSEARCH_1_PROP_1"/>
+    <ROW SearchKey="D47E8ACA_EC67_4483_872C_C8478728E5E9_VC_2010_X64_SEARCH_1" Prereq="D47E8ACA_EC67_4483_872C_C8478728E5E9" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x64\Rbld" RefContent="G1" Order="2" Property="AI_VC_2010_X64_PREREQSEARCH_1_PROP" Platform="1"/>
+    <ROW SearchKey="D47E8ACA_EC67_4483_872C_C8478728E5E9_VC_2010_X64_SEARCH_2" Prereq="D47E8ACA_EC67_4483_872C_C8478728E5E9" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x64\Rbld" RefContent="M1" Order="1" Property="AI_VC_2010_X64_PREREQSEARCH_1_PROP_1" Platform="1"/>
     <ROW SearchKey="EC39D_0B8D_4C2E_A373_7F11E2281A4C_JRE_SEARCH" Prereq="EC39D_0B8D_4C2E_A373_7F11E2281A4C" SearchType="1" SearchString="HKLM\SOFTWARE\JavaSoft\Java Runtime Environment" VerMin="1.0" Order="1" Property="AI_JRE_PREREQSEARCH_PROP"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.TxtUpdateComponent">
@@ -513,8 +540,8 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.TxtUpdateSetComponent">
     <ROW Key="OpenGamma.properties" Component="client.jar" FileName="OpenGamma.properties" Directory="APPDIR" Options="25"/>
-    <ROW Key="log4cxx.properties" Component="service" FileName="log4cxx.service.properties" Directory="APPDIR" Options="25"/>
-    <ROW Key="log4cxx.service__1_.properties" Component="service" FileName="log4cxx.connector.properties" Directory="APPDIR" Options="25"/>
+    <ROW Key="log4cxx.properties" Component="Settings" FileName="log4cxx.service.properties" Directory="APPDIR" Options="25"/>
+    <ROW Key="log4cxx.service__1_.properties" Component="Settings" FileName="log4cxx.connector.properties" Directory="APPDIR" Options="25"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.XmlAttributeComponent">
     <ROW XmlElement="1" Name="name" Flags="14" Order="0" Value="FILE"/>
@@ -544,6 +571,6 @@
     <ROW XmlElement="13" ParentElement="2" Name="appender-ref" Order="0" Flags="14"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.XmlFileComponent">
-    <ROW XmlFile="New_file.xml" FileName="logback.xml" DirProperty="APPDIR" Component="service" RootElement="0" Flags="25" Version="1.0" Encoding="UTF-8" IndentUnits="2"/>
+    <ROW XmlFile="New_file.xml" FileName="logback.xml" DirProperty="APPDIR" Component="Settings" RootElement="0" Flags="25" Version="1.0" Encoding="UTF-8" IndentUnits="2"/>
   </COMPONENT>
 </DOCUMENT>
