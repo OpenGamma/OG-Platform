@@ -7,16 +7,26 @@ package com.opengamma.web.server.push;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.financial.aggregation.AggregationFunction;
+import com.opengamma.financial.view.ManageableViewDefinitionRepository;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.server.AggregatedViewDefinitionManager;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,22 +37,39 @@ public class PushLiveResultsService implements ViewportFactory {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PushLiveResultsService.class);
 
+  /** Client's web view keyed on viewport ID */
   private final Map<String, PushWebView> _clientViews = new HashMap<String, PushWebView>();
   private final Map<String, String> _clientIdToViewportKey = new HashMap<String, String>();
   private final ViewProcessor _viewProcessor;
   private final UserPrincipal _user;
   private final ResultConverterCache _resultConverterCache;
   private final Object _lock = new Object();
+  private final AggregatedViewDefinitionManager _aggregatedViewDefinitionManager;
 
-  public PushLiveResultsService(ViewProcessor viewProcessor, UserPrincipal user, FudgeContext fudgeContext) {
+  public PushLiveResultsService(ViewProcessor viewProcessor,
+                                PositionSource positionSource,
+                                SecuritySource securitySource,
+                                PortfolioMaster userPortfolioMaster,
+                                PositionMaster userPositionMaster,
+                                ManageableViewDefinitionRepository userViewDefinitionRepository,
+                                UserPrincipal user,
+                                FudgeContext fudgeContext,
+                                List<AggregationFunction<?>> portfolioAggregators) {
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(user, "user");
 
     _viewProcessor = viewProcessor;
     _user = user;
     _resultConverterCache = new ResultConverterCache(fudgeContext);
+    _aggregatedViewDefinitionManager = new AggregatedViewDefinitionManager(positionSource,
+                                                                           securitySource,
+                                                                           viewProcessor.getViewDefinitionRepository(),
+                                                                           userViewDefinitionRepository,
+                                                                           userPortfolioMaster,
+                                                                           userPositionMaster,
+                                                                           mapPortfolioAggregators(portfolioAggregators));
   }
-  
+
   // TODO this needs to be called from the update manager when the client disconnects
   public void clientDisconnected(String clientId) {
     s_logger.debug("Client " + clientId + " disconnected");
@@ -50,7 +77,7 @@ public class PushLiveResultsService implements ViewportFactory {
     synchronized (_lock) {
       String viewportKey = _clientIdToViewportKey.remove(clientId);
       if (viewportKey != null) {
-        view = _clientViews.remove(clientId);
+        view = _clientViews.remove(viewportKey);
       }
     }
     if (view != null) {
@@ -58,47 +85,72 @@ public class PushLiveResultsService implements ViewportFactory {
     }
   }
 
+  // TODO why is this here and not in the constructor of AggregatedViewDefinitionManager?
+  private static Map<String, AggregationFunction<?>> mapPortfolioAggregators(List<AggregationFunction<?>> portfolioAggregators) {
+    Map<String, AggregationFunction<?>> result = new HashMap<String, AggregationFunction<?>>();
+    for (AggregationFunction<?> portfolioAggregator : portfolioAggregators) {
+      result.put(portfolioAggregator.getName(), portfolioAggregator);
+    }
+    return result;
+  }
+
   // used by the REST interface that gets analytics as CSV - will that be moved here?
   // TODO might be better to pass the call through rather than returning the WebView and calling that
-  public PushWebView getClientView(String clientId) {
+  /*public PushWebView getClientView(String clientId) {
     synchronized (_lock) {
-      return _clientViews.get(clientId);
+      String viewportKey = _clientIdToViewportKey.get(clientId);
+      return _clientViews.get(viewportKey);
     }
-  }
+  }*/
 
   @Override
   public Viewport createViewport(String clientId, String viewportKey, ViewportDefinition viewportDefinition, AnalyticsListener listener) {
-    String viewDefinitionName = viewportDefinition.getViewDefinitionName();
     synchronized (_lock) {
-      String currentKey = _clientIdToViewportKey.remove(clientId);
-      PushWebView webView = null;
-      if (currentKey != null) {
-        webView = _clientViews.get(currentKey);
-      }
-      // TODO is this relevant any more?
-      if (webView != null) {
-        // TODO execution options need to be in the viewport def
-        if (webView.matches(viewDefinitionName, viewportDefinition.getExecutionOptions())) {
-          // Already initialized
-          // this used to deliver the grid structure to the client
-          // TODO is there any possibility the WebView won't have a compiled view def at this point?
-          return webView.configureViewport(viewportDefinition, listener, viewportKey);
+      UniqueId baseViewDefinitionId = getViewDefinitionId(viewportDefinition.getViewDefinitionName());
+      String currentViewportKey = _clientIdToViewportKey.remove(clientId);
+      PushWebView webView;
+      String aggregatorName = viewportDefinition.getAggregatorName();
+
+      if (currentViewportKey != null) {
+        webView = _clientViews.get(currentViewportKey);
+        // TODO is this relevant any more?
+        if (webView != null) {
+          if (webView.matches(baseViewDefinitionId, viewportDefinition)) {
+            // Already initialized
+            // TODO is there any possibility the WebView won't have a compiled view def at this point?
+            return webView.configureViewport(viewportDefinition, listener, viewportKey);
+          }
+          // Existing view is different - client is switching views
+          shutDownWebView(webView);
+          _clientViews.remove(currentViewportKey);
         }
-        // Existing view is different - client is switching views
-        webView.shutdown();
-        _clientViews.remove(viewportKey);
       }
+
       ViewClient viewClient = _viewProcessor.createViewClient(_user);
       try {
-        webView = new PushWebView(viewClient, viewDefinitionName, _resultConverterCache, viewportDefinition, listener);
+        UniqueId viewDefinitionId = _aggregatedViewDefinitionManager.getViewDefinitionId(baseViewDefinitionId, aggregatorName);
+        webView = new PushWebView(viewClient, viewportDefinition, baseViewDefinitionId, viewDefinitionId, _resultConverterCache, listener);
       } catch (Exception e) {
         viewClient.shutdown();
-        throw new OpenGammaRuntimeException("Error attaching client to view definition '" + viewDefinitionName + "'", e);
+        throw new OpenGammaRuntimeException("Error attaching client to view definition '" + baseViewDefinitionId + "'", e);
       }
-      _clientViews.put(clientId, webView);
+      _clientViews.put(viewportKey, webView);
       _clientIdToViewportKey.put(clientId, viewportKey);
       return webView;
     }
+  }
+
+  private UniqueId getViewDefinitionId(String viewDefinitionName) {
+    ViewDefinition view = _viewProcessor.getViewDefinitionRepository().getDefinition(viewDefinitionName);
+    if (view == null) {
+      throw new OpenGammaRuntimeException("Unable to find view definition with name " + viewDefinitionName);
+    }
+    return view.getUniqueId().toLatest();
+  }
+
+  private void shutDownWebView(PushWebView webView) {
+    webView.shutdown();
+    _aggregatedViewDefinitionManager.releaseViewDefinition(webView.getBaseViewDefinitionId(), webView.getAggregatorName());
   }
 
   @Override

@@ -39,8 +39,10 @@ import java.util.concurrent.atomic.AtomicLong;
 
   /** Connections keyed on client ID */
   private final Map<String, ClientConnection> _connectionsByClientId = new HashMap<String, ClientConnection>();
-  private final Map<String, ClientConnection> _connectionsByViewportUrl = new HashMap<String, ClientConnection>();
-  private final Map<String, String> _clientIdsToViewportUrls = new HashMap<String, String>();
+  /** Connections keyed on viewport ID */
+  private final Map<String, ClientConnection> _connectionsByViewportId = new HashMap<String, ClientConnection>();
+  /** Viewport IDs keyed on client ID */
+  private final Map<String, String> _clientIdsToViewportIds = new HashMap<String, String>();
   private final Map<String, ConnectionTimeoutTask> _timeoutTasks = new HashMap<String, ConnectionTimeoutTask>();
   private final Timer _timer = new Timer();
   private final MasterChangeManager _masterChangeManager;
@@ -87,9 +89,9 @@ import java.util.concurrent.atomic.AtomicLong;
     synchronized (_lock) {
       connection = getConnectionByClientId(userId, clientId);
       _connectionsByClientId.remove(clientId);
-      String viewportUrl = _clientIdsToViewportUrls.remove(clientId);
+      String viewportUrl = _clientIdsToViewportIds.remove(clientId);
       if (viewportUrl != null) {
-        _connectionsByViewportUrl.remove(viewportUrl);
+        _connectionsByViewportId.remove(viewportUrl);
       }
       _timeoutTasks.remove(clientId);
       _changeManager.removeChangeListener(connection);
@@ -113,9 +115,9 @@ import java.util.concurrent.atomic.AtomicLong;
   }
 
   @Override
-  public Viewport getViewport(String userId, String clientId, String viewportUrl) {
+  public Viewport getViewport(String userId, String clientId, String viewportId) {
     synchronized (_lock) {
-      return getConnectionByViewportUrl(userId, viewportUrl).getViewport(viewportUrl);
+      return getConnectionByViewportUrl(userId, viewportId).getViewport(viewportId);
     }
   }
 
@@ -123,7 +125,7 @@ import java.util.concurrent.atomic.AtomicLong;
   public void createViewport(String userId,
                              String clientId,
                              ViewportDefinition viewportDefinition,
-                             String viewportUrl,
+                             String viewportId,
                              String dataUrl,
                              String gridUrl) {
     synchronized (_lock) {
@@ -131,9 +133,9 @@ import java.util.concurrent.atomic.AtomicLong;
       // TODO this isn't great - need to do this in a sync block to avoid a race condition where the connection is keyed
       // by viewport URL before it's created the viewport.  but creating a viewport can involve creating and attaching
       // a view client which might be slow and is locking this class for all clients.
-      connection.createViewport(viewportDefinition, viewportUrl, dataUrl, gridUrl);
-      _connectionsByViewportUrl.put(viewportUrl, connection);
-      _clientIdsToViewportUrls.put(clientId, viewportUrl);
+      connection.createViewport(viewportDefinition, viewportId, dataUrl, gridUrl);
+      _connectionsByViewportId.put(viewportId, connection);
+      _clientIdsToViewportIds.put(clientId, viewportId);
     }
   }
 
@@ -153,7 +155,7 @@ import java.util.concurrent.atomic.AtomicLong;
   }
 
   private ClientConnection getConnectionByViewportUrl(String userId, String viewportUrl) {
-    ClientConnection connection = _connectionsByViewportUrl.get(viewportUrl);
+    ClientConnection connection = _connectionsByViewportId.get(viewportUrl);
     if (connection == null) {
       throw new DataNotFoundException("Unknown viewport ID: " + viewportUrl);
     }

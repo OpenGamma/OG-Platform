@@ -15,7 +15,7 @@ public class EngineAnalyticsTest {
   public static void main(String[] args) throws IOException, JSONException {
     String clientId = WebPushTestUtils.handshake();
     String viewDefJson = "{" +
-        "\"viewDefinitionName\": \"Simple Cash Test View\", " +
+        "\"viewDefinitionName\": \"Single Swap Test View\", " +
         //"\"snapshotId\": \"Tst~123\", " + // use live data
         "\"portfolioViewport\": {" +
         "\"rows\": [[0, null], [1, null], [2, null], [3, null]], " +

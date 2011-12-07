@@ -560,8 +560,14 @@
   <!-- new Web-interface -->
   <bean id="liveResultsService" class="com.opengamma.web.server.push.PushLiveResultsService">
     <constructor-arg ref="demoViewProcessor" />
+    <constructor-arg ref="combinedPositionSource" />
+    <constructor-arg ref="combinedSecuritySource" />
+    <constructor-arg ref="userFinancialPortfolioMaster" />
+    <constructor-arg ref="userFinancialPositionMaster" />
+    <constructor-arg ref="userViewDefinitionRepository" />
     <constructor-arg ref="testUser" />
     <constructor-arg ref="fudgeContext" />
+    <constructor-arg ref="portfolioAggregationFunctions" />
   </bean>
 
   <bean id="longPollingConnectionManager" class="com.opengamma.web.server.push.LongPollingConnectionManager">

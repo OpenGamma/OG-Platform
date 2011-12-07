@@ -13,6 +13,7 @@ import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.WebGridCell;
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,6 +43,7 @@ public class ViewportDefinition {
   /** Row timestamp keyed on row number */
   private final SortedMap<Integer, Long> _portfolioRowTimstamps;
   private final SortedMap<Integer, Long> _primitiveRowTimstamps;
+  private final String _aggregatorName;
   private final List<WebGridCell> _portfolioDependencyGraphCells;
   private final List<WebGridCell> _primitiveDependencyGraphCells;
   private final String _viewDefinitionName;
@@ -59,7 +61,8 @@ public class ViewportDefinition {
                              List<WebGridCell> portfolioDependencyGraphCells,
                              List<WebGridCell> primitiveDependencyGraphCells,
                              MarketDataType marketDataType,
-                             String marketDataProvider) {
+                             String marketDataProvider,
+                             String aggregatorName) {
     // TODO check args
     // TODO wrap in immutable collections?
     _portfolioDependencyGraphCells = portfolioDependencyGraphCells;
@@ -68,6 +71,7 @@ public class ViewportDefinition {
     _snapshotId = snapshotId;
     _portfolioRowTimstamps = portfolioRowTimstamps;
     _primitiveRowTimstamps = primitiveRowTimstamps;
+    _aggregatorName = aggregatorName;
     _executionOptions = createExecutionOptions(marketDataType, snapshotId, marketDataProvider);
   }
 
@@ -113,7 +117,13 @@ public class ViewportDefinition {
       marketData: {type: snapshot, snapshotId: ...}
       no marketData = live data from default provider?
       */
-      MarketDataType marketDataType = MarketDataType.valueOf(jsonObject.getString(MARKET_DATA_TYPE));
+      String marketDataTypeName = jsonObject.optString(MARKET_DATA_TYPE);
+      MarketDataType marketDataType;
+      if (StringUtils.isEmpty(marketDataTypeName)) {
+        marketDataType = MarketDataType.live;
+      } else {
+        marketDataType = MarketDataType.valueOf(marketDataTypeName);
+      }
       String marketDataProvider;
       UniqueId snapshotId;
       if (marketDataType == MarketDataType.snapshot) {
@@ -123,11 +133,13 @@ public class ViewportDefinition {
       } else {
         // market data provider is optional for live data, blank means default provider
         marketDataProvider = jsonObject.optString(MARKET_DATA_PROVIDER);
-        if (marketDataProvider == null) {
+        if (StringUtils.isEmpty(marketDataProvider)) {
           marketDataProvider = DEFAULT_LIVE_MARKET_DATA_NAME;
         }
         snapshotId = null;
       }
+      // TODO get this from the JSON
+      String aggregatorName = null;
       return new ViewportDefinition(viewDefinitionName,
                                     snapshotId,
                                     primitiveRows,
@@ -135,7 +147,8 @@ public class ViewportDefinition {
                                     portfolioDepGraphCells,
                                     primitiveDepGraphCells,
                                     marketDataType,
-                                    marketDataProvider);
+                                    marketDataProvider,
+                                    aggregatorName);
     } catch (JSONException e) {
       throw new IllegalArgumentException("Unable to create ViewportDefinition from JSON: " + json, e);
     }
@@ -236,5 +249,9 @@ public class ViewportDefinition {
 
   public ViewExecutionOptions getExecutionOptions() {
     return _executionOptions;
+  }
+
+  public String getAggregatorName() {
+    return _aggregatorName;
   }
 }

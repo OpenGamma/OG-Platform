@@ -5,26 +5,21 @@
  */
 package com.opengamma.web.server.push;
 
-import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.WebGridCell;
-import com.opengamma.web.server.WebViewPortfolioGrid;
-import com.opengamma.web.server.WebViewPrimitivesGrid;
 import com.opengamma.web.server.conversion.ConversionMode;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,7 +34,8 @@ public class PushWebView implements Viewport {
   private static final Logger s_logger = LoggerFactory.getLogger(PushWebView.class);
 
   private final ViewClient _viewClient;
-  private final String _viewDefinitionName;
+  private final UniqueId _baseViewDefinitionId;
+  private final UniqueId _viewDefinitionId;
   private final ResultConverterCache _resultConverterCache;
   private final Map<String,Object> _latestResults = new HashMap<String, Object>();
   private final Object _lock = new Object();
@@ -56,12 +52,14 @@ public class PushWebView implements Viewport {
   private boolean _sendAnalyticsUpdates = false;
 
   public PushWebView(ViewClient viewClient,
-                     String viewDefinitionName,
-                     ResultConverterCache resultConverterCache,
                      ViewportDefinition viewportDefinition,
+                     UniqueId baseViewDefinitionId,
+                     UniqueId viewDefinitionId,
+                     ResultConverterCache resultConverterCache,
                      AnalyticsListener listener) {
     _viewClient = viewClient;
-    _viewDefinitionName = viewDefinitionName;
+    _baseViewDefinitionId = baseViewDefinitionId;
+    _viewDefinitionId = viewDefinitionId;
     _resultConverterCache = resultConverterCache;
     _viewportDefinition = viewportDefinition;
     _listener = listener;
@@ -81,13 +79,12 @@ public class PushWebView implements Viewport {
       
       @Override
       public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
-        s_logger.info("New result arrived for view '{}'", getViewDefinitionName());
+        s_logger.info("New result arrived for view '{}'", getViewDefinitionId());
         updateResults();
       }
 
     });
-    // TODO signature has changed
-    //_viewClient.attachToViewProcess(viewDefinitionName, viewportDefinition.getExecutionOptions());
+    _viewClient.attachToViewProcess(viewDefinitionId, viewportDefinition.getExecutionOptions());
   }
 
   // TODO make sure an update event is published when the view defs compile?
@@ -140,16 +137,17 @@ public class PushWebView implements Viewport {
     }
   }
   
-  public String getViewDefinitionName() {
+  public UniqueId getViewDefinitionId() {
     synchronized (_lock) {
-      return _viewDefinitionName;
+      return _viewDefinitionId;
     }
   }
 
-  /* package */ boolean matches(String viewDefinitionName, ViewExecutionOptions executionOptions) {
+  /* package */ boolean matches(UniqueId baseViewDefinitionId, ViewportDefinition viewportDefinition) {
     synchronized (_lock) {
-      return _viewDefinitionName.equals(viewDefinitionName) &&
-          ObjectUtils.equals(_viewportDefinition.getExecutionOptions(), executionOptions);
+      return _baseViewDefinitionId.equals(baseViewDefinitionId) &&
+          ObjectUtils.equals(_viewportDefinition.getExecutionOptions(), viewportDefinition.getExecutionOptions()) &&
+          ObjectUtils.equals(_viewportDefinition.getAggregatorName(), viewportDefinition.getAggregatorName());
     }
   }
 
@@ -266,7 +264,7 @@ public class PushWebView implements Viewport {
 
   // TODO refactor this?
   // TODO CONCURRENCY
-  public Pair<Instant, String> getGridContentsAsCsv(String gridName) {
+  /*public Pair<Instant, String> getGridContentsAsCsv(String gridName) {
     PushWebViewGrid grid = getGridByName(gridName);
     if (grid == null) {
       throw new DataNotFoundException("Unknown grid '" + gridName + "'");
@@ -277,7 +275,7 @@ public class PushWebView implements Viewport {
     }
     String csv = grid.dumpContentsToCsv(latestResult);
     return Pair.of(latestResult.getValuationTime(), csv);
-  }
+  }*/
 
   @Override
   public Map<String, Object> getGridStructure() {
@@ -302,5 +300,13 @@ public class PushWebView implements Viewport {
   @Override
   public void setConversionMode(ConversionMode mode) {
     throw new UnsupportedOperationException("setConversionMode not implemented");
+  }
+
+  public UniqueId getBaseViewDefinitionId() {
+    return _baseViewDefinitionId;
+  }
+
+  public String getAggregatorName() {
+    return _viewportDefinition.getAggregatorName();
   }
 }

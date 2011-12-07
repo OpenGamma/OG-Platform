@@ -57,13 +57,13 @@ import java.util.Set;
    * Creates a new subscription for a view client, replacing any existing subscription for that view client.
    * @param viewportDefinition
    */
-  /* package */ void createViewport(ViewportDefinition viewportDefinition, String viewportUrl, String dataUrl, String gridUrl) {
+  /* package */ void createViewport(ViewportDefinition viewportDefinition, String viewportId, String dataUrl, String gridUrl) {
     AnalyticsListener listener = new AnalyticsListener(dataUrl, gridUrl, _listener);
-    _viewportFactory.createViewport(_clientId, viewportUrl, viewportDefinition, listener);
+    _viewportFactory.createViewport(_clientId, viewportId, viewportDefinition, listener);
   }
 
-  /* package */ Viewport getViewport(String viewportUrl) {
-    return _viewportFactory.getViewport(viewportUrl);
+  /* package */ Viewport getViewport(String viewportId) {
+    return _viewportFactory.getViewport(viewportId);
   }
 
   /* package */ void disconnect() {

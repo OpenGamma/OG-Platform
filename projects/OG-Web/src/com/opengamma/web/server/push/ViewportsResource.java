@@ -30,7 +30,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ViewportsResource {
 
   // TODO better way of generating viewport IDs
-  private final AtomicLong _nextId = new AtomicLong();
+  // TODO this is 1-based to make sure the viewport and client IDs are different (for debugging)
+  private final AtomicLong _nextId = new AtomicLong(1);
   private final RestUpdateManager _restUpdateManager;
 
   public ViewportsResource(RestUpdateManager restUpdateManager) {
