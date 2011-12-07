@@ -99,7 +99,7 @@ private:
 			LOGWARN (TEXT ("No RuntimeLib found for JRE v") << szVersion);
 			return NULL;
 		}
-		LOGINFO (TEXT ("Runtime library ") << pszPath << TEXT (" found from registry"));
+		LOGINFO (TEXT ("Runtime library ") << szPath << TEXT (" found from registry"));
 		RegCloseKey (hkeyJRE);
 		return _tcsdup (szPath);
 	}
