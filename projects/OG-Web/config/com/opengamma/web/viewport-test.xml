@@ -9,7 +9,12 @@
 
   <bean id="updateManager" class="com.opengamma.web.server.push.RestUpdateManagerImpl">
     <constructor-arg index="0" ref="changeManager"/>
-    <constructor-arg index="1" ref="viewportFactory"/>
+    <constructor-arg index="1">
+      <bean class="com.opengamma.web.server.push.MasterChangeManagerImpl">
+        <constructor-arg><list/></constructor-arg>
+      </bean>
+    </constructor-arg>
+    <constructor-arg index="2" ref="viewportFactory"/>
   </bean>
 
   <bean id="viewportFactory" class="com.opengamma.web.server.push.TestViewportFactory"/>

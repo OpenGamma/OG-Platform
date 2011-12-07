@@ -35,11 +35,13 @@ public class ViewportDefinitionTest {
         "\"marketDataType\": \"snapshot\", " +
         "\"snapshotId\": \"Tst~123\", " +
         "\"portfolioViewport\": {" +
-        "\"rows\": [[3, 12345678], [4, 12345679], [5, 12345680]], " +
+        "\"rowIds\": [3, 4, 5], " +
+        "\"lastTimestamps\": [12345678, 12345679, 12345680], " +
         "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]" +
         "}, " +
         "\"primitiveViewport\": {" +
-        "\"rows\": [[5, 12345681], [6, 12345682], [7, 12345683]], " +
+        "\"rowIds\": [5, 6, 7], " +
+        "\"lastTimestamps\": [12345681, 12345682, 12345683], " +
         "\"dependencyGraphCells\": [[5, 1], [5, 2], [7, 3]]" +
         "}" +
         "}";
@@ -134,7 +136,8 @@ public class ViewportDefinitionTest {
         "\"viewDefinitionName\": \"testViewDefName\", " +
         "\"marketDataType\": \"live\", " +
         "\"portfolioViewport\": {" +
-        "\"rows\": [[3, 12345678], [4, 12345679], [5, 12345680]], " +
+        "\"rowIds\": [3, 4, 5], " +
+        "\"lastTimestamps\": [12345678, 12345679, 12345680], " +
         "\"dependencyGraphCells\": [[3, 1], [6, 2], [4, 3]]" +
         "}" +
         "}";
@@ -147,7 +150,8 @@ public class ViewportDefinitionTest {
         "\"viewDefinitionName\": \"testViewDefName\", " +
         "\"marketDataType\": \"live\", " +
         "\"portfolioViewport\": {" +
-        "\"rows\": [[3, 12345678], [3, 12345679], [5, 12345680]], " +
+        "\"rowIds\": [3, 3, 5], " +
+        "\"lastTimestamps\": [12345678, 12345679, 12345680], " +
         "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]" +
         "}" +
         "}";
@@ -160,7 +164,8 @@ public class ViewportDefinitionTest {
         "\"viewDefinitionName\": \"testViewDefName\", " +
         "\"marketDataType\": \"live\", " +
         "\"portfolioViewport\": {" +
-        "\"rows\": [[3, 12345678], [4, 12345679], [5, 12345680]]" +
+        "\"rowIds\": [3, 4, 5], " +
+        "\"lastTimestamps\": [12345678, 12345679, 12345680]" +
         "}" +
         "}";
     ViewportDefinition definition = ViewportDefinition.fromJSON(json);
@@ -177,7 +182,8 @@ public class ViewportDefinitionTest {
     String json = "{" +
         "\"marketDataType\": \"live\", " +
         "\"portfolioViewport\": {" +
-        "\"rows\": [[3, 12345678], [4, 12345679], [5, 12345680]], " +
+        "\"rowIds\": [3, 4, 5], " +
+        "\"lastTimestamps\": [12345678, 12345679, 12345680], " +
         "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]" +
         "}" +
         "}";
@@ -193,7 +199,8 @@ public class ViewportDefinitionTest {
         "\"viewDefinitionName\": \"testViewDefName\", " +
         "\"marketDataType\": \"foo\", " +
         "\"portfolioViewport\": {" +
-        "\"rows\": [[3, 12345678], [4, 12345679], [5, 12345680]], " +
+        "\"rowIds\": [3, 4, 5], " +
+        "\"lastTimestamps\": [12345678, 12345679, 12345680], " +
         "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]" +
         "}" +
         "}";
@@ -209,7 +216,8 @@ public class ViewportDefinitionTest {
         "\"viewDefinitionName\": \"testViewDefName\", " +
         "\"marketDataType\": \"snapshot\", " +
         "\"portfolioViewport\": {" +
-        "\"rows\": [[3, 12345678], [4, 12345679], [5, 12345680]], " +
+        "\"rowIds\": [3, 4, 5], " +
+        "\"lastTimestamps\": [12345678, 12345679, 12345680], " +
         "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]" +
         "}" +
         "}";
@@ -227,7 +235,8 @@ public class ViewportDefinitionTest {
         "\"marketDataType\": \"snapshot\", " +
         "\"snapshotId\": \"not-a-UniqueId\", " +
         "\"portfolioViewport\": {" +
-        "\"rows\": [[3, 12345678], [4, 12345679], [5, 12345680]], " +
+        "\"rowIds\": [3, 4, 5], " +
+        "\"lastTimestamps\": [12345678, 12345679, 12345680], " +
         "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]" +
         "}" +
         "}";

@@ -30,7 +30,6 @@ public class ViewportTest {
     Pair<Server, WebApplicationContext> serverAndContext =
         WebPushTestUtils.createJettyServer("classpath:/com/opengamma/web/viewport-test.xml");
     _server = serverAndContext.getFirst();
-    //WebApplicationContext context = serverAndContext.getSecond();
   }
 
   @AfterClass
@@ -45,7 +44,8 @@ public class ViewportTest {
         "\"viewDefinitionName\": \"testViewDefName\", " +
         "\"snapshotId\": \"Tst~123\", " +
         "\"portfolioViewport\": {" +
-        "\"rows\": [[0, 12345678], [1, 12345679], [2, 12345680]], " +
+        "\"rowIds\": [0, 1, 2], " +
+        "\"lastTimestamps\": [12345678, 12345679, 12345680], " +
         "\"dependencyGraphCells\": [[1, 2]]" +
         "}" +
         "}";
@@ -82,7 +82,8 @@ public class ViewportTest {
         "\"viewDefinitionName\": \"testViewDefName\", " +
         "\"snapshotId\": \"Tst~123\", " +
         "\"portfolioViewport\": {" +
-        "\"rows\": [[0, 12345678], [1, 12345679], [2, 12345680]], " +
+        "\"rowIds\": [0, 1, 2], " +
+        "\"lastTimestamps\": [12345678, 12345679, 12345680], " +
         "\"dependencyGraphCells\": [[1, 2]]" +
         "}" +
         "}";
@@ -118,7 +119,8 @@ public class ViewportTest {
         "\"viewDefinitionName\": \"testViewDefName\", " +
         "\"snapshotId\": \"Tst~123\", " +
         "\"portfolioViewport\": {" +
-        "\"rows\": [[2, 12345688], [3, 12345689]], " +
+        "\"rowIds\": [2, 3], " +
+        "\"lastTimestamps\": [12345688, 12345689], " +
         "\"dependencyGraphCells\": [[3, 1]]" +
         "}" +
         "}";

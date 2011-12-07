@@ -18,7 +18,8 @@ public class EngineAnalyticsTest {
         "\"viewDefinitionName\": \"Single Swap Test View\", " +
         //"\"snapshotId\": \"Tst~123\", " + // use live data
         "\"portfolioViewport\": {" +
-        "\"rows\": [[0, null], [1, null], [2, null], [3, null]], " +
+        "\"rowIds\": [0, 1, 2, 3], " +
+        "\"lastTimestamps\": [null, null, null, null], " +
         "\"dependencyGraphCells\": []" +
         "}" +
         "}";

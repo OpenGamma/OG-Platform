@@ -55,7 +55,6 @@ package com.opengamma.web.server.push;
  * <pre>
  *   {"viewportUrl": "/jax/viewports/567"}</pre>
  *
- * TODO use the same format as the current cometd implementation
  * <p>The request must contain JSON which defines the viewport:</p>
  * <pre>
  *   {"viewDefinitionName": ...
@@ -63,11 +62,15 @@ package com.opengamma.web.server.push;
  *    "marketDataProvider": ...
  *    "snapshotId": ...
  *    "portfolioViewport":
- *     {"rows": [[row, timestamp], [row, timestamp], ...],
+ *     {"rowIds": [rowId1, rowId2, ...],
+ *      "lastTimestamps": [timestamp1, timestamp2, ...],
  *      "dependencyGraphCells": [[row, col], [row, col], ...]},
  *    "primitiveViewport":
- *     {"rows": [[row, timestamp], [row, timestamp], ...],
- *      "dependencyGraphCells": [[row, col], [row, col], ...]}</pre>
+ *     {"rowIds": [rowId1, rowId2, ...],
+ *      "lastTimestamps": [timestamp1, timestamp2, ...],
+ *      "dependencyGraphCells": [[row, col], [row, col], ...]}}</pre>
+ * <p><em>Dependency graphs for primitives aren't supported in the UI at the moment but they probably will be eventually
+ * so the viewport definition allows them.</em></p>
  * <ul>
  *   <li>{@code viewDefinitionName}: name of the view definition (see below)</li>
  *   <li>{@code marketDataType}: {@code "live"} or {@code "snapshot"}</li>

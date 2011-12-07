@@ -35,9 +35,11 @@ public class ViewportDefinition {
   private static final String SNAPSHOT_ID = "snapshotId";
   private static final String PORTFOLIO_VIEWPORT = "portfolioViewport";
   private static final String PRIMITIVE_VIEWPORT = "primitiveViewport";
-  private static final String ROWS = "rows";
+  private static final String ROW_IDS = "rowIds";
+  private static final String LAST_TIMESTAMPS = "lastTimestamps";
   private static final String MARKET_DATA_TYPE = "marketDataType";
   private static final String MARKET_DATA_PROVIDER = "marketDataProvider";
+  private static final String AGGREGATOR_NAMES = "aggregatorNames";
   private static final String DEFAULT_LIVE_MARKET_DATA_NAME = "Automatic";
 
   /** Row timestamp keyed on row number */
@@ -138,8 +140,10 @@ public class ViewportDefinition {
         }
         snapshotId = null;
       }
-      // TODO get this from the JSON
-      String aggregatorName = null;
+      String aggregatorName = jsonObject.optString(AGGREGATOR_NAMES);
+      if (StringUtils.isEmpty(aggregatorName)) {
+        aggregatorName = null;
+      }
       return new ViewportDefinition(viewDefinitionName,
                                     snapshotId,
                                     primitiveRows,
@@ -188,28 +192,34 @@ public class ViewportDefinition {
     if (viewportJson == null) {
       return rows;
     }
-    JSONArray rowsArray = viewportJson.getJSONArray(ROWS);
-    // TODO is this valid? what if a view is all primitives or all analytics?
-    if (rowsArray.length() < 1) {
+    JSONArray rowIds = viewportJson.getJSONArray(ROW_IDS);
+    if (rowIds.length() < 1) {
       throw new IllegalArgumentException(
           "Unable to create ViewportDefinition from JSON, a viewport must contain at least one row");
     }
-    for (int i = 0; i < rowsArray.length(); i++) {
-      JSONArray rowArray = rowsArray.getJSONArray(i);
-      int row = rowArray.getInt(0);
-      if (row < 0) {
+    JSONArray lastTimestamps = viewportJson.getJSONArray(LAST_TIMESTAMPS);
+    if (rowIds.length() != lastTimestamps.length()) {
+      throw new IllegalArgumentException(
+          "Unable to create ViewportDefinition from JSON, the viewport definition must specify the same number " +
+              "of rows and timestamps");
+    }
+    for (int i = 0; i < rowIds.length(); i++) {
+      int rowId = rowIds.getInt(i);
+      if (rowId < 0) {
         throw new IllegalArgumentException(
             "Unable to create ViewportDefinition from JSON, row numbers must not be negative");
       }
-      if (rows.containsKey(row)) {
-        throw new IllegalArgumentException("Unable to create ViewportDefinition from JSON, duplicate row number: " + row);
+      if (rows.containsKey(rowId)) {
+        throw new IllegalArgumentException("Unable to create ViewportDefinition from JSON, duplicate row number: " + rowId);
       }
-      long timestamp = rowArray.optLong(1); // TODO this will return zero for a null. is that right?
+      Long timestamp = lastTimestamps.optLong(i);
       if (timestamp < 0) {
         throw new IllegalArgumentException(
             "Unable to create ViewportDefinition from JSON, timestamps must not be negative: " + timestamp);
+      } else if (timestamp == 0) {
+        timestamp = null;
       }
-      rows.put(row, timestamp);
+      rows.put(rowId, timestamp);
     }
     return rows;
   }
