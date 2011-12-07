@@ -106,24 +106,17 @@ $.register_module({
                 $('.og-js-timeseries-plot').animate({opacity: '0.5'});
             };
             data_points = function () {
-                var $template, render_grid, check_meta, $data_points = $('.OG-timeseries .og-data-points'),
+                var $template, render_grid, $data_points = $('.OG-timeseries .og-data-points'),
                     slick_tmpl = '\
                         <div>\
                           <div class="og-data-series">\
-                            <header style="border-bottom: 3px solid ${color}">\
-                              <h3>${time}</h3>\
+                            <header>\
+                              <h3 style="border-left: 2px solid ${color}">${time}</h3>\
                               <span class="OG-link OG-icon og-icon-download og-js-timeseries-csv">download csv</span>\
                             </header>\
                             <div class="og-slick og-slick-${index}"><span class="og-loading">Loading...</span></div>\
                             <footer>Data Source: ${source}<br />Data provider: ${provider}</footer>\
                           </div>\
-                        </div>',
-                    empty_tmpl = '\
-                        <div class="og-data-series og-data-series-empty">\
-                          <header>\
-                            <h3>empty</h3>\
-                            <span class="og-js-timeseries-csv">download csv</span>\
-                          </header>\
                         </div>';
                 if (!$data_points.length) return;
                 $('.OG-timeseries .og-data-points').html('<div class="og-container"></div>');
@@ -174,12 +167,7 @@ $.register_module({
                       .appendTo($template);
                     setTimeout(render_grid.partial(i), 0);
                 });
-                (check_meta = function () { // load empty data points table(s)
-                    var diff;
-                    if (!meta) return setTimeout(check_meta, 25);
-                    if (diff = Object.keys(meta[state.field]).length - data_arr.length)
-                        while (diff--) $(empty_tmpl).appendTo($template);
-                })();
+                if (data_arr.length === 1) $data_points.find('.og-data-series').css('width', '799px');
             };
             load_plots = function () {
                 if (data_arr[0] === void 0 || data_arr[0].data.length < 2) {empty_plots(); return}

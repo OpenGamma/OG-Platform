@@ -181,8 +181,7 @@
   overflow-x: auto;
   display: inline-block;
   position: relative;
-  width: 799px;
-  border: 1px solid #e9eaeb;
+  width: 800px;
   margin-bottom: 30px
 }
 
@@ -195,10 +194,9 @@
 }
 
 .OG-timeseries .og-container {
-  min-width: 799px;
+  min-width: 800px;
   white-space: nowrap;
   display: inline-block;
-  background: url(data:image/gif;base64,R0lGODlhAQBAAKIAAAAAAP////b29u7u7ufn5729vf///wAAACH5BAEAAAYALAAAAAABAEAAAAMPKLrc/qLIQIa9+JLNu98JADs=) repeat-x;
   height: 365px;
   overflow: hidden;
   margin-bottom: -5px;
@@ -208,7 +206,7 @@
 .OG-timeseries .og-data-series {
   width: 399px;
   display: inline-block;
-  border-right: 1px solid #e9eaeb;
+  border-left: 1px solid #f6f6f6;
   float: left;
   height: 365px;
 }
@@ -220,6 +218,7 @@
 .OG-timeseries .og-data-series header {
   height: 29px;
   display: block;
+  background-color: #fff;
 }
 
 .OG-timeseries .og-data-series footer {
@@ -231,40 +230,20 @@
 }
 
 .OG-timeseries .og-data-series header h3 {
-  float: left;
-  padding: 6px 0 0 5px;
+  padding: 5px;
+  background: #e9eaeb;
+  display: inline-block;
 }
 
 .OG-timeseries .og-data-series header span {
-  float: right;
   position: relative;
   top: 7px;
-  right: 15px;
 }
 
 .OG-timeseries .og-data-points .og-js-timeseries-csv {
   font-size: 10px;
-  float: right;
-}
-
-/**
- * Empty
- */
-
-.OG-timeseries .og-data-series-empty,
-.OG-timeseries .og-data-series-empty span {
-  color: #d2d2d2;
-}
-
-.OG-timeseries .og-data-series-empty span {
-  top: 5px!important;
-  right: 5px!important;
-  position: relative!important;
-}
-
-.OG-timeseries .og-no-datapoint {
-  padding: 5px;
-  display: inline-block;
+  position: absolute;
+  right: 12px;
 }
 
 /**
