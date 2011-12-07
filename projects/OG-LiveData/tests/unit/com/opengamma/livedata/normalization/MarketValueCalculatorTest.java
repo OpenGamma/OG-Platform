@@ -7,11 +7,11 @@ package com.opengamma.livedata.normalization;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.livedata.server.FieldHistoryStore;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * 
@@ -22,7 +22,7 @@ public class MarketValueCalculatorTest {
   public void bidAskLast() {
     MarketValueCalculator calculator = new MarketValueCalculator();
     
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add(MarketDataRequirementNames.BID, 50.80);
     msg.add(MarketDataRequirementNames.ASK, 50.90);
     msg.add(MarketDataRequirementNames.LAST, 50.89);
@@ -39,7 +39,7 @@ public class MarketValueCalculatorTest {
   public void bidAskOnly() {
     MarketValueCalculator calculator = new MarketValueCalculator();
     
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add(MarketDataRequirementNames.BID, 50.80);
     msg.add(MarketDataRequirementNames.ASK, 50.90);
     
@@ -55,7 +55,7 @@ public class MarketValueCalculatorTest {
   public void lastOnly() {
     MarketValueCalculator calculator = new MarketValueCalculator();
     
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add(MarketDataRequirementNames.LAST, 50.89);
     
     FieldHistoryStore store = new FieldHistoryStore();
@@ -70,7 +70,7 @@ public class MarketValueCalculatorTest {
   public void bigSpread() {
     MarketValueCalculator calculator = new MarketValueCalculator();
     
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add(MarketDataRequirementNames.BID, 50.0);
     msg.add(MarketDataRequirementNames.ASK, 100.0);
     msg.add(MarketDataRequirementNames.LAST, 55.12);
@@ -87,13 +87,13 @@ public class MarketValueCalculatorTest {
   public void bigSpreadHistory() {
     MarketValueCalculator calculator = new MarketValueCalculator();
     
-    MutableFudgeMsg historicalMsg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg historicalMsg = OpenGammaFudgeContext.getInstance().newMessage();
     historicalMsg.add(MarketDataRequirementNames.LAST, 50.52);
     
     FieldHistoryStore store = new FieldHistoryStore();
     store.liveDataReceived(historicalMsg);
     
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add(MarketDataRequirementNames.BID, 50.0);
     msg.add(MarketDataRequirementNames.ASK, 100.0);
     
@@ -106,7 +106,7 @@ public class MarketValueCalculatorTest {
   public void bigSpreadLowLast() {
     MarketValueCalculator calculator = new MarketValueCalculator();
     
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add(MarketDataRequirementNames.BID, 50.0);
     msg.add(MarketDataRequirementNames.ASK, 100.0);
     msg.add(MarketDataRequirementNames.LAST, 44.50);
@@ -123,7 +123,7 @@ public class MarketValueCalculatorTest {
   public void bigSpreadHighLast() {
     MarketValueCalculator calculator = new MarketValueCalculator();
     
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add(MarketDataRequirementNames.BID, 50.0);
     msg.add(MarketDataRequirementNames.ASK, 100.0);
     msg.add(MarketDataRequirementNames.LAST, 120.0);
@@ -140,7 +140,7 @@ public class MarketValueCalculatorTest {
   public void useHistoricalBidAsk() {
     MarketValueCalculator calculator = new MarketValueCalculator();
     
-    MutableFudgeMsg historicalMsg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg historicalMsg = OpenGammaFudgeContext.getInstance().newMessage();
     historicalMsg.add(MarketDataRequirementNames.BID, 50.0);
     historicalMsg.add(MarketDataRequirementNames.ASK, 51.0);
     historicalMsg.add(MarketDataRequirementNames.MARKET_VALUE, 50.52);
@@ -148,7 +148,7 @@ public class MarketValueCalculatorTest {
     FieldHistoryStore store = new FieldHistoryStore();
     store.liveDataReceived(historicalMsg);
     
-    MutableFudgeMsg newMsg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg newMsg = OpenGammaFudgeContext.getInstance().newMessage();
     newMsg.add(MarketDataRequirementNames.LAST, 50.89);
     
     MutableFudgeMsg normalized = calculator.apply(newMsg, "123", store);
@@ -160,13 +160,13 @@ public class MarketValueCalculatorTest {
   public void useHistoricalMarketValueWithEmptyMsg() {
     MarketValueCalculator calculator = new MarketValueCalculator();
     
-    MutableFudgeMsg historicalMsg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg historicalMsg = OpenGammaFudgeContext.getInstance().newMessage();
     historicalMsg.add(MarketDataRequirementNames.MARKET_VALUE, 50.52);
     
     FieldHistoryStore store = new FieldHistoryStore();
     store.liveDataReceived(historicalMsg);
     
-    MutableFudgeMsg newMsg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg newMsg = OpenGammaFudgeContext.getInstance().newMessage();
     
     MutableFudgeMsg normalized = calculator.apply(newMsg, "123", store);
     assertEquals(1, normalized.getAllFields().size());
@@ -179,7 +179,7 @@ public class MarketValueCalculatorTest {
     
     FieldHistoryStore store = new FieldHistoryStore();
     
-    MutableFudgeMsg newMsg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg newMsg = OpenGammaFudgeContext.getInstance().newMessage();
     
     MutableFudgeMsg normalized = calculator.apply(newMsg, "123", store);
     assertEquals(0, normalized.getAllFields().size());
@@ -189,7 +189,7 @@ public class MarketValueCalculatorTest {
   public void zeroBid() {
     MarketValueCalculator calculator = new MarketValueCalculator();
     
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add(MarketDataRequirementNames.BID, 0.0);
     msg.add(MarketDataRequirementNames.ASK, 1.0);
     msg.add(MarketDataRequirementNames.LAST, 0.57);

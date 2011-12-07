@@ -89,7 +89,7 @@ public class CouponIborGearingDefinition extends CouponIborDefinition {
     Validate.notNull(accrualStartDate, "Fixing date");
     Validate.notNull(accrualEndDate, "Fixing date");
     Validate.notNull(index, "Index");
-    final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, index.getCalendar(), -index.getSettlementDays());
+    final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, index.getCalendar(), -index.getSpotLag());
     return new CouponIborGearingDefinition(index.getCurrency(), accrualEndDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, index, spread, factor);
   }
 
@@ -157,7 +157,7 @@ public class CouponIborGearingDefinition extends CouponIborDefinition {
       Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
       if (fixedRate == null) {
         throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
-      } 
+      }
       return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), _factor * fixedRate + _spread);
     }
 

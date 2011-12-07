@@ -656,11 +656,13 @@ public abstract class AbstractBatchResultWriter {
    * 
    * @param calcConfName  the calculation config name
    * @param valueName  the value name
+   * @param specification  the specification
    * @param ct  the computation target
    * @param requirement the requirement
    * @return the value for this target, null if does not exist
    */
-  public RiskValue getValue(String calcConfName, String valueName, ValueProperties requirement, ValueProperties specification, ComputationTargetSpecification ct) {
+  public RiskValue getValue(String calcConfName, String valueName, ValueProperties requirement,
+      ValueProperties specification, ComputationTargetSpecification ct) {
     Integer calcConfId = getCalculationConfigurationId(calcConfName);
     Integer valueId = getValueNameId(valueName);
     Integer computationTargetId = getComputationTargetId(ct);

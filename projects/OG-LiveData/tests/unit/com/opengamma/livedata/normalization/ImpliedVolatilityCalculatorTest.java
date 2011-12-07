@@ -7,11 +7,11 @@ package com.opengamma.livedata.normalization;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.livedata.server.FieldHistoryStore;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * 
@@ -22,7 +22,7 @@ public class ImpliedVolatilityCalculatorTest {
   
   @Test
   public void best() {
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add(MarketDataRequirementNames.BEST_IMPLIED_VOLATILITY, 50.80);
     msg.add(MarketDataRequirementNames.MID_IMPLIED_VOLATILITY, 50.81);
     
@@ -36,7 +36,7 @@ public class ImpliedVolatilityCalculatorTest {
   
   @Test
   public void mid() {
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add(MarketDataRequirementNames.MID_IMPLIED_VOLATILITY, 50.80);
     msg.add(MarketDataRequirementNames.LAST_IMPLIED_VOLATILITY, 50.81);
     
@@ -50,7 +50,7 @@ public class ImpliedVolatilityCalculatorTest {
   
   @Test
   public void last() {
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add(MarketDataRequirementNames.LAST_IMPLIED_VOLATILITY, 50.80);
     msg.add(MarketDataRequirementNames.BID_IMPLIED_VOLATILITY, 50.81);
     msg.add(MarketDataRequirementNames.ASK_IMPLIED_VOLATILITY, 50.82);
@@ -65,7 +65,7 @@ public class ImpliedVolatilityCalculatorTest {
   
   @Test
   public void bidAsk() {
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add(MarketDataRequirementNames.BID_IMPLIED_VOLATILITY, 50.81);
     msg.add(MarketDataRequirementNames.ASK_IMPLIED_VOLATILITY, 50.82);
     
@@ -79,13 +79,13 @@ public class ImpliedVolatilityCalculatorTest {
   
   @Test
   public void history() {
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add(MarketDataRequirementNames.IMPLIED_VOLATILITY, 50.80);
     
     FieldHistoryStore store = new FieldHistoryStore();
     store.liveDataReceived(msg);
     
-    MutableFudgeMsg normalized = _calculator.apply(FudgeContext.GLOBAL_DEFAULT.newMessage(), "123", store);
+    MutableFudgeMsg normalized = _calculator.apply(OpenGammaFudgeContext.getInstance().newMessage(), "123", store);
     assertEquals(1, normalized.getAllFields().size());
     assertEquals(50.80, normalized.getDouble(MarketDataRequirementNames.IMPLIED_VOLATILITY), 0.0001);
   }

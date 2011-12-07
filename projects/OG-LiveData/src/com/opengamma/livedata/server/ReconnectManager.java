@@ -24,51 +24,70 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 public class ReconnectManager implements Lifecycle {
-  
-  private static final Logger s_logger = LoggerFactory
-    .getLogger(ReconnectManager.class);
+
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(ReconnectManager.class);
 
   /**
    * How often connection status should be checked. Milliseconds
    */
   public static final long DEFAULT_CHECK_PERIOD = 5000;
-  
+
+  /**
+   * The live data server.
+   */
   private final AbstractLiveDataServer _server;
+  /**
+   * The timer.
+   */
   private final Timer _timer;
+  /**
+   * The checking period.
+   */
   private final long _checkPeriod;
+  /**
+   * The checking task.
+   */
   private volatile CheckTask _checkTask;
-  
+
+  /**
+   * Creates an instance wrapping an underlying server.
+   * 
+   * @param server  the server, not null
+   */
   public ReconnectManager(AbstractLiveDataServer server) {
     this(server, DEFAULT_CHECK_PERIOD);    
   }
-  
+
+  /**
+   * Creates an instance wrapping an underlying server.
+   * 
+   * @param server  the server, not null
+   * @param checkIntervalMillis  the checking interval in milliseconds
+   */
   public ReconnectManager(AbstractLiveDataServer server, long checkIntervalMillis) {
     this(server, checkIntervalMillis, new Timer("ReconnectManager Timer"));    
   }
-  
+
+  /**
+   * Creates an instance wrapping an underlying server.
+   * 
+   * @param server  the server, not null
+   * @param checkIntervalMillis  the checking interval in milliseconds
+   * @param timer  the timer, not null
+   */
   public ReconnectManager(AbstractLiveDataServer server, long checkIntervalMillis, Timer timer) {
-    ArgumentChecker.notNull(server, "Live Data Server");
-    ArgumentChecker.notNull(timer, "Timer");
+    ArgumentChecker.notNull(server, "server");
+    ArgumentChecker.notNull(timer, "timer");
     if (checkIntervalMillis <= 0) {
       throw new IllegalArgumentException("Please give positive check period");
     }
-    
     _server = server;
     _timer = timer;
     _checkPeriod = checkIntervalMillis;
   }
-  
-  private class CheckTask extends TimerTask {
-    @Override
-    public void run() {
-      try {
-        check();
-      } catch (RuntimeException e) {
-        s_logger.error("Checking for reconnection failed", e);
-      }
-    }
-  }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean isRunning() {
     return _checkTask != null;
@@ -85,7 +104,20 @@ public class ReconnectManager implements Lifecycle {
     _checkTask.cancel();
     _checkTask = null;    
   }
-  
+
+  //-------------------------------------------------------------------------
+  private class CheckTask extends TimerTask {
+    @Override
+    public void run() {
+      try {
+        check();
+      } catch (RuntimeException e) {
+        s_logger.error("Checking for reconnection failed", e);
+      }
+    }
+  }
+
+  // called by the timer task
   private void check() {
     if (_server.getConnectionStatus() == ConnectionStatus.NOT_CONNECTED) {
       s_logger.warn("Connection to market data API down. Attemping to reconnect.");
@@ -105,5 +137,5 @@ public class ReconnectManager implements Lifecycle {
       s_logger.debug("Connection up");
     }
   }
-  
+
 }

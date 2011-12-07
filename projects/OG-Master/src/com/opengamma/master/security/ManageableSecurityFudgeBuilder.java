@@ -5,6 +5,8 @@
  */
 package com.opengamma.master.security;
 
+import java.util.Map;
+
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
@@ -15,8 +17,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import com.opengamma.id.ExternalIdBundleFudgeBuilder;
 import com.opengamma.id.UniqueIdFudgeBuilder;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
-
-import java.util.Map;
 
 /**
  * A Fudge builder for {@code ManageableSecurity}.
@@ -57,6 +57,7 @@ public class ManageableSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
     return object;
   }
 
+  @SuppressWarnings("unchecked")
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, ManageableSecurity object) {
     object.setUniqueId(UniqueIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNIQUE_ID_FIELD_NAME)));
     object.setName(msg.getString(NAME_FIELD_NAME));
