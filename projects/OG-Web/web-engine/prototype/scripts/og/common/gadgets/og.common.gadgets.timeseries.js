@@ -6,18 +6,22 @@
  * @see http://code.google.com/p/flot/
  */
 $.register_module({
-    name: 'og.common.util.ui.render_plot',
+    name: 'og.common.gadgets.timeseries',
     dependencies: ['og.api.rest'],
     obj: function () {
-        var api = og.api;
-        return function (config) {
-            var selector = config.selector, data = config.data, identifier = config.identifier,
+        var api = og.api, config, handler;
+        handler = function (result) {
+            var identifier = result.data.identifiers[0].value,
+                data = result.data,
+                selector = config.selector,
+                init_data_field = data.template_data.data_field,
+                init_ob_time = data.template_data.observation_time,
                 data_arr = [{
-                    data: data.data.timeseries.data,
+                    data: data.timeseries.data,
                     label: '0.00',
-                    data_provider: data.data.template_data.data_provider,
-                    data_source: data.data.template_data.data_source,
-                    object_id: data.data.template_data.object_id
+                    data_provider: data.template_data.data_provider,
+                    data_source: data.template_data.data_source,
+                    object_id: data.template_data.object_id
                 }],
                 meta, // object that stores the structure and data of the different plots
                 state = {}, // keeps a record of the current active data sets in the plot along with zoom and pan data
@@ -73,12 +77,8 @@ $.register_module({
                     series: {shadowSize: 1, threshold: {below: 0, color: '#960505'}},
                     legend: {show: false},
                     lines: {lineWidth: 1, fill: 1, fillColor: '#fafafa'},
-                    xaxis: {ticks: 6, mode: 'time'
-                        , tickLength: '0', labelHeight: 55, tickColor: '#fff'
-                    },
-                    yaxis: {
-                        show: false, ticks: 1, position: 'right', tickLength: 0, labelWidth: 53, reserveSpace: true
-                    },
+                    xaxis: {ticks: 6, mode: 'time', tickLength: '0', labelHeight: 55, tickColor: '#fff'},
+                    yaxis: {show: false, ticks: 1, position: 'right', tickLength: 0, labelWidth: 53, reserveSpace: true},
                     grid: {
                         borderWidth: 1, color: '#999', borderColor: '#e9eaeb',
                         aboveData: true, labelMargin: -14, minBorderMargin: 43
@@ -87,7 +87,7 @@ $.register_module({
                 };
             };
             empty_plots = function () {
-                var d = ['1', '2'], $p1, $p2, disabled_options,
+                var d = ['1', '2'], disabled_options,
                     msg = $('<div>No data points available</div>').css({
                         position: 'absolute', color: '#999', left: '35px', top: '30px'
                     });
@@ -155,12 +155,12 @@ $.register_module({
                     }, []);
                     $(SLICK_SELECTOR).css({opacity: '0.1'});
                     try {slick = new Slick.Grid(SLICK_SELECTOR, data, columns, options);}
-                    catch(e) {$(SLICK_SELECTOR + ' .og-loading').html('' + e)}
-                    finally {$(SLICK_SELECTOR).animate({opacity: '1'})}
+                    catch(e) {$(SLICK_SELECTOR + ' .og-loading').html('' + e);}
+                    finally {$(SLICK_SELECTOR).animate({opacity: '1'});}
                 };
                 data_arr.forEach(function (val, i) {
                     $(slick_tmpl).tmpl({
-                        time: (!meta ? config.init_ob_time : val.label).toLowerCase().replace(/_/g, ' '),
+                        time: (!meta ? init_ob_time : val.label).toLowerCase().replace(/_/g, ' '),
                         index: i,
                         color: colors_arr[i],
                         source: data_arr[i].data_source,
@@ -230,6 +230,7 @@ $.register_module({
                 // in xaxis, min/max sets the pan, from/to sets the selection
                 p1_options.xaxis.min = state.from, p1_options.xaxis.max = state.to;
                 p2_options.xaxis.from = state.from, p1_options.xaxis.to = state.to;
+                calculate_y_values();
                 if (data_arr.length > 1) p1_options.lines.fill = 0, p2_options.lines.fill = 0;
                 $p1 = $.plot($(p1_selector), d, p1_options);
                 $p2 = $.plot($(p2_selector), d, p2_options);
@@ -369,12 +370,12 @@ $.register_module({
                         acc[field][time] = id;
                         return acc;
                     }, {});
-                    meta[config.init_data_field][config.init_ob_time] = config.data;
-                    state.field = config.init_data_field, state.time = [config.init_ob_time];
+                    meta[init_data_field][init_ob_time] = result;
+                    state.field = init_data_field, state.time = [init_ob_time];
                     (function () {
                         // Helper function, returns a timeseries data object, or an id which can be used to get it
                         // Takes a sub object of meta
-                        var get_data_or_id = function (obj) {for (var time in obj) {return obj[time]}},
+                        var get_data_or_id = function (obj) {return obj[Object.keys(obj)[0]];},
                         // build select
                         build_select = function () {
                             var field, select = '';
@@ -453,6 +454,16 @@ $.register_module({
                 },
                 loading: function () {},
                 identifier: identifier
+            });
+        };
+        return function (conf) {
+            config = conf;
+            api.rest.timeseries.get({
+                dependencies: ['id'],
+                handler: handler,
+                id: config.id,
+                cache_for: 10000,
+                loading: function () {}
             });
         }
     }
