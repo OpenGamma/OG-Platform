@@ -4,14 +4,6 @@
  */
 
 /**
- * Identifiers
- */
-
-.OG-timeseries {
-  margin-top: 20px;
-}
-
-/**
  * Plot Header
  */
 
@@ -75,7 +67,7 @@
  */
 
 .OG-timeseries .og-plots { /* needed to compensate for flots axis padding */
-  height: 375px;
+  height: 350px;
   top: 25px;
 }
 
