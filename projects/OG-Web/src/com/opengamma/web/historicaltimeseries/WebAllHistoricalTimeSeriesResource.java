@@ -8,7 +8,6 @@ package com.opengamma.web.historicaltimeseries;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -262,21 +261,23 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     Set<ExternalId> identifiers = buildSecurityRequest(scheme, idValue);
     Map<ExternalId, UniqueId> added = addTimeSeries(dataProvider, dataField, identifiers, startDate, endDate);
     
-    FlexiBean out = createPostJSONOutput(added, idScheme);    
-    return Response.ok(getFreemarker().build("timeseries/jsontimeseries-added.ftl", out)).build();
-  }
-
-  private FlexiBean createPostJSONOutput(Map<ExternalId, UniqueId> added, String idScheme) {
-    Map<String, String> result = new HashMap<String, String>();
-    for (ExternalId externalId : added.keySet()) {
-      UniqueId uniqueId = added.get(externalId);
-      String objectId = uniqueId != null ? uniqueId.getObjectId().toString() : null;
-      result.put(externalId.getValue(), objectId);
-    }
-    FlexiBean out = createRootData();
-    out.put("requestScheme", idScheme);
-    out.put("addedSeries", result);
-    return out;
+    URI uri = null;
+    if (!identifiers.isEmpty()) {
+      if (identifiers.size() == 1) {
+        ExternalId requestIdentifier = identifiers.iterator().next();
+        UniqueId uniqueId = added.get(requestIdentifier);
+        if (uniqueId != null) {
+          uri = data().getUriInfo().getAbsolutePathBuilder().path(uniqueId.toString()).build();
+        } else {
+          s_logger.warn("No time-series added for {} ", requestIdentifier);
+          uri = uri(data());
+        }
+      } else {
+        uri = uri(data(), identifiers);
+      }
+    } 
+    
+    return Response.created(uri).build();
   }
 
   private Map<ExternalId, UniqueId> addTimeSeries(String dataProvider, String dataField, Set<ExternalId> identifiers, LocalDate startDate, LocalDate endDate) {

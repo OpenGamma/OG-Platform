@@ -16,17 +16,18 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Set of functional-like utilities
+ * Set of functional-like utilities.
  */
 public class Functional {
 
   /**
-   * Returns part of the provided map which values are contained by provided set of values
-   * @param map the map
-   * @param values the set of values
+   * Returns part of the provided map which values are contained by provided set of values.
+   * 
+   * @param map  the map, not null
+   * @param values  the set of values, not null
    * @param <K> type of map keys
    * @param <V> type of map values
-   * @return submap of the original map
+   * @return submap of the original map, not null
    */
   public static <K, V> Map<K, V> submapByValueSet(Map<K, V> map, Set<V> values) {
     Map<K, V> submap = new HashMap<K, V>();
@@ -40,12 +41,13 @@ public class Functional {
   }
 
   /**
-   * Returns part of the provided map which keys are contained by provided set of keys
-   * @param map the map
-   * @param keys the set of keys
+   * Returns part of the provided map which keys are contained by provided set of keys.
+   * 
+   * @param map  the map, not null
+   * @param keys  the set of keys, not null
    * @param <K> type of map keys
    * @param <V> type of map values
-   * @return submap of the original map
+   * @return submap of the original map, not null
    */
   public static <K, V> Map<K, V> submapByKeySet(Map<K, V> map, Set<K> keys) {
     Map<K, V> submap = new HashMap<K, V>();
@@ -59,11 +61,12 @@ public class Functional {
 
 
   /**
-   * Creates reversed map of type Map<V, Collection<K>> from map of type Map<K, V>
-   * @param map the underlying map
+   * Creates reversed map of type Map<V, Collection<K>> from map of type Map<K, V>.
+   * 
+   * @param map  the underlying map, not null
    * @param <K> type of map keys
    * @param <V> type of map values
-   * @return the reversed map
+   * @return the reversed map, not null
    */
   public static <K, V> Map<V, Collection<K>> reverseMap(Map<K, V> map) {
     Map<V, Collection<K>> reversed = new HashMap<V, Collection<K>>();
@@ -80,12 +83,14 @@ public class Functional {
   }
 
   /**
-   * Merges source map into target one by mutating it (overwriting entries if the target map already contains tha same keys)
-   * @param target the target map
-   * @param source the source map
+   * Merges source map into target one by mutating it (overwriting entries if
+   * the target map already contains the same keys).
+   * 
+   * @param target  the target map, not null
+   * @param source  the source map, not null
    * @param <K> type of map keys
    * @param <V> type of map values
-   * @return the merged map
+   * @return the merged map, not null
    */
   public static <K, V> Map<K, V> merge(Map<K, V> target, Map<K, V> source) {
     for (K key : source.keySet()) {
@@ -96,18 +101,19 @@ public class Functional {
 
   /**
    * Returns sorted list of elements from unsorted collection.
-   * @param c unsorted collection
+   * 
+   * @param coll  unsorted collection
    * @param <T> type if elements in unsorted collection (must implement Comparable interface)
    * @return list sorted using internal entries' {@link Comparable#compareTo(Object)} compareTo} method.
    */
-  public static <T extends Comparable<? super T>> List<T> sort(Collection<T> c) {
-    List<T> list = new ArrayList<T>(c);
+  public static <T extends Comparable<? super T>> List<T> sort(Collection<T> coll) {
+    List<T> list = new ArrayList<T>(coll);
     Collections.sort(list);
     return list;
   }
 
-  public static <T> T head(Iterable<? extends T> i) {
-    final Iterator<? extends T> iter = i.iterator();
+  public static <T> T head(Iterable<? extends T> iterable) {
+    final Iterator<? extends T> iter = iterable.iterator();
     if (iter.hasNext()) {
       return iter.next();
     } else {
@@ -198,7 +204,7 @@ public class Functional {
     return reduce(new LinkedList<T>(), c, new Function2<LinkedList<T>, T, LinkedList<T>>() {
       @Override
       public LinkedList<T> execute(LinkedList<T> acc, T e) {
-        if(predicate.execute(e)){
+        if (predicate.execute(e)){
           acc.add(e);
         }
         return acc;
@@ -228,7 +234,7 @@ public class Functional {
     return into;
   }
 
-  public static abstract class Reduce<T, S> extends Function3<T, Iterable<? extends S>, Function2<T, S, T>, T> {
+  public abstract static class Reduce<T, S> extends Function3<T, Iterable<? extends S>, Function2<T, S, T>, T> {
 
     public abstract T reduce(T acc, S v);
 
@@ -245,10 +251,9 @@ public class Functional {
         }
       });
     }
-
   }
 
-  public static abstract class ReduceSame<S> extends Function2<Iterable<? extends S>, Function2<S, S, S>, S> {
+  public abstract static class ReduceSame<S> extends Function2<Iterable<? extends S>, Function2<S, S, S>, S> {
 
     public abstract S reduce(S acc, S v);
 
@@ -265,7 +270,6 @@ public class Functional {
         }
       });
     }
-
   }
 
 }

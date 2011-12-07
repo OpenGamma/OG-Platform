@@ -7,11 +7,11 @@ package com.opengamma.livedata.normalization;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.livedata.server.FieldHistoryStore;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * 
@@ -22,7 +22,7 @@ public class UnitChangeTest {
   public void unitChange() {
     UnitChange unitChange = new UnitChange("Foo", 10);
     
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add("Foo", 2.0);
     msg.add("Bar", "2");
     

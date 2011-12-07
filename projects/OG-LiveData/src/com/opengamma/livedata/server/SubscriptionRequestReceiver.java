@@ -19,25 +19,39 @@ import com.opengamma.transport.FudgeRequestReceiver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Receives market data subscription requests
- * from clients. 
+ * Receives market data subscription requests from clients. 
  */
 public class SubscriptionRequestReceiver implements FudgeRequestReceiver {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(SubscriptionRequestReceiver.class);
+
+  /**
+   * The underlying server.
+   */
   private final AbstractLiveDataServer _liveDataServer;
-  
+
+  /**
+   * Creates an instance wrapping an underlying server.
+   * 
+   * @param liveDataServer  the server, not null
+   */
   public SubscriptionRequestReceiver(AbstractLiveDataServer liveDataServer) {
-    ArgumentChecker.notNull(liveDataServer, "Live Data Server");
+    ArgumentChecker.notNull(liveDataServer, "liveDataServer");
     _liveDataServer = liveDataServer;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @return the liveDataServer
+   * Gets the underlying server.
+   * 
+   * @return the server, not null
    */
   public AbstractLiveDataServer getLiveDataServer() {
     return _liveDataServer;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   @Transactional
   public FudgeMsg requestReceived(FudgeDeserializer deserializer, FudgeMsgEnvelope requestEnvelope) {

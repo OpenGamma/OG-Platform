@@ -304,7 +304,7 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
   public Pair<LocalDate, Double> getLatestDataPoint(
       ExternalIdBundle identifierBundle, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
     HistoricalTimeSeries hts = getHistoricalTimeSeries(identifierBundle, currentDate, dataSource, dataProvider, dataField, null, true, null, true, -1);
-    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getEarliestTime(), hts.getTimeSeries().getEarliestValue());
+    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
   }
 
   @Override
@@ -312,7 +312,21 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
       ExternalIdBundle identifierBundle, LocalDate currentDate, String dataSource, String dataProvider, String dataField, 
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     HistoricalTimeSeries hts = getHistoricalTimeSeries(identifierBundle, currentDate, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, -1);
-    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getEarliestTime(), hts.getTimeSeries().getEarliestValue());    
+    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());    
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField) {
+    HistoricalTimeSeries hts = getHistoricalTimeSeries(
+        identifierBundle, (LocalDate) null, dataSource, dataProvider, dataField, null, true, null, true, -1);
+    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());    
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart, LocalDate end,
+      boolean includeEnd) {
+    HistoricalTimeSeries hts = getHistoricalTimeSeries(identifierBundle, (LocalDate) null, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, -1);
+    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());    
   }
 
   //-------------------------------------------------------------------------
@@ -348,6 +362,38 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
+      String dataField, ExternalIdBundle identifierBundle, String resolutionKey, 
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
+    return getHistoricalTimeSeries(dataField, identifierBundle, (LocalDate) null, resolutionKey, start, includeStart, end, includeEnd, maxPoints);
+  }
+
+  @Override
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      String dataField, ExternalIdBundle identifierBundle, LocalDate currentDate, String resolutionKey, 
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
+    ArgumentChecker.notNull(dataField, "dataField");
+    ArgumentChecker.notEmpty(identifierBundle, "identifierBundle");
+    ArgumentChecker.notNull(start, "start");
+    ArgumentChecker.notNull(end, "end");
+    final RestTarget target = getTargetBase().resolveBase(REQUEST_RESOLVED_BY_DATE)
+        .resolveBase(dataField)
+        .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
+        .resolveBase((resolutionKey != null) ? resolutionKey : NULL_VALUE)
+        .resolveBase(start.toString())
+        .resolveBase(String.valueOf(includeStart))
+        .resolveBase(end.toString())
+        .resolveBase(String.valueOf(includeEnd))
+        .resolveBase(String.valueOf(maxPoints))
+        .resolveQuery("id", identifierBundle.toStringList());
+    try {
+      return decodeMessage(getRestClient().getMsg(target));
+    } catch (RestRuntimeException e) {
+      throw e.translate();
+    }
+  }
+
+  @Override
+  public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifierBundle, LocalDate currentDate, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     ArgumentChecker.notNull(dataField, "dataField");
@@ -368,6 +414,33 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     } catch (RestRuntimeException e) {
       throw e.translate();
     }
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, String resolutionKey) {
+    HistoricalTimeSeries hts = getHistoricalTimeSeries(dataField, identifierBundle, null, resolutionKey, null, true, null, true, -1);
+    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(
+      String dataField, ExternalIdBundle identifierBundle, String resolutionKey, 
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
+    HistoricalTimeSeries hts = getHistoricalTimeSeries(dataField, identifierBundle, null, resolutionKey, start, includeStart, end, includeEnd, -1);
+    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey) {
+    HistoricalTimeSeries hts = getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, null, true, null, true, -1);
+    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, LocalDate start, boolean includeStart,
+      LocalDate end, boolean includeEnd) {
+    HistoricalTimeSeries hts = getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, start, includeStart, end, includeEnd, -1);
+    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
   }
 
   //-------------------------------------------------------------------------

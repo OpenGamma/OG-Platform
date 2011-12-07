@@ -43,6 +43,30 @@ import java.lang.Math;
 
 public class CurveConstructionExample {
 
+    // @export "matrixDemo"
+    public static void matrixDemo(PrintStream out) {
+        double[][] matrix_2 = identityMatrix(2);
+        out.format("2x2 identity matrix:%n%s%n%n", Arrays.deepToString(matrix_2));
+
+        double[][] matrix_4 = identityMatrix(4);
+        out.format("4x4 identity matrix:%n%s%n%n", Arrays.deepToString(matrix_4));
+
+        DoubleMatrix2D m = new DoubleMatrix2D(matrix_4);
+        out.format("DoubleMatrix2D:%n%s%n%n", m.toString());
+    }
+
+    // @export "matrixMultiplyDemo"
+    public static void matrixMultiplyDemo(PrintStream out) {
+        double[][] matrix_4 = identityMatrix(4);
+        DoubleMatrix2D m = new DoubleMatrix2D(matrix_4);
+
+        double[] data_1d = {1.0,2.0,3.0,4.0};
+        DoubleMatrix1D v = new DoubleMatrix1D(data_1d);
+
+        ColtMatrixAlgebra colt = new ColtMatrixAlgebra();
+        out.println(colt.multiply(m, v));
+    }
+
     // @export "polyDerivativeDemo"
     public static RealPolynomialFunction1D getFunction() {
         double[] coefficients = {-125,75,-15,1};

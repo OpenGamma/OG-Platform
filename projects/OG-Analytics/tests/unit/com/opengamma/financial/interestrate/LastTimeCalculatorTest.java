@@ -37,8 +37,8 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class LastDateCalculatorTest {
-  private static LastDateCalculator LDC = LastDateCalculator.getInstance();
+public class LastTimeCalculatorTest {
+  private static LastTimeCalculator LDC = LastTimeCalculator.getInstance();
   private static final Currency CUR = Currency.USD;
 
   private static final Period TENOR = Period.ofMonths(6);
@@ -117,10 +117,11 @@ public class LastDateCalculatorTest {
 
   @Test
   public void testBond() {
-    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, 11, 1, "a")});
-    final AnnuityCouponFixed coupon = new AnnuityCouponFixed(CUR, new double[] {0.5, 1}, 0.03, "a", false);
+    double mat = 1.0;
+    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, mat, 1.0, "a")});
+    final AnnuityCouponFixed coupon = new AnnuityCouponFixed(CUR, new double[] {0.5, mat}, 0.03, "a", false);
     final BondFixedSecurity bond = new BondFixedSecurity(nominal, coupon, 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, "a", "b");
-    assertEquals(1, LDC.visit(bond), 1e-12);
+    assertEquals(mat, LDC.visit(bond), 1e-12);
   }
 
   @Test

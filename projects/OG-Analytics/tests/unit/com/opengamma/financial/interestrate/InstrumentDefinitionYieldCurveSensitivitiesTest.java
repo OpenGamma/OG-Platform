@@ -70,7 +70,7 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
   private static final InstrumentSensitivityCalculator ISC = InstrumentSensitivityCalculator.getInstance();
   private static final PresentValueCouponSensitivityCalculator PVCS = PresentValueCouponSensitivityCalculator.getInstance();
   private static final PresentValueNodeSensitivityCalculator PVNS = PresentValueNodeSensitivityCalculator.getDefaultInstance();
-  private static final LastDateCalculator MATURITY_CALCULATOR = LastDateCalculator.getInstance();
+  private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
   private static final Currency CCY = Currency.USD;
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2011, 1, 3);
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");

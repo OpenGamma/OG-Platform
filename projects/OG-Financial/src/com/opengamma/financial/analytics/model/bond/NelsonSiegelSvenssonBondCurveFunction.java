@@ -43,7 +43,7 @@ import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.interestrate.LastDateCalculator;
+import com.opengamma.financial.interestrate.LastTimeCalculator;
 import com.opengamma.financial.interestrate.NelsonSiegelSvennsonBondCurveModel;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.security.FinancialSecuritySource;
@@ -66,7 +66,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
   public static final String PROPERTY_PREFIX = "Nelson-Siegel-Svennson";
   private static final Logger s_logger = LoggerFactory.getLogger(NelsonSiegelSvenssonBondCurveFunction.class);
   private static final NonLinearLeastSquare MINIMISER = new NonLinearLeastSquare();
-  private static final LastDateCalculator LAST_DATE = LastDateCalculator.getInstance();
+  private static final LastTimeCalculator LAST_DATE = LastTimeCalculator.getInstance();
   private static final NelsonSiegelSvennsonBondCurveModel MODEL = new NelsonSiegelSvennsonBondCurveModel();
   //private static final ParameterLimitsTransform[] TRANSFORMS = new ParameterLimitsTransform[] {new SingleRangeLimitTransform(0, LimitType.GREATER_THAN), new NullTransform(), new NullTransform(),
   //  new NullTransform(), new NullTransform(), new NullTransform()};
