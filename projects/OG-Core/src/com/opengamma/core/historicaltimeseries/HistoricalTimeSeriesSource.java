@@ -193,6 +193,7 @@ public interface HistoricalTimeSeriesSource {
    * This returns a subset of the data points filtered by the dates provided.
    * 
    * @param identifierBundle  the identifier bundle, not null
+   * @param identifierValidityDate  the date that the identifier must be valid on, null to use all identifierBundle
    * @param dataSource  the data source, not null
    * @param dataProvider  the data provider, not null
    * @param dataField  the dataField, not null
