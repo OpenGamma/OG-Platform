@@ -10,6 +10,7 @@
     main.corr_from_instant AS corr_from_instant,
     main.corr_to_instant AS corr_to_instant,
     main.name AS portfolio_name,
+    main.visibility AS visibility,
     n.id AS node_id,
     n.oid AS node_oid,
     n.tree_left AS tree_left,
@@ -42,6 +43,7 @@
     main.corr_from_instant AS corr_from_instant,
     main.corr_to_instant AS corr_to_instant,
     main.name AS portfolio_name,
+    main.visibility AS visibility,
     n.id AS node_id,
     n.oid AS node_oid,
     n.tree_left AS tree_left,
@@ -76,6 +78,7 @@
     main.corr_from_instant AS corr_from_instant,
     main.corr_to_instant AS corr_to_instant,
     main.name AS portfolio_name,
+    main.visibility AS visibility,
     n.id AS node_id,
     n.oid AS node_oid,
     n.tree_left AS tree_left,
@@ -128,6 +131,7 @@
 @NAME(SearchWhere)
   WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
     AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
+    AND visibility <= :visibility
     @AND(:sql_search_portfolio_ids)
       oid IN ( @INCLUDE(:sql_search_portfolio_ids) )
     @AND(:name)
@@ -147,6 +151,7 @@
     main.corr_from_instant AS corr_from_instant,
     main.corr_to_instant AS corr_to_instant,
     main.name AS portfolio_name,
+    main.visibility AS visibility,
     n.id AS node_id,
     n.oid AS node_oid,
     n.tree_left AS tree_left,
@@ -217,9 +222,9 @@
 -- ==========================================================================
 @NAME(Insert)
   INSERT INTO prt_portfolio
-    (id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name)
+    (id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, visibility)
   VALUES
-    (:portfolio_id, :portfolio_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name)
+    (:portfolio_id, :portfolio_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, :visibility)
 
 
 -- ==========================================================================
@@ -275,6 +280,7 @@
     main.corr_from_instant AS corr_from_instant,
     main.corr_to_instant AS corr_to_instant,
     main.name AS portfolio_name,
+    main.visibility AS visibility,
     n.id AS node_id,
     n.oid AS node_oid,
     n.tree_left AS tree_left,
@@ -312,6 +318,7 @@
     main.corr_from_instant AS corr_from_instant,
     main.corr_to_instant AS corr_to_instant,
     main.name AS portfolio_name,
+    main.visibility AS visibility,
     n.id AS node_id,
     n.oid AS node_oid,
     n.tree_left AS tree_left,
