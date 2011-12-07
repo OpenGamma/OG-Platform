@@ -106,7 +106,7 @@ $.register_module({
                 $('.og-js-timeseries-plot').animate({opacity: '0.5'});
             };
             data_points = function () {
-                var $template, render_grid, check_meta,
+                var $template, render_grid, check_meta, $data_points = $('.OG-timeseries .og-data-points'),
                     slick_tmpl = '\
                         <div>\
                           <div class="og-data-series">\
@@ -125,6 +125,7 @@ $.register_module({
                             <span class="og-js-timeseries-csv">download csv</span>\
                           </header>\
                         </div>';
+                if (!$data_points.length) return;
                 $('.OG-timeseries .og-data-points').html('<div class="og-container"></div>');
                 $template = $('.OG-timeseries .og-data-points .og-container');
                 if (!data_arr) {
@@ -135,7 +136,7 @@ $.register_module({
                 render_grid = function (index) {
                     var SLICK_SELECTOR = '.OG-timeseries .og-data-points .og-slick-' + index, slick, data,
                     columns = [
-                        {id: 'time', name: 'Time', field: 'time', width: 160,
+                        {id: 'time', name: 'Time', field: 'time', width: 200,
                             formatter: function (row, cell, value, columnDef, dataContext) {
                                 return og.common.util.date(value);
                             }
@@ -380,7 +381,7 @@ $.register_module({
                         build_select = function () {
                             var field, select = '';
                             for (field in meta) select += '<option>'+ field +'</option>';
-                            return select = '<div class="og-field"><span>Data field:</span><select>' + select
+                            return select = '<div class="og-field"><span>Timeseries:</span><select>' + select
                                 + '</select></div>';
                         },
                         // build checkboxes
