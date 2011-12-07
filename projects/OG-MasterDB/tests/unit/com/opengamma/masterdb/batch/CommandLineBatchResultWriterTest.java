@@ -19,7 +19,6 @@ import java.util.Set;
 
 import javax.time.Instant;
 
-import com.opengamma.engine.value.ValueProperties;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
@@ -35,6 +34,7 @@ import com.opengamma.engine.test.CalculationNodeUtils;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.test.TestCalculationNode;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ResultModelDefinition;

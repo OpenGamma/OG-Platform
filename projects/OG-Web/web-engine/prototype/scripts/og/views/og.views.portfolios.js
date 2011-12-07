@@ -184,6 +184,7 @@ $.register_module({
                         slick = new Slick.Grid(selector + ' .og-js-portfolios-grid',
                             json.portfolios, display_columns.concat(data_columns));
                         slick.setColumns(display_columns);
+                        slick.setSelectionModel(new Slick.RowSelectionModel());
                         slick.onClick.subscribe(function (e, dd) {
                             var rule = module.rules.load_portfolios,
                                 node = json.portfolios[dd.row].id,
@@ -291,6 +292,7 @@ $.register_module({
                         slick = new Slick.Grid(selector + ' .og-js-position-grid',
                             json.positions, display_columns.concat(data_columns));
                         slick.setColumns(display_columns);
+                        slick.setSelectionModel(new Slick.RowSelectionModel());
                         slick.onClick.subscribe(function (e, dd) {
                             var row = json.positions[dd.row], position = row.id, position_name = row.name;
                             if ($(e.target).hasClass('og-icon-unhook')) {
@@ -313,11 +315,11 @@ $.register_module({
                                         $(this).dialog('close');
                                     }}
                                 });
-                            } else {
-                                common.gadgets.positions({
-                                    id: position, selector: '.og-js-details-positions', editable: false});
-                                common.gadgets.trades({id: position, selector: '.og-js-trades-table'});
                             }
+                            common.gadgets.positions({
+                                id: position, selector: '.og-js-details-positions', editable: false
+                            });
+                            common.gadgets.trades({id: position, selector: '.og-js-trades-table'});
                         });
                         slick.onMouseEnter.subscribe(function (e) {
                            $(e.currentTarget).closest('.slick-row').find('.og-button').show();

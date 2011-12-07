@@ -13,7 +13,6 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.instrument.Convention;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -22,20 +21,28 @@ import com.opengamma.util.money.Currency;
 public class IborIndex extends IndexDeposit {
 
   /**
+   * The index spot lag in days between trade and settlement date (usually 2 or 0).
+   */
+  private final int _spotLag;
+  /**
+   * The day count convention associated to the index.
+   */
+  private final DayCount _dayCount;
+  /**
+   * The business day convention associated to the index.
+   */
+  private final BusinessDayConvention _businessDayConvention;
+  /**
+   * The flag indicating if the end-of-month rule is used.
+   */
+  private final boolean _endOfMonth;
+  /**
    * Tenor of the index.
    */
   private final Period _tenor;
-  /**
-   * The conventions linked to the index.
-   */
-  private final Convention _convention;
-  /**
-   * Flag indicating if the end-of-month rule is used.
-   */
-  private final boolean _endOfMonth;
 
   /**
-   * Constructor from the index details.
+   * Constructor from the index details. The name is set to "Ibor".
    * @param currency The index currency.
    * @param tenor The index tenor.
    * @param spotLag The index spot lag (usually 2 or 0).
@@ -66,7 +73,9 @@ public class IborIndex extends IndexDeposit {
     Validate.notNull(calendar, "calendar");
     Validate.notNull(dayCount, "day count");
     Validate.notNull(businessDayConvention, "business day convention");
-    _convention = new Convention(spotLag, dayCount, businessDayConvention, calendar, "Ibor conventions");
+    _spotLag = spotLag;
+    _dayCount = dayCount;
+    _businessDayConvention = businessDayConvention;
     _endOfMonth = endOfMonth;
   }
 
@@ -79,52 +88,35 @@ public class IborIndex extends IndexDeposit {
   }
 
   /**
-   * Gets the spotLag field.
-   * @return the spotLag
+   * Gets the spot lag (in days).
+   * @return The spot lag.
    */
-  public int getSettlementDays() {
-    return _convention.getSettlementDays();
+  public int getSpotLag() {
+    return _spotLag;
   }
 
   /**
-   * Gets the calendar field.
-   * @return the calendar
-   */
-  @Override
-  public Calendar getCalendar() {
-    return _convention.getWorkingDayCalendar();
-  }
-
-  /**
-   * Gets the dayCount field.
-   * @return the dayCount
+   * Gets the day count.
+   * @return The day count.
    */
   public DayCount getDayCount() {
-    return _convention.getDayCount();
+    return _dayCount;
   }
 
   /**
-   * Gets the businessDayConvention field.
-   * @return the businessDayConvention
+   * Gets the business day convention.
+   * @return The business day convention.
    */
   public BusinessDayConvention getBusinessDayConvention() {
-    return _convention.getBusinessDayConvention();
+    return _businessDayConvention;
   }
 
   /**
-   * Gets the endOfMonth field.
-   * @return the endOfMonth
+   * Gets the end-of-month rule flag.
+   * @return The flag.
    */
   public boolean isEndOfMonth() {
     return _endOfMonth;
-  }
-
-  /**
-   * Gets the _convention field.
-   * @return The index conventions
-   */
-  public Convention getConvention() {
-    return _convention;
   }
 
   @Override
@@ -136,8 +128,10 @@ public class IborIndex extends IndexDeposit {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + _convention.hashCode();
+    result = prime * result + _businessDayConvention.hashCode();
+    result = prime * result + _dayCount.hashCode();
     result = prime * result + (_endOfMonth ? 1231 : 1237);
+    result = prime * result + _spotLag;
     result = prime * result + _tenor.hashCode();
     return result;
   }
@@ -154,13 +148,19 @@ public class IborIndex extends IndexDeposit {
       return false;
     }
     IborIndex other = (IborIndex) obj;
-    if (!ObjectUtils.equals(_convention, other._convention)) {
+    if (!ObjectUtils.equals(_businessDayConvention, other._businessDayConvention)) {
       return false;
     }
-    if (!ObjectUtils.equals(_tenor, other._tenor)) {
+    if (!ObjectUtils.equals(_dayCount, other._dayCount)) {
       return false;
     }
     if (_endOfMonth != other._endOfMonth) {
+      return false;
+    }
+    if (_spotLag != other._spotLag) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_tenor, other._tenor)) {
       return false;
     }
     return true;

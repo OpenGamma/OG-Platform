@@ -9,11 +9,11 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertSame;
 
-import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.livedata.server.FieldHistoryStore;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * 
@@ -24,7 +24,7 @@ public class RequiredFieldFilterTest {
   public void noRequiredFields() {
     RequiredFieldFilter filter = new RequiredFieldFilter();
     
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add("Foo", "1");
     msg.add("Bar", 2.0);
     msg.add("Baz", 500);
@@ -38,7 +38,7 @@ public class RequiredFieldFilterTest {
   public void requiredFieldsNotSatisfied() {
     RequiredFieldFilter filter = new RequiredFieldFilter("Foo", "Fibble");
     
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add("Foo", "1");
     msg.add("Bar", 2.0);
     msg.add("Baz", 500);
@@ -51,7 +51,7 @@ public class RequiredFieldFilterTest {
   public void requiredFieldsSatisfied() {
     RequiredFieldFilter filter = new RequiredFieldFilter("Foo");
     
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add("Foo", "1");
     msg.add("Bar", 2.0);
     msg.add("Baz", 500);

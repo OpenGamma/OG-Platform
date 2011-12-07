@@ -10,7 +10,9 @@ import javax.time.calendar.Period;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.util.money.Currency;
 
 /**
  * Class with the description of swap characteristics.
@@ -82,6 +84,22 @@ public class SwapGenerator {
    */
   public IborIndex getIborIndex() {
     return _iborIndex;
+  }
+
+  /**
+   * Gets the generator currency.
+   * @return The currency.
+   */
+  public Currency getCurrency() {
+    return _iborIndex.getCurrency();
+  }
+
+  /**
+   * Gets the generator calendar.
+   * @return The calendar.
+   */
+  public Calendar getCalendar() {
+    return _iborIndex.getCalendar();
   }
 
   @Override

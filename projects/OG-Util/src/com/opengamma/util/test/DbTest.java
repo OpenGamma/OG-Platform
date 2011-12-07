@@ -104,7 +104,6 @@ public abstract class DbTest implements TableCreationCallback {
     return TestProperties.getTestProperties().getProperty("test.sqlzip.path");
   }
 
-  @SuppressWarnings("unchecked")
   private static void unzipSQLScripts() throws IOException {
     File zipScriptPath = new File(DbTool.getWorkingDirectory(), getZipPath());
     for (File file : (Collection<File>) FileUtils.listFiles(zipScriptPath, new String[] {"zip" }, false)) {

@@ -5,6 +5,11 @@
  */
 package com.opengamma.financial.instrument.future;
 
+import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
@@ -14,11 +19,6 @@ import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
-
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 /**
  * Description of an interest rate future security.
@@ -67,14 +67,14 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
    * @param paymentAccrualFactor Future payment accrual factor. 
    * @param name Future name.
    */
-  public InterestRateFutureDefinition(final ZonedDateTime lastTradingDate, final IborIndex iborIndex, double referencePrice, final double notional, final double paymentAccrualFactor,
+  public InterestRateFutureDefinition(final ZonedDateTime lastTradingDate, final IborIndex iborIndex, double referencePrice, final double notional, final double paymentAccrualFactor, 
       final String name) {
     Validate.notNull(lastTradingDate, "Last trading date");
     Validate.notNull(iborIndex, "Ibor index");
     Validate.notNull(name, "Name");
     this._lastTradingDate = lastTradingDate;
     this._iborIndex = iborIndex;
-    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(_lastTradingDate, _iborIndex.getBusinessDayConvention(), _iborIndex.getCalendar(), _iborIndex.getSettlementDays());
+    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(_lastTradingDate, _iborIndex.getBusinessDayConvention(), _iborIndex.getCalendar(), _iborIndex.getSpotLag());
     _fixingPeriodEndDate = ScheduleCalculator
         .getAdjustedDate(_fixingPeriodStartDate, _iborIndex.getBusinessDayConvention(), _iborIndex.getCalendar(), _iborIndex.isEndOfMonth(), _iborIndex.getTenor());
     _fixingPeriodAccrualFactor = _iborIndex.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);
@@ -179,15 +179,14 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
     final double lastTradingTime = actAct.getDayCountFraction(date, getLastTradingDate());
     final double fixingPeriodStartTime = actAct.getDayCountFraction(date, getFixingPeriodStartDate());
     final double fixingPeriodEndTime = actAct.getDayCountFraction(date, getFixingPeriodEndDate());
-    InterestRateFuture future = new InterestRateFuture(lastTradingTime, _iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, _fixingPeriodAccrualFactor, referencePrice,
-        _notional, _paymentAccrualFactor, _name, discountingCurveName, forwardCurveName);
+    InterestRateFuture future = new InterestRateFuture(lastTradingTime, _iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, _fixingPeriodAccrualFactor, referencePrice, _notional,
+        _paymentAccrualFactor, _name, discountingCurveName, forwardCurveName);
     return future;
   }
 
   @Override
   public InstrumentDerivative toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() +
-        " does not support the two argument method (without margin price data).");
+    throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() + " does not support the two argument method (without margin price data).");
   }
 
   @Override

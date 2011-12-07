@@ -24,21 +24,32 @@ import com.opengamma.transport.FudgeRequestReceiver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Server managing entitlements.
+ * A server managing entitlements.
  * <p>
  * This receives {@link EntitlementRequest} requests, passing them onto a delegate
  * {@link LiveDataEntitlementChecker}, and returning {@link EntitlementResponseMsg} responses.
  */
 public class EntitlementServer implements FudgeRequestReceiver {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(EntitlementServer.class);
+
+  /**
+   * The underlying implementation.
+   */
   private final LiveDataEntitlementChecker _delegate;
-  
-  public EntitlementServer(LiveDataEntitlementChecker delegate) {
-    ArgumentChecker.notNull(delegate, "Delegate entitlement checker");
-    _delegate = delegate;
+
+  /**
+   * Creates an instance wrapping an underlying checker.
+   * 
+   * @param underlying  the underlying checker, not null
+   */
+  public EntitlementServer(LiveDataEntitlementChecker underlying) {
+    ArgumentChecker.notNull(underlying, "underlying");
+    _delegate = underlying;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   @Transactional
   public FudgeMsg requestReceived(FudgeDeserializer deserializer, FudgeMsgEnvelope requestEnvelope) {
@@ -59,10 +70,8 @@ public class EntitlementServer implements FudgeRequestReceiver {
       }
       responses.add(response);
     }
-    
     EntitlementResponseMsg response = new EntitlementResponseMsg(responses);
-    FudgeMsg responseFudgeMsg = response.toFudgeMsg(new FudgeSerializer(deserializer.getFudgeContext()));
-    return responseFudgeMsg;
+    return response.toFudgeMsg(new FudgeSerializer(deserializer.getFudgeContext()));
   }
-  
+
 }
