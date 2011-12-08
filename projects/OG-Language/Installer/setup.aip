@@ -490,8 +490,8 @@
     <ROW Registry="D47E8ACA_EC67_4483_872C_C8478728E5E9" Root="-1" Key="Software\Caphyon\Advanced Installer\Prereqs\[ProductCode]\[ProductVersion]" Name="D47E8ACA_EC67_4483_872C_C8478728E5E9" Value="1" Component_="D47E8ACA_EC67_4483_872C_C8478728E5E9"/>
     <ROW Registry="Path" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="Path" Value="[APPDIR]" Component_="Settings"/>
     <ROW Registry="Path64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="Path" Value="[APPDIR]" Component_="Settings64"/>
-    <ROW Registry="ProductName64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="+" Component_="Settings64"/>
     <ROW Registry="ProductName" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="+" Component_="Settings"/>
+    <ROW Registry="ProductName64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="+" Component_="Settings64"/>
     <ROW Registry="Version" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="Version" Value="[ProductVersion]" Component_="Settings"/>
     <ROW Registry="Version64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="Version" Value="[ProductVersion]" Component_="Settings64"/>
     <ROW Registry="jvmProperty.opengamma.configuration.failOnInvalid" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="jvmProperty.opengamma.configuration.failOnInvalid" Value="TRUE" Component_="Settings"/>
@@ -506,12 +506,12 @@
     <ROW Registry="serviceSDDL64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="serviceSDDL" Value="D:(A;;GA;;;WD)" Component_="Settings64"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiServCtrlComponent">
-    <ROW ServiceControl="ServiceRunner64.exe" Name="OpenGammaLanguageAPI" Event="161" Wait="1" Component_="ServiceRunner.exe_64"/>
     <ROW ServiceControl="ServiceRunner32.exe" Name="OpenGammaLanguageAPI" Event="161" Wait="1" Component_="ServiceRunner.exe_32"/>
+    <ROW ServiceControl="ServiceRunner64.exe" Name="OpenGammaLanguageAPI" Event="161" Wait="1" Component_="ServiceRunner.exe_64"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiServInstComponent">
-    <ROW ServiceInstall="ServiceRunner64.exe" Name="OpenGammaLanguageAPI" DisplayName="OpenGamma Language Integration" ServiceType="16" StartType="3" ErrorControl="1" Component_="ServiceRunner.exe_64" Description="Integration API for using OpenGamma Tools from other environments"/>
     <ROW ServiceInstall="ServiceRunner32.exe" Name="OpenGammaLanguageAPI" DisplayName="OpenGamma Language Integration" ServiceType="16" StartType="3" ErrorControl="1" Component_="ServiceRunner.exe_32" Description="Integration API for using OpenGamma Tools from other environments"/>
+    <ROW ServiceInstall="ServiceRunner64.exe" Name="OpenGammaLanguageAPI" DisplayName="OpenGamma Language Integration" ServiceType="16" StartType="3" ErrorControl="1" Component_="ServiceRunner.exe_64" Description="Integration API for using OpenGamma Tools from other environments"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
     <ATTRIBUTE name="UsedTheme" value="classic"/>
@@ -529,14 +529,16 @@
   <COMPONENT cid="caphyon.advinst.msicomp.PreReqSearchComponent">
     <ROW SearchKey="A36DC7A_AF70_4CF0_B489_B30E0828F882_VC_2010_SEARCH_1" Prereq="A36DC7A_AF70_4CF0_B489_B30E0828F882" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86\Rbld" RefContent="G1" Order="2" Property="AI_VC_2010_PREREQSEARCH_1_PROP_1"/>
     <ROW SearchKey="A36DC7A_AF70_4CF0_B489_B30E0828F882_VC_2010_SEARCH_2" Prereq="A36DC7A_AF70_4CF0_B489_B30E0828F882" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86\Rbld" RefContent="M1" Order="1" Property="AI_VC_2010_PREREQSEARCH_1_PROP"/>
-    <ROW SearchKey="D47E8ACA_EC67_4483_872C_C8478728E5E9_VC_2010_X64_SEARCH_1" Prereq="D47E8ACA_EC67_4483_872C_C8478728E5E9" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x64\Rbld" RefContent="G1" Order="2" Property="AI_VC_2010_X64_PREREQSEARCH_1_PROP" Platform="1"/>
-    <ROW SearchKey="D47E8ACA_EC67_4483_872C_C8478728E5E9_VC_2010_X64_SEARCH_2" Prereq="D47E8ACA_EC67_4483_872C_C8478728E5E9" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x64\Rbld" RefContent="M1" Order="1" Property="AI_VC_2010_X64_PREREQSEARCH_1_PROP_1" Platform="1"/>
+    <ROW SearchKey="D47E8ACA_EC67_4483_872C_C8478728E5E9_VC_2010_X64_SEARCH_1" Prereq="D47E8ACA_EC67_4483_872C_C8478728E5E9" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x64\Rbld" RefContent="G1" Order="2" Property="AI_VC_2010_X64_PREREQSEARCH_1_PROP"/>
+    <ROW SearchKey="D47E8ACA_EC67_4483_872C_C8478728E5E9_VC_2010_X64_SEARCH_2" Prereq="D47E8ACA_EC67_4483_872C_C8478728E5E9" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x64\Rbld" RefContent="M1" Order="1" Property="AI_VC_2010_X64_PREREQSEARCH_1_PROP_1"/>
     <ROW SearchKey="EC39D_0B8D_4C2E_A373_7F11E2281A4C_JRE_SEARCH" Prereq="EC39D_0B8D_4C2E_A373_7F11E2281A4C" SearchType="1" SearchString="HKLM\SOFTWARE\JavaSoft\Java Runtime Environment" VerMin="1.0" Order="1" Property="AI_JRE_PREREQSEARCH_PROP"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.TxtUpdateComponent">
-    <ROW Name="Append/Create" TxtUpdateSet="OpenGamma.properties" FindPattern="# Global properties&#13;&#10;" Options="32" Order="0" FileEncoding="2"/>
-    <ROW Name="Append/Create" TxtUpdateSet="log4cxx.properties" FindPattern="log4j.rootLogger=INFO, A1&#13;&#10;log4j.appender.A1=org.apache.log4j.RollingFileAppender&#13;&#10;log4j.appender.A1.maxFileSize=1MB&#13;&#10;log4j.appender.A1.maxBackupIndex=3&#13;&#10;log4j.appender.A1.layout=org.apache.log4j.PatternLayout&#13;&#10;log4j.appender.A1.file=[WindowsFolder]Temp\OG-Language-Service&#13;&#10;log4j.appender.A1.layout.ConversionPattern=%d [\[]%t[\]] %-5p %c:%L - %m%n&#13;&#10;" Options="32" Order="0" FileEncoding="2"/>
-    <ROW Name="Append/Create" TxtUpdateSet="log4cxx.service__1_.properties" FindPattern="log4j.rootLogger=INFO, A1&#13;&#10;log4j.appender.A1=org.apache.log4j.RollingFileAppender&#13;&#10;log4j.appender.A1.maxFileSize=1MB&#13;&#10;log4j.appender.A1.maxBackupIndex=3&#13;&#10;log4j.appender.A1.layout=org.apache.log4j.PatternLayout&#13;&#10;log4j.appender.A1.file=[WindowsFolder]Temp\OG-Language-Connector&#13;&#10;log4j.appender.A1.layout.ConversionPattern=%d [\[]%t[\]] %-5p %c:%L - %m%n&#13;&#10;" Options="32" Order="0" FileEncoding="2"/>
+    <ROW Name="Append/Create" TxtUpdateSet="OpenGamma.properties" FindPattern="# Global properties&#13;&#10;" Options="32" Order="0" FileEncoding="0"/>
+    <ROW Name="Append/Create" TxtUpdateSet="log4cxx.properties" FindPattern="log4j.rootLogger=INFO, A1&#13;&#10;log4j.appender.A1=org.apache.log4j.RollingFileAppender&#13;&#10;log4j.appender.A1.maxFileSize=1MB&#13;&#10;log4j.appender.A1.maxBackupIndex=3&#13;&#10;log4j.appender.A1.layout=org.apache.log4j.PatternLayout&#13;&#10;log4j.appender.A1.file=[WindowsFolder]Temp\OG-Language-Service.log&#13;&#10;log4j.appender.A1.layout.ConversionPattern=%d [\[]%t[\]] %-5p %c:%L - %m%n&#13;&#10;" Options="32" Order="0" FileEncoding="0"/>
+    <ROW Name="Append/Create" TxtUpdateSet="log4cxx.service__1_.properties" FindPattern="log4j.rootLogger=INFO, A1&#13;&#10;log4j.appender.A1=org.apache.log4j.RollingFileAppender&#13;&#10;log4j.appender.A1.maxFileSize=1MB&#13;&#10;log4j.appender.A1.maxBackupIndex=3&#13;&#10;log4j.appender.A1.layout=org.apache.log4j.PatternLayout&#13;&#10;log4j.appender.A1.file=[WindowsFolder]Temp\OG-Language-Connector&#13;&#10;log4j.appender.A1.layout.ConversionPattern=%d [\[]%t[\]] %-5p %c:%L - %m%n&#13;&#10;" Options="32" Order="0" FileEncoding="0"/>
+    <ROW Name="Replace" TxtUpdateSet="log4cxx.service__1_.properties" FindPattern="\" ReplacePattern="\\" Options="2" Order="1" FileEncoding="7"/>
+    <ROW Name="Replace" TxtUpdateSet="log4cxx.properties" FindPattern="\" ReplacePattern="\\" Options="2" Order="1" FileEncoding="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.TxtUpdateSetComponent">
     <ROW Key="OpenGamma.properties" Component="client.jar" FileName="OpenGamma.properties" Directory="APPDIR" Options="25"/>
@@ -561,7 +563,7 @@
     <ROW XmlElement="3" ParentElement="0" Name="logger" Order="2" Flags="14"/>
     <ROW XmlElement="4" ParentElement="1" Name="File" Order="0" Flags="14" Text="[WindowsFolder]Temp\OG-Language-Server.log"/>
     <ROW XmlElement="5" ParentElement="1" Name="rollingPolicy" Order="1" Flags="14"/>
-    <ROW XmlElement="6" ParentElement="5" Name="fileNamePattern" Order="0" Flags="14" Text="[TempFolder]\OG-Language-Client.log.%i"/>
+    <ROW XmlElement="6" ParentElement="5" Name="fileNamePattern" Order="0" Flags="14" Text="[WindowsFolder]Temp\OG-Language-Server.log.%i"/>
     <ROW XmlElement="7" ParentElement="5" Name="minIndex" Order="1" Flags="14" Text="1"/>
     <ROW XmlElement="8" ParentElement="5" Name="maxIndex" Order="2" Flags="14" Text="3"/>
     <ROW XmlElement="9" ParentElement="1" Name="triggeringPolicy" Order="2" Flags="14"/>
