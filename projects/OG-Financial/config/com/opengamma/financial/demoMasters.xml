@@ -28,11 +28,6 @@
   <bean id="abstractDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean" abstract="true">
     <property name="transactionIsolationLevelName" value="ISOLATION_READ_COMMITTED" />
     <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
-    <property name="hibernateMappingFiles">
-      <list>
-        <bean class="com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles"/>
-      </list>
-    </property>
   </bean>
 
   <bean id="cfgDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
@@ -61,6 +56,24 @@
     <property name="dialectName" value="${opengamma.financial.db.dbdialect}"/>
   </bean>
   
+  <bean id="secDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <property name="driverClassName" value="${opengamma.financial.jdbc.driver}" />
+    <property name="url" value="${opengamma.financial.jdbc.url}" />
+    <property name="username" value="${opengamma.financial.jdbc.username}" />
+    <property name="password" value="${opengamma.financial.jdbc.password}" />
+  </bean>
+
+  <bean id="secDbConnector" parent="abstractDbConnector">
+    <property name="name" value="Security"/>
+    <property name="dataSource" ref="secDataSource"/>
+    <property name="dialectName" value="${opengamma.financial.db.dbdialect}"/>
+    <property name="hibernateMappingFiles">
+      <list>
+        <bean class="com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles"/>
+      </list>
+    </property>
+  </bean>
+  
   <bean id="htsDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="${opengamma.hts.jdbc.driver}" />
     <property name="url" value="${opengamma.hts.jdbc.url}" />
@@ -79,8 +92,8 @@
   </bean>
 
   <!-- ConfigMaster -->
-  <bean id="sharedConfigMaster" class="com.opengamma.masterdb.config.DbConfigMaster">
-    <constructor-arg ref="cfgDbConnector" />
+  <bean id="sharedConfigMaster" class="com.opengamma.masterdb.spring.DbConfigMasterFactoryBean">
+    <property name="dbConnector" ref="cfgDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.config.db.configmaster.scheme}" />
   </bean>
 
@@ -112,39 +125,32 @@
   </bean>
   
   <!-- ExchangeMaster -->
-  <bean id="dbExchangeMaster" class="com.opengamma.masterdb.exchange.DbExchangeMaster">
-    <constructor-arg ref="finDbConnector" />
+  <bean id="dbExchangeMaster" class="com.opengamma.masterdb.spring.DbExchangeMasterFactoryBean">
+    <property name="dbConnector" ref="finDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.exchangemaster.scheme}" />
   </bean>
-
+  
   <bean id="sharedExchangeSource" class="com.opengamma.master.exchange.impl.MasterExchangeSource">
     <constructor-arg ref="dbExchangeMaster"/>
   </bean>
   
   <!-- HolidayMaster -->
-  <bean id="dbHolidayMaster" class="com.opengamma.masterdb.holiday.DbHolidayMaster">
-    <constructor-arg ref="finDbConnector" />
+  <bean id="dbHolidayMaster" class="com.opengamma.masterdb.spring.DbHolidayMasterFactoryBean">
+    <property name="dbConnector" ref="finDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.holidaymaster.scheme}" />
   </bean>
+  
   <bean id="sharedHolidaySource" class="com.opengamma.master.holiday.impl.ConcurrentMapCachingMasterHolidaySource" destroy-method="stop" >
     <constructor-arg ref="dbHolidayMaster"/>
   </bean>
 
   <!-- SecurityMaster -->
-  <bean id="securityMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
-  <bean id="dbSecurityMaster" class="com.opengamma.masterdb.security.DbSecurityMaster">
-    <constructor-arg ref="finDbConnector" />
-    <property name="changeManager" ref="securityMasterChangeManager" />
+  <bean id="dbSecurityMaster" class="com.opengamma.masterdb.spring.DbSecurityMasterFactoryBean">
+    <property name="dbConnector" ref="secDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.securitymaster.scheme}" />
-    <property name="detailProvider">
-        <bean class="com.opengamma.masterdb.security.EHCachingSecurityMasterDetailProvider" >
-                <constructor-arg>
-                  <bean class="com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider" />
-                </constructor-arg>
-                <constructor-arg ref="cacheManager" />
-        </bean>
-    </property>
+    <property name="cacheManager" ref="cacheManager" />
   </bean>
+  
   <bean id="sharedSecuritySource" class="com.opengamma.financial.security.EHCachingFinancialSecuritySource">
     <constructor-arg>
       <bean class="com.opengamma.financial.security.MasterFinancialSecuritySource">
