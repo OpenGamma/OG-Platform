@@ -21,6 +21,7 @@ import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
+import com.opengamma.master.DocumentVisibility;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
@@ -58,6 +59,7 @@ public class PortfoliosFunction extends AbstractFunctionInvoker implements Publi
     final PortfolioSearchRequest request = new PortfolioSearchRequest();
     request.setName(name);
     request.setDepth(0);
+    request.setVisibility(DocumentVisibility.HIDDEN);
     final List<Object[]> rows = new LinkedList<Object[]>();
     CombiningMaster.PORTFOLIO.get(context).search(request, new CombinedPortfolioMaster.SearchCallback() {
 

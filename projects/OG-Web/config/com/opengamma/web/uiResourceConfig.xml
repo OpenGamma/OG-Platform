@@ -190,7 +190,6 @@
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.form.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.toggle_text_on_focus.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.content_editable.js</fragment>
-    <fragment>/scripts/og/common/util/ui/og.common.util.ui.render_plot.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.message.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.dialog.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.toolbar.js</fragment>
@@ -212,7 +211,8 @@
   <bundle id="common_module.js">
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.trades.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.positions.js</fragment>
-  </bundle>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.timeseries.js</fragment>
+	</bundle>
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/common/og.views.common.state.js</fragment>
     <fragment>/scripts/og/views/common/og.views.common.versions.js</fragment>

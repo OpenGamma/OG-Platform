@@ -170,8 +170,7 @@ $.register_module({
                         if (result.error) return alert(result.message);
                         var json = result.data;
                         api.text({module: module.name, handler: function (template) {
-                            var $html, error_html, json_id = json.identifiers, title,
-                                stop_loading, header, content; // functions
+                            var $html, error_html, json_id = json.identifiers, title, header, content;
                             error_html = '\
                                 <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
                                     This position has been deleted\
@@ -219,18 +218,16 @@ $.register_module({
                                 }, '')
                             );
                             // Plot
-                            ui.render_plot({
+                            common.gadgets.timeseries({
                                 selector: '.OG-timeseries .og-plots',
-                                data: result, // sending the whole result to be in sync with future requested objects
-                                identifier: json.identifiers[0].value,
-                                init_data_field: json.template_data.data_field,
-                                init_ob_time: json.template_data.observation_time
+                                id: result.data.template_data.object_id
                             });
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             layout.inner.resizeAll();
                         }});
                     },
                     id: args.id,
+                    cache_for: 10000,
                     loading: function () {
                         ui.message({
                             location: '.ui-layout-inner-center',
