@@ -208,6 +208,10 @@ $.register_module({
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
                             }
+                            if (json.template_data.hts_id) common.gadgets.timeseries({
+                                selector: '.OG-js-details-panel .og-js-timeseries',
+                                id: json.template_data.hts_id
+                            });
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             layout.inner.resizeAll();
                         }});
