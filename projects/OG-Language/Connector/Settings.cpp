@@ -144,9 +144,9 @@ private:
 			if ((hr = RegGetValue (hkey, pszServiceName, TEXT ("ImagePath"), RRF_RT_REG_SZ, NULL, szImage, &cbImage)) == ERROR_SUCCESS) {
 				if (szImage[0] == '\"') {
 					int cchImage = (cbImage / sizeof (TCHAR)) - 1;
-					ASSERT (cchImage >= 2);
-					ASSERT (!szImage[cchImage]);
-					ASSERT (szImage[cchImage - 1] == '\"');
+					assert (cchImage >= 2);
+					assert (!szImage[cchImage]);
+					assert (szImage[cchImage - 1] == '\"');
 					szImage[cchImage - 1] = 0;
 					pszExecutable = _tcsdup (szImage + 1);
 				} else {
