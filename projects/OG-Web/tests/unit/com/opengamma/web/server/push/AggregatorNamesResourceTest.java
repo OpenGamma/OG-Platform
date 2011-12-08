@@ -40,7 +40,7 @@ public class AggregatorNamesResourceTest {
     Pair<Server, WebApplicationContext> serverAndContext =
         WebPushTestUtils.createJettyServer("classpath:/com/opengamma/web/aggregatornamesresource-test.xml");
     Server server = serverAndContext.getFirst();
-    JSONArray json = new JSONArray(WebPushTestUtils.readFromPath("/jax/aggregators"));
+    JSONArray json = new JSONArray(WebPushTestUtils.readFromPath("/jax/aggregatornames"));
     assertEquals(2, json.length());
     assertEquals(AGGREGATOR1, json.get(0));
     assertEquals(AGGREGATOR2, json.get(1));

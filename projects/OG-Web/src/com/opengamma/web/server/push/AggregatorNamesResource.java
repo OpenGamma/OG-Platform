@@ -16,7 +16,7 @@ import javax.ws.rs.core.MediaType;
 /**
  * REST interface that produces a JSON list of aggregator names for populating the web client.
  */
-@Path("aggregators")
+@Path("aggregatornames")
 public class AggregatorNamesResource {
 
   private final AggregatedViewDefinitionManager _aggregatedViewDefinitionManager;
