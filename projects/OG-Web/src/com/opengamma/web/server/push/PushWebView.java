@@ -28,7 +28,7 @@ import java.util.Map;
  * TODO return new viewport instance rather than implementing it?
  * TODO temporary name just to distinguish it from the similarly named class in the parent package
 */
-public class PushWebView implements Viewport {
+/* package */ class PushWebView implements Viewport {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PushWebView.class);
 

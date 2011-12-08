@@ -3,7 +3,7 @@ package com.opengamma.web.server.push;
 /**
  *
  */
-public interface MasterChangeListener {
+/* package */ interface MasterChangeListener {
 
   void masterChanged(MasterType masterType);
 }

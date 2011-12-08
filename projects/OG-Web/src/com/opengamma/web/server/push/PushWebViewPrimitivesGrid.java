@@ -19,7 +19,7 @@ import java.util.Map;
  * Represents a primitives grid
  * TODO temporary name just to distinguish it from the similarly named class in the parent package
 */
-public class PushWebViewPrimitivesGrid extends PushRequirementBasedWebViewGrid {
+/* package */ class PushWebViewPrimitivesGrid extends PushRequirementBasedWebViewGrid {
 
   protected PushWebViewPrimitivesGrid(ViewClient viewClient,
                                       CompiledViewDefinition compiledViewDefinition,

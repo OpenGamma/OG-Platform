@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * statically and each value may differ in type.
  * TODO temporary name just to distinguish it from the similarly named class in the parent package
 */
-public class PushWebViewDepGraphGrid extends PushWebViewGrid {
+/* package */ class PushWebViewDepGraphGrid extends PushWebViewGrid {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PushWebViewDepGraphGrid.class);
 

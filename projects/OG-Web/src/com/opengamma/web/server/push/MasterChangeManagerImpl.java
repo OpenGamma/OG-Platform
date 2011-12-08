@@ -14,7 +14,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 /**
  *
  */
-public class MasterChangeManagerImpl implements MasterChangeManager {
+/* package */ class MasterChangeManagerImpl implements MasterChangeManager {
 
   private final Set<MasterChangeListener> _listeners = new CopyOnWriteArraySet<MasterChangeListener>();
 

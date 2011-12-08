@@ -29,7 +29,7 @@ import java.util.Map;
  * Represents a portfolio grid
  * TODO temporary name just to distinguish it from the similarly named class in the parent package
 */
-public class PushWebViewPortfolioGrid extends PushRequirementBasedWebViewGrid {
+/* package */ class PushWebViewPortfolioGrid extends PushRequirementBasedWebViewGrid {
   
   private Map<Integer, PortfolioRow> _rowIdToRowMap;
 

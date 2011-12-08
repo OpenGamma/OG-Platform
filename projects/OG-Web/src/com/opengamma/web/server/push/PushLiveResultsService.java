@@ -33,7 +33,7 @@ import java.util.Map;
  * Connects the REST interface to the engine.
  * TODO temporary name just to distinguish it from the similarly named class in the parent package
  */
-public class PushLiveResultsService implements ViewportFactory {
+/* package */ class PushLiveResultsService implements ViewportFactory {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PushLiveResultsService.class);
 
