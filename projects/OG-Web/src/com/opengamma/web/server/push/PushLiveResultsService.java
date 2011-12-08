@@ -118,7 +118,7 @@ public class PushLiveResultsService implements ViewportFactory {
           if (webView.matches(baseViewDefinitionId, viewportDefinition)) {
             // Already initialized
             // TODO is there any possibility the WebView won't have a compiled view def at this point?
-            return webView.configureViewport(viewportDefinition, listener, viewportKey);
+            return webView.configureViewport(viewportDefinition, listener);
           }
           // Existing view is different - client is switching views
           shutDownWebView(webView);

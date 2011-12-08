@@ -21,8 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * TODO CONCURRENCY - I've scrapped all the locking, needs to be reviewed and replaced
@@ -43,8 +43,6 @@ public class PushWebView implements Viewport {
   private PushRequirementBasedWebViewGrid _portfolioGrid;
   private PushRequirementBasedWebViewGrid _primitivesGrid;
 
-  // TODO get the state from the grids
-  private final AtomicInteger _activeDepGraphCount = new AtomicInteger();
   private ViewportDefinition _viewportDefinition;
   private AnalyticsListener _listener;
   private Map<String,Object> _gridStructures;
@@ -174,9 +172,7 @@ public class PushWebView implements Viewport {
   /**
    *
    */
-  /* package */ Viewport configureViewport(ViewportDefinition viewportDefinition,
-                                           AnalyticsListener listener,
-                                           String viewportKey) {
+  /* package */ Viewport configureViewport(ViewportDefinition viewportDefinition, AnalyticsListener listener) {
     synchronized (_lock) {
       _viewportDefinition = viewportDefinition;
       _listener = listener;
@@ -190,10 +186,13 @@ public class PushWebView implements Viewport {
       return;
     }
     _portfolioGrid.setViewport(_viewportDefinition.getPortfolioRows());
-    _portfolioGrid.updateDepGraphCells(_viewportDefinition.getPortfolioDependencyGraphCells());
     _primitivesGrid.setViewport(_viewportDefinition.getPrimitiveRows());
-    _primitivesGrid.updateDepGraphCells(_viewportDefinition.getPrimitiveDependencyGraphCells());
-    // TODO _client.setViewCycleAccessSupported()?
+    List<WebGridCell> portfolioDepGraphCells = _viewportDefinition.getPortfolioDependencyGraphCells();
+    List<WebGridCell> primitiveDepGraphCells = _viewportDefinition.getPrimitiveDependencyGraphCells();
+    // view cycle access is required for dep graph access but performance is better if it is disabled
+    _viewClient.setViewCycleAccessSupported(!portfolioDepGraphCells.isEmpty() || !primitiveDepGraphCells.isEmpty());
+    _portfolioGrid.updateDepGraphCells(portfolioDepGraphCells);
+    _primitivesGrid.updateDepGraphCells(primitiveDepGraphCells);
     updateResults();
   }
 
@@ -204,8 +203,8 @@ public class PushWebView implements Viewport {
       }
       ViewComputationResultModel resultModel = _viewClient.getLatestResult();
       long resultTimestamp = resultModel.getCalculationTime().toEpochMillisLong();
-      HashMap<Integer, Map<String, Object>> portfolioResult = new HashMap<Integer, Map<String, Object>>();
-      HashMap<Integer, Map<String, Object>> primitiveResult = new HashMap<Integer, Map<String, Object>>();
+      Map<String, Object> portfolioResult = new HashMap<String, Object>();
+      Map<String, Object> primitiveResult = new HashMap<String, Object>();
 
       for (ComputationTargetSpecification target : resultModel.getAllTargets()) {
         switch (target.getType()) {
@@ -214,7 +213,7 @@ public class PushWebView implements Viewport {
               Map<String, Object> targetResult = _primitivesGrid.getTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
               if (targetResult != null) {
                 Integer rowId = (Integer) targetResult.get("rowId");
-                primitiveResult.put(rowId, targetResult);
+                primitiveResult.put(Integer.toString(rowId), targetResult);
               }
             }
             break;
@@ -224,12 +223,18 @@ public class PushWebView implements Viewport {
               Map<String, Object> targetResult = _portfolioGrid.getTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
               if (targetResult != null) {
                 Integer rowId = (Integer) targetResult.get("rowId");
-                portfolioResult.put(rowId, targetResult);
+                portfolioResult.put(Integer.toString(rowId), targetResult);
               }
             }
         }
       }
-      // TODO on master the call to handle the dep graphs has moved to the equivalent of this point - put the dep graphs in _latestResults?
+      // TODO should these always be added or omitted if there are no dep graphs?
+      if (_portfolioGrid != null) {
+        portfolioResult.put("dependencyGraphs", _portfolioGrid.getDepGraphs(resultTimestamp));
+      }
+      if (_primitivesGrid != null) {
+        primitiveResult.put("dependencyGraphs", _primitivesGrid.getDepGraphs(resultTimestamp));
+      }
       _latestResults.clear();
       _latestResults.put("portfolio", portfolioResult);
       _latestResults.put("primitive", primitiveResult);
@@ -240,30 +245,7 @@ public class PushWebView implements Viewport {
     }
   }
 
-  // TODO this logic needs to go in configureViewport
-  private void setIncludeDepGraph(WebGridCell cell, boolean includeDepGraph) {
-    // TODO this is ugly, the dep graph count belongs in the portfolio grid
-    if (includeDepGraph) {
-      if (_activeDepGraphCount.getAndIncrement() == 0) {
-        _viewClient.setViewCycleAccessSupported(true);
-      }
-    } else {
-      if (_activeDepGraphCount.decrementAndGet() == 0) {
-        _viewClient.setViewCycleAccessSupported(false);
-      }
-    }
-    /*WebViewGrid grid = _portfolioGrid.setIncludeDepGraph(cell, includeDepGraph);
-    if (grid != null) {
-      if (includeDepGraph) {
-        _gridsByName.put(grid.getName(), grid);
-      } else {
-        _gridsByName.remove(grid.getName());
-      }
-    }*/
-  }
-
   // TODO refactor this?
-  // TODO CONCURRENCY
   /*public Pair<Instant, String> getGridContentsAsCsv(String gridName) {
     PushWebViewGrid grid = getGridByName(gridName);
     if (grid == null) {

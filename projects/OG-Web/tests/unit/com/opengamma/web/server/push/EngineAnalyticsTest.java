@@ -20,7 +20,7 @@ public class EngineAnalyticsTest {
         "\"portfolioViewport\": {" +
         "\"rowIds\": [0, 1, 2, 3], " +
         "\"lastTimestamps\": [null, null, null, null], " +
-        "\"dependencyGraphCells\": []" +
+        "\"dependencyGraphCells\": [[0, 0], [1, 1]]" +
         "}" +
         "}";
     String viewportUrl = WebPushTestUtils.createViewport(clientId, viewDefJson);

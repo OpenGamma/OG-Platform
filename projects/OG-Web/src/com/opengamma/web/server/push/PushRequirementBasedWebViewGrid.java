@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server.push;
 
+import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -40,10 +41,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Set;
 
 /**
  * An abstract base class for dynamically-structured, requirement-based grids.
@@ -60,7 +61,7 @@ public abstract class PushRequirementBasedWebViewGrid extends PushWebViewGrid {
   private final LongSet _historyOutputs = new LongArraySet();
   
   // Cell-based state
-  private final ConcurrentMap<WebGridCell, PushWebViewDepGraphGrid> _depGraphGrids = new ConcurrentHashMap<WebGridCell, PushWebViewDepGraphGrid>();
+  private final Map<WebGridCell, PushWebViewDepGraphGrid> _depGraphGrids = new HashMap<WebGridCell, PushWebViewDepGraphGrid>();
 
   protected PushRequirementBasedWebViewGrid(String name,
                                             ViewClient viewClient,
@@ -144,12 +145,14 @@ public abstract class PushRequirementBasedWebViewGrid extends PushWebViewGrid {
     return valuesToSend;
   }
 
-  // TODO return type? need to define the JSON structure, there's no equivalent in the old code, the data is sent a piece at a time
-
   /**
    * Returns all the dependency graphs for the grid.
    * @param resultTimestamp Timestamp of the set of results
-   * @return {@code [{rowId: rowId1, dg, depGraph1}, {rowId: rowId2, dg, depGraph2}, ...]}
+   * @return <pre>[{"rowId": "1", "1": {"dg": depGraphForRow1Col1}},
+   * {"rowId": "1", "2": {"dg": depGraphForRow1Col2}},
+   * {"rowId": "2", "1": {"dg": depGraphForRow2Col1}}]</pre>
+   * TODO the return value is ugly but is based on the current Cometd impl to reduce changes in the web client.
+   * It's probably worth revisting it at some point
    */
   public List<Map<String, Object>> getDepGraphs(long resultTimestamp) {
     if (_depGraphGrids.isEmpty()) {
@@ -286,23 +289,26 @@ public abstract class PushRequirementBasedWebViewGrid extends PushWebViewGrid {
   
   //-------------------------------------------------------------------------
 
-  // TODO does this belong in the portfolio-specific subclass? or can / will you be able to get dep graphs for primitives?
   public PushWebViewGrid getDepGraphGrid(String name) {
     // TODO implement RequirementBasedWebViewGrid.getDepGraphGrid()
     throw new UnsupportedOperationException("getDepGraphGrid not implemented");
   }
 
+  // TODO this needs to be single threaded
   /* package */ void updateDepGraphCells(List<WebGridCell> dependencyGraphCells) {
-    // TODO implement
-  }
+    Set<WebGridCell> newCells = new HashSet<WebGridCell>(dependencyGraphCells);
+    Set<WebGridCell> currentCells = _depGraphGrids.keySet();
+    Set<WebGridCell> cellsToRemove = Sets.difference(currentCells, newCells);
+    Set<WebGridCell> cellsToAdd = Sets.difference(newCells, currentCells);
 
-  // TODO move this logic to updateDepGraphCells
-  // TODO where was / should this be called from?
-  public PushWebViewGrid setIncludeDepGraph(WebGridCell cell, boolean includeDepGraph) {
-    if (includeDepGraph) {
-      String gridName = getName() + ".depgraph-" + cell.getRowId() + "-" + cell.getColumnId();      
+    for (WebGridCell cell : cellsToRemove) {
+      _depGraphGrids.remove(cell);
+    }
+    for (WebGridCell cell : cellsToAdd) {
+      String gridName = getName() + ".depgraph-" + cell.getRowId() + "-" + cell.getColumnId();
       OperationTimer timer = new OperationTimer(s_logger, "depgraph");
-      Pair<String, ValueSpecification> columnMappingPair = getGridStructure().findCellSpecification(cell, getViewClient().getLatestCompiledViewDefinition());
+      Pair<String, ValueSpecification> columnMappingPair =
+          getGridStructure().findCellSpecification(cell, getViewClient().getLatestCompiledViewDefinition());
       s_logger.debug("includeDepGraph took {}", timer.finished());
       PushWebViewDepGraphGrid grid = new PushWebViewDepGraphGrid(gridName,
                                                                  getViewClient(),
@@ -310,12 +316,9 @@ public abstract class PushRequirementBasedWebViewGrid extends PushWebViewGrid {
                                                                  cell,
                                                                  columnMappingPair.getFirst(),
                                                                  columnMappingPair.getSecond());
-      _depGraphGrids.putIfAbsent(cell, grid);
-      return grid;
-    } else {
-      return _depGraphGrids.remove(cell);
+      _depGraphGrids.put(cell, grid);
     }
-  }
+}
   
   //-------------------------------------------------------------------------
   
