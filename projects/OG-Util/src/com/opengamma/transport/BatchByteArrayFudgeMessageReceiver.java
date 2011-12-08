@@ -12,6 +12,7 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * A dispatcher which will take batches of byte arrays, deserialize them to Fudge
@@ -33,7 +34,7 @@ public class BatchByteArrayFudgeMessageReceiver implements BatchByteArrayMessage
    * @param underlying  the underlying receiver, not null
    */
   public BatchByteArrayFudgeMessageReceiver(BatchFudgeMessageReceiver underlying) {
-    this(underlying, new FudgeContext());
+    this(underlying, OpenGammaFudgeContext.getInstance());
   }
 
   /**

@@ -159,6 +159,24 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
     return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
   }  
 
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField) {
+    HistoricalTimeSeries hts = getHistoricalTimeSeries(identifierBundle, (LocalDate) null, dataSource, dataProvider, dataField);
+    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(
+      ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, 
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
+    HistoricalTimeSeries hts = getSubSeries(
+        getHistoricalTimeSeries(identifierBundle, (LocalDate) null, dataSource, dataProvider, dataField), 
+                                start, includeStart, end, includeEnd, -1);
+    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+
+  }
+
+
   private HistoricalTimeSeries getAnyMatching(final String dataField, final ExternalIdBundle identifiers) {
     for (Map.Entry<HistoricalTimeSeriesKey, UniqueId> ts : _metaUniqueIdStore.entrySet()) {
       if (dataField.equals(ts.getKey().getDataField()) && identifiers.equals(ts.getKey().getExternalIdBundle())) {
@@ -201,7 +219,42 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean includeEnd) {
     throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
   }
-  
+
+  @Override
+  public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, String resolutionKey, LocalDate start, boolean includeStart, LocalDate end,
+      boolean includeEnd, int maxPoints) {
+    throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
+  }
+
+  @Override
+  public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, LocalDate start,
+      boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
+    throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, String resolutionKey) {
+    throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(
+      String dataField, ExternalIdBundle identifierBundle, String resolutionKey, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
+    throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey) {
+    throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, LocalDate start, boolean includeStart,
+      LocalDate end, boolean includeEnd) {
+    throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
+  }
+
+
   //-------------------------------------------------------------------------
   @Override
   public Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(

@@ -31,8 +31,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.aggregation.BottomPositionValues;
 import com.opengamma.financial.aggregation.SortedPositionValues;
 import com.opengamma.financial.aggregation.TopPositionValues;
-import com.opengamma.financial.analytics.DummyLabelledMatrix2DPortfolioNodeFunction;
-import com.opengamma.financial.analytics.DummyLabelledMatrix2DPositionFunction;
 import com.opengamma.financial.analytics.DummyPortfolioNodeFunction;
 import com.opengamma.financial.analytics.DummyPortfolioNodeMultipleCurrencyAmountFunction;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
@@ -357,8 +355,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
     addFixedIncomeInstrumentCalculators(functionConfigs);
     // Something to return a LabelledMatrix2D
-    functionConfigs.add(functionConfiguration(DummyLabelledMatrix2DPositionFunction.class));
-    functionConfigs.add(functionConfiguration(DummyLabelledMatrix2DPortfolioNodeFunction.class));
 
     functionConfigs.add(functionConfiguration(StandardEquityModelFunction.class));
     addBondCalculators(functionConfigs);

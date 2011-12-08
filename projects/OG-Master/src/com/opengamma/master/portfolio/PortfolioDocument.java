@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractDocument;
+import com.opengamma.master.DocumentVisibility;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
@@ -47,6 +48,11 @@ public class PortfolioDocument extends AbstractDocument implements Serializable 
    */
   @PropertyDefinition
   private ManageablePortfolio _portfolio;
+  /**
+   * The visibility level of the portfolio.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private DocumentVisibility _visibility = DocumentVisibility.VISIBLE;
 
   /**
    * Creates an instance.
@@ -90,6 +96,8 @@ public class PortfolioDocument extends AbstractDocument implements Serializable 
         return getUniqueId();
       case 1121781064:  // portfolio
         return getPortfolio();
+      case 1941332754:  // visibility
+        return getVisibility();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -103,8 +111,17 @@ public class PortfolioDocument extends AbstractDocument implements Serializable 
       case 1121781064:  // portfolio
         setPortfolio((ManageablePortfolio) newValue);
         return;
+      case 1941332754:  // visibility
+        setVisibility((DocumentVisibility) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_visibility, "visibility");
+    super.validate();
   }
 
   @Override
@@ -116,6 +133,7 @@ public class PortfolioDocument extends AbstractDocument implements Serializable 
       PortfolioDocument other = (PortfolioDocument) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getPortfolio(), other.getPortfolio()) &&
+          JodaBeanUtils.equal(getVisibility(), other.getVisibility()) &&
           super.equals(obj);
     }
     return false;
@@ -126,6 +144,7 @@ public class PortfolioDocument extends AbstractDocument implements Serializable 
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolio());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVisibility());
     return hash ^ super.hashCode();
   }
 
@@ -184,6 +203,32 @@ public class PortfolioDocument extends AbstractDocument implements Serializable 
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the visibility level of the portfolio.
+   * @return the value of the property, not null
+   */
+  public DocumentVisibility getVisibility() {
+    return _visibility;
+  }
+
+  /**
+   * Sets the visibility level of the portfolio.
+   * @param visibility  the new value of the property, not null
+   */
+  public void setVisibility(DocumentVisibility visibility) {
+    JodaBeanUtils.notNull(visibility, "visibility");
+    this._visibility = visibility;
+  }
+
+  /**
+   * Gets the the {@code visibility} property.
+   * @return the property, not null
+   */
+  public final Property<DocumentVisibility> visibility() {
+    return metaBean().visibility().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code PortfolioDocument}.
    */
   public static class Meta extends AbstractDocument.Meta {
@@ -203,12 +248,18 @@ public class PortfolioDocument extends AbstractDocument implements Serializable 
     private final MetaProperty<ManageablePortfolio> _portfolio = DirectMetaProperty.ofReadWrite(
         this, "portfolio", PortfolioDocument.class, ManageablePortfolio.class);
     /**
+     * The meta-property for the {@code visibility} property.
+     */
+    private final MetaProperty<DocumentVisibility> _visibility = DirectMetaProperty.ofReadWrite(
+        this, "visibility", PortfolioDocument.class, DocumentVisibility.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "uniqueId",
-        "portfolio");
+        "portfolio",
+        "visibility");
 
     /**
      * Restricted constructor.
@@ -223,6 +274,8 @@ public class PortfolioDocument extends AbstractDocument implements Serializable 
           return _uniqueId;
         case 1121781064:  // portfolio
           return _portfolio;
+        case 1941332754:  // visibility
+          return _visibility;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -257,6 +310,14 @@ public class PortfolioDocument extends AbstractDocument implements Serializable 
      */
     public final MetaProperty<ManageablePortfolio> portfolio() {
       return _portfolio;
+    }
+
+    /**
+     * The meta-property for the {@code visibility} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<DocumentVisibility> visibility() {
+      return _visibility;
     }
 
   }

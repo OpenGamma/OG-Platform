@@ -29,10 +29,6 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
-  
-  static {
-    
-  }
 
   /**
    * A cache of instances.
