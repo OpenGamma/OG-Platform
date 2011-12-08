@@ -140,7 +140,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
       buf.setLength(buf.length() - 2);
       args.addValue("sql_search_node_ids", buf.toString());
     }
-    args.addValue("visibility", request.getVisibility().getVisibilityOrdinal());
+    args.addValue("visibility", request.getVisibility().getVisibilityLevel());
     args.addValue("sort_order", ORDER_BY_MAP.get(request.getSortOrder()));
     args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
@@ -203,7 +203,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
       .addValue("name", StringUtils.defaultString(document.getPortfolio().getName()))
-      .addValue("visibility", document.getVisibility().getVisibilityOrdinal());
+      .addValue("visibility", document.getVisibility().getVisibilityLevel());
     
     // the arguments for inserting into the node table
     final List<DbMapSqlParameterSource> nodeList = new ArrayList<DbMapSqlParameterSource>(256);
@@ -413,7 +413,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
       final Timestamp correctionFrom = rs.getTimestamp("CORR_FROM_INSTANT");
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
       final String name = StringUtils.defaultString(rs.getString("PORTFOLIO_NAME"));
-      final DocumentVisibility visibility = DocumentVisibility.fromOrdinal(rs.getShort("VISIBILITY"));
+      final DocumentVisibility visibility = DocumentVisibility.ofLevel(rs.getShort("VISIBILITY"));
       _portfolio = new ManageablePortfolio(name);
       _portfolio.setUniqueId(createUniqueId(portfolioOid, portfolioId));
       final PortfolioDocument doc = new PortfolioDocument(_portfolio);
