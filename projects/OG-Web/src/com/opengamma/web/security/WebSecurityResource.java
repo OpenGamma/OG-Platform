@@ -28,6 +28,7 @@ import sun.awt.AppContext;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.marketdata.DefaultHistoricalMarketDataFieldResolver;
 import com.opengamma.id.ExternalIdBundle;
@@ -136,7 +137,8 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     FlexiBean out = super.createRootData();
     SecurityDocument doc = data().getSecurity();
     
-    UniqueId htsId = htsResolver().resolve("PX_LAST", doc.getSecurity().getExternalIdBundle(), null, null);
+    // Get the last price HTS for the security
+    UniqueId htsId = htsResolver().resolve(HistoricalTimeSeriesFields.LAST_PRICE, doc.getSecurity().getExternalIdBundle(), null, null);
     
     out.put("securityDoc", doc); 
     out.put("security", doc.getSecurity());

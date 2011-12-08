@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
@@ -20,7 +19,9 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.LiveDataSpecificationFudgeBuilder;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.mongo.MongoConnector;
 
 /**
@@ -57,14 +58,14 @@ public class MongoDBPersistentSubscriptionManager extends AbstractPersistentSubs
 
   @Override
   protected void readFromStorage() {
-    FudgeSerializer serializer = new FudgeSerializer(FudgeContext.GLOBAL_DEFAULT);
-    FudgeDeserializer deserializer = new FudgeDeserializer(FudgeContext.GLOBAL_DEFAULT);
+    FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
+    FudgeDeserializer deserializer = new FudgeDeserializer(OpenGammaFudgeContext.getInstance());
     DBCursor cursor = _mongoCollection.find();
     while (cursor.hasNext()) {
       DBObject mainObject = cursor.next();
       DBObject fieldData = (DBObject) mainObject.get("fieldData");
       MutableFudgeMsg msg = serializer.objectToFudgeMsg(fieldData);
-      LiveDataSpecification spec = LiveDataSpecification.fromFudgeMsg(deserializer, msg);
+      LiveDataSpecification spec = LiveDataSpecificationFudgeBuilder.fromFudgeMsg(deserializer, msg);
       addPersistentSubscription(new PersistentSubscription(spec));
     }
   }
@@ -72,11 +73,11 @@ public class MongoDBPersistentSubscriptionManager extends AbstractPersistentSubs
   @Override
   public void saveToStorage(Set<PersistentSubscription> newState) {
     clean();
-    FudgeSerializer serializer = new FudgeSerializer(FudgeContext.GLOBAL_DEFAULT);
-    FudgeDeserializer deserializer = new FudgeDeserializer(FudgeContext.GLOBAL_DEFAULT);
+    FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
+    FudgeDeserializer deserializer = new FudgeDeserializer(OpenGammaFudgeContext.getInstance());
     List<DBObject> objects = new ArrayList<DBObject>();
     for (PersistentSubscription sub : newState) {
-      FudgeMsg msg = sub.getFullyQualifiedSpec().toFudgeMsg(serializer);
+      FudgeMsg msg = LiveDataSpecificationFudgeBuilder.toFudgeMsg(serializer, sub.getFullyQualifiedSpec());
       DBObject fieldData = deserializer.fudgeMsgToObject(DBObject.class, msg);
       BasicDBObject mainObject = new BasicDBObject();
       mainObject.append("fieldData", fieldData);

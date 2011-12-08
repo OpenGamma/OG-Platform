@@ -152,8 +152,7 @@ public class CouponIborSpreadDefinition extends CouponIborDefinition {
       //TODO this is a fudge because of data issues. The behaviour should be that if it's the fixing day but before the fixing time (e.g. 9 a.m.) 
       // then the previous day can be used. Otherwise, the exception should be thrown. 
       if (fixedRate == null) {
-        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(getIndex().getConvention().getWorkingDayCalendar(),
-            getFixingDate().minusDays(1));
+        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(getIndex().getCalendar(), getFixingDate().minusDays(1));
         fixedRate = indexFixingTS.getValue(previousBusinessDay);
         if (fixedRate == null) {
           fixedRate = indexFixingTS.getLatestValue();

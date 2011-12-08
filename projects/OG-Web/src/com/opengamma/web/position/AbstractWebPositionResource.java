@@ -10,7 +10,11 @@ import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.util.ArgumentChecker;
@@ -30,12 +34,19 @@ public abstract class AbstractWebPositionResource extends AbstractWebResource {
   private final WebPositionsData _data;
 
   /**
+   * The HTS resolver (for getting an HTS Id)
+   */
+  private final HistoricalTimeSeriesResolver _htsResolver;
+
+  /**
    * Creates the resource.
    * @param positionMaster  the position master, not null
    * @param securityLoader  the security loader, not null
    * @param securitySource  the security source, not null
    */
-  protected AbstractWebPositionResource(final PositionMaster positionMaster, final SecurityLoader securityLoader, final SecuritySource securitySource) {
+  protected AbstractWebPositionResource(
+      final PositionMaster positionMaster, final SecurityLoader securityLoader, final SecuritySource securitySource,
+      final HistoricalTimeSeriesMaster htsMaster, final ConfigSource cfgSource) {
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     ArgumentChecker.notNull(securityLoader, "securityLoader");
     ArgumentChecker.notNull(securitySource, "securitySource");
@@ -43,6 +54,8 @@ public abstract class AbstractWebPositionResource extends AbstractWebResource {
     data().setPositionMaster(positionMaster);
     data().setSecurityLoader(securityLoader);
     data().setSecuritySource(securitySource);
+    
+    _htsResolver = new DefaultHistoricalTimeSeriesResolver(htsMaster, cfgSource);    
   }
 
   /**
@@ -52,6 +65,7 @@ public abstract class AbstractWebPositionResource extends AbstractWebResource {
   protected AbstractWebPositionResource(final AbstractWebPositionResource parent) {
     super(parent);
     _data = parent._data;
+    _htsResolver = parent._htsResolver;
   }
 
   /**
@@ -87,6 +101,14 @@ public abstract class AbstractWebPositionResource extends AbstractWebResource {
    */
   protected WebPositionsData data() {
     return _data;
+  }
+  
+  /**
+   * Gets the HTS resolver
+   * @return the HTS resolver, not null
+   */
+  protected HistoricalTimeSeriesResolver htsResolver() {
+    return _htsResolver;
   }
   
 }

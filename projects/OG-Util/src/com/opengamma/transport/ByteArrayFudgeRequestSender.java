@@ -9,6 +9,7 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * A sender of Fudge messages.
@@ -30,7 +31,7 @@ public class ByteArrayFudgeRequestSender implements FudgeRequestSender {
    * @param underlying  the underlying sender, not null
    */
   public ByteArrayFudgeRequestSender(ByteArrayRequestSender underlying) {
-    this(underlying, new FudgeContext());
+    this(underlying, OpenGammaFudgeContext.getInstance());
   }
 
   /**

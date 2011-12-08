@@ -24,6 +24,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.google.common.base.Objects;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
@@ -57,7 +58,6 @@ public class WebPositionResource extends AbstractWebPositionResource {
     return getFreemarker().build("positions/jsonposition.ftl", out);
   }
 
-
   //-------------------------------------------------------------------------
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -67,7 +67,7 @@ public class WebPositionResource extends AbstractWebPositionResource {
     PositionDocument doc = data().getPosition();
     if (doc.isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
-    }    
+    }
     quantityStr = StringUtils.replace(StringUtils.trimToNull(quantityStr), ",", "");
     BigDecimal quantity = quantityStr != null && NumberUtils.isNumber(quantityStr) ? new BigDecimal(quantityStr) : null;
     if (quantityStr == null) {
@@ -146,14 +146,18 @@ public class WebPositionResource extends AbstractWebPositionResource {
     FlexiBean out = super.createRootData();
     PositionDocument doc = data().getPosition();
     doc.getPosition().getSecurityLink().resolveQuiet(data().getSecuritySource());
+
+    // Get the last price HTS for the security
+    UniqueId htsId = htsResolver().resolve(HistoricalTimeSeriesFields.LAST_PRICE, doc.getPosition().getSecurity().getExternalIdBundle(), null, null);
+
     out.put("positionDoc", doc);
     out.put("position", doc.getPosition());
     out.put("security", doc.getPosition().getSecurity());
+    out.put("timeSeriesId", htsId == null ? null : htsId.getObjectId());
     out.put("deleted", !doc.isLatest());
-    
     TradeAttributesModel tradeAttributesModel = getTradeAttributesModel();
     out.put("tradeAttrModel", tradeAttributesModel);
-    
+
     return out;
   }
 
@@ -162,7 +166,7 @@ public class WebPositionResource extends AbstractWebPositionResource {
     TradeAttributesModel getTradeAttributesModel = new TradeAttributesModel(doc.getPosition());
     return getTradeAttributesModel;
   }
-  
+
   //-------------------------------------------------------------------------
   @Path("versions")
   public WebPositionVersionsResource findVersions() {
@@ -189,5 +193,5 @@ public class WebPositionResource extends AbstractWebPositionResource {
     String positionId = data.getBestPositionUriId(overridePositionId);
     return data.getUriInfo().getBaseUriBuilder().path(WebPositionResource.class).build(positionId);
   }
- 
+
 }

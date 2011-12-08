@@ -40,12 +40,12 @@ public class InterestRateFutureOptionSABRSensitivitiesFunction extends InterestR
   }
 
   @Override
-  protected Set<ComputedValue> getResults(final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data, 
-      final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ComputationTarget target) {
+  protected Set<ComputedValue> getResults(final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data, final Set<ValueRequirement> desiredValues, final FunctionInputs inputs,
+      final ComputationTarget target) {
     final PresentValueSABRSensitivityDataBundle sensitivities = CALCULATOR.visit(irFutureOption, data);
-    final Map<DoublesPair, Double> alphaSensitivities = sensitivities.getAlpha();
-    final Map<DoublesPair, Double> nuSensitivities = sensitivities.getNu();
-    final Map<DoublesPair, Double> rhoSensitivities = sensitivities.getRho();
+    final Map<DoublesPair, Double> alphaSensitivities = sensitivities.getAlpha().getMap();
+    final Map<DoublesPair, Double> nuSensitivities = sensitivities.getNu().getMap();
+    final Map<DoublesPair, Double> rhoSensitivities = sensitivities.getRho().getMap();
     if (alphaSensitivities.size() != 1) {
       throw new OpenGammaRuntimeException("Can only handle sensitivities at one (t, T) point for now");
     }
@@ -56,27 +56,21 @@ public class InterestRateFutureOptionSABRSensitivitiesFunction extends InterestR
     return results;
   }
 
-
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Sets.newHashSet(getResultSpec(target, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY),
-                           getResultSpec(target, ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY),
-                           getResultSpec(target, ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY));
+    return Sets.newHashSet(getResultSpec(target, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY), getResultSpec(target, ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY),
+        getResultSpec(target, ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY));
   }
-  
+
   private DoubleLabelledMatrix2D getMatrix(final Map<DoublesPair, Double> map) {
     final Map.Entry<DoublesPair, Double> entry = map.entrySet().iterator().next();
-    return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first},
-                                      new Double[] {entry.getKey().second},
-                                      new double[][] {new double[] {entry.getValue()}});
+    return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first}, new Double[] {entry.getKey().second}, new double[][] {new double[] {entry.getValue()}});
   }
-  
+
   private ValueSpecification getResultSpec(ComputationTarget target, String valueRequirementName) {
-    ValueProperties properties = createValueProperties()
-            .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
-            .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
-            .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
-            .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName()).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
+        .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
     return new ValueSpecification(valueRequirementName, target.toSpecification(), properties);
   }
 }

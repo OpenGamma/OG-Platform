@@ -32,15 +32,26 @@ import com.opengamma.util.ArgumentChecker;
     description = "LiveData server attributes and operations that can be managed via JMX"
     )
 public class LiveDataServerMBean {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(LiveDataServerMBean.class);
+
+  /**
+   * The underlying live data server.
+   */
   private final AbstractLiveDataServer _server;
-  
+
+  /**
+   * Creates an instance.
+   * 
+   * @param server  the underlying live data server, not null
+   */
   public LiveDataServerMBean(AbstractLiveDataServer server) {
-    ArgumentChecker.notNull(server, "Live Data Server");
+    ArgumentChecker.notNull(server, "server");
     _server = server;
   }
-  
+
+  //-------------------------------------------------------------------------
   @ManagedAttribute(description = "The unique id domain of the underlying server.")
   public String getUniqueIdDomain() {
     try {
@@ -51,7 +62,7 @@ public class LiveDataServerMBean {
       throw new RuntimeException(e.getMessage());
     }
   }
-  
+
   @ManagedAttribute(description = "The connection status of the underlying server.")
   public String getConnectionStatus() {
     try {
@@ -61,7 +72,7 @@ public class LiveDataServerMBean {
       throw new RuntimeException(e.getMessage());
     }
   }
-  
+
   @ManagedAttribute(description = "The type of the underlying server.")
   public String getServerType() {
     try {
@@ -71,7 +82,7 @@ public class LiveDataServerMBean {
       throw new RuntimeException(e.getMessage());
     }
   }
-  
+
   @ManagedAttribute(description = "How many different tickers the server subscribes to.")
   public int getNumActiveSubscriptions() {
     try {
@@ -81,7 +92,7 @@ public class LiveDataServerMBean {
       throw new RuntimeException(e.getMessage());
     }
   }
-  
+
   @ManagedAttribute(description = "Security IDs the server subscribes to."
       + " The form of the IDs is dependent on the source system"
       + " - Reuters RICs, Bloomberg unique IDs, etc.")
@@ -93,7 +104,7 @@ public class LiveDataServerMBean {
       throw new RuntimeException(e.getMessage());
     }
   }
-  
+
   @ManagedAttribute(description = "JMS topics the server publishes to.")
   public Set<String> getActiveDistributionSpecs() {
     try {
@@ -103,7 +114,7 @@ public class LiveDataServerMBean {
       throw new RuntimeException(e.getMessage());
     }
   }
-  
+
   @ManagedAttribute(description = "The number of market data updates the server has processed in its lifetime.")
   public long getNumMarketDataUpdatesReceived() {
     try {
@@ -113,7 +124,7 @@ public class LiveDataServerMBean {
       throw new RuntimeException(e.getMessage());
     }
   }
-  
+
   @ManagedAttribute(description = "# of market data updates/sec, calculated over the last 60 seconds")
   public double getNumLiveDataUpdatesSentPerSecondOverLastMinute() {
     try {
@@ -123,7 +134,7 @@ public class LiveDataServerMBean {
       throw new RuntimeException(e.getMessage());
     }
   }
-  
+
   @ManagedOperation(description = "Subscribes to market data. The subscription will be non-persistent."
       + " If the server already subscribes to the given market data, this method is a "
       + " no-op. Returns the name of the JMS topic market data will be published on.")
@@ -141,7 +152,7 @@ public class LiveDataServerMBean {
       throw new RuntimeException(e.getMessage());
     }
   }
-  
+
   @ManagedOperation(description = "Subscribes to market data. The subscription will be persistent."
       + " If the server already subscribes to the given market data, this method will make the "
       + " subscription persistent. Returns the name of the JMS topic market data will be published on.")
@@ -159,18 +170,18 @@ public class LiveDataServerMBean {
       throw new RuntimeException(e.getMessage());
     }
   }
-  
+
   @ManagedOperation(description = "Converts all subscriptions to persistent.")
   public void subscribeAllPersistently() {
-    setPersitenceForAll(true);
-  }
-  
-  @ManagedOperation(description = "Converts all subscriptions to non-persistent.")
-  public void unpersistAllSubscribtions() {
-    setPersitenceForAll(false);
+    setPersistenceForAll(true);
   }
 
-  private void setPersitenceForAll(boolean persistent) {
+  @ManagedOperation(description = "Converts all subscriptions to non-persistent.")
+  public void unpersistAllSubscribtions() {
+    setPersistenceForAll(false);
+  }
+
+  private void setPersistenceForAll(boolean persistent) {
     try {
       Set<String> activeSubscriptionIds = _server.getActiveSubscriptionIds();
       for (String string : activeSubscriptionIds) {
@@ -182,7 +193,7 @@ public class LiveDataServerMBean {
       throw new RuntimeException(e.getMessage());
     }
   }
-  
+
   @ManagedOperation(description = "Unsubscribes from market data. "
       + "Works even if the subscription is persistent. "
       + "Returns true if a market data subscription was actually removed,"
@@ -198,7 +209,6 @@ public class LiveDataServerMBean {
     }
   }
 
-  
   @ManagedOperation(description = "Gets the current snapshot of a security. Will not cause an underlying snapshot.")
   @ManagedOperationParameters({
        @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
@@ -211,13 +221,12 @@ public class LiveDataServerMBean {
       throw new RuntimeException(e.getMessage());
     }
   }
-  
+
   @ManagedOperation(description = "Gets the current snapshot of all active securities. Will not cause any underlying snapshots.")
   public String[] getAllSnapshots() {
     try {
       Set<String> activeSubscriptionIds = _server.getActiveSubscriptionIds();
       Iterable<String> results = Iterables.transform(activeSubscriptionIds, new Function<String, String>() {
-
         @Override
         public String apply(String from) {
           try {
@@ -233,7 +242,7 @@ public class LiveDataServerMBean {
       throw new RuntimeException(e.getMessage());
     }
   }
-  
+
   @ManagedOperation(description = "Gets the current field history of a security. Will not cause an underlying snapshot.")
   @ManagedOperationParameters({ @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
   public String getFieldHistory(String securityUniqueId) {
@@ -270,5 +279,5 @@ public class LiveDataServerMBean {
       throw new RuntimeException(e.getMessage());
     }
   }
-  
+
 }

@@ -14,8 +14,8 @@ import com.opengamma.financial.model.volatility.VolatilityModel;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -24,22 +24,21 @@ import com.opengamma.util.tuple.DoublesPair;
 public class SABRInterestRateParameters implements VolatilityModel<double[]> {
 
   /**
-   * The alpha (volatility level) surface.
-   *TODO: Call me pedantic, but these aren't Volatility Surfaces, they are parameter surfaces - so maybe they should just be Surfaces
+   * The alpha (volatility level) surface. The first dimension is the expiration and the second the tenor.
    */
-  private final VolatilitySurface _alphaSurface; 
+  private final InterpolatedDoublesSurface _alphaSurface;
   /**
-   * The beta (elasticity) surface.
+   * The beta (elasticity) surface. The first dimension is the expiration and the second the tenor.
    */
-  private final VolatilitySurface _betaSurface;
+  private final InterpolatedDoublesSurface _betaSurface;
   /**
-   * The rho (correlation) surface.
+   * The rho (correlation) surface. The first dimension is the expiration and the second the tenor.
    */
-  private final VolatilitySurface _rhoSurface;
+  private final InterpolatedDoublesSurface _rhoSurface;
   /**
-   * The nu (volatility of volatility) surface.
+   * The nu (volatility of volatility) surface. The first dimension is the expiration and the second the tenor.
    */
-  private final VolatilitySurface _nuSurface;
+  private final InterpolatedDoublesSurface _nuSurface;
   /**
    * The function containing the SABR volatility formula. Default is HaganVolatilityFunction.
    */
@@ -49,29 +48,32 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
    */
   private final DayCount _dayCount;
 
+  // TODO: add SwapGenerator?
+
   /**
    * Constructor from the parameter surfaces. The default SABR volatility formula is HaganVolatilityFunction.
-   * @param alpha The alpha parameters.
+   * @param alpha The alpha parameters.  The first dimension is the expiration and the second the tenor.
    * @param beta The beta parameters.
    * @param rho The rho parameters.
    * @param nu The nu parameters.
    * @param dayCount The standard day count for which the parameter surfaces are valid.
    */
-  public SABRInterestRateParameters(final VolatilitySurface alpha, final VolatilitySurface beta, final VolatilitySurface rho, final VolatilitySurface nu, final DayCount dayCount) {
+  public SABRInterestRateParameters(final InterpolatedDoublesSurface alpha, final InterpolatedDoublesSurface beta, final InterpolatedDoublesSurface rho, final InterpolatedDoublesSurface nu,
+      final DayCount dayCount) {
     this(alpha, beta, rho, nu, dayCount, new SABRHaganVolatilityFunction());
   }
 
   /**
    * Constructor from the parameter surfaces. The default SABR volatility formula is HaganVolatilityFunction.
-   * @param alpha The alpha parameters.
+   * @param alpha The alpha parameters. The first dimension is the expiration and the second the tenor.
    * @param beta The beta parameters.
    * @param rho The rho parameters.
    * @param nu The nu parameters.
    * @param dayCount The standard day count for which the parameter surfaces are valid.
    * @param sabrFormula The SABR formula provider.
    */
-  public SABRInterestRateParameters(final VolatilitySurface alpha, final VolatilitySurface beta, final VolatilitySurface rho, final VolatilitySurface nu, final DayCount dayCount,
-      final VolatilityFunctionProvider<SABRFormulaData> sabrFormula) {
+  public SABRInterestRateParameters(final InterpolatedDoublesSurface alpha, final InterpolatedDoublesSurface beta, final InterpolatedDoublesSurface rho, final InterpolatedDoublesSurface nu,
+      final DayCount dayCount, final VolatilityFunctionProvider<SABRFormulaData> sabrFormula) {
     Validate.notNull(alpha, "alpha surface");
     Validate.notNull(beta, "beta surface");
     Validate.notNull(rho, "rho surface");
@@ -92,7 +94,7 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
    * @return The alpha parameter.
    */
   public double getAlpha(final DoublesPair expiryMaturity) {
-    return _alphaSurface.getVolatility(expiryMaturity);
+    return _alphaSurface.getZValue(expiryMaturity);
   }
 
   /**
@@ -101,7 +103,7 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
    * @return The beta parameter.
    */
   public double getBeta(final DoublesPair expiryMaturity) {
-    return _betaSurface.getVolatility(expiryMaturity);
+    return _betaSurface.getZValue(expiryMaturity);
   }
 
   /**
@@ -110,7 +112,7 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
    * @return The rho parameter.
    */
   public double getRho(final DoublesPair expiryMaturity) {
-    return _rhoSurface.getVolatility(expiryMaturity);
+    return _rhoSurface.getZValue(expiryMaturity);
   }
 
   /**
@@ -119,7 +121,7 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
    * @return The nu parameter.
    */
   public double getNu(final DoublesPair expiryMaturity) {
-    return _nuSurface.getVolatility(expiryMaturity);
+    return _nuSurface.getZValue(expiryMaturity);
   }
 
   /**
@@ -142,7 +144,7 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
    * Gets the alpha surface.
    * @return The alpha surface.
    */
-  public VolatilitySurface getAlphaSurface() {
+  public InterpolatedDoublesSurface getAlphaSurface() {
     return _alphaSurface;
   }
 
@@ -150,7 +152,7 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
    * Gets the beta surface.
    * @return The beta surface.
    */
-  public VolatilitySurface getBetaSurface() {
+  public InterpolatedDoublesSurface getBetaSurface() {
     return _betaSurface;
   }
 
@@ -158,7 +160,7 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
    * Gets the rho surface.
    * @return The rho surface.
    */
-  public VolatilitySurface getRhoSurface() {
+  public InterpolatedDoublesSurface getRhoSurface() {
     return _rhoSurface;
   }
 
@@ -166,7 +168,7 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
    * Gets the nu surface.
    * @return The nu surface.
    */
-  public VolatilitySurface getNuSurface() {
+  public InterpolatedDoublesSurface getNuSurface() {
     return _nuSurface;
   }
 

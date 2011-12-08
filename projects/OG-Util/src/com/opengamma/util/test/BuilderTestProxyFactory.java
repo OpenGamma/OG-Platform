@@ -32,8 +32,7 @@ public class BuilderTestProxyFactory {
 
   public BuilderTestProxy getProxy() {
     String execPath = System.getProperty("com.opengamma.util.test.BuilderTestProxyFactory.ExecBuilderTestProxy.execPath");
-    if (execPath!=null)
-    {
+    if (execPath!=null) {
       return new ExecBuilderTestProxy(execPath);
     }
     return new NullBuilderTestProxy();
@@ -57,7 +56,6 @@ public class BuilderTestProxyFactory {
 
     @Override
     public FudgeMsg proxy(final Class<?> clazz, FudgeMsg orig) {
-
       FudgeContext context = OpenGammaFudgeContext.getInstance();
 
       LinkedList<String> command = new LinkedList<String>();
@@ -65,57 +63,46 @@ public class BuilderTestProxyFactory {
       command.add(clazz.getName());
       
       final ProcessBuilder processBuilder = new ProcessBuilder(command);
-      
-      
       try {
         final Process proc = processBuilder.start();
         try{
           OutputStream outputStream = proc.getOutputStream();
           try {
-            FudgeDataOutputStreamWriter fudgeDataOutputStreamWriter = new FudgeDataOutputStreamWriter(context,                 outputStream);
+            FudgeDataOutputStreamWriter fudgeDataOutputStreamWriter = new FudgeDataOutputStreamWriter(context, outputStream);
             FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(fudgeDataOutputStreamWriter);
             fudgeMsgWriter.writeMessage(orig);
             fudgeMsgWriter.flush();
             
             InputStream inputStream = proc.getInputStream();
             try {
-              
               FudgeDataInputStreamReader fudgeDataInputStreamReader = new FudgeDataInputStreamReader(context, inputStream);
               final FudgeMsgReader fudgeMsgReader = new FudgeMsgReader(fudgeDataInputStreamReader);
-          
+              
               ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(3);
               Future<FudgeMsg> retMsgFuture = scheduledThreadPoolExecutor.submit(new Callable<FudgeMsg>() {
-
                 @Override
                 public FudgeMsg call() throws Exception {
                   return fudgeMsgReader.nextMessage();
                 }
-                
               });
               
               Future<List<String>> errFuture = scheduledThreadPoolExecutor.submit(new Callable<List<String>>() {
-
-                @SuppressWarnings("unchecked")
                 @Override
                 public List<String> call() throws Exception {
                   InputStream errorStream = proc.getErrorStream();
-                  try
-                  {
+                  try {
                     return IOUtils.readLines(errorStream);
-                  }
-                  finally
-                  {
+                  } finally {
                     errorStream.close();
                   }
                 }
               });
-            
+              
               for (String err : errFuture.get()) {
                 s_logger.warn(err);
               }
               int ret = proc.waitFor();
-              if (ret!=0)
-              {
+              if (ret!=0) {
                 throw new IOException("Exit code not expected: "+ret);
               }
               return retMsgFuture.get();
@@ -125,9 +112,7 @@ public class BuilderTestProxyFactory {
           } finally {
             outputStream.close();
           }
-        }
-        finally
-        {
+        } finally {
           proc.destroy();
         }
       } catch (Exception ex) {

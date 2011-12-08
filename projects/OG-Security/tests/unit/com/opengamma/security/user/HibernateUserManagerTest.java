@@ -39,6 +39,7 @@ public class HibernateUserManagerTest extends TransactionalHibernateTest {
     return new HibernateUserManagerFiles().getHibernateMappingFiles();
   }
 
+  @SuppressWarnings("deprecation")
   @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
