@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TODO CONCURRENCY - I've scrapped all the locking, needs to be reviewed and replaced
  * TODO return new viewport instance rather than implementing it?
  * TODO temporary name just to distinguish it from the similarly named class in the parent package
 */
@@ -77,7 +76,7 @@ public class PushWebView implements Viewport {
       
       @Override
       public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
-        s_logger.info("New result arrived for view '{}'", getViewDefinitionId());
+        s_logger.info("New result arrived for view '{}'", _viewDefinitionId);
         updateResults();
       }
 

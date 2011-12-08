@@ -86,8 +86,8 @@ package com.opengamma.web.server.push;
  *   dependency graph should be included in the results.  <em>TODO This isn't working yet.</em></li>
  * </ul>
  *
- * <h3>Querying Available View Definitions and Market Data Snapshots</h3>
- * <p>The view definitions and market data snapshots available in the system can be queried as follows:</p>
+ * <h3>Querying Available View Definitions, Market Data Snapshots and Aggregators</h3>
+ * <p>The view definitions, market data snapshots and aggregators available in the system can be queried as follows:</p>
  * <pre>
  *   /jax/viewdefinitions</pre>
  * <p>returns</p>
@@ -101,6 +101,13 @@ package com.opengamma.web.server.push;
  * <pre>
  *   {basisViewName1: {snapshotUniqueId1: snapshotName1, snapshotUniqueId2: snapshotName2, ...},
  *    basisViewName2: {snapshotUniqueId3: snapshotName3, snapshotUniqueId4: snapshotName4, ...}}
+ * </pre>
+ * <p>and</p>
+ * <pre>
+ *   /jax/aggregators</pre>
+ * <p>returns</p>
+ * <pre>
+ *   [aggregatorName1, aggregatorName2, ...]
  * </pre>
  *
  * <h1>Receiving Notifications of Updates</h1>
