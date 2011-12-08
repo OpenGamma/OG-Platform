@@ -14,31 +14,30 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
 
 /**
- * Makes implementing {@link LiveDataEntitlementChecker} easier.
+ * Base class to aid with the implementation of an entitlement checker.
  * <p>
- * You must override one or other of the two {@code isEntitled()} methods.
+ * To use this class, override one or other of the two {@code isEntitled()} methods.
  * <p>
- * Override the individual {@link #isEntitled(UserPrincipal, LiveDataSpecification)} if you just want an easy life.
+ * The simpler option is to override {@link #isEntitled(UserPrincipal, LiveDataSpecification)}.
  * <p> 
- * Override the bulk {@link #isEntitled(UserPrincipal, Collection)} if you need to make a remote call
- * to an external service and want your implementation to be efficient.
-
- * Implements {@link #isEntitled(UserPrincipal, Collection)} so you don't need to.
+ * The more complex option is to override the bulk {@link #isEntitled(UserPrincipal, Collection)}.
+ * This is advisable if you need to make a remote call to an external service and want your
+ * implementation to be efficient.
  */
 public abstract class AbstractEntitlementChecker implements LiveDataEntitlementChecker {
-  
+
   @Override
   public boolean isEntitled(UserPrincipal user, LiveDataSpecification requestedSpecification) {
     Map<LiveDataSpecification, Boolean> result = isEntitled(user, Collections.singleton(requestedSpecification));
     return result.get(requestedSpecification);
   }
-  
+
   @Override
   public Map<LiveDataSpecification, Boolean> isEntitled(UserPrincipal user, Collection<LiveDataSpecification> requestedSpecifications) {
     Map<LiveDataSpecification, Boolean> returnValue = new HashMap<LiveDataSpecification, Boolean>();
     for (LiveDataSpecification spec : requestedSpecifications) {
-      boolean entitled = isEntitled(user,  spec);
-      returnValue.put(spec, entitled);                  
+      boolean entitled = isEntitled(user, spec);
+      returnValue.put(spec, entitled);
     }
     return returnValue;
   }

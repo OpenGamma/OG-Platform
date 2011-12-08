@@ -5,12 +5,15 @@
  */
 package com.opengamma.financial.instrument.payment;
 
+import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.TimeCalculator;
 
@@ -80,6 +83,21 @@ public class CouponFixedDefinition extends CouponDefinition {
   public static CouponFixedDefinition from(final CouponIborSpreadDefinition floatingCoupon, final double fixedRate) {
     return new CouponFixedDefinition(floatingCoupon.getCurrency(), floatingCoupon.getPaymentDate(), floatingCoupon.getAccrualStartDate(), floatingCoupon.getAccrualEndDate(),
         floatingCoupon.getPaymentYearFraction(), floatingCoupon.getNotional(), fixedRate + floatingCoupon.getSpread());
+  }
+
+  /**
+   * Build a fixed coupon from a start date, tenor and deposit generator.
+   * @param startDate The coupon start date.
+   * @param tenor The coupon tenor. The end date is used both for the end accrual and the payment date.
+   * @param generator The deposit generator with relevant conventions.
+   * @param notional Coupon notional.
+   * @param fixedRate The coupon fixed rate.
+   * @return The coupon.
+   */
+  public static CouponFixedDefinition from(final ZonedDateTime startDate, final Period tenor, final GeneratorDeposit generator, final double notional, final double fixedRate) {
+    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, generator.getBusinessDayConvention(), generator.getCalendar(), generator.isEndOfMonth(), tenor);
+    double paymentYearFraction = generator.getDayCount().getDayCountFraction(startDate, endDate);
+    return new CouponFixedDefinition(generator.getCurrency(), endDate, startDate, endDate, paymentYearFraction, notional, fixedRate);
   }
 
   /**

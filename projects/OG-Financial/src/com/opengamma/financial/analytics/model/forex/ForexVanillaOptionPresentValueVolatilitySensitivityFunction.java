@@ -25,7 +25,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.forex.calculator.PresentValueVolatilitySensitivityBlackForexCalculator;
-import com.opengamma.financial.forex.method.PresentValueVolatilitySensitivityDataBundle;
+import com.opengamma.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.util.money.Currency;
@@ -48,8 +48,8 @@ public class ForexVanillaOptionPresentValueVolatilitySensitivityFunction extends
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
-    final PresentValueVolatilitySensitivityDataBundle result = CALCULATOR.visit(fxOption, data);
-    final Map<DoublesPair, Double> vega = result.getVega();
+    final PresentValueForexBlackVolatilitySensitivity result = CALCULATOR.visit(fxOption, data);
+    final Map<DoublesPair, Double> vega = result.getVega().getMap();
     final List<Double> rowValue = new ArrayList<Double>();
     final List<String> rowLabel = new ArrayList<String>();
     final List<Double> columnValue = new ArrayList<Double>();

@@ -1,4 +1,4 @@
-{% set javadocs = d['/javadoc-data.json|javadocs'] %}
+{% set javadocs = d['/jsondocs/javadoc-data.json|javadocs'] %}
 {% for package_name, package_info in javadocs['packages'].items() %}
 
 <!-- split "{{package_name}}" -->

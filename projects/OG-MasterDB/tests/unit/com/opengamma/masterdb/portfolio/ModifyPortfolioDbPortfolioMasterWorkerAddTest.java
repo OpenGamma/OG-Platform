@@ -20,6 +20,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.DocumentVisibility;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -84,6 +85,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
+    assertEquals(DocumentVisibility.VISIBLE, test.getVisibility());
     
     ManageablePortfolio testPortfolio = test.getPortfolio();
     assertEquals(uniqueId, testPortfolio.getUniqueId());
@@ -197,7 +199,23 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
     
     test = _prtMaster.get(added.getUniqueId());
     assertEquals(added, test);
+  }
+  
+  @Test
+  public void test_addCustomVisibility_addThenGet() {
+    ManageablePortfolioNode rootNode = new ManageablePortfolioNode("Root");
+    ManageablePortfolioNode childNode = new ManageablePortfolioNode("Child");
+    rootNode.addChildNode(childNode);
+    ManageablePortfolio portfolio = new ManageablePortfolio("Test");
+    portfolio.setRootNode(rootNode);
+    PortfolioDocument doc = new PortfolioDocument();
+    doc.setPortfolio(portfolio);
+    doc.setVisibility(DocumentVisibility.HIDDEN);
+    PortfolioDocument added = _prtMaster.add(doc);
     
+    PortfolioDocument test = _prtMaster.get(added.getUniqueId());
+    assertEquals(DocumentVisibility.HIDDEN, test.getVisibility());
+    assertEquals(added, test);
   }
 
   //-------------------------------------------------------------------------

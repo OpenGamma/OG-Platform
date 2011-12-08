@@ -22,9 +22,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.language.DataUtils;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.convert.Converters;
@@ -126,6 +124,18 @@ public class FetchTimeSeriesFunctionTest {
     }
 
     @Override
+    public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, String resolutionKey, LocalDate start, boolean includeStart, LocalDate end,
+        boolean includeEnd, int maxPoints) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, LocalDate start,
+        boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
       throw new UnsupportedOperationException();
     }
@@ -139,6 +149,39 @@ public class FetchTimeSeriesFunctionTest {
     @Override
     public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart,
         LocalDate end, boolean includeEnd, int maxPoints) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart,
+        LocalDate end, boolean includeEnd) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, String resolutionKey) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, String resolutionKey, LocalDate start, boolean includeStart, LocalDate end,
+        boolean includeEnd) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, LocalDate start,
+        boolean includeStart, LocalDate end, boolean includeEnd) {
       throw new UnsupportedOperationException();
     }
 

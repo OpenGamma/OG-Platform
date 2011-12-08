@@ -15,6 +15,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.forex.calculator.CurrencyExposureForexCalculator;
+import com.opengamma.financial.forex.calculator.ForwardRateForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityForexCalculator;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.derivative.Forex;
@@ -126,7 +127,7 @@ public class ForexDiscountingMethodTest {
 
   @Test
   /**
-   * Tests the currency exposure computation.
+   * Tests the forward Forex rate computation.
    */
   public void forwardRate() {
     double fxToday = 1.4123;
@@ -137,6 +138,20 @@ public class ForexDiscountingMethodTest {
     double dfForeign = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(FX.getPaymentTime());
     double fwdExpected = fxToday * dfForeign / dfDomestic;
     assertEquals("Forex: forward rate", fwdExpected, fwd, 1.0E-10);
+  }
+
+  @Test
+  /**
+   * Tests the forward Forex rate through the method and through the calculator.
+   */
+  public void forwardRateMethodVsCalculator() {
+    double fxToday = 1.4123;
+    FXMatrix fxMatrix = new FXMatrix(CUR_1, CUR_2, fxToday);
+    YieldCurveWithFXBundle curvesFx = new YieldCurveWithFXBundle(fxMatrix, CURVES);
+    double fwdMethod = METHOD.forwardForexRate(FX, curvesFx);
+    ForwardRateForexCalculator FWDC = ForwardRateForexCalculator.getInstance();
+    double fwdCalculator = FWDC.visit(FX, curvesFx);
+    assertEquals("Forex: forward rate", fwdMethod, fwdCalculator, 1.0E-10);
   }
 
 }

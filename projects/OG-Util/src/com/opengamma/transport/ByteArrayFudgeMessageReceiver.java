@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * A message receiver that receives byte array messages and handles them using a
@@ -33,7 +34,7 @@ public class ByteArrayFudgeMessageReceiver implements ByteArrayMessageReceiver {
    * @param underlying  the underlying receiver, not null
    */
   public ByteArrayFudgeMessageReceiver(FudgeMessageReceiver underlying) {
-    this(underlying, new FudgeContext());
+    this(underlying, OpenGammaFudgeContext.getInstance());
   }
 
   /**

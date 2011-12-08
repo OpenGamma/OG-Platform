@@ -7,12 +7,12 @@ package com.opengamma.livedata.normalization;
 
 import static org.testng.AssertJUnit.assertNull;
 
-import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.livedata.server.FieldHistoryStore;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * 
@@ -31,7 +31,7 @@ public class NormalizationRuleSetTest {
         new RequiredFieldFilter("Foo"),
         new FieldFilter("Bar"));
     
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add("Bar", 2.0);
     msg.add("Baz", 500);
     

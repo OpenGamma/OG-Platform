@@ -18,7 +18,6 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.Convention;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -34,6 +33,8 @@ public class IborIndexTest {
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.USD;
   private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final String NAME = "USD LIBOR 3M";
+  private static final IborIndex INDEX2 = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NAME);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrency() {
@@ -60,20 +61,24 @@ public class IborIndexTest {
     new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, null, IS_EOM);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testName() {
+    new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, null);
+  }
+
   @Test
   public void getter() {
     assertEquals(INDEX.getCurrency(), CUR);
     assertEquals(INDEX.getTenor(), TENOR);
-    assertEquals(INDEX.getSettlementDays(), SETTLEMENT_DAYS);
+    assertEquals(INDEX.getSpotLag(), SETTLEMENT_DAYS);
     assertEquals(INDEX.getCalendar(), CALENDAR);
     assertEquals(INDEX.getDayCount(), DAY_COUNT);
     assertEquals(INDEX.getBusinessDayConvention(), BUSINESS_DAY);
     assertEquals(INDEX.isEndOfMonth(), IS_EOM);
-    String name = "Ibor"; // CUR.toString() + TENOR.toString();
+    String name = "Ibor";
     assertEquals(name, INDEX.getName());
     assertEquals(name, INDEX.toString());
-    Convention convention = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, "Ibor conventions");
-    assertEquals(convention, INDEX.getConvention());
+    assertEquals(NAME, INDEX2.getName());
   }
 
   @Test

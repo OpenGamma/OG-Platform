@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.testng.Assert;
@@ -32,6 +31,7 @@ import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.MockLiveDataServer;
 import com.opengamma.livedata.test.CollectingLiveDataListener;
 import com.opengamma.livedata.test.LiveDataClientTestUtils;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * 
@@ -52,10 +52,10 @@ public class DistributedLiveDataClientTest {
   
   @BeforeMethod
   public void initialize() {
-    MutableFudgeMsg testMsg1 = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg testMsg1 = OpenGammaFudgeContext.getInstance().newMessage();
     testMsg1.add("LAST", 9.86);
     
-    MutableFudgeMsg testMsg2 = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg testMsg2 = OpenGammaFudgeContext.getInstance().newMessage();
     testMsg2.add("BID", 10.00);
     testMsg2.add("ASK", 10.05);
     
@@ -66,8 +66,7 @@ public class DistributedLiveDataClientTest {
     uniqueId2TestMsg.put(TEST_ID_1, testMsg1);
     uniqueId2TestMsg.put(TEST_ID_2, testMsg2);
     
-    _server = new MockLiveDataServer(TEST_IDENTIFICATION_SCHEME,
-        uniqueId2TestMsg);
+    _server = new MockLiveDataServer(TEST_IDENTIFICATION_SCHEME, uniqueId2TestMsg);
     _client = LiveDataClientTestUtils.getInMemoryConduitClient(_server);
   }
   

@@ -36,19 +36,18 @@ import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.transport.ByteArrayMessageSender;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * A base class that handles all the in-memory requirements
  * for a {@link LiveDataClient} implementation.
- *
- * @author kirk
  */
 @PublicAPI
 public abstract class AbstractLiveDataClient implements LiveDataClient {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractLiveDataClient.class);
   // Injected Inputs:
   private long _heartbeatPeriod = HeartbeatSender.DEFAULT_PERIOD;
-  private FudgeContext _fudgeContext = FudgeContext.GLOBAL_DEFAULT;
+  private FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
   // Running State:
   private final ValueDistributor _valueDistributor = new ValueDistributor();
   private final Timer _timer = new Timer("LiveDataClient Timer");

@@ -41,9 +41,9 @@ public class PresentValueSABRSensitivityDataBundleTest {
     NU.put(new DoublesPair(0.5, 5.0), 31.0);
     NU.put(new DoublesPair(1.5, 5.0), 32.0);
     final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle(ALPHA, RHO, NU);
-    assertEquals(sensi.getAlpha(), ALPHA);
-    assertEquals(sensi.getRho(), RHO);
-    assertEquals(sensi.getNu(), NU);
+    assertEquals(sensi.getAlpha().getMap(), ALPHA);
+    assertEquals(sensi.getRho().getMap(), RHO);
+    assertEquals(sensi.getNu().getMap(), NU);
   }
 
   @Test
@@ -56,17 +56,17 @@ public class PresentValueSABRSensitivityDataBundleTest {
     alpha.put(new DoublesPair(1.5, 5.0), 12.0);
     sensi.addAlpha(new DoublesPair(0.5, 5.0), 11.0);
     sensi.addAlpha(new DoublesPair(1.5, 5.0), 12.0);
-    assertEquals(sensi.getAlpha(), alpha);
+    assertEquals(sensi.getAlpha().getMap(), alpha);
     rho.put(new DoublesPair(0.5, 5.0), 21.0);
     rho.put(new DoublesPair(1.5, 5.0), 22.0);
     sensi.addRho(new DoublesPair(0.5, 5.0), 21.0);
     sensi.addRho(new DoublesPair(1.5, 5.0), 22.0);
-    assertEquals(sensi.getRho(), rho);
+    assertEquals(sensi.getRho().getMap(), rho);
     nu.put(new DoublesPair(0.5, 5.0), 31.0);
     nu.put(new DoublesPair(1.5, 5.0), 32.0);
     sensi.addNu(new DoublesPair(0.5, 5.0), 31.0);
     sensi.addNu(new DoublesPair(1.5, 5.0), 32.0);
-    assertEquals(sensi.getNu(), nu);
+    assertEquals(sensi.getNu().getMap(), nu);
   }
 
   @Test
@@ -74,23 +74,23 @@ public class PresentValueSABRSensitivityDataBundleTest {
     final Map<DoublesPair, Double> alpha = new HashMap<DoublesPair, Double>();
     final Map<DoublesPair, Double> rho = new HashMap<DoublesPair, Double>();
     final Map<DoublesPair, Double> nu = new HashMap<DoublesPair, Double>();
-    final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
+    PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
     sensi.addAlpha(new DoublesPair(0.5, 5.0), 11.0);
     sensi.addAlpha(new DoublesPair(1.5, 5.0), 12.0);
     sensi.addRho(new DoublesPair(0.5, 5.0), 21.0);
     sensi.addRho(new DoublesPair(1.5, 5.0), 22.0);
     sensi.addNu(new DoublesPair(0.5, 5.0), 31.0);
     sensi.addNu(new DoublesPair(1.5, 5.0), 32.0);
-    sensi.multiply(10.0);
+    sensi = PresentValueSABRSensitivityDataBundle.multiplyBy(sensi, 10.0);
     alpha.put(new DoublesPair(0.5, 5.0), 110.0);
     alpha.put(new DoublesPair(1.5, 5.0), 120.0);
-    assertEquals(sensi.getAlpha(), alpha);
+    assertEquals(sensi.getAlpha().getMap(), alpha);
     rho.put(new DoublesPair(0.5, 5.0), 210.0);
     rho.put(new DoublesPair(1.5, 5.0), 220.0);
-    assertEquals(sensi.getRho(), rho);
+    assertEquals(sensi.getRho().getMap(), rho);
     nu.put(new DoublesPair(0.5, 5.0), 310.0);
     nu.put(new DoublesPair(1.5, 5.0), 320.0);
-    assertEquals(sensi.getNu(), nu);
+    assertEquals(sensi.getNu().getMap(), nu);
   }
 
   @Test
@@ -118,8 +118,8 @@ public class PresentValueSABRSensitivityDataBundleTest {
     nu2.put(new DoublesPair(2.5, 5.0), 32.0);
     PresentValueSABRSensitivityDataBundle sensi1 = new PresentValueSABRSensitivityDataBundle(alpha1, rho1, nu1);
     PresentValueSABRSensitivityDataBundle sensi2 = new PresentValueSABRSensitivityDataBundle(alpha2, rho2, nu2);
-    PresentValueSABRSensitivityDataBundle sensi3 = sensi1.plus(sensi1);
-    sensi2.multiply(2.0);
+    PresentValueSABRSensitivityDataBundle sensi3 = PresentValueSABRSensitivityDataBundle.plus(sensi1, sensi1);
+    sensi2 = PresentValueSABRSensitivityDataBundle.multiplyBy(sensi2, 2.0);
     assertTrue("Adding twice the same sensi", sensi3.equals(sensi2));
     Map<DoublesPair, Double> alpha3 = new HashMap<DoublesPair, Double>();
     Map<DoublesPair, Double> rho3 = new HashMap<DoublesPair, Double>();
@@ -137,7 +137,7 @@ public class PresentValueSABRSensitivityDataBundleTest {
     nu4.put(new DoublesPair(0.5, 5.0), 31.0);
     nu4.put(new DoublesPair(2.5, 5.0), 32.0);
     PresentValueSABRSensitivityDataBundle sensi5 = new PresentValueSABRSensitivityDataBundle(alpha4, rho4, nu4);
-    assertTrue("Adding a single alpha risk", sensi5.equals(sensi1.plus(sensi4)));
+    assertTrue("Adding a single alpha risk", sensi5.equals(PresentValueSABRSensitivityDataBundle.plus(sensi1, sensi4)));
   }
 
   @Test

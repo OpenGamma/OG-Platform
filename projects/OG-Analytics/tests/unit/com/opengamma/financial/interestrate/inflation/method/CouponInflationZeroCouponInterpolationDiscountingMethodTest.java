@@ -126,7 +126,7 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
     MarketBundle marketSeason = MarketDataSets.createMarket2(PRICING_DATE);
     int tenorYear = 5;
     double notional = 100000000;
-    ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(PRICING_DATE, CALENDAR_USD, USDLIBOR3M.getSettlementDays());
+    ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(PRICING_DATE, CALENDAR_USD, USDLIBOR3M.getSpotLag());
     ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(settleDate, BUSINESS_DAY, CALENDAR_USD, USDLIBOR3M.isEndOfMonth(), Period.ofYears(tenorYear));
     double weightSettle = 1.0 - (settleDate.getDayOfMonth() - 1.0) / settleDate.getMonthOfYear().getLastDayOfMonth(settleDate.isLeapYear());
     double indexStart = weightSettle * 225.964 + (1 - weightSettle) * 225.722;
