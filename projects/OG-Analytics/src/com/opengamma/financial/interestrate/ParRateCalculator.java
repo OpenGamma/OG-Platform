@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.annuity.method.AnnuityDiscountingMethod;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
@@ -40,11 +41,12 @@ import com.opengamma.util.CompareUtils;
  */
 public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
-  private static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
+  //  private static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
   /**
-   * The method used for OIS coupons.
+   * The methods.
    */
   private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
+  private static final AnnuityDiscountingMethod METHOD_ANNUITY = AnnuityDiscountingMethod.getInstance();
 
   private static final ParRateCalculator s_instance = new ParRateCalculator();
 
@@ -106,8 +108,9 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
   @Override
   public Double visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
     final double pvSecond = PVC.visit(swap.getSecondLeg(), curves);
-    final double pvFixed = PVC.visit(REPLACE_RATE.visit(swap.getFixedLeg(), 1.0), curves);
-    return -pvSecond / pvFixed;
+    //    final double pvFixed = PVC.visit(REPLACE_RATE.visit(swap.getFixedLeg(), 1.0), curves);
+    final double pvbp = METHOD_ANNUITY.presentValue(swap.getFixedLeg(), curves).getAmount();
+    return -pvSecond / pvbp;
   }
 
   @Override

@@ -43,7 +43,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
+import com.opengamma.financial.interestrate.swap.SwapFixedDiscountingMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -147,7 +147,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     // From previous run
     final double expectedPriceLongPayer = 4973866.250;
     assertEquals(expectedPriceLongPayer, priceLongPayer, 1E-2);
-    final double pvbp = SwapFixedIborMethod.presentValueBasisPoint(SWAP_PAYER, curves.getCurve(FUNDING_CURVE_NAME));
+    final double pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(SWAP_PAYER, curves.getCurve(FUNDING_CURVE_NAME));
     final double forward = PRC.visit(SWAP_PAYER, curves);
     final double maturity = SWAP_PAYER.getFirstLeg().getNthPayment(SWAP_PAYER.getFirstLeg().getNumberOfPayments() - 1).getPaymentTime() - SWAPTION_LONG_PAYER.getSettlementTime();
     assertEquals(maturity, ANNUITY_TENOR_YEAR, 1E-2);

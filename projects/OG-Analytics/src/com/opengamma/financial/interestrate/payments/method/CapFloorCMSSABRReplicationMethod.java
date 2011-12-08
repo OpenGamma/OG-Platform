@@ -12,8 +12,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
@@ -150,7 +150,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
    * @return The present value sensitivity to curves.
    */
   @SuppressWarnings("synthetic-access")
-  public InterestRateCurveSensitivity presentValueSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
     final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
     final FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
     final double forward = PRC.visit(underlyingSwap, sabrData);
@@ -252,6 +252,44 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     sensi.addRho(expiryMaturity, totalSensi[1]);
     sensi.addNu(expiryMaturity, totalSensi[2]);
     return sensi;
+  }
+
+  /**
+   * Computes the present value sensitivity to the strike of a CMS cap/floor by replication in SABR framework. 
+   * @param cmsCapFloor The CMS cap/floor.
+   * @param sabrData The SABR data bundle. The SABR function need to be the Hagan function.
+   * @return The present value sensitivity to strike.
+   */
+  public double presentValueStrikeSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
+    final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
+    final FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
+    final double forward = PRC.visit(underlyingSwap, sabrData);
+    final double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
+    final double strike = cmsCapFloor.getStrike();
+    final double maturity = underlyingSwap.getFixedLeg().getNthPayment(underlyingSwap.getFixedLeg().getNumberOfPayments() - 1).getPaymentTime() - cmsCapFloor.getSettlementTime();
+    final DoublesPair expiryMaturity = new DoublesPair(cmsCapFloor.getFixingTime(), maturity);
+    final double alpha = sabrParameter.getAlpha(expiryMaturity);
+    final double beta = sabrParameter.getBeta(expiryMaturity);
+    final double rho = sabrParameter.getRho(expiryMaturity);
+    final double nu = sabrParameter.getNu(expiryMaturity);
+    SABRFormulaData sabrPoint = new SABRFormulaData(alpha, beta, rho, nu);
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, cmsCapFloor.getFixingTime(), cmsCapFloor.isCap());
+    Function1D<SABRFormulaData, double[]> sabrFunctionAdjoint = sabrParameter.getSabrFunction().getVolatilityAdjointFunction(option, forward);
+    double[] volA = sabrFunctionAdjoint.evaluate(sabrPoint);
+    final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volA[0]);
+    final BlackPriceFunction blackFunction = new BlackPriceFunction();
+    double[] bsA = blackFunction.getPriceAdjoint(option, dataBlack);
+    final CMSIntegrant integrant = new CMSIntegrant(cmsCapFloor, sabrParameter, forward);
+    double factor = discountFactor * integrant.g(forward) / integrant.h(forward);
+    double[] kpkpp = integrant.kpkpp(strike);
+    double firstPart;
+    if (cmsCapFloor.isCap()) {
+      firstPart = -kpkpp[0] * integrant.bs(strike);
+    } else {
+      firstPart = 3 * kpkpp[0] * integrant.bs(strike);
+    }
+    double secondPart = integrant.k(strike) * (bsA[3] + bsA[2] * volA[2]);
+    return cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction() * factor * (firstPart + secondPart);
   }
 
   /**
@@ -385,7 +423,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
       final double hpp = (_eta - 1.0) * _tau * hp / periodFactor;
       final double kp = hp / g - h * gp / g2;
       final double kpp = hpp / g - 2 * hp * gp / g2 - h * (gpp / g2 - 2 * (gp * gp) / (g2 * g));
-      return new double[] {kp, kpp };
+      return new double[] {kp, kpp};
     }
 
     /**
@@ -398,8 +436,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
       final Function1D<SABRFormulaData, Double> funcSabr = _sabrFunction.getVolatilityFunction(option, _forward);
       final double volatility = funcSabr.evaluate(_sabrData);
       final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility);
-      Function1D<BlackFunctionData, Double> func = null;
-      func = _blackFunction.getPriceFunction(option);
+      Function1D<BlackFunctionData, Double> func = _blackFunction.getPriceFunction(option);
       return func.evaluate(dataBlack);
     }
 
