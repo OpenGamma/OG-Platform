@@ -7,6 +7,7 @@ package com.opengamma.util.jms;
 
 import javax.jms.ConnectionFactory;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.util.ArgumentChecker;
@@ -111,11 +112,38 @@ public class JmsConnector {
   /**
    * Returns a copy of this connector with a new topic name.
    * 
-   * @param topicName  the new topic name, not null
-   * @return a copy of this connector with the new topic name, not null
+   * @param topicName  the new topic name, not empty
+   * @return a connector with the specified topic name, not null
    */
   public JmsConnector withTopicName(String topicName) {
+    ArgumentChecker.notEmpty(topicName, "topicName");
     return new JmsConnector(_name, _jmsTemplateTopic, _jmsTemplateQueue, topicName);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Ensures that the topic name is set, using the current name or the specified default
+   * 
+   * @return a connector which definitely has a topic name, not null
+   */
+  public JmsConnector ensureTopicName() {
+    if (StringUtils.isNotEmpty(_topicName)) {
+      return this;
+    }
+    throw new IllegalStateException("JMS topic name must be set");
+  }
+
+  /**
+   * Ensures that the topic name is set, using the current name or the specified default
+   * 
+   * @param defaultTopicName  the default topic name, not empty
+   * @return a connector which definitely has a topic name, not null
+   */
+  public JmsConnector ensureTopicName(String defaultTopicName) {
+    if (StringUtils.isNotEmpty(_topicName)) {
+      return this;
+    }
+    return withTopicName(defaultTopicName);
   }
 
   //-------------------------------------------------------------------------
