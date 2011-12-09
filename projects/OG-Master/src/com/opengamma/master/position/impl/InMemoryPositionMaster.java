@@ -113,7 +113,13 @@ public class InMemoryPositionMaster implements PositionMaster {
     if (document == null) {
       throw new DataNotFoundException("Position not found: " + objectId);
     }
-    return document;
+    return clonePositionDocument(document);
+  }
+
+  private PositionDocument clonePositionDocument(PositionDocument document) {
+    PositionDocument clone = JodaBeanUtils.clone(document);
+    clone.setPosition(new ManageablePosition(document.getPosition()));
+    return clone;
   }
 
   @Override
@@ -123,26 +129,35 @@ public class InMemoryPositionMaster implements PositionMaster {
     
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final PositionDocument cloned = JodaBeanUtils.clone(document);
-    final ManageablePosition position = cloned.getPosition();
-    position.setUniqueId(uniqueId);
     final Instant now = Instant.now();
-    cloned.setVersionFromInstant(now);
-    cloned.setCorrectionFromInstant(now);
-    cloned.setUniqueId(uniqueId);
-    _storePositions.put(objectId, cloned);
-    storeTrades(position.getTrades(), uniqueId);
+    
+    final PositionDocument clonedDoc = clonePositionDocument(document);
+    setDocumentID(document, clonedDoc, uniqueId);    
+    setVersionTimes(document, clonedDoc, now, null, now, null);
+    _storePositions.put(objectId, clonedDoc);
+    storeTrades(clonedDoc.getPosition().getTrades(), document.getPosition().getTrades(), uniqueId);
     _changeManager.entityChanged(ChangeType.ADDED, null, uniqueId, now);
-    return cloned;
+    return document;
   }
 
-  private void storeTrades(List<ManageableTrade> trades, UniqueId parentPositionId) {
-    for (ManageableTrade trade : trades) {
+  private void setDocumentID(final PositionDocument document, final PositionDocument clonedDoc, final UniqueId uniqueId) {
+    document.getPosition().setUniqueId(uniqueId);
+    clonedDoc.getPosition().setUniqueId(uniqueId);
+    clonedDoc.setUniqueId(uniqueId);
+    document.setUniqueId(uniqueId);
+  }
+
+  private void storeTrades(List<ManageableTrade> clonedTrades, List<ManageableTrade> trades, UniqueId parentPositionId) {
+    for (int i = 0; i < clonedTrades.size(); i++) {
       final ObjectId objectId = _objectIdSupplier.get();
       final UniqueId uniqueId = objectId.atVersion("");
-      trade.setUniqueId(uniqueId);
-      trade.setParentPositionId(parentPositionId);
-      _storeTrades.put(objectId, trade);
+      ManageableTrade origTrade = trades.get(i);
+      ManageableTrade clonedTrade = clonedTrades.get(i);
+      clonedTrade.setUniqueId(uniqueId);
+      origTrade.setUniqueId(uniqueId);
+      clonedTrade.setParentPositionId(parentPositionId);
+      origTrade.setParentPositionId(parentPositionId);
+      _storeTrades.put(objectId, clonedTrade);
     }
   }
 
@@ -158,17 +173,34 @@ public class InMemoryPositionMaster implements PositionMaster {
     if (storedDocument == null) {
       throw new DataNotFoundException("Position not found: " + uniqueId);
     }
+    
+    final PositionDocument clonedDoc = clonePositionDocument(document);
     removeTrades(storedDocument.getPosition().getTrades());
-    document.setVersionFromInstant(now);
-    document.setVersionToInstant(null);
-    document.setCorrectionFromInstant(now);
-    document.setCorrectionToInstant(null);
-    if (_storePositions.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
+    
+    setVersionTimes(document, clonedDoc, now, null, now, null);
+    
+    if (_storePositions.replace(uniqueId.getObjectId(), storedDocument, clonedDoc) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
-    storeTrades(document.getPosition().getTrades(), uniqueId);
+    storeTrades(clonedDoc.getPosition().getTrades(), document.getPosition().getTrades(), uniqueId);
     _changeManager.entityChanged(ChangeType.UPDATED, uniqueId, document.getUniqueId(), now);
     return document;
+  }
+
+  private void setVersionTimes(PositionDocument document, final PositionDocument clonedDoc, 
+      final Instant versionFromInstant, final Instant versionToInstant, final Instant correctionFromInstant, final Instant correctionToInstant) {
+    
+    clonedDoc.setVersionFromInstant(versionFromInstant);
+    document.setVersionFromInstant(versionFromInstant);
+    
+    clonedDoc.setVersionToInstant(versionToInstant);
+    document.setVersionToInstant(versionToInstant);
+    
+    clonedDoc.setCorrectionFromInstant(correctionFromInstant);
+    document.setCorrectionFromInstant(correctionFromInstant);
+    
+    clonedDoc.setCorrectionToInstant(correctionToInstant);
+    document.setCorrectionToInstant(correctionToInstant);
   }
   
   private void removeTrades(List<ManageableTrade> trades) {
@@ -203,7 +235,7 @@ public class InMemoryPositionMaster implements PositionMaster {
     final List<PositionDocument> list = new ArrayList<PositionDocument>();
     for (PositionDocument doc : _storePositions.values()) {
       if (request.matches(doc)) {
-        list.add(doc);
+        list.add(clonePositionDocument(doc));
       }
     }
     final PositionSearchResult result = new PositionSearchResult();
@@ -220,11 +252,11 @@ public class InMemoryPositionMaster implements PositionMaster {
   @Override
   public ManageableTrade getTrade(UniqueId tradeId) {
     ArgumentChecker.notNull(tradeId, "tradeId");
-    ManageableTrade manageableTrade = _storeTrades.get(tradeId.getObjectId());
-    if (manageableTrade == null) {
+    ManageableTrade trade = _storeTrades.get(tradeId.getObjectId());
+    if (trade == null) {
       throw new DataNotFoundException("Trade not found: " + tradeId.getObjectId());
     }
-    return manageableTrade;
+    return JodaBeanUtils.clone(trade);
   }
 
 }

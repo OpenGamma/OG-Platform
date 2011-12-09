@@ -7,8 +7,8 @@ package com.opengamma.master.position;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNotSame;
 import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.math.BigDecimal;
@@ -41,35 +41,33 @@ public class InMemoryPositionMasterTest {
   private static final ExternalId SEC3 = ExternalId.of ("Test", "sec3");
   private static final ExternalId COUNTER_PARTY = ExternalId.of ("Test", "counterParty");
   
+  private static final ManageableTrade TRADE1 = new ManageableTrade(BigDecimal.ONE, SEC1, LocalDate.now(), OffsetTime.now(), COUNTER_PARTY);
+  private static final ManageableTrade TRADE2 = new ManageableTrade(BigDecimal.ONE, SEC2, LocalDate.now(), OffsetTime.now(), COUNTER_PARTY);
+  private static final ManageableTrade TRADE3 = new ManageableTrade(BigDecimal.ONE, SEC3, LocalDate.now(), OffsetTime.now(), COUNTER_PARTY);
+  
   private InMemoryPositionMaster _populatedMaster;
   private InMemoryPositionMaster _emptyMaster;
   private PositionDocument _pos1;
   private PositionDocument _pos2;
   private PositionDocument _pos3;
-  private ManageableTrade _trade1;
-  private ManageableTrade _trade2;
-  private ManageableTrade _trade3;
 
   @BeforeMethod
   public void setUp() {
     _emptyMaster = new InMemoryPositionMaster();
     _populatedMaster = new InMemoryPositionMaster();
-    _trade1 = new ManageableTrade(BigDecimal.ONE, SEC1, LocalDate.now(), OffsetTime.now(), COUNTER_PARTY);
     _pos1 = new PositionDocument(new ManageablePosition(BigDecimal.ONE, SEC1));
-    _pos1.getPosition().addTrade(_trade1);
+    _pos1.getPosition().addTrade(JodaBeanUtils.clone(TRADE1));
     _pos1 = _populatedMaster.add(_pos1);
     
-    _trade2 = new ManageableTrade(BigDecimal.ONE, SEC2, LocalDate.now(), OffsetTime.now(), COUNTER_PARTY);
     _pos2 = new PositionDocument(new ManageablePosition(BigDecimal.valueOf(2), SEC2));
-    _pos2.getPosition().addTrade(_trade1);
-    _pos2.getPosition().addTrade(_trade2);
+    _pos2.getPosition().addTrade(JodaBeanUtils.clone(TRADE1));
+    _pos2.getPosition().addTrade(JodaBeanUtils.clone(TRADE2));
     _pos2 = _populatedMaster.add(_pos2);
     
-    _trade3 = new ManageableTrade(BigDecimal.ONE, SEC3, LocalDate.now(), OffsetTime.now(), COUNTER_PARTY);
     _pos3 = new PositionDocument(new ManageablePosition(BigDecimal.valueOf(3), SEC3));
-    _pos3.getPosition().addTrade(_trade1);
-    _pos3.getPosition().addTrade(_trade2);
-    _pos3.getPosition().addTrade(_trade3);
+    _pos3.getPosition().addTrade(JodaBeanUtils.clone(TRADE1));
+    _pos3.getPosition().addTrade(JodaBeanUtils.clone(TRADE2));
+    _pos3.getPosition().addTrade(JodaBeanUtils.clone(TRADE3));
     _pos3 = _populatedMaster.add(_pos3);
   }
   
@@ -94,10 +92,10 @@ public class InMemoryPositionMasterTest {
   
   //-------------------------------------------------------------------------
   public void test_add_emptyMaster() {
-    ManageablePosition pos = JodaBeanUtils.clone(_pos1).getPosition();
+    ManageablePosition pos = new ManageablePosition(_pos1.getPosition());
     pos.setUniqueId(null);
     pos.getTrades().clear();
-    pos.addTrade(_trade1);
+    pos.addTrade(JodaBeanUtils.clone(TRADE1));
     
     PositionDocument addedDoc = _emptyMaster.add(new PositionDocument(pos));
     assertNotNull(addedDoc.getVersionFromInstant());
@@ -115,7 +113,9 @@ public class InMemoryPositionMasterTest {
     assertEquals("2", addedTrade.getUniqueId().getValue());
     
     addedTrade.setUniqueId(null);
-    assertEquals(_trade1, addedTrade);
+    addedTrade.setParentPositionId(null);
+    
+    assertEquals(TRADE1, addedTrade);
     addedPosition.setUniqueId(null);
     assertEquals(pos, addedPosition);
   }
@@ -159,9 +159,15 @@ public class InMemoryPositionMasterTest {
   }
   
   public void test_get_populatedMaster() {
-    assertSame(_pos1, _populatedMaster.get(_pos1.getUniqueId()));
-    assertSame(_pos2, _populatedMaster.get(_pos2.getUniqueId()));
-    assertSame(_pos3, _populatedMaster.get(_pos3.getUniqueId()));
+    PositionDocument addedPos1 = _populatedMaster.get(_pos1.getUniqueId());
+    assertNotSame(_pos1, addedPos1);
+    assertEquals(_pos1, addedPos1);
+    PositionDocument addedPos2 = _populatedMaster.get(_pos2.getUniqueId());
+    assertNotSame(_pos2, addedPos2);
+    assertEquals(_pos2, addedPos2);
+    PositionDocument addedPos3 = _populatedMaster.get(_pos3.getUniqueId());
+    assertNotSame(_pos3, addedPos3);
+    assertEquals(_pos3, addedPos3);
   }
   
   public void test_remove_populatedMaster() {
@@ -230,9 +236,5 @@ public class InMemoryPositionMasterTest {
     PositionSearchResult result = _populatedMaster.search(request);
     assertEquals(0, result.getDocuments().size());
   }
-  
-  
-  
-  
-  
+   
 }
