@@ -159,13 +159,19 @@ public class InMemoryViewDefinitionRepository implements ManageableViewDefinitio
     try {
       final ViewDefinition viewDefinition = request.getViewDefinition();
       //final String originalName = request.getName();
-      final UniqueId origUniqueId = viewDefinition.getUniqueId();
-  
-      // Just remove old view definition and replace with new one 
+      UniqueId origUniqueId = request.getId();
+      // The next four lines are a complete hack. The update mechanism here should allocate the new version & return the new UID to the caller
+      if (origUniqueId.getVersion() == null) {
+        origUniqueId = UniqueId.of(origUniqueId.getScheme(), origUniqueId.getValue(), "1");
+      }
+      viewDefinition.setUniqueId(origUniqueId);
+      
+      // Just remove old view definition and replace with new one
+      // REVIEW 2011-12-05 Andrew -- This is incorrect; the change manager will notify of the delete which may be bad (e.g. might kill a view process)
       removeViewDefinition(origUniqueId);
-      addViewDefinition(new AddViewDefinitionRequest(request.getViewDefinition()));
+      addViewDefinition(new AddViewDefinitionRequest(viewDefinition));
   
-      changeManager().entityChanged(ChangeType.UPDATED, origUniqueId, request.getViewDefinition().getUniqueId(), Instant.now());
+      changeManager().entityChanged(ChangeType.UPDATED, origUniqueId, viewDefinition.getUniqueId(), Instant.now());
     } finally {
       // Release write lock
       _rwl.writeLock().unlock();

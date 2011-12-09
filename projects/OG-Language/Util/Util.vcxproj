@@ -90,6 +90,9 @@
       <ProgramDataBaseFileName>$(OutDir)\$(ProjectName).pdb</ProgramDataBaseFileName>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
     </ClCompile>
+    <PreLinkEvent>
+      <Command>xcopy /D /Y "$(SolutionDir)\lib\dll\$(Configuration)$(PlatformName)\*.dll" "$(OutDir)"</Command>
+    </PreLinkEvent>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
@@ -105,6 +108,9 @@
       <ProgramDataBaseFileName>$(OutDir)\$(ProjectName).pdb</ProgramDataBaseFileName>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
     </ClCompile>
+    <PreLinkEvent>
+      <Command>xcopy /D /Y "$(SolutionDir)\lib\dll\$(Configuration)$(PlatformName)\*.dll" "$(OutDir)"</Command>
+    </PreLinkEvent>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -120,6 +126,9 @@
       <ProgramDataBaseFileName>$(OutDir)\$(ProjectName).pdb</ProgramDataBaseFileName>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
     </ClCompile>
+    <PreLinkEvent>
+      <Command>xcopy /D /Y "$(SolutionDir)\lib\dll\$(Configuration)$(PlatformName)\*.dll" "$(OutDir)"</Command>
+    </PreLinkEvent>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
@@ -135,6 +144,9 @@
       <ProgramDataBaseFileName>$(OutDir)\$(ProjectName).pdb</ProgramDataBaseFileName>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
     </ClCompile>
+    <PreLinkEvent>
+      <Command>xcopy /D /Y "$(SolutionDir)\lib\dll\$(Configuration)$(PlatformName)\*.dll" "$(OutDir)"</Command>
+    </PreLinkEvent>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

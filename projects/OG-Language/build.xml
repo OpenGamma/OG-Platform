@@ -54,4 +54,13 @@
 
   <target name="test-batch"/>
 
+ <target name="windows-installer" description="Builds the windows installation packages (assumes a dist has already been done and Advanced Installer is available)">
+    <exec executable="AdvancedInstaller.com" failifexecutionfails="true">
+      <arg line="/edit Installer\setup.aip /SetVersion ${module.version}.${build.number}" />
+    </exec>
+    <exec executable="AdvancedInstaller.com" failifexecutionfails="true">
+      <arg line="/build Installer\setup.aip" />
+    </exec>
+  </target>
+
 </project>

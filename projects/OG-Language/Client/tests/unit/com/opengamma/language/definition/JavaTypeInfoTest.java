@@ -49,21 +49,31 @@ public class JavaTypeInfoTest {
 
   private JavaTypeInfo.Builder<?>[] arrayOf(final JavaTypeInfo.Builder<?>[] builders) {
     for (JavaTypeInfo.Builder<?> builder : builders) {
-      builder.arrayOf();
+      if (builder != null) {
+        builder.arrayOf();
+      }
     }
     return builders;
   }
 
   private JavaTypeInfo.Builder<?>[] allowNull(final JavaTypeInfo.Builder<?>[] builders) {
-    for (JavaTypeInfo.Builder<?> builder : builders) {
-      builder.allowNull();
+    for (int i = 0; i < builders.length; i++) {
+      if (builders[i] != null) {
+        if (builders[i].get().getRawClass().isPrimitive()) {
+          builders[i] = null;
+        } else {
+          builders[i].allowNull();
+        }
+      }
     }
     return builders;
   }
 
   private void addTypes(final List<JavaTypeInfo<?>> types, final JavaTypeInfo.Builder<?>[] builders) {
     for (JavaTypeInfo.Builder<?> builder : builders) {
-      types.add(builder.get());
+      if (builder != null) {
+        types.add(builder.get());
+      }
     }
   }
 
