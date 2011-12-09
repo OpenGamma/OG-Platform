@@ -21,7 +21,7 @@ public class TestViewportFactory implements ViewportFactory {
 
   @Override
   public Viewport createViewport(String clientId,
-                                 String viewportKey,
+                                 String viewportId,
                                  ViewportDefinition viewportDefinition,
                                  AnalyticsListener listener) {
     _viewport.set(new TestViewport(viewportDefinition));
@@ -29,7 +29,7 @@ public class TestViewportFactory implements ViewportFactory {
   }
 
   @Override
-  public Viewport getViewport(String viewportKey) {
+  public Viewport getViewport(String viewportId) {
     return _viewport.get();
   }
 

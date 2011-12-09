@@ -32,7 +32,7 @@ public class LongPollingServlet extends SpringConfiguredServlet {
       String clientId = (String) continuation.getAttribute(CLIENT_ID);
       if (clientId != null) {
         // TODO will this always get the correct continuation?
-        _connectionManager.timeout(clientId, continuation);
+        _connectionManager.longPollHttpTimeout(clientId, continuation);
       }
       return;
     }
@@ -53,7 +53,7 @@ public class LongPollingServlet extends SpringConfiguredServlet {
     String userId = request.getRemoteUser(); // TODO is this right?
     // get the client ID from the URL and pass the continuation to the connection manager for the next updates
     String clientId = getClientId(request);
-    boolean connected = (clientId != null) && _connectionManager.connect(userId, clientId, continuation);
+    boolean connected = (clientId != null) && _connectionManager.longPollHttpConnect(userId, clientId, continuation);
     if (!connected) {
       // couldn't get the client ID from the URL or the client ID didn't correspond to a known client
       response.sendError(404);

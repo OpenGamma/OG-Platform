@@ -186,8 +186,8 @@ public class ViewportDefinition {
     return cells;
   }
 
-  private static SortedMap<Integer, Long> getRows(JSONObject jsonObject, String viewportKey) throws JSONException {
-    JSONObject viewportJson = jsonObject.optJSONObject(viewportKey);
+  private static SortedMap<Integer, Long> getRows(JSONObject jsonObject, String viewportId) throws JSONException {
+    JSONObject viewportJson = jsonObject.optJSONObject(viewportId);
     SortedMap<Integer, Long> rows = new TreeMap<Integer, Long>();
     if (viewportJson == null) {
       return rows;

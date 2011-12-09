@@ -39,7 +39,7 @@ import java.util.Map;
   private final UniqueId _baseViewDefinitionId;
   private final UniqueId _viewDefinitionId;
   private final ResultConverterCache _resultConverterCache;
-  private final Map<String,Object> _latestResults = new HashMap<String, Object>();
+  private final Map<String, Object> _latestResults = new HashMap<String, Object>();
   private final Object _lock = new Object();
 
   private PushRequirementBasedWebViewGrid _portfolioGrid;

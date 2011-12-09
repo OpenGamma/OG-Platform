@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /* package */ class LongPollingConnectionManager {
 
   private final RestUpdateManager _restUpdateManager;
+  /** Listener for dispatching notifications to the clients, keyed by client ID. */
   private final Map<String, LongPollingUpdateListener> _connections = new ConcurrentHashMap<String, LongPollingUpdateListener>();
 
   /* package */ LongPollingConnectionManager(RestUpdateManager restUpdateManager) {
@@ -38,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
    * @return {@code true} if the connection was successful, {@code false} if the client ID doesn't correspond to
    * an existing connection
    */
-  /* package */ boolean connect(String userId, String clientId, Continuation continuation) {
+  /* package */ boolean longPollHttpConnect(String userId, String clientId, Continuation continuation) {
     // TODO check args
     LongPollingUpdateListener connection = _connections.get(clientId);
     if (connection != null) {
@@ -60,16 +61,22 @@ import java.util.concurrent.ConcurrentHashMap;
 
   /**
    * Called by the HTTP container when a long polling connection times out before any updates are sent.
+   * This doesn't end the client's connection or remove the associated client ID.  Normally the client will immediately
+   * re-establish a long-polling HTTP connection.
    * @param clientId The client ID associated with the timed out connection
    * @param continuation The continuation associated with the timed out HTTP connection
    */
-  /* package */ void timeout(String clientId, Continuation continuation) {
+  /* package */ void longPollHttpTimeout(String clientId, Continuation continuation) {
     LongPollingUpdateListener listener = _connections.get(clientId);
     if (listener != null) {
       listener.timeout(continuation);
     }
   }
 
+  /**
+   * Listens for notifications that a client connection has been idle too long and has timed out.  This is
+   * unrelated to an HTTP connection timing out which can happen repeatedly for a client connection.
+   */
   private class DisconnectionListener implements TimeoutListener {
 
     @Override

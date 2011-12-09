@@ -44,6 +44,7 @@ import java.util.concurrent.atomic.AtomicLong;
   private final Map<String, ClientConnection> _connectionsByViewportId = new HashMap<String, ClientConnection>();
   /** Viewport IDs keyed on client ID */
   private final Map<String, String> _clientIdsToViewportIds = new HashMap<String, String>();
+  /** Timeout tasks keyed on client ID */
   private final Map<String, ConnectionTimeoutTask> _timeoutTasks = new HashMap<String, ConnectionTimeoutTask>();
   private final Timer _timer = new Timer();
   private final MasterChangeManager _masterChangeManager;
@@ -135,6 +136,7 @@ import java.util.concurrent.atomic.AtomicLong;
       // TODO this isn't great - need to do this in a sync block to avoid a race condition where the connection is keyed
       // by viewport URL before it's created the viewport.  but creating a viewport can involve creating and attaching
       // a view client which might be slow and is locking this class for all clients.
+      // TODO 2 sync blocks with the call to createViewport in between?
       connection.createViewport(viewportDefinition, viewportId, dataUrl, gridUrl);
       _connectionsByViewportId.put(viewportId, connection);
       _clientIdsToViewportIds.put(clientId, viewportId);

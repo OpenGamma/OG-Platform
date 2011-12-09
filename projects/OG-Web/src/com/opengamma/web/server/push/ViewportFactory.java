@@ -11,9 +11,9 @@ package com.opengamma.web.server.push;
  */
 public interface ViewportFactory {
 
-  Viewport createViewport(String clientId, String viewportKey, ViewportDefinition viewportDefinition, AnalyticsListener listener);
+  Viewport createViewport(String clientId, String viewportId, ViewportDefinition viewportDefinition, AnalyticsListener listener);
 
-  Viewport getViewport(String viewportKey);
+  Viewport getViewport(String viewportId);
 
   void clientDisconnected(String clientId);
 }

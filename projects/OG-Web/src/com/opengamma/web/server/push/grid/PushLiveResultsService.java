@@ -43,7 +43,8 @@ import java.util.Map;
 
   /** Client's web view keyed on viewport ID */
   private final Map<String, PushWebView> _clientViews = new HashMap<String, PushWebView>();
-  private final Map<String, String> _clientIdToViewportKey = new HashMap<String, String>();
+  /** Viewport IDs keyed on client ID */
+  private final Map<String, String> _clientIdToViewportId = new HashMap<String, String>();
   private final ViewProcessor _viewProcessor;
   private final UserPrincipal _user;
   private final ResultConverterCache _resultConverterCache;
@@ -78,9 +79,9 @@ import java.util.Map;
     s_logger.debug("Client " + clientId + " disconnected");
     PushWebView view = null;
     synchronized (_lock) {
-      String viewportKey = _clientIdToViewportKey.remove(clientId);
-      if (viewportKey != null) {
-        view = _clientViews.remove(viewportKey);
+      String viewportId = _clientIdToViewportId.remove(clientId);
+      if (viewportId != null) {
+        view = _clientViews.remove(viewportId);
       }
     }
     if (view != null) {
@@ -101,21 +102,21 @@ import java.util.Map;
   // TODO might be better to pass the call through rather than returning the WebView and calling that
   /*public PushWebView getClientView(String clientId) {
     synchronized (_lock) {
-      String viewportKey = _clientIdToViewportKey.get(clientId);
-      return _clientViews.get(viewportKey);
+      String viewportId = _clientIdToViewportId.get(clientId);
+      return _clientViews.get(viewportId);
     }
   }*/
 
   @Override
-  public Viewport createViewport(String clientId, String viewportKey, ViewportDefinition viewportDefinition, AnalyticsListener listener) {
+  public Viewport createViewport(String clientId, String viewportId, ViewportDefinition viewportDefinition, AnalyticsListener listener) {
     synchronized (_lock) {
       UniqueId baseViewDefinitionId = getViewDefinitionId(viewportDefinition.getViewDefinitionName());
-      String currentViewportKey = _clientIdToViewportKey.remove(clientId);
+      String currentViewportId = _clientIdToViewportId.remove(clientId);
       PushWebView webView;
       String aggregatorName = viewportDefinition.getAggregatorName();
 
-      if (currentViewportKey != null) {
-        webView = _clientViews.get(currentViewportKey);
+      if (currentViewportId != null) {
+        webView = _clientViews.get(currentViewportId);
         // TODO is this relevant any more?
         if (webView != null) {
           if (webView.matches(baseViewDefinitionId, viewportDefinition)) {
@@ -125,7 +126,7 @@ import java.util.Map;
           }
           // Existing view is different - client is switching views
           shutDownWebView(webView);
-          _clientViews.remove(currentViewportKey);
+          _clientViews.remove(currentViewportId);
         }
       }
 
@@ -137,8 +138,8 @@ import java.util.Map;
         viewClient.shutdown();
         throw new OpenGammaRuntimeException("Error attaching client to view definition '" + baseViewDefinitionId + "'", e);
       }
-      _clientViews.put(viewportKey, webView);
-      _clientIdToViewportKey.put(clientId, viewportKey);
+      _clientViews.put(viewportId, webView);
+      _clientIdToViewportId.put(clientId, viewportId);
       return webView;
     }
   }
@@ -157,11 +158,11 @@ import java.util.Map;
   }
 
   @Override
-  public Viewport getViewport(String viewportKey) {
+  public Viewport getViewport(String viewportId) {
     synchronized (_lock) {
-      PushWebView view = _clientViews.get(viewportKey);
+      PushWebView view = _clientViews.get(viewportId);
       if (view == null) {
-        throw new DataNotFoundException("Unable to find viewport for key: " + viewportKey);
+        throw new DataNotFoundException("Unable to find viewport for key: " + viewportId);
       }
       return view;
     }
