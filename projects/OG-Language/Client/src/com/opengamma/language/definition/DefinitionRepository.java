@@ -16,35 +16,17 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Repository of object definitions, mapping unique integer identifiers to the underlying objects. These
- * identifiers will be used by clients to refer to the objects for invocation. All objects are identified
- * from a single numbering scheme but invocation messages will imply a specific object type to allow
- * behavior filters to be applied to specific clients - a filter in front of the repository will provide
- * the necessary casting.
+ * Repository of object definitions, mapping integer identifiers to the underlying objects. These
+ * identifiers will be used by clients to refer to the objects for invocation.
  * 
  * @param <T> the type of object held
  */
 public class DefinitionRepository<T extends Definition> {
 
-  private final AtomicInteger _nextIdentifier;
-  private final Map<Integer, T> _objects;
-  private final ConcurrentMap<String, Integer> _objectNames;
+  private final AtomicInteger _nextIdentifier = new AtomicInteger(1);
+  private final Map<Integer, T> _objects = new ConcurrentHashMap<Integer, T>();
+  private final ConcurrentMap<String, Integer> _objectNames = new ConcurrentHashMap<String, Integer>();
   private boolean _initialized;
-
-  @SuppressWarnings("unchecked")
-  private DefinitionRepository(final AtomicInteger nextIdentifier, Map<Integer, ?> objects, ConcurrentMap<String, Integer> objectNames) {
-    _nextIdentifier = nextIdentifier;
-    _objects = (Map<Integer, T>) objects;
-    _objectNames = objectNames;
-  }
-
-  public DefinitionRepository() {
-    this(new AtomicInteger(1), new ConcurrentHashMap<Integer, T>(), new ConcurrentHashMap<String, Integer>());
-  }
-
-  protected DefinitionRepository(final DefinitionRepository<?> underlying) {
-    this(underlying._nextIdentifier, underlying._objects, underlying._objectNames);
-  }
 
   /**
    * Adds an object to the repository and returns its allocated identifier. If an object
