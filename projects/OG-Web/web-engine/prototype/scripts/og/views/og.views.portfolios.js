@@ -327,6 +327,22 @@ $.register_module({
                         slick.onMouseLeave.subscribe(function (e) {
                            $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
                         });
+                    },
+                    breadcrumb = function (config) {
+                        var data = config.data, rule = module.rules.load_portfolios, args = routes.current().args;
+                        data.path.shift();
+                        api.text({module: 'og.views.portfolios.breadcrumb', handler: function (template) {
+                            $(config.selector).html($.tmpl(template, data, {
+                                gen_url: function (node) {
+                                    var change_obj = !node ? {del: ['node']} : {add: {node: node}};
+                                    return routes.prefix() + routes.hash(rule, args, change_obj);
+                                },
+                                title: function (name) {return name.length > 30 ? name : ''},
+                                short_name: function (name) {
+                                    return name.length > 30 ? name.slice(0, 27) + '...' : name
+                                }
+                            }));
+                        }});
                     };
                 if (args.version || args.sync) { // load versions
                     layout.inner.open('south');
@@ -366,6 +382,10 @@ $.register_module({
                             }
                             render_portfolio_rows('.OG-js-details-panel .og-js-portfolios', json);
                             render_position_rows('.OG-js-details-panel .og-js-positions', json);
+                            if (json.template_data.path) breadcrumb({
+                                selector: '.OG-header-generic .OG-js-breadcrumb',
+                                data: json.template_data
+                            });
                             ui.content_editable({
                                 attribute: 'data-og-editable',
                                 handler: function () {
