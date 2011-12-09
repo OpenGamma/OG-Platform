@@ -33,6 +33,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.DocumentVisibility;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -231,11 +232,16 @@ public class SavePortfolio {
     }
     return true;
   }
-
+  
   public UniqueId savePortfolio(final Portfolio portfolio, final boolean updateMatchingName) {
+    return savePortfolio(portfolio, updateMatchingName, DocumentVisibility.VISIBLE);
+  }
+
+  public UniqueId savePortfolio(final Portfolio portfolio, final boolean updateMatchingName, final DocumentVisibility visibility) {
     s_logger.debug("Saving portfolio '{}'", portfolio.getName());
     final PortfolioSearchRequest request = new PortfolioSearchRequest();
     request.setName(getPortfolioName(portfolio));
+    request.setVisibility(visibility);  // Any existing match needs to be at least as visible 
     final PortfolioSearchResult result = _portfolios.search(request);
     final ManageablePortfolio manageablePortfolio = createManageablePortfolio(portfolio);
     PortfolioDocument document;
@@ -262,9 +268,11 @@ public class SavePortfolio {
     if (document == null) {
       s_logger.debug("Adding to master");
       document = new PortfolioDocument(manageablePortfolio);
+      document.setVisibility(visibility);
       document = _portfolios.add(document);
     } else {
       s_logger.debug("Updating {} within master", document.getUniqueId());
+      // Retain existing visibility
       document.setPortfolio(manageablePortfolio);
       document = _portfolios.update(document);
     }

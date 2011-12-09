@@ -1,6 +1,6 @@
 // @export "imports"
-import com.opengamma.financial.instrument.index.iborindex.EURIBOR6M;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.index.iborindex.EURIBOR6M;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
@@ -21,7 +21,7 @@ public class AnnuityExample {
         YieldCurve yieldCurve = new YieldCurve(curve);
         bundle.setCurve(yieldCurveName, yieldCurve);
 
-        double liborRate = 0.025;
+        double liborRate = 0.015;
         ConstantDoublesCurve lcurve = new ConstantDoublesCurve(liborRate);
         YieldCurve liborCurve = new YieldCurve(lcurve);
         bundle.setCurve(liborCurveName, liborCurve);
@@ -93,7 +93,7 @@ public class AnnuityExample {
         NoHolidayCalendar calendar = new NoHolidayCalendar();
         IborIndex euribor = new EURIBOR6M(calendar);
 
-        AnnuityCouponIbor annuity = new AnnuityCouponIbor(ccy, paymentTimes, euribor, yieldCurveName, liborCurveName, true);
+        AnnuityCouponIbor annuity = new AnnuityCouponIbor(ccy, paymentTimes, euribor, liborCurveName, liborCurveName, true);
         out.println(Arrays.deepToString(annuity.getPayments()));
 
         YieldCurveBundle bundle = getBundle();

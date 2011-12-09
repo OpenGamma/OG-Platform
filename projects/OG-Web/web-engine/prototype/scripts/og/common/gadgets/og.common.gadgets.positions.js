@@ -12,10 +12,18 @@ $.register_module({
             var selector = config.selector,
                 timeseries_options = {
                 colors: ['#42669a'],
-                series: {shadowSize: 1, threshold: {below: 0, color: '#960505'}},
+                series: {shadowSize: 0, threshold: {below: 0, color: '#960505'}},
                 legend: {backgroundColor: null},
                 lines: {lineWidth: 1, fill: 1, fillColor: '#f8fbfd'},
-                grid: {show: false}
+                grid: {show: false},
+                yaxis: {}
+            },
+            get_values = function (arr) {
+                var min, max, buffer;
+                max = (function (arr) {return Math.max.apply(null, arr.map(function (v) {return v[1];}));})(arr);
+                min = (function (arr) {return Math.min.apply(null, arr.map(function (v) {return v[1];}));})(arr);
+                buffer = (max - min) / 10, max += buffer, min -= buffer;
+                return {min: min, max: max}
             },
             timeseries = function (obj, height) {
                 var $timeseries = $(selector + ' .og-timeseries'),
@@ -28,13 +36,16 @@ $.register_module({
                 api.rest.timeseries.get({
                     dependencies: ['id', 'node'],
                     handler: function (r) {
-                        var template_data = r.data.template_data,
+                        var template_data = r.data.template_data, vals,
                             extra = template_data.data_field.lang() + ': ' + template_data.data_source.lang();
                         if (r.error) {
                             common.util.ui.dialog({type: 'error', message: r.message});
                             $timeseries_extra.html('error loading timeseries data');
                             return;
                         }
+                        vals = get_values(r.data.timeseries.data);
+                        timeseries_options.yaxis.min = vals.min;
+                        timeseries_options.yaxis.max = vals.max;
                         $.plot($timeseries, [r.data.timeseries.data], timeseries_options);
                         $timeseries_extra.html(extra);
                         $(selector + ' .og-timeseries-container').hover(

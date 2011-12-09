@@ -89,7 +89,7 @@ public class JmsChangeManager extends BasicChangeManager implements MessageListe
   public void stop() {
     final String topicName = _jmsConnector.getTopicName();
     try {
-      _connection.stop();
+      _connection.close();
       _connection = null;
       
     } catch (JMSException ex) {

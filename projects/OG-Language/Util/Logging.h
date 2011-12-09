@@ -14,6 +14,7 @@
 #include "Unicode.h"
 
 #include <log4cxx/logger.h>
+#include <log4cxx/helpers/loglog.h>
 
 #ifdef _UNICODE
 #define TCharMessageBuffer WideMessageBuffer
@@ -52,6 +53,15 @@
 #define TODO(_expr_) LOGFATAL (TEXT("TODO: ") << _expr_ << TEXT (" at ") << TEXT (__FUNCTION__))
 
 #include "AbstractSettings.h"
+
+/// Try and suppress the error message written to stderr when the LOGGING macro is used.
+class CSuppressLoggingWarning {
+public:
+    /// Sets the quiet mode to TRUE.
+    CSuppressLoggingWarning () {
+        ::log4cxx::helpers::LogLog::setQuietMode (true);
+    }
+};
 
 void LoggingInit (const CAbstractSettings *poSettings = NULL);
 

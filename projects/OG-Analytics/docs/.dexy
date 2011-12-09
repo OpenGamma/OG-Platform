@@ -2,9 +2,10 @@
         "api.html|hd|ft|jinja|split" : {
             "allinputs" : true,
             "priority" : 10,
-            "canonical-name" : "index.html"
+            "canonical-name" : "index.html",
+            "disabled" : false
         },
-        "@list-files.sh|jinja|sh" : { "propagate" : true, "contents" : "cd ../{{ s.canonical_dir() }}; find ." },
+        "@list-files.sh|jinja|sh" : { "final" : false, "propagate" : true, "contents" : "cd ../{{ s.canonical_dir() }}; find -printf '%P\n'" },
         "writing-docs.tex|hd|ft|jinja|latex" : {
             "title" : "Writing OpenGamma Examples",
             "allinputs" : true,

@@ -13,7 +13,10 @@
         "args" : { "java" : "-enableassertions" },
         "except" : ".*penGammaExample.java"
     },
+    "*.R|idio" : {},
     "*.R|idio|l" : {},
+    "*.R|pyg" : {},
+    "*.R|pyg|l" : {},
     "*.R|fn|rintbatch|pyg" : {
         "ifinput" : "%.java|fn|java"
     }
