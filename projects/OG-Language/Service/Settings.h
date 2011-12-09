@@ -43,7 +43,6 @@ private:
 	const TCHAR *GetJvmLibrary (const CAbstractSettingProvider *poDefault) const { return Get (SETTINGS_JVM_LIBRARY, poDefault); }
 	unsigned long GetJvmMinHeap (unsigned long dwDefault) const { return Get (SETTINGS_JVM_MIN_HEAP, dwDefault); }
 	unsigned long GetJvmMaxHeap (unsigned long dwDefault) const { return Get (SETTINGS_JVM_MAX_HEAP, dwDefault); }
-	
 	const TCHAR *GetLogConfiguration (const TCHAR *pszDefault) const { return Get (SETTINGS_LOG_CONFIGURATION, pszDefault); }
 	const TCHAR *GetServiceName (const TCHAR *pszDefault) const { return Get (SETTINGS_SERVICE_NAME, pszDefault); }
 #ifdef _WIN32

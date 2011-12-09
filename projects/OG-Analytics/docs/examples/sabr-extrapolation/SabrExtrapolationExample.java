@@ -12,8 +12,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.IllegalAccessException;
 import java.lang.Class;
+import java.lang.IllegalAccessException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -23,22 +23,22 @@ import org.json.simple.JSONObject;
 // @export "class-def"
 public class SabrExtrapolationExample {
     // @export "class-constants-sabr-data"
-    private static final double ALPHA = 0.05;
-    private static final double BETA = 0.50;
-    private static final double RHO = -0.25;
-    private static final double NU = 0.50;
-    private static final SABRFormulaData SABR_DATA = new SABRFormulaData(ALPHA, BETA, RHO, NU);
+    static final double ALPHA = 0.05;
+    static final double BETA = 0.50;
+    static final double RHO = -0.25;
+    static final double NU = 0.50;
+    static final SABRFormulaData SABR_DATA = new SABRFormulaData(ALPHA, BETA, RHO, NU);
 
     // @export "class-constants-sabr-extrapolation-function"
-    private static final double FORWARD = 0.05;
-    private static final double CUT_OFF_STRIKE = 0.10; // Set low for the test
-    private static final double RANGE_STRIKE = 0.02;
-    private static final double N_PTS = 100;
-    private static final double TIME_TO_EXPIRY = 2.0;
-    private static final double[] MU_VALUES = {5.0, 40.0, 90.0, 150.0};
+    static final double FORWARD = 0.05;
+    static final double CUT_OFF_STRIKE = 0.10; // Set low for the test
+    static final double RANGE_STRIKE = 0.02;
+    static final double N_PTS = 100;
+    static final double TIME_TO_EXPIRY = 2.0;
+    static final double[] MU_VALUES = {5.0, 40.0, 90.0, 150.0};
 
-    // @export "main"
-    public static void main(String[] args) throws IOException, IllegalAccessException {
+    // @export "generateSabrData"
+    public static void generateSabrData(PrintStream out) throws IOException {
         double mu;
         double strike;
         double price;
@@ -68,38 +68,16 @@ public class SabrExtrapolationExample {
         }
         // @export "save-data"
         data_stream.close();
-
-        // @export "save-fields"
-        // For now this is once-off code. Will be abstracted out unto a generic Dexy utility soon...
-        File f = new File("../dexy--sabr-fields.json");
-        FileWriter file = new FileWriter(f);
-        JSONObject field_info = new JSONObject();
-
-        Field[] fields = SabrExtrapolationExample.class.getDeclaredFields();
-        for (int i = 0; i < fields.length; i++) {
-            Field field = fields[i];
-
-            // Save info to JSON Object, handling any special cases that cause JSON errors.
-            if (field.getType() == SABRFormulaData.class) {
-                // Skip this.
-            } else if (field.getType() == double[].class) {
-                // TODO try to convert data directly to JSONArray rather than iterating over each entry.
-
-                double[] values = (double[])field.get(null);
-                JSONArray json_array = new JSONArray();
-
-                for (int j = 0; j < values.length; j++) {
-                    json_array.add(values[j]);
-                }
-
-                field_info.put(field.getName(), json_array);
-            } else {
-                // This is the default case.
-                field_info.put(field.getName(), field.get(null));
-            }
-        }
-
-        field_info.writeJSONString(file);
-        file.close();
     }
+
+    // @export "main"
+    public static void main(String[] args) throws Exception {
+        String[] ogargs = {
+            "SabrExtrapolationExample",
+            "../dexy--sabr-extrapolation-output.json",
+            "../dexy--sabr-extrapolation-fields.json"
+        };
+        OpenGammaExample.main(ogargs);
+    }
+    // @end
 }
