@@ -4,40 +4,27 @@
  */
 
 /**
- * Identifiers
- */
-
-.OG-timeseries {
-  margin-top: 20px;
-}
-
-/**
  * Plot Header
  */
 
 .OG-timeseries .og-plot-header {
   position: absolute;
-  top: -20px;
-  left: 3px;
+  top: -4px;
+  left: 2px;
+  font-size: 16px;
 }
 
 .OG-timeseries .og-plot-header .og-field {
   display: inline-block;
-  padding: 0 0 0 5px;
+  padding: 0 5px 0 5px;
   background-color: #e9eaeb;
-  -webkit-border-top-left-radius: 2px;
-  -webkit-border-bottom-left-radius: 2px;
-  -moz-border-radius-topleft: 2px;
-  -moz-border-radius-bottomleft: 2px;
-  border-top-left-radius: 2px;
-  border-bottom-left-radius: 2px;
-  line-height: 18px;
+  line-height: 28px;
+  border-left: 2px solid #c6c6c6;
 }
 
 .OG-timeseries .og-plot-header .og-field span {
   vertical-align: middle;
   padding: 0 5px 0 0;
-  color: #999;
 }
 
 .OG-timeseries .og-plot-header select {
@@ -48,7 +35,9 @@
 .OG-timeseries .og-plot-header .og-observation {
   height: 17px;
   position: relative;
-  margin-top: 2px;
+  margin-top: 3px;
+  margin-left: 5px;
+  display: inline-block;
 }
 
 .OG-timeseries .og-plot-header .og-observation label {
@@ -64,13 +53,13 @@
 .OG-timeseries .og-plot-header .og-observation input {
   left: -1px;
   position: absolute;
-  top: -1px;
 }
 
 .OG-timeseries .og-plot-header .og-observation span {
   font-size: 10px;
   padding-left: 19px;
   position: relative;
+  top: -1px;
 }
 
 /*
@@ -78,18 +67,18 @@
  */
 
 .OG-timeseries .og-plots { /* needed to compensate for flots axis padding */
-  height: 375px;
+  height: 350px;
   top: 25px;
 }
 
 .OG-timeseries .og-timeseries-plot {
   position: relative;
   margin-left: -6px;
-  width: 550px;
+  width: 800px;
 }
 
 .OG-timeseries .og-js-p1-crop {
-  width: 750px;
+  width: 832px;
   height: 226px;
   overflow: hidden;
   top: 29px;
@@ -100,7 +89,7 @@
 
 .OG-timeseries .og-js-p1 {
   height: 270px;
-  width: 800px;
+  width: 882px;
   margin: 0 0 0 -20px;
   position: relative;
   top: -28px;
@@ -110,7 +99,7 @@
 .OG-timeseries .og-js-p2-crop {
   position: relative;
   left: 8px;
-  width: 750px;
+  width: 832px;
   height: 57px;
   overflow: hidden;
   top: -24px;
@@ -118,7 +107,7 @@
 
 .OG-timeseries .og-js-p2 {
   height: 140px;
-  width: 800px;
+  width: 882px;
   margin: -56px 0 0 -34px;
   position: relative;
   top: 14px;
@@ -129,7 +118,7 @@
   margin: 30px 0 0 15px;
   position: absolute;
   top: -27px;
-  right: -166px;
+  right: -5px;
   background: #fff;
 }
 
@@ -140,16 +129,16 @@
 .OG-timeseries .og-flot-top {
   border-bottom: 3px solid #e9eaeb;
   height: 0;
-  width: 716px;
+  width: 798px;
   position: absolute;
-  top: 26px;
+  top: 24px;
   left: 2px;
 }
 
 .OG-timeseries .og-flot-xaxis {
   border-bottom: 13px solid #c6d1e1;
   height: 0;
-  width: 716px;
+  width: 798px;
   position: absolute;
   top: 243px;
   left: 2px;
@@ -161,7 +150,7 @@
   width: 20px;
   position: absolute;
   top: 256px;
-  left: 718px;
+  left: 800px;
   z-index: 1;
 }
 
@@ -184,8 +173,7 @@
   overflow-x: auto;
   display: inline-block;
   position: relative;
-  width: 717px;
-  border: 1px solid #e9eaeb;
+  width: 800px;
   margin-bottom: 30px
 }
 
@@ -198,10 +186,9 @@
 }
 
 .OG-timeseries .og-container {
-  min-width: 717px;
+  min-width: 800px;
   white-space: nowrap;
   display: inline-block;
-  background: url(data:image/gif;base64,R0lGODlhAQBAAKIAAAAAAP////b29u7u7ufn5729vf///wAAACH5BAEAAAYALAAAAAABAEAAAAMPKLrc/qLIQIa9+JLNu98JADs=) repeat-x;
   height: 365px;
   overflow: hidden;
   margin-bottom: -5px;
@@ -209,9 +196,9 @@
 }
 
 .OG-timeseries .og-data-series {
-  width: 358px;
+  width: 399px;
   display: inline-block;
-  border-right: 1px solid #e9eaeb;
+  border-left: 1px solid #f6f6f6;
   float: left;
   height: 365px;
 }
@@ -223,6 +210,7 @@
 .OG-timeseries .og-data-series header {
   height: 29px;
   display: block;
+  background-color: #fff;
 }
 
 .OG-timeseries .og-data-series footer {
@@ -234,40 +222,20 @@
 }
 
 .OG-timeseries .og-data-series header h3 {
-  float: left;
-  padding: 6px 0 0 5px;
+  padding: 5px;
+  background: #e9eaeb;
+  display: inline-block;
 }
 
 .OG-timeseries .og-data-series header span {
-  float: right;
   position: relative;
   top: 7px;
-  right: 15px;
 }
 
 .OG-timeseries .og-data-points .og-js-timeseries-csv {
   font-size: 10px;
-  float: right;
-}
-
-/**
- * Empty
- */
-
-.OG-timeseries .og-data-series-empty,
-.OG-timeseries .og-data-series-empty span {
-  color: #d2d2d2;
-}
-
-.OG-timeseries .og-data-series-empty span {
-  top: 5px!important;
-  right: 5px!important;
-  position: relative!important;
-}
-
-.OG-timeseries .og-no-datapoint {
-  padding: 5px;
-  display: inline-block;
+  position: absolute;
+  right: 12px;
 }
 
 /**
@@ -293,6 +261,6 @@
 .OG-timeseries .og-checking-related {
   display: inline-block;
   position: relative;
-  top: 25px;
+  top: 5px;
   color: #ccc;
 }

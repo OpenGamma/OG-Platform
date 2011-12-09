@@ -67,134 +67,58 @@ const TCHAR *ServiceDefaultServiceName () {
 	return DEFAULT_SERVICE_NAME;
 }
 
-/// Locates the JVM library by inspecting JAVA_HOME, or hunting for a JRE from the PATH environment variables.
+/// Locates the JVM library by inspecting the registry or making other educated guesses
 class CJvmLibraryDefault : public CAbstractSettingProvider {
 private:
 
 #ifdef _WIN32
-	/// Tests if a DLL is valid; i.e. can be loaded into the process. To be valid, any dependencies must be in the
-	/// path (or already loaded) and it must match the architecture.
-	static BOOL IsValidLibrary (PCTSTR pszLibrary) {
-		DWORD dwAttrib = GetFileAttributes (pszLibrary);
-		if (dwAttrib == INVALID_FILE_ATTRIBUTES) return FALSE;
-		// Try and load to verify that the library is the same bittage as this process
-		HMODULE hModule = LoadLibrary (pszLibrary);
-		if (hModule) {
-			FreeLibrary (hModule);
-			return TRUE;
-		} else {
-			DWORD dwError = GetLastError ();
-			if (dwError == ERROR_BAD_EXE_FORMAT) {
-#if defined (_M_IX86)
-				LOGERROR (TEXT ("Found ") << pszLibrary << TEXT (" but it is not a 32-bit Windows module - try the 64-bit service"));
-#elif defined (_M_X64)
-				LOGERROR (TEXT ("Found ") << pszLibrary << TEXT (" but it is not a 64-bit Windows module - try the 32-bit service"));
-#else
-#error "Need correct error message for processor"
-#endif
-			} else {
-				LOGWARN (TEXT ("Found ") << pszLibrary << TEXT (" but couldn't load, error ") << dwError);
-			}
-			return FALSE;
+	/// Checks for a JVM library defined in the registry at HKLM\\SOFTWARE\\JavaSoft\\Java Runtime Environment.
+	/// Registry mapping under WOW64 will make sure that a 32-bit process sees a 32-bit JVM and a 64-bit process
+	/// sees a 64-bit JVM.
+	///
+	/// @return the path to the JVM DLL, or NULL if there is none (or an error occurs)
+	static TCHAR *SearchRegistry () {
+		HKEY hkeyJRE;
+		HRESULT hr;
+		if ((hr = RegOpenKeyEx (HKEY_LOCAL_MACHINE, TEXT ("SOFTWARE\\JavaSoft\\Java Runtime Environment"), 0, KEY_READ, &hkeyJRE)) != ERROR_SUCCESS) {
+			LOGDEBUG (TEXT ("No JRE registry key"));
+			return NULL;
 		}
+		TCHAR szVersion[16];
+		DWORD cbVersion = sizeof (szVersion);
+		if ((hr = RegGetValue (hkeyJRE, NULL, TEXT ("CurrentVersion"), RRF_RT_REG_SZ, NULL, szVersion, &cbVersion)) != ERROR_SUCCESS) {
+			RegCloseKey (hkeyJRE);
+			LOGWARN (TEXT ("No CurrentVersion value in JRE key"));
+			return NULL;
+		}
+		LOGDEBUG (TEXT ("Found JRE v") << szVersion);
+		TCHAR szPath[MAX_PATH];
+		DWORD cbPath = sizeof (szPath);
+		if ((hr = RegGetValue (hkeyJRE, szVersion, TEXT ("RuntimeLib"), RRF_RT_REG_SZ, NULL, szPath, &cbPath)) != ERROR_SUCCESS) {
+			RegCloseKey (hkeyJRE);
+			LOGWARN (TEXT ("No RuntimeLib found for JRE v") << szVersion);
+			return NULL;
+		}
+		LOGINFO (TEXT ("Runtime library ") << szPath << TEXT (" found from registry"));
+		RegCloseKey (hkeyJRE);
+		return _tcsdup (szPath);
 	}
-#endif
+#endif /* ifndef _WIN32 */
 
-#define MAX_ENV_LEN 32767
-	/// Checks for a JVM library under JAVA_HOME, and then in any candidate JRE/JDK folders based on finding
-	/// a java.exe in the system path.
+	/// Checks for a JVM library from the registry (Windows)
 	///
 	/// @return the path to the JVM DLL, a default best guess, or NULL if there is a problem
 	TCHAR *CalculateString () const {
 		TCHAR *pszLibrary = NULL;
+		do {
 #ifdef _WIN32
-		TCHAR *pszPath = new TCHAR[MAX_ENV_LEN];
-		if (!pszPath) {
-			LOGERROR ("Out of memory");
-			return NULL;
-		}
-		DWORD dwPath = GetEnvironmentVariable (TEXT ("JAVA_HOME"), pszPath, MAX_ENV_LEN);
-		if (dwPath != 0) {
-			size_t cb = dwPath + 20; // \bin\server\jvm.dll +\0
-			pszLibrary = new TCHAR[cb];
-			if (!pszLibrary) {
-				delete pszPath;
-				LOGERROR ("Out of memory");
-				return NULL;
-			}
-			StringCchPrintf (pszLibrary, cb, TEXT ("%s\\bin\\server\\jvm.dll"), pszPath);
-			if (IsValidLibrary (pszLibrary)) {
-				LOGINFO (TEXT ("Default jvm.dll ") << pszLibrary << TEXT (" found from JAVA_HOME"));
-			} else {
-				StringCchPrintf (pszLibrary, cb, TEXT ("%s\\bin\\client\\jvm.dll"), pszPath);
-				if (IsValidLibrary (pszLibrary)) {
-					LOGINFO (TEXT ("Default jvm.dll ") << pszLibrary << TEXT (" found from JAVA_HOME"));
-				} else {
-					LOGWARN (TEXT ("JAVA_HOME set but bin\\<server|client>\\jvm.dll doesn't exist"));
-					delete pszLibrary;
-					pszLibrary = NULL;
-				}
-			}
-		}
+			if ((pszLibrary = SearchRegistry ()) != NULL) break;
+#else /* ifdef _WIN32 */
+			// TODO: Is there anything reasonably generic? The path on my Linux box included a processor (e.g. amd64) reference
+#endif /* ifdef _WIN32 */
+		} while (false);
 		if (pszLibrary == NULL) {
-			DWORD dwPath = GetEnvironmentVariable (TEXT ("PATH"), pszPath, MAX_ENV_LEN);
-			if (dwPath != 0) {
-				TCHAR *nextToken;
-				TCHAR *psz = _tcstok_s (pszPath, TEXT (";"), &nextToken);
-				while (psz != NULL) {
-					size_t cb = dwPath + 27; // MAX( \java.exe +\0 , \server\jvm.dll +\0 , \..\jre\bin\server\jvm.dll + \0)
-					pszLibrary = new TCHAR[cb];
-					if (!pszLibrary) {
-						delete pszPath;
-						LOGERROR ("Out of memory");
-						return NULL;
-					}
-					StringCchPrintf (pszLibrary, cb, TEXT ("%s\\java.exe"), psz);
-					LOGDEBUG (TEXT ("Looking for ") << pszLibrary);
-					if (!IsValidLibrary (pszLibrary)) {
-						delete pszLibrary;
-						pszLibrary = NULL;
-						psz = _tcstok_s (NULL, TEXT (";"), &nextToken);
-						continue;
-					}
-					LOGDEBUG (TEXT ("Default Java executable ") << pszLibrary << TEXT (" found from PATH"));
-					StringCchPrintf (pszLibrary, cb, TEXT ("%s\\server\\jvm.dll"), psz);
-					LOGDEBUG (TEXT ("Looking for ") << pszLibrary);
-					if (IsValidLibrary (pszLibrary)) {
-						LOGINFO (TEXT ("Default jvm.dll ") << pszLibrary << TEXT (" found from PATH"));
-						break;
-					}
-					StringCchPrintf (pszLibrary, cb, TEXT ("%s\\..\\jre\\bin\\server\\jvm.dll"), psz);
-					LOGDEBUG (TEXT ("Looking for ") << pszLibrary);
-					if (IsValidLibrary (pszLibrary)) {
-						LOGINFO (TEXT ("Default jvm.dll ") << pszLibrary << TEXT (" found from PATH"));
-						break;
-					}
-					StringCchPrintf (pszLibrary, cb, TEXT ("%s\\client\\jvm.dll"), psz);
-					LOGDEBUG (TEXT ("Looking for ") << pszLibrary);
-					if (IsValidLibrary (pszLibrary)) {
-						LOGINFO (TEXT ("Default jvm.dll ") << pszLibrary << TEXT (" found from PATH"));
-						break;
-					}
-					StringCchPrintf (pszLibrary, cb, TEXT ("%s\\..\\jre\\bin\\client\\jvm.dll"), psz);
-					LOGDEBUG (TEXT ("Looking for ") << pszLibrary);
-					if (IsValidLibrary (pszLibrary)) {
-						LOGINFO (TEXT ("Default jvm.dll ") << pszLibrary << TEXT (" found from PATH"));
-						break;
-					}
-					delete pszLibrary;
-					pszLibrary = NULL;
-					psz = _tcstok_s (NULL, TEXT (";"), &nextToken);
-					continue;
-				}
-			}
-		}
-		delete pszPath;
-#else
-		// TODO: Is there anything reasonably generic? The path on my Linux box included a processor (e.g. amd64) reference
-#endif
-		if (pszLibrary == NULL) {
-			LOGDEBUG ("No default JVM libraries found on JAVA_HOME or PATH");
+			LOGDEBUG ("No default JVM libraries found");
 			pszLibrary = _tcsdup (DEFAULT_JVM_LIBRARY);
 		}
 		return pszLibrary;

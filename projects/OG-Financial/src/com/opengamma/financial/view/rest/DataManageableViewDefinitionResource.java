@@ -33,9 +33,12 @@ public class DataManageableViewDefinitionResource extends DataViewDefinitionReso
 
   //-------------------------------------------------------------------------
   @PUT
-  public Response updateViewDefinition(UpdateViewDefinitionRequest updateRequest) {
-    updateRequest.checkValid();
-    _repository.updateViewDefinition(updateRequest);
+  public Response updateViewDefinition(ViewDefinition viewDefinition) {
+    final UpdateViewDefinitionRequest request = new UpdateViewDefinitionRequest();
+    request.setId(getViewDefinitionId());
+    request.setName(viewDefinition.getName());
+    request.setViewDefinition(viewDefinition);
+    _repository.updateViewDefinition(request);
     return Response.ok().build();
   }
   
