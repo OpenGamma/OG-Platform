@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -122,6 +123,29 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
     ArgumentChecker.notNull(securityBundle, "securityKey");
     _quantity = quantity;
     _securityLink = new ManageableSecurityLink(securityBundle);
+  }
+  
+  /**
+   * Creates a deep copy of the specified position.
+   * 
+   * @param copyFrom  the position to copy from, not null
+   */
+  public ManageablePosition(final ManageablePosition copyFrom) {
+    ArgumentChecker.notNull(copyFrom, "position");
+    _uniqueId = copyFrom.getUniqueId();
+    _quantity = copyFrom.getQuantity();
+    _providerId = copyFrom.getProviderId();
+    _securityLink = copyFrom.getSecurityLink();
+    if (copyFrom.getAttributes() != null) {
+      for (Entry<String, String> entry : copyFrom.getAttributes().entrySet()) {
+        addAttribute(entry.getKey(), entry.getValue());
+      }
+    }
+    if (copyFrom.getTrades() != null) {
+      for (ManageableTrade trade : copyFrom.getTrades()) {
+        addTrade(JodaBeanUtils.clone(trade));
+      }
+    }
   }
 
   //-------------------------------------------------------------------------

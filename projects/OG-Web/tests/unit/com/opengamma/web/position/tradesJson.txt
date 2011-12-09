@@ -1,0 +1,7 @@
+{
+  "trades" : [
+    {"premium" : 10.0, "counterParty" : "BACS", "premiumCurrency" : "USD", "premiumDate" : "2011-12-08", "premiumTime" : "15:04", "quantity" : "50", "tradeDate" : "2011-12-07", "tradeTime" : "15:04", "timeZone" : "UTC"},
+    {"premium" : 20.0, "counterParty" : "BACS", "premiumCurrency" : "USD", "premiumDate" : "2011-12-09", "premiumTime" : "16:04", "quantity" : "60", "tradeDate" : "2011-12-08", "tradeTime" : "16:04", "timeZone" : "UTC"},
+    {"premium" : 30.0, "counterParty" : "BACS", "premiumCurrency" : "USD", "premiumDate" : "2011-12-10", "premiumTime" : "17:04", "quantity" : "70", "tradeDate" : "2011-12-09", "tradeTime" : "17:04", "timeZone" : "UTC"}
+  ]
+}
