@@ -10,6 +10,7 @@ import org.fudgemsg.FudgeMsg;
 import com.opengamma.financial.user.rest.RemoteClient;
 import com.opengamma.language.connector.MessageSender;
 import com.opengamma.language.connector.StashMessage;
+import com.opengamma.language.definition.Definition;
 import com.opengamma.language.definition.DefinitionRepository;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.function.FunctionRepository;
@@ -63,7 +64,7 @@ public abstract class SessionContext extends AbstractContext<UserContext> {
     setValue(LIVEDATA_PROVIDER, AggregatingLiveDataProvider.nonCachingInstance());
     setValue(PROCEDURE_PROVIDER, AggregatingProcedureProvider.nonCachingInstance());
     // Repositories
-    final DefinitionRepository<?> repo = new DefinitionRepository<Object>();
+    final DefinitionRepository<?> repo = new DefinitionRepository<Definition>();
     _functionRepository = new FunctionRepository(repo);
     _liveDataRepository = new LiveDataRepository(repo);
     _procedureRepository = new ProcedureRepository(repo);
