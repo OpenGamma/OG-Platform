@@ -41,6 +41,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalId;
@@ -259,7 +260,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
             trade.setPremium(tradeJson.getDouble("premium"));
           }
           if (tradeJson.has("counterParty")) {
-            trade.setCounterpartyExternalId(ExternalId.of("CP", tradeJson.getString("counterParty")));
+            trade.setCounterpartyExternalId(ExternalId.of(Counterparty.DEFAULT_SCHEME, tradeJson.getString("counterParty")));
           }
           if (tradeJson.has("premiumCurrency")) {
             trade.setPremiumCurrency(Currency.of(tradeJson.getString("premiumCurrency")));

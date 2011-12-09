@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.position.Counterparty;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -54,14 +55,13 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.util.money.Currency;
 
-
 /**
  * Test {@link WebPositionsResource}.
  */
 public class WebPositionsResourceTest {
   
   private static final ExternalId SEC_ID = ExternalId.of("A", "B");
-  private static final ExternalId COUNTER_PARTY = ExternalId.of("CP", "BACS");
+  private static final ExternalId COUNTER_PARTY = ExternalId.of(Counterparty.DEFAULT_SCHEME, "BACS");
   
   private SecurityMaster _secMaster;
   private SecurityLoader _secLoader;
