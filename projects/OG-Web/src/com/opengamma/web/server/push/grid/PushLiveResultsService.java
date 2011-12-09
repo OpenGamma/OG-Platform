@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.server.push;
+package com.opengamma.web.server.push.grid;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
@@ -21,6 +21,10 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.AggregatedViewDefinitionManager;
 import com.opengamma.web.server.conversion.ResultConverterCache;
+import com.opengamma.web.server.push.AnalyticsListener;
+import com.opengamma.web.server.push.Viewport;
+import com.opengamma.web.server.push.ViewportDefinition;
+import com.opengamma.web.server.push.ViewportFactory;
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +74,6 @@ import java.util.Map;
                                                                            mapPortfolioAggregators(portfolioAggregators));
   }
 
-  // TODO this needs to be called from the update manager when the client disconnects
   public void clientDisconnected(String clientId) {
     s_logger.debug("Client " + clientId + " disconnected");
     PushWebView view = null;
@@ -81,7 +84,7 @@ import java.util.Map;
       }
     }
     if (view != null) {
-      view.shutdown();
+      shutDownWebView(view);
     }
   }
 

@@ -3,10 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.server.push;
+package com.opengamma.web.server.push.rest;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueId;
+import com.opengamma.web.server.push.LongPollingServlet;
+import com.opengamma.web.server.push.RestUpdateManager;
 import com.sun.jersey.api.core.ExtendedUriInfo;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.spi.container.ContainerRequest;
@@ -25,7 +27,7 @@ import java.util.List;
 /**
  *
  */
-/* package */ class EntitySubscriptionFilter implements ResourceFilter {
+public class EntitySubscriptionFilter implements ResourceFilter {
 
   private static final Logger s_logger = LoggerFactory.getLogger(EntitySubscriptionFilter.class);
 
@@ -34,10 +36,11 @@ import java.util.List;
   private final RestUpdateManager _restUpdateManager;
   private final HttpServletRequest _servletRequest;
 
-  /* package */ EntitySubscriptionFilter(List<String> uidParamNames,
-                                         RestUpdateManager restUpdateManager,
-                                         HttpContext httpContext,
-                                         HttpServletRequest servletRequest) {
+  /* package */
+  public EntitySubscriptionFilter(List<String> uidParamNames,
+                                  RestUpdateManager restUpdateManager,
+                                  HttpContext httpContext,
+                                  HttpServletRequest servletRequest) {
     _httpContext = httpContext;
     _uidParamNames = uidParamNames;
     _restUpdateManager = restUpdateManager;

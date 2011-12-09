@@ -3,9 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.server.push;
+package com.opengamma.web.server.push.rest;
 
 import com.opengamma.id.UniqueId;
+import com.opengamma.web.server.push.RestUpdateManager;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.model.AbstractMethod;
 import com.sun.jersey.spi.container.ResourceFilter;

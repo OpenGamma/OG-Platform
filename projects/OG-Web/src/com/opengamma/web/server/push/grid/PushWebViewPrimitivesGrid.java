@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.server.push;
+package com.opengamma.web.server.push.grid;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -21,9 +21,9 @@ import java.util.Map;
 */
 /* package */ class PushWebViewPrimitivesGrid extends PushRequirementBasedWebViewGrid {
 
-  protected PushWebViewPrimitivesGrid(ViewClient viewClient,
-                                      CompiledViewDefinition compiledViewDefinition,
-                                      ResultConverterCache resultConverterCache) {
+  public PushWebViewPrimitivesGrid(ViewClient viewClient,
+                                   CompiledViewDefinition compiledViewDefinition,
+                                   ResultConverterCache resultConverterCache) {
     super("primitives", viewClient, compiledViewDefinition, null, EnumSet.of(ComputationTargetType.PRIMITIVE), resultConverterCache, "");
   }
 

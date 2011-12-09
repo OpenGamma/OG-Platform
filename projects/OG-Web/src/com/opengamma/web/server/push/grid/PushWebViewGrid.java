@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.server.push;
+package com.opengamma.web.server.push.grid;
 
 import au.com.bytecode.opencsv.CSVWriter;
 import com.opengamma.engine.value.ValueSpecification;

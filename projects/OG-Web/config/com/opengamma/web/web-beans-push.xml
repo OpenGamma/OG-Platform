@@ -577,7 +577,7 @@
     <constructor-arg index="2" ref="liveResultsService"/>
   </bean>
 
-  <bean id="webViewportsRestBean" class="com.opengamma.web.server.push.ViewportsResource">
+  <bean id="webViewportsRestBean" class="com.opengamma.web.server.push.rest.ViewportsResource">
     <constructor-arg ref="updateManager"/>
   </bean>
 
@@ -597,13 +597,13 @@
         <bean class="com.opengamma.util.tuple.ObjectsPair">
           <constructor-arg index="0" ref="dbPositionMaster"/>
           <constructor-arg index="1">
-            <value type="com.opengamma.web.server.push.MasterType">POSITION</value>
+            <value type="com.opengamma.web.server.push.rest.MasterType">POSITION</value>
           </constructor-arg>
         </bean>
         <bean class="com.opengamma.util.tuple.ObjectsPair">
           <constructor-arg index="0" ref="dbPositionMaster"/>
           <constructor-arg index="1">
-            <value type="com.opengamma.web.server.push.MasterType">POSITION</value>
+            <value type="com.opengamma.web.server.push.rest.MasterType">POSITION</value>
           </constructor-arg>
         </bean>
         <!--TODO what other data are we interested in?-->
@@ -612,7 +612,7 @@
   </bean>
 
   <!--TODO make sure this still works-->
-  <bean id="jsonToViewport" class="com.opengamma.web.server.push.ViewportDefinitionReader" scope="singleton"/>
+  <bean id="jsonToViewport" class="com.opengamma.web.server.push.rest.ViewportDefinitionReader" scope="singleton"/>
 
   <!-- old Cometd Web-interface -->
   <bean id="webInterfaceBean" class="com.opengamma.web.server.LiveResultsServiceBean">

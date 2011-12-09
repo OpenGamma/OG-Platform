@@ -2,6 +2,7 @@ package com.opengamma.web.server.push;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.WebGridCell;
+import com.opengamma.web.server.push.rest.ViewportDefinitionReader;
 import org.testng.annotations.Test;
 
 import java.io.IOException;

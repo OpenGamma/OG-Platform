@@ -3,6 +3,7 @@ package com.opengamma.web.server.push;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.web.server.push.rest.ViewDefinitionEntriesResource;
 import org.eclipse.jetty.server.Server;
 import org.json.JSONException;
 import org.json.JSONObject;

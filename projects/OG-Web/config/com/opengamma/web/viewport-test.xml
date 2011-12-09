@@ -19,7 +19,7 @@
 
   <bean id="viewportFactory" class="com.opengamma.web.server.push.TestViewportFactory"/>
 
-  <bean id="viewportsResource" class="com.opengamma.web.server.push.ViewportsResource">
+  <bean id="viewportsResource" class="com.opengamma.web.server.push.rest.ViewportsResource">
     <constructor-arg ref="updateManager"/>
   </bean>
 

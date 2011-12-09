@@ -23,7 +23,7 @@
         <bean class="com.opengamma.util.tuple.ObjectsPair">
           <constructor-arg index="0" ref="positionChangeManager"/>
           <constructor-arg index="1">
-            <value type="com.opengamma.web.server.push.MasterType">POSITION</value>
+            <value type="com.opengamma.web.server.push.rest.MasterType">POSITION</value>
           </constructor-arg>
         </bean>
       </list>

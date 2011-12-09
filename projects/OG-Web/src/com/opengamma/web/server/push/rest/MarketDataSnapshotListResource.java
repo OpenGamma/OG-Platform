@@ -1,4 +1,4 @@
-package com.opengamma.web.server.push;
+package com.opengamma.web.server.push.rest;
 
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;

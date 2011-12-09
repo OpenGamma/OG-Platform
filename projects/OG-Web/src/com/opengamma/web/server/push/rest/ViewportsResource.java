@@ -3,10 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.server.push;
+package com.opengamma.web.server.push.rest;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.web.server.push.RestUpdateManager;
+import com.opengamma.web.server.push.Viewport;
+import com.opengamma.web.server.push.ViewportDefinition;
 import org.json.JSONException;
 import org.json.JSONObject;
 

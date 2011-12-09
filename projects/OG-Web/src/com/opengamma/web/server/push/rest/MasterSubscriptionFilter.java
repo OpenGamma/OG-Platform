@@ -3,8 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.server.push;
+package com.opengamma.web.server.push.rest;
 
+import com.opengamma.web.server.push.LongPollingServlet;
+import com.opengamma.web.server.push.RestUpdateManager;
+import com.opengamma.web.server.push.rest.MasterType;
 import com.sun.jersey.api.core.ExtendedUriInfo;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.spi.container.ContainerRequest;

@@ -8,6 +8,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.master.marketdatasnapshot.impl.InMemorySnapshotMaster;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.web.server.push.rest.MarketDataSnapshotListResource;
 import org.eclipse.jetty.server.Server;
 import org.json.JSONException;
 import org.json.JSONObject;

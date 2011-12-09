@@ -8,6 +8,7 @@ package com.opengamma.web.server.push;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.AggregatedViewDefinitionManager;
+import com.opengamma.web.server.push.rest.AggregatorNamesResource;
 import org.eclipse.jetty.server.Server;
 import org.json.JSONArray;
 import org.json.JSONException;

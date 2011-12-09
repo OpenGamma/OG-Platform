@@ -80,10 +80,13 @@ package com.opengamma.web.server.push;
  *   been done using snapshots yet, only live data</em></li>
  *   <li>{@code portfolioViewport / primitiveViewport}: viewport definition for the separate grids showing portfolio
  *   and primitive data</li>
- *   <li>{@code rows}: The row numbers whose data should be included in the results and the timestamp of the
- *   last time the client received an update for the row</li>
+ *   <li>{@code rowIds}: The zero-based row indices whose data should be included in the results.</li>
+ *   <li>{@code lastTimestamps}: The timestamp of the last update the client received for each row.  Each item
+ *   in {@code lastTimestamps} refers to the row at the same index in {@code rowIds}.  Therefore {@code rowIds} and
+ *   {@link lastTimestamps} must be the same length.  If not previous result has been received then {@code null}
+ *   should be sent.</li>
  *   <li>{@code dependencyGraphCells}: array of two-element arrays with the row and column numbers of cells whose
- *   dependency graph should be included in the results.  <em>TODO This isn't working yet.</em></li>
+ *   dependency graph should be included in the results.
  * </ul>
  *
  * <h3>Querying Available View Definitions, Market Data Snapshots and Aggregators</h3>
@@ -172,6 +175,8 @@ package com.opengamma.web.server.push;
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.portfolio.WebPortfoliosResource;
 import com.opengamma.web.position.WebPositionsResource;
+import com.opengamma.web.server.push.rest.Subscribe;
+import com.opengamma.web.server.push.rest.SubscribeMaster;
 
 import javax.ws.rs.PathParam;
 import java.util.List;

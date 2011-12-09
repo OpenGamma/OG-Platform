@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.server.push;
+package com.opengamma.web.server.push.rest;
 
 import com.opengamma.web.server.AggregatedViewDefinitionManager;
 import org.json.JSONArray;

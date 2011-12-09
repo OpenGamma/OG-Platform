@@ -56,7 +56,7 @@
     <!--for creating subscriptions to entity updates-->
     <init-param>
       <param-name>com.sun.jersey.spi.container.ResourceFilters</param-name>
-      <param-value>com.opengamma.web.server.push.SubscribingFilterFactory</param-value>
+      <param-value>com.opengamma.web.server.push.rest.SubscribingFilterFactory</param-value>
     </init-param>
     <!--TODO this is only here for testing. REMOVE-->
     <!--<init-param>

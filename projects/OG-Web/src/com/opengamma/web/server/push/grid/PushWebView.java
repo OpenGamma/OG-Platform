@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.server.push;
+package com.opengamma.web.server.push.grid;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -16,6 +16,9 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.web.server.WebGridCell;
 import com.opengamma.web.server.conversion.ConversionMode;
 import com.opengamma.web.server.conversion.ResultConverterCache;
+import com.opengamma.web.server.push.AnalyticsListener;
+import com.opengamma.web.server.push.Viewport;
+import com.opengamma.web.server.push.ViewportDefinition;
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

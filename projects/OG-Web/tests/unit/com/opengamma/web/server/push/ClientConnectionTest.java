@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.UniqueId;
+import com.opengamma.web.server.push.rest.MasterType;
 import org.mockito.ArgumentMatcher;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;

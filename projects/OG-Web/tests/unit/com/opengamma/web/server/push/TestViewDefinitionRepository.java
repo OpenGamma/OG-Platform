@@ -5,6 +5,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.web.server.push.rest.ViewDefinitionEntriesResource;
 
 import java.util.HashMap;
 import java.util.Map;

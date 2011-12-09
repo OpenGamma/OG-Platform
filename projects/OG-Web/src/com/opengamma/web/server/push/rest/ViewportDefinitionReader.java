@@ -1,4 +1,6 @@
-package com.opengamma.web.server.push;
+package com.opengamma.web.server.push.rest;
+
+import com.opengamma.web.server.push.ViewportDefinition;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.WebApplicationException;

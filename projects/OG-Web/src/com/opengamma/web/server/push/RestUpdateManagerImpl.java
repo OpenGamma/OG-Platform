@@ -10,6 +10,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.server.push.rest.MasterType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -83,6 +84,7 @@ import java.util.concurrent.atomic.AtomicLong;
     }
   }
 
+  // TODO why is this public? does it need to be?
   @Override
   public void closeConnection(String userId, String clientId) {
     ClientConnection connection;

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.server.push;
+package com.opengamma.web.server.push.grid;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -15,7 +15,6 @@ import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.PortfolioRow;
-import com.opengamma.web.server.RequirementBasedWebViewGrid;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
 import java.util.ArrayList;

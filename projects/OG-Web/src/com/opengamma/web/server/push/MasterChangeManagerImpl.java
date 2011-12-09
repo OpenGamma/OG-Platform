@@ -2,10 +2,10 @@ package com.opengamma.web.server.push;
 
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
-import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.web.server.push.rest.MasterType;
 
 import java.util.List;
 import java.util.Set;

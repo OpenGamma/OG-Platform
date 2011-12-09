@@ -58,6 +58,11 @@ import java.util.concurrent.ConcurrentHashMap;
     return listener != null && listener.isConnected();
   }
 
+  /**
+   * Called by the HTTP container when a long polling connection times out before any updates are sent.
+   * @param clientId The client ID associated with the timed out connection
+   * @param continuation The continuation associated with the timed out HTTP connection
+   */
   /* package */ void timeout(String clientId, Continuation continuation) {
     LongPollingUpdateListener listener = _connections.get(clientId);
     if (listener != null) {

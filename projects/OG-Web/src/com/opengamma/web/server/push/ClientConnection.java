@@ -12,6 +12,7 @@ import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.web.server.push.rest.MasterType;
 
 import java.util.Collection;
 import java.util.Collections;

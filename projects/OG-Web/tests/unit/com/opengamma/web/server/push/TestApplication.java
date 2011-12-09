@@ -5,6 +5,8 @@
  */
 package com.opengamma.web.server.push;
 
+import com.opengamma.web.server.push.rest.ViewportDefinitionReader;
+
 import javax.ws.rs.core.Application;
 import java.util.HashSet;
 import java.util.Set;

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.web.server.push;
+package com.opengamma.web.server.push.grid;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -272,7 +272,7 @@ import java.util.Set;
   
   //-------------------------------------------------------------------------
   
-  protected RequirementBasedGridStructure getGridStructure() {
+  public RequirementBasedGridStructure getGridStructure() {
     return _gridStructure;
   }
   
@@ -295,7 +295,8 @@ import java.util.Set;
   }
 
   // TODO this needs to be single threaded
-  /* package */ void updateDepGraphCells(List<WebGridCell> dependencyGraphCells) {
+  /* package */
+  public void updateDepGraphCells(List<WebGridCell> dependencyGraphCells) {
     Set<WebGridCell> newCells = new HashSet<WebGridCell>(dependencyGraphCells);
     Set<WebGridCell> currentCells = _depGraphGrids.keySet();
     Set<WebGridCell> cellsToRemove = Sets.difference(currentCells, newCells);

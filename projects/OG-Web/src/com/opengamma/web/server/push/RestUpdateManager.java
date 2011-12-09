@@ -7,11 +7,12 @@ package com.opengamma.web.server.push;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueId;
+import com.opengamma.web.server.push.rest.MasterType;
 
 /**
  *
  */
-/* package */ interface RestUpdateManager {
+public interface RestUpdateManager {
 
   /**
    * Handshake method that returns the client ID needed to identify the connection when calling all other operations.

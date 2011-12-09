@@ -3,7 +3,7 @@ package com.opengamma.web.server.push;
 /**
  *
  */
-/* package */ class AnalyticsListener {
+public class AnalyticsListener {
 
   private final String _dataUrl;
   private final String _gridStructureUrl;

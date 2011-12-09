@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.server.push;
+package com.opengamma.web.server.push.rest;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -13,8 +13,7 @@ import java.lang.annotation.Target;
 /**
  *
  */
-@Target(ElementType.METHOD)
+@Target(ElementType.PARAMETER) // TODO other types?
 @Retention(RetentionPolicy.RUNTIME)
-public @interface SubscribeMaster {
-  MasterType[] value();
+public @interface Subscribe {
 }
