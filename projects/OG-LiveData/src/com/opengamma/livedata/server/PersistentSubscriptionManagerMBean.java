@@ -46,9 +46,9 @@ public class PersistentSubscriptionManagerMBean {
 
   //-------------------------------------------------------------------------
   @ManagedAttribute(description = "Returns the number of securities for which a persistent subscription is currently active.")
-  public int getNumberOfPersistentSubscriptions() {
+  public long getNumberOfPersistentSubscriptions() {
     try {
-      return getPersistentSubscriptions().size();
+      return _manager.getApproximateNumberOfPersistentSubscriptions();
     } catch (RuntimeException e) {
       s_logger.error("getNumberOfPersistentSubscriptions() failed", e);
       throw new RuntimeException(e.getMessage());
