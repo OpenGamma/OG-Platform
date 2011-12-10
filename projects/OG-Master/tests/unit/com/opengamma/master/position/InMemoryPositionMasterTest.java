@@ -168,6 +168,16 @@ public class InMemoryPositionMasterTest {
     PositionDocument addedPos3 = _populatedMaster.get(_pos3.getUniqueId());
     assertNotSame(_pos3, addedPos3);
     assertEquals(_pos3, addedPos3);
+    
+    assertNotSame(_populatedMaster.get(_pos1.getUniqueId()), 
+        _populatedMaster.get(_pos1.getUniqueId()));
+  }
+  
+  public void test_getIsClone_populatedMaster() {
+    assertNotSame(_populatedMaster.get(_pos1.getUniqueId()), 
+        _populatedMaster.get(_pos1.getUniqueId()));
+    assertEquals(_populatedMaster.get(_pos1.getUniqueId()), 
+        _populatedMaster.get(_pos1.getUniqueId()));
   }
   
   public void test_remove_populatedMaster() {
