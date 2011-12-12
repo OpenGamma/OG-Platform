@@ -14,8 +14,6 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Map;
 
-import javax.time.Instant;
-
 import org.apache.commons.io.FileUtils;
 import org.joda.beans.JodaBeanUtils;
 import org.json.JSONException;
@@ -29,12 +27,9 @@ import com.google.common.collect.Maps;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
-import com.opengamma.master.config.impl.MockConfigSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.impl.InMemoryHistoricalTimeSeriesMaster;
 import com.opengamma.master.security.SecurityDocument;
@@ -48,19 +43,15 @@ import com.opengamma.master.security.impl.InMemorySecurityMaster;
 public class WebSecuritiesResourceTest {
   
   private SecurityMaster _secMaster;
-  
   private SecurityLoader _secLoader;
-  
   private HistoricalTimeSeriesMaster _htsMaster;
   private ConfigSource _cfgSource;
-  
   private WebSecuritiesResource _webSecuritiesResource;
   private Map<FinancialSecurity, UniqueId> _sec2UniqueId = Maps.newHashMap();
   
   @BeforeMethod
   public void setUp() throws Exception {
     _secMaster = new InMemorySecurityMaster();
-    
     _secLoader = new SecurityLoader() {
       
       @Override
@@ -75,7 +66,6 @@ public class WebSecuritiesResourceTest {
     };
     
     _htsMaster = new InMemoryHistoricalTimeSeriesMaster();
-    
     _cfgSource = new MasterConfigSource(new InMemoryConfigMaster());
     
     addSecurity(WebSecuritiesResourceTestUtils.getEquitySecurity());
@@ -89,36 +79,6 @@ public class WebSecuritiesResourceTest {
     FinancialSecurity clone = JodaBeanUtils.clone(security);
     SecurityDocument secDoc = _secMaster.add(new SecurityDocument(security));
     _sec2UniqueId.put(clone, secDoc.getUniqueId());
-  }
-
-  @Test
-  public void testGetEquitySecurity() throws Exception {
-    assertFinancialSecurity(WebSecuritiesResourceTestUtils.getEquitySecurity());
-  }
-  
-  @Test
-  public void testGetBondFutureSecurity() throws Exception {
-    assertFinancialSecurity(WebSecuritiesResourceTestUtils.getBondFutureSecurity());
-  }
-  
-  private void assertFinancialSecurity(FinancialSecurity finSecurity) throws Exception {
-    assertNotNull(finSecurity);
-    UniqueId uniqueId = getUniqueId(finSecurity);
-    assertNotNull(uniqueId);
-    
-    WebSecurityResource securityResource = _webSecuritiesResource.findSecurity(uniqueId.toString());
-    assertNotNull(securityResource);
-    String json = securityResource.getJSON();
-    assertNotNull(json);
-    JSONObject actualJson = new JSONObject(json); 
-    
-    JSONObject expectedJson = finSecurity.accept(new ExpectedSecurityJsonProvider());
-    assertNotNull(expectedJson);
-    assertEquals(expectedJson.toString(), actualJson.toString());
-  }
-
-  private UniqueId getUniqueId(FinancialSecurity finSecurity) {
-    return _sec2UniqueId.get(finSecurity);
   }
 
   @Test

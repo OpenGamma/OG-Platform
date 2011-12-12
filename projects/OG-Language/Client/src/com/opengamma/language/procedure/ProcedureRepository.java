@@ -13,8 +13,4 @@ import com.opengamma.language.definition.DefinitionRepository;
  */
 public class ProcedureRepository extends DefinitionRepository<MetaProcedure> {
 
-  public ProcedureRepository(final DefinitionRepository<?> underlying) {
-    super(underlying);
-  }
-
 }

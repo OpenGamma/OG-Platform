@@ -10,7 +10,6 @@ import org.fudgemsg.FudgeMsg;
 import com.opengamma.financial.user.rest.RemoteClient;
 import com.opengamma.language.connector.MessageSender;
 import com.opengamma.language.connector.StashMessage;
-import com.opengamma.language.definition.DefinitionRepository;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.function.FunctionRepository;
 import com.opengamma.language.livedata.AggregatingLiveDataProvider;
@@ -52,9 +51,9 @@ public abstract class SessionContext extends AbstractContext<UserContext> {
    */
   protected static final String VIEW_CLIENTS = "viewClients";
 
-  private final FunctionRepository _functionRepository;
-  private final LiveDataRepository _liveDataRepository;
-  private final ProcedureRepository _procedureRepository;
+  private final FunctionRepository _functionRepository = new FunctionRepository();
+  private final LiveDataRepository _liveDataRepository = new LiveDataRepository();
+  private final ProcedureRepository _procedureRepository = new ProcedureRepository();
 
   /* package */SessionContext(final UserContext userContext) {
     super(userContext);
@@ -62,11 +61,6 @@ public abstract class SessionContext extends AbstractContext<UserContext> {
     setValue(FUNCTION_PROVIDER, AggregatingFunctionProvider.nonCachingInstance());
     setValue(LIVEDATA_PROVIDER, AggregatingLiveDataProvider.nonCachingInstance());
     setValue(PROCEDURE_PROVIDER, AggregatingProcedureProvider.nonCachingInstance());
-    // Repositories
-    final DefinitionRepository<?> repo = new DefinitionRepository<Object>();
-    _functionRepository = new FunctionRepository(repo);
-    _liveDataRepository = new LiveDataRepository(repo);
-    _procedureRepository = new ProcedureRepository(repo);
   }
 
   public GlobalContext getGlobalContext() {

@@ -26,7 +26,7 @@ $.register_module({
             $attr.css({position: 'relative', 'z-index': '5'});
             $attr.hover(function () {if (!editing) $(this).css(css_edit);}, function () {$(this).css(css_not_edit);});
             $attr.click(function (e) {
-                var $this = $(this), $editable_element = $(e.target), cur_content = $this.html(),
+                var $this = $(this), $editable_element = $(e.target), cur_content = $this.text(),
                     width = $this.css('width'), font_size = $this.css('font-size'),
                     line_height = $this.css('line-height'),
                     cancel_update = function (error_message) {
@@ -74,7 +74,7 @@ $.register_module({
                             'position': 'relative',
                             'top': '5px',
                             'left': '3px'
-                        }).attr('value', cur_content).select();
+                        }).val(cur_content).select();
                     $($editable_element).find('.og-js-buttons').css({
                         'top': '0',
                         'left': '0',
