@@ -5,17 +5,30 @@
  */
 package com.opengamma.web.position;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.util.Formatter;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import javax.ws.rs.Path;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
+
+import org.testng.annotations.Test;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * MockUriBuilder intended for testing in memory web resources
  */
-/*package*/class MockUriBuilder extends UriBuilder {
+/*package*/ class MockUriBuilder extends UriBuilder {
+  
+  private static final Pattern s_pathPattern = Pattern.compile("\\{\\w+\\}");
+  
+  private String _pathFormat = "";
 
   @Override
   public UriBuilder clone() {
@@ -62,8 +75,33 @@ import javax.ws.rs.core.UriBuilderException;
     return this;
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked" })
   @Override
   public UriBuilder path(Class resource) throws IllegalArgumentException {
+    ArgumentChecker.notNull(resource, "class resource");
+    Annotation annotation = resource.getAnnotation(Path.class);
+    if (annotation == null) {
+      throw new IllegalArgumentException();
+    }
+    String path = ((Path) annotation).value();
+    
+    Matcher matcher = s_pathPattern.matcher(path);
+    int start = 0;
+    int end = 0;
+    StringBuilder buf = new StringBuilder();
+    int count = 0;
+    while (matcher.find()) {
+      end = matcher.start();
+      buf.append(path.substring(start, end)).append("%" + ++count + "$s");
+      start = matcher.end();
+    }
+    buf.append(path.substring(start, path.length()));
+    
+    if (path.startsWith("/")) {
+      _pathFormat += buf.toString();
+    } else {
+      _pathFormat += "/" + buf.toString();
+    }
     return this;
   }
 
@@ -129,12 +167,18 @@ import javax.ws.rs.core.UriBuilderException;
 
   @Override
   public URI build(Object... values) throws IllegalArgumentException, UriBuilderException {
-    return null;
+    String url = null;
+    try {
+      url = new Formatter().format(_pathFormat, values).toString();
+    } catch (Exception ex) {
+      throw new UriBuilderException("Problem building url from format[" + _pathFormat + "] and values[" + values + "]", ex);
+    }
+    return URI.create(url);
   }
 
   @Override
   public URI buildFromEncoded(Object... values) throws IllegalArgumentException, UriBuilderException {
     return null;
   }
-
+  
 }
