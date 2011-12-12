@@ -13,8 +13,4 @@ import com.opengamma.language.definition.DefinitionRepository;
  */
 public class FunctionRepository extends DefinitionRepository<MetaFunction> {
 
-  public FunctionRepository(final DefinitionRepository<?> underlying) {
-    super(underlying);
-  }
-
 }

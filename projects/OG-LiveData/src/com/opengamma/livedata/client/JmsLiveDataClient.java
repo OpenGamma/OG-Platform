@@ -21,6 +21,7 @@ import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
+import org.springframework.jms.support.JmsUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
@@ -188,6 +189,9 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
         session.close();
       }
       _sessions.clear();
+      for (MessageConsumer consumer : _messageConsumersBySpec.values()) {
+        JmsUtils.closeMessageConsumer(consumer); // [PLAT-1809]  Must close these as well
+      }
       _messageConsumersBySpec.clear();
       if (_connection != null) {
         _connection.close();
