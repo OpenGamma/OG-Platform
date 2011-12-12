@@ -119,28 +119,21 @@ import java.util.Map;
   }
 
   /* package */ void pause() {
-    synchronized (_lock) {
-      _viewClient.pause();
-    }
+    _viewClient.pause();
   }
 
   /* package */ void resume() {
-    synchronized (_lock) {
-      _viewClient.resume();
-    }
+    _viewClient.resume();
   }
 
   /* package */ void shutdown() {
     // Removes all listeners
-    synchronized (_lock) {
-      _viewClient.shutdown();
-    }
+    _viewClient.shutdown();
   }
-  
+
+  // TODO might be needed for getting grid as CSV
   public UniqueId getViewDefinitionId() {
-    synchronized (_lock) {
-      return _viewDefinitionId;
-    }
+    return _viewDefinitionId;
   }
 
   /* package */ boolean matches(UniqueId baseViewDefinitionId, ViewportDefinition viewportDefinition) {
@@ -286,11 +279,11 @@ import java.util.Map;
     throw new UnsupportedOperationException("setConversionMode not implemented");
   }
 
-  public UniqueId getBaseViewDefinitionId() {
+  /* package */ UniqueId getBaseViewDefinitionId() {
     return _baseViewDefinitionId;
   }
 
-  public String getAggregatorName() {
+  /* package */ String getAggregatorName() {
     return _viewportDefinition.getAggregatorName();
   }
 }

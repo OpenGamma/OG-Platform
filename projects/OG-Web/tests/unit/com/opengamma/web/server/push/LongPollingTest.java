@@ -31,7 +31,7 @@ public class LongPollingTest {
   private static final String RESULT3 = "RESULT3";
 
   private Server _server;
-  private TestRestUpdateManager _updateManager;
+  private TestConnectionManager _updateManager;
   private LongPollingConnectionManager _longPollingConnectionManager;
 
   @BeforeClass
@@ -40,7 +40,8 @@ public class LongPollingTest {
         WebPushTestUtils.createJettyServer("classpath:/com/opengamma/web/long-poll-test.xml");
     _server = serverAndContext.getFirst();
     WebApplicationContext context = serverAndContext.getSecond();
-    _updateManager = context.getBean(TestRestUpdateManager.class);
+    _updateManager = context.getBean(TestConnectionManager.class);
+    //_updateManager.setListener();
     _longPollingConnectionManager = context.getBean(LongPollingConnectionManager.class);
   }
 

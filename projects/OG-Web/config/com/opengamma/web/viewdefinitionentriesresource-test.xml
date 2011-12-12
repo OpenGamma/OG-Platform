@@ -16,6 +16,6 @@
     </constructor-arg>
   </bean>
 
-  <bean id="updateManager" class="com.opengamma.web.server.push.TestRestUpdateManager"/>
+  <bean id="updateManager" class="com.opengamma.web.server.push.TestConnectionManager"/>
 
 </beans>

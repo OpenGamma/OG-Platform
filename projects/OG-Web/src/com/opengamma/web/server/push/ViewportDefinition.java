@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server.push;
 
+import com.google.common.base.Objects;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.execution.ExecutionFlags;
@@ -263,5 +264,12 @@ public class ViewportDefinition {
 
   public String getAggregatorName() {
     return _aggregatorName;
+  }
+
+  /* package */ boolean matches(ViewportDefinition other) {
+    return
+        Objects.equal(_viewDefinitionName, other._viewDefinitionName) &&
+        Objects.equal(_executionOptions, other._executionOptions) &&
+        Objects.equal(_aggregatorName, other._aggregatorName);
   }
 }

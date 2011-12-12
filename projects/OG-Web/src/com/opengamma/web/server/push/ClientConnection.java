@@ -8,10 +8,12 @@ package com.opengamma.web.server.push;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.rest.MasterType;
 
 import java.util.Collection;
@@ -27,27 +29,28 @@ import java.util.Set;
 
   private final String _userId;
   private final String _clientId;
+  private final ConnectionTimeoutTask _timeoutTask;
   private final RestUpdateListener _listener;
   private final ViewportFactory _viewportFactory;
   private final Object _lock = new Object();
-
-  /** REST URLs for entities keyed on the entity's {@link ObjectId} */
-  //private final Map<ObjectId, String> _entityUrls = new ConcurrentHashMap<ObjectId, String>();
 
   private final Multimap<MasterType, String> _masterUrls = HashMultimap.create();
   private final Multimap<ObjectId, String> _entityUrls = HashMultimap.create();
   private final Map<String, UrlMapping> _urlMappings = new HashMap<String, UrlMapping>();
 
-  /* package */ ClientConnection(String userId, String clientId, RestUpdateListener listener, ViewportFactory viewportFactory) {
+  private String _viewportId;
+
+  /* package */ ClientConnection(String userId,
+                                 String clientId,
+                                 RestUpdateListener listener,
+                                 ViewportFactory viewportFactory,
+                                 ConnectionTimeoutTask timeoutTask) {
     // TODO check args
     _viewportFactory = viewportFactory;
     _userId = userId;
     _listener = listener;
     _clientId = clientId;
-  }
-
-  /* package */ String getClientId() {
-    return _clientId;
+    _timeoutTask = timeoutTask;
   }
 
   /* package */ String getUserId() {
@@ -57,23 +60,43 @@ import java.util.Set;
   /**
    * Creates a new subscription for a view client, replacing any existing subscription for that view client.
    * @param viewportDefinition
+   * @param viewportId
+   * @param dataUrl
+   * @param gridUrl
    */
   /* package */ void createViewport(ViewportDefinition viewportDefinition, String viewportId, String dataUrl, String gridUrl) {
-    AnalyticsListener listener = new AnalyticsListener(dataUrl, gridUrl, _listener);
-    _viewportFactory.createViewport(_clientId, viewportId, viewportDefinition, listener);
+    ArgumentChecker.notNull(viewportDefinition, "viewportDefinition");
+    ArgumentChecker.notNull(viewportId, "viewportId");
+    ArgumentChecker.notNull(dataUrl, "dataUrl");
+    ArgumentChecker.notNull(gridUrl, "gridUrl");
+    synchronized (_lock) {
+      _timeoutTask.reset();
+      _viewportId = viewportId;
+      AnalyticsListener listener = new AnalyticsListener(dataUrl, gridUrl, _listener);
+      _viewportFactory.createViewport(_clientId, viewportId, viewportDefinition, listener);
+    }
   }
 
   /* package */ Viewport getViewport(String viewportId) {
-    return _viewportFactory.getViewport(viewportId);
+    synchronized (_lock) {
+      _timeoutTask.reset();
+      if (!_viewportId.equals(viewportId)) {
+        throw new DataNotFoundException("Viewport ID " + viewportId + " not assiociated with client ID " + _clientId);
+      }
+      return _viewportFactory.getViewport(_viewportId);
+    }
   }
 
   /* package */ void disconnect() {
-    // TODO do the maps need to be cleared here?
-    _viewportFactory.clientDisconnected(_clientId);
+    synchronized (_lock) {
+      _timeoutTask.reset();
+      _viewportFactory.clientDisconnected(_clientId);
+    }
   }
 
   /* package */ void subscribe(UniqueId uid, String url) {
     synchronized (_lock) {
+      _timeoutTask.reset();
       ObjectId objectId = uid.getObjectId();
       _entityUrls.put(objectId, url);
       _urlMappings.put(url, UrlMapping.create(_urlMappings.get(url), objectId));
@@ -93,6 +116,7 @@ import java.util.Set;
 
   /* package */ void subscribe(MasterType masterType, String url) {
     synchronized (_lock) {
+      _timeoutTask.reset();
       _masterUrls.put(masterType, url);
       _urlMappings.put(url, UrlMapping.create(_urlMappings.get(url), masterType));
     }

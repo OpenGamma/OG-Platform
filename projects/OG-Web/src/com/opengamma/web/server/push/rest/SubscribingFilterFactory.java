@@ -6,7 +6,7 @@
 package com.opengamma.web.server.push.rest;
 
 import com.opengamma.id.UniqueId;
-import com.opengamma.web.server.push.RestUpdateManager;
+import com.opengamma.web.server.push.ConnectionManager;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.model.AbstractMethod;
 import com.sun.jersey.spi.container.ResourceFilter;
@@ -61,9 +61,9 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
     return filters;
   }
 
-  private RestUpdateManager getUpdateManager() {
+  private ConnectionManager getUpdateManager() {
     ApplicationContext context = WebApplicationContextUtils.getRequiredWebApplicationContext(_servletContext);
-    return context.getBean(RestUpdateManager.class);
+    return context.getBean(ConnectionManager.class);
   }
 
   private ResourceFilter createEntitySubscriptionFilter(AbstractMethod abstractMethod) {

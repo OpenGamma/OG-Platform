@@ -6,8 +6,7 @@
 package com.opengamma.web.server.push.rest;
 
 import com.opengamma.web.server.push.LongPollingServlet;
-import com.opengamma.web.server.push.RestUpdateManager;
-import com.opengamma.web.server.push.rest.MasterType;
+import com.opengamma.web.server.push.ConnectionManager;
 import com.sun.jersey.api.core.ExtendedUriInfo;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.spi.container.ContainerRequest;
@@ -28,10 +27,10 @@ public class MasterSubscriptionFilter implements ResourceFilter {
 
   private final HttpContext _httpContext;
   private final List<MasterType> _masterTypes;
-  private final RestUpdateManager _updateManager;
+  private final ConnectionManager _updateManager;
   private final HttpServletRequest _servletRequest;
 
-  public MasterSubscriptionFilter(RestUpdateManager updateManager,
+  public MasterSubscriptionFilter(ConnectionManager updateManager,
                                   List<MasterType> masterTypes,
                                   HttpContext httpContext,
                                   HttpServletRequest servletRequest) {

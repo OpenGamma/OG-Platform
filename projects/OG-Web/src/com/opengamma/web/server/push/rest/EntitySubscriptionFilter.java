@@ -8,7 +8,7 @@ package com.opengamma.web.server.push.rest;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.push.LongPollingServlet;
-import com.opengamma.web.server.push.RestUpdateManager;
+import com.opengamma.web.server.push.ConnectionManager;
 import com.sun.jersey.api.core.ExtendedUriInfo;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.spi.container.ContainerRequest;
@@ -33,12 +33,12 @@ public class EntitySubscriptionFilter implements ResourceFilter {
 
   private final HttpContext _httpContext;
   private final List<String> _uidParamNames;
-  private final RestUpdateManager _restUpdateManager;
+  private final ConnectionManager _restUpdateManager;
   private final HttpServletRequest _servletRequest;
 
   /* package */
   public EntitySubscriptionFilter(List<String> uidParamNames,
-                                  RestUpdateManager restUpdateManager,
+                                  ConnectionManager restUpdateManager,
                                   HttpContext httpContext,
                                   HttpServletRequest servletRequest) {
     _httpContext = httpContext;

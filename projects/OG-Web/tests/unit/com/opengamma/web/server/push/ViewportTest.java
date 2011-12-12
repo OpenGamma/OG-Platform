@@ -128,7 +128,7 @@ public class ViewportTest {
     if (StringUtils.isEmpty(viewportUrl2)) {
       Assert.fail("no URL returned for 2nd viewport");
     }
-    latestResult = WebPushTestUtils.readFromPath(viewportUrl1 + "/data");
+    latestResult = WebPushTestUtils.readFromPath(viewportUrl2 + "/data");
     jsonResults = new JSONObject(latestResult);
     assertEquals(2, jsonResults.length());
 

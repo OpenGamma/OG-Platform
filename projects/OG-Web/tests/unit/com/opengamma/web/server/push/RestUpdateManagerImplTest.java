@@ -15,18 +15,19 @@ public class RestUpdateManagerImplTest {
   @Test(expectedExceptions = DataNotFoundException.class)
   public void timeout() throws InterruptedException {
     // update manager with non-default short timeouts
-    RestUpdateManagerImpl updateManager = new RestUpdateManagerImpl(mock(ChangeManager.class),
-                                                                    mock(MasterChangeManager.class),
-                                                                    mock(ViewportFactory.class),
-                                                                    1000,
-                                                                    500);
+    ConnectionManagerImpl connectionManager = new ConnectionManagerImpl(mock(ChangeManager.class),
+                                                                mock(MasterChangeManager.class),
+                                                                mock(ViewportFactory.class),
+                                                                mock(LongPollingConnectionManager.class),
+                                                                1000,
+                                                                500);
     // connection that will be allowed to time out
-    String clientId = updateManager.newConnection("userId", mock(RestUpdateListener.class), mock(TimeoutListener.class));
+    String clientId = connectionManager.openConnection("userId");
     // should complete normally
-    updateManager.subscribe("userId", clientId, UniqueId.of("Tst", "123"), "url");
+    connectionManager.subscribe("userId", clientId, UniqueId.of("Tst", "123"), "url");
     // wait until timeout
     Thread.sleep(2000);
     // connection should have timed out, exception will be thrown because clientId is unknown
-    updateManager.subscribe("userId", clientId, UniqueId.of("Tst", "1234"), "url");
+    connectionManager.subscribe("userId", clientId, UniqueId.of("Tst", "1234"), "url");
   }
 }

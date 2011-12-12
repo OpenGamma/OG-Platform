@@ -27,12 +27,12 @@ import java.io.IOException;
 public class HandshakeServlet extends SpringConfiguredServlet {
 
   @Autowired
-  private LongPollingConnectionManager _connectionManager;
+  private ConnectionManager _connectionManager;
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String userId = req.getRemoteUser(); // TODO is this right?
-    String clientId = _connectionManager.handshake(userId);
+    String clientId = _connectionManager.openConnection(userId);
     resp.setContentType(MediaType.APPLICATION_JSON);
     JSONObject json = new JSONObject();
     try {

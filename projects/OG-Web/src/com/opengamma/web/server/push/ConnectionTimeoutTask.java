@@ -1,0 +1,52 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.web.server.push;
+
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicLong;
+
+/* TODO there is a potential problem with the timeout mechanism
+a client's timeout timer is reset whenever the server hears from the client.  this includes requests for data.
+so if the view is producing regular udpates and the client is fetching the new data then the client will never time out.
+however if a user is looking at a view that doesn't update very often it's possible that the connection.
+would time out even though the client was still interested in the view.
+this would also be true for clients that don't listen for updates and just make occassional requests to get data.
+a fix for this would be to add a heartbeat() method to allow the timer to be reset.
+in the case of the long-polling connection this could be done whenever the HTTP connection is re-established even
+if no data is requested.
+for any persistent connections that might be implemented in future (e.g. web sockets) the connector would have to
+run a timer task to invoke heartbeat().
+there is no simple answer for clients that make requests but don't listen for updates as the server has no way
+of knowing the client is still there.
+*/
+/* package */ class ConnectionTimeoutTask extends TimerTask {
+
+  private final AtomicLong _lastAccessTime = new AtomicLong();
+  private final String _userId;
+  private final String _clientId;
+  private final long _timeout;
+  private ConnectionManagerImpl _connectionManager;
+
+  ConnectionTimeoutTask(ConnectionManagerImpl connectionManager, String userId, String clientId, long timeout) {
+    _connectionManager = connectionManager;
+    _userId = userId;
+    _clientId = clientId;
+    _timeout = timeout;
+    reset();
+  }
+
+  /* package */ void reset() {
+    _lastAccessTime.set(System.currentTimeMillis());
+  }
+
+  @Override
+  public void run() {
+    if (System.currentTimeMillis() - _lastAccessTime.get() > _timeout) {
+      cancel();
+      _connectionManager.closeConnection(_userId, _clientId);
+    }
+  }
+}

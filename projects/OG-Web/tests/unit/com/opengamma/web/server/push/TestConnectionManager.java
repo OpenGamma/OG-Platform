@@ -11,15 +11,23 @@ import com.opengamma.web.server.push.rest.MasterType;
 /**
  * Test subscription manager that can have a maximum of one connection.
  */
-public class TestRestUpdateManager implements RestUpdateManager {
+public class TestConnectionManager implements ConnectionManager {
 
   private volatile RestUpdateListener _listener;
 
+  private final LongPollingConnectionManager _longPollingConnectionManager;
+
+  public TestConnectionManager() {
+    this(null);
+  }
+
+  public TestConnectionManager(LongPollingConnectionManager longPollingConnectionManager) {
+    _longPollingConnectionManager = longPollingConnectionManager;
+  }
+
   @Override
-  public String newConnection(String userId,
-                              RestUpdateListener updateListener,
-                              TimeoutListener disconnectionListener) {
-    _listener = updateListener;
+  public String openConnection(String userId) {
+    _listener = _longPollingConnectionManager.handshake(userId, LongPollingTest.CLIENT_ID);
     return LongPollingTest.CLIENT_ID;
   }
 

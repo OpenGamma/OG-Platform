@@ -558,7 +558,7 @@
   </bean>
 
   <!-- new Web-interface -->
-  <bean id="liveResultsService" class="com.opengamma.web.server.push.PushLiveResultsService">
+  <bean id="liveResultsService" class="com.opengamma.web.server.push.grid.PushLiveResultsService">
     <constructor-arg ref="demoViewProcessor" />
     <constructor-arg ref="combinedPositionSource" />
     <constructor-arg ref="combinedSecuritySource" />
@@ -570,18 +570,17 @@
     <constructor-arg ref="portfolioAggregationFunctions" />
   </bean>
 
-  <bean id="longPollingConnectionManager" class="com.opengamma.web.server.push.LongPollingConnectionManager">
-    <constructor-arg ref="updateManager"/>
-  </bean>
+  <bean id="longPollingConnectionManager" class="com.opengamma.web.server.push.LongPollingConnectionManager"/>
 
-  <bean id="updateManager" class="com.opengamma.web.server.push.RestUpdateManagerImpl">
+  <bean id="connectionManager" class="com.opengamma.web.server.push.ConnectionManager">
     <constructor-arg index="0" ref="changeManager"/>
     <constructor-arg index="1" ref="masterChangeManager"/>
     <constructor-arg index="2" ref="liveResultsService"/>
+    <constructor-arg index="3" ref="longPollingConnectionManager"/>
   </bean>
 
   <bean id="webViewportsRestBean" class="com.opengamma.web.server.push.rest.ViewportsResource">
-    <constructor-arg ref="updateManager"/>
+    <constructor-arg ref="connectionManager"/>
   </bean>
 
   <bean id="changeManager" class="com.opengamma.core.change.AggregatingChangeManager">

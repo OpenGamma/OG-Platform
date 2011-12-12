@@ -9,6 +9,6 @@
 
   <bean id="snapshotMaster" class="com.opengamma.master.marketdatasnapshot.impl.InMemorySnapshotMaster"/>
 
-  <bean id="updateManager" class="com.opengamma.web.server.push.TestRestUpdateManager"/>
+  <bean id="updateManager" class="com.opengamma.web.server.push.TestConnectionManager"/>
 
 </beans>

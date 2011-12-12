@@ -7,7 +7,7 @@ package com.opengamma.web.server.push.rest;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.web.server.push.RestUpdateManager;
+import com.opengamma.web.server.push.ConnectionManager;
 import com.opengamma.web.server.push.Viewport;
 import com.opengamma.web.server.push.ViewportDefinition;
 import org.json.JSONException;
@@ -35,9 +35,9 @@ public class ViewportsResource {
   // TODO better way of generating viewport IDs
   // TODO this is 1-based to make sure the viewport and client IDs are different (for debugging)
   private final AtomicLong _nextId = new AtomicLong(1);
-  private final RestUpdateManager _restUpdateManager;
+  private final ConnectionManager _restUpdateManager;
 
-  public ViewportsResource(RestUpdateManager restUpdateManager) {
+  public ViewportsResource(ConnectionManager restUpdateManager) {
     _restUpdateManager = restUpdateManager;
   }
 

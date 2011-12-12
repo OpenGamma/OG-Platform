@@ -10,9 +10,9 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.push.rest.MasterType;
 
 /**
- *
+ * TODO refactor this to just return a ClientConnection and move the subscription and viewport methods to that?
  */
-public interface RestUpdateManager {
+public interface ConnectionManager {
 
   /**
    * Handshake method that returns the client ID needed to identify the connection when calling all other operations.
@@ -20,9 +20,11 @@ public interface RestUpdateManager {
    * @param updateListener
    * @return The client ID needed to identify the connection when calling all other operations
    */
-  String newConnection(String userId, RestUpdateListener updateListener, TimeoutListener disconnectionListener);
+  //String newConnection(String userId, RestUpdateListener updateListener, TimeoutListener disconnectionListener);
 
   void closeConnection(String userId, String clientId);
+
+  String openConnection(String userId);
 
   /**
    * Creates a subscription for changes to an entity that was requested via the REST interface.  If the entity
@@ -39,8 +41,7 @@ public interface RestUpdateManager {
 
   void subscribe(String userId, String clientId, MasterType masterType, String url);
 
-  // TODO UID or string for viewport ID?
-  Viewport getViewport(String userId, String clientId, String viewportUrl);
+  Viewport getViewport(String userId, String clientId, String viewportId);
 
   void createViewport(String userId,
                       String clientId,

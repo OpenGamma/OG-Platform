@@ -16,19 +16,13 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 /* package */ class LongPollingConnectionManager {
 
-  private final RestUpdateManager _restUpdateManager;
   /** Listener for dispatching notifications to the clients, keyed by client ID. */
-  private final Map<String, LongPollingUpdateListener> _connections = new ConcurrentHashMap<String, LongPollingUpdateListener>();
+  private final Map<String, LongPollingUpdateListener> _updateListeners = new ConcurrentHashMap<String, LongPollingUpdateListener>();
 
-  /* package */ LongPollingConnectionManager(RestUpdateManager restUpdateManager) {
-    _restUpdateManager = restUpdateManager;
-  }
-
-  String handshake(String userId) {
-    LongPollingUpdateListener connection = new LongPollingUpdateListener(userId);
-    String clientId = _restUpdateManager.newConnection(userId, connection, new DisconnectionListener());
-    _connections.put(clientId, connection);
-    return clientId;
+  /* package */ LongPollingUpdateListener handshake(String userId, String clientId) {
+    LongPollingUpdateListener listener = new LongPollingUpdateListener(userId);
+    _updateListeners.put(clientId, listener);
+    return listener;
   }
 
   /**
@@ -41,12 +35,12 @@ import java.util.concurrent.ConcurrentHashMap;
    */
   /* package */ boolean longPollHttpConnect(String userId, String clientId, Continuation continuation) {
     // TODO check args
-    LongPollingUpdateListener connection = _connections.get(clientId);
-    if (connection != null) {
-      if (!Objects.equal(userId, connection.getUserId())) {
+    LongPollingUpdateListener listener = _updateListeners.get(clientId);
+    if (listener != null) {
+      if (!Objects.equal(userId, listener.getUserId())) {
         throw new IllegalArgumentException("User ID " + userId + " doesn't correspond to client ID: " + clientId);
       }
-      connection.connect(continuation);
+      listener.connect(continuation);
       return true;
     } else {
       return false;
@@ -55,7 +49,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
   // for testing
   /* package */ boolean isClientConnected(String clientId) {
-    LongPollingUpdateListener listener = _connections.get(clientId);
+    LongPollingUpdateListener listener = _updateListeners.get(clientId);
     return listener != null && listener.isConnected();
   }
 
@@ -67,25 +61,17 @@ import java.util.concurrent.ConcurrentHashMap;
    * @param continuation The continuation associated with the timed out HTTP connection
    */
   /* package */ void longPollHttpTimeout(String clientId, Continuation continuation) {
-    LongPollingUpdateListener listener = _connections.get(clientId);
+    LongPollingUpdateListener listener = _updateListeners.get(clientId);
     if (listener != null) {
       listener.timeout(continuation);
     }
   }
 
-  /**
-   * Listens for notifications that a client connection has been idle too long and has timed out.  This is
-   * unrelated to an HTTP connection timing out which can happen repeatedly for a client connection.
-   */
-  private class DisconnectionListener implements TimeoutListener {
-
-    @Override
-    public void timeout(String clientId) {
-      LongPollingUpdateListener connection = _connections.remove(clientId);
-      if (connection != null) {
-        connection.disconnect();
-      }
+  public void timeout(String clientId) {
+    LongPollingUpdateListener listener = _updateListeners.remove(clientId);
+    if (listener != null) {
+      listener.disconnect();
     }
-  }
+}
 }
 

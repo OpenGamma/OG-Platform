@@ -3,11 +3,9 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <bean id="longPollingConnectionManager" class="com.opengamma.web.server.push.LongPollingConnectionManager">
-    <constructor-arg ref="updateManager"/>
-  </bean>
+  <bean id="longPollingConnectionManager" class="com.opengamma.web.server.push.LongPollingConnectionManager"/>
 
-  <bean id="updateManager" class="com.opengamma.web.server.push.RestUpdateManagerImpl">
+  <bean id="updateManager" class="com.opengamma.web.server.push.ConnectionManagerImpl">
     <constructor-arg index="0" ref="changeManager"/>
     <constructor-arg index="1">
       <bean class="com.opengamma.web.server.push.MasterChangeManagerImpl">
@@ -15,6 +13,7 @@
       </bean>
     </constructor-arg>
     <constructor-arg index="2" ref="viewportFactory"/>
+    <constructor-arg index="3" ref="longPollingConnectionManager"/>
   </bean>
 
   <bean id="viewportFactory" class="com.opengamma.web.server.push.TestViewportFactory"/>

@@ -9,6 +9,6 @@
 
   <bean id="viewDefinitionManager" class="com.opengamma.web.server.push.AggregatorNamesResourceTest$AggregatedViewDefinitionManagerFactoryBean"/>
 
-  <bean id="updateManager" class="com.opengamma.web.server.push.TestRestUpdateManager"/>
+  <bean id="updateManager" class="com.opengamma.web.server.push.TestConnectionManager"/>
 
 </beans>
