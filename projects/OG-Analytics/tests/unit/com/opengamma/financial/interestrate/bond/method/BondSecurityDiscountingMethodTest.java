@@ -23,8 +23,8 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
@@ -142,6 +142,19 @@ public class BondSecurityDiscountingMethodTest {
 
   @Test
   /**
+   * Tests the present value z-spread sensitivity.
+   */
+  public void presentValueZSpreadSensitivity() {
+    double zSpread = 0.0050; // 50bps
+    double shift = 0.00001;
+    double pvzs = METHOD.presentValueZSpreadSensitivity(BOND_FIXED_SECURITY_1, CURVES, zSpread);
+    final double pvZUp = METHOD.presentValueFromZSpread(BOND_FIXED_SECURITY_1, CURVES, zSpread + shift);
+    final double pvZDown = METHOD.presentValueFromZSpread(BOND_FIXED_SECURITY_1, CURVES, zSpread - shift);
+    assertEquals("Fixed coupon bond security: present value z-spread sensitivity", (pvZUp - pvZDown) / (2 * shift), pvzs, 1E-6);
+  }
+
+  @Test
+  /**
    * Tests the bond security present value from clean price.
    */
   public void presentValueFromCleanPrice() {
@@ -171,6 +184,18 @@ public class BondSecurityDiscountingMethodTest {
 
   @Test
   /**
+   * Tests the z-spread sensitivity computation from the present value.
+   */
+  public void zSpreadSensitivityFromPresentValue() {
+    double zSpread = 0.0025; // 25bps
+    double pvZSpread = METHOD.presentValueFromZSpread(BOND_FIXED_SECURITY_1, CURVES, zSpread);
+    double zsComputed = METHOD.zSpreadSensitivityFromCurvesAndPV(BOND_FIXED_SECURITY_1, CURVES, pvZSpread);
+    double zsExpected = METHOD.presentValueZSpreadSensitivity(BOND_FIXED_SECURITY_1, CURVES, zSpread);
+    assertEquals("Fixed coupon bond security: z-spread sensitivity", zsExpected, zsComputed, 1E-6);
+  }
+
+  @Test
+  /**
    * Tests the z-spread computation from the clean price.
    */
   public void zSpreadFromCleanPrice() {
@@ -182,6 +207,22 @@ public class BondSecurityDiscountingMethodTest {
     double cleanZSpread = METHOD.cleanPriceFromCurves(BOND_FIXED_SECURITY_1, shiftedBundle);
     double zSpread = METHOD.zSpreadFromCurvesAndClean(BOND_FIXED_SECURITY_1, CURVES, cleanZSpread);
     assertEquals("Fixed coupon bond security: present value from z-spread", zSpreadExpected, zSpread, 1E-8);
+  }
+
+  @Test
+  /**
+   * Tests the z-spread sensitivity computation from the present value.
+   */
+  public void zSpreadSensitivityFromCleanPrice() {
+    double zSpread = 0.0025; // 25bps
+    YieldCurveBundle shiftedBundle = new YieldCurveBundle();
+    shiftedBundle.addAll(CURVES);
+    YieldAndDiscountCurve shiftedCredit = CURVES.getCurve(CREDIT_CURVE_NAME).withParallelShift(zSpread);
+    shiftedBundle.replaceCurve(CREDIT_CURVE_NAME, shiftedCredit);
+    double cleanZSpread = METHOD.cleanPriceFromCurves(BOND_FIXED_SECURITY_1, shiftedBundle);
+    double zsComputed = METHOD.zSpreadSensitivityFromCurvesAndClean(BOND_FIXED_SECURITY_1, CURVES, cleanZSpread);
+    double zsExpected = METHOD.presentValueZSpreadSensitivity(BOND_FIXED_SECURITY_1, CURVES, zSpread);
+    assertEquals("Fixed coupon bond security: z-spread sensitivity", zsExpected, zsComputed, 1E-6);
   }
 
   @Test
