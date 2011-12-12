@@ -160,7 +160,8 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.N
       return null;
     }
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-    results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition(), createValueProperties().withAny(ValuePropertyNames.CURRENCY).get()), getUniqueId()));
+    results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition(), 
+        createValueProperties().withAny(ValuePropertyNames.CURRENCY).get()), getUniqueId()));
     return results;
   }
 

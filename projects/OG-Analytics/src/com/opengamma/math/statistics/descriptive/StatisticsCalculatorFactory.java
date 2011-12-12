@@ -42,6 +42,8 @@ public final class StatisticsCalculatorFactory {
   public static final String SAMPLE_VARIANCE = "SampleVariance";
   /** Geometric mean */
   public static final String GEOMETRIC_MEAN = "GeometricMean";
+  /** Sample covariance */
+  public static final String SAMPLE_COVARIANCE = "SampleCovarianceCalculator";
   /** Mean calculator */
   public static final MeanCalculator MEAN_CALCULATOR = new MeanCalculator();
   /** Median calculator */
@@ -70,6 +72,8 @@ public final class StatisticsCalculatorFactory {
   public static final SampleVarianceCalculator SAMPLE_VARIANCE_CALCULATOR = new SampleVarianceCalculator();
   /** Geometric mean calculator */
   public static final GeometricMeanCalculator GEOMETRIC_MEAN_CALCULATOR = new GeometricMeanCalculator();
+  /** Sample covariance calculator */
+  public static final SampleCovarianceCalculator SAMPLE_COVARIANCE_CALCULATOR = new SampleCovarianceCalculator();
 
   private static final Map<String, Function<double[], Double>> s_staticInstances = new HashMap<String, Function<double[], Double>>();
   private static final Map<Class<?>, String> s_instanceNames = new HashMap<Class<?>, String>();
@@ -89,6 +93,7 @@ public final class StatisticsCalculatorFactory {
     s_staticInstances.put(SAMPLE_STANDARD_DEVIATION, SAMPLE_STANDARD_DEVIATION_CALCULATOR);
     s_staticInstances.put(SAMPLE_VARIANCE, SAMPLE_VARIANCE_CALCULATOR);
     s_staticInstances.put(GEOMETRIC_MEAN, GEOMETRIC_MEAN_CALCULATOR);
+    s_staticInstances.put(SAMPLE_COVARIANCE, SAMPLE_COVARIANCE_CALCULATOR);
     s_instanceNames.put(MEAN_CALCULATOR.getClass(), MEAN);
     s_instanceNames.put(MEDIAN_CALCULATOR.getClass(), MEDIAN);
     s_instanceNames.put(MODE_CALCULATOR.getClass(), MODE);
@@ -103,6 +108,7 @@ public final class StatisticsCalculatorFactory {
     s_instanceNames.put(SAMPLE_STANDARD_DEVIATION_CALCULATOR.getClass(), SAMPLE_STANDARD_DEVIATION);
     s_instanceNames.put(SAMPLE_VARIANCE_CALCULATOR.getClass(), SAMPLE_VARIANCE);
     s_instanceNames.put(GEOMETRIC_MEAN_CALCULATOR.getClass(), GEOMETRIC_MEAN);
+    s_instanceNames.put(SAMPLE_COVARIANCE_CALCULATOR.getClass(), SAMPLE_COVARIANCE);
   }
 
   private StatisticsCalculatorFactory() {

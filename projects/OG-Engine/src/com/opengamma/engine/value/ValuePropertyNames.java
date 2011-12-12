@@ -136,4 +136,28 @@ public final class ValuePropertyNames {
    */
   public static final String OUTPUT_RESERVED_PREFIX = ".";
 
+  public static final String SAMPLING_PERIOD = "SamplingPeriod";
+  
+  public static final String RETURN_CALCULATOR = "ReturnMethod";
+  
+  public static final String SCHEDULE_CALCULATOR = "ScheduleMethod";
+  
+  public static final String SAMPLING_FUNCTION = "SamplingMethod";
+  
+  public static final String MEAN_CALCULATOR = "MeanMethod";
+  
+  public static final String STD_DEV_CALCULATOR = "StandardDeviationMethod";
+  
+  public static final String CONFIDENCE_LEVEL = "Percentile";
+  
+  public static final String HORIZON = "Horizon";
+  
+  public static final String COVARIANCE_CALCULATOR = "CovarianceMethod";
+  
+  public static final String VARIANCE_CALCULATOR = "VarianceMethod";
+  
+  public static final String ORDER = "Order";
+  
+  public static final String EXCESS_RETURN_CALCULATOR = "ExcessReturnMethod";
+  
 }

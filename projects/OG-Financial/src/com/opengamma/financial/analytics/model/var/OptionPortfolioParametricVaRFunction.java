@@ -5,9 +5,11 @@
  */
 package com.opengamma.financial.analytics.model.var;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,6 +20,7 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
@@ -60,7 +63,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  * 
  */
-public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunction.NonCompiledInvoker {
+public class OptionPortfolioParametricVaRFunction extends AbstractFunction.NonCompiledInvoker {
   private final String _resolutionKey;
   private final LocalDate _startDate;
   private final Set<ValueGreek> _valueGreeks;
@@ -76,14 +79,14 @@ public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunct
   private final DeltaMeanCalculator _meanCalculator = new DeltaMeanCalculator(_algebra);
   private final DeltaCovarianceMatrixStandardDeviationCalculator _stdCalculator = new DeltaCovarianceMatrixStandardDeviationCalculator(_algebra);
 
-  public OptionPositionParametricVaRCalculatorFunction(final String resolutionKey, final String startDate, final String returnCalculatorName,
+  public OptionPortfolioParametricVaRFunction(final String dataSourceName, final String startDate, final String returnCalculatorName,
       final String scheduleName, final String samplingFunctionName, final String confidenceLevel, final String maxOrder,
       final String valueGreekRequirementNames) {
-    this(resolutionKey, startDate, returnCalculatorName, scheduleName, samplingFunctionName, confidenceLevel, maxOrder,
+    this(dataSourceName, startDate, returnCalculatorName, scheduleName, samplingFunctionName, confidenceLevel, maxOrder,
         new String[] {valueGreekRequirementNames});
   }
 
-  public OptionPositionParametricVaRCalculatorFunction(final String resolutionKey, final String startDate, final String returnCalculatorName,
+  public OptionPortfolioParametricVaRFunction(final String resolutionKey, final String startDate, final String returnCalculatorName,
       final String scheduleName, final String samplingFunctionName, final String confidenceLevel, final String maxOrder,
       final String... valueGreekRequirementNames) {
     Validate.notNull(resolutionKey, "resolution key");
@@ -107,33 +110,36 @@ public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunct
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final Position position = target.getPosition();
+    final PortfolioNode portfolio = target.getPortfolioNode();
     final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final SecuritySource securitySource = executionContext.getSecuritySource();
-    final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, position), getUniqueId());
-    final SensitivityAndReturnDataBundle[] dataBundleArray = new SensitivityAndReturnDataBundle[_valueGreekRequirementNames.size()];
+    final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, portfolio), getUniqueId());
+    final List<Position> positions = getAllPositions(new ArrayList<Position>(), portfolio);
+    final SensitivityAndReturnDataBundle[] dataBundleArray = new SensitivityAndReturnDataBundle[positions.size() * _valueGreekRequirementNames.size()];
     int i = 0;
-    for (final String valueGreekRequirementName : _valueGreekRequirementNames) {
-      final Object valueObj = inputs.getValue(valueGreekRequirementName);
-      if (valueObj instanceof Double) {
-        final Double value = (Double) valueObj;
-        final ValueGreek valueGreek = AvailableValueGreeks.getValueGreekForValueRequirementName(valueGreekRequirementName);
-        final Sensitivity<?> sensitivity = new ValueGreekSensitivity(valueGreek, position.getUniqueId().toString());
-        if (sensitivity.getUnderlying().getOrder() <= _maxOrder) {
-          final Map<UnderlyingType, DoubleTimeSeries<?>> tsReturns = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
-          for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
-            final DoubleTimeSeries<?> timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalSource, _resolutionKey, securitySource, underlyingType,
-                position.getSecurity());
-            final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true, false);
-            final DoubleTimeSeries<?> sampledTS = _samplingCalculator.getSampledTimeSeries(timeSeries, schedule);
-            tsReturns.put(underlyingType, _returnCalculator.evaluate(sampledTS));
+    for (final Position position : positions) {
+      for (final String valueGreekRequirementName : _valueGreekRequirementNames) {
+        final Object valueObj = inputs.getValue(valueGreekRequirementName);
+        if (valueObj instanceof Double) {
+          final Double value = (Double) valueObj;
+          final ValueGreek valueGreek = AvailableValueGreeks.getValueGreekForValueRequirementName(valueGreekRequirementName);
+          final Sensitivity<?> sensitivity = new ValueGreekSensitivity(valueGreek, position.getUniqueId().toString());
+          if (sensitivity.getUnderlying().getOrder() <= _maxOrder) {
+            final Map<UnderlyingType, DoubleTimeSeries<?>> tsReturns = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+            for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
+              final DoubleTimeSeries<?> timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalSource, _resolutionKey, securitySource, underlyingType,
+                  position.getSecurity());
+              final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true, false);
+              final DoubleTimeSeries<?> sampledTS = _samplingCalculator.getSampledTimeSeries(timeSeries, schedule);
+              tsReturns.put(underlyingType, _returnCalculator.evaluate(sampledTS));
+            }
+            dataBundleArray[i++] = new SensitivityAndReturnDataBundle(sensitivity, value, tsReturns);
           }
-          dataBundleArray[i++] = new SensitivityAndReturnDataBundle(sensitivity, value, tsReturns);
+        } else {
+          throw new IllegalArgumentException("Got a value for greek " + valueObj + " that wasn't a Double");
         }
-      } else {
-        throw new IllegalArgumentException("Got a value for greek " + valueObj + " that wasn't a Double");
       }
     }
     final Map<Integer, ParametricVaRDataBundle> data = _covarianceMatrixCalculator.evaluate(dataBundleArray);
@@ -145,12 +151,33 @@ public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunct
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.POSITION;
+    return ComputationTargetType.PORTFOLIO_NODE;
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.POSITION && target.getPosition().getSecurity() instanceof EquityOptionSecurity;
+    if (target.getType() == ComputationTargetType.PORTFOLIO_NODE) {
+      final PortfolioNode node = target.getPortfolioNode();
+      final List<Position> allPositions = getAllPositions(new ArrayList<Position>(), node);
+      for (final Position p : allPositions) {
+        if (!(p.getSecurity() instanceof EquityOptionSecurity)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
+  private List<Position> getAllPositions(final List<Position> positions, final PortfolioNode node) {
+    if (node.getChildNodes().isEmpty()) {
+      positions.addAll(node.getPositions());
+      return positions;
+    }
+    for (final PortfolioNode child : node.getChildNodes()) {
+      positions.addAll(child.getPositions());
+    }
+    return positions;
   }
 
   @Override
@@ -158,7 +185,7 @@ public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunct
     if (canApplyTo(context, target)) {
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       for (final String valueGreekRequirementName : _valueGreekRequirementNames) {
-        requirements.add(new ValueRequirement(valueGreekRequirementName, target.getPosition()));
+        requirements.add(new ValueRequirement(valueGreekRequirementName, target.getPortfolioNode()));
       }
       return requirements;
     }
@@ -168,14 +195,14 @@ public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunct
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, target.getPosition()), getUniqueId()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, target.getPortfolioNode()), getUniqueId()));
     }
     return null;
   }
 
   @Override
   public String getShortName() {
-    return "PositionParametricVaRCalculatorFunction";
+    return "PortfolioParametricVaRCalculatorFunction";
   }
 
 }
