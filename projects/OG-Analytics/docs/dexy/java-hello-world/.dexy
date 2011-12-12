@@ -1,9 +1,0 @@
-{
-  "index.html|jinja" : {
-    "allinputs" : true
-  },
-  "*.java|pyg" : {},
-  "*.java|java" : {
-    "env" : { "CLASSPATH" : "../../../../OG-Util/lib/classpath.jar:../../../lib/classpath.jar:../../../build/classes:../../../../OG-Util/build/classes:../../../../lib/jar/it.unimi.dsi/fastutil/fastutil-5.1.5.jar"}
-  }
-}

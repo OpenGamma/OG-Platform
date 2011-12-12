@@ -54,6 +54,10 @@ public final class JavaTypeInfo<T> {
       if (_allowNull) {
         throw new IllegalStateException();
       }
+      if (_rawClass.isPrimitive()) {
+        // Can't have primitives allowing null
+        return this;
+      }
       _allowNull = true;
       return this;
     }

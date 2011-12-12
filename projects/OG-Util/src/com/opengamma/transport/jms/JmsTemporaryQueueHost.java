@@ -12,6 +12,8 @@ import javax.jms.MessageListener;
 import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 
+import org.springframework.jms.support.JmsUtils;
+
 import com.opengamma.util.jms.JmsConnector;
 
 /**
@@ -24,6 +26,10 @@ public class JmsTemporaryQueueHost {
    */
   private final MessageConsumer _consumer;
   /**
+   * The session.
+   */
+  private final Session _session;
+  /**
    * The connection.
    */
   private final Connection _connection;
@@ -34,9 +40,9 @@ public class JmsTemporaryQueueHost {
 
   public JmsTemporaryQueueHost(JmsConnector jmsConnector, MessageListener listener) throws JMSException {
     _connection = jmsConnector.getConnectionFactory().createConnection();
-    Session session = _connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-    _queue = session.createTemporaryQueue();
-    _consumer = session.createConsumer(_queue);
+    _session = _connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+    _queue = _session.createTemporaryQueue();
+    _consumer = _session.createConsumer(_queue);
     _consumer.setMessageListener(listener);
     _connection.start();
   }
@@ -46,7 +52,8 @@ public class JmsTemporaryQueueHost {
   }
 
   public void close() throws JMSException {
+    JmsUtils.closeMessageConsumer(_consumer);
+    JmsUtils.closeSession(_session);
     _connection.close();
   }
-
 }

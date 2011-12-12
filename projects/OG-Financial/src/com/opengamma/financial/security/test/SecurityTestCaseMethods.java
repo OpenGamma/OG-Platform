@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.security.test;
+package com.opengamma.financial.security.test;
 
 /**
  * Generic tests for all security types implementation.
@@ -18,13 +18,13 @@ public interface SecurityTestCaseMethods {
 
   void testCashSecurity();
 
-  void testEquitySecurity();
+  void testEquitySecurity() throws Exception;
 
   void testFRASecurity();
 
   void testAgricultureFutureSecurity();
 
-  void testBondFutureSecurity();
+  void testBondFutureSecurity() throws Exception;
 
   void testEnergyFutureSecurity();
 
