@@ -21,8 +21,9 @@
   </path>
 
   <import file="${basedir}/build-suffix.xml" />
+  <import file="${basedir}/delete-unused-jars.xml" />
 
-  <target name="deploy-jars" depends="build-suffix.deploy-jars,make-config">
+  <target name="deploy-jars" depends="build-suffix.deploy-jars,make-config,delete-unused-jars">
     <mkdir dir="${build.dir}/ext" />
     <copy file="${basedir}/config/0${ant.project.name}.xml" todir="${build.dir}/ext" failonerror="true" />
     <copy file="${basedir}/config/logback.xml" todir="${build.dir}" failonerror="false" />
