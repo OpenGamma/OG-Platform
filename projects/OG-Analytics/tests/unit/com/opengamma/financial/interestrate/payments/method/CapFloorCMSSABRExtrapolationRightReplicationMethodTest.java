@@ -178,7 +178,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     // Swaption sensitivity
     InterestRateCurveSensitivity pvsCapLong = METHOD_EXTRAPOLATION_CAP.presentValueSensitivity(CMS_CAP_LONG, sabrBundle);
-    InterestRateCurveSensitivity pvsCapLongStd = METHOD_STANDARD_CAP.presentValueSensitivity(CMS_CAP_LONG, sabrBundle);
+    InterestRateCurveSensitivity pvsCapLongStd = METHOD_STANDARD_CAP.presentValueCurveSensitivity(CMS_CAP_LONG, sabrBundle);
     final InterestRateCurveSensitivity pvsCapShort = METHOD_EXTRAPOLATION_CAP.presentValueSensitivity(CMS_CAP_SHORT, sabrBundle);
     // Long/short parity
     final InterestRateCurveSensitivity pvsCapShort_1 = pvsCapShort.multiply(-1);
