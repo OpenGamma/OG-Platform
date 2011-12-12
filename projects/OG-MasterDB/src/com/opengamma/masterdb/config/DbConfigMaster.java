@@ -8,7 +8,6 @@ package com.opengamma.masterdb.config;
 import javax.time.TimeSource;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -45,10 +44,6 @@ public class DbConfigMaster extends AbstractDbMaster implements ConfigMaster {
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbCfg";
 
   /**
-   * The change manager.
-   */
-  private ChangeManager _changeManager = new BasicChangeManager();
-  /**
    * The worker.
    */
   private DbConfigWorker _worker;
@@ -61,7 +56,6 @@ public class DbConfigMaster extends AbstractDbMaster implements ConfigMaster {
   public DbConfigMaster(DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
     _worker = new DbConfigWorker(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
-    _worker.setChangeManager(_changeManager);
   }
 
   //-------------------------------------------------------------------------
@@ -86,9 +80,49 @@ public class DbConfigMaster extends AbstractDbMaster implements ConfigMaster {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the maximum number of retries.
+   * The default is ten.
+   * 
+   * @return the maximum number of retries, not null
+   */
+  public int getMaxRetries() {
+    return _worker.getMaxRetries();
+  }
+
+  /**
+   * Sets the maximum number of retries.
+   * The default is ten.
+   * 
+   * @param maxRetries  the maximum number of retries, not negative
+   */
+  public void setMaxRetries(final int maxRetries) {
+    _worker.setMaxRetries(maxRetries);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the change manager.
+   * 
+   * @return the change manager, not null
+   */
+  public ChangeManager getChangeManager() {
+    return _worker.getChangeManager();
+  }
+
+  /**
+   * Sets the change manager.
+   * 
+   * @param changeManager  the change manager, not null
+   */
+  public void setChangeManager(final ChangeManager changeManager) {
+    _worker.setChangeManager(changeManager);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public ChangeManager changeManager() {
-    return _changeManager;
+    return _worker.getChangeManager();
   }
 
   @Override

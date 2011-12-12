@@ -25,7 +25,7 @@ public class PortfolioComparator extends PositionSetComparator {
     super(fudgeContext);
   }
 
-  private static Collection<Position> getFlattenedPositions(final Portfolio portfolio) {
+  public static Collection<Position> getFlattenedPositions(final Portfolio portfolio) {
     final Collection<Position> positions = new LinkedList<Position>();
     PortfolioNodeTraverser.depthFirst(new AbstractPortfolioNodeTraversalCallback() {
       @Override

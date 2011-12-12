@@ -21,6 +21,7 @@ import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSe
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_MULTIPLE;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_RESOLVED;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_RESOLVED_BY_DATE;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_RESOLVED_BY_DATE_LIMIT;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_START;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_UID;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_UID_BY_DATE;
@@ -375,7 +376,7 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     ArgumentChecker.notEmpty(identifierBundle, "identifierBundle");
     ArgumentChecker.notNull(start, "start");
     ArgumentChecker.notNull(end, "end");
-    final RestTarget target = getTargetBase().resolveBase(REQUEST_RESOLVED_BY_DATE)
+    final RestTarget target = getTargetBase().resolveBase(REQUEST_RESOLVED_BY_DATE_LIMIT)
         .resolveBase(dataField)
         .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
         .resolveBase((resolutionKey != null) ? resolutionKey : NULL_VALUE)

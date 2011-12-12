@@ -18,7 +18,7 @@
   <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop"> 
     <constructor-arg ref="activeMQConnectionFactory"/>
   </bean>
-  <bean id="jmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean"> 
+  <bean id="jmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean">
     <property name="name" value="Masters"/>
     <property name="connectionFactory" ref="jmsConnectionFactory"/>
   </bean>
@@ -28,11 +28,6 @@
   <bean id="abstractDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean" abstract="true">
     <property name="transactionIsolationLevelName" value="ISOLATION_READ_COMMITTED" />
     <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
-    <property name="hibernateMappingFiles">
-      <list>
-        <bean class="com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles"/>
-      </list>
-    </property>
   </bean>
 
   <bean id="cfgDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
@@ -61,6 +56,24 @@
     <property name="dialectName" value="${opengamma.financial.db.dbdialect}"/>
   </bean>
   
+  <bean id="secDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <property name="driverClassName" value="${opengamma.financial.jdbc.driver}" />
+    <property name="url" value="${opengamma.financial.jdbc.url}" />
+    <property name="username" value="${opengamma.financial.jdbc.username}" />
+    <property name="password" value="${opengamma.financial.jdbc.password}" />
+  </bean>
+
+  <bean id="secDbConnector" parent="abstractDbConnector">
+    <property name="name" value="Security"/>
+    <property name="dataSource" ref="secDataSource"/>
+    <property name="dialectName" value="${opengamma.financial.db.dbdialect}"/>
+    <property name="hibernateMappingFiles">
+      <list>
+        <bean class="com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles"/>
+      </list>
+    </property>
+  </bean>
+  
   <bean id="htsDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="${opengamma.hts.jdbc.driver}" />
     <property name="url" value="${opengamma.hts.jdbc.url}" />
@@ -78,131 +91,103 @@
     <property name="shared" value="true"/>
   </bean>
 
+  <!-- ================================================================== -->
   <!-- ConfigMaster -->
-  <bean id="sharedConfigMaster" class="com.opengamma.masterdb.config.DbConfigMaster">
-    <constructor-arg ref="cfgDbConnector" />
+  <bean id="sharedConfigMaster" class="com.opengamma.masterdb.spring.DbConfigMasterFactoryBean">
+    <property name="dbConnector" ref="cfgDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.config.db.configmaster.scheme}" />
   </bean>
-
-  <!-- Config loaders, should be commented out most of the time -->
-  <!--bean id="curveLoader" class="com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator">
-    <constructor-arg ref="sharedConfigMaster" />
-  </bean>
-  <bean id="currencyMatrixLoader" class="com.opengamma.financial.currency.CurrencyMatrixConfigPopulator">
-    <constructor-arg ref="sharedConfigMaster" />
-  </bean>
-  <bean id="swaptionSurfaceLoader" class="com.opengamma.financial.analytics.volatility.surface.SwaptionVolatilitySurfaceConfigPopulator">
-    <constructor-arg ref="sharedConfigMaster" />
-  </bean>
-  <bean id="irFutureSurfaceLoader" class="com.opengamma.financial.analytics.volatility.surface.IRFutureOptionSurfaceConfigPopulator">
-    <constructor-arg ref="sharedConfigMaster" />
-  </bean>
-  <bean id="fxVolatilitySurfaceLoader" class="com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySurfaceConfigPopulator">
-    <constructor-arg ref="sharedConfigMaster" />
-  </bean>
-  <bean id="equityOptionSurfaceLoader" class="com.opengamma.financial.analytics.volatility.surface.EquityOptionSurfaceConfigPopulator">
-    <constructor-arg ref="sharedConfigMaster" />
-  </bean>
-  <bean id="cubeLoader" class="com.opengamma.financial.analytics.volatility.cube.VolatilityCubeConfigPopulator">
-    <constructor-arg ref="sharedConfigMaster" />
-  </bean-->
-  
   <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource">
     <constructor-arg ref="sharedConfigMaster" />
   </bean>
-  
+
+  <!-- Config loaders, should be commented out most of the time -->
+  <!-- bean class="com.opengamma.financial.spring.ConfigMasterPopulatorsFactoryBean">
+    <property name="configMaster" ref="sharedConfigMaster" />
+    <property name="yieldCurve" value="true" />
+    <property name="currencyMatrix" value="true" />
+    <property name="swaptionVolatilitySurface" value="true" />
+    <property name="irFutureOptionSurface" value="true" />
+    <property name="fxOptionVolatilitySurface" value="true" />
+    <property name="equityOptionSurface" value="true" />
+    <property name="volatilityCube" value="true" />
+  </bean-->
+
   <!-- ExchangeMaster -->
-  <bean id="dbExchangeMaster" class="com.opengamma.masterdb.exchange.DbExchangeMaster">
-    <constructor-arg ref="finDbConnector" />
+  <bean id="dbExchangeMaster" class="com.opengamma.masterdb.spring.DbExchangeMasterFactoryBean">
+    <property name="dbConnector" ref="finDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.exchangemaster.scheme}" />
   </bean>
-
-  <bean id="sharedExchangeSource" class="com.opengamma.master.exchange.impl.MasterExchangeSource">
-    <constructor-arg ref="dbExchangeMaster"/>
+  <bean id="sharedExchangeSource" class="com.opengamma.financial.spring.ExchangeSourceFactoryBean">
+    <property name="exchangeMaster" ref="dbExchangeMaster" />
   </bean>
-  
+
   <!-- HolidayMaster -->
-  <bean id="dbHolidayMaster" class="com.opengamma.masterdb.holiday.DbHolidayMaster">
-    <constructor-arg ref="finDbConnector" />
+  <bean id="dbHolidayMaster" class="com.opengamma.masterdb.spring.DbHolidayMasterFactoryBean">
+    <property name="dbConnector" ref="finDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.holidaymaster.scheme}" />
   </bean>
-  <bean id="sharedHolidaySource" class="com.opengamma.master.holiday.impl.ConcurrentMapCachingMasterHolidaySource" destroy-method="stop" >
-    <constructor-arg ref="dbHolidayMaster"/>
+  <bean id="sharedHolidaySource" class="com.opengamma.financial.spring.HolidaySourceFactoryBean">
+    <property name="holidayMaster" ref="dbHolidayMaster"/>
   </bean>
 
   <!-- SecurityMaster -->
-  <bean id="securityMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
-  <bean id="dbSecurityMaster" class="com.opengamma.masterdb.security.DbSecurityMaster">
-    <constructor-arg ref="finDbConnector" />
-    <property name="changeManager" ref="securityMasterChangeManager" />
+  <bean id="dbSecurityMaster" class="com.opengamma.masterdb.spring.DbSecurityMasterFactoryBean">
+    <property name="dbConnector" ref="secDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.securitymaster.scheme}" />
-    <property name="detailProvider">
-        <bean class="com.opengamma.masterdb.security.EHCachingSecurityMasterDetailProvider" >
-                <constructor-arg>
-                  <bean class="com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider" />
-                </constructor-arg>
-                <constructor-arg ref="cacheManager" />
-        </bean>
-    </property>
+    <property name="cacheManager" ref="cacheManager" />
   </bean>
-  <bean id="sharedSecuritySource" class="com.opengamma.financial.security.EHCachingFinancialSecuritySource">
-    <constructor-arg>
-      <bean class="com.opengamma.financial.security.MasterFinancialSecuritySource">
-        <constructor-arg ref="dbSecurityMaster" />
-      </bean>
-    </constructor-arg>
-    <constructor-arg ref="cacheManager" />
+  <bean id="sharedSecuritySource" class="com.opengamma.financial.spring.FinancialSecuritySourceFactoryBean">
+    <property name="securityMaster" ref="dbSecurityMaster" />
+    <property name="cacheManager" ref="cacheManager" />
   </bean>
 
   <!-- PortfolioMaster/PositionMaster -->
-  <bean id="dbPortfolioMasterChangeManager" class="com.opengamma.core.change.JmsChangeManager" init-method="start" >
-    <constructor-arg ref="jmsConnector" />
-    <constructor-arg value="dbPortfolioMasterChangeManager" />
-  </bean> 
-  <bean id="dbPortfolioMaster" class="com.opengamma.masterdb.portfolio.DbPortfolioMaster">
-    <constructor-arg ref="finDbConnector" />
+  <bean id="dbPortfolioMaster" class="com.opengamma.masterdb.spring.DbPortfolioMasterFactoryBean">
+    <property name="dbConnector" ref="finDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.portfoliomaster.scheme}" />
-    <property name="changeManager" ref="dbPortfolioMasterChangeManager" />
+    <property name="jmsConnector" ref="jmsConnector" />
+    <property name="jmsChangeManagerTopic" value="dbPortfolioMasterChangeManager" />
   </bean>
-  <bean id="dbPositionMaster" class="com.opengamma.masterdb.position.DbPositionMaster">
-    <constructor-arg ref="finDbConnector" />
+  <bean id="dbPositionMaster" class="com.opengamma.masterdb.spring.DbPositionMasterFactoryBean">
+    <property name="dbConnector" ref="finDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.positionmaster.scheme}" />
   </bean>
-  <bean id="sharedPositionSource" class="com.opengamma.core.position.impl.EHCachingPositionSource">
-    <constructor-arg>
-      <bean class="com.opengamma.master.position.impl.MasterPositionSource">
-        <constructor-arg ref="dbPortfolioMaster" />
-        <constructor-arg ref="dbPositionMaster" />
-      </bean>
-    </constructor-arg>
-    <constructor-arg ref="cacheManager" />
+  <bean id="sharedPositionSource" class="com.opengamma.financial.spring.PositionSourceFactoryBean">
+    <property name="portfolioMaster" ref="dbPortfolioMaster" />
+    <property name="positionMaster" ref="dbPositionMaster" />
+    <property name="cacheManager" ref="cacheManager" />
   </bean>
 
   <!-- FunctionCostsMaster --> 
-  <bean id="dbFunctionCostsMaster" class="com.opengamma.masterdb.engine.stats.DbFunctionCostsMaster">
-    <constructor-arg ref="finDbConnector" />
+  <bean id="dbFunctionCostsMaster" class="com.opengamma.masterdb.spring.DbFunctionCostsMasterFactoryBean">
+    <property name="dbConnector" ref="finDbConnector" />
   </bean>
 
-  <!-- TimeSeries database -->
-  <bean id="dbHtsMaster" class="com.opengamma.masterdb.historicaltimeseries.DbHistoricalTimeSeriesMaster">
-    <constructor-arg ref="htsDbConnector"/>
+  <!-- HistoricalTimeSeriesMaster -->
+  <bean id="dbHtsMaster" class="com.opengamma.masterdb.spring.DbHistoricalTimeSeriesMasterFactoryBean">
+    <property name="dbConnector" ref="htsDbConnector"/>
     <property name="uniqueIdScheme" value="${opengamma.financial.db.htsmaster.scheme}" />
   </bean>
-  <bean id="sharedHistoricalTimeSeriesSource" class="com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource">
-    <constructor-arg>
-      <bean class="com.opengamma.master.historicaltimeseries.impl.MasterHistoricalTimeSeriesSource">
-        <constructor-arg ref="dbHtsMaster"/>
-        <constructor-arg>
-          <bean class="com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver">
-          	<constructor-arg ref="dbHtsMaster"/>
-          	<constructor-arg ref="sharedConfigSource"/>
-          </bean>
-        </constructor-arg>
-      </bean>
-    </constructor-arg>
-    <constructor-arg ref="cacheManager" />
+  <bean id="sharedHistoricalTimeSeriesSource" class="com.opengamma.financial.spring.HistoricalTimeSeriesSourceFactoryBean">
+    <property name="historicalTimeSeriesMaster" ref="dbHtsMaster"/>
+    <property name="cacheManager" ref="cacheManager" />
+    <property name="configSource" ref="sharedConfigSource"/>
   </bean>
 
+  <!-- MarketDataSnapshotMaster -->
+  <bean id="dbSnapshotMaster" class="com.opengamma.masterdb.spring.DbMarketDataSnapshotMasterFactoryBean">
+    <property name="dbConnector" ref="finDbConnector" />
+    <property name="uniqueIdScheme" value="${opengamma.financial.db.snapshotmaster.scheme}" />
+    <property name="jmsConnector" ref="jmsConnector" />
+    <property name="jmsChangeManagerTopic" value="dbSnapshotMasterChangeManager" />
+  </bean>
+  <bean id="sharedSnapshotSource" class="com.opengamma.financial.spring.MarketDataSnapshotSourceFactoryBean">
+    <property name="snapshotMaster" ref="dbSnapshotMaster"/>
+    <property name="cacheManager" ref="cacheManager" />
+  </bean>
+
+  <!-- ================================================================== -->
   <!-- Curves -->
   <bean id="sharedInterpolatedYieldCurveDefinitionSource" class="com.opengamma.financial.analytics.ircurve.EHCachingInterpolatedYieldCurveDefinitionSource">
         <constructor-arg ref="configDBInterpolatedYieldCurveDefinitionSource" />
@@ -214,13 +199,13 @@
   <bean id="sharedInterpolatedYieldCurveSpecificationBuilder" class="com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder">
     <constructor-arg ref="sharedConfigSource" />
   </bean>
-  
+
   <!-- Vol Cubes-->
   <!-- TODO: this properly, user source and cacheing -->
   <bean id="combinedVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.ConfigDBVolatilityCubeDefinitionSource">
     <constructor-arg ref="sharedConfigSource" />
   </bean>
-  
+
   <!-- Currency conversion -->
   <bean id="sharedCurrencyMatrixSource" class="com.opengamma.financial.currency.ConfigDBCurrencyMatrixSource">
     <constructor-arg ref="sharedConfigSource" />
@@ -229,7 +214,8 @@
   <bean id="sharedCurrencyPairsSource" class="com.opengamma.financial.currency.ConfigDBCurrencyPairsSource">
     <constructor-arg ref="sharedConfigSource" />
   </bean>
-  
+
+  <!-- ================================================================== -->
   <!-- Batch -->
   <bean id="batchDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="${opengamma.overnight-batch.jdbc.driver}" />
@@ -252,6 +238,7 @@
     <constructor-arg ref="batchDbConnector"/>  	
   </bean>
 
+  <!-- ================================================================== -->
   <!-- Function configuration -->
   <bean id="demoFunctionRepositoryConfiguration" class="com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource">
     <constructor-arg>
@@ -267,24 +254,5 @@
        </list>
     </constructor-arg>
   </bean>
-  
-  <!-- MarketDataSnapshotMaster -->
-  <bean id="dbSnapshotMasterChangeManager" class="com.opengamma.core.change.JmsChangeManager" init-method="start" >
-    <constructor-arg ref="jmsConnector" />
-    <constructor-arg value="dbSnapshotMasterChangeManager" />
-  </bean>
-  <bean id="dbSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
-    <constructor-arg ref="finDbConnector" />
-    <property name="changeManager" ref="dbSnapshotMasterChangeManager" />
-    <property name="uniqueIdScheme" value="${opengamma.financial.db.snapshotmaster.scheme}" />
-  </bean>
-  
-  <!-- TODO EHCachingFinancialSnapshotSource -->
-  <bean id="sharedSnapshotSource" class="com.opengamma.core.marketdatasnapshot.impl.DelegatingSnapshotSource">
-  	<constructor-arg>
-      <bean class="com.opengamma.master.marketdatasnapshot.impl.MasterSnapshotSource">
-        <constructor-arg ref="dbSnapshotMaster" />
-      </bean>
-    </constructor-arg>
-  </bean>
+
 </beans>

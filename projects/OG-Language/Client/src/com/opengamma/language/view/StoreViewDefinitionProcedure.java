@@ -65,6 +65,7 @@ public class StoreViewDefinitionProcedure extends AbstractProcedureInvoker.Singl
       if (identifier != null) {
         final UpdateViewDefinitionRequest request = new UpdateViewDefinitionRequest();
         request.setId(identifier);
+        request.setName(viewDefinition.getName());
         request.setViewDefinition(viewDefinition);
         viewMaster.updateViewDefinition(request);
         return identifier.toLatest();

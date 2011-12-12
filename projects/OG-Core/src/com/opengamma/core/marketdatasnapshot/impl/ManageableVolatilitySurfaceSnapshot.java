@@ -51,7 +51,7 @@ public class ManageableVolatilitySurfaceSnapshot implements VolatilitySurfaceSna
    *   message {
    *     message { // map
    *       repeated Pair key = 1;
-   *       repeated Object value = 2;
+   *       repeated ValueSnapshot value = 2;
    *     } values;
    *   }
    * </pre>
@@ -59,7 +59,7 @@ public class ManageableVolatilitySurfaceSnapshot implements VolatilitySurfaceSna
    * @param serializer Fudge serialization context, not null
    * @return the message representation of this snapshot
    */
-  public org.fudgemsg.FudgeMsg toFudgeMsg(FudgeSerializer serializer) {
+  public FudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     MutableFudgeMsg ret = serializer.newMessage();
     // TODO: this should not be adding it's own class header; the caller should be doing that, or this be registered as a generic builder for VolatilitySurfaceSnapshot and that class name be added
     FudgeSerializer.addClassHeader(ret, ManageableVolatilitySurfaceSnapshot.class);
@@ -87,18 +87,15 @@ public class ManageableVolatilitySurfaceSnapshot implements VolatilitySurfaceSna
    * @return a snapshot object
    */
   @SuppressWarnings("unchecked")
-  public static ManageableVolatilitySurfaceSnapshot fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {
-
-    HashMap<Pair<Object, Object>, ValueSnapshot> values = new HashMap<Pair<Object, Object>, ValueSnapshot>();
-
+  public static ManageableVolatilitySurfaceSnapshot fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    final HashMap<Pair<Object, Object>, ValueSnapshot> values = new HashMap<Pair<Object, Object>, ValueSnapshot>();
     Pair<Object, Object> key = null;
     for (FudgeField fudgeField : msg.getMessage("values")) {
       Integer ordinal = fudgeField.getOrdinal();
       if (ordinal == null) {
         continue;
       }
-
-      int intValue = ordinal.intValue();
+      final int intValue = ordinal.intValue();
       if (intValue == 1) {
         key = deserializer.fieldValueToObject(Pair.class, fudgeField);
       } else if (intValue == 2) {
@@ -107,8 +104,7 @@ public class ManageableVolatilitySurfaceSnapshot implements VolatilitySurfaceSna
         key = null;
       }
     }
-
-    ManageableVolatilitySurfaceSnapshot ret = new ManageableVolatilitySurfaceSnapshot();
+    final ManageableVolatilitySurfaceSnapshot ret = new ManageableVolatilitySurfaceSnapshot();
     ret.setValues(values);
     return ret;
   }

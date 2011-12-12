@@ -2,24 +2,25 @@
 
 This document covers how to write documentation for OpenGamma code using Dexy.
 
-\section{Hello, World Examples}
+See the building-docs.tex document for how to run Dexy and build this
+documentation.
 
-Examples form the basis for documenting features and also for creating plots
-and other visual assets to be used in white papers. In this section, we create
-some very simple examples to introduce basic Dexy concepts. As a prerequisite,
-you should read the page on
+As a prerequisite to reading this, you should read the page on
 \href{http://www.dexy.it/docs/guide/documents-dependencies-and-filters/}{Documents, Dependencies and Filters}
 from the \url{http://dexy.it} website which describes running Dexy, writing
 \verb|.dexy| files and using filters.
 
-The examples directory has a \verb|.dexy| file which should cover many basic
-cases. You can put an additional \verb|.dexy| file in your example directory,
-but you shouldn't need to for straightforward examples. Here is the .dexy file
-in the examples directory. In Dexy, the configuration in a .dexy file is
-applied to the directory it's in, along with any subdirectories (unless
-instructed otherwise).
+\section{Dexy Configuration}
 
-<< d['.dexy|ppjson|pyg|l'] >>
+The examples directory has a \verb|.dexy| file which should cover many basic
+cases. In Dexy, the configuration in a .dexy file is applied to the directory
+it's in, along with any subdirectories (unless instructed otherwise). You can
+put an additional \verb|.dexy| file in your example directory, but you
+shouldn't need to for straightforward examples.
+
+Here is the .dexy file in the examples directory:
+
+<< d['../.dexy|ppjson|pyg|l'] >>
 
 So, among other things, we can see that all \verb|.java| files will be run
 through the fn filter, then the java filter. The fn filter helps manage
@@ -27,6 +28,21 @@ filenames for data files or images. It is described in
 \href{http://www.dexy.it/docs/filters/FilenameFilter-(fn).html}{this filter reference page}.
 The java filter will compile and then run the code. It is described in
 \href{http://www.dexy.it/docs/filters/JavaFilter-(java).html}{this filter reference page}.
+
+The OpenGammaExample.java class is run through the .javac filter (which just
+compiles the code without running it), and this is an input to all other java
+files. This means that OpenGammaExample.class is placed on the classpath when
+all other java files are run. We will discuss how to use this class for writing
+examples later on.
+
+\section{Hello, World Examples}
+
+Examples form the basis for documenting features and also for creating plots
+and other visual assets to be used in white papers. In this section, we create
+some very simple examples to introduce basic Dexy concepts.
+
+Example .java files should be placed in subdirectories of the \verb|docs/examples|
+directory. You can write an index.md or index.html file to document your example.
 
 \subsection{Hello, World Example}
 
@@ -59,13 +75,15 @@ The syntax highlighted source code can be pulled into a LaTeX document by:
 
 << d['writing-docs.tex|idio|l']['hello-og-world-source'] >>
 
-And the output can be pulled in by:
-
-<< d['writing-docs.tex|idio|l']['hello-og-world-output'] >>
-
 The \verb=|l= filter at the end forces the previous filter to output \LaTeX. If
 you are writing a HTML document you would leave this off (and use \lt pre \gt tags to
 display plain text instead of creating a Verbatim environment).
+
+The output from running this example can be pulled in by:
+
+<< d['writing-docs.tex|idio|l']['hello-og-world-output'] >>
+
+The \verb|java| filter compiles and runs java code, and returns whatever gets written to STDOUT.
 
 \subsection{Longer Hello, World Example}
 
@@ -93,7 +111,7 @@ Here is how that section is pulled in to this document:
 
 << d['writing-docs.tex|idio|l']['hello-og-world-longer-source'] >>
 
-Next we have our class definition:
+Next we have our class definition, and we start the \verb|main()| method:
 
 << d['hello-og-world-longer/HelloOpenGammaWorldLongerExample.java|idio|l']['class-def'] >>
 
@@ -121,15 +139,12 @@ without overwhelming the reader with an entire script.
 In this section we will write a script that writes data to a file. We will then
 be able to show that file in our document.
 
-Here are the imports:
+Here are the imports and class declaration:
 
 << d['hello-og-world-data/HelloOpenGammaWorldLongerExample.java|idio|l']['imports'] >>
-
-Next we define the class and start a \verb|main| method:
-
 << d['hello-og-world-data/HelloOpenGammaWorldLongerExample.java|idio|l']['class-def'] >>
 
-We open a data file and a PrintStream to write to this file:
+We open a data file and initialize a PrintStream to write to this file:
 
 << d['hello-og-world-data/HelloOpenGammaWorldLongerExample.java|idio|l']['open-data-file'] >>
 
@@ -148,10 +163,10 @@ Dexy creates a directory with a special name and saves the script in that
 directory under its canonical name. However, when we use the filename filter to
 create a data file, it expects the data file to be created in the artifacts
 directory rather than a subdirectory. So, for Java, you need to prefix your
-data file name with \verb|..|.
+data file name with \verb|..| so that the data file is written to the correct
+location.
 
-Now that we have our print stream set up, we can write our content to the file
-rather than System.out.
+Now that we have our print stream set up, we can write data to the file:
 
 << d['hello-og-world-data/HelloOpenGammaWorldLongerExample.java|idio|l']['init'] >>
 << d['hello-og-world-data/HelloOpenGammaWorldLongerExample.java|idio|l']['calculate'] >>
@@ -172,15 +187,126 @@ And here is how we pulled that into this document:
 
 << d['writing-docs.tex|idio|l']['hello-og-world-data-file'] >>
 
-You can use the filename to help manage any type of file. Typically we will
-create .txt or .csv files (it could even be a .sqlite3 file) to share data
-between a script which generates the data, and another which analyzes or plots
-the data (which can be in another programming language). We will also use the
-filename filter to manage the .png or .pdf filenames that the plots go in.
+You can use the filename (fn) filter to help manage any type of file. Typically
+we will create .txt or .csv files (it could even be a .sqlite3 file) to share
+data between a script which generates the data, and another which analyzes or
+plots the data (which can be in another programming language). We will also use
+the filename filter to manage the .png or .pdf filenames that the plots go in.
+
+\section{The OpenGammaExample Class}
+
+The OpenGammaExample class is intended to make it easier to create Java classes
+with several related example methods, run each of these methods automatically,
+and be able to reference the output from each method.
+
+In the next section, we show what you can do with this class. In the following
+section, we look at how the class is implemented.
+
+\subsection{SimpleExample}
+
+Here is the source in full of the example we will be discussing:
+
+<< d['using-opengamma-example-class/SimpleExample.java|pyg|l'] >>
+
+Any method in this class that accepts a single argument of class PrintStream
+will be automatically run, and the contents written to the PrintStream will be
+available under that method's name.
+
+Idiopiade-style comments are used to divide the code into sections, so
+you can show a section:
+
+<< d['using-opengamma-example-class/SimpleExample.java|idio|l']['basicDemo'] >>
+
+And then show the output generated by that section:
+
+%%% @export "show-output"
+\begin{Verbatim}
+<< d['using-opengamma-example-class/simple-output.json']['basicDemo'] >>
+\end{Verbatim}
+%%% @end
+
+Here is the code used to pull that output into this document:
+
+<< d['writing-docs.tex|idio|l']['show-output'] >>
+
+%%% @export "show-fields"
+Any class fields are also available, so you can refer to the string HELLO, i.e.
+'<< d['using-opengamma-example-class/simple-fields.json']['HELLO'] >>', in your document.
+%%% @end
+
+Here is the code used to pull the field value into that sentence:
+
+<< d['writing-docs.tex|idio|l']['show-fields'] >>
+
+If you need to share code among multiple demos, for example if you want to instantiate an object with the same parameters in several examples, then you can create a helper method for it, show it once (if necessary), and call it several times.
+
+Here is a helper method:
+
+<< d['using-opengamma-example-class/SimpleExample.java|idio|l']['helperMethod'] >>
+
+We use the helper method in this example:
+
+<< d['using-opengamma-example-class/SimpleExample.java|idio|l']['useHelperMethod'] >>
+
+\begin{Verbatim}
+<< d['using-opengamma-example-class/simple-output.json']['useHelperMethod'] >>
+\end{Verbatim}
+
+The main method in our example looks like this:
+
+<< d['using-opengamma-example-class/SimpleExample.java|idio|l']['main'] >>
+
+We simply call the OpenGammaExample class's main method and pass 3 parameters.
+The first is the name of the example class, the second is a file name for
+storing the output written by the examples, the third (optional) is a filename
+for storing field names and values.
+
+Note we use the \verb|dexy--| prefix so that Dexy handles dependencies for
+these generated files.
+
+\subsection{The OpenGammaExample Class}
+
+In this section we look at the source of the OpenGammaExample class and how it
+works.
+
+We saw that in our example, we call the OpenGammaExample class's main method.
+Here is the start of this method:
+
+<< d['../OpenGammaExample.java|idio|l']['main'] >>
+
+We process the args array, assigning defaults if no args are passed (i.e. if
+the OpenGammaExample class itself is being run).
+
+Next we set up some output streams we will use to save output from the methods
+we call:
+
+<< d['../OpenGammaExample.java|idio|l']['outputStreams'] >>
+
+Next, we do most of the 'work' of this method. Identifying the methods we want
+to run and running them:
+
+<< d['../OpenGammaExample.java|idio|l']['findAndRunMethods'] >>
+
+This uses Java reflection to obtain a list of methods, and it iterates over
+them, calling \verb|runMethod| on any that meet the criteria:
+
+<< d['../OpenGammaExample.java|idio|l']['runMethod'] >>
+
+The \verb|outputStreams| object is a JSONObject which stores key-value pairs.
+After all methods have been run, the output collected in outputStreams is
+written to the JSON file which was passed as the 2nd entry to ogargs.
+
+<< d['../OpenGammaExample.java|idio|l']['saveOutput'] >>
+
+Finally, if a 3rd argument has been passed, then we also use reflection to pull
+the example class's declared fields and their values and save them in another
+JSON file.
+
+<< d['../OpenGammaExample.java|idio|l']['saveFields'] >>
 
 \section{Referencing Source Code}
 
-In the previous section, we looked at creating small, self-contained examples
+Up to now, we have looked at creating small, self-contained examples
 which make use of OpenGamma classes. However, we might also want to pull in
 extra information about those classes, such as Javadoc comments or the actual
 source code of the methods.
@@ -352,13 +478,17 @@ Here are the methods available for the << cn_method >> method:
 
 \section{A Real Example}
 
-In this section we discuss writing the SABR extrapolation example. The example
-is adapted from a unit test.
+In this section, we will work through a real example which makes use of all the
+techniques we have been developing.
+
+The SABR extrapolation example is adapted from a unit test. This example shows
+how to make use of some OpenGamma classes, and it also generates a data file.
+We will then write an R script to read this data and generate plots.
 
 <% set sabr_class = d['/jsondocs/javadoc-data.json|javadocs']['packages']['com.opengamma.financial.model.option.pricing.analytic.formula']['classes']['SABRExtrapolationRightFunction'] %>
 
-First we look at some of the docs and source of the classes we will use in our
-example.
+First we look at some of the docs and source code of the classes we will use in
+our example.
 
 \subsection{SABRExtrapolationRightFunction Class}
 
@@ -387,46 +517,67 @@ The other class we use is SABRFormulaData.
 
 \subsection{Example}
 
-Here are our imports:
+Here are the OpenGamma classes that we import at the start of our example:
 
-<< d['sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['imports'] >>
+<< d['../sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['imports'] >>
 
-And the class definition:
+We also import some other utility classes:
 
-<< d['sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['class-def'] >>
+<< d['../sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['util-imports'] >>
+
+Here is our class definition:
+
+<< d['../sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['class-def'] >>
 
 We define constants used in the SABRFormulaData constructor, and then create a
 \verb|SABR_DATA| constant:
 
-<< d['sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['class-constants-sabr-data'] >>
+<< d['../sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['class-constants-sabr-data'] >>
 
 Next we set some more constants we will use in our calculations:
-<< d['sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['class-constants-sabr-extrapolation-function'] >>
+<< d['../sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['class-constants-sabr-extrapolation-function'] >>
 
-Now we enter the main method, where we declare some local variables and set up
-some more formulas and data we will need:
+We will make use of the OpenGammaExample class, so we create a method which
+accepts a single PrintStream argument. We could also just use the \verb|main|
+method and not bother with using OpenGammaExample since we are only writing a
+single example method, however by using OpenGammaExample we make it easier to
+refactor this later, if we decide we do want to add another related example.
 
-<< d['sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['main'] >>
+Also, by using OpenGammaExample, all our class fields will automatically be
+saved so we can easily say in documents that
+$\alpha=<< d['../sabr-extrapolation/sabr-extrapolation-fields.json']['ALPHA'] >>$ and
+$\beta=<< d['../sabr-extrapolation/sabr-extrapolation-fields.json']['BETA'] >>$.
 
-We set up the data file we will store our data in, and write the field header line:
+Here is the start of our method, we declare some local variables and set up
+some formulas and data bundles we will use later on:
 
-<< d['sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['data-file'] >>
+<< d['../sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['generateSabrData'] >>
 
-Now we're all set, and we can enter our main loop and calculate the option
-price over a range of strikes, and also calculate the implied volatility:
+We set up the tab-separated data file we will store our data in, and write a
+header row so we know the field names:
+
+<< d['../sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['data-file'] >>
+
+Now we can enter our main loop. We loop over different values of mu, setting up
+a SABRExtrapolationRightFunction for each value, then we loop over various
+strike prices and calculate option prices and implied volatility:
 
 \fvset{fontsize=\scriptsize}
-<< d['sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['loop'] >>
+<< d['../sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['loop'] >>
 \fvset{fontsize=\small}
 
 Finally, we close the data stream, ensuring all our data is written to a file:
 
-<< d['sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['save-data'] >>
+<< d['../sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['save-data'] >>
 
-Here is the first few lines of the generated data:
+Here is the main method that calls the OpenGammaExample class's main method:
+
+<< d['../sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['main'] >>
+
+Here are the first few lines of the tab-separated data file we generated:
 
 \begin{Verbatim}
-<< "\n".join(d['sabr-extrapolation/smile-multi-mu-data.txt'].splitlines()[0:10]) >>
+<< "\n".join(d['../sabr-extrapolation/smile-multi-mu-data.txt'].splitlines()[0:10]) >>
 \end{Verbatim}
 
 \subsection{Plotting Data in R}
@@ -434,34 +585,34 @@ Here is the first few lines of the generated data:
 The reason we have generated this data is to make use of it. In this case, we
 want to plot this data in R. The examples repository is configured so that if
 you create a .R file with the same name as the .java file, this R file will
-be run automatically, after the .java file has been, so it can make use of any
-data files generated by the java.
+be run automatically, after the .java file has been compiled and run, so it can
+make use of any data files generated by the java.
 
 At the top of our R script, we state which libraries we will need:
 
-<< d['sabr-extrapolation/SabrExtrapolationExample.R|idio|l']['libraries'] >>
+<< d['../sabr-extrapolation/SabrExtrapolationExample.R|idio|l']['libraries'] >>
 
 Next we read the generated data into a variable creatively named \verb|data|:
 
-<< d['sabr-extrapolation/SabrExtrapolationExample.R|idio|l']['read-data'] >>
+<< d['../sabr-extrapolation/SabrExtrapolationExample.R|idio|l']['read-data'] >>
 
 We need to calculate the density separately for each value of Mu. To simplify
 this, we begin by creating variables to hold Price and Strike for different
 values of Mu.
 
-<< d['sabr-extrapolation/SabrExtrapolationExample.R|idio|l']['extract-data-by-mu'] >>
+<< d['../sabr-extrapolation/SabrExtrapolationExample.R|idio|l']['extract-data-by-mu'] >>
 
 Next we calculate density for each of the values of Mu, and add the
 concatenated vectors back into our original data object.
 
-<< d['sabr-extrapolation/SabrExtrapolationExample.R|idio|l']['calculate-density'] >>
+<< d['../sabr-extrapolation/SabrExtrapolationExample.R|idio|l']['calculate-density'] >>
 
 Now we are ready to plot. To start with, we plot the option price against the strike price:
 
-<< d['sabr-extrapolation/SabrExtrapolationExample.R|idio|l']['plot-data-pdf'] >>
+<< d['../sabr-extrapolation/SabrExtrapolationExample.R|idio|l']['plot-data-pdf'] >>
 
 %%% @export "include-extrapolation-price-pdf"
-\includegraphics{<< a['sabr-extrapolation/extrapolation-price.pdf'].filename() >>}
+\includegraphics{<< a['../sabr-extrapolation/extrapolation-price.pdf'].filename() >>}
 %%% @end
 
 Because we are working in \LaTeX, we use the \verb|includegraphics| commands
@@ -475,35 +626,12 @@ the PDF file we want to include.
 
 Here is the second plot, of the implied volatility against the strike price:
 
-<< d['sabr-extrapolation/SabrExtrapolationExample.R|idio|l']['plot-implied-vol-pdf'] >>
+<< d['../sabr-extrapolation/SabrExtrapolationExample.R|idio|l']['plot-implied-vol-pdf'] >>
 
-\includegraphics{<< a['sabr-extrapolation/extrapolation-smile.pdf'].filename() >>}
+\includegraphics{<< a['../sabr-extrapolation/extrapolation-smile.pdf'].filename() >>}
 
-\subsection{Saving Field Values}
+And the third plot, of the density against the strike price:
 
-For one last trick, we have added some code to allow us to automatically report
-on all the field values we defined. Eventually, when this is more developed, it
-will be integrated with Dexy so you don't need to insert the code in every
-example to make use of it (similar functionality is available for R and
-Python). For now, the code is just at the end of the \verb|main| method.
+<< d['../sabr-extrapolation/SabrExtrapolationExample.R|idio|l']['plot-density-pdf'] >>
 
-<< d['sabr-extrapolation/SabrExtrapolationExample.java|idio|l']['save-fields'] >>
-
-This code uses Java introspection to iterate over all the class fields and
-write the field names and values to a JSON dict. This means that in our
-documents, we can say that
-
-%%% @export "alpha"
-$\alpha=<<d['sabr-extrapolation/sabr-fields.json']['ALPHA']>>$
-%%% @end
-
-By typing: << d['writing-docs.tex|idio|l']['alpha'] >>
-i.e. without hard-coding that value into our document.
-
-Here are all the field values for this example:
-
-\begin{Verbatim}
-<% for field, value in d['sabr-extrapolation/sabr-fields.json'].iteritems() -%>
-<< field >> : << value >>
-<% endfor -%>
-\end{Verbatim}
+\includegraphics{<< a['../sabr-extrapolation/extrapolation-density.pdf'].filename() >>}

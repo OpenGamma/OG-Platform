@@ -904,7 +904,7 @@ CREATE INDEX ix_prt_portfolio_corr_from_instant ON prt_portfolio(corr_from_insta
 CREATE INDEX ix_prt_portfolio_corr_to_instant ON prt_portfolio(corr_to_instant);
 CREATE INDEX ix_prt_portfolio_name ON prt_portfolio(name);
 -- CREATE INDEX ix_prt_portfolio_nameu ON prt_portfolio(UPPER(name));
-CREATE INDEX ix_visibility ON prt_portfolio(visibility);
+CREATE INDEX ix_prt_portfolio_visibility ON prt_portfolio(visibility);
 
 CREATE TABLE prt_node (
     id bigint NOT NULL,

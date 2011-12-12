@@ -157,7 +157,7 @@ public class Main {
       s_executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
       s_logger.info("Stopping application context");
       s_springContext.stop();
-      s_logger.info("OpenGamma Excel Integration service stopped");
+      s_logger.info("OpenGamma Language Integration service stopped");
       return true;
     } catch (Throwable t) {
       s_logger.error("Exception thrown", t);

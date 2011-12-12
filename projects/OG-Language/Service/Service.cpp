@@ -201,6 +201,26 @@ static void _ServiceStartup (int nReason) {
 				} else {
 					LOGWARN (TEXT ("Couldn't set security descriptor on process handle, error ") << GetLastError ());
 				}
+				if (nReason == SERVICE_RUN_SCM) {
+					SC_HANDLE hSCM = OpenSCManager (NULL, NULL, GENERIC_READ);
+				    if (hSCM) {
+						SC_HANDLE hService = OpenService (hSCM, oSettings.GetServiceName (), GENERIC_WRITE | WRITE_DAC);
+						if (hService) {
+							dwError = SetSecurityInfo (hService, SE_SERVICE, DACL_SECURITY_INFORMATION, NULL, NULL, paclD, NULL);
+							if (dwError == ERROR_SUCCESS) {
+								LOGINFO (TEXT ("Security descriptor set on service"));
+							} else {
+								LOGWARN (TEXT ("Couldn't set security descriptor on service, error ") << GetLastError ());
+							}
+							CloseServiceHandle (hService);
+						} else {
+							LOGWARN (TEXT ("Couldn't open service, error ") << GetLastError ());
+						}
+						CloseServiceHandle (hSCM);
+					} else {
+						LOGWARN (TEXT ("Couldn't open SCM, error ") << GetLastError ());
+					}
+				}
 			} else {
 				LOGWARN (TEXT ("Couldn't create absolute security description, error ") << GetLastError ());
 			}

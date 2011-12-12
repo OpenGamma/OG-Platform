@@ -237,7 +237,33 @@ public class DbHistoricalTimeSeriesMasterWorkerGetTimeSeriesTest extends Abstrac
     assertEquals(LocalDate.of(2011, 1, 2), timeSeries.getTimeAt(1));
     assertEquals(3.21d, timeSeries.getValueAt(1), 0.0001d);
   }
-  
+
+  @Test
+  public void test_get_nPointsFromLatest() {
+    ObjectId oid = ObjectId.of("DbHts", "DP101");
+    HistoricalTimeSeriesGetFilter filter = HistoricalTimeSeriesGetFilter.ofLatestPoint();
+    ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(oid,
+        VersionCorrection.of(_version2Instant.plusSeconds(1), _version3Instant.plusSeconds(1)), filter);
+    assertEquals(oid, test.getUniqueId().getObjectId());
+    LocalDateDoubleTimeSeries timeSeries = test.getTimeSeries();
+    assertEquals(1, timeSeries.size());
+    assertEquals(LocalDate.of(2011, 1, 3), timeSeries.getTimeAt(0));
+    assertEquals(3.3d, timeSeries.getValueAt(0), 0.0001d);
+  }
+
+  @Test
+  public void test_get_nPointsFromLatestWithinDateRange() {
+    ObjectId oid = ObjectId.of("DbHts", "DP101");
+    HistoricalTimeSeriesGetFilter filter = HistoricalTimeSeriesGetFilter.ofRange(null, LocalDate.of(2011, 1, 2), -1);
+    ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(oid,
+        VersionCorrection.of(_version2Instant.plusSeconds(1), _version3Instant.plusSeconds(1)), filter);
+    assertEquals(oid, test.getUniqueId().getObjectId());
+    LocalDateDoubleTimeSeries timeSeries = test.getTimeSeries();
+    assertEquals(1, timeSeries.size());
+    assertEquals(LocalDate.of(2011, 1, 2), timeSeries.getTimeAt(0));
+    assertEquals(3.21d, timeSeries.getValueAt(0), 0.0001d);
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
