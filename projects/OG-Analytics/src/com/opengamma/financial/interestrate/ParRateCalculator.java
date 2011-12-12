@@ -10,7 +10,6 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.annuity.method.AnnuityDiscountingMethod;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
@@ -40,22 +39,31 @@ import com.opengamma.util.CompareUtils;
  * cannot PV to zero, e.g. bonds, a single payment of -1.0 is assumed at zero (i.e. the bond must PV to 1.0)
  */
 public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
-  private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
-  //  private static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
+
   /**
-   * The methods.
+   * The unique instance of the calculator.
    */
-  private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
-  private static final AnnuityDiscountingMethod METHOD_ANNUITY = AnnuityDiscountingMethod.getInstance();
+  private static final ParRateCalculator INSTANCE = new ParRateCalculator();
 
-  private static final ParRateCalculator s_instance = new ParRateCalculator();
-
+  /**
+   * Gets the calculator instance.
+   * @return The calculator.
+   */
   public static ParRateCalculator getInstance() {
-    return s_instance;
+    return INSTANCE;
   }
 
+  /**
+   * Constructor.
+   */
   private ParRateCalculator() {
   }
+
+  /**
+   * The methods and calculators.
+   */
+  private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
+  private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
 
   @Override
   public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
@@ -108,8 +116,7 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
   @Override
   public Double visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
     final double pvSecond = PVC.visit(swap.getSecondLeg(), curves);
-    //    final double pvFixed = PVC.visit(REPLACE_RATE.visit(swap.getFixedLeg(), 1.0), curves);
-    final double pvbp = METHOD_ANNUITY.presentValue(swap.getFixedLeg(), curves).getAmount();
+    final double pvbp = PVC.visit(swap.getFixedLeg().withUnitCoupon(), curves);
     return -pvSecond / pvbp;
   }
 

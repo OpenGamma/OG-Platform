@@ -51,6 +51,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
    * The par rate sensitivity calculator.
    */
   private static final ParRateCurveSensitivityCalculator PRSC = ParRateCurveSensitivityCalculator.getInstance();
+
   private static final CapFloorCMSSABRReplicationMethod INSTANCE = new CapFloorCMSSABRReplicationMethod();
 
   /** 
@@ -69,7 +70,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
   /**
    * Minimal number of integration steps in the replication.
    */
-  private final int _nbIteration = 6;
+  private final int _nbIteration = 10;
 
   /** 
    * Default constructor of the CMS cap/floor replication method. The default integration interval is 1.00 (100%).
@@ -116,9 +117,10 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     final double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
     final CMSIntegrant integrant = new CMSIntegrant(cmsCapFloor, sabrParameter, forward);
     final double strike = cmsCapFloor.getStrike();
-    final double strikePart = discountFactor * integrant.k(strike) * integrant.g(forward) / integrant.h(forward) * integrant.bs(strike);
-    final double absoluteTolerance = 1.0 / (discountFactor * Math.abs(cmsCapFloor.getNotional()) * cmsCapFloor.getPaymentYearFraction());
-    final double relativeTolerance = 1E-2;
+    final double strikePart = discountFactor * integrant.g(forward) / integrant.h(forward) * integrant.k(strike) * integrant.bs(strike);
+    final double absoluteTolerance = 0.1 / (discountFactor * Math.abs(cmsCapFloor.getNotional()) * cmsCapFloor.getPaymentYearFraction());
+    // Implementation note: Each sub-integral has less than 0.1 currency unit error.
+    final double relativeTolerance = 1.0E-6;
     final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, _nbIteration);
     // TODO: replace the integrator by an integrator that does not used the limits (open end). Recorded as [PLAT-1679].
     // TODO: replace the integrator by an integrator that accept infinite interval (for the upper limit of cap).
@@ -268,6 +270,14 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     final double strike = cmsCapFloor.getStrike();
     final double maturity = underlyingSwap.getFixedLeg().getNthPayment(underlyingSwap.getFixedLeg().getNumberOfPayments() - 1).getPaymentTime() - cmsCapFloor.getSettlementTime();
     final DoublesPair expiryMaturity = new DoublesPair(cmsCapFloor.getFixingTime(), maturity);
+
+    final CMSStrikeIntegrant integrant = new CMSStrikeIntegrant(cmsCapFloor, sabrParameter, forward);
+    double factor = discountFactor * integrant.g(forward) / integrant.h(forward);
+
+    final double absoluteTolerance = 1.0E-9;
+    final double relativeTolerance = 1.0E-5;
+    final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, _nbIteration);
+
     final double alpha = sabrParameter.getAlpha(expiryMaturity);
     final double beta = sabrParameter.getBeta(expiryMaturity);
     final double rho = sabrParameter.getRho(expiryMaturity);
@@ -279,17 +289,20 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volA[0]);
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     double[] bsA = blackFunction.getPriceAdjoint(option, dataBlack);
-    final CMSIntegrant integrant = new CMSIntegrant(cmsCapFloor, sabrParameter, forward);
-    double factor = discountFactor * integrant.g(forward) / integrant.h(forward);
+
     double[] kpkpp = integrant.kpkpp(strike);
     double firstPart;
+    double thirdPart;
     if (cmsCapFloor.isCap()) {
       firstPart = -kpkpp[0] * integrant.bs(strike);
+      thirdPart = integrator.integrate(integrant, strike, strike + _integrationInterval);
     } else {
       firstPart = 3 * kpkpp[0] * integrant.bs(strike);
+      thirdPart = integrator.integrate(integrant, 0.0, strike);
     }
     double secondPart = integrant.k(strike) * (bsA[3] + bsA[2] * volA[2]);
-    return cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction() * factor * (firstPart + secondPart);
+
+    return cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction() * factor * (firstPart + secondPart + thirdPart);
   }
 
   /**
@@ -399,7 +412,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
      * @param x The swap rate.
      * @return The derivative (first element is the first derivative, second element is second derivative.
      */
-    private double[] kpkpp(final double x) {
+    double[] kpkpp(final double x) {
       final double periodFactor = 1 + x / _nbFixedPaymentYear;
       final double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
       /**
@@ -574,5 +587,25 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     }
 
   }
+
+  private class CMSStrikeIntegrant extends CMSIntegrant {
+
+    /**
+     * @param cmsCap
+     * @param sabrParameter
+     * @param forward
+     */
+    public CMSStrikeIntegrant(CapFloorCMS cmsCap, SABRInterestRateParameters sabrParameter, double forward) {
+      super(cmsCap, sabrParameter, forward);
+    }
+
+    @Override
+    public Double evaluate(final Double x) {
+      final double[] kD = super.kpkpp(x);
+      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
+      return -kD[1] * bs(x);
+    }
+
+  } // End CMSStrikeIntegrant
 
 }

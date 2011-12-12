@@ -131,7 +131,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
     final double priceCMSCap0 = PVC_SABR.visit(CMS_CAP_0, SABR_BUNDLE);
     assertEquals(priceCMSCoupon, priceCMSCap0, 1E-2);
     final double priceCMSCap = PVC_SABR.visit(CMS_CAP, SABR_BUNDLE);
-    assertEquals(48695.384, priceCMSCap, 1E-2); //From previous run
+    assertEquals(48695.371, priceCMSCap, 1E-2); //From previous run
     final double priceCMSFloor = PVC_SABR.visit(CMS_FLOOR, SABR_BUNDLE);
     assertEquals(1981.190, priceCMSFloor, 1E-2); //From previous run
     final double priceStrike = PVC_SABR.visit(COUPON_STRIKE, CURVES);
@@ -344,14 +344,24 @@ public class CapFloorCMSSABRReplicationMethodTest {
    * Tests the present value strike sensitivity: Cap.
    */
   public void presentValueStrikeSensitivityCap() {
-    double pv = METHOD.presentValue(CMS_CAP, SABR_BUNDLE).getAmount();
-    double shift = 0.0001; // 1bp
-    CapFloorCMSDefinition cmsCapShiftDefinition = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, STRIKE + shift, IS_CAP);
-    CapFloorCMS cmsCapShift = (CapFloorCMS) cmsCapShiftDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    double pvShift = METHOD.presentValue(cmsCapShift, SABR_BUNDLE).getAmount();
-    double sensiExpected = (pvShift - pv) / shift;
-    double sensiComputed = METHOD.presentValueStrikeSensitivity(CMS_CAP, SABR_BUNDLE);
-    assertEquals("CMS cap/floor SABR: Present value strike sensitivity", 0, (sensiExpected - sensiComputed) / sensiExpected, 1.0E-3);
+    double[] strikes = new double[] {0.0001, 0.0010, 0.0050, 0.0100, 0.0200, 0.0400, 0.0500};
+    int nbStrikes = strikes.length;
+    double shift = 1.0E-5;
+    double[] errorRelative = new double[nbStrikes];
+    for (int loopstrike = 0; loopstrike < nbStrikes; loopstrike++) {
+      CapFloorCMSDefinition cmsCapDefinition = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, strikes[loopstrike], IS_CAP);
+      CapFloorCMSDefinition cmsCapShiftUpDefinition = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, strikes[loopstrike] + shift, IS_CAP);
+      CapFloorCMSDefinition cmsCapShiftDoDefinition = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, strikes[loopstrike] - shift, IS_CAP);
+      CapFloorCMS cmsCap = (CapFloorCMS) cmsCapDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+      CapFloorCMS cmsCapShiftUp = (CapFloorCMS) cmsCapShiftUpDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+      CapFloorCMS cmsCapShiftDo = (CapFloorCMS) cmsCapShiftDoDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+      double pvShiftUp = METHOD.presentValue(cmsCapShiftUp, SABR_BUNDLE).getAmount();
+      double pvShiftDo = METHOD.presentValue(cmsCapShiftDo, SABR_BUNDLE).getAmount();
+      double sensiExpected = (pvShiftUp - pvShiftDo) / (2 * shift);
+      double sensiComputed = METHOD.presentValueStrikeSensitivity(cmsCap, SABR_BUNDLE);
+      errorRelative[loopstrike] = (sensiExpected - sensiComputed) / sensiExpected;
+      assertEquals("CMS cap/floor SABR: Present value strike sensitivity " + loopstrike, 0, errorRelative[loopstrike], 5.0E-4); // Numerical imprecision, reduce to E-6 when nbInteration = 1000;
+    }
   }
 
   @Test
@@ -359,7 +369,24 @@ public class CapFloorCMSSABRReplicationMethodTest {
    * Tests the present value strike sensitivity: Floor.
    */
   public void presentValueStrikeSensitivityFloor() {
-
+    double[] strikes = new double[] {0.0001, 0.0010, 0.0050, 0.0100, 0.0200, 0.0400};
+    int nbStrikes = strikes.length;
+    double shift = 1.0E-5;
+    double[] errorRelative = new double[nbStrikes];
+    for (int loopstrike = 0; loopstrike < nbStrikes; loopstrike++) {
+      CapFloorCMSDefinition cmsFloorDefinition = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, strikes[loopstrike], !IS_CAP);
+      CapFloorCMSDefinition cmsFloorShiftUpDefinition = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, strikes[loopstrike] + shift, !IS_CAP);
+      CapFloorCMSDefinition cmsFloorShiftDoDefinition = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, strikes[loopstrike] - shift, !IS_CAP);
+      CapFloorCMS cmsFloor = (CapFloorCMS) cmsFloorDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+      CapFloorCMS cmsFloorShiftUp = (CapFloorCMS) cmsFloorShiftUpDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+      CapFloorCMS cmsFloorShiftDo = (CapFloorCMS) cmsFloorShiftDoDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+      double pvShiftUp = METHOD.presentValue(cmsFloorShiftUp, SABR_BUNDLE).getAmount();
+      double pvShiftDo = METHOD.presentValue(cmsFloorShiftDo, SABR_BUNDLE).getAmount();
+      double sensiExpected = (pvShiftUp - pvShiftDo) / (2 * shift);
+      double sensiComputed = METHOD.presentValueStrikeSensitivity(cmsFloor, SABR_BUNDLE);
+      errorRelative[loopstrike] = (sensiExpected - sensiComputed) / sensiExpected;
+      assertEquals("CMS cap/floor SABR: Present value strike sensitivity " + loopstrike, 0, errorRelative[loopstrike], 3.0E-5);
+    }
   }
 
   @Test(enabled = false)
@@ -369,6 +396,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
   public void performance() {
     long startTime, endTime;
     final int nbTest = 1000;
+
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       PVC_SABR.visit(CMS_CAP, SABR_BUNDLE);
@@ -377,8 +405,9 @@ public class CapFloorCMSSABRReplicationMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " CMS cap by replication (price+delta+vega): " + (endTime - startTime) + " ms");
-    // Performance note: price+delta: 6-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 245 ms for 1000 cap 5Y.
-    // Performance note: price+delta+vega: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 620 ms for 1000 cap 5Y.
+    // Performance note: price+delta: 9-Dec-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 280 ms for 1000 cap 5Y.
+    // Performance note: price+delta+vega: 9-Dec-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 790 ms for 1000 cap 5Y.
+
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       PVC_SABR.visit(CMS_FLOOR, SABR_BUNDLE);
@@ -387,7 +416,8 @@ public class CapFloorCMSSABRReplicationMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " CMS floor by replication (price+delta+vega): " + (endTime - startTime) + " ms");
-    // Performance note: price+delta: 6-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 160 ms for 1000 floor 5Y.
-    // Performance note: price+delta+vega: 6-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 335 ms for 1000 cap 5Y.
+    // Performance note: price+delta: 9-Dec-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 230 ms for 1000 floor 5Y.
+    // Performance note: price+delta+vega: 9-Dec-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 555 ms for 1000 cap 5Y.
   }
+
 }

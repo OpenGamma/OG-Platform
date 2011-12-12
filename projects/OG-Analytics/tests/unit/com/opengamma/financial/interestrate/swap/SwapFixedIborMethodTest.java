@@ -116,7 +116,7 @@ public class SwapFixedIborMethodTest {
     curvesNotBumped.addAll(curves);
     curvesNotBumped.setCurve("Bumped Curve", tempCurveFunding);
     final double pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(SWAP_PAYER, curvesNotBumped);
-    final InterestRateCurveSensitivity pvbpDr = SwapFixedDiscountingMethod.presentValueBasisPointSensitivity(SWAP_PAYER, curvesNotBumped);
+    final InterestRateCurveSensitivity pvbpDr = SwapFixedDiscountingMethod.presentValueBasisPointCurveSensitivity(SWAP_PAYER, curvesNotBumped);
 
     final List<DoublesPair> tempFunding = pvbpDr.getSensitivities().get(FUNDING_CURVE_NAME);
     for (int i = 0; i < nbPayDate; i++) {

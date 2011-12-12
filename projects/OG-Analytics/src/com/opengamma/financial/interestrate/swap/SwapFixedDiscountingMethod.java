@@ -130,7 +130,7 @@ public class SwapFixedDiscountingMethod {
    * @param discountingCurve The discounting curve.
    * @return The sensitivity.
    */
-  public static List<DoublesPair> presentValueBasisPointSensitivity(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final YieldAndDiscountCurve discountingCurve) {
+  public static List<DoublesPair> presentValueBasisPointCurveSensitivity(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final YieldAndDiscountCurve discountingCurve) {
     final AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
     double time;
     final List<DoublesPair> list = new ArrayList<DoublesPair>();
@@ -149,11 +149,11 @@ public class SwapFixedDiscountingMethod {
    * @param curves The yield curve bundle (containing the appropriate discounting curve).
    * @return The sensitivity.
    */
-  public static InterestRateCurveSensitivity presentValueBasisPointSensitivity(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final YieldCurveBundle curves) {
+  public static InterestRateCurveSensitivity presentValueBasisPointCurveSensitivity(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final YieldCurveBundle curves) {
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     final AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName());
-    result.put(annuityFixed.getNthPayment(0).getFundingCurveName(), presentValueBasisPointSensitivity(fixedCouponSwap, discountingCurve));
+    result.put(annuityFixed.getNthPayment(0).getFundingCurveName(), presentValueBasisPointCurveSensitivity(fixedCouponSwap, discountingCurve));
     return new InterestRateCurveSensitivity(result);
   }
 

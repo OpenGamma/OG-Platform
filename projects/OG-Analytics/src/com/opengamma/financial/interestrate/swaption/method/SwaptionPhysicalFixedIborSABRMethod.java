@@ -8,10 +8,10 @@ package com.opengamma.financial.interestrate.swaption.method;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.method.PricingMethod;
@@ -31,6 +31,25 @@ import com.opengamma.util.tuple.DoublesPair;
 public final class SwaptionPhysicalFixedIborSABRMethod implements PricingMethod {
 
   /**
+   * The method unique instance.
+   */
+  private static final SwaptionPhysicalFixedIborSABRMethod INSTANCE = new SwaptionPhysicalFixedIborSABRMethod();
+
+  /**
+   * Return the unique instance of the class.
+   * @return The instance.
+   */
+  public static SwaptionPhysicalFixedIborSABRMethod getInstance() {
+    return INSTANCE;
+  }
+
+  /**
+   * Private constructor.
+   */
+  private SwaptionPhysicalFixedIborSABRMethod() {
+  }
+
+  /**
    * The par rate sensitivity calculator.
    */
   private static final ParRateCurveSensitivityCalculator PRSC = ParRateCurveSensitivityCalculator.getInstance();
@@ -38,14 +57,6 @@ public final class SwaptionPhysicalFixedIborSABRMethod implements PricingMethod 
    * The par rate calculator.
    */
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
-  private static final SwaptionPhysicalFixedIborSABRMethod INSTANCE = new SwaptionPhysicalFixedIborSABRMethod();
-
-  public static SwaptionPhysicalFixedIborSABRMethod getInstance() {
-    return INSTANCE;
-  }
-
-  private SwaptionPhysicalFixedIborSABRMethod() {
-  }
 
   /**
    * Computes the present value of a physical delivery European swaption in the SABR model.
@@ -96,7 +107,7 @@ public final class SwaptionPhysicalFixedIborSABRMethod implements PricingMethod 
     final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(PRSC.visit(swaption.getUnderlyingSwap(), sabrData));
     final double pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()));
     // Derivative of the PVBP with respect to the rates.
-    final InterestRateCurveSensitivity pvbpDr = SwapFixedDiscountingMethod.presentValueBasisPointSensitivity(swaption.getUnderlyingSwap(), sabrData);
+    final InterestRateCurveSensitivity pvbpDr = SwapFixedDiscountingMethod.presentValueBasisPointCurveSensitivity(swaption.getUnderlyingSwap(), sabrData);
     // Implementation note: strictly speaking, the strike equivalent is curve dependent; that dependency is ignored.
     final double strike = SwapFixedDiscountingMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbp, sabrData);
     final double maturity = swaption.getMaturityTime();
