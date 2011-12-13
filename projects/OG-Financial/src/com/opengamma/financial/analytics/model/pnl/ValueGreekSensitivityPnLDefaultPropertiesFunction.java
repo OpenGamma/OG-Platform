@@ -20,48 +20,48 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class EquityPnLDefaultPropertiesFunction extends DefaultPropertyFunction {
+public class ValueGreekSensitivityPnLDefaultPropertiesFunction extends DefaultPropertyFunction {
   private final String _returnCalculator;
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingCalculator;
   
-  public EquityPnLDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator, final String returnCalculator) {
+  public ValueGreekSensitivityPnLDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator, final String returnCalculator) {
     super(ComputationTargetType.POSITION, true);
-    ArgumentChecker.notNull(samplingPeriod, "sampling period name");
-    ArgumentChecker.notNull(scheduleCalculator, "schedule calculator name");
-    ArgumentChecker.notNull(samplingCalculator, "time series sampling calculator name");
-    ArgumentChecker.notNull(returnCalculator, "return calculator name");
+    ArgumentChecker.notNull(samplingPeriod, "sampling period");
+    ArgumentChecker.notNull(scheduleCalculator, "schedule calculator");
+    ArgumentChecker.notNull(samplingCalculator, "sampling calculator");    
+    ArgumentChecker.notNull(returnCalculator, "return calculator");
     _samplingPeriod = samplingPeriod;
     _scheduleCalculator = scheduleCalculator;
     _samplingCalculator = samplingCalculator;
     _returnCalculator = returnCalculator;
   }
-
+  
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.RETURN_CALCULATOR);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SAMPLING_PERIOD);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SCHEDULE_CALCULATOR);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SAMPLING_FUNCTION);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.RETURN_CALCULATOR);
   }
-
+  
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, 
       final String propertyName) {
-    if (ValuePropertyNames.RETURN_CALCULATOR.equals(propertyName)) {
-      return Collections.singleton(_returnCalculator);
-    }
     if (ValuePropertyNames.SAMPLING_PERIOD.equals(propertyName)) {
       return Collections.singleton(_samplingPeriod);
-    } 
+    }
     if (ValuePropertyNames.SCHEDULE_CALCULATOR.equals(propertyName)) {
       return Collections.singleton(_scheduleCalculator);
     }
     if (ValuePropertyNames.SAMPLING_FUNCTION.equals(propertyName)) {
       return Collections.singleton(_samplingCalculator);
     }
+    if (ValuePropertyNames.RETURN_CALCULATOR.equals(propertyName)) {
+      return Collections.singleton(_returnCalculator);
+    }
     return null;
   }
-
+  
 }

@@ -32,7 +32,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.greeks.AvailableValueGreeks;
-import com.opengamma.financial.analytics.model.riskfactor.option.UnderlyingTypeToHistoricalTimeSeries;
+import com.opengamma.financial.analytics.model.riskfactor.option.UnderlyingTimeSeriesProvider;
 import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunction;
 import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.financial.covariance.CovarianceCalculator;
@@ -124,7 +124,7 @@ public class OptionPositionParametricVaRFunction extends AbstractFunction.NonCom
         if (sensitivity.getUnderlying().getOrder() <= _maxOrder) {
           final Map<UnderlyingType, DoubleTimeSeries<?>> tsReturns = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
           for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
-            final DoubleTimeSeries<?> timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalSource, _resolutionKey, securitySource, underlyingType,
+            final DoubleTimeSeries<?> timeSeries = UnderlyingTimeSeriesProvider.getSeries(historicalSource, _resolutionKey, securitySource, underlyingType,
                 position.getSecurity());
             final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true, false);
             final DoubleTimeSeries<?> sampledTS = _samplingCalculator.getSampledTimeSeries(timeSeries, schedule);

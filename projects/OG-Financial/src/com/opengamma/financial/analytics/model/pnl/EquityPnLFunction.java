@@ -25,6 +25,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
@@ -89,24 +90,24 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
         return null;
       }
       final Position position = target.getPosition();
+      final String currency = FinancialSecurityUtils.getCurrency(position.getSecurity()).getCode();
       final EquitySecurity equity = (EquitySecurity) position.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       final ValueProperties pnlSeriesProperties = ValueProperties.builder()
-        .withAny(ValuePropertyNames.CURRENCY)
+        .with(ValuePropertyNames.CURRENCY, currency)
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName.iterator().next())
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next()).get();
       requirements.add(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId(), ValueProperties.withAny(ValuePropertyNames.CURRENCY).get()));
       requirements.add(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, ComputationTargetType.SECURITY, equity.getUniqueId(), pnlSeriesProperties));
-      // TODO need to consider fx here?
       return requirements;
     }
     return null;
   }
   
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target,
-      Map<ValueSpecification, ValueRequirement> inputs) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target,
+      final Map<ValueSpecification, ValueRequirement> inputs) {
     if (!canApplyTo(context, target)) {
       return null;
     }
