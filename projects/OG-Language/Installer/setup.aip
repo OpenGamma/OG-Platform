@@ -1,0 +1,556 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DOCUMENT Type="Advanced Installer" CreateVersion="8.6" version="8.6" Modules="enterprise" RootPath="." Language="en" Id="{C1CCBC25-A80D-4985-B72C-F63708C7AE48}">
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
+    <ROW Property="ALLUSERS" Value="2" MultiBuildValue="MSI_32:1#MSI_64:1"/>
+    <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
+    <ROW Property="ARPHELPLINK" Value="http://developers.opengamma.com/"/>
+    <ROW Property="ARPPRODUCTICON" Value="OpenGamma.exe" Type="8"/>
+    <ROW Property="ARPURLINFOABOUT" Value="http://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Language"/>
+    <ROW Property="BannerBitmap" Value="banner" MultiBuildValue="MSI_32:opengamma_banner.bmp#MSI_64:opengamma_banner.bmp" Type="1" MsiKey="BannerBitmap"/>
+    <ROW Property="DialogBitmap" Value="dialog" MultiBuildValue="MSI_32:opengamma_dialog.bmp#MSI_64:opengamma_dialog.bmp" Type="1" MsiKey="DialogBitmap"/>
+    <ROW Property="Manufacturer" Value="OpenGamma Ltd" ValueLocId="*"/>
+    <ROW Property="ProductCode" Value="1033:{0FE3D4EA-B175-4F6A-98D4-E1AF3011ACF3} " Type="16"/>
+    <ROW Property="ProductKey32" Value="LanguageIntegration"/>
+    <ROW Property="ProductKey64" Value="LanguageIntegration"/>
+    <ROW Property="ProductLanguage" Value="1033"/>
+    <ROW Property="ProductName" Value="Language Integration Service" ValueLocId="*"/>
+    <ROW Property="ProductVersion" Value="0.9.0"/>
+    <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
+    <ROW Property="UpgradeCode" Value="{98DEC07C-8C4F-4775-B835-8AF302783200}"/>
+    <ROW Property="WindowsType9X" MultiBuildValue="MSI_32:Windows 9x/ME#MSI_64:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsType9XDisplay" MultiBuildValue="MSI_32:Windows 9x/ME#MSI_64:Windows 9x/ME" ValueLocId="-"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
+    <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
+    <ROW Directory="Connector_Dir" Directory_Parent="include_Dir" DefaultDir="Connec~1|Connector"/>
+    <ROW Directory="Service_Dir" Directory_Parent="include_Dir" DefaultDir="Service"/>
+    <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
+    <ROW Directory="Util_Dir" Directory_Parent="include_Dir" DefaultDir="Util"/>
+    <ROW Directory="bin32_Dir" Directory_Parent="APPDIR" DefaultDir="32-bit"/>
+    <ROW Directory="bin64_Dir" Directory_Parent="APPDIR" DefaultDir="64-bit"/>
+    <ROW Directory="ext_Dir" Directory_Parent="APPDIR" DefaultDir="ext"/>
+    <ROW Directory="include_Dir" Directory_Parent="APPDIR" DefaultDir="include"/>
+    <ROW Directory="jar_Dir" Directory_Parent="APPDIR" DefaultDir="jar"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
+    <ROW Component="A36DC7A_AF70_4CF0_B489_B30E0828F882" ComponentId="{C3EEB04D-EB4A-42B5-BADF-976896792170}" Directory_="APPDIR" Attributes="4" KeyPath="A36DC7A_AF70_4CF0_B489_B30E0828F882" Options="2"/>
+    <ROW Component="Connector" ComponentId="{0E995452-78B5-414D-B4B1-DB9B3BA6DD7F}" Directory_="Connector_Dir" Attributes="0" KeyPath="stdafx.h" Type="0"/>
+    <ROW Component="D47E8ACA_EC67_4483_872C_C8478728E5E9" ComponentId="{3CF23DCC-5066-4104-BFA7-3708DF5FF133}" Directory_="APPDIR" Attributes="4" KeyPath="D47E8ACA_EC67_4483_872C_C8478728E5E9" Options="2"/>
+    <ROW Component="Service" ComponentId="{8CACED3E-2484-4704-B456-C84D2A072E38}" Directory_="Service_Dir" Attributes="0" KeyPath="stdafx.h_1" Type="0"/>
+    <ROW Component="ServiceRunner.exe_32" ComponentId="{D4D07BB2-AF73-4D33-A3E7-B9B38831227C}" Directory_="bin32_Dir" Attributes="0" KeyPath="ServiceRunner32.exe"/>
+    <ROW Component="ServiceRunner.exe_64" ComponentId="{C173072E-35F5-41F3-9F9B-16B43333FAE8}" Directory_="bin64_Dir" Attributes="256" Condition="VersionNT64" KeyPath="ServiceRunner64.exe"/>
+    <ROW Component="Settings" ComponentId="{B84C8F66-FCCC-4DF2-A081-741E2EB354F6}" Directory_="APPDIR" Attributes="4" KeyPath="ProductName"/>
+    <ROW Component="Settings64" ComponentId="{C3337D29-E1C9-4C71-B34F-2936B4BF7BB4}" Directory_="APPDIR" Attributes="260" Condition="VersionNT64" KeyPath="Version64"/>
+    <ROW Component="Util" ComponentId="{9402417B-708A-4700-AEEA-F76B9EB7C135}" Directory_="Util_Dir" Attributes="0" KeyPath="AbstractSettings.h" Type="0"/>
+    <ROW Component="client.jar" ComponentId="{E51B43F9-6269-4B88-AD09-CDA336721F27}" Directory_="APPDIR" Attributes="0" KeyPath="client.jar"/>
+    <ROW Component="dll_32" ComponentId="{B684DCA0-388C-472C-A05C-DC4073638C88}" Directory_="bin32_Dir" Attributes="0" KeyPath="apr.dll"/>
+    <ROW Component="dll_64" ComponentId="{50CF50B3-9870-4945-83AB-EBEE28CC6051}" Directory_="bin64_Dir" Attributes="256" Condition="VersionNT64" KeyPath="apr.dll_1"/>
+    <ROW Component="jar" ComponentId="{F36E9077-2EEF-4D29-AB2F-04FDEC921FEA}" Directory_="jar_Dir" Attributes="0" KeyPath="javax.el_juel_juel_api.jar" Type="0"/>
+    <ROW Component="lib_32" ComponentId="{021AA5D2-3C12-488B-9EFB-88B0E54E7414}" Directory_="bin32_Dir" Attributes="0" KeyPath="Connector.lib"/>
+    <ROW Component="lib_64" ComponentId="{920E683F-B17B-45D3-8365-59390F4EB333}" Directory_="bin64_Dir" Attributes="256" Condition="VersionNT64" KeyPath="Connector.lib_1"/>
+    <ROW Component="og_language.xml" ComponentId="{A8D9EB24-FCA8-4EC4-9DA2-0A9A0FD19762}" Directory_="ext_Dir" Attributes="0" KeyPath="og_language.xml"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
+    <ROW Feature="A36DC7A_AF70_4CF0_B489_B30E0828F882" Title="A36DC7A_AF70_4CF0_B489_B30E0828F882" Description="Visual C++ 2010 Redistributable x86" Display="13" Level="1" Attributes="0" Components="A36DC7A_AF70_4CF0_B489_B30E0828F882"/>
+    <ROW Feature="Config" Title="Default Configuration" Description="Default system configuration" Display="5" Level="1" Directory_="APPDIR" Attributes="0" Components="Settings Settings64"/>
+    <ROW Feature="D47E8ACA_EC67_4483_872C_C8478728E5E9" Title="D47E8ACA_EC67_4483_872C_C8478728E5E9" Description="Visual C++ 2010 Redistributable x64" Display="15" Level="1" Attributes="0" Components="D47E8ACA_EC67_4483_872C_C8478728E5E9"/>
+    <ROW Feature="Java" Title="Java" Description="Java libraries and components" Display="3" Level="1" Directory_="APPDIR" Attributes="0" Components="client.jar jar og_language.xml"/>
+    <ROW Feature="client_32" Feature_Parent="core_32" Title="32-bit Client SDK" Description="Support for 32 bit API clients" Display="3" Level="4" Directory_="APPDIR" Attributes="0" Components="lib_32"/>
+    <ROW Feature="client_64" Feature_Parent="core_64" Title="64-bit Client SDK" Description="Support for 64 bit API clients" Display="3" Level="4" Directory_="APPDIR" Attributes="0" Components="lib_64"/>
+    <ROW Feature="core_32" Title="32-bit" Description="Support for 32-bit components" Display="9" Level="1" Directory_="APPDIR" Attributes="0" Components="dll_32"/>
+    <ROW Feature="core_64" Title="64-bit" Description="Support for 64-bit components" Display="7" Level="1" Directory_="APPDIR" Attributes="0" Components="dll_64"/>
+    <ROW Feature="headers" Title="Client SDK" Description="Header files for API clients" Display="11" Level="4" Directory_="APPDIR" Attributes="0" Components="Connector Service Util"/>
+    <ROW Feature="service_32" Feature_Parent="core_32" Title="32-bit Server" Description="32 bit Java service" Display="5" Level="1" Directory_="APPDIR" Attributes="0" Components="ServiceRunner.exe_32" Builds="MSI_32"/>
+    <ROW Feature="service_64" Feature_Parent="core_64" Title="64-bit Server" Description="64 bit Java service" Display="5" Level="1" Directory_="APPDIR" Attributes="0" Components="ServiceRunner.exe_64" Builds="MSI_64"/>
+    <ATTRIBUTE name="CurrentFeature" value="Config"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
+    <ROW File="AbstractSettings.h" Component_="Util" FileName="Abstra~1.h|AbstractSettings.h" Attributes="0" SourcePath="..\Util\AbstractSettings.h" SelfReg="false" NextFile="AbstractTest.h"/>
+    <ROW File="AbstractTest.h" Component_="Util" FileName="Abstra~2.h|AbstractTest.h" Attributes="0" SourcePath="..\Util\AbstractTest.h" SelfReg="false" NextFile="Asynchronous.h"/>
+    <ROW File="Alert.h" Component_="Connector" FileName="Alert.h" Attributes="0" SourcePath="..\Connector\Alert.h" SelfReg="false" NextFile="Client.h"/>
+    <ROW File="Asynchronous.h" Component_="Util" FileName="Asynch~1.h|Asynchronous.h" Attributes="0" SourcePath="..\Util\Asynchronous.h" SelfReg="false" NextFile="Atomic.h"/>
+    <ROW File="Atomic.h" Component_="Util" FileName="Atomic.h" Attributes="0" SourcePath="..\Util\Atomic.h" SelfReg="false" NextFile="BufferedInput.h"/>
+    <ROW File="BufferedInput.h" Component_="Util" FileName="Buffer~1.h|BufferedInput.h" Attributes="0" SourcePath="..\Util\BufferedInput.h" SelfReg="false" NextFile="DllVersion.h"/>
+    <ROW File="Client.h" Component_="Connector" FileName="Client.h" Attributes="0" SourcePath="..\Connector\Client.h" SelfReg="false" NextFile="com_opengamma_language_connector_ConnectorMessage.h"/>
+    <ROW File="ClientConnect.h" Component_="Service" FileName="Client~1.h|ClientConnect.h" Attributes="0" SourcePath="..\Service\ClientConnect.h" SelfReg="false" NextFile="ConnectionPipe.h"/>
+    <ROW File="ConnectionPipe.h" Component_="Service" FileName="Connec~1.h|ConnectionPipe.h" Attributes="0" SourcePath="..\Service\ConnectionPipe.h" SelfReg="false" NextFile="JVM.h_1"/>
+    <ROW File="Connector.h" Component_="Connector" FileName="Connec~1.h|Connector.h" Attributes="0" SourcePath="..\Connector\Connector.h" SelfReg="false" NextFile="Errors.h"/>
+    <ROW File="Connector.lib" Component_="lib_32" FileName="Connec~1.lib|Connector.lib" Attributes="0" SourcePath="..\build\ReleaseWin32\Connector.lib" SelfReg="false" NextFile="Service.lib"/>
+    <ROW File="Connector.lib_1" Component_="lib_64" FileName="Connec~1.lib|Connector.lib" Attributes="0" SourcePath="..\build\Releasex64\Connector.lib" SelfReg="false" NextFile="Service.lib_1"/>
+    <ROW File="DllVersion.h" Component_="Util" FileName="DllVer~1.h|DllVersion.h" Attributes="0" SourcePath="..\Util\DllVersion.h" SelfReg="false" NextFile="DllVersionInfo.h"/>
+    <ROW File="DllVersionInfo.h" Component_="Util" FileName="DllVer~2.h|DllVersionInfo.h" Attributes="0" SourcePath="..\Util\DllVersionInfo.h" SelfReg="false" NextFile="Error.h"/>
+    <ROW File="Error.h" Component_="Util" FileName="Error.h" Attributes="0" SourcePath="..\Util\Error.h" SelfReg="false" NextFile="File.h"/>
+    <ROW File="Errors.h" Component_="Connector" FileName="Errors.h" Attributes="0" SourcePath="..\Connector\Errors.h" SelfReg="false" NextFile="Functions.h"/>
+    <ROW File="File.h" Component_="Util" FileName="File.h" Attributes="0" SourcePath="..\Util\File.h" SelfReg="false" NextFile="Fudge.h"/>
+    <ROW File="Fudge.h" Component_="Util" FileName="Fudge.h" Attributes="0" SourcePath="..\Util\Fudge.h" SelfReg="false" NextFile="Library.h"/>
+    <ROW File="Functions.h" Component_="Connector" FileName="Functi~1.h|Functions.h" Attributes="0" SourcePath="..\Connector\Functions.h" SelfReg="false" NextFile="JVM.h"/>
+    <ROW File="JVM.h" Component_="Connector" FileName="JVM.h" Attributes="0" SourcePath="..\Connector\JVM.h" SelfReg="false" NextFile="LiveData.h"/>
+    <ROW File="JVM.h_1" Component_="Service" FileName="JVM.h" Attributes="0" SourcePath="..\Service\JVM.h" SelfReg="false" NextFile="Public.h"/>
+    <ROW File="Library.h" Component_="Util" FileName="Library.h" Attributes="0" SourcePath="..\Util\Library.h" SelfReg="false" NextFile="Logging.h"/>
+    <ROW File="LiveData.h" Component_="Connector" FileName="LiveData.h" Attributes="0" SourcePath="..\Connector\LiveData.h" SelfReg="false" NextFile="MessageDirectives.h"/>
+    <ROW File="Logging.h" Component_="Util" FileName="Logging.h" Attributes="0" SourcePath="..\Util\Logging.h" SelfReg="false" NextFile="MemoryPool.h"/>
+    <ROW File="MemoryPool.h" Component_="Util" FileName="Memory~1.h|MemoryPool.h" Attributes="0" SourcePath="..\Util\MemoryPool.h" SelfReg="false" NextFile="Mutex.h"/>
+    <ROW File="MessageDirectives.h" Component_="Connector" FileName="Messag~1.h|MessageDirectives.h" Attributes="0" SourcePath="..\Connector\MessageDirectives.h" SelfReg="false" NextFile="Pipes.h"/>
+    <ROW File="Mutex.h" Component_="Util" FileName="Mutex.h" Attributes="0" SourcePath="..\Util\Mutex.h" SelfReg="false" NextFile="NamedPipe.h"/>
+    <ROW File="NamedPipe.h" Component_="Util" FileName="NamedP~1.h|NamedPipe.h" Attributes="0" SourcePath="..\Util\NamedPipe.h" SelfReg="false" NextFile="Process.h"/>
+    <ROW File="Pipes.h" Component_="Connector" FileName="Pipes.h" Attributes="0" SourcePath="..\Connector\Pipes.h" SelfReg="false" NextFile="Procedures.h"/>
+    <ROW File="Procedures.h" Component_="Connector" FileName="Proced~1.h|Procedures.h" Attributes="0" SourcePath="..\Connector\Procedures.h" SelfReg="false" NextFile="RequestBuilder.h"/>
+    <ROW File="Process.h" Component_="Util" FileName="Process.h" Attributes="0" SourcePath="..\Util\Process.h" SelfReg="false" NextFile="Quote.h"/>
+    <ROW File="Public.h" Component_="Service" FileName="Public.h" Attributes="0" SourcePath="..\Service\Public.h" SelfReg="false" NextFile="Service.h"/>
+    <ROW File="Quote.h" Component_="Util" FileName="Quote.h" Attributes="0" SourcePath="..\Util\Quote.h" SelfReg="false" NextFile="Semaphore.h"/>
+    <ROW File="RequestBuilder.h" Component_="Connector" FileName="Reques~1.h|RequestBuilder.h" Attributes="0" SourcePath="..\Connector\RequestBuilder.h" SelfReg="false" NextFile="Settings.h"/>
+    <ROW File="Semaphore.h" Component_="Util" FileName="Semaph~1.h|Semaphore.h" Attributes="0" SourcePath="..\Util\Semaphore.h" SelfReg="false" NextFile="stdafx.h_2"/>
+    <ROW File="Service.h" Component_="Service" FileName="Service.h" Attributes="0" SourcePath="..\Service\Service.h" SelfReg="false" NextFile="Settings.h_1"/>
+    <ROW File="Service.lib" Component_="lib_32" FileName="Service.lib" Attributes="0" SourcePath="..\build\ReleaseWin32\Service.lib" SelfReg="false" NextFile="ServiceRunner32.exe"/>
+    <ROW File="Service.lib_1" Component_="lib_64" FileName="Service.lib" Attributes="0" SourcePath="..\build\Releasex64\Service.lib" SelfReg="false" NextFile="Util.lib_1"/>
+    <ROW File="ServiceRunner32.exe" Component_="ServiceRunner.exe_32" FileName="Servic~1.exe|ServiceRunner.exe" Attributes="0" SourcePath="..\build\ReleaseWin32\ServiceRunner.exe" SelfReg="false" NextFile="Util.lib"/>
+    <ROW File="ServiceRunner64.exe" Component_="ServiceRunner.exe_64" FileName="Servic~1.exe|ServiceRunner.exe" Attributes="0" SourcePath="..\build\Releasex64\ServiceRunner.exe" SelfReg="false" NextFile="og_language.xml"/>
+    <ROW File="Settings.h" Component_="Connector" FileName="Settings.h" Attributes="0" SourcePath="..\Connector\Settings.h" SelfReg="false" NextFile="stdafx.h"/>
+    <ROW File="Settings.h_1" Component_="Service" FileName="Settings.h" Attributes="0" SourcePath="..\Service\Settings.h" SelfReg="false" NextFile="stdafx.h_1"/>
+    <ROW File="String.h" Component_="Util" FileName="String.h" Attributes="0" SourcePath="..\Util\String.h" SelfReg="false" NextFile="Thread.h"/>
+    <ROW File="SynchronousCalls.h" Component_="Connector" FileName="Synchr~1.h|SynchronousCalls.h" Attributes="0" SourcePath="..\Connector\SynchronousCalls.h" SelfReg="false" NextFile="ClientConnect.h"/>
+    <ROW File="Thread.h" Component_="Util" FileName="Thread.h" Attributes="0" SourcePath="..\Util\Thread.h" SelfReg="false" NextFile="TimeoutIO.h"/>
+    <ROW File="TimeoutIO.h" Component_="Util" FileName="Timeou~1.h|TimeoutIO.h" Attributes="0" SourcePath="..\Util\TimeoutIO.h" SelfReg="false" NextFile="Unicode.h"/>
+    <ROW File="Unicode.h" Component_="Util" FileName="Unicode.h" Attributes="0" SourcePath="..\Util\Unicode.h" SelfReg="false" NextFile="javax.el_juel_juel_api.jar"/>
+    <ROW File="Util.lib" Component_="lib_32" FileName="Util.lib" Attributes="0" SourcePath="..\build\ReleaseWin32\Util.lib" SelfReg="false" NextFile="Connector.lib_1"/>
+    <ROW File="Util.lib_1" Component_="lib_64" FileName="Util.lib" Attributes="0" SourcePath="..\build\Releasex64\Util.lib" SelfReg="false" NextFile="ServiceRunner64.exe"/>
+    <ROW File="apr.dll" Component_="dll_32" FileName="apr.dll" Attributes="0" SourcePath="..\build\ReleaseWin32\apr.dll" SelfReg="false" NextFile="aprutil.dll"/>
+    <ROW File="apr.dll_1" Component_="dll_64" FileName="apr.dll" Attributes="0" SourcePath="..\build\Releasex64\apr.dll" SelfReg="false" NextFile="aprutil.dll_1"/>
+    <ROW File="aprutil.dll" Component_="dll_32" FileName="aprutil.dll" Attributes="0" SourcePath="..\build\ReleaseWin32\aprutil.dll" SelfReg="false" NextFile="libfudgec.dll"/>
+    <ROW File="aprutil.dll_1" Component_="dll_64" FileName="aprutil.dll" Attributes="0" SourcePath="..\build\Releasex64\aprutil.dll" SelfReg="false" NextFile="libfudgecX64.dll"/>
+    <ROW File="cern_colt_colt.jar" Component_="jar" FileName="cern-c~1.jar|cern-colt-colt.jar" Attributes="0" SourcePath="..\build\jar\cern-colt-colt.jar" SelfReg="false" NextFile="cern_parallelcolt_parallelcolt.jar"/>
+    <ROW File="cern_parallelcolt_parallelcolt.jar" Component_="jar" FileName="cern-p~1.jar|cern-parallelcolt-parallelcolt.jar" Attributes="0" SourcePath="..\build\jar\cern-parallelcolt-parallelcolt.jar" SelfReg="false" NextFile="org.json_json_json.jar"/>
+    <ROW File="ch.qos_logback_logback_classic.jar" Component_="jar" FileName="chqos-~2.jar|ch.qos-logback-logback-classic.jar" Attributes="0" SourcePath="..\build\jar\ch.qos-logback-logback-classic.jar" SelfReg="false" NextFile="com.opengamma_og_core_og_core.jar"/>
+    <ROW File="ch.qos_logback_logback_core.jar" Component_="jar" FileName="chqos-~1.jar|ch.qos-logback-logback-core.jar" Attributes="0" SourcePath="..\build\jar\ch.qos-logback-logback-core.jar" SelfReg="false" NextFile="org.apache.httpcomponents_httpcore_httpcore.jar"/>
+    <ROW File="client.jar" Component_="client.jar" FileName="client.jar" Attributes="0" SourcePath="..\build\client.jar" SelfReg="false" NextFile="Connector.lib"/>
+    <ROW File="com.beust_jcommander_jcommander.jar" Component_="jar" FileName="combeu~1.jar|com.beust-jcommander-jcommander.jar" Attributes="0" SourcePath="..\build\jar\com.beust-jcommander-jcommander.jar" SelfReg="false" NextFile="org.apache.commons_commons_io_commons_io.jar"/>
+    <ROW File="com.google.common_guava_guava.jar" Component_="jar" FileName="comgoo~1.jar|com.google.common-guava-guava.jar" Attributes="0" SourcePath="..\build\jar\com.google.common-guava-guava.jar" SelfReg="false" NextFile="org.springframework_spring_spring_test.jar"/>
+    <ROW File="com.opengamma_og_analytics_og_analytics.jar" Component_="jar" FileName="comope~8.jar|com.opengamma-og-analytics-og-analytics.jar" Attributes="0" SourcePath="..\build\jar\com.opengamma-og-analytics-og-analytics.jar" SelfReg="false" NextFile="org.apache.commons_commons_math_commons_math.jar"/>
+    <ROW File="com.opengamma_og_core_og_core.jar" Component_="jar" FileName="comope~2.jar|com.opengamma-og-core-og-core.jar" Attributes="0" SourcePath="..\build\jar\com.opengamma-og-core-og-core.jar" SelfReg="false" NextFile="javax.mail_javamail_smtp.jar"/>
+    <ROW File="com.opengamma_og_engine_og_engine.jar" Component_="jar" FileName="comope~6.jar|com.opengamma-og-engine-og-engine.jar" Attributes="0" SourcePath="..\build\jar\com.opengamma-og-engine-og-engine.jar" SelfReg="false" NextFile="org.springframework_spring_spring_orm.jar"/>
+    <ROW File="com.opengamma_og_financial_og_financial.jar" Component_="jar" FileName="comope~5.jar|com.opengamma-og-financial-og-financial.jar" Attributes="0" SourcePath="..\build\jar\com.opengamma-og-financial-og-financial.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbytools.jar"/>
+    <ROW File="com.opengamma_og_livedata_og_livedata.jar" Component_="jar" FileName="comope~7.jar|com.opengamma-og-livedata-og-livedata.jar" Attributes="0" SourcePath="..\build\jar\com.opengamma-og-livedata-og-livedata.jar" SelfReg="false" NextFile="org.freemarker_freemarker_freemarker.jar"/>
+    <ROW File="com.opengamma_og_master_og_master.jar" Component_="jar" FileName="comope~9.jar|com.opengamma-og-master-og-master.jar" Attributes="0" SourcePath="..\build\jar\com.opengamma-og-master-og-master.jar" SelfReg="false" NextFile="org.postgresql_postgresql_jdbc_postgresql_jdbc4.jar"/>
+    <ROW File="com.opengamma_og_security_og_security.jar" Component_="jar" FileName="comope~3.jar|com.opengamma-og-security-og-security.jar" Attributes="0" SourcePath="..\build\jar\com.opengamma-og-security-og-security.jar" SelfReg="false" NextFile="com.opengamma_og_util_og_util.jar"/>
+    <ROW File="com.opengamma_og_util_og_util.jar" Component_="jar" FileName="comope~4.jar|com.opengamma-og-util-og-util.jar" Attributes="0" SourcePath="..\build\jar\com.opengamma-og-util-og-util.jar" SelfReg="false" NextFile="org.springframework_spring_spring_core.jar"/>
+    <ROW File="com.opengamma_region_og_regions.jar" Component_="jar" FileName="comope~1.jar|com.opengamma-region-og-regions.jar" Attributes="0" SourcePath="..\build\jar\com.opengamma-region-og-regions.jar" SelfReg="false" NextFile="org.apache.commons_commons_codec_commons_codec.jar"/>
+    <ROW File="com.rabbitmq_java_client_rabbitmq_client.jar" Component_="jar" FileName="comrab~1.jar|com.rabbitmq-java-client-rabbitmq-client.jar" Attributes="0" SourcePath="..\build\jar\com.rabbitmq-java-client-rabbitmq-client.jar" SelfReg="false" NextFile="org.apache.commons_commons_beanutils_commons_beanutils.jar"/>
+    <ROW File="com.sleepycat_je_je.jar" Component_="jar" FileName="comsle~1.jar|com.sleepycat-je-je.jar" Attributes="0" SourcePath="..\build\jar\com.sleepycat-je-je.jar" SelfReg="false" NextFile="org.springframework_spring_spring_jms.jar"/>
+    <ROW File="com.sun.jersey_jersey_jersey_client.jar" Component_="jar" FileName="comsun~3.jar|com.sun.jersey-jersey-jersey-client.jar" Attributes="0" SourcePath="..\build\jar\com.sun.jersey-jersey-jersey-client.jar" SelfReg="false" NextFile="org.joda_joda_beans_joda_beans.jar"/>
+    <ROW File="com.sun.jersey_jersey_jersey_core.jar" Component_="jar" FileName="comsun~2.jar|com.sun.jersey-jersey-jersey-core.jar" Attributes="0" SourcePath="..\build\jar\com.sun.jersey-jersey-jersey-core.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_zh_TW.jar"/>
+    <ROW File="com.sun.jersey_jersey_jersey_server.jar" Component_="jar" FileName="comsun~1.jar|com.sun.jersey-jersey-jersey-server.jar" Attributes="0" SourcePath="..\build\jar\com.sun.jersey-jersey-jersey-server.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_ru.jar"/>
+    <ROW File="com.thoughtworks.paranamer_paranamer_paranamer.jar" Component_="jar" FileName="comtho~1.jar|com.thoughtworks.paranamer-paranamer-paranamer.jar" Attributes="0" SourcePath="..\build\jar\com.thoughtworks.paranamer-paranamer-paranamer.jar" SelfReg="false" NextFile="org.springframework_spring_amqp_spring_amqp.jar"/>
+    <ROW File="com.yahoo.platform.yui_yuicompressor_yuicompressor.jar" Component_="jar" FileName="comyah~1.jar|com.yahoo.platform.yui-yuicompressor-yuicompressor.jar" Attributes="0" SourcePath="..\build\jar\com.yahoo.platform.yui-yuicompressor-yuicompressor.jar" SelfReg="false" NextFile="org.springframework_spring_spring_beans.jar"/>
+    <ROW File="com_opengamma_language_Data.h" Component_="Connector" FileName="com_op~9.h|com_opengamma_language_Data.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_Data.h" SelfReg="false" NextFile="com_opengamma_language_definition_Definition.h"/>
+    <ROW File="com_opengamma_language_Value.h" Component_="Connector" FileName="com_o~31.h|com_opengamma_language_Value.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_Value.h" SelfReg="false" NextFile="Connector.h"/>
+    <ROW File="com_opengamma_language_connector_ConnectorMessage.h" Component_="Connector" FileName="com_op~1.h|com_opengamma_language_connector_ConnectorMessage.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_connector_ConnectorMessage.h" SelfReg="false" NextFile="com_opengamma_language_connector_Custom.h"/>
+    <ROW File="com_opengamma_language_connector_Custom.h" Component_="Connector" FileName="com_op~2.h|com_opengamma_language_connector_Custom.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_connector_Custom.h" SelfReg="false" NextFile="com_opengamma_language_connector_Function.h"/>
+    <ROW File="com_opengamma_language_connector_Function.h" Component_="Connector" FileName="com_op~3.h|com_opengamma_language_connector_Function.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_connector_Function.h" SelfReg="false" NextFile="com_opengamma_language_connector_LiveData.h"/>
+    <ROW File="com_opengamma_language_connector_LiveData.h" Component_="Connector" FileName="com_op~4.h|com_opengamma_language_connector_LiveData.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_connector_LiveData.h" SelfReg="false" NextFile="com_opengamma_language_connector_Procedure.h"/>
+    <ROW File="com_opengamma_language_connector_Procedure.h" Component_="Connector" FileName="com_op~5.h|com_opengamma_language_connector_Procedure.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_connector_Procedure.h" SelfReg="false" NextFile="com_opengamma_language_connector_Test.h"/>
+    <ROW File="com_opengamma_language_connector_Test.h" Component_="Connector" FileName="com_op~6.h|com_opengamma_language_connector_Test.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_connector_Test.h" SelfReg="false" NextFile="com_opengamma_language_connector_UserMessage.h"/>
+    <ROW File="com_opengamma_language_connector_UserMessage.h" Component_="Connector" FileName="com_op~7.h|com_opengamma_language_connector_UserMessage.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_connector_UserMessage.h" SelfReg="false" NextFile="com_opengamma_language_connector_UserMessagePayload.h"/>
+    <ROW File="com_opengamma_language_connector_UserMessagePayload.h" Component_="Connector" FileName="com_op~8.h|com_opengamma_language_connector_UserMessagePayload.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_connector_UserMessagePayload.h" SelfReg="false" NextFile="com_opengamma_language_Data.h"/>
+    <ROW File="com_opengamma_language_definition_Definition.h" Component_="Connector" FileName="com_o~10.h|com_opengamma_language_definition_Definition.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_definition_Definition.h" SelfReg="false" NextFile="com_opengamma_language_definition_Parameter.h"/>
+    <ROW File="com_opengamma_language_definition_Parameter.h" Component_="Connector" FileName="com_o~11.h|com_opengamma_language_definition_Parameter.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_definition_Parameter.h" SelfReg="false" NextFile="com_opengamma_language_function_Available.h"/>
+    <ROW File="com_opengamma_language_function_Available.h" Component_="Connector" FileName="com_o~12.h|com_opengamma_language_function_Available.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_function_Available.h" SelfReg="false" NextFile="com_opengamma_language_function_Available_Entry.h"/>
+    <ROW File="com_opengamma_language_function_Available_Entry.h" Component_="Connector" FileName="com_o~13.h|com_opengamma_language_function_Available_Entry.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_function_Available_Entry.h" SelfReg="false" NextFile="com_opengamma_language_function_Custom.h"/>
+    <ROW File="com_opengamma_language_function_Custom.h" Component_="Connector" FileName="com_o~14.h|com_opengamma_language_function_Custom.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_function_Custom.h" SelfReg="false" NextFile="com_opengamma_language_function_Definition.h"/>
+    <ROW File="com_opengamma_language_function_Definition.h" Component_="Connector" FileName="com_o~15.h|com_opengamma_language_function_Definition.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_function_Definition.h" SelfReg="false" NextFile="com_opengamma_language_function_Invoke.h"/>
+    <ROW File="com_opengamma_language_function_Invoke.h" Component_="Connector" FileName="com_o~16.h|com_opengamma_language_function_Invoke.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_function_Invoke.h" SelfReg="false" NextFile="com_opengamma_language_function_QueryAvailable.h"/>
+    <ROW File="com_opengamma_language_function_QueryAvailable.h" Component_="Connector" FileName="com_o~17.h|com_opengamma_language_function_QueryAvailable.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_function_QueryAvailable.h" SelfReg="false" NextFile="com_opengamma_language_function_Result.h"/>
+    <ROW File="com_opengamma_language_function_Result.h" Component_="Connector" FileName="com_o~18.h|com_opengamma_language_function_Result.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_function_Result.h" SelfReg="false" NextFile="com_opengamma_language_livedata_Available.h"/>
+    <ROW File="com_opengamma_language_livedata_Available.h" Component_="Connector" FileName="com_o~19.h|com_opengamma_language_livedata_Available.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_livedata_Available.h" SelfReg="false" NextFile="com_opengamma_language_livedata_Available_Entry.h"/>
+    <ROW File="com_opengamma_language_livedata_Available_Entry.h" Component_="Connector" FileName="com_o~20.h|com_opengamma_language_livedata_Available_Entry.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_livedata_Available_Entry.h" SelfReg="false" NextFile="com_opengamma_language_livedata_Custom.h"/>
+    <ROW File="com_opengamma_language_livedata_Custom.h" Component_="Connector" FileName="com_o~21.h|com_opengamma_language_livedata_Custom.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_livedata_Custom.h" SelfReg="false" NextFile="com_opengamma_language_livedata_Definition.h"/>
+    <ROW File="com_opengamma_language_livedata_Definition.h" Component_="Connector" FileName="com_o~22.h|com_opengamma_language_livedata_Definition.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_livedata_Definition.h" SelfReg="false" NextFile="com_opengamma_language_livedata_QueryAvailable.h"/>
+    <ROW File="com_opengamma_language_livedata_QueryAvailable.h" Component_="Connector" FileName="com_o~23.h|com_opengamma_language_livedata_QueryAvailable.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_livedata_QueryAvailable.h" SelfReg="false" NextFile="com_opengamma_language_procedure_Available.h"/>
+    <ROW File="com_opengamma_language_procedure_Available.h" Component_="Connector" FileName="com_o~24.h|com_opengamma_language_procedure_Available.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_procedure_Available.h" SelfReg="false" NextFile="com_opengamma_language_procedure_Available_Entry.h"/>
+    <ROW File="com_opengamma_language_procedure_Available_Entry.h" Component_="Connector" FileName="com_o~25.h|com_opengamma_language_procedure_Available_Entry.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_procedure_Available_Entry.h" SelfReg="false" NextFile="com_opengamma_language_procedure_Custom.h"/>
+    <ROW File="com_opengamma_language_procedure_Custom.h" Component_="Connector" FileName="com_o~26.h|com_opengamma_language_procedure_Custom.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_procedure_Custom.h" SelfReg="false" NextFile="com_opengamma_language_procedure_Definition.h"/>
+    <ROW File="com_opengamma_language_procedure_Definition.h" Component_="Connector" FileName="com_o~27.h|com_opengamma_language_procedure_Definition.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_procedure_Definition.h" SelfReg="false" NextFile="com_opengamma_language_procedure_Invoke.h"/>
+    <ROW File="com_opengamma_language_procedure_Invoke.h" Component_="Connector" FileName="com_o~28.h|com_opengamma_language_procedure_Invoke.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_procedure_Invoke.h" SelfReg="false" NextFile="com_opengamma_language_procedure_QueryAvailable.h"/>
+    <ROW File="com_opengamma_language_procedure_QueryAvailable.h" Component_="Connector" FileName="com_o~29.h|com_opengamma_language_procedure_QueryAvailable.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_procedure_QueryAvailable.h" SelfReg="false" NextFile="com_opengamma_language_procedure_Result.h"/>
+    <ROW File="com_opengamma_language_procedure_Result.h" Component_="Connector" FileName="com_o~30.h|com_opengamma_language_procedure_Result.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_procedure_Result.h" SelfReg="false" NextFile="com_opengamma_language_Value.h"/>
+    <ROW File="edu.emory.mathcs_csparsej_csparsej.jar" Component_="jar" FileName="eduemo~1.jar|edu.emory.mathcs-csparsej-csparsej.jar" Attributes="0" SourcePath="..\build\jar\edu.emory.mathcs-csparsej-csparsej.jar" SelfReg="false" NextFile="ch.qos_logback_logback_core.jar"/>
+    <ROW File="edu.emory.mathcs_jtransforms_jtransforms.jar" Component_="jar" FileName="eduemo~2.jar|edu.emory.mathcs-jtransforms-jtransforms.jar" Attributes="0" SourcePath="..\build\jar\edu.emory.mathcs-jtransforms-jtransforms.jar" SelfReg="false" NextFile="com.sun.jersey_jersey_jersey_client.jar"/>
+    <ROW File="edu.oswego.cs_concurrent_concurrent.jar" Component_="jar" FileName="eduosw~1.jar|edu.oswego.cs-concurrent-concurrent.jar" Attributes="0" SourcePath="..\build\jar\edu.oswego.cs-concurrent-concurrent.jar" SelfReg="false" NextFile="javax.management_j2ee_management_j2ee_management.jar"/>
+    <ROW File="it.unimi.dsi_fastutil_fastutil.jar" Component_="jar" FileName="itunim~1.jar|it.unimi.dsi-fastutil-fastutil.jar" Attributes="0" SourcePath="..\build\jar\it.unimi.dsi-fastutil-fastutil.jar" SelfReg="false" NextFile="com.opengamma_og_security_og_security.jar"/>
+    <ROW File="javax.activation_jaf_activation.jar" Component_="jar" FileName="javaxa~1.jar|javax.activation-jaf-activation.jar" Attributes="0" SourcePath="..\build\jar\javax.activation-jaf-activation.jar" SelfReg="false" NextFile="org.springframework_spring_amqp_spring_rabbit.jar"/>
+    <ROW File="javax.el_juel_juel.jar" Component_="jar" FileName="javaxe~3.jar|javax.el-juel-juel.jar" Attributes="0" SourcePath="..\build\jar\javax.el-juel-juel.jar" SelfReg="false" NextFile="com.opengamma_og_livedata_og_livedata.jar"/>
+    <ROW File="javax.el_juel_juel_api.jar" Component_="jar" FileName="javaxe~1.jar|javax.el-juel-juel-api.jar" Attributes="0" SourcePath="..\build\jar\javax.el-juel-juel-api.jar" SelfReg="false" NextFile="javax.jms_jms_jms.jar"/>
+    <ROW File="javax.el_juel_juel_impl.jar" Component_="jar" FileName="javaxe~2.jar|javax.el-juel-juel-impl.jar" Attributes="0" SourcePath="..\build\jar\javax.el-juel-juel-impl.jar" SelfReg="false" NextFile="org.netlib_jplasma_jplasma.jar"/>
+    <ROW File="javax.jms_jms_jms.jar" Component_="jar" FileName="javaxj~1.jar|javax.jms-jms-jms.jar" Attributes="0" SourcePath="..\build\jar\javax.jms-jms-jms.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_pt_BR.jar"/>
+    <ROW File="javax.mail_javamail_imap.jar" Component_="jar" FileName="javaxm~4.jar|javax.mail-javamail-imap.jar" Attributes="0" SourcePath="..\build\jar\javax.mail-javamail-imap.jar" SelfReg="false" NextFile="org.apache.activemq_activemq_activemq_pool.jar"/>
+    <ROW File="javax.mail_javamail_mail.jar" Component_="jar" FileName="javaxm~3.jar|javax.mail-javamail-mail.jar" Attributes="0" SourcePath="..\build\jar\javax.mail-javamail-mail.jar" SelfReg="false" NextFile="com.sleepycat_je_je.jar"/>
+    <ROW File="javax.mail_javamail_mailapi.jar" Component_="jar" FileName="javaxm~2.jar|javax.mail-javamail-mailapi.jar" Attributes="0" SourcePath="..\build\jar\javax.mail-javamail-mailapi.jar" SelfReg="false" NextFile="javax.servlet_jstl_jstl.jar"/>
+    <ROW File="javax.mail_javamail_pop3.jar" Component_="jar" FileName="javaxm~6.jar|javax.mail-javamail-pop3.jar" Attributes="0" SourcePath="..\build\jar\javax.mail-javamail-pop3.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_ko_KR.jar"/>
+    <ROW File="javax.mail_javamail_smtp.jar" Component_="jar" FileName="javaxm~1.jar|javax.mail-javamail-smtp.jar" Attributes="0" SourcePath="..\build\jar\javax.mail-javamail-smtp.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_hu.jar"/>
+    <ROW File="javax.management_j2ee_management_j2ee_management.jar" Component_="jar" FileName="javaxm~5.jar|javax.management-j2ee_management-j2ee_management.jar" Attributes="0" SourcePath="..\build\jar\javax.management-j2ee_management-j2ee_management.jar" SelfReg="false" NextFile="org.joda_joda_convert_joda_convert.jar"/>
+    <ROW File="javax.servlet_jstl_jstl.jar" Component_="jar" FileName="javaxs~1.jar|javax.servlet-jstl-jstl.jar" Attributes="0" SourcePath="..\build\jar\javax.servlet-jstl-jstl.jar" SelfReg="false" NextFile="javax.ws.rs_jsr311_api_jsr311_api.jar"/>
+    <ROW File="javax.servlet_servletapi_servletapi.jar" Component_="jar" FileName="javaxs~2.jar|javax.servlet-servletapi-servletapi.jar" Attributes="0" SourcePath="..\build\jar\javax.servlet-servletapi-servletapi.jar" SelfReg="false" NextFile="org.antlr_antlr_antlr_complete.jar"/>
+    <ROW File="javax.time_jsr_310_ri_jsr_310_TZDB_all.jar" Component_="jar" FileName="javaxt~2.jar|javax.time-jsr-310-ri-jsr-310-TZDB-all.jar" Attributes="0" SourcePath="..\build\jar\javax.time-jsr-310-ri-jsr-310-TZDB-all.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_es.jar"/>
+    <ROW File="javax.time_jsr_310_ri_jsr_310_ri.jar" Component_="jar" FileName="javaxt~1.jar|javax.time-jsr-310-ri-jsr-310-ri.jar" Attributes="0" SourcePath="..\build\jar\javax.time-jsr-310-ri-jsr-310-ri.jar" SelfReg="false" NextFile="cern_colt_colt.jar"/>
+    <ROW File="javax.transaction_jta_jta.zip" Component_="jar" FileName="javaxt~1.zip|javax.transaction-jta-jta.zip" Attributes="0" SourcePath="..\build\jar\javax.transaction-jta-jta.zip" SelfReg="false" NextFile="org.apache.derby_derby_derby.war"/>
+    <ROW File="javax.ws.rs_jsr311_api_jsr311_api.jar" Component_="jar" FileName="javaxw~1.jar|javax.ws.rs-jsr311-api-jsr311-api.jar" Attributes="0" SourcePath="..\build\jar\javax.ws.rs-jsr311-api-jsr311-api.jar" SelfReg="false" NextFile="org.apache.commons_commons_logging_commons_logging_api.jar"/>
+    <ROW File="libfudgec.dll" Component_="dll_32" FileName="libfud~1.dll|libfudgec.dll" Attributes="0" SourcePath="..\build\ReleaseWin32\libfudgec.dll" SelfReg="false" NextFile="log4cxx.dll"/>
+    <ROW File="libfudgecX64.dll" Component_="dll_64" FileName="libfud~1.dll|libfudgecX64.dll" Attributes="0" SourcePath="..\build\Releasex64\libfudgecX64.dll" SelfReg="false" NextFile="log4cxx.dll_1"/>
+    <ROW File="log4cxx.dll" Component_="dll_32" FileName="log4cxx.dll" Attributes="0" SourcePath="..\build\ReleaseWin32\log4cxx.dll" SelfReg="false" NextFile="apr.dll_1"/>
+    <ROW File="log4cxx.dll_1" Component_="dll_64" FileName="log4cxx.dll" Attributes="0" SourcePath="..\build\Releasex64\log4cxx.dll" SelfReg="false" NextFile="Alert.h"/>
+    <ROW File="net.sf.opencsv_opencsv_opencsv.jar" Component_="jar" FileName="netsfo~1.jar|net.sf.opencsv-opencsv-opencsv.jar" Attributes="0" SourcePath="..\build\jar\net.sf.opencsv-opencsv-opencsv.jar" SelfReg="false" NextFile="org.postgresql_postgresql_jdbc_postgresql_jdbc3.jar"/>
+    <ROW File="net.sourceforge.ehcache_ehcache_ehcache_core.jar" Component_="jar" FileName="netsou~1.jar|net.sourceforge.ehcache-ehcache-ehcache-core.jar" Attributes="0" SourcePath="..\build\jar\net.sourceforge.ehcache-ehcache-ehcache-core.jar" SelfReg="false" NextFile="com.opengamma_og_financial_og_financial.jar"/>
+    <ROW File="og_language.xml" Component_="og_language.xml" FileName="0og-la~1.xml|0og-language.xml" Attributes="0" SourcePath="..\build\ext\0og-language.xml" SelfReg="false" NextFile="apr.dll"/>
+    <ROW File="org.antlr_antlr_antlr_complete.jar" Component_="jar" FileName="organt~1.jar|org.antlr-antlr-antlr-complete.jar" Attributes="0" SourcePath="..\build\jar\org.antlr-antlr-antlr-complete.jar" SelfReg="false" NextFile="com.beust_jcommander_jcommander.jar"/>
+    <ROW File="org.aopalliance_aopalliance_aopalliance.jar" Component_="jar" FileName="orgaop~1.jar|org.aopalliance-aopalliance-aopalliance.jar" Attributes="0" SourcePath="..\build\jar\org.aopalliance-aopalliance-aopalliance.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_zh_CN.jar"/>
+    <ROW File="org.apache.activemq_activemq_activemq_core.jar" Component_="jar" FileName="orgap~36.jar|org.apache.activemq-activemq-activemq-core.jar" Attributes="0" SourcePath="..\build\jar\org.apache.activemq-activemq-activemq-core.jar" SelfReg="false" NextFile="org.apache.commons_commons_cli_commons_cli.jar"/>
+    <ROW File="org.apache.activemq_activemq_activemq_pool.jar" Component_="jar" FileName="orgap~28.jar|org.apache.activemq-activemq-activemq-pool.jar" Attributes="0" SourcePath="..\build\jar\org.apache.activemq-activemq-activemq-pool.jar" SelfReg="false" NextFile="us.fed.fs_optimization_optimization.jar"/>
+    <ROW File="org.apache.activemq_activemq_kahadb.jar" Component_="jar" FileName="orgap~22.jar|org.apache.activemq-activemq-kahadb.jar" Attributes="0" SourcePath="..\build\jar\org.apache.activemq-activemq-kahadb.jar" SelfReg="false" NextFile="org.jboss_javassist_javassist.jar"/>
+    <ROW File="org.apache.ant_ant_ant.jar" Component_="jar" FileName="orgapa~9.jar|org.apache.ant-ant-ant.jar" Attributes="0" SourcePath="..\build\jar\org.apache.ant-ant-ant.jar" SelfReg="false" NextFile="edu.emory.mathcs_csparsej_csparsej.jar"/>
+    <ROW File="org.apache.commons_commons_beanutils_commons_beanutils.jar" Component_="jar" FileName="orgap~21.jar|org.apache.commons-commons-beanutils-commons-beanutils.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-beanutils-commons-beanutils.jar" SelfReg="false" NextFile="org.apache.activemq_activemq_kahadb.jar"/>
+    <ROW File="org.apache.commons_commons_beanutils_commons_beanutils_bean_collectio" Component_="jar" FileName="orgapa~4.jar|org.apache.commons-commons-beanutils-commons-beanutils-bean-collections.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-beanutils-commons-beanutils-bean-collections.jar" SelfReg="false" NextFile="org.springframework_spring_spring_transaction.jar"/>
+    <ROW File="org.apache.commons_commons_beanutils_commons_beanutils_core.jar" Component_="jar" FileName="orgap~26.jar|org.apache.commons-commons-beanutils-commons-beanutils-core.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-beanutils-commons-beanutils-core.jar" SelfReg="false" NextFile="org.ehcache_ehcache_ehcache.jar"/>
+    <ROW File="org.apache.commons_commons_cli_commons_cli.jar" Component_="jar" FileName="orgap~37.jar|org.apache.commons-commons-cli-commons-cli.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-cli-commons-cli.jar" SelfReg="false" NextFile="org.beanshell_bsh_bsh.jar"/>
+    <ROW File="org.apache.commons_commons_codec_commons_codec.jar" Component_="jar" FileName="orgapa~5.jar|org.apache.commons-commons-codec-commons-codec.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-codec-commons-codec.jar" SelfReg="false" NextFile="com.sun.jersey_jersey_jersey_server.jar"/>
+    <ROW File="org.apache.commons_commons_collections_commons_collections.jar" Component_="jar" FileName="orgap~27.jar|org.apache.commons-commons-collections-commons-collections.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-collections-commons-collections.jar" SelfReg="false" NextFile="javax.mail_javamail_imap.jar"/>
+    <ROW File="org.apache.commons_commons_dbcp_commons_dbcp.jar" Component_="jar" FileName="orgap~25.jar|org.apache.commons-commons-dbcp-commons-dbcp.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-dbcp-commons-dbcp.jar" SelfReg="false" NextFile="javax.mail_javamail_mail.jar"/>
+    <ROW File="org.apache.commons_commons_io_commons_io.jar" Component_="jar" FileName="orgap~31.jar|org.apache.commons-commons-io-commons-io.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-io-commons-io.jar" SelfReg="false" NextFile="org.springframework_spring_spring_asm.jar"/>
+    <ROW File="org.apache.commons_commons_lang_commons_lang.jar" Component_="jar" FileName="orgap~17.jar|org.apache.commons-commons-lang-commons-lang.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-lang-commons-lang.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyclient.jar"/>
+    <ROW File="org.apache.commons_commons_logging_commons_logging.jar" Component_="jar" FileName="orgap~15.jar|org.apache.commons-commons-logging-commons-logging.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-logging-commons-logging.jar" SelfReg="false" NextFile="ch.qos_logback_logback_classic.jar"/>
+    <ROW File="org.apache.commons_commons_logging_commons_logging_adapters.jar" Component_="jar" FileName="orgap~13.jar|org.apache.commons-commons-logging-commons-logging-adapters.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-logging-commons-logging-adapters.jar" SelfReg="false" NextFile="com.sun.jersey_jersey_jersey_core.jar"/>
+    <ROW File="org.apache.commons_commons_logging_commons_logging_api.jar" Component_="jar" FileName="orgap~20.jar|org.apache.commons-commons-logging-commons-logging-api.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-logging-commons-logging-api.jar" SelfReg="false" NextFile="com.rabbitmq_java_client_rabbitmq_client.jar"/>
+    <ROW File="org.apache.commons_commons_math_commons_math.jar" Component_="jar" FileName="orgap~35.jar|org.apache.commons-commons-math-commons-math.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-math-commons-math.jar" SelfReg="false" NextFile="org.springframework_spring_spring_aop.jar"/>
+    <ROW File="org.apache.commons_commons_pool_commons_pool.jar" Component_="jar" FileName="orgapa~7.jar|org.apache.commons-commons-pool-commons-pool.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-pool-commons-pool.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_it.jar"/>
+    <ROW File="org.apache.derby_derby_derby.jar" Component_="jar" FileName="orgapa~2.jar|org.apache.derby-derby-derby.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derby.jar" SelfReg="false" NextFile="org.apache.httpcomponents_httpclient_httpclient.jar"/>
+    <ROW File="org.apache.derby_derby_derby.war" Component_="jar" FileName="orgapa~1.war|org.apache.derby-derby-derby.war" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derby.war" SelfReg="false" NextFile="org.slf4j_slf4j_jcl_over_slf4j.jar"/>
+    <ROW File="org.apache.derby_derby_derbyLocale_cs.jar" Component_="jar" FileName="orgap~29.jar|org.apache.derby-derby-derbyLocale_cs.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derbyLocale_cs.jar" SelfReg="false" NextFile="org.netlib_jarpack_jarpack.jar"/>
+    <ROW File="org.apache.derby_derby_derbyLocale_de_DE.jar" Component_="jar" FileName="orgap~30.jar|org.apache.derby-derby-derbyLocale_de_DE.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derbyLocale_de_DE.jar" SelfReg="false" NextFile="javax.servlet_servletapi_servletapi.jar"/>
+    <ROW File="org.apache.derby_derby_derbyLocale_es.jar" Component_="jar" FileName="orgap~11.jar|org.apache.derby-derby-derbyLocale_es.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derbyLocale_es.jar" SelfReg="false" NextFile="org.apache.xbean_xbean_spring_xbean_spring.jar"/>
+    <ROW File="org.apache.derby_derby_derbyLocale_fr.jar" Component_="jar" FileName="orgap~23.jar|org.apache.derby-derby-derbyLocale_fr.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derbyLocale_fr.jar" SelfReg="false" NextFile="it.unimi.dsi_fastutil_fastutil.jar"/>
+    <ROW File="org.apache.derby_derby_derbyLocale_hu.jar" Component_="jar" FileName="orgap~16.jar|org.apache.derby-derby-derbyLocale_hu.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derbyLocale_hu.jar" SelfReg="false" NextFile="org.apache.commons_commons_lang_commons_lang.jar"/>
+    <ROW File="org.apache.derby_derby_derbyLocale_it.jar" Component_="jar" FileName="orgapa~8.jar|org.apache.derby-derby-derbyLocale_it.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derbyLocale_it.jar" SelfReg="false" NextFile="org.apache.ant_ant_ant.jar"/>
+    <ROW File="org.apache.derby_derby_derbyLocale_ja_JP.jar" Component_="jar" FileName="orgap~38.jar|org.apache.derby-derby-derbyLocale_ja_JP.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derbyLocale_ja_JP.jar" SelfReg="false" NextFile="com.opengamma_og_master_og_master.jar"/>
+    <ROW File="org.apache.derby_derby_derbyLocale_ko_KR.jar" Component_="jar" FileName="orgap~32.jar|org.apache.derby-derby-derbyLocale_ko_KR.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derbyLocale_ko_KR.jar" SelfReg="false" NextFile="org.aopalliance_aopalliance_aopalliance.jar"/>
+    <ROW File="org.apache.derby_derby_derbyLocale_pl.jar" Component_="jar" FileName="orgap~34.jar|org.apache.derby-derby-derbyLocale_pl.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derbyLocale_pl.jar" SelfReg="false" NextFile="com.opengamma_og_analytics_og_analytics.jar"/>
+    <ROW File="org.apache.derby_derby_derbyLocale_pt_BR.jar" Component_="jar" FileName="orgapa~1.jar|org.apache.derby-derby-derbyLocale_pt_BR.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derbyLocale_pt_BR.jar" SelfReg="false" NextFile="org.springframework_spring_spring_expression.jar"/>
+    <ROW File="org.apache.derby_derby_derbyLocale_ru.jar" Component_="jar" FileName="orgapa~6.jar|org.apache.derby-derby-derbyLocale_ru.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derbyLocale_ru.jar" SelfReg="false" NextFile="org.apache.commons_commons_pool_commons_pool.jar"/>
+    <ROW File="org.apache.derby_derby_derbyLocale_zh_CN.jar" Component_="jar" FileName="orgap~33.jar|org.apache.derby-derby-derbyLocale_zh_CN.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derbyLocale_zh_CN.jar" SelfReg="false" NextFile="javax.el_juel_juel.jar"/>
+    <ROW File="org.apache.derby_derby_derbyLocale_zh_TW.jar" Component_="jar" FileName="orgap~14.jar|org.apache.derby-derby-derbyLocale_zh_TW.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derbyLocale_zh_TW.jar" SelfReg="false" NextFile="org.apache.commons_commons_logging_commons_logging.jar"/>
+    <ROW File="org.apache.derby_derby_derbyclient.jar" Component_="jar" FileName="orgap~18.jar|org.apache.derby-derby-derbyclient.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derbyclient.jar" SelfReg="false" NextFile="org.springframework_spring_spring_jdbc.jar"/>
+    <ROW File="org.apache.derby_derby_derbynet.jar" Component_="jar" FileName="orgap~19.jar|org.apache.derby-derby-derbynet.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derbynet.jar" SelfReg="false" NextFile="edu.emory.mathcs_jtransforms_jtransforms.jar"/>
+    <ROW File="org.apache.derby_derby_derbytools.jar" Component_="jar" FileName="orgap~24.jar|org.apache.derby-derby-derbytools.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derbytools.jar" SelfReg="false" NextFile="org.apache.commons_commons_dbcp_commons_dbcp.jar"/>
+    <ROW File="org.apache.httpcomponents_httpclient_httpclient.jar" Component_="jar" FileName="orgapa~3.jar|org.apache.httpcomponents-httpclient-httpclient.jar" Attributes="0" SourcePath="..\build\jar\org.apache.httpcomponents-httpclient-httpclient.jar" SelfReg="false" NextFile="org.dom4j_dom4j_dom4j.jar"/>
+    <ROW File="org.apache.httpcomponents_httpcore_httpcore.jar" Component_="jar" FileName="orgap~10.jar|org.apache.httpcomponents-httpcore-httpcore.jar" Attributes="0" SourcePath="..\build\jar\org.apache.httpcomponents-httpcore-httpcore.jar" SelfReg="false" NextFile="javax.time_jsr_310_ri_jsr_310_TZDB_all.jar"/>
+    <ROW File="org.apache.xbean_xbean_spring_xbean_spring.jar" Component_="jar" FileName="orgap~12.jar|org.apache.xbean-xbean-spring-xbean-spring.jar" Attributes="0" SourcePath="..\build\jar\org.apache.xbean-xbean-spring-xbean-spring.jar" SelfReg="false" NextFile="com.yahoo.platform.yui_yuicompressor_yuicompressor.jar"/>
+    <ROW File="org.aspectj_aspectj_aspectj_rt.jar" Component_="jar" FileName="orgasp~1.jar|org.aspectj-aspectj-aspectj-rt.jar" Attributes="0" SourcePath="..\build\jar\org.aspectj-aspectj-aspectj-rt.jar" SelfReg="false" NextFile="com.opengamma_region_og_regions.jar"/>
+    <ROW File="org.beanshell_bsh_bsh.jar" Component_="jar" FileName="orgbea~1.jar|org.beanshell-bsh-bsh.jar" Attributes="0" SourcePath="..\build\jar\org.beanshell-bsh-bsh.jar" SelfReg="false" NextFile="javax.activation_jaf_activation.jar"/>
+    <ROW File="org.dom4j_dom4j_dom4j.jar" Component_="jar" FileName="orgdom~1.jar|org.dom4j-dom4j-dom4j.jar" Attributes="0" SourcePath="..\build\jar\org.dom4j-dom4j-dom4j.jar" SelfReg="false" NextFile="javax.time_jsr_310_ri_jsr_310_ri.jar"/>
+    <ROW File="org.ehcache_ehcache_ehcache.jar" Component_="jar" FileName="orgehc~1.jar|org.ehcache-ehcache-ehcache.jar" Attributes="0" SourcePath="..\build\jar\org.ehcache-ehcache-ehcache.jar" SelfReg="false" NextFile="org.slf4j_slf4j_log4j_over_slf4j.jar"/>
+    <ROW File="org.freemarker_freemarker_freemarker.jar" Component_="jar" FileName="orgfre~1.jar|org.freemarker-freemarker-freemarker.jar" Attributes="0" SourcePath="..\build\jar\org.freemarker-freemarker-freemarker.jar" SelfReg="false" NextFile="org.fudgemsg_fudge_java_fudge_java.jar"/>
+    <ROW File="org.fudgemsg_fudge_java_fudge_java.jar" Component_="jar" FileName="orgfud~1.jar|org.fudgemsg-fudge-java-fudge-java.jar" Attributes="0" SourcePath="..\build\jar\org.fudgemsg-fudge-java-fudge-java.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_pl.jar"/>
+    <ROW File="org.hibernate_hibernate_hibernate.jar" Component_="jar" FileName="orghib~1.jar|org.hibernate-hibernate-hibernate.jar" Attributes="0" SourcePath="..\build\jar\org.hibernate-hibernate-hibernate.jar" SelfReg="false" NextFile="org.testng_testng_testng.jar"/>
+    <ROW File="org.hsqldb_hsqldb_hsqldb.jar" Component_="jar" FileName="orghsq~1.jar|org.hsqldb-hsqldb-hsqldb.jar" Attributes="0" SourcePath="..\build\jar\org.hsqldb-hsqldb-hsqldb.jar" SelfReg="false" NextFile="org.mongodb_java_driver_mongo.jar"/>
+    <ROW File="org.jboss_javassist_javassist.jar" Component_="jar" FileName="orgjbo~1.jar|org.jboss-javassist-javassist.jar" Attributes="0" SourcePath="..\build\jar\org.jboss-javassist-javassist.jar" SelfReg="false" NextFile="javax.transaction_jta_jta.zip"/>
+    <ROW File="org.joda_joda_beans_joda_beans.jar" Component_="jar" FileName="orgjod~1.jar|org.joda-joda-beans-joda-beans.jar" Attributes="0" SourcePath="..\build\jar\org.joda-joda-beans-joda-beans.jar" SelfReg="false" NextFile="org.springframework_spring_security_spring_security_core.jar"/>
+    <ROW File="org.joda_joda_convert_joda_convert.jar" Component_="jar" FileName="orgjod~2.jar|org.joda-joda-convert-joda-convert.jar" Attributes="0" SourcePath="..\build\jar\org.joda-joda-convert-joda-convert.jar" SelfReg="false" NextFile="javax.el_juel_juel_impl.jar"/>
+    <ROW File="org.json_json_json.jar" Component_="jar" FileName="orgjso~1.jar|org.json-json-json.jar" Attributes="0" SourcePath="..\build\jar\org.json-json-json.jar" SelfReg="false" NextFile="org.apache.commons_commons_beanutils_commons_beanutils_bean_collectio"/>
+    <ROW File="org.mindrot_jBCrypt_jBCrypt.jar" Component_="jar" FileName="orgmin~1.jar|org.mindrot-jBCrypt-jBCrypt.jar" Attributes="0" SourcePath="..\build\jar\org.mindrot-jBCrypt-jBCrypt.jar" SelfReg="false" NextFile="org.scannotation_scannotation_scannotation.jar"/>
+    <ROW File="org.mongodb_java_driver_mongo.jar" Component_="jar" FileName="orgmon~1.jar|org.mongodb-java-driver-mongo.jar" Attributes="0" SourcePath="..\build\jar\org.mongodb-java-driver-mongo.jar" SelfReg="false" NextFile="org.aspectj_aspectj_aspectj_rt.jar"/>
+    <ROW File="org.netlib_jarpack_jarpack.jar" Component_="jar" FileName="orgnet~3.jar|org.netlib-jarpack-jarpack.jar" Attributes="0" SourcePath="..\build\jar\org.netlib-jarpack-jarpack.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_de_DE.jar"/>
+    <ROW File="org.netlib_jplasma_jplasma.jar" Component_="jar" FileName="orgnet~2.jar|org.netlib-jplasma-jplasma.jar" Attributes="0" SourcePath="..\build\jar\org.netlib-jplasma-jplasma.jar" SelfReg="false" NextFile="com.opengamma_og_engine_og_engine.jar"/>
+    <ROW File="org.netlib_netlib_java_netlib_java.jar" Component_="jar" FileName="orgnet~1.jar|org.netlib-netlib-java-netlib-java.jar" Attributes="0" SourcePath="..\build\jar\org.netlib-netlib-java-netlib-java.jar" SelfReg="false" NextFile="org.apache.commons_commons_logging_commons_logging_adapters.jar"/>
+    <ROW File="org.postgresql_postgresql_jdbc_postgresql_jdbc3.jar" Component_="jar" FileName="orgpos~1.jar|org.postgresql-postgresql-jdbc-postgresql-jdbc3.jar" Attributes="0" SourcePath="..\build\jar\org.postgresql-postgresql-jdbc-postgresql-jdbc3.jar" SelfReg="false" NextFile="org.apache.commons_commons_collections_commons_collections.jar"/>
+    <ROW File="org.postgresql_postgresql_jdbc_postgresql_jdbc4.jar" Component_="jar" FileName="orgpos~2.jar|org.postgresql-postgresql-jdbc-postgresql-jdbc4.jar" Attributes="0" SourcePath="..\build\jar\org.postgresql-postgresql-jdbc-postgresql-jdbc4.jar" SelfReg="false"/>
+    <ROW File="org.scannotation_scannotation_scannotation.jar" Component_="jar" FileName="orgsca~1.jar|org.scannotation-scannotation-scannotation.jar" Attributes="0" SourcePath="..\build\jar\org.scannotation-scannotation-scannotation.jar" SelfReg="false" NextFile="org.apache.commons_commons_beanutils_commons_beanutils_core.jar"/>
+    <ROW File="org.slf4j_slf4j_jcl_over_slf4j.jar" Component_="jar" FileName="orgslf~2.jar|org.slf4j-slf4j-jcl-over-slf4j.jar" Attributes="0" SourcePath="..\build\jar\org.slf4j-slf4j-jcl-over-slf4j.jar" SelfReg="false" NextFile="org.hibernate_hibernate_hibernate.jar"/>
+    <ROW File="org.slf4j_slf4j_log4j_over_slf4j.jar" Component_="jar" FileName="orgslf~3.jar|org.slf4j-slf4j-log4j-over-slf4j.jar" Attributes="0" SourcePath="..\build\jar\org.slf4j-slf4j-log4j-over-slf4j.jar" SelfReg="false" NextFile="net.sf.opencsv_opencsv_opencsv.jar"/>
+    <ROW File="org.slf4j_slf4j_slf4j_api.jar" Component_="jar" FileName="orgslf~1.jar|org.slf4j-slf4j-slf4j-api.jar" Attributes="0" SourcePath="..\build\jar\org.slf4j-slf4j-slf4j-api.jar" SelfReg="false" NextFile="org.hsqldb_hsqldb_hsqldb.jar"/>
+    <ROW File="org.springframework_spring_amqp_spring_amqp.jar" Component_="jar" FileName="orgsp~13.jar|org.springframework-spring-amqp-spring-amqp.jar" Attributes="0" SourcePath="..\build\jar\org.springframework-spring-amqp-spring-amqp.jar" SelfReg="false" NextFile="org.apache.activemq_activemq_activemq_core.jar"/>
+    <ROW File="org.springframework_spring_amqp_spring_rabbit.jar" Component_="jar" FileName="orgsp~14.jar|org.springframework-spring-amqp-spring-rabbit.jar" Attributes="0" SourcePath="..\build\jar\org.springframework-spring-amqp-spring-rabbit.jar" SelfReg="false" NextFile="org.springframework_spring_spring_context.jar"/>
+    <ROW File="org.springframework_spring_security_spring_security_core.jar" Component_="jar" FileName="orgspr~6.jar|org.springframework-spring-security-spring-security-core.jar" Attributes="0" SourcePath="..\build\jar\org.springframework-spring-security-spring-security-core.jar" SelfReg="false" NextFile="com.google.common_guava_guava.jar"/>
+    <ROW File="org.springframework_spring_spring_aop.jar" Component_="jar" FileName="orgsp~12.jar|org.springframework-spring-spring-aop.jar" Attributes="0" SourcePath="..\build\jar\org.springframework-spring-spring-aop.jar" SelfReg="false" NextFile="com.thoughtworks.paranamer_paranamer_paranamer.jar"/>
+    <ROW File="org.springframework_spring_spring_asm.jar" Component_="jar" FileName="orgsp~11.jar|org.springframework-spring-spring-asm.jar" Attributes="0" SourcePath="..\build\jar\org.springframework-spring-spring-asm.jar" SelfReg="false" NextFile="rhino_js_js.jar"/>
+    <ROW File="org.springframework_spring_spring_beans.jar" Component_="jar" FileName="orgspr~3.jar|org.springframework-spring-spring-beans.jar" Attributes="0" SourcePath="..\build\jar\org.springframework-spring-spring-beans.jar" SelfReg="false" NextFile="org.springframework_spring_spring_web.jar"/>
+    <ROW File="org.springframework_spring_spring_context.jar" Component_="jar" FileName="orgsp~15.jar|org.springframework-spring-spring-context.jar" Attributes="0" SourcePath="..\build\jar\org.springframework-spring-spring-context.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_ja_JP.jar"/>
+    <ROW File="org.springframework_spring_spring_core.jar" Component_="jar" FileName="orgspr~8.jar|org.springframework-spring-spring-core.jar" Attributes="0" SourcePath="..\build\jar\org.springframework-spring-spring-core.jar" SelfReg="false" NextFile="net.sourceforge.ehcache_ehcache_ehcache_core.jar"/>
+    <ROW File="org.springframework_spring_spring_expression.jar" Component_="jar" FileName="orgspr~1.jar|org.springframework-spring-spring-expression.jar" Attributes="0" SourcePath="..\build\jar\org.springframework-spring-spring-expression.jar" SelfReg="false" NextFile="org.apache.derby_derby_derby.jar"/>
+    <ROW File="org.springframework_spring_spring_jdbc.jar" Component_="jar" FileName="orgspr~5.jar|org.springframework-spring-spring-jdbc.jar" Attributes="0" SourcePath="..\build\jar\org.springframework-spring-spring-jdbc.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbynet.jar"/>
+    <ROW File="org.springframework_spring_spring_jms.jar" Component_="jar" FileName="orgspr~9.jar|org.springframework-spring-spring-jms.jar" Attributes="0" SourcePath="..\build\jar\org.springframework-spring-spring-jms.jar" SelfReg="false" NextFile="org.mindrot_jBCrypt_jBCrypt.jar"/>
+    <ROW File="org.springframework_spring_spring_orm.jar" Component_="jar" FileName="orgsp~10.jar|org.springframework-spring-spring-orm.jar" Attributes="0" SourcePath="..\build\jar\org.springframework-spring-spring-orm.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_cs.jar"/>
+    <ROW File="org.springframework_spring_spring_test.jar" Component_="jar" FileName="orgspr~7.jar|org.springframework-spring-spring-test.jar" Attributes="0" SourcePath="..\build\jar\org.springframework-spring-spring-test.jar" SelfReg="false" NextFile="javax.mail_javamail_mailapi.jar"/>
+    <ROW File="org.springframework_spring_spring_transaction.jar" Component_="jar" FileName="orgspr~2.jar|org.springframework-spring-spring-transaction.jar" Attributes="0" SourcePath="..\build\jar\org.springframework-spring-spring-transaction.jar" SelfReg="false" NextFile="org.slf4j_slf4j_slf4j_api.jar"/>
+    <ROW File="org.springframework_spring_spring_web.jar" Component_="jar" FileName="orgspr~4.jar|org.springframework-spring-spring-web.jar" Attributes="0" SourcePath="..\build\jar\org.springframework-spring-spring-web.jar" SelfReg="false" NextFile="org.netlib_netlib_java_netlib_java.jar"/>
+    <ROW File="org.testng_testng_testng.jar" Component_="jar" FileName="orgtes~1.jar|org.testng-testng-testng.jar" Attributes="0" SourcePath="..\build\jar\org.testng-testng-testng.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_fr.jar"/>
+    <ROW File="rhino_js_js.jar" Component_="jar" FileName="rhino-~1.jar|rhino-js-js.jar" Attributes="0" SourcePath="..\build\jar\rhino-js-js.jar" SelfReg="false" NextFile="javax.mail_javamail_pop3.jar"/>
+    <ROW File="stdafx.h" Component_="Connector" FileName="stdafx.h" Attributes="0" SourcePath="..\Connector\stdafx.h" SelfReg="false" NextFile="SynchronousCalls.h"/>
+    <ROW File="stdafx.h_1" Component_="Service" FileName="stdafx.h" Attributes="0" SourcePath="..\Service\stdafx.h" SelfReg="false" NextFile="AbstractSettings.h"/>
+    <ROW File="stdafx.h_2" Component_="Util" FileName="stdafx.h" Attributes="0" SourcePath="..\Util\stdafx.h" SelfReg="false" NextFile="String.h"/>
+    <ROW File="us.fed.fs_optimization_optimization.jar" Component_="jar" FileName="usfedf~1.jar|us.fed.fs-optimization-optimization.jar" Attributes="0" SourcePath="..\build\jar\us.fed.fs-optimization-optimization.jar" SelfReg="false" NextFile="edu.oswego.cs_concurrent_concurrent.jar"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.BootstrOptComponent">
+    <ROW BootstrOptKey="GlobalOptions" GeneralOptions="o" EulaPathLocId="*" IntroTextPathLocId="*"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
+    <ROW BuildKey="MSI_32" BuildName="MSI_32" BuildOrder="1" BuildType="1" PackageFolder="." PackageFileName="OG-Language-[|ProductVersion]-32-bit" Languages="en" InstallationType="4"/>
+    <ROW BuildKey="MSI_64" BuildName="MSI_64" BuildOrder="2" BuildType="1" PackageFolder="." PackageFileName="OG-Language-[|ProductVersion]-64-bit" Languages="en" InstallationType="4" MsiPackageType="x64"/>
+    <ATTRIBUTE name="CurrentBuild" value="MSI_32"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
+    <ROW Path="&lt;AI_DICTS&gt;ui.ail"/>
+    <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.FirewallExceptionComponent">
+    <ROW FirewallException="bit_service" DisplayName="64-bit service" Enabled="1" Scope="*" Condition="((?ServiceRunner.exe_64=2) AND ($ServiceRunner.exe_64=3))" Profiles="0" AppPath="[#ServiceRunner64.exe]"/>
+    <ROW FirewallException="bit_service_1" DisplayName="32-bit service" Enabled="1" Scope="*" Condition="((?ServiceRunner.exe_32=2) AND ($ServiceRunner.exe_32=3))" Profiles="0" AppPath="[#ServiceRunner32.exe]"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
+    <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
+    <ROW Fragment="FolderDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\FolderDlg.aip"/>
+    <ROW Fragment="SequenceDialogs.aip" Path="&lt;AI_THEMES&gt;classic\fragments\SequenceDialogs.aip"/>
+    <ROW Fragment="Sequences.aip" Path="&lt;AI_FRAGS&gt;Sequences.aip"/>
+    <ROW Fragment="StaticUIStrings.aip" Path="&lt;AI_FRAGS&gt;StaticUIStrings.aip"/>
+    <ROW Fragment="UI.aip" Path="&lt;AI_THEMES&gt;classic\fragments\UI.aip"/>
+    <ROW Fragment="Validation.aip" Path="&lt;AI_FRAGS&gt;Validation.aip"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiActionTextComponent">
+    <ROW Action="AI_DownloadPrereq" Description="Downloading prerequisite software" Template="Downloading [1]{[2] completed}" DescriptionLocId="ActionText.Description.AI_DownloadPrereq" TemplateLocId="ActionText.Template.AI_DownloadPrereq"/>
+    <ROW Action="AI_ExtractPrereq" Description="Extracting prerequisite software" Template="Extracting [1]{[2] completed}" DescriptionLocId="ActionText.Description.AI_ExtractPrereq" TemplateLocId="ActionText.Template.AI_ExtractPrereq"/>
+    <ROW Action="AI_FwConfig" Description="Executing Windows Firewall configurations" Template="Configuring Windows Firewall rule: &quot;[1]&quot;" DescriptionLocId="ActionText.Description.AI_FwConfig" TemplateLocId="ActionText.Template.AI_FwConfig"/>
+    <ROW Action="AI_FwInstall" Description="Generating actions to configure Windows Firewall" DescriptionLocId="ActionText.Description.AI_FwInstall"/>
+    <ROW Action="AI_FwRemove" Description="Executing Windows Firewall configurations" Template="Configuring Windows Firewall rule:  &quot;[1]&quot;" DescriptionLocId="ActionText.Description.AI_FwRemove" TemplateLocId="ActionText.Template.AI_FwRemove"/>
+    <ROW Action="AI_FwRollback" Description="Rolling back Windows Firewall configurations." Template="Rolling back Windows Firewall configurations." DescriptionLocId="ActionText.Description.AI_FwRollback" TemplateLocId="ActionText.Template.AI_FwRollback"/>
+    <ROW Action="AI_FwUninstall" Description="Generating actions to configure Windows Firewall" DescriptionLocId="ActionText.Description.AI_FwUninstall"/>
+    <ROW Action="AI_InstallPostPrerequisite" Description="Installing prerequisite software" Template="Installing [1]{[2] completed}" DescriptionLocId="ActionText.Description.AI_InstallPrerequisite" TemplateLocId="ActionText.Template.AI_InstallPrerequisite"/>
+    <ROW Action="AI_InstallPrerequisite" Description="Installing prerequisite software" Template="Installing [1]{[2] completed}" DescriptionLocId="ActionText.Description.AI_InstallPrerequisite" TemplateLocId="ActionText.Template.AI_InstallPrerequisite"/>
+    <ROW Action="AI_TxtUpdaterCommit" Description="Commit text file changes. " Template="Commit text file changes." DescriptionLocId="ActionText.Description.AI_TxtUpdaterCommit" TemplateLocId="ActionText.Template.AI_TxtUpdaterCommit"/>
+    <ROW Action="AI_TxtUpdaterConfig" Description="Executing text file updates" Template="Updating text file: &quot;[1]&quot;" DescriptionLocId="ActionText.Description.AI_TxtUpdaterConfig" TemplateLocId="ActionText.Template.AI_TxtUpdaterConfig"/>
+    <ROW Action="AI_TxtUpdaterInstall" Description="Generating actions to configure text files updates" DescriptionLocId="ActionText.Description.AI_TxtUpdaterInstall"/>
+    <ROW Action="AI_TxtUpdaterRollback" Description="Rolling back text file changes. " Template="Rolling back text file changes." DescriptionLocId="ActionText.Description.AI_TxtUpdaterRollback" TemplateLocId="ActionText.Template.AI_TxtUpdaterRollback"/>
+    <ROW Action="AI_VerifyPrereq" Description="Verifying prerequisites" Template="[1] was not installed correctly." DescriptionLocId="ActionText.Description.AI_VerifyPrereq" TemplateLocId="ActionText.Template.AI_VerifyPrereq"/>
+    <ROW Action="AI_XmlCommit" Description="Committing XML file configurations." Template="Committing XML file configurations." DescriptionLocId="ActionText.Description.AI_XmlCommit" TemplateLocId="ActionText.Template.AI_XmlCommit"/>
+    <ROW Action="AI_XmlConfig" Description="Executing XML file configurations" Template="Configuring XML file: &quot;[1]&quot;" DescriptionLocId="ActionText.Description.AI_XmlConfig" TemplateLocId="ActionText.Template.AI_XmlConfig"/>
+    <ROW Action="AI_XmlInstall" Description="Generating actions to configure XML files" DescriptionLocId="ActionText.Description.AI_XmlInstall"/>
+    <ROW Action="AI_XmlRemove" Description="Executing XML file configurations" Template="Configuring XML file: &quot;[1]&quot;" DescriptionLocId="ActionText.Description.AI_XmlRemove" TemplateLocId="ActionText.Template.AI_XmlRemove"/>
+    <ROW Action="AI_XmlRollback" Description="Rolling back XML file configurations." Template="Rolling back XML file configurations." DescriptionLocId="ActionText.Description.AI_XmlRollback" TemplateLocId="ActionText.Template.AI_XmlRollback"/>
+    <ROW Action="AI_XmlUninstall" Description="Generating actions to configure XML files" DescriptionLocId="ActionText.Description.AI_XmlUninstall"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiAppSearchComponent">
+    <ROW Property="OPENGAMMA.CONFIGURATION.URL" Signature_="AppSearchSign"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
+    <ROW Name="NetFirewall.dll" SourcePath="&lt;AI_CUSTACTS&gt;NetFirewall.dll"/>
+    <ROW Name="Prereq.dll" SourcePath="&lt;AI_CUSTACTS&gt;Prereq.dll"/>
+    <ROW Name="TxtUpdater.dll" SourcePath="&lt;AI_CUSTACTS&gt;TxtUpdater.dll"/>
+    <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
+    <ROW Name="opengamma_banner.bmp" SourcePath="opengamma-banner.bmp"/>
+    <ROW Name="opengamma_dialog.bmp" SourcePath="opengamma-dialog.bmp"/>
+    <ROW Name="xmlCfg.dll" SourcePath="&lt;AI_CUSTACTS&gt;xmlCfg.dll"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
+    <ROW Dialog_="ConfigurationUrl" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Control_Next="BannerBitmap" TextLocId="-" Options="1"/>
+    <ROW Dialog_="ConfigurationUrl" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Control_Next="BannerLine"/>
+    <ROW Dialog_="ConfigurationUrl" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Control_Next="BottomLine"/>
+    <ROW Dialog_="ConfigurationUrl" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Control_Next="Description"/>
+    <ROW Dialog_="ConfigurationUrl" Control="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Control_Next="Back" TextLocId="-" Options="1"/>
+    <ROW Dialog_="ConfigurationUrl" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="This is the configuration address of your OpenGamma installation." Control_Next="Logo"/>
+    <ROW Dialog_="ConfigurationUrl" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Control_Next="Title"/>
+    <ROW Dialog_="ConfigurationUrl" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-" Options="1"/>
+    <ROW Dialog_="ConfigurationUrl" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Select OpenGamma Engine Host" TextStyle="[DlgTitleFont]" Control_Next="UrlLabel"/>
+    <ROW Dialog_="ConfigurationUrl" Control="UrlLabel" Type="Text" X="25" Y="114" Width="343" Height="12" Attributes="3" Text="&amp;Url:" Control_Next="Text" Help="|" TextLocId="Control.Text.FolderDlg#FolderLabel" HelpLocId="Control.Help.FolderDlg#FolderLabel"/>
+    <ROW Dialog_="ConfigurationUrl" Control="Text" Type="Text" X="25" Y="70" Width="320" Height="40" Attributes="3" Text="Enter the configuration address of your OpenGamma installation and press next. Please contact the administrator of your OpenGamma system if you are unsure what to enter here." Control_Next="Url" TextLocId="Control.Text.FolderDlg#Text"/>
+    <ROW Dialog_="ConfigurationUrl" Control="Url" Type="Edit" X="25" Y="126" Width="320" Height="18" Attributes="3" Property="OPENGAMMA.CONFIGURATION.URL" Text="{260}" Control_Next="Next"/>
+    <ATTRIBUTE name="FixedSizeBitmaps" value="0"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
+    <ROW Dialog_="FolderDlg" Control_="Back" Event="NewDialog" Argument="WelcomeDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="WelcomeDlg" Control_="Next" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="ConfigurationUrl" Condition="AI_INSTALL" Ordering="201"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="NewDialog" Argument="ConfigurationUrl" Condition="AI_INSTALL" Ordering="201"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_INSTALL" Ordering="197"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceWelcomeDlg" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="MaintenanceWelcomeDlg" Control_="Next" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="99"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="ChangeButton" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="301"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="ConfigurationUrl" Condition="AI_MAINT" Ordering="202"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Next" Event="NewDialog" Argument="ConfigurationUrl" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_MAINT" Ordering="198"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="PatchWelcomeDlg" Condition="AI_PATCH" Ordering="203"/>
+    <ROW Dialog_="PatchWelcomeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_PATCH" Ordering="201"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_PATCH" Ordering="199"/>
+    <ROW Dialog_="ResumeDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_RESUME" Ordering="299"/>
+    <ROW Dialog_="ConfigurationUrl" Control_="Cancel" Event="SpawnDialog" Argument="CancelDlg" Condition="1" Ordering="100"/>
+    <ROW Dialog_="ConfigurationUrl" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="ConfigurationUrl" Control_="Back" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="ConfigurationUrl" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_MAINT" Ordering="2"/>
+    <ROW Dialog_="ConfigurationUrl" Control_="Back" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="2"/>
+    <ROW Dialog_="ExitDialog" Control_="Finish" Event="DoAction" Argument="AI_CleanPrereq" Condition="1" Ordering="301"/>
+    <ROW Dialog_="FatalError" Control_="Finish" Event="DoAction" Argument="AI_CleanPrereq" Condition="1" Ordering="102"/>
+    <ROW Dialog_="UserExit" Control_="Finish" Event="DoAction" Argument="AI_CleanPrereq" Condition="1" Ordering="101"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
+    <ROW Action="AI_AppSearchEx" Type="1" Source="Prereq.dll" Target="DoAppSearchEx"/>
+    <ROW Action="AI_CleanPrereq" Type="65" Source="Prereq.dll" Target="CleanPrereq" WithoutSeq="true"/>
+    <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
+    <ROW Action="AI_DownloadPrereq" Type="1" Source="Prereq.dll" Target="DownloadPrereq"/>
+    <ROW Action="AI_ExtractPrereq" Type="65" Source="Prereq.dll" Target="ExtractPrereq"/>
+    <ROW Action="AI_FwConfig" Type="11265" Source="NetFirewall.dll" Target="OnFwConfig" WithoutSeq="true"/>
+    <ROW Action="AI_FwInstall" Type="1" Source="NetFirewall.dll" Target="OnFwInstall"/>
+    <ROW Action="AI_FwRemove" Type="11265" Source="NetFirewall.dll" Target="OnFwRemove" WithoutSeq="true"/>
+    <ROW Action="AI_FwRollback" Type="11521" Source="NetFirewall.dll" Target="OnFwRollback" WithoutSeq="true"/>
+    <ROW Action="AI_FwUninstall" Type="1" Source="NetFirewall.dll" Target="OnFwUninstall"/>
+    <ROW Action="AI_InstallPostPrerequisite" Type="1" Source="Prereq.dll" Target="InstallPostPrereq"/>
+    <ROW Action="AI_InstallPrerequisite" Type="65" Source="Prereq.dll" Target="InstallPrereq"/>
+    <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
+    <ROW Action="AI_RESTORE_LOCATION" Type="65" Source="aicustact.dll" Target="RestoreLocation"/>
+    <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
+    <ROW Action="AI_SETPROGRAMFILES" Type="51" Source="AI_ProgramFiles" Target="[ProgramFilesFolder]"/>
+    <ROW Action="AI_SETPROGRAMFILES64" Type="51" Source="AI_ProgramFiles" Target="[ProgramFiles64Folder]"/>
+    <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
+    <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
+    <ROW Action="AI_TxtUpdaterCommit" Type="11777" Source="TxtUpdater.dll" Target="OnTxtUpdaterCommit" WithoutSeq="true"/>
+    <ROW Action="AI_TxtUpdaterConfig" Type="11265" Source="TxtUpdater.dll" Target="OnTxtUpdaterConfig" WithoutSeq="true"/>
+    <ROW Action="AI_TxtUpdaterInstall" Type="1" Source="TxtUpdater.dll" Target="OnTxtUpdaterInstall"/>
+    <ROW Action="AI_TxtUpdaterRollback" Type="11521" Source="TxtUpdater.dll" Target="OnTxtUpdaterRollback" WithoutSeq="true"/>
+    <ROW Action="AI_VerifyPrereq" Type="1" Source="Prereq.dll" Target="VerifyPrereq"/>
+    <ROW Action="AI_XmlCommit" Type="11777" Source="xmlCfg.dll" Target="OnXmlCommit" WithoutSeq="true"/>
+    <ROW Action="AI_XmlConfig" Type="11265" Source="xmlCfg.dll" Target="OnXmlConfig" WithoutSeq="true"/>
+    <ROW Action="AI_XmlInstall" Type="1" Source="xmlCfg.dll" Target="OnXmlInstall"/>
+    <ROW Action="AI_XmlRemove" Type="11265" Source="xmlCfg.dll" Target="OnXmlRemove" WithoutSeq="true"/>
+    <ROW Action="AI_XmlRollback" Type="11521" Source="xmlCfg.dll" Target="OnXmlRollback" WithoutSeq="true"/>
+    <ROW Action="AI_XmlUninstall" Type="1" Source="xmlCfg.dll" Target="OnXmlUninstall"/>
+    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="MSI_64:[ProgramFiles64Folder][Manufacturer]\[ProductName]"/>
+    <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
+    <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiDialogComponent">
+    <ROW Dialog="ConfigurationUrl" HCentering="50" VCentering="50" Width="370" Height="270" Attributes="3" Title="[ProductName] [Setup]" Control_First="Next" Control_Default="Next" Control_Cancel="Cancel"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
+    <ROW Name="OpenGamma.exe" SourcePath="..\Util\OpenGamma.ico" Index="0"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
+    <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
+    <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="745"/>
+    <ROW Action="AI_STORE_LOCATION" Condition="(Not Installed) OR REINSTALL" Sequence="1501"/>
+    <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1399"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="51"/>
+    <ROW Action="AI_SETPROGRAMFILES64" Condition="VersionNT64" Sequence="746"/>
+    <ROW Action="AI_SETPROGRAMFILES" Condition="NOT VersionNT64" Sequence="747"/>
+    <ROW Action="AI_AppSearchEx" Sequence="101"/>
+    <ROW Action="AI_TxtUpdaterInstall" Sequence="5102"/>
+    <ROW Action="AI_XmlInstall" Condition="(REMOVE &lt;&gt; &quot;ALL&quot;)" Sequence="5101"/>
+    <ROW Action="AI_XmlUninstall" Condition="(REMOVE)" Sequence="3101"/>
+    <ROW Action="AI_VerifyPrereq" Sequence="1201"/>
+    <ROW Action="AI_FwInstall" Condition="(VersionNT &gt;= 501) AND (REMOVE &lt;&gt; &quot;ALL&quot;)" Sequence="5849"/>
+    <ROW Action="AI_FwUninstall" Condition="(VersionNT &gt;= 501) AND (REMOVE=&quot;ALL&quot;)" Sequence="1699"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
+    <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="745"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="51"/>
+    <ROW Action="AI_SETPROGRAMFILES64" Condition="VersionNT64" Sequence="746"/>
+    <ROW Action="AI_SETPROGRAMFILES" Condition="NOT VersionNT64" Sequence="747"/>
+    <ROW Action="AI_AppSearchEx" Sequence="101"/>
+    <ROW Action="AI_InstallPrerequisite" Sequence="1283"/>
+    <ROW Action="AI_InstallPostPrerequisite" Sequence="1301"/>
+    <ROW Action="AI_ExtractPrereq" Sequence="1282"/>
+    <ROW Action="AI_DownloadPrereq" Sequence="1281"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
+    <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]" DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="MSI_32;MSI_64"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
+    <ROW Signature_="AppSearchSign" Root="2" Key="SOFTWARE\OpenGammaLtd\LanguageIntegration" Name="jvmProperty.opengamma.configuration.url" Type="2"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
+    <ROW Registry="A36DC7A_AF70_4CF0_B489_B30E0828F882" Root="-1" Key="Software\Caphyon\Advanced Installer\Prereqs\[ProductCode]\[ProductVersion]" Name="A36DC7A_AF70_4CF0_B489_B30E0828F882" Value="1" Component_="A36DC7A_AF70_4CF0_B489_B30E0828F882"/>
+    <ROW Registry="D47E8ACA_EC67_4483_872C_C8478728E5E9" Root="-1" Key="Software\Caphyon\Advanced Installer\Prereqs\[ProductCode]\[ProductVersion]" Name="D47E8ACA_EC67_4483_872C_C8478728E5E9" Value="1" Component_="D47E8ACA_EC67_4483_872C_C8478728E5E9"/>
+    <ROW Registry="Path" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="Path" Value="[APPDIR]" Component_="Settings"/>
+    <ROW Registry="Path64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="Path" Value="[APPDIR]" Component_="Settings64"/>
+    <ROW Registry="ProductName" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="+" Component_="Settings"/>
+    <ROW Registry="ProductName64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="+" Component_="Settings64"/>
+    <ROW Registry="Version" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="Version" Value="[ProductVersion]" Component_="Settings"/>
+    <ROW Registry="Version64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="Version" Value="[ProductVersion]" Component_="Settings64"/>
+    <ROW Registry="jvmProperty.opengamma.configuration.failOnInvalid" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="jvmProperty.opengamma.configuration.failOnInvalid" Value="TRUE" Component_="Settings"/>
+    <ROW Registry="jvmProperty.opengamma.configuration.failOnInvalid64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="jvmProperty.opengamma.configuration.failOnInvalid" Value="TRUE" Component_="Settings64"/>
+    <ROW Registry="jvmProperty.opengamma.configuration.failOnMissing" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="jvmProperty.opengamma.configuration.failOnMissing" Value="FALSE" Component_="Settings"/>
+    <ROW Registry="jvmProperty.opengamma.configuration.failOnMissing64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="jvmProperty.opengamma.configuration.failOnMissing" Value="FALSE" Component_="Settings64"/>
+    <ROW Registry="jvmProperty.opengamma.configuration.url" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="jvmProperty.opengamma.configuration.url" Value="[OPENGAMMA.CONFIGURATION.URL]" Component_="Settings"/>
+    <ROW Registry="jvmProperty.opengamma.configuration.url64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="jvmProperty.opengamma.configuration.url" Value="[OPENGAMMA.CONFIGURATION.URL]" Component_="Settings64"/>
+    <ROW Registry="serviceLogConfiguration" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="serviceLogConfiguration" Value="[APPDIR]log4cxx.service.properties" Component_="Settings"/>
+    <ROW Registry="serviceLogConfiguration64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="serviceLogConfiguration" Value="[APPDIR]log4cxx.service.properties" Component_="Settings64"/>
+    <ROW Registry="serviceSDDL" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="serviceSDDL" Value="D:(A;;GA;;;WD)" Component_="Settings"/>
+    <ROW Registry="serviceSDDL64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="serviceSDDL" Value="D:(A;;GA;;;WD)" Component_="Settings64"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiServCtrlComponent">
+    <ROW ServiceControl="ServiceRunner32.exe" Name="OpenGammaLanguageAPI" Event="161" Wait="1" Component_="ServiceRunner.exe_32"/>
+    <ROW ServiceControl="ServiceRunner64.exe" Name="OpenGammaLanguageAPI" Event="161" Wait="1" Component_="ServiceRunner.exe_64"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiServInstComponent">
+    <ROW ServiceInstall="ServiceRunner32.exe" Name="OpenGammaLanguageAPI" DisplayName="OpenGamma Language Integration" ServiceType="16" StartType="3" ErrorControl="1" Component_="ServiceRunner.exe_32" Description="Integration API for using OpenGamma Tools from other environments"/>
+    <ROW ServiceInstall="ServiceRunner64.exe" Name="OpenGammaLanguageAPI" DisplayName="OpenGamma Language Integration" ServiceType="16" StartType="3" ErrorControl="1" Component_="ServiceRunner.exe_64" Description="Integration API for using OpenGamma Tools from other environments"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
+    <ATTRIBUTE name="UsedTheme" value="classic"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiUpgradeComponent">
+    <ROW UpgradeCode="[|UpgradeCode]" VersionMax="[|ProductVersion]" Attributes="1025" ActionProperty="OLDPRODUCTS"/>
+    <ROW UpgradeCode="[|UpgradeCode]" VersionMin="[|ProductVersion]" Attributes="2" ActionProperty="AI_NEWERPRODUCTFOUND"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.PreReqComponent">
+    <ROW PrereqKey="A36DC7A_AF70_4CF0_B489_B30E0828F882" DisplayName="Visual C++ 2010 Redistributable x86" SetupFileUrl="http://download.microsoft.com/download/5/B/C/5BC5DBB3-652D-4DCE-B14A-475AB85EEF6E/vcredist_x86.exe" Location="1" ExactSize="0" Win9xVersions="Windows 9x/ME" WinNTVersions="Windows NT 4.0, Windows NT 4.0 Service Pack 1, Windows NT 4.0 Service Pack 2, Windows NT 4.0 Service Pack 3, Windows NT 4.0 Service Pack 4, Windows NT 4.0 Service Pack 5, Windows NT 4.0 Service Pack 6, Windows 2000, Windows 2000 Service Pack 1, Windows 2000 Service Pack 2, Windows 2000 Service Pack 3, Windows 2000 Service Pack 4, Windows XP x86, Windows XP x86 Service Pack 1, Windows XP x86 Service Pack 2" WinNT64Versions="Windows XP x64, Windows XP x64 ServicePack 1, Windows XP x64 ServicePack 2, Windows Server 2003 x64, Windows Server 2003 x64 Service Pack 1, Windows Server 2003 x64 Service pack 2" Operator="1" TargetName="Visual C++ 2010 Redistributable x86" Type="1" Feature="A36DC7A_AF70_4CF0_B489_B30E0828F882"/>
+    <ROW PrereqKey="D47E8ACA_EC67_4483_872C_C8478728E5E9" DisplayName="Visual C++ 2010 Redistributable x64" SetupFileUrl="http://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe" Location="1" ExactSize="0" Win9xVersions="Windows 9x/ME" WinNTVersions="Windows NT/2k/XP/Vista/Windows7 x86" WinNT64Versions="Windows XP x64, Windows XP x64 ServicePack 1, Windows XP x64 ServicePack 2, Windows Server 2003 x64, Windows Server 2003 x64 Service Pack 1, Windows Server 2003 x64 Service pack 2" Operator="1" Options="x" TargetName="Visual C++ 2010 Redistributable x64" Type="1" Feature="D47E8ACA_EC67_4483_872C_C8478728E5E9"/>
+    <ROW PrereqKey="EC39D_0B8D_4C2E_A373_7F11E2281A4C" DisplayName="Java Runtime Environment" VersionMin="1.6" SetupFileUrl="http://www.java.com" Location="2" ExactSize="0" Operator="1" Options="x"/>
+    <ATTRIBUTE name="PrereqsOrder" value="EC39D_0B8D_4C2E_A373_7F11E2281A4C A36DC7A_AF70_4CF0_B489_B30E0828F882 D47E8ACA_EC67_4483_872C_C8478728E5E9"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.PreReqSearchComponent">
+    <ROW SearchKey="A36DC7A_AF70_4CF0_B489_B30E0828F882_VC_2010_SEARCH_1" Prereq="A36DC7A_AF70_4CF0_B489_B30E0828F882" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86\Rbld" RefContent="G1" Order="2" Property="AI_VC_2010_PREREQSEARCH_1_PROP_1"/>
+    <ROW SearchKey="A36DC7A_AF70_4CF0_B489_B30E0828F882_VC_2010_SEARCH_2" Prereq="A36DC7A_AF70_4CF0_B489_B30E0828F882" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86\Rbld" RefContent="M1" Order="1" Property="AI_VC_2010_PREREQSEARCH_1_PROP"/>
+    <ROW SearchKey="D47E8ACA_EC67_4483_872C_C8478728E5E9_VC_2010_X64_SEARCH_1" Prereq="D47E8ACA_EC67_4483_872C_C8478728E5E9" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x64\Rbld" RefContent="G1" Order="2" Property="AI_VC_2010_X64_PREREQSEARCH_1_PROP"/>
+    <ROW SearchKey="D47E8ACA_EC67_4483_872C_C8478728E5E9_VC_2010_X64_SEARCH_2" Prereq="D47E8ACA_EC67_4483_872C_C8478728E5E9" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x64\Rbld" RefContent="M1" Order="1" Property="AI_VC_2010_X64_PREREQSEARCH_1_PROP_1"/>
+    <ROW SearchKey="EC39D_0B8D_4C2E_A373_7F11E2281A4C_JRE_SEARCH" Prereq="EC39D_0B8D_4C2E_A373_7F11E2281A4C" SearchType="1" SearchString="HKLM\SOFTWARE\JavaSoft\Java Runtime Environment" VerMin="1.0" Order="1" Property="AI_JRE_PREREQSEARCH_PROP"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.SynchronizedFolderComponent">
+    <ROW Directory_="jar_Dir" SourcePath="..\build\jar" Feature="Java" ExcludePattern="*~|#*#|%*%|._|CVS|.cvsignore|SCCS|vssver.scc|mssccprj.scc|vssver2.scc|.svn|.DS_Store" ExcludeFlags="6"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.TxtUpdateComponent">
+    <ROW Name="Append/Create" TxtUpdateSet="OpenGamma.properties" FindPattern="# Global properties&#13;&#10;" Options="32" Order="0" FileEncoding="0"/>
+    <ROW Name="Append/Create" TxtUpdateSet="log4cxx.properties" FindPattern="log4j.rootLogger=INFO, A1&#13;&#10;log4j.appender.A1=org.apache.log4j.RollingFileAppender&#13;&#10;log4j.appender.A1.maxFileSize=1MB&#13;&#10;log4j.appender.A1.maxBackupIndex=3&#13;&#10;log4j.appender.A1.layout=org.apache.log4j.PatternLayout&#13;&#10;log4j.appender.A1.file=[WindowsFolder]Temp\OG-Language-Service.log&#13;&#10;log4j.appender.A1.layout.ConversionPattern=%d [\[]%t[\]] %-5p %c:%L - %m%n&#13;&#10;" Options="32" Order="0" FileEncoding="0"/>
+    <ROW Name="Append/Create" TxtUpdateSet="log4cxx.service__1_.properties" FindPattern="log4j.rootLogger=INFO, A1&#13;&#10;log4j.appender.A1=org.apache.log4j.RollingFileAppender&#13;&#10;log4j.appender.A1.maxFileSize=1MB&#13;&#10;log4j.appender.A1.maxBackupIndex=3&#13;&#10;log4j.appender.A1.layout=org.apache.log4j.PatternLayout&#13;&#10;log4j.appender.A1.file=[WindowsFolder]Temp\OG-Language-Connector&#13;&#10;log4j.appender.A1.layout.ConversionPattern=%d [\[]%t[\]] %-5p %c:%L - %m%n&#13;&#10;" Options="32" Order="0" FileEncoding="0"/>
+    <ROW Name="Replace" TxtUpdateSet="log4cxx.service__1_.properties" FindPattern="\" ReplacePattern="\\" Options="2" Order="1" FileEncoding="7"/>
+    <ROW Name="Replace" TxtUpdateSet="log4cxx.properties" FindPattern="\" ReplacePattern="\\" Options="2" Order="1" FileEncoding="0"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.TxtUpdateSetComponent">
+    <ROW Key="OpenGamma.properties" Component="client.jar" FileName="OpenGamma.properties" Directory="APPDIR" Options="25"/>
+    <ROW Key="log4cxx.properties" Component="Settings" FileName="log4cxx.service.properties" Directory="APPDIR" Options="25"/>
+    <ROW Key="log4cxx.service__1_.properties" Component="Settings" FileName="log4cxx.connector.properties" Directory="APPDIR" Options="25"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.XmlAttributeComponent">
+    <ROW XmlElement="1" Name="name" Flags="14" Order="0" Value="FILE"/>
+    <ROW XmlElement="1" Name="class" Flags="14" Order="1" Value="ch.qos.logback.core.rolling.RollingFileAppender"/>
+    <ROW XmlElement="3" Name="name" Flags="14" Order="0" Value="com.opengamma.transport.jaxrs"/>
+    <ROW XmlElement="3" Name="level" Flags="14" Order="1" Value="error"/>
+    <ROW XmlElement="2" Name="level" Flags="14" Order="0" Value="warn"/>
+    <ROW XmlElement="5" Name="class" Flags="14" Order="0" Value="ch.qos.logback.core.rolling.FixedWindowRollingPolicy"/>
+    <ROW XmlElement="9" Name="class" Flags="14" Order="0" Value="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy"/>
+    <ROW XmlElement="11" Name="class" Flags="14" Order="0" Value="ch.qos.logback.classic.PatternLayout"/>
+    <ROW XmlElement="13" Name="ref" Flags="14" Order="0" Value="FILE"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.XmlElementComponent">
+    <ROW XmlElement="0" Name="configuration" Order="0" Flags="30"/>
+    <ROW XmlElement="1" ParentElement="0" Name="appender" Order="0" Flags="14"/>
+    <ROW XmlElement="2" ParentElement="0" Name="root" Order="1" Flags="14"/>
+    <ROW XmlElement="3" ParentElement="0" Name="logger" Order="2" Flags="14"/>
+    <ROW XmlElement="4" ParentElement="1" Name="File" Order="0" Flags="14" Text="[WindowsFolder]Temp\OG-Language-Server.log"/>
+    <ROW XmlElement="5" ParentElement="1" Name="rollingPolicy" Order="1" Flags="14"/>
+    <ROW XmlElement="6" ParentElement="5" Name="fileNamePattern" Order="0" Flags="14" Text="[WindowsFolder]Temp\OG-Language-Server.log.%i"/>
+    <ROW XmlElement="7" ParentElement="5" Name="minIndex" Order="1" Flags="14" Text="1"/>
+    <ROW XmlElement="8" ParentElement="5" Name="maxIndex" Order="2" Flags="14" Text="3"/>
+    <ROW XmlElement="9" ParentElement="1" Name="triggeringPolicy" Order="2" Flags="14"/>
+    <ROW XmlElement="10" ParentElement="9" Name="maxFileSize" Order="0" Flags="14" Text="1MB"/>
+    <ROW XmlElement="11" ParentElement="1" Name="layout" Order="3" Flags="14"/>
+    <ROW XmlElement="12" ParentElement="11" Name="Pattern" Order="0" Flags="14" Text="%d{HH:mm:ss.SSS} [\[]%thread[\]] %-5level %logger{36} - %msg%n"/>
+    <ROW XmlElement="13" ParentElement="2" Name="appender-ref" Order="0" Flags="14"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.XmlFileComponent">
+    <ROW XmlFile="New_file.xml" FileName="logback.xml" DirProperty="APPDIR" Component="Settings" RootElement="0" Flags="25" Version="1.0" Encoding="UTF-8" IndentUnits="2"/>
+  </COMPONENT>
+</DOCUMENT>

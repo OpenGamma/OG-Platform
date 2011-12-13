@@ -11,6 +11,7 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializer;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Receives byte array messages and dispatches them to a {@code FudgeRequestReceiver}.
@@ -32,7 +33,7 @@ public class FudgeRequestDispatcher implements ByteArrayRequestReceiver {
    * @param underlying  the underlying receiver, not null
    */
   public FudgeRequestDispatcher(FudgeRequestReceiver underlying) {
-    this(underlying, new FudgeContext());
+    this(underlying, OpenGammaFudgeContext.getInstance());
   }
 
   /**

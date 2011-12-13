@@ -287,8 +287,9 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
       existingSeries = new ArrayLocalDateDoubleTimeSeries();
     }
     
-    // Filter points by date range and max points to return
-    LocalDateDoubleTimeSeries subSeries = existingSeries.subSeries(fromDateInclusive, toDateInclusive);
+    // Filter points by date range and max points to return 
+    // Heeds LocalDateDoubleTimeSeries convention: inclusive start, exclusive end
+    LocalDateDoubleTimeSeries subSeries = existingSeries.subSeries(fromDateInclusive, toDateInclusive.plusDays(1));
     Integer maxPoints = filter.getMaxPoints();
     if (((maxPoints != null) && (Math.abs(maxPoints) < subSeries.size()))) {
       subSeries = maxPoints >= 0 ? subSeries.head(maxPoints) : subSeries.tail(-maxPoints);

@@ -5,6 +5,11 @@
  */
 package com.opengamma.web.security;
 
+import static org.testng.AssertJUnit.assertNotNull;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,6 +17,10 @@ import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.io.FileUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -118,5 +127,13 @@ public final class WebSecuritiesResourceTestUtils {
     identifiers.add(SecurityUtils.bloombergTickerSecurityId("USM10 Comdty"));
     sec.setExternalIdBundle(ExternalIdBundle.of(identifiers));
     return sec;
+  }
+  
+  public static JSONObject loadJson(String filename) throws IOException, JSONException {
+    URL jsonResource = WebSecuritiesResourceTestUtils.class.getResource(filename);
+    assertNotNull(jsonResource);
+    String expectedJsonStr = FileUtils.readFileToString(new File(jsonResource.getPath()));
+    JSONObject expectedJson = new JSONObject(expectedJsonStr);
+    return expectedJson;
   }
 }

@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * 
@@ -78,7 +78,7 @@ public class MockLiveDataServer extends AbstractLiveDataServer {
     for (String uniqueId : uniqueIds) {
       FudgeMsg snapshot = _uniqueId2MarketData.get(uniqueId);
       if (snapshot == null) {
-        snapshot = FudgeContext.GLOBAL_DEFAULT.newMessage();
+        snapshot = OpenGammaFudgeContext.getInstance().newMessage();
       }
       returnValue.put(uniqueId, snapshot);
     }

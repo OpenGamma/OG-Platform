@@ -16,6 +16,7 @@ import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
+import com.opengamma.financial.interestrate.PresentValueParallelCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondSecurity;
@@ -26,30 +27,13 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
+import com.opengamma.util.surface.StringValue;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class with methods related to bond security valued by discounting.
  */
 public final class BondSecurityDiscountingMethod {
-
-  /**
-   * The present value calculator (for the different parts of the bond transaction).
-   */
-  private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
-  /**
-   * The present value curve sensitivity calculator (for the different parts of the bond transaction).
-   */
-  private static final PresentValueCurveSensitivityCalculator PVCSC = PresentValueCurveSensitivityCalculator.getInstance();
-  /**
-   * The root bracket used for yield finding.
-   */
-  private static final BracketRoot BRACKETER = new BracketRoot();
-  /**
-   * The root finder used for yield finding.
-   */
-  private static final RealSingleRootFinder ROOT_FINDER = new BrentSingleRootFinder();
-  private static final BracketRoot ROOT_BRACKETER = new BracketRoot();
   /**
    * The unique instance of the class.
    */
@@ -68,6 +52,25 @@ public final class BondSecurityDiscountingMethod {
    */
   private BondSecurityDiscountingMethod() {
   }
+
+  /**
+   * The present value calculator (for the different parts of the bond transaction).
+   */
+  private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
+  /**
+   * The present value curve sensitivity calculator (for the different parts of the bond transaction).
+   */
+  private static final PresentValueCurveSensitivityCalculator PVCSC = PresentValueCurveSensitivityCalculator.getInstance();
+  private static final PresentValueParallelCurveSensitivityCalculator PVPCSC = PresentValueParallelCurveSensitivityCalculator.getInstance();
+  /**
+   * The root bracket used for yield finding.
+   */
+  private static final BracketRoot BRACKETER = new BracketRoot();
+  /**
+   * The root finder used for yield finding.
+   */
+  private static final RealSingleRootFinder ROOT_FINDER = new BrentSingleRootFinder();
+  private static final BracketRoot ROOT_BRACKETER = new BracketRoot();
 
   /**
    * Computes the present value of a bond security (without settlement amount payment).
@@ -114,16 +117,15 @@ public final class BondSecurityDiscountingMethod {
     return result;
   }
 
-  /**
-   * Computes the present value curve sensitivity of a bond security (without settlement amount payment).
-   * @param bond The bond security.
-   * @param curves The curve bundle.
-   * @return The present value curve sensitivity.
-   */
-  public InterestRateCurveSensitivity presentValueCurveSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves) {
-    final InterestRateCurveSensitivity pvcsNominal = new InterestRateCurveSensitivity(PVCSC.visit(bond.getNominal(), curves));
-    final InterestRateCurveSensitivity pvcsCoupon = new InterestRateCurveSensitivity(PVCSC.visit(bond.getCoupon(), curves));
-    return pvcsNominal.add(pvcsCoupon);
+  public double presentValueZSpreadSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double zSpread) {
+    String discountingCurveName = bond.getDiscountingCurveName();
+    YieldCurveBundle curvesWithZ = new YieldCurveBundle();
+    curvesWithZ.addAll(curves);
+    YieldAndDiscountCurve shiftedDiscounting = curves.getCurve(discountingCurveName).withParallelShift(zSpread);
+    curvesWithZ.replaceCurve(discountingCurveName, shiftedDiscounting);
+    StringValue parallelSensi = presentValueParallelCurveSensitivity(bond, curvesWithZ);
+    return parallelSensi.getMap().get(discountingCurveName);
+
   }
 
   /**
@@ -345,7 +347,7 @@ public final class BondSecurityDiscountingMethod {
     if (bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) {
       if (nbCoupon > 1) { // More than one coupon left
         return modifiedDurationFromYield(bond, yield) * (1 + yield / bond.getCouponPerYear());
-      } 
+      }
       return bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear();
     } else if (bond.getYieldConvention().equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD)) {
       return modifiedDurationFromYield(bond, yield) * (1 + yield / bond.getCouponPerYear());
@@ -453,6 +455,18 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
+   * Computes a bond present value z-spread sensitivity from the curves and a present value.
+   * @param bond The bond.
+   * @param curves The curve bundle.
+   * @param pv The target present value.
+   * @return The z-spread sensitivity.
+   */
+  public double presentValueZSpreadSensitivityFromCurvesAndPV(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double pv) {
+    double zSpread = zSpreadFromCurvesAndPV(bond, curves, pv);
+    return presentValueZSpreadSensitivity(bond, curves, zSpread);
+  }
+
+  /**
    * Computes a bond z-spread from the curves and a clean price.
    * @param bond The bond.
    * @param curves The curve bundle.
@@ -462,16 +476,39 @@ public final class BondSecurityDiscountingMethod {
   public double zSpreadFromCurvesAndClean(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double cleanPrice) {
     return zSpreadFromCurvesAndPV(bond, curves, presentValueFromCleanPrice(bond, curves, cleanPrice));
   }
-  
+
   /**
-   * Compute the present value sensitivity of a bond transaction.
-   * @param bond The bond transaction.
+   * Computes the bond present value z-spread sensitivity from the curves and a clean price.
+   * @param bond The bond.
    * @param curves The curve bundle.
-   * @return The present value sensitivity.
+   * @param cleanPrice The target clean price.
+   * @return The z-spread sensitivity.
    */
-  public InterestRateCurveSensitivity presentValueSensitivity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
-    final InterestRateCurveSensitivity pvsNominal = new InterestRateCurveSensitivity(PVCSC.visit(bond.getNominal(), curves));
-    final InterestRateCurveSensitivity pvsCoupon = new InterestRateCurveSensitivity(PVCSC.visit(bond.getCoupon(), curves));
-    return pvsNominal.add(pvsCoupon);
+  public double presentValueZSpreadSensitivityFromCurvesAndClean(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double cleanPrice) {
+    return presentValueZSpreadSensitivityFromCurvesAndPV(bond, curves, presentValueFromCleanPrice(bond, curves, cleanPrice));
+  }
+
+  /**
+   * Computes the present value curve sensitivity of a bond security (without settlement amount payment).
+   * @param bond The bond security.
+   * @param curves The curve bundle.
+   * @return The present value curve sensitivity.
+   */
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves) {
+    final InterestRateCurveSensitivity pvcsNominal = new InterestRateCurveSensitivity(PVCSC.visit(bond.getNominal(), curves));
+    final InterestRateCurveSensitivity pvcsCoupon = new InterestRateCurveSensitivity(PVCSC.visit(bond.getCoupon(), curves));
+    return pvcsNominal.add(pvcsCoupon);
+  }
+
+  /**
+   * Computes the present value curve sensitivity to parallel curve movement of a bond security (without settlement amount payment).
+   * @param bond The bond security.
+   * @param curves The curve bundle.
+   * @return The present value curve sensitivity.
+   */
+  public StringValue presentValueParallelCurveSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves) {
+    StringValue pvpcsNominal = PVPCSC.visit(bond.getNominal(), curves);
+    StringValue pvpcsCoupon = PVPCSC.visit(bond.getCoupon(), curves);
+    return StringValue.plus(pvpcsNominal, pvpcsCoupon);
   }
 }

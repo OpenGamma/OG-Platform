@@ -13,13 +13,13 @@ import com.opengamma.financial.instrument.index.SwapGenerator;
 import com.opengamma.financial.instrument.index.iborindex.EURIBOR6M;
 
 /**
- * Swap generator for the DKK Annual 30/360 vs Cibor 6M.
+ * Swap generator for the EUR Annual 30/360 vs Euribor 6M.
  */
 public class EUR1YEURIBOR6M extends SwapGenerator {
 
   /**
    * Constructor.
-   * @param calendar A DKK calendar.
+   * @param calendar A EUR calendar.
    */
   public EUR1YEURIBOR6M(Calendar calendar) {
     super(Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("30/360"), new EURIBOR6M(calendar));

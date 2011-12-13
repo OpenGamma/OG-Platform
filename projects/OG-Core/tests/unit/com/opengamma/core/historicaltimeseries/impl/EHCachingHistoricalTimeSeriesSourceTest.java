@@ -52,28 +52,14 @@ public class EHCachingHistoricalTimeSeriesSourceTest {
     
     when(_underlyingSource.getHistoricalTimeSeries(UID)).thenReturn(series);
     
+    // Fetching same series twice should return same result
     HistoricalTimeSeries series1 = _cachingSource.getHistoricalTimeSeries(UID);
     HistoricalTimeSeries series2 = _cachingSource.getHistoricalTimeSeries(UID);
     assertEquals(series, series1);
     assertEquals(series, series2);
     assertEquals(series1, series2);
-
     
-//    HistoricalTimeSeriesSummary summary = new HistoricalTimeSeriesSummary();
-//    
-//    when(_underlyingSource.getSummary(UID)).thenReturn(summary);
-//    
-//    summary.setEarliestDate(dates[0]);
-//    summary.setLatestDate(dates[0]);
-//    summary.setEarliestValue(values[0]);
-//    summary.setLatestValue(values[0]);
-//
-//    HistoricalTimeSeriesSummary summary1 = _cachingSource.getSummary(UID);
-//    HistoricalTimeSeriesSummary summary2 = _cachingSource.getSummary(UID);
-//   
-//    assertEquals(summary, summary1);
-//    assertEquals(summary1, summary2);
-    
+    // underlying source should only have been called once if cache worked as expected
     verify(_underlyingSource, times(1)).getHistoricalTimeSeries(UID);
   }
 

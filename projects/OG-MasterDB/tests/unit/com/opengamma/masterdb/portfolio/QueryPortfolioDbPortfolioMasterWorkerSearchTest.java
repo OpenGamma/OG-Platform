@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.DocumentVisibility;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.util.paging.PagingRequest;
@@ -44,9 +45,9 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
     
     assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
-    assertEquals(_totalPortfolios, test.getPaging().getTotalItems());
+    assertEquals(_visiblePortfolios, test.getPaging().getTotalItems());
     
-    assertEquals(_totalPortfolios, test.getDocuments().size());
+    assertEquals(_visiblePortfolios, test.getDocuments().size());
     assert101(test.getDocuments().get(0), 999);
     assert102(test.getDocuments().get(1));
     assert202(test.getDocuments().get(2));
@@ -60,8 +61,8 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
     
     assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
-    assertEquals(_totalPortfolios, test.getPaging().getTotalItems());
-    assertEquals(_totalPortfolios, test.getDocuments().size());
+    assertEquals(_visiblePortfolios, test.getPaging().getTotalItems());
+    assertEquals(_visiblePortfolios, test.getDocuments().size());
     assert101(test.getDocuments().get(0), 0);
     assert102(test.getDocuments().get(1));
     assert202(test.getDocuments().get(2));
@@ -75,8 +76,8 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
     
     assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
-    assertEquals(_totalPortfolios, test.getPaging().getTotalItems());
-    assertEquals(_totalPortfolios, test.getDocuments().size());
+    assertEquals(_visiblePortfolios, test.getPaging().getTotalItems());
+    assertEquals(_visiblePortfolios, test.getDocuments().size());
     assert101(test.getDocuments().get(0), 1);
     assert102(test.getDocuments().get(1));
     assert202(test.getDocuments().get(2));
@@ -91,7 +92,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
     
     assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(2, test.getPaging().getPagingSize());
-    assertEquals(_totalPortfolios, test.getPaging().getTotalItems());
+    assertEquals(_visiblePortfolios, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
     assert101(test.getDocuments().get(0), 999);
@@ -106,7 +107,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
     
     assertEquals(3, test.getPaging().getFirstItemOneBased());
     assertEquals(2, test.getPaging().getPagingSize());
-    assertEquals(_totalPortfolios, test.getPaging().getTotalItems());
+    assertEquals(_visiblePortfolios, test.getPaging().getTotalItems());
     
     assertEquals(1, test.getDocuments().size());
     assert202(test.getDocuments().get(0));
@@ -278,7 +279,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
     request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version1Instant.plusSeconds(5)));
     PortfolioSearchResult test = _prtMaster.search(request);
     
-    assertEquals(_totalPortfolios, test.getDocuments().size());
+    assertEquals(_visiblePortfolios, test.getDocuments().size());
     assert101(test.getDocuments().get(0), 999);
     assert102(test.getDocuments().get(1));
     assert201(test.getDocuments().get(2));  // old version
@@ -290,12 +291,26 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
     request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version2Instant.plusSeconds(5)));
     PortfolioSearchResult test = _prtMaster.search(request);
     
-    assertEquals(_totalPortfolios, test.getDocuments().size());
+    assertEquals(_visiblePortfolios, test.getDocuments().size());
     assert101(test.getDocuments().get(0), 999);
     assert102(test.getDocuments().get(1));
     assert202(test.getDocuments().get(2));  // new version
   }
 
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_search_visibility() {
+    PortfolioSearchRequest request = new PortfolioSearchRequest();
+    request.setVisibility(DocumentVisibility.HIDDEN);
+    PortfolioSearchResult test = _prtMaster.search(request);
+    
+    assertEquals(_totalPortfolios, test.getDocuments().size());
+    assert101(test.getDocuments().get(0), 999);
+    assert102(test.getDocuments().get(1));
+    assert202(test.getDocuments().get(2));
+    assert301(test.getDocuments().get(3));
+  }
+  
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {

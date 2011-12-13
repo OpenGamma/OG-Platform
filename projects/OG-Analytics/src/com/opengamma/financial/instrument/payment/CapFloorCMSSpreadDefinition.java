@@ -107,7 +107,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
     Validate.notNull(cmsIndex1, "CMS index");
     Validate.notNull(cmsIndex2, "CMS index");
     ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, cmsIndex1.getIborIndex().getBusinessDayConvention(), cmsIndex1.getIborIndex().getCalendar(), -cmsIndex1
-        .getIborIndex().getSettlementDays());
+        .getIborIndex().getSpotLag());
     // Implementation comment: the underlying swap is used for forward. The notional, rate and payer flag are irrelevant.
     final SwapFixedIborDefinition underlyingSwap1 = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex1, 1.0, 1.0, true);
     final SwapFixedIborDefinition underlyingSwap2 = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex2, 1.0, 1.0, true);
@@ -258,8 +258,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
         fixedRate = data.getValue(fixingDateAtLiborFixingTime);
       }
       if (fixedRate == null) {
-        final ZonedDateTime previousBusinessDay = 
-          BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(getCmsIndex1().getIborIndex().getConvention().getWorkingDayCalendar(),
+        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(getCmsIndex1().getIborIndex().getCalendar(),
             getFixingDate().minusDays(1));
         fixedRate = data.getValue(previousBusinessDay);
         //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way

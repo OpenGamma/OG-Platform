@@ -8,14 +8,14 @@ package com.opengamma.financial.interestrate.swaption.method;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.method.PricingMethod;
-import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
+import com.opengamma.financial.interestrate.swap.SwapFixedDiscountingMethod;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
@@ -31,6 +31,25 @@ import com.opengamma.util.tuple.DoublesPair;
 public final class SwaptionPhysicalFixedIborSABRMethod implements PricingMethod {
 
   /**
+   * The method unique instance.
+   */
+  private static final SwaptionPhysicalFixedIborSABRMethod INSTANCE = new SwaptionPhysicalFixedIborSABRMethod();
+
+  /**
+   * Return the unique instance of the class.
+   * @return The instance.
+   */
+  public static SwaptionPhysicalFixedIborSABRMethod getInstance() {
+    return INSTANCE;
+  }
+
+  /**
+   * Private constructor.
+   */
+  private SwaptionPhysicalFixedIborSABRMethod() {
+  }
+
+  /**
    * The par rate sensitivity calculator.
    */
   private static final ParRateCurveSensitivityCalculator PRSC = ParRateCurveSensitivityCalculator.getInstance();
@@ -38,14 +57,6 @@ public final class SwaptionPhysicalFixedIborSABRMethod implements PricingMethod 
    * The par rate calculator.
    */
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
-  private static final SwaptionPhysicalFixedIborSABRMethod INSTANCE = new SwaptionPhysicalFixedIborSABRMethod();
-
-  public static SwaptionPhysicalFixedIborSABRMethod getInstance() {
-    return INSTANCE;
-  }
-
-  private SwaptionPhysicalFixedIborSABRMethod() {
-  }
 
   /**
    * Computes the present value of a physical delivery European swaption in the SABR model.
@@ -57,11 +68,11 @@ public final class SwaptionPhysicalFixedIborSABRMethod implements PricingMethod 
     Validate.notNull(swaption);
     Validate.notNull(sabrData);
     //    final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
-    final double pvbp = SwapFixedIborMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData);
-    final double pvbpModified = SwapFixedIborMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData.getSABRParameter().getDayCount(), sabrData);
+    final double pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData);
+    final double pvbpModified = SwapFixedDiscountingMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData.getSABRParameter().getDayCount(), sabrData);
     final double forward = PRC.visit(swaption.getUnderlyingSwap(), sabrData);
     final double forwardModified = forward * pvbp / pvbpModified;
-    final double strikeModified = SwapFixedIborMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, sabrData);
+    final double strikeModified = SwapFixedDiscountingMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, sabrData);
     final double maturity = swaption.getMaturityTime();
     // TODO: A better notion of maturity may be required (using period?)
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
@@ -94,11 +105,11 @@ public final class SwaptionPhysicalFixedIborSABRMethod implements PricingMethod 
     final double forward = PRC.visit(swaption.getUnderlyingSwap(), sabrData);
     // Derivative of the forward with respect to the rates.
     final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(PRSC.visit(swaption.getUnderlyingSwap(), sabrData));
-    final double pvbp = SwapFixedIborMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()));
+    final double pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()));
     // Derivative of the PVBP with respect to the rates.
-    final InterestRateCurveSensitivity pvbpDr = SwapFixedIborMethod.presentValueBasisPointSensitivity(swaption.getUnderlyingSwap(), sabrData);
+    final InterestRateCurveSensitivity pvbpDr = SwapFixedDiscountingMethod.presentValueBasisPointCurveSensitivity(swaption.getUnderlyingSwap(), sabrData);
     // Implementation note: strictly speaking, the strike equivalent is curve dependent; that dependency is ignored.
-    final double strike = SwapFixedIborMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbp, sabrData);
+    final double strike = SwapFixedDiscountingMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbp, sabrData);
     final double maturity = swaption.getMaturityTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, swaption.getTimeToExpiry(), swaption.isCall());
     // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
@@ -126,8 +137,8 @@ public final class SwaptionPhysicalFixedIborSABRMethod implements PricingMethod 
     final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     final double forward = PRC.visit(swaption.getUnderlyingSwap(), sabrData);
-    final double pvbp = SwapFixedIborMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()));
-    final double strike = SwapFixedIborMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbp, sabrData);
+    final double pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()));
+    final double strike = SwapFixedDiscountingMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbp, sabrData);
     final double maturity = swaption.getMaturityTime();
     final DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, swaption.getTimeToExpiry(), swaption.isCall());
