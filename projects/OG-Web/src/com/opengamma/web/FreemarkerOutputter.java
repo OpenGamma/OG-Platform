@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.time.calendar.ZonedDateTime;
+import javax.time.calendar.format.DateTimeFormatters;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -51,6 +52,8 @@ public class FreemarkerOutputter {
     FlexiBean data = new FlexiBean();
     // TODO: TIMEZONE
     data.put("now", ZonedDateTime.now());
+    data.put("timeFormatter", DateTimeFormatters.pattern("HH:mm:ss"));
+    data.put("offsetFormatter", DateTimeFormatters.pattern("UTC+Z"));
     return data;
   }
 
