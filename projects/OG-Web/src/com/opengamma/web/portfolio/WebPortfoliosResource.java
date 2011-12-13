@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response;
 import com.opengamma.web.server.push.rest.MasterType;
 import com.opengamma.web.server.push.rest.Subscribe;
 import com.opengamma.web.server.push.rest.SubscribeMaster;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -143,8 +144,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
     ManageablePortfolio portfolio = new ManageablePortfolio(name);
     PortfolioDocument doc = new PortfolioDocument(portfolio);
     PortfolioDocument added = data().getPortfolioMaster().add(doc);
-    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
-    return uri;
+    return data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
   }
 
   @POST
