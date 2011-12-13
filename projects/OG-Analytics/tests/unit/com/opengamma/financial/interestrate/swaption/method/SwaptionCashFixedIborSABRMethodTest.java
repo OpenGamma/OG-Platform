@@ -44,7 +44,7 @@ import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
-import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
+import com.opengamma.financial.interestrate.swap.SwapFixedDiscountingMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -138,7 +138,7 @@ public class SwaptionCashFixedIborSABRMethodTest {
     final double expectedPriceLongPayer = 5107666.869;
     assertEquals(expectedPriceLongPayer, priceLongPayer, 1E-2);
     final double forward = PRC.visit(SWAP_PAYER, curves);
-    final double pvbp = SwapFixedIborMethod.getAnnuityCash(SWAP_PAYER, forward);
+    final double pvbp = SwapFixedDiscountingMethod.getAnnuityCash(SWAP_PAYER, forward);
     final double maturity = SWAP_PAYER.getFirstLeg().getNthPayment(SWAP_PAYER.getFirstLeg().getNumberOfPayments() - 1).getPaymentTime() - SWAPTION_LONG_PAYER.getSettlementTime();
     assertEquals(maturity, ANNUITY_TENOR_YEAR, 1E-2);
     final double volatility = sabrParameter.getVolatility(SWAPTION_LONG_PAYER.getTimeToExpiry(), maturity, RATE, forward);

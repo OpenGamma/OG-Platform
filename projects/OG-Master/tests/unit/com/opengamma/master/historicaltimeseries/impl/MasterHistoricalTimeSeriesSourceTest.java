@@ -143,24 +143,36 @@ public class MasterHistoricalTimeSeriesSourceTest {
     
     for (boolean includeStart : new boolean[] {true, false})  {
       for (boolean includeEnd : new boolean[] {true, false}) {
-        LocalDate startInput = start;
-        LocalDate endInput = end;
-        if (!includeStart) {
-          startInput = start.plusDays(1);
+        // Also test max points limit for various values
+        for (Integer maxPoints : new Integer[] {null, -10, -1, 1, 0, -2, 2, 10} ) {
+          LocalDate startInput = start;
+          LocalDate endInput = end;
+          if (!includeStart) {
+            startInput = start.plusDays(1);
+          }
+          if (!includeEnd) {
+            endInput = end.minusDays(1);
+          }
+          
+          ManageableHistoricalTimeSeries hts = new ManageableHistoricalTimeSeries();
+          LocalDateDoubleTimeSeries lddts = 
+              (maxPoints == null) || (Math.abs(maxPoints) >= timeSeries.subSeries(start, includeStart, end, includeEnd).size())
+              ? timeSeries.subSeries(start, includeStart, end, includeEnd)
+              : (maxPoints >= 0)
+                ? timeSeries.subSeries(start, includeStart, end, includeEnd).head(maxPoints)
+                : timeSeries.subSeries(start, includeStart, end, includeEnd).tail(-maxPoints);
+          hts.setUniqueId(UID);
+          hts.setTimeSeries(lddts.toLocalDateDoubleTimeSeries());
+          when(_mockMaster.getTimeSeries(UID.getObjectId(), VersionCorrection.LATEST, HistoricalTimeSeriesGetFilter.ofRange(startInput, endInput, maxPoints))).thenReturn(hts);
+          when(_mockMaster.search(request)).thenReturn(searchResult);
+          
+          HistoricalTimeSeries test = (maxPoints == null)
+              ? _tsSource.getHistoricalTimeSeries(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, start, includeStart, end, includeEnd)
+              : _tsSource.getHistoricalTimeSeries(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, start, includeStart, end, includeEnd, maxPoints);
+          
+          assertEquals(UID, test.getUniqueId());
+          assertEquals(hts.getTimeSeries(), test.getTimeSeries());
         }
-        if (!includeEnd) {
-          endInput = end.minusDays(1);
-        }
-        
-        ManageableHistoricalTimeSeries hts = new ManageableHistoricalTimeSeries();
-        hts.setUniqueId(UID);
-        hts.setTimeSeries(timeSeries.subSeries(start, includeStart, end, includeEnd).toLocalDateDoubleTimeSeries());
-        when(_mockMaster.getTimeSeries(UID.getObjectId(), VersionCorrection.LATEST, HistoricalTimeSeriesGetFilter.ofRange(startInput, endInput))).thenReturn(hts);
-        when(_mockMaster.search(request)).thenReturn(searchResult);
-        
-        HistoricalTimeSeries test = _tsSource.getHistoricalTimeSeries(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, start, includeStart, end, includeEnd);
-        assertEquals(UID, test.getUniqueId());
-        assertEquals(hts.getTimeSeries(), test.getTimeSeries());
       }
     }
   }

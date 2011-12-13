@@ -6,6 +6,7 @@
 package com.opengamma.core.position;
 
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -19,6 +20,11 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 public interface Counterparty {
+  
+  /**
+   * Default Identification scheme for Counterparty.
+   */
+  ExternalScheme DEFAULT_SCHEME = ExternalScheme.of("COUNTER_PARTY");
 
   /**
    * Gets the external identifier of the counterparty.

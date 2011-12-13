@@ -13,8 +13,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.security.test.SecurityTestCaseMethods;
 import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.masterdb.security.test.SecurityTestCaseMethods;
 import com.opengamma.util.test.DbTest;
 
 /**

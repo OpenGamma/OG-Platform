@@ -22,6 +22,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jms.support.JmsUtils;
 
 import com.opengamma.util.jms.JmsConnector;
 
@@ -130,15 +131,15 @@ public abstract class AbstractJmsResultPublisher {
 
   private void closeJms() {
     if (_connection != null) {
-      try {
-        _connection.close();
-      } catch (Exception e) {
-        s_logger.error("Error closing JMS connection", e);
-      } finally {
-        _connection = null;
-        _session = null;
-        _producer = null;
-      }
+      //[PLAT-1809] Need to close all of these
+      JmsUtils.closeMessageProducer(_producer);
+      JmsUtils.closeSession(_session);
+      JmsUtils.closeConnection(_connection);
+
+      _connection = null;
+      _session = null;
+      _producer = null;
+
     }
   }
 

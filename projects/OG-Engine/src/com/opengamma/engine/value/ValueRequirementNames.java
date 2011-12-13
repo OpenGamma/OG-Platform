@@ -241,6 +241,7 @@ public final class ValueRequirementNames {
   public static final String MODIFIED_DURATION = "Modified Duration";
   public static final String CONVEXITY = "Convexity";
   public static final String Z_SPREAD = "Z Spread";
+  public static final String PRESENT_VALUE_Z_SPREAD_SENSITIVITY = "PV Z Spread Sensitivity";
   
   //Bond Futures
   public static final String CONVERTION_FACTOR = "Convertion Factor";

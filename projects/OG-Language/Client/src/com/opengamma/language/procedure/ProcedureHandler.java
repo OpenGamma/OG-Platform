@@ -8,7 +8,7 @@ package com.opengamma.language.procedure;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,10 +56,16 @@ public class ProcedureHandler implements ProcedureVisitor<UserMessagePayload, Se
   public UserMessagePayload visitInvoke(final Invoke message, final SessionContext context) throws AsynchronousExecution {
     try {
       final ProcedureRepository repository = context.getProcedureRepository();
-      final MetaProcedure procedure = repository.get(message.getIdentifier());
+      MetaProcedure procedure = repository.get(message.getIdentifier());
       if (procedure == null) {
-        s_logger.error("Invalid procedure invocation ID {}", message.getIdentifier());
-        return null;
+        if (repository.initialize(context.getProcedureProvider(), false)) {
+          s_logger.info("Initialized procedure repository");
+          procedure = repository.get(message.getIdentifier());
+        }
+        if (procedure == null) {
+          s_logger.error("Invalid procedure invocation ID {}", message.getIdentifier());
+          return null;
+        }
       }
       s_logger.debug("Invoking {}", procedure.getName());
       final List<Data> parameters = message.getParameter();
@@ -77,16 +83,17 @@ public class ProcedureHandler implements ProcedureVisitor<UserMessagePayload, Se
 
   @Override
   public UserMessagePayload visitQueryAvailable(final QueryAvailable message, final SessionContext data) {
-    final Set<MetaProcedure> definitions = data.getProcedureProvider().getDefinitions();
     final ProcedureRepository repository = data.getProcedureRepository();
+    repository.initialize(data.getProcedureProvider(), true);
+    final Map<Integer, MetaProcedure> definitions = repository.getAll();
     s_logger.info("{} procedures available", definitions.size());
     final Available available = new Available();
-    for (MetaProcedure definition : definitions) {
-      Definition logical = data.getGlobalContext().getProcedureDefinitionFilter().createDefinition(definition);
+    final ProcedureDefinitionFilter filter = data.getGlobalContext().getProcedureDefinitionFilter();
+    for (Map.Entry<Integer, MetaProcedure> definition : definitions.entrySet()) {
+      Definition logical = filter.createDefinition(definition.getValue());
       if (logical != null) {
-        final int identifier = repository.add(definition);
-        s_logger.debug("Publishing {} as {}", logical, identifier);
-        available.addProcedure(new Available.Entry(identifier, logical));
+        s_logger.debug("Publishing {} as {}", logical, definition.getKey());
+        available.addProcedure(new Available.Entry(definition.getKey(), logical));
       } else {
         s_logger.debug("Discarding {} after applying filter", definition);
       }
