@@ -11,12 +11,28 @@ package com.opengamma.util.component;
 public interface Component {
 
   /**
-   * Starts the component using the configuration.
+   * Gets the instance that provides the functionality for a specified level of access.
    * <p>
-   * The started component must be registered with the repository.
+   * The access defines how the component will be connected to.
+   * The access level of LOCAL must return an instance of the component type.
    * 
-   * @param repo  the repository to register the component with, not null
+   * @param access  the access that is required
+   * @return the underlying instance providing the service, null if not available
    */
-  void start(ComponentRepository repo);
+  Object getProvider(ComponentAccess access);
+
+  /**
+   * Gets the component type representing the available functionality.
+   * 
+   * @return the type defining the functionality, not null
+   */
+  ComponentType getType();
+
+  /**
+   * Gets the classifier of the component.
+   * 
+   * @return the classifier, not null
+   */
+  String getClassifier();
 
 }
