@@ -47,8 +47,9 @@ $.register_module({
                                 api.rest.portfolios.put({
                                     handler: function (r) {
                                         if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                        routes.go(routes.hash(module.rules.load_new_portfolios,
-                                                $.extend({}, routes.last().args, {id: r.meta.id, 'new': true})
+                                        portfolios.search(routes.last().args);
+                                        routes.go(routes.hash(module.rules.load_portfolios,
+                                                $.extend({}, routes.last().args, {id: r.meta.id})
                                         ));
                                     },
                                     name: ui.dialog({return_field_value: 'name'})
@@ -64,22 +65,17 @@ $.register_module({
                         message: 'Are you sure you want to permanently delete this portfolio?',
                         buttons: {
                             'Delete': function () {
-                                var obj = {
-                                    id: routes.last().args.id,
+                                var args = routes.current().args, rest_options = {
+                                    id: args.id,
                                     handler: function (r) {
-                                        var last = routes.last(), args_obj = {};
                                         if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                        if (json.template_data.parent_node_id) {
-                                            args_obj.node = json.template_data.parent_node_id;
-                                            args_obj.id = json.template_data.object_id;
-                                        }
-                                        portfolios.deleted = true;
-                                        routes.handler();
+                                        portfolios.search(args);
+                                        routes.go(routes.hash(module.rules.load, args, {del: ['id', 'node']}));
                                     }
                                 };
-                                if (routes.last().args.node) obj.node = routes.last().args.node;
+                                if (routes.last().args.node) rest_options.node = routes.last().args.node;
                                 $(this).dialog('close');
-                                api.rest.portfolios.del(obj);
+                                api.rest.portfolios.del(rest_options);
                             }
                         }
                     })
@@ -143,9 +139,7 @@ $.register_module({
                                 api.rest.portfolios.put({
                                     handler: function (r) {
                                         if (r.error) {ui.dialog({type: 'error', message: r.message}); return}
-                                        routes.go(routes.hash(module.rules.load_new_portfolios,
-                                                $.extend({},routes.current().args, {'new': true})
-                                        ));
+                                        portfolios.details(args);
                                     },
                                     name: ui.dialog({return_field_value: 'name'}),
                                     id: json.template_data.object_id,
@@ -196,11 +190,10 @@ $.register_module({
                                     message: 'Are you sure you want to permanently delete this sub portfolio?',
                                     buttons: {'Delete': function () {
                                         api.rest.portfolios.del({
-                                            id: routes.last().args.id, node: node,
+                                            id: routes.current().args.id, node: node,
                                             handler: function (r) {
                                                 if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                                portfolios.deleted = true;
-                                                routes.handler();
+                                                portfolios.details(routes.current().args);
                                             }
                                         });
                                         $(this).dialog('close');
@@ -228,11 +221,7 @@ $.register_module({
                                 api.rest.portfolios.put({
                                     handler: function (r) {
                                         if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                        // TODO: prevent search from reloading
-                                        routes.go(routes.hash(module.rules.load_new_portfolios,
-                                             $.extend({}, routes.last().args,
-                                                 {id: json.template_data.object_id, 'new': true})
-                                        ));
+                                        portfolios.details(args);
                                     },
                                     position: id ? id.item.value : $input.val(),
                                     id: json.template_data.object_id,
@@ -389,9 +378,8 @@ $.register_module({
                             ui.content_editable({
                                 attribute: 'data-og-editable',
                                 handler: function () {
-                                    routes.go(routes.hash(module.rules.load_edit_portfolios, $.extend(args, {
-                                        edit: 'true'
-                                    })));
+                                    portfolios.search(args);
+                                    routes.handler();
                                 }
                             });
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
@@ -409,12 +397,6 @@ $.register_module({
                         });
                     }
                 });
-            },
-            load_portfolios_without = function (field, args) {
-                check_state({args: args, conditions: [{new_page: portfolios.load}]});
-                delete args[field];
-                portfolios.search(args);
-                routes.go(routes.hash(module.rules.load_portfolios, args));
             };
         module.rules = {
             load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
@@ -429,10 +411,6 @@ $.register_module({
             load_new_portfolios: {
                 route: '/' + page_name + '/:id/:node?/new:/name:?',
                 method: module.name + '.load_new_' + page_name
-            },
-            load_edit_portfolios: {
-                route: '/' + page_name + '/:id/:node?/edit:/name:?',
-                method: module.name + '.load_edit_' + page_name
             }
         };
         return portfolios = {
@@ -460,15 +438,7 @@ $.register_module({
                 delete args['filter'];
                 search.filter($.extend(args, {filter: true}));
             },
-            load_delete: function (args) {
-                portfolios.deleted = false;
-                portfolios.search(args);
-                portfolios.details($.extend({name: args.name}, args));
-            },
-            load_new_portfolios: load_portfolios_without.partial('new'),
-            load_edit_portfolios: load_portfolios_without.partial('edit'),
             load_portfolios: function (args) {
-                if (portfolios.deleted) return portfolios.load_delete(args);
                 check_state({args: args, conditions: [
                     {new_page: function () {
                         portfolios.load(args);
