@@ -17,6 +17,7 @@ import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
 import com.opengamma.language.function.FunctionProviderBean;
+import com.opengamma.language.procedure.ProcedureProviderBean;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
@@ -76,8 +77,14 @@ public class Loader extends ContextInitializationBean {
     globalContext.setPositionSource(new EHCachingPositionSource(new RemotePositionSource(getConfiguration().getFudgeContext(), restTarget), getCacheManager()));
     globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
         FetchPortfolioFunction.INSTANCE,
-        PortfoliosFunction.INSTANCE));
-    // TODO: type converter and procedure providers
+        GetPositionAttributeFunction.INSTANCE,
+        PortfolioFunction.INSTANCE,
+        PortfolioNodeFunction.INSTANCE,
+        PortfoliosFunction.INSTANCE,
+        PositionFunction.INSTANCE,
+        SetPositionAttributeFunction.INSTANCE));
+    globalContext.getProcedureProvider().addProvider(new ProcedureProviderBean(
+        StorePortfolioProcedure.INSTANCE));
   }
 
 }

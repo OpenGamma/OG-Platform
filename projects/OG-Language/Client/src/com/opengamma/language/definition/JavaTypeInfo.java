@@ -7,6 +7,7 @@
 package com.opengamma.language.definition;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -53,6 +54,10 @@ public final class JavaTypeInfo<T> {
       if (_allowNull) {
         throw new IllegalStateException();
       }
+      if (_rawClass.isPrimitive()) {
+        // Can't have primitives allowing null
+        return this;
+      }
       _allowNull = true;
       return this;
     }
@@ -94,6 +99,9 @@ public final class JavaTypeInfo<T> {
         final Builder<?> type = builder(_rawClass.getComponentType());
         if (_allowNull) {
           type.allowNull();
+        }
+        if (_parameter != null) {
+          type._parameter = _parameter;
         }
         parameter = new JavaTypeInfo<?>[] {type.get() };
       } else {
@@ -217,6 +225,18 @@ public final class JavaTypeInfo<T> {
         return false;
       }
     }
+    if (_parameter == null) {
+      if (other._parameter != null) {
+        return false;
+      }
+    } else {
+      if (other._parameter == null) {
+        return false;
+      }
+      if (!Arrays.equals(_parameter, other._parameter)) {
+        return false;
+      }
+    }
     return true;
   }
 
@@ -237,7 +257,23 @@ public final class JavaTypeInfo<T> {
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder();
-    sb.append(getRawClass().getName()).append('[');
+    if (isArray()) {
+      sb.append(getArrayElementType().toString());
+      sb.append("[]");
+    } else {
+      sb.append(getRawClass().getName());
+      if (_parameter != null) {
+        sb.append('<');
+        for (int i = 0; i < _parameter.length; i++) {
+          if (i > 0) {
+            sb.append(',');
+          }
+          sb.append(_parameter[i].toString());
+        }
+        sb.append('>');
+      }
+    }
+    sb.append('{');
     if (isAllowNull()) {
       sb.append("allow null");
     } else {
@@ -246,7 +282,7 @@ public final class JavaTypeInfo<T> {
     if (isDefaultValue()) {
       sb.append(", default = ").append(getDefaultValue());
     }
-    sb.append(']');
+    sb.append('}');
     return sb.toString();
   }
 
@@ -301,6 +337,26 @@ public final class JavaTypeInfo<T> {
     }
   }
 
+  private static Class<?> findClass(final String className) throws ClassNotFoundException {
+    if ("boolean".equals(className)) {
+      return Boolean.TYPE;
+    } else if ("char".equals(className)) {
+      return Character.TYPE;
+    } else if ("double".equals(className)) {
+      return Double.TYPE;
+    } else if ("float".equals(className)) {
+      return Float.TYPE;
+    } else if ("int".equals(className)) {
+      return Integer.TYPE;
+    } else if ("long".equals(className)) {
+      return Long.TYPE;
+    } else if ("short".equals(className)) {
+      return Short.TYPE;
+    } else {
+      return Class.forName(className);
+    }
+  }
+
   /**
    * Parses a string that describes the type and all enclosed meta data.
    * 
@@ -312,7 +368,7 @@ public final class JavaTypeInfo<T> {
     for (i = 0; i < str.length(); i++) {
       switch (str.charAt(i)) {
         case '<': {
-          final JavaTypeInfo.Builder<?> builder = JavaTypeInfo.builder(Class.forName(str.substring(0, i)));
+          final JavaTypeInfo.Builder<?> builder = JavaTypeInfo.builder(findClass(str.substring(0, i)));
           String remainder = str.substring(i + 1);
           do {
             final Pair<JavaTypeInfo<?>, String> param = parseStringImpl(remainder);
@@ -337,14 +393,14 @@ public final class JavaTypeInfo<T> {
         }
         case ',':
         case '>': {
-          return Pair.<JavaTypeInfo<?>, String>of(JavaTypeInfo.builder(Class.forName(str.substring(0, i))).get(), str.substring(i));
+          return Pair.<JavaTypeInfo<?>, String>of(JavaTypeInfo.builder(findClass(str.substring(0, i))).get(), str.substring(i));
         }
         case '[': {
-          return checkArray(Pair.<JavaTypeInfo<?>, String>of(JavaTypeInfo.builder(Class.forName(str.substring(0, i))).get(), str.substring(i)));
+          return checkArray(Pair.<JavaTypeInfo<?>, String>of(JavaTypeInfo.builder(findClass(str.substring(0, i))).get(), str.substring(i)));
         }
       }
     }
-    return Pair.<JavaTypeInfo<?>, String>of(JavaTypeInfo.builder(Class.forName(str)).get(), "");
+    return Pair.<JavaTypeInfo<?>, String>of(JavaTypeInfo.builder(findClass(str)).get(), "");
   }
 
   public static JavaTypeInfo<?> parseString(final String str) {

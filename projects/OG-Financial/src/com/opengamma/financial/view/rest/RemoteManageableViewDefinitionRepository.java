@@ -43,7 +43,7 @@ public class RemoteManageableViewDefinitionRepository extends RemoteViewDefiniti
 
   @Override
   public void updateViewDefinition(UpdateViewDefinitionRequest request) {
-    URI uri = DataViewDefinitionRepositoryResource.uriDefinitionId(getBaseUri(), request.getViewDefinition().getUniqueId());
+    URI uri = DataViewDefinitionRepositoryResource.uriDefinitionId(getBaseUri(), request.getId());
     getClient().access(uri).put(request.getViewDefinition());
   }
 

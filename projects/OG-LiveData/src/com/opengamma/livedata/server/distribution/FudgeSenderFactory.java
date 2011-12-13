@@ -12,17 +12,26 @@ import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Creates {@link FudgeSender}'s.
+ * Factory to create Fudge senders.
  */
 public class FudgeSenderFactory implements MarketDataSenderFactory {
-  
+
+  /**
+   * The base sender.
+   */
   private final FudgeMessageSender _fudgeMessageSender;
-  
+
+  /**
+   * Creates a sender.
+   * 
+   * @param fudgeMessageSender  the base sender, not null
+   */
   public FudgeSenderFactory(FudgeMessageSender fudgeMessageSender) {
-    ArgumentChecker.notNull(fudgeMessageSender, "Fudge message sender");
+    ArgumentChecker.notNull(fudgeMessageSender, "fudgeMessageSender");
     _fudgeMessageSender = fudgeMessageSender;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public Collection<MarketDataSender> create(MarketDataDistributor distributor) {
     return Collections.<MarketDataSender>singleton(new FudgeSender(_fudgeMessageSender, distributor));

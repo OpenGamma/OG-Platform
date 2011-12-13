@@ -288,50 +288,56 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
     final BlockingQueue<CalculationJobResult> calcJobResultQueue = new LinkedBlockingQueue<CalculationJobResult>();
     CalculationJobResultStreamConsumer calculationJobResultStreamConsumer = new CalculationJobResultStreamConsumer(calcJobResultQueue, this);
-    Future<?> resultStreamConsumerJobInProgress = calcJobResultExecutorService.submit(calculationJobResultStreamConsumer);
-
-    LinkedList<Future<?>> futures = new LinkedList<Future<?>>();
-
-    for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
-      s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
-      DependencyGraph depGraph = getExecutableDependencyGraph(calcConfigurationName);
-
-      s_logger.info("Submitting {} for execution by {}", depGraph, getDependencyGraphExecutor());
-
-      Future<?> future = getDependencyGraphExecutor().execute(depGraph, calcJobResultQueue, _statisticsGatherer);
-      futures.add(future);
-    }
-
-    while (!futures.isEmpty()) {
-      Future<?> future = futures.poll();
-      try {
-        future.get(5, TimeUnit.SECONDS);
-      } catch (TimeoutException e) {
-        s_logger.info("Waiting for " + future);
+    Future<?> resultStreamConsumerJobInProgress;
+    try {
+      resultStreamConsumerJobInProgress = calcJobResultExecutorService.submit(calculationJobResultStreamConsumer);
+  
+      LinkedList<Future<?>> futures = new LinkedList<Future<?>>();
+  
+      for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
+        s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
+        DependencyGraph depGraph = getExecutableDependencyGraph(calcConfigurationName);
+  
+        s_logger.info("Submitting {} for execution by {}", depGraph, getDependencyGraphExecutor());
+  
+        Future<?> future = getDependencyGraphExecutor().execute(depGraph, calcJobResultQueue, _statisticsGatherer);
         futures.add(future);
-      } catch (InterruptedException e) {
-        Thread.interrupted();
-        // Cancel all outstanding jobs to free up resources
-        future.cancel(true);
-        for (Future<?> incompleteFuture : futures) {
-          incompleteFuture.cancel(true);
-        }
-        _state = ViewCycleState.EXECUTION_INTERRUPTED;
-        s_logger.info("Execution interrupted before completion.");
-        throw e;
-      } catch (ExecutionException e) {
-        s_logger.error("Unable to execute dependency graph", e);
-        // Should we be swallowing this or not?
-        throw new OpenGammaRuntimeException("Unable to execute dependency graph", e);
       }
+  
+      while (!futures.isEmpty()) {
+        Future<?> future = futures.poll();
+        try {
+          future.get(5, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+          s_logger.info("Waiting for " + future);
+          futures.add(future);
+        } catch (InterruptedException e) {
+          Thread.interrupted();
+          // Cancel all outstanding jobs to free up resources
+          future.cancel(true);
+          for (Future<?> incompleteFuture : futures) {
+            incompleteFuture.cancel(true);
+          }
+          _state = ViewCycleState.EXECUTION_INTERRUPTED;
+          s_logger.info("Execution interrupted before completion.");
+          throw e;
+        } catch (ExecutionException e) {
+          s_logger.error("Unable to execute dependency graph", e);
+          // Should we be swallowing this or not?
+          throw new OpenGammaRuntimeException("Unable to execute dependency graph", e);
+        }
+      }
+  
+      _endTime = Instant.now();
+    } finally {
+      calculationJobResultStreamConsumer.terminate();  
     }
-
-    _endTime = Instant.now();
-
-    calculationJobResultStreamConsumer.terminate();
+    
     //wait for StreamCalculationJobResultConsumer to finish
     try {
-      resultStreamConsumerJobInProgress.get();
+      if(resultStreamConsumerJobInProgress != null){
+        resultStreamConsumerJobInProgress.get();
+      }
     } catch (ExecutionException e) {
       Thread.currentThread().interrupt();
     }

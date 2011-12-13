@@ -263,6 +263,9 @@ public abstract class AbstractPersistentSubscriptionManager implements Lifecycle
     s_logger.debug("Dumped persistent subscriptions to storage");
   }
   
+  public synchronized long getApproximateNumberOfPersistentSubscriptions() {
+    return _persistentSubscriptions.size();
+  }
   public synchronized Set<String> getPersistentSubscriptions() {
     clear();
     readFromServer();

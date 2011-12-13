@@ -43,6 +43,8 @@ public final class ScheduleCalculator {
   private ScheduleCalculator() {
   }
 
+  // TODO: review the different methods.
+
   // -------------------------------------------------------------------------
   /**
    * Calculates the unadjusted date schedule.

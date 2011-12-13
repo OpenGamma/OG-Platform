@@ -29,6 +29,7 @@ import com.opengamma.livedata.msg.EntitlementResponseMsg;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Checks entitlements against a LiveData server by sending the server a Fudge message.
@@ -45,7 +46,7 @@ public class DistributedEntitlementChecker {
   private final FudgeContext _fudgeContext;
   
   public DistributedEntitlementChecker(FudgeRequestSender requestSender) {
-    this(requestSender, new FudgeContext());
+    this(requestSender, OpenGammaFudgeContext.getInstance());
   }
   
   public DistributedEntitlementChecker(FudgeRequestSender requestSender, FudgeContext fudgeContext) {

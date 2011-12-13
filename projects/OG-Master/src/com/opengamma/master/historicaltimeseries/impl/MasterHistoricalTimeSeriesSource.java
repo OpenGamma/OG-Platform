@@ -166,14 +166,11 @@ public class MasterHistoricalTimeSeriesSource
   private HistoricalTimeSeries doGetHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, LocalDate end, Integer maxPoints) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     final VersionCorrection vc = getVersionCorrection();  // lock against change
-    HistoricalTimeSeriesGetFilter htsgf = HistoricalTimeSeriesGetFilter.ofRange(start, end);
-    htsgf.setMaxPoints(maxPoints);
-    
     try {
       if (vc != null) {
-        return getMaster().getTimeSeries(uniqueId, vc, htsgf);
+        return getMaster().getTimeSeries(uniqueId, vc, HistoricalTimeSeriesGetFilter.ofRange(start, end, maxPoints));
       } else {
-        return getMaster().getTimeSeries(uniqueId, htsgf);
+        return getMaster().getTimeSeries(uniqueId, HistoricalTimeSeriesGetFilter.ofRange(start, end, maxPoints));
       }
     } catch (DataNotFoundException ex) {
       return null;
@@ -273,11 +270,26 @@ public class MasterHistoricalTimeSeriesSource
     }
     HistoricalTimeSeries hts = doGetHistoricalTimeSeries(identifierBundle, identifierValidityDate, dataSource, dataProvider, dataField, start, end, -1);
     if (hts != null) {
-      LocalDateDoubleTimeSeries ldmts = hts.getTimeSeries();
-      return new ObjectsPair<LocalDate, Double>(ldmts.getLatestTime(), ldmts.getLatestValue());
+      LocalDateDoubleTimeSeries lddts = hts.getTimeSeries();
+      return new ObjectsPair<LocalDate, Double>(lddts.getLatestTime(), lddts.getLatestValue());
     } else {
       return null;
     }
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(
+      ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField) {
+    return getLatestDataPoint(identifierBundle, LocalDate.now(getClock()), dataSource, dataProvider, dataField);
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(
+      ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, 
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
+    return getLatestDataPoint(
+        identifierBundle, LocalDate.now(getClock()), dataSource, dataProvider, dataField, 
+        start, includeStart, end, includeEnd);
   }
 
   private HistoricalTimeSeries doGetHistoricalTimeSeries(
@@ -310,10 +322,8 @@ public class MasterHistoricalTimeSeriesSource
     ArgumentChecker.notNull(objectId, "objectId");
     VersionCorrection vc = getVersionCorrection();  // lock against change
     vc = Objects.firstNonNull(vc, VersionCorrection.LATEST);
-    HistoricalTimeSeriesGetFilter htsgf = HistoricalTimeSeriesGetFilter.ofRange(start, end);
-    htsgf.setMaxPoints(maxPoints);
     try {
-      return getMaster().getTimeSeries(objectId, vc, htsgf);
+      return getMaster().getTimeSeries(objectId, vc, HistoricalTimeSeriesGetFilter.ofRange(start, end, maxPoints));
     } catch (DataNotFoundException ex) {
       return null;
     }
@@ -324,13 +334,15 @@ public class MasterHistoricalTimeSeriesSource
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifierBundle, String resolutionKey) {
     // TODO: TIMEZONE
-    return doGetHistoricalTimeSeries(dataField, identifierBundle, LocalDate.now(getClock()), resolutionKey, (LocalDate) null, (LocalDate) null);
+    return doGetHistoricalTimeSeries(
+        dataField, identifierBundle, LocalDate.now(getClock()), resolutionKey, (LocalDate) null, (LocalDate) null, (Integer) null);
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey) {
-    return doGetHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, null, null);
+    return doGetHistoricalTimeSeries(
+        dataField, identifierBundle, identifierValidityDate, resolutionKey, (LocalDate) null, (LocalDate) null, (Integer) null);
   }
 
   @Override
@@ -344,7 +356,8 @@ public class MasterHistoricalTimeSeriesSource
       end = end.minusDays(1);
     }
     // TODO: TIMEZONE
-    return doGetHistoricalTimeSeries(dataField, identifierBundle, LocalDate.now(getClock()), resolutionKey, start, end);
+    return doGetHistoricalTimeSeries(
+        dataField, identifierBundle, LocalDate.now(getClock()), resolutionKey, start, end, (Integer) null);
   }
 
   @Override
@@ -357,12 +370,81 @@ public class MasterHistoricalTimeSeriesSource
     if (end != null && !includeEnd) {
       end = end.minusDays(1);
     }
-    return doGetHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, start, end);
+    return doGetHistoricalTimeSeries(
+        dataField, identifierBundle, identifierValidityDate, resolutionKey, start, end, (Integer) null);
+  }
+
+  @Override
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      String dataField, ExternalIdBundle identifierBundle, String resolutionKey, 
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
+    if (start != null && !includeStart) {
+      start = start.plusDays(1);
+    }
+    if (end != null && !includeEnd) {
+      end = end.minusDays(1);
+    }
+    // TODO: TIMEZONE
+    return doGetHistoricalTimeSeries(
+        dataField, identifierBundle, LocalDate.now(getClock()), resolutionKey, start, end, maxPoints);
+  }
+
+  @Override
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, 
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
+    if (start != null && !includeStart) {
+      start = start.plusDays(1);
+    }
+    if (end != null && !includeEnd) {
+      end = end.minusDays(1);
+    }
+    return doGetHistoricalTimeSeries(
+        dataField, identifierBundle, identifierValidityDate, resolutionKey, start, end, maxPoints);
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(
+      String dataField, ExternalIdBundle identifierBundle, String resolutionKey) {
+    return getLatestDataPoint(dataField, identifierBundle, LocalDate.now(getClock()), resolutionKey);
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(
+      String dataField, ExternalIdBundle identifierBundle, String resolutionKey, 
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
+    return getLatestDataPoint(dataField, identifierBundle, LocalDate.now(getClock()), resolutionKey,
+        start, includeStart, end, includeEnd);
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(
+      String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey) {
+    return getLatestDataPoint(dataField, identifierBundle, identifierValidityDate, resolutionKey, (LocalDate) null, true, (LocalDate) null, true);
+  }
+
+  @Override
+  public Pair<LocalDate, Double> getLatestDataPoint(
+      String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, 
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
+    if (start != null && !includeStart) {
+      start = start.plusDays(1);
+    }
+    if (end != null && !includeEnd) {
+      end = end.minusDays(1);
+    }
+    HistoricalTimeSeries hts = doGetHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, dataField, start, end, -1);
+    if (hts != null) {
+      LocalDateDoubleTimeSeries lddts = hts.getTimeSeries();
+      return new ObjectsPair<LocalDate, Double>(lddts.getLatestTime(), lddts.getLatestValue());
+    } else {
+      return null;
+    }
   }
 
   private HistoricalTimeSeries doGetHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey,
-      LocalDate start, LocalDate end) {
+      LocalDate start, LocalDate end, Integer maxPoints) {
     ArgumentChecker.notNull(dataField, "dataField");
     ArgumentChecker.notEmpty(identifierBundle, "identifierBundle");
     if (StringUtils.isBlank(resolutionKey)) {
@@ -372,7 +454,7 @@ public class MasterHistoricalTimeSeriesSource
     if (uniqueId == null) {
       return null;
     }
-    return doGetHistoricalTimeSeries(uniqueId, start, end, null);
+    return doGetHistoricalTimeSeries(uniqueId, start, end, maxPoints);
   }
 
   //-------------------------------------------------------------------------
@@ -394,6 +476,5 @@ public class MasterHistoricalTimeSeriesSource
   public String toString() {
     return "MasterHistoricalTimeSeriesSource[" + getMaster() + "]";
   }
-
 
 }

@@ -91,6 +91,19 @@ public final class ForexNonDeliverableForwardDiscountingMethod implements ForexP
   }
 
   /**
+   * Computes the forward exchange rate associated to the NDF (1 Cyy2 = fwd Cyy1).
+   * @param ndf The non-deliverable forward.
+   * @param curves The curve bundle (with FX rates).
+   * @return The forward rate.
+   */
+  public double forwardForexRate(final ForexNonDeliverableForward ndf, final YieldCurveWithFXBundle curves) {
+    final double dfDelivery = curves.getCurve(ndf.getDiscountingCurve2Name()).getDiscountFactor(ndf.getPaymentTime());
+    final double dfNonDelivery = curves.getCurve(ndf.getDiscountingCurve1Name()).getDiscountFactor(ndf.getPaymentTime());
+    final double spot = curves.getFxRate(ndf.getCurrency2(), ndf.getCurrency1());
+    return spot * dfDelivery / dfNonDelivery;
+  }
+
+  /**
    * The present value curve sensitivity for the non-deliverable forward.
    * @param ndf The non-deliverable forward.
    * @param curves The curve bundle (with FX rates).

@@ -12,17 +12,28 @@ import org.apache.activemq.transport.TransportListener;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Disables sending JMS messages if ActiveMQ disconnection event is received.
+ * Links the ActiveMQ JMS messages for transport interrupted/resumed to live data.
+ * <p>
+ * This disables sending JMS messages if ActiveMQ disconnection event is received.
  */
 public class ActiveMQTransportListener implements TransportListener {
-  
+
+  /**
+   * The JMS sender factory.
+   */
   private JmsSenderFactory _senderFactory;
-  
+
+  /**
+   * Creates an instance.
+   * 
+   * @param senderFactory  the sender factory to use, not null
+   */
   public ActiveMQTransportListener(JmsSenderFactory senderFactory) {
     ArgumentChecker.notNull(senderFactory, "JMS Sender factory");
     _senderFactory = senderFactory;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public void onCommand(Object command) {
   }
@@ -40,5 +51,5 @@ public class ActiveMQTransportListener implements TransportListener {
   public void transportResumed() {
     _senderFactory.transportResumed();
   }
-  
+
 }

@@ -73,7 +73,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class SABRPresentValueSABRFunction extends SABRFunction {
   private static final PresentValueSABRSensitivitySABRCalculator CALCULATOR = PresentValueSABRSensitivitySABRCalculator.getInstance();
-  
+
   public SABRPresentValueSABRFunction(final String currency, final String definitionName, String forwardCurveName, String fundingCurveName) {
     this(Currency.of(currency), definitionName, forwardCurveName, fundingCurveName);
   }
@@ -88,14 +88,13 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
       return false;
     }
     final Security security = target.getSecurity();
-    return security instanceof SwaptionSecurity || 
-       (security instanceof SwapSecurity && 
-         (SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_FIXED_CMS ||
-          SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS ||
-          SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS)) ||
-       security instanceof CapFloorSecurity; 
+    return security instanceof SwaptionSecurity
+        || (security instanceof SwapSecurity && (SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_FIXED_CMS
+            || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS || 
+            SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
+        || security instanceof CapFloorSecurity;
   }
-  
+
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
@@ -107,18 +106,15 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
     final InstrumentDerivative derivative = getConverter().convert(security, definition, now, new String[] {getFundingCurveName(), getForwardCurveName()}, dataSource);
     final Currency ccy = FinancialSecurityUtils.getCurrency(security);
     final PresentValueSABRSensitivityDataBundle presentValue = CALCULATOR.visit(derivative, data);
-    final ValueProperties resultProperties = createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, ccy.getCode())
-        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
-        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName())
+    final ValueProperties resultProperties = createValueProperties().with(ValuePropertyNames.CURRENCY, ccy.getCode()).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName()).with(ValuePropertyNames.CUBE, getHelper().getDefinitionName())
         .with(ValuePropertyNames.CALCULATION_METHOD, isUseSABRExtrapolation() ? SABR_RIGHT_EXTRAPOLATION : SABR_NO_EXTRAPOLATION).get();
     final ValueSpecification alphaSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.toSpecification(), resultProperties);
     final ValueSpecification nuSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.toSpecification(), resultProperties);
     final ValueSpecification rhoSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, target.toSpecification(), resultProperties);
-    final Map<DoublesPair, Double> alpha = presentValue.getAlpha();
-    final Map<DoublesPair, Double> nu = presentValue.getNu();
-    final Map<DoublesPair, Double> rho = presentValue.getRho();
+    final Map<DoublesPair, Double> alpha = presentValue.getAlpha().getMap();
+    final Map<DoublesPair, Double> nu = presentValue.getNu().getMap();
+    final Map<DoublesPair, Double> rho = presentValue.getRho().getMap();
     final MySecurityVisitor alphaVisitor = new MySecurityVisitor(alpha, now);
     final DoubleLabelledMatrix2D alphaValue = security.accept(alphaVisitor);
     final MySecurityVisitor nuVisitor = new MySecurityVisitor(nu, now);
@@ -130,12 +126,9 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties resultProperties = createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode())
-        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
-        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName())
-        .with(ValuePropertyNames.CALCULATION_METHOD, isUseSABRExtrapolation() ? SABR_RIGHT_EXTRAPOLATION : SABR_NO_EXTRAPOLATION).get();
+    final ValueProperties resultProperties = createValueProperties().with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode())
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName()).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
+        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).with(ValuePropertyNames.CALCULATION_METHOD, isUseSABRExtrapolation() ? SABR_RIGHT_EXTRAPOLATION : SABR_NO_EXTRAPOLATION).get();
     return getResults(target.toSpecification(), resultProperties);
   }
 
@@ -150,12 +143,12 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
     private final DecimalFormat _formatter = new DecimalFormat("##.#");
     private final Map<DoublesPair, Double> _data;
     private final ZonedDateTime _now;
-    
+
     public MySecurityVisitor(final Map<DoublesPair, Double> data, final ZonedDateTime now) {
       _data = data;
       _now = now;
     }
-    
+
     @Override
     public DoubleLabelledMatrix2D visitBondSecurity(BondSecurity security) {
       return null;
@@ -184,9 +177,7 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
     @Override
     public DoubleLabelledMatrix2D visitSwapSecurity(SwapSecurity security) {
       final Map.Entry<DoublesPair, Double> entry = _data.entrySet().iterator().next();
-      return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first},
-                                        new Double[] {entry.getKey().second},
-                                        new double[][] {new double[] {entry.getValue()}});
+      return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first}, new Double[] {entry.getKey().second}, new double[][] {new double[] {entry.getValue()}});
     }
 
     @Override
@@ -212,9 +203,8 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
       final ZonedDateTime swapMaturity = underlying.getMaturityDate();
       final double swaptionExpiryYears = DateUtils.getDifferenceInYears(_now, swaptionExpiry);
       final double swapMaturityYears = DateUtils.getDifferenceInYears(_now, swapMaturity);
-      return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first}, new Object[] {_formatter.format(swaptionExpiryYears)},
-                                        new Double[] {entry.getKey().second}, new Object[] {_formatter.format(swapMaturityYears)},
-                                        new double[][] {new double[] {entry.getValue()}});
+      return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first}, new Object[] {_formatter.format(swaptionExpiryYears)}, new Double[] {entry.getKey().second},
+          new Object[] {_formatter.format(swapMaturityYears)}, new double[][] {new double[] {entry.getValue()}});
     }
 
     @Override
@@ -223,8 +213,7 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitEquityIndexDividendFutureOptionSecurity(
-        EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+    public DoubleLabelledMatrix2D visitEquityIndexDividendFutureOptionSecurity(EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
       throw new NotImplementedException();
     }
 
@@ -246,17 +235,13 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
     @Override
     public DoubleLabelledMatrix2D visitCapFloorSecurity(CapFloorSecurity security) {
       final Map.Entry<DoublesPair, Double> entry = _data.entrySet().iterator().next();
-      return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first},
-                                        new Double[] {entry.getKey().second},
-                                        new double[][] {new double[] {entry.getValue()}});
+      return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first}, new Double[] {entry.getKey().second}, new double[][] {new double[] {entry.getValue()}});
     }
 
     @Override
     public DoubleLabelledMatrix2D visitCapFloorCMSSpreadSecurity(CapFloorCMSSpreadSecurity security) {
       final Map.Entry<DoublesPair, Double> entry = _data.entrySet().iterator().next();
-      return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first},
-                                        new Double[] {entry.getKey().second},
-                                        new double[][] {new double[] {entry.getValue()}});
+      return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first}, new Double[] {entry.getKey().second}, new double[][] {new double[] {entry.getValue()}});
     }
 
     @Override
@@ -278,6 +263,6 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
     public DoubleLabelledMatrix2D visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
       return null;
     }
-    
+
   }
 }

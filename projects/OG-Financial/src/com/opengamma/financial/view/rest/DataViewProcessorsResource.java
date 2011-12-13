@@ -6,6 +6,7 @@
 package com.opengamma.financial.view.rest;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
@@ -28,35 +29,26 @@ import com.opengamma.util.jms.JmsConnector;
 @Path("/data/viewProcessors")
 public class DataViewProcessorsResource {
 
-  private final Map<UniqueId, DataViewProcessorResource> _viewProcessorResourceMap = new HashMap<UniqueId, DataViewProcessorResource>();
+  private final Map<UniqueId, DataViewProcessorResource> _viewProcessorResourceMap;
 
-  public DataViewProcessorsResource() {
-  }
-
-  public DataViewProcessorsResource(final ViewProcessor viewProcessor, final JmsConnector jmsConnector, FudgeContext fudgeContext,
-      ScheduledExecutorService scheduler) {
-    addViewProcessor(viewProcessor, jmsConnector, fudgeContext, scheduler);
+  public DataViewProcessorsResource(final ViewProcessor viewProcessor, final JmsConnector jmsConnector, 
+      FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
+    this(Collections.singleton(viewProcessor), jmsConnector, fudgeContext, scheduler);
   }
 
   public DataViewProcessorsResource(final Collection<ViewProcessor> viewProcessors,
       final JmsConnector jmsConnector, FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
+    Map<UniqueId, DataViewProcessorResource> viewProcessorResourceMap = new HashMap<UniqueId, DataViewProcessorResource>();
     for (ViewProcessor viewProcessor : viewProcessors) {
-      addViewProcessor(viewProcessor, jmsConnector, fudgeContext, scheduler);
+      if (viewProcessorResourceMap.get(viewProcessor.getUniqueId()) != null) {
+        throw new OpenGammaRuntimeException("A view processor with the ID " + viewProcessor.getUniqueId() + " is already being managed");
+      }
+      viewProcessorResourceMap.put(viewProcessor.getUniqueId(),
+          new DataViewProcessorResource(viewProcessor, jmsConnector, fudgeContext, scheduler));
     }
+    _viewProcessorResourceMap = Collections.unmodifiableMap(viewProcessorResourceMap);
   }
 
-  //-------------------------------------------------------------------------
-  public void addViewProcessor(ViewProcessor viewProcessor, JmsConnector jmsConnector,
-      FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
-    if (_viewProcessorResourceMap.get(viewProcessor.getUniqueId()) != null) {
-      throw new OpenGammaRuntimeException("A view processor with the ID " + viewProcessor.getUniqueId() + " is already being managed");
-    }
-    _viewProcessorResourceMap.put(viewProcessor.getUniqueId(),
-        new DataViewProcessorResource(viewProcessor, jmsConnector, fudgeContext, scheduler));
-  }
-  
-  //-------------------------------------------------------------------------
-  
   @Path("{viewProcessorId}")
   public DataViewProcessorResource findViewProcessor(@PathParam("viewProcessorId") String viewProcessorId) {
     return _viewProcessorResourceMap.get(UniqueId.parse(viewProcessorId));

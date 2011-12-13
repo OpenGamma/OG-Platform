@@ -13,6 +13,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.forex.calculator.CurrencyExposureForexCalculator;
+import com.opengamma.financial.forex.calculator.ForwardRateForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueForexCalculator;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexNonDeliverableForwardDefinition;
@@ -118,6 +119,27 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
     MultipleCurrencyAmount pvMethod = METHOD_NDF.presentValue(NDF, CURVESFX);
     MultipleCurrencyAmount pvCalculator = PVC_FX.visit(NDF, CURVESFX);
     assertEquals("Present value - non-deliverable forward", pvMethod, pvCalculator);
+  }
+
+  @Test
+  /**
+   * Checks that the NDF forward rate is coherent with the standard FX forward present value.
+   */
+  public void forwardRateVsForex() {
+    double fwdNDF = METHOD_NDF.forwardForexRate(NDF, CURVESFX);
+    double fwdFX = METHOD_FX.forwardForexRate(FOREX, CURVESFX);
+    assertEquals("Forward rate - non-deliverable forward", fwdNDF, fwdFX, 1.0E-2);
+  }
+
+  @Test
+  /**
+   * Tests the forward Forex rate through the method and through the calculator.
+   */
+  public void forwardRateMethodVsCalculator() {
+    double fwdMethod = METHOD_NDF.forwardForexRate(NDF, CURVESFX);
+    ForwardRateForexCalculator FWDC = ForwardRateForexCalculator.getInstance();
+    double fwdCalculator = FWDC.visit(NDF, CURVESFX);
+    assertEquals("Forex: forward rate", fwdMethod, fwdCalculator, 1.0E-10);
   }
 
   @Test

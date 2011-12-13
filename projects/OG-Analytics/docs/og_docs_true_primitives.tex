@@ -1,5 +1,5 @@
-<% set j = d['javadoc-data.json|javadocs'] %>
-<% set nested_subclasses = a['javadoc-data.json|javadocs'].filter_class().nested_subclasses %>
+<% set j = d['/jsondocs/javadoc-data.json|javadocs'] %>
+<% set nested_subclasses = a['/jsondocs/javadoc-data.json|javadocs'].filter_class().nested_subclasses %>
 
 \section{Curves}
 
@@ -14,8 +14,7 @@ The following classes implement curves.
 <% endfor -%>
 \end{fullwidth}
 
-Here is an example of creating a simple curve:
-<< a['examples-jython/curve-construction/curve-construction.py|idio|jythoni|pyg|l'].output_text() >>
+
 
 \section{Surfaces}
 
@@ -50,10 +49,10 @@ The Matrix interface provides a basis for generic multi-dimensional arrays.
 The following classes implement matrices.
 
 \begin{fullwidth}
-
 com.opengamma.math.matrix.Matrix \href{http://docs-static.opengamma.com/<< OG_VERSION >>/analytics/api/com.opengamma.math.matrix.Matrix.html#class-com.opengamma.math.matrix.Matrix}{(api)} \href{http://docs-static.opengamma.com/<< OG_VERSION >>/analytics/javadoc/com/opengamma/math/matrix/Matrix}{(javadoc)}
-<% for impl_class_name in d['javadoc-data.json|javadocs']['packages']['com.opengamma.math.matrix']['classes']['Matrix'].implementers %>
+<% for impl_class_name in d['/jsondocs/javadoc-data.json|javadocs']['packages']['com.opengamma.math.matrix']['classes']['Matrix'].implementers %>
 <% for indent, class_name in nested_subclasses(j, impl_class_name) %>
+<% set indent = 1 -%>
 <% set package_name, x, cn = class_name.rpartition(".") %>
 << indent * "$\hookrightarrow$ " >><< class_name >> \href{http://docs-static.opengamma.com/<< OG_VERSION >>/analytics/api/<< package_name >>.html#class-<<class_name>>}{(api)} \href{http://docs-static.opengamma.com/<< OG_VERSION >>/java/javadocs/<< class_name.replace(".","/") >>.html}{(javadoc)}
 <% endfor -%>
@@ -61,3 +60,18 @@ com.opengamma.math.matrix.Matrix \href{http://docs-static.opengamma.com/<< OG_VE
 
 \end{fullwidth}
 
+
+Here are some examples of using matrix classes:
+
+<< d['examples/curve-construction/MatrixExample.java|idio|l']['imports'] >>
+<< d['examples/curve-construction/MatrixExample.java|idio|l']['initMatrixDemo'] >>
+
+\begin{Verbatim}
+<< d['examples/curve-construction/matrix-output.json']['initMatrixDemo'] >>
+\end{Verbatim}
+
+<< d['examples/curve-construction/MatrixExample.java|idio|l']['matrixAlgebraDemo'] >>
+
+\begin{Verbatim}
+<< d['examples/curve-construction/matrix-output.json']['matrixAlgebraDemo'] >>
+\end{Verbatim}
