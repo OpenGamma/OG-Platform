@@ -19,13 +19,16 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.index.generator.USDDeposit;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Tests the constructors and equal/hash for CouponFixedDefinition.
  */
 public class CouponFixedDefinitionTest {
   private static final Currency CUR = Currency.USD;
@@ -54,6 +57,17 @@ public class CouponFixedDefinitionTest {
     assertEquals(FIXED_COUPON.getNotional(), COUPON.getNotional(), 1E-2);
     assertEquals(FIXED_COUPON.getRate(), RATE, 1E-10);
     assertEquals(FIXED_COUPON.getAmount(), RATE * NOTIONAL * ACCRUAL_FACTOR, 1E-10);
+  }
+
+  @Test
+  public void fromGeneratorDeposit() {
+    GeneratorDeposit generator = new USDDeposit(CALENDAR);
+    Period tenor = Period.ofMonths(3);
+    CouponFixedDefinition cpnFixed = CouponFixedDefinition.from(ACCRUAL_START_DATE, tenor, generator, NOTIONAL, RATE);
+    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, generator.getBusinessDayConvention(), CALENDAR, generator.isEndOfMonth(), tenor);
+    double accrual = generator.getDayCount().getDayCountFraction(ACCRUAL_START_DATE, endDate);
+    CouponFixedDefinition cpnExpected = new CouponFixedDefinition(generator.getCurrency(), endDate, ACCRUAL_START_DATE, endDate, accrual, NOTIONAL, RATE);
+    assertEquals("CouponFixedDefinition: from deposit generator", cpnExpected, cpnFixed);
   }
 
   @Test

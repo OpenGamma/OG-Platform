@@ -17,8 +17,8 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
-import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.financial.interestrate.ParRateCalculator;
@@ -28,7 +28,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
-import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
+import com.opengamma.financial.interestrate.swap.SwapFixedDiscountingMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -42,7 +42,6 @@ import com.opengamma.financial.model.volatility.smile.function.SABRHaganAlternat
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.SABRJohnsonVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.SABRPaulotVolatilityFunction;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.GridInterpolator2D;
@@ -147,7 +146,7 @@ public class SwaptionPhysicalFixedIborTest {
     CURVES.setCurve(FORWARD_CURVE_NAME, CURVE_4);
     final double sigmaBlack = 0.20;
     final double forward = PRC.visit(SWAP_PAYER, CURVES);
-    final double pvbp = SwapFixedIborMethod.presentValueBasisPoint(SWAP_PAYER, CURVE_5);
+    final double pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(SWAP_PAYER, CURVE_5);
     final BlackFunctionData data = new BlackFunctionData(forward, pvbp, sigmaBlack);
 
     final Function1D<BlackFunctionData, Double> funcLongPayer = BLACK_FUNCTION.getPriceFunction(SWAPTION_LONG_PAYER);
@@ -179,29 +178,29 @@ public class SwaptionPhysicalFixedIborTest {
     final double rho = -0.25;
 
     final double forward = PRC.visit(SWAP_PAYER, CURVES);
-    final double pvbp = SwapFixedIborMethod.presentValueBasisPoint(SWAP_PAYER, CURVE_5);
+    final double pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(SWAP_PAYER, CURVE_5);
 
     final SABRFormulaData data = new SABRFormulaData(alpha, beta, rho, nu);
 
-    final Function1D<SABRFormulaData, Double> funcSabrLongPayer = SABR_FUNCTION.getVolatilityFunction(SWAPTION_LONG_PAYER,forward);
+    final Function1D<SABRFormulaData, Double> funcSabrLongPayer = SABR_FUNCTION.getVolatilityFunction(SWAPTION_LONG_PAYER, forward);
     final double volatilityLongPayer = funcSabrLongPayer.evaluate(data);
     final BlackFunctionData dataBlackLP = new BlackFunctionData(forward, pvbp, volatilityLongPayer);
     final Function1D<BlackFunctionData, Double> funcBlackLongPayer = BLACK_FUNCTION.getPriceFunction(SWAPTION_LONG_PAYER);
     final double priceLongPayer = funcBlackLongPayer.evaluate(dataBlackLP) * (SWAPTION_LONG_PAYER.isLong() ? 1.0 : -1.0);
 
-    final Function1D<SABRFormulaData, Double> funcSabrShortPayer = SABR_FUNCTION.getVolatilityFunction(SWAPTION_SHORT_PAYER,forward);
+    final Function1D<SABRFormulaData, Double> funcSabrShortPayer = SABR_FUNCTION.getVolatilityFunction(SWAPTION_SHORT_PAYER, forward);
     final double volatilityShortPayer = funcSabrShortPayer.evaluate(data);
     final BlackFunctionData dataBlackSP = new BlackFunctionData(forward, pvbp, volatilityShortPayer);
     final Function1D<BlackFunctionData, Double> funcBlackShortPayer = BLACK_FUNCTION.getPriceFunction(SWAPTION_SHORT_PAYER);
     final double priceShortPayer = funcBlackShortPayer.evaluate(dataBlackSP) * (SWAPTION_SHORT_PAYER.isLong() ? 1.0 : -1.0);
 
-    final Function1D<SABRFormulaData, Double> funcSabrLongReceiver = SABR_FUNCTION.getVolatilityFunction(SWAPTION_LONG_RECEIVER,forward);
+    final Function1D<SABRFormulaData, Double> funcSabrLongReceiver = SABR_FUNCTION.getVolatilityFunction(SWAPTION_LONG_RECEIVER, forward);
     final double volatilityLongReceiver = funcSabrLongReceiver.evaluate(data);
     final BlackFunctionData dataBlackLR = new BlackFunctionData(forward, pvbp, volatilityLongReceiver);
     final Function1D<BlackFunctionData, Double> funcBlackLongReceiver = BLACK_FUNCTION.getPriceFunction(SWAPTION_LONG_RECEIVER);
     final double priceLongReceiver = funcBlackLongReceiver.evaluate(dataBlackLR) * (SWAPTION_LONG_RECEIVER.isLong() ? 1.0 : -1.0);
 
-    final Function1D<SABRFormulaData, Double> funcSabrShortReceiver = SABR_FUNCTION.getVolatilityFunction(SWAPTION_SHORT_RECEIVER,forward);
+    final Function1D<SABRFormulaData, Double> funcSabrShortReceiver = SABR_FUNCTION.getVolatilityFunction(SWAPTION_SHORT_RECEIVER, forward);
     final double volatilityShortReceiver = funcSabrShortReceiver.evaluate(data);
     final BlackFunctionData dataBlackSR = new BlackFunctionData(forward, pvbp, volatilityShortReceiver);
     final Function1D<BlackFunctionData, Double> funcBlackShortReceiver = BLACK_FUNCTION.getPriceFunction(SWAPTION_SHORT_RECEIVER);
@@ -224,17 +223,17 @@ public class SwaptionPhysicalFixedIborTest {
     // Parameter surfaces are expiry - maturity - parameter
     final InterpolatedDoublesSurface alphaSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 0.0, 0.5, 1, 2, 5}, new double[] {1, 1, 1, 1, 1, 5, 5, 5, 5, 5}, new double[] {
         0.05, 0.05, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.06, 0.06}, new GridInterpolator2D(LINEAR, LINEAR));
-    final VolatilitySurface alphaVolatility = new VolatilitySurface(alphaSurface);
+    //    final VolatilitySurface alphaVolatility = new VolatilitySurface(alphaSurface);
     final InterpolatedDoublesSurface betaSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 0.0, 0.5, 1, 2, 5}, new double[] {1, 1, 1, 1, 1, 5, 5, 5, 5, 5}, new double[] {0.5,
         0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5}, new GridInterpolator2D(LINEAR, LINEAR));
-    final VolatilitySurface betaVolatility = new VolatilitySurface(betaSurface);
+    //    final VolatilitySurface betaVolatility = new VolatilitySurface(betaSurface);
     final InterpolatedDoublesSurface rhoSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 0.0, 0.5, 1, 2, 5}, new double[] {1, 1, 1, 1, 1, 5, 5, 5, 5, 5}, new double[] {
         -0.25, -0.25, -0.25, -0.25, -0.25, 0.00, 0.00, 0.00, 0.00, 0.00}, new GridInterpolator2D(LINEAR, LINEAR));
-    final VolatilitySurface rhoVolatility = new VolatilitySurface(rhoSurface);
+    //    final VolatilitySurface rhoVolatility = new VolatilitySurface(rhoSurface);
     final InterpolatedDoublesSurface nuSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 0.0, 0.5, 1, 2, 5}, new double[] {1, 1, 1, 1, 1, 5, 5, 5, 5, 5}, new double[] {0.50,
         0.50, 0.50, 0.50, 0.50, 0.30, 0.30, 0.30, 0.30, 0.30}, new GridInterpolator2D(LINEAR, LINEAR));
-    final VolatilitySurface nuVolatility = new VolatilitySurface(nuSurface);
-    final SABRInterestRateParameters sabrParameter = new SABRInterestRateParameters(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, DAY_COUNT_STANDARD);
+    //    final VolatilitySurface nuVolatility = new VolatilitySurface(nuSurface);
+    final SABRInterestRateParameters sabrParameter = new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, DAY_COUNT_STANDARD);
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, CURVES);
     // Swaption pricing.
     final double priceLongPayer = PVC.visit(SWAPTION_LONG_PAYER, sabrBundle);

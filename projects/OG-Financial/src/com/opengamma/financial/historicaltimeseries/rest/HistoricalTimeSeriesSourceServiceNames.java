@@ -57,6 +57,10 @@ public final class HistoricalTimeSeriesSourceServiceNames {
   /**
    * 
    */
+  public static final String REQUEST_RESOLVED_BY_DATE_LIMIT = "resolvedByDateLimit";
+  /**
+   * 
+   */
   public static final String REQUEST_UID = "uid";
   /**
    * 

@@ -10,7 +10,7 @@ import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.method.PricingMethod;
-import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
+import com.opengamma.financial.interestrate.swap.SwapFixedDiscountingMethod;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
@@ -54,7 +54,7 @@ public class SwaptionCashFixedIborLinearTSRMethod implements PricingMethod {
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     double nominal = Math.abs(annuityFixed.getNthPayment(0).getNotional());
     double discountFactorSettle = sabrData.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()).getDiscountFactor(swaption.getSettlementTime());
-    double annuityPhysical = SwapFixedIborMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData) / nominal;
+    double annuityPhysical = SwapFixedDiscountingMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData) / nominal;
     double strike = swaption.getStrike();
     final double forward = PRC.visit(swaption.getUnderlyingSwap(), sabrData);
     // Linear approximation

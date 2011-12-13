@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
+import com.opengamma.livedata.LiveDataValueUpdateBeanFudgeBuilder;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.LiveDataSubscriptionRequest;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
@@ -31,6 +32,7 @@ import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * A client that talks to a remote LiveData server through an unspecified protocol.
@@ -54,7 +56,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   public DistributedLiveDataClient(
       FudgeRequestSender subscriptionRequestSender,
       FudgeRequestSender entitlementRequestSender) {
-    this(subscriptionRequestSender, entitlementRequestSender, FudgeContext.GLOBAL_DEFAULT);
+    this(subscriptionRequestSender, entitlementRequestSender, OpenGammaFudgeContext.getInstance());
   }
 
   public DistributedLiveDataClient(
@@ -378,7 +380,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   public void messageReceived(FudgeContext fudgeContext,
       FudgeMsgEnvelope msgEnvelope) {
     FudgeMsg fudgeMsg = msgEnvelope.getMessage();
-    LiveDataValueUpdateBean update = LiveDataValueUpdateBean.fromFudgeMsg(new FudgeDeserializer(fudgeContext), fudgeMsg);
+    LiveDataValueUpdateBean update = LiveDataValueUpdateBeanFudgeBuilder.fromFudgeMsg(new FudgeDeserializer(fudgeContext), fudgeMsg);
     valueUpdate(update);
   }
 

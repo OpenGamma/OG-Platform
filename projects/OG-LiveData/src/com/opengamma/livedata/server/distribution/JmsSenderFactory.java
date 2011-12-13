@@ -18,13 +18,15 @@ import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
 
 /**
- * Creates {@link JmsSender}'s.
+ * Factory to create JMS senders.
  */
 public class JmsSenderFactory implements MarketDataSenderFactory {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(JmsSenderFactory.class);
 
   /**
@@ -32,21 +34,35 @@ public class JmsSenderFactory implements MarketDataSenderFactory {
    * automatically when they're no longer used.
    */
   private final Set<JmsSender> _allActiveSenders = Collections.newSetFromMap(new WeakHashMap<JmsSender, Boolean>());
-  
+  /**
+   * The JMS connector.
+   */
   private JmsConnector _jmsConnector;
-  
+  /**
+   * The Fudge context.
+   */
   private FudgeContext _fudgeContext;
-  
+  /**
+   * The executor.
+   */
   private final ExecutorService _executor;
 
+  /**
+   * Creates an instance.
+   */
   public JmsSenderFactory() {
     final int threads = Math.max(Runtime.getRuntime().availableProcessors(), 1) * 2;
     final ThreadPoolExecutor executor = new ThreadPoolExecutor(threads, threads, 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
     executor.allowCoreThreadTimeOut(true);
     _executor = executor;
-    setFudgeContext(new FudgeContext());
+    setFudgeContext(OpenGammaFudgeContext.getInstance());
   }
-  
+
+  /**
+   * Creates an instance.
+   * 
+   * @param jmsConnector  the JMS connector
+   */
   public JmsSenderFactory(JmsConnector jmsConnector) {
     this();
     setJmsConnector(jmsConnector);
@@ -62,18 +78,34 @@ public class JmsSenderFactory implements MarketDataSenderFactory {
     return _jmsConnector;
   }
 
+  /**
+   * Sets the JMS connector.
+   * 
+   * @param jmsConnector  the connector
+   */
   public void setJmsConnector(JmsConnector jmsConnector) {
     _jmsConnector = jmsConnector;
   }
 
+  /**
+   * Gets the Fudge context.
+   * 
+   * @return the Fudge context
+   */
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
 
+  /**
+   * Sets the Fudge context.
+   * 
+   * @param fudgeContext  the Fudge context
+   */
   public void setFudgeContext(FudgeContext fudgeContext) {
     _fudgeContext = fudgeContext;
   }
 
+  //-------------------------------------------------------------------------
   public synchronized void transportInterrupted() {
     s_logger.warn("JMS transport interrupted; notifying {} senders", _allActiveSenders.size());
     for (final JmsSender sender : _allActiveSenders) {

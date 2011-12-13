@@ -31,8 +31,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.aggregation.BottomPositionValues;
 import com.opengamma.financial.aggregation.SortedPositionValues;
 import com.opengamma.financial.aggregation.TopPositionValues;
-import com.opengamma.financial.analytics.DummyLabelledMatrix2DPortfolioNodeFunction;
-import com.opengamma.financial.analytics.DummyLabelledMatrix2DPositionFunction;
 import com.opengamma.financial.analytics.DummyPortfolioNodeFunction;
 import com.opengamma.financial.analytics.DummyPortfolioNodeMultipleCurrencyAmountFunction;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
@@ -64,6 +62,7 @@ import com.opengamma.financial.analytics.model.bond.BondModifiedDurationFromYiel
 import com.opengamma.financial.analytics.model.bond.BondTenorFunction;
 import com.opengamma.financial.analytics.model.bond.BondYieldFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.BondZSpreadFromCurvesFunction;
+import com.opengamma.financial.analytics.model.bond.BondZSpreadSensitivityFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFutureYieldCurveNodeSensitivityFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
@@ -357,8 +356,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
     addFixedIncomeInstrumentCalculators(functionConfigs);
     // Something to return a LabelledMatrix2D
-    functionConfigs.add(functionConfiguration(DummyLabelledMatrix2DPositionFunction.class));
-    functionConfigs.add(functionConfiguration(DummyLabelledMatrix2DPortfolioNodeFunction.class));
 
     functionConfigs.add(functionConfiguration(StandardEquityModelFunction.class));
     addBondCalculators(functionConfigs);
@@ -418,6 +415,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.YTM);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.MODIFIED_DURATION);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.Z_SPREAD);
+    addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.CONVEXITY);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.MACAULAY_DURATION);
 
@@ -494,6 +492,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addDummyFunction(functionConfigs, ValueRequirementNames.DIRTY_PRICE);
     addDummyFunction(functionConfigs, ValueRequirementNames.MODIFIED_DURATION);
     addDummyFunction(functionConfigs, ValueRequirementNames.Z_SPREAD);
+    addSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY);
     addDummyFunction(functionConfigs, ValueRequirementNames.IMPLIED_REPO);
     addDummyFunction(functionConfigs, ValueRequirementNames.CONVEXITY);
     addDummyFunction(functionConfigs, ValueRequirementNames.MACAULAY_DURATION);
@@ -612,6 +611,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(BondMacaulayDurationFromYieldFunction.class, "USD", "FUNDING", "FUNDING"));
     functionConfigs.add(functionConfiguration(BondModifiedDurationFromYieldFunction.class, "USD", "FUNDING", "FUNDING"));
     functionConfigs.add(functionConfiguration(BondZSpreadFromCurvesFunction.class, "USD", "FUNDING", "FUNDING"));
+    functionConfigs.add(functionConfiguration(BondZSpreadSensitivityFromCurvesFunction.class, "USD", "FUNDING", "FUNDING"));
     functionConfigs.add(functionConfiguration(NelsonSiegelSvenssonBondCurveFunction.class, "USD"));
   }
 

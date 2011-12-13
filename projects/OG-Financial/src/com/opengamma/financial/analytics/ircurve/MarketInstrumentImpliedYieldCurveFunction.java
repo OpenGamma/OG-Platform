@@ -47,7 +47,7 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.financial.interestrate.LastDateCalculator;
+import com.opengamma.financial.interestrate.LastTimeCalculator;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
@@ -82,7 +82,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
 
   private static final Logger s_logger = LoggerFactory.getLogger(MarketInstrumentImpliedYieldCurveFunction.class);
 
-  private static final LastDateCalculator LAST_DATE_CALCULATOR = LastDateCalculator.getInstance();
+  private static final LastTimeCalculator LAST_DATE_CALCULATOR = LastTimeCalculator.getInstance();
 
   private static final String RESULT_PROPERTY_TYPE = "Type";
   private static final String REQUIREMENT_PROPERTY_TYPE = ValuePropertyNames.OUTPUT_RESERVED_PREFIX + RESULT_PROPERTY_TYPE;

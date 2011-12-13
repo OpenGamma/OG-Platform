@@ -79,21 +79,30 @@ public class JmsByteArrayRequestSender extends AbstractJmsByteArraySender implem
             try {
               final TemporaryTopic tempTopic = session.createTemporaryTopic();
               s_logger.debug("Requesting response to temp topic {}", tempTopic);
+              final byte[] bytes;
+              
               final MessageConsumer consumer = session.createConsumer(tempTopic);
-              final BytesMessage bytesMessage = session.createBytesMessage();
-              bytesMessage.writeBytes(request);
-              bytesMessage.setJMSReplyTo(tempTopic);
-              final Destination requestDestination = getJmsTemplate().getDestinationResolver().resolveDestinationName(session, getDestinationName(), getJmsTemplate().isPubSubDomain());
-              final MessageProducer producer = session.createProducer(requestDestination);
-              producer.send(bytesMessage);
-              final  Message response = consumer.receive(getJmsTemplate().getReceiveTimeout());
-              if (response == null) {
-                // TODO UTL-37.
-                s_logger.error("Timeout reached while waiting for a response to send to {}", responseReceiver);
-                return null;
+              try {
+                final BytesMessage bytesMessage = session.createBytesMessage();
+                bytesMessage.writeBytes(request);
+                bytesMessage.setJMSReplyTo(tempTopic);
+                final Destination requestDestination = getJmsTemplate().getDestinationResolver().resolveDestinationName(session, getDestinationName(), getJmsTemplate().isPubSubDomain());
+                final MessageProducer producer = session.createProducer(requestDestination);
+                try {
+                  producer.send(bytesMessage);
+                } finally {
+                  producer.close();
+                }
+                final  Message response = consumer.receive(getJmsTemplate().getReceiveTimeout());
+                if (response == null) {
+                  // TODO UTL-37.
+                  s_logger.error("Timeout reached while waiting for a response to send to {}", responseReceiver);
+                  return null;
+                }
+                bytes = JmsByteArrayHelper.extractBytes(response);
+              } finally {
+                consumer.close();
               }
-              final byte[] bytes = JmsByteArrayHelper.extractBytes(response);
-              consumer.close();
               s_logger.debug("Dispatching response of length {}", bytes.length);
               responseReceiver.messageReceived(bytes);
 

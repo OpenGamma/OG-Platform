@@ -69,9 +69,7 @@ public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewP
       throw new OpenGammaRuntimeException("The scheduler property must be set");
     }
     
-    DataViewProcessorsResource resource = new DataViewProcessorsResource();
-    resource.addViewProcessor(getViewProcessor(), getJmsConnector(), getFudgeContext(), getScheduler());
-    return resource;
+    return new DataViewProcessorsResource(getViewProcessor(), getJmsConnector(), getFudgeContext(), getScheduler());
   }
 
 }

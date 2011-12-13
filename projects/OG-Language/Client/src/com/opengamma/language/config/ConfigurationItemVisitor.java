@@ -14,6 +14,14 @@ package com.opengamma.language.config;
 public interface ConfigurationItemVisitor<T> {
 
   /**
+   * Apply to an {@link EnableCycleAccess} instance.
+   * 
+   * @param enableCycleAccess the instance
+   * @return the application result
+   */
+  T visitEnableCycleAccess(EnableCycleAccess enableCycleAccess);
+
+  /**
    * Apply to a {@link MarketDataOverride} instance.
    * 
    * @param marketDataOverride the instance

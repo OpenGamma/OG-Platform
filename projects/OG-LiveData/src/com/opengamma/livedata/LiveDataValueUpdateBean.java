@@ -7,28 +7,40 @@ package com.opengamma.livedata;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializer;
-import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.PublicAPI;
 
 /**
- * A simple JavaBean-based implementation of {@link LiveDataValueUpdate}.
+ * A simple implementation of a market data update sent from server to client. 
  */
 @PublicAPI
-public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
-    Serializable {
-  private static final String SEQUENCE_NUMBER_FIELD_NAME = "sequenceNumber";
-  private static final String SPECIFICATION_FIELD_NAME = "specification";
-  private static final String FIELDS_FIELD_NAME = "fields";
+public class LiveDataValueUpdateBean implements LiveDataValueUpdate, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The sequence number.
+   */
   private final long _sequenceNumber;
+  /**
+   * The live data specification.
+   */
   private final LiveDataSpecification _specification;
+  /**
+   * The data fields.
+   */
   private final FudgeMsg _fieldContainer;
-  
+
+  /**
+   * Creates an instance.
+   * 
+   * @param sequenceNumber  the sequence number
+   * @param specification  the specification
+   * @param fieldContainer  the fields held as a Fudge message
+   */
   public LiveDataValueUpdateBean(long sequenceNumber, LiveDataSpecification specification, FudgeMsg fieldContainer) {
     // TODO kirk 2009-09-29 -- Check Inputs.
     _sequenceNumber = sequenceNumber;
@@ -36,11 +48,7 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
     _fieldContainer = fieldContainer;
   }
 
-  @Override
-  public FudgeMsg getFields() {
-    return _fieldContainer;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public long getSequenceNumber() {
     return _sequenceNumber;
@@ -51,40 +59,42 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
     return _specification;
   }
 
-  public FudgeMsg toFudgeMsg(FudgeSerializer serializer) {
-    MutableFudgeMsg msg = serializer.newMessage();
-    msg.add(SEQUENCE_NUMBER_FIELD_NAME, getSequenceNumber());
-    if (getSpecification() != null) {
-      msg.add(SPECIFICATION_FIELD_NAME, getSpecification().toFudgeMsg(serializer));
-    }
-    if (getFields() != null) {
-      msg.add(FIELDS_FIELD_NAME, getFields());
-    }
-    return msg;
-  
+  @Override
+  public FudgeMsg getFields() {
+    return _fieldContainer;
   }
 
-  public static LiveDataValueUpdateBean fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {
-    Long sequenceNumber = msg.getLong(SEQUENCE_NUMBER_FIELD_NAME);
-    FudgeMsg specificationFields = msg.getMessage(SPECIFICATION_FIELD_NAME);
-    FudgeMsg fields = msg.getMessage(FIELDS_FIELD_NAME);
-    // REVIEW kirk 2009-10-28 -- Right thing to do here?
-    if (sequenceNumber == null) {
-      return null;
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
     }
-    if (specificationFields == null) {
-      return null;
+    if (obj instanceof LiveDataValueUpdateBean) {
+      LiveDataValueUpdateBean other = (LiveDataValueUpdateBean) obj;
+      return _sequenceNumber == other._sequenceNumber &&
+          ObjectUtils.equals(_specification, other._specification) &&
+          ObjectUtils.equals(_fieldContainer, other._fieldContainer);
     }
-    if (fields == null) {
-      return null;
-    }
-    LiveDataSpecification spec = LiveDataSpecification.fromFudgeMsg(deserializer, specificationFields);
-    return new LiveDataValueUpdateBean(sequenceNumber, spec, fields);
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return ((int) (_sequenceNumber ^ (_sequenceNumber >>> 32))) ^ ObjectUtils.hashCode(_specification) ^ ObjectUtils.hashCode(_fieldContainer);
   }
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    StringBuilder buf = new StringBuilder();
+    buf.append("LiveDataValueUpdateBean[");
+    buf.append(_sequenceNumber);
+    buf.append(", ");
+    buf.append(_specification);
+    buf.append(", ");
+    buf.append(_fieldContainer);
+    buf.append("]");
+    return buf.toString();
   }
 
 }

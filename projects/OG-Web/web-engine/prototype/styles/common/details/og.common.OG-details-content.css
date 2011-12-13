@@ -2,6 +2,11 @@
   margin-top: 20px;
 }
 
+.OG-details-content > section:last-child {
+  margin-bottom: 20px;
+}
+
 .OG-details-content > section {
-  margin-bottom: 30px
+  margin-bottom: 30px;
+  position: relative;
 }

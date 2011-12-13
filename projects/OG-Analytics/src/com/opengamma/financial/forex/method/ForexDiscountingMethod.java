@@ -43,7 +43,7 @@ public final class ForexDiscountingMethod implements ForexPricingMethod {
   /**
    * Fixed payments method.
    */
-  private static final PaymentFixedDiscountingMethod METHOD_PAY = new PaymentFixedDiscountingMethod();
+  private static final PaymentFixedDiscountingMethod METHOD_PAY = PaymentFixedDiscountingMethod.getInstance();
   /**
    * Interest rate present value rate sensitivity by discounting.
    */

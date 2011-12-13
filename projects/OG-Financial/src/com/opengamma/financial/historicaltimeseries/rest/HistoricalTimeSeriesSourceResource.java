@@ -25,6 +25,7 @@ import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSe
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_UID_BY_DATE_LIMIT;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_RESOLVED;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_RESOLVED_BY_DATE;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_RESOLVED_BY_DATE_LIMIT;
 
 import java.util.List;
 import java.util.Map;
@@ -270,6 +271,29 @@ public class HistoricalTimeSeriesSourceResource {
         Boolean.valueOf(includeStart),
         NULL_VALUE.equals(end) ? null : LocalDate.parse(end),
         Boolean.valueOf(includeEnd)));
+  }
+
+  @GET
+  @Path(REQUEST_RESOLVED_BY_DATE_LIMIT + "/{dataField}/{currentDate}/{resolutionKey}/{start}/{includeStart}/{end}/{includeEnd}/{maxPoints}")
+  public FudgeMsgEnvelope getResolvedByDateLimit(@PathParam("currentDate") String currentDate,
+      @PathParam("dataField") String dataField, 
+      @PathParam("resolutionKey") String resolutionKey, 
+      @PathParam("start") String start, 
+      @PathParam("includeStart") String includeStart,
+      @PathParam("end") String end, 
+      @PathParam("includeEnd") String includeEnd,
+      @PathParam("maxPoints") String maxPoints,
+      @QueryParam("id") List<String> identifiers) {
+    return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
+        dataField,
+        identifiersToBundle(identifiers),
+        NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate),
+        NULL_VALUE.equals(resolutionKey) ? null : resolutionKey,
+        NULL_VALUE.equals(start) ? null : LocalDate.parse(start),
+        Boolean.valueOf(includeStart),
+        NULL_VALUE.equals(end) ? null : LocalDate.parse(end),
+        Boolean.valueOf(includeEnd),
+        Integer.parseInt(maxPoints)));
   }
 
   //-------------------------------------------------------------------------

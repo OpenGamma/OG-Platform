@@ -6,7 +6,7 @@
 
 package com.opengamma.language.livedata;
 
-import java.util.Set;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,16 +45,17 @@ public class LiveDataHandler implements LiveDataVisitor<UserMessagePayload, Sess
 
   @Override
   public UserMessagePayload visitQueryAvailable(final QueryAvailable message, final SessionContext data) {
-    final Set<MetaLiveData> definitions = data.getLiveDataProvider().getDefinitions();
     final LiveDataRepository repository = data.getLiveDataRepository();
+    repository.initialize(data.getLiveDataProvider(), true);
+    final Map<Integer, MetaLiveData> definitions = repository.getAll();
     s_logger.info("{} live data available", definitions.size());
     final Available available = new Available();
-    for (MetaLiveData definition : definitions) {
-      Definition logical = data.getGlobalContext().getLiveDataDefinitionFilter().createDefinition(definition);
+    final LiveDataDefinitionFilter filter = data.getGlobalContext().getLiveDataDefinitionFilter();
+    for (Map.Entry<Integer, MetaLiveData> definition : definitions.entrySet()) {
+      Definition logical = filter.createDefinition(definition.getValue());
       if (logical != null) {
-        final int identifier = repository.add(definition);
-        s_logger.debug("Publishing {} as {}", logical, identifier);
-        available.addLiveData(new Available.Entry(identifier, logical));
+        s_logger.debug("Publishing {} as {}", logical, definition.getKey());
+        available.addLiveData(new Available.Entry(definition.getKey(), logical));
       } else {
         s_logger.debug("Discarding {} after applying filter", definition);
       }

@@ -9,7 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Timer;
 
-import org.fudgemsg.FudgeContext;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
@@ -19,6 +18,7 @@ import com.opengamma.livedata.client.HeartbeatSender;
 import com.opengamma.livedata.client.ValueDistributor;
 import com.opengamma.livedata.test.CollectingLiveDataListener;
 import com.opengamma.transport.DirectInvocationByteArrayMessageSender;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Test ExpirationManager.
@@ -36,7 +36,7 @@ public class ExpirationManagerTest {
     DirectInvocationByteArrayMessageSender conduit = new DirectInvocationByteArrayMessageSender(receiver);
     ValueDistributor valueDistributor = new ValueDistributor();
     Timer t = new Timer("HeartbeatConduitTest");
-    new HeartbeatSender(conduit, valueDistributor, new FudgeContext(), t, 100);
+    new HeartbeatSender(conduit, valueDistributor, OpenGammaFudgeContext.getInstance(), t, 100);
     
     // subscribe on the client side - starts sending heartbeats
     LiveDataSpecification subscription = new LiveDataSpecification(

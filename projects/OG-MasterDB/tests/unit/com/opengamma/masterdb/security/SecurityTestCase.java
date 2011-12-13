@@ -110,6 +110,7 @@ import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.SecurityNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.test.SecurityTestCaseMethods;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -119,7 +120,6 @@ import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.RawSecurity;
-import com.opengamma.masterdb.security.test.SecurityTestCaseMethods;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
@@ -257,8 +257,8 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
         values.add(RandomStringUtils.randomAlphanumeric(16));
       }
     });
-    s_dataProviders.put(Map.class, new TestDataProvider<Map>() {
-      private Map generateRandomMap(int count){
+    s_dataProviders.put(Map.class, new TestDataProvider<Map<?, ?>>() {
+      private Map<?, ?> generateRandomMap(int count){
         Map<String, String> map = new HashMap<String, String>(count);
         while(count>0){
           map.put(RandomStringUtils.randomAlphanumeric(16), RandomStringUtils.randomAlphanumeric(16));
@@ -267,14 +267,14 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
         return map;
       }
       @Override
-      public void getValues(final Collection<Map> values) {
+      public void getValues(final Collection<Map<?, ?>> values) {
         Random random = new Random();
         double qty = 1 + random.nextInt(9);
         while(qty>0){
           values.add(generateRandomMap(1 + random.nextInt(9)));
           qty--;
         }
-        values.add(new HashMap());
+        values.add(new HashMap<Object, Object>());
       }
     });
     s_dataProviders.put(Double.class, provider = new TestDataProvider<Double>() {

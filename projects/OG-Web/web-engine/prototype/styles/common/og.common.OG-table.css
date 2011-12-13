@@ -48,6 +48,7 @@
   color: #999;
   text-align: left;
   font-weight: normal;
+  padding-top: 7px;
 }
 
 .OG-table thead span {
@@ -57,6 +58,10 @@
   border-left: 2px solid #c6c6c6;
   color: #555;
   background-color: #f3f3f3;
+}
+
+.OG-table thead tr th {
+  background-color: #fff;
 }
 
 .OG-table th:after {

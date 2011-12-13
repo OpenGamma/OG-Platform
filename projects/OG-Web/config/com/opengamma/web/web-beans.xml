@@ -219,6 +219,8 @@
     <constructor-arg ref="dbPositionMaster" />
     <constructor-arg ref="securityLoader"/>
     <constructor-arg ref="sharedSecuritySource"/>
+    <constructor-arg ref="dbHtsMaster"/>
+    <constructor-arg ref="sharedConfigSource"/>
   </bean>
   
   <!-- Exchanges RESTful service -->

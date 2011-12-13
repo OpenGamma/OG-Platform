@@ -59,7 +59,7 @@ public class MutableSessionContext extends SessionContext {
     if (_initialized) {
       throw new IllegalStateException("initContext or initContextWithStash already called");
     }
-    preInitialize.initContext(this);
+    preInitialize.initContextWithStash(this, stash);
     getEventHandler().initContextWithStash(this, stash);
     _initialized = true;
   }

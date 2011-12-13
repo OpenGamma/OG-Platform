@@ -13,8 +13,10 @@ import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
- * A cash loan with a unit amount borrowed on some some trade date (which could be now), and an amount (1+r*t) paid at maturity, where r is the Libor rate and t is the time (in years) 
- * between the trade date and the maturity in some day count convention.  
+ * A cash loan with a unit amount borrowed on some some trade date (which could
+ * be now), and an amount $1+rt$ paid at maturity, where $r$ is the Libor rate
+ * and $t$ is the time (in years) between the trade date and the maturity in
+ * some day count convention.
  */
 public class Cash implements InstrumentDerivative {
   private final Currency _currency;

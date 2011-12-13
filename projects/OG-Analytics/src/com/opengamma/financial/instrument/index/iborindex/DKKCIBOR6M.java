@@ -23,7 +23,7 @@ public final class DKKCIBOR6M extends IborIndex {
    * @param calendar A DKK calendar.
    */
   public DKKCIBOR6M(Calendar calendar) {
-    super(Currency.DKK, Period.ofMonths(6), 2, calendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), 
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), true);
+    super(Currency.DKK, Period.ofMonths(6), 2, calendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
+        true, "DKKCIBOR6M");
   }
 }

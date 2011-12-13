@@ -17,16 +17,19 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganAlternativeVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
-import com.opengamma.math.surface.ConstantDoublesSurface;
+import com.opengamma.math.interpolation.GridInterpolator2D;
+import com.opengamma.math.interpolation.LinearInterpolator1D;
+import com.opengamma.math.surface.InterpolatedDoublesSurface;
 
 /**
  * 
  */
 public class SABRInterestRateDataBundleTest {
+  private static final LinearInterpolator1D LINEAR = new LinearInterpolator1D();
   private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.03));
-  private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.0));
+  private static final InterpolatedDoublesSurface SURFACE = InterpolatedDoublesSurface.from(new double[] {0.0, 10, 0.0, 10}, new double[] {0, 0, 10, 10}, new double[] {0.05, 0.05, 0.06, 0.06},
+      new GridInterpolator2D(LINEAR, LINEAR));
   private static final YieldCurveBundle CURVES = new YieldCurveBundle(new String[] {"Curve"}, new YieldAndDiscountCurve[] {CURVE});
   private static final DayCount DAYCOUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final SABRHaganVolatilityFunction FUNCTION = new SABRHaganVolatilityFunction();

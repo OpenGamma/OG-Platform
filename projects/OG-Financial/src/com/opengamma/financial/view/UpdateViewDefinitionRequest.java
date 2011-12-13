@@ -31,6 +31,8 @@ public final class UpdateViewDefinitionRequest {
    */
   private String _viewName;
   
+  // REVIEW 2011-12-05 Andrew -- Why do we still hold the view name in this message?
+
   /**
    * The view definition
    */
@@ -101,9 +103,9 @@ public final class UpdateViewDefinitionRequest {
    * Validates this request throwing an exception if not.
    */
   public void checkValid() {
-    ArgumentChecker.notNull(getName(), "Name must not be null");
-    ArgumentChecker.notNull(getId(), "Id must not be null");
-    ArgumentChecker.notNull(getViewDefinition(), "View definition must not be null");
+    ArgumentChecker.notNull(getName(), NAME_FIELD_NAME);
+    ArgumentChecker.notNull(getId(), VIEWID_FIELD_NAME);
+    ArgumentChecker.notNull(getViewDefinition(), VIEW_DEFINITION_FIELD_NAME);
   }
 
   //-------------------------------------------------------------------------
