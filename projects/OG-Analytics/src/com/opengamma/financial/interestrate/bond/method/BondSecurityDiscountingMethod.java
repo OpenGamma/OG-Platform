@@ -455,13 +455,13 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
-   * Computes a bond z-spread sensitivity from the curves and a present value.
+   * Computes a bond present value z-spread sensitivity from the curves and a present value.
    * @param bond The bond.
    * @param curves The curve bundle.
    * @param pv The target present value.
    * @return The z-spread sensitivity.
    */
-  public double zSpreadSensitivityFromCurvesAndPV(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double pv) {
+  public double presentValueZSpreadSensitivityFromCurvesAndPV(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double pv) {
     double zSpread = zSpreadFromCurvesAndPV(bond, curves, pv);
     return presentValueZSpreadSensitivity(bond, curves, zSpread);
   }
@@ -478,14 +478,14 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
-   * Computes a bond z-spread sensitivity from the curves and a clean price.
+   * Computes the bond present value z-spread sensitivity from the curves and a clean price.
    * @param bond The bond.
    * @param curves The curve bundle.
    * @param cleanPrice The target clean price.
    * @return The z-spread sensitivity.
    */
-  public double zSpreadSensitivityFromCurvesAndClean(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double cleanPrice) {
-    return zSpreadSensitivityFromCurvesAndPV(bond, curves, presentValueFromCleanPrice(bond, curves, cleanPrice));
+  public double presentValueZSpreadSensitivityFromCurvesAndClean(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double cleanPrice) {
+    return presentValueZSpreadSensitivityFromCurvesAndPV(bond, curves, presentValueFromCleanPrice(bond, curves, cleanPrice));
   }
 
   /**
