@@ -49,7 +49,8 @@ $.register_module({
                                         if (r.error) return ui.dialog({type: 'error', message: r.message});
                                         portfolios.search(routes.last().args);
                                         routes.go(routes.hash(module.rules.load_portfolios,
-                                                $.extend({}, routes.last().args, {id: r.meta.id})
+                                                $.extend({}, routes.last().args, {id: r.meta.id}),
+                                                {del: ['node']}
                                         ));
                                     },
                                     name: ui.dialog({return_field_value: 'name'})
@@ -187,7 +188,7 @@ $.register_module({
                         slick.onClick.subscribe(function (e, dd) {
                             var rule = module.rules.load_portfolios,
                                 node = json.portfolios[dd.row].id,
-                                href = routes.hash(rule, {id: routes.current().args.id, node: node});
+                                href = routes.hash(rule, routes.current().args, {add: {node: node}});
                             if ($(e.target).hasClass('og-icon-delete')) {
                                 ui.dialog({
                                     type: 'confirm',
@@ -328,14 +329,10 @@ $.register_module({
                         });
                     },
                     breadcrumb = function (config) {
-                        var data = config.data, rule = module.rules.load_portfolios, args = routes.current().args;
+                        var data = config.data;
                         data.path.shift();
                         api.text({module: 'og.views.portfolios.breadcrumb', handler: function (template) {
                             $(config.selector).html($.tmpl(template, data, {
-                                gen_url: function (node) {
-                                    var change_obj = !node ? {del: ['node']} : {add: {node: node}};
-                                    return routes.prefix() + routes.hash(rule, args, change_obj);
-                                },
                                 title: function (name) {return name.length > 30 ? name : ''},
                                 short_name: function (name) {
                                     return name.length > 30 ? name.slice(0, 27) + '...' : name
@@ -411,15 +408,23 @@ $.register_module({
         module.rules = {
             load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
             load_filter: {
-                route: '/' + page_name + '/filter:/:id?/version:?/name:?/sync:?',
+                route: '/' + page_name + '/filter:/:id?/node:?/version:?/name:?/sync:?',
                 method: module.name + '.load_filter'
             },
             load_portfolios: {
-                route: '/' + page_name + '/:id/:node?/version:?/name:?/sync:?',
+                route: '/' + page_name + '/:id/node:?/version:?/name:?/sync:?',
                 method: module.name + '.load_' + page_name
             }
         };
         return portfolios = {
+            breadcrumb_node: function (node) {
+                var args = routes.current().args;
+                setTimeout(routes.go.partial(routes.hash(module.rules.load_portfolios, args, {add: {node: node}})));
+            },
+            breadcrumb_root: function () {
+                var args = routes.current().args;
+                setTimeout(routes.go.partial(routes.hash(module.rules.load_portfolios, args, {del: ['node']})));
+            },
             load: function (args) {
                 layout = og.views.common.layout;
                 check_state({args: args, conditions: [
@@ -434,15 +439,10 @@ $.register_module({
             load_filter: function (args) {
                 check_state({args: args, conditions: [
                     {new_page: function () {
-                        state = {filter: true};
-                        portfolios.load(args);
-                        args.id
-                            ? routes.go(routes.hash(module.rules.load_portfolios, args))
-                            : routes.go(routes.hash(module.rules.load, args));
+                        return args.id ? portfolios.load_portfolios(args) : portfolios.load(args);
                     }}
                 ]});
-                delete args['filter'];
-                search.filter($.extend(args, {filter: true}));
+                search.filter(args);
             },
             load_portfolios: function (args) {
                 check_state({args: args, conditions: [
