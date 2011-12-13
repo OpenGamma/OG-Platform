@@ -415,7 +415,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.YTM);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.MODIFIED_DURATION);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.Z_SPREAD);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.Z_SPREAD_SENSITIVITY);
+    addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.CONVEXITY);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.MACAULAY_DURATION);
 
@@ -492,7 +492,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addDummyFunction(functionConfigs, ValueRequirementNames.DIRTY_PRICE);
     addDummyFunction(functionConfigs, ValueRequirementNames.MODIFIED_DURATION);
     addDummyFunction(functionConfigs, ValueRequirementNames.Z_SPREAD);
-    addDummyFunction(functionConfigs, ValueRequirementNames.Z_SPREAD_SENSITIVITY);
+    addSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY);
     addDummyFunction(functionConfigs, ValueRequirementNames.IMPLIED_REPO);
     addDummyFunction(functionConfigs, ValueRequirementNames.CONVEXITY);
     addDummyFunction(functionConfigs, ValueRequirementNames.MACAULAY_DURATION);

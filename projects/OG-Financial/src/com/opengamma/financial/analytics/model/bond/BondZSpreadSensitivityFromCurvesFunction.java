@@ -47,14 +47,14 @@ public class BondZSpreadSensitivityFromCurvesFunction extends BondFromCurvesFunc
       throw new OpenGammaRuntimeException("Clean price was null");
     }
     double cleanPrice = (Double) cleanPriceObject;
-    double zSpread = CALCULATOR.zSpreadSensitivityFromCurvesAndClean(bond, data, cleanPrice);
+    double zSpread = CALCULATOR.presentValueZSpreadSensitivityFromCurvesAndClean(bond, data, cleanPrice);
     return Sets.newHashSet(new ComputedValue(getResultSpec(target), zSpread));
   }
 
   @Override
   protected ValueSpecification getResultSpec(final ComputationTarget target) {
     final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, FROM_CURVES_METHOD).get();
-    return new ValueSpecification(ValueRequirementNames.Z_SPREAD_SENSITIVITY, target.toSpecification(), properties);
+    return new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY, target.toSpecification(), properties);
   }
 
   @Override
