@@ -55,7 +55,7 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
     final String iborCurveName = yieldCurveNames[2];
     final String[] couponCurveName = new String[] {creditCurveName, iborCurveName};
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getCalendar(), getUnderlyingBond().getSettlementDays());
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
     final double spotTime = actAct.getDayCountFraction(date, spot);
     final double settlementTime;
     if (getSettlementDate().isBefore(date)) {
@@ -97,7 +97,7 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
     final String iborCurveName = yieldCurveNames[2];
     final String[] couponCurveName = new String[] {creditCurveName, iborCurveName};
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getCalendar(), getUnderlyingBond().getSettlementDays());
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
     final double spotTime = actAct.getDayCountFraction(date, spot);
     final double settlementTime;
     if (getSettlementDate().isBefore(date)) {

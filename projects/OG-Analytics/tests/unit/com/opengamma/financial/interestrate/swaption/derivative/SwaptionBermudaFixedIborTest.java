@@ -41,7 +41,7 @@ public class SwaptionBermudaFixedIborTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 22);
   // Total swap -5Y semi bond vs quarterly money
   private static final Period FORWARD_TENOR = Period.ofYears(1);
-  private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, BUSINESS_DAY, CALENDAR, IS_EOM, FORWARD_TENOR);
+  private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, FORWARD_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM);
   private static final Period SWAP_TENOR = Period.ofYears(5);
   private static final double NOTIONAL = 123000000;
   private static final boolean FIXED_IS_PAYER = true;
@@ -61,7 +61,7 @@ public class SwaptionBermudaFixedIborTest {
   private static final SwapFixedIborDefinition[] EXPIRY_SWAP_DEFINITION = new SwapFixedIborDefinition[NB_EXPIRY];
   static {
     for (int loopexp = 0; loopexp < NB_EXPIRY; loopexp++) {
-      EXPIRY_DATE[loopexp] = ScheduleCalculator.getAdjustedDate(TOTAL_SWAP_DEFINITION.getFixedLeg().getNthPayment(loopexp).getAccrualStartDate(), CALENDAR, -IBOR_SETTLEMENT_DAYS);
+      EXPIRY_DATE[loopexp] = ScheduleCalculator.getAdjustedDate(TOTAL_SWAP_DEFINITION.getFixedLeg().getNthPayment(loopexp).getAccrualStartDate(), -IBOR_SETTLEMENT_DAYS, CALENDAR);
       EXPIRY_SWAP_DEFINITION[loopexp] = TOTAL_SWAP_DEFINITION.trimStart(EXPIRY_DATE[loopexp]);
     }
   }
