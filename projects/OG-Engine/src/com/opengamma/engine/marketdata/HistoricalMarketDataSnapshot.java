@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.engine.marketdata.historical.HistoricalMarketDataNormalizer;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.ExternalId;
@@ -91,6 +92,8 @@ public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
     return normalizedValue;
   }
   
+  // TODO: bulk operation could be useful; even if the HTS source doesn't support it, the normalizers could
+
   //-------------------------------------------------------------------------
   private HistoricalMarketDataSpecification getMarketDataSpec() {
     return _marketDataSpec;

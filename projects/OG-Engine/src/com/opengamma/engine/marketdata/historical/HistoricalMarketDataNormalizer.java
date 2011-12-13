@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.marketdata;
+package com.opengamma.engine.marketdata.historical;
 
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.ExternalId;
@@ -25,5 +25,7 @@ public interface HistoricalMarketDataNormalizer {
    * @return the normalized form, or null to reject the value
    */
   Object normalize(ExternalId identifier, String name, Object value);
+
+  // TODO: bulk operations could be useful here as some the underlying utilities such as unique id resolution support bulk 
 
 }

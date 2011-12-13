@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.marketdata;
+package com.opengamma.engine.marketdata.historical;
 
 import com.opengamma.id.ExternalId;
 
@@ -11,7 +11,7 @@ import com.opengamma.id.ExternalId;
  * Instance of {@link HistoricalMarketDataNormalizer} that passes all inputs through
  * unchanged.
  */
-public class DummyHistoricalMarketDataNormalizer implements HistoricalMarketDataNormalizer {
+public class DummyDataNormalizer implements HistoricalMarketDataNormalizer {
 
   @Override
   public Object normalize(final ExternalId identifier, final String name, final Object value) {
