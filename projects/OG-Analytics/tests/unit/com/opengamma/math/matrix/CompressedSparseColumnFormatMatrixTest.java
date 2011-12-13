@@ -20,6 +20,7 @@ public class CompressedSparseColumnFormatMatrixTest {
   double[][] data = { {1, 2, 0, 0 }, {3, 0, 4, 0 }, {0, 5, 6, 0 }, {0, 0, 7, 0 } };
   double[] expectedData = {1.0, 3.0, 2.0, 5.0, 4.0, 6.0, 7.0 };
   int[] expectedColPtr = {0, 2, 4, 7, 7 };
+  int[] expectedColPtrComputed = {0, 2, 4, 7};
   int[] expectedRowIdx = {0, 1, 0, 2, 1, 2, 3 };
 
   int[] tupleX = {0, 1, 0, 2, 1, 2, 2 };
@@ -56,7 +57,7 @@ public class CompressedSparseColumnFormatMatrixTest {
   @Test
   public void testConstructorTupleComputedDimension() {
     CompressedSparseColumnFormatMatrix M = new CompressedSparseColumnFormatMatrix(tupleX, tupleY, tupleV);
-    assertTrue(Arrays.equals(expectedColPtr, M.getColumnPtr()));
+    assertTrue(Arrays.equals(expectedColPtrComputed, M.getColumnPtr()));
     assertTrue(Arrays.equals(expectedRowIdx, M.getRowIndex()));
     assertTrue(Arrays.equals(expectedData, M.getNonZeroElements()));
   }

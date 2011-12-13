@@ -5,7 +5,6 @@
  */
 package com.opengamma.math.matrix;
 
-
 /**
  * SymmetricMatrix class provides a storage method for symmetric matrices in the PackedMatrix {@link PackedMatrix} form.
  * A matrix is symmetric if all elements a_ij = a_ji.
@@ -18,24 +17,22 @@ package com.opengamma.math.matrix;
  * If it is known that a matrix is symmetric then the matrix should be stored as such as a number of specific optimisations exist.
  *
  */
-public class SymmetricMatrix extends PackedMatrix {
+public class DenseSymmetricMatrix extends PackedMatrix {
 
   /**
    * Constructs a symmetric matrix from a symmetric array of arrays.
    * @param aMatrix the symmetric matrix
    */
-  public SymmetricMatrix(double[][] aMatrix) {
-    super(MatrixPrimitiveUtils.removeLowerTriangle(aMatrix));
+  public DenseSymmetricMatrix(double[][] aMatrix) {
+    super(MatrixPrimitiveUtils.removeLowerTriangle(aMatrix), PackedMatrix.allowZerosOn.rightSide);
   }
 
   /**
    * Constructs a symmetric matrix from a symmetric DoubleMatrix2D type.
    * @param aMatrix the symmetric matrix
    */
-  public SymmetricMatrix(DoubleMatrix2D aMatrix) {
-    super(MatrixPrimitiveUtils.removeLowerTriangle(aMatrix.toArray()));
+  public DenseSymmetricMatrix(DoubleMatrix2D aMatrix) {
+    super(MatrixPrimitiveUtils.removeLowerTriangle(aMatrix.toArray()), PackedMatrix.allowZerosOn.rightSide);
   }
 
 }
-
-
