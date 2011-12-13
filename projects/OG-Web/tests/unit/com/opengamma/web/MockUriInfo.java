@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.web.position;
+package com.opengamma.web;
 
 import java.net.URI;
 import java.util.List;
@@ -13,10 +13,15 @@ import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+
 /**
  * MockUriInfo for testing purposed
  */
-/*package*/class MockUriInfo implements UriInfo {
+public class MockUriInfo implements UriInfo {
+  
+  private final MultivaluedMap<String, String> _pathParameters = new MultivaluedMapImpl();
+  private final MultivaluedMap<String, String> _queryParameters = new MultivaluedMapImpl();
+  private final UriBuilder _uriBuilder = new MockUriBuilder();
 
   @Override
   public String getPath() {
@@ -45,7 +50,7 @@ import javax.ws.rs.core.UriInfo;
 
   @Override
   public UriBuilder getRequestUriBuilder() {
-    return new MockUriBuilder();
+    return _uriBuilder;
   }
 
   @Override
@@ -70,22 +75,22 @@ import javax.ws.rs.core.UriInfo;
 
   @Override
   public MultivaluedMap<String, String> getPathParameters() {
-    return null;
+    return _pathParameters;
   }
 
   @Override
   public MultivaluedMap<String, String> getPathParameters(boolean decode) {
-    return null;
+    return _pathParameters;
   }
 
   @Override
   public MultivaluedMap<String, String> getQueryParameters() {
-    return null;
+    return _queryParameters;
   }
 
   @Override
   public MultivaluedMap<String, String> getQueryParameters(boolean decode) {
-    return null;
+    return _queryParameters;
   }
 
   @Override

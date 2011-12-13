@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.web.position;
+package com.opengamma.web;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -17,14 +17,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
 
-import org.testng.annotations.Test;
-
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * MockUriBuilder intended for testing in memory web resources
  */
-/*package*/ class MockUriBuilder extends UriBuilder {
+public class MockUriBuilder extends UriBuilder {
   
   private static final Pattern s_pathPattern = Pattern.compile("\\{\\w+\\}");
   
@@ -72,19 +70,30 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public UriBuilder path(String path) throws IllegalArgumentException {
+    ArgumentChecker.notNull(path, "path");
+    formathPath(path);
     return this;
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings("rawtypes")
   @Override
   public UriBuilder path(Class resource) throws IllegalArgumentException {
-    ArgumentChecker.notNull(resource, "class resource");
+    ArgumentChecker.notNull(resource, "class");
+    @SuppressWarnings("unchecked")
     Annotation annotation = resource.getAnnotation(Path.class);
     if (annotation == null) {
       throw new IllegalArgumentException();
     }
-    String path = ((Path) annotation).value();
-    
+    formatPath((Path) annotation);
+    return this;
+  }
+
+  private void formatPath(Path annotation) {
+    String path = annotation.value();
+    formathPath(path);
+  }
+
+  private void formathPath(String path) {
     Matcher matcher = s_pathPattern.matcher(path);
     int start = 0;
     int end = 0;
@@ -102,16 +111,35 @@ import com.opengamma.util.ArgumentChecker;
     } else {
       _pathFormat += "/" + buf.toString();
     }
-    return this;
   }
 
+  @SuppressWarnings("rawtypes")
   @Override
-  public UriBuilder path(Class resource, String method) throws IllegalArgumentException {
+  public UriBuilder path(Class resource, String methodName) throws IllegalArgumentException {
+    ArgumentChecker.notNull(resource, "class");
+    Method[] methods = resource.getMethods();
+    Method method = null;
+    for (Method aMethod : methods) {
+      if (aMethod.getName().equals(methodName)) {
+        method = aMethod;
+        break;
+      }
+    }
+    if (method == null) {
+      throw new IllegalArgumentException("Method " + methodName + " can not be found in class " + resource);
+    }
+    path(method);
     return this;
   }
 
   @Override
   public UriBuilder path(Method method) throws IllegalArgumentException {
+    ArgumentChecker.notNull(method, "method");
+    Path annotation = method.getAnnotation(Path.class);
+    if (annotation == null) {
+      throw new IllegalArgumentException("Path annotation missing in method " + method.getName());
+    }
+    formatPath(annotation);
     return this;
   }
 
