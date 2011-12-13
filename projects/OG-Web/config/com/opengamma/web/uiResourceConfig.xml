@@ -201,6 +201,7 @@
     <fragment>/scripts/og/common/slickgrid/formatters/og.common.slickgrid.formatters.portfolios.js</fragment>
     <fragment>/scripts/og/common/slickgrid/formatters/og.common.slickgrid.formatters.positions.js</fragment>
     <fragment>/scripts/og/common/slickgrid/og.common.slickgrid.manager.js</fragment>
+    <fragment>/scripts/og/common/slickgrid/og.common.slickgrid.calibrate_columns.js</fragment>
     <fragment>/scripts/og/common/masthead/og.common.masthead.menu.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.region_functions.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.batch_functions.js</fragment>
