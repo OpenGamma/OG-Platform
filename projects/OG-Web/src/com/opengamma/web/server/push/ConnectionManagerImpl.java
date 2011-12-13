@@ -18,12 +18,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * TODO what's the policy on arg checking? public API only?
+ * {@link ConnectionManager} implementation that creates an instance of {@link ClientConnection} for each
+ * client.  It creates {@link Timer} tasks for each connection that closes them and cleans up if they are idle
+ * for too long.  This class is thread safe.
  */
 /* package */ class ConnectionManagerImpl implements ConnectionManager {
 
-  //private static final Logger s_logger = LoggerFactory.getLogger(RestUpdateManagerImpl.class);
-
+  /** Period for the periodic tasks that check whether the client connections have been idle for too long */
   private static final long DEFAULT_TIMEOUT_CHECK_PERIOD = 60000;
 
   /** Clients are disconnected if they haven't been heard of after fine minutes */
@@ -43,7 +44,6 @@ import java.util.concurrent.atomic.AtomicLong;
   private final Timer _timer = new Timer();
   private final MasterChangeManager _masterChangeManager;
 
-  // TODO map of ChangeManagers keyed on MasterType? or a class that encapsulates that logic? for query updates
   public ConnectionManagerImpl(ChangeManager changeManager,
                                MasterChangeManager masterChangeManager,
                                ViewportManager viewportFactory,
@@ -64,8 +64,6 @@ import java.util.concurrent.atomic.AtomicLong;
     _timeoutCheckPeriod = timeoutCheckPeriod;
     _masterChangeManager = masterChangeManager;
   }
-
-  // handshake method that returns the client ID, must be called before any of the long-polling subscribe methods
 
   /**
    * Creates a new connection for a client and returns its client ID.  The client ID should be used by the client
@@ -88,7 +86,6 @@ import java.util.concurrent.atomic.AtomicLong;
     return clientId;
   }
 
-  // TODO why is this public? does it need to be?
   @Override
   public void clientDisconnected(String userId, String clientId) {
     ClientConnection connection = getConnectionByClientId(userId, clientId);
@@ -137,10 +134,10 @@ import java.util.concurrent.atomic.AtomicLong;
   }
 
   /**
-   *
-   * @param userId
-   * @param clientId
-   * @return
+   * Returns the {@link ClientConnection} corresponding to a client ID.
+   * @param userId The ID of the user who owns the connection
+   * @param clientId The client ID
+   * @return The connection
    * @throws DataNotFoundException If there is no connection for the specified ID, the user ID is invalid or if
    * the client and user IDs don't correspond
    */
@@ -157,14 +154,22 @@ import java.util.concurrent.atomic.AtomicLong;
     }
     return connection;
   }
-  
-  private ClientConnection getConnectionByViewportId(String userId, String viewportUrl) {
-    ClientConnection connection = _connectionsByViewportId.get(viewportUrl);
+
+  /**
+   * Returns the {@link ClientConnection} that owns a viewport.
+   * @param userId The ID of the user who owns the connection
+   * @param viewportId The ID of the viewport
+   * @return The connection
+   * @throws DataNotFoundException If there is no viewport with the specified ID, the connection doesn't own viewport,
+   * the user ID is invalid or if the client connection isn't owned by the specified user.
+   */
+  private ClientConnection getConnectionByViewportId(String userId, String viewportId) {
+    ClientConnection connection = _connectionsByViewportId.get(viewportId);
     if (connection == null) {
-      throw new DataNotFoundException("Unknown viewport ID: " + viewportUrl);
+      throw new DataNotFoundException("Unknown viewport ID: " + viewportId);
     }
     if (!Objects.equal(userId, connection.getUserId())) {
-      throw new DataNotFoundException("User ID " + userId + " is not associated with viewport " + viewportUrl);
+      throw new DataNotFoundException("User ID " + userId + " is not associated with viewport " + viewportId);
     }
     return connection;
   }

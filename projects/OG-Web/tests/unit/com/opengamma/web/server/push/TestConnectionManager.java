@@ -57,7 +57,7 @@ public class TestConnectionManager implements ConnectionManager {
                              ViewportDefinition viewportDefinition,
                              String viewportId,
                              String dataUrl,
-                             String gridUrl) {
+                             String gridStructureUrl) {
     throw new UnsupportedOperationException("createViewport not implemented");
   }
 

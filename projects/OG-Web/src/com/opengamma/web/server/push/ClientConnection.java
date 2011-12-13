@@ -23,7 +23,12 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Connection associated with one client (i.e. one browser window / tab / client app instance).
+ * Connection associated with one client (i.e. one browser window / tab / client app instance).  Allows creation
+ * and retrieval of a {@link Viewport} for a set of analytics and notifies the client when any changes occur.
+ * Also allows subscriptions to be set up so the client is notified if an entity or the contents of a master changes.
+ * The published notifications contain the REST URL of the thing that has changed.
+ * All subscriptions for a URL are automatically cancelled the first time a notification is published for the URL
+ * and must be re-established every time the client accesses the URL.
  */
 /* package */ class ClientConnection implements ChangeListener, MasterChangeListener {
 
@@ -39,18 +44,33 @@ import java.util.Set;
   private final ViewportManager _viewportFactory;
   private final Object _lock = new Object();
 
+  /** URLs which should be published when a master changes, keyed by the type of the master */
   private final Multimap<MasterType, String> _masterUrls = HashMultimap.create();
+  /** URLs which should be published when an entity changes, keyed on the entity's ID */
   private final Multimap<ObjectId, String> _entityUrls = HashMultimap.create();
+  /** TODO what's this all about? */
   private final Map<String, UrlMapping> _urlMappings = new HashMap<String, UrlMapping>();
 
+  /** The ID of this client's current viewport */
   private String _viewportId;
 
+  /**
+   * @param userId Login ID of the user that owns this connection TODO this isn't used yet
+   * @param clientId Unique ID of this connection 
+   * @param listener Listener that forwards changes over HTTP whenever any updates occur to which this connection subscribes 
+   * @param viewportFactory For creating and returning viewports on the analytics data 
+   * @param timeoutTask Task that closes this connection if it is idle for too long 
+   */
   /* package */ ClientConnection(String userId,
                                  String clientId,
                                  RestUpdateListener listener,
                                  ViewportManager viewportFactory,
                                  ConnectionTimeoutTask timeoutTask) {
-    // TODO check args
+    ArgumentChecker.notNull(viewportFactory, "viewportFactory");
+    ArgumentChecker.notNull(userId, "userId");
+    ArgumentChecker.notNull(listener, "listener");
+    ArgumentChecker.notNull(clientId, "clientId");
+    ArgumentChecker.notNull(timeoutTask, "timeoutTask");
     _viewportFactory = viewportFactory;
     _userId = userId;
     _listener = listener;
@@ -58,32 +78,41 @@ import java.util.Set;
     _timeoutTask = timeoutTask;
   }
 
+  /**
+   * @return Login ID of the user that owns this connection
+   */
   /* package */ String getUserId() {
     return _userId;
   }
 
   /**
    * Creates a new subscription for a view client, replacing any existing subscription for that view client.
-   * @param viewportDefinition
-   * @param viewportId
-   * @param dataUrl
-   * @param gridUrl
+   * @param viewportDefinition Defines which cells and dependency graphs are in the viewport
+   * @param viewportId Unique ID of the viewport
+   * @param dataUrl REST URL of the viewport analytics data
+   * @param gridStructureUrl REST URL of the structure of the viewport grids
    */
-  /* package */ void createViewport(ViewportDefinition viewportDefinition, String viewportId, String dataUrl, String gridUrl) {
+  /* package */ void createViewport(ViewportDefinition viewportDefinition, String viewportId, String dataUrl, String gridStructureUrl) {
     ArgumentChecker.notNull(viewportDefinition, "viewportDefinition");
     ArgumentChecker.notNull(viewportId, "viewportId");
     ArgumentChecker.notNull(dataUrl, "dataUrl");
-    ArgumentChecker.notNull(gridUrl, "gridUrl");
+    ArgumentChecker.notNull(gridStructureUrl, "gridStructureUrl");
     synchronized (_lock) {
       _timeoutTask.reset();
       String previousViewportId = _viewportId;
       _viewportId = viewportId;
-      AnalyticsListener listener = new AnalyticsListenerImpl(dataUrl, gridUrl, _listener);
+      AnalyticsListener listener = new AnalyticsListenerImpl(dataUrl, gridStructureUrl, _listener);
       _viewportFactory.createViewport(viewportId, previousViewportId, viewportDefinition, listener);
     }
   }
 
+  /**
+   * @param viewportId Unique ID of the viewport
+   * @return The viewport
+   * @throws DataNotFoundException If the viewport ID doesn't match this connection's current viewport ID
+   */
   /* package */ Viewport getViewport(String viewportId) {
+    ArgumentChecker.notNull(viewportId, "viewportId");
     synchronized (_lock) {
       _timeoutTask.reset();
       if (!_viewportId.equals(viewportId)) {
@@ -93,6 +122,9 @@ import java.util.Set;
     }
   }
 
+  /**
+   * Closes this connection
+   */
   /* package */ void disconnect() {
     synchronized (_lock) {
       _timeoutTask.reset();
@@ -100,7 +132,15 @@ import java.util.Set;
     }
   }
 
+  /**
+   * Sets up a subscription that publishes an update to the client when an entity changes.
+   * The subscription is automatically cancelled after the first time the entity changes.
+   * @param uid The unique ID of an entity
+   * @param url The REST URL of the entity.  This is published to the client when the entity is updated
+   */
   /* package */ void subscribe(UniqueId uid, String url) {
+    ArgumentChecker.notNull(uid, "uid");
+    ArgumentChecker.notNull(url, "url");
     synchronized (_lock) {
       _timeoutTask.reset();
       ObjectId objectId = uid.getObjectId();
@@ -113,14 +153,23 @@ import java.util.Set;
   public void entityChanged(ChangeEvent event) {
     synchronized (_lock) {
       Collection<String> urls = _entityUrls.removeAll(event.getAfterId().getObjectId());
-      removeUrlMappings(urls);
+      removeSubscriptions(urls);
       if (!urls.isEmpty()) {
         _listener.itemsUpdated(urls);
       }
     }
   }
 
+  /**
+   * Sets up a subscription that publishes an update to the client when any entity in a master changes.
+   * This tells a client that the results of a previously executed query <em>might</em> have changed.
+   * The subscription is automatically cancelled after the first time the master is updated.
+   * @param masterType The type of master
+   * @param url The REST URL whose results might be invalidated by changes in the master
+   */
   /* package */ void subscribe(MasterType masterType, String url) {
+    ArgumentChecker.notNull(masterType, "masterType");
+    ArgumentChecker.notNull(url, "url");
     synchronized (_lock) {
       _timeoutTask.reset();
       _masterUrls.put(masterType, url);
@@ -132,15 +181,19 @@ import java.util.Set;
   public void masterChanged(MasterType masterType) {
     synchronized (_lock) {
       Collection<String> urls = _masterUrls.removeAll(masterType);
-      removeUrlMappings(urls);
+      removeSubscriptions(urls);
       if (!urls.isEmpty()) {
         _listener.itemsUpdated(urls);
       }
     }
   }
 
-  // TODO a better name
-  private void removeUrlMappings(Collection<String> urls) {
+  /**
+   * Removes all subscriptions for the URLs.  When an update is published for a URL all subscriptions for that
+   * URL for all {@link MasterType}s or entity {@link ObjectId}s are cancelled.
+   * @param urls The URLs for which updates have been published
+   */
+  private void removeSubscriptions(Collection<String> urls) {
     for (String url : urls) {
       UrlMapping urlMapping = _urlMappings.get(url);
       // remove mappings for this url for master type
@@ -154,7 +207,14 @@ import java.util.Set;
     }
   }
 
-  // TODO this is a rubbish name
+  /**
+   * <p>Container for sets of {@link MasterType}s or {@link ObjectId}s associated with a subscription for a REST URL.
+   * This is to allow all subscriptions for a URL to be cleared when its first update is published.</p>
+   * <p>This assumes there can be multiple subscriptions for a URL with different {@link MasterType}s or
+   * entity {@link ObjectId}s.  TODO Need to check whether this is actually the case.
+   * If not this could probably
+   * be scrapped.</p>
+   */
   private static class UrlMapping {
 
     private final Set<MasterType> _masterTypes;
