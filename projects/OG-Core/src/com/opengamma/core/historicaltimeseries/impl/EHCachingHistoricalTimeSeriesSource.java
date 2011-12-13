@@ -30,6 +30,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -663,19 +664,28 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
    */
   private HistoricalTimeSeries getSubSeries(
       HistoricalTimeSeries hts, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
+    
     if (hts == null) {
       return null;
     }
-    if (hts.getTimeSeries().isEmpty()) {
+    LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) hts.getTimeSeries();
+    if (timeSeries == null || timeSeries.isEmpty()) { 
       return hts;
     }
-    LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) hts.getTimeSeries().subSeries(start, includeStart, end, includeEnd);
-    if ((maxPoints != null) && (Math.abs(maxPoints) < timeSeries.size())) {
+    if (start == null || start.isBefore(timeSeries.getEarliestTime())) {
+      start = timeSeries.getEarliestTime();
+    }
+    if (end == null || end.isAfter(timeSeries.getLatestTime())) {
+      end = timeSeries.getLatestTime();
+    }
+    if (start.isAfter(timeSeries.getLatestTime()) || end.isBefore(timeSeries.getEarliestTime())) {
+      return new SimpleHistoricalTimeSeries(hts.getUniqueId(), new ListLocalDateDoubleTimeSeries());
+    }
+    timeSeries = timeSeries.subSeries(start, includeStart, end, includeEnd);
+    if (((maxPoints != null) && (Math.abs(maxPoints) < timeSeries.size()))) {
       timeSeries = maxPoints >= 0 ? timeSeries.head(maxPoints) : timeSeries.tail(-maxPoints);
     }
     return new SimpleHistoricalTimeSeries(hts.getUniqueId(), timeSeries);
   }
-
-  
 
 }

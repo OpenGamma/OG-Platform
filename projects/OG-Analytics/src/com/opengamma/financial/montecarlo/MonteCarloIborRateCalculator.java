@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
-import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
+import com.opengamma.financial.interestrate.swap.SwapFixedDiscountingMethod;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 
@@ -128,7 +128,7 @@ public class MonteCarloIborRateCalculator extends AbstractInstrumentDerivativeVi
         floatPath += impactAmount[loopfloat] * discounting[looppath][impactIndex[loopfloat]];
       }
       swapRatePath = -floatPath / fixedPath;
-      double annuityCashPath = SwapFixedIborMethod.getAnnuityCash(swaption.getUnderlyingSwap(), swapRatePath);
+      double annuityCashPath = SwapFixedDiscountingMethod.getAnnuityCash(swaption.getUnderlyingSwap(), swapRatePath);
       price += annuityCashPath * Math.max(omega * (swapRatePath - strike), 0.0) * discounting[looppath][impactIndex[nbFixed]];
     }
     return price * (swaption.isLong() ? 1.0 : -1.0);
