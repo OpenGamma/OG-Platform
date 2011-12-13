@@ -115,7 +115,7 @@ public class PresentValueCurveSensitivityCalculator extends AbstractInstrumentDe
   @Override
   public Map<String, List<DoublesPair>> visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
     final BondSecurityDiscountingMethod method = BondSecurityDiscountingMethod.getInstance();
-    return method.presentValueSensitivity(bond, curves).getSensitivities();
+    return method.presentValueCurveSensitivity(bond, curves).getSensitivities();
   }
 
   @Override

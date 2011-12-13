@@ -26,6 +26,11 @@
     <property name="name" value="UserFinancial"/>
     <property name="dataSource" ref="userFinancialDataSource"/>
     <property name="dialectName" value="${opengamma.financial-user.db.dialect}"/>
+    <property name="hibernateMappingFiles">
+      <list>
+        <bean class="com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles"/>
+      </list>
+    </property>
   </bean>
 
   <!-- User supplied Positions --> 
