@@ -38,7 +38,7 @@ public class CouponFixedDiscountingMethodTest {
   private static final GeneratorDeposit DEPOSIT_EUR = new EURDeposit(EUR_CALENDAR);
 
   private static final Period START_PERIOD = Period.ofMonths(6);
-  private static final ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DEPOSIT_EUR.getBusinessDayConvention(), EUR_CALENDAR, DEPOSIT_EUR.isEndOfMonth(), START_PERIOD);
+  private static final ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, START_PERIOD, DEPOSIT_EUR.getBusinessDayConvention(), EUR_CALENDAR, DEPOSIT_EUR.isEndOfMonth());
   private static final Period CPN_TENOR = Period.ofMonths(12);
   private static final double NOTIONAL = 100000000;
   private static final double FIXED_RATE = 0.0250;

@@ -91,7 +91,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
     final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(FIRST_COUPON_DATE_GILT_1, MATURITY_DATE_GILT_1, COUPON_PERIOD_GILT_1);
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, BUSINESS_DAY_GBP, CALENDAR_GBP);
     final CouponInflationZeroCouponMonthlyGearingDefinition[] coupons = new CouponInflationZeroCouponMonthlyGearingDefinition[paymentDates.length + 1];
-    coupons[0] = CouponInflationZeroCouponMonthlyGearingDefinition.from(ScheduleCalculator.getAdjustedDate(FIRST_COUPON_DATE_GILT_1, CALENDAR_GBP, 0), START_DATE_GILT_1, FIRST_COUPON_DATE_GILT_1,
+    coupons[0] = CouponInflationZeroCouponMonthlyGearingDefinition.from(ScheduleCalculator.getAdjustedDate(FIRST_COUPON_DATE_GILT_1, 0, CALENDAR_GBP), START_DATE_GILT_1, FIRST_COUPON_DATE_GILT_1,
         NOTIONAL_GILT_1, PRICE_INDEX_UKRPI, INDEX_START_GILT_1, MONTH_LAG_GILT_1, true, REAL_RATE_GILT_1);
     coupons[1] = CouponInflationZeroCouponMonthlyGearingDefinition.from(paymentDates[0], FIRST_COUPON_DATE_GILT_1, paymentDatesUnadjusted[0], NOTIONAL_GILT_1, PRICE_INDEX_UKRPI, INDEX_START_GILT_1,
         MONTH_LAG_GILT_1, true, REAL_RATE_GILT_1);
@@ -132,7 +132,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
     final GenericAnnuity<Coupon> nominal = (GenericAnnuity<Coupon>) bondFromDefinition.getNominal().toDerivative(pricingDate, "Not used");
     @SuppressWarnings("unchecked")
     final GenericAnnuity<Coupon> coupon = (GenericAnnuity<Coupon>) bondFromDefinition.getCoupon().toDerivative(pricingDate, ukRpi, "Not used");
-    ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(pricingDate, CALENDAR_GBP, SETTLEMENT_DAYS_GILT_1);
+    ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(pricingDate, SETTLEMENT_DAYS_GILT_1, CALENDAR_GBP);
     final double settleTime = TimeCalculator.getTimeBetween(pricingDate, spot);
     @SuppressWarnings("unchecked")
     AnnuityDefinition<CouponDefinition> couponDefinition = (AnnuityDefinition<CouponDefinition>) bondFromDefinition.getCoupon().trimBefore(spot);
