@@ -153,14 +153,15 @@ package com.opengamma.web.server.push;
  * <h1>TODO</h1>
  * <p>The following still needs to be done:</p>
  * <ul>
- *   <li>All viewport requests require a client ID, for other REST requests it's optional.  Should viewports be the
- *   same or does it not make sense to have a view without updates?  What about snapshots where the data will never
- *   change?</li>
+ *   <li>Creating a viewport without a client ID is supported at the moment but there is no mechanism to
+ *   clean up views created in this way.  So they are a massive resource leak.  An explicit closing mechanism
+ *   and a timeout mechanism are required.</li>
  *   <li>There is no validation that a client ID belongs to the user who is requesting it.  This should work once
  *   we have user logins.</li>
  *   <li>REST endpoints haven't been implemented for pausing and resuming a viewport's view and for switching between
  *   full and summary mode.</li>
- *   <li>There is no way to close a client connection apart from waiting for it to time out.</li>
+ *   <li>There is no way to close a client connection apart from waiting for it to time out.  There is support
+ *   in the back end but no RESTful interface.</li>
  *   <li>Query subscriptions are created when the user just visits the query page, e.g. /jax/portfolios.  This
  *   probably isn't what we want, a subscription should probably be created if there are some query params
  *   specifying what to search for.  it might even be necessary to allow the relevant query params to be

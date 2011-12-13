@@ -32,7 +32,7 @@ public class HandshakeServlet extends SpringConfiguredServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String userId = req.getRemoteUser(); // TODO is this right?
-    String clientId = _connectionManager.openConnection(userId);
+    String clientId = _connectionManager.clientConnected(userId);
     resp.setContentType(MediaType.APPLICATION_JSON);
     JSONObject json = new JSONObject();
     try {

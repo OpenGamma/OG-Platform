@@ -13,7 +13,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- *
+ * TODO sub-resource for individual grids that can return CSV? currently done by WebAnalyticsResource
+ * URL like /{vieportId}/primitives|portfolio/analytics
+ * URL like /{vieportId}/primitives|portfolio/dependencygraph/{row}/{col}
  */
 public class ViewportResource {
 

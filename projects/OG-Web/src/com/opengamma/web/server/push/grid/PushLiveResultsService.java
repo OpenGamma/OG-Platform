@@ -22,9 +22,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.AggregatedViewDefinitionManager;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 import com.opengamma.web.server.push.AnalyticsListener;
+import com.opengamma.web.server.push.NoOpAnalyticsListener;
 import com.opengamma.web.server.push.Viewport;
 import com.opengamma.web.server.push.ViewportDefinition;
-import com.opengamma.web.server.push.ViewportFactory;
+import com.opengamma.web.server.push.ViewportManager;
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,14 +38,12 @@ import java.util.Map;
  * Connects the REST interface to the engine.
  * TODO temporary name just to distinguish it from the similarly named class in the parent package
  */
-/* package */ class PushLiveResultsService implements ViewportFactory {
+/* package */ class PushLiveResultsService implements ViewportManager {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PushLiveResultsService.class);
 
   /** Client's web view keyed on viewport ID */
   private final Map<String, PushWebView> _viewportIdToView = new HashMap<String, PushWebView>();
-  /** Viewport IDs keyed on client ID */
-  private final Map<String, String> _clientIdToViewportId = new HashMap<String, String>();
   private final ViewProcessor _viewProcessor;
   private final UserPrincipal _user;
   private final ResultConverterCache _resultConverterCache;
@@ -75,12 +74,11 @@ import java.util.Map;
                                                                            mapPortfolioAggregators(portfolioAggregators));
   }
 
-  public void clientDisconnected(String clientId) {
-    s_logger.debug("Client " + clientId + " disconnected");
+  public void closeViewport(String viewportId) {
+    s_logger.debug("Closing viewport with ID " + viewportId);
     PushWebView view = null;
-    synchronized (_lock) {
-      String viewportId = _clientIdToViewportId.remove(clientId);
-      if (viewportId != null) {
+    if (viewportId != null) {
+      synchronized (_lock) {
         view = _viewportIdToView.remove(viewportId);
       }
     }
@@ -107,16 +105,39 @@ import java.util.Map;
     }
   }*/
 
+  // TODO this leaks views at the moment - a timeout mechanism is needed for views with no client
   @Override
-  public Viewport createViewport(String clientId, String viewportId, ViewportDefinition viewportDefinition, AnalyticsListener listener) {
+  public Viewport createViewport(String viewportId, ViewportDefinition viewportDefinition) {
     synchronized (_lock) {
       UniqueId baseViewDefinitionId = getViewDefinitionId(viewportDefinition.getViewDefinitionName());
-      String currentViewportId = _clientIdToViewportId.remove(clientId);
+      PushWebView webView;
+      String aggregatorName = viewportDefinition.getAggregatorName();
+      ViewClient viewClient = _viewProcessor.createViewClient(_user);
+      try {
+        UniqueId viewDefinitionId = _aggregatedViewDefinitionManager.getViewDefinitionId(baseViewDefinitionId, aggregatorName);
+        webView = new PushWebView(viewClient, viewportDefinition, baseViewDefinitionId, viewDefinitionId, _resultConverterCache, new NoOpAnalyticsListener());
+      } catch (Exception e) {
+        viewClient.shutdown();
+        throw new OpenGammaRuntimeException("Error attaching client to view definition '" + baseViewDefinitionId + "'", e);
+      }
+      _viewportIdToView.put(viewportId, webView);
+      return webView;
+    }
+  }
+
+  @Override
+  public Viewport createViewport(String viewportId,
+                                 String previousViewportId,
+                                 ViewportDefinition viewportDefinition,
+                                 AnalyticsListener listener) {
+    synchronized (_lock) {
+      UniqueId baseViewDefinitionId = getViewDefinitionId(viewportDefinition.getViewDefinitionName());
+      // TODO only need the client ID so we can find the previous viewport. can't the client supply that instead?
       PushWebView webView;
       String aggregatorName = viewportDefinition.getAggregatorName();
 
-      if (currentViewportId != null) {
-        webView = _viewportIdToView.get(currentViewportId);
+      if (previousViewportId != null) {
+        webView = _viewportIdToView.get(previousViewportId);
         // TODO is this relevant any more?
         if (webView != null) {
           if (webView.matches(baseViewDefinitionId, viewportDefinition)) {
@@ -126,7 +147,7 @@ import java.util.Map;
           }
           // Existing view is different - client is switching views
           shutDownWebView(webView);
-          _viewportIdToView.remove(currentViewportId);
+          _viewportIdToView.remove(previousViewportId);
         }
       }
 
@@ -139,7 +160,6 @@ import java.util.Map;
         throw new OpenGammaRuntimeException("Error attaching client to view definition '" + baseViewDefinitionId + "'", e);
       }
       _viewportIdToView.put(viewportId, webView);
-      _clientIdToViewportId.put(clientId, viewportId);
       return webView;
     }
   }

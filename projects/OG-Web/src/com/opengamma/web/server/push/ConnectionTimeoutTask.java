@@ -46,7 +46,7 @@ of knowing the client is still there.
   public void run() {
     if (System.currentTimeMillis() - _lastAccessTime.get() > _timeout) {
       cancel();
-      _connectionManager.closeConnection(_userId, _clientId);
+      _connectionManager.clientDisconnected(_userId, _clientId);
     }
   }
 }

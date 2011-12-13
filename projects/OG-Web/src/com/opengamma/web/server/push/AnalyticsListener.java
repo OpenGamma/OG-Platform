@@ -1,25 +1,22 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.web.server.push;
 
 /**
- *
+ * Listener for changes in the analytics for a particular view.
  */
-public class AnalyticsListener {
+/* package */ public interface AnalyticsListener {
 
-  private final String _dataUrl;
-  private final String _gridStructureUrl;
-  private final RestUpdateListener _listener;
+  /**
+   * Invoked when the view's analytics data changes.
+   */
+  void dataChanged();
 
-  public AnalyticsListener(String dataUrl, String gridStructureUrl, RestUpdateListener listener) {
-    _dataUrl = dataUrl;
-    _gridStructureUrl = gridStructureUrl;
-    _listener = listener;
-  }
-
-  public void dataChanged() {
-    _listener.itemUpdated(_dataUrl);
-  }
-
-  public void gridStructureChanged() {
-    _listener.itemUpdated(_gridStructureUrl);
-  }
+  /**
+   * Invoked when the structure of one of the view's grids changes.
+   */
+  void gridStructureChanged();
 }

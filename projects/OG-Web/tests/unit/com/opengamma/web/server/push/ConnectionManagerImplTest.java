@@ -10,19 +10,19 @@ import static org.mockito.Mockito.mock;
 /**
  *
  */
-public class RestUpdateManagerImplTest {
+public class ConnectionManagerImplTest {
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void timeout() throws InterruptedException {
     // update manager with non-default short timeouts
     ConnectionManagerImpl connectionManager = new ConnectionManagerImpl(mock(ChangeManager.class),
-                                                                mock(MasterChangeManager.class),
-                                                                mock(ViewportFactory.class),
-                                                                mock(LongPollingConnectionManager.class),
-                                                                1000,
-                                                                500);
+                                                                        mock(MasterChangeManager.class),
+                                                                        mock(ViewportManager.class),
+                                                                        mock(LongPollingConnectionManager.class),
+                                                                        1000,
+                                                                        500);
     // connection that will be allowed to time out
-    String clientId = connectionManager.openConnection("userId");
+    String clientId = connectionManager.clientConnected("userId");
     // should complete normally
     connectionManager.subscribe("userId", clientId, UniqueId.of("Tst", "123"), "url");
     // wait until timeout

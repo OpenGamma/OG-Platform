@@ -23,15 +23,20 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Associated with one client connection (i.e. one browser window / tab / client app instance).
+ * Connection associated with one client (i.e. one browser window / tab / client app instance).
  */
 /* package */ class ClientConnection implements ChangeListener, MasterChangeListener {
 
+  /** Login ID of the user that owns this connection TODO this isn't used yet */
   private final String _userId;
+  /** Unique ID of this connection */
   private final String _clientId;
+  /** Task that closes this connection if it is idle for too long */
   private final ConnectionTimeoutTask _timeoutTask;
+  /** Listener that forwards changes over HTTP whenever any updates occur to which this connection subscribes */
   private final RestUpdateListener _listener;
-  private final ViewportFactory _viewportFactory;
+  /** For creating and returning viewports on the analytics data */
+  private final ViewportManager _viewportFactory;
   private final Object _lock = new Object();
 
   private final Multimap<MasterType, String> _masterUrls = HashMultimap.create();
@@ -43,7 +48,7 @@ import java.util.Set;
   /* package */ ClientConnection(String userId,
                                  String clientId,
                                  RestUpdateListener listener,
-                                 ViewportFactory viewportFactory,
+                                 ViewportManager viewportFactory,
                                  ConnectionTimeoutTask timeoutTask) {
     // TODO check args
     _viewportFactory = viewportFactory;
@@ -71,9 +76,10 @@ import java.util.Set;
     ArgumentChecker.notNull(gridUrl, "gridUrl");
     synchronized (_lock) {
       _timeoutTask.reset();
+      String previousViewportId = _viewportId;
       _viewportId = viewportId;
-      AnalyticsListener listener = new AnalyticsListener(dataUrl, gridUrl, _listener);
-      _viewportFactory.createViewport(_clientId, viewportId, viewportDefinition, listener);
+      AnalyticsListener listener = new AnalyticsListenerImpl(dataUrl, gridUrl, _listener);
+      _viewportFactory.createViewport(viewportId, previousViewportId, viewportDefinition, listener);
     }
   }
 
@@ -90,7 +96,7 @@ import java.util.Set;
   /* package */ void disconnect() {
     synchronized (_lock) {
       _timeoutTask.reset();
-      _viewportFactory.clientDisconnected(_clientId);
+      _viewportFactory.closeViewport(_viewportId);
     }
   }
 

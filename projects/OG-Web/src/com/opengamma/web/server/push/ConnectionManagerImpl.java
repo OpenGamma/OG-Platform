@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
   // TODO a better way to generate client IDs
   private final AtomicLong _clientConnectionId = new AtomicLong();
   private final ChangeManager _changeManager;
-  private final ViewportFactory _viewportFactory;
+  private final ViewportManager _viewportFactory;
   private final LongPollingConnectionManager _longPollingConnectionManager;
   private final long _timeout;
   private final long _timeoutCheckPeriod;
@@ -46,14 +46,14 @@ import java.util.concurrent.atomic.AtomicLong;
   // TODO map of ChangeManagers keyed on MasterType? or a class that encapsulates that logic? for query updates
   public ConnectionManagerImpl(ChangeManager changeManager,
                                MasterChangeManager masterChangeManager,
-                               ViewportFactory viewportFactory,
+                               ViewportManager viewportFactory,
                                LongPollingConnectionManager longPollingConnectionManager) {
     this(changeManager, masterChangeManager, viewportFactory, longPollingConnectionManager, DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_CHECK_PERIOD);
   }
 
   public ConnectionManagerImpl(ChangeManager changeManager,
                                MasterChangeManager masterChangeManager,
-                               ViewportFactory viewportFactory,
+                               ViewportManager viewportFactory,
                                LongPollingConnectionManager longPollingConnectionManager,
                                long timeout,
                                long timeoutCheckPeriod) {
@@ -75,7 +75,7 @@ import java.util.concurrent.atomic.AtomicLong;
    * @return The client ID of the new connection, must be supplied by the client when subscribing for updates
    */
   @Override
-  public String openConnection(String userId) {
+  public String clientConnected(String userId) {
     // TODO check args
     String clientId = Long.toString(_clientConnectionId.getAndIncrement());
     LongPollingUpdateListener updateListener = _longPollingConnectionManager.handshake(userId, clientId);
@@ -90,7 +90,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
   // TODO why is this public? does it need to be?
   @Override
-  public void closeConnection(String userId, String clientId) {
+  public void clientDisconnected(String userId, String clientId) {
     ClientConnection connection = getConnectionByClientId(userId, clientId);
     _connectionsByClientId.remove(clientId);
     _changeManager.removeChangeListener(connection);
@@ -111,7 +111,13 @@ import java.util.concurrent.atomic.AtomicLong;
 
   @Override
   public Viewport getViewport(String userId, String clientId, String viewportId) {
-    return getConnectionByViewportId(userId, viewportId).getViewport(viewportId);
+    // TODO check args
+    if (clientId == null) {
+      // TODO check the viewport is owned by the user
+      return _viewportFactory.getViewport(viewportId);
+    } else {
+      return getConnectionByViewportId(userId, viewportId).getViewport(viewportId);
+    }
   }
 
   @Override
@@ -120,12 +126,24 @@ import java.util.concurrent.atomic.AtomicLong;
                              ViewportDefinition viewportDefinition,
                              String viewportId,
                              String dataUrl,
-                             String gridUrl) {
-    ClientConnection connection = getConnectionByClientId(userId, clientId);
-    connection.createViewport(viewportDefinition, viewportId, dataUrl, gridUrl);
-    _connectionsByViewportId.put(viewportId, connection);
+                             String gridStructureUrl) {
+    if (clientId == null) {
+      _viewportFactory.createViewport(viewportId, viewportDefinition);
+    } else {
+      ClientConnection connection = getConnectionByClientId(userId, clientId);
+      connection.createViewport(viewportDefinition, viewportId, dataUrl, gridStructureUrl);
+      _connectionsByViewportId.put(viewportId, connection);
+    }
   }
 
+  /**
+   *
+   * @param userId
+   * @param clientId
+   * @return
+   * @throws DataNotFoundException If there is no connection for the specified ID, the user ID is invalid or if
+   * the client and user IDs don't correspond
+   */
   private ClientConnection getConnectionByClientId(String userId, String clientId) {
     // TODO user logins
     //ArgumentChecker.notEmpty(userId, "userId");
@@ -139,7 +157,7 @@ import java.util.concurrent.atomic.AtomicLong;
     }
     return connection;
   }
-
+  
   private ClientConnection getConnectionByViewportId(String userId, String viewportUrl) {
     ClientConnection connection = _connectionsByViewportId.get(viewportUrl);
     if (connection == null) {

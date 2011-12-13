@@ -11,20 +11,23 @@ import com.opengamma.web.server.push.rest.MasterType;
 
 /**
  * TODO refactor this to just return a ClientConnection and move the subscription and viewport methods to that?
+ * TODO this is a misleading name
+ * TODO should this be split into 2 interfaces?  (dis)connection methods & subscription / viewport methods
  */
 public interface ConnectionManager {
 
   /**
+   * @param userId
+   * @param clientId
+   */
+  void clientDisconnected(String userId, String clientId);
+
+  /**
    * Handshake method that returns the client ID needed to identify the connection when calling all other operations.
    * @param userId
-   * @param updateListener
    * @return The client ID needed to identify the connection when calling all other operations
    */
-  //String newConnection(String userId, RestUpdateListener updateListener, TimeoutListener disconnectionListener);
-
-  void closeConnection(String userId, String clientId);
-
-  String openConnection(String userId);
+  String clientConnected(String userId);
 
   /**
    * Creates a subscription for changes to an entity that was requested via the REST interface.  If the entity
@@ -39,10 +42,33 @@ public interface ConnectionManager {
    */
   void subscribe(String userId, String clientId, UniqueId uid, String url);
 
+  /**
+   *
+   * @param userId
+   * @param clientId
+   * @param masterType
+   * @param url
+   */
   void subscribe(String userId, String clientId, MasterType masterType, String url);
 
+  /**
+   *
+   * @param userId
+   * @param clientId
+   * @param viewportId
+   * @return
+   */
   Viewport getViewport(String userId, String clientId, String viewportId);
 
+  /**
+   *
+   * @param userId
+   * @param clientId
+   * @param viewportDefinition
+   * @param viewportId
+   * @param dataUrl
+   * @param gridUrl
+   */
   void createViewport(String userId,
                       String clientId,
                       ViewportDefinition viewportDefinition,

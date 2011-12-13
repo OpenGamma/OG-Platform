@@ -26,14 +26,14 @@ public class TestConnectionManager implements ConnectionManager {
   }
 
   @Override
-  public String openConnection(String userId) {
+  public String clientConnected(String userId) {
     _listener = _longPollingConnectionManager.handshake(userId, LongPollingTest.CLIENT_ID);
     return LongPollingTest.CLIENT_ID;
   }
 
   @Override
-  public void closeConnection(String userId, String clientId) {
-    throw new UnsupportedOperationException("closeConnection not used in this test");
+  public void clientDisconnected(String userId, String clientId) {
+    throw new UnsupportedOperationException("closeViewport not used in this test");
   }
 
   @Override
