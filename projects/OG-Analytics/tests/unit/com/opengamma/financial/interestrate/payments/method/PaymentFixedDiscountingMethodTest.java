@@ -39,7 +39,7 @@ public class PaymentFixedDiscountingMethodTest {
 
   private static final Period PAYMENT_PERIOD = Period.ofMonths(12);
   private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator
-      .getAdjustedDate(REFERENCE_DATE, DEPOSIT_EUR.getBusinessDayConvention(), EUR_CALENDAR, DEPOSIT_EUR.isEndOfMonth(), PAYMENT_PERIOD);
+      .getAdjustedDate(REFERENCE_DATE, PAYMENT_PERIOD, DEPOSIT_EUR.getBusinessDayConvention(), EUR_CALENDAR, DEPOSIT_EUR.isEndOfMonth());
   private static final double AMOUNT = 100000000;
   private static final PaymentFixedDefinition PAYMENT_DEFINITION = new PaymentFixedDefinition(DEPOSIT_EUR.getCurrency(), PAYMENT_DATE, AMOUNT);
 

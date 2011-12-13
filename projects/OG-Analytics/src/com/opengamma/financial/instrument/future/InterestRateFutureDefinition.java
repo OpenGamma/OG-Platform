@@ -76,7 +76,7 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
     this._iborIndex = iborIndex;
     _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(_lastTradingDate, _iborIndex.getBusinessDayConvention(), _iborIndex.getCalendar(), _iborIndex.getSpotLag());
     _fixingPeriodEndDate = ScheduleCalculator
-        .getAdjustedDate(_fixingPeriodStartDate, _iborIndex.getBusinessDayConvention(), _iborIndex.getCalendar(), _iborIndex.isEndOfMonth(), _iborIndex.getTenor());
+        .getAdjustedDate(_fixingPeriodStartDate, _iborIndex.getTenor(), _iborIndex.getBusinessDayConvention(), _iborIndex.getCalendar(), _iborIndex.isEndOfMonth());
     _fixingPeriodAccrualFactor = _iborIndex.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);
     this._notional = notional;
     this._paymentAccrualFactor = paymentAccrualFactor;
