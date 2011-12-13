@@ -12,6 +12,9 @@ import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
@@ -24,14 +27,19 @@ import com.opengamma.id.ExternalIdBundle;
  */
 public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(HistoricalMarketDataSnapshot.class);
+
   private final HistoricalMarketDataSpecification _marketDataSpec;
   private final HistoricalTimeSeriesSource _timeSeriesSource;
   private final HistoricalMarketDataFieldResolver _fieldResolver;
+  private final HistoricalMarketDataNormalizer _normalizer;
   
-  public HistoricalMarketDataSnapshot(HistoricalMarketDataSpecification marketDataSpec, HistoricalTimeSeriesSource timeSeriesSource, HistoricalMarketDataFieldResolver fieldResolver) {
+  public HistoricalMarketDataSnapshot(HistoricalMarketDataSpecification marketDataSpec, HistoricalTimeSeriesSource timeSeriesSource, HistoricalMarketDataFieldResolver fieldResolver,
+      HistoricalMarketDataNormalizer normalizer) {
     _marketDataSpec = marketDataSpec;
     _timeSeriesSource = timeSeriesSource;
     _fieldResolver = fieldResolver;
+    _normalizer = normalizer;
   }
   
   @Override
@@ -69,9 +77,18 @@ public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
         date, 
         true);
     if (hts == null || hts.getTimeSeries().isEmpty()) {
+      s_logger.info("No data for {}", requirement);
       return null;
     }
-    return hts.getTimeSeries().getValue(getMarketDataSpec().getSnapshotDate());
+    final Object rawValue = hts.getTimeSeries().getValue(getMarketDataSpec().getSnapshotDate());
+    final Object normalizedValue = getNormalizer().normalize(identifier, requirement.getValueName(), rawValue);
+    if (normalizedValue == null) {
+      s_logger.info("Normalization failed for {}, raw value = {}", requirement, rawValue);
+      return null;
+    } else {
+      s_logger.debug("Normalized value for {} = {}", requirement, normalizedValue);
+    }
+    return normalizedValue;
   }
   
   //-------------------------------------------------------------------------
@@ -85,6 +102,10 @@ public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
 
   private HistoricalMarketDataFieldResolver getFieldResolver() {
     return _fieldResolver;
+  }
+
+  private HistoricalMarketDataNormalizer getNormalizer() {
+    return _normalizer;
   }
 
 }

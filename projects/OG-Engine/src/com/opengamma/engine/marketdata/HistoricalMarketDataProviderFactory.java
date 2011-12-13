@@ -17,26 +17,35 @@ public class HistoricalMarketDataProviderFactory implements MarketDataProviderFa
 
   private final HistoricalTimeSeriesSource _timeSeriesSource;
   private final HistoricalMarketDataFieldResolver _fieldResolver;
-  
-  public HistoricalMarketDataProviderFactory(final HistoricalTimeSeriesSource timeSeriesSource, final HistoricalMarketDataFieldResolver fieldResolver) {
+  private final HistoricalMarketDataNormalizer _normalizer;
+
+  public HistoricalMarketDataProviderFactory(final HistoricalTimeSeriesSource timeSeriesSource, final HistoricalMarketDataFieldResolver fieldResolver,
+      final HistoricalMarketDataNormalizer normalizer) {
     ArgumentChecker.notNull(timeSeriesSource, "timeSeriesSource");
     ArgumentChecker.notNull(fieldResolver, "fieldResolver");
+    ArgumentChecker.notNull(normalizer, "normalizer");
     _timeSeriesSource = timeSeriesSource;
     _fieldResolver = fieldResolver;
+    _normalizer = normalizer;
   }
-  
+
   @Override
   public MarketDataProvider create(MarketDataSpecification marketDataSpec) {
     HistoricalMarketDataSpecification historicalMarketDataSpec = (HistoricalMarketDataSpecification) marketDataSpec;
-    return new HistoricalMarketDataProvider(getTimeSeriesSource(), historicalMarketDataSpec.getTimeSeriesResolverKey(), getFieldResolver(), historicalMarketDataSpec.getTimeSeriesFieldResolverKey());
+    return new HistoricalMarketDataProvider(getTimeSeriesSource(), historicalMarketDataSpec.getTimeSeriesResolverKey(), getFieldResolver(), historicalMarketDataSpec.getTimeSeriesFieldResolverKey(),
+        getNormalizer());
   }
-  
+
   private HistoricalTimeSeriesSource getTimeSeriesSource() {
     return _timeSeriesSource;
   }
 
   private HistoricalMarketDataFieldResolver getFieldResolver() {
     return _fieldResolver;
+  }
+
+  private HistoricalMarketDataNormalizer getNormalizer() {
+    return _normalizer;
   }
 
 }

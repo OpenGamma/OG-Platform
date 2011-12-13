@@ -16,6 +16,7 @@ public class HistoricalMarketDataProviderFactoryFactoryBean extends SingletonFac
 
   private HistoricalTimeSeriesSource _timeSeriesSource;
   private HistoricalMarketDataFieldResolver _fieldResolver;
+  private HistoricalMarketDataNormalizer _normalizer = new DummyHistoricalMarketDataNormalizer();
   
   public HistoricalTimeSeriesSource getTimeSeriesSource() {
     return _timeSeriesSource;
@@ -33,11 +34,20 @@ public class HistoricalMarketDataProviderFactoryFactoryBean extends SingletonFac
     _fieldResolver = fieldResolver;
   }
 
+  public HistoricalMarketDataNormalizer getNormalizer() {
+    return _normalizer;
+  }
+
+  public void setNormalizer(final HistoricalMarketDataNormalizer normalizer) {
+    _normalizer = normalizer;
+  }
+
   @Override
   protected HistoricalMarketDataProviderFactory createObject() {
     ArgumentChecker.notNullInjected(getTimeSeriesSource(), "timeSeriesSource");
     ArgumentChecker.notNullInjected(getFieldResolver(), "fieldResolver");
-    return new HistoricalMarketDataProviderFactory(getTimeSeriesSource(), getFieldResolver());
+    ArgumentChecker.notNullInjected(getNormalizer(), "normalizer");
+    return new HistoricalMarketDataProviderFactory(getTimeSeriesSource(), getFieldResolver(), getNormalizer());
   }
 
 }
