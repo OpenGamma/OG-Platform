@@ -172,17 +172,22 @@ $.register_module({
                         if (json.portfolios[0]) {
                             display_columns = [{
                                 id: 'name', name: 'Name', field: 'name', cssClass: 'og-link',
-                                width: 300, formatter: format
+                                width: 250, formatter: format
                             }],
                             data_columns = [{
                                 id: 'id', name: 'Id', field: 'id', width: 100, formatter: format
                             }];
                         } else {
-                            display_columns = [{id: 'name', name: 'Name', field: 'name', width: 300}],
+                            display_columns = [{id: 'name', name: 'Name', field: 'name', width: 250}],
                             json.portfolios = [{name: 'No portfolios', id: ''}]
                         }
+                        display_columns = common.slickgrid.calibrate_columns({
+                            container: selector + ' .og-js-portfolios-grid',
+                            columns: display_columns,
+                            buffer: 17
+                        });
                         slick = new Slick.Grid(selector + ' .og-js-portfolios-grid',
-                            json.portfolios, display_columns.concat(data_columns));
+                            json.portfolios, display_columns.concat(data_columns), {headerHeight: 33});
                         slick.setColumns(display_columns);
                         slick.setSelectionModel(new Slick.RowSelectionModel());
                         slick.onClick.subscribe(function (e, dd) {
@@ -276,7 +281,7 @@ $.register_module({
                         }());
                         if (json.positions[0]) {
                             display_columns = [
-                                {id:"name", name:"Name", field:"name", width: 300, cssClass: 'og-link'},
+                                {id:"name", name:"Name", field:"name", width: 250, cssClass: 'og-link'},
                                 {id:"quantity", name:"Quantity", field:"quantity", width: 80, formatter: format}
                             ],
                             data_columns = [
@@ -284,13 +289,18 @@ $.register_module({
                             ];
                         } else {
                             display_columns = [
-                                {id:"name", name:"Name", field:"name", width: 300},
+                                {id:"name", name:"Name", field:"name", width: 250},
                                 {id:"quantity", name:"Quantity", field:"quantity", width: 80}
                             ],
                             json.positions = [{name: 'No positions', quantity:'', id: ''}]
                         }
+                        display_columns = og.common.slickgrid.calibrate_columns({
+                            container: selector + ' .og-js-position-grid',
+                            columns: display_columns,
+                            buffer: 17
+                        });
                         slick = new Slick.Grid(selector + ' .og-js-position-grid',
-                            json.positions, display_columns.concat(data_columns));
+                            json.positions, display_columns.concat(data_columns), {headerHeight: 33});
                         slick.setColumns(display_columns);
                         slick.setSelectionModel(new Slick.RowSelectionModel());
                         slick.onClick.subscribe(function (e, dd) {

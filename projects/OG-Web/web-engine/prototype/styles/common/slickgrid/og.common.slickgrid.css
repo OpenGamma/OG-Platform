@@ -163,3 +163,7 @@
 .grid-canvas {
   width: 100%!important;
 }
+
+.slick-viewport {
+  overflow-y: scroll!important;
+}
