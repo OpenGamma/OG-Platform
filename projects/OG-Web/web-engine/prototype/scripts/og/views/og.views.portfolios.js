@@ -417,10 +417,6 @@ $.register_module({
             load_portfolios: {
                 route: '/' + page_name + '/:id/:node?/version:?/name:?/sync:?',
                 method: module.name + '.load_' + page_name
-            },
-            load_new_portfolios: {
-                route: '/' + page_name + '/:id/:node?/new:/name:?',
-                method: module.name + '.load_new_' + page_name
             }
         };
         return portfolios = {
