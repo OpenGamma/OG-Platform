@@ -43,7 +43,7 @@ import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
+import com.opengamma.financial.interestrate.swap.SwapFixedDiscountingMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
@@ -86,7 +86,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, SWAP_TENOR);
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2016, 7, 7);
-  private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, CALENDAR, SETTLEMENT_DAYS);
+  private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, SETTLEMENT_DAYS, CALENDAR);
   private static final double NOTIONAL = 100000000; //100m
   private static final double RATE = 0.0325;
   private static final boolean FIXED_IS_PAYER = true;
@@ -140,7 +140,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     double pvMCPreviousRun = 4371960.422; // One jump: xxx // Jump 2Y: xxx // Jump 1Y: 4371960.422 - 4385240.574
     assertEquals("Swaption physical - LMM - present value Monte Carlo", pvMCPreviousRun, pvMC.getAmount(), 1.0E-2);
     CurrencyAmount pvApprox = METHOD_LMM.presentValue(SWAPTION_PAYER_LONG, BUNDLE_LMM);
-    double pvbp = SwapFixedIborMethod.presentValueBasisPoint(SWAP_RECEIVER, CURVES);
+    double pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(SWAP_RECEIVER, CURVES);
     double forward = PRC.visit(SWAP_RECEIVER, CURVES);
     BlackFunctionData data = new BlackFunctionData(forward, pvbp, 0.20);
     EuropeanVanillaOption option = new EuropeanVanillaOption(RATE, SWAPTION_PAYER_LONG.getTimeToExpiry(), FIXED_IS_PAYER);

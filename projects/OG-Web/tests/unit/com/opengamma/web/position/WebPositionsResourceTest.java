@@ -54,6 +54,7 @@ import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.util.money.Currency;
+import com.opengamma.web.MockUriInfo;
 
 /**
  * Test {@link WebPositionsResource}.
@@ -134,7 +135,12 @@ public class WebPositionsResourceTest {
     Response response = _webPositionsResource.postJSON("10", SEC_ID.getScheme().getName(), SEC_ID.getValue(), tradesJson);
     assertNotNull(response);
     assertEquals(201, response.getStatus());
+    assertEquals("/positions/MemPos~1", getActualURL(response));
     assertPositionAndTrades();
+  }
+
+  private String getActualURL(Response response) {
+    return response.getMetadata().getFirst("Location").toString();
   }
 
   private void assertPositionAndTrades() {
@@ -163,4 +169,5 @@ public class WebPositionsResourceTest {
     assertNotNull(resource);
     return FileUtils.readFileToString(new File(resource.getFile()));
   }
+  
 }

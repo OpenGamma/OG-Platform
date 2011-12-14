@@ -70,7 +70,7 @@ public class SwapFixedIborMethodTest {
   @Test
   public void testAnnuityCash() {
     final double forward = 0.04;
-    final double cashAnnuity = SwapFixedIborMethod.getAnnuityCash(SWAP_PAYER, forward);
+    final double cashAnnuity = SwapFixedDiscountingMethod.getAnnuityCash(SWAP_PAYER, forward);
     final double expectedAnnuity = 1.903864349337 * NOTIONAL;
     assertEquals(expectedAnnuity, cashAnnuity, 1E-2); // one cent out of 100m
   }
@@ -86,9 +86,9 @@ public class SwapFixedIborMethodTest {
       expectedPVBP += Math.abs(SWAP_DEFINITION_PAYER.getFixedLeg().getNthPayment(loopcpn).getPaymentYearFraction())
           * CURVE_5.getDiscountFactor(SWAP_PAYER.getFixedLeg().getNthPayment(loopcpn).getPaymentTime()) * NOTIONAL;
     }
-    double pvbp = SwapFixedIborMethod.presentValueBasisPoint(SWAP_PAYER, curves);
+    double pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(SWAP_PAYER, curves);
     assertEquals(expectedPVBP, pvbp, 1E-2); // one cent out of 100m
-    pvbp = SwapFixedIborMethod.presentValueBasisPoint(SWAP_PAYER, CURVE_5);
+    pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(SWAP_PAYER, CURVE_5);
     assertEquals(expectedPVBP, pvbp, 1E-2); // one cent out of 100m
   }
 
@@ -115,8 +115,8 @@ public class SwapFixedIborMethodTest {
     final YieldCurveBundle curvesNotBumped = new YieldCurveBundle();
     curvesNotBumped.addAll(curves);
     curvesNotBumped.setCurve("Bumped Curve", tempCurveFunding);
-    final double pvbp = SwapFixedIborMethod.presentValueBasisPoint(SWAP_PAYER, curvesNotBumped);
-    final InterestRateCurveSensitivity pvbpDr = SwapFixedIborMethod.presentValueBasisPointSensitivity(SWAP_PAYER, curvesNotBumped);
+    final double pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(SWAP_PAYER, curvesNotBumped);
+    final InterestRateCurveSensitivity pvbpDr = SwapFixedDiscountingMethod.presentValueBasisPointCurveSensitivity(SWAP_PAYER, curvesNotBumped);
 
     final List<DoublesPair> tempFunding = pvbpDr.getSensitivities().get(FUNDING_CURVE_NAME);
     for (int i = 0; i < nbPayDate; i++) {
@@ -124,7 +124,7 @@ public class SwapFixedIborMethodTest {
       final YieldCurveBundle curvesBumped = new YieldCurveBundle();
       curvesBumped.addAll(curves);
       curvesBumped.setCurve("Bumped Curve", bumpedCurve);
-      final double bumpedpvbp = SwapFixedIborMethod.presentValueBasisPoint(swapBumpedFunding, curvesBumped);
+      final double bumpedpvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(swapBumpedFunding, curvesBumped);
       final double res = (bumpedpvbp - pvbp) / eps;
       final DoublesPair pair = tempFunding.get(i);
       assertEquals("Node " + i, nodeTimes[i + 1], pair.getFirst(), 1E-8);
@@ -139,10 +139,10 @@ public class SwapFixedIborMethodTest {
     curves.setCurve(FUNDING_CURVE_NAME, CURVE_5);
     curves.setCurve(FORWARD_CURVE_NAME, CURVE_4);
     // Constant rate
-    final double pvbp = SwapFixedIborMethod.presentValueBasisPoint(SWAP_PAYER, curves);
-    double couponEquiv = SwapFixedIborMethod.couponEquivalent(SWAP_PAYER, pvbp, curves);
+    final double pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(SWAP_PAYER, curves);
+    double couponEquiv = SwapFixedDiscountingMethod.couponEquivalent(SWAP_PAYER, pvbp, curves);
     assertEquals(RATE, couponEquiv, 1E-10);
-    couponEquiv = SwapFixedIborMethod.couponEquivalent(SWAP_PAYER, curves);
+    couponEquiv = SwapFixedDiscountingMethod.couponEquivalent(SWAP_PAYER, curves);
     assertEquals(RATE, couponEquiv, 1E-10);
     // Non-constant rate
     final AnnuityCouponFixed annuity = SWAP_PAYER.getFixedLeg();
@@ -154,7 +154,7 @@ public class SwapFixedIborMethodTest {
     }
     final AnnuityCouponFixed annuityStepUp = new AnnuityCouponFixed(coupon);
     final FixedCouponSwap<Coupon> swapStepup = new FixedCouponSwap<Coupon>(annuityStepUp, SWAP_PAYER.getSecondLeg());
-    couponEquiv = SwapFixedIborMethod.couponEquivalent(swapStepup, curves);
+    couponEquiv = SwapFixedDiscountingMethod.couponEquivalent(swapStepup, curves);
     double expectedCouponEquivalent = 0;
     for (int loopcpn = 0; loopcpn < annuity.getNumberOfPayments(); loopcpn++) {
       expectedCouponEquivalent += Math.abs(annuityStepUp.getNthPayment(loopcpn).getAmount()) * CURVE_5.getDiscountFactor(SWAP_PAYER.getFixedLeg().getNthPayment(loopcpn).getPaymentTime());
