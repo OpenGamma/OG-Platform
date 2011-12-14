@@ -12,8 +12,14 @@ import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.security.Security;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -21,6 +27,8 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 public class EquityBetaAggregationFunction implements AggregationFunction<String> {
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityBetaAggregationFunction.class);
+  
   private boolean _useAttributes;
   private boolean _includeEmptyCategories;
   
@@ -61,7 +69,17 @@ public class EquityBetaAggregationFunction implements AggregationFunction<String
       }
     } else {
       try {
-        Pair<LocalDate, Double> results = _htsSource.getLatestDataPoint(FIELD, null, RESOLUTION_KEY);
+        ExternalIdBundle id = position.getSecurityLink().getExternalId();
+        if (position.getSecurityLink().getTarget() != null) {
+          Security target = position.getSecurityLink().getTarget();
+          if (target.getSecurityType().equals(EquityOptionSecurity.SECURITY_TYPE)) {
+            EquityOptionSecurity equityOption = (EquityOptionSecurity) target;
+            id = equityOption.getUnderlyingId().toBundle();
+          }
+        } else {
+          s_logger.warn("Position security is null");
+        }
+        Pair<LocalDate, Double> results = _htsSource.getLatestDataPoint(FIELD, id, RESOLUTION_KEY);
         if (results != null && results.getFirst() != null && results.getSecond() != null) {
           Double beta = results.getSecond();
           if (beta < 0.5) {
