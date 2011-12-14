@@ -19,6 +19,12 @@ import java.util.concurrent.ConcurrentHashMap;
   /** Listener for dispatching notifications to the clients, keyed by client ID. */
   private final Map<String, LongPollingUpdateListener> _updateListeners = new ConcurrentHashMap<String, LongPollingUpdateListener>();
 
+  /**
+   * Creates a new connection.
+   * @param userId The ID of the user who owns the connection
+   * @param clientId The connection ID
+   * @return A listener that publishes to the client when it receives a notification
+   */
   /* package */ LongPollingUpdateListener handshake(String userId, String clientId) {
     LongPollingUpdateListener listener = new LongPollingUpdateListener(userId);
     _updateListeners.put(clientId, listener);
@@ -56,7 +62,7 @@ import java.util.concurrent.ConcurrentHashMap;
   /**
    * Called by the HTTP container when a long polling connection times out before any updates are sent.
    * This doesn't end the client's connection or remove the associated client ID.  Normally the client will immediately
-   * re-establish a long-polling HTTP connection.
+   * establish a new long-polling HTTP connection.
    * @param clientId The client ID associated with the timed out connection
    * @param continuation The continuation associated with the timed out HTTP connection
    */
@@ -67,11 +73,15 @@ import java.util.concurrent.ConcurrentHashMap;
     }
   }
 
-  public void timeout(String clientId) {
+  /**
+   * Invoked when the client disconnects.
+   * @param clientId ID of the client connection that disconnected
+   */
+  /* package */ void disconnect(String clientId) {
     LongPollingUpdateListener listener = _updateListeners.remove(clientId);
     if (listener != null) {
       listener.disconnect();
     }
-}
+  }
 }
 

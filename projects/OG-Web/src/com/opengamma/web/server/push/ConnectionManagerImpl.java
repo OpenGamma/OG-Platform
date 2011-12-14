@@ -27,21 +27,38 @@ import java.util.concurrent.atomic.AtomicLong;
   /** Period for the periodic tasks that check whether the client connections have been idle for too long */
   private static final long DEFAULT_TIMEOUT_CHECK_PERIOD = 60000;
 
-  /** Clients are disconnected if they haven't been heard of after fine minutes */
+  /** By default a client is disconnected if it hasn't been heard from for five minutes */
   private static final long DEFAULT_TIMEOUT = 300000;
 
   // TODO a better way to generate client IDs
+  /** Client ID of the next connection */
   private final AtomicLong _clientConnectionId = new AtomicLong();
-  private final ChangeManager _changeManager;
+
+  /** Creates and stores viewports */
   private final ViewportManager _viewportFactory;
+
+  /** Provides a connection to the long-polling HTTP connections */
   private final LongPollingConnectionManager _longPollingConnectionManager;
+
+  /** Maximum time a client is allow to be idle before it's disconnected */
   private final long _timeout;
+
+  /** Period for the tasks that check for idle clients */
   private final long _timeoutCheckPeriod;
+
   /** Connections keyed on client ID */
   private final Map<String, ClientConnection> _connectionsByClientId = new ConcurrentHashMap<String, ClientConnection>();
+
   /** Connections keyed on viewport ID */
   private final Map<String, ClientConnection> _connectionsByViewportId = new ConcurrentHashMap<String, ClientConnection>();
+
+  /** Timer for tasks that check for idle clients */
   private final Timer _timer = new Timer();
+
+  /** For listening for changes in entity data */
+  private final ChangeManager _changeManager;
+
+  /** For listening for changes to any data in a master */
   private final MasterChangeManager _masterChangeManager;
 
   public ConnectionManagerImpl(ChangeManager changeManager,
@@ -92,7 +109,7 @@ import java.util.concurrent.atomic.AtomicLong;
     _connectionsByClientId.remove(clientId);
     _changeManager.removeChangeListener(connection);
     _masterChangeManager.removeChangeListener(connection);
-    _longPollingConnectionManager.timeout(clientId);
+    _longPollingConnectionManager.disconnect(clientId);
     connection.disconnect();
   }
 

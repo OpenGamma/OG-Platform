@@ -9,12 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-/**
- *
- */
-public class TestViewportFactory implements ViewportManager {
+public class TestViewportManager implements ViewportManager {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(TestViewportFactory.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(TestViewportManager.class);
   private static final Object[][] s_dummyData = {{1, 2, 3}, {2, 4, 6}, {3, 6, 9}, {4, 8, 12}};
 
   private final AtomicReference<Viewport> _viewport = new AtomicReference<Viewport>();
@@ -34,7 +31,7 @@ public class TestViewportFactory implements ViewportManager {
 
   @Override
   public void closeViewport(String viewportId) {
-    throw new UnsupportedOperationException("closeViewport not implemented");
+    // do nothing
   }
 
   @Override

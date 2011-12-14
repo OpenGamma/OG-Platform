@@ -572,7 +572,7 @@
 
   <bean id="longPollingConnectionManager" class="com.opengamma.web.server.push.LongPollingConnectionManager"/>
 
-  <bean id="connectionManager" class="com.opengamma.web.server.push.ConnectionManager">
+  <bean id="connectionManager" class="com.opengamma.web.server.push.ConnectionManagerImpl">
     <constructor-arg index="0" ref="changeManager"/>
     <constructor-arg index="1" ref="masterChangeManager"/>
     <constructor-arg index="2" ref="liveResultsService"/>
@@ -593,23 +593,12 @@
     </constructor-arg>
   </bean>
 
-  <bean id="masterChangeManager" class="com.opengamma.web.server.push.MasterChangeManagerImpl">
+  <bean id="masterChangeManager" class="com.opengamma.web.server.push.MasterChangeManager">
     <constructor-arg>
-      <list>
-        <bean class="com.opengamma.util.tuple.ObjectsPair">
-          <constructor-arg index="0" ref="dbPositionMaster"/>
-          <constructor-arg index="1">
-            <value type="com.opengamma.web.server.push.rest.MasterType">POSITION</value>
-          </constructor-arg>
-        </bean>
-        <bean class="com.opengamma.util.tuple.ObjectsPair">
-          <constructor-arg index="0" ref="dbPositionMaster"/>
-          <constructor-arg index="1">
-            <value type="com.opengamma.web.server.push.rest.MasterType">POSITION</value>
-          </constructor-arg>
-        </bean>
-        <!--TODO what other data are we interested in?-->
-      </list>
+      <map>
+        <entry key="POSITION" value-ref="dbPositionMaster"/>
+        <entry key="PORTFOLIO" value-ref="dbPortfolioMaster"/>
+      </map>
     </constructor-arg>
   </bean>
 

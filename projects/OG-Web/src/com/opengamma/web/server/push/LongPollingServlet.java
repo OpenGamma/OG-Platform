@@ -14,13 +14,18 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * This manages long-polling http requests.  It assumes the URL will be {@code <servlet path>/{clientId}}.
+ * Manages long-polling http requests using Jetty continuations.  Requests to this servlet block until there
+ * is new data available for the client or until the connection times out.  The URL is assumed to be
+ * {@code <servlet path>/{clientId}}.
  */
 public class LongPollingServlet extends SpringConfiguredServlet {
 
+  /** Key for storing the results as an attribute of the continuation. */
   /* package */ static final String RESULTS = "RESULTS";
+  /** Name of the HTTP query parameter for the client ID */
   public static final String CLIENT_ID = "clientId";
 
+  /** Manages connections for each client */
   @Autowired
   private LongPollingConnectionManager _connectionManager;
 

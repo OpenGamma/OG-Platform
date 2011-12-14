@@ -22,15 +22,25 @@ run a timer task to invoke heartbeat().
 there is no simple answer for clients that make requests but don't listen for updates as the server has no way
 of knowing the client is still there.
 */
+
+/**
+ * Task that tells a {@link ConnectionManager} when a client connection has been idle for a certain time.
+ */
 /* package */ class ConnectionTimeoutTask extends TimerTask {
 
   private final AtomicLong _lastAccessTime = new AtomicLong();
   private final String _userId;
   private final String _clientId;
   private final long _timeout;
-  private ConnectionManagerImpl _connectionManager;
+  private ConnectionManager _connectionManager;
 
-  ConnectionTimeoutTask(ConnectionManagerImpl connectionManager, String userId, String clientId, long timeout) {
+  /**
+   * @param connectionManager The manager of the connection being timed
+   * @param userId The ID of the user who owns the connection
+   * @param clientId The ID of the connection
+   * @param timeout The maximum time in milliseconds the connection is allowed to be idle
+   */
+  ConnectionTimeoutTask(ConnectionManager connectionManager, String userId, String clientId, long timeout) {
     _connectionManager = connectionManager;
     _userId = userId;
     _clientId = clientId;
@@ -38,10 +48,16 @@ of knowing the client is still there.
     reset();
   }
 
+  /**
+   * Resets the idle time to zero.
+   */
   /* package */ void reset() {
     _lastAccessTime.set(System.currentTimeMillis());
   }
 
+  /**
+   * Invokes {@link ConnectionManager#clientConnected(String)} if the idle time exceeds the timeout.
+   */
   @Override
   public void run() {
     if (System.currentTimeMillis() - _lastAccessTime.get() > _timeout) {

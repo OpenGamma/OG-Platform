@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.web.server.push;
 
 /**
@@ -83,8 +88,8 @@ package com.opengamma.web.server.push;
  *   <li>{@code rowIds}: The zero-based row indices whose data should be included in the results.</li>
  *   <li>{@code lastTimestamps}: The timestamp of the last update the client received for each row.  Each item
  *   in {@code lastTimestamps} refers to the row at the same index in {@code rowIds}.  Therefore {@code rowIds} and
- *   {@link lastTimestamps} must be the same length.  If not previous result has been received then {@code null}
- *   should be sent.</li>
+ *   {@code lastTimestamps} must be the same length.  If no previous result has been received for the row then
+ *   {@code null} should be sent.</li>
  *   <li>{@code dependencyGraphCells}: array of two-element arrays with the row and column numbers of cells whose
  *   dependency graph should be included in the results.
  * </ul>

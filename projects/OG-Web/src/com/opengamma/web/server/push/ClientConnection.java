@@ -28,7 +28,7 @@ import java.util.Set;
  * Also allows subscriptions to be set up so the client is notified if an entity or the contents of a master changes.
  * The published notifications contain the REST URL of the thing that has changed.
  * All subscriptions for a URL are automatically cancelled the first time a notification is published for the URL
- * and must be re-established every time the client accesses the URL.
+ * and must be re-established every time the client accesses the URL.  This class is thread safe.
  */
 /* package */ class ClientConnection implements ChangeListener, MasterChangeListener {
 
@@ -58,20 +58,20 @@ import java.util.Set;
    * @param userId Login ID of the user that owns this connection TODO this isn't used yet
    * @param clientId Unique ID of this connection 
    * @param listener Listener that forwards changes over HTTP whenever any updates occur to which this connection subscribes 
-   * @param viewportFactory For creating and returning viewports on the analytics data 
+   * @param viewportManager For creating and returning viewports on the analytics data
    * @param timeoutTask Task that closes this connection if it is idle for too long 
    */
   /* package */ ClientConnection(String userId,
                                  String clientId,
                                  RestUpdateListener listener,
-                                 ViewportManager viewportFactory,
+                                 ViewportManager viewportManager,
                                  ConnectionTimeoutTask timeoutTask) {
-    ArgumentChecker.notNull(viewportFactory, "viewportFactory");
-    ArgumentChecker.notNull(userId, "userId");
+    ArgumentChecker.notNull(viewportManager, "viewportManager");
+    //ArgumentChecker.notNull(userId, "userId"); // TODO user login not done
     ArgumentChecker.notNull(listener, "listener");
     ArgumentChecker.notNull(clientId, "clientId");
     ArgumentChecker.notNull(timeoutTask, "timeoutTask");
-    _viewportFactory = viewportFactory;
+    _viewportFactory = viewportManager;
     _userId = userId;
     _listener = listener;
     _clientId = clientId;

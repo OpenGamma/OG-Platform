@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server.push;
 
+import com.opengamma.util.ArgumentChecker;
 import org.eclipse.jetty.continuation.Continuation;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,7 +21,6 @@ import java.util.Set;
  * If any updates arrive while there is no connection they are queued and sent as soon as the connection
  * is re-established.  If multiple updates for the same object are queued only one is sent.  All updates
  * only contain the REST URL of the updated object so they are identical.
- * TODO listener on the continuation? timeout?
  */
 /* package */ class LongPollingUpdateListener implements RestUpdateListener {
 
@@ -35,12 +35,23 @@ import java.util.Set;
 
   private Continuation _continuation;
 
+  /**
+   * Creates a new listener for a user.
+   * @param userId Login ID of the user
+   */
   /* package */ LongPollingUpdateListener(String userId) {
     _userId = userId;
   }
 
+  /**
+   * Publishes {@code url} to the client as JSON.  If the client is connected (i.e. this listener has a
+   * continuation) the URL is sent immediately.  If the client isn't connected it is queued until the
+   * connection is re-established.
+   * @param url REST URL of the item that has been updated
+   */
   @Override
   public void itemUpdated(String url) {
+    ArgumentChecker.notNull(url, "url");
     synchronized (_lock) {
       if (_continuation != null) {
         try {
@@ -55,8 +66,16 @@ import java.util.Set;
     }
   }
 
+  /**
+   * Publishes {@code urls} to the client as JSON.  If the client is connected (i.e. this listener has a
+   * continuation) the URLs are sent immediately.  If the client isn't connected they are queued until the
+   * connection is re-established.
+   * @param urls REST URLs of the items that have been updated
+   */
   @Override
   public void itemsUpdated(Collection<String> urls) {
+    ArgumentChecker.notNull(urls, "urls");
+    ArgumentChecker.notEmpty(urls, "urls");
     synchronized (_lock) {
       if (_continuation != null) {
         try {
@@ -71,6 +90,10 @@ import java.util.Set;
     }
   }
 
+  /**
+   * Invoked when a client establishes a long-polling HTTP connection.
+   * @param continuation The connection's continuation
+   */
   /* package */ void connect(Continuation continuation) {
     synchronized (_lock) {
       _continuation = continuation;
@@ -87,6 +110,10 @@ import java.util.Set;
     }
   }
 
+  /**
+   * Adds {@code urls} to the connection's continuation and resumes it so the response is sent to the client.
+   * @param urls URLs of the changed items
+   */
   private void sendUpdate(String urls) {
     _continuation.setAttribute(LongPollingServlet.RESULTS, urls);
     _continuation.resume();
@@ -100,16 +127,30 @@ import java.util.Set;
     }
   }
 
+  /**
+   * Formats a URL as JSON.
+   * @param url A URL
+   * @return {@code {updates: [url]}}
+   * @throws JSONException Never
+   */
   private String formatUpdate(String url) throws JSONException {
     return new JSONObject().put(UPDATES, new Object[]{url}).toString();
   }
 
+  /**
+   * Formats URLs as JSON.
+   * @param urls URLs
+   * @return {@code {updates: [url1, url2, ...]}}
+   * @throws JSONException Never
+   */
   private String formatUpdate(Collection<String> urls) throws JSONException {
     return new JSONObject().put(UPDATES, urls).toString();
   }
 
+  /**
+   * Closes this listener's HTTP connection.
+   */
   /* package */ void disconnect() {
-    // TODO any possibility of deadlocks?
     synchronized (_lock) {
       if (_continuation != null) {
         _continuation.complete();
@@ -118,10 +159,17 @@ import java.util.Set;
     }
   }
 
+  /**
+   * @return Login ID of the user who owns this listener's connection
+   */
   /* package */ String getUserId() {
     return _userId;
   }
 
+  /**
+   * Invoked when this listener's continuation times out before any data is sent.
+   * @param continuation The continuation that timed out - should be this listener's continuation.
+   */
   /* package */ void timeout(Continuation continuation) {
     synchronized (_lock) {
       if (continuation == _continuation) {

@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.server.push;
 
-import com.google.common.base.Objects;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.execution.ExecutionFlags;
@@ -27,10 +26,23 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
- *
+ * <p>A {@link Viewport} is a view onto a subset of a view client's data.  A {@link ViewportDefinition} contains</p>
+ * <ul>
+ *   <li>The name of the view definition</li>
+ *   <li>Specification of the view's data - whether it's live data or a snapshot and what the source is</li>
+ *   <li>Aggregator name (if required)</li>
+ *   <li>
+ *     For the portfolio and primitive grids:
+ *     <ul>
+ *       <li>Visible row numbers and the timestamp of the last update for each row</li>
+ *       <li>Cells for which the dependency graph is required</li>
+ *     </ul>
+ *   </li>
+ * </ul>
  */
 public class ViewportDefinition {
 
+  /** Constants used in the JSON representation of a {@code ViewportDefinition}, see {@link #fromJSON(String)} for the format */
   private static final String DEPENDENCY_GRAPH_CELLS = "dependencyGraphCells";
   private static final String VIEW_DEFINITION_NAME = "viewDefinitionName";
   private static final String SNAPSHOT_ID = "snapshotId";
@@ -45,12 +57,26 @@ public class ViewportDefinition {
 
   /** Row timestamp keyed on row number */
   private final SortedMap<Integer, Long> _portfolioRowTimstamps;
+
+  /** Row timestamp keyed on row number */
   private final SortedMap<Integer, Long> _primitiveRowTimstamps;
+
+  /** Name of the view's aggregator, may be null */
   private final String _aggregatorName;
+
+  /** Portfolio grid cells for which dependency graphs are required */
   private final List<WebGridCell> _portfolioDependencyGraphCells;
+
+  /** Primitive grid cells for which dependency graphs are required */
   private final List<WebGridCell> _primitiveDependencyGraphCells;
+
+  /** Name of the view definition */
   private final String _viewDefinitionName;
-  private final UniqueId _snapshotId; // TODO this isn't really required any more, only used for testing
+
+  // TODO this isn't really required any more, only used for testing. why?
+  private final UniqueId _snapshotId;
+
+  /** View's execution options */
   private final ViewExecutionOptions _executionOptions;
 
   public enum MarketDataType {
@@ -97,6 +123,42 @@ public class ViewportDefinition {
     return ExecutionOptions.infinite(marketDataSpec, flags);
   }
 
+  /**
+   * <p>Creates a {@link ViewportDefinition} from JSON.  The format is:</p>
+   * <pre>
+   *   {"viewDefinitionName": ...
+   *    "marketDataType": ...
+   *    "marketDataProvider": ...
+   *    "snapshotId": ...
+   *    "aggregatorName": ...
+   *    "portfolioViewport":
+   *     {"rowIds": [rowId1, rowId2, ...],
+   *      "lastTimestamps": [timestamp1, timestamp2, ...],
+   *      "dependencyGraphCells": [[row, col], [row, col], ...]},
+   *    "primitiveViewport":
+   *     {"rowIds": [rowId1, rowId2, ...],
+   *      "lastTimestamps": [timestamp1, timestamp2, ...],
+   *      "dependencyGraphCells": [[row, col], [row, col], ...]}}</pre>
+   * <ul>
+   *   <li>{@code viewDefinitionName}: name of the view definition</li>
+   *   <li>{@code marketDataType}: {@code "live"} or {@code "snapshot"}</li>
+   *   <li>{@code marketDataProvider}: name of the market data provider.  Only relevant for live data.  Omit or
+   *   {@code "Automatic"} for default provider</li>
+   *   <li>{@code snapshotId}: ID of the market data snapshot (see below).  Required if using a market data snapshot.
+   *   <em>TODO No testing has been done using snapshots yet, only live data</em></li>
+   *   <li>{@code portfolioViewport / primitiveViewport}: viewport definition for the separate grids showing portfolio
+   *   and primitive data</li>
+   *   <li>{@code rowIds}: The zero-based row indices whose data should be included in the results.</li>
+   *   <li>{@code lastTimestamps}: The timestamp of the last update the client received for each row.  Each item
+   *   in {@code lastTimestamps} refers to the row at the same index in {@code rowIds}.  Therefore {@code rowIds} and
+   *   {@code lastTimestamps} must be the same length.  If no previous result has been received for the row then
+   *   {@code null} should be sent.</li>
+   *   <li>{@code dependencyGraphCells}: array of two-element arrays with the row and column numbers of cells whose
+   *   dependency graph should be included in the results.
+   * </ul>
+   * @param json JSON representation of a {@link ViewportDefinition}
+   * @return The viewport definition
+   */
   public static ViewportDefinition fromJSON(String json) {
     try {
 
@@ -159,6 +221,7 @@ public class ViewportDefinition {
     }
   }
 
+  /** Helper method to extract the dependency graph cells from JSON */
   private static List<WebGridCell> getDepGraphCells(JSONObject jsonObject, String key, Set<Integer> rows) throws JSONException {
     JSONObject viewportJson = jsonObject.optJSONObject(key);
     List<WebGridCell> cells = new ArrayList<WebGridCell>();
@@ -187,6 +250,7 @@ public class ViewportDefinition {
     return cells;
   }
 
+  /** Helper method to get the row numbers and timestamps from JSON */
   private static SortedMap<Integer, Long> getRows(JSONObject jsonObject, String viewportId) throws JSONException {
     JSONObject viewportJson = jsonObject.optJSONObject(viewportId);
     SortedMap<Integer, Long> rows = new TreeMap<Integer, Long>();
@@ -239,14 +303,23 @@ public class ViewportDefinition {
     return _primitiveRowTimstamps;
   }
 
+  /**
+   * @return The cells in the portfolio grid for which dependency graphs are required.
+   */
   public List<WebGridCell> getPortfolioDependencyGraphCells() {
     return _portfolioDependencyGraphCells;
   }
 
+  /**
+   * @return The cells in the primitives grid for which dependency graphs are required.
+   */
   public List<WebGridCell> getPrimitiveDependencyGraphCells() {
     return _primitiveDependencyGraphCells;
   }
 
+  /**
+   * @return The name of the viewport's view definition.
+   */
   public String getViewDefinitionName() {
     return _viewDefinitionName;
   }
@@ -258,18 +331,17 @@ public class ViewportDefinition {
     return _snapshotId;
   }
 
+  /**
+   * @return The view's execution options.
+   */
   public ViewExecutionOptions getExecutionOptions() {
     return _executionOptions;
   }
 
+  /**
+   * @return The aggregator name, may be null if the view isn't aggregated.
+   */
   public String getAggregatorName() {
     return _aggregatorName;
-  }
-
-  /* package */ boolean matches(ViewportDefinition other) {
-    return
-        Objects.equal(_viewDefinitionName, other._viewDefinitionName) &&
-        Objects.equal(_executionOptions, other._executionOptions) &&
-        Objects.equal(_aggregatorName, other._aggregatorName);
   }
 }
