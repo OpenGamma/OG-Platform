@@ -4,16 +4,18 @@
  */
 $.register_module({
     name: 'og.common.gadgets.trades',
-    dependencies: [],
+    dependencies: ['og.common.util.ui.dialog'],
     obj: function () {
-        var table = '\
+        var ui = og.common.util.ui, table = '\
           <table class="OG-table">\
             <thead>\
               <tr>\
                 <th><span>Trades</span></th>\
                 <th>Quality</th>\
                 <th>Counterparty</th>\
-                <th>Date</th>\
+                <th>Trade Date / Time</th>\
+                <th>Premium</th>\
+                <th>Premium Date / Time</th>\
               </tr>\
             </thead>\
             <tbody>{TBODY}</tbody>\
@@ -21,7 +23,7 @@ $.register_module({
         ',
         attributes = '\
           <tr class="og-js-attribute" style="display: none">\
-            <td colspan="4" style="padding-left: 15px">\
+            <td colspan="6" style="padding-left: 15px">\
               <table class="og-sub-list">{TBODY}</table>\
             </td>\
           </tr>\
@@ -31,14 +33,15 @@ $.register_module({
         return function (config) {
             var handler = function (result) {
                 var trades = result.data.trades, selector = config.selector, tbody, has_attributes = false,
-                    fields = ['id', 'quantity', 'counterParty', 'date'], start = '<tr><td>', end = '</td></tr>';
+                    fields = ['id', 'quantity', 'counterParty', 'date_time', 'premium', 'premium_date_time'],
+                    start = '<tr><td>', end = '</td></tr>';
                 if (!trades[0])
-                    return $(selector).html(table.replace('{TBODY}', '<tr><td colspan="4">No Trades</td></tr>'));
+                    return $(selector).html(table.replace('{TBODY}', '<tr><td colspan="6">No Trades</td></tr>'));
                 tbody = trades.reduce(function (acc, trade) {
                     acc.push(start, fields.map(function (field, i) {
                         var expander;
                         i === 0 ? expander = '<span class="OG-icon og-icon-expand"></span>' : expander = '';
-                        return expander + trade[field].replace(/.*~/, '');
+                        return expander + (trade[field].replace(/.*~/, '')).lang();
                     }).join('</td><td>'), end);
                     (function () { // display attributes if available
                         var attr, attr_type, attr_obj, key, html = [], keys = Object.keys, trd_attr = trade.attributes;
@@ -69,6 +72,11 @@ $.register_module({
                         });
                     } else $this.find('.og-icon-expand').css('visibility', 'hidden');
                 });
+//                $(selector).append(
+//                    '<a href="#" class="OG-link-add" style="position: relative; left: 2px; top: 3px;">add new trade</a>'
+//                ).bind('click', function (e) {
+//                    e.preventDefault();
+//                });
                 $(selector + ' > .OG-table > tbody > tr:not(".og-js-attribute"):last td').css('padding-bottom', '10px');
                 $(selector + ' .OG-table').awesometable({height: 400});
             };
