@@ -82,13 +82,21 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId) {
     HistoricalTimeSeries hts = getHistoricalTimeSeries(uniqueId);
-    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+    if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
+      return null;
+    } else {
+      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+    }
   }
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     HistoricalTimeSeries hts = getSubSeries(getHistoricalTimeSeries(uniqueId), start, includeStart, end, includeEnd, -1);
-    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+    if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
+      return null;
+    } else {
+      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -147,7 +155,11 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
   public Pair<LocalDate, Double> getLatestDataPoint(
       ExternalIdBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
     HistoricalTimeSeries hts = getHistoricalTimeSeries(identifiers, identifierValidityDate, dataSource, dataProvider, dataField);
-    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+    if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
+      return null;
+    } else {
+      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+    }
   }
 
   @Override
@@ -157,13 +169,21 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
     HistoricalTimeSeries hts = getSubSeries(
         getHistoricalTimeSeries(identifiers, identifierValidityDate, dataSource, dataProvider, dataField), 
         start, includeStart, end, includeEnd, -1);
-    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+    if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
+      return null;
+    } else {
+      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+    }
   }  
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField) {
     HistoricalTimeSeries hts = getHistoricalTimeSeries(identifierBundle, (LocalDate) null, dataSource, dataProvider, dataField);
-    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+    if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
+      return null;
+    } else {
+      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+    }
   }
 
   @Override
@@ -173,8 +193,12 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
     HistoricalTimeSeries hts = getSubSeries(
         getHistoricalTimeSeries(identifierBundle, (LocalDate) null, dataSource, dataProvider, dataField), 
                                 start, includeStart, end, includeEnd, -1);
-    return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
-
+    
+    if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
+      return null;
+    } else {
+      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+    }
   }
 
 
