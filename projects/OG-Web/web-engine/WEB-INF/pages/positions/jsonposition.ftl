@@ -30,14 +30,14 @@
             "premium": "${trade.premium}",
             "premiumCurrency": "${trade.premiumCurrency}",
             "premiumDate": "${trade.premiumDate}",
-            <#if trade.premiumTime??>
+            <#if trade.premiumTime?has_content>
             "premiumTime": "${trade.premiumTime.toString(timeFormatter)}",
             "premiumTimeOffset": "${trade.premiumTime.toString(offsetFormatter)}",
             </#if>
             "quantity": "${trade.quantity}",
             "counterParty": "${trade.counterpartyExternalId}",
             "tradeDate": "${trade.tradeDate}",
-            <#if trade.tradeTime??>
+            <#if trade.tradeTime?has_content>
             "tradeTime": "${trade.tradeTime.toString(timeFormatter)}",
             "tradeTimeOffset": "${trade.tradeTime.toString(offsetFormatter)}",
             </#if>
