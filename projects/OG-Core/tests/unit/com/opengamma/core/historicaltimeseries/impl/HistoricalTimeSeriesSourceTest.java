@@ -198,6 +198,25 @@ public class HistoricalTimeSeriesSourceTest {
               : inMemoryHistoricalSource.getHistoricalTimeSeries(ids, dataSource, dataProvider, field,
                                                                  startDate, includeStart, endDate, includeEnd, maxPoints);      
 
+      // Fetch latest data point directly from in-memory mock source
+      Pair<LocalDate, Double> inMemLatest = 
+          (startDate == null && endDate == null)
+            ? inMemoryHistoricalSource.getLatestDataPoint(ids, dataSource, dataProvider, field)
+            : inMemoryHistoricalSource.getLatestDataPoint(ids, dataSource, dataProvider, field,
+                                                          startDate, includeStart, endDate, includeEnd);
+      
+      // Compare latest data point with cached by externalid/source/provider/field
+      assertEquals(inMemLatest, (startDate == null && endDate == null)
+                                  ? cachedProvider.getLatestDataPoint(ids, dataSource, dataProvider, field)
+                                  : cachedProvider.getLatestDataPoint(ids, dataSource, dataProvider, field,
+                                                                      startDate, includeStart, endDate, includeEnd));
+      
+      // Compare latest data point with cached by uniqueId
+      assertEquals(inMemLatest, (startDate == null && endDate == null)
+          ? cachedProvider.getLatestDataPoint(inMemSeries.getUniqueId())
+          : cachedProvider.getLatestDataPoint(inMemSeries.getUniqueId(),
+                                              startDate, includeStart, endDate, includeEnd));
+            
       // Select a testing order randomly (order might affect cache patterns)
       if (Math.random() > 0.5) {
         
@@ -210,8 +229,8 @@ public class HistoricalTimeSeriesSourceTest {
                                                        startDate, includeStart, endDate, includeEnd)
               : cachedProvider.getHistoricalTimeSeries(ids, dataSource, dataProvider, field,
                                                        startDate, includeStart, endDate, includeEnd, maxPoints);      
-        assertEquals(inMemSeries, cachedSeries);
-        
+        assertEquals(inMemSeries, cachedSeries); 
+            
         // Then compare series/sub-series with cached by UniqueId
         cachedSeries =
             (startDate == null && endDate == null && maxPoints == null)

@@ -90,8 +90,8 @@ public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFu
     this._conversionFactor = conversionFactor;
     _settlementDays = _deliveryBasket[0].getSettlementDays();
     Calendar calendar = _deliveryBasket[0].getCalendar();
-    _deliveryFirstDate = ScheduleCalculator.getAdjustedDate(_noticeFirstDate, calendar, _settlementDays);
-    _deliveryLastDate = ScheduleCalculator.getAdjustedDate(_noticeLastDate, calendar, _settlementDays);
+    _deliveryFirstDate = ScheduleCalculator.getAdjustedDate(_noticeFirstDate, _settlementDays, calendar);
+    _deliveryLastDate = ScheduleCalculator.getAdjustedDate(_noticeLastDate, _settlementDays, calendar);
   }
 
   /**

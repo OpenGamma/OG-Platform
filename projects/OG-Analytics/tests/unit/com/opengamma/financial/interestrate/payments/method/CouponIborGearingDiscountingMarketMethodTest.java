@@ -45,7 +45,7 @@ public class CouponIborGearingDiscountingMarketMethodTest {
   private static final double NOTIONAL = 1000000; //1m
   private static final double FACTOR = 2.0;
   private static final double SPREAD = 0.0050;
-  private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, CALENDAR_EUR, -EURIBOR3M.getSpotLag());
+  private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, -EURIBOR3M.getSpotLag(), CALENDAR_EUR);
   private static final CouponIborGearingDefinition COUPON_DEFINITION = new CouponIborGearingDefinition(EURIBOR3M.getCurrency(), ACCRUAL_END_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR,
       NOTIONAL, FIXING_DATE, EURIBOR3M, SPREAD, FACTOR);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);

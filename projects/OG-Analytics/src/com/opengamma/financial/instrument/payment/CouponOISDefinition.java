@@ -73,7 +73,7 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
     fixingDateList.add(date);
     while (date.isBefore(fixingPeriodEndDate)) {
       previousDate = date;
-      date = ScheduleCalculator.getAdjustedDate(date, index.getCalendar(), 1);
+      date = ScheduleCalculator.getAdjustedDate(date, 1, index.getCalendar());
       fixingDateList.add(date);
       fixingAccrualFactorList.add(index.getDayCount().getDayCountFraction(previousDate, date));
     }
@@ -95,8 +95,8 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
    */
   public static CouponOISDefinition from(final IndexON index, final ZonedDateTime settlementDate, final Period tenor, final double notional, final int settlementDays,
       final BusinessDayConvention businessDayConvention, final boolean isEOM) {
-    final ZonedDateTime endFixingPeriodDate = ScheduleCalculator.getAdjustedDate(settlementDate, businessDayConvention, index.getCalendar(), isEOM, tenor);
-    final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(endFixingPeriodDate, index.getCalendar(), -1 + index.getPublicationLag() + settlementDays);
+    final ZonedDateTime endFixingPeriodDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, businessDayConvention, index.getCalendar(), isEOM);
+    final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(endFixingPeriodDate, -1 + index.getPublicationLag() + settlementDays, index.getCalendar());
     final double paymentYearFraction = index.getDayCount().getDayCountFraction(settlementDate, endFixingPeriodDate);
     return new CouponOISDefinition(index.getCurrency(), paymentDate, settlementDate, endFixingPeriodDate, paymentYearFraction, notional, index, settlementDate, endFixingPeriodDate);
   }

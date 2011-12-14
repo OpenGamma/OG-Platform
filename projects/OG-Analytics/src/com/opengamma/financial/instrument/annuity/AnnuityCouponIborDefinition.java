@@ -50,7 +50,7 @@ public class AnnuityCouponIborDefinition extends AnnuityDefinition<CouponIborDef
     Validate.notNull(index, "index");
     Validate.notNull(tenor, "tenor");
     Validate.isTrue(notional > 0, "notional <= 0");
-    final ZonedDateTime maturityDate = ScheduleCalculator.getAdjustedDate(settlementDate, index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth(), tenor);
+    final ZonedDateTime maturityDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth());
     return from(settlementDate, maturityDate, notional, index, isPayer);
   }
 

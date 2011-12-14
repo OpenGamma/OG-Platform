@@ -101,7 +101,7 @@ public class BondCapitalIndexedTransactionDefinition<C extends CouponDefinition>
     Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     @SuppressWarnings("unchecked")
     final BondCapitalIndexedSecurity<Coupon> bondPurchase = ((BondCapitalIndexedSecurityDefinition<CouponInflationDefinition>) getUnderlyingBond()).toDerivative(date, getSettlementDate(), data);
-    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getCalendar(), getUnderlyingBond().getSettlementDays());
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
     @SuppressWarnings("unchecked")
     final BondCapitalIndexedSecurity<Coupon> bondStandard = ((BondCapitalIndexedSecurityDefinition<CouponInflationDefinition>) getUnderlyingBond()).toDerivative(date, spot, data);
     final int nbCoupon = getUnderlyingBond().getCoupon().getNumberOfPayments();

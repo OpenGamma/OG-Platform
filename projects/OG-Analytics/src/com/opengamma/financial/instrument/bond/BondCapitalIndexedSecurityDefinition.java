@@ -211,7 +211,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(firstCouponDate, maturityDate, couponPeriod);
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar);
     final CouponInflationZeroCouponMonthlyGearingDefinition[] coupons = new CouponInflationZeroCouponMonthlyGearingDefinition[paymentDates.length + 1];
-    coupons[0] = CouponInflationZeroCouponMonthlyGearingDefinition.from(ScheduleCalculator.getAdjustedDate(firstCouponDate, calendar, 0), startDate, firstCouponDate, notional, priceIndex,
+    coupons[0] = CouponInflationZeroCouponMonthlyGearingDefinition.from(ScheduleCalculator.getAdjustedDate(firstCouponDate, 0, calendar), startDate, firstCouponDate, notional, priceIndex,
         indexStartValue, monthLag, true, realRate);
     coupons[1] = CouponInflationZeroCouponMonthlyGearingDefinition.from(paymentDates[0], firstCouponDate, paymentDatesUnadjusted[0], notional, priceIndex, indexStartValue, monthLag, true, realRate);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
@@ -324,7 +324,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
   @Override
   public BondCapitalIndexedSecurity<Coupon> toDerivative(ZonedDateTime date, String... yieldCurveNames) {
     Validate.notNull(date, "date");
-    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getCalendar(), getSettlementDays());
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
     return toDerivative(date, spot, new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[0], new double[0]));
   }
 
@@ -332,7 +332,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
   public BondCapitalIndexedSecurity<Coupon> toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> data, String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(data, "data");
-    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getCalendar(), getSettlementDays());
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
     return toDerivative(date, spot, data);
   }
 
@@ -351,7 +351,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     CouponDefinition[] couponExPeriodArray = new CouponDefinition[couponDefinition.getNumberOfPayments()];
     System.arraycopy(couponDefinition.getPayments(), 0, couponExPeriodArray, 0, couponDefinition.getNumberOfPayments());
     if (getExCouponDays() != 0) {
-      ZonedDateTime exDividendDate = ScheduleCalculator.getAdjustedDate(couponDefinition.getNthPayment(0).getPaymentDate(), getCalendar(), -getExCouponDays());
+      ZonedDateTime exDividendDate = ScheduleCalculator.getAdjustedDate(couponDefinition.getNthPayment(0).getPaymentDate(), -getExCouponDays(), getCalendar());
       if (settlementDate.isAfter(exDividendDate)) {
         // Implementation note: Ex-dividend period: the next coupon is not received but its date is required for yield calculation
         couponExPeriodArray[0] = new CouponFixedDefinition(couponDefinition.getNthPayment(0), 0.0);

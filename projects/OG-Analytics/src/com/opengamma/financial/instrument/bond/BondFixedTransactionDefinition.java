@@ -70,7 +70,7 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
-    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getCalendar(), getUnderlyingBond().getSettlementDays());
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
     final BondFixedSecurity bondPurchase = getUnderlyingBond().toDerivative(date, getSettlementDate(), yieldCurveNames);
     final BondFixedSecurity bondStandard = getUnderlyingBond().toDerivative(date, yieldCurveNames);
     final int nbCoupon = getUnderlyingBond().getCoupon().getNumberOfPayments();

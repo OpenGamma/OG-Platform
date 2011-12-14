@@ -129,7 +129,7 @@ public class BondIborSecurityDefinitionTest {
   @Test
   public void toDerivativeSettleBeforeFirstFixing() {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 7, 7);
-    ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(referenceDate, CALENDAR, SETTLEMENT_DAYS);
+    ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(referenceDate, SETTLEMENT_DAYS, CALENDAR);
     BondIborSecurity frn = FRN_DEFINITION.toDerivative(referenceDate, CURVES_NAME);
     AnnuityPaymentFixed nominal = ((AnnuityPaymentFixedDefinition) FRN_DEFINITION.getNominal()).toDerivative(referenceDate, CURVES_NAME[0]);
     @SuppressWarnings("unchecked")
@@ -142,7 +142,7 @@ public class BondIborSecurityDefinitionTest {
   @Test
   public void toDerivativeSettleMiddleFirstCoupon() {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 8, 16);
-    ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(referenceDate, CALENDAR, SETTLEMENT_DAYS);
+    ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(referenceDate, SETTLEMENT_DAYS, CALENDAR);
     DoubleTimeSeries<ZonedDateTime> fixingUSDLibor3M = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 7, 11), DateUtils.getUTCDate(2011, 7, 12),
         DateUtils.getUTCDate(2011, 7, 13), DateUtils.getUTCDate(2011, 8, 16)}, new double[] {0.01, 0.05, 0.05, 0.05});
     BondIborSecurity frn = FRN_DEFINITION.toDerivative(referenceDate, fixingUSDLibor3M, CURVES_NAME);

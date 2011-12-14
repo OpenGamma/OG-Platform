@@ -95,7 +95,7 @@ public class CouponFixedDefinition extends CouponDefinition {
    * @return The coupon.
    */
   public static CouponFixedDefinition from(final ZonedDateTime startDate, final Period tenor, final GeneratorDeposit generator, final double notional, final double fixedRate) {
-    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, generator.getBusinessDayConvention(), generator.getCalendar(), generator.isEndOfMonth(), tenor);
+    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, generator.getBusinessDayConvention(), generator.getCalendar(), generator.isEndOfMonth());
     double paymentYearFraction = generator.getDayCount().getDayCountFraction(startDate, endDate);
     return new CouponFixedDefinition(generator.getCurrency(), endDate, startDate, endDate, paymentYearFraction, notional, fixedRate);
   }
