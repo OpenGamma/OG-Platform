@@ -12,7 +12,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 /**
  * Hibernate bean.
  */
-public class RiskValueName implements HavingDatabaseId<Integer>{
+public class RiskValueName {
   
   private int _id;
   private String _name;

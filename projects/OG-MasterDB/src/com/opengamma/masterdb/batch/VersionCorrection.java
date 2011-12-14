@@ -5,7 +5,7 @@
  */
 package com.opengamma.masterdb.batch;
 
-import com.opengamma.util.db.DbDateUtils;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -18,8 +18,8 @@ import java.sql.Timestamp;
 public class VersionCorrection {
 
   private int _id;
-  private Timestamp _asOf;
-  private Timestamp _correctedTo;
+  private Instant _asOf;
+  private Instant _correctedTo;
 
   public int getId() {
     return _id;
@@ -29,24 +29,24 @@ public class VersionCorrection {
     _id = id;
   }
 
-  public Timestamp getAsOf() {
+  public Instant getAsOf() {
     return _asOf;
   }
 
-  public void setAsOf(Timestamp asOf) {
+  public void setAsOf(Instant asOf) {
     this._asOf = asOf;
   }
 
-  public Timestamp getCorrectedTo() {
+  public Instant getCorrectedTo() {
     return _correctedTo;
   }
 
-  public void setCorrectedTo(Timestamp correctedTo) {
+  public void setCorrectedTo(Instant correctedTo) {
     this._correctedTo = correctedTo;
   }
 
   public com.opengamma.id.VersionCorrection getBaseType(){
-    return com.opengamma.id.VersionCorrection.of(DbDateUtils.fromSqlTimestamp(_asOf), DbDateUtils.fromSqlTimestamp(_correctedTo));
+    return com.opengamma.id.VersionCorrection.of(_asOf, _correctedTo);
   }
 
   @Override

@@ -7,22 +7,21 @@ package com.opengamma.masterdb.batch;
 
 import com.opengamma.engine.view.calc.ViewResultListenerFactory;
 import com.opengamma.engine.view.listener.ViewResultListener;
-import com.opengamma.masterdb.batch.BatchRunMaster;
 
 public class BatchDbViewResultListenerFactory implements ViewResultListenerFactory {
 
-  private BatchRunMaster _batchRunMaster;
+  private BatchRunWriter _batchRunWriter;
 
   @Override
   public ViewResultListener createViewResultListener() {
-    return new BatchDbViewResultListener(_batchRunMaster);
+    return new BatchDbViewResultListener(_batchRunWriter);
   }
 
-  public BatchRunMaster getBatchRunMaster() {
-    return _batchRunMaster;
+  public BatchRunWriter getBatchRunMaster() {
+    return _batchRunWriter;
   }
 
-  public void setBatchRunMaster(BatchRunMaster batchRunMaster) {
-    this._batchRunMaster = batchRunMaster;
+  public void setBatchRunMaster(BatchRunWriter batchRunWriter) {
+    this._batchRunWriter = batchRunWriter;
   }
 }

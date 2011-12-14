@@ -5,7 +5,6 @@
  */
 package com.opengamma.masterdb.batch;
 
-import com.opengamma.id.UniqueId;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -25,11 +24,11 @@ public class ViewDefinition {
     _id = id;
   }
 
-  public String getUid() {
+  public String getViewDefinitionUid() {
     return _uid;
   }
 
-  public void setUid(String uid) {
+  public void setViewDefinitionUid(String uid) {
     _uid = uid;
   }
 

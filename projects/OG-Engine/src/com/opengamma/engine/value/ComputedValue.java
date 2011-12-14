@@ -170,12 +170,12 @@ public class ComputedValue implements Serializable {
   public int hashCode() {
     int result = _specification.hashCode();
     result = 31 * result + (_value != null ? _value.hashCode() : 0);
-    result = 31 * result + _result.hashCode();
+    result = 31 * result + (_result != null ? _result.hashCode() : 0);
     result = 31 * result + (_exceptionClass != null ? _exceptionClass.hashCode() : 0);
     result = 31 * result + (_exceptionMsg != null ? _exceptionMsg.hashCode() : 0);
     result = 31 * result + (_stackTrace != null ? _stackTrace.hashCode() : 0);
     result = 31 * result + (_missingInputs != null ? _missingInputs.hashCode() : 0);
-    result = 31 * result + _originalRequirement.hashCode();
+    result = 31 * result + (_originalRequirement != null? _originalRequirement.hashCode() : 0);
     return result;
   }
 

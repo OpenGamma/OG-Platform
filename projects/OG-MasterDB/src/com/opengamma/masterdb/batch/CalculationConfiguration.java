@@ -13,23 +13,21 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 public class CalculationConfiguration {
   
   private int _id = -1;
-  private RiskRun _riskRun;
   private String _name;
-  
+
+  public CalculationConfiguration(String name) {
+    _name = name;
+  }
+
+  public CalculationConfiguration() {
+  }
+
   public int getId() {
     return _id;
   }
   
   public void setId(int id) {
     _id = id;
-  }
-  
-  public RiskRun getRiskRun() {
-    return _riskRun;
-  }
-
-  public void setRiskRun(RiskRun riskRun) {
-    _riskRun = riskRun;
   }
 
   public String getName() {
@@ -46,6 +44,5 @@ public class CalculationConfiguration {
       append("name", getName()).
       toString();
   }
-  
 
 }

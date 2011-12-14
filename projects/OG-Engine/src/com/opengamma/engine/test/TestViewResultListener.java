@@ -40,9 +40,13 @@ public class TestViewResultListener extends AbstractTestResultListener implement
   public ViewDefinitionCompiledCall getViewDefinitionCompiled(long timeoutMillis) throws InterruptedException {
     return expectNextCall(ViewDefinitionCompiledCall.class, timeoutMillis);
   }
-  
+
   public ViewDefinitionCompilationFailedCall getViewDefinitionCompilationFailed(long timeoutMillis) throws InterruptedException {
     return expectNextCall(ViewDefinitionCompilationFailedCall.class, timeoutMillis);
+  }
+  
+  public CycleInitiatedCall getCycleInitiated(long timeoutMillis) throws InterruptedException {
+    return expectNextCall(CycleInitiatedCall.class, timeoutMillis);
   }
   
   public CycleCompletedCall getCycleCompleted(long timeoutMillis) throws InterruptedException {
@@ -89,7 +93,7 @@ public class TestViewResultListener extends AbstractTestResultListener implement
   public void assertViewDefinitionCompilationFailed(long timeoutMillis) {
     assertViewDefinitionCompilationFailed(timeoutMillis, null);
   }
-  
+
   public void assertViewDefinitionCompilationFailed(long timeoutMillis, String exceptionMessage) {
     ViewDefinitionCompilationFailedCall call;
     try {
@@ -101,7 +105,20 @@ public class TestViewResultListener extends AbstractTestResultListener implement
       assertEquals(exceptionMessage, call.getException().getMessage());
     }
   }
-  
+
+  public void assertCycleInitiated() {
+    assertCycleInitiated(0);
+  }
+
+  public void assertCycleInitiated(long timeoutMillis) {
+    CycleInitiatedCall call;
+    try {
+      call = getCycleInitiated(timeoutMillis);
+    } catch (Exception e) {
+      throw new AssertionError("Expected CycleInitiated call error: " + e.getMessage());
+    }
+  }
+
   public void assertCycleCompleted() {
     assertCycleCompleted(0);
   }

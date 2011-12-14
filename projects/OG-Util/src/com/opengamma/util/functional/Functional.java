@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.functional;
 
+import com.opengamma.util.db.DbMapSqlParameterSource;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;

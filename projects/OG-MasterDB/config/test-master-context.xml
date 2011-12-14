@@ -13,6 +13,7 @@
     <property name="hibernateMappingFiles">
       <list>
         <bean class="com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles"/>
+        <bean class="com.opengamma.masterdb.batch.HibernateBatchDbFiles"/>
       </list>
     </property>
   </bean>
@@ -79,7 +80,18 @@
   <bean id="hsqldbDbFunctionCostsMaster" class="com.opengamma.masterdb.engine.stats.DbFunctionCostsMaster">
     <constructor-arg ref="hsqldbDbConnector" />
   </bean>
-
+  
+  <bean id="hsqldbDbBatchWriter" class="com.opengamma.masterdb.batch.DbBatchWriter">
+    <constructor-arg ref="hsqldbDbConnector" />
+    <property name="uniqueIdScheme" value="DbBat" />
+  </bean>
+  
+  <bean id="hsqldbDbBatchDocumentMaster" class="com.opengamma.masterdb.batch.document.DbBatchDocumentMaster">
+    <constructor-arg ref="hsqldbDbConnector" />
+    <property name="uniqueIdScheme" value="DbBat" />
+  </bean>
+    
+   
   <!-- ============================================================================== -->
   <bean id="postgresDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="${postgres.jdbc.driver}"/>
@@ -138,6 +150,16 @@
   
   <bean id="postgresDbFunctionCostsMaster" class="com.opengamma.masterdb.engine.stats.DbFunctionCostsMaster">
     <constructor-arg ref="postgresDbConnector" />
+  </bean>
+  
+  <bean id="postgresDbBatchWriter" class="com.opengamma.masterdb.batch.DbBatchWriter">
+    <constructor-arg ref="postgresDbConnector" />
+    <property name="uniqueIdScheme" value="DbBat" />
+  </bean>
+  
+  <bean id="postgresDbBatchDocumentMaster" class="com.opengamma.masterdb.batch.document.DbBatchDocumentMaster">
+    <constructor-arg ref="postgresDbConnector" />
+    <property name="uniqueIdScheme" value="DbBat" />
   </bean>
 
 </beans>

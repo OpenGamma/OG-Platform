@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.db;
 
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 
 import java.sql.SQLException;
@@ -25,5 +27,13 @@ public class DbUtil {
       }
     }
     return ex;
+  }
+  
+  static public Criterion eqOrIsNull(String propertyName, Object value) {
+    if (value == null) {
+      return Restrictions.isNull(propertyName);
+    } else {
+      return Restrictions.eq(propertyName, value);
+    }
   }
 }

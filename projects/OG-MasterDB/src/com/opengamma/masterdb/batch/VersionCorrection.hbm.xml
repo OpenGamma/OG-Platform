@@ -4,6 +4,8 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.masterdb.batch">
 
+  <typedef class="com.opengamma.util.db.hibernate.types.PersistentInstant" name="instant" />
+
   <class name="VersionCorrection" table="rsk_version_correction">
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
@@ -12,8 +14,8 @@
       </generator>
     </id>
 
-    <property name="asOf" column="as_of" not-null="true"/>
-    <property name="correctedTo" column="corrected_to" not-null="true"/>
+    <property name="asOf" column="as_of" not-null="false" type="instant"/>
+    <property name="correctedTo" column="corrected_to" not-null="false" type="instant"/>
 
   </class>
   

@@ -11,10 +11,11 @@
       	<param name="increment_size">100</param>
       </generator>
     </id>
-    <many-to-one name="riskRun" 
-    	column="run_id" 
-    	not-null="true"/>
     <property name="name" not-null="true"/>
   </class>
+  
+  <query name="CalculationConfiguration.one.byName">
+  	from CalculationConfiguration as a where 
+  	a.name = :name</query>  
   
 </hibernate-mapping>

@@ -124,7 +124,10 @@ public class ViewClientImpl implements ViewClient {
       public void cycleInitiated(CycleInfo cycleInfo) {
         ViewResultListener listener = _userResultListener.get();
         if (listener != null) {
-          listener.cycleInitiated(cycleInfo);
+          ViewResultMode resultMode = getFragmentResultMode();
+          if (!resultMode.equals(ViewResultMode.NONE)) {
+            listener.cycleInitiated(cycleInfo);
+          }
         }
       }
 

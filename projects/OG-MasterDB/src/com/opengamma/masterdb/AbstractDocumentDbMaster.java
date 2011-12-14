@@ -51,11 +51,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDocumentDbMaster.class);
-
-  /**
-   * External SQL bundle.
-   */
-  private ExtSqlBundle _externalSqlBundle;
+  
   /**
    * The change manager.
    */
@@ -69,25 +65,6 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    */
   public AbstractDocumentDbMaster(final DbConnector dbConnector, final String defaultScheme) {
     super(dbConnector, defaultScheme);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the external SQL bundle.
-   * 
-   * @return the external SQL bundle, not null
-   */
-  public ExtSqlBundle getExtSqlBundle() {
-    return _externalSqlBundle;
-  }
-
-  /**
-   * Sets the external SQL bundle.
-   * 
-   * @param bundle  the external SQL bundle, not null
-   */
-  public void setExtSqlBundle(ExtSqlBundle bundle) {
-    _externalSqlBundle = bundle;
   }
 
   //-------------------------------------------------------------------------
@@ -303,17 +280,6 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
       }
     }
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the next database id.
-   * 
-   * @param sequenceName  the name of the sequence to query, not null
-   * @return the next database id
-   */
-  protected long nextId(String sequenceName) {
-    return getJdbcTemplate().queryForLong(getDialect().sqlNextSequenceValueSelect(sequenceName));
   }
 
   //-------------------------------------------------------------------------

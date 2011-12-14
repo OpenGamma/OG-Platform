@@ -14,15 +14,15 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  */
 public class ComputeNode {
   
-  private int _id;
+  private long _id;
   private ComputeHost _computeHost;
   private String _nodeName;
   
-  public int getId() {
+  public long getId() {
     return _id;
   }
   
-  public void setId(int id) {
+  public void setId(long id) {
     _id = id;
   }
   

@@ -7,8 +7,6 @@ package com.opengamma.masterdb.batch;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import com.opengamma.financial.batch.LiveDataValue;
-
 /**
  * Hibernate bean.
  */
@@ -69,7 +67,8 @@ public class LiveDataSnapshotEntry {
     return new LiveDataValue(
         getComputationTarget().toComputationTargetSpec(),
         getField().getName(),
-        getValue());
+        getValue(),
+        getComputationTarget().getName());
   }
   
 }

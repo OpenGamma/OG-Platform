@@ -8,11 +8,9 @@ package com.opengamma.masterdb.batch;
 import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
-import com.opengamma.financial.batch.BatchId;
 import com.opengamma.livedata.UserPrincipal;
 
 import javax.time.Instant;
@@ -21,10 +19,10 @@ public class BatchDbViewResultListener implements ViewResultListener {
 
   private Batch _batch;
 
-  private BatchRunMaster _batchRunMaster;
+  private BatchRunWriter _batchRunWriter;
 
-  public BatchDbViewResultListener(BatchRunMaster batchRunMaster) {
-    _batchRunMaster = batchRunMaster;
+  public BatchDbViewResultListener(BatchRunWriter batchRunWriter) {
+    _batchRunWriter = batchRunWriter;
   }
 
   @Override
@@ -46,31 +44,25 @@ public class BatchDbViewResultListener implements ViewResultListener {
   @Override
   public void cycleInitiated(CycleInfo cycleInfo) {
 
-    _batch = new Batch(
-        new BatchId(
-            cycleInfo.getMarketDataSnapshotUniqueId(),
-            cycleInfo.getViewDefinition().getUniqueId(),
-            cycleInfo.getVersionCorrection(),
-            cycleInfo.getValuationTime()),
-        cycleInfo);
+    _batch = new Batch(cycleInfo);
 
-    _batchRunMaster.startBatch(_batch);
+    _batchRunWriter.startBatch(_batch, RunCreationMode.AUTO, SnapshotMode.WRITE_TROUGH);
   }
 
   @Override
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
-    _batchRunMaster.endBatch(_batch);
+    _batchRunWriter.endBatch(_batch.getUniqueId());
   }
 
   @Override
   public void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
-    _batchRunMaster.addJobResults(_batch, fullFragment);
+    _batchRunWriter.addJobResults(_batch.getUniqueId(), fullFragment);
   }
 
   @Override
   public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
     //TODO where to write the exception? Batch run ?
-    _batchRunMaster.end(_batch);
+    _batchRunWriter.endBatch(_batch.getUniqueId());
   }
 
   @Override
@@ -81,7 +73,7 @@ public class BatchDbViewResultListener implements ViewResultListener {
   public void processTerminated(boolean executionInterrupted) {
     //TODO Shall we add info to the batchrun that it was interrupted?
     if (executionInterrupted) {
-      _batchRunMaster.end(_batch);
+      _batchRunWriter.endBatch(_batch.getUniqueId());
     }
   }
 }

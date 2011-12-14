@@ -8,7 +8,7 @@ package com.opengamma.masterdb.batch;
 import com.opengamma.util.db.HibernateMappingFiles;
 
 /**
- * DbBatchMaster configuration. 
+ * DbBatchWriter configuration.
  */
 public class HibernateBatchDbFiles implements HibernateMappingFiles {
 
@@ -29,7 +29,6 @@ public class HibernateBatchDbFiles implements HibernateMappingFiles {
       RiskValueSpecification.class,
       FunctionUniqueId.class,
       ComputationTarget.class,
-      RiskValue.class,
       RiskRunProperty.class
     };
   }

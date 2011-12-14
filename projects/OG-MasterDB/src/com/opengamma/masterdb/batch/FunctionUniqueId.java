@@ -14,14 +14,14 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  */
 public class FunctionUniqueId {
   
-  private int _id;
+  private long _id;
   private String _uniqueId;
   
-  public int getId() {
+  public long getId() {
     return _id;
   }
  
-  public void setId(int id) {
+  public void setId(long id) {
     _id = id;
   }
   

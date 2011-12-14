@@ -16,13 +16,13 @@
         <one-to-many class="LiveDataSnapshotEntry"/>
     </set>
 
-    <property name="marketDataSnapshotUniqueId" column="market_data_snapshot_uniqueid" not-null="true"/>
+    <property name="marketDataSnapshotUid" column="market_data_snapshot_uid" not-null="true"/>
 
   </class>
   
-  <query name="LiveDataSnapshot.one.byMarketDataSnapshotUniqueId">
+  <query name="LiveDataSnapshot.one.byMarketDataSnapshotUid">
     from LiveDataSnapshot as a where
-    a.marketDataSnapshotUniqueId = :marketDataSnapshotUniqueId
+    a.marketDataSnapshotUid = :marketDataSnapshotUid
   </query>
   
 </hibernate-mapping>

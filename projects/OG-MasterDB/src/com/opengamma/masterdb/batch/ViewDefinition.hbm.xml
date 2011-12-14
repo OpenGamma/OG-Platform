@@ -12,13 +12,13 @@
       </generator>
     </id>
 
-    <property name="uid" column="uid" not-null="true"/>
+    <property name="viewDefinitionUid" column="uid" not-null="true"/>
 
   </class>
   
   <query name="ViewDefinition.one.byUID">
     from ViewDefinition as a where
-    a.uid = :uid
+    a.viewDefinitionUid = :uid
   </query>
   
 </hibernate-mapping>

@@ -9,6 +9,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeListener;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataProvider;
@@ -16,7 +17,9 @@ import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.CycleInfo;
+import com.opengamma.engine.view.CycleInfoImpl;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
@@ -249,7 +252,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
     
     VersionCorrection versionCorrection = getResolvedVersionCorrection();
-    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;
+    final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;
     try {
       compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime, versionCorrection);
     } catch (Exception e) {
@@ -285,19 +288,27 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     if (_executeCycles) {
       try {
         final SingleComputationCycle singleComputationCycle = cycleReference.get();
-        Set<String> configurationNames = singleComputationCycle.getAllCalculationConfigurationNames();
+        final Set<String> configurationNames = singleComputationCycle.getAllCalculationConfigurationNames();
 
-
-        Map<String, DependencyGraph> dependencyGraphsByConfigName = reduce(new HashMap<String, DependencyGraph>(), configurationNames,
-            new Function2<HashMap<String, DependencyGraph>, String, HashMap<String, DependencyGraph>>() {
-              @Override
-              public HashMap<String, DependencyGraph> execute(HashMap<String, DependencyGraph> mapping, String configName) {
-                mapping.put(configName, singleComputationCycle.getExecutableDependencyGraph(configName));
-                return mapping;
+        cycleInitiated(new CycleInfoImpl(
+            marketDataSnapshot.getUniqueId(),
+            compiledViewDefinition.getViewDefinition().getUniqueId(),
+            versionCorrection,
+            executionOptions.getValuationTime(),
+            configurationNames,
+            new HashMap<String, Collection<ComputationTarget>>(){{
+              for (String configName : configurationNames) {
+                DependencyGraph dependencyGraph = singleComputationCycle.getExecutableDependencyGraph(configName);
+                put(configName, dependencyGraph.getAllComputationTargets());
               }
-            });
-
-        cycleInitiated(new CycleInfo(marketDataSnapshot.getUniqueId(),  dependencyGraphsByConfigName, compiledViewDefinition.getViewDefinition(), versionCorrection, executionOptions.getValuationTime()));
+            }},
+            new HashMap<String, Map< ValueSpecification, Set<ValueRequirement>>>(){{
+              for (String configName : configurationNames) {
+                DependencyGraph dependencyGraph = singleComputationCycle.getExecutableDependencyGraph(configName);
+                put(configName, dependencyGraph.getTerminalOutputs());
+              }
+            }}
+        ));
         executeViewCycle(cycleType, cycleReference, marketDataSnapshot, getViewProcess().getCalcJobResultExecutorService());
       } catch (InterruptedException e) {
         // Execution interrupted - don't propagate as failure

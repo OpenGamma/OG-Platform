@@ -103,6 +103,7 @@
       <arg value="-R" />
       <arg value="-indent=2" />
       <arg value="-prefix=_" />
+      <arg value="-verbose=3" />
       <arg value="${src.dir}" />
     </java>
   </target>

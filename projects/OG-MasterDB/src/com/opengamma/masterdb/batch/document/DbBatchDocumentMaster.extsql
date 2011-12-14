@@ -1,0 +1,134 @@
+@NAME(GetById)
+  SELECT
+    id, 
+    version_correction_id, 
+    view_definition_id, 
+    live_data_snapshot_id, 
+    create_instant, 
+    start_instant
+    end_instant,
+    valuation_time,
+    num_restarts,
+    complete
+  FROM    
+    rsk_run main
+  INNER JOIN cte_docs ON main.id = cte_docs.id  
+    rsk_value,
+    rsk_calculation_configuration,
+    rsk_value_name,
+    rsk_value_requirement,
+    rsk_value_specification,
+    rsk_computation_target,
+    rsk_computation_target_type,
+    rsk_run,
+    rsk_view_definition,
+    rsk_version_correction,
+    rsk_live_data_snapshot,
+    rsk_function_unique_id
+  
+  
+  
+  
+@NAME(Search)
+  WITH cte_docs AS ( @INSERT(SearchInner) )
+  SELECT
+    main.id AS position_id,
+    main.oid AS position_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.provider_scheme AS pos_provider_scheme,
+    main.provider_value AS pos_provider_value,
+    main.quantity AS pos_quantity,
+    ps.key_scheme AS pos_key_scheme,
+    ps.key_value AS pos_key_value,
+    t.id AS trade_id,
+    t.oid AS trade_oid,
+    t.quantity AS trade_quantity,
+    t.trade_date AS trade_date,
+    t.trade_time AS trade_time,
+    t.zone_offset AS zone_offset,
+    t.cparty_scheme AS cparty_scheme,
+    t.cparty_value AS cparty_value,
+    t.provider_scheme AS trade_provider_scheme,
+    t.provider_value AS trade_provider_value,
+    t.premium_value AS premium_value,
+    t.premium_currency AS premium_currency,
+    t.premium_date AS premium_date,
+    t.premium_time AS premium_time,
+    t.premium_zone_offset AS premium_zone_offset,
+    ts.key_scheme AS trade_key_scheme,
+    ts.key_value AS trade_key_value,
+    ta.key AS trade_attr_key,
+    ta.value AS trade_attr_value,
+    pa.key AS pos_attr_key,
+    pa.value AS pos_attr_value
+  FROM
+    pos_position main
+    INNER JOIN cte_docs ON main.id = cte_docs.id
+    LEFT JOIN pos_position2idkey pi ON (pi.position_id = main.id)
+    LEFT JOIN pos_idkey ps ON (ps.id = pi.idkey_id)
+    LEFT JOIN pos_trade t ON (t.position_id = main.id)
+    LEFT JOIN pos_trade2idkey ti ON (ti.trade_id = t.id)
+    LEFT JOIN pos_idkey ts ON (ts.id = ti.idkey_id)
+    LEFT JOIN pos_trade_attribute ta ON (ta.trade_id = t.id)
+    LEFT JOIN pos_attribute pa ON (pa.position_id = main.id)
+  ORDER BY
+    main.id,
+    t.trade_date,
+    t.id  
+
+-- ==========================================================================
+@NAME(SelectBatchValues)
+ SELECT
+   comp_target_type, 
+   comp_target_id_scheme, 
+   comp_target_id_value, 
+   comp_target_id_version, 
+   calc_conf_name, 
+   name, 
+   function_unique_id, 
+   value 
+ FROM 
+   vw_rsk 
+ WHERE
+   rsk_run_id = :rsk_run_id
+
+  
+@NAME(CountBatchValues)  
+  SELECT 
+    count(*)  
+  FROM 
+    vw_rsk 
+  WHERE
+    rsk_run_id = :rsk_run_id
+    
+    
+-- ==========================================================================
+@NAME(SelectBatchFailures)
+ SELECT
+   comp_target_type, 
+   comp_target_id_scheme, 
+   comp_target_id_value, 
+   comp_target_id_version, 
+   calc_conf_name, 
+   name, 
+   function_unique_id, 
+   exception_class,
+   exception_msg,
+   stack_trace 
+ FROM 
+   vw_rsk_failure 
+ WHERE
+   rsk_run_id = :rsk_run_id
+
+  
+@NAME(CountBatchFailures)  
+  SELECT 
+    count(*)  
+  FROM 
+    vw_rsk_failure 
+  WHERE
+    rsk_run_id = :rsk_run_id
+    

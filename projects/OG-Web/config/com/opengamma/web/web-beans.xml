@@ -121,7 +121,7 @@
   </bean>
   
   <!-- Ad hoc batches -->
-  <bean id="adHocBatchRestBean" class="com.opengamma.financial.batch.AdHocBatchDbManagerService">
+  <bean id="adHocBatchRestBean" class="com.opengamma.masterdb.batch.AdHocBatchDbManagerService">
     <constructor-arg ref="dbBatchMaster" />
     <constructor-arg ref="fudgeContext" />
   </bean>

@@ -27,6 +27,7 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.CycleCompletedCall;
 import com.opengamma.engine.view.listener.CycleExecutionFailedCall;
 import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
+import com.opengamma.engine.view.listener.CycleInitiatedCall;
 import com.opengamma.engine.view.listener.ProcessCompletedCall;
 import com.opengamma.engine.view.listener.ProcessTerminatedCall;
 import com.opengamma.engine.view.listener.ViewDefinitionCompilationFailedCall;
@@ -142,7 +143,7 @@ public class MergingViewProcessListener implements ViewResultListener {
       if (isPassThrough()) {
         getUnderlying().cycleInitiated(cycleInfo);
       } else {
-        _callQueue.add(new ProcessCompletedCall());
+        _callQueue.add(new CycleInitiatedCall(cycleInfo));
       }
     } finally {
       _mergerLock.unlock();

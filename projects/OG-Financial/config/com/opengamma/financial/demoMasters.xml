@@ -248,7 +248,7 @@
       </list> 
     </property>
   </bean>
-  <bean id="dbBatchMaster" class="com.opengamma.masterdb.batch.DbBatchMaster">
+  <bean id="dbBatchMaster" class="com.opengamma.masterdb.batch.DbBatchWriter">
     <constructor-arg ref="batchDbConnector"/>  	
   </bean>
 

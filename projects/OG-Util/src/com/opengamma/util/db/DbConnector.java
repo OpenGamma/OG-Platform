@@ -11,9 +11,11 @@ import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionException;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -238,6 +240,65 @@ public class DbConnector {
       for (int retry = 0; true; retry++) {
         try {
           return _tt.execute(action);
+        } catch (DataIntegrityViolationException ex) {
+          if (retry == _retries) {
+            throw ex;
+          }
+        } catch (DataAccessException ex) {
+          throw fixSQLExceptionCause(ex);
+        }
+      }
+    }
+  }
+
+  public HibernateTransactionTemplate getHibernateTransactionTemplate() {
+    return new HibernateTransactionTemplate();
+  }
+
+  public class HibernateTransactionTemplate {
+    final private TransactionTemplate _tt;
+    final private HibernateTemplate _ht;
+
+    private HibernateTransactionTemplate() {
+      _tt = getTransactionTemplate();
+      _ht = getHibernateTemplate();
+    }
+
+    public <T> T execute(final HibernateCallback<T> action) throws TransactionException {
+      try {
+        return _tt.execute(new TransactionCallback<T>() {
+          @Override
+          public T doInTransaction(TransactionStatus status) {
+            return _ht.execute(action);
+          }
+        });
+      } catch (DataAccessException ex) {
+        throw fixSQLExceptionCause(ex);
+      }
+    }
+  }
+
+  public class HibernateTransactionTemplateRetrying {
+    final private int _retries;
+    final private TransactionTemplate _tt;
+    final private HibernateTemplate _ht;
+
+    private HibernateTransactionTemplateRetrying(int retries) {
+      _retries = retries;
+      _tt = getTransactionTemplate();
+      _ht = getHibernateTemplate();
+    }
+
+    public <T> T execute(final HibernateCallback<T> action) throws TransactionException {
+      // retry to handle concurrent conflicting inserts into unique content tables
+      for (int retry = 0; true; retry++) {
+        try {
+          return _tt.execute(new TransactionCallback<T>() {
+            @Override
+            public T doInTransaction(TransactionStatus status) {
+              return _ht.execute(action);
+            }
+          });
         } catch (DataIntegrityViolationException ex) {
           if (retry == _retries) {
             throw ex;

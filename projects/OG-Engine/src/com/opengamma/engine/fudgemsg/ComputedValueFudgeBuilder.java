@@ -81,23 +81,36 @@ public class ComputedValueFudgeBuilder implements FudgeBuilder<ComputedValue> {
     fudgeField = message.getByName(VALUE_KEY);
     Validate.notNull(fudgeField, "Fudge message is not a ComputedValue - field 'value' is not present");
     Object valueObject = deserializer.fieldValueToObject(fudgeField);
+    ComputedValue computedValue = new ComputedValue(valueSpec, valueObject);
 
     String invocationResultName = message.getString(INVOCATION_RESULT_FIELD_NAME);
-    InvocationResult invocationResult = InvocationResult.valueOf(invocationResultName);
+    if(invocationResultName != null){
+      InvocationResult invocationResult = InvocationResult.valueOf(invocationResultName);
+      computedValue.setInvocationResult(invocationResult);
+    }
+
     String exceptionClass = message.getString(EXCEPTION_CLASS_FIELD_NAME);
     String exceptionMsg = message.getString(EXCEPTION_MSG_FIELD_NAME);
     String stackTrace = message.getString(STACK_TRACE_FIELD_NAME);
-    ValueRequirement requirement = deserializer.fieldValueToObject(ValueRequirement.class, message.getByName(REQUIREMENT_FIELD_NAME));
-    Set<ValueSpecification> missingInputs = deserializer.fieldValueToObject(Set.class, message.getByName(MISSING_INPUTS_FIELD_NAME));
-
-    ComputedValue computedValue = new ComputedValue(valueSpec, valueObject);
-    computedValue.setExceptionClass(exceptionClass);
-    computedValue.setExceptionMsg(exceptionMsg);
-    computedValue.setInvocationResult(invocationResult);
-    computedValue.setMissingInputs(missingInputs);
-    computedValue.setRequirement(requirement);
-    computedValue.setStackTrace(stackTrace);
-
+    if (exceptionClass != null) {
+      computedValue.setExceptionClass(exceptionClass);
+    }
+    if (exceptionMsg != null) {
+      computedValue.setExceptionMsg(exceptionMsg);
+    }
+    if (stackTrace != null) {
+      computedValue.setStackTrace(stackTrace);
+    }
+    FudgeField requirementField = message.getByName(REQUIREMENT_FIELD_NAME);
+    if (requirementField != null){
+      ValueRequirement requirement = deserializer.fieldValueToObject(ValueRequirement.class, requirementField);
+      computedValue.setRequirement(requirement);
+    }
+    FudgeField missingInputsField = message.getByName(MISSING_INPUTS_FIELD_NAME);
+    if(missingInputsField != null){
+      Set<ValueSpecification> missingInputs = deserializer.fieldValueToObject(Set.class, missingInputsField);
+      computedValue.setMissingInputs(missingInputs);
+    }
     return computedValue;
   }
 }

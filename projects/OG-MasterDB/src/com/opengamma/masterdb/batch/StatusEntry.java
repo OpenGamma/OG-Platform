@@ -10,9 +10,7 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
-/**
- * Hibernate bean.
- */
+
 public class StatusEntry {
   
   /**
@@ -47,8 +45,8 @@ public class StatusEntry {
   
   
   private long _id = -1;
-  private int _calculationConfigurationId;
-  private int _computationTargetId;
+  private long _calculationConfigurationId;
+  private long _computationTargetId;
   private Status _status;
   
   public long getId() {
@@ -59,19 +57,19 @@ public class StatusEntry {
     _id = id;
   }
   
-  public int getCalculationConfigurationId() {
+  public long getCalculationConfigurationId() {
     return _calculationConfigurationId;
   }
   
-  public void setCalculationConfigurationId(int calculationConfigurationId) {
+  public void setCalculationConfigurationId(long calculationConfigurationId) {
     _calculationConfigurationId = calculationConfigurationId;
   }
   
-  public int getComputationTargetId() {
+  public long getComputationTargetId() {
     return _computationTargetId;
   }
   
-  public void setComputationTargetId(int computationTargetId) {
+  public void setComputationTargetId(long computationTargetId) {
     _computationTargetId = computationTargetId;
   }
   
@@ -91,23 +89,6 @@ public class StatusEntry {
       }
     }
     throw new IllegalArgumentException(statusInt + " is not a valid status");
-  }
-  
-  public static String sqlGet() {
-    return "SELECT id, calculation_configuration_id, computation_target_id, status FROM " + DbBatchMaster.getDatabaseSchema() + "rsk_run_status WHERE " +
-      "calculation_configuration_id = :calculation_configuration_id AND " +
-      "computation_target_id = :computation_target_id";         
-  }
-  
-  public static String sqlUpdate() {
-    return "UPDATE " + DbBatchMaster.getDatabaseSchema() + "rsk_run_status SET status = :status WHERE " +
-      "id = :id";
-  }
-  
-  public static String sqlInsert() {
-    return "INSERT INTO " + DbBatchMaster.getDatabaseSchema() + "rsk_run_status " +
-      "(id, calculation_configuration_id, computation_target_id, status) VALUES (" +
-      ":id, :calculation_configuration_id, :computation_target_id, :status)";      
   }
   
   /**

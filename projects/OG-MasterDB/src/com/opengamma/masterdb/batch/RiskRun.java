@@ -5,6 +5,7 @@
  */
 package com.opengamma.masterdb.batch;
 
+import javax.time.Instant;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,14 +17,14 @@ import java.util.Set;
  */
 public class RiskRun {
   
-  private int _id;
+  private long _id;
   //private ComputeHost _masterProcessHost;
   //private ObservationDateTime _runTime;
   private LiveDataSnapshot _liveDataSnapshot;
-  private Timestamp _createInstant;
-  private Timestamp _startInstant;
-  private Timestamp _endInstant;
-  private Timestamp _valuationTime;
+  private Instant _createInstant;
+  private Instant _startInstant;
+  private Instant _endInstant;
+  private Instant _valuationTime;
   private int _numRestarts;
   private Set<CalculationConfiguration> _calculationConfigurations = new HashSet<CalculationConfiguration>();
   private Set<RiskRunProperty> _properties = new HashSet<RiskRunProperty>();
@@ -32,30 +33,13 @@ public class RiskRun {
   private ViewDefinition _viewDefinition;
 
 
-  public int getId() {
+  public long getId() {
     return _id;
   }
   
-  public void setId(int id) {
+  public void setId(long id) {
     _id = id;
   }
-
-  
-/*  public ComputeHost getMasterProcessHost() {
-    return _masterProcessHost;
-  }
-  
-  public void setMasterProcessHost(ComputeHost masterProcessHost) {
-    _masterProcessHost = masterProcessHost;
-  }
-  
-  public ObservationDateTime getRunTime() {
-    return _runTime;
-  }
-  
-  public void setRunTime(ObservationDateTime runTime) {
-    _runTime = runTime;
-  }*/
   
   public LiveDataSnapshot getLiveDataSnapshot() {
     return _liveDataSnapshot;
@@ -64,24 +48,24 @@ public class RiskRun {
   public void setLiveDataSnapshot(LiveDataSnapshot liveDataSnapshot) {
     _liveDataSnapshot = liveDataSnapshot;
   }
-  
-  public Timestamp getCreateInstant() {
+
+  public Instant getCreateInstant() {
     return _createInstant;
   }
   
-  public void setCreateInstant(Timestamp createInstant) {
+  public void setCreateInstant(Instant createInstant) {
     _createInstant = createInstant;
   }
   
-  public Timestamp getStartInstant() {
+  public Instant getStartInstant() {
     return _startInstant;
   }
   
-  public void setStartInstant(Timestamp startInstant) {
+  public void setStartInstant(Instant startInstant) {
     _startInstant = startInstant;
   }
   
-  public Timestamp getEndInstant() {
+  public Instant getEndInstant() {
     return _endInstant;
   }
   
@@ -97,29 +81,8 @@ public class RiskRun {
     return getNumRestarts() > 0;
   }
 
-  public void setEndInstant(Timestamp endInstant) {
+  public void setEndInstant(Instant endInstant) {
     _endInstant = endInstant;
-  }
-  
-  public Set<CalculationConfiguration> getCalculationConfigurations() {
-    return _calculationConfigurations;
-  }
-
-  public void setCalculationConfigurations(Set<CalculationConfiguration> calculationConfigurations) {
-    _calculationConfigurations = calculationConfigurations;
-  }
-  
-  public CalculationConfiguration getCalculationConfiguration(String calcConfName) {
-    for (CalculationConfiguration conf : getCalculationConfigurations()) {
-      if (conf.getName().equals(calcConfName)) {
-        return conf; 
-      }
-    }
-    return null;
-  }
-  
-  public void addCalculationConfiguration(CalculationConfiguration calcConf) {
-    _calculationConfigurations.add(calcConf);
   }
   
   public Set<RiskRunProperty> getProperties() {
@@ -159,30 +122,14 @@ public class RiskRun {
   public void setComplete(boolean complete) {
     _complete = complete;
   }
-  
-  // --------------------------------------------------------------------------
-  
-  public void addCalculationConfiguration(String viewCalcConf) {
-    CalculationConfiguration calcConf = getCalculationConfiguration(viewCalcConf);
-    if (calcConf != null) {
-      throw new IllegalStateException("Already has calc conf " + viewCalcConf);      
-    }
 
-    calcConf = new CalculationConfiguration();
-    calcConf.setName(viewCalcConf);
-    calcConf.setRiskRun(this);
-    _calculationConfigurations.add(calcConf);
-  }
-
-  public Timestamp getValuationTime() {
+  public Instant getValuationTime() {
     return _valuationTime;
   }
 
-  public void setValuationTime(Timestamp valuationTime) {
+  public void setValuationTime(Instant valuationTime) {
     this._valuationTime = valuationTime;
   }
-
-// --------------------------------------------------------------------------
   
   @Override
   public String toString() {

@@ -98,7 +98,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
    * 
    * @return the external SQL bundle, not null
    */
-  protected ExtSqlBundle getExtSqlBundle() {
+  public ExtSqlBundle getExtSqlBundle() {
     return getMaster().getExtSqlBundle();
   }
 

@@ -33,11 +33,11 @@ public class LiveDataSnapshot {
     _id = id;
   }
 
-  public String getMarketDataSnapshotUniqueId() {
+  public String getMarketDataSnapshotUid() {
     return _marketDataSnapshotUniqueId;
   }
 
-  public void setMarketDataSnapshotUniqueId(String _marketDataSnapshotUniqueId) {
+  public void setMarketDataSnapshotUid(String _marketDataSnapshotUniqueId) {
     this._marketDataSnapshotUniqueId = _marketDataSnapshotUniqueId;
   }
 
@@ -101,7 +101,7 @@ public class LiveDataSnapshot {
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-      .append("market data specification", getMarketDataSnapshotUniqueId())
+      .append("market data specification", getMarketDataSnapshotUid())
       .toString();
   }
 
