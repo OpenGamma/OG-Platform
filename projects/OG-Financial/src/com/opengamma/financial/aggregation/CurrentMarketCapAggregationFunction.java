@@ -78,9 +78,9 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
   
   private String getCurrentMarketCap(ExternalIdBundle externalIdBundle) {
     try {
-      Pair<LocalDate, Double> latestDataPoint = _htsSource.getLatestDataPoint(FIELD, externalIdBundle, RESOLUTION_KEY);
-      if (latestDataPoint != null && latestDataPoint.getFirst() != null && latestDataPoint.getSecond() != null) {
-        double currentMarketCap = latestDataPoint.getSecond();
+      Pair<LocalDate, Double> latest = _htsSource.getLatestDataPoint(FIELD, externalIdBundle, RESOLUTION_KEY);
+      if (latest != null && latest.getValue() != null) {
+        double currentMarketCap = latest.getValue();
         if (currentMarketCap < NANO_CAP_UPPER_THRESHOLD) {
           return NANO_CAP;
         } else if (currentMarketCap < MICRO_CAP_UPPER_THRESHOLD) {

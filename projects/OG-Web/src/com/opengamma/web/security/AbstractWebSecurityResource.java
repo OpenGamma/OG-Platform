@@ -13,7 +13,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.security.Security;

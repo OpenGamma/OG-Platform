@@ -72,7 +72,7 @@ public class BondCapitalIndexedTransactionDefinitionTest {
     BondCapitalIndexedTransaction<Coupon> bondTransactionConverted = BOND_GILT_1_TRANSACTION_DEFINITION.toDerivative(pricingDate, ukRpi, "Not used");
     BondCapitalIndexedSecurity<Coupon> purchase = BOND_GILT_1_SECURITY_DEFINITION.toDerivative(pricingDate, SETTLE_DATE_GILT_1, ukRpi);
     assertEquals("Capital Index Bond: toDerivative", purchase, bondTransactionConverted.getBondTransaction());
-    ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(pricingDate, CALENDAR_GBP, SETTLEMENT_DAYS_GILT_1);
+    ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(pricingDate, SETTLEMENT_DAYS_GILT_1, CALENDAR_GBP);
     BondCapitalIndexedSecurity<Coupon> standard = BOND_GILT_1_SECURITY_DEFINITION.toDerivative(pricingDate, spot, ukRpi);
     assertEquals("Capital Index Bond: toDerivative", standard, bondTransactionConverted.getBondStandard());
     BondCapitalIndexedTransaction<Coupon> expected = new BondCapitalIndexedTransaction<Coupon>(purchase, QUANTITY, PRICE_GILT_1, standard, NOTIONAL_GILT_1);

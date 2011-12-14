@@ -74,7 +74,7 @@ public abstract class BondTransactionDefinition<N extends PaymentDefinition, C e
     this._underlyingBond = underlyingBond;
     this._quantity = quantity;
     this._settlementDate = settlementDate;
-    _settlementExCouponDate = ScheduleCalculator.getAdjustedDate(_settlementDate, _underlyingBond.getCalendar(), _underlyingBond.getExCouponDays());
+    _settlementExCouponDate = ScheduleCalculator.getAdjustedDate(_settlementDate, _underlyingBond.getExCouponDays(), _underlyingBond.getCalendar());
     this._price = price;
     final int nbCoupon = underlyingBond.getCoupon().getNumberOfPayments();
     for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {

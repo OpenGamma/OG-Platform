@@ -43,7 +43,7 @@ public class SwapFixedOISSimplifiedDefinitionTest {
   private static final double FIXED_RATE = 0.01;
   private static final boolean IS_PAYER = true;
   private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2011, 9, 7);
-  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(TRADE_DATE, EUR_CALENDAR, EUR_SETTLEMENT_DAYS);
+  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(TRADE_DATE, EUR_SETTLEMENT_DAYS, EUR_CALENDAR);
 
   // Swap EONIA 3M
   private static final Period EUR_SWAP_3M_TENOR = Period.ofMonths(3);
@@ -66,9 +66,9 @@ public class SwapFixedOISSimplifiedDefinitionTest {
         .getAccrualStartDate());
     assertEquals("Swap OIS definition: constructor", EONIA_SWAP_3M_DEFINITION.getFixedLeg().getNthPayment(0).getAccrualEndDate(), EONIA_SWAP_3M_DEFINITION.getOISLeg().getNthPayment(0)
         .getAccrualEndDate());
-    ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(EONIA_SWAP_3M_DEFINITION.getFixedLeg().getNthPayment(0).getAccrualEndDate(), EUR_CALENDAR, -1); // Overnight
-    paymentDate = ScheduleCalculator.getAdjustedDate(paymentDate, EUR_CALENDAR, EUR_PUBLICATION_LAG); // Publication lag
-    paymentDate = ScheduleCalculator.getAdjustedDate(paymentDate, EUR_CALENDAR, EUR_SETTLEMENT_DAYS); // Payment lag
+    ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(EONIA_SWAP_3M_DEFINITION.getFixedLeg().getNthPayment(0).getAccrualEndDate(), -1, EUR_CALENDAR); // Overnight
+    paymentDate = ScheduleCalculator.getAdjustedDate(paymentDate, EUR_PUBLICATION_LAG, EUR_CALENDAR); // Publication lag
+    paymentDate = ScheduleCalculator.getAdjustedDate(paymentDate, EUR_SETTLEMENT_DAYS, EUR_CALENDAR); // Payment lag
     assertEquals("Swap OIS definition: constructor", paymentDate, EONIA_SWAP_3M_DEFINITION.getFirstLeg().getNthPayment(0).getPaymentDate());
   }
 
