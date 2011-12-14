@@ -6,9 +6,12 @@
 package com.opengamma.util.component;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -18,23 +21,24 @@ import com.opengamma.util.ArgumentChecker;
  * The OpenGamma logical architecture consists of a set of components.
  * This repository manages the components.
  * <p>
- * This class is thread-safe via concurrent collections.
+ * This class uses concurrent collections, but instances are intended to be created
+ * from a single thread at startup.
  */
 public class ComponentRepository {
 
   /**
-   * The classifier used for the default instance.
+   * The thread-local instance.
    */
-  public static final String DEFAULT_CLASSIFIER = "DEFAULT";
+  private static final ThreadLocal<ComponentRepository> s_threadRepo = new InheritableThreadLocal<ComponentRepository>();
 
+  /**
+   * The map of info by type.
+   */
+  private final ConcurrentMap<Class<?>, ComponentTypeInfo> _infoMap = new ConcurrentHashMap<Class<?>, ComponentTypeInfo>();
   /**
    * The repository of component instances.
    */
   private final ConcurrentMap<ComponentKey, Object> _instanceMap = new ConcurrentHashMap<ComponentKey, Object>();
-  /**
-   * The repository of component info.
-   */
-  private final ConcurrentMap<ComponentKey, ComponentInfo> _infoMap = new ConcurrentHashMap<ComponentKey, ComponentInfo>();
   /**
    * The repository of RESTful published components.
    */
@@ -42,12 +46,42 @@ public class ComponentRepository {
   /**
    * The thread-local instance.
    */
-  private static final ThreadLocal<ComponentRepository> s_threadRepo = new InheritableThreadLocal<ComponentRepository>();
+  private final AtomicBoolean _ready = new AtomicBoolean();
 
   /**
    * Creates an instance.
    */
   public ComponentRepository() {
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the type information for the component.
+   * 
+   * @param type  the type to get, not null
+   * @return the component type information, not null
+   * @throws IllegalArgumentException if no component is available
+   */
+  public ComponentTypeInfo getTypeInfo(Class<?> type) {
+    ComponentTypeInfo typeInfo = _infoMap.get(type);
+    if (typeInfo == null) {
+      throw new IllegalArgumentException("Unknown component: " + type);
+    }
+    return typeInfo;
+  }
+
+  /**
+   * Gets the component information.
+   * 
+   * @param type  the type to get, not null
+   * @param classifier  the classifier that distinguishes the component, empty for default, not null
+   * @return the component information, not null
+   * @throws IllegalArgumentException if no component is available
+   */
+  public ComponentInfo getInfo(Class<?> type, String classifier) {
+    ArgumentChecker.notNull(type, "type");
+    ComponentTypeInfo typeInfo = getTypeInfo(type);
+    return typeInfo.getInfo(classifier);
   }
 
   //-------------------------------------------------------------------------
@@ -62,7 +96,11 @@ public class ComponentRepository {
    * @throws IllegalArgumentException if no component is available
    */
   public <T> T getInstance(Class<T> type) {
-    return getInstance(type, DEFAULT_CLASSIFIER);
+    ComponentTypeInfo typeInfo = getTypeInfo(type);
+    if (typeInfo.getDefaultClassifier() == null) {
+      throw new IllegalArgumentException("No default component available: " + type);
+    }
+    return getInstance(type, typeInfo.getDefaultClassifier());
   }
 
   /**
@@ -78,7 +116,7 @@ public class ComponentRepository {
    */
   public <T> T getInstance(Class<T> type, String classifier) {
     ArgumentChecker.notNull(type, "type");
-    ComponentKey key = new ComponentKey(type, classifier);
+    ComponentKey key = ComponentKey.of(type, classifier);
     Object result = _instanceMap.get(key);
     if (result == null) {
       throw new IllegalArgumentException("No component available: " + key);
@@ -88,38 +126,29 @@ public class ComponentRepository {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the component information.
-   * 
-   * @param type  the type to get, not null
-   * @param classifier  the classifier that distinguishes the component, empty for default, not null
-   * @return the component information, not null
-   * @throws IllegalArgumentException if no component is available
-   */
-  public ComponentInfo getInfo(Class<?> type, String classifier) {
-    ArgumentChecker.notNull(type, "type");
-    ComponentKey key = new ComponentKey(type, classifier);
-    ComponentInfo result = _infoMap.get(key);
-    if (result == null) {
-      throw new IllegalArgumentException("No component available: " + key);
-    }
-    return result;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Registers the component.
+   * Registers the component specifying the info that describes it.
    * 
    * @param info  the component info to register, not null
    * @param instance  the component instance to register, not null
+   * @param makeDefault  true to make it the default
+   * @throws IllegalArgumentException if unable to register
    */
-  public void register(ComponentInfo info, Object instance) {
+  public void register(ComponentInfo info, Object instance, boolean makeDefault) {
+    if (_ready.get()) {
+      throw new IllegalStateException("Repository is in use and cannot be changed");
+    }
     ArgumentChecker.notNull(info, "info");
     ArgumentChecker.notNull(instance, "instance");
-    ComponentKey key = new ComponentKey(info.getType(), info.getClassifier());
-    Object current1 = _instanceMap.putIfAbsent(key, instance);
-    Object current2 = _infoMap.putIfAbsent(key, info);
-    if (current1 != null || current2 != null) {
+    ComponentKey key = info.toComponentKey();
+    Object current = _instanceMap.putIfAbsent(key, instance);
+    if (current != null) {
       throw new IllegalArgumentException("Component already registered for specified information");
+    }
+    _infoMap.putIfAbsent(info.getType(), new ComponentTypeInfo(info.getType()));
+    ComponentTypeInfo typeInfo = getTypeInfo(info.getType());
+    typeInfo.getInfoMap().put(info.getClassifier(), info);
+    if (makeDefault) {
+      typeInfo.setDefaultClassifier(info.getClassifier());
     }
   }
 
@@ -130,24 +159,43 @@ public class ComponentRepository {
    * @param resource  the RESTful resource, not null
    */
   public void publishRest(ComponentInfo info, Object resource) {
+    if (_ready.get()) {
+      throw new IllegalStateException("Repository is in use and cannot be changed");
+    }
     ArgumentChecker.notNull(info, "info");
     ArgumentChecker.notNull(resource, "resource");
-    ComponentKey key = new ComponentKey(info.getType(), info.getClassifier());
+    ComponentKey key = info.toComponentKey();
     _restPublished.put(key, resource);
   }
 
   /**
    * Gets the published components.
    * 
-   * @return a modifiable copy of the published components, not null
+   * @return an unmodifiable copy of the published components, not null
    */
-  public List<Object> getPublished() {
+  public Collection<Object> getPublished() {
     return new ArrayList<Object>(_restPublished.values());
+  }
+
+  /**
+   * Gets the published components.
+   * 
+   * @return an unmodifiable copy of the published components, not null
+   */
+  Map<ComponentKey, Object> getPublishedMap() {
+    return Collections.unmodifiableMap(_restPublished);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Sets this instance as the thread-local instance.
+   * Marks this repository as complete and ready for use.
+   */
+  public void ready() {
+    _ready.set(true);
+  }
+
+  /**
+   * Sets the thread-loal instance.
    */
   public void pushThreadLocal() {
     s_threadRepo.set(this);
@@ -168,39 +216,6 @@ public class ComponentRepository {
     StringBuilder buf = new StringBuilder(1024);
     buf.append(getClass().getSimpleName()).append(_instanceMap.keySet());
     return buf.toString();
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * The compound lookup key.
-   */
-  static final class ComponentKey {
-    private final Class<?> _type;
-    private final String _classifier;
-    ComponentKey(Class<?> type, String classifier) {
-      super();
-      _type = type;
-      _classifier = classifier;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (obj instanceof ComponentKey) {
-        ComponentKey other = (ComponentKey) obj;
-        return _type.equals(other._type) && _classifier.equals(other._classifier);
-      }
-      return false;
-    }
-
-    @Override
-    public int hashCode() {
-      return _type.hashCode() ^ _classifier.hashCode();
-    }
-
-    @Override
-    public String toString() {
-      return _type + "::" + _classifier;
-    }
   }
 
 }

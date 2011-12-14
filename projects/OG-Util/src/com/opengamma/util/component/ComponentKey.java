@@ -10,24 +10,24 @@ import java.io.Serializable;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * The type details of a component.
+ * The key used to identify the component.
  * <p>
- * Components are defined in terms of an interface type. This can be assigned a
- * short name for URIs and other protocols.
+ * Components are defined in terms of a type and classifier.
  */
-public final class ComponentType implements Serializable {
+final class ComponentKey implements Serializable {
 
   /** Serialization version.*/
   private static final long serialVersionUID = 1L;
 
   /**
-   * The type of the component, typically an interface.
+   * The component type representing the available functionality.
    */
-  private final Class<?> _type;
+  private Class<?> _type;
   /**
-   * The type name of the component, typically used remotely.
+   * The classifier of the type.
+   * This acts as a key to disambiguate multiple options for the same component type.
    */
-  private final String _name;
+  private String _classifier;
 
   /**
    * Obtains an instance.
@@ -36,21 +36,21 @@ public final class ComponentType implements Serializable {
    * @param name  the name of the type, typically used remotely
    * @return the component type, not null
    */
-  public static ComponentType of(Class<?> type, String name) {
-    return new ComponentType(type, name);
+  public static ComponentKey of(Class<?> type, String name) {
+    return new ComponentKey(type, name);
   }
 
   /**
    * Creates an instance.
    * 
    * @param type  the type of the component, typically an interface
-   * @param name  the name of the type, typically used remotely
+   * @param classifier  the classifier of the type, used to name instances of the same type
    */
-  private ComponentType(Class<?> type, String name) {
+  private ComponentKey(Class<?> type, String classifier) {
     ArgumentChecker.notNull(type, "type");
-    ArgumentChecker.notNull(name, "name");
+    ArgumentChecker.notNull(classifier, "classifier");
     _type = type;
-    _name = name;
+    _classifier = classifier;
   }
 
   //-------------------------------------------------------------------------
@@ -66,33 +66,33 @@ public final class ComponentType implements Serializable {
   }
 
   /**
-   * Gets the type name of the component for URIs and other protocols.
+   * Gets the classifier of the type, used to name instances of the same type.
    * 
-   * @return the type name, not null
+   * @return the classifier, not null
    */
-  public String getTypeName() {
-    return _name;
+  public String getClassifier() {
+    return _classifier;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
-    if (obj instanceof ComponentType) {
-      ComponentType other = (ComponentType) obj;
-      return _type.equals(other._type) && _name.equals(other._name);
+    if (obj instanceof ComponentKey) {
+      ComponentKey other = (ComponentKey) obj;
+      return _type.equals(other._type) && _classifier.equals(other._classifier);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return _type.hashCode() ^ _name.hashCode();
+    return _type.hashCode() ^ _classifier.hashCode();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return "ComponentType[" + _type + "]";
+    return _type.getSimpleName() + "::" + _classifier;
   }
 
 }

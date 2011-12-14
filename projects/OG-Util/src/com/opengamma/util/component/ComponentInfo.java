@@ -64,6 +64,16 @@ public class ComponentInfo extends DirectBean {
 
   //-------------------------------------------------------------------------
   /**
+   * Converts this info to a key.
+   * 
+   * @return the key for the component, not null
+   */
+  ComponentKey toComponentKey() {
+    return ComponentKey.of(_type, _classifier);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Adds a key value pair to attributes
    *
    * @param key  the key to add, not null

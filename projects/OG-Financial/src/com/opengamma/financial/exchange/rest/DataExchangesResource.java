@@ -34,7 +34,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * The exchanges resource receives and processes RESTful calls to the exchange master.
  */
-@Path("/data/exchangeMaster")
+@Path("/")
 public class DataExchangesResource extends AbstractDataResource {
 
   /**
@@ -102,7 +102,7 @@ public class DataExchangesResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchangeMaster/exchanges");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchanges");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }

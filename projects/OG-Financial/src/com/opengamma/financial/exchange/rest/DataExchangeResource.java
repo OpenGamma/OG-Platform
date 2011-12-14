@@ -144,7 +144,7 @@ public class DataExchangeResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    UriBuilder b = UriBuilder.fromUri(baseUri).path("/exchangeMaster/exchanges/{exchangeId}");
+    UriBuilder b = UriBuilder.fromUri(baseUri).path("/exchanges/{exchangeId}");
     if (versionCorrection != null && versionCorrection.getVersionAsOf() != null) {
       b.queryParam("versionAsOf", versionCorrection.getVersionAsOf());
     }
@@ -163,7 +163,7 @@ public class DataExchangeResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchangeMaster/exchanges/{exchangeId}/versions");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchanges/{exchangeId}/versions");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }
@@ -178,7 +178,7 @@ public class DataExchangeResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriVersion(URI baseUri, UniqueId uniqueId) {
-    return UriBuilder.fromUri(baseUri).path("/exchangeMaster/exchanges/{exchangeId}/versions/{versionId}")
+    return UriBuilder.fromUri(baseUri).path("/exchanges/{exchangeId}/versions/{versionId}")
       .build(uniqueId.toLatest(), uniqueId.getVersion());
   }
 

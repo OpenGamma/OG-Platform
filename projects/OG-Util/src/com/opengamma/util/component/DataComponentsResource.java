@@ -5,13 +5,13 @@
  */
 package com.opengamma.util.component;
 
+import java.util.Map;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.Providers;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
@@ -57,12 +57,24 @@ public class DataComponentsResource extends AbstractDataResource {
   }
 
   @GET
-  public Response search(@QueryParam("type") String type) {
-    
-    
-    ExchangeSearchRequest request = decodeBean(ExchangeSearchRequest.class, providers, msgBase64);
-    ExchangeSearchResult result = getExchangeMaster().search(request);
-    return Response.ok(result).build();
+  public Response getComponentInfos() {
+    Map<ComponentKey, Object> published = _repo.getPublishedMap();
+    ComponentInfosMsg infos = new ComponentInfosMsg();
+    for (ComponentKey key : published.keySet()) {
+      infos.getInfos().add(_repo.getInfo(key.getType(), key.getClassifier()));
+    }
+    return Response.ok(infos).build();
+  }
+
+  @Path("{type}/{classifier}")
+  public Object findComponent(@PathParam("type") String type, @PathParam("classifier") String classifier) {
+    Map<ComponentKey, Object> published = _repo.getPublishedMap();
+    for (ComponentKey key : published.keySet()) {
+      if (key.getType().getSimpleName().equalsIgnoreCase(type) && key.getClassifier().equalsIgnoreCase(classifier)) {
+        return published.get(key);
+      }
+    }
+    return null;
   }
 
 }
