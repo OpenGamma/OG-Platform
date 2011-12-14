@@ -78,7 +78,9 @@ public class ViewportsResource {
    * @param clientId ID of the client connection that owns the viewport.
    * @param viewportId ID of the viewport.
    * @param request HTTP request, used to get the ID of the logged-in user
-   * @return
+   * @return A resource wrapping the viewport
+   * @throws DataNotFoundException If there is no viewport with the specified ID or it is not owned by the
+   * specified client and user
    */
   @Path("{viewportId}")
   public ViewportResource findViewport(@QueryParam("clientId") String clientId, // TODO should this be optional? how? different method?
