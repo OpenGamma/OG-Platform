@@ -13,10 +13,10 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.annuity.method.AnnuityDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -25,13 +25,13 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Class to compute the quantities related to swaps (annuity, PVBP, coupon equivalent).
  */
-//REVIEW 12-6-2011 too many static methods
-public class SwapFixedIborMethod {
+//TODO: REVIEW 12-6-2011 too many static methods
+public class SwapFixedDiscountingMethod {
 
   /**
-   * Present value calculator used for intermediary computations.
+   * The methods.
    */
-  private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
+  private static final AnnuityDiscountingMethod METHOD_ANNUITY = AnnuityDiscountingMethod.getInstance();
 
   /**
    * Computes the conventional cash annuity of a swap. The computation is relevant only for standard swaps with constant notional and regular payments.
@@ -130,7 +130,7 @@ public class SwapFixedIborMethod {
    * @param discountingCurve The discounting curve.
    * @return The sensitivity.
    */
-  public static List<DoublesPair> presentValueBasisPointSensitivity(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final YieldAndDiscountCurve discountingCurve) {
+  public static List<DoublesPair> presentValueBasisPointCurveSensitivity(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final YieldAndDiscountCurve discountingCurve) {
     final AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
     double time;
     final List<DoublesPair> list = new ArrayList<DoublesPair>();
@@ -149,11 +149,11 @@ public class SwapFixedIborMethod {
    * @param curves The yield curve bundle (containing the appropriate discounting curve).
    * @return The sensitivity.
    */
-  public static InterestRateCurveSensitivity presentValueBasisPointSensitivity(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final YieldCurveBundle curves) {
+  public static InterestRateCurveSensitivity presentValueBasisPointCurveSensitivity(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final YieldCurveBundle curves) {
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     final AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName());
-    result.put(annuityFixed.getNthPayment(0).getFundingCurveName(), presentValueBasisPointSensitivity(fixedCouponSwap, discountingCurve));
+    result.put(annuityFixed.getNthPayment(0).getFundingCurveName(), presentValueBasisPointCurveSensitivity(fixedCouponSwap, discountingCurve));
     return new InterestRateCurveSensitivity(result);
   }
 
@@ -165,7 +165,7 @@ public class SwapFixedIborMethod {
    * @return The coupon equivalent.
    */
   public static double couponEquivalent(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final double pvbp, final YieldCurveBundle curves) {
-    return Math.abs(PVC.visit(fixedCouponSwap.getFixedLeg(), curves)) / pvbp;
+    return Math.abs(METHOD_ANNUITY.presentValue(fixedCouponSwap.getFixedLeg(), curves).getAmount()) / pvbp;
   }
 
   /**

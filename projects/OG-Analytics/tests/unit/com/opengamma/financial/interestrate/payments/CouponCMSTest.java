@@ -22,8 +22,8 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
-import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.ParRateCalculator;
@@ -89,7 +89,7 @@ public class CouponCMSTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME };
+  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
   private static final FixedCouponSwap<Coupon> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
   private static final CouponCMS CMS_COUPON_RECEIVER = (CouponCMS) CMS_COUPON_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -152,7 +152,7 @@ public class CouponCMSTest {
     final SABRInterestRateDataBundle sabrHaganBundle = new SABRInterestRateDataBundle(sabrParameterHagan, curves);
     final double priceHagan = PVC.visit(CMS_COUPON_RECEIVER, sabrHaganBundle);
     // From previous run
-    assertEquals(8853.207, priceHagan, 1E-2);
+    assertEquals(8853.300, priceHagan, 1E-2);
     // No convexity adjustment
     final PresentValueCalculator pvcNoConvexity = PresentValueCalculator.getInstance();
     final double priceNoConvexity = pvcNoConvexity.visit(CMS_COUPON_RECEIVER, curves);
@@ -265,7 +265,7 @@ public class CouponCMSTest {
       final double hpp = (_eta - 1.0) * _tau * hp / periodFactor;
       final double kp = hp / G - h * Gp / (G * G);
       final double kpp = hpp / G - 2 * hp * Gp / (G * G) - h * (Gpp / (G * G) - 2 * (Gp * Gp) / (G * G * G));
-      return new double[] {kp, kpp };
+      return new double[] {kp, kpp};
     }
 
     public double bs(final double strike, final double forward) {

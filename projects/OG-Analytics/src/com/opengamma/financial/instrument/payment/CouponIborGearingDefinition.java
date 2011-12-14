@@ -89,7 +89,7 @@ public class CouponIborGearingDefinition extends CouponIborDefinition {
     Validate.notNull(accrualStartDate, "Fixing date");
     Validate.notNull(accrualEndDate, "Fixing date");
     Validate.notNull(index, "Index");
-    final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, index.getCalendar(), -index.getSpotLag());
+    final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -index.getSpotLag(), index.getCalendar());
     return new CouponIborGearingDefinition(index.getCurrency(), accrualEndDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, index, spread, factor);
   }
 

@@ -69,7 +69,7 @@ public class CouponCMSSABRReplicationMethod {
     final CapFloorCMS cap0 = CapFloorCMS.from(cmsCoupon, 0.0, true);
     // A CMS coupon is priced as a cap with strike 0.
     final CapFloorCMSSABRReplicationMethod method = new CapFloorCMSSABRReplicationMethod(_integrationInterval);
-    return method.presentValueSensitivity(cap0, sabrData);
+    return method.presentValueCurveSensitivity(cap0, sabrData);
   }
 
   /**

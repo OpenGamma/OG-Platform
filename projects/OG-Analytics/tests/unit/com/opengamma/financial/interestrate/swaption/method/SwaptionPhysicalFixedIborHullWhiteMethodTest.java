@@ -39,7 +39,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFix
 import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
-import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
+import com.opengamma.financial.interestrate.swap.SwapFixedDiscountingMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
@@ -77,7 +77,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, SWAP_TENOR);
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2016, 7, 7);
-  private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, CALENDAR, SETTLEMENT_DAYS);
+  private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, SETTLEMENT_DAYS, CALENDAR);
   private static final double NOTIONAL = 100000000; //100m
   private static final double RATE = 0.0325;
   private static final boolean FIXED_IS_PAYER = true;
@@ -184,7 +184,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
   public void presentValueApproximation() {
     BlackImpliedVolatilityFormula implied = new BlackImpliedVolatilityFormula();
     double forward = ParRateCalculator.getInstance().visit(SWAPTION_PAYER_LONG.getUnderlyingSwap(), CURVES);
-    double pvbp = SwapFixedIborMethod.presentValueBasisPoint(SWAPTION_PAYER_LONG.getUnderlyingSwap(), CURVES);
+    double pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(SWAPTION_PAYER_LONG.getUnderlyingSwap(), CURVES);
     CurrencyAmount pvPayerLongExplicit = METHOD_HW.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
     CurrencyAmount pvPayerLongApproximation = METHOD_HW_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
     BlackFunctionData data = new BlackFunctionData(forward, pvbp, 0.20);
@@ -212,7 +212,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     double strikeRange = 0.035;
     FixedCouponSwap<Coupon> swap = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
     double forward = ParRateCalculator.getInstance().visit(swap, CURVES);
-    double pvbp = SwapFixedIborMethod.presentValueBasisPoint(swap, CURVES);
+    double pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(swap, CURVES);
     for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
       strike[loopstrike] = forward - strikeRange + 3 * strikeRange * loopstrike / nbStrike; // From forward-strikeRange to forward+2*strikeRange
       SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, strike[loopstrike], FIXED_IS_PAYER);

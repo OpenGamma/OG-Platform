@@ -156,7 +156,7 @@ public class BondFixedSecurityDefinitionTest {
     BondFixedSecurity bondConverted = BOND_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAME);
     AnnuityPaymentFixedDefinition nominalDefinition = (AnnuityPaymentFixedDefinition) BOND_SECURITY_DEFINITION.getNominal();
     AnnuityCouponFixedDefinition couponDefinition = BOND_SECURITY_DEFINITION.getCoupon();
-    ZonedDateTime spotDate1 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR, SETTLEMENT_DAYS);
+    ZonedDateTime spotDate1 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, SETTLEMENT_DAYS, CALENDAR);
     nominalDefinition = nominalDefinition.trimBefore(spotDate1);
     couponDefinition = couponDefinition.trimBefore(spotDate1);
 
@@ -211,7 +211,7 @@ public class BondFixedSecurityDefinitionTest {
     BondFixedSecurity bondConverted = BOND_SECURITY_DEFINITION_G.toDerivative(REFERENCE_DATE_1, CURVES_NAME);
     AnnuityPaymentFixedDefinition nominalDefinition = (AnnuityPaymentFixedDefinition) BOND_SECURITY_DEFINITION_G.getNominal();
     AnnuityCouponFixedDefinition couponDefinition = BOND_SECURITY_DEFINITION_G.getCoupon();
-    ZonedDateTime spotDate1 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR_G, SETTLEMENT_DAYS_G);
+    ZonedDateTime spotDate1 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, SETTLEMENT_DAYS_G, CALENDAR_G);
     nominalDefinition = nominalDefinition.trimBefore(spotDate1);
     couponDefinition = couponDefinition.trimBefore(spotDate1);
 
@@ -237,7 +237,7 @@ public class BondFixedSecurityDefinitionTest {
     BondFixedSecurity bondConverted = BOND_SECURITY_DEFINITION_G.toDerivative(referenceDate2, CURVES_NAME);
     AnnuityPaymentFixedDefinition nominalDefinition = (AnnuityPaymentFixedDefinition) BOND_SECURITY_DEFINITION_G.getNominal();
     AnnuityCouponFixedDefinition couponDefinition = BOND_SECURITY_DEFINITION_G.getCoupon();
-    ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(referenceDate2, CALENDAR_G, SETTLEMENT_DAYS_G);
+    ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(referenceDate2, SETTLEMENT_DAYS_G, CALENDAR_G);
     nominalDefinition = nominalDefinition.trimBefore(spotDate);
     couponDefinition = couponDefinition.trimBefore(spotDate);
     CouponFixedDefinition[] couponDefinitionExArray = new CouponFixedDefinition[couponDefinition.getNumberOfPayments()];
