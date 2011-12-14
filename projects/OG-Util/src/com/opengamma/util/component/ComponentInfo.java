@@ -32,7 +32,7 @@ public class ComponentInfo extends DirectBean {
    * The component type representing the available functionality.
    */
   @PropertyDefinition(validate = "notNull")
-  private ComponentType _type;
+  private Class<?> _type;
   /**
    * The classifier of the type.
    * This acts as a key to disambiguate multiple options for the same component type.
@@ -48,7 +48,7 @@ public class ComponentInfo extends DirectBean {
   /**
    * Creates an instance.
    */
-  public ComponentInfo() {
+  protected ComponentInfo() {
   }
 
   /**
@@ -57,7 +57,7 @@ public class ComponentInfo extends DirectBean {
    * @param type  the component type, not null
    * @param classifier  the classifier, not null
    */
-  public ComponentInfo(ComponentType type, String classifier) {
+  public ComponentInfo(Class<?> type, String classifier) {
     setType(type);
     setClassifier(classifier);
   }
@@ -111,7 +111,7 @@ public class ComponentInfo extends DirectBean {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 3575610:  // type
-        setType((ComponentType) newValue);
+        setType((Class<?>) newValue);
         return;
       case -281470431:  // classifier
         setClassifier((String) newValue);
@@ -159,7 +159,7 @@ public class ComponentInfo extends DirectBean {
    * Gets the component type representing the available functionality.
    * @return the value of the property, not null
    */
-  public ComponentType getType() {
+  public Class<?> getType() {
     return _type;
   }
 
@@ -167,7 +167,7 @@ public class ComponentInfo extends DirectBean {
    * Sets the component type representing the available functionality.
    * @param type  the new value of the property, not null
    */
-  public void setType(ComponentType type) {
+  public void setType(Class<?> type) {
     JodaBeanUtils.notNull(type, "type");
     this._type = type;
   }
@@ -176,7 +176,7 @@ public class ComponentInfo extends DirectBean {
    * Gets the the {@code type} property.
    * @return the property, not null
    */
-  public final Property<ComponentType> type() {
+  public final Property<Class<?>> type() {
     return metaBean().type().createProperty(this);
   }
 
@@ -248,8 +248,9 @@ public class ComponentInfo extends DirectBean {
     /**
      * The meta-property for the {@code type} property.
      */
-    private final MetaProperty<ComponentType> _type = DirectMetaProperty.ofReadWrite(
-        this, "type", ComponentInfo.class, ComponentType.class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Class<?>> _type = DirectMetaProperty.ofReadWrite(
+        this, "type", ComponentInfo.class, (Class) Class.class);
     /**
      * The meta-property for the {@code classifier} property.
      */
@@ -309,7 +310,7 @@ public class ComponentInfo extends DirectBean {
      * The meta-property for the {@code type} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ComponentType> type() {
+    public final MetaProperty<Class<?>> type() {
       return _type;
     }
 

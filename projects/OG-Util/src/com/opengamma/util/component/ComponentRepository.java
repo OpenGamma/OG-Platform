@@ -6,12 +6,9 @@
 package com.opengamma.util.component;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -26,13 +23,22 @@ import com.opengamma.util.ArgumentChecker;
 public class ComponentRepository {
 
   /**
-   * The repository of components.
+   * The classifier used for the default instance.
    */
-  private final ConcurrentMap<Class<?>, Repo> _repoMap = new ConcurrentHashMap<Class<?>, Repo>();
+  public static final String DEFAULT_CLASSIFIER = "DEFAULT";
+
   /**
-   * The published objects.
+   * The repository of component instances.
    */
-  private final CopyOnWriteArrayList<Object> _publish = new CopyOnWriteArrayList<Object>();
+  private final ConcurrentMap<ComponentKey, Object> _instanceMap = new ConcurrentHashMap<ComponentKey, Object>();
+  /**
+   * The repository of component info.
+   */
+  private final ConcurrentMap<ComponentKey, ComponentInfo> _infoMap = new ConcurrentHashMap<ComponentKey, ComponentInfo>();
+  /**
+   * The repository of RESTful published components.
+   */
+  private final ConcurrentMap<ComponentKey, Object> _restPublished = new ConcurrentHashMap<ComponentKey, Object>();
   /**
    * The thread-local instance.
    */
@@ -46,68 +52,88 @@ public class ComponentRepository {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets an instance of a component.
+   * Gets the default instance of a component.
    * <p>
-   * This finds a component that matches the specified type, using the tag as a hint.
+   * This finds a component, choosing the instance registered as the default.
    * 
    * @param <T>  the type
    * @param type  the type to get, not null
-   * @param tag  the tag to help distinguish the component, not null
    * @return the component, not null
    * @throws IllegalArgumentException if no component is available
    */
-  public <T> T get(Class<T> type, String tag) {
-    ArgumentChecker.notNull(type, "type");
-    ArgumentChecker.notNull(tag, "tag");
-    Repo repo = _repoMap.get(type);
-    if (repo == null) {
-      throw new IllegalArgumentException("No component available for specified type: " + type.getName() + " with tag: " + tag);
-    }
-    return repo.bestMatch(type, tag);
+  public <T> T getInstance(Class<T> type) {
+    return getInstance(type, DEFAULT_CLASSIFIER);
   }
 
   /**
-   * Gets an instance of a component using a class as the tag.
+   * Gets an instance of a component.
    * <p>
-   * This finds a component that matches the specified type, using the tag as a hint.
+   * This finds a component that matches the specified type.
    * 
    * @param <T>  the type
    * @param type  the type to get, not null
-   * @param tag  the tag to help distinguish the component, not null
-   * @return the component, not null
+   * @param classifier  the classifier that distinguishes the component, empty for default, not null
+   * @return the component instance, not null
    * @throws IllegalArgumentException if no component is available
    */
-  public <T> T get(Class<T> type, Class<?> tag) {
+  public <T> T getInstance(Class<T> type, String classifier) {
     ArgumentChecker.notNull(type, "type");
-    ArgumentChecker.notNull(tag, "tag");
-    return get(type, tag.getSimpleName());
+    ComponentKey key = new ComponentKey(type, classifier);
+    Object result = _instanceMap.get(key);
+    if (result == null) {
+      throw new IllegalArgumentException("No component available: " + key);
+    }
+    return type.cast(result);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the component information.
+   * 
+   * @param type  the type to get, not null
+   * @param classifier  the classifier that distinguishes the component, empty for default, not null
+   * @return the component information, not null
+   * @throws IllegalArgumentException if no component is available
+   */
+  public ComponentInfo getInfo(Class<?> type, String classifier) {
+    ArgumentChecker.notNull(type, "type");
+    ComponentKey key = new ComponentKey(type, classifier);
+    ComponentInfo result = _infoMap.get(key);
+    if (result == null) {
+      throw new IllegalArgumentException("No component available: " + key);
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Registers the component.
    * 
-   * @param <T>  the type
-   * @param type  the type to register under, not null
-   * @param component  the component to register, not null
-   * @param tags  the tags to help distinguish the component, not null
+   * @param info  the component info to register, not null
+   * @param instance  the component instance to register, not null
    */
-  public <T> void register(Class<T> type, T component, String... tags) {
-    ArgumentChecker.notNull(type, "type");
-    ArgumentChecker.notNull(component, "component");
-    ArgumentChecker.noNulls(tags, "tags");
-    _repoMap.putIfAbsent(type, new Repo());
-    Repo repo = _repoMap.get(type);
-    repo.register(component, tags);
+  public void register(ComponentInfo info, Object instance) {
+    ArgumentChecker.notNull(info, "info");
+    ArgumentChecker.notNull(instance, "instance");
+    ComponentKey key = new ComponentKey(info.getType(), info.getClassifier());
+    Object current1 = _instanceMap.putIfAbsent(key, instance);
+    Object current2 = _infoMap.putIfAbsent(key, info);
+    if (current1 != null || current2 != null) {
+      throw new IllegalArgumentException("Component already registered for specified information");
+    }
   }
 
   /**
    * Publishes the component as a RESTful API.
    * 
-   * @param type  the type of the component, not null
-   * @param resource  the resource, not null
+   * @param info  the component info to register, not null
+   * @param resource  the RESTful resource, not null
    */
-  public void publish(Class<?> type, Object resource) {
-    _publish.add(resource);
+  public void publishRest(ComponentInfo info, Object resource) {
+    ArgumentChecker.notNull(info, "info");
+    ArgumentChecker.notNull(resource, "resource");
+    ComponentKey key = new ComponentKey(info.getType(), info.getClassifier());
+    _restPublished.put(key, resource);
   }
 
   /**
@@ -116,7 +142,7 @@ public class ComponentRepository {
    * @return a modifiable copy of the published components, not null
    */
   public List<Object> getPublished() {
-    return new ArrayList<Object>(_publish);
+    return new ArrayList<Object>(_restPublished.values());
   }
 
   //-------------------------------------------------------------------------
@@ -140,86 +166,40 @@ public class ComponentRepository {
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(1024);
-    buf.append(getClass().getSimpleName()).append('[');
-    for (Class<?> type : _repoMap.keySet()) {
-      buf.append('\n').append(type.getName()).append("=").append(_repoMap.get(type));
-    }
-    return buf.append(']').toString();
+    buf.append(getClass().getSimpleName()).append(_instanceMap.keySet());
+    return buf.toString();
   }
 
   //-------------------------------------------------------------------------
   /**
-   * The tagged repository for a given type.
+   * The compound lookup key.
    */
-  static final class Repo {
-    /**
-     * The repository of components.
-     */
-    private final ConcurrentMap<String, Object> _repo = new ConcurrentHashMap<String, Object>();
-
-    /**
-     * Finds the best match for the given tag.
-     * 
-     * @param <T>  the type
-     * @param type  the type to get, not null
-     * @param tag  the tag to help distinguish the component, not null
-     * @return the best match, not null
-     * @throws IllegalArgumentException if no component is available
-     */
-    <T> T bestMatch(Class<T> type, String tag) {
-      final Map<String, Object> clone = new HashMap<String, Object>(_repo);
-      
-      // try exact match
-      Object matched = clone.get(tag);
-      if (matched != null) {
-        return type.cast(matched);
-      }
-      
-      // try partial match
-      if (tag.length() >= 3) {
-        final List<Object> possible = new ArrayList<Object>();
-        for (String key : clone.keySet()) {
-          if (key.contains(tag)) {
-            possible.add(clone.get(key));
-          }
-        }
-        switch (possible.size()) {
-          case 0:
-            break;
-          case 1:
-            return type.cast(possible.get(0));
-          default:
-            throw new IllegalArgumentException("Multiple components available for specified tag: " + tag + ": " + type.getName());
-        }
-      }
-      
-      // try default
-      matched = clone.get("DEFAULT");
-      if (matched != null) {
-        return type.cast(matched);
-      }
-      
-      throw new IllegalArgumentException("No component available for specified tag: " + tag + ": " + type.getName());
+  static final class ComponentKey {
+    private final Class<?> _type;
+    private final String _classifier;
+    ComponentKey(Class<?> type, String classifier) {
+      super();
+      _type = type;
+      _classifier = classifier;
     }
 
-    /**
-     * Registers the component.
-     * 
-     * @param component  the component to register, not null
-     * @param tags  the tags to help distinguish the component, not null
-     */
-    void register(Object component, String... tags) {
-      if (_repo.containsKey("DEFAULT") == false) {
-        _repo.put("DEFAULT", component);
+    @Override
+    public boolean equals(Object obj) {
+      if (obj instanceof ComponentKey) {
+        ComponentKey other = (ComponentKey) obj;
+        return _type.equals(other._type) && _classifier.equals(other._classifier);
       }
-      for (String tag : tags) {
-        _repo.putIfAbsent(tag, component);
-      }
+      return false;
+    }
+
+    @Override
+    public int hashCode() {
+      return _type.hashCode() ^ _classifier.hashCode();
     }
 
     @Override
     public String toString() {
-      return _repo.toString();
+      return _type + "::" + _classifier;
     }
   }
 
