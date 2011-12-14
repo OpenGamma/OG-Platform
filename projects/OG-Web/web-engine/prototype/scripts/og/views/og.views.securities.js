@@ -258,18 +258,13 @@ $.register_module({
                         var filter_name = options.slickgrid.columns[0].name;
                         if (!filter_name || filter_name === 'loading') // wait until type filter is populated
                             return setTimeout(search_filter, 500);
-                        search.filter($.extend(args, {filter: true}));
+                        search.filter(args);
                 };
                 check_state({args: args, conditions: [
                     {new_page: function () {
-                        state = {filter: true};
-                        securities.load(args);
-                        args.id
-                            ? routes.go(routes.hash(module.rules.load_securities, args))
-                            : routes.go(routes.hash(module.rules.load, args));
+                        return args.id ? securities.load_securities(args) : securities.load(args);
                     }}
                 ]});
-                delete args['filter'];
                 search_filter();
             },
             load_delete: function (args) {securities.search(args), routes.go(routes.hash(module.rules.load, {}));},

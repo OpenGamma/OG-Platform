@@ -63,18 +63,19 @@ $.register_module({
                     ui.dialog({
                         type: 'confirm',
                         title: 'Delete portfolio?',
-                        message: 'Are you sure you want to permanently delete this portfolio?',
+                        message: 'Are you sure you want to permanently delete ' +
+                            '<strong style="white-space: nowrap">' + portfolio_name + '</strong>?',
                         buttons: {
                             'Delete': function () {
                                 var args = routes.current().args, rest_options = {
                                     id: args.id,
-                                    handler: function (r) {
-                                        if (r.error) return ui.dialog({type: 'error', message: r.message});
+                                    handler: function (result) {
+                                        var args = routes.current().args, rule = module.rules.load;
+                                        if (result.error) return ui.dialog({type: 'error', message: result.message});
                                         portfolios.search(args);
-                                        routes.go(routes.hash(module.rules.load, args, {del: ['id', 'node']}));
+                                        routes.go(routes.hash(rule, args));
                                     }
                                 };
-                                if (routes.last().args.node) rest_options.node = routes.last().args.node;
                                 $(this).dialog('close');
                                 api.rest.portfolios.del(rest_options);
                             }
@@ -186,26 +187,26 @@ $.register_module({
                         slick.setColumns(display_columns);
                         slick.setSelectionModel(new Slick.RowSelectionModel());
                         slick.onClick.subscribe(function (e, dd) {
-                            var rule = module.rules.load_portfolios,
-                                node = json.portfolios[dd.row].id,
-                                href = routes.hash(rule, routes.current().args, {add: {node: node}});
-                            if ($(e.target).hasClass('og-icon-delete')) {
-                                ui.dialog({
-                                    type: 'confirm',
-                                    title: 'Delete sub portfolio?',
-                                    message: 'Are you sure you want to permanently delete this sub portfolio?',
-                                    buttons: {'Delete': function () {
-                                        api.rest.portfolios.del({
-                                            id: routes.current().args.id, node: node,
-                                            handler: function (r) {
-                                                if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                                portfolios.details(routes.current().args);
-                                            }
-                                        });
-                                        $(this).dialog('close');
-                                    }}
-                                });
-                            } else routes.go(href);
+                            var rule = module.rules.load_portfolios, node = json.portfolios[dd.row];
+                            if (!$(e.target).hasClass('og-icon-delete'))
+                                return routes.go(routes.hash(rule, routes.current().args, {add: {node: node.id}}));
+                            ui.dialog({
+                                type: 'confirm',
+                                title: 'Delete sub portfolio?',
+                                message: 'Are you sure you want to permanently delete ' +
+                                    '<strong style="white-space: nowrap">' + node.name + '</strong>?',
+                                buttons: {'Delete': function () {
+                                    api.rest.portfolios.del({
+                                        id: routes.current().args.id, node: node.id,
+                                        handler: function (result) {
+                                            if (result.error)
+                                                return ui.dialog({type: 'error', message: result.message});
+                                            portfolios.details(routes.current().args);
+                                        }
+                                    });
+                                    $(this).dialog('close');
+                                }}
+                            });                                
                         });
                         slick.onMouseEnter.subscribe(function (e) {
                            $(e.currentTarget).closest('.slick-row').find('.og-button').show();
@@ -295,31 +296,34 @@ $.register_module({
                         slick.setSelectionModel(new Slick.RowSelectionModel());
                         slick.onClick.subscribe(function (e, dd) {
                             var row = json.positions[dd.row], position = row.id, position_name = row.name;
-                            if ($(e.target).hasClass('og-icon-unhook')) {
-                                ui.dialog({
-                                    type: 'confirm',
-                                    title: 'Remove Position?',
-                                    message: 'Are you sure you want to remove the position '
-                                        + '<strong style="white-space: nowrap">' + position_name + '</strong>'
-                                        + ' from this portfolio?',
-                                    buttons: {'Delete': function () {
-                                        api.rest.portfolios.del({
-                                            id: routes.last().args.id,
-                                            node: json.template_data.node,
-                                            position: position,
-                                            handler: function (r) {
-                                                if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                                routes.handler();
-                                            }
-                                        });
-                                        $(this).dialog('close');
-                                    }}
+                            if (!$(e.target).hasClass('og-icon-unhook')) {
+                                common.gadgets.positions({
+                                    id: position, selector: '.og-js-details-positions', editable: false
                                 });
+                                common.gadgets.trades({id: position, selector: '.og-js-trades-table'});
+                                return;
                             }
-                            common.gadgets.positions({
-                                id: position, selector: '.og-js-details-positions', editable: false
+                            ui.dialog({
+                                type: 'confirm',
+                                title: 'Remove Position?',
+                                message: 'Are you sure you want to remove the position '
+                                    + '<strong style="white-space: nowrap">' + position_name + '</strong>'
+                                    + ' from this portfolio?',
+                                buttons: {'Delete': function () {
+                                    var args = routes.current().args;
+                                    api.rest.portfolios.del({
+                                        id: args.id,
+                                        node: json.template_data.node,
+                                        position: position,
+                                        handler: function (result) {
+                                            if (result.error)
+                                                return ui.dialog({type: 'error', message: result.message});
+                                            portfolios.details(routes.current().args);
+                                        }
+                                    });
+                                    $(this).dialog('close');
+                                }}
                             });
-                            common.gadgets.trades({id: position, selector: '.og-js-trades-table'});
                         });
                         slick.onMouseEnter.subscribe(function (e) {
                            $(e.currentTarget).closest('.slick-row').find('.og-button').show();
@@ -351,7 +355,7 @@ $.register_module({
                         if (result.error) return alert(result.message); // TODO: replace with UI error dialog
                         json = result.data;
                         history.put({
-                            name: json.template_data.name,
+                            name: portfolio_name = json.template_data.name,
                             item: 'history.portfolios.recent',
                             value: routes.current().hash
                         });
@@ -386,7 +390,7 @@ $.register_module({
                                 attribute: 'data-og-editable',
                                 handler: function () {
                                     portfolios.search(args);
-                                    routes.handler();
+                                    portfolios.details(args);
                                 }
                             });
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
