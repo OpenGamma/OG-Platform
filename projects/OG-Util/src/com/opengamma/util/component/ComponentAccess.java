@@ -11,16 +11,12 @@ package com.opengamma.util.component;
 public enum ComponentAccess {
 
   /**
-   * Local access to the component.
+   * Access is provided over REST, typically using Fudge.
    */
-  LOCAL,
+  REST,
   /**
-   * RESTful client providing access to a remote instance of the component.
+   * Access is provided by a raw socket.
    */
-  REST_CLIENT,
-  /**
-   * RESTful server providing remote access to the local instance of the component.
-   */
-  REST_SERVER,
+  SOCKET,
 
 }
