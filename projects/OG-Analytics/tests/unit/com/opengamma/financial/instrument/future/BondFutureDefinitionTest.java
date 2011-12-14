@@ -109,8 +109,8 @@ public class BondFutureDefinitionTest {
     assertEquals("Bond future security definition: last trading date", LAST_TRADING_DATE, FUTURE_DEFINITION.getTradingLastDate());
     assertEquals("Bond future security definition: first notice date", FIRST_NOTICE_DATE, FUTURE_DEFINITION.getNoticeFirstDate());
     assertEquals("Bond future security definition: last notice date", LAST_NOTICE_DATE, FUTURE_DEFINITION.getNoticeLastDate());
-    assertEquals("Bond future security definition: first delivery date", ScheduleCalculator.getAdjustedDate(FIRST_NOTICE_DATE, CALENDAR, SETTLEMENT_DAYS), FUTURE_DEFINITION.getDeliveryFirstDate());
-    assertEquals("Bond future security definition: last delivery date", ScheduleCalculator.getAdjustedDate(LAST_NOTICE_DATE, CALENDAR, SETTLEMENT_DAYS), FUTURE_DEFINITION.getDeliveryLastDate());
+    assertEquals("Bond future security definition: first delivery date", ScheduleCalculator.getAdjustedDate(FIRST_NOTICE_DATE, SETTLEMENT_DAYS, CALENDAR), FUTURE_DEFINITION.getDeliveryFirstDate());
+    assertEquals("Bond future security definition: last delivery date", ScheduleCalculator.getAdjustedDate(LAST_NOTICE_DATE, SETTLEMENT_DAYS, CALENDAR), FUTURE_DEFINITION.getDeliveryLastDate());
     assertEquals("Bond future security definition: notional", NOTIONAL, FUTURE_DEFINITION.getNotional());
     assertEquals("Bond future security definition: delivery basket", BASKET_DEFINITION, FUTURE_DEFINITION.getDeliveryBasket());
     assertEquals("Bond future security definition: conversion factors", CONVERSION_FACTOR, FUTURE_DEFINITION.getConversionFactor());
@@ -154,8 +154,8 @@ public class BondFutureDefinitionTest {
    * Tests the toDerivative method.
    */
   public void toDerivative() {
-    ZonedDateTime firstDeliveryDate = ScheduleCalculator.getAdjustedDate(FIRST_NOTICE_DATE, CALENDAR, SETTLEMENT_DAYS);
-    ZonedDateTime lastDeliveryDate = ScheduleCalculator.getAdjustedDate(LAST_NOTICE_DATE, CALENDAR, SETTLEMENT_DAYS);
+    ZonedDateTime firstDeliveryDate = ScheduleCalculator.getAdjustedDate(FIRST_NOTICE_DATE, SETTLEMENT_DAYS, CALENDAR);
+    ZonedDateTime lastDeliveryDate = ScheduleCalculator.getAdjustedDate(LAST_NOTICE_DATE, SETTLEMENT_DAYS, CALENDAR);
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 17);
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final double lastTradingTime = actAct.getDayCountFraction(referenceDate, LAST_TRADING_DATE);

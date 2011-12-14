@@ -22,8 +22,8 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
-import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.financial.interestrate.ParRateCalculator;
@@ -150,11 +150,11 @@ public class SwaptionCashFixedIborTest {
     final Function1D<BlackFunctionData, Double> funcShortReceiver = BLACK_FUNCTION.getPriceFunction(SWAPTION_SHORT_RECEIVER);
     final double priceShortReceiver = funcShortReceiver.evaluate(data) * (SWAPTION_SHORT_RECEIVER.isLong() ? 1.0 : -1.0);
     // From previous run
-    final double expectedPvbp = 190280584.377;
+    final double expectedPvbp = 190280393.401;
     assertEquals(expectedPvbp, pvbp, 1E-2);
-    final double expectedPriceLongPayer = 1553341.170;
+    final double expectedPriceLongPayer = 1553486.18;
     assertEquals(expectedPriceLongPayer, priceLongPayer, 1E-2);
-    final double expectedPriceLongReceiver = 39008.571;
+    final double expectedPriceLongReceiver = 38997.648;
     assertEquals(expectedPriceLongReceiver, priceLongReceiver, 1E-2);
     // Long/Short parity
     assertEquals(priceLongPayer, -priceShortPayer, 1E-2);
@@ -177,7 +177,7 @@ public class SwaptionCashFixedIborTest {
     assertEquals(priceLongPayer, -priceShortPayer, 1E-2);
     assertEquals(priceLongReceiver, -priceShortReceiver, 1E-2);
     // From previous run
-    final double expectedPriceLongPayer = 1599203.405;
+    final double expectedPriceLongPayer = 1599334.211;
     assertEquals(expectedPriceLongPayer, priceLongPayer, 1E-2);
   }
 }

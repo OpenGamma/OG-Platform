@@ -27,9 +27,20 @@
     "trades": [
         <#list position.trades as trade>{
             "id": "${trade.uniqueId.objectId}",
+            "premium": "${trade.premium}",
+            "premiumCurrency": "${trade.premiumCurrency}",
+            "premiumDate": "${trade.premiumDate}",
+            <#if trade.premiumTime??>
+            "premiumTime": "${trade.premiumTime.toString(timeFormatter)}",
+            "premiumTimeOffset": "${trade.premiumTime.toString(offsetFormatter)}",
+            </#if>
             "quantity": "${trade.quantity}",
             "counterParty": "${trade.counterpartyExternalId}",
-            "date": "${trade.tradeDate}",
+            "tradeDate": "${trade.tradeDate}",
+            <#if trade.tradeTime??>
+            "tradeTime": "${trade.tradeTime.toString(timeFormatter)}",
+            "tradeTimeOffset": "${trade.tradeTime.toString(offsetFormatter)}",
+            </#if>
             <#assign dealAttr = tradeAttrModel.getDealAttributes(trade.uniqueId)>
             <#assign userAttr = tradeAttrModel.getUserAttributes(trade.uniqueId)>
             "attributes":{"dealAttributes" : {<#list dealAttr?keys as key>"${key}":"${dealAttr[key]}"<#if key_has_next>,</#if></#list>}, 
