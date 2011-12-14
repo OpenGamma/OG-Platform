@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.web.security;
+package com.opengamma.web;
 
 import static org.testng.AssertJUnit.assertNotNull;
 
@@ -34,11 +34,11 @@ import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 
 /**
- * Utility class used by WebSecuritiesResourceTest
+ * Utility class used by WebResource testcases
  */
-public final class WebSecuritiesResourceTestUtils {
+public final class WebResourceTestUtils {
 
-  private WebSecuritiesResourceTestUtils() {
+  private WebResourceTestUtils() {
   }
   
   /**
@@ -129,8 +129,8 @@ public final class WebSecuritiesResourceTestUtils {
     return sec;
   }
   
-  public static JSONObject loadJson(String filename) throws IOException, JSONException {
-    URL jsonResource = WebSecuritiesResourceTestUtils.class.getResource(filename);
+  public static JSONObject loadJson(String filePath) throws IOException, JSONException {
+    URL jsonResource = ClassLoader.getSystemResource(filePath);
     assertNotNull(jsonResource);
     String expectedJsonStr = FileUtils.readFileToString(new File(jsonResource.getPath()));
     JSONObject expectedJson = new JSONObject(expectedJsonStr);

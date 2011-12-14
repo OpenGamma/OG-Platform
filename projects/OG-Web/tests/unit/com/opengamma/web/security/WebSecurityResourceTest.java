@@ -14,6 +14,7 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.test.SecurityTestCaseMethods;
 import com.opengamma.id.UniqueId;
+import com.opengamma.web.WebResourceTestUtils;
 
 /**
  * Test {@link WebSecurityResource}.
@@ -39,7 +40,7 @@ public class WebSecurityResourceTest extends AbstractWebSecurityResourceTestCase
   @Test
   @Override
   public void testEquitySecurity() throws Exception {
-    assertGetSecurity(WebSecuritiesResourceTestUtils.getEquitySecurity());
+    assertGetSecurity(WebResourceTestUtils.getEquitySecurity());
   }
 
   @Override
@@ -53,7 +54,7 @@ public class WebSecurityResourceTest extends AbstractWebSecurityResourceTestCase
   @Test
   @Override
   public void testBondFutureSecurity() throws Exception {
-    assertGetSecurity(WebSecuritiesResourceTestUtils.getBondFutureSecurity());
+    assertGetSecurity(WebResourceTestUtils.getBondFutureSecurity());
   }
 
   @Override
