@@ -32,6 +32,6 @@ public interface Normalizer {
    * @param data a map of specifications to data that should be normalized, not null
    * @return the normalized results, specifications omitted if any were rejected
    */
-  Map<LiveDataSpecification, FudgeMsg> normalizeValues(Map<LiveDataSpecification, FudgeMsg> data);
+  Map<LiveDataSpecification, FudgeMsg> normalizeValues(Map<LiveDataSpecification, ? extends FudgeMsg> data);
 
 }

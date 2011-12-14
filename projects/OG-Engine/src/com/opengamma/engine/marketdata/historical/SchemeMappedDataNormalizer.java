@@ -9,15 +9,22 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Maps;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Instance of {@link HistoricalMarketDataNormalizer} that passes the input to another
  * normalizer based on the scheme.
  */
 public class SchemeMappedDataNormalizer implements HistoricalMarketDataNormalizer {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(SchemeMappedDataNormalizer.class);
 
   private final Map<ExternalScheme, HistoricalMarketDataNormalizer> _normalizers;
 
@@ -71,6 +78,35 @@ public class SchemeMappedDataNormalizer implements HistoricalMarketDataNormalize
       }
     }
     return null;
+  }
+
+  @Override
+  public Map<Pair<ExternalIdBundle, String>, Object> normalize(final Map<Pair<ExternalIdBundle, String>, Object> values) {
+    final Map<HistoricalMarketDataNormalizer, Map<Pair<ExternalIdBundle, String>, Object>> delegates = new HashMap<HistoricalMarketDataNormalizer, Map<Pair<ExternalIdBundle, String>, Object>>();
+    for (Map.Entry<Pair<ExternalIdBundle, String>, Object> value : values.entrySet()) {
+      for (ExternalId identifier : value.getKey().getFirst().getExternalIds()) {
+        final HistoricalMarketDataNormalizer normalizer = getNormalizers().get(identifier.getScheme());
+        if (normalizer != null) {
+          Map<Pair<ExternalIdBundle, String>, Object> delegate = delegates.get(normalizer);
+          if (delegate == null) {
+            delegate = new HashMap<Pair<ExternalIdBundle, String>, Object>();
+            delegates.put(normalizer, delegate);
+          }
+          delegate.put(value.getKey(), value.getValue());
+          break;
+        }
+      }
+    }
+    final Map<Pair<ExternalIdBundle, String>, Object> results = Maps.newHashMapWithExpectedSize(values.size());
+    for (Map.Entry<HistoricalMarketDataNormalizer, Map<Pair<ExternalIdBundle, String>, Object>> delegate : delegates.entrySet()) {
+      s_logger.debug("Delegating {} to {}", delegate.getValue(), delegate.getKey());
+      final Map<Pair<ExternalIdBundle, String>, Object> normalized = delegate.getKey().normalize(delegate.getValue());
+      if (normalized != null) {
+        s_logger.debug("Normalized results = {}", normalized);
+        results.putAll(normalized);
+      }
+    }
+    return results;
   }
 
 }

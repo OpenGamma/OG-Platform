@@ -5,7 +5,10 @@
  */
 package com.opengamma.engine.marketdata.historical;
 
+import java.util.Map;
+
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Instance of {@link HistoricalMarketDataNormalizer} that passes all inputs through
@@ -16,6 +19,11 @@ public class IdentityDataNormalizer implements HistoricalMarketDataNormalizer {
   @Override
   public Object normalize(final ExternalIdBundle identifiers, final String name, final Object value) {
     return value;
+  }
+
+  @Override
+  public Map<Pair<ExternalIdBundle, String>, Object> normalize(final Map<Pair<ExternalIdBundle, String>, Object> values) {
+    return values;
   }
 
 }

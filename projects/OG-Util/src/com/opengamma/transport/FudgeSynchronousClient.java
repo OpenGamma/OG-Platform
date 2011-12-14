@@ -135,8 +135,10 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
     ClientRequestHolder requestHolder = new ClientRequestHolder();
     _pendingRequests.put(correlationId, requestHolder);
     try {
+      s_logger.debug("Sending message {}", correlationId);
       getMessageSender().send(requestMsg);
       try {
+        s_logger.debug("Blocking for message result");
         requestHolder.latch.await(getTimeoutInMilliseconds(), TimeUnit.MILLISECONDS);
       } catch (InterruptedException e) {
         Thread.interrupted();
@@ -147,9 +149,11 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
         throw new OpenGammaRuntimeException("Didn't receive a response message to " + correlationId + " in " + getTimeoutInMilliseconds() + "ms");
       }
       assert getCorrelationIdFromReply(requestHolder.resultValue) == correlationId;
+      s_logger.debug("Received result {}", requestHolder.resultValue);
       return requestHolder.resultValue;
     } finally {
       _pendingRequests.remove(correlationId);
+      s_logger.debug("Request {} complete", correlationId);
     }
   }
 

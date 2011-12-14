@@ -49,7 +49,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Represents a market data snapshot from a {@link MarketDataSnapshotSource}.
  */
-public class UserMarketDataSnapshot implements MarketDataSnapshot {
+public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   private static final Map<String, StructuredMarketDataKeyFactory> s_structuredKeyFactories = new HashMap<String, StructuredMarketDataKeyFactory>();
   

@@ -70,7 +70,7 @@ public class FudgeRequestSenderFactoryBean extends SingletonFactoryBean<FudgeReq
   private FudgeRequestSender createJmsFudgeRequestSender(final FudgeMsg endPoint) {
     ArgumentChecker.notNullInjected(getJmsConnector(), "jmsConnector");
     final String topic = endPoint.getString(JmsEndPointDescriptionProvider.TOPIC_KEY);
-    return new ByteArrayFudgeRequestSender(new JmsByteArrayRequestSender(topic, getJmsConnector().getJmsTemplateTopic()));
+    return new ByteArrayFudgeRequestSender(new JmsByteArrayRequestSender(topic, getJmsConnector().getJmsTemplateTopic()), getFudgeContext());
   }
 
   @Override

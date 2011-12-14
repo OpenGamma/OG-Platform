@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.marketdata;
 
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
@@ -15,18 +15,19 @@ import javax.time.calendar.TimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.marketdata.historical.HistoricalMarketDataNormalizer;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A {@link MarketDataSnapshot} backed by historical data.
  */
-public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
+public class HistoricalMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   private static final Logger s_logger = LoggerFactory.getLogger(HistoricalMarketDataSnapshot.class);
 
@@ -50,28 +51,14 @@ public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
   }
 
   @Override
-  public void init() {
-    // Nothing to do as we query on-the-fly.
-  }
-  
-  @Override
-  public void init(Set<ValueRequirement> valuesRequired, long timeout, TimeUnit unit) {
-    // Nothing to do as we query on-the-fly. Unavailable historical values will not become available by waiting, so
-    // ignore the timeout.
-  }
-
-  @Override
   public Instant getSnapshotTime() {
     return getSnapshotTimeIndication();
   }
 
-  @Override
-  public Object query(ValueRequirement requirement) {
+  private Object query(final ExternalIdBundle identifiers, final String valueName) {
     final LocalDate date = getMarketDataSpec().getSnapshotDate();
-    final ExternalId identifier = requirement.getTargetSpecification().getIdentifier();
-    final ExternalIdBundle identifiers = ExternalIdBundle.of(identifier);
     HistoricalTimeSeries hts = getTimeSeriesSource().getHistoricalTimeSeries(
-        getFieldResolver().resolve(requirement.getValueName(), getMarketDataSpec().getTimeSeriesFieldResolverKey()),
+        getFieldResolver().resolve(valueName, getMarketDataSpec().getTimeSeriesFieldResolverKey()),
         identifiers,
         getMarketDataSpec().getTimeSeriesResolverKey(),
         date,
@@ -79,21 +66,58 @@ public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
         date, 
         true);
     if (hts == null || hts.getTimeSeries().isEmpty()) {
-      s_logger.info("No data for {}", requirement);
+      s_logger.info("No time-series for {}, {}", identifiers, valueName);
       return null;
     }
-    final Object rawValue = hts.getTimeSeries().getValue(getMarketDataSpec().getSnapshotDate());
+    return hts.getTimeSeries().getValue(getMarketDataSpec().getSnapshotDate());
+  }
+
+  @Override
+  public Object query(ValueRequirement requirement) {
+    final ExternalIdBundle identifiers = ExternalIdBundle.of(requirement.getTargetSpecification().getIdentifier());
+    final Object rawValue = query(identifiers, requirement.getValueName());
+    if (rawValue == null) {
+      s_logger.info("No data point for {}", requirement);
+      return null;
+    }
     final Object normalizedValue = getNormalizer().normalize(identifiers, requirement.getValueName(), rawValue);
     if (normalizedValue == null) {
       s_logger.info("Normalization failed for {}, raw value = {}", requirement, rawValue);
       return null;
-    } else {
-      s_logger.debug("Normalized value for {} = {}", requirement, normalizedValue);
     }
+    s_logger.debug("Normalized value for {} = {}", requirement, normalizedValue);
     return normalizedValue;
   }
   
-  // TODO: bulk operation could be useful; even if the HTS source doesn't support it, the normalizers could
+  @SuppressWarnings("unchecked")
+  @Override
+  public Map<ValueRequirement, Object> query(final Set<ValueRequirement> requirements) {
+    // The raw values are fetched sequentially, but the normalization can be done with a bulk operation.
+    final Map<ValueRequirement, Object> result = Maps.newHashMapWithExpectedSize(requirements.size());
+    final Map<Pair<ExternalIdBundle, String>, Object> request = Maps.newHashMapWithExpectedSize(requirements.size());
+    for (ValueRequirement requirement : requirements) {
+      final ExternalIdBundle identifiers = ExternalIdBundle.of(requirement.getTargetSpecification().getIdentifier());
+      final Object rawValue = query(identifiers, requirement.getValueName());
+      if (rawValue != null) {
+        final Pair<ExternalIdBundle, String> key = Pair.of(identifiers, requirement.getValueName());
+        request.put(key, rawValue);
+        result.put(requirement, key);
+      }
+    }
+    s_logger.debug("Raw values = {}", request);
+    final Map<Pair<ExternalIdBundle, String>, Object> response = getNormalizer().normalize(request);
+    for (ValueRequirement requirement : requirements) {
+      final Pair<ExternalIdBundle, String> key = (Pair<ExternalIdBundle, String>) result.remove(requirement);
+      if (key != null) {
+        final Object normalizedValue = response.get(key);
+        if (normalizedValue != null) {
+          result.put(requirement, normalizedValue);
+        }
+      }
+    }
+    s_logger.debug("Normalized values = {}", result);
+    return result;
+  }
 
   //-------------------------------------------------------------------------
   private HistoricalMarketDataSpecification getMarketDataSpec() {

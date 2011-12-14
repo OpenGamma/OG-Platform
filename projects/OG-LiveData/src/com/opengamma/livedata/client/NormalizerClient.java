@@ -14,6 +14,8 @@ import java.util.Map;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.opengamma.livedata.LiveDataSpecification;
@@ -29,6 +31,8 @@ import com.opengamma.transport.FudgeSynchronousClient;
  */
 public class NormalizerClient extends FudgeSynchronousClient implements Normalizer {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(NormalizerClient.class);
+
   public NormalizerClient(final FudgeRequestSender sender) {
     super(sender);
   }
@@ -39,6 +43,8 @@ public class NormalizerClient extends FudgeSynchronousClient implements Normaliz
     try {
       responseMessage = sendRequestAndWaitForResponse(requestMessage, request.getCorrelationId());
     } catch (RuntimeException e) {
+      s_logger.warn("Couldn't send normalization request", e.getMessage());
+      s_logger.debug("Exception", e);
       return null;
     }
     if (responseMessage == null) {
@@ -59,14 +65,17 @@ public class NormalizerClient extends FudgeSynchronousClient implements Normaliz
   }
 
   @Override
-  public Map<LiveDataSpecification, FudgeMsg> normalizeValues(final Map<LiveDataSpecification, FudgeMsg> data) {
+  public Map<LiveDataSpecification, FudgeMsg> normalizeValues(final Map<LiveDataSpecification, ? extends FudgeMsg> data) {
     final List<LiveDataSpecification> dataSpecifications = new ArrayList<LiveDataSpecification>(data.size());
     final List<FudgeMsg> dataMessages = new ArrayList<FudgeMsg>(data.size());
-    for (Map.Entry<LiveDataSpecification, FudgeMsg> dataEntry : data.entrySet()) {
+    for (Map.Entry<LiveDataSpecification, ? extends FudgeMsg> dataEntry : data.entrySet()) {
       dataSpecifications.add(dataEntry.getKey());
       dataMessages.add(dataEntry.getValue());
     }
-    final NormalizationResponse response = send(new NormalizationRequest(getNextCorrelationId(), dataSpecifications, dataMessages));
+    final NormalizationRequest request = new NormalizationRequest(getNextCorrelationId(), dataSpecifications, dataMessages);
+    s_logger.debug("Sending {} to server", request);
+    final NormalizationResponse response = send(request);
+    s_logger.debug("Received {} from server", response);
     if (response == null) {
       return null;
     }

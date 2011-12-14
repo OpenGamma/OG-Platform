@@ -23,7 +23,7 @@ import com.opengamma.engine.value.ValueRequirement;
 /**
  * A {@link MarketDataSnapshot} for live data.
  */
-public class LiveMarketDataSnapshot implements MarketDataSnapshot {
+public class LiveMarketDataSnapshot extends AbstractMarketDataSnapshot {
   private static final Logger s_logger = LoggerFactory.getLogger(LiveMarketDataSnapshot.class);
 
   private final InMemoryLKVMarketDataSnapshot _underlyingSnapshot;

@@ -6,19 +6,23 @@
 package com.opengamma.engine.marketdata.historical;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests the {@link SequentialDataNormalizer} class.
  */
 @Test
-public class CombinedDataNormalizerTest {
+public class SequentialDataNormalizerTest {
 
   private static class Normalizer implements HistoricalMarketDataNormalizer {
 
@@ -41,6 +45,30 @@ public class CombinedDataNormalizerTest {
       return _outputValue;
     }
 
+    @Override
+    public Map<Pair<ExternalIdBundle, String>, Object> normalize(Map<Pair<ExternalIdBundle, String>, Object> values) {
+      assertEquals(values.size(), 1);
+      final Map.Entry<Pair<ExternalIdBundle, String>, Object> value = values.entrySet().iterator().next();
+      final Object normalized = normalize(value.getKey().getFirst(), value.getKey().getSecond(), value.getValue());
+      if (normalized == null) {
+        return Collections.emptyMap();
+      } else {
+        return Collections.singletonMap(value.getKey(), normalized);
+      }
+    }
+
+  }
+
+  private Object single(final HistoricalMarketDataNormalizer normalizer) {
+    return normalizer.normalize(ExternalIdBundle.of(ExternalId.of("Foo", "Bar")), "Test", "X");
+  }
+
+  private Object multiple(final HistoricalMarketDataNormalizer normalizer) {
+    final Map<Pair<ExternalIdBundle, String>, Object> request = Collections
+        .<Pair<ExternalIdBundle, String>, Object>singletonMap(Pair.of(ExternalIdBundle.of(ExternalId.of("Foo", "Bar")), "Test"), "X");
+    final Map<Pair<ExternalIdBundle, String>, Object> response = normalizer.normalize(request);
+    assertNotNull(response);
+    return response.get(Pair.of(ExternalIdBundle.of(ExternalId.of("Foo", "Bar")), "Test"));
   }
 
   public void testFirst() {
@@ -49,7 +77,8 @@ public class CombinedDataNormalizerTest {
     final Normalizer b = new Normalizer();
     b.setOutputValue("B");
     final HistoricalMarketDataNormalizer normalizer = new SequentialDataNormalizer(Arrays.asList(a, b));
-    assertEquals(normalizer.normalize(ExternalIdBundle.of(ExternalId.of("Foo", "Bar")), "Test", "X"), "A");
+    assertEquals(single(normalizer), "A");
+    assertEquals(multiple(normalizer), "A");
     assertEquals(a.getInputValue(), "X");
     assertEquals(b.getInputValue(), null);
   }
@@ -59,7 +88,8 @@ public class CombinedDataNormalizerTest {
     final Normalizer b = new Normalizer();
     b.setOutputValue("B");
     final HistoricalMarketDataNormalizer normalizer = new SequentialDataNormalizer(Arrays.asList(a, b));
-    assertEquals(normalizer.normalize(ExternalIdBundle.of(ExternalId.of("Foo", "Bar")), "Test", "X"), "B");
+    assertEquals(single(normalizer), "B");
+    assertEquals(multiple(normalizer), "B");
     assertEquals(a.getInputValue(), "X");
     assertEquals(b.getInputValue(), "X");
   }
@@ -68,7 +98,8 @@ public class CombinedDataNormalizerTest {
     final Normalizer a = new Normalizer();
     final Normalizer b = new Normalizer();
     final HistoricalMarketDataNormalizer normalizer = new SequentialDataNormalizer(Arrays.asList(a, b));
-    assertEquals(normalizer.normalize(ExternalIdBundle.of(ExternalId.of("Foo", "Bar")), "Test", "X"), null);
+    assertEquals(single(normalizer), null);
+    assertEquals(multiple(normalizer), null);
     assertEquals(a.getInputValue(), "X");
     assertEquals(b.getInputValue(), "X");
   }

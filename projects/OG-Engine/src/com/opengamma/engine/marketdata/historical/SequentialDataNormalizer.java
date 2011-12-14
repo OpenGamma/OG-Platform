@@ -5,9 +5,13 @@
  */
 package com.opengamma.engine.marketdata.historical;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.google.common.collect.Maps;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Instance of {@link HistoricalMarketDataNormalizer} that passes the input to other
@@ -35,6 +39,21 @@ public class SequentialDataNormalizer implements HistoricalMarketDataNormalizer 
     }
     // None accepted, so reject completely
     return null;
+  }
+
+  @Override
+  public Map<Pair<ExternalIdBundle, String>, Object> normalize(final Map<Pair<ExternalIdBundle, String>, Object> values) {
+    final Map<Pair<ExternalIdBundle, String>, Object> results = Maps.newHashMapWithExpectedSize(values.size());
+    final Map<Pair<ExternalIdBundle, String>, Object> inputs = new HashMap<Pair<ExternalIdBundle, String>, Object>(values);
+    for (HistoricalMarketDataNormalizer normalizer : getNormalizers()) {
+      final Map<Pair<ExternalIdBundle, String>, Object> normalized = normalizer.normalize(inputs);
+      results.putAll(normalized);
+      inputs.keySet().removeAll(normalized.keySet());
+      if (inputs.isEmpty()) {
+        break;
+      }
+    }
+    return results;
   }
 
 }

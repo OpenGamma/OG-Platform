@@ -5,8 +5,11 @@
  */
 package com.opengamma.engine.marketdata.historical;
 
+import java.util.Map;
+
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A normalization hook for historical market data.
@@ -26,6 +29,14 @@ public interface HistoricalMarketDataNormalizer {
    */
   Object normalize(ExternalIdBundle identifiers, String name, Object value);
 
-  // TODO: bulk operations could be useful here as some of the underlying utilities (e.g. OG-LiveData) support it 
+  /**
+   * Bulk normalization operation.
+   * 
+   * @param values the values to normalize as a map of ExternalId/Value name pairs to
+   *        the original values, not null
+   * @return the normalized form, as a map, not null but with values omitted if they
+   *         were rejected
+   */
+  Map<Pair<ExternalIdBundle, String>, Object> normalize(Map<Pair<ExternalIdBundle, String>, Object> values);
 
 }

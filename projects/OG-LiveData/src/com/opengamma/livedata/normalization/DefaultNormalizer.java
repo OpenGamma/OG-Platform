@@ -62,7 +62,7 @@ public class DefaultNormalizer implements Normalizer {
   }
 
   @Override
-  public Map<LiveDataSpecification, FudgeMsg> normalizeValues(Map<LiveDataSpecification, FudgeMsg> data) {
+  public Map<LiveDataSpecification, FudgeMsg> normalizeValues(Map<LiveDataSpecification, ? extends FudgeMsg> data) {
     final Map<ExternalIdBundle, LiveDataSpecification> dataByBundle = Maps.newHashMapWithExpectedSize(data.size());
     for (LiveDataSpecification lds : data.keySet()) {
       dataByBundle.put(lds.getIdentifiers(), lds);
