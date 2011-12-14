@@ -89,17 +89,21 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
       if (samplingFunctionName == null || samplingFunctionName.isEmpty() || samplingFunctionName.size() != 1) {
         return null;
       }
+      final Set<String> returnCalculatorName = constraints.getValues(ValuePropertyNames.RETURN_CALCULATOR);
+      if (returnCalculatorName == null || returnCalculatorName.isEmpty() || returnCalculatorName.size() != 1) {
+        return null;
+      }
       final Position position = target.getPosition();
       final String currency = FinancialSecurityUtils.getCurrency(position.getSecurity()).getCode();
       final EquitySecurity equity = (EquitySecurity) position.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      final ValueProperties pnlSeriesProperties = ValueProperties.builder()
+      final ValueProperties priceSeriesProperties = ValueProperties.builder()
         .with(ValuePropertyNames.CURRENCY, currency)
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName.iterator().next())
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next()).get();
       requirements.add(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId(), ValueProperties.withAny(ValuePropertyNames.CURRENCY).get()));
-      requirements.add(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, ComputationTargetType.SECURITY, equity.getUniqueId(), pnlSeriesProperties));
+      requirements.add(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, ComputationTargetType.SECURITY, equity.getUniqueId(), priceSeriesProperties));
       return requirements;
     }
     return null;

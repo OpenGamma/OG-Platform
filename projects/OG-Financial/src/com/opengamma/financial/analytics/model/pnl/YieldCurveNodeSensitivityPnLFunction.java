@@ -96,7 +96,7 @@ public class YieldCurveNodeSensitivityPnLFunction extends AbstractFunction.NonCo
     DoubleTimeSeries<?> result = getPnLSeries(forwardCurveSensitivities, historicalSource, startDate, now, schedule, samplingFunction)
       .add(getPnLSeries(fundingCurveSensitivities, historicalSource, startDate, now, schedule, samplingFunction));
     result = result.multiply(position.getQuantity().doubleValue());
-    final ValueProperties resultProperties = getResultProperties(desiredValues.iterator().next(), currency);
+    final ValueProperties resultProperties = getResultProperties(desiredValue, currency);
     final ValueSpecification resultSpec = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position, resultProperties), getUniqueId());
     return Sets.newHashSet(new ComputedValue(resultSpec, result));
   }

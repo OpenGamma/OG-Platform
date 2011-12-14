@@ -25,18 +25,16 @@ public abstract class NormalHistoricalVaRDefaultPropertiesFunction extends Defau
   private final String _stdDevCalculator;
   private final String _confidenceLevel;
   private final String _horizon;
-  private final String _returnCalculator;
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingCalculator;
   
-  public NormalHistoricalVaRDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator, final String returnCalculator, 
+  public NormalHistoricalVaRDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator,
       final String meanCalculator, final String stdDevCalculator, final String confidenceLevel, final String horizon, final ComputationTargetType target) {
     super(target, true);
     ArgumentChecker.notNull(samplingPeriod, "sampling period name");
     ArgumentChecker.notNull(scheduleCalculator, "schedule calculator name");
     ArgumentChecker.notNull(samplingCalculator, "time series sampling calculator name");
-    ArgumentChecker.notNull(returnCalculator, "return calculator name");
     ArgumentChecker.notNull(meanCalculator, "mean calculator name");
     ArgumentChecker.notNull(stdDevCalculator, "standard deviation calculator name");
     ArgumentChecker.notNull(confidenceLevel, "confidence level name");
@@ -44,7 +42,6 @@ public abstract class NormalHistoricalVaRDefaultPropertiesFunction extends Defau
     _samplingPeriod = samplingPeriod;
     _scheduleCalculator = scheduleCalculator;
     _samplingCalculator = samplingCalculator;    
-    _returnCalculator = returnCalculator;
     _meanCalculator = meanCalculator;
     _stdDevCalculator = stdDevCalculator;
     _confidenceLevel = confidenceLevel;
@@ -53,7 +50,6 @@ public abstract class NormalHistoricalVaRDefaultPropertiesFunction extends Defau
   
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    defaults.addValuePropertyName(ValueRequirementNames.HISTORICAL_VAR, ValuePropertyNames.RETURN_CALCULATOR);
     defaults.addValuePropertyName(ValueRequirementNames.HISTORICAL_VAR, ValuePropertyNames.SAMPLING_PERIOD);
     defaults.addValuePropertyName(ValueRequirementNames.HISTORICAL_VAR, ValuePropertyNames.SCHEDULE_CALCULATOR);
     defaults.addValuePropertyName(ValueRequirementNames.HISTORICAL_VAR, ValuePropertyNames.SAMPLING_FUNCTION);
@@ -66,9 +62,6 @@ public abstract class NormalHistoricalVaRDefaultPropertiesFunction extends Defau
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, 
       final String propertyName) {
-    if (ValuePropertyNames.RETURN_CALCULATOR.equals(propertyName)) {
-      return Collections.singleton(_returnCalculator);
-    }
     if (ValuePropertyNames.SAMPLING_PERIOD.equals(propertyName)) {
       return Collections.singleton(_samplingPeriod);
     } 

@@ -95,15 +95,11 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
       if (samplingFunctionName == null || samplingFunctionName.size() != 1) {
         return null;
       }
-      final Set<String> returnCalculatorName = constraints.getValues(ValuePropertyNames.RETURN_CALCULATOR);
-      if (returnCalculatorName == null || returnCalculatorName.size() != 1) {
-        return null;
-      }
       final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName.iterator().next())
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next())
-        .with(ValuePropertyNames.RETURN_CALCULATOR, returnCalculatorName.iterator().next())
+        //.withAny(ValuePropertyNames.RETURN_CALCULATOR)
         .withAny(ValuePropertyNames.CURRENCY).get();
       return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, getTarget(target), properties));
     }
@@ -119,7 +115,6 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-        .withAny(ValuePropertyNames.RETURN_CALCULATOR)
         .withAny(ValuePropertyNames.MEAN_CALCULATOR)
         .withAny(ValuePropertyNames.STD_DEV_CALCULATOR)
         .withAny(ValuePropertyNames.CONFIDENCE_LEVEL)
@@ -150,7 +145,6 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
       .withAny(ValuePropertyNames.SAMPLING_PERIOD)
       .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
       .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-      .withAny(ValuePropertyNames.RETURN_CALCULATOR)
       .withAny(ValuePropertyNames.MEAN_CALCULATOR)
       .withAny(ValuePropertyNames.STD_DEV_CALCULATOR)
       .withAny(ValuePropertyNames.CONFIDENCE_LEVEL)
@@ -164,7 +158,6 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
       .with(ValuePropertyNames.SAMPLING_PERIOD, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD))
       .with(ValuePropertyNames.SCHEDULE_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR))
       .with(ValuePropertyNames.SAMPLING_FUNCTION, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION))
-      .with(ValuePropertyNames.RETURN_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.RETURN_CALCULATOR))
       .with(ValuePropertyNames.MEAN_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.MEAN_CALCULATOR))
       .with(ValuePropertyNames.STD_DEV_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.STD_DEV_CALCULATOR))
       .with(ValuePropertyNames.CONFIDENCE_LEVEL, desiredValue.getConstraint(ValuePropertyNames.CONFIDENCE_LEVEL))

@@ -143,7 +143,24 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
     if (!canApplyTo(context, target)) {
       return null;
     }
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> samplingPeriodName = constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD);
+    if (samplingPeriodName == null || samplingPeriodName.isEmpty() || samplingPeriodName.size() != 1) {
+      return null;
+    }
+    final Set<String> scheduleCalculatorName = constraints.getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
+    if (scheduleCalculatorName == null || scheduleCalculatorName.isEmpty() || scheduleCalculatorName.size() != 1) {
+      return null;
+    }
+    final Set<String> samplingFunctionName = constraints.getValues(ValuePropertyNames.SAMPLING_FUNCTION);
+    if (samplingFunctionName == null || samplingFunctionName.isEmpty() || samplingFunctionName.size() != 1) {
+      return null;
+    }
+    final Set<String> returnCalculatorName = constraints.getValues(ValuePropertyNames.RETURN_CALCULATOR);
+    if (returnCalculatorName == null || returnCalculatorName.isEmpty() || returnCalculatorName.size() != 1) {
+      return null;
+    }
+    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();    
     requirements.add(new ValueRequirement(REQUIREMENT_NAME, target.getPosition()));
     return requirements;
   }

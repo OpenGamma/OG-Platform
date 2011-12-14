@@ -63,7 +63,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  * 
  */
-public class OptionPortfolioParametricVaRFunction extends AbstractFunction.NonCompiledInvoker {
+public class OptionPortfolioParametricVaRFunction {/* extends AbstractFunction.NonCompiledInvoker {
   private final String _resolutionKey;
   private final LocalDate _startDate;
   private final Set<ValueGreek> _valueGreeks;
@@ -204,5 +204,5 @@ public class OptionPortfolioParametricVaRFunction extends AbstractFunction.NonCo
   public String getShortName() {
     return "PortfolioParametricVaRCalculatorFunction";
   }
-
+*/
 }
