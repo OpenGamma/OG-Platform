@@ -57,8 +57,6 @@ $.register_module({
                             }
                         };
                         put_config[$editable_element.attr(attr)] = new_content;
-                        // portfolios also have a node attribute that is necessary, so add if available
-                        if (current.args.node) put_config.node = current.args.node;
                         api[current.page.substring(1)].put(put_config);
                 };
                 /**
