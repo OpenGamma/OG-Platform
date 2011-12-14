@@ -16,19 +16,14 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
 /**
- *
+ * Jersey {@link MessageBodyReader} that produces {@link ViewportDefinition} instances from JSON.
  */
 @Provider
 @Consumes(MediaType.APPLICATION_JSON)
 public class ViewportDefinitionReader implements MessageBodyReader<ViewportDefinition> {
 
   /**
-   *
-   * @param type
-   * @param genericType
-   * @param annotations
-   * @param mediaType
-   * @return
+   * @return {@code true} if {@code type} is {@link ViewportDefinition}.
    */
   @Override
   public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {

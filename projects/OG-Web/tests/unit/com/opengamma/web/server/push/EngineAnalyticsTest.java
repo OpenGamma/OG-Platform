@@ -8,7 +8,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 /**
- * Tests live updating of analytics from a real engine.
+ * Tests live updating of analytics from a real engine.  Requires an engine running on {@code localhost}.
  */
 public class EngineAnalyticsTest {
 

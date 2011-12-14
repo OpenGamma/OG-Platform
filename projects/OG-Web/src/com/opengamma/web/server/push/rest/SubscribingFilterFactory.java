@@ -38,12 +38,15 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SubscribingFilterFactory.class);
 
+  /** HTTP context injected by Jersey.  This is a proxy that always points to the context for the current request */
   @Context
   private HttpContext _httpContext;
 
+  /** Servlet context injected by Jersey.  This is a proxy that always points to the context for the current request */
   @Context
   private ServletContext _servletContext;
 
+  /** Request injected by Jersey.  This is a proxy that always points to the current request */
   @Context
   private HttpServletRequest _servletRequest;
 
@@ -66,6 +69,15 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
     return context.getBean(ConnectionManager.class);
   }
 
+  /**
+   * Creates a filter that creates a subscription for an entity when the method is invoked.  The method must have a
+   * parameter annotated with {@link Subscribe} and {@link PathParam} which is a string that can be parsed by
+   * {@link UniqueId#parse(String)}.  A notification is sent when the object with the specified {@link UniqueId}
+   * changes.
+   * @param abstractMethod A Jersey REST method
+   * @return A filter to set up subscriptions when the method is invoked or {@code null} if the method doesn't
+   * need entity subscriptions
+   */
   private ResourceFilter createEntitySubscriptionFilter(AbstractMethod abstractMethod) {
     Method method = abstractMethod.getMethod();
     Annotation[][] annotations = method.getParameterAnnotations();
@@ -99,6 +111,13 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
     }
   }
 
+  /**
+   * Creates a filter that creates a subscription for a master when the method is invoked.  The method must be
+   * annotated with {@link SubscribeMaster}.  A notification is sent when any data in the master changes.
+   * @param abstractMethod A Jersey REST method
+   * @return A filter to set up subscriptions when the method is invoked or {@code null} if the method doesn't
+   * need master subscriptions
+   */
   private ResourceFilter createMasterSubscriptionFilter(AbstractMethod abstractMethod) {
     SubscribeMaster annotation = abstractMethod.getAnnotation(SubscribeMaster.class);
     if (annotation != null) {

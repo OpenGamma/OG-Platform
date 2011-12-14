@@ -21,7 +21,9 @@ import java.security.Principal;
 import java.util.List;
 
 /**
- *
+ * Jersey filter that sets up subscriptions for masters that are queried via the REST interface.  When any data changes
+ * in the master a notification is sent to the client containing the REST URL used to perform the original query.
+ * An instance of the filter is associated with each REST method annotated with {@link SubscribeMaster}.
  */
 public class MasterSubscriptionFilter implements ResourceFilter {
 
@@ -40,25 +42,46 @@ public class MasterSubscriptionFilter implements ResourceFilter {
     _servletRequest = servletRequest;
   }
 
+  /**
+   * @return {@code null}
+   */
   @Override
   public ContainerRequestFilter getRequestFilter() {
     return null;
   }
 
+  /**
+   * @return A {@link ResponseFilter}
+   */
   @Override
   public ContainerResponseFilter getResponseFilter() {
     return new ResponseFilter(_masterTypes);
   }
 
+  /**
+   * Filter that examines the response and sets up a subscription with
+   * {@link ConnectionManager#subscribe(String, String, MasterType, String)}.
+   */
   private class ResponseFilter implements ContainerResponseFilter {
 
+    /** The masters whose data is returned by the REST method */
     private final List<MasterType> _masterTypes;
 
+    /**
+     * @param masterTypes The masters whose data is returned by the REST method
+     */
     public ResponseFilter(List<MasterType> masterTypes) {
       _masterTypes = masterTypes;
     }
 
-    // TODO this is copy-pasted from EntitySubscriptionFilter, common superclass? helper method / class?
+    /**
+     * Extracts the client ID from the query parameter named {@link LongPollingServlet#CLIENT_ID} and subscribes
+     * for updates when the data changes in any of the masters in {@link #_masterTypes}.
+     * @param request The request
+     * @param response The response
+     * @return The unmodified response
+     * TODO this is copy-pasted from EntitySubscriptionFilter, common superclass? helper method / class?
+     */
     @Override
     public ContainerResponse filter(ContainerRequest request, ContainerResponse response) {
       // TODO check response status

@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
+ * REST resource that wraps a {@link Viewport}.
  * TODO sub-resource for individual grids that can return CSV? currently done by WebAnalyticsResource
  * URL like /{vieportId}/primitives|portfolio/analytics
  * URL like /{vieportId}/primitives|portfolio/dependencygraph/{row}/{col}
@@ -25,6 +26,9 @@ public class ViewportResource {
     _viewport = viewport;
   }
 
+  /**
+   * @return JSON containing the structure of the viewport's grids
+   */
   @Path("grid")
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -32,6 +36,9 @@ public class ViewportResource {
     return new JSONObject(_viewport.getGridStructure()).toString();
   }
 
+  /**
+   * @return JSON containing the viewport's latest data
+   */
   @Path("data")
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -39,6 +46,11 @@ public class ViewportResource {
     return new JSONObject(_viewport.getLatestResults()).toString();
   }
 
+  /**
+   * Pauses or unpauses the view.
+   * @param run {@code true} to run the view, {@code false} to pause it
+   * @return An empty response
+   */
   // TODO is a query param the right way to do this? easy to implement but is that adequate justification?
   @POST
   @Path("running")
@@ -47,6 +59,11 @@ public class ViewportResource {
     return Response.ok().build();
   }
 
+  /**
+   * Sets the viewport to produce full or summary data.
+   * @param mode The new viewport data mode
+   * @return An empty response
+   */
   // TODO is a query param the right way to do this? easy to implement but is that adequate justification?
   @POST
   @Path("mode")

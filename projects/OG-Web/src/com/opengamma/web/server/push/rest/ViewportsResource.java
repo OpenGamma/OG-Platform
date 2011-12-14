@@ -26,6 +26,7 @@ import javax.ws.rs.core.UriBuilder;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * REST resource for creating and retrieving {@link Viewport} instances.
  * TODO catch RestRuntimeException and set the status on the response?
  * TODO would that be best done with a servlet filter? surely there's a standard way to do that?
  */
@@ -33,8 +34,10 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ViewportsResource {
 
   // TODO better way of generating viewport IDs
-  // TODO this is 1-based to make sure the viewport and client IDs are different (for debugging)
+  /** The next viewport ID.  This is 1-based to make sure the viewport and client IDs are different (for debugging) */
   private final AtomicLong _nextId = new AtomicLong(1);
+
+  /** For creating and looking up {@link Viewport}s */
   private final ConnectionManager _restUpdateManager;
 
   public ViewportsResource(ConnectionManager restUpdateManager) {
@@ -42,15 +45,18 @@ public class ViewportsResource {
   }
 
   /**
-   * @param request Details of the viewport
+   * Creates a new viewport and sets up a subscription so the client will be notified when the viewport data or
+   * structure changes.
+   * @param viewportDefinition Details of the new viewport
+   * @param clientId ID of the client connection
+   * @param request HTTP request, used to get the ID of the logged-in user
    * @return URI of the new viewport
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON) // TODO JSON? {viewportRestUrl: <url>}
-  // TODO should clientId be a query param or part of the viewport def?
+  @Produces(MediaType.APPLICATION_JSON)
   public String createViewport(ViewportDefinition viewportDefinition,
-                               @QueryParam("clientId") String clientId, // TODO should this be optional? is it? viewports without updates?
+                               @QueryParam("clientId") String clientId, // TODO should this be optional? that would be consistent with the other REST methods
                                @Context HttpServletRequest request) {
     String userId = request.getRemoteUser();
     String viewportId = generateViewportId();
@@ -67,6 +73,13 @@ public class ViewportsResource {
     return jsonObject.toString();
   }
 
+  /**
+   * Returns an existing viewport.
+   * @param clientId ID of the client connection that owns the viewport.
+   * @param viewportId ID of the viewport.
+   * @param request HTTP request, used to get the ID of the logged-in user
+   * @return
+   */
   @Path("{viewportId}")
   public ViewportResource findViewport(@QueryParam("clientId") String clientId, // TODO should this be optional? how? different method?
                                        @PathParam("viewportId") String viewportId,

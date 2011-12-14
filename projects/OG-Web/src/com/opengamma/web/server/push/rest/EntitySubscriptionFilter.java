@@ -20,12 +20,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MultivaluedMap;
 import java.security.Principal;
 import java.util.List;
 
 /**
- *
+ * Jersey filter that sets up subscriptions for entities returned from REST methods.  When the entity changes
+ * a notification is sent to the client containing the REST URL used to request the entity.
+ * An instance of the filter is associated with each REST method annotated with {@link Subscribe}.
  */
 public class EntitySubscriptionFilter implements ResourceFilter {
 
@@ -36,36 +39,63 @@ public class EntitySubscriptionFilter implements ResourceFilter {
   private final ConnectionManager _restUpdateManager;
   private final HttpServletRequest _servletRequest;
 
-  /* package */
+  /**
+   * @param uidParamNames Parameter names (specified by {@link PathParam}) that contain {@link UniqueId}s for which
+   * subscriptions should be created
+   * @param connectionManager For setting up the subscriptions
+   * @param httpContext The HTTP context of the request
+   * @param servletRequest The HTTP request
+   */
   public EntitySubscriptionFilter(List<String> uidParamNames,
-                                  ConnectionManager restUpdateManager,
+                                  ConnectionManager connectionManager,
                                   HttpContext httpContext,
                                   HttpServletRequest servletRequest) {
     _httpContext = httpContext;
     _uidParamNames = uidParamNames;
-    _restUpdateManager = restUpdateManager;
+    _restUpdateManager = connectionManager;
     _servletRequest = servletRequest;
   }
 
+  /**
+   * @return {@code null}
+   */
   @Override
   public ContainerRequestFilter getRequestFilter() {
     return null;
   }
 
+  /**
+   * @return A {@link ResponseFilter} for setting up the subscription
+   */
   @Override
   public ContainerResponseFilter getResponseFilter() {
     return new ResponseFilter(_uidParamNames);
   }
 
+  /**
+   * Filter that examines the response and sets up the subscription with
+   * {@link ConnectionManager#subscribe(String, String, UniqueId, String)}.
+   */
   private class ResponseFilter implements ContainerResponseFilter {
 
     private final List<String> uidParamNames;
 
+    /**
+     * @param uidParamNames Names of the method parameters that contain {@link UniqueId}s.  These are the names
+     * specified in the {@link PathParam} annotations and they are also annotated with {@link Subscribe}.
+     */
     public ResponseFilter(List<String> uidParamNames) {
       this.uidParamNames = uidParamNames;
     }
 
-    // TODO this is almost identical to MasterSubscriptionFilter, common superclass? helper method / class?
+    /**
+     * Extracts the client ID from the query parameter named {@link LongPollingServlet#CLIENT_ID} and subscribes
+     * for updates for {@link UniqueId}s in the parameters named {@link #uidParamNames}.
+     * @param request The request
+     * @param response The response
+     * @return The unmodified response
+     * TODO this is almost identical to MasterSubscriptionFilter, common superclass? helper method / class?
+     */
     @Override
     public ContainerResponse filter(ContainerRequest request, ContainerResponse response) {
       // TODO check the response status, only subscribe if successful
