@@ -7,17 +7,17 @@ package com.opengamma.engine.marketdata.historical;
 
 import java.util.List;
 
-import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 
 /**
  * Instance of {@link HistoricalMarketDataNormalizer} that passes the input to other
  * normalizers until one accepts the value.
  */
-public class CombinedDataNormalizer implements HistoricalMarketDataNormalizer {
+public class SequentialDataNormalizer implements HistoricalMarketDataNormalizer {
 
   private final HistoricalMarketDataNormalizer[] _normalizers;
 
-  public CombinedDataNormalizer(final List<HistoricalMarketDataNormalizer> normalizers) {
+  public SequentialDataNormalizer(final List<? extends HistoricalMarketDataNormalizer> normalizers) {
     _normalizers = normalizers.toArray(new HistoricalMarketDataNormalizer[normalizers.size()]);
   }
 
@@ -26,9 +26,9 @@ public class CombinedDataNormalizer implements HistoricalMarketDataNormalizer {
   }
   
   @Override
-  public Object normalize(final ExternalId identifier, final String name, final Object value) {
+  public Object normalize(final ExternalIdBundle identifiers, final String name, final Object value) {
     for (HistoricalMarketDataNormalizer normalizer : getNormalizers()) {
-      final Object normalized = normalizer.normalize(identifier, name, value);
+      final Object normalized = normalizer.normalize(identifiers, name, value);
       if (normalized != null) {
         return normalized;
       }

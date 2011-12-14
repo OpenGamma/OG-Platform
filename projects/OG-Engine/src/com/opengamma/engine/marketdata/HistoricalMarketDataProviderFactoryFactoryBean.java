@@ -6,7 +6,7 @@
 package com.opengamma.engine.marketdata;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.engine.marketdata.historical.DummyDataNormalizer;
+import com.opengamma.engine.marketdata.historical.IdentityDataNormalizer;
 import com.opengamma.engine.marketdata.historical.HistoricalMarketDataNormalizer;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
@@ -18,7 +18,7 @@ public class HistoricalMarketDataProviderFactoryFactoryBean extends SingletonFac
 
   private HistoricalTimeSeriesSource _timeSeriesSource;
   private HistoricalMarketDataFieldResolver _fieldResolver;
-  private HistoricalMarketDataNormalizer _normalizer = new DummyDataNormalizer();
+  private HistoricalMarketDataNormalizer _normalizer = new IdentityDataNormalizer();
   
   public HistoricalTimeSeriesSource getTimeSeriesSource() {
     return _timeSeriesSource;

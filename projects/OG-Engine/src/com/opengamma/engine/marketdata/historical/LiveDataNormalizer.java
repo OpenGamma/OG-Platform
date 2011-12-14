@@ -11,46 +11,40 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.livedata.normalization.NormalizationRuleSet;
-import com.opengamma.livedata.resolver.IdResolver;
-import com.opengamma.livedata.server.FieldHistoryStore;
+import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.normalization.Normalizer;
 
 /**
  * Instance of {@link HistoricalMarketDataNormalizer} that normalizes based on the OG-LiveData
  * rule set.
  */
-public class RuleSetDataNormalizer implements HistoricalMarketDataNormalizer {
+public class LiveDataNormalizer implements HistoricalMarketDataNormalizer {
 
   private final FudgeContext _fudgeContext;
-  private final IdResolver _resolver;
-  private final NormalizationRuleSet _rules;
+  private final Normalizer _underlying;
+  private final String _ruleSetId;
 
-  public RuleSetDataNormalizer(final FudgeContext fudgeContext, final IdResolver resolver, final NormalizationRuleSet rules) {
+  public LiveDataNormalizer(final FudgeContext fudgeContext, final Normalizer underlying, final String ruleSetId) {
     _fudgeContext = fudgeContext;
-    _resolver = resolver;
-    _rules = rules;
+    _underlying = underlying;
+    _ruleSetId = ruleSetId;
   }
 
-  private FudgeContext getFudgeContext() {
+  protected FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
 
-  private IdResolver getResolver() {
-    return _resolver;
+  protected Normalizer getUnderlying() {
+    return _underlying;
   }
-  
-  private NormalizationRuleSet getRules() {
-    return _rules;
+
+  protected String getRuleSetId() {
+    return _ruleSetId;
   }
 
   @Override
-  public Object normalize(final ExternalId identifier, final String name, final Object value) {
-    final ExternalId preferredIdentifier = getResolver().resolve(ExternalIdBundle.of(identifier));
-    if (preferredIdentifier == null) {
-      return null;
-    }
+  public Object normalize(final ExternalIdBundle identifiers, final String name, final Object value) {
     // Note Live Data normalization works at the underlying Fudge message level, so we create a pretend message. Values should
     // be primitives; but if structured data is coming from time series we can attempt to handle it with a serializer.
     final MutableFudgeMsg msg = getFudgeContext().newMessage();
@@ -60,7 +54,7 @@ public class RuleSetDataNormalizer implements HistoricalMarketDataNormalizer {
     } else {
       new FudgeSerializer(getFudgeContext()).addToMessageWithClassHeaders(msg, name, null, value);
     }
-    final FudgeMsg newMsg = getRules().getNormalizedMessage(msg, preferredIdentifier.getValue(), new FieldHistoryStore());
+    final FudgeMsg newMsg = getUnderlying().normalizeValues(new LiveDataSpecification(getRuleSetId(), identifiers), msg);
     if (newMsg == null) {
       return null;
     }

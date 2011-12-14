@@ -5,16 +5,16 @@
  */
 package com.opengamma.engine.marketdata.historical;
 
-import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 
 /**
  * Instance of {@link HistoricalMarketDataNormalizer} that passes all inputs through
  * unchanged.
  */
-public class DummyDataNormalizer implements HistoricalMarketDataNormalizer {
+public class IdentityDataNormalizer implements HistoricalMarketDataNormalizer {
 
   @Override
-  public Object normalize(final ExternalId identifier, final String name, final Object value) {
+  public Object normalize(final ExternalIdBundle identifiers, final String name, final Object value) {
     return value;
   }
 

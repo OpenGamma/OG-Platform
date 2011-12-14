@@ -18,7 +18,7 @@ import com.opengamma.engine.marketdata.DefaultHistoricalMarketDataFieldResolver;
 import com.opengamma.engine.marketdata.HistoricalMarketDataProvider;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
-import com.opengamma.engine.marketdata.historical.DummyDataNormalizer;
+import com.opengamma.engine.marketdata.historical.IdentityDataNormalizer;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.batch.marketdata.BatchMarketDataProvider;
@@ -55,7 +55,7 @@ public class BatchLiveDataSnapshotProviderTest {
     ExternalIdBundle bundle = ExternalIdBundle.of(identifier);
     historicalSource.storeHistoricalTimeSeries(bundle, "BLOOMBERG", "CMPL", "PX_LAST", timeSeries);
     
-    HistoricalMarketDataProvider snapshotProvider = new HistoricalMarketDataProvider(historicalSource, null, new DefaultHistoricalMarketDataFieldResolver(), null, new DummyDataNormalizer());
+    HistoricalMarketDataProvider snapshotProvider = new HistoricalMarketDataProvider(historicalSource, null, new DefaultHistoricalMarketDataFieldResolver(), null, new IdentityDataNormalizer());
     InMemoryLKVMarketDataProvider batchDbProvider = new InMemoryLKVMarketDataProvider();
     
     BatchMarketDataProvider provider = new BatchMarketDataProvider(run, new DummyBatchMaster(), batchDbProvider, snapshotProvider);

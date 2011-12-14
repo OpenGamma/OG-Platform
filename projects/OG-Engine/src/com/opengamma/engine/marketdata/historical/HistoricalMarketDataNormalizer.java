@@ -6,7 +6,7 @@
 package com.opengamma.engine.marketdata.historical;
 
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 
 /**
  * A normalization hook for historical market data.
@@ -18,14 +18,14 @@ public interface HistoricalMarketDataNormalizer {
    * The value name is the requested value from the satisfied {@link ValueRequirement} on
    * the given target.
    * 
-   * @param identifier target identifier
+   * @param identifiers target identifier(s)
    * @param name name of the value (as specified in a requirement) - e.g. it could be
    *        a normalized name from {@link MarketValueRequirementNames}.
    * @param value either the raw value from the time series, not null
    * @return the normalized form, or null to reject the value
    */
-  Object normalize(ExternalId identifier, String name, Object value);
+  Object normalize(ExternalIdBundle identifiers, String name, Object value);
 
-  // TODO: bulk operations could be useful here as some the underlying utilities such as unique id resolution support bulk 
+  // TODO: bulk operations could be useful here as some of the underlying utilities (e.g. OG-LiveData) support it 
 
 }

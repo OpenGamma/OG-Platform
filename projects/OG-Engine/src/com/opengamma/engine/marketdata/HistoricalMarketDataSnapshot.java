@@ -67,11 +67,12 @@ public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
 
   @Override
   public Object query(ValueRequirement requirement) {
-    LocalDate date = getMarketDataSpec().getSnapshotDate();
-    ExternalId identifier = requirement.getTargetSpecification().getIdentifier();
+    final LocalDate date = getMarketDataSpec().getSnapshotDate();
+    final ExternalId identifier = requirement.getTargetSpecification().getIdentifier();
+    final ExternalIdBundle identifiers = ExternalIdBundle.of(identifier);
     HistoricalTimeSeries hts = getTimeSeriesSource().getHistoricalTimeSeries(
         getFieldResolver().resolve(requirement.getValueName(), getMarketDataSpec().getTimeSeriesFieldResolverKey()),
-        ExternalIdBundle.of(identifier),
+        identifiers,
         getMarketDataSpec().getTimeSeriesResolverKey(),
         date,
         true, 
@@ -82,7 +83,7 @@ public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
       return null;
     }
     final Object rawValue = hts.getTimeSeries().getValue(getMarketDataSpec().getSnapshotDate());
-    final Object normalizedValue = getNormalizer().normalize(identifier, requirement.getValueName(), rawValue);
+    final Object normalizedValue = getNormalizer().normalize(identifiers, requirement.getValueName(), rawValue);
     if (normalizedValue == null) {
       s_logger.info("Normalization failed for {}, raw value = {}", requirement, rawValue);
       return null;

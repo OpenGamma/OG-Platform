@@ -140,9 +140,10 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
         requestHolder.latch.await(getTimeoutInMilliseconds(), TimeUnit.MILLISECONDS);
       } catch (InterruptedException e) {
         Thread.interrupted();
-        s_logger.warn("Didn't get response to {} in {}ms", correlationId, getTimeoutInMilliseconds());
+        s_logger.error("Interrupted");
       }
       if (requestHolder.resultValue == null) {
+        s_logger.warn("Didn't get response to {} in {}ms", correlationId, getTimeoutInMilliseconds());
         throw new OpenGammaRuntimeException("Didn't receive a response message to " + correlationId + " in " + getTimeoutInMilliseconds() + "ms");
       }
       assert getCorrelationIdFromReply(requestHolder.resultValue) == correlationId;
