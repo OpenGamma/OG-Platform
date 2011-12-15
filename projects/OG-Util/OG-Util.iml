@@ -97,7 +97,6 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.transaction/jta/jars/jta-1.1.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.management/j2ee_management/jars/j2ee_management-1.0.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.xbean/xbean-spring/jars/xbean-spring-3.6.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.google.common/guava/jars/guava-r04.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.hibernate/hibernate/jars/hibernate-3.5.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.antlr/antlr/jars/antlr-2.7.7.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.dom4j/dom4j/jars/dom4j-1.6.1.jar!/" />
@@ -137,6 +136,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.mongodb/java-driver/jars/mongo-2.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.scannotation/scannotation/jars/scannotation-1.0.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/net.sf.opencsv/opencsv/jars/opencsv-2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.google.common/guava/jars/guava-10.0.1.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-lang/javadocs/commons-lang-docs-2.4.jar!/" />
@@ -156,13 +156,14 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.yahoo.platform.yui/yuicompressor/javadocs/yuicompressor-2.4.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.time/jsr-310-ri/javadocs/jsr-310-ri-javadoc-0.6.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.transaction/jta/javadocs/jta-docs-1.1.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.google.common/guava/javadocs/guava-javadoc-r04.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.hibernate/hibernate/javadocs/hibernate-javadoc-3.5.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.dom4j/dom4j/javadocs/dom4j-javadoc-1.6.1.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-collections/javadocs/commons-collections-javadoc-3.2.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/net.sourceforge.ehcache/ehcache/javadocs/ehcache-core-1.7.2.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.mockito/mockito/javadocs/javadoc-1.6.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/it.unimi.dsi/fastutil/javadocs/fastutil-javadoc-6.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.google.common/guava/javadocs/guava-javadoc-10.0.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.scannotation/scannotation/javadocs/scannotation-javadoc-1.0.2.jar!/" />
         </JAVADOC>
         <SOURCES>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-lang/sources/commons-lang-src-2.4.jar!/" />
@@ -217,7 +218,6 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.activemq/activemq/sources/kahadb-src-5.3.0.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.activemq/activemq/sources/activemq-pool-src-5.3.0.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.xbean/xbean-spring/sources/xbean-spring-src-3.6.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.google.common/guava/sources/guava-src-r04.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.hibernate/hibernate/sources/hibernate-core-src-3.5.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.hibernate/hibernate/sources/hibernate-ehcache-src-3.5.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.antlr/antlr/sources/antlr-src-2.7.7.jar!/" />
@@ -231,6 +231,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/it.unimi.dsi/fastutil/sources/fastutil-src-6.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.mongodb/java-driver/sources/mongo-src-2.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/net.sf.opencsv/opencsv/sources/opencsv-src-2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.google.common/guava/sources/guava-sources-10.0.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

@@ -1,5 +1,6 @@
 package com.opengamma.web.server.push;
 
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ConversionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +71,26 @@ public class TestViewportManager implements ViewportManager {
     @Override
     public void setConversionMode(ConversionMode mode) {
       s_logger.info("setConversionMode(), mode: {}", mode);
+    }
+
+    @Override
+    public Pair<String, String> getPortfolioCsv() {
+      throw new UnsupportedOperationException("getPortfolioCsv not implemented");
+    }
+
+    @Override
+    public Pair<String, String> getPortfolioCsv(int row, int col) {
+      throw new UnsupportedOperationException("getPortfolioCsv not implemented");
+    }
+
+    @Override
+    public Pair<String, String> getPrimitivesCsv() {
+      throw new UnsupportedOperationException("getPrimitivesCsv not implemented");
+    }
+
+    @Override
+    public Pair<String, String> getPrimitivesCsv(int row, int col) {
+      throw new UnsupportedOperationException("getPrimitivesCsv not implemented");
     }
   }
 }

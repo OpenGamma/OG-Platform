@@ -44,15 +44,15 @@ public class WebPushTestUtils {
     return new URL(URL_BASE + path);
   }
 
-  /* package */ static String readFromPath(String path) throws IOException {
+  /* package */ public static String readFromPath(String path) throws IOException {
     return readFromPath(path, null);
   }
-  /* package */ static String readFromPath(String path, String clientId) throws IOException {
+  /* package */ public static String readFromPath(String path, String clientId) throws IOException {
     return readFromPath(path, clientId, "GET");
   }
 
   /* package */
-  static String handshake() throws IOException {
+  public static String handshake() throws IOException {
     String json = readFromPath("/handshake");
     try {
       return new JSONObject(json).getString("clientId");
@@ -69,12 +69,13 @@ public class WebPushTestUtils {
       fullPath = path;
     }
     BufferedReader reader = null;
+    HttpURLConnection connection = null;
     StringBuilder builder;
     try {
       char[] chars = new char[512];
       builder = new StringBuilder();
       URL url = url(fullPath);
-      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+      connection = (HttpURLConnection) url.openConnection();
       connection.setRequestMethod(requestMethod);
       reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
       int bytesRead;
@@ -84,6 +85,38 @@ public class WebPushTestUtils {
     } finally {
       if (reader != null) {
         reader.close();
+      }
+      if (connection != null) {
+        connection.disconnect();
+      }
+    }
+    return builder.toString();
+  }
+
+  public static HttpURLConnection connectToPath(String path) throws IOException {
+    URL url = url(path);
+    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    connection.setRequestMethod("GET");
+    return connection;
+  }
+
+  public static String readAndClose(HttpURLConnection connection) throws IOException {
+    BufferedReader reader = null;
+    StringBuilder builder;
+    try {
+      char[] chars = new char[512];
+      builder = new StringBuilder();
+      reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+      int bytesRead;
+      while ((bytesRead = reader.read(chars)) != -1) {
+        builder.append(chars, 0, bytesRead);
+      }
+    } finally {
+      if (reader != null) {
+        reader.close();
+      }
+      if (connection != null) {
+        connection.disconnect();
       }
     }
     return builder.toString();
@@ -133,7 +166,7 @@ public class WebPushTestUtils {
   /**
    * @return The URL of the viewport relative to the root
    */
-  static String createViewport(String clientId, String viewportDefJson) throws IOException, JSONException {
+  public static String createViewport(String clientId, String viewportDefJson) throws IOException, JSONException {
     String viewportJson;
     BufferedReader reader = null;
     BufferedWriter writer = null;

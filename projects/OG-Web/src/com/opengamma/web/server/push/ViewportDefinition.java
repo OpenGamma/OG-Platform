@@ -18,9 +18,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -65,10 +64,10 @@ public class ViewportDefinition {
   private final String _aggregatorName;
 
   /** Portfolio grid cells for which dependency graphs are required */
-  private final List<WebGridCell> _portfolioDependencyGraphCells;
+  private final Set<WebGridCell> _portfolioDependencyGraphCells;
 
   /** Primitive grid cells for which dependency graphs are required */
-  private final List<WebGridCell> _primitiveDependencyGraphCells;
+  private final Set<WebGridCell> _primitiveDependencyGraphCells;
 
   /** Name of the view definition */
   private final String _viewDefinitionName;
@@ -87,8 +86,8 @@ public class ViewportDefinition {
                              UniqueId snapshotId,
                              SortedMap<Integer, Long> primitiveRowTimstamps,
                              SortedMap<Integer, Long> portfolioRowTimstamps,
-                             List<WebGridCell> portfolioDependencyGraphCells,
-                             List<WebGridCell> primitiveDependencyGraphCells,
+                             Set<WebGridCell> portfolioDependencyGraphCells,
+                             Set<WebGridCell> primitiveDependencyGraphCells,
                              MarketDataType marketDataType,
                              String marketDataProvider,
                              String aggregatorName) {
@@ -166,12 +165,12 @@ public class ViewportDefinition {
       JSONObject jsonObject = new JSONObject(json);
 
       SortedMap<Integer, Long> portfolioRows = getRows(jsonObject, PORTFOLIO_VIEWPORT);
-      List<WebGridCell> portfolioDepGraphCells = getDepGraphCells(jsonObject,
+      Set<WebGridCell> portfolioDepGraphCells = getDepGraphCells(jsonObject,
                                                                   PORTFOLIO_VIEWPORT,
                                                                   portfolioRows.keySet());
 
       SortedMap<Integer, Long> primitiveRows = getRows(jsonObject, PRIMITIVE_VIEWPORT);
-      List<WebGridCell> primitiveDepGraphCells = getDepGraphCells(jsonObject,
+      Set<WebGridCell> primitiveDepGraphCells = getDepGraphCells(jsonObject,
                                                                   PRIMITIVE_VIEWPORT,
                                                                   primitiveRows.keySet());
 
@@ -222,9 +221,9 @@ public class ViewportDefinition {
   }
 
   /** Helper method to extract the dependency graph cells from JSON */
-  private static List<WebGridCell> getDepGraphCells(JSONObject jsonObject, String key, Set<Integer> rows) throws JSONException {
+  private static Set<WebGridCell> getDepGraphCells(JSONObject jsonObject, String key, Set<Integer> rows) throws JSONException {
     JSONObject viewportJson = jsonObject.optJSONObject(key);
-    List<WebGridCell> cells = new ArrayList<WebGridCell>();
+    Set<WebGridCell> cells = new HashSet<WebGridCell>();
     if (viewportJson == null) {
       return cells;
     }
@@ -306,14 +305,14 @@ public class ViewportDefinition {
   /**
    * @return The cells in the portfolio grid for which dependency graphs are required.
    */
-  public List<WebGridCell> getPortfolioDependencyGraphCells() {
+  public Set<WebGridCell> getPortfolioDependencyGraphCells() {
     return _portfolioDependencyGraphCells;
   }
 
   /**
    * @return The cells in the primitives grid for which dependency graphs are required.
    */
-  public List<WebGridCell> getPrimitiveDependencyGraphCells() {
+  public Set<WebGridCell> getPrimitiveDependencyGraphCells() {
     return _primitiveDependencyGraphCells;
   }
 

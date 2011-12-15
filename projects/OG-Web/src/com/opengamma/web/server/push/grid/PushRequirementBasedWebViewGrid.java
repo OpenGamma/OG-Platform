@@ -41,7 +41,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -289,15 +288,18 @@ import java.util.Set;
   
   //-------------------------------------------------------------------------
 
-  public PushWebViewGrid getDepGraphGrid(String name) {
-    // TODO implement RequirementBasedWebViewGrid.getDepGraphGrid()
-    throw new UnsupportedOperationException("getDepGraphGrid not implemented");
+  /**
+   * Returns the dependency graph grid for the specified cell or {@code null} if that cell doesn't have a
+   * dependency graph grid.
+   * @param row The cell's row index
+   * @param col The cell's column index
+   * @return The cell's depdency graph grid or {@code null} if it doesn't have one
+   */
+  /* package */ PushWebViewGrid getDepGraphGrid(int row, int col) {
+    return _depGraphGrids.get(new WebGridCell(row, col));
   }
 
-  // TODO this needs to be single threaded
-  /* package */
-  public void updateDepGraphCells(List<WebGridCell> dependencyGraphCells) {
-    Set<WebGridCell> newCells = new HashSet<WebGridCell>(dependencyGraphCells);
+  /* package */ void updateDepGraphCells(Set<WebGridCell> newCells) {
     Set<WebGridCell> currentCells = _depGraphGrids.keySet();
     Set<WebGridCell> cellsToRemove = Sets.difference(currentCells, newCells);
     Set<WebGridCell> cellsToAdd = Sets.difference(newCells, currentCells);
@@ -311,13 +313,16 @@ import java.util.Set;
       Pair<String, ValueSpecification> columnMappingPair =
           getGridStructure().findCellSpecification(cell, getViewClient().getLatestCompiledViewDefinition());
       s_logger.debug("includeDepGraph took {}", timer.finished());
-      PushWebViewDepGraphGrid grid = new PushWebViewDepGraphGrid(gridName,
-                                                                 getViewClient(),
-                                                                 getConverterCache(),
-                                                                 cell,
-                                                                 columnMappingPair.getFirst(),
-                                                                 columnMappingPair.getSecond());
-      _depGraphGrids.put(cell, grid);
+      // TODO should this ever happen? it is currently
+      if (columnMappingPair != null) {
+        PushWebViewDepGraphGrid grid = new PushWebViewDepGraphGrid(gridName,
+                                                                   getViewClient(),
+                                                                   getConverterCache(),
+                                                                   cell,
+                                                                   columnMappingPair.getFirst(),
+                                                                   columnMappingPair.getSecond());
+        _depGraphGrids.put(cell, grid);
+      }
     }
 }
   

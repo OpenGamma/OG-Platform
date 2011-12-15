@@ -1,5 +1,6 @@
 package com.opengamma.web.server.push.rest;
 
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ConversionMode;
 import com.opengamma.web.server.push.Viewport;
 import org.json.JSONObject;
@@ -7,6 +8,7 @@ import org.json.JSONObject;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -14,9 +16,6 @@ import javax.ws.rs.core.Response;
 
 /**
  * REST resource that wraps a {@link Viewport}.
- * TODO sub-resource for individual grids that can return CSV? currently done by WebAnalyticsResource
- * URL like /{vieportId}/primitives|portfolio/analytics
- * URL like /{vieportId}/primitives|portfolio/dependencygraph/{row}/{col}
  */
 public class ViewportResource {
 
@@ -27,7 +26,8 @@ public class ViewportResource {
   }
 
   /**
-   * @return JSON containing the structure of the viewport's grids
+   * @return JSON containing the structure of the viewport's portfolio and primitiave grids.  This doesn't include
+   * the structure of any dependency graph grids
    */
   @Path("grid")
   @GET
@@ -70,5 +70,63 @@ public class ViewportResource {
   public Response setMode(@QueryParam("mode") ConversionMode mode) {
     _viewport.setConversionMode(mode);
     return Response.ok().build();
+  }
+
+  /**
+   * @return The portfolio grid data as CSV.
+   */
+  @Path("portfolio")
+  @GET
+  @Produces("text/csv")
+  public Response getPortfolioCsv() {
+    return buildCsvResponse(_viewport.getPortfolioCsv());
+  }
+
+  /**
+   * Returns a portfolio grid cell's dependency graph data as CSV.
+   * @param row The row of the cell whose dependency graph is required
+   * @param col The column of the cell whose dependency graph is required
+   * @return Response containing a CSV file.  If the specified cell doesn't have a dependency graph a response with
+   * status 404 is returned
+   */
+  @Path("portfolio/{row}/{col}")
+  @GET
+  @Produces("text/csv")
+  public Response getPortfolioDependencyGraphCsv(@PathParam("row") int row, @PathParam("col") int col) {
+    return buildCsvResponse(_viewport.getPortfolioCsv(row, col));
+  }
+
+  /**
+   * @return The primitive grid data as CSV.
+   */
+  @Path("primitives")
+  @GET
+  @Produces("text/csv")
+  public Response getPrimitivesCsv() {
+    return buildCsvResponse(_viewport.getPrimitivesCsv());
+  }
+
+  /**
+   * Returns a primitive grid cell's dependency graph data as CSV.
+   * @param row The row of the cell whose dependency graph is required
+   * @param col The column of the cell whose dependency graph is required
+   * @return Response containing a CSV file.  If the specified cell doesn't have a dependency graph a response with
+   * status 404 is returned
+   */
+  @Path("primitives/{row}/{col}")
+  @GET
+  @Produces("text/csv")
+  public Response getPrimitivesDependencyGraphCsv(@PathParam("row") int row, @PathParam("col") int col) {
+    return buildCsvResponse(_viewport.getPrimitivesCsv(row, col));
+  }
+
+  private static Response buildCsvResponse(Pair<String, String> fileNameAndCsv) {
+    if (fileNameAndCsv == null) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    } else {
+      String filename = fileNameAndCsv.getFirst();
+      String csv = fileNameAndCsv.getSecond();
+      return Response.ok(csv).header("Content-Disposition", "attachment; filename=" + filename).build();
+    }
   }
 }

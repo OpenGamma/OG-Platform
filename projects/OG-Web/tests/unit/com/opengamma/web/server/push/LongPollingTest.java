@@ -41,7 +41,6 @@ public class LongPollingTest {
     _server = serverAndContext.getFirst();
     WebApplicationContext context = serverAndContext.getSecond();
     _updateManager = context.getBean(TestConnectionManager.class);
-    //_updateManager.setListener();
     _longPollingConnectionManager = context.getBean(LongPollingConnectionManager.class);
   }
 

@@ -8,6 +8,8 @@ package com.opengamma.web.server.push;
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.push.rest.MasterType;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Test subscription manager that can have a maximum of one connection.
  */
@@ -15,6 +17,7 @@ public class TestConnectionManager implements ConnectionManager {
 
   private volatile RestUpdateListener _listener;
 
+  private final ConcurrentHashMap<String, Viewport> _viewports = new ConcurrentHashMap<String, Viewport>();
   private final LongPollingConnectionManager _longPollingConnectionManager;
 
   public TestConnectionManager() {
@@ -47,8 +50,8 @@ public class TestConnectionManager implements ConnectionManager {
   }
 
   @Override
-  public Viewport getViewport(String userId, String clientId, String viewportUrl) {
-    throw new UnsupportedOperationException("getViewport not implemented");
+  public Viewport getViewport(String userId, String clientId, String viewportId) {
+    return _viewports.get(viewportId);
   }
 
   @Override
@@ -61,6 +64,10 @@ public class TestConnectionManager implements ConnectionManager {
     throw new UnsupportedOperationException("createViewport not implemented");
   }
 
+  public void addViewport(String viewportId, Viewport viewport) {
+    _viewports.put(viewportId, viewport);
+  }
+  
   public void sendUpdate(String update) {
     _listener.itemUpdated(update);
   }

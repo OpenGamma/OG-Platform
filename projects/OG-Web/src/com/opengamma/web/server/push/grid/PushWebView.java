@@ -13,6 +13,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.WebGridCell;
 import com.opengamma.web.server.conversion.ConversionMode;
 import com.opengamma.web.server.conversion.ResultConverterCache;
@@ -24,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * TODO return new viewport instance rather than implementing it?
@@ -100,7 +101,6 @@ import java.util.Map;
       } else {
         _portfolioGrid = portfolioGrid;
         _gridStructures.put("portfolio", _portfolioGrid.getInitialJsonGridStructure());
-        _gridStructures.put("portfolio", _portfolioGrid.getInitialJsonGridStructure());
       }
 
       PushRequirementBasedWebViewGrid primitivesGrid =
@@ -131,11 +131,6 @@ import java.util.Map;
     _viewClient.shutdown();
   }
 
-  // TODO might be needed for getting grid as CSV
-  public UniqueId getViewDefinitionId() {
-    return _viewDefinitionId;
-  }
-
   /* package */ boolean matches(UniqueId baseViewDefinitionId, ViewportDefinition viewportDefinition) {
     synchronized (_lock) {
       return _baseViewDefinitionId.equals(baseViewDefinitionId) &&
@@ -144,28 +139,11 @@ import java.util.Map;
     }
   }
 
-  private PushWebViewGrid getGridByName(String name) {
-    if (_primitivesGrid != null) {
-      if (_primitivesGrid.getName().equals(name)) {
-        return _primitivesGrid;
-      }
-      PushWebViewGrid depGraphGrid = _primitivesGrid.getDepGraphGrid(name);
-      if (depGraphGrid != null) {
-        return depGraphGrid;
-      }
-    }
-    if (_portfolioGrid != null) {
-      if (_portfolioGrid.getName().equals(name)) {
-        return _portfolioGrid;
-      } else {
-        return _portfolioGrid.getDepGraphGrid(name);
-      }
-    }
-    return null;
-  }
-
   /**
-   *
+   * Changes the {@link Viewport}.
+   * @param viewportDefinition Definition of the new viewport
+   * @param listener Listener for changes in the viewport's data or structure
+   * @return The new viewport.
    */
   /* package */ Viewport configureViewport(ViewportDefinition viewportDefinition, AnalyticsListener listener) {
     synchronized (_lock) {
@@ -176,14 +154,17 @@ import java.util.Map;
     }
   }
 
+  /**
+   * Updates the grids to match {@link #_viewportDefinition}.
+   */
   private void configureGridViewports() {
     if (!_initialized) {
       return;
     }
     _portfolioGrid.setViewport(_viewportDefinition.getPortfolioRows());
     _primitivesGrid.setViewport(_viewportDefinition.getPrimitiveRows());
-    List<WebGridCell> portfolioDepGraphCells = _viewportDefinition.getPortfolioDependencyGraphCells();
-    List<WebGridCell> primitiveDepGraphCells = _viewportDefinition.getPrimitiveDependencyGraphCells();
+    Set<WebGridCell> portfolioDepGraphCells = _viewportDefinition.getPortfolioDependencyGraphCells();
+    Set<WebGridCell> primitiveDepGraphCells = _viewportDefinition.getPrimitiveDependencyGraphCells();
     // view cycle access is required for dep graph access but performance is better if it is disabled
     _viewClient.setViewCycleAccessSupported(!portfolioDepGraphCells.isEmpty() || !primitiveDepGraphCells.isEmpty());
     _portfolioGrid.updateDepGraphCells(portfolioDepGraphCells);
@@ -191,12 +172,27 @@ import java.util.Map;
     updateResults();
   }
 
+  /**
+   * Returns {@link #_viewClient}'s latest results if available.
+   * @return {@link #_viewClient}'s latest results or {@code null} if there aren't any available
+   */
+  private ViewComputationResultModel getLatestResultModel() {
+    if (!_viewClient.isResultAvailable()) {
+      return null;
+    }
+    return _viewClient.getLatestResult();
+  }
+  
+  /**
+   * Updates {@link #_latestResults} with the latest results from the view client and notifies the listener
+   * that the data has changed.
+   */
   private void updateResults() {
     synchronized (_lock) {
-      if (!_viewClient.isResultAvailable()) {
+      ViewComputationResultModel resultModel = getLatestResultModel();
+      if (resultModel == null) {
         return;
       }
-      ViewComputationResultModel resultModel = _viewClient.getLatestResult();
       long resultTimestamp = resultModel.getCalculationTime().toEpochMillisLong();
       Map<String, Object> portfolioResult = new HashMap<String, Object>();
       Map<String, Object> primitiveResult = new HashMap<String, Object>();
@@ -240,20 +236,6 @@ import java.util.Map;
     }
   }
 
-  // TODO refactor this?
-  /*public Pair<Instant, String> getGridContentsAsCsv(String gridName) {
-    PushWebViewGrid grid = getGridByName(gridName);
-    if (grid == null) {
-      throw new DataNotFoundException("Unknown grid '" + gridName + "'");
-    }
-    ViewComputationResultModel latestResult = _viewClient.getLatestResult();
-    if (latestResult == null) {
-      return null;
-    }
-    String csv = grid.dumpContentsToCsv(latestResult);
-    return Pair.of(latestResult.getValuationTime(), csv);
-  }*/
-
   @Override
   public Map<String, Object> getGridStructure() {
     synchronized (_lock) {
@@ -277,6 +259,60 @@ import java.util.Map;
   @Override
   public void setConversionMode(ConversionMode mode) {
     throw new UnsupportedOperationException("setConversionMode not implemented");
+  }
+
+
+  private Pair<String, String> getGridCsv(PushRequirementBasedWebViewGrid grid, String gridName) {
+    synchronized (_lock) {
+      if (grid == null) {
+        return null;
+      }
+      ViewComputationResultModel latestResultModel = getLatestResultModel();
+      if (latestResultModel == null) {
+        return null;
+      }
+      String filename = _viewClient.getUniqueId() + "-" + gridName + "-" + latestResultModel.getValuationTime() + ".csv";
+      String csv = grid.dumpContentsToCsv(latestResultModel);
+      return Pair.of(filename, csv);
+    }
+  }
+  @Override
+  public Pair<String, String> getPortfolioCsv() {
+    return getGridCsv(_portfolioGrid, "portfolio");
+  }
+
+  @Override
+  public Pair<String, String> getPrimitivesCsv() {
+    return getGridCsv(_primitivesGrid, "primitives");
+  }
+
+  private Pair<String, String> getDependencyGraphCsv(PushRequirementBasedWebViewGrid grid, String gridName, int row, int col) {
+    synchronized (_lock) {
+      if (grid == null) {
+        return null;
+      }
+      PushWebViewGrid depGraphGrid = grid.getDepGraphGrid(row, col);
+      if (depGraphGrid == null) {
+        return null;
+      }
+      ViewComputationResultModel latestResultModel = getLatestResultModel();
+      if (latestResultModel == null) {
+        return null;
+      }
+      String filename = _viewClient.getUniqueId() + "-" + gridName + "[" + row + "," + col + latestResultModel.getValuationTime() + ".csv";
+      String csv = depGraphGrid.dumpContentsToCsv(latestResultModel);
+      return Pair.of(filename, csv);
+    }
+  }
+  
+  @Override
+  public Pair<String, String> getPortfolioCsv(int row, int col) {
+    return getDependencyGraphCsv(_portfolioGrid, "portfolio", row, col);
+  }
+
+  @Override
+  public Pair<String, String> getPrimitivesCsv(int row, int col) {
+    return getDependencyGraphCsv(_primitivesGrid, "primitives", row, col);
   }
 
   /* package */ UniqueId getBaseViewDefinitionId() {

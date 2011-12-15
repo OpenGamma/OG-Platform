@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server.push;
 
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ConversionMode;
 
 import java.util.Map;
@@ -37,4 +38,32 @@ public interface Viewport {
    * @param mode The new mode
    */
   void setConversionMode(ConversionMode mode);
+
+  /**
+   * Returns the portfolio grid data as CSV
+   * @return Filename for a CSV file and the CSV content
+   */
+  Pair<String, String> getPortfolioCsv();
+
+  /**
+   * Returns the dependency graph data for a cell in the portfolio grid as CSV.
+   * @param row Row index of the cell
+   * @param col Column index of the cell
+   * @return Filename for a CSV file and the CSV content for the dependency graph
+   */
+  Pair<String, String> getPortfolioCsv(int row, int col);
+
+  /**
+   * Returns the primitives grid data as CSV
+   * @return Filename for a CSV file and the CSV content
+   */
+  Pair<String, String> getPrimitivesCsv();
+
+  /**
+   * Returns the dependency graph data for a cell in the primitives grid as CSV.
+   * @param row Row index of the cell
+   * @param col Column index of the cell
+   * @return Filename for a CSV file and the CSV content for the dependency graph
+   */
+  Pair<String, String> getPrimitivesCsv(int row, int col);
 }
