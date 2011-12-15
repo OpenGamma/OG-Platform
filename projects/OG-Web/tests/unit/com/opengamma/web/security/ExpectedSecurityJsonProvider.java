@@ -7,7 +7,6 @@ package com.opengamma.web.security;
 
 import static com.opengamma.web.WebResourceTestUtils.loadJson;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.json.JSONObject;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -50,6 +49,8 @@ import com.opengamma.financial.security.swap.SwapSecurity;
  */
 /* package */ class ExpectedSecurityJsonProvider implements FinancialSecurityVisitor<JSONObject> {
   
+  private static final String PACKAGE_PATH = "com/opengamma/web/security/";
+  
   private JSONObject getJson(String filePath) {
     try {
       return loadJson(filePath);
@@ -70,7 +71,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 
   @Override
   public JSONObject visitEquitySecurity(EquitySecurity security) {
-    return getJson("com/opengamma/web/security/equityJson.txt");
+    return getJson(PACKAGE_PATH + "equityJson.txt");
   }
 
   @Override
@@ -89,7 +90,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 
       @Override
       public JSONObject visitBondFutureSecurity(BondFutureSecurity security) {
-        return getJson("com/opengama/web/security/bondFutureJson.txt");
+        return getJson(PACKAGE_PATH + "bondFutureJson.txt");
       }
 
       @Override
@@ -168,7 +169,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
   @Override
   public JSONObject visitEquityIndexDividendFutureOptionSecurity(
       EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
-    throw new NotImplementedException();
+    return null;
   }
 
   @Override

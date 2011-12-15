@@ -5,13 +5,18 @@
  */
 package com.opengamma.web;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.MonthOfYear;
@@ -21,6 +26,9 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.simple.JSONValue;
+import org.json.simple.parser.ContainerFactory;
+import org.json.simple.parser.JSONParser;
 
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -38,6 +46,23 @@ import com.opengamma.util.time.ExpiryAccuracy;
  */
 public final class WebResourceTestUtils {
 
+  public static final ContainerFactory s_sortedJSONObjectFactory = new ContainerFactory() {
+    
+    @SuppressWarnings("rawtypes")
+    @Override
+    public List creatArrayContainer() {
+      return new LinkedList();
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    public Map createObjectContainer() {
+      return new TreeMap();
+    }
+  };
+  
+  public static final JSONParser s_jsonParser = new JSONParser();
+  
   private WebResourceTestUtils() {
   }
   
@@ -132,8 +157,17 @@ public final class WebResourceTestUtils {
   public static JSONObject loadJson(String filePath) throws IOException, JSONException {
     URL jsonResource = ClassLoader.getSystemResource(filePath);
     assertNotNull(jsonResource);
-    String expectedJsonStr = FileUtils.readFileToString(new File(jsonResource.getPath()));
-    JSONObject expectedJson = new JSONObject(expectedJsonStr);
-    return expectedJson;
+    String jsonText = FileUtils.readFileToString(new File(jsonResource.getPath()));
+    return new JSONObject(jsonText);
   }
+
+  @SuppressWarnings("rawtypes")
+  public static void assertJSONObjectEquals(final JSONObject expectedJson, final JSONObject actualJson) throws Exception {
+    assertNotNull(expectedJson);
+    assertNotNull(actualJson);
+    String expectedSorted = JSONValue.toJSONString((Map) s_jsonParser.parse(expectedJson.toString(), s_sortedJSONObjectFactory));
+    String actualSorted = JSONValue.toJSONString((Map) s_jsonParser.parse(actualJson.toString(), s_sortedJSONObjectFactory));
+    assertEquals(expectedSorted, actualSorted);
+  }
+  
 }

@@ -5,7 +5,7 @@
  */
 package com.opengamma.web.security;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static com.opengamma.web.WebResourceTestUtils.assertJSONObjectEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import org.json.JSONObject;
@@ -162,11 +162,11 @@ public class WebSecurityResourceTest extends AbstractWebSecurityResourceTestCase
     assertNotNull(securityResource);
     String json = securityResource.getJSON();
     assertNotNull(json);
-    JSONObject actualJson = new JSONObject(json); 
+    JSONObject actualJson = new JSONObject(json);
     
     JSONObject expectedJson = finSecurity.accept(new ExpectedSecurityJsonProvider());
     assertNotNull(expectedJson);
-    assertEquals(expectedJson.toString(), actualJson.toString());
+    assertJSONObjectEquals(expectedJson, actualJson);
   }
   
 }
