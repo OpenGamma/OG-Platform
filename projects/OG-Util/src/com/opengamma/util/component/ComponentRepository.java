@@ -8,10 +8,13 @@ package com.opengamma.util.component;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.springframework.context.Lifecycle;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -43,6 +46,10 @@ public class ComponentRepository {
    * The repository of RESTful published components.
    */
   private final ConcurrentMap<ComponentKey, Object> _restPublished = new ConcurrentHashMap<ComponentKey, Object>();
+  /**
+   * The objects with {@code Lifecycle}.
+   */
+  private final List<Lifecycle> _lifecycles = new ArrayList<Lifecycle>();
   /**
    * The thread-local instance.
    */
@@ -127,6 +134,8 @@ public class ComponentRepository {
   //-------------------------------------------------------------------------
   /**
    * Registers the component specifying the info that describes it.
+   * <p>
+   * If the component implements {@code Lifecycle}, it will be registered.
    * 
    * @param info  the component info to register, not null
    * @param instance  the component instance to register, not null
@@ -150,6 +159,19 @@ public class ComponentRepository {
     if (makeDefault) {
       typeInfo.setDefaultClassifier(info.getClassifier());
     }
+    if (info instanceof Lifecycle) {
+      registerLifecycle((Lifecycle) instance);
+    }
+  }
+
+  /**
+   * Registers a non-component object implementing {@code Lifecycle}.
+   * 
+   * @param lifecycleObject  the object that has a lifecycle, not null
+   */
+  public void registerLifecycle(Lifecycle lifecycleObject) {
+    ArgumentChecker.notNull(lifecycleObject, "lifecycleObject");
+    _lifecycles.add(lifecycleObject);
   }
 
   /**
@@ -191,6 +213,9 @@ public class ComponentRepository {
    * Marks this repository as complete and ready for use.
    */
   public void ready() {
+    for (Lifecycle obj : _lifecycles) {
+      obj.start();
+    }
     _ready.set(true);
   }
 
