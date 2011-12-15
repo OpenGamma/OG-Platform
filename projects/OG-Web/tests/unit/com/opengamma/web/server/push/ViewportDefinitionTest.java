@@ -28,7 +28,6 @@ public class ViewportDefinitionTest {
     assertFalse(reader.isReadable(Viewport.class, null, null, null));
   }
 
-  // TODO why does this take so long to run?
   @Test
   public void fromJSON() throws IOException {
     String json = "{" +
