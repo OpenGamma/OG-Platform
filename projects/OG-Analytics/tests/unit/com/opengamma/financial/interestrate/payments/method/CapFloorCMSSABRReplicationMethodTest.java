@@ -119,7 +119,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
 
   private static final SwapGenerator USD_GENERATOR = new USD6MLIBOR3M(CALENDAR);
   private static final IndexSwap USD_SWAP_10Y = new IndexSwap(USD_GENERATOR, Period.ofYears(5));
-  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, CALENDAR, USD_GENERATOR.getIborIndex().getSpotLag());
+  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, USD_GENERATOR.getIborIndex().getSpotLag(), CALENDAR);
 
   @Test
   /**
@@ -146,8 +146,8 @@ public class CapFloorCMSSABRReplicationMethodTest {
   public void presentValueAnnuity() {
     Period START_CMSCAP = Period.ofYears(5);
     Period LENGTH_CMSCAP = Period.ofYears(10);
-    ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, USD_GENERATOR.getIborIndex().getBusinessDayConvention(), CALENDAR, USD_GENERATOR.getIborIndex().isEndOfMonth(),
-        START_CMSCAP);
+    ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, START_CMSCAP, USD_GENERATOR.getIborIndex().getBusinessDayConvention(), CALENDAR,
+        USD_GENERATOR.getIborIndex().isEndOfMonth());
     ZonedDateTime END_DATE = START_DATE.plus(LENGTH_CMSCAP);
     Period capPeriod = Period.ofMonths(6);
     DayCount capDayCount = DayCountFactory.INSTANCE.getDayCount("ACT/360");
@@ -274,8 +274,8 @@ public class CapFloorCMSSABRReplicationMethodTest {
   public void presentValueCurveSensitivityAnnuity() {
     Period START_CMSCAP = Period.ofYears(5);
     Period LENGTH_CMSCAP = Period.ofYears(10);
-    ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, USD_GENERATOR.getIborIndex().getBusinessDayConvention(), CALENDAR, USD_GENERATOR.getIborIndex().isEndOfMonth(),
-        START_CMSCAP);
+    ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, START_CMSCAP, USD_GENERATOR.getIborIndex().getBusinessDayConvention(), CALENDAR,
+        USD_GENERATOR.getIborIndex().isEndOfMonth());
     ZonedDateTime END_DATE = START_DATE.plus(LENGTH_CMSCAP);
     Period capPeriod = Period.ofMonths(6);
     DayCount capDayCount = DayCountFactory.INSTANCE.getDayCount("ACT/360");

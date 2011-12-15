@@ -54,6 +54,7 @@ import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.util.money.Currency;
+import com.opengamma.web.MockUriInfo;
 
 /**
  * Test {@link WebPositionsResource}.

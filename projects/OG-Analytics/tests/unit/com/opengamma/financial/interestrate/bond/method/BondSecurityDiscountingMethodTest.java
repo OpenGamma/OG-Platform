@@ -72,12 +72,12 @@ public class BondSecurityDiscountingMethodTest {
   private static final YieldCurveBundle CURVES = TestsDataSets.createCurvesBond1();
   // Spot: middle coupon
   private static final ZonedDateTime REFERENCE_DATE_1 = DateUtils.getUTCDate(2011, 8, 18);
-  private static final ZonedDateTime SPOT_1 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR, SETTLEMENT_DAYS);
+  private static final ZonedDateTime SPOT_1 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, SETTLEMENT_DAYS, CALENDAR);
   private static final double REFERENCE_TIME_1 = ACT_ACT.getDayCountFraction(REFERENCE_DATE_1, SPOT_1);
   private static final BondFixedSecurity BOND_FIXED_SECURITY_1 = BOND_FIXED_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAME);
   // Spot: on coupon date
   private static final ZonedDateTime REFERENCE_DATE_2 = DateUtils.getUTCDate(2012, 1, 10);
-  private static final ZonedDateTime SPOT_2 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_2, CALENDAR, SETTLEMENT_DAYS);
+  private static final ZonedDateTime SPOT_2 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_2, SETTLEMENT_DAYS, CALENDAR);
   private static final double REFERENCE_TIME_2 = ACT_ACT.getDayCountFraction(REFERENCE_DATE_2, SPOT_2);
   private static final BondFixedSecurity BOND_FIXED_SECURITY_2 = BOND_FIXED_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE_2, CURVES_NAME);
   // Spot: one day after coupon date
@@ -189,7 +189,7 @@ public class BondSecurityDiscountingMethodTest {
   public void zSpreadSensitivityFromPresentValue() {
     double zSpread = 0.0025; // 25bps
     double pvZSpread = METHOD.presentValueFromZSpread(BOND_FIXED_SECURITY_1, CURVES, zSpread);
-    double zsComputed = METHOD.zSpreadSensitivityFromCurvesAndPV(BOND_FIXED_SECURITY_1, CURVES, pvZSpread);
+    double zsComputed = METHOD.presentValueZSpreadSensitivityFromCurvesAndPV(BOND_FIXED_SECURITY_1, CURVES, pvZSpread);
     double zsExpected = METHOD.presentValueZSpreadSensitivity(BOND_FIXED_SECURITY_1, CURVES, zSpread);
     assertEquals("Fixed coupon bond security: z-spread sensitivity", zsExpected, zsComputed, 1E-6);
   }
@@ -220,7 +220,7 @@ public class BondSecurityDiscountingMethodTest {
     YieldAndDiscountCurve shiftedCredit = CURVES.getCurve(CREDIT_CURVE_NAME).withParallelShift(zSpread);
     shiftedBundle.replaceCurve(CREDIT_CURVE_NAME, shiftedCredit);
     double cleanZSpread = METHOD.cleanPriceFromCurves(BOND_FIXED_SECURITY_1, shiftedBundle);
-    double zsComputed = METHOD.zSpreadSensitivityFromCurvesAndClean(BOND_FIXED_SECURITY_1, CURVES, cleanZSpread);
+    double zsComputed = METHOD.presentValueZSpreadSensitivityFromCurvesAndClean(BOND_FIXED_SECURITY_1, CURVES, cleanZSpread);
     double zsExpected = METHOD.presentValueZSpreadSensitivity(BOND_FIXED_SECURITY_1, CURVES, zSpread);
     assertEquals("Fixed coupon bond security: z-spread sensitivity", zsExpected, zsComputed, 1E-6);
   }
@@ -481,10 +481,10 @@ public class BondSecurityDiscountingMethodTest {
   public void cleanPriceSmoothness() {
     final int nbDateForward = 150;
     final ZonedDateTime[] forwardDate = new ZonedDateTime[nbDateForward];
-    forwardDate[0] = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_2, CALENDAR, SETTLEMENT_DAYS); //Spot
+    forwardDate[0] = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_2, SETTLEMENT_DAYS, CALENDAR); //Spot
     final long[] jumpDays = new long[nbDateForward - 1];
     for (int loopdate = 1; loopdate < nbDateForward; loopdate++) {
-      forwardDate[loopdate] = ScheduleCalculator.getAdjustedDate(forwardDate[loopdate - 1], CALENDAR, 1);
+      forwardDate[loopdate] = ScheduleCalculator.getAdjustedDate(forwardDate[loopdate - 1], 1, CALENDAR);
       jumpDays[loopdate - 1] = forwardDate[loopdate].toLocalDate().toModifiedJulianDays() - forwardDate[loopdate - 1].toLocalDate().toModifiedJulianDays();
     }
     final double[] cleanPriceForward = new double[nbDateForward];
@@ -524,7 +524,7 @@ public class BondSecurityDiscountingMethodTest {
       SETTLEMENT_DAYS_G, NOTIONAL_G, EX_DIVIDEND_DAYS_G, CALENDAR_G, DAY_COUNT_G, BUSINESS_DAY_G, YIELD_CONVENTION_G, IS_EOM_G, ISSUER_G, REPO_TYPE_G);
   private static final ZonedDateTime REFERENCE_DATE_3 = DateUtils.getUTCDate(2011, 9, 2); // Ex-dividend is 30-Aug-2011
   private static final BondFixedSecurity BOND_FIXED_SECURITY_G = BOND_FIXED_SECURITY_DEFINITION_G.toDerivative(REFERENCE_DATE_3, CURVES_NAME);
-  private static final ZonedDateTime SPOT_3 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_3, CALENDAR, SETTLEMENT_DAYS_G);
+  private static final ZonedDateTime SPOT_3 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_3, SETTLEMENT_DAYS_G, CALENDAR);
   private static final double REFERENCE_TIME_3 = ACT_ACT.getDayCountFraction(REFERENCE_DATE_3, SPOT_3);
 
   @Test

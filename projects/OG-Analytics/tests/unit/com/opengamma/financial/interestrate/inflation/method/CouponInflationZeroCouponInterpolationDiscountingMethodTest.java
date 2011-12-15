@@ -50,7 +50,7 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final Period COUPON_TENOR = Period.ofYears(10);
-  private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, BUSINESS_DAY, CALENDAR_EUR, COUPON_TENOR);
+  private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, COUPON_TENOR, BUSINESS_DAY, CALENDAR_EUR);
   private static final double NOTIONAL = 98765432;
   private static final int MONTH_LAG = 3;
   private static final double INDEX_MAY_2008_INT = 108.4548387; // May index: 108.23 - June Index = 108.64
@@ -126,8 +126,8 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
     MarketBundle marketSeason = MarketDataSets.createMarket2(PRICING_DATE);
     int tenorYear = 5;
     double notional = 100000000;
-    ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(PRICING_DATE, CALENDAR_USD, USDLIBOR3M.getSpotLag());
-    ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(settleDate, BUSINESS_DAY, CALENDAR_USD, USDLIBOR3M.isEndOfMonth(), Period.ofYears(tenorYear));
+    ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(PRICING_DATE, USDLIBOR3M.getSpotLag(), CALENDAR_USD);
+    ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(settleDate, Period.ofYears(tenorYear), BUSINESS_DAY, CALENDAR_USD, USDLIBOR3M.isEndOfMonth());
     double weightSettle = 1.0 - (settleDate.getDayOfMonth() - 1.0) / settleDate.getMonthOfYear().getLastDayOfMonth(settleDate.isLeapYear());
     double indexStart = weightSettle * 225.964 + (1 - weightSettle) * 225.722;
     CouponInflationZeroCouponInterpolationDefinition zeroCouponUsdDefinition = CouponInflationZeroCouponInterpolationDefinition.from(settleDate, paymentDate, notional, PRICE_INDEX_US, indexStart,

@@ -48,5 +48,6 @@ public class StatisticsCalculatorFactoryTest {
         .getCalculator(StatisticsCalculatorFactory.SAMPLE_STANDARD_DEVIATION)));
     assertEquals(StatisticsCalculatorFactory.SAMPLE_VARIANCE, StatisticsCalculatorFactory.getCalculatorName(StatisticsCalculatorFactory.getCalculator(StatisticsCalculatorFactory.SAMPLE_VARIANCE)));
     assertEquals(StatisticsCalculatorFactory.GEOMETRIC_MEAN, StatisticsCalculatorFactory.getCalculatorName(StatisticsCalculatorFactory.getCalculator(StatisticsCalculatorFactory.GEOMETRIC_MEAN)));
+    assertEquals(StatisticsCalculatorFactory.SAMPLE_COVARIANCE, StatisticsCalculatorFactory.getCalculatorName(StatisticsCalculatorFactory.getCalculator(StatisticsCalculatorFactory.SAMPLE_COVARIANCE)));
   }
 }

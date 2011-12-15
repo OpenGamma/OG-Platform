@@ -64,7 +64,7 @@ public class CouponFixedDefinitionTest {
     GeneratorDeposit generator = new USDDeposit(CALENDAR);
     Period tenor = Period.ofMonths(3);
     CouponFixedDefinition cpnFixed = CouponFixedDefinition.from(ACCRUAL_START_DATE, tenor, generator, NOTIONAL, RATE);
-    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, generator.getBusinessDayConvention(), CALENDAR, generator.isEndOfMonth(), tenor);
+    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, tenor, generator.getBusinessDayConvention(), CALENDAR, generator.isEndOfMonth());
     double accrual = generator.getDayCount().getDayCountFraction(ACCRUAL_START_DATE, endDate);
     CouponFixedDefinition cpnExpected = new CouponFixedDefinition(generator.getCurrency(), endDate, ACCRUAL_START_DATE, endDate, accrual, NOTIONAL, RATE);
     assertEquals("CouponFixedDefinition: from deposit generator", cpnExpected, cpnFixed);
