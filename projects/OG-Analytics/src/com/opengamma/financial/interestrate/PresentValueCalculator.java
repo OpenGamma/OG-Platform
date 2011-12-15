@@ -16,7 +16,8 @@ import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.bond.method.BondTransactionDiscountingMethod;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.financial.interestrate.cash.method.CashDiscountingMethod;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
@@ -50,18 +51,29 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
 
   /**
-   * The method used for OIS coupons.
+   * The method unique instance.
    */
-  private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
+  private static final PresentValueCalculator INSTANCE = new PresentValueCalculator();
 
-  private static final PresentValueCalculator s_instance = new PresentValueCalculator();
-
+  /**
+   * Return the unique instance of the class.
+   * @return The instance.
+   */
   public static PresentValueCalculator getInstance() {
-    return s_instance;
+    return INSTANCE;
   }
 
+  /**
+   * Constructor.
+   */
   PresentValueCalculator() {
   }
+
+  /**
+   * The method used for different instruments.
+   */
+  private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
+  private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
 
   @Override
   public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
@@ -83,13 +95,8 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
   }
 
   @Override
-  public Double visitCash(final Cash cash, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(cash);
-    final double ta = cash.getTradeTime();
-    final double tb = cash.getMaturity();
-    final YieldAndDiscountCurve curve = curves.getCurve(cash.getYieldCurveName());
-    return cash.getNotional() * (curve.getDiscountFactor(tb) * (1 + cash.getYearFraction() * cash.getRate()) - curve.getDiscountFactor(ta));
+  public Double visitCash(final Cash deposit, final YieldCurveBundle curves) {
+    return METHOD_DEPOSIT.presentValue(deposit, curves).getAmount();
   }
 
   @Override

@@ -106,8 +106,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
     Validate.notNull(accrualStartDate, "Accrual start date.");
     Validate.notNull(cmsIndex1, "CMS index");
     Validate.notNull(cmsIndex2, "CMS index");
-    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, cmsIndex1.getIborIndex().getBusinessDayConvention(), cmsIndex1.getIborIndex().getCalendar(), -cmsIndex1
-        .getIborIndex().getSpotLag());
+    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -cmsIndex1.getIborIndex().getSpotLag(), cmsIndex1.getIborIndex().getCalendar());
     // Implementation comment: the underlying swap is used for forward. The notional, rate and payer flag are irrelevant.
     final SwapFixedIborDefinition underlyingSwap1 = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex1, 1.0, 1.0, true);
     final SwapFixedIborDefinition underlyingSwap2 = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex2, 1.0, 1.0, true);
