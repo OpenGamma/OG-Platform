@@ -17,7 +17,12 @@ $.register_module({
                         enableAddRow: false,
                         enableCellNavigation: false,
                         showHeaderRow: false,
-                        headerHeight: 33
+                        headerHeight: 38
+                    });
+                    obj.columns = og.common.slickgrid.calibrate_columns({
+                        container: '.OG-js-search',
+                        columns: obj.columns,
+                        buffer: 17
                     });
                     grid = new Slick.Grid(obj.selector, slick_manager.data, obj.columns, options);
                     window.onresize = function () {

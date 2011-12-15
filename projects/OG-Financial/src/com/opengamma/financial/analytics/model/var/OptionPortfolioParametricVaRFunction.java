@@ -35,7 +35,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.greeks.AvailableValueGreeks;
-import com.opengamma.financial.analytics.model.riskfactor.option.UnderlyingTypeToHistoricalTimeSeries;
+import com.opengamma.financial.analytics.model.riskfactor.option.UnderlyingTimeSeriesProvider;
 import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunction;
 import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.financial.covariance.CovarianceCalculator;
@@ -63,7 +63,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  * 
  */
-public class OptionPortfolioParametricVaRCalculatorFunction extends AbstractFunction.NonCompiledInvoker {
+public class OptionPortfolioParametricVaRFunction {/* extends AbstractFunction.NonCompiledInvoker {
   private final String _resolutionKey;
   private final LocalDate _startDate;
   private final Set<ValueGreek> _valueGreeks;
@@ -79,14 +79,14 @@ public class OptionPortfolioParametricVaRCalculatorFunction extends AbstractFunc
   private final DeltaMeanCalculator _meanCalculator = new DeltaMeanCalculator(_algebra);
   private final DeltaCovarianceMatrixStandardDeviationCalculator _stdCalculator = new DeltaCovarianceMatrixStandardDeviationCalculator(_algebra);
 
-  public OptionPortfolioParametricVaRCalculatorFunction(final String dataSourceName, final String startDate, final String returnCalculatorName,
+  public OptionPortfolioParametricVaRFunction(final String dataSourceName, final String startDate, final String returnCalculatorName,
       final String scheduleName, final String samplingFunctionName, final String confidenceLevel, final String maxOrder,
       final String valueGreekRequirementNames) {
     this(dataSourceName, startDate, returnCalculatorName, scheduleName, samplingFunctionName, confidenceLevel, maxOrder,
         new String[] {valueGreekRequirementNames});
   }
 
-  public OptionPortfolioParametricVaRCalculatorFunction(final String resolutionKey, final String startDate, final String returnCalculatorName,
+  public OptionPortfolioParametricVaRFunction(final String resolutionKey, final String startDate, final String returnCalculatorName,
       final String scheduleName, final String samplingFunctionName, final String confidenceLevel, final String maxOrder,
       final String... valueGreekRequirementNames) {
     Validate.notNull(resolutionKey, "resolution key");
@@ -129,7 +129,7 @@ public class OptionPortfolioParametricVaRCalculatorFunction extends AbstractFunc
           if (sensitivity.getUnderlying().getOrder() <= _maxOrder) {
             final Map<UnderlyingType, DoubleTimeSeries<?>> tsReturns = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
             for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
-              final DoubleTimeSeries<?> timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalSource, _resolutionKey, securitySource, underlyingType,
+              final DoubleTimeSeries<?> timeSeries = UnderlyingTimeSeriesProvider.getSeries(historicalSource, _resolutionKey, securitySource, underlyingType,
                   position.getSecurity());
               final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true, false);
               final DoubleTimeSeries<?> sampledTS = _samplingCalculator.getSampledTimeSeries(timeSeries, schedule);
@@ -204,5 +204,5 @@ public class OptionPortfolioParametricVaRCalculatorFunction extends AbstractFunc
   public String getShortName() {
     return "PortfolioParametricVaRCalculatorFunction";
   }
-
+*/
 }

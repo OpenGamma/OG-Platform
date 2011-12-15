@@ -6,6 +6,7 @@
 package com.opengamma.engine.function;
 
 import java.util.Collection;
+import java.util.Set;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -28,7 +29,7 @@ public interface FunctionInputs {
    * @return All values required by the function receiving this instance.
    */
   Collection<ComputedValue> getAllValues();
-  
+
   /**
    * Obtain the actual value computed as part of the specified requirement.
    * This is equivalent to obtaining the embedded {@link ComputedValue} and calling
@@ -38,7 +39,7 @@ public interface FunctionInputs {
    * @return The ultimate value computed for that requirement.
    */
   Object getValue(ValueRequirement requirement);
-  
+
   /**
    * Obtain the computed value computed as part of the specified requirement.
    * This is equivalent to obtaining the embedded {@link ComputedValue}.
@@ -47,7 +48,7 @@ public interface FunctionInputs {
    * @return The computed value computed for that requirement.
    */
   ComputedValue getComputedValue(ValueRequirement requirement);
-  
+
   /**
    * Obtain an actual value which has the given requirement name.
    * This is equivalent to obtaining the embedded {@link ComputedValue} and calling
@@ -61,5 +62,17 @@ public interface FunctionInputs {
    * @return The ultimate value computed for that requirement.
    */
   Object getValue(String requirementName);
+
+  /**
+   * Obtain any "missing" values that are not available because of missing market
+   * data or occurrence of an error that prevented their production. This is only
+   * defined or relevant if the invoker declares that it can handle missing inputs.
+   * If the invoker does not accept missing inputs, this will always be empty as
+   * the function would not be invoked.
+   * 
+   * @return The values that were defined in the dependency graph but couldn't
+   *         be calculated, not null
+   */
+  Collection<ValueSpecification> getMissingValues();
 
 }

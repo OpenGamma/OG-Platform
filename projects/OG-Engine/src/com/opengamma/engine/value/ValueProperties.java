@@ -273,7 +273,8 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     @Override
     public boolean isSatisfiedBy(final ValueProperties properties) {
       assert properties != null;
-      nextProperty: // CSIGNORE [DVI-122]
+      nextProperty:
+      // CSIGNORE [DVI-122]
       for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
         final Set<String> available = properties.getValues(property.getKey());
         if (available == null) {
@@ -348,7 +349,8 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       final Map<String, Set<String>> composed = new HashMap<String, Set<String>>();
       Set<String> optional = null;
       int otherAvailable = 0;
-      nextProperty: // CSIGNORE [DVI-122]
+      nextProperty:
+      // CSIGNORE [DVI-122]
       for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
         final Set<String> available = properties.getValues(property.getKey());
         if (available == null) {
@@ -411,6 +413,40 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
         }
       }
       return new ValuePropertiesImpl(Collections.unmodifiableMap(composed), (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String>emptySet());
+    }
+
+    @Override
+    public ValueProperties intersect(final ValueProperties other) {
+      // Our property values are present unless missing from the other set
+      final Map<String, Set<String>> intersection = new HashMap<String, Set<String>>();
+      Set<String> optional = null;
+      for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
+        final Set<String> otherValues = other.getValues(property.getKey());
+        if (otherValues == null) {
+          // Property not defined in the other set
+          continue;
+        }
+        final Set<String> commonValues;
+        if (otherValues.isEmpty()) {
+          // Other set is wild-card, so take our values
+          commonValues = property.getValue();
+        } else {
+          commonValues = Sets.intersection(property.getValue(), otherValues);
+          if (commonValues.isEmpty()) {
+            // No common values
+            continue;
+          }
+        }
+        intersection.put(property.getKey(), commonValues);
+        // Preserve least optionality
+        if (isOptional(property.getKey()) && other.isOptional(property.getKey())) {
+          if (optional == null) {
+            optional = new HashSet<String>();
+          }
+          optional.add(property.getKey());
+        }
+      }
+      return new ValuePropertiesImpl(Collections.unmodifiableMap(intersection), (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String>emptySet());
     }
 
     @Override
@@ -675,6 +711,18 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
 
     @Override
+    public ValueProperties intersect(final ValueProperties properties) {
+      // Yields the same unless we are intersecting against another "nearly infinite" set
+      if (properties instanceof NearlyInfinitePropertiesImpl) {
+        final NearlyInfinitePropertiesImpl other = (NearlyInfinitePropertiesImpl) properties;
+        // Intersection is the UNION of the things we DON'T contain subtracted from the INFINITE set
+        return new NearlyInfinitePropertiesImpl(Collections.unmodifiableSet(Sets.union(_without, other._without)));
+      } else {
+        return this;
+      }
+    }
+
+    @Override
     public Builder copy() {
       throw new UnsupportedOperationException("Cannot copy the nearly infinite set");
     }
@@ -818,6 +866,12 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       // Composition yields the infinite set
       return this;
     }
+    
+    @Override
+    public ValueProperties intersect(final ValueProperties properties) {
+      // Intersection yields the other set
+      return properties;
+    }
 
     @Override
     public Builder copy() {
@@ -902,6 +956,12 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     @Override
     public ValueProperties compose(ValueProperties properties) {
       // The only thing satisfied by the empty set is the empty set, or a set with only optional properties
+      return this;
+    }
+    
+    @Override
+    public ValueProperties intersect(final ValueProperties properties) {
+      // Nothing to intersect with, so still empty
       return this;
     }
 
@@ -1093,7 +1153,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
   public abstract boolean isSatisfiedBy(ValueProperties properties);
 
   /**
-   * Composes two value properties taking the intersection.
+   * Composes two value properties by taking a "left" intersection.
    * <p>
    * This produces a set of properties such that for any properties defined by the other,
    * the intersection of the property values is taken. Any properties defined in this set
@@ -1103,6 +1163,19 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
    * @return the new set of properties, or this object if the composition result is equal, not null
    */
   public abstract ValueProperties compose(ValueProperties properties);
+
+  /**
+   * Produces the strict intersection of two property sets.
+   * <p>
+   * This produces a set of properties such that only properties defined in both this and
+   * the other are present in the output. For these, the intersection of common values is
+   * available for each property. If there are no common property values, the property is
+   * ommited from the result.
+   * 
+   * @param properties the other property set to compose against, not null
+   * @return the new set of properties, or this object if the intersection result is equal, not null
+   */
+  public abstract ValueProperties intersect(ValueProperties properties);
 
   /**
    * Checks if the set of properties is strict.

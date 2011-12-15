@@ -30,6 +30,7 @@ public class ForexUtils {
     BASE_ORDER.put(Currency.AUD, 3);
     // TODO: NZD missing in currencies
     BASE_ORDER.put(Currency.USD, 5);
+    BASE_ORDER.put(Currency.CHF, 6);
   }
 
   public static String getFormattedStrike(final double strike, final Pair<Currency, Currency> pair) {
