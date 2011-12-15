@@ -4,7 +4,7 @@
         "name": "${position.name}",
         "object_id": "${position.uniqueId.objectId}",
         "version_id": "${position.uniqueId.version}",
-	"hts_id": "${timeSeriesId}",
+        "hts_id": "${timeSeriesId}",
         <#if deleted>
         "deleted": "${positionDoc.versionToInstant}",
         </#if>
@@ -29,21 +29,15 @@
             "id": "${trade.uniqueId.objectId}",
             "premium": "${trade.premium}",
             "premiumCurrency": "${trade.premiumCurrency}",
-            "premiumDate": "${trade.premiumDate}",
-            <#if trade.premiumTime?has_content>
-            "premiumTime": "${trade.premiumTime.toString(timeFormatter)}",
-            "premiumTimeOffset": "${trade.premiumTime.toString(offsetFormatter)}",
-            </#if>
+            "date_time": "<#if trade.tradeDate?has_content>${trade.tradeDate}</#if> <#if trade.tradeTime?has_content> @ ${trade.tradeTime.toString(timeFormatter)}</#if><#if trade.premiumTime?has_content>(${trade.premiumTime.toString(offsetFormatter)})</#if>",
+            "premium": "<#if trade.premium?has_content>${trade.premium}</#if><#if trade.premiumCurrency?has_content> ${trade.premiumCurrency}</#if>",
+            "premium_date_time": "<#if trade.premium?has_content>${trade.premium}</#if><#if trade.premiumTime?has_content> @ ${trade.premiumTime.toString(timeFormatter)} (${trade.tradeTime.toString(offsetFormatter)})</#if>",
             "quantity": "${trade.quantity}",
             "counterParty": "${trade.counterpartyExternalId}",
             "tradeDate": "${trade.tradeDate}",
-            <#if trade.tradeTime?has_content>
-            "tradeTime": "${trade.tradeTime.toString(timeFormatter)}",
-            "tradeTimeOffset": "${trade.tradeTime.toString(offsetFormatter)}",
-            </#if>
             <#assign dealAttr = tradeAttrModel.getDealAttributes(trade.uniqueId)>
             <#assign userAttr = tradeAttrModel.getUserAttributes(trade.uniqueId)>
-            "attributes":{"dealAttributes" : {<#list dealAttr?keys as key>"${key}":"${dealAttr[key]}"<#if key_has_next>,</#if></#list>}, 
+            "attributes":{"dealAttributes" : {<#list dealAttr?keys as key>"${key}":"${dealAttr[key]}"<#if key_has_next>,</#if></#list>},
                           "userAttributes" : {<#list userAttr?keys as key>"${key}":"${userAttr[key]}"<#if key_has_next>,</#if></#list>}}
         }<#if trade_has_next>,</#if></#list>
     ]

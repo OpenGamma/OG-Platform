@@ -24,7 +24,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
@@ -52,7 +52,7 @@ public class LastTimeCalculatorTest {
   @Test
   public void testCash() {
     final double t = 7 / 365.0;
-    final Cash cash = new Cash(CUR, t, 100, 0.0445, 1 / 365.0, 5.0 / 365, "t");
+    final Cash cash = new Cash(CUR, 1 / 365.0, t, 100, 0.0445, 5.0 / 365, "t");
     assertEquals(t, LDC.visit(cash), 1e-12);
   }
 
