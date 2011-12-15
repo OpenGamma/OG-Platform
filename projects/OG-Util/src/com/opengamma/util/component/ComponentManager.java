@@ -105,7 +105,7 @@ public class ComponentManager {
       try {
         converted = _repo.getInstance(cls, value);
       } catch (RuntimeException ex2) {
-        throw new IllegalArgumentException("Unable to find value for ", ex2);
+        throw new IllegalArgumentException("Unable to convert value for " + mp, ex2);
       }
       mp.set(bean, converted);
     }
