@@ -14,9 +14,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
  */
 public class JensenAlphaPositionFunction extends JensenAlphaFunction {
 
-  public JensenAlphaPositionFunction(final String returnCalculatorName, final String expectedAssetReturnCalculatorName, final String expectedRiskFreeReturnCalculatorName,
-      final String expectedMarketReturnCalculatorName, final String startDate) {
-    super(returnCalculatorName, expectedAssetReturnCalculatorName, expectedRiskFreeReturnCalculatorName, expectedMarketReturnCalculatorName, startDate);
+  public JensenAlphaPositionFunction(final String resolutionKey) {
+    super(resolutionKey);
   }
 
   @Override
@@ -27,11 +26,6 @@ public class JensenAlphaPositionFunction extends JensenAlphaFunction {
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     return target.getType() == ComputationTargetType.POSITION;
-  }
-
-  @Override
-  public String getShortName() {
-    return "JensenAlphaPositionFunction";
   }
 
   @Override

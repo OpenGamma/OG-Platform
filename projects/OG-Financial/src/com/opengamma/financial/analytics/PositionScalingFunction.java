@@ -57,7 +57,19 @@ public class PositionScalingFunction extends PropertyPreservingFunction {
         ValuePropertyNames.RECEIVE_CURVE,
         ValuePropertyNames.SMILE_FITTING_METHOD,
         RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE,
-        EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD);
+        EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD,
+        ValuePropertyNames.SAMPLING_PERIOD,
+        ValuePropertyNames.RETURN_CALCULATOR,
+        ValuePropertyNames.SCHEDULE_CALCULATOR,
+        ValuePropertyNames.SAMPLING_FUNCTION,
+        ValuePropertyNames.MEAN_CALCULATOR,
+        ValuePropertyNames.STD_DEV_CALCULATOR,
+        ValuePropertyNames.CONFIDENCE_LEVEL,
+        ValuePropertyNames.HORIZON,
+        ValuePropertyNames.ORDER,
+        ValuePropertyNames.COVARIANCE_CALCULATOR,
+        ValuePropertyNames.VARIANCE_CALCULATOR,
+        ValuePropertyNames.EXCESS_RETURN_CALCULATOR);
   }
 
   @Override
