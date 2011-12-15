@@ -238,10 +238,10 @@ $.register_module({
                         return setTimeout(search_filter, 500);
                     search.filter($.extend(args, {filter: true}));
                 };
-                check_state({args: args, conditions: [{new_page: function () {
-                    if (args.id) return configs.load_configs(args);
-                    configs.load(args);
-                }}]});
+                check_state({args: args, conditions: [
+                    {new_value: 'id', stop: true, method: function () {if (args.id) configs.load_configs(args);}},
+                    {new_page: function () {configs.load(args);}}
+                ]});
                 search_filter();
             },
             load_configs: function (args) {

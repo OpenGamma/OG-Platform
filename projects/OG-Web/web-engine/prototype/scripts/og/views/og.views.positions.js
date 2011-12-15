@@ -230,16 +230,10 @@ $.register_module({
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        state = {filter: true};
-                        positions.load(args);
-                        args.id
-                            ? routes.go(routes.hash(module.rules.load_positions, args))
-                            : routes.go(routes.hash(module.rules.load, args));
-                    }}
+                    {new_value: 'id', stop: true, method: function () {if (args.id) positions.load_positions(args);}},
+                    {new_page: function () {positions.load(args);}}
                 ]});
-                delete args['filter'];
-                search.filter($.extend(true, args, {filter: true}, get_quantities(args.quantity)));
+                search.filter($.extend(true, args, get_quantities(args.quantity)));
             },
             load_positions: function (args) {
                 check_state({args: args, conditions: [

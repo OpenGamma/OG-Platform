@@ -252,7 +252,8 @@ $.register_module({
                         search.filter(args);
                 };
                 check_state({args: args, conditions: [
-                    {new_page: function () {return args.id ? securities.load_securities(args) : securities.load(args);}}
+                    {new_value: 'id', stop: true, method: function () {if (args.id) securities.load_securities(args);}},
+                    {new_page: function () {securities.load(args);}}
                 ]});
                 search_filter();
             },
