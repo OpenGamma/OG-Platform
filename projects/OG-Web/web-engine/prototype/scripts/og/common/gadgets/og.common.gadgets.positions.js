@@ -66,16 +66,14 @@ $.register_module({
                 handler: function (result) {
                     if (result.error) return alert(result.message);
                     api.text({module: 'og.views.gadgets.positions', handler: function (template) {
-                        var args = routes.current();
+                        var args = routes.current().args;
                         $(selector).html($.tmpl(template, $.extend(result.data, {editable: config.editable})))
                             .hide().fadeIn();
                         timeseries(result, $(selector + ' .og-js-sec-time').outerHeight() - 2);
                         if ((!args.version || args.version === '*') && config.editable) {
                             common.util.ui.content_editable({
                                 attribute: 'data-og-editable',
-                                handler: function () {
-                                    views.positions.search(args), routes.handler();
-                                }
+                                handler: function () {views.positions.search(args), views.positions.details(args);}
                             });
                         }
                     }});

@@ -159,3 +159,11 @@
   line-height: 20px;
   vertical-align: middle;
 }
+
+.grid-canvas {
+  width: 100%!important;
+}
+
+.slick-viewport {
+  overflow-y: scroll!important;
+}
