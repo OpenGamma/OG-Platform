@@ -18,13 +18,8 @@ import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvid
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.CycleInfo;
-import com.opengamma.engine.view.CycleInfoImpl;
-import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewProcessContext;
-import com.opengamma.engine.view.ViewProcessImpl;
-import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.*;
+import com.opengamma.engine.view.SimpleCycleInfo;
 import com.opengamma.engine.view.calc.trigger.CombinedViewCycleTrigger;
 import com.opengamma.engine.view.calc.trigger.FixedTimeTrigger;
 import com.opengamma.engine.view.calc.trigger.RecomputationPeriodTrigger;
@@ -45,7 +40,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
-import com.opengamma.util.functional.Function2;
 import com.opengamma.util.monitor.OperationTimer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -290,7 +284,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
         final SingleComputationCycle singleComputationCycle = cycleReference.get();
         final Set<String> configurationNames = singleComputationCycle.getAllCalculationConfigurationNames();
 
-        cycleInitiated(new CycleInfoImpl(
+        cycleInitiated(new SimpleCycleInfo(
             marketDataSnapshot.getUniqueId(),
             compiledViewDefinition.getViewDefinition().getUniqueId(),
             versionCorrection,

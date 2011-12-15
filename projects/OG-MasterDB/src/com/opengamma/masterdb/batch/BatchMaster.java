@@ -3,15 +3,16 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.batch.document;
+package com.opengamma.masterdb.batch;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueId;
+import com.opengamma.masterdb.batch.BatchRunWriter;
 
 /**
  * A master for storing and managing batch job runs.
  */
-public interface BatchMaster {
+public interface BatchMaster extends BatchRunWriter {
 
   /**
    * Searches for batches matching the specified search criteria.

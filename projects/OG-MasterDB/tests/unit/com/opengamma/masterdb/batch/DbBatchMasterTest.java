@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.batch.document;
+package com.opengamma.masterdb.batch;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -31,12 +31,10 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertNotNull;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
-public class DbBatchDocumentMasterTest extends DbTest {
+public class DbBatchMasterTest extends DbTest {
 
-  private DbBatchWriter _batchWriter;
-  private DbBatchDocumentMaster _batchMaster;
+  private DbBatchMaster _batchMaster;
   private BatchId _batchId;
   private CycleInfo _cycleInfoStub;
   private ComputationTargetSpecification _compTargetSpec;
@@ -44,7 +42,7 @@ public class DbBatchDocumentMasterTest extends DbTest {
   private ValueSpecification _specification;
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
-  public DbBatchDocumentMasterTest(String databaseType, final String databaseVersion) {
+  public DbBatchMasterTest(String databaseType, final String databaseVersion) {
     super(databaseType, databaseVersion);
   }
 
@@ -53,8 +51,7 @@ public class DbBatchDocumentMasterTest extends DbTest {
     super.setUp();
 
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _batchMaster = (DbBatchDocumentMaster) context.getBean(getDatabaseType() + "DbBatchDocumentMaster");
-    _batchWriter = (DbBatchWriter) context.getBean(getDatabaseType() + "DbBatchWriter");
+    _batchMaster = (DbBatchMaster) context.getBean(getDatabaseType() + "DbBatchMaster");
 
     final String calculationConfigName = "config_1";
 
@@ -132,8 +129,8 @@ public class DbBatchDocumentMasterTest extends DbTest {
   public void searchAllBatches() {
     Batch batch = new Batch(_cycleInfoStub);
 
-    _batchWriter.createLiveDataSnapshot(batch.getBatchId().getMarketDataSnapshotUid());
-    _batchWriter.startBatch(batch, RunCreationMode.AUTO, SnapshotMode.PREPARED);
+    _batchMaster.createLiveDataSnapshot(batch.getBatchId().getMarketDataSnapshotUid());
+    _batchMaster.startBatch(batch, RunCreationMode.AUTO, SnapshotMode.PREPARED);
 
     BatchSearchRequest request = new BatchSearchRequest();
 
@@ -146,7 +143,7 @@ public class DbBatchDocumentMasterTest extends DbTest {
     assertEquals(item.getValuationTime(), batch.getBatchId().getValuationTime());
     assertEquals(BatchStatus.RUNNING, item.getStatus());
 
-    _batchWriter.endBatch(batch.getUniqueId());
+    _batchMaster.endBatch(batch.getUniqueId());
     result = _batchMaster.search(request);
     assertEquals(1, result.getDocuments().size());
     item = result.getDocuments().get(0);
@@ -160,8 +157,8 @@ public class DbBatchDocumentMasterTest extends DbTest {
   public void searchOneBatch() {
     Batch batch = new Batch(_cycleInfoStub);
 
-    _batchWriter.createLiveDataSnapshot(batch.getBatchId().getMarketDataSnapshotUid());
-    _batchWriter.startBatch(batch, RunCreationMode.AUTO, SnapshotMode.PREPARED);
+    _batchMaster.createLiveDataSnapshot(batch.getBatchId().getMarketDataSnapshotUid());
+    _batchMaster.startBatch(batch, RunCreationMode.AUTO, SnapshotMode.PREPARED);
 
     BatchSearchRequest request = new BatchSearchRequest();
     request.setValuationTime(batch.getBatchId().getValuationTime());

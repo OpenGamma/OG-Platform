@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.batch.document;
+package com.opengamma.masterdb.batch;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -23,19 +23,19 @@ import java.sql.Timestamp;
 
 import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
 
-public abstract class AbstractDbBatchDocumentMasterTest extends DbTest {
+public abstract class AbstractDbBatchMasterTest extends DbTest {
 
 
-  protected DbBatchDocumentMaster _batchMaster;
+  protected DbBatchMaster _batchMaster;
   
   protected UniqueId _marketDataSnapshotUid = UniqueId.of("MrkDta", "market_data_snapshot_uid");
   protected UniqueId _viewDefinitionUid = UniqueId.of("ViewDef", "view definition uid");
   protected VersionCorrection _versionCorrection = VersionCorrection.LATEST;
   protected Instant _valuationTime = OffsetDateTime.parse("2011-01-01T15:58:34.183Z").toInstant();
 
-  private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbBatchDocumentMasterTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbBatchMasterTest.class);
 
-  public AbstractDbBatchDocumentMasterTest(String databaseType, String databaseVersion) {
+  public AbstractDbBatchMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
@@ -45,7 +45,7 @@ public abstract class AbstractDbBatchDocumentMasterTest extends DbTest {
     super.setUp();
 
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _batchMaster = (DbBatchDocumentMaster) context.getBean(getDatabaseType() + "DbBatchDocumentMaster");
+    _batchMaster = (DbBatchMaster) context.getBean(getDatabaseType() + "DbBatchMaster");
     
     Timestamp now = toSqlTimestamp(Instant.now());
 

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.batch.document;
+package com.opengamma.masterdb.batch;
 
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -120,7 +120,7 @@ public class BatchDocument extends DirectBean
 
   public BatchDocument(RiskRun run) {
     this(
-      UniqueId.of(DbBatchDocumentMaster.IDENTIFIER_SCHEME_DEFAULT, Long.toString(run.getId())),
+      UniqueId.of(DbBatchMaster.IDENTIFIER_SCHEME_DEFAULT, Long.toString(run.getId())),
       UniqueId.parse(run.getViewDefinition().getViewDefinitionUid()),
       UniqueId.parse(run.getLiveDataSnapshot().getMarketDataSnapshotUid()),
       run.getValuationTime(),

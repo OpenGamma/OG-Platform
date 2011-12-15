@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.batch.document;
+package com.opengamma.masterdb.batch;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -19,15 +19,15 @@ import javax.time.Instant;
 import static org.testng.Assert.assertTrue;
 
 /**
- * Tests DbBatchDocumentGetTest.
+ * Tests DbBatchGetTest.
  */
-public class DbBatchDocumentSearchTest extends AbstractDbBatchDocumentMasterTest {
+public class DbBatchSearchTest extends AbstractDbBatchMasterTest {
   // superclass sets up dummy database
 
-  private static final Logger s_logger = LoggerFactory.getLogger(DbBatchDocumentSearchTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(DbBatchSearchTest.class);
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
-  public DbBatchDocumentSearchTest(String databaseType, String databaseVersion) {
+  public DbBatchSearchTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }

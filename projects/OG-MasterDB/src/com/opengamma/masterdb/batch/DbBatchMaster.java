@@ -3,11 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.batch.document;
+package com.opengamma.masterdb.batch;
 
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.id.UniqueId;
 import com.opengamma.masterdb.AbstractDbMaster;
-import com.opengamma.masterdb.batch.RiskRun;
+import com.opengamma.masterdb.batch.*;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.paging.Paging;
@@ -29,40 +30,33 @@ import org.springframework.transaction.support.TransactionCallback;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static com.opengamma.util.db.DbUtil.eqOrIsNull;
 
-public class DbBatchDocumentMaster extends AbstractDbMaster implements BatchMaster {
+public class DbBatchMaster extends AbstractDbMaster implements BatchMaster {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(DbBatchDocumentMaster.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(DbBatchMaster.class);
 
   /**
    * The default scheme for unique identifiers.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbBat";
 
+  
+  final private DbBatchWriter _dbBatchWriter; 
   /**
    * Creates an instance.
    *
    * @param dbConnector  the database connector, not null
    */
-  public DbBatchDocumentMaster(final DbConnector dbConnector) {
+  public DbBatchMaster(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
-  }
+    _dbBatchWriter = new DbBatchWriter(dbConnector);
+  }  
 
-  public RiskRun getRiskRunById(final Long id) {
-    return getHibernateTransactionTemplate().execute(new HibernateCallback<RiskRun>() {
-      @Override
-      public RiskRun doInHibernate(Session session) throws HibernateException, SQLException {
-        Query query = session.getNamedQuery("RiskRun.one.byId");
-        query.setLong("id", id);
-        return (RiskRun) query.uniqueResult();
-      }
-    });
-  }
-
-
+  
   @Override
   public BatchDocument get(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
@@ -71,7 +65,7 @@ public class DbBatchDocumentMaster extends AbstractDbMaster implements BatchMast
     return getHibernateTransactionTemplate().execute(new HibernateCallback<BatchDocument>() {
       @Override
       public BatchDocument doInHibernate(Session session) throws HibernateException, SQLException {
-        RiskRun run = getRiskRunById(id);
+        RiskRun run = _dbBatchWriter.getRiskRunById(id);
         if (run != null) {
           return new BatchDocument(run);
         } else {
@@ -171,4 +165,91 @@ public class DbBatchDocumentMaster extends AbstractDbMaster implements BatchMast
 
   //--------------------------------------------------------------------------------------------------------------------
 
+  
+  @Override
+    public void addValuesToSnapshot(final UniqueId marketDataSnapshotUniqueId, final Set<LiveDataValue> values) {
+      getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<Void>() {
+        @Override
+        public Void doInTransaction(final TransactionStatus status) {
+          _dbBatchWriter.addValuesToSnapshotInTransaction(marketDataSnapshotUniqueId, values);
+          return null;
+        }
+      });
+    }
+  
+    @Override
+    public void startBatch(final Batch batch, final RunCreationMode runCreationMode, final SnapshotMode snapshotMode) {
+      getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<Void>() {
+        @Override
+        public Void doInTransaction(final TransactionStatus status) {
+          _dbBatchWriter.startBatchInTransaction(batch, runCreationMode, snapshotMode);
+          return null;
+        }
+      });
+    }
+  
+    @Override
+    public void deleteBatch(final UniqueId batchUniqueId) {
+      getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<Void>() {
+        @Override
+        public Void doInTransaction(final TransactionStatus status) {
+          _dbBatchWriter.deleteBatchInTransaction(batchUniqueId);
+          return null;
+        }
+      });
+    }
+  
+    @Override
+    public void endBatch(final UniqueId batchUniqueId) {
+      getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<Void>() {
+        @Override
+        public Void doInTransaction(final TransactionStatus status) {
+          _dbBatchWriter.endBatchInTransaction(batchUniqueId);
+          return null;
+        }
+      });
+    }
+  
+    @Override
+    public LiveDataSnapshot createLiveDataSnapshot(final UniqueId marketDataSnapshotUniqueId) {
+      return getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<LiveDataSnapshot>() {
+        @Override
+        public LiveDataSnapshot doInTransaction(final TransactionStatus status) {
+          return _dbBatchWriter.createOrGetLiveDataSnapshotInTransaction(marketDataSnapshotUniqueId);
+        }
+      });
+    }
+  
+    @Override
+    public Set<LiveDataValue> getSnapshotValues(final UniqueId snapshotUniqueId) {
+      return getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<Set<LiveDataValue>>() {
+        @Override
+        public Set<LiveDataValue> doInTransaction(final TransactionStatus status) {
+          return _dbBatchWriter.getSnapshotValuesInTransaction(snapshotUniqueId);
+        }
+      });
+    }
+  
+    @Override
+    public VersionCorrection createVersionCorrection(final com.opengamma.id.VersionCorrection versionCorrection) {
+      return getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<VersionCorrection>() {
+        @Override
+        public VersionCorrection doInTransaction(final TransactionStatus status) {
+          return _dbBatchWriter.createVersionCorrectionInTransaction(versionCorrection);
+        }
+      });
+    }
+  
+    // -------------------------------------------------------------------------------------------------------------------
+  
+    @Override
+    public void addJobResults(final UniqueId batchUniqueId, final ViewResultModel result) {
+      getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<Void>() {
+        @Override
+        public Void doInTransaction(final TransactionStatus status) {
+          _dbBatchWriter.addJobResultsInTransaction(batchUniqueId, result);
+          return null;
+        }
+      });
+    }
 }

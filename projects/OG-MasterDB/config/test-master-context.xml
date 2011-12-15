@@ -81,12 +81,7 @@
     <constructor-arg ref="hsqldbDbConnector" />
   </bean>
   
-  <bean id="hsqldbDbBatchWriter" class="com.opengamma.masterdb.batch.DbBatchWriter">
-    <constructor-arg ref="hsqldbDbConnector" />
-    <property name="uniqueIdScheme" value="DbBat" />
-  </bean>
-  
-  <bean id="hsqldbDbBatchDocumentMaster" class="com.opengamma.masterdb.batch.document.DbBatchDocumentMaster">
+  <bean id="hsqldbDbBatchMaster" class="com.opengamma.masterdb.batch.DbBatchMaster">
     <constructor-arg ref="hsqldbDbConnector" />
     <property name="uniqueIdScheme" value="DbBat" />
   </bean>
@@ -152,12 +147,7 @@
     <constructor-arg ref="postgresDbConnector" />
   </bean>
   
-  <bean id="postgresDbBatchWriter" class="com.opengamma.masterdb.batch.DbBatchWriter">
-    <constructor-arg ref="postgresDbConnector" />
-    <property name="uniqueIdScheme" value="DbBat" />
-  </bean>
-  
-  <bean id="postgresDbBatchDocumentMaster" class="com.opengamma.masterdb.batch.document.DbBatchDocumentMaster">
+  <bean id="postgresDbBatchMaster" class="com.opengamma.masterdb.batch.DbBatchMaster">
     <constructor-arg ref="postgresDbConnector" />
     <property name="uniqueIdScheme" value="DbBat" />
   </bean>
