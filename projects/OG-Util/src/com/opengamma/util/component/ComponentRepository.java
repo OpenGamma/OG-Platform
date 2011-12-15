@@ -229,10 +229,14 @@ public class ComponentRepository {
   /**
    * Gets the thread-local instance.
    * 
-   * @return the thread-local instance
+   * @return the thread-local instance, not null
    */
   public static ComponentRepository getThreadLocal() {
-    return s_threadRepo.get();
+    ComponentRepository repo = s_threadRepo.get();
+    if (repo == null) {
+      throw new IllegalStateException("ComponentRepository thread-local not set");
+    }
+    return repo;
   }
 
   //-------------------------------------------------------------------------
