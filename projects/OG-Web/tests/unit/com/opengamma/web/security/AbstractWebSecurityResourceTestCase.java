@@ -29,6 +29,7 @@ import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.web.MockUriInfo;
+import com.opengamma.web.WebResourceTestUtils;
 
 /**
  * 
@@ -63,8 +64,8 @@ public abstract class AbstractWebSecurityResourceTestCase {
     _htsMaster = new InMemoryHistoricalTimeSeriesMaster();
     _cfgSource = new MasterConfigSource(new InMemoryConfigMaster());
     
-    addSecurity(WebSecuritiesResourceTestUtils.getEquitySecurity());
-    addSecurity(WebSecuritiesResourceTestUtils.getBondFutureSecurity());
+    addSecurity(WebResourceTestUtils.getEquitySecurity());
+    addSecurity(WebResourceTestUtils.getBondFutureSecurity());
         
     _webSecuritiesResource = new WebSecuritiesResource(_secMaster, _secLoader, _htsMaster, _cfgSource);
     _webSecuritiesResource.setServletContext(new MockServletContext("/web-engine", new FileSystemResourceLoader()));

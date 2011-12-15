@@ -19,7 +19,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -78,9 +78,9 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInstrumentD
   public Map<String, List<DoublesPair>> visitCash(final Cash cash, final YieldCurveBundle curves) {
     final String curveName = cash.getYieldCurveName();
     final YieldAndDiscountCurve curve = curves.getCurve(curveName);
-    final double ta = cash.getTradeTime();
-    final double tb = cash.getMaturity();
-    final double yearFrac = cash.getYearFraction();
+    final double ta = cash.getStartTime();
+    final double tb = cash.getEndTime();
+    final double yearFrac = cash.getAccrualFactor();
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> temp = new ArrayList<DoublesPair>();
     if (yearFrac == 0.0) {

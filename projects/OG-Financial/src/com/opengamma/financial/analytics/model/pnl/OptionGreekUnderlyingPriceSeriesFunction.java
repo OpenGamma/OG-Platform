@@ -17,7 +17,6 @@ import javax.time.calendar.LocalDate;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -31,14 +30,10 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
-import com.opengamma.financial.analytics.model.riskfactor.option.UnderlyingTypeToHistoricalTimeSeries;
-import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunction;
-import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunctionFactory;
+import com.opengamma.financial.analytics.model.riskfactor.option.UnderlyingTimeSeriesProvider;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.pnl.UnderlyingType;
-import com.opengamma.financial.schedule.Schedule;
-import com.opengamma.financial.schedule.ScheduleCalculatorFactory;
-import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
@@ -46,35 +41,18 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.NonCompiledInvoker {
+  private static final String VALUE_REQUIREMENT_NAME = ValueRequirementNames.VALUE_DELTA; //TODO this should not be hard-coded
   private final String _resolutionKey;
   //private final String _fieldName; //TODO start using this
-  private final LocalDate _startDate;
-  private final Schedule _scheduleCalculator;
-  private final TimeSeriesSamplingFunction _samplingFunction;
+  //private final LocalDate _startDate;
+  //private final Schedule _scheduleCalculator;
+  //private final TimeSeriesSamplingFunction _samplingFunction;
   private final List<Pair<UnderlyingType, String>> _underlyings;
 
-  public OptionGreekUnderlyingPriceSeriesFunction(final String dataSourceName, final String fieldName, final String startDate, final String valueRequirementName) {
-    this(dataSourceName, fieldName, LocalDate.parse(startDate), valueRequirementName, null, null);
-  }
-
-  public OptionGreekUnderlyingPriceSeriesFunction(final String dataSourceName, final String fieldName, final String startDate, final String valueRequirementName, final String scheduleName,
-      final String samplingFunctionName) {
-    this(dataSourceName, fieldName, LocalDate.parse(startDate), valueRequirementName, ScheduleCalculatorFactory.getScheduleCalculator(scheduleName), TimeSeriesSamplingFunctionFactory
-        .getFunction(samplingFunctionName));
-  }
-
-  public OptionGreekUnderlyingPriceSeriesFunction(final String resolutionKey, final String fieldName, final LocalDate startDate, final String valueRequirementName,
-      final Schedule scheduleCalculator,
-      final TimeSeriesSamplingFunction samplingFunction) {
+  public OptionGreekUnderlyingPriceSeriesFunction(final String resolutionKey) {
     Validate.notNull(resolutionKey, "resolution key");
-    Validate.notNull(fieldName, "field name");
-    Validate.notNull(startDate, "start date");
-    Validate.notNull(valueRequirementName, "value requirement name");
-    _resolutionKey = resolutionKey;
-    _startDate = startDate;
-    _scheduleCalculator = scheduleCalculator;
-    _samplingFunction = samplingFunction;
-    final Greek greek = AvailableGreeks.getGreekForValueRequirementName(valueRequirementName);
+    _resolutionKey = resolutionKey;    
+    final Greek greek = AvailableGreeks.getGreekForValueRequirementName(VALUE_REQUIREMENT_NAME);
     _underlyings = new ArrayList<Pair<UnderlyingType, String>>();
     final List<UnderlyingType> types = greek.getUnderlying().getUnderlyings();
     for (final UnderlyingType type : types) {
@@ -84,28 +62,27 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final Security security = target.getSecurity();
-    final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final SecuritySource securitySource = executionContext.getSecuritySource();
+    final UnderlyingTimeSeriesProvider underlyingTimeSeriesProvider = new UnderlyingTimeSeriesProvider(historicalSource, _resolutionKey, securitySource);
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Clock snapshotClock = executionContext.getValuationClock();
+    final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
+    final Greek greek = AvailableGreeks.getGreekForValueRequirementName(VALUE_REQUIREMENT_NAME);
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
-    for (final Pair<UnderlyingType, String> underlying : _underlyings) {
-      final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(underlying.getSecond(), security), getUniqueId());
-      final DoubleTimeSeries<?> ts = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalSource, _resolutionKey, securitySource,
-          underlying.getFirst(), security);
-      if (ts == null) {
-        throw new NullPointerException("Could not get price series for security " + security);
-      }
-      final DoubleTimeSeries<?> resultTS;
-      if (_scheduleCalculator != null && _samplingFunction != null) {
-        final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true, false); //REVIEW emcleod should "fromEnd" be hard-coded?
-        resultTS = _samplingFunction.getSampledTimeSeries(ts, schedule);
-      } else {
-        resultTS = ts;
-      }
-      result.add(new ComputedValue(valueSpecification, resultTS));
-    }
+//    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(underlying.getSecond(), security), getUniqueId());      
+//    final DoubleTimeSeries<?> ts = underlyingTimeSeriesProvider.getSeries(greek, security);
+//    if (ts == null) {
+//      throw new NullPointerException("Could not get price series for security " + security);
+//    }
+//    final DoubleTimeSeries<?> resultTS;
+//    if (_scheduleCalculator != null && _samplingFunction != null) {
+//      final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true, false); //REVIEW emcleod should "fromEnd" be hard-coded?
+//      resultTS = _samplingFunction.getSampledTimeSeries(ts, schedule);
+//    } else {
+//      resultTS = ts;
+//    }
+//    result.add(new ComputedValue(valueSpecification, resultTS));
     return result;
   }
 
@@ -116,7 +93,7 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof EquityOptionSecurity;
+    return target.getType() == ComputationTargetType.SECURITY;
   }
 
   @Override
@@ -136,8 +113,4 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
     return null;
   }
 
-  @Override
-  public String getShortName() {
-    return "SampledOptionGreekUnderlyingPrice";
-  }
 }

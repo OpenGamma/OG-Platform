@@ -5,8 +5,8 @@
  */
 package com.opengamma.web.security;
 
-import static com.opengamma.web.security.WebSecuritiesResourceTestUtils.loadJson;
-import static org.testng.AssertJUnit.assertEquals;
+import static com.opengamma.web.WebResourceTestUtils.assertJSONObjectEquals;
+import static com.opengamma.web.WebResourceTestUtils.loadJson;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.Collections;
@@ -27,7 +27,7 @@ public class WebSecuritiesResourceTest extends AbstractWebSecurityResourceTestCa
     String metaDataJSON = _webSecuritiesResource.getMetaDataJSON();
     assertNotNull(metaDataJSON);
     JSONObject actualJson = new JSONObject(metaDataJSON); 
-    assertEquals(loadJson("securitiesMetaDataJson.txt").toString(), actualJson.toString());
+    assertJSONObjectEquals(loadJson("com/opengamma/web/security/securitiesMetaDataJson.txt"), actualJson);
   }
   
   public void testGetAllSecurities() throws Exception {
@@ -38,9 +38,10 @@ public class WebSecuritiesResourceTest extends AbstractWebSecurityResourceTestCa
     queryParameters.put("securityId", Collections.<String>emptyList());
     
     String resultJson = _webSecuritiesResource.getJSON(null, null, null, null, 
-        queryParameters.getFirst("name"), queryParameters.getFirst("identifier"), queryParameters.getFirst("type"), queryParameters.get("securityId"), _uriInfo);
+        queryParameters.getFirst("name"), queryParameters.getFirst("identifier"), 
+        queryParameters.getFirst("type"), queryParameters.get("securityId"), _uriInfo);
     assertNotNull(resultJson);
-    assertEquals(loadJson("allSecuritiesJson.txt").toString(), new JSONObject(resultJson).toString());
+    assertJSONObjectEquals(loadJson("com/opengamma/web/security/allSecuritiesJson.txt"), new JSONObject(resultJson));
     
   }
   

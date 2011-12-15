@@ -41,6 +41,9 @@ import com.opengamma.financial.instrument.bond.BondFixedTransactionDefinition;
 import com.opengamma.financial.instrument.bond.BondIborSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
+import com.opengamma.financial.instrument.cash.DepositCounterpartDefinition;
+import com.opengamma.financial.instrument.cash.DepositDefinition;
+import com.opengamma.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.instrument.future.FutureInstrumentsDescriptionDataSet;
@@ -49,8 +52,8 @@ import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginS
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
-import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
@@ -591,6 +594,36 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitForexNonDeliverableOptionDefinition(ForexNonDeliverableOptionDefinition ndo) {
+      return null;
+    }
+
+    @Override
+    public String visitDepositDefinition(DepositDefinition deposit, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitDepositDefinition(DepositDefinition deposit) {
+      return null;
+    }
+
+    @Override
+    public String visitDepositIborDefinition(DepositIborDefinition deposit, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitDepositIborDefinition(DepositIborDefinition deposit) {
+      return null;
+    }
+
+    @Override
+    public String visitDepositCounterpartDefinition(DepositCounterpartDefinition deposit, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitDepositCounterpartDefinition(DepositCounterpartDefinition deposit) {
       return null;
     }
   }

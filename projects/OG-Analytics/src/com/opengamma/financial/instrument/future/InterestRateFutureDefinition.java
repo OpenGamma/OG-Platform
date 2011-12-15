@@ -74,7 +74,7 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
     Validate.notNull(name, "Name");
     this._lastTradingDate = lastTradingDate;
     this._iborIndex = iborIndex;
-    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(_lastTradingDate, _iborIndex.getBusinessDayConvention(), _iborIndex.getCalendar(), _iborIndex.getSpotLag());
+    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(_lastTradingDate, _iborIndex.getSpotLag(), _iborIndex.getCalendar());
     _fixingPeriodEndDate = ScheduleCalculator
         .getAdjustedDate(_fixingPeriodStartDate, _iborIndex.getTenor(), _iborIndex.getBusinessDayConvention(), _iborIndex.getCalendar(), _iborIndex.isEndOfMonth());
     _fixingPeriodAccrualFactor = _iborIndex.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);

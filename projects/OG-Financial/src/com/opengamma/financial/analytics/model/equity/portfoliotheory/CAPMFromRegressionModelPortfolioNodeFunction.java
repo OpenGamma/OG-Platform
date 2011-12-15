@@ -14,18 +14,13 @@ import com.opengamma.engine.function.FunctionCompilationContext;
  */
 public class CAPMFromRegressionModelPortfolioNodeFunction extends CAPMFromRegressionModelFunction {
 
-  public CAPMFromRegressionModelPortfolioNodeFunction(final String startDate) {
-    super(startDate);
+  public CAPMFromRegressionModelPortfolioNodeFunction(final String resolutionKey) {
+    super(resolutionKey);
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     return target.getType() == ComputationTargetType.PORTFOLIO_NODE;
-  }
-
-  @Override
-  public String getShortName() {
-    return "CAPM_RegressionPortfolioNodeModel";
   }
 
   @Override
