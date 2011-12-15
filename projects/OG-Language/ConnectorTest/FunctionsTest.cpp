@@ -45,7 +45,7 @@ static void QueryAvailable () {
 
 static void InvokeInvalid () {
 	CFunctionInvoke invoke (g_poConnector);
-	invoke.SetInvocationId (99);
+	invoke.SetInvocationId (MAX_INT);
 	ASSERT (invoke.Send ());
 	com_opengamma_language_function_Result *pResult = invoke.Recv (CRequestBuilder::GetDefaultTimeout ());
 	ASSERT (pResult);
