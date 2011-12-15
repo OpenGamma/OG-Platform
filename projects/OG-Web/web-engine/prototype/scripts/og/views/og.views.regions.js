@@ -111,7 +111,6 @@ $.register_module({
             load_filter: function (args) {
                 check_state({args: args, conditions: [{
                     new_page: function () {
-                        state = {filter: true};
                         regions.load(args);
                         return args.id ? routes.go(routes.hash(module.rules.load_regions, args))
                             : routes.go(routes.hash(module.rules.load, args));

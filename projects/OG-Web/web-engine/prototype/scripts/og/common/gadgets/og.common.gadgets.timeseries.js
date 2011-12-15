@@ -11,6 +11,7 @@ $.register_module({
     obj: function () {
         var api = og.api, config, handler;
         handler = function (result) {
+            if (result.error) return;
             var identifier = result.data.identifiers[0].value,
                 data = result.data,
                 selector = config.selector,

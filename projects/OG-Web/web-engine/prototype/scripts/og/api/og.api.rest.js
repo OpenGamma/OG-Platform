@@ -101,7 +101,7 @@ $.register_module({
                             success: function (data, status, xhr) {
                                 var meta = {}, location = xhr.getResponseHeader('Location'), result, cache_for;
                                 delete outstanding_requests[id];
-                                if (location) meta.id = location.split('/').pop();
+                                if (location && ~!location.indexOf('?')) meta.id = location.split('/').pop();
                                 if (config.meta.type in no_post_body) meta.url = url;
                                 result = {error: false, message: status, data: data, meta: meta};
                                 if (cache_for = config.meta.cache_for)
@@ -122,10 +122,10 @@ $.register_module({
                 if (config.meta.cache_for && !is_get)
                     og.dev.warn('only GETs can be cached'), delete config.meta.cache_for;
                 start_loading(config.meta.loading);
-                if (get_cache(url) && typeof get_cache(url) === 'object')
+                if (is_get && get_cache(url) && typeof get_cache(url) === 'object')
                     return (setTimeout(config.meta.handler.partial(get_cache(url)), 0)), id;
-                if (get_cache(url)) return (setTimeout(request.partial(method, config), 500)), id;
-                if (config.meta.cache_for) set_cache(url, true);
+                if (is_get && get_cache(url)) return (setTimeout(request.partial(method, config), 500)), id;
+                if (is_get && config.meta.cache_for) set_cache(url, true);
                 outstanding_requests[id] = {current: current, dependencies: config.meta.dependencies};
                 return send();
             },

@@ -252,7 +252,7 @@ $.register_module({
             },
             load_new: function (args) {
                 check_state({args: args, conditions: [{new_page: configs.load}]});
-                details_page(args, args.config_type);
+                configs.details(args, args.config_type);
             },
             search: function (args) {
                 if (!search) search = common.search_results.core();

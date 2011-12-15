@@ -45,13 +45,12 @@ $.register_module({
                             'OK': function () {
                                 $(this).dialog('close');
                                 api.rest.portfolios.put({
-                                    handler: function (r) {
-                                        if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                        portfolios.search(routes.last().args);
-                                        routes.go(routes.hash(module.rules.load_portfolios,
-                                                $.extend({}, routes.last().args, {id: r.meta.id}),
-                                                {del: ['node']}
-                                        ));
+                                    handler: function (result) {
+                                        var args = routes.current().args, rule = module.rules.load_portfolios;
+                                        if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                        portfolios.search(args);
+                                        routes.go(routes.hash(rule, args, {
+                                            add: {id: result.meta.id}, del: ['version', 'node', 'sync']}));
                                     },
                                     name: ui.dialog({return_field_value: 'name'})
                                 });
@@ -139,8 +138,8 @@ $.register_module({
                         (function () { /* Hook up add button */
                             var do_update = function () {
                                 api.rest.portfolios.put({
-                                    handler: function (r) {
-                                        if (r.error) {ui.dialog({type: 'error', message: r.message}); return}
+                                    handler: function (result) {
+                                        if (result.error) return ui.dialog({type: 'error', message: result.message});
                                         portfolios.details(args);
                                     },
                                     name: ui.dialog({return_field_value: 'name'}),
@@ -226,8 +225,8 @@ $.register_module({
                         (function () { /* hook up add button */
                             var do_update = function (e, id) {
                                 api.rest.portfolios.put({
-                                    handler: function (r) {
-                                        if (r.error) return ui.dialog({type: 'error', message: r.message});
+                                    handler: function (result) {
+                                        if (result.error) return ui.dialog({type: 'error', message: result.message});
                                         portfolios.details(args);
                                     },
                                     position: id ? id.item.value : $input.val(),

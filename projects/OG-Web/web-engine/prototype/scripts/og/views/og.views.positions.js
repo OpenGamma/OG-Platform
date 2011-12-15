@@ -53,12 +53,12 @@ $.register_module({
                     buttons: {
                         'OK': function () {
                             api.rest.positions.put({
-                                handler: function (r) {
-                                    var args = routes.last().args;
-                                    if (r.error) return ui.dialog({type: 'error', message: r.message});
+                                handler: function (result) {
+                                    var args = routes.current().args, rule = module.rules.load_positions;
+                                    if (result.error) return ui.dialog({type: 'error', message: result.message});
                                     ui.dialog({type: 'input', action: 'close'});
                                     positions.search(args);
-                                    routes.go(routes.hash(module.rules.load_positions, args, {add: {id: r.meta.id}}));
+                                    routes.go(routes.hash(rule, args, {add: {id: result.meta.id}, del: ['version']}));
                                 },
                                 quantity: ui.dialog({return_field_value: 'quantity'}),
                                 scheme_type: ui.dialog({return_field_value: 'scheme-type'}),
@@ -74,11 +74,12 @@ $.register_module({
                     buttons: {
                         'Delete': function () {
                             api.rest.positions.del({
-                                handler: function (r) {
-                                    if (r.error) return ui.dialog({type: 'error', message: r.message});
+                                handler: function (result) {
+                                    var args = routes.current().args;
                                     ui.dialog({type: 'confirm', action: 'close'});
+                                    if (result.error) return ui.dialog({type: 'error', message: result.message});
                                     positions.search(args);
-                                    routes.go(routes.hash(module.rules.load, {}));
+                                    routes.go(routes.hash(module.rules.load, args));
                                 }, id: routes.last().args.id
                             });
                         }
