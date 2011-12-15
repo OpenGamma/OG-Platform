@@ -30,11 +30,13 @@
     <fragment>/styles/common/og.common.OG-sync.css</fragment>
     <fragment>/styles/common/og.common.OG-table.css</fragment>
     <fragment>/styles/common/og.common.OG-tools.css</fragment>
+    <fragment>/styles/common/og.common.OG-lang.css</fragment>
   </bundle>
   <bundle id="common.util.css">
     <fragment>/styles/common/util/og.common.util.OG-clearFix.css</fragment>
     <fragment>/styles/common/util/ui/og.common.util.ui.OG-message.css</fragment>
     <fragment>/styles/common/util/ui/og.common.util.ui.OG-warning-message.css</fragment>
+    <fragment>/styles/common/util/ui/og.common.util.ui.OG-breadcrumb.css</fragment>
   </bundle>
   <bundle id="common.classes.css">
     <fragment>/styles/common/classes/og.common.classes.OG-table_style_01.css</fragment>
@@ -200,6 +202,7 @@
     <fragment>/scripts/og/common/slickgrid/formatters/og.common.slickgrid.formatters.portfolios.js</fragment>
     <fragment>/scripts/og/common/slickgrid/formatters/og.common.slickgrid.formatters.positions.js</fragment>
     <fragment>/scripts/og/common/slickgrid/og.common.slickgrid.manager.js</fragment>
+    <fragment>/scripts/og/common/slickgrid/og.common.slickgrid.calibrate_columns.js</fragment>
     <fragment>/scripts/og/common/masthead/og.common.masthead.menu.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.region_functions.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.batch_functions.js</fragment>

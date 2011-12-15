@@ -25,7 +25,7 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.util.money.Currency;
@@ -71,8 +71,8 @@ public class RateReplacingInterestRateDerivativeVisitorTest {
 
   @Test
   public void testCash() {
-    final Cash c1 = new Cash(CUR, 1, 1, R1, N1);
-    final Cash c2 = new Cash(CUR, 1, 1, R2, N1);
+    final Cash c1 = new Cash(CUR, 0, 1, 1, R1, 1, N1);
+    final Cash c2 = new Cash(CUR, 0, 1, 1, R2, 1, N1);
     assertEquals(VISITOR.visit(c1, R2), c2);
   }
 
@@ -108,7 +108,7 @@ public class RateReplacingInterestRateDerivativeVisitorTest {
     final double fixingPeriodEndTime = 1.75;
     final double fixingPeriodAccrualFactor = 0.267;
     final double paymentAccrualFactor = 0.25;
-//    final double referencePrice = 0.0; // TODO CASE - Future refactor - referencePrice = 0.0
+    //    final double referencePrice = 0.0; // TODO CASE - Future refactor - referencePrice = 0.0
     final InterestRateFuture ir1 = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, 1 - R1, 1, paymentAccrualFactor, "K", N1,
         N2);
     final InterestRateFuture ir2 = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, 1 - R2, 1, paymentAccrualFactor, "K", N1,

@@ -25,7 +25,7 @@ import com.opengamma.financial.instrument.index.IndexON;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -63,11 +63,11 @@ public abstract class SimpleInstrumentFactory {
   private static final IndexON DUMMY_OIS_INDEX = new IndexON("OIS", DUMMY_CUR, DayCountFactory.INSTANCE.getDayCount("Actual/365"), 0, new MondayToFridayCalendar("A"));
 
   public static InstrumentDerivative makeCash(final double time, final String fundCurveName, final double rate, final double notional) {
-    return new Cash(DUMMY_CUR, time, notional, rate, fundCurveName);
+    return new Cash(DUMMY_CUR, 0, time, notional, rate, time, fundCurveName);
   }
 
   public static InstrumentDerivative makeLibor(final double time, final String indexCurveName, final double rate, final double notional) {
-    return new Cash(DUMMY_CUR, time, notional, rate, indexCurveName);
+    return new Cash(DUMMY_CUR, 0, time, notional, rate, time, indexCurveName);
   }
 
   /**
@@ -125,8 +125,7 @@ public abstract class SimpleInstrumentFactory {
     return new OISSwap(fixedLeg, new GenericAnnuity<CouponOIS>(new CouponOIS[] {oisCoupon}));
   }
 
-  protected static FixedFloatSwap makeSwap(final double time, final SimpleFrequency floatLegFreq, final String fundingCurveName, final String liborCurveName, final double rate, 
-      final double notional) {
+  protected static FixedFloatSwap makeSwap(final double time, final SimpleFrequency floatLegFreq, final String fundingCurveName, final String liborCurveName, final double rate, final double notional) {
 
     int floatPayments = (int) (time * floatLegFreq.getPeriodsPerYear());
     Validate.isTrue(floatPayments % 2 == 0, "need even number of float payments as fixed payments at half frequency");

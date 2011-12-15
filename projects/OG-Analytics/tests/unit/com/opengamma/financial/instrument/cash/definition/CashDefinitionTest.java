@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.instrument.cash;
+package com.opengamma.financial.instrument.cash.definition;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -19,7 +19,8 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.Convention;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.instrument.cash.CashDefinition;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -97,17 +98,17 @@ public class CashDefinitionTest {
     final String name = "YC";
     Cash cash = CASH.toDerivative(DATE, name);
     assertEquals(cash.getCurrency(), CCY);
-    assertEquals(cash.getMaturity(), 181. / 365, 0);
+    assertEquals(cash.getEndTime(), 181. / 365, 0);
     assertEquals(cash.getRate(), RATE, 0);
-    assertEquals(cash.getTradeTime(), 2. / 365, 0);
-    assertEquals(cash.getYearFraction(), 179. / 360, 0);
+    assertEquals(cash.getStartTime(), 2. / 365, 0);
+    assertEquals(cash.getAccrualFactor(), 179. / 360, 0);
     assertEquals(cash.getYieldCurveName(), name);
     cash = CASH.toDerivative(DATE, name, name, name);
     assertEquals(cash.getCurrency(), CCY);
-    assertEquals(cash.getMaturity(), 181. / 365, 0);
+    assertEquals(cash.getEndTime(), 181. / 365, 0);
     assertEquals(cash.getRate(), RATE, 0);
-    assertEquals(cash.getTradeTime(), 2. / 365, 0);
-    assertEquals(cash.getYearFraction(), 179. / 360, 0);
+    assertEquals(cash.getStartTime(), 2. / 365, 0);
+    assertEquals(cash.getAccrualFactor(), 179. / 360, 0);
     assertEquals(cash.getYieldCurveName(), name);
   }
 }
