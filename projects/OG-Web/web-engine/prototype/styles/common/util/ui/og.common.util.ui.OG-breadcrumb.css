@@ -1,0 +1,165 @@
+/*
+ * @copyright 2011 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+.OG-breadcrumb {
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.OG-breadcrumb:before {
+    content: '';
+    height: 11px;
+    background: #fff;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    opacity: 0.1;
+    z-index: 1;
+}
+
+.OG-breadcrumb li {
+    display: inline-block;
+    height: 20px;
+    margin-right: 10px;
+    background: #f6f6f5;
+    border: 1px solid #d7d7d7;
+    position: relative;
+}
+
+.OG-breadcrumb li a {
+    position: relative;
+    top: -7px;
+    left: -7px;
+    border: none;
+    margin-left: -6px;
+    text-shadow: 0 1px 0 #fff;
+    white-space: nowrap;
+    z-index: 1;
+}
+
+/*
+ * right bits
+ */
+
+    .OG-breadcrumb li:after,
+    .OG-breadcrumb li a:after {
+        content: '';
+        display: inline-block;
+        width: 0;
+        height: 0;
+        border-top: 11px outset transparent;
+        border-left: 10px solid #f6f6f5;
+        border-bottom: 11px outset transparent;
+        position: absolute;
+        right: -10px;
+        top: -1px;
+        z-index: 1;
+    }
+
+    /* add a border to the arrow tip */
+
+        .OG-breadcrumb li a:after {
+            border-left: 10px solid #d7d7d7;
+            right: -18px;
+            top: -4px;
+        }
+
+/*
+ * left bits
+ */
+
+    .OG-breadcrumb li:before,
+    .OG-breadcrumb li a:before {
+        content: '';
+        display: inline-block;
+        width: 0;
+        height: 0;
+        border-top: 11px solid #d7d7d7;
+        border-left: 10px outset transparent;
+        border-bottom: 11px solid #d7d7d7;
+        position: relative;
+        left: -11px;
+        top: -1px;
+    }
+
+     /* add a border to the arrow tail*/
+
+        .OG-breadcrumb li a:before {
+            border-top: 10px solid #f6f6f5;
+            border-bottom: 10px solid #f6f6f5;
+            left: -7px;
+            top: 5px;
+        }
+
+/*
+ * First and last list items
+ */
+
+    .OG-breadcrumb li:first-child:before,
+    .OG-breadcrumb li:first-child a:before {
+      border-top: 11px solid transparent;
+      border-bottom: 11px solid transparent;
+    }
+
+    .OG-breadcrumb li:last-child:after,
+    .OG-breadcrumb li:last-child a:after {
+      border-left: 10px solid transparent;
+    }
+
+    .OG-breadcrumb li:first-child {
+        -webkit-border-top-left-radius: 2px;
+        -webkit-border-bottom-left-radius: 2px;
+        -moz-border-radius-topleft: 2px;
+        -moz-border-radius-bottomleft: 2px;
+        border-top-left-radius: 2px;
+        border-bottom-left-radius: 2px;
+    }
+
+    .OG-breadcrumb li:last-child {
+        -webkit-border-top-right-radius: 2px;
+        -webkit-border-bottom-right-radius: 2px;
+        -moz-border-radius-topright: 2px;
+        -moz-border-radius-bottomright: 2px;
+        border-top-right-radius: 2px;
+        border-bottom-right-radius: 2px;
+    }
+
+/*
+ * og-current
+ */
+
+      .OG-breadcrumb .og-current {
+          background: #9f9f9e;
+          border: 1px solid #999;
+      }
+
+      .OG-breadcrumb .og-current:before {
+          border-top: 11px solid #a3a3a3;
+          border-bottom: 11px solid #999;
+      }
+
+      .OG-breadcrumb .og-current a:before {
+          border-top: 10px solid #a8a8a7;
+          border-bottom: 10px solid #9f9f9e;
+      }
+
+      .OG-breadcrumb .og-current a {
+          color: #fff;
+          text-shadow: 0 -1px 0 #8f8f8e;
+          cursor: default;
+      }
+
+
+/*
+ * Turn off fancy stuff for IE8
+ */
+
+    .ie8 .OG-breadcrumb li:after,
+    .ie8 .OG-breadcrumb li a:after,
+    .ie8 .OG-breadcrumb li:before,
+    .ie8 .OG-breadcrumb li a:before {
+        visibility: hidden;
+    }

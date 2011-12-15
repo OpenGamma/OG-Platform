@@ -144,7 +144,7 @@ $.register_module({
                             ui.message({location: '.ui-layout-inner-center', message: 'saving...'});
                         },
                         save_new_handler: function (result) {
-                            var args = $.extend({}, routes.last().args, {id: result.meta.id});
+                            var args = $.extend({}, routes.current().args, {id: result.meta.id});
                             ui.message({location: '.OG-js-details-panel', destroy: true});
                             if (result.error) {
                                 ui.message({location: '.ui-layout-inner-center', destroy: true});
@@ -154,13 +154,13 @@ $.register_module({
                             routes.go(routes.hash(module.rules.load_configs, args));
                         },
                         save_handler: function (result) {
+                            var args = routes.current().args;
                             if (result.error) {
                                 ui.message({location: '.ui-layout-inner-center', destroy: true});
-                                ui.dialog({type: 'error', message: result.message});
-                                return;
+                                return ui.dialog({type: 'error', message: result.message});
                             }
                             ui.message({location: '.ui-layout-inner-center', message: 'saved'});
-                            setTimeout(function () {routes.handler(); details_page(args);}, 300);
+                            setTimeout(function () {configs.search(args), details_page(args);}, 300);
                         },
                         handler: function (form) {
                             var json = details_json.template_data,

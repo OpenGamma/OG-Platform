@@ -59,11 +59,11 @@ $.register_module({
                             'OK': function () {
                                 $(this).dialog('close');
                                 api.rest.timeseries.put({
-                                    handler: function (r) {
-                                        if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                        routes.go(routes.hash(module.rules.load_new_timeseries,
-                                                $.extend({}, routes.last().args, {id: r.meta.id, 'new': true})
-                                        ));
+                                    handler: function (result) {
+                                        var args = routes.current().args, rule = module.rules.load_timeseries;
+                                        if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                        timeseries.search(args);
+                                        routes.go(routes.hash(rule, args, {add: {id: r.meta.id}}));
                                     },
                                     scheme_type: ui.dialog({return_field_value: 'scheme'}),
                                     data_provider: ui.dialog({return_field_value: 'provider'}),
@@ -85,12 +85,11 @@ $.register_module({
                             'Delete': function () {
                                 api.rest.timeseries.del({
                                     handler: function (r) {
+                                        var args = routes.current().args, rule = module.rules.load;
                                         if (r.error) return ui.dialog({type: 'error', message: r.message});
                                         ui.dialog({type: 'confirm', action: 'close'});
-                                        routes.go(routes.hash(module.rules.load_delete,
-                                                $.extend({}, routes.last().args, {deleted: true})
-                                        ));
-                                    }, id: routes.last().args.id
+                                        routes.go(routes.hash(rule, args));
+                                    }, id: routes.current().args.id
                                 });
                             }
                         }
@@ -153,12 +152,6 @@ $.register_module({
                         location: '.OG-tools'
                     }
                 }
-            },
-            load_timeseries_without = function (field, args) {
-                check_state({args: args, conditions: [{new_page: timeseries.load, stop: true}]});
-                delete args[field];
-                timeseries.search(args);
-                routes.go(routes.hash(module.rules.load_timeseries, args));
             },
             default_details = og.views.common.default_details.partial(page_name, 'Time Series', options),
             details_page = function (args) {
@@ -241,14 +234,8 @@ $.register_module({
             load_filter: {
                 route: '/' + page_name + '/filter:/:id?' + filter_rule_str, method: module.name + '.load_filter'
             },
-            load_delete: {
-                route: '/' + page_name + '/:id/deleted:' + filter_rule_str, method: module.name + '.load_delete'
-            },
             load_timeseries: {
                 route: '/' + page_name + '/:id' + filter_rule_str, method: module.name + '.load_' + page_name
-            },
-            load_new_timeseries: {
-                route: '/' + page_name + '/:id/new:' + filter_rule_str, method: module.name + '.load_new_' + page_name
             }
         };
         return timeseries = {
@@ -266,21 +253,11 @@ $.register_module({
             load_filter: function (args) {
                 check_state({args: args, conditions: [
                     {new_page: function () {
-                        state = {filter: true};
-                        timeseries.load(args);
-                        args.id
-                            ? routes.go(routes.hash(module.rules.load_timeseries, args))
-                            : routes.go(routes.hash(module.rules.load, args));
+                        return args.id ? timeseries.load_timeseries(args) : timeseries.load(args);
                     }}
                 ]});
-                delete args['filter'];
-                search.filter($.extend(args, {filter: true}));
+                search.filter(args);
             },
-            load_delete: function (args) {
-                timeseries.search(args);
-                routes.go(routes.hash(module.rules.load, {}));
-            },
-            load_new_timeseries: load_timeseries_without.partial('new'),
             load_timeseries: function (args) {
                 check_state({args: args, conditions: [{new_page: timeseries.load}]});
                 timeseries.details(args);
