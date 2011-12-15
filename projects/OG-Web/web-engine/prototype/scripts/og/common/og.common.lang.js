@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         return function (str, skip_format) {
             var map = {
-                '': '(empty value)',
+                '': '<span class="OG-lang-empty">(empty)</span>',
                 'AUTO': 'Auto',
                 'ACTIVFEED_TICKER': 'Activfeed Ticker',
                 'BLOOMBERG_TICKER': 'Bloomberg Ticker',

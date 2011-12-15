@@ -23,7 +23,7 @@ $.register_module({
                                 if (meta) {
                                     result.data.types.forEach(function (datum) {
                                         options += 1;
-                                        var $option = $('<option/>').attr('value', datum).text(datum);
+                                        var $option = $('<option/>').val(datum).html(datum);
                                         if (value === datum) $option[0].setAttribute('selected', 'selected');
                                         $select.append($option);
                                     });
@@ -31,7 +31,7 @@ $.register_module({
                                     result.data.data.forEach(function (datum) {
                                         options += 1;
                                         var fields = datum.split('|'),
-                                            $option = $('<option/>').attr('value', fields[values]).text(fields[texts]);
+                                            $option = $('<option/>').val(fields[values]).html(fields[texts]);
                                         if (value === fields[values]) $option[0].setAttribute('selected', 'selected');
                                         $select.append($option);
                                     });
@@ -43,11 +43,11 @@ $.register_module({
                         if (name) $select.attr('name', name);
                         if (classes) $select.attr('class', classes);
                         $select.attr('id', id);
-                        if (placeholder) $select.append($('<option value="" />').text(placeholder));;
+                        if (placeholder) $select.append($('<option value="" />').html(placeholder));;
                         if (!data_generator) return og.api.rest[resource].get(options);
                         data_generator(function (data) {
                             data.forEach(function (datum) {
-                                var $option = $('<option/>').attr('value', datum.value).text(datum.text);
+                                var $option = $('<option/>').attr('value', datum.value).html(datum.text);
                                 if (value === datum.value) $option[0].setAttribute('selected', 'selected');
                                 $select.append($option);
                             });

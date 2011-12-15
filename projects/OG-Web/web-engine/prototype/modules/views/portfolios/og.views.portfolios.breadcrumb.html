@@ -1,0 +1,14 @@
+<nav class="OG-breadcrumb">
+  <ul>
+    <li><a title="${$item.title(portfolio_name)}"
+        onclick="return !!og.views.portfolios.breadcrumb_root();"
+        href="#">${$item.short_name(portfolio_name)}</a></li>
+    {{each path}}
+    <li {{if $index == path.length - 1}} class="og-current" {{/if}}><a
+            title="${$item.title(name)}"
+            {{if $index == path.length - 1}} data-og-editable="name" {{/if}}
+            onclick="return !!og.views.portfolios.breadcrumb_node('${object_id}');"
+            href="#">${$item.short_name(name)}</a></li>
+    {{/each}}
+  </ul>
+</nav>
