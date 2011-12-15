@@ -6,7 +6,10 @@
 package com.opengamma.util.component;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -27,6 +30,7 @@ public class ComponentConfigLoader {
    */
   public ComponentConfig load(Resource resource) {
     List<String> lines = readLines(resource);
+    Map<String, String> properties = new HashMap<String, String>();
     ComponentConfig config = new ComponentConfig();
     String group = "global";
     int lineNum = 0;
@@ -36,18 +40,39 @@ public class ComponentConfigLoader {
       if (line.length() == 0 || line.startsWith("#") || line.startsWith(";")) {
         continue;
       }
-      if (line.startsWith("[") && line.endsWith("]")) {
-        group = line.substring(1, line.length() - 1);
+      if (line.startsWith("$") && line.substring(2).contains("=")) {
+        parseProperty(line, properties);
+        
       } else {
-        String key = StringUtils.substringBefore(line, "=").trim();
-        String value = StringUtils.substringAfter(line, "=").trim();
-        if (key.length() == 0) {
-          throw new IllegalArgumentException("Invalid key, line " + lineNum);
+        line = applyProperties(line, properties);
+        
+        if (line.startsWith("[") && line.endsWith("]")) {
+          group = line.substring(1, line.length() - 1);
+        
+        } else {
+          String key = StringUtils.substringBefore(line, "=").trim();
+          String value = StringUtils.substringAfter(line, "=").trim();
+          if (key.length() == 0) {
+            throw new IllegalArgumentException("Invalid key, line " + lineNum);
+          }
+          config.add(group, key, value);
         }
-        config.add(group, key, value);
       }
     }
     return config;
+  }
+
+  private void parseProperty(String line, Map<String, String> properties) {
+    String key = StringUtils.substringBefore(line, "=").trim();
+    String value = StringUtils.substringAfter(line, "=").trim();
+    properties.put(key, value);
+  }
+
+  private String applyProperties(String line, Map<String, String> properties) {
+    for (Entry<String, String> entry : properties.entrySet()) {
+      line = StringUtils.replace(line, entry.getKey(), entry.getValue());
+    }
+    return line;
   }
 
   /**

@@ -45,17 +45,37 @@ public class ComponentManager {
     for (String group : config.getGroups()) {
       LinkedHashMap<String, String> groupData = config.getGroup(group);
       if (groupData.containsKey("factory")) {
-        startComponent(groupData);
+        initComponent(groupData);
       }
     }
     _repo.ready();
   }
 
-  private void startComponent(LinkedHashMap<String, String> groupData) {
-    // create component
+  /**
+   * Initialize the component.
+   * 
+   * @param groupData  the config data, not null
+   */
+  protected void initComponent(LinkedHashMap<String, String> groupData) {
     groupData = new LinkedHashMap<String, String>(groupData);
     String typeStr = groupData.remove("factory");
     s_logger.info("Starting component: {} with properties {}", typeStr, groupData);
+    
+    // load and init
+    ComponentFactory factory = loadFactory(typeStr);
+    setFactoryProperties(factory, groupData);
+    initFactory(factory);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Loads the factory.
+   * A factory should perform minimal work in the constructor.
+   * 
+   * @param typeStr  the factory type class name, not null
+   * @return the factory, not null
+   */
+  protected ComponentFactory loadFactory(String typeStr) {
     ComponentFactory factory;
     try {
       Class<? extends ComponentFactory> cls = getClass().getClassLoader().loadClass(typeStr).asSubclass(ComponentFactory.class);
@@ -67,23 +87,25 @@ public class ComponentManager {
     } catch (IllegalAccessException ex) {
       throw new IllegalArgumentException("Unable to access component factory: " + typeStr, ex);
     }
-    
-    // set properties
+    return factory;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Sets the properties on the factory
+   * 
+   * @param factory  the factory, not null
+   * @param groupData  the config data, not null
+   */
+  protected void setFactoryProperties(ComponentFactory factory, LinkedHashMap<String, String> groupData) {
     if (factory instanceof Bean) {
       Bean bean = (Bean) factory;
       for (Entry<String, String> entry : groupData.entrySet()) {
         if (bean.propertyNames().contains(entry.getKey())) {
           MetaProperty<Object> mp = bean.metaBean().metaProperty(entry.getKey());
-          setProperty(bean, mp, entry.getValue());
+          setFactoryProperty(bean, mp, entry.getValue());
         }
       }
-    }
-    
-    // start
-    try {
-      factory.start(_repo);
-    } catch (Exception ex) {
-      throw new OpenGammaRuntimeException(ex.getMessage(), ex);
     }
   }
 
@@ -96,18 +118,42 @@ public class ComponentManager {
    * @param mp  the property, not null
    * @param value  the value
    */
-  public void setProperty(Bean bean, MetaProperty<Object> mp, String value) {
-    try {
-      mp.setString(bean, value);
-    } catch (RuntimeException ex) {
-      Class<?> cls = mp.propertyType();
-      Object converted;
+  protected void setFactoryProperty(Bean bean, MetaProperty<Object> mp, String value) {
+    Class<?> cls = mp.propertyType();
+    if (cls == ComponentRepository.class) {
+      // set the repo
+      mp.set(bean, _repo);
+      
+    } else {
+      // set property by value type conversion from String
       try {
-        converted = _repo.getInstance(cls, value);
-      } catch (RuntimeException ex2) {
-        throw new IllegalArgumentException("Unable to convert value for " + mp, ex2);
+        mp.setString(bean, value);
+        
+      } catch (RuntimeException ex) {
+        // set property by repo lookup
+        try {
+          mp.set(bean, _repo.getInstance(cls, value));
+        } catch (RuntimeException ex2) {
+          throw new IllegalArgumentException("Unable to convert value for " + mp, ex2);
+        }
       }
-      mp.set(bean, converted);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Initializes the factory.
+   * <p>
+   * The real work of creating the component and registering it should be done here.
+   * The factory may also publish a RESTful view and/or a life-cycle method.
+   * 
+   * @param factory  the factory to initialize, not null
+   */
+  protected void initFactory(ComponentFactory factory) {
+    try {
+      factory.start(_repo);
+    } catch (Exception ex) {
+      throw new OpenGammaRuntimeException(ex.getMessage(), ex);
     }
   }
 
