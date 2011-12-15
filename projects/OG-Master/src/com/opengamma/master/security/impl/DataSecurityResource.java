@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.exchange.rest;
+package com.opengamma.master.security.impl;
 
 import java.net.URI;
 
@@ -24,24 +24,24 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.exchange.ExchangeDocument;
-import com.opengamma.master.exchange.ExchangeHistoryRequest;
-import com.opengamma.master.exchange.ExchangeHistoryResult;
-import com.opengamma.master.exchange.ExchangeMaster;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityHistoryRequest;
+import com.opengamma.master.security.SecurityHistoryResult;
+import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for an exchange.
+ * RESTful resource for a security.
  */
-@Path("/data/exchanges/{exchangeId}")
-public class DataExchangeResource extends AbstractDataResource {
+@Path("/data/securities/{securityId}")
+public class DataSecurityResource extends AbstractDataResource {
 
   /**
-   * The exchanges resource.
+   * The securities resource.
    */
-  private final DataExchangesResource _exchangesResource;
+  private final DataSecuritiesResource _securitiesResource;
   /**
    * The identifier specified in the URI.
    */
@@ -50,43 +50,43 @@ public class DataExchangeResource extends AbstractDataResource {
   /**
    * Creates the resource.
    * 
-   * @param exchangesResource  the parent resource, not null
-   * @param exchangeId  the exchange unique identifier, not null
+   * @param securitiesResource  the parent resource, not null
+   * @param securityId  the security unique identifier, not null
    */
-  public DataExchangeResource(final DataExchangesResource exchangesResource, final ObjectId exchangeId) {
-    ArgumentChecker.notNull(exchangesResource, "exchangesResource");
-    ArgumentChecker.notNull(exchangeId, "exchange");
-    _exchangesResource = exchangesResource;
-    _urlResourceId = exchangeId;
+  public DataSecurityResource(final DataSecuritiesResource securitiesResource, final ObjectId securityId) {
+    ArgumentChecker.notNull(securitiesResource, "securitiesResource");
+    ArgumentChecker.notNull(securityId, "security");
+    _securitiesResource = securitiesResource;
+    _urlResourceId = securityId;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the exchanges resource.
+   * Gets the securities resource.
    * 
-   * @return the exchanges resource, not null
+   * @return the securities resource, not null
    */
-  public DataExchangesResource getExchangesResource() {
-    return _exchangesResource;
+  public DataSecuritiesResource getSecuritiesResource() {
+    return _securitiesResource;
   }
 
   /**
-   * Gets the exchange identifier from the URL.
+   * Gets the security identifier from the URL.
    * 
    * @return the unique identifier, not null
    */
-  public ObjectId getUrlExchangeId() {
+  public ObjectId getUrlSecurityId() {
     return _urlResourceId;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the exchange master.
+   * Gets the security master.
    * 
-   * @return the exchange master, not null
+   * @return the security master, not null
    */
-  public ExchangeMaster getExchangeMaster() {
-    return getExchangesResource().getExchangeMaster();
+  public SecurityMaster getSecurityMaster() {
+    return getSecuritiesResource().getSecurityMaster();
   }
 
   //-------------------------------------------------------------------------
@@ -94,24 +94,24 @@ public class DataExchangeResource extends AbstractDataResource {
   public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo) {
     Instant v = (versionAsOf != null ? Instant.parse(versionAsOf) : null);
     Instant c = (correctedTo != null ? Instant.parse(correctedTo) : null);
-    ExchangeDocument result = getExchangeMaster().get(getUrlExchangeId(), VersionCorrection.of(v, c));
+    SecurityDocument result = getSecurityMaster().get(getUrlSecurityId(), VersionCorrection.of(v, c));
     return Response.ok(result).build();
   }
 
   @PUT
   @Consumes(FudgeRest.MEDIA)
-  public Response put(ExchangeDocument request) {
-    if (getUrlExchangeId().equals(request.getUniqueId().getObjectId()) == false) {
+  public Response put(SecurityDocument request) {
+    if (getUrlSecurityId().equals(request.getUniqueId().getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
-    ExchangeDocument result = getExchangeMaster().update(request);
+    SecurityDocument result = getSecurityMaster().update(request);
     return Response.ok(result).build();
   }
 
   @DELETE
   @Consumes(FudgeRest.MEDIA)
   public Response delete() {
-    getExchangeMaster().remove(getUrlExchangeId().atLatestVersion());
+    getSecurityMaster().remove(getUrlSecurityId().atLatestVersion());
     return Response.noContent().build();
   }
 
@@ -119,18 +119,18 @@ public class DataExchangeResource extends AbstractDataResource {
   @GET
   @Path("versions")
   public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    ExchangeHistoryRequest request = decodeBean(ExchangeHistoryRequest.class, providers, msgBase64);
-    if (getUrlExchangeId().equals(request.getObjectId()) == false) {
+    SecurityHistoryRequest request = decodeBean(SecurityHistoryRequest.class, providers, msgBase64);
+    if (getUrlSecurityId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
-    ExchangeHistoryResult result = getExchangeMaster().history(request);
+    SecurityHistoryResult result = getSecurityMaster().history(request);
     return Response.ok(result).build();
   }
 
   @GET
   @Path("versions/{versionId}")
   public Response getVersioned(@PathParam("versionId") String versionId) {
-    ExchangeDocument result = getExchangeMaster().get(getUrlExchangeId().atVersion(versionId));
+    SecurityDocument result = getSecurityMaster().get(getUrlSecurityId().atVersion(versionId));
     return Response.ok(result).build();
   }
 
@@ -144,7 +144,7 @@ public class DataExchangeResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    UriBuilder b = UriBuilder.fromUri(baseUri).path("/exchanges/{exchangeId}");
+    UriBuilder b = UriBuilder.fromUri(baseUri).path("/securities/{securityId}");
     if (versionCorrection != null && versionCorrection.getVersionAsOf() != null) {
       b.queryParam("versionAsOf", versionCorrection.getVersionAsOf());
     }
@@ -163,7 +163,7 @@ public class DataExchangeResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchanges/{exchangeId}/versions");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/securities/{securityId}/versions");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }
@@ -178,7 +178,7 @@ public class DataExchangeResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriVersion(URI baseUri, UniqueId uniqueId) {
-    return UriBuilder.fromUri(baseUri).path("/exchanges/{exchangeId}/versions/{versionId}")
+    return UriBuilder.fromUri(baseUri).path("/securities/{securityId}/versions/{versionId}")
       .build(uniqueId.toLatest(), uniqueId.getVersion());
   }
 

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.exchange.rest;
+package com.opengamma.master.security.impl;
 
 import java.net.URI;
 
@@ -12,21 +12,23 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.exchange.ExchangeDocument;
-import com.opengamma.master.exchange.ExchangeHistoryRequest;
-import com.opengamma.master.exchange.ExchangeHistoryResult;
-import com.opengamma.master.exchange.ExchangeMaster;
-import com.opengamma.master.exchange.ExchangeSearchRequest;
-import com.opengamma.master.exchange.ExchangeSearchResult;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityHistoryRequest;
+import com.opengamma.master.security.SecurityHistoryResult;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecurityMetaDataRequest;
+import com.opengamma.master.security.SecurityMetaDataResult;
+import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.FudgeRestClient;
 import com.sun.jersey.api.client.WebResource.Builder;
 
 /**
- * Provides access to a remote {@link ExchangeMaster}.
+ * Provides access to a remote {@link SecurityMaster}.
  */
-public class RemoteExchangeMaster implements ExchangeMaster {
+public class RemoteSecurityMaster implements SecurityMaster {
 
   /**
    * The base URI to call.
@@ -46,7 +48,7 @@ public class RemoteExchangeMaster implements ExchangeMaster {
    * 
    * @param baseUri  the base target URI for all RESTful web services, not null
    */
-  public RemoteExchangeMaster(final URI baseUri) {
+  public RemoteSecurityMaster(final URI baseUri) {
     this(baseUri, new BasicChangeManager());
   }
 
@@ -56,7 +58,7 @@ public class RemoteExchangeMaster implements ExchangeMaster {
    * @param baseUri  the base target URI for all RESTful web services, not null
    * @param changeManager  the change manager, not null
    */
-  public RemoteExchangeMaster(final URI baseUri, ChangeManager changeManager) {
+  public RemoteSecurityMaster(final URI baseUri, ChangeManager changeManager) {
     ArgumentChecker.notNull(baseUri, "baseUri");
     ArgumentChecker.notNull(changeManager, "changeManager");
     _baseUri = baseUri;
@@ -66,22 +68,32 @@ public class RemoteExchangeMaster implements ExchangeMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeSearchResult search(final ExchangeSearchRequest request) {
+  public SecurityMetaDataResult metaData(SecurityMetaDataRequest request) {
     ArgumentChecker.notNull(request, "request");
     
     String msgBase64 = _client.encodeBean(request);
-    URI uri = DataExchangesResource.uri(_baseUri, msgBase64);
-    return accessRemote(uri).get(ExchangeSearchResult.class);
+    URI uri = DataSecuritiesResource.uriMetaData(_baseUri, msgBase64);
+    return accessRemote(uri).get(SecurityMetaDataResult.class);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeDocument get(final UniqueId uniqueId) {
+  public SecuritySearchResult search(final SecuritySearchRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    
+    String msgBase64 = _client.encodeBean(request);
+    URI uri = DataSecuritiesResource.uri(_baseUri, msgBase64);
+    return accessRemote(uri).get(SecuritySearchResult.class);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public SecurityDocument get(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     if (uniqueId.isVersioned()) {
-      URI uri = DataExchangeResource.uriVersion(_baseUri, uniqueId);
-      return accessRemote(uri).get(ExchangeDocument.class);
+      URI uri = DataSecurityResource.uriVersion(_baseUri, uniqueId);
+      return accessRemote(uri).get(SecurityDocument.class);
     } else {
       return get(uniqueId, VersionCorrection.LATEST);
     }
@@ -89,32 +101,32 @@ public class RemoteExchangeMaster implements ExchangeMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+  public SecurityDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     
-    URI uri = DataExchangeResource.uri(_baseUri, objectId, versionCorrection);
-    return accessRemote(uri).get(ExchangeDocument.class);
+    URI uri = DataSecurityResource.uri(_baseUri, objectId, versionCorrection);
+    return accessRemote(uri).get(SecurityDocument.class);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeDocument add(final ExchangeDocument document) {
+  public SecurityDocument add(final SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getExchange(), "document.position");
+    ArgumentChecker.notNull(document.getSecurity(), "document.position");
     
-    URI uri = DataExchangesResource.uri(_baseUri, null);
-    return accessRemote(uri).post(ExchangeDocument.class, document);
+    URI uri = DataSecuritiesResource.uri(_baseUri, null);
+    return accessRemote(uri).post(SecurityDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeDocument update(final ExchangeDocument document) {
+  public SecurityDocument update(final SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getExchange(), "document.position");
+    ArgumentChecker.notNull(document.getSecurity(), "document.position");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataExchangeResource.uri(_baseUri, document.getUniqueId(), VersionCorrection.LATEST);
-    return accessRemote(uri).put(ExchangeDocument.class, document);
+    URI uri = DataSecurityResource.uri(_baseUri, document.getUniqueId(), VersionCorrection.LATEST);
+    return accessRemote(uri).put(SecurityDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
@@ -122,30 +134,30 @@ public class RemoteExchangeMaster implements ExchangeMaster {
   public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    URI uri = DataExchangeResource.uri(_baseUri, uniqueId, VersionCorrection.LATEST);
+    URI uri = DataSecurityResource.uri(_baseUri, uniqueId, VersionCorrection.LATEST);
     accessRemote(uri).delete();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeHistoryResult history(final ExchangeHistoryRequest request) {
+  public SecurityHistoryResult history(final SecurityHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     String msgBase64 = _client.encodeBean(request);
-    URI uri = DataExchangeResource.uriVersions(_baseUri, request.getObjectId(), msgBase64);
-    return accessRemote(uri).get(ExchangeHistoryResult.class);
+    URI uri = DataSecurityResource.uriVersions(_baseUri, request.getObjectId(), msgBase64);
+    return accessRemote(uri).get(SecurityHistoryResult.class);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeDocument correct(final ExchangeDocument document) {
+  public SecurityDocument correct(final SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getExchange(), "document.position");
+    ArgumentChecker.notNull(document.getSecurity(), "document.position");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataExchangeResource.uriVersion(_baseUri, document.getUniqueId());
-    return accessRemote(uri).get(ExchangeDocument.class);
+    URI uri = DataSecurityResource.uriVersion(_baseUri, document.getUniqueId());
+    return accessRemote(uri).get(SecurityDocument.class);
   }
 
   //-------------------------------------------------------------------------
