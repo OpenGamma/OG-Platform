@@ -33,7 +33,9 @@ import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.DepositCounterpart;
+import com.opengamma.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -77,7 +79,7 @@ public class InstrumentDerivativeVisitorTest {
   private static final AbstractInstrumentDerivativeVisitor<Object, Object> ABSTRACT_VISITOR = new AbstractInstrumentDerivativeVisitor<Object, Object>() {
   };
   private static final Currency CUR = Currency.USD;
-  private static final Cash CASH = new Cash(CUR, 1, 1, 0, CURVE_NAME);
+  private static final Cash CASH = new Cash(CUR, 0, 1, 1, 0, 1, CURVE_NAME);
   private static final IborIndex INDEX = new IborIndex(CUR, Period.ofMonths(3), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("30/360"),
       BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
   private static final ForwardRateAgreement FRA = new ForwardRateAgreement(CUR, 1, CURVE_NAME, 1, 100000, INDEX, 1, 1, 1.25, 0.25, 0.04, CURVE_NAME);
@@ -612,6 +614,26 @@ public class InstrumentDerivativeVisitorTest {
 
     @Override
     public Class<?> visitForexNonDeliverableOption(ForexNonDeliverableOption derivative) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitDepositIbor(DepositIbor deposit, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitDepositIbor(DepositIbor deposit) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitDepositCounterpart(DepositCounterpart deposit, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitDepositCounterpart(DepositCounterpart deposit) {
       return null;
     }
   };
