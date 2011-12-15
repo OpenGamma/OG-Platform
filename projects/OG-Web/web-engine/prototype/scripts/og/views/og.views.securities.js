@@ -135,12 +135,6 @@ $.register_module({
                     }
                 }
             },
-            load_securities_without = function (field, args) {
-                check_state({args: args, conditions: [{new_page: securities.load, stop: true}]});
-                delete args[field];
-                securities.search(args);
-                routes.go(routes.hash(module.rules.load_securities, args));
-            },
             default_details = og.views.common.default_details.partial(page_name, 'Securities', options),
             details_page = function (args) {
                 // load versions
@@ -190,10 +184,14 @@ $.register_module({
                                 if (json.template_data['underlyingOid']) {
                                     var id = json.template_data['underlyingOid'],
                                         rule = module.rules.load_securities,
-                                        hash = routes.hash(rule, routes.current().args, {add: {id: id}}),
+                                        hash = routes.hash(rule, routes.current().args, {
+                                            add: {id: id},
+                                            del: ['version']
+                                        }),
                                         text = json.template_data['underlyingName'] ||
                                             json.template_data['underlyingExternalId'],
-                                        anchor = '<a href="' + routes.prefix() + hash + '">' + text + '</a>';
+                                        anchor = '<a class="og-js-live-anchor" href="' + routes.prefix() + hash + '">' +
+                                            text + '</a>';
                                         $('.ui-layout-inner-center .OG-js-underlying-id').html(anchor);
                                 }
                             }());
@@ -234,6 +232,7 @@ $.register_module({
             }
         };
         return securities = {
+            filters: ['name', 'type'],
             load: function (args) {
                 layout = og.views.common.layout;
                 check_state({args: args, conditions: [
