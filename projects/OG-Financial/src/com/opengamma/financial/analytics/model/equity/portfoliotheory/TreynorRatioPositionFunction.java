@@ -14,8 +14,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
  */
 public class TreynorRatioPositionFunction extends TreynorRatioFunction {
 
-  public TreynorRatioPositionFunction(final String expectedReturnCalculatorName, final String expectedRiskFreeReturnCalculatorName, final String startDate) {
-    super(expectedReturnCalculatorName, expectedRiskFreeReturnCalculatorName, startDate);
+  public TreynorRatioPositionFunction(final String resolutionKey) {
+    super(resolutionKey);
   }
 
   @Override
@@ -26,11 +26,6 @@ public class TreynorRatioPositionFunction extends TreynorRatioFunction {
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     return target.getType() == ComputationTargetType.POSITION;
-  }
-
-  @Override
-  public String getShortName() {
-    return "TreynorRatioPositionFunction";
   }
 
   @Override
