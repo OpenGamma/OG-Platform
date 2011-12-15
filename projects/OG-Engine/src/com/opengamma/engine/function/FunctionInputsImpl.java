@@ -16,6 +16,7 @@ import java.util.Set;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -24,24 +25,27 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 public class FunctionInputsImpl implements FunctionInputs, Serializable {
-  
+
   private static final long serialVersionUID = 1L;
-  
+
   private final Set<ComputedValue> _values = new HashSet<ComputedValue>();
   private final Map<String, Object> _valuesByRequirementName = new HashMap<String, Object>();
   private final Map<Pair<String, ComputationTargetSpecification>, ComputedValue[]> _valuesByRequirement = new HashMap<Pair<String, ComputationTargetSpecification>, ComputedValue[]>();
+  private final Collection<ValueSpecification> _missingValues;
 
   public FunctionInputsImpl() {
+    _missingValues = null;
   }
 
   public FunctionInputsImpl(ComputedValue value) {
-    this(Collections.singleton(value));
+    this(Collections.singleton(value), Collections.<ValueSpecification>emptySet());
   }
 
-  public FunctionInputsImpl(Collection<? extends ComputedValue> values) {
+  public FunctionInputsImpl(Collection<? extends ComputedValue> values, Collection<ValueSpecification> missingValues) {
     for (ComputedValue value : values) {
       addValue(value);
     }
+    _missingValues = missingValues;
   }
 
   public void addValue(ComputedValue value) {
@@ -54,7 +58,7 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
     final Pair<String, ComputationTargetSpecification> key = Pair.of(value.getSpecification().getValueName(), value.getSpecification().getTargetSpecification());
     final ComputedValue[] prev = _valuesByRequirement.get(key);
     if (prev == null) {
-      _valuesByRequirement.put(key, new ComputedValue[] {value});
+      _valuesByRequirement.put(key, new ComputedValue[] {value });
     } else {
       final ComputedValue[] values = new ComputedValue[prev.length + 1];
       System.arraycopy(prev, 0, values, 0, prev.length);
@@ -96,6 +100,11 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
   @Override
   public Object getValue(String requirementName) {
     return _valuesByRequirementName.get(requirementName);
+  }
+
+  @Override
+  public Collection<ValueSpecification> getMissingValues() {
+    return Collections.unmodifiableCollection(_missingValues);
   }
 
 }

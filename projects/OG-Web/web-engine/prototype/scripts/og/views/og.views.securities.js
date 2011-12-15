@@ -179,7 +179,7 @@ $.register_module({
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
                             $('.ui-layout-inner-center .ui-layout-content').html(content);
                             if (!Object.keys(json_id)[0]) $('.ui-layout-inner-center .og-js-identifiers')
-                                .html('<tr><td><span>(empty value)</span></td><td></td></tr>');
+                                .html('<tr><td><span>' + ''.lang() + '</span></td><td></td></tr>');
                             else for (id in json_id) {
                                 if (json_id.hasOwnProperty(id)) {
                                     html.push('<tr><td><span>', id.lang(),
@@ -258,18 +258,13 @@ $.register_module({
                         var filter_name = options.slickgrid.columns[0].name;
                         if (!filter_name || filter_name === 'loading') // wait until type filter is populated
                             return setTimeout(search_filter, 500);
-                        search.filter($.extend(args, {filter: true}));
+                        search.filter(args);
                 };
                 check_state({args: args, conditions: [
                     {new_page: function () {
-                        state = {filter: true};
-                        securities.load(args);
-                        args.id
-                            ? routes.go(routes.hash(module.rules.load_securities, args))
-                            : routes.go(routes.hash(module.rules.load, args));
+                        return args.id ? securities.load_securities(args) : securities.load(args);
                     }}
                 ]});
-                delete args['filter'];
                 search_filter();
             },
             load_delete: function (args) {securities.search(args), routes.go(routes.hash(module.rules.load, {}));},

@@ -14,10 +14,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
  */
 public class TotalRiskAlphaPositionFunction extends TotalRiskAlphaFunction {
 
-  public TotalRiskAlphaPositionFunction(final String returnCalculatorName, final String expectedAssetReturnCalculatorName, final String expectedRiskFreeReturnCalculatorName,
-      final String expectedMarketReturnCalculatorName, final String assetStandardDeviationCalculatorName, final String marketStandardDeviationCalculatorName, final String startDate) {
-    super(returnCalculatorName, expectedAssetReturnCalculatorName, expectedRiskFreeReturnCalculatorName, expectedMarketReturnCalculatorName, assetStandardDeviationCalculatorName,
-        marketStandardDeviationCalculatorName, startDate);
+  public TotalRiskAlphaPositionFunction(final String resolutionKey) {
+    super(resolutionKey);
   }
 
   @Override
@@ -28,11 +26,6 @@ public class TotalRiskAlphaPositionFunction extends TotalRiskAlphaFunction {
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     return target.getType() == ComputationTargetType.POSITION;
-  }
-
-  @Override
-  public String getShortName() {
-    return "TotalRiskAlphaPositionFunction";
   }
 
   @Override

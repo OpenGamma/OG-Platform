@@ -88,8 +88,7 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
    */
   public static CouponCMSDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor, final double notional,
       final IndexSwap cmsIndex) {
-    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, cmsIndex.getIborIndex().getBusinessDayConvention(), cmsIndex.getIborIndex().getCalendar(), -cmsIndex.getIborIndex()
-        .getSpotLag());
+    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -cmsIndex.getIborIndex().getSpotLag(), cmsIndex.getIborIndex().getCalendar());
     // Implementation comment: the underlying swap is used for forward. The notional, rate and payer flag are irrelevant.
     final SwapFixedIborDefinition underlyingSwap = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex, 1.0, 1.0, true);
     return new CouponCMSDefinition(underlyingSwap.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap, cmsIndex);
@@ -118,8 +117,7 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
   public static CouponCMSDefinition from(final CouponFloatingDefinition coupon, final IndexSwap cmsIndex) {
     Validate.notNull(coupon, "floating coupon");
     Validate.notNull(cmsIndex, "CMS index");
-    final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(coupon.getFixingDate(), cmsIndex.getIborIndex().getBusinessDayConvention(), cmsIndex.getIborIndex().getCalendar(), cmsIndex
-        .getIborIndex().getSpotLag());
+    final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(coupon.getFixingDate(), cmsIndex.getIborIndex().getSpotLag(), cmsIndex.getIborIndex().getCalendar());
     // Implementation comment: the underlying swap is used for forward. The notional, rate and payer flag are irrelevant.
     final SwapFixedIborDefinition underlyingSwap = SwapFixedIborDefinition.from(settlementDate, cmsIndex, 1.0, 1.0, true);
     return new CouponCMSDefinition(coupon.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(),

@@ -218,7 +218,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
         throw new MissingInputException(missingInputs, functionUniqueId);
       }
     }
-    final FunctionInputs functionInputs = new FunctionInputsImpl(inputs);
+    final FunctionInputs functionInputs = new FunctionInputsImpl(inputs, missingInputs);
     // execute
     statistics.beginInvocation();
     final Set<ComputedValue> results = invoker.execute(getFunctionExecutionContext(), functionInputs, target, jobItem.getDesiredValues());

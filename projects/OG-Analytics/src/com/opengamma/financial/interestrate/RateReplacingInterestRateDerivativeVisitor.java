@@ -9,7 +9,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -39,7 +39,7 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
 
   @Override
   public Cash visitCash(final Cash cash, final Double rate) {
-    return new Cash(cash.getCurrency(), cash.getMaturity(), cash.getNotional(), rate, cash.getTradeTime(), cash.getYearFraction(), cash.getYieldCurveName());
+    return new Cash(cash.getCurrency(), cash.getStartTime(), cash.getEndTime(), cash.getNotional(), rate, cash.getAccrualFactor(), cash.getYieldCurveName());
   }
 
   @Override
