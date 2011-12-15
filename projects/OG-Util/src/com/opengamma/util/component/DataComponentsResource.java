@@ -21,7 +21,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * The exchanges resource receives and processes RESTful calls to the exchange master.
  */
-@Path("/data/components")
+@Path("/components")
 public class DataComponentsResource extends AbstractDataResource {
 
   /**
