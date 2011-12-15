@@ -420,18 +420,31 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       // Our property values are present unless missing from the other set
       final Map<String, Set<String>> intersection = new HashMap<String, Set<String>>();
       Set<String> optional = null;
+      boolean different = false;
       for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
         final Set<String> otherValues = other.getValues(property.getKey());
         if (otherValues == null) {
           // Property not defined in the other set
+          different = true;
           continue;
         }
         final Set<String> commonValues;
         if (otherValues.isEmpty()) {
           // Other set is wild-card, so take our values
           commonValues = property.getValue();
+        } else if (property.getValue().isEmpty()) {
+          // We are wile-card, so take other values
+          commonValues = otherValues;
         } else {
-          commonValues = Sets.intersection(property.getValue(), otherValues);
+          // Intersection of the property values
+          commonValues = Sets.newHashSetWithExpectedSize(property.getValue().size());
+          for (String value : property.getValue()) {
+            if (otherValues.contains(value)) {
+              commonValues.add(value);
+            } else {
+              different = true;
+            }
+          }
           if (commonValues.isEmpty()) {
             // No common values
             continue;
@@ -439,14 +452,26 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
         }
         intersection.put(property.getKey(), commonValues);
         // Preserve least optionality
-        if (isOptional(property.getKey()) && other.isOptional(property.getKey())) {
-          if (optional == null) {
-            optional = new HashSet<String>();
+        if (isOptional(property.getKey())) {
+          if (other.isOptional(property.getKey())) {
+            if (optional == null) {
+              optional = new HashSet<String>();
+            }
+            optional.add(property.getKey());
+          } else {
+            different = true;
           }
-          optional.add(property.getKey());
         }
       }
-      return new ValuePropertiesImpl(Collections.unmodifiableMap(intersection), (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String>emptySet());
+      if (intersection.isEmpty()) {
+        return none();
+      } else {
+        if (different) {
+          return new ValuePropertiesImpl(Collections.unmodifiableMap(intersection), (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String>emptySet());
+        } else {
+          return this;
+        }
+      }
     }
 
     @Override
@@ -866,11 +891,20 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       // Composition yields the infinite set
       return this;
     }
-    
+
     @Override
     public ValueProperties intersect(final ValueProperties properties) {
-      // Intersection yields the other set
-      return properties;
+      // Intersection yields the other set, but with no optional values
+      if (properties instanceof ValuePropertiesImpl) {
+        final ValuePropertiesImpl other = (ValuePropertiesImpl) properties;
+        if (other._optional.isEmpty()) {
+          return properties;
+        } else {
+          return new ValuePropertiesImpl(other._properties, Collections.<String>emptySet());
+        }
+      } else {
+        return properties;
+      }
     }
 
     @Override
@@ -958,7 +992,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       // The only thing satisfied by the empty set is the empty set, or a set with only optional properties
       return this;
     }
-    
+
     @Override
     public ValueProperties intersect(final ValueProperties properties) {
       // Nothing to intersect with, so still empty
