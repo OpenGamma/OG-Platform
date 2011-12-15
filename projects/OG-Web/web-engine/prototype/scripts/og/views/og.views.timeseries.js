@@ -63,7 +63,9 @@ $.register_module({
                                         var args = routes.current().args, rule = module.rules.load_timeseries;
                                         if (result.error) return ui.dialog({type: 'error', message: result.message});
                                         timeseries.search(args);
-                                        routes.go(routes.hash(rule, args, {add: {id: r.meta.id}}));
+                                        if (result.meta.id)
+                                            return routes.go(routes.hash(rule, args, {add: {id: result.meta.id}}));
+                                        routes.go(routes.hash(module.rules.load, args));
                                     },
                                     scheme_type: ui.dialog({return_field_value: 'scheme'}),
                                     data_provider: ui.dialog({return_field_value: 'provider'}),
@@ -84,10 +86,10 @@ $.register_module({
                         buttons: {
                             'Delete': function () {
                                 api.rest.timeseries.del({
-                                    handler: function (r) {
+                                    handler: function (result) {
                                         var args = routes.current().args, rule = module.rules.load;
-                                        if (r.error) return ui.dialog({type: 'error', message: r.message});
                                         ui.dialog({type: 'confirm', action: 'close'});
+                                        if (result.error) return ui.dialog({type: 'error', message: result.message});
                                         routes.go(routes.hash(rule, args));
                                     }, id: routes.current().args.id
                                 });
@@ -230,7 +232,7 @@ $.register_module({
                 });
             };
         module.rules = {
-            load: {route: '/' + page_name + '/:id?' + filter_rule_str, method: module.name + '.load'},
+            load: {route: '/' + page_name + '/' + filter_rule_str, method: module.name + '.load'},
             load_filter: {
                 route: '/' + page_name + '/filter:/:id?' + filter_rule_str, method: module.name + '.load_filter'
             },
@@ -252,9 +254,8 @@ $.register_module({
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        return args.id ? timeseries.load_timeseries(args) : timeseries.load(args);
-                    }}
+                    {new_value: 'id', stop: true, method: function () {if (args.id) timeseries.load_timeseries(args);}},
+                    {new_page: function () {timeseries.load(args);}}
                 ]});
                 search.filter(args);
             },

@@ -54,15 +54,16 @@ $.register_module({
                         'OK': function () {
                             $(this).dialog('close');
                             api.rest.securities.put({
-                                handler: function (r) {
-                                    if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                    if (r.data.data.length === 1) {
-                                        routes.go(routes.hash(module.rules.load_new_securities,
-                                            $.extend({}, routes.last().args, {
-                                                id: r.data.data[0].split('|')[1], 'new': true
-                                            })
-                                        ));
-                                    } else routes.go(routes.hash(module.rules.load));
+                                handler: function (result) {
+                                    var args = routes.current().args;
+                                    if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                    securities.search(args);
+                                    if (result.data.data.length !== 1)
+                                        return routes.go(routes.hash(module.rules.load, args));
+                                    routes.go(routes.hash(module.rules.load_securities, args, {
+                                        add: {id: result.data.data[0].split('|')[1]},
+                                        del: ['version']
+                                    }));
                                 },
                                 scheme_type: ui.dialog({return_field_value: 'scheme-type'}),
                                 identifier: ui.dialog({return_field_value: 'identifiers'})
@@ -76,18 +77,16 @@ $.register_module({
                     message: 'Are you sure you want to permanently delete this security?',
                     buttons: {
                         'Delete': function () {
-                            var obj = {
-                                id: routes.last().args.id,
-                                handler: function (r) {
-                                    var last = routes.last();
-                                    if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                    routes.go(routes.hash(module.rules.load_delete,
-                                        $.extend(true, {deleted: true}, last.args)
-                                    ));
-                                }
-                            };
                             $(this).dialog('close');
-                            api.rest.securities.del(obj);
+                            api.rest.securities.del({
+                                id: routes.last().args.id,
+                                handler: function (result) {
+                                    var args = routes.current().args;
+                                    if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                    securities.search(args);
+                                    routes.go(routes.hash(module.rules.load, args));
+                                }
+                            });
                         }
                     }
                 })},
@@ -135,12 +134,6 @@ $.register_module({
                         location: '.OG-tools'
                     }
                 }
-            },
-            load_securities_without = function (field, args) {
-                check_state({args: args, conditions: [{new_page: securities.load, stop: true}]});
-                delete args[field];
-                securities.search(args);
-                routes.go(routes.hash(module.rules.load_securities, args));
             },
             default_details = og.views.common.default_details.partial(page_name, 'Securities', options),
             details_page = function (args) {
@@ -191,10 +184,14 @@ $.register_module({
                                 if (json.template_data['underlyingOid']) {
                                     var id = json.template_data['underlyingOid'],
                                         rule = module.rules.load_securities,
-                                        hash = routes.hash(rule, routes.current().args, {add: {id: id}}),
+                                        hash = routes.hash(rule, routes.current().args, {
+                                            add: {id: id},
+                                            del: ['version']
+                                        }),
                                         text = json.template_data['underlyingName'] ||
                                             json.template_data['underlyingExternalId'],
-                                        anchor = '<a href="' + routes.prefix() + hash + '">' + text + '</a>';
+                                        anchor = '<a class="og-js-live-anchor" href="' + routes.prefix() + hash + '">' +
+                                            text + '</a>';
                                         $('.ui-layout-inner-center .OG-js-underlying-id').html(anchor);
                                 }
                             }());
@@ -229,19 +226,13 @@ $.register_module({
             state = {};
         module.rules = {
             load: {route: '/' + page_name + '/name:?/type:?', method: module.name + '.load'},
-            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/type:?',
-                    method: module.name + '.load_filter'},
-            load_delete: {
-                route: '/' + page_name + '/:id/deleted:/name:?/type:?', method: module.name + '.load_delete'
-            },
+            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/type:?', method: module.name + '.load_filter'},
             load_securities: {
                 route: '/' + page_name + '/:id/name:?/version:?/type:?', method: module.name + '.load_' + page_name
-            },
-            load_new_securities: {
-                route: '/' + page_name + '/:id/new:/name:?/type:?', method: module.name + '.load_new_' + page_name
             }
         };
         return securities = {
+            filters: ['name', 'type'],
             load: function (args) {
                 layout = og.views.common.layout;
                 check_state({args: args, conditions: [
@@ -261,14 +252,11 @@ $.register_module({
                         search.filter(args);
                 };
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        return args.id ? securities.load_securities(args) : securities.load(args);
-                    }}
+                    {new_value: 'id', stop: true, method: function () {if (args.id) securities.load_securities(args);}},
+                    {new_page: function () {securities.load(args);}}
                 ]});
                 search_filter();
             },
-            load_delete: function (args) {securities.search(args), routes.go(routes.hash(module.rules.load, {}));},
-            load_new_securities: load_securities_without.partial('new'),
             load_securities: function (args) {
                 check_state({args: args, conditions: [
                     {new_page: function () {

@@ -66,9 +66,9 @@ public class FetchTimeSeriesFunction extends AbstractFunctionInvoker implements 
     final MetaParameter dataSourceParameter = new MetaParameter("dataSource", JavaTypeInfo.builder(String.class).allowNull().get());
     final MetaParameter dataProviderParameter = new MetaParameter("dataProvider", JavaTypeInfo.builder(String.class).allowNull().get());
     final MetaParameter identifierValidityDateParameter = new MetaParameter("identifierValidityDate", JavaTypeInfo.builder(LocalDate.class).allowNull().get());
-    final MetaParameter maxPoints = new MetaParameter("maxPoints", JavaTypeInfo.builder(Integer.class).allowNull().get());
+    final MetaParameter maxPointsParameter = new MetaParameter("maxPoints", JavaTypeInfo.builder(Integer.class).allowNull().get());
     return Arrays.asList(identifierParameter, startParameter, endParameter, dataFieldParameter, resolutionKeyParameter, inclusiveStartParameter, inclusiveEndParameter, dataSourceParameter,
-        dataProviderParameter, identifierValidityDateParameter, maxPoints);
+        dataProviderParameter, identifierValidityDateParameter, maxPointsParameter);
   }
 
   private FetchTimeSeriesFunction(final DefinitionAnnotater info) {
