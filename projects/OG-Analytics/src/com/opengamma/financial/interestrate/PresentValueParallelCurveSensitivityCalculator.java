@@ -19,6 +19,7 @@ import com.opengamma.util.surface.StringValue;
  * Calculates the present value sensitivity to parallel curve movements.
  */
 public final class PresentValueParallelCurveSensitivityCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, StringValue> {
+  // TODO: This calculator is similar (equivalent?) to the PV01Calculator. Should they be merged?
 
   /**
    * The unique instance of the SABR sensitivity calculator.
