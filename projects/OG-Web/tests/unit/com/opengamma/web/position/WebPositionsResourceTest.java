@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.mock.web.MockServletContext;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -78,7 +79,7 @@ public class WebPositionsResourceTest {
   private WebPositionsResource _webPositionsResource;
   private MockSecuritySource _securitySource;
   private PositionMaster _positionMaster;
-  private List<ManageableTrade> _trades = Lists.newArrayList();
+  private List<ManageableTrade> _trades;
   private UriInfo _uriInfo;
   
   @BeforeMethod
@@ -106,9 +107,8 @@ public class WebPositionsResourceTest {
     _webPositionsResource = new WebPositionsResource(_positionMaster, _secLoader,  _securitySource, _htsMaster, _cfgSource);
     _webPositionsResource.setServletContext(new MockServletContext("/web-engine", new FileSystemResourceLoader()));
     _webPositionsResource.setUriInfo(_uriInfo);
-    populatePositionMaster();
   }
-
+  
   private void populatePositionMaster() {
     for (ManageableTrade trade : _trades) {
       ManageablePosition manageablePosition = new ManageablePosition(trade.getQuantity(), SEC_ID);
@@ -119,6 +119,7 @@ public class WebPositionsResourceTest {
   }
 
   private void buildTrades() {
+    _trades = Lists.newArrayList();
     ManageableTrade trade1 = new ManageableTrade(BigDecimal.valueOf(50), SEC_ID, LocalDate.parse("2011-12-07"), OffsetTime.of(LocalTime.of(15, 4), ZONE_OFFSET), COUNTER_PARTY);
     trade1.setPremium(10.0);
     trade1.setPremiumCurrency(Currency.USD);
@@ -154,13 +155,13 @@ public class WebPositionsResourceTest {
     Response response = _webPositionsResource.postJSON("10", SEC_ID.getScheme().getName(), SEC_ID.getValue(), tradesJson);
     assertNotNull(response);
     assertEquals(201, response.getStatus());
-    assertEquals("/positions/MemPos~7", getActualURL(response));
+    assertEquals("/positions/MemPos~1", getActualURL(response));
     assertPositionAndTrades();
   }
   
   @Test
   public void testGetAllPositions() throws Exception {
-    
+    populatePositionMaster();
     MultivaluedMap<String, String> queryParameters = _uriInfo.getQueryParameters();
     queryParameters.putSingle("identifier", StringUtils.EMPTY);
     queryParameters.putSingle("minquantity", StringUtils.EMPTY);
