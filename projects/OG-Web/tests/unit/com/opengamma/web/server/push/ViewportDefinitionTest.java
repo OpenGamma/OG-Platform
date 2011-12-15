@@ -6,7 +6,6 @@ import com.opengamma.web.server.push.rest.ViewportDefinitionReader;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 
@@ -29,6 +28,7 @@ public class ViewportDefinitionTest {
     assertFalse(reader.isReadable(Viewport.class, null, null, null));
   }
 
+  // TODO why does this take so long to run?
   @Test
   public void fromJSON() throws IOException {
     String json = "{" +
@@ -65,24 +65,12 @@ public class ViewportDefinitionTest {
     assertEquals(12345679L, (long) portfolioRows.get(4));
     assertEquals(12345680L, (long) portfolioRows.get(5));
 
-    List<WebGridCell> portfolioDepGraphCells = viewportDefinition.getPortfolioDependencyGraphCells();
+    Set<WebGridCell> portfolioDepGraphCells = viewportDefinition.getPortfolioDependencyGraphCells();
     assertNotNull(portfolioDepGraphCells);
     assertEquals(3, portfolioDepGraphCells.size());
-
-    WebGridCell prtCell1 = portfolioDepGraphCells.get(0);
-    assertNotNull(prtCell1);
-    assertEquals(3, prtCell1.getRowId());
-    assertEquals(1, prtCell1.getColumnId());
-
-    WebGridCell prtCell2 = portfolioDepGraphCells.get(1);
-    assertNotNull(prtCell2);
-    assertEquals(3, prtCell2.getRowId());
-    assertEquals(2, prtCell2.getColumnId());
-
-    WebGridCell prtCell3 = portfolioDepGraphCells.get(2);
-    assertNotNull(prtCell1);
-    assertEquals(4, prtCell3.getRowId());
-    assertEquals(3, prtCell3.getColumnId());
+    assertTrue(portfolioDepGraphCells.contains(new WebGridCell(3, 1)));
+    assertTrue(portfolioDepGraphCells.contains(new WebGridCell(3, 2)));
+    assertTrue(portfolioDepGraphCells.contains(new WebGridCell(4, 3)));
 
     // primitive viewport -----
 
@@ -98,24 +86,12 @@ public class ViewportDefinitionTest {
     assertEquals(12345682L, (long) primitiveRows.get(6));
     assertEquals(12345683L, (long) primitiveRows.get(7));
 
-    List<WebGridCell> primitiveDepGraphCells = viewportDefinition.getPrimitiveDependencyGraphCells();
+    Set<WebGridCell> primitiveDepGraphCells = viewportDefinition.getPrimitiveDependencyGraphCells();
     assertNotNull(primitiveDepGraphCells);
     assertEquals(3, primitiveDepGraphCells.size());
-
-    WebGridCell prmCell1 = primitiveDepGraphCells.get(0);
-    assertNotNull(prmCell1);
-    assertEquals(5, prmCell1.getRowId());
-    assertEquals(1, prmCell1.getColumnId());
-
-    WebGridCell prmCell2 = primitiveDepGraphCells.get(1);
-    assertNotNull(prmCell2);
-    assertEquals(5, prmCell2.getRowId());
-    assertEquals(2, prmCell2.getColumnId());
-
-    WebGridCell prmCell3 = primitiveDepGraphCells.get(2);
-    assertNotNull(prmCell1);
-    assertEquals(7, prmCell3.getRowId());
-    assertEquals(3, prmCell3.getColumnId());
+    assertTrue(primitiveDepGraphCells.contains(new WebGridCell(5, 1)));
+    assertTrue(primitiveDepGraphCells.contains(new WebGridCell(5, 2)));
+    assertTrue(primitiveDepGraphCells.contains(new WebGridCell(7, 3)));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -170,7 +146,7 @@ public class ViewportDefinitionTest {
         "}" +
         "}";
     ViewportDefinition definition = ViewportDefinition.fromJSON(json);
-    List<WebGridCell> dependencyGraphCells = definition.getPortfolioDependencyGraphCells();
+    Set<WebGridCell> dependencyGraphCells = definition.getPortfolioDependencyGraphCells();
     assertNotNull(dependencyGraphCells);
     assertTrue(dependencyGraphCells.isEmpty());
   }

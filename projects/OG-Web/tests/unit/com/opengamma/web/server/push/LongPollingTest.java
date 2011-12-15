@@ -37,7 +37,7 @@ public class LongPollingTest {
   @BeforeClass
   void createJettyServer() throws Exception {
     Pair<Server, WebApplicationContext> serverAndContext =
-        WebPushTestUtils.createJettyServer("classpath:/com/opengamma/web/long-poll-test.xml");
+        WebPushTestUtils.createJettyServer("classpath:/com/opengamma/web/server/push/long-poll-test.xml");
     _server = serverAndContext.getFirst();
     WebApplicationContext context = serverAndContext.getSecond();
     _updateManager = context.getBean(TestConnectionManager.class);

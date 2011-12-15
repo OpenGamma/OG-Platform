@@ -23,9 +23,6 @@ import static com.opengamma.web.server.push.WebPushTestUtils.createJettyServer;
 import static com.opengamma.web.server.push.WebPushTestUtils.handshake;
 import static com.opengamma.web.server.push.WebPushTestUtils.readFromPath;
 
-/**
- *
- */
 public class RestMasterSubscriptionTest {
 
   private Server _server;
@@ -33,7 +30,7 @@ public class RestMasterSubscriptionTest {
 
   @BeforeClass
   public void createServer() throws Exception {
-    Pair<Server,WebApplicationContext> serverAndContext = createJettyServer("classpath:/com/opengamma/web/rest-subscription-test.xml");
+    Pair<Server,WebApplicationContext> serverAndContext = createJettyServer("classpath:/com/opengamma/web/server/push/rest-subscription-test.xml");
     _server = serverAndContext.getFirst();
     WebApplicationContext context = serverAndContext.getSecond();
     _positionChangeManager = context.getBean("positionChangeManager", TestChangeManager.class);

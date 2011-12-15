@@ -40,7 +40,7 @@ public class RestEntitySubscriptionTest {
 
   @BeforeClass
   public void createServer() throws Exception {
-    Pair<Server,WebApplicationContext> serverAndContext = createJettyServer("classpath:/com/opengamma/web/rest-subscription-test.xml");
+    Pair<Server,WebApplicationContext> serverAndContext = createJettyServer("classpath:/com/opengamma/web/server/push/rest-subscription-test.xml");
     _server = serverAndContext.getFirst();
     WebApplicationContext context = serverAndContext.getSecond();
     _changeManager = context.getBean("changeManager", TestChangeManager.class);
@@ -90,11 +90,6 @@ public class RestEntitySubscriptionTest {
     String json = readFromPath("/updates/" + clientId);
     checkJsonResults(json, restUrl1, restUrl2);
   }
-
-  // TODO this logic isn't implemented in the filter, not critical as the web interface for specific versions doesn't exist yet
-  /*@Test
-  public void subResourceNoSubscription() {
-  }*/
 
   @Test
   public void noClientIdNoSubscription() throws IOException {

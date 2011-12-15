@@ -28,7 +28,7 @@ public class ViewportTest {
   @BeforeClass
   void createJettyServer() throws Exception {
     Pair<Server, WebApplicationContext> serverAndContext =
-        WebPushTestUtils.createJettyServer("classpath:/com/opengamma/web/viewport-test.xml");
+        WebPushTestUtils.createJettyServer("classpath:/com/opengamma/web/server/push/viewport-test.xml");
     _server = serverAndContext.getFirst();
   }
 
