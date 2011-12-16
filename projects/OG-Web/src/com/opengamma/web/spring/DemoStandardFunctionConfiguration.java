@@ -31,7 +31,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.aggregation.BottomPositionValues;
 import com.opengamma.financial.aggregation.SortedPositionValues;
 import com.opengamma.financial.aggregation.TopPositionValues;
-import com.opengamma.financial.analytics.DummyPortfolioNodeFunction;
 import com.opengamma.financial.analytics.DummyPortfolioNodeMultipleCurrencyAmountFunction;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
 import com.opengamma.financial.analytics.LastHistoricalValueFunction;
