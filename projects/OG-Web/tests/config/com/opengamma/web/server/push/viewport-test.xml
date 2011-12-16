@@ -23,7 +23,12 @@
   <bean id="viewportFactory" class="com.opengamma.web.server.push.TestViewportManager"/>
 
   <bean id="viewportsResource" class="com.opengamma.web.server.push.rest.ViewportsResource">
-    <constructor-arg ref="updateManager"/>
+    <constructor-arg index="0" ref="updateManager"/>
+    <constructor-arg index="1">
+      <bean class="com.opengamma.web.server.push.reports.ReportGeneratorFactory">
+        <constructor-arg><map/></constructor-arg>
+      </bean>
+    </constructor-arg>
   </bean>
 
   <bean id="changeManager" class="com.opengamma.web.server.push.TestChangeManager"/>

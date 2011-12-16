@@ -329,7 +329,7 @@ import java.util.Set;
   //-------------------------------------------------------------------------
   
   @Override
-  protected String[][] getCsvColumnHeaders() {
+  protected String[][] getRawDataColumnHeaders() {
     Collection<WebViewGridColumn> columns = getGridStructure().getColumns();
     int additionalColumns = getAdditionalCsvColumnCount();
     int columnCount = columns.size() + additionalColumns;
@@ -345,7 +345,7 @@ import java.util.Set;
   }
 
   @Override
-  protected String[][] getCsvRows(ViewComputationResultModel result) {
+  protected String[][] getRawDataRows(ViewComputationResultModel result) {
     String[][] rows = new String[getGridStructure().getTargets().size()][];
     int columnCount = getGridStructure().getColumns().size() + getAdditionalCsvColumnCount();
     int offset = getCsvDataColumnOffset();

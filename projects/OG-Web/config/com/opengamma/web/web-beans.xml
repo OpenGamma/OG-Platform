@@ -579,8 +579,19 @@
     <constructor-arg index="3" ref="longPollingConnectionManager"/>
   </bean>
 
+  <bean id="viewportReportGeneratorFactor" class="com.opengamma.web.server.push.reports.ReportGeneratorFactory">
+    <constructor-arg>
+      <map>
+        <entry key="csv">
+          <bean class="com.opengamma.web.server.push.reports.CsvReportGenerator"/>
+        </entry>
+      </map>
+    </constructor-arg>
+  </bean>
+
   <bean id="webViewportsRestBean" class="com.opengamma.web.server.push.rest.ViewportsResource">
-    <constructor-arg ref="connectionManager"/>
+    <constructor-arg index="0" ref="connectionManager"/>
+    <constructor-arg index="1" ref="viewportReportGeneratorFactor"/>
   </bean>
 
   <bean id="changeManager" class="com.opengamma.core.change.AggregatingChangeManager">
@@ -602,8 +613,9 @@
     </constructor-arg>
   </bean>
 
-  <!--TODO make sure this still works-->
-  <bean id="jsonToViewport" class="com.opengamma.web.server.push.rest.ViewportDefinitionReader" scope="singleton"/>
+  <bean id="jsonToViewport" class="com.opengamma.web.server.push.rest.ViewportDefinitionMessageBodyReader" scope="singleton"/>
+
+  <bean id="reportToResponseBody" class="com.opengamma.web.server.push.rest.ReportMessageBodyWriter" scope="singleton"/>
 
   <!-- old Cometd Web-interface -->
   <bean id="webInterfaceBean" class="com.opengamma.web.server.LiveResultsServiceBean">

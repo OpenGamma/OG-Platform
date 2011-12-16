@@ -13,17 +13,21 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.WebGridCell;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 import com.opengamma.web.server.push.AnalyticsListener;
 import com.opengamma.web.server.push.Viewport;
 import com.opengamma.web.server.push.ViewportDefinition;
+import com.opengamma.web.server.push.reports.DependencyGraphGridData;
+import com.opengamma.web.server.push.reports.GridData;
+import com.opengamma.web.server.push.reports.ViewportData;
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -253,57 +257,35 @@ import java.util.Set;
     }
   }
 
-  private Pair<String, String> getGridCsv(PushRequirementBasedWebViewGrid grid, String gridName) {
+  @Override
+  public ViewportData getRawData() {
     synchronized (_lock) {
-      if (grid == null) {
-        return null;
+      if (!_viewClient.isResultAvailable()) {
+        return ViewportData.empty(_viewClient.getUniqueId());
       }
-      ViewComputationResultModel latestResultModel = getLatestResultModel();
-      if (latestResultModel == null) {
-        return null;
+      ViewComputationResultModel latestResult = _viewClient.getLatestResult();
+      GridData portfolioData;
+      if (_portfolioGrid != null) {
+        portfolioData = new GridData(_portfolioGrid.getRawDataColumnHeaders(), _portfolioGrid.getRawDataRows(latestResult));
+      } else {
+        portfolioData = GridData.empty();
       }
-      String filename = _viewClient.getUniqueId() + "-" + gridName + "-" + latestResultModel.getValuationTime() + ".csv";
-      String csv = grid.dumpContentsToCsv(latestResultModel);
-      return Pair.of(filename, csv);
+      GridData primitivesData;
+      if (_primitivesGrid != null) {
+        primitivesData = new GridData(_primitivesGrid.getRawDataColumnHeaders(), _primitivesGrid.getRawDataRows(latestResult));
+      } else {
+        primitivesData = GridData.empty();
+      }
+      // TODO dep graphs don't support raw data at the moment. will they need to?
+      List<DependencyGraphGridData> portfolioDepGraphData = Collections.emptyList();
+      List<DependencyGraphGridData> primitivesDepGraphData = Collections.emptyList();
+      return new ViewportData(portfolioData,
+                              primitivesData,
+                              portfolioDepGraphData,
+                              primitivesDepGraphData,
+                              latestResult.getValuationTime(),
+                              _viewClient.getUniqueId());
     }
-  }
-  @Override
-  public Pair<String, String> getPortfolioCsv() {
-    return getGridCsv(_portfolioGrid, "portfolio");
-  }
-
-  @Override
-  public Pair<String, String> getPrimitivesCsv() {
-    return getGridCsv(_primitivesGrid, "primitives");
-  }
-
-  private Pair<String, String> getDependencyGraphCsv(PushRequirementBasedWebViewGrid grid, String gridName, int row, int col) {
-    synchronized (_lock) {
-      if (grid == null) {
-        return null;
-      }
-      PushWebViewGrid depGraphGrid = grid.getDepGraphGrid(row, col);
-      if (depGraphGrid == null) {
-        return null;
-      }
-      ViewComputationResultModel latestResultModel = getLatestResultModel();
-      if (latestResultModel == null) {
-        return null;
-      }
-      String filename = _viewClient.getUniqueId() + "-" + gridName + "[" + row + "," + col + latestResultModel.getValuationTime() + ".csv";
-      String csv = depGraphGrid.dumpContentsToCsv(latestResultModel);
-      return Pair.of(filename, csv);
-    }
-  }
-  
-  @Override
-  public Pair<String, String> getPortfolioCsv(int row, int col) {
-    return getDependencyGraphCsv(_portfolioGrid, "portfolio", row, col);
-  }
-
-  @Override
-  public Pair<String, String> getPrimitivesCsv(int row, int col) {
-    return getDependencyGraphCsv(_primitivesGrid, "primitives", row, col);
   }
 
   /* package */ UniqueId getBaseViewDefinitionId() {

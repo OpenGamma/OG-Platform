@@ -5,7 +5,7 @@
  */
 package com.opengamma.web.server.push;
 
-import com.opengamma.web.server.push.rest.ViewportDefinitionReader;
+import com.opengamma.web.server.push.rest.ViewportDefinitionMessageBodyReader;
 
 import javax.ws.rs.core.Application;
 import java.util.HashSet;
@@ -21,7 +21,7 @@ public class TestApplication extends Application {
     HashSet<Class<?>> classes = new HashSet<Class<?>>();
     classes.add(TestResource.class);
     classes.add(TestSubResources.class);
-    classes.add(ViewportDefinitionReader.class);
+    classes.add(ViewportDefinitionMessageBodyReader.class);
     return classes;
   }
 }

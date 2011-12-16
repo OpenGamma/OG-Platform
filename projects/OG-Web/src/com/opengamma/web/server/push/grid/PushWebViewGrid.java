@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.server.push.grid;
 
-import au.com.bytecode.opencsv.CSVWriter;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.client.ViewClient;
@@ -14,11 +13,9 @@ import com.opengamma.web.server.WebGridCell;
 import com.opengamma.web.server.conversion.ConversionMode;
 import com.opengamma.web.server.conversion.ResultConverter;
 import com.opengamma.web.server.conversion.ResultConverterCache;
-import com.opengamma.web.server.push.ViewportDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -191,28 +188,8 @@ import java.util.concurrent.atomic.AtomicReference;
     return displayValue;
   }
   
-  //-------------------------------------------------------------------------
-  
-  /*package*/ String dumpContentsToCsv(ViewComputationResultModel result) {
-    StringWriter stringWriter = new StringWriter();
-    CSVWriter csvWriter = new CSVWriter(stringWriter);
-    String[][] columnHeaders = getCsvColumnHeaders();
-    if (columnHeaders != null) {
-      for (String[] header : columnHeaders) {
-        csvWriter.writeNext(header);
-      }
-    }
-    String[][] rows = getCsvRows(result);
-    if (rows != null) {
-      for (String[] row : rows) {
-        csvWriter.writeNext(row);
-      }
-    }
-    return stringWriter.toString();
-  }
-  
-  protected abstract String[][] getCsvColumnHeaders();
+  protected abstract String[][] getRawDataColumnHeaders();
 
-  protected abstract String[][] getCsvRows(ViewComputationResultModel result);
+  protected abstract String[][] getRawDataRows(ViewComputationResultModel result);
   
 }

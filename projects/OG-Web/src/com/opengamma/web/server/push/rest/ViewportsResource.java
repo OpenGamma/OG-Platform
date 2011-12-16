@@ -10,6 +10,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.web.server.push.ConnectionManager;
 import com.opengamma.web.server.push.Viewport;
 import com.opengamma.web.server.push.ViewportDefinition;
+import com.opengamma.web.server.push.reports.ReportGeneratorFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -40,8 +41,12 @@ public class ViewportsResource {
   /** For creating and looking up {@link Viewport}s */
   private final ConnectionManager _restUpdateManager;
 
-  public ViewportsResource(ConnectionManager restUpdateManager) {
+  /** For passing to {@link ViewportResource} instances */
+  private final ReportGeneratorFactory _reportGeneratorFactory;
+
+  public ViewportsResource(ConnectionManager restUpdateManager, ReportGeneratorFactory reportGeneratorFactory) {
     _restUpdateManager = restUpdateManager;
+    _reportGeneratorFactory = reportGeneratorFactory;
   }
 
   /**
@@ -89,7 +94,7 @@ public class ViewportsResource {
     String userId = request.getRemoteUser();
     Viewport viewport = _restUpdateManager.getViewport(userId, clientId, viewportId);
     if (viewport != null) {
-      return new ViewportResource(viewport);
+      return new ViewportResource(viewport, _reportGeneratorFactory);
     } else {
       throw new DataNotFoundException("Unable to find viewport, userId: " + userId + ", clientId: " + clientId +
                                           ", viewportId: " + viewportId);

@@ -7,7 +7,7 @@ package com.opengamma.web.server.push;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.WebGridCell;
-import com.opengamma.web.server.push.rest.ViewportDefinitionReader;
+import com.opengamma.web.server.push.rest.ViewportDefinitionMessageBodyReader;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class ViewportDefinitionTest {
   // TODO this need to be moved
   @Test
   public void isReadable() {
-    ViewportDefinitionReader reader = new ViewportDefinitionReader();
+    ViewportDefinitionMessageBodyReader reader = new ViewportDefinitionMessageBodyReader();
     assertTrue(reader.isReadable(ViewportDefinition.class, null, null, null));
     // a random other class that shouldn't be readable
     assertFalse(reader.isReadable(Viewport.class, null, null, null));

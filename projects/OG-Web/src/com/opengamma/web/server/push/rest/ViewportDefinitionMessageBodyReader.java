@@ -20,7 +20,7 @@ import java.lang.reflect.Type;
  */
 @Provider
 @Consumes(MediaType.APPLICATION_JSON)
-public class ViewportDefinitionReader implements MessageBodyReader<ViewportDefinition> {
+public class ViewportDefinitionMessageBodyReader implements MessageBodyReader<ViewportDefinition> {
 
   /**
    * @return {@code true} if {@code type} is {@link ViewportDefinition}.

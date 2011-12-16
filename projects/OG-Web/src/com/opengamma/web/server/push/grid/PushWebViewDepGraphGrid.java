@@ -281,13 +281,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   @Override
-  protected String[][] getCsvColumnHeaders() {
+  protected String[][] getRawDataColumnHeaders() {
     // TODO implement this if primitive dependency graphs are required
     return null;
   }
 
   @Override
-  protected String[][] getCsvRows(ViewComputationResultModel result) {
+  protected String[][] getRawDataRows(ViewComputationResultModel result) {
     // TODO implement this if primitive dependency graphs are required
     return null;
   }
