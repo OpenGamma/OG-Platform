@@ -24,7 +24,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.financial.var.NormalLinearVaRCalculator;
-import com.opengamma.math.function.Function;
+import com.opengamma.financial.var.NormalVaRParameters;
 import com.opengamma.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -50,8 +50,9 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
     final Set<String> stdDevCalculatorNames = desiredValue.getConstraints().getValues(ValuePropertyNames.STD_DEV_CALCULATOR);
     final Set<String> confidenceLevelNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CONFIDENCE_LEVEL);
     final Set<String> horizonNames = desiredValue.getConstraints().getValues(ValuePropertyNames.HORIZON);
-    final Function<DoubleTimeSeries<?>, Double> varCalculator = getVaRCalculator(scheduleCalculatorNames, meanCalculatorNames, stdDevCalculatorNames, horizonNames, confidenceLevelNames);
-    final double var = varCalculator.evaluate(pnlSeries);
+    final NormalVaRParameters parameters = getParameters(scheduleCalculatorNames, horizonNames, confidenceLevelNames);
+    final NormalLinearVaRCalculator<DoubleTimeSeries<?>> varCalculator = getVaRCalculator(meanCalculatorNames, stdDevCalculatorNames);
+    final double var = varCalculator.evaluate(parameters, pnlSeries);
     final ValueProperties resultProperties = getResultProperties(currency, desiredValues.iterator().next());
     final ValueRequirement vr = new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, getTarget(target), resultProperties);
     return Sets.newHashSet(new ComputedValue(new ValueSpecification(vr, getUniqueId()), var));
@@ -99,7 +100,6 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName.iterator().next())
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next())
-        //.withAny(ValuePropertyNames.RETURN_CALCULATOR)
         .withAny(ValuePropertyNames.CURRENCY).get();
       return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, getTarget(target), properties));
     }
@@ -167,16 +167,9 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
   
   protected abstract Object getTarget(final ComputationTarget target);
   
-  private Function<DoubleTimeSeries<?>, Double> getVaRCalculator(final Set<String> scheduleCalculatorNames, final Set<String> meanCalculatorNames,
-      final Set<String> stdDevCalculatorNames, final Set<String> horizonNames, final Set<String> confidenceLevelNames) {
+  private NormalVaRParameters getParameters(final Set<String> scheduleCalculatorNames, final Set<String> horizonNames, final Set<String> confidenceLevelNames) {
     if (scheduleCalculatorNames == null || scheduleCalculatorNames.isEmpty() || scheduleCalculatorNames.size() != 1) {
       throw new OpenGammaRuntimeException("Missing or non-unique schedule calculator name: " + scheduleCalculatorNames);
-    }
-    if (meanCalculatorNames == null || meanCalculatorNames.isEmpty() || meanCalculatorNames.size() != 1) {
-      throw new OpenGammaRuntimeException("Missing or non-unique mean calculator name: " + meanCalculatorNames);
-    }
-    if (stdDevCalculatorNames == null || stdDevCalculatorNames.isEmpty() || stdDevCalculatorNames.size() != 1) {
-      throw new OpenGammaRuntimeException("Missing or non-unique standard deviation calculator name: " + stdDevCalculatorNames);
     }
     if (horizonNames == null || horizonNames.isEmpty() || horizonNames.size() != 1) {
       throw new OpenGammaRuntimeException("Missing or non-unique horizon name: " + horizonNames);
@@ -184,13 +177,22 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
     if (confidenceLevelNames == null || confidenceLevelNames.isEmpty() || confidenceLevelNames.size() != 1) {
       throw new OpenGammaRuntimeException("Missing or non-unique confidence level name: " + confidenceLevelNames);
     }
+    return new NormalVaRParameters(Double.valueOf(horizonNames.iterator().next()), 
+        VaRFunctionUtils.getPeriodsPerYear(scheduleCalculatorNames.iterator().next()), Double.valueOf(confidenceLevelNames.iterator().next()));    
+  }
+  
+  private NormalLinearVaRCalculator<DoubleTimeSeries<?>> getVaRCalculator(final Set<String> meanCalculatorNames,
+      final Set<String> stdDevCalculatorNames) {
+    if (meanCalculatorNames == null || meanCalculatorNames.isEmpty() || meanCalculatorNames.size() != 1) {
+      throw new OpenGammaRuntimeException("Missing or non-unique mean calculator name: " + meanCalculatorNames);
+    }
+    if (stdDevCalculatorNames == null || stdDevCalculatorNames.isEmpty() || stdDevCalculatorNames.size() != 1) {
+      throw new OpenGammaRuntimeException("Missing or non-unique standard deviation calculator name: " + stdDevCalculatorNames);
+    }
     final DoubleTimeSeriesStatisticsCalculator meanCalculator = 
       new DoubleTimeSeriesStatisticsCalculator(StatisticsCalculatorFactory.getCalculator(meanCalculatorNames.iterator().next()));
     final DoubleTimeSeriesStatisticsCalculator stdDevCalculator = 
       new DoubleTimeSeriesStatisticsCalculator(StatisticsCalculatorFactory.getCalculator(stdDevCalculatorNames.iterator().next()));
-    return new NormalLinearVaRCalculator<DoubleTimeSeries<?>>(Double.valueOf(horizonNames.iterator().next()), 
-        VaRFunctionUtils.getPeriodsPerYear(scheduleCalculatorNames.iterator().next()), Double.valueOf(confidenceLevelNames.iterator().next()), 
-        meanCalculator, stdDevCalculator);
-
+    return new NormalLinearVaRCalculator<DoubleTimeSeries<?>>(meanCalculator, stdDevCalculator);
   }
 }
