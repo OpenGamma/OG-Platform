@@ -7,9 +7,9 @@
   -moz-box-shadow: 0 0 50px -10px #555;
   box-shadow: 0 0 50px -10px #555;
   padding: 0;
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
+  -webkit-border-radius: 1px;
+  -moz-border-radius: 1px;
+  border-radius: 1px;
 }
 
 .ui-dialog-titlebar-close {
@@ -17,12 +17,12 @@
 }
 
 .ui-dialog-titlebar {
-  -webkit-border-top-left-radius: 5px;
-  -webkit-border-top-right-radius: 5px;
-  -moz-border-radius-topleft: 5px;
-  -moz-border-radius-topright: 5px;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
+  -webkit-border-top-left-radius: 1px;
+  -webkit-border-top-right-radius: 1px;
+  -moz-border-radius-topleft: 1px;
+  -moz-border-radius-topright: 1px;
+  border-top-left-radius: 1px;
+  border-top-right-radius: 1px;
   background-color: #ccc;
   color: #fff;
   cursor: default;
@@ -32,18 +32,18 @@
 }
 
 .ui-dialog-titlebar:before {
-  -webkit-border-radius: 5px;
-  -webkit-border-bottom-right-radius: 2px;
-  -webkit-border-bottom-left-radius: 2px;
-  -moz-border-radius: 5px;
-  -moz-border-radius-bottomright: 2px;
-  -moz-border-radius-bottomleft: 2px;
+  -webkit-border-radius: 1px;
+  -webkit-border-bottom-right-radius: 1px;
+  -webkit-border-bottom-left-radius: 1px;
+  -moz-border-radius: 1px;
+  -moz-border-radius-bottomright: 1px;
+  -moz-border-radius-bottomleft: 1px;
   background: #fff;
   bottom: 50%;
   content: '';
   left: 1px;
-  opacity: 0.3;
-  filter: alpha(opacity=30);
+  opacity: 0.2;
+  filter: alpha(opacity=20);
   position: absolute;
   top: 1px;
   right: 1px;
@@ -96,9 +96,9 @@
 }
 
 .og-js-dialog-input-container .ui-dialog-title:after {
-  border-radius: 5px;
-  border-bottom-right-radius: 2px;
-  border-bottom-left-radius: 2px;
+  border-radius: 1px;
+  border-bottom-right-radius: 1px;
+  border-bottom-left-radius: 1px;
   background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
   background-position: -10px -25px;
   content: "";
@@ -115,9 +115,9 @@
 }
 
 .og-js-dialog-confirm-container .ui-dialog-title:after {
-  border-radius: 5px;
-  border-bottom-right-radius: 2px;
-  border-bottom-left-radius: 2px;
+  border-radius: 1px;
+  border-bottom-right-radius: 1px;
+  border-bottom-left-radius: 1px;
   background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
   background-position: -20px -23px;
   content: "";

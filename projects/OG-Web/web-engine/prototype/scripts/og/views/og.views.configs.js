@@ -203,7 +203,7 @@ $.register_module({
                                 location: '.OG-tools'
                             });
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
-                            layout.inner.resizeAll();
+                            setTimeout(layout.inner.resizeAll);
                         },
                         selector: '.ui-layout-inner-center .ui-layout-content',
                         type: details_json.template_data.type

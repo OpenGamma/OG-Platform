@@ -11,7 +11,7 @@ $.register_module({
             <thead>\
               <tr>\
                 <th><span>Trades</span></th>\
-                <th>Quality</th>\
+                <th>Quantity</th>\
                 <th>Counterparty</th>\
                 <th>Trade Date / Time</th>\
                 <th>Premium</th>\

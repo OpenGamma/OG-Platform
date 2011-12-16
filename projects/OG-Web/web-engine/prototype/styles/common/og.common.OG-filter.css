@@ -38,8 +38,8 @@
   bottom: 50%;
   content: '';
   left: 1px;
-  opacity: 0.3;
-  filter: alpha(opacity=30);
+  opacity: 0.2;
+  filter: alpha(opacity=20);
   position: absolute;
   top: 1px;
   right: 1px;

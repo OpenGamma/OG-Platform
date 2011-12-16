@@ -13,7 +13,7 @@ $.register_module({
                 css_edit = {'background-color': '#fffee5'}, css_not_edit = {'background-color': 'transparent'};
             if (typeof handler !== 'function') throw new TypeError(': config.handler must be a function');
             $attr.hover(function () {$(this).css(css_edit);}, function () {$(this).css(css_not_edit);});
-            $attr.click(function (e) {
+            $attr.die().live('click', function (e) {
                 e.preventDefault();
                 var target = e.target, value = $(target).html(), type = $(target).attr(attr);
                 // get any additional information from data attributes on the element (like node, id, quantity)
@@ -28,7 +28,7 @@ $.register_module({
                     fields: [{type: 'input', name: 'New Value', id: type, value: value}],
                     buttons: {
                         'OK': function () {
-                            $(this).dialog('close');
+                            ui.dialog({action: 'close', type: 'input'});
                             rest_properties[type] = ui.dialog({return_field_value: type});
                             rest_properties.handler = function (result) {
                                 if (result.error) return ui.dialog({type: 'error', message: result.message});

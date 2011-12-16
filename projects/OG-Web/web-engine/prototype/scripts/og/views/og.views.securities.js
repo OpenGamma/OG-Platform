@@ -210,7 +210,7 @@ $.register_module({
                                 id: json.template_data.hts_id
                             });
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
-                            layout.inner.resizeAll();
+                            setTimeout(layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,
