@@ -17,7 +17,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.masterdb.batch.*;
 import com.opengamma.util.test.DbTest;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testng.annotations.BeforeMethod;
@@ -29,8 +28,8 @@ import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
-import static org.junit.Assert.assertNotNull;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 public class DbBatchMasterTest extends DbTest {
 

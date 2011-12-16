@@ -46,7 +46,7 @@ public class BatchDbViewResultListener implements ViewResultListener {
 
     _batch = new Batch(cycleInfo);
 
-    _batchRunWriter.startBatch(_batch, RunCreationMode.AUTO, SnapshotMode.WRITE_TROUGH);
+    _batchRunWriter.startBatch(_batch, RunCreationMode.AUTO, SnapshotMode.WRITE_THROUGH);
   }
 
   @Override

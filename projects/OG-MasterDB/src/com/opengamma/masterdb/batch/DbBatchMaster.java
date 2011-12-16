@@ -8,7 +8,6 @@ package com.opengamma.masterdb.batch;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.id.UniqueId;
 import com.opengamma.masterdb.AbstractDbMaster;
-import com.opengamma.masterdb.batch.*;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.paging.Paging;

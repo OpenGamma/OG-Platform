@@ -17,5 +17,5 @@ public enum SnapshotMode {
   /**
    * The snapshot data is no prepared upfront the batch run, and it should be written to DB on the fly
    */
-  WRITE_TROUGH
+  WRITE_THROUGH
 }
