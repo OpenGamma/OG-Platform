@@ -41,12 +41,9 @@ public abstract class AbstractPortfolioDailyPnLFunction extends AbstractFunction
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
     final PortfolioNode node = target.getPortfolioNode();
-    final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
     BigDecimal currentSum = BigDecimal.ZERO;
-    for (final Position position : allPositions) {
-      final Object tradeValue = inputs.getValue(new ValueRequirement(ValueRequirementNames.DAILY_PNL,
-          ComputationTargetType.POSITION, position.getUniqueId()));
-      currentSum = MoneyCalculationUtils.add(currentSum, new BigDecimal(String.valueOf(tradeValue)));
+    for (ComputedValue value : inputs.getAllValues ()) {
+      currentSum = MoneyCalculationUtils.add(currentSum, new BigDecimal(String.valueOf(value.getValue ())));
     }
     ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DAILY_PNL, node, extractCurrencyProperty(desiredValue)), getUniqueId());
@@ -80,6 +77,11 @@ public abstract class AbstractPortfolioDailyPnLFunction extends AbstractFunction
           getUniqueId()));
     }
     return null;
+  }
+  
+  @Override
+  public boolean canHandleMissingInputs () {
+    return true;
   }
 
   @Override
