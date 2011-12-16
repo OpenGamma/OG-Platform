@@ -117,7 +117,7 @@ $.register_module({
             default_details = og.views.common.default_details
                 .partial(page_name, 'Configurations', null, toolbar.partial(options.toolbar['default'])),
             too_large = function (content_length) {
-                var is_too_large = content_length > 0.5 * 1024 * 1024; // > 512K
+                var is_too_large = content_length > 1024 * 1024; // > 1MB
                 if (is_too_large) ui.dialog({
                     type: 'error',
                     message: 'This configuration is using the default form because it contains too much data (' +
