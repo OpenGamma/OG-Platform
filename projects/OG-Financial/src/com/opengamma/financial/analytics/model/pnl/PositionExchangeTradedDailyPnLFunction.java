@@ -20,6 +20,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
@@ -41,7 +42,7 @@ public class PositionExchangeTradedDailyPnLFunction extends AbstractTradeOrDaily
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
     Security security = target.getPositionOrTrade().getSecurity();
-    return (target.getType() == ComputationTargetType.POSITION && FinancialSecurityUtils.isExchangedTraded(security));
+    return (target.getType() == ComputationTargetType.POSITION && (FinancialSecurityUtils.isExchangedTraded(security)) || security instanceof BondSecurity);
   }
 
   @Override
@@ -65,7 +66,7 @@ public class PositionExchangeTradedDailyPnLFunction extends AbstractTradeOrDaily
     HistoricalTimeSeries hts = historicalSource.getHistoricalTimeSeries(fieldName, bundle, resolutionKey,
                                                     from, true, tradeDate, true);
     if (hts == null || hts.getTimeSeries() == null) {
-      s_logger.debug("Could not get identifier / mark to market series pair for security {} for {}  using {} from {} to {}",
+      s_logger.debug("Could not get identifier / mark to market series pair for security {} for {} using {} from {} to {}",
                     new Object[] {bundle, fieldName, resolutionKey, from, tradeDate});
     }
     return hts;
