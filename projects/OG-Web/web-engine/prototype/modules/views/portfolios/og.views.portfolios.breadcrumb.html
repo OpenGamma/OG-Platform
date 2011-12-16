@@ -6,8 +6,10 @@
     {{each path}}
     <li {{if $index == path.length - 1}} class="og-current" {{/if}}><a
             title="${$item.title(name)}"
-            {{if $index == path.length - 1}} data-og-editable="name" {{/if}}
-            onclick="return !!og.views.portfolios.breadcrumb_node('${object_id}');"
+            {{if $index == path.length - 1}}
+              data-og-editable="name" data-og-node="${node}" data-og-id="${object_id}"
+            {{/if}}
+            onclick="return !!og.views.portfolios.breadcrumb_node('${node}');"
             href="#">${$item.short_name(name)}</a></li>
     {{/each}}
   </ul>

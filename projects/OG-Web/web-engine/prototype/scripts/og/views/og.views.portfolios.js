@@ -386,7 +386,6 @@ $.register_module({
                                 data: json.template_data
                             });
                             ui.content_editable({
-                                attribute: 'data-og-editable',
                                 handler: function () {
                                     portfolios.search(args);
                                     portfolios.details(args);

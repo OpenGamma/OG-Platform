@@ -177,7 +177,7 @@ $.register_module({
                         }});
                     },
                     id: args.id,
-                    cache_for: 10000,
+                    cache_for: 500,
                     version: args.version && args.version !== '*' ? args.version : void 0,
                     loading: function () {
                         ui.message({
