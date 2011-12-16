@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.component;
+package com.opengamma.component;
 
 /**
  * A factory capable of creating component(s) in the OpenGamma system.
