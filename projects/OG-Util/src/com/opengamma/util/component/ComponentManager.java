@@ -151,7 +151,7 @@ public class ComponentManager {
    */
   protected void initFactory(ComponentFactory factory) {
     try {
-      factory.start(_repo);
+      factory.init(_repo);
     } catch (Exception ex) {
       throw new OpenGammaRuntimeException(ex.getMessage(), ex);
     }

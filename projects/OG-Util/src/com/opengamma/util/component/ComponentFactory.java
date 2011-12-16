@@ -6,18 +6,18 @@
 package com.opengamma.util.component;
 
 /**
- * A factory capable of creating a component in the OpenGamma system.
+ * A factory capable of creating component(s) in the OpenGamma system.
  */
 public interface ComponentFactory {
 
   /**
-   * Starts the component.
+   * Invokes the factory to create the component(s).
    * <p>
-   * The started component must be registered with the repository.
+   * The factory is responsible for registering the component(s) with the repository.
    * 
-   * @param repo  the repository to register the component with, not null
+   * @param repo  the repository to register the component(s) with, not null
    * @throws Exception allows the implementation to throw checked exceptions
    */
-  void start(ComponentRepository repo) throws Exception;
+  void init(ComponentRepository repo) throws Exception;
 
 }
