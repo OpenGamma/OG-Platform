@@ -109,14 +109,10 @@ $.register_module({
                 if (!args.id) default_details();
             },
             load_filter: function (args) {
-                check_state({args: args, conditions: [{
-                    new_page: function () {
-                        state = {filter: true};
-                        regions.load(args);
-                        return args.id ? routes.go(routes.hash(module.rules.load_regions, args))
-                            : routes.go(routes.hash(module.rules.load, args));
-                    }
-                }]});
+                check_state({args: args, conditions: [
+                    {new_value: 'id', stop: true, method: function () {if (args.id) regions.load_regions(args);}},
+                    {new_page: function () {regions.load(args);}}
+                ]});
                 search.filter(args);
             },
             load_regions: function (args) {

@@ -43,6 +43,8 @@ public abstract class AbstractWebPositionResource extends AbstractWebResource {
    * @param positionMaster  the position master, not null
    * @param securityLoader  the security loader, not null
    * @param securitySource  the security source, not null
+   * @param htsMaster       the historical time series master, not null
+   * @param cfgSource       the config source, not null
    */
   protected AbstractWebPositionResource(
       final PositionMaster positionMaster, final SecurityLoader securityLoader, final SecuritySource securitySource,

@@ -116,16 +116,10 @@ $.register_module({
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        state = {filter: true};
-                        exchanges.load(args);
-                        args.id
-                            ? routes.go(routes.hash(module.rules.load_exchanges, args))
-                            : routes.go(routes.hash(module.rules.load, args));
-                    }}
+                    {new_value: 'id', stop: true, method: function () {if (args.id) exchanges.load_exchanges(args);}},
+                    {new_page: function () {exchanges.load(args);}}
                 ]});
-                delete args['filter'];
-                search.filter($.extend(args, {filter: true}));
+                search.filter(args);
             },
             load_exchanges: function (args) {
                 check_state({args: args, conditions: [{new_page: exchanges.load}]});

@@ -28,6 +28,9 @@ public class LocalDateLabelledMatrix1D extends LabelledMatrix1D<LocalDate, Perio
 
   @Override
   public int compare(final LocalDate d1, final LocalDate d2, final Period tolerance) {
+    if (tolerance == TOLERANCE) {
+      return d1.compareTo(d2); //TOLERANCE == 1ns => this degenerate case
+    }
     final LocalDate dLow = d1.minus(tolerance);
     final LocalDate dHigh = d1.plus(tolerance);
     if (d1.equals(d2) || (d2.isAfter(dLow) && d2.isBefore(dHigh))) {
