@@ -253,7 +253,11 @@ import java.util.Set;
 
   @Override
   public void setRunning(boolean run) {
-    throw new UnsupportedOperationException("setRunning not implemented");
+    if (run) {
+      _viewClient.resume();
+    } else {
+      _viewClient.pause();
+    }
   }
 
   @Override
