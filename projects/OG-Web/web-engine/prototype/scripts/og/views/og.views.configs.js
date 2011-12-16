@@ -116,6 +116,15 @@ $.register_module({
             // options passed in (options is set to null for default_details)
             default_details = og.views.common.default_details
                 .partial(page_name, 'Configurations', null, toolbar.partial(options.toolbar['default'])),
+            too_large = function (content_length) {
+                var is_too_large = content_length > 0.5 * 1024 * 1024; // > 512K
+                if (is_too_large) ui.dialog({
+                    type: 'error',
+                    message: 'This configuration is using the default form because it contains too much data (' +
+                        content_length + ' bytes)'
+                });
+                return is_too_large;
+            },
             details_page = function (args, new_config_type) {
                 var rest_options, is_new = !!new_config_type, rest_handler = function (result) {
                     if (result.error) return ui.dialog({type: 'error', message: result.message});
@@ -137,7 +146,7 @@ $.register_module({
                         ui.message({location: '.ui-layout-inner-center', destroy: true});
                         return ui.dialog({type: 'error', message: 'No renderer for: ' + config_type});
                     }
-                    og.views.config_forms[config_type]({
+                    og.views.config_forms[too_large(result.meta.content_length) ? 'default' : config_type]({
                         is_new: is_new,
                         data: details_json,
                         loading: function () {
