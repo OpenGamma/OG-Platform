@@ -48,7 +48,7 @@ public class ComponentManager {
         initComponent(groupData);
       }
     }
-    _repo.ready();
+    _repo.start();
   }
 
   /**

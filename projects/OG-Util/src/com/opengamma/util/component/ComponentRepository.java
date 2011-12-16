@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.context.Lifecycle;
 
@@ -27,7 +26,7 @@ import com.opengamma.util.ArgumentChecker;
  * This class uses concurrent collections, but instances are intended to be created
  * from a single thread at startup.
  */
-public class ComponentRepository {
+public class ComponentRepository implements Lifecycle {
 
   /**
    * The thread-local instance.
@@ -51,9 +50,9 @@ public class ComponentRepository {
    */
   private final List<Lifecycle> _lifecycles = new ArrayList<Lifecycle>();
   /**
-   * The thread-local instance.
+   * The status.
    */
-  private final AtomicBoolean _ready = new AtomicBoolean();
+  private volatile Status _status = Status.CREATING;
 
   /**
    * Creates an instance.
@@ -63,39 +62,10 @@ public class ComponentRepository {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the type information for the component.
-   * 
-   * @param type  the type to get, not null
-   * @return the component type information, not null
-   * @throws IllegalArgumentException if no component is available
-   */
-  public ComponentTypeInfo getTypeInfo(Class<?> type) {
-    ComponentTypeInfo typeInfo = _infoMap.get(type);
-    if (typeInfo == null) {
-      throw new IllegalArgumentException("Unknown component: " + type);
-    }
-    return typeInfo;
-  }
-
-  /**
-   * Gets the component information.
-   * 
-   * @param type  the type to get, not null
-   * @param classifier  the classifier that distinguishes the component, empty for default, not null
-   * @return the component information, not null
-   * @throws IllegalArgumentException if no component is available
-   */
-  public ComponentInfo getInfo(Class<?> type, String classifier) {
-    ArgumentChecker.notNull(type, "type");
-    ComponentTypeInfo typeInfo = getTypeInfo(type);
-    return typeInfo.getInfo(classifier);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Gets the default instance of a component.
    * <p>
-   * This finds a component, choosing the instance registered as the default.
+   * This finds an instance, choosing the instance registered as the default.
+   * This may be used to find both component and infrastructure instances.
    * 
    * @param <T>  the type
    * @param type  the type to get, not null
@@ -113,7 +83,8 @@ public class ComponentRepository {
   /**
    * Gets an instance of a component.
    * <p>
-   * This finds a component that matches the specified type.
+   * This finds an instance that matches the specified type.
+   * This may be used to find both component and infrastructure instances.
    * 
    * @param <T>  the type
    * @param type  the type to get, not null
@@ -133,6 +104,59 @@ public class ComponentRepository {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the type information for the component.
+   * <p>
+   * This method will not find infrastructure instances.
+   * 
+   * @param type  the type to get, not null
+   * @return the component type information, not null
+   * @throws IllegalArgumentException if no component is available
+   */
+  public ComponentTypeInfo getTypeInfo(Class<?> type) {
+    ComponentTypeInfo typeInfo = _infoMap.get(type);
+    if (typeInfo == null) {
+      throw new IllegalArgumentException("Unknown component: " + type);
+    }
+    return typeInfo;
+  }
+
+  /**
+   * Gets the component information.
+   * <p>
+   * This method will not find infrastructure instances.
+   * 
+   * @param type  the type to get, not null
+   * @param classifier  the classifier that distinguishes the component, empty for default, not null
+   * @return the component information, not null
+   * @throws IllegalArgumentException if no component is available
+   */
+  public ComponentInfo getInfo(Class<?> type, String classifier) {
+    ArgumentChecker.notNull(type, "type");
+    ComponentTypeInfo typeInfo = getTypeInfo(type);
+    return typeInfo.getInfo(classifier);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the published components.
+   * 
+   * @return an unmodifiable copy of the published components, not null
+   */
+  public Collection<Object> getPublished() {
+    return new ArrayList<Object>(_restPublished.values());
+  }
+
+  /**
+   * Gets the published component map.
+   * 
+   * @return an unmodifiable copy of the published components, not null
+   */
+  Map<ComponentKey, Object> getPublishedMap() {
+    return Collections.unmodifiableMap(_restPublished);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Registers the component specifying the info that describes it.
    * <p>
    * If the component implements {@code Lifecycle}, it will be registered.
@@ -142,24 +166,71 @@ public class ComponentRepository {
    * @param makeDefault  true to make it the default
    * @throws IllegalArgumentException if unable to register
    */
-  public void register(ComponentInfo info, Object instance, boolean makeDefault) {
-    if (_ready.get()) {
-      throw new IllegalStateException("Repository is in use and cannot be changed");
-    }
+  public void registerComponent(ComponentInfo info, Object instance, boolean makeDefault) {
     ArgumentChecker.notNull(info, "info");
     ArgumentChecker.notNull(instance, "instance");
+    checkStatus(Status.CREATING);
+    
     ComponentKey key = info.toComponentKey();
+    try {
+      registerInstance(key, instance);
+      
+      _infoMap.putIfAbsent(info.getType(), new ComponentTypeInfo(info.getType()));
+      ComponentTypeInfo typeInfo = getTypeInfo(info.getType());
+      typeInfo.getInfoMap().put(info.getClassifier(), info);
+      if (makeDefault) {
+        typeInfo.setDefaultClassifier(info.getClassifier());
+      }
+      
+    } catch (RuntimeException ex) {
+      _status = Status.FAILED;
+      throw new RuntimeException("Failed during registration: " + key, ex);
+    }
+  }
+
+  /**
+   * Registers a piece of infrastructure.
+   * <p>
+   * The infrastructure instance has no component information, but is otherwise equivalent
+   * to a component. If the instance implements {@code Lifecycle}, it will be registered.
+   * 
+   * @param <T>  the type
+   * @param type  the type to register under, not null
+   * @param classifier  the classifier that distinguishes the component, empty for default, not null
+   * @param instance  the component instance to register, not null
+   * @throws IllegalArgumentException if unable to register
+   */
+  public <T> void registerInfrastructure(Class<T> type, String classifier, T instance) {
+    ArgumentChecker.notNull(type, "type");
+    ArgumentChecker.notNull(classifier, "classifier");
+    ArgumentChecker.notNull(instance, "instance");
+    checkStatus(Status.CREATING);
+    
+    ComponentKey key = ComponentKey.of(type, classifier);
+    try {
+      registerInstance(key, instance);
+      
+    } catch (RuntimeException ex) {
+      _status = Status.FAILED;
+      throw new RuntimeException("Failed during registration: " + key, ex);
+    }
+  }
+
+  /**
+   * Registers an instance.
+   * <p>
+   * If the instance implements {@code Lifecycle}, it will be registered.
+   * 
+   * @param key  the key to register under, not null
+   * @param instance  the component instance to register, not null
+   * @throws IllegalArgumentException if unable to register
+   */
+  private void registerInstance(ComponentKey key, Object instance) {
     Object current = _instanceMap.putIfAbsent(key, instance);
     if (current != null) {
-      throw new IllegalArgumentException("Component already registered for specified information");
+      throw new IllegalArgumentException("Component already registered for specified information: " + key);
     }
-    _infoMap.putIfAbsent(info.getType(), new ComponentTypeInfo(info.getType()));
-    ComponentTypeInfo typeInfo = getTypeInfo(info.getType());
-    typeInfo.getInfoMap().put(info.getClassifier(), info);
-    if (makeDefault) {
-      typeInfo.setDefaultClassifier(info.getClassifier());
-    }
-    if (info instanceof Lifecycle) {
+    if (instance instanceof Lifecycle) {
       registerLifecycle((Lifecycle) instance);
     }
   }
@@ -171,7 +242,15 @@ public class ComponentRepository {
    */
   public void registerLifecycle(Lifecycle lifecycleObject) {
     ArgumentChecker.notNull(lifecycleObject, "lifecycleObject");
-    _lifecycles.add(lifecycleObject);
+    checkStatus(Status.CREATING);
+    
+    try {
+      _lifecycles.add(lifecycleObject);
+      
+    } catch (RuntimeException ex) {
+      _status = Status.FAILED;
+      throw new RuntimeException("Failed during registering lifecycle: " + lifecycleObject, ex);
+    }
   }
 
   /**
@@ -181,44 +260,64 @@ public class ComponentRepository {
    * @param resource  the RESTful resource, not null
    */
   public void publishRest(ComponentInfo info, Object resource) {
-    if (_ready.get()) {
-      throw new IllegalStateException("Repository is in use and cannot be changed");
-    }
     ArgumentChecker.notNull(info, "info");
     ArgumentChecker.notNull(resource, "resource");
+    checkStatus(Status.CREATING);
+    
     ComponentKey key = info.toComponentKey();
-    _restPublished.put(key, resource);
-  }
-
-  /**
-   * Gets the published components.
-   * 
-   * @return an unmodifiable copy of the published components, not null
-   */
-  public Collection<Object> getPublished() {
-    return new ArrayList<Object>(_restPublished.values());
-  }
-
-  /**
-   * Gets the published components.
-   * 
-   * @return an unmodifiable copy of the published components, not null
-   */
-  Map<ComponentKey, Object> getPublishedMap() {
-    return Collections.unmodifiableMap(_restPublished);
+    try {
+      _restPublished.put(key, resource);
+      
+    } catch (RuntimeException ex) {
+      _status = Status.FAILED;
+      throw new RuntimeException("Failed during publishing: " + key, ex);
+    }
   }
 
   //-------------------------------------------------------------------------
   /**
    * Marks this repository as complete and ready for use.
    */
-  public void ready() {
-    for (Lifecycle obj : _lifecycles) {
-      obj.start();
+  @Override
+  public void start() {
+    checkStatus(Status.CREATING);
+    _status = Status.STARTING;
+    try {
+      for (Lifecycle obj : _lifecycles) {
+        obj.start();
+      }
+      _status = Status.RUNNING;
+      
+    } catch (RuntimeException ex) {
+      _status = Status.FAILED;
+      throw ex;
     }
-    _ready.set(true);
   }
 
+  /**
+   * Stops this repository.
+   */
+  @Override
+  public void stop() {
+    checkStatus(Status.RUNNING);
+    _status = Status.STOPPING;
+    for (Lifecycle obj : _lifecycles) {
+      obj.stop();
+    }
+    _status = Status.STOPPED;
+  }
+
+  /**
+   * Checks if this repository is running (started).
+   * 
+   * @return true if running
+   */
+  @Override
+  public boolean isRunning() {
+    return _status == Status.RUNNING;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Sets the thread-loal instance.
    */
@@ -237,6 +336,17 @@ public class ComponentRepository {
       throw new IllegalStateException("ComponentRepository thread-local not set");
     }
     return repo;
+  }
+
+  //-------------------------------------------------------------------------
+  private void checkStatus(Status status) {
+    if (_status != status) {
+      throw new IllegalStateException("Invalid repository status, expecetd" + status + " but was " + _status);
+    }
+  }
+
+  private static enum Status {
+    CREATING, STARTING, RUNNING, STOPPING, STOPPED, FAILED,
   }
 
   //-------------------------------------------------------------------------
