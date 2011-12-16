@@ -131,7 +131,7 @@ $.register_module({
                     var SLICK_SELECTOR = '.OG-timeseries .og-data-points .og-slick-' + index, slick, data,
                     columns = [
                         {id: 'time', name: 'Time', field: 'time', width: 200,
-                            formatter: function (row, cell, value, columnDef, dataContext) {
+                            formatter: function (row, cell, value) {
                                 return og.common.util.date(value);
                             }
                         },
