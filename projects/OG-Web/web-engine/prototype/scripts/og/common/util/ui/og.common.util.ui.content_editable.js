@@ -28,7 +28,7 @@ $.register_module({
                     fields: [{type: 'input', name: 'New Value', id: type, value: value}],
                     buttons: {
                         'OK': function () {
-                            $(this).dialog('close');
+                            ui.dialog({action: 'close', type: 'input'});
                             rest_properties[type] = ui.dialog({return_field_value: type});
                             rest_properties.handler = function (result) {
                                 if (result.error) return ui.dialog({type: 'error', message: result.message});

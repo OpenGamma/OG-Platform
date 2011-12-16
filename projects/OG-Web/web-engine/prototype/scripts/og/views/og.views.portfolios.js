@@ -205,7 +205,7 @@ $.register_module({
                                     });
                                     $(this).dialog('close');
                                 }}
-                            });                                
+                            });
                         });
                         slick.onMouseEnter.subscribe(function (e) {
                            $(e.currentTarget).closest('.slick-row').find('.og-button').show();

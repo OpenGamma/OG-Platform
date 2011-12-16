@@ -123,7 +123,10 @@ $.register_module({
                             }
                             return '<div>' + str + '</div>';
                         })();
-                    }, ''));
+                    }, '<form>') + '</form>').find('form').unbind().submit(function (e) {
+                        e.preventDefault();
+                        $obj.dialog('option', 'buttons')['OK']();
+                    });
                 }
                 $obj.dialog($.extend(true, default_options.input.jquery, obj));
             }
