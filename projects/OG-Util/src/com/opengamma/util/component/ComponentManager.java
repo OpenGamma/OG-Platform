@@ -21,7 +21,8 @@ import com.opengamma.OpenGammaRuntimeException;
  * Manages the process of starting OpenGamma components.
  * <p>
  * The OpenGamma logical architecture consists of a set of components.
- * This class loads and starts the components, using a {@link ComponentRepository}.
+ * This class loads and starts the components based on configuration.
+ * The end result is a populated {@link ComponentRepository}.
  */
 public class ComponentManager {
 
@@ -34,6 +35,23 @@ public class ComponentManager {
   private final ComponentRepository _repo = new ComponentRepository();
 
   /**
+   * Creates an instance.
+   */
+  public ComponentManager() {
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Initializes the components based on the specified resource.
+   * 
+   * @return the repository, not null
+   */
+  public ComponentRepository getRepository() {
+    return _repo;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Initializes the components based on the specified resource.
    * 
    * @param resource  the config resource to load
@@ -41,23 +59,42 @@ public class ComponentManager {
   public void start(Resource resource) {
     ComponentConfigLoader loader = new ComponentConfigLoader();
     ComponentConfig config = loader.load(resource, new HashMap<String, String>());
-    
     _repo.pushThreadLocal();
-    for (String group : config.getGroups()) {
-      LinkedHashMap<String, String> groupData = config.getGroup(group);
+    init(config);
+    start();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Initializes the repository from the config.
+   * 
+   * @param config  the loaded config, not null
+   */
+  protected void init(ComponentConfig config) {
+    for (String groupName : config.getGroups()) {
+      LinkedHashMap<String, String> groupData = config.getGroup(groupName);
       if (groupData.containsKey("factory")) {
-        initComponent(groupData);
+        initComponent(groupName, groupData);
       }
     }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Starts the components.
+   */
+  protected void start() {
     _repo.start();
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Initialize the component.
    * 
+   * @param groupName  the group name, not null
    * @param groupData  the config data, not null
    */
-  protected void initComponent(LinkedHashMap<String, String> groupData) {
+  protected void initComponent(String groupName, LinkedHashMap<String, String> groupData) {
     groupData = new LinkedHashMap<String, String>(groupData);
     String typeStr = groupData.remove("factory");
     s_logger.info("Starting component: {} with properties {}", typeStr, groupData);
