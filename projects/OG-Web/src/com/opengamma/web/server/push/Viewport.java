@@ -33,11 +33,10 @@ public interface Viewport {
    */
   void setRunning(boolean run);
 
-  /**
-   * Switches the view between producing full or summary data.
-   * @param mode The new mode
-   */
-  void setConversionMode(ConversionMode mode);
+  // TODO could we just return everything in one lot of CSV? that would be consistent with the grid structure and results
+  // TODO does it make any sense to have several CSV files created from different data? shouldn't they be atomic?
+  // TODO having specific CSV methods is pretty ugly. what about PDFs? excel worksheets? some other format?
+  // TODO if we're keeping the CSV method(s) it might be better to switch back to the old method of requesting by name. cleaner interface
 
   /**
    * Returns the portfolio grid data as CSV

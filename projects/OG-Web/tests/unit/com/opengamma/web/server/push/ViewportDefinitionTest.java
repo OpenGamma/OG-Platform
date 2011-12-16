@@ -42,12 +42,14 @@ public class ViewportDefinitionTest {
         "\"portfolioViewport\": {" +
         "\"rowIds\": [3, 4, 5], " +
         "\"lastTimestamps\": [12345678, 12345679, 12345680], " +
-        "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]" +
+        "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]," +
+        "\"fullConversionModeCells\": [[5, 1], [5, 3]]" +
         "}, " +
         "\"primitiveViewport\": {" +
         "\"rowIds\": [5, 6, 7], " +
         "\"lastTimestamps\": [12345681, 12345682, 12345683], " +
-        "\"dependencyGraphCells\": [[5, 1], [5, 2], [7, 3]]" +
+        "\"dependencyGraphCells\": [[5, 1], [5, 2], [7, 3]]," +
+        "\"fullConversionModeCells\": [[6, 2], [7, 3]]" +
         "}" +
         "}";
     ViewportDefinition viewportDefinition = ViewportDefinition.fromJSON(json);
@@ -75,6 +77,18 @@ public class ViewportDefinitionTest {
     assertTrue(portfolioDepGraphCells.contains(new WebGridCell(3, 1)));
     assertTrue(portfolioDepGraphCells.contains(new WebGridCell(3, 2)));
     assertTrue(portfolioDepGraphCells.contains(new WebGridCell(4, 3)));
+
+    Set<WebGridCell> portfolioFullConversionModeCells = viewportDefinition.getPortfolioFullConversionModeCells();
+    assertNotNull(portfolioFullConversionModeCells);
+    assertEquals(2, portfolioFullConversionModeCells.size());
+    assertTrue(portfolioFullConversionModeCells.contains(new WebGridCell(5, 1)));
+    assertTrue(portfolioFullConversionModeCells.contains(new WebGridCell(5, 3)));
+
+    Set<WebGridCell> primitiveFullConversionModeCells = viewportDefinition.getPrimitiveFullConversionModeCells();
+    assertNotNull(primitiveFullConversionModeCells);
+    assertEquals(2, primitiveFullConversionModeCells.size());
+    assertTrue(primitiveFullConversionModeCells.contains(new WebGridCell(6, 2)));
+    assertTrue(primitiveFullConversionModeCells.contains(new WebGridCell(7, 3)));
 
     // primitive viewport -----
 

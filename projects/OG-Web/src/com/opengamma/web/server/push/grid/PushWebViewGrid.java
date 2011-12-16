@@ -14,6 +14,7 @@ import com.opengamma.web.server.WebGridCell;
 import com.opengamma.web.server.conversion.ConversionMode;
 import com.opengamma.web.server.conversion.ResultConverter;
 import com.opengamma.web.server.conversion.ResultConverterCache;
+import com.opengamma.web.server.push.ViewportDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,28 +70,25 @@ import java.util.concurrent.atomic.AtomicReference;
   }
 
   /**
-   * @param viewportMap Sorted map of last timestamps keyed by row ID
+   * @param viewportMap
    */
-  public void setViewport(SortedMap<Integer, Long> viewportMap) {
+  protected void setViewport(SortedMap<Integer, Long> viewportMap) {
     _viewportMap.set(viewportMap);
   }
   
-  public ConversionMode getConversionMode(WebGridCell cell) {
+  private ConversionMode getConversionMode(WebGridCell cell) {
     return _fullConversionModeCells.contains(cell)
         ? ConversionMode.FULL
         : ConversionMode.SUMMARY;
   }
-  
-  public void setConversionMode(WebGridCell cell, ConversionMode mode) {
-    if (mode == ConversionMode.SUMMARY) {
-      _fullConversionModeCells.remove(cell);
-    } else {
-      _fullConversionModeCells.add(cell);
-    }
+
+  /* package */ void setFullConversionModeCells(Set<WebGridCell> cells) {
+    _fullConversionModeCells.clear();
+    _fullConversionModeCells.addAll(cells);
   }
-  
+
   //-------------------------------------------------------------------------
-  
+
   public Map<String, Object> getInitialJsonGridStructure() {
     Map<String, Object> gridStructure = new HashMap<String, Object>();
     gridStructure.put("name", getName());

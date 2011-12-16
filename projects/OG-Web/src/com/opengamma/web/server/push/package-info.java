@@ -70,11 +70,13 @@ package com.opengamma.web.server.push;
  *    "portfolioViewport":
  *     {"rowIds": [rowId1, rowId2, ...],
  *      "lastTimestamps": [timestamp1, timestamp2, ...],
- *      "dependencyGraphCells": [[row, col], [row, col], ...]},
+ *      "dependencyGraphCells": [[row, col], [row, col], ...]
+ *      "fullConversionModeCells": [[row, col], [row, col], ...]},
  *    "primitiveViewport":
  *     {"rowIds": [rowId1, rowId2, ...],
  *      "lastTimestamps": [timestamp1, timestamp2, ...],
- *      "dependencyGraphCells": [[row, col], [row, col], ...]}}</pre>
+ *      "dependencyGraphCells": [[row, col], [row, col], ...],
+ *      "fullConversionModeCells": [[row, col], [row, col], ...]}</pre>
  * <p><em>Dependency graphs for primitives aren't supported in the UI at the moment but they probably will be eventually
  * so the viewport definition allows them.</em></p>
  * <ul>
@@ -91,7 +93,10 @@ package com.opengamma.web.server.push;
  *   {@code lastTimestamps} must be the same length.  If no previous result has been received for the row then
  *   {@code null} should be sent.</li>
  *   <li>{@code dependencyGraphCells}: array of two-element arrays with the row and column numbers of cells whose
- *   dependency graph should be included in the results.
+ *   dependency graph should be included in the results.</li>
+ *   <li>{@code fullConversionModeCells}: array of two-elements arrays with the row and column numbers of cells
+ *   whose full data should be sent to the client.  This is for cells that contain multi-valued data (e.g.
+ *   yield curves) where the user can open a pop-up to view the full data.</li>
  * </ul>
  *
  * <h3>Querying Available View Definitions, Market Data Snapshots and Aggregators</h3>

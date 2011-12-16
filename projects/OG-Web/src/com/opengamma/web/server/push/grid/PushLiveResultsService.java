@@ -96,15 +96,6 @@ import java.util.Map;
     return result;
   }
 
-  // used by the REST interface that gets analytics as CSV - will that be moved here?
-  // TODO might be better to pass the call through rather than returning the WebView and calling that
-  /*public PushWebView getClientView(String clientId) {
-    synchronized (_lock) {
-      String viewportId = _clientIdToViewportId.get(clientId);
-      return _viewportIdToView.get(viewportId);
-    }
-  }*/
-
   // TODO this leaks views at the moment - a timeout mechanism is needed for views with no client
   @Override
   public Viewport createViewport(String viewportId, ViewportDefinition viewportDefinition) {
@@ -187,23 +178,4 @@ import java.util.Map;
       return view;
     }
   }
-
-  /*@SuppressWarnings("unchecked")
-  public void processUpdateModeRequest(Client remote, Message message) {
-    WebView webView = getClientView(remote.getId());
-    if (webView == null) {
-      return;
-    }
-    Map<String, Object> dataMap = (Map<String, Object>) message.getData();
-    String gridName = (String) dataMap.get("gridName");
-    long jsRowId = (Long) dataMap.get("rowId");
-    long jsColId = (Long) dataMap.get("colId");
-    ConversionMode mode = ConversionMode.valueOf((String) dataMap.get("mode"));
-    WebViewGrid grid = webView.getGridByName(gridName);
-    if (grid == null) {
-      s_logger.warn("Request to change update mode for cell in unknown grid '{}'", gridName);
-    } else {
-      grid.setConversionMode(WebGridCell.of((int) jsRowId, (int) jsColId), mode);
-    }
-  }*/
 }

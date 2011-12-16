@@ -59,18 +59,11 @@ public class ViewportResource {
     return Response.ok().build();
   }
 
-  /**
-   * Sets the viewport to produce full or summary data.
-   * @param mode The new viewport data mode
-   * @return An empty response
-   */
-  // TODO is a query param the right way to do this? easy to implement but is that adequate justification?
-  @POST
-  @Path("mode")
-  public Response setMode(@QueryParam("mode") ConversionMode mode) {
-    _viewport.setConversionMode(mode);
-    return Response.ok().build();
-  }
+  //-----------------------
+  // split these into a GridResource? don't really want to expose the grids. what would a grid interface need?
+  // getCsv
+  // setConversionMode(row, col)
+  // Viewport would need getPortfolioGrid, getPrimitivesGrid, getPortfolioDependencyGraphGrid, getPrimitivesDependencyGraphGrid
 
   /**
    * @return The portfolio grid data as CSV.

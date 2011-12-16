@@ -35,6 +35,8 @@ import java.util.TreeMap;
  *     <ul>
  *       <li>Visible row numbers and the timestamp of the last update for each row</li>
  *       <li>Cells for which the dependency graph is required</li>
+ *       <li>Cells where the full data should be sent instead of a summary (e.g. for yield curves where the user
+ *       can open a pop-up to view the curve data)</li>
  *     </ul>
  *   </li>
  * </ul>
@@ -52,6 +54,7 @@ public class ViewportDefinition {
   private static final String MARKET_DATA_TYPE = "marketDataType";
   private static final String MARKET_DATA_PROVIDER = "marketDataProvider";
   private static final String AGGREGATOR_NAMES = "aggregatorNames";
+  private static final String FULL_CONVERSION_MODE_CELLS = "fullConversionModeCells";
   private static final String DEFAULT_LIVE_MARKET_DATA_NAME = "Automatic";
 
   /** Row timestamp keyed on row number */
@@ -78,6 +81,12 @@ public class ViewportDefinition {
   /** View's execution options */
   private final ViewExecutionOptions _executionOptions;
 
+  /** Cells where the full data should be sent rather than a summary that will fit in a single cell */
+  private final Set<WebGridCell> _portfolioFullConversionModeCells;
+
+  /** Cells where the full data should be sent rather than a summary that will fit in a single cell */
+  private final Set<WebGridCell> _primitiveFullConversionModeCells;
+
   public enum MarketDataType {
     snapshot, live
   }
@@ -88,6 +97,8 @@ public class ViewportDefinition {
                              SortedMap<Integer, Long> portfolioRowTimstamps,
                              Set<WebGridCell> portfolioDependencyGraphCells,
                              Set<WebGridCell> primitiveDependencyGraphCells,
+                             Set<WebGridCell> portfolioFullConversionModeCells,
+                             Set<WebGridCell> primitiveFullConversionModeCells,
                              MarketDataType marketDataType,
                              String marketDataProvider,
                              String aggregatorName) {
@@ -99,6 +110,8 @@ public class ViewportDefinition {
     _snapshotId = snapshotId;
     _portfolioRowTimstamps = portfolioRowTimstamps;
     _primitiveRowTimstamps = primitiveRowTimstamps;
+    _portfolioFullConversionModeCells = portfolioFullConversionModeCells;
+    _primitiveFullConversionModeCells = primitiveFullConversionModeCells;
     _aggregatorName = aggregatorName;
     _executionOptions = createExecutionOptions(marketDataType, snapshotId, marketDataProvider);
   }
@@ -133,11 +146,13 @@ public class ViewportDefinition {
    *    "portfolioViewport":
    *     {"rowIds": [rowId1, rowId2, ...],
    *      "lastTimestamps": [timestamp1, timestamp2, ...],
-   *      "dependencyGraphCells": [[row, col], [row, col], ...]},
+   *      "dependencyGraphCells": [[row, col], [row, col], ...]
+   *      "fullConversionModeCells": [[row, col], [row, col], ...]},
    *    "primitiveViewport":
    *     {"rowIds": [rowId1, rowId2, ...],
    *      "lastTimestamps": [timestamp1, timestamp2, ...],
-   *      "dependencyGraphCells": [[row, col], [row, col], ...]}}</pre>
+   *      "dependencyGraphCells": [[row, col], [row, col], ...],
+   *      "fullConversionModeCells": [[row, col], [row, col], ...]}</pre>
    * <ul>
    *   <li>{@code viewDefinitionName}: name of the view definition</li>
    *   <li>{@code marketDataType}: {@code "live"} or {@code "snapshot"}</li>
@@ -153,26 +168,39 @@ public class ViewportDefinition {
    *   {@code lastTimestamps} must be the same length.  If no previous result has been received for the row then
    *   {@code null} should be sent.</li>
    *   <li>{@code dependencyGraphCells}: array of two-element arrays with the row and column numbers of cells whose
-   *   dependency graph should be included in the results.
+   *   dependency graph should be included in the results.</li>
+   *   <li>{@code fullConversionModeCells}: array of two-elements arrays with the row and column numbers of cells
+   *   whose full data should be sent to the client.  This is for cells that contain multi-valued data (e.g.
+   *   yield curves) where the user can open a pop-up to view the full data.  This can be omitted if full data
+   *   isn't required for any cells.</li>
    * </ul>
    * @param json JSON representation of a {@link ViewportDefinition}
    * @return The viewport definition
    */
   public static ViewportDefinition fromJSON(String json) {
     try {
-
       // TODO some of the validation should be in the constructor
       JSONObject jsonObject = new JSONObject(json);
 
       SortedMap<Integer, Long> portfolioRows = getRows(jsonObject, PORTFOLIO_VIEWPORT);
-      Set<WebGridCell> portfolioDepGraphCells = getDepGraphCells(jsonObject,
-                                                                  PORTFOLIO_VIEWPORT,
-                                                                  portfolioRows.keySet());
+      Set<WebGridCell> portfolioDepGraphCells = getCells(jsonObject,
+                                                         PORTFOLIO_VIEWPORT,
+                                                         DEPENDENCY_GRAPH_CELLS,
+                                                         portfolioRows.keySet());
+      Set<WebGridCell> portfolioFullModeCells = getCells(jsonObject,
+                                                         PORTFOLIO_VIEWPORT,
+                                                         FULL_CONVERSION_MODE_CELLS,
+                                                         portfolioRows.keySet());
 
       SortedMap<Integer, Long> primitiveRows = getRows(jsonObject, PRIMITIVE_VIEWPORT);
-      Set<WebGridCell> primitiveDepGraphCells = getDepGraphCells(jsonObject,
-                                                                  PRIMITIVE_VIEWPORT,
-                                                                  primitiveRows.keySet());
+      Set<WebGridCell> primitiveDepGraphCells = getCells(jsonObject,
+                                                         PRIMITIVE_VIEWPORT,
+                                                         DEPENDENCY_GRAPH_CELLS, 
+                                                         primitiveRows.keySet());
+      Set<WebGridCell> primitiveFullModeCells = getCells(jsonObject,
+                                                         PRIMITIVE_VIEWPORT, 
+                                                         FULL_CONVERSION_MODE_CELLS,
+                                                         primitiveRows.keySet());
 
       String viewDefinitionName = jsonObject.getString(VIEW_DEFINITION_NAME);
 
@@ -212,6 +240,8 @@ public class ViewportDefinition {
                                     portfolioRows,
                                     portfolioDepGraphCells,
                                     primitiveDepGraphCells,
+                                    portfolioFullModeCells,
+                                    primitiveFullModeCells,
                                     marketDataType,
                                     marketDataProvider,
                                     aggregatorName);
@@ -220,27 +250,29 @@ public class ViewportDefinition {
     }
   }
 
-  /** Helper method to extract the dependency graph cells from JSON */
-  private static Set<WebGridCell> getDepGraphCells(JSONObject jsonObject, String key, Set<Integer> rows) throws JSONException {
-    JSONObject viewportJson = jsonObject.optJSONObject(key);
+  /** Helper method to extract grid cells from JSON */
+  private static Set<WebGridCell> getCells(JSONObject jsonObject, String parentKey, String cellsKey, Set<Integer> rows) throws JSONException {
+    JSONObject viewportJson = jsonObject.optJSONObject(parentKey);
     Set<WebGridCell> cells = new HashSet<WebGridCell>();
     if (viewportJson == null) {
       return cells;
     }
-    JSONArray depGraphCellsArray = viewportJson.optJSONArray(DEPENDENCY_GRAPH_CELLS);
+    // array of two-element arrays of cells: [[row, col], [row, col], ...]
+    JSONArray cellsArray = viewportJson.optJSONArray(cellsKey);
 
-    if (depGraphCellsArray != null) {
-      for (int i = 0; i < depGraphCellsArray.length(); i++) {
-        JSONArray cellArray = depGraphCellsArray.getJSONArray(i);
+    if (cellsArray != null) {
+      for (int i = 0; i < cellsArray.length(); i++) {
+        // two-element array representing one cell: [row, col]
+        JSONArray cellArray = cellsArray.getJSONArray(i);
         int row = cellArray.getInt(0);
         int col = cellArray.getInt(1);
         if (!rows.contains(row)) {
-          throw new IllegalArgumentException("Unable to create ViewportDefinition from JSON, dependency graph " +
-                                                 "cells must be in viewport rows, row: " + row);
+          throw new IllegalArgumentException("Unable to create cells from JSON, " + parentKey + "/" + cellsKey +
+                                                 " cells must be in viewport rows, row: " + row);
         }
         if (row < 0 || col < 0) {
           throw new IllegalArgumentException(
-              "Unable to create ViewportDefinition from JSON, rows and cols must not be negative");
+              "Unable to create " + cellsKey + " from JSON, rows and cols must not be negative");
         }
         WebGridCell cell = new WebGridCell(row, col);
         cells.add(cell);
@@ -342,5 +374,24 @@ public class ViewportDefinition {
    */
   public String getAggregatorName() {
     return _aggregatorName;
+  }
+
+  /**
+   * @return The portfolio grid cells whose full data should be sent to the client.  The default is to send a
+   * summary of data that will fit in a single cell.  Full data is only displayed for a cell with multiple values
+   * when the user requests it.
+   */
+  public Set<WebGridCell> getPortfolioFullConversionModeCells() {
+    return _portfolioFullConversionModeCells;
+  }
+
+
+  /**
+   * @return The primitives grid cells whose full data should be sent to the client.  The default is to send a
+   * summary of data that will fit in a single cell.  Full data is only displayed for a cell with multiple values
+   * when the user requests it.
+   */
+  public Set<WebGridCell> getPrimitiveFullConversionModeCells() {
+    return _primitiveFullConversionModeCells;
   }
 }

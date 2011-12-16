@@ -15,7 +15,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.WebGridCell;
-import com.opengamma.web.server.conversion.ConversionMode;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 import com.opengamma.web.server.push.AnalyticsListener;
 import com.opengamma.web.server.push.Viewport;
@@ -118,14 +117,6 @@ import java.util.Set;
     }
   }
 
-  /* package */ void pause() {
-    _viewClient.pause();
-  }
-
-  /* package */ void resume() {
-    _viewClient.resume();
-  }
-
   /* package */ void shutdown() {
     // Removes all listeners
     _viewClient.shutdown();
@@ -163,6 +154,8 @@ import java.util.Set;
     }
     _portfolioGrid.setViewport(_viewportDefinition.getPortfolioRows());
     _primitivesGrid.setViewport(_viewportDefinition.getPrimitiveRows());
+    _portfolioGrid.setFullConversionModeCells(_viewportDefinition.getPortfolioFullConversionModeCells());
+    _primitivesGrid.setFullConversionModeCells(_viewportDefinition.getPrimitiveFullConversionModeCells());
     Set<WebGridCell> portfolioDepGraphCells = _viewportDefinition.getPortfolioDependencyGraphCells();
     Set<WebGridCell> primitiveDepGraphCells = _viewportDefinition.getPrimitiveDependencyGraphCells();
     // view cycle access is required for dep graph access but performance is better if it is disabled
@@ -259,12 +252,6 @@ import java.util.Set;
       _viewClient.pause();
     }
   }
-
-  @Override
-  public void setConversionMode(ConversionMode mode) {
-    throw new UnsupportedOperationException("setConversionMode not implemented");
-  }
-
 
   private Pair<String, String> getGridCsv(PushRequirementBasedWebViewGrid grid, String gridName) {
     synchronized (_lock) {

@@ -1,7 +1,6 @@
 package com.opengamma.web.server.push;
 
 import com.opengamma.util.tuple.Pair;
-import com.opengamma.web.server.conversion.ConversionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,11 +65,6 @@ public class TestViewportManager implements ViewportManager {
     @Override
     public void setRunning(boolean run) {
       s_logger.info("setRunning(), run: {}", run);
-    }
-
-    @Override
-    public void setConversionMode(ConversionMode mode) {
-      s_logger.info("setConversionMode(), mode: {}", mode);
     }
 
     @Override
