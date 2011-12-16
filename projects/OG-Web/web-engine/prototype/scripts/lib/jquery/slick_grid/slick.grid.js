@@ -235,7 +235,7 @@ if (typeof Slick === "undefined") {
             // be enabled there so that editors work as expected); note that
             // selection in grid cells (grid body) is already unavailable in
             // all browsers except IE
-            disableSelection($headers); // disable all text selection in header (including input and textarea)
+            //disableSelection($headers); // disable all text selection in header (including input and textarea)
 
             if (!options.enableTextSelectionOnCells) {
                 // disable text selection in grid cells except in input and textarea elements
@@ -2365,7 +2365,7 @@ if (typeof Slick === "undefined") {
             }
         }
 
-        
+
         //////////////////////////////////////////////////////////////////////////////////////////////
         // IEditor implementation for the editor lock
 
