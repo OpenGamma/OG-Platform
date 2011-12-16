@@ -25,25 +25,36 @@ import com.opengamma.util.ArgumentChecker;
     description = "This MBean is used to manage persistent market data subscriptions on a Live Data server."
       + " Persistent subscriptions do not expire, and survive even server restarts.")
 public class PersistentSubscriptionManagerMBean {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(PersistentSubscriptionManagerMBean.class);
+
+  /**
+   * The underlying persistent subscription manager.
+   */
   private final AbstractPersistentSubscriptionManager _manager;
-  
+
+  /**
+   * Creates an instance.
+   * 
+   * @param manager  the underlying persistent subscription manager, not null
+   */
   public PersistentSubscriptionManagerMBean(AbstractPersistentSubscriptionManager manager) {
-    ArgumentChecker.notNull(manager, "Persistent subscription manager");   
+    ArgumentChecker.notNull(manager, "manager");   
     _manager = manager;
   }
-  
+
+  //-------------------------------------------------------------------------
   @ManagedAttribute(description = "Returns the number of securities for which a persistent subscription is currently active.")
-  public int getNumberOfPersistentSubscriptions() {
+  public long getNumberOfPersistentSubscriptions() {
     try {
-      return getPersistentSubscriptions().size();
+      return _manager.getApproximateNumberOfPersistentSubscriptions();
     } catch (RuntimeException e) {
       s_logger.error("getNumberOfPersistentSubscriptions() failed", e);
       throw new RuntimeException(e.getMessage());
     }
   }
-  
+
   @ManagedAttribute(description = "Returns the list of securities for which a persistent subscription is currently active.")
   public Set<String> getPersistentSubscriptions() {
     try {
@@ -74,7 +85,7 @@ public class PersistentSubscriptionManagerMBean {
       throw new RuntimeException(e.getMessage());
     }
   }
-  
+
   @ManagedOperation(description = "Adds a persistent subscription. If the subscription already exists, makes it persistent.")
   @ManagedOperationParameters({
       @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
@@ -86,7 +97,7 @@ public class PersistentSubscriptionManagerMBean {
       throw new RuntimeException(e.getMessage());
     }
   }
-  
+
   @ManagedOperation(description = "Removes a persistent subscription by making the subscription non-persistent."
       + " Returns true if a subscription was actually made non-persistent, false otherwise.")
   @ManagedOperationParameters({

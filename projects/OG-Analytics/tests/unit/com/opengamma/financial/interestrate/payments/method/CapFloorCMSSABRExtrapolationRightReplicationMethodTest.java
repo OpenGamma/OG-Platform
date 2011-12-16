@@ -25,8 +25,8 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
-import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
@@ -75,11 +75,11 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
   private static final AnnuityCouponIborDefinition IBOR_ANNUITY = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, 1.0, IBOR_INDEX, !FIXED_IS_PAYER);
   // CMS coupon construction
-  private static final CMSIndex CMS_INDEX = new CMSIndex(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR);
+  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR);
   private static final SwapFixedIborDefinition SWAP_DEFINITION = new SwapFixedIborDefinition(FIXED_ANNUITY, IBOR_ANNUITY);
-  private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(SETTLEMENT_DATE, CALENDAR, -SETTLEMENT_DAYS);
+  private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(SETTLEMENT_DATE, -SETTLEMENT_DAYS, CALENDAR);
   private static final ZonedDateTime ACCRUAL_START_DATE = SETTLEMENT_DATE; // pre-fixed
-  private static final ZonedDateTime ACCRUAL_END_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, BUSINESS_DAY, CALENDAR, FIXED_PAYMENT_PERIOD);
+  private static final ZonedDateTime ACCRUAL_END_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, FIXED_PAYMENT_PERIOD, BUSINESS_DAY, CALENDAR);
   private static final ZonedDateTime PAYMENT_DATE = ACCRUAL_END_DATE;
   private static final DayCount PAYMENT_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final double ACCRUAL_FACTOR = PAYMENT_DAY_COUNT.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
@@ -133,7 +133,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
         / (CMS_COUPON.getPaymentYearFraction() * CMS_COUPON.getNotional() * CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CMS_COUPON.getPaymentTime()));
     assertEquals("Extrapolation: comparison with standard method", rateCouponStd > rateCouponExtra, true);
     assertEquals("Extrapolation: comparison with no convexity adjustment", rateCouponExtra > rateCouponNoAdj, true);
-    final double rateCouponExtraExpected = 0.0485823; // From previous run.
+    final double rateCouponExtraExpected = 0.0485835; // From previous run.
     assertEquals("Extrapolation: hard-coded value", rateCouponExtraExpected, rateCouponExtra, 1E-6);
     final double priceCap0Extra = METHOD_EXTRAPOLATION_CAP.presentValue(CMS_CAP_0, SABR_BUNDLE).getAmount();
     assertEquals("Extrapolation: CMS coupon vs Cap 0", priceCouponExtra, priceCap0Extra, 1E-2);
@@ -163,7 +163,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
     final double priceCapLongExtra = METHOD_EXTRAPOLATION_CAP.presentValue(CMS_CAP_LONG, sabrBundle).getAmount();
     final double priceCapShortExtra = METHOD_EXTRAPOLATION_CAP.presentValue(CMS_CAP_SHORT, sabrBundle).getAmount();
     assertEquals("CMS cap by replication - Extrapolation: comparison with standard method", priceCapLongStd > priceCapLongExtra, true);
-    final double priceCapExtraExpected = 6627.900; // From previous run.
+    final double priceCapExtraExpected = 6627.976; // From previous run.
     assertEquals("CMS cap by replication - Extrapolation: hard-coded value", priceCapExtraExpected, priceCapLongExtra, 1E-2);
     assertEquals("CMS cap by replication - Extrapolation: long/short parity", -priceCapShortExtra, priceCapLongExtra, 1E-2);
   }
@@ -178,7 +178,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     // Swaption sensitivity
     InterestRateCurveSensitivity pvsCapLong = METHOD_EXTRAPOLATION_CAP.presentValueSensitivity(CMS_CAP_LONG, sabrBundle);
-    InterestRateCurveSensitivity pvsCapLongStd = METHOD_STANDARD_CAP.presentValueSensitivity(CMS_CAP_LONG, sabrBundle);
+    InterestRateCurveSensitivity pvsCapLongStd = METHOD_STANDARD_CAP.presentValueCurveSensitivity(CMS_CAP_LONG, sabrBundle);
     final InterestRateCurveSensitivity pvsCapShort = METHOD_EXTRAPOLATION_CAP.presentValueSensitivity(CMS_CAP_SHORT, sabrBundle);
     // Long/short parity
     final InterestRateCurveSensitivity pvsCapShort_1 = pvsCapShort.multiply(-1);

@@ -6,19 +6,14 @@
 package com.opengamma.language.view;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
-import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.InfiniteViewCycleExecutionSequence;
@@ -256,7 +251,8 @@ public final class ViewClientDescriptor {
   }
 
   /**
-   * Returns a descriptor for a static live market data view. The view will recalculate when manually triggered. 
+   * Returns a descriptor for a static live market data view. The view will recalculate when manually triggered and will not start
+   * until the first trigger is received (allowing injected overrides to be set up before the first). 
    * 
    * @param viewId  unique identifier of the view, not null
    * @param dataSource  the data source, null for the default
@@ -266,7 +262,7 @@ public final class ViewClientDescriptor {
     final ViewCycleExecutionSequence cycleSequence = new InfiniteViewCycleExecutionSequence();
     final LiveMarketDataSpecification marketDataSpec = dataSource == null ? MarketData.live() : MarketData.live(dataSource);
     final ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(null, marketDataSpec);
-    final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions, ExecutionFlags.none().awaitMarketData().get());
+    final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions, ExecutionFlags.none().waitForInitialTrigger().awaitMarketData().get());
     StringBuilder encodingBuilder = append(new StringBuilder(MARKET_DATA_LIVE), viewId);
     if (dataSource != null) {
       append(encodingBuilder, dataSource);
@@ -292,14 +288,9 @@ public final class ViewClientDescriptor {
       final String timeSeriesResolverKey, final String timeSeriesFieldResolverKey) {
     final Instant firstValuationTimeValue = Instant.of(firstValuationTime);
     final Instant lastValuationTimeValue = Instant.of(lastValuationTime);
-    final Collection<ViewCycleExecutionOptions> cycles = new ArrayList<ViewCycleExecutionOptions>(
-        ((int) (lastValuationTimeValue.getEpochSeconds() - firstValuationTimeValue.getEpochSeconds()) + samplePeriod - 1) / samplePeriod);
-    for (Instant valuationTime = firstValuationTimeValue; !valuationTime.isAfter(lastValuationTimeValue); valuationTime = valuationTime.plus(samplePeriod, TimeUnit.SECONDS)) {
-      final ViewCycleExecutionOptions options = new ViewCycleExecutionOptions(valuationTime);
-      options.setMarketDataSpecification(MarketData.historical(ZonedDateTime.ofInstant(valuationTime, TimeZone.UTC).toLocalDate(), timeSeriesResolverKey, timeSeriesFieldResolverKey));
-      cycles.add(options);
-    }
-    final ViewExecutionOptions options = ExecutionOptions.of(new ArbitraryViewCycleExecutionSequence(cycles), null, ExecutionFlags.none().waitForInitialTrigger().get());
+    ViewCycleExecutionSequence executionSequence = HistoricalExecutionSequenceFunction.generate(
+        firstValuationTimeValue, lastValuationTimeValue, samplePeriod, timeSeriesResolverKey, timeSeriesFieldResolverKey);
+    final ViewExecutionOptions options = ExecutionOptions.of(executionSequence, null, ExecutionFlags.none().waitForInitialTrigger().get());
     StringBuilder encoded = append(append(append(new StringBuilder(MARKET_DATA_HISTORICAL), viewId), firstValuationTimeValue), lastValuationTimeValue);
     if (samplePeriod != DEFAULT_SAMPLE_PERIOD) {
       encoded = append(encoded, samplePeriod);
@@ -373,7 +364,8 @@ public final class ViewClientDescriptor {
 
   /**
    * Returns a descriptor for a view that will use market data from a snapshot. The view will recalculate when triggered
-   * manually. E.g. if created with an unversioned snapshot identifier, changes to the snapshot will not trigger a cycle
+   * manually and will not start until the first trigger is received (allowing injected overrides to be set up before the
+   * first). E.g. if created with an unversioned snapshot identifier, changes to the snapshot will not trigger a cycle
    * but will be observed (the latest version will be taken) when a cycle is manually triggered.
    * 
    * @param viewId unique identifier of the view, not null
@@ -383,7 +375,7 @@ public final class ViewClientDescriptor {
   public static ViewClientDescriptor staticSnapshot(final UniqueId viewId, final UniqueId snapshotId) {
     final ViewCycleExecutionSequence cycleSequence = new InfiniteViewCycleExecutionSequence();
     final ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(MarketData.user(snapshotId));
-    final ExecutionFlags flags = ExecutionFlags.none();
+    final ExecutionFlags flags = ExecutionFlags.none().waitForInitialTrigger();
     final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions, flags.get());
     final String encoded = append(append(new StringBuilder(MARKET_DATA_USER), viewId), snapshotId).toString();
     return new ViewClientDescriptor(Type.STATIC_SNAPSHOT, viewId, options, encoded);

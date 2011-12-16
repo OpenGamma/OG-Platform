@@ -13,12 +13,12 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
-import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.property.StaticDefaultPropertyFunction;
 
 /**
  * Function to shift a volatility surface, implemented using properties and constraints.
  */
-public class DefaultVolatilitySurfaceShiftFunction extends DefaultPropertyFunction {
+public class DefaultVolatilitySurfaceShiftFunction extends StaticDefaultPropertyFunction {
 
   /**
    * Property to shift all volatility surfaces.
@@ -26,7 +26,7 @@ public class DefaultVolatilitySurfaceShiftFunction extends DefaultPropertyFuncti
   public static final String VOLATILITY_SURFACE_SHIFT = "VOLATILITY_SURFACE_" + VolatilitySurfaceShiftFunction.SHIFT;
 
   public DefaultVolatilitySurfaceShiftFunction() {
-    super(ComputationTargetType.SECURITY, VolatilitySurfaceShiftFunction.SHIFT, ValueRequirementNames.VOLATILITY_SURFACE);
+    super(ComputationTargetType.SECURITY, VolatilitySurfaceShiftFunction.SHIFT, false, ValueRequirementNames.VOLATILITY_SURFACE);
   }
 
   @Override
@@ -35,9 +35,8 @@ public class DefaultVolatilitySurfaceShiftFunction extends DefaultPropertyFuncti
     // TODO: should probably check the target type (or other properties) so that shifts can be applied more selectively than to all surfaces
     if (config != null) {
       return config.getDefaultProperties().getValues(VOLATILITY_SURFACE_SHIFT);
-    } else {
-      return null;
-    }
+    } 
+    return null;
   }
 
 }

@@ -21,7 +21,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -83,7 +83,7 @@ public class MultipleYieldCurveFinderJacobianTest {
     }
 
     for (int i = 0; i < M; i++) {
-      final InstrumentDerivative ird = new Cash(CCY, i, 1, 0.0, FUNDING_CURVE_NAME);
+      final InstrumentDerivative ird = new Cash(CCY, 0, i, 1, 0.0, i, FUNDING_CURVE_NAME);
       CASH.add(ird);
       MIXED_INSTRUMENT.add(ird);
       FUNDING_NODES[i] = i;
@@ -110,18 +110,15 @@ public class MultipleYieldCurveFinderJacobianTest {
     XM = new DoubleMatrix1D(dataM);
     XN = new DoubleMatrix1D(dataN);
     XNM = new DoubleMatrix1D(dataNpM);
-    CASH_ONLY = new MultipleYieldCurveFinderJacobian(new MultipleYieldCurveFinderDataBundle(CASH, new double[CASH.size()], null, CASH_NODES, CASH_INTERPOLATORS, false),
+    CASH_ONLY = new MultipleYieldCurveFinderJacobian(new MultipleYieldCurveFinderDataBundle(CASH, new double[CASH.size()], null, CASH_NODES, CASH_INTERPOLATORS, false), SENSITIVITY_CALCULATOR);
+    FRA_ONLY = new MultipleYieldCurveFinderJacobian(new MultipleYieldCurveFinderDataBundle(FRA, new double[FRA.size()], null, FRA_NODES, FRA_INTERPOLATORS, false), SENSITIVITY_CALCULATOR);
+    MIXED = new MultipleYieldCurveFinderJacobian(new MultipleYieldCurveFinderDataBundle(MIXED_INSTRUMENT, new double[MIXED_INSTRUMENT.size()], null, MIXED_NODES, MIXED_INTERPOLATORS, false),
         SENSITIVITY_CALCULATOR);
-    FRA_ONLY = new MultipleYieldCurveFinderJacobian(new MultipleYieldCurveFinderDataBundle(FRA, new double[FRA.size()], null, FRA_NODES, FRA_INTERPOLATORS, false),
-        SENSITIVITY_CALCULATOR);
-    MIXED = new MultipleYieldCurveFinderJacobian(new MultipleYieldCurveFinderDataBundle(MIXED_INSTRUMENT, new double[MIXED_INSTRUMENT.size()], null, MIXED_NODES, MIXED_INTERPOLATORS,
-        false), SENSITIVITY_CALCULATOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator() {
-    new MultipleYieldCurveFinderJacobian(new MultipleYieldCurveFinderDataBundle(MIXED_INSTRUMENT, new double[MIXED_INSTRUMENT.size()], null, MIXED_NODES, MIXED_INTERPOLATORS,
-        false), null);
+    new MultipleYieldCurveFinderJacobian(new MultipleYieldCurveFinderDataBundle(MIXED_INSTRUMENT, new double[MIXED_INSTRUMENT.size()], null, MIXED_NODES, MIXED_INTERPOLATORS, false), null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

@@ -63,12 +63,13 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     return "BlackScholesMertonImpliedVolatilitySurface";
   }
 
-  // NEW METHODS:
+  @Override
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.SECURITY;
+  }
+
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     if (target.getSecurity() instanceof EquityOptionSecurity) {
       return true;
     }
@@ -76,16 +77,25 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
   }
 
   @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final ValueProperties.Builder props = createValueProperties((EquityOptionSecurity) target.getSecurity());
+    props.withAny(ValuePropertyNames.CURVE);
+    return Sets.newHashSet(createVolSurfaceResultSpecification(target.toSpecification(), props), createImpliedVolResultSpecification(target.toSpecification(), props));
+  }
+
+  @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    if (!canApplyTo(context, target)) {
+    final Set<String> curveNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
+    if ((curveNames == null) || (curveNames.size() != 1)) {
       return null;
     }
+    final String curveName = curveNames.iterator().next();
     final EquityOptionSecurity optionSec = (EquityOptionSecurity) target.getSecurity();
     SecuritySource securityMaster = context.getSecuritySource();
     Security underlying = securityMaster.getSecurity(ExternalIdBundle.of(optionSec.getUnderlyingId()));
     final ValueRequirement optionMarketDataReq = getPriceRequirement(optionSec.getUniqueId());
     final ValueRequirement underlyingMarketDataReq = getPriceRequirement(underlying.getUniqueId());
-    final ValueRequirement discountCurveReq = getDiscountCurveMarketDataRequirement(optionSec.getCurrency().getUniqueId());
+    final ValueRequirement discountCurveReq = getDiscountCurveMarketDataRequirement(optionSec.getCurrency().getUniqueId(), curveName);
     // TODO will need a cost-of-carry model as well
     final Set<ValueRequirement> optionRequirements = new HashSet<ValueRequirement>();
     optionRequirements.add(optionMarketDataReq);
@@ -95,12 +105,16 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!canApplyTo(context, target)) {
-      return null;
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    String curveName = null;
+    for (ValueSpecification input : inputs.keySet()) {
+      if (ValueRequirementNames.YIELD_CURVE.equals(input.getValueName())) {
+        curveName = input.getProperty(ValuePropertyNames.CURVE);
+      }
     }
     final ValueProperties.Builder props = createValueProperties((EquityOptionSecurity) target.getSecurity());
-    return Sets.newHashSet(createResultSpecification(target.toSpecification(), props), createImpliedVolResultSpecification(target.toSpecification(), props));
+    props.with(ValuePropertyNames.CURVE, curveName);
+    return Sets.newHashSet(createVolSurfaceResultSpecification(target.toSpecification(), props), createImpliedVolResultSpecification(target.toSpecification(), props));
   }
 
   @Override
@@ -114,11 +128,10 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     // Get inputs:
     final ValueRequirement optionPriceReq = getPriceRequirement(optionSec.getUniqueId());
     final ValueRequirement underlyingPriceReq = getPriceRequirement(underlying.getUniqueId());
-    final ValueRequirement discountCurveReq = getDiscountCurveMarketDataRequirement(optionSec.getCurrency().getUniqueId());
 
     final Double optionPrice = (Double) inputs.getValue(optionPriceReq);
     final Double underlyingPrice = (Double) inputs.getValue(underlyingPriceReq);
-    final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(discountCurveReq);
+    final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     // TODO cost-of-carry model
     if (optionPrice == null) {
       s_logger.warn("No market value for option price");
@@ -140,10 +153,11 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     final double impliedVol = volatilitySurface.getVolatility(0.0, 0.0); //This surface is constant
     
     // Package the result
-    final ValueSpecification resultSpec = createResultSpecification(target.toSpecification(), createValueProperties(optionSec));
+    final ValueProperties.Builder properties = createValueProperties(optionSec);
+    properties.with(ValuePropertyNames.CURVE, desiredValues.iterator().next().getConstraint(ValuePropertyNames.CURVE));
+    final ValueSpecification resultSpec = createVolSurfaceResultSpecification(target.toSpecification(), properties);
     final ComputedValue resultValue = new ComputedValue(resultSpec, volatilitySurface);
-    
-    final ValueSpecification impliedResultSpec = createImpliedVolResultSpecification(target.toSpecification(), createValueProperties(optionSec));
+    final ValueSpecification impliedResultSpec = createImpliedVolResultSpecification(target.toSpecification(), properties);
     final ComputedValue impliedResultValue = new ComputedValue(impliedResultSpec, impliedVol);
     return Sets.newHashSet(resultValue, impliedResultValue);
   }
@@ -152,23 +166,19 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     return createValueProperties().with(ValuePropertyNames.CURRENCY, targetSecurity.getCurrency().getCode());
   }
 
-  protected ValueSpecification createResultSpecification(final ComputationTargetSpecification target, ValueProperties.Builder props) {
+  protected ValueSpecification createVolSurfaceResultSpecification(final ComputationTargetSpecification target, ValueProperties.Builder props) {
     return new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE, target, props.get());
   }
 
   protected ValueSpecification createImpliedVolResultSpecification(final ComputationTargetSpecification target, ValueProperties.Builder props) {
     return new ValueSpecification(ValueRequirementNames.SECURITY_IMPLIED_VOLATLITY, target, props.get());
   }
-  @Override
-  public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
 
   private ValueRequirement getPriceRequirement(final UniqueId uid) {
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, uid);
   }
 
-  private ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueId uid) {
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, uid);
+  private ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueId uid, final String curveName) {
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, uid, ValueProperties.with(ValuePropertyNames.CURVE, curveName).get());
   }
 }

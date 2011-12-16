@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.interestrate;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
@@ -14,7 +16,8 @@ import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.bond.method.BondTransactionDiscountingMethod;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.financial.interestrate.cash.method.CashDiscountingMethod;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
@@ -28,7 +31,6 @@ import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
-import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.payments.method.CouponCMSDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.method.CouponIborGearingDiscountingMethod;
@@ -43,26 +45,35 @@ import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
-import org.apache.commons.lang.Validate;
-
 /**
  * Calculates the present value of an instrument for a given YieldCurveBundle (set of yield curve that the instrument is sensitive to) 
  */
 public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
 
   /**
-   * The method used for OIS coupons.
+   * The method unique instance.
    */
-  private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
+  private static final PresentValueCalculator INSTANCE = new PresentValueCalculator();
 
-  private static final PresentValueCalculator s_instance = new PresentValueCalculator();
-
+  /**
+   * Return the unique instance of the class.
+   * @return The instance.
+   */
   public static PresentValueCalculator getInstance() {
-    return s_instance;
+    return INSTANCE;
   }
 
+  /**
+   * Constructor.
+   */
   PresentValueCalculator() {
   }
+
+  /**
+   * The method used for different instruments.
+   */
+  private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
+  private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
 
   @Override
   public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
@@ -84,13 +95,8 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
   }
 
   @Override
-  public Double visitCash(final Cash cash, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(cash);
-    final double ta = cash.getTradeTime();
-    final double tb = cash.getMaturity();
-    final YieldAndDiscountCurve curve = curves.getCurve(cash.getYieldCurveName());
-    return cash.getNotional() * (curve.getDiscountFactor(tb) * (1 + cash.getYearFraction() * cash.getRate()) - curve.getDiscountFactor(ta));
+  public Double visitCash(final Cash deposit, final YieldCurveBundle curves) {
+    return METHOD_DEPOSIT.presentValue(deposit, curves).getAmount();
   }
 
   @Override
@@ -230,17 +236,6 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
     double leg1 = visitFixedPayment(fx.getPaymentCurrency1(), data);
     double leg2 = visitFixedPayment(fx.getPaymentCurrency2(), data);
     return leg1 + fx.getSpotForexRate() * leg2;
-  }
-
-  @Override
-  public Double visitZZZCouponOIS(final ZZZCouponOIS payment, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(payment);
-    final YieldAndDiscountCurve fundingCurve = curves.getCurve(payment.getFundingCurveName());
-    final double ta = payment.getStartTime();
-    final double tb = payment.getEndTime();
-    final double rate = (fundingCurve.getInterestRate(tb) * tb - fundingCurve.getInterestRate(ta) * ta) / payment.getRateYearFraction();
-    return fundingCurve.getDiscountFactor(payment.getPaymentTime()) * (rate + payment.getSpread()) * payment.getPaymentYearFraction() * payment.getNotional();
   }
 
   @Override

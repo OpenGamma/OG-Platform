@@ -60,6 +60,9 @@ public class StoreSnapshotProcedure extends AbstractProcedureInvoker.SingleResul
   }
 
   protected static UniqueId invoke(final MarketDataSnapshotMaster master, final UniqueId identifier, final ManageableMarketDataSnapshot snapshot) {
+    if (snapshot.getName() == null) {
+      snapshot.setName("Unnamed");
+    }
     MarketDataSnapshotDocument document = new MarketDataSnapshotDocument(identifier, snapshot);
     if (identifier == null) {
       document = master.add(document);

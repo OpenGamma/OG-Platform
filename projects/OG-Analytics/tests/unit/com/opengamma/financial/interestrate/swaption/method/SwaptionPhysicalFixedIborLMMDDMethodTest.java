@@ -23,12 +23,12 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
-import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
@@ -43,7 +43,7 @@ import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
+import com.opengamma.financial.interestrate.swap.SwapFixedDiscountingMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
@@ -84,9 +84,9 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
   private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
   private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
-  private static final CMSIndex CMS_INDEX = new CMSIndex(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, SWAP_TENOR);
+  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, SWAP_TENOR);
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2016, 7, 7);
-  private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, CALENDAR, SETTLEMENT_DAYS);
+  private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, SETTLEMENT_DAYS, CALENDAR);
   private static final double NOTIONAL = 100000000; //100m
   private static final double RATE = 0.0325;
   private static final boolean FIXED_IS_PAYER = true;
@@ -140,7 +140,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     double pvMCPreviousRun = 4371960.422; // One jump: xxx // Jump 2Y: xxx // Jump 1Y: 4371960.422 - 4385240.574
     assertEquals("Swaption physical - LMM - present value Monte Carlo", pvMCPreviousRun, pvMC.getAmount(), 1.0E-2);
     CurrencyAmount pvApprox = METHOD_LMM.presentValue(SWAPTION_PAYER_LONG, BUNDLE_LMM);
-    double pvbp = SwapFixedIborMethod.presentValueBasisPoint(SWAP_RECEIVER, CURVES);
+    double pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(SWAP_RECEIVER, CURVES);
     double forward = PRC.visit(SWAP_RECEIVER, CURVES);
     BlackFunctionData data = new BlackFunctionData(forward, pvbp, 0.20);
     EuropeanVanillaOption option = new EuropeanVanillaOption(RATE, SWAPTION_PAYER_LONG.getTimeToExpiry(), FIXED_IS_PAYER);
@@ -305,9 +305,9 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
     SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, CURVES);
     int[] swapTenorYear = {1, 2, 3, 4, 5};
-    CMSIndex[] cmsIndex = new CMSIndex[swapTenorYear.length];
+    IndexSwap[] cmsIndex = new IndexSwap[swapTenorYear.length];
     for (int loopexp = 0; loopexp < swapTenorYear.length; loopexp++) {
-      cmsIndex[loopexp] = new CMSIndex(fixedPaymentPeriod, FIXED_DAY_COUNT, iborIndex, Period.ofYears(swapTenorYear[loopexp]));
+      cmsIndex[loopexp] = new IndexSwap(fixedPaymentPeriod, FIXED_DAY_COUNT, iborIndex, Period.ofYears(swapTenorYear[loopexp]));
     }
     double[] amortization = new double[] {1.00, 0.80, 0.60, 0.40, 0.20}; // For 5Y amortization
     //    double[] amortization = new double[] {1.00, 0.90, 0.80, 0.70, 0.60, 0.50, 0.40, 0.30, 0.20, 0.10}; // For 10Y amortization
@@ -367,9 +367,9 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     // SABR parameters sensitivity (all-in-one)
     for (int loopcal = 0; loopcal < swaptionCalibration.length; loopcal++) {
       DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopcal].getTimeToExpiry(), swaptionCalibration[loopcal].getMaturityTime());
-      assertEquals("Sensitivity swaption pv to alpha", pvss1.getAlpha().get(expiryMaturity), pvss.getAlpha().get(expiryMaturity), 1E-2);
-      assertEquals("Sensitivity swaption pv to rho", pvss1.getRho().get(expiryMaturity), pvss.getRho().get(expiryMaturity), 1E-2);
-      assertEquals("Sensitivity swaption pv to nu", pvss1.getNu().get(expiryMaturity), pvss.getNu().get(expiryMaturity), 1E-2);
+      assertEquals("Sensitivity swaption pv to alpha", pvss1.getAlpha().getMap().get(expiryMaturity), pvss.getAlpha().getMap().get(expiryMaturity), 1E-2);
+      assertEquals("Sensitivity swaption pv to rho", pvss1.getRho().getMap().get(expiryMaturity), pvss.getRho().getMap().get(expiryMaturity), 1E-2);
+      assertEquals("Sensitivity swaption pv to nu", pvss1.getNu().getMap().get(expiryMaturity), pvss.getNu().getMap().get(expiryMaturity), 1E-2);
     }
     // SABR parameters sensitivity (parallel shift check)
     SABRInterestRateParameters sabrParameterShift;
@@ -382,10 +382,10 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     LiborMarketModelDisplacedDiffusionDataBundle lmmBundleShift = new LiborMarketModelDisplacedDiffusionDataBundle(lmmParametersShift, CURVES);
 
     double alphaVegaTotalComputed = 0.0;
-    assertEquals("Number of alpha sensitivity", pvss.getAlpha().keySet().size(), swaptionCalibration.length);
+    assertEquals("Number of alpha sensitivity", pvss.getAlpha().getMap().keySet().size(), swaptionCalibration.length);
     for (int loopcal = 0; loopcal < swaptionCalibration.length; loopcal++) {
       DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopcal].getTimeToExpiry(), swaptionCalibration[loopcal].getMaturityTime());
-      alphaVegaTotalComputed += pvss.getAlpha().get(expiryMaturity);
+      alphaVegaTotalComputed += pvss.getAlpha().getMap().get(expiryMaturity);
     }
     double shiftAlpha = 0.00001;
     sabrParameterShift = TestsDataSets.createSABR1AlphaBumped(shiftAlpha);
@@ -396,10 +396,10 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     assertEquals("Alpha sensitivity value", alphaVegaTotalExpected, alphaVegaTotalComputed, 1.0E+2);
 
     double rhoVegaTotalComputed = 0.0;
-    assertEquals("Number of alpha sensitivity", pvss.getRho().keySet().size(), swaptionCalibration.length);
+    assertEquals("Number of alpha sensitivity", pvss.getRho().getMap().keySet().size(), swaptionCalibration.length);
     for (int loopcal = 0; loopcal < swaptionCalibration.length; loopcal++) {
       DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopcal].getTimeToExpiry(), swaptionCalibration[loopcal].getMaturityTime());
-      rhoVegaTotalComputed += pvss.getRho().get(expiryMaturity);
+      rhoVegaTotalComputed += pvss.getRho().getMap().get(expiryMaturity);
     }
     double shiftRho = 0.00001;
     sabrParameterShift = TestsDataSets.createSABR1RhoBumped(shiftRho);
@@ -410,10 +410,10 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     assertEquals("Rho sensitivity value", rhoVegaTotalExpected, rhoVegaTotalComputed, 1.0E+1);
 
     double nuVegaTotalComputed = 0.0;
-    assertEquals("Number of alpha sensitivity", pvss.getNu().keySet().size(), swaptionCalibration.length);
+    assertEquals("Number of alpha sensitivity", pvss.getNu().getMap().keySet().size(), swaptionCalibration.length);
     for (int loopcal = 0; loopcal < swaptionCalibration.length; loopcal++) {
       DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopcal].getTimeToExpiry(), swaptionCalibration[loopcal].getMaturityTime());
-      nuVegaTotalComputed += pvss.getNu().get(expiryMaturity);
+      nuVegaTotalComputed += pvss.getNu().getMap().get(expiryMaturity);
     }
     double shiftNu = 0.00001;
     sabrParameterShift = TestsDataSets.createSABR1NuBumped(shiftNu);

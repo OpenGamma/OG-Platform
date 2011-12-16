@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -30,7 +32,8 @@ public class SABRVegaCalculationUtils {
 
   public static DoubleMatrix2D getVegaSurface(final double alpha, final double rho, final double nu, final Map<Double, Interpolator1DDataBundle> alphaDataBundle, 
       final Map<Double, Interpolator1DDataBundle> rhoDataBundle, final Map<Double, Interpolator1DDataBundle> nuDataBundle, 
-      final Map<DoublesPair, DoubleMatrix2D> inverseJacobians, final DoublesPair expiryMaturity, final Interpolator2D nodeSensitivityCalculator) {
+      final Map<DoublesPair, DoubleMatrix2D> inverseJacobians, final DoublesPair expiryMaturity, final Interpolator2D nodeSensitivityCalculator,
+      final Map<Double, List<Double>> fittedDataPoints, final VolatilitySurfaceDefinition<Object, Object> definition) {
     final Map<Double, List<Pair<Double, Double>>> alphaGridNodeSensitivities = 
       SABRVegaCalculationUtils.getMaturityExpiryValueMap(nodeSensitivityCalculator.getNodeSensitivitiesForValue(alphaDataBundle, expiryMaturity));
     final Map<Double, List<Pair<Double, Double>>> nuGridNodeSensitivities = 
@@ -39,9 +42,9 @@ public class SABRVegaCalculationUtils {
       SABRVegaCalculationUtils.getMaturityExpiryValueMap(nodeSensitivityCalculator.getNodeSensitivitiesForValue(rhoDataBundle, expiryMaturity));
     final Map<Double, List<Pair<Double, DoubleMatrix2D>>> orderedInverseJacobian = getMaturityExpiryValueMap(inverseJacobians);
     //TODO having to know the order of the parameters is not good - change the result that is returned from the fit
-    final DoubleMatrix2D alphaResult = getVegaSurfaceForParameter(alpha, alphaGridNodeSensitivities, orderedInverseJacobian, 0); 
-    final DoubleMatrix2D rhoResult = getVegaSurfaceForParameter(rho, rhoGridNodeSensitivities, orderedInverseJacobian, 1); 
-    final DoubleMatrix2D nuResult = getVegaSurfaceForParameter(nu, nuGridNodeSensitivities, orderedInverseJacobian, 2); 
+    final DoubleMatrix2D alphaResult = getVegaSurfaceForParameter(alpha, alphaGridNodeSensitivities, orderedInverseJacobian, 0, fittedDataPoints, definition); 
+    final DoubleMatrix2D rhoResult = getVegaSurfaceForParameter(rho, rhoGridNodeSensitivities, orderedInverseJacobian, 1, fittedDataPoints, definition); 
+    final DoubleMatrix2D nuResult = getVegaSurfaceForParameter(nu, nuGridNodeSensitivities, orderedInverseJacobian, 2, fittedDataPoints, definition); 
     return (DoubleMatrix2D) ALGEBRA.add(alphaResult, ALGEBRA.add(nuResult, rhoResult));
   }
 
@@ -91,7 +94,8 @@ public class SABRVegaCalculationUtils {
   }
   
   private static DoubleMatrix2D getVegaSurfaceForParameter(final double parameter, final Map<Double, List<Pair<Double, Double>>> gridNodeSensitivities,
-      final Map<Double, List<Pair<Double, DoubleMatrix2D>>> inverseJacobians, int parameterNumber) {
+      final Map<Double, List<Pair<Double, DoubleMatrix2D>>> inverseJacobians, final int parameterNumber, final Map<Double, List<Double>> fittedDataPoints,
+      final VolatilitySurfaceDefinition<Object, Object> definition) {
     if (inverseJacobians.size() != 1) {
       throw new OpenGammaRuntimeException("Cannot handle volatility cubes");
     }
@@ -102,15 +106,20 @@ public class SABRVegaCalculationUtils {
     for (int i = 0; i < rows; i++) {
       final Pair<Double, Double> expirySensitivity = gns.get(i);
       final double expiry = expirySensitivity.getFirst();
+      final List<Double> fittedDataPointsForExpiry = fittedDataPoints.get(expiry);
+      final List<Object> allDataPointsForExpiry = Arrays.asList(definition.getYs());
+      int totalStrikes = allDataPointsForExpiry.size();
       final double sensitivity = expirySensitivity.getSecond();
       final Pair<Double, DoubleMatrix2D> expiryMatrix = invJac.get(i);
       if (Double.doubleToLongBits(expiry) != Double.doubleToLongBits(expiryMatrix.getFirst())) {
         throw new OpenGammaRuntimeException("Should never happen");
       }
-      final DoubleMatrix2D m = expiryMatrix.getSecond();
-      result[i] = new double[m.getNumberOfColumns()];
+      final DoubleMatrix2D m = expiryMatrix.getSecond();      
+      result[i] = new double[totalStrikes];
       for (int j = 0; j < m.getNumberOfColumns(); j++) {
-        result[i][j] = m.getEntry(parameterNumber, j) * sensitivity * parameter;
+        double temp = m.getEntry(parameterNumber, j) * sensitivity * parameter;
+        int k = totalStrikes - allDataPointsForExpiry.indexOf(fittedDataPointsForExpiry.get(j)) - 1;
+        result[i][k] = temp;
       }
     }
     return new DoubleMatrix2D(result);

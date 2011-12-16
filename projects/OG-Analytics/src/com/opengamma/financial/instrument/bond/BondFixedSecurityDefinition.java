@@ -304,7 +304,7 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
   @Override
   public BondFixedSecurity toDerivative(ZonedDateTime date, String... yieldCurveNames) {
     Validate.notNull(date, "date");
-    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getCalendar(), getSettlementDays());
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
     return toDerivative(date, spot, yieldCurveNames);
   }
 
@@ -330,7 +330,7 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
     CouponFixedDefinition[] couponExPeriodArray = new CouponFixedDefinition[couponDefinition.getNumberOfPayments()];
     System.arraycopy(couponDefinition.getPayments(), 0, couponExPeriodArray, 0, couponDefinition.getNumberOfPayments());
     if (getExCouponDays() != 0) {
-      ZonedDateTime exDividendDate = ScheduleCalculator.getAdjustedDate(couponDefinition.getNthPayment(0).getPaymentDate(), getCalendar(), -getExCouponDays());
+      ZonedDateTime exDividendDate = ScheduleCalculator.getAdjustedDate(couponDefinition.getNthPayment(0).getPaymentDate(), -getExCouponDays(), getCalendar());
       if (settlementDate.isAfter(exDividendDate)) {
         // Implementation note: Ex-dividend period: the next coupon is not received but its date is required for yield calculation
         couponExPeriodArray[0] = new CouponFixedDefinition(couponDefinition.getNthPayment(0), 0.0);

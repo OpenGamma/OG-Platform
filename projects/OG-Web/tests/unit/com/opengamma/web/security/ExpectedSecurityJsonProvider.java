@@ -5,12 +5,8 @@
  */
 package com.opengamma.web.security;
 
-import static org.testng.AssertJUnit.assertNotNull;
+import static com.opengamma.web.WebResourceTestUtils.loadJson;
 
-import java.io.File;
-import java.net.URL;
-
-import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -38,6 +34,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -52,19 +49,16 @@ import com.opengamma.financial.security.swap.SwapSecurity;
  */
 /* package */ class ExpectedSecurityJsonProvider implements FinancialSecurityVisitor<JSONObject> {
   
-  private JSONObject loadJsonFile(String filename) {
-    assertNotNull(filename);
-    URL jsonResource = getClass().getResource(filename);
-    assertNotNull(jsonResource);
-    JSONObject expectedJson = null;
+  private static final String PACKAGE_PATH = "com/opengamma/web/security/";
+  
+  private JSONObject getJson(String filePath) {
     try {
-      expectedJson = new JSONObject(FileUtils.readFileToString(new File(jsonResource.getPath())));
+      return loadJson(filePath);
     } catch (Exception ex) {
-      throw new OpenGammaRuntimeException("Problem creating json document from " + filename, ex);
-    }
-    return expectedJson;
+      throw new OpenGammaRuntimeException("Problem loading json document", ex);
+    } 
   }
-
+  
   @Override
   public JSONObject visitBondSecurity(BondSecurity security) {
     return null;
@@ -77,7 +71,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 
   @Override
   public JSONObject visitEquitySecurity(EquitySecurity security) {
-    return loadJsonFile("equityJson.txt");
+    return getJson(PACKAGE_PATH + "equityJson.txt");
   }
 
   @Override
@@ -96,7 +90,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 
       @Override
       public JSONObject visitBondFutureSecurity(BondFutureSecurity security) {
-        return loadJsonFile("bondFutureJson.txt");
+        return getJson(PACKAGE_PATH + "bondFutureJson.txt");
       }
 
       @Override
@@ -169,6 +163,12 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 
   @Override
   public JSONObject visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
+    return null;
+  }
+  
+  @Override
+  public JSONObject visitEquityIndexDividendFutureOptionSecurity(
+      EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
     return null;
   }
 

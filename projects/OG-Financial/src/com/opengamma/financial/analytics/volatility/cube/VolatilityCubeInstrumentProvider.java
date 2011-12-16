@@ -92,7 +92,7 @@ public final class VolatilityCubeInstrumentProvider {
           final double normalizedStrike = relativeStrikeRaw > 10 ? relativeStrikeRaw : relativeStrikeRaw * 100;
           Double relativeStrikeBps = sign * normalizedStrike;
           if (relativeStrikeBps == -0.0) {
-            //Apparantely the volatilities should be the same, so lets avoid fudge pains
+            //Apparently the volatilities should be the same, so lets avoid fudge pains
             relativeStrikeBps = 0.0;
           }
           final VolatilityPoint point = new VolatilityPoint(swapTenor, optionExpiry, relativeStrikeBps);

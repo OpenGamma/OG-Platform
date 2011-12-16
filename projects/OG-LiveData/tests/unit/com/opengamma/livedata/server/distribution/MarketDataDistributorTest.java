@@ -16,6 +16,7 @@ import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.livedata.server.Subscription;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * 
@@ -42,7 +43,7 @@ public class MarketDataDistributorTest {
     assertEquals(LiveDataValueUpdate.SEQUENCE_START, mdd.getNumMessagesSent());
     mdd.updateFieldHistory(FudgeContext.EMPTY_MESSAGE);
     assertEquals(0, mdd.getNumMessagesSent());
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add("foo", "bar");
     mdd.distributeLiveData(msg);
     assertEquals(1, mdd.getNumMessagesSent());

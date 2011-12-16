@@ -169,6 +169,27 @@ public class ValuePropertiesTest {
     assertEquals(requirement, props);
     assertFalse(offering.equals(props));
   }
+  
+  public void testIntersect() {
+    assertSame (ValueProperties.none (), ValueProperties.all ().intersect (ValueProperties.none ()));
+    assertSame (ValueProperties.none (), ValueProperties.none ().intersect (ValueProperties.all ()));
+    final ValueProperties a = ValueProperties.with("A", "1").with("B", "2", "3").withAny ("C").withOptional("D").with("E", "1").withOptional("E").get ();
+    assertSame (ValueProperties.none (), a.intersect (ValueProperties.none ()));
+    assertSame (ValueProperties.none (), ValueProperties.none ().intersect (a));
+    assertSame (a, a.intersect (a));
+    final ValueProperties aNoOpt = ValueProperties.with("A", "1").with("B", "2", "3").withAny ("C").withAny("D").with("E", "1").get ();
+    assertEquals (aNoOpt, a.intersect (ValueProperties.all ()));
+    assertEquals (aNoOpt, ValueProperties.all().intersect (a));
+    final ValueProperties b = ValueProperties.with("A", "1").with("B", "2", "4").with ("C", "3", "4").withAny("D").withAny("E").withOptional("E").get ();
+    final ValueProperties ab = ValueProperties.with ("A", "1").with ("B", "2").with ("C", "3", "4").withAny ("D").with("E", "1").withOptional ("E").get ();
+    assertEquals (ab, a.intersect (b));
+    assertEquals (ab, b.intersect (a));
+    assertEquals (ab, a.intersect (ab));
+    assertEquals (ab, b.intersect (ab));
+    assertSame (ab, ab.intersect (a));
+    assertSame (ab, ab.intersect (b));
+    assertSame (ab, ab.intersect (ab));
+  }
 
   public void testEquals() {
     final ValueProperties requirement1 = ValueProperties.with("A", "1").with("B", "2", "3").get();

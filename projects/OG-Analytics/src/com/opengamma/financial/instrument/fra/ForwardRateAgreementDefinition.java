@@ -67,14 +67,14 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
    * @param index The coupon Ibor index. Should of the same currency as the payment.
    * @param rate The FRA rate.
    */
-  public ForwardRateAgreementDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
-      final double accrualFactor, final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double rate) {
+  public ForwardRateAgreementDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
+      final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double rate) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
     Validate.notNull(index, "index");
     Validate.isTrue(currency.equals(index.getCurrency()), "index currency different from payment currency");
     _index = index;
-    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, _index.getBusinessDayConvention(), _index.getCalendar(), _index.getSettlementDays());
-    _fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate, index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth(), index.getTenor());
+    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, _index.getSpotLag(), _index.getCalendar());
+    _fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate, index.getTenor(), index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth());
     _fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);
     _rate = rate;
   }
@@ -108,12 +108,11 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
     Validate.notNull(accrualStartDate, "accrual start date");
     Validate.notNull(accrualEndDate, "accrual end date");
     Validate.notNull(index, "index");
-    final BusinessDayConvention businessDay = index.getBusinessDayConvention();
-    final ZonedDateTime fixingDate = accrualStartDate.minusDays(index.getSettlementDays());
+    final ZonedDateTime fixingDate = accrualStartDate.minusDays(index.getSpotLag());
     final Calendar calendar = index.getCalendar();
-    final int settlementDays = index.getSettlementDays();
-    final ZonedDateTime adjustedStartDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, businessDay, calendar, settlementDays);
-    final ZonedDateTime adjustedEndDate = ScheduleCalculator.getAdjustedDate(accrualEndDate, businessDay, calendar, settlementDays);
+    final int settlementDays = index.getSpotLag();
+    final ZonedDateTime adjustedStartDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, settlementDays, calendar);
+    final ZonedDateTime adjustedEndDate = ScheduleCalculator.getAdjustedDate(accrualEndDate, settlementDays, calendar);
     final double paymentYearFraction = index.getDayCount().getDayCountFraction(adjustedStartDate, adjustedEndDate);
     return new ForwardRateAgreementDefinition(index.getCurrency(), adjustedStartDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, fixingDate, index, rate);
   }
@@ -197,8 +196,7 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
         fixedRate = indexFixingTimeSeries.getValue(fixingDateAtLiborFixingTime);
       }
       if (fixedRate == null) {
-        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(
-            "Preceding").adjustDate(getIndex().getConvention().getWorkingDayCalendar(), getFixingDate().minusDays(1));
+        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(getIndex().getCalendar(), getFixingDate().minusDays(1));
         fixedRate = indexFixingTimeSeries.getValue(previousBusinessDay);
         //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
         if (fixedRate == null) {
@@ -213,10 +211,10 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
       return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixedRate - _rate);
     }
 
-//    if (date.isAfter(getFixingDate()) || date.equals(getFixingDate())) { // The FRA has already fixed, it is now a fixed coupon.
-//      final double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
-//      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixedRate - _rate);
-//    }
+    //    if (date.isAfter(getFixingDate()) || date.equals(getFixingDate())) { // The FRA has already fixed, it is now a fixed coupon.
+    //      final double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+    //      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixedRate - _rate);
+    //    }
     // Ibor is not fixed yet, all the details are required.
     final double fixingTime = actAct.getDayCountFraction(zonedDate, getFixingDate());
     final double fixingPeriodStartTime = actAct.getDayCountFraction(zonedDate, getFixindPeriodStartDate());

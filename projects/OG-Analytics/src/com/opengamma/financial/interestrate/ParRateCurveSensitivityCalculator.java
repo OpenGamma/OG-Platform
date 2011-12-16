@@ -19,7 +19,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -29,7 +29,6 @@ import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
-import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.payments.method.CouponOISDiscountingMethod;
 import com.opengamma.financial.interestrate.swap.definition.CrossCurrencySwap;
@@ -79,9 +78,9 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInstrumentD
   public Map<String, List<DoublesPair>> visitCash(final Cash cash, final YieldCurveBundle curves) {
     final String curveName = cash.getYieldCurveName();
     final YieldAndDiscountCurve curve = curves.getCurve(curveName);
-    final double ta = cash.getTradeTime();
-    final double tb = cash.getMaturity();
-    final double yearFrac = cash.getYearFraction();
+    final double ta = cash.getStartTime();
+    final double tb = cash.getEndTime();
+    final double yearFrac = cash.getAccrualFactor();
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> temp = new ArrayList<DoublesPair>();
     if (yearFrac == 0.0) {
@@ -257,21 +256,6 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInstrumentD
   @Override
   public Map<String, List<DoublesPair>> visitCapFloorIbor(final CapFloorIbor payment, final YieldCurveBundle data) {
     return visitCouponIbor(payment, data);
-  }
-
-  @Override
-  public Map<String, List<DoublesPair>> visitZZZCouponOIS(final ZZZCouponOIS payment, final YieldCurveBundle data) {
-    final double ta = payment.getStartTime();
-    final double tb = payment.getEndTime();
-
-    final DoublesPair s1 = new DoublesPair(ta, -ta / payment.getRateYearFraction());
-    final DoublesPair s2 = new DoublesPair(tb, tb / payment.getRateYearFraction());
-    final List<DoublesPair> temp = new ArrayList<DoublesPair>();
-    temp.add(s1);
-    temp.add(s2);
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    result.put(payment.getFundingCurveName(), temp);
-    return result;
   }
 
   @Override

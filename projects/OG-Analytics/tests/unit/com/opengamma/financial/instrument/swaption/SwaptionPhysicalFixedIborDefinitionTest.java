@@ -24,7 +24,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
-import com.opengamma.financial.instrument.index.CMSIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
@@ -112,7 +112,7 @@ public class SwaptionPhysicalFixedIborDefinitionTest {
     assertFalse(SWAPTION.hashCode() == modifiedSwaption.hashCode());
     modifiedSwaption = SwaptionPhysicalFixedIborDefinition.from(SETTLEMENT_DATE, SWAP, IS_LONG);
     assertFalse(SWAPTION.equals(modifiedSwaption));
-    CMSIndex cmsIndex = new CMSIndex(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, INDEX, ANNUITY_TENOR);
+    IndexSwap cmsIndex = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, INDEX, ANNUITY_TENOR);
     SwapFixedIborDefinition otherSwap = SwapFixedIborDefinition.from(SETTLEMENT_DATE, cmsIndex, 2 * NOTIONAL, RATE, FIXED_IS_PAYER);
     modifiedSwaption = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, otherSwap, IS_LONG);
     assertFalse(SWAPTION.equals(modifiedSwaption));

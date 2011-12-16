@@ -9,16 +9,16 @@
 
 .OG-form.og-vol-surf-def .og-type {
   display: inline-block;
-  width: 150px;
+  width: 200px;
   margin-right: 10px;
 }
 
 .OG-form.og-vol-surf-def .og-distance {
   display: inline-block;
-  width: 50px;
+  width: 150px;
 }
 
 .OG-form.og-vol-surf-def .og-tenor {
   display: inline-block;
-  width: 200px;
+  width: 350px;
 }

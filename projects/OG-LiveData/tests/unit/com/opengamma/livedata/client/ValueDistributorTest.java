@@ -20,12 +20,13 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.test.CollectingLiveDataListener;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * 
  */
 public class ValueDistributorTest {
-  private final FudgeContext _fudgeContext = new FudgeContext();
+  private final FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
   
   @Test
   public void activeSpecificationsOneSpec() {

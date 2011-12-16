@@ -21,7 +21,9 @@ import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.DepositCounterpart;
+import com.opengamma.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -43,7 +45,6 @@ import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
-import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -121,8 +122,6 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitInterestRateFutureOptionMarginSecurity(InterestRateFutureOptionMarginSecurity option, S data);
 
   T visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option, S data);
-
-  T visitZZZCouponOIS(ZZZCouponOIS payment, S data);
 
   T visitFixedPayment(PaymentFixed payment, S data);
 
@@ -216,8 +215,6 @@ public interface InstrumentDerivativeVisitor<S, T> {
 
   T visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option);
 
-  T visitZZZCouponOIS(ZZZCouponOIS payment);
-
   T visitFixedPayment(PaymentFixed payment);
 
   T visitFixedCouponPayment(CouponFixed payment);
@@ -251,6 +248,16 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurity<?> bond);
 
   T visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond);
+
+  // -----     Deposit     -----
+
+  T visitDepositIbor(DepositIbor deposit, S data);
+
+  T visitDepositIbor(DepositIbor deposit);
+
+  T visitDepositCounterpart(DepositCounterpart deposit, S data);
+
+  T visitDepositCounterpart(DepositCounterpart deposit);
 
   // -----     Forex     -----
 

@@ -10,7 +10,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.id.UniqueId;
@@ -27,14 +26,14 @@ import java.util.Set;
  */
 @PublicAPI
 public interface ViewResultListener {
-  
+
   /**
    * Gets the user represented by this listener.
    * 
    * @return the user represented by this listener, not null
    */
   UserPrincipal getUser();
-  
+
   //-------------------------------------------------------------------------
   // REVIEW jonathan 2011-06-27 -- a boolean permission flag might not be enough in future as it would be useful to
   // know exactly what a user doesn't have permissions on, at the very least for information, but possibly to allow
@@ -52,7 +51,7 @@ public interface ViewResultListener {
    *                                      requirements of the compiled view definition
    */
   void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions);
-  
+
   /**
    * Called to indicate that the view definition failed to compile.
    * 
@@ -60,7 +59,7 @@ public interface ViewResultListener {
    * @param exception  an exception associated with the failure, may be null
    */
   void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception);
-  
+
   //-------------------------------------------------------------------------
   /**
    * Called following the successful completion of a computation cycle.
@@ -87,7 +86,7 @@ public interface ViewResultListener {
    * @param deltaFragment  the delta fragment representing only the differences since the previous cycle
    */
   void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment);
-  
+
   /**
    * Called to indicate that execution of a view cycle failed.
    * 
@@ -96,7 +95,7 @@ public interface ViewResultListener {
    * 
    */
   void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception);
-  
+
   //-------------------------------------------------------------------------
   /**
    * Called to indicate that the view process has completed, meaning that there are no more computation cycles to
@@ -104,7 +103,7 @@ public interface ViewResultListener {
    * will be produced.
    */
   void processCompleted();
-  
+
   /**
    * Called to indicate that the view process has terminated. No further results will be produced.
    * <p>
@@ -114,5 +113,5 @@ public interface ViewResultListener {
    *                              false otherwise, for example if execution has already completed
    */
   void processTerminated(boolean executionInterrupted);
-  
+
 }

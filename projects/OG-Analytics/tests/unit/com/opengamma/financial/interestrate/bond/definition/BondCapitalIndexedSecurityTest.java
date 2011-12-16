@@ -22,7 +22,7 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.instrument.inflation.CouponInflationDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
 import com.opengamma.financial.instrument.payment.CouponDefinition;
@@ -45,7 +45,7 @@ public class BondCapitalIndexedSecurityTest {
   private static final Currency CUR = Currency.GBP;
   private static final Currency REGION = Currency.GBP;
   private static final Period LAG = Period.ofDays(14);
-  private static final PriceIndex PRICE_INDEX = new PriceIndex(NAME, CUR, REGION, LAG);
+  private static final IndexPrice PRICE_INDEX = new IndexPrice(NAME, CUR, REGION, LAG);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("GBP");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final DayCount DAY_COUNT_GILT_1 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
@@ -63,7 +63,7 @@ public class BondCapitalIndexedSecurityTest {
   private static final int SETTLEMENT_DAYS = 2;
   private static final String ISSUER_UK = "UK GOVT";
   private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 8);
-  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(PRICING_DATE, CALENDAR, SETTLEMENT_DAYS);
+  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(PRICING_DATE, SETTLEMENT_DAYS, CALENDAR);
   private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> BOND_SECURITY_DEFINITION = BondCapitalIndexedSecurityDefinition.fromMonthly(PRICE_INDEX,
       MONTH_LAG, START_DATE, INDEX_START, FIRST_COUPON_DATE, MATURITY_DATE, COUPON_PERIOD, NOTIONAL_GILT_1, REAL_RATE, BUSINESS_DAY, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_GILT_1, YIELD_CONVENTION,
       IS_EOM_GILT_1, ISSUER_UK);

@@ -8,6 +8,9 @@
 #include <Service/Service.h>
 #include <Service/Settings.h>
 
+/// Suppress the warnings that come from the LOGGING macros.
+static CSuppressLoggingWarning g_oSuppressLoggingWarning;
+
 LOGGING(com.opengamma.language.service.Main);
 
 /// Make sure Fudge is initialised.

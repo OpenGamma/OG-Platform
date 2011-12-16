@@ -254,7 +254,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
   @Test
   public void test_update_rollback() {
     DbPositionMaster w = new DbPositionMaster(_posMaster.getDbConnector());
-    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("Invalid"), DbPositionMaster.class));
+    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("TestRollback"), DbPositionMaster.class));
     final PositionDocument base = _posMaster.get(UniqueId.of("DbPos", "121", "0"));
     ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     pos.setUniqueId(UniqueId.of("DbPos", "121", "0"));

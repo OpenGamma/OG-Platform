@@ -11,11 +11,11 @@ import static org.testng.AssertJUnit.assertNull;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.livedata.server.FieldHistoryStore;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * 
@@ -29,7 +29,7 @@ public class FieldFilterTest {
     fieldsToAccept.add("Bar");
     FieldFilter filter = new FieldFilter(fieldsToAccept);
     
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add("Foo", "1");
     msg.add("Bar", 2.0);
     msg.add("Baz", 500);
@@ -47,7 +47,7 @@ public class FieldFilterTest {
     fieldsToAccept.add("Bar");
     FieldFilter filter = new FieldFilter(fieldsToAccept);
     
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add("Foo2", "1");
     
     MutableFudgeMsg normalized = filter.apply(msg, "123", new FieldHistoryStore());
@@ -59,7 +59,7 @@ public class FieldFilterTest {
     Set<String> fieldsToAccept = new HashSet<String>();
     FieldFilter filter = new FieldFilter(fieldsToAccept);
     
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add("Foo", "1");
     
     MutableFudgeMsg normalized = filter.apply(msg, "123", new FieldHistoryStore());

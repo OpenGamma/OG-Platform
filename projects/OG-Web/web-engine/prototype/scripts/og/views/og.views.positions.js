@@ -53,12 +53,12 @@ $.register_module({
                     buttons: {
                         'OK': function () {
                             api.rest.positions.put({
-                                handler: function (r) {
-                                    var args = routes.last().args;
-                                    if (r.error) return ui.dialog({type: 'error', message: r.message});
+                                handler: function (result) {
+                                    var args = routes.current().args, rule = module.rules.load_positions;
+                                    if (result.error) return ui.dialog({type: 'error', message: result.message});
                                     ui.dialog({type: 'input', action: 'close'});
                                     positions.search(args);
-                                    routes.go(routes.hash(module.rules.load_positions, args, {add: {id: r.meta.id}}));
+                                    routes.go(routes.hash(rule, args, {add: {id: result.meta.id}, del: ['version']}));
                                 },
                                 quantity: ui.dialog({return_field_value: 'quantity'}),
                                 scheme_type: ui.dialog({return_field_value: 'scheme-type'}),
@@ -74,11 +74,12 @@ $.register_module({
                     buttons: {
                         'Delete': function () {
                             api.rest.positions.del({
-                                handler: function (r) {
-                                    if (r.error) return ui.dialog({type: 'error', message: r.message});
+                                handler: function (result) {
+                                    var args = routes.current().args;
                                     ui.dialog({type: 'confirm', action: 'close'});
+                                    if (result.error) return ui.dialog({type: 'error', message: result.message});
                                     positions.search(args);
-                                    routes.go(routes.hash(module.rules.load, {}));
+                                    routes.go(routes.hash(module.rules.load, args));
                                 }, id: routes.last().args.id
                             });
                         }
@@ -91,7 +92,7 @@ $.register_module({
                         layout.inner.close('south');
                     } else layout.inner.open('south');
                     layout.inner.options.south.onclose = function () {
-                        routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
+                        routes.go(routes.hash(rule, args, {del: ['version']}));
                     };
                 }
             },
@@ -132,18 +133,13 @@ $.register_module({
                 }
             },
             details_page = function (args) {
-                var render_identifiers = function (json) {
-                        $('.OG-js-details-panel .og-js-identifiers').html(json.reduce(function (acc, val) {
-                            acc.push('<tr><td><span>' + val.scheme.lang() + '</span></td><td>' + val.value + '</td></tr>');
-                            return acc
-                        }, []).join(''));
-                    };
                 // load versions
                 if (args.version) {
                     layout.inner.open('south');
                     og.views.common.versions.load();
                 } else layout.inner.close('south');
                 api.rest.positions.get({
+                    dependencies: ['id'],
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var json = result.data;
@@ -158,7 +154,8 @@ $.register_module({
                                         This position has been deleted\
                                     </section>\
                                 ',
-                                $html = $.tmpl(template, json.template_data), header, content;
+                                header, content;
+                            var $html = $.tmpl(template, json.template_data);
                             header = $.outer($html.find('> header')[0]);
                             content = $.outer($html.find('> section')[0]);
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
@@ -173,22 +170,14 @@ $.register_module({
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
                             }
-                            render_identifiers(json.securities);
-                            og.common.module.trade_table({
-                                trades: json.trades,
-                                selector: '.og-js-trades-table'
-                            });
-                            if (!args.version || args.version === '*') {
-                                ui.content_editable({
-                                    attribute: 'data-og-editable',
-                                    handler: function () {positions.search(args), routes.handler();}
-                                });
-                            }
+                            common.gadgets.positions({id: args.id, selector: '.og-js-details-positions', editable: true});
+                            common.gadgets.trades({id: args.id, selector: '.og-js-trades-table'});
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             layout.inner.resizeAll();
                         }});
                     },
                     id: args.id,
+                    cache_for: 10000,
                     version: args.version && args.version !== '*' ? args.version : void 0,
                     loading: function () {
                         ui.message({
@@ -241,16 +230,10 @@ $.register_module({
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        state = {filter: true};
-                        positions.load(args);
-                        args.id
-                            ? routes.go(routes.hash(module.rules.load_positions, args))
-                            : routes.go(routes.hash(module.rules.load, args));
-                    }}
+                    {new_value: 'id', stop: true, method: function () {if (args.id) positions.load_positions(args);}},
+                    {new_page: function () {positions.load(args);}}
                 ]});
-                delete args['filter'];
-                search.filter($.extend(true, args, {filter: true}, get_quantities(args.quantity)));
+                search.filter($.extend(true, args, get_quantities(args.quantity)));
             },
             load_positions: function (args) {
                 check_state({args: args, conditions: [

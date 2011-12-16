@@ -167,7 +167,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(desiredValues.size());
     final Collection<ComputedValue> inputValues = inputs.getAllValues();
-  desiredValueLoop:
+    desiredValueLoop:
     for (ValueRequirement desiredValue : desiredValues) {
       final ValueRequirement inputRequirement = getInputValueRequirement(desiredValue);
       final String outputCurrency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
@@ -213,7 +213,13 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     } else if (possibleCurrencies.isEmpty()) {
       if (isAllowViewDefaultCurrency()) {
         // The original function may not have delivered a result because it had heterogeneous input currencies, so try forcing the view default
-        String defaultCurrencyISO = DefaultCurrencyInjectionFunction.getViewDefaultCurrencyISO(context);
+        final String defaultCurrencyISO;
+        try {
+          defaultCurrencyISO = DefaultCurrencyInjectionFunction.getViewDefaultCurrencyISO(context);
+        } catch (IllegalStateException e) {
+          s_logger.debug("Caught exception", e);
+          return null;
+        }
         s_logger.debug("Injecting view default currency {}", defaultCurrencyISO);
         final Set<ValueRequirement> req = new HashSet<ValueRequirement>();
         req.add(getInputValueRequirement(desiredValue, defaultCurrencyISO));
@@ -275,7 +281,11 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   private Set<String> getCurrencies(final Set<ValueSpecification> specs) {
     final Set<String> currencies = new HashSet<String>();
     for (ValueSpecification spec : specs) {
-      currencies.add(spec.getProperty(ValuePropertyNames.CURRENCY));
+      final Set<String> specCurrencies = spec.getProperties().getValues(ValuePropertyNames.CURRENCY);
+      if ((specCurrencies == null) || (specCurrencies.size() != 1)) {
+        return null;
+      }
+      currencies.add(specCurrencies.iterator().next());
     }
     return currencies;
   }
@@ -290,7 +300,13 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
       final Set<ValueSpecification> outputs) {
     s_logger.debug("FX requirements for {} -> {}", inputs, outputs);
     final Set<String> inputCurrencies = getCurrencies(inputs);
-    Set<String> outputCurrencies = getCurrencies(outputs);
+    if (inputCurrencies == null) {
+      return null;
+    }
+    final Set<String> outputCurrencies = getCurrencies(outputs);
+    if (outputCurrencies == null) {
+      return null;
+    }
     if ((inputCurrencies.size() == 1) && (outputCurrencies.size() == 1)) {
       final String input = inputCurrencies.iterator().next();
       final String output = outputCurrencies.iterator().next();

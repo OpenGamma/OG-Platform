@@ -51,6 +51,20 @@ public interface CompiledFunctionDefinition {
   boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target);
 
   /**
+   * Determine which result values can be produced by this function when applied to the
+   * specified target assuming no input constraints. Should return the <b>maximal</b> set of potential outputs.
+   * <b>Actual</b> computed values will be trimmed. It is only valid to call this on a function which has
+   * previously returned true to {@link #canApplyTo} for the given target, its behavior is otherwise
+   * undefined.
+   * 
+   * @param context  the compilation context with view-specific parameters and configurations
+   * @param target  the target for which calculation is desired
+   * @return All results <b>possible</b> to be computed by this function for this target, null or the empty set
+   *         if no values are possible.
+   */
+  Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target);
+
+  /**
    * Obtain all input requirements necessary for the operation of this function at execution time.
    * The target requirement is available to allow property constraints on input requirements to be
    * specified if necessary. It is only valid to call this on a function which has previously
@@ -86,34 +100,6 @@ public interface CompiledFunctionDefinition {
   boolean canHandleMissingRequirements();
 
   /**
-   * Determine any additional input requirements needed as a result of input and output resolution.
-   * In general, implementations <b>should not</b> override the implementation in {@link AbstractFunction}. It
-   * is only valid to call this on a function which has previously returned true to {@link #canApplyTo}
-   * for the given target, its behavior is otherwise undefined.
-   * 
-   * @param context  the compilation context with view-specific parameters and configurations
-   * @param target  the target for which calculation is desired
-   * @param inputs  the fully resolved input specifications
-   * @param outputs  the fully resolved output specifications
-   * @return Any additional input requirements to satisfy execution on the given inputs to deliver the given outputs.
-   */
-  Set<ValueRequirement> getAdditionalRequirements(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs, Set<ValueSpecification> outputs);
-
-  /**
-   * Determine which result values can be produced by this function when applied to the
-   * specified target assuming no input constraints. Should return the <b>maximal</b> set of potential outputs.
-   * <b>Actual</b> computed values will be trimmed. It is only valid to call this on a function which has
-   * previously returned true to {@link #canApplyTo} for the given target, its behavior is otherwise
-   * undefined.
-   * 
-   * @param context  the compilation context with view-specific parameters and configurations
-   * @param target  the target for which calculation is desired
-   * @return All results <b>possible</b> to be computed by this function for this target, null or the empty set
-   *         if no values are possible.
-   */
-  Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target);
-
-  /**
    * Determine which result values can be produced by this function when applied to the
    * specified target given the resolved inputs. Should return the <b>maximal</b> set of potential outputs.
    * <b>Actual</b> computed values will be trimmed. The default implementation from {@link AbstractFunction}
@@ -134,14 +120,18 @@ public interface CompiledFunctionDefinition {
   Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs);
 
   /**
-   * Returns an invocation handle to the compiled function.
-   * <p>
-   * If the function is not available at this node, for example because it requires a native library,
-   * null may be returned. It is not necessary for an implementation to cache the invoker objects.
+   * Determine any additional input requirements needed as a result of input and output resolution.
+   * In general, implementations <b>should not</b> override the implementation in {@link AbstractFunction}. It
+   * is only valid to call this on a function which has previously returned true to {@link #canApplyTo}
+   * for the given target, its behavior is otherwise undefined.
    * 
-   * @return the function invoker, null if not available at this node
+   * @param context  the compilation context with view-specific parameters and configurations
+   * @param target  the target for which calculation is desired
+   * @param inputs  the fully resolved input specifications
+   * @param outputs  the fully resolved output specifications
+   * @return Any additional input requirements to satisfy execution on the given inputs to deliver the given outputs.
    */
-  FunctionInvoker getFunctionInvoker();
+  Set<ValueRequirement> getAdditionalRequirements(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs, Set<ValueSpecification> outputs);
 
   /**
    * States the earliest time that this metadata and invoker will be valid for.
@@ -160,5 +150,15 @@ public interface CompiledFunctionDefinition {
    * @return the latest timestamp, null if definition always valid
    */
   Instant getLatestInvocationTime();
+
+  /**
+   * Returns an invocation handle to the compiled function.
+   * <p>
+   * If the function is not available at this node, for example because it requires a native library,
+   * null may be returned. It is not necessary for an implementation to cache the invoker objects.
+   * 
+   * @return the function invoker, null if not available at this node
+   */
+  FunctionInvoker getFunctionInvoker();
 
 }

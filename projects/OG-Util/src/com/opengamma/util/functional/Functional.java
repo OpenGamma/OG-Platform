@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Set of functional-like utilities
+ * Set of functional-like utilities.
  */
 public class Functional {
 
@@ -54,7 +54,7 @@ public class Functional {
    * @param values the set of values
    * @param <K> type of map keys
    * @param <V> type of map values
-   * @return submap of the original map
+   * @return submap of the original map, not null
    */
   public static <K, V> Map<K, V> submapByValueSet(final Map<K, V> map, final Set<V> values) {
     Map<K, V> submap = new HashMap<K, V>();
@@ -68,12 +68,13 @@ public class Functional {
   }
 
   /**
-   * Returns part of the provided map which keys are contained by provided set of keys
-   * @param map the map
-   * @param keys the set of keys
+   * Returns part of the provided map which keys are contained by provided set of keys.
+   * 
+   * @param map  the map, not null
+   * @param keys  the set of keys, not null
    * @param <K> type of map keys
    * @param <V> type of map values
-   * @return submap of the original map
+   * @return submap of the original map, not null
    */
   public static <K, V> Map<K, V> submapByKeySet(final Map<K, V> map, final Set<K> keys) {
     Map<K, V> submap = new HashMap<K, V>();
@@ -87,11 +88,12 @@ public class Functional {
 
 
   /**
-   * Creates reversed map of type Map<V, Collection<K>> from map of type Map<K, V>
-   * @param map the underlying map
+   * Creates reversed map of type Map<V, Collection<K>> from map of type Map<K, V>.
+   * 
+   * @param map  the underlying map, not null
    * @param <K> type of map keys
    * @param <V> type of map values
-   * @return the reversed map
+   * @return the reversed map, not null
    */
   public static <K, V> Map<V, Collection<K>> reverseMap(final Map<K, V> map) {
     Map<V, Collection<K>> reversed = new HashMap<V, Collection<K>>();
@@ -108,12 +110,14 @@ public class Functional {
   }
 
   /**
-   * Merges source map into target one by mutating it (overwriting entries if the target map already contains tha same keys)
-   * @param target the target map
-   * @param source the source map
+   * Merges source map into target one by mutating it (overwriting entries if
+   * the target map already contains the same keys).
+   * 
+   * @param target  the target map, not null
+   * @param source  the source map, not null
    * @param <K> type of map keys
    * @param <V> type of map values
-   * @return the merged map
+   * @return the merged map, not null
    */
   public static <K, V> Map<K, V> merge(final Map<K, V> target, final Map<K, V> source) {
     for (K key : source.keySet()) {
@@ -124,7 +128,8 @@ public class Functional {
 
   /**
    * Returns sorted list of elements from unsorted collection.
-   * @param c unsorted collection
+   * 
+   * @param coll  unsorted collection
    * @param <T> type if elements in unsorted collection (must implement Comparable interface)
    * @return list sorted using internal entries' {@link Comparable#compareTo(Object)} compareTo} method.
    */
@@ -224,7 +229,7 @@ public class Functional {
     return into;
   }
 
-  public static abstract class Reduce<T, S> extends Function3<T, Iterable<? extends S>, Function2<T, S, T>, T> {
+  public abstract static class Reduce<T, S> extends Function3<T, Iterable<? extends S>, Function2<T, S, T>, T> {
 
     public abstract T reduce(T acc, S v);
 
@@ -241,10 +246,9 @@ public class Functional {
         }
       });
     }
-
   }
 
-  public static abstract class ReduceSame<S> extends Function2<Iterable<? extends S>, Function2<S, S, S>, S> {
+  public abstract static class ReduceSame<S> extends Function2<Iterable<? extends S>, Function2<S, S, S>, S> {
 
     public abstract S reduce(S acc, S v);
 
@@ -261,7 +265,6 @@ public class Functional {
         }
       });
     }
-
   }
 
 }

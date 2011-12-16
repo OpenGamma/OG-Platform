@@ -30,14 +30,14 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
-import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.SwapGenerator;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.Coupon;
@@ -87,7 +87,7 @@ public class PresentValueSensitivityCalculatorTest {
     final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
     final double df = curve.getDiscountFactor(t);
     double r = 1 / t * (1 / df - 1);
-    Cash cash = new Cash(CUR, t, 1, r, FIVE_PC_CURVE_NAME);
+    Cash cash = new Cash(CUR, 0, t, 1, r, t, FIVE_PC_CURVE_NAME);
     Map<String, List<DoublesPair>> sense = PVSC.visit(cash, CURVES);
 
     assertTrue(sense.containsKey(FIVE_PC_CURVE_NAME));
@@ -108,7 +108,7 @@ public class PresentValueSensitivityCalculatorTest {
     final double yearFrac = 5.0 / 360.0;
     final double dfa = curve.getDiscountFactor(tradeTime);
     r = 1 / yearFrac * (dfa / df - 1);
-    cash = new Cash(CUR, t, 1, r, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
+    cash = new Cash(CUR, tradeTime, t, 1, r, yearFrac, FIVE_PC_CURVE_NAME);
     sense = PVSC.visit(cash, CURVES);
     temp = sense.get(FIVE_PC_CURVE_NAME);
     for (final DoublesPair pair : temp) {
@@ -167,19 +167,6 @@ public class PresentValueSensitivityCalculatorTest {
 
     List<DoublesPair> senseAnal = clean(sense.get(FIVE_PC_CURVE_NAME), eps, eps);
     List<DoublesPair> senseFD = curveSensitvityFDCalculator(ir, PVC, CURVES, FIVE_PC_CURVE_NAME, nodeTimes, eps);
-
-    //debug
-    YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
-    final double rate = (curve.getDiscountFactor(fixingPeriodEndTime) / curve.getDiscountFactor(fixingPeriodStartTime) - 1.0) / fixingPeriodAccrualFactor;
-    ForwardRateAgreement debug = new ForwardRateAgreement(CUR, fixingPeriodStartTime, ZERO_PC_CURVE_NAME, paymentAccrualFactor, 1.0, iborIndex, fixingPeriodStartTime, fixingPeriodStartTime,
-        fixingPeriodEndTime, fixingPeriodAccrualFactor, rate, FIVE_PC_CURVE_NAME);
-
-    double pvFuture = PVC.visit(ir, CURVES);
-    double pvFRA = PVC.visit(debug, CURVES);
-
-    final Map<String, List<DoublesPair>> senseDebug = PVSC.visit(debug, CURVES);
-    List<DoublesPair> senseDebugClean = clean(senseDebug.get(FIVE_PC_CURVE_NAME), eps, eps);
-    //end debug
 
     assertSensitivityEquals(senseFD, senseAnal, eps);
   }
@@ -466,7 +453,7 @@ public class PresentValueSensitivityCalculatorTest {
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
   private static final SwapGenerator SWAP_GENERATOR = new SwapGenerator(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX);
-  private static final CMSIndex CMS_INDEX = new CMSIndex(SWAP_GENERATOR, ANNUITY_TENOR);
+  private static final IndexSwap CMS_INDEX = new IndexSwap(SWAP_GENERATOR, ANNUITY_TENOR);
   private static final SwapFixedIborDefinition SWAP_DEFINITION_PAYER = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
   private static final FixedCouponSwap<Coupon> SWAP_PAYER = SWAP_DEFINITION_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
 

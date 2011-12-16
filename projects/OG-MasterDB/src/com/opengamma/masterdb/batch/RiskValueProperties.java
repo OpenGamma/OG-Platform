@@ -52,7 +52,7 @@ public class RiskValueProperties {
         json.put("without", without);
       } else {
         JSONArray properties = new JSONArray();
-        if (requirement.getProperties() != null){
+        if (requirement.getProperties() != null) {
           for (String property : sort(requirement.getProperties())) {
             JSONObject propertyJson = new JSONObject();
 

@@ -38,6 +38,7 @@ import com.opengamma.masterdb.security.hibernate.fx.FXForwardSecurityBeanOperati
 import com.opengamma.masterdb.security.hibernate.fx.FXSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.fx.NonDeliverableFXForwardSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.EquityBarrierOptionSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.option.EquityIndexDividendFutureOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.EquityIndexOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.EquityOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.FxBarrierOptionSecurityBeanOperation;
@@ -143,6 +144,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
     loadBeanOperation(NonDeliverableFxOptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(SwaptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(IRFutureOptionSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(EquityIndexDividendFutureOptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(FxBarrierOptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(FXSecurityBeanOperation.INSTANCE);
     loadBeanOperation(FXForwardSecurityBeanOperation.INSTANCE);
@@ -204,7 +206,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
         HibernateSecurityMasterDao secMasterSession = getHibernateSecurityMasterSession(session);
         SecurityBean security = secMasterSession.getSecurityBean(base, beanOperation);
         if (security == null) {
-          s_logger.debug("no detail found for security {}", base.getUniqueId());
+          s_logger.warn("no detail found for security {}", base.getUniqueId());
           return base;
         }
         security = beanOperation.resolve(getOperationContext(), secMasterSession, null, security);

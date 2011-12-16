@@ -31,32 +31,30 @@ public class SwapSecurityUtils {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) receiveLeg;
       if (floatingLeg instanceof FloatingSpreadIRLeg) {
         return InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD;
-      } else {
-        FloatingRateType floatingRateType = floatingLeg.getFloatingRateType();
-        switch (floatingRateType) {
-          case IBOR:
-            return InterestRateInstrumentType.SWAP_FIXED_IBOR;
-          case CMS:
-            return InterestRateInstrumentType.SWAP_FIXED_CMS;
-          default:
-            throw new OpenGammaRuntimeException("Unsupported Floating rate type: " + floatingRateType);
-        }
+      } 
+      FloatingRateType floatingRateType = floatingLeg.getFloatingRateType();
+      switch (floatingRateType) {
+        case IBOR:
+          return InterestRateInstrumentType.SWAP_FIXED_IBOR;
+        case CMS:
+          return InterestRateInstrumentType.SWAP_FIXED_CMS;
+        default:
+          throw new OpenGammaRuntimeException("Unsupported Floating rate type: " + floatingRateType);
       }
     } else if (payLeg instanceof FloatingInterestRateLeg && receiveLeg instanceof FixedInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) payLeg;
       
       if (floatingLeg instanceof FloatingSpreadIRLeg) {
         return InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD;
-      } else {
-        FloatingRateType floatingRateType = floatingLeg.getFloatingRateType();
-        switch (floatingRateType) {
-          case IBOR:
-            return InterestRateInstrumentType.SWAP_FIXED_IBOR;
-          case CMS:
-            return InterestRateInstrumentType.SWAP_FIXED_CMS;
-          default:
-            throw new OpenGammaRuntimeException("Unsupported Floating rate type: " + floatingRateType);
-        }
+      } 
+      FloatingRateType floatingRateType = floatingLeg.getFloatingRateType();
+      switch (floatingRateType) {
+        case IBOR:
+          return InterestRateInstrumentType.SWAP_FIXED_IBOR;
+        case CMS:
+          return InterestRateInstrumentType.SWAP_FIXED_CMS;
+        default:
+          throw new OpenGammaRuntimeException("Unsupported Floating rate type: " + floatingRateType);
       }
     }
     if (payLeg instanceof FloatingInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg) {

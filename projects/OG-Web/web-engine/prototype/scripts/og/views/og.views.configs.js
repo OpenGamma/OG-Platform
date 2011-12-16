@@ -120,14 +120,14 @@ $.register_module({
                 var rest_options, is_new = !!new_config_type, rest_handler = function (result) {
                     if (result.error) return ui.dialog({type: 'error', message: result.message});
                     if (is_new) {
-                        if (!result.data) result.data = {template_data: {type: new_config_type, configJSON: {}}};
+                        if (!result.data)
+                            return ui.dialog({type: 'error', message: 'No template for: ' + new_config_type});
                         if (!result.data.template_data.configJSON) result.data.template_data.configJSON = {};
                         result.data.template_data.name = 'UNTITLED';
                         result.data.template_data.configJSON.name = 'UNTITLED';
                     }
                     var details_json = result.data,
-                        config_type = details_json.template_data.type.toLowerCase(),
-                        template = module.name + '.' + config_type, text_handler;
+                        config_type = details_json.template_data.type.toLowerCase().split('.').reverse()[0];
                     if (!is_new) history.put({
                         name: details_json.template_data.name,
                         item: 'history.configs.recent',
@@ -135,7 +135,7 @@ $.register_module({
                     });
                     if (!og.views.config_forms[config_type]) {
                         ui.message({location: '.ui-layout-inner-center', destroy: true});
-                        return ui.dialog({type: 'error', message: 'There is no template for: ' + config_type});
+                        return ui.dialog({type: 'error', message: 'No renderer for: ' + config_type});
                     }
                     og.views.config_forms[config_type]({
                         is_new: is_new,
@@ -144,7 +144,7 @@ $.register_module({
                             ui.message({location: '.ui-layout-inner-center', message: 'saving...'});
                         },
                         save_new_handler: function (result) {
-                            var args = $.extend({}, routes.last().args, {id: result.meta.id});
+                            var args = $.extend({}, routes.current().args, {id: result.meta.id});
                             ui.message({location: '.OG-js-details-panel', destroy: true});
                             if (result.error) {
                                 ui.message({location: '.ui-layout-inner-center', destroy: true});
@@ -154,13 +154,13 @@ $.register_module({
                             routes.go(routes.hash(module.rules.load_configs, args));
                         },
                         save_handler: function (result) {
+                            var args = routes.current().args;
                             if (result.error) {
                                 ui.message({location: '.ui-layout-inner-center', destroy: true});
-                                ui.dialog({type: 'error', message: result.message});
-                                return;
+                                return ui.dialog({type: 'error', message: result.message});
                             }
                             ui.message({location: '.ui-layout-inner-center', message: 'saved'});
-                            setTimeout(function () {routes.handler(); details_page(args);}, 300);
+                            setTimeout(function () {configs.search(args), details_page(args);}, 300);
                         },
                         handler: function (form) {
                             var json = details_json.template_data,
@@ -196,12 +196,14 @@ $.register_module({
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             layout.inner.resizeAll();
                         },
-                        selector: '.ui-layout-inner-center .ui-layout-content'
+                        selector: '.ui-layout-inner-center .ui-layout-content',
+                        type: details_json.template_data.type
                     });
                 };
                 layout.inner.options.south.onclose = null;
                 layout.inner.close('south');
                 rest_options = {
+                    dependencies: ['id'],
                     handler: rest_handler,
                     loading: function () {
                         ui.message({
@@ -236,10 +238,10 @@ $.register_module({
                         return setTimeout(search_filter, 500);
                     search.filter($.extend(args, {filter: true}));
                 };
-                check_state({args: args, conditions: [{new_page: function () {
-                    if (args.id) return configs.load_configs(args);
-                    configs.load(args);
-                }}]});
+                check_state({args: args, conditions: [
+                    {new_value: 'id', stop: true, method: function () {if (args.id) configs.load_configs(args);}},
+                    {new_page: function () {configs.load(args);}}
+                ]});
                 search_filter();
             },
             load_configs: function (args) {
@@ -250,7 +252,7 @@ $.register_module({
             },
             load_new: function (args) {
                 check_state({args: args, conditions: [{new_page: configs.load}]});
-                details_page(args, args.config_type);
+                configs.details(args, args.config_type);
             },
             search: function (args) {
                 if (!search) search = common.search_results.core();

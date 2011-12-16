@@ -43,7 +43,7 @@ public class AnnuityCouponFixed extends GenericAnnuity<CouponFixed> {
    * @param couponRate The common coupon rate.
    * @param yearFractions The year fraction of each payment.
    * @param yieldCurveName The discounting curve name.
-   * @param isPayer TODO
+   * @param isPayer Payer flag.
    */
   public AnnuityCouponFixed(Currency currency, final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions, final String yieldCurveName, 
       boolean isPayer) {
@@ -56,6 +56,18 @@ public class AnnuityCouponFixed extends GenericAnnuity<CouponFixed> {
    */
   public double getCouponRate() {
     return getNthPayment(0).getFixedRate();
+  }
+
+  /**
+   * Creates a new annuity with the same characteristics, except the rate which is 1.0.
+   * @return The new annuity.
+   */
+  public AnnuityCouponFixed withUnitCoupon() {
+    CouponFixed[] cpn = new CouponFixed[getNumberOfPayments()];
+    for (int loopcpn = 0; loopcpn < getNumberOfPayments(); loopcpn++) {
+      cpn[loopcpn] = getNthPayment(loopcpn).withUnitCoupon();
+    }
+    return new AnnuityCouponFixed(cpn);
   }
 
   /**

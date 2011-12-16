@@ -41,6 +41,9 @@ import com.opengamma.financial.instrument.bond.BondFixedTransactionDefinition;
 import com.opengamma.financial.instrument.bond.BondIborSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
+import com.opengamma.financial.instrument.cash.DepositCounterpartDefinition;
+import com.opengamma.financial.instrument.cash.DepositDefinition;
+import com.opengamma.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.instrument.future.FutureInstrumentsDescriptionDataSet;
@@ -49,8 +52,8 @@ import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginS
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
-import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
@@ -101,7 +104,7 @@ public class InstrumentDefinitionVisitorTest {
   private static final int SPOT_LAG = 2;
   private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final IborIndex IBOR_INDEX_1 = new IborIndex(CUR, IBOR_PERIOD_1, SPOT_LAG, C, IBOR_DAY_COUNT, BD, IS_EOM);
-  private static final CMSIndex CMS_INDEX = new CMSIndex(IBOR_PERIOD_1, IBOR_DAY_COUNT, IBOR_INDEX_1, IBOR_PERIOD_1);
+  private static final IndexSwap CMS_INDEX = new IndexSwap(IBOR_PERIOD_1, IBOR_DAY_COUNT, IBOR_INDEX_1, IBOR_PERIOD_1);
   private static final AnnuityCouponIborDefinition ANNUITY_IBOR = AnnuityCouponIborDefinition.from(SETTLE_DATE, TENOR, NOTIONAL, IBOR_INDEX_1, !IS_PAYER);
   private static final Period IBOR_PERIOD_2 = Period.ofMonths(6);
   private static final IborIndex IBOR_INDEX_2 = new IborIndex(CUR, IBOR_PERIOD_2, SPOT_LAG, C, IBOR_DAY_COUNT, BD, IS_EOM);
@@ -591,6 +594,36 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitForexNonDeliverableOptionDefinition(ForexNonDeliverableOptionDefinition ndo) {
+      return null;
+    }
+
+    @Override
+    public String visitDepositDefinition(DepositDefinition deposit, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitDepositDefinition(DepositDefinition deposit) {
+      return null;
+    }
+
+    @Override
+    public String visitDepositIborDefinition(DepositIborDefinition deposit, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitDepositIborDefinition(DepositIborDefinition deposit) {
+      return null;
+    }
+
+    @Override
+    public String visitDepositCounterpartDefinition(DepositCounterpartDefinition deposit, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitDepositCounterpartDefinition(DepositCounterpartDefinition deposit) {
       return null;
     }
   }

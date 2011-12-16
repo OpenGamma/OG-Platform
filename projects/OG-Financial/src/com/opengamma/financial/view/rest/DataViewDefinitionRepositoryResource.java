@@ -27,9 +27,12 @@ public class DataViewDefinitionRepositoryResource {
   
   private final ViewDefinitionRepository _repository;
   
+  //CSOFF
   public static final String PATH_VIEWDEFINITION_GETIDS = "ids";
   public static final String PATH_VIEWDEFINITION_UNIQUE_ID = "id";
   public static final String PATH_VIEWDEFINITION_NAME = "name";
+
+  //CSON
   
   public DataViewDefinitionRepositoryResource(ViewDefinitionRepository repository) {
     ArgumentChecker.notNull(repository, "repository");

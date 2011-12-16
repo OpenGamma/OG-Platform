@@ -46,6 +46,10 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
     _useAttributes = useAttributes;
   }
   
+  public GICSAggregationFunction(SecuritySource secSource, String level) {
+    this(secSource, Enum.valueOf(Level.class, level));
+  }
+  
   private EquitySecurityVisitor<String> _equitySecurityVisitor = new EquitySecurityVisitor<String>() {
     @Override
     public String visitEquitySecurity(EquitySecurity security) {

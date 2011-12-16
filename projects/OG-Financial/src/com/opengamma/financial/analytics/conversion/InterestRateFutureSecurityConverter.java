@@ -16,11 +16,13 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -46,7 +48,7 @@ public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityV
     Validate.notNull(security, "security");
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();
-    final ConventionBundle iborConvention = _conventionSource.getConventionBundle(security.getUnderlyingId());
+    final ConventionBundle iborConvention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_IR_FUTURE"));
     if (iborConvention == null) {
       throw new OpenGammaRuntimeException("Could not get ibor convention for " + currency.getCode());
     }

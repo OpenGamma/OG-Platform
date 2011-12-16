@@ -58,17 +58,15 @@ public class CapFloorCMSSpreadSABRPresentValueSABRFunction extends CapFloorCMSSp
     final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(target, inputs));
     final InstrumentDerivative capFloor = capFloorDefinition.toDerivative(now, getFundingCurveName(), getForwardCurveName());
     final PresentValueSABRSensitivityDataBundle presentValue = CALCULATOR.visit(capFloor, data);
-    final ValueProperties resultProperties = createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, capFloorSecurity.getCurrency().getCode())
-        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
+    final ValueProperties resultProperties = createValueProperties().with(ValuePropertyNames.CURRENCY, capFloorSecurity.getCurrency().getCode())
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName()).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
         .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
     final ValueSpecification alphaSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.toSpecification(), resultProperties);
     final ValueSpecification nuSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.toSpecification(), resultProperties);
     final ValueSpecification rhoSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, target.toSpecification(), resultProperties);
-    final Map<DoublesPair, Double> alpha = presentValue.getAlpha();
-    final Map<DoublesPair, Double> nu = presentValue.getNu();
-    final Map<DoublesPair, Double> rho = presentValue.getRho();
+    final Map<DoublesPair, Double> alpha = presentValue.getAlpha().getMap();
+    final Map<DoublesPair, Double> nu = presentValue.getNu().getMap();
+    final Map<DoublesPair, Double> rho = presentValue.getRho().getMap();
     final DoubleLabelledMatrix2D alphaValue = getMatrix(alpha);
     final DoubleLabelledMatrix2D nuValue = getMatrix(nu);
     final DoubleLabelledMatrix2D rhoValue = getMatrix(rho);
@@ -77,10 +75,8 @@ public class CapFloorCMSSpreadSABRPresentValueSABRFunction extends CapFloorCMSSp
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties resultProperties = createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode())
-        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
+    final ValueProperties resultProperties = createValueProperties().with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode())
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName()).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
         .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
     return getResults(target.toSpecification(), resultProperties);
   }
@@ -94,9 +90,7 @@ public class CapFloorCMSSpreadSABRPresentValueSABRFunction extends CapFloorCMSSp
 
   private DoubleLabelledMatrix2D getMatrix(final Map<DoublesPair, Double> map) {
     final Map.Entry<DoublesPair, Double> entry = map.entrySet().iterator().next();
-    return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first},
-                                      new Double[] {entry.getKey().second},
-                                      new double[][] {new double[] {entry.getValue()}});
+    return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first}, new Double[] {entry.getKey().second}, new double[][] {new double[] {entry.getValue()}});
   }
 
 }

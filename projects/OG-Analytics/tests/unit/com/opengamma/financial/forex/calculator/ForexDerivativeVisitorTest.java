@@ -29,7 +29,9 @@ import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.DepositCounterpart;
+import com.opengamma.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -51,7 +53,6 @@ import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
-import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -377,11 +378,6 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitZZZCouponOIS(ZZZCouponOIS payment, T data) {
-      return null;
-    }
-
-    @Override
     public String visitFixedPayment(PaymentFixed payment, T data) {
       return null;
     }
@@ -597,11 +593,6 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitZZZCouponOIS(ZZZCouponOIS payment) {
-      return null;
-    }
-
-    @Override
     public String visitFixedPayment(PaymentFixed payment) {
       return null;
     }
@@ -683,6 +674,26 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond) {
+      return null;
+    }
+
+    @Override
+    public String visitDepositIbor(DepositIbor deposit, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitDepositIbor(DepositIbor deposit) {
+      return null;
+    }
+
+    @Override
+    public String visitDepositCounterpart(DepositCounterpart deposit, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitDepositCounterpart(DepositCounterpart deposit) {
       return null;
     }
 

@@ -9,7 +9,7 @@ classes should alter those!
 .slick-header.ui-state-default, .slick-headerrow.ui-state-default {
 	width: 100%;
 	overflow: hidden;
-	border-left: 0;
+	border-left: 0px;
 }
 
 .slick-header-columns, .slick-headerrow-columns {
@@ -82,11 +82,10 @@ classes should alter those!
 .slick-row.ui-widget-content, .slick-row.ui-state-active {
 	position: absolute;
 	border: 0px;
-  width: 100%;
 }
 
 .slick-cell, .slick-headerrow-column {
-	float: left;
+	position: absolute;
 
 	border: 1px solid transparent;
 	border-right: 1px dotted silver;
@@ -106,11 +105,6 @@ classes should alter those!
 }
 
 .slick-group {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
 }
 
 .slick-group-toggle {

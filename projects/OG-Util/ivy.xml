@@ -29,7 +29,7 @@
 		<dependency org="javax.time" name="jsr-310-ri" rev="0.6.3"/>
 		<dependency org="javax.jms" name="jms" rev="1.1"/>
 		<dependency org="org.apache.activemq" name="activemq" rev="5.3.0" conf="*->core"/>
-		<dependency org="com.google.common" name="guava" rev="r04"/>
+		<dependency org="com.google.common" name="guava" rev="10.0.1"/>
 		<dependency org="org.hibernate" name="hibernate" rev="3.5.2" conf="*->default"/>
 		<dependency org="org.apache.derby" name="derby" rev="10.6+"/>
 		<dependency org="org.postgresql" name="postgresql-jdbc" rev="[9.0,10.0["/>

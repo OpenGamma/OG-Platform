@@ -28,7 +28,7 @@
         description="--> exports Javadoc info to JSON">
         <javadoc
             sourcepath="${src.dir}"
-            destdir="docs"
+            destdir="docs/jsondocs/javadoc-data.json"
             classpathref="lib.path.id"
             doclet="it.dexy.jsondoclet.Doclet"
             docletpath="${lib.path.jar.file}"
@@ -39,7 +39,7 @@
         description="--> exports Javadoc info to JSON">
         <javadoc
             sourcepath="tests"
-            destdir="docs"
+            destdir="docs/jsondocs/analytics-test.json"
             classpathref="lib.path.id"
             doclet="it.dexy.jsondoclet.Doclet"
             docletpath="${lib.path.jar.file}"

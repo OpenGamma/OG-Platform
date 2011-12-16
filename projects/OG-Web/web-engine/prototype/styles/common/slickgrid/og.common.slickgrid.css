@@ -78,6 +78,9 @@
     text-align: center;
 }
 
+.slick-row .selected {
+  font-weight: bold;
+}
 
 .ui-state-default,
 .ui-widget-content .ui-state-default,
@@ -155,4 +158,12 @@
   display: inline-block;
   line-height: 20px;
   vertical-align: middle;
+}
+
+.grid-canvas {
+  width: 100%!important;
+}
+
+.slick-viewport {
+  overflow-y: scroll!important;
 }

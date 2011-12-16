@@ -1,9 +1,11 @@
 {
         "api.html|hd|ft|jinja|split" : {
-            "inputs" : ["javadoc-data.json|javadocs", "_header.html", "_footer.html"],
-            "canonical-name" : "index.html"
+            "allinputs" : true,
+            "priority" : 10,
+            "canonical-name" : "index.html",
+            "disabled" : false
         },
-        "@list-files.sh|jinja|sh" : { "propagate" : true, "contents" : "cd ../{{ s.canonical_dir() }}; find ." },
+        "@list-files.sh|jinja|sh" : { "final" : false, "propagate" : true, "contents" : "cd ../{{ s.canonical_dir() }}; find -printf '%P\n'" },
         "writing-docs.tex|hd|ft|jinja|latex" : {
             "title" : "Writing OpenGamma Examples",
             "allinputs" : true,
@@ -21,7 +23,6 @@
             "priority" : 10
         },
         "og_docs_true_primitives.tex|hd|ft|jinja|latex" : {
-            "disabled" : true,
             "allinputs" : true,
             "priority" : 10
         },
@@ -31,8 +32,6 @@
         },
         "sync.sh|jinja" : {},
         "debug.txt|jinja" : { "allinputs" : true },
-        "javadoc-data.json|javadocs" : {},
-        "javadoc-data.json|ppjson" : {},
         "_*.html" : {},
         "_*.tex" : {},
         "*.jpg" : {},

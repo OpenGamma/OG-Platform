@@ -14,7 +14,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.instrument.inflation.CouponInflationDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
@@ -60,7 +60,7 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
    * @param priceIndexTimeSeries The time series with the relevant price index values.
    * @return The zero coupon inflation swap.
    */
-  public static SwapFixedInflationZeroCouponDefinition fromInterpolation(final PriceIndex index, final ZonedDateTime settlementDate, int tenor, double fixedRate, double notional,
+  public static SwapFixedInflationZeroCouponDefinition fromInterpolation(final IndexPrice index, final ZonedDateTime settlementDate, int tenor, double fixedRate, double notional,
       final boolean isPayer, final BusinessDayConvention businessDayConvention, final Calendar calendar, final boolean endOfMonth, final int monthLag,
       final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries) {
     Validate.notNull(index, "Price index");
@@ -69,7 +69,7 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
     Validate.notNull(calendar, "Calendar");
     Validate.notNull(priceIndexTimeSeries, "Time series of price index");
     double rateComposed = Math.pow(1 + fixedRate, tenor) - 1;
-    ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(settlementDate, businessDayConvention, calendar, endOfMonth, Period.ofYears(tenor));
+    ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(settlementDate, Period.ofYears(tenor), businessDayConvention, calendar, endOfMonth);
     CouponFixedDefinition fixedCpn = CouponFixedDefinition.from(index.getCurrency(), paymentDate, settlementDate, paymentDate, 1.0, (isPayer ? -1.0 : 1.0) * notional, rateComposed);
     CouponInflationZeroCouponInterpolationDefinition inflationCpn = CouponInflationZeroCouponInterpolationDefinition.from(settlementDate, paymentDate, (isPayer ? 1.0 : -1.0) * notional, index,
         priceIndexTimeSeries, monthLag, false);

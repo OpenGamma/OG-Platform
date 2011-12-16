@@ -42,7 +42,7 @@ public class AnnuityCouponFixedDefinitionTest {
   private static final double RATE = 0.0325;
   private static final boolean IS_PAYER = true;
 
-  private static final ZonedDateTime MATURITY_DATE = ScheduleCalculator.getAdjustedDate(SETTLEMENT_DATE, BUSINESS_DAY, CALENDAR, IS_EOM, ANNUITY_TENOR);
+  private static final ZonedDateTime MATURITY_DATE = ScheduleCalculator.getAdjustedDate(SETTLEMENT_DATE, ANNUITY_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM);
   private static final ZonedDateTime[] PAYMENT_DATES_UNADJUSTED = ScheduleCalculator.getUnadjustedDateSchedule(SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_FREQUENCY);
   private static final ZonedDateTime[] PAYMENT_DATES = ScheduleCalculator.getAdjustedDateSchedule(PAYMENT_DATES_UNADJUSTED, BUSINESS_DAY, CALENDAR);
 

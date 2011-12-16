@@ -7,8 +7,16 @@
     "*.java|idio|l" : {},
     "*.java|pyg" : {},
     "*.java|pyg|l" : {},
-    "*.java|fn|java" : {},
+    "OpenGammaExample.java|javac" : {},
+    "*.java|fn|java" : {
+        "inputs" : ["OpenGammaExample.java|javac"],
+        "args" : { "java" : "-enableassertions" },
+        "except" : ".*penGammaExample.java"
+    },
+    "*.R|idio" : {},
     "*.R|idio|l" : {},
+    "*.R|pyg" : {},
+    "*.R|pyg|l" : {},
     "*.R|fn|rintbatch|pyg" : {
         "ifinput" : "%.java|fn|java"
     }

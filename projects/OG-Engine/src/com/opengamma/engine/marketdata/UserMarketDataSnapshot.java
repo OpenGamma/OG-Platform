@@ -359,7 +359,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     VolatilityCubeData ret = new VolatilityCubeData();
     ret.setDataPoints(dataPoints);
     ret.setOtherData(otherData);
-    ret.setStrikes(strikes);
+    ret.setATMStrikes(strikes);
     
     return ret;
   }

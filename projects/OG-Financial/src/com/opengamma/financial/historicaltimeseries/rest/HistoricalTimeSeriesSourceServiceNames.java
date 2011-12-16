@@ -45,6 +45,10 @@ public final class HistoricalTimeSeriesSourceServiceNames {
   /**
    * 
    */
+  public static final String REQUEST_ALL_BY_DATE_LIMIT = "allByDateLimit";
+  /**
+   * 
+   */
   public static final String REQUEST_RESOLVED = "resolved";
   /**
    * 
@@ -53,11 +57,19 @@ public final class HistoricalTimeSeriesSourceServiceNames {
   /**
    * 
    */
+  public static final String REQUEST_RESOLVED_BY_DATE_LIMIT = "resolvedByDateLimit";
+  /**
+   * 
+   */
   public static final String REQUEST_UID = "uid";
   /**
    * 
    */
   public static final String REQUEST_UID_BY_DATE = "uidByDate";
+  /**
+   * 
+   */
+  public static final String REQUEST_UID_BY_DATE_LIMIT = "uidByDateLimit";
   /**
    * 
    */

@@ -15,15 +15,15 @@ public interface ViewCycleTrigger {
    * Queries the trigger.
    * 
    * @param cycleTimeNanos  the nano time to be associated with the cycle
-   * @return the trigger result, not {@code null}
+   * @return the trigger result, not null
    */
   ViewCycleTriggerResult query(long cycleTimeNanos);
-  
+
   /**
    * Called to indicate that a cycle has been triggered.
    * 
    * @param cycleTimeNanos  the nano time associated with the cycle, for elapsed time calculations with future cycles
-   * @param cycleType  the type of cycle triggered, not {@code null}
+   * @param cycleType  the type of cycle triggered, not null
    */
   void cycleTriggered(long cycleTimeNanos, ViewCycleType cycleType);
   

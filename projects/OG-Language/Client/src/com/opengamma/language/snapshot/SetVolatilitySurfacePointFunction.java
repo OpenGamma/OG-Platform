@@ -10,9 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilitySurfaceSnapshot;
 import com.opengamma.language.context.SessionContext;
@@ -29,8 +26,6 @@ import com.opengamma.util.tuple.Pair;
  * Updates a point on a "volatility surface"
  */
 public class SetVolatilitySurfacePointFunction extends AbstractFunctionInvoker implements PublishedFunction {
-
-  private static final Logger s_logger = LoggerFactory.getLogger(SetVolatilitySurfacePointFunction.class);
 
   /**
    * Default instance.

@@ -10,6 +10,7 @@
     main.corr_from_instant AS corr_from_instant,
     main.corr_to_instant AS corr_to_instant,
     main.name AS portfolio_name,
+    main.visibility AS visibility,
     n.id AS node_id,
     n.oid AS node_oid,
     n.tree_left AS tree_left,
@@ -42,6 +43,7 @@
     main.corr_from_instant AS corr_from_instant,
     main.corr_to_instant AS corr_to_instant,
     main.name AS portfolio_name,
+    main.visibility AS visibility,
     n.id AS node_id,
     n.oid AS node_oid,
     n.tree_left AS tree_left,
@@ -67,7 +69,7 @@
 
 -- ==========================================================================
 @NAME(Search)
-  WITH cte_docs AS ( @INSERT(SearchInner) )
+  WITH cte_docs AS ( @INCLUDE(SearchInner) )
   SELECT
     main.id AS portfolio_id,
     main.oid AS portfolio_oid,
@@ -76,6 +78,7 @@
     main.corr_from_instant AS corr_from_instant,
     main.corr_to_instant AS corr_to_instant,
     main.name AS portfolio_name,
+    main.visibility AS visibility,
     n.id AS node_id,
     n.oid AS node_oid,
     n.tree_left AS tree_left,
@@ -95,7 +98,7 @@
     @AND(:depth)
       n.depth <= :depth
   ORDER BY
-    main.@INSERT(:sort_order),
+    main.@INCLUDE(:sort_order),
     main.id,
     n.tree_left,
     p.key_scheme,
@@ -108,9 +111,9 @@
     prt_portfolio.id AS id
   FROM
     prt_portfolio
-  @INSERT(SearchWhere)
+  @INCLUDE(SearchWhere)
   ORDER BY
-    @INSERT(:sort_order),
+    @INCLUDE(:sort_order),
     prt_portfolio.id
   @OFFSETFETCH
 
@@ -121,24 +124,25 @@
     COUNT(prt_portfolio.id)
   FROM
     prt_portfolio
-  @INSERT(SearchWhere)
+  @INCLUDE(SearchWhere)
 
 
 -- ==========================================================================
 @NAME(SearchWhere)
   WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
     AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
+    AND visibility <= :visibility
     @AND(:sql_search_portfolio_ids)
-      oid IN ( @INSERT(:sql_search_portfolio_ids) )
+      oid IN ( @INCLUDE(:sql_search_portfolio_ids) )
     @AND(:name)
       UPPER(name) @LIKE UPPER(:name)
     @AND(:sql_search_node_ids)
-      oid IN (SELECT DISTINCT portfolio_oid FROM prt_node WHERE oid IN ( @INSERT(:sql_search_node_ids) ))
+      oid IN (SELECT DISTINCT portfolio_oid FROM prt_node WHERE oid IN ( @INCLUDE(:sql_search_node_ids) ))
 
 
 -- ==========================================================================
 @NAME(History)
-  WITH cte_docs AS ( @INSERT(HistoryInner) )
+  WITH cte_docs AS ( @INCLUDE(HistoryInner) )
   SELECT
     main.id AS portfolio_id,
     main.oid AS portfolio_oid,
@@ -147,6 +151,7 @@
     main.corr_from_instant AS corr_from_instant,
     main.corr_to_instant AS corr_to_instant,
     main.name AS portfolio_name,
+    main.visibility AS visibility,
     n.id AS node_id,
     n.oid AS node_oid,
     n.tree_left AS tree_left,
@@ -179,7 +184,7 @@
     id
   FROM
     prt_portfolio
-  @INSERT(HistoryWhere)
+  @INCLUDE(HistoryWhere)
   ORDER BY
     ver_from_instant DESC,
     corr_from_instant DESC
@@ -192,7 +197,7 @@
     COUNT(id)
   FROM
     prt_portfolio 
-  @INSERT(HistoryWhere)
+  @INCLUDE(HistoryWhere)
 
 
 -- ==========================================================================
@@ -217,9 +222,9 @@
 -- ==========================================================================
 @NAME(Insert)
   INSERT INTO prt_portfolio
-    (id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name)
+    (id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, visibility)
   VALUES
-    (:portfolio_id, :portfolio_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name)
+    (:portfolio_id, :portfolio_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, :visibility)
 
 
 -- ==========================================================================
@@ -275,6 +280,7 @@
     main.corr_from_instant AS corr_from_instant,
     main.corr_to_instant AS corr_to_instant,
     main.name AS portfolio_name,
+    main.visibility AS visibility,
     n.id AS node_id,
     n.oid AS node_oid,
     n.tree_left AS tree_left,
@@ -312,6 +318,7 @@
     main.corr_from_instant AS corr_from_instant,
     main.corr_to_instant AS corr_to_instant,
     main.name AS portfolio_name,
+    main.visibility AS visibility,
     n.id AS node_id,
     n.oid AS node_oid,
     n.tree_left AS tree_left,

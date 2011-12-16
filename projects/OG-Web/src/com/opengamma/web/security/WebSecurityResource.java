@@ -21,6 +21,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecurityDocument;
@@ -120,8 +121,13 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     SecurityDocument doc = data().getSecurity();
-    out.put("securityDoc", doc);
+    
+    // Get the last price HTS for the security
+    UniqueId htsId = htsResolver().resolve(HistoricalTimeSeriesFields.LAST_PRICE, doc.getSecurity().getExternalIdBundle(), null, null);
+    
+    out.put("securityDoc", doc); 
     out.put("security", doc.getSecurity());
+    out.put("timeSeriesId", htsId == null ? null : htsId.getObjectId());
     out.put("deleted", !doc.isLatest());
     addSecuritySpecificMetaData(doc.getSecurity(), out);
     out.put("customRenderer", FreemarkerCustomRenderer.INSTANCE);

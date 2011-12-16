@@ -100,7 +100,7 @@ public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFi
   @Override
   public BondIborSecurity toDerivative(ZonedDateTime date, String... yieldCurveNames) {
     Validate.notNull(date, "date");
-    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getCalendar(), getSettlementDays());
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
     return toDerivative(date, new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(1800, 1, 1)}, new double[] {0.0}), spot, yieldCurveNames);
 
   }
@@ -108,7 +108,7 @@ public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFi
   @Override
   public BondIborSecurity toDerivative(ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, String... yieldCurveNames) {
     Validate.notNull(date, "date");
-    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getCalendar(), getSettlementDays());
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
     return toDerivative(date, indexFixingTS, spot, yieldCurveNames);
   }
 
