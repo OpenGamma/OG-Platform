@@ -5,7 +5,7 @@
  */
 package com.opengamma.web.security;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static com.opengamma.web.WebResourceTestUtils.assertJSONObjectEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import org.json.JSONObject;
@@ -14,6 +14,7 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.test.SecurityTestCaseMethods;
 import com.opengamma.id.UniqueId;
+import com.opengamma.web.WebResourceTestUtils;
 
 /**
  * Test {@link WebSecurityResource}.
@@ -39,7 +40,7 @@ public class WebSecurityResourceTest extends AbstractWebSecurityResourceTestCase
   @Test
   @Override
   public void testEquitySecurity() throws Exception {
-    assertGetSecurity(WebSecuritiesResourceTestUtils.getEquitySecurity());
+    assertGetSecurity(WebResourceTestUtils.getEquitySecurity());
   }
 
   @Override
@@ -53,7 +54,7 @@ public class WebSecurityResourceTest extends AbstractWebSecurityResourceTestCase
   @Test
   @Override
   public void testBondFutureSecurity() throws Exception {
-    assertGetSecurity(WebSecuritiesResourceTestUtils.getBondFutureSecurity());
+    assertGetSecurity(WebResourceTestUtils.getBondFutureSecurity());
   }
 
   @Override
@@ -161,11 +162,11 @@ public class WebSecurityResourceTest extends AbstractWebSecurityResourceTestCase
     assertNotNull(securityResource);
     String json = securityResource.getJSON();
     assertNotNull(json);
-    JSONObject actualJson = new JSONObject(json); 
+    JSONObject actualJson = new JSONObject(json);
     
     JSONObject expectedJson = finSecurity.accept(new ExpectedSecurityJsonProvider());
     assertNotNull(expectedJson);
-    assertEquals(expectedJson.toString(), actualJson.toString());
+    assertJSONObjectEquals(expectedJson, actualJson);
   }
   
 }

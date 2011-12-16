@@ -14,18 +14,13 @@ import com.opengamma.engine.function.FunctionCompilationContext;
  */
 public class CAPMBetaModelPortfolioNodeFunction extends CAPMBetaModelFunction {
 
-  public CAPMBetaModelPortfolioNodeFunction(final String returnCalculatorName, final String startDate) {
-    super(returnCalculatorName, startDate);
+  public CAPMBetaModelPortfolioNodeFunction(final String resolutionKey) {
+    super(resolutionKey);
   }
 
   @Override
   public Object getTarget(final ComputationTarget target) {
     return target.getPortfolioNode();
-  }
-
-  @Override
-  public String getShortName() {
-    return "CAPM_BetaPortfolioNodeFunction";
   }
 
   @Override

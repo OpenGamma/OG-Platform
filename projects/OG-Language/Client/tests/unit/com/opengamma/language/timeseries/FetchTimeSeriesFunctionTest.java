@@ -226,7 +226,7 @@ public class FetchTimeSeriesFunctionTest {
     });
     final FetchTimeSeriesFunction function = new FetchTimeSeriesFunction();
     final Object result = function.invokeImpl(sessionContext, new Object[] {
-        DataUtils.of("Foo~Bar"), null, null, null, null, null, null, null, null, null
+        DataUtils.of("Foo~Bar"), null, null, null, null, null, null, null, null, null, null
     });
     assertTrue(result instanceof HistoricalTimeSeries);
   }
@@ -245,7 +245,7 @@ public class FetchTimeSeriesFunctionTest {
     });
     final FetchTimeSeriesFunction function = new FetchTimeSeriesFunction();
     final Object result = function.invokeImpl(sessionContext, new Object[] {
-        DataUtils.of("Foo~Bar"), LocalDate.of(2011, 4, 1), null, null, null, Boolean.TRUE, Boolean.TRUE, null, null, null
+        DataUtils.of("Foo~Bar"), LocalDate.of(2011, 4, 1), null, null, null, Boolean.TRUE, Boolean.TRUE, null, null, null, null
     });
     assertTrue(result instanceof HistoricalTimeSeries);
   }
@@ -263,7 +263,7 @@ public class FetchTimeSeriesFunctionTest {
     });
     final FetchTimeSeriesFunction function = new FetchTimeSeriesFunction();
     final Object result = function.invokeImpl(sessionContext, new Object[] {
-        DataUtils.of("Foo~Bar"), null, null, "field", null, null, null, "source", "provider", null
+        DataUtils.of("Foo~Bar"), null, null, "field", null, null, null, "source", "provider", null, null
     });
     assertTrue(result instanceof HistoricalTimeSeries);
   }
@@ -282,7 +282,7 @@ public class FetchTimeSeriesFunctionTest {
     });
     final FetchTimeSeriesFunction function = new FetchTimeSeriesFunction();
     final Object result = function.invokeImpl(sessionContext, new Object[] {
-        DataUtils.of("Foo~Bar"), null, null, "field", null, null, null, "source", "provider", LocalDate.of(2011, 5, 1)
+        DataUtils.of("Foo~Bar"), null, null, "field", null, null, null, "source", "provider", LocalDate.of(2011, 5, 1), null
     });
     assertTrue(result instanceof HistoricalTimeSeries);
   }
@@ -305,7 +305,7 @@ public class FetchTimeSeriesFunctionTest {
     });
     final FetchTimeSeriesFunction function = new FetchTimeSeriesFunction();
     final Object result = function.invokeImpl(sessionContext, new Object[] {
-        DataUtils.of("Foo~Bar"), LocalDate.of(2011, 4, 1), null, "field", null, Boolean.TRUE, Boolean.TRUE, "source", "provider", null
+        DataUtils.of("Foo~Bar"), LocalDate.of(2011, 4, 1), null, "field", null, Boolean.TRUE, Boolean.TRUE, "source", "provider", null, null
     });
     assertTrue(result instanceof HistoricalTimeSeries);
   }
@@ -329,7 +329,7 @@ public class FetchTimeSeriesFunctionTest {
     });
     final FetchTimeSeriesFunction function = new FetchTimeSeriesFunction();
     final Object result = function.invokeImpl(sessionContext, new Object[] {
-        DataUtils.of("Foo~Bar"), LocalDate.of(2011, 4, 1), null, "field", null, Boolean.TRUE, Boolean.TRUE, "source", "provider", LocalDate.of(2011, 5, 1)
+        DataUtils.of("Foo~Bar"), LocalDate.of(2011, 4, 1), null, "field", null, Boolean.TRUE, Boolean.TRUE, "source", "provider", LocalDate.of(2011, 5, 1), null
     });
     assertTrue(result instanceof HistoricalTimeSeries);
   }
@@ -346,7 +346,7 @@ public class FetchTimeSeriesFunctionTest {
     });
     final FetchTimeSeriesFunction function = new FetchTimeSeriesFunction();
     final Object result = function.invokeImpl(sessionContext, new Object[] {
-        DataUtils.of("Foo~Bar"), null, null, "field", "key", null, null, null, null, null
+        DataUtils.of("Foo~Bar"), null, null, "field", "key", null, null, null, null, null, null
     });
     assertTrue(result instanceof HistoricalTimeSeries);
   }
@@ -364,7 +364,7 @@ public class FetchTimeSeriesFunctionTest {
     });
     final FetchTimeSeriesFunction function = new FetchTimeSeriesFunction();
     final Object result = function.invokeImpl(sessionContext, new Object[] {
-        DataUtils.of("Foo~Bar"), null, null, "field", "key", null, null, null, null, LocalDate.of(2011, 5, 1)
+        DataUtils.of("Foo~Bar"), null, null, "field", "key", null, null, null, null, LocalDate.of(2011, 5, 1), null
     });
     assertTrue(result instanceof HistoricalTimeSeries);
   }
@@ -386,7 +386,7 @@ public class FetchTimeSeriesFunctionTest {
     });
     final FetchTimeSeriesFunction function = new FetchTimeSeriesFunction();
     final Object result = function.invokeImpl(sessionContext, new Object[] {
-        DataUtils.of("Foo~Bar"), null, LocalDate.of(2011, 4, 1), "field", "key", Boolean.TRUE, Boolean.FALSE, null, null, null
+        DataUtils.of("Foo~Bar"), null, LocalDate.of(2011, 4, 1), "field", "key", Boolean.TRUE, Boolean.FALSE, null, null, null, null
     });
     assertTrue(result instanceof HistoricalTimeSeries);
   }
@@ -409,7 +409,7 @@ public class FetchTimeSeriesFunctionTest {
     });
     final FetchTimeSeriesFunction function = new FetchTimeSeriesFunction();
     final Object result = function.invokeImpl(sessionContext, new Object[] {
-        DataUtils.of("Foo~Bar"), null, LocalDate.of(2011, 4, 1), "field", "key", Boolean.TRUE, Boolean.FALSE, null, null, LocalDate.of(2011, 5, 1)
+        DataUtils.of("Foo~Bar"), null, LocalDate.of(2011, 4, 1), "field", "key", Boolean.TRUE, Boolean.FALSE, null, null, LocalDate.of(2011, 5, 1), null
     });
     assertTrue(result instanceof HistoricalTimeSeries);
   }

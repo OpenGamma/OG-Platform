@@ -22,7 +22,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.Convention;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -125,7 +125,7 @@ public class CashDefinition implements InstrumentDefinition<Cash> {
     final double tradeTime = actAct.getDayCountFraction(date, zonedStartDate);
     final double paymentTime = actAct.getDayCountFraction(date, _maturityDate);
     final double yearFraction = dayCount.getDayCountFraction(zonedStartDate, _maturityDate);
-    return new Cash(_currency, paymentTime, _notional, _rate, tradeTime, yearFraction, yieldCurveNames[0]);
+    return new Cash(_currency, tradeTime, paymentTime, _notional, _rate, yearFraction, yieldCurveNames[0]);
   }
 
   // TODO this only works for following

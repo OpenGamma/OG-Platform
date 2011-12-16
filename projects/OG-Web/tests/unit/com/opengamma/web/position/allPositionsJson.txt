@@ -1,0 +1,14 @@
+{
+  "header": {
+      "type": "Positions",
+        "pgIdx": 0,
+        "pgSze": 20,
+        "pgTtl": 3,
+      "dataFields": ["id", "name", "quantity", "trades"]
+    },
+  "data": [
+     "MemPos~5|70 x B|70|1",
+     "MemPos~1|50 x B|50|1",
+     "MemPos~3|60 x B|60|1"
+    ]
+}

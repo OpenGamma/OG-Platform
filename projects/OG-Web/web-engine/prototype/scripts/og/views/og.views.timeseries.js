@@ -254,9 +254,8 @@ $.register_module({
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        return args.id ? timeseries.load_timeseries(args) : timeseries.load(args);
-                    }}
+                    {new_value: 'id', stop: true, method: function () {if (args.id) timeseries.load_timeseries(args);}},
+                    {new_page: function () {timeseries.load(args);}}
                 ]});
                 search.filter(args);
             },

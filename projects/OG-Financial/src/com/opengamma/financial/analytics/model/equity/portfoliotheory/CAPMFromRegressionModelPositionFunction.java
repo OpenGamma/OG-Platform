@@ -14,18 +14,13 @@ import com.opengamma.engine.function.FunctionCompilationContext;
  */
 public class CAPMFromRegressionModelPositionFunction extends CAPMFromRegressionModelFunction {
 
-  public CAPMFromRegressionModelPositionFunction(final String startDate) {
-    super(startDate);
+  public CAPMFromRegressionModelPositionFunction(final String resolutionKey) {
+    super(resolutionKey);
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     return target.getType() == ComputationTargetType.POSITION;
-  }
-
-  @Override
-  public String getShortName() {
-    return "CAPM_RegressionPositionModel";
   }
 
   @Override

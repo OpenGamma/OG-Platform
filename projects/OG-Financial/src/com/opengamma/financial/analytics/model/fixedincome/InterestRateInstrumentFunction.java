@@ -224,7 +224,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
     final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve
         : (YieldAndDiscountCurve) fundingCurveObject;
-    final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName }, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve });
+    final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName}, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
     final InstrumentDefinition<?> definition = security.accept(_visitor);
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");

@@ -138,16 +138,10 @@ $.register_module({
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        state = {filter: true};
-                        holidays.load(args);
-                        args.id
-                            ? routes.go(routes.hash(module.rules.load_holidays, args))
-                            : routes.go(routes.hash(module.rules.load, args));
-                    }}
+                    {new_value: 'id', stop: true, method: function () {if (args.id) holidays.load_holidays(args);}},
+                    {new_page: function () {holidays.load(args);}}
                 ]});
-                delete args['filter'];
-                search.filter($.extend(args, {filter: true}));
+                search.filter(args);
             },
             load_holidays: function (args) {
                 check_state({args: args, conditions: [{new_page: holidays.load}]});

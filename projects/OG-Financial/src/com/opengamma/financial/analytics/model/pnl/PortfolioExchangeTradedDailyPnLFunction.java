@@ -9,7 +9,6 @@ import java.util.Set;
 
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.PositionAccumulator;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;

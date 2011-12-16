@@ -14,18 +14,13 @@ import com.opengamma.engine.function.FunctionCompilationContext;
  */
 public class CAPMBetaModelPositionFunction extends CAPMBetaModelFunction {
 
-  public CAPMBetaModelPositionFunction(final String returnCalculatorName, final String startDate) {
-    super(returnCalculatorName, startDate);
+  public CAPMBetaModelPositionFunction(final String resolutionKey) {
+    super(resolutionKey);
   }
 
   @Override
   public Object getTarget(final ComputationTarget target) {
     return target.getPosition();
-  }
-
-  @Override
-  public String getShortName() {
-    return "CAPM_BetaPositionFunction";
   }
 
   @Override
