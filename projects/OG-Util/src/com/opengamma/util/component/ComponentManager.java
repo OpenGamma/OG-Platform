@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.component;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
@@ -33,13 +34,13 @@ public class ComponentManager {
   private final ComponentRepository _repo = new ComponentRepository();
 
   /**
-   * Starts the components defined in the specified resource.
+   * Initializes the components based on the specified resource.
    * 
    * @param resource  the config resource to load
    */
   public void start(Resource resource) {
     ComponentConfigLoader loader = new ComponentConfigLoader();
-    ComponentConfig config = loader.load(resource);
+    ComponentConfig config = loader.load(resource, new HashMap<String, String>());
     
     _repo.pushThreadLocal();
     for (String group : config.getGroups()) {
