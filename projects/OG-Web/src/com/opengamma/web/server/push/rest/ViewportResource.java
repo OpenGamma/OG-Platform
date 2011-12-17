@@ -1,7 +1,7 @@
 package com.opengamma.web.server.push.rest;
 
 import com.opengamma.web.server.push.Viewport;
-import com.opengamma.web.server.push.reports.ReportGeneratorFactory;
+import com.opengamma.web.server.push.reports.ReportFactory;
 import org.json.JSONObject;
 
 import javax.ws.rs.GET;
@@ -18,9 +18,9 @@ import javax.ws.rs.core.Response;
 public class ViewportResource {
 
   private final Viewport _viewport;
-  private final ReportGeneratorFactory _reportGeneratorFactory;
+  private final ReportFactory _reportGeneratorFactory;
 
-  public ViewportResource(Viewport viewport, ReportGeneratorFactory reportGeneratorFactory) {
+  public ViewportResource(Viewport viewport, ReportFactory reportGeneratorFactory) {
     _viewport = viewport;
     _reportGeneratorFactory = reportGeneratorFactory;
   }

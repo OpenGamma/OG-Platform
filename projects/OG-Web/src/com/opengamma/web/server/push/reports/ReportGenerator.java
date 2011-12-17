@@ -5,8 +5,6 @@
  */
 package com.opengamma.web.server.push.reports;
 
-import javax.ws.rs.core.MediaType;
-
 /**
  * Generates a {@link Report} containing a snapshot of analytics data, e.g. a CSV file, Excel workbook or PDF.
  */
@@ -17,10 +15,4 @@ public interface ReportGenerator {
    * @return A report containing the data
    */
   Report generateReport(ViewportData rawData);
-
-  // TODO this couples this interface to JAX-RS. how much do we care?
-  /**
-   * @return The HTTP media type of the report file
-   */
-  MediaType getMediaType();
 }

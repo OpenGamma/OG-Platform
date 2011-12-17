@@ -10,7 +10,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.web.server.push.ConnectionManager;
 import com.opengamma.web.server.push.Viewport;
 import com.opengamma.web.server.push.ViewportDefinition;
-import com.opengamma.web.server.push.reports.ReportGeneratorFactory;
+import com.opengamma.web.server.push.reports.ReportFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -42,9 +42,9 @@ public class ViewportsResource {
   private final ConnectionManager _restUpdateManager;
 
   /** For passing to {@link ViewportResource} instances */
-  private final ReportGeneratorFactory _reportGeneratorFactory;
+  private final ReportFactory _reportGeneratorFactory;
 
-  public ViewportsResource(ConnectionManager restUpdateManager, ReportGeneratorFactory reportGeneratorFactory) {
+  public ViewportsResource(ConnectionManager restUpdateManager, ReportFactory reportGeneratorFactory) {
     _restUpdateManager = restUpdateManager;
     _reportGeneratorFactory = reportGeneratorFactory;
   }

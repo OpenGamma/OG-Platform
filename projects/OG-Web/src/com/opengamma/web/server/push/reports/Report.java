@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server.push.reports;
 
+import javax.ws.rs.core.MediaType;
 import java.io.InputStream;
 
 /**
@@ -19,9 +20,13 @@ public class Report {
   /** Stream for reading the report */
   private final InputStream _inputStream;
 
-  public Report(String filename, InputStream inputStream) {
+  /** Media type of the report file */
+  private final MediaType _mediaType;
+
+  public Report(String filename, InputStream inputStream, MediaType mediaType) {
     _filename = filename;
     _inputStream = inputStream;
+    _mediaType = mediaType;
   }
 
   /**
@@ -36,5 +41,12 @@ public class Report {
    */
   public String getFilename() {
     return _filename;
+  }
+
+  /**
+   * @return HTTP media type of the report file
+   */
+  public MediaType getMediaType() {
+    return _mediaType;
   }
 }

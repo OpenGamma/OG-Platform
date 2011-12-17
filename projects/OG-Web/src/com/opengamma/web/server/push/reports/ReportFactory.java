@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Returns {@link ReportGenerator}s for different report formats.
  */
-public class ReportGeneratorFactory {
+public class ReportFactory {
 
   /** Generators keyed by format name */
   private final Map<String, ReportGenerator> _generators;
@@ -21,20 +21,22 @@ public class ReportGeneratorFactory {
   /**
    * @param generators {@link ReportGenerator}s keyed by format name
    */
-  public ReportGeneratorFactory(Map<String, ReportGenerator> generators) {
+  public ReportFactory(Map<String, ReportGenerator> generators) {
     _generators = new HashMap<String, ReportGenerator>(generators);
   }
 
   /**
+   *
    * @param format The name of the report format
+   * @param rawData The view data for the report
    * @return A generator of reports in the specified format
    * @throws DataNotFoundException If no generator can be found for the specified format
    */
-  public ReportGenerator getReportGenerator(String format) {
+  public Report generateReport(String format, ViewportData rawData) {
     ReportGenerator generator = _generators.get(format);
     if (generator == null) {
       throw new DataNotFoundException("No report generator available for format " + format);
     }
-    return generator;
+    return generator.generateReport(rawData);
   }
 }

@@ -25,7 +25,7 @@
   <bean id="viewportsResource" class="com.opengamma.web.server.push.rest.ViewportsResource">
     <constructor-arg index="0" ref="updateManager"/>
     <constructor-arg index="1">
-      <bean class="com.opengamma.web.server.push.reports.ReportGeneratorFactory">
+      <bean class="com.opengamma.web.server.push.reports.ReportFactory">
         <constructor-arg><map/></constructor-arg>
       </bean>
     </constructor-arg>

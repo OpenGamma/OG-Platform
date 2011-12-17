@@ -579,7 +579,7 @@
     <constructor-arg index="3" ref="longPollingConnectionManager"/>
   </bean>
 
-  <bean id="viewportReportGeneratorFactor" class="com.opengamma.web.server.push.reports.ReportGeneratorFactory">
+  <bean id="viewportReportGeneratorFactor" class="com.opengamma.web.server.push.reports.ReportFactory">
     <constructor-arg>
       <map>
         <entry key="csv">

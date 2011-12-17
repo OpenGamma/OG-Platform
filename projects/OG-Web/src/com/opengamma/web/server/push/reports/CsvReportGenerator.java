@@ -47,7 +47,7 @@ public class CsvReportGenerator implements ReportGenerator {
     }
     String filename = viewportData.getViewClientId() + "-" + viewportData.getValuationTime() + ".csv";
     ByteArrayInputStream reportStream = new ByteArrayInputStream(builder.toString().getBytes());
-    return new Report(filename, reportStream);
+    return new Report(filename, reportStream, TEXT_CSV);
   }
 
   private String generateGridCsv(GridData gridData) {
@@ -66,13 +66,5 @@ public class CsvReportGenerator implements ReportGenerator {
       }
     }
     return stringWriter.toString();
-  }
-
-  /**
-   * @return text/csv
-   */
-  @Override
-  public MediaType getMediaType() {
-    return TEXT_CSV;
   }
 }
