@@ -42,6 +42,6 @@ public class YieldCurveExample {
             "../dexy--yield-curve-output.json",
             "../dexy--yield-curve-fields.json"
         };
-        OpenGammaExample.main(ogargs);
+        OpenGammaExampleClass.main(ogargs);
     }
 }

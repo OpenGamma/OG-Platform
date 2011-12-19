@@ -9,6 +9,7 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
@@ -17,6 +18,7 @@ import org.fudgemsg.mapping.GenericFudgeBuilderFor;
  * Fudge builder for {@code DoublesPair}.
  */
 @GenericFudgeBuilderFor(Pair.class)
+@FudgeBuilderFor(DoublesPair.class) //Without this the JavaBeanBuilder is used, which is slow
 public final class PairFudgeBuilder implements FudgeBuilder<Pair<?, ?>> {
 
   /** Field name. */

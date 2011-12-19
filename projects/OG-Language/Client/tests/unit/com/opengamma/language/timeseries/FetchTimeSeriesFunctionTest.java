@@ -231,6 +231,22 @@ public class FetchTimeSeriesFunctionTest {
     assertTrue(result instanceof HistoricalTimeSeries);
   }
 
+  public void testUniqueIdMaxPoints() {
+    final SessionContext sessionContext = createSessionContext(new TestHistoricalTimeSeriesSource() {
+      @Override
+      public HistoricalTimeSeries getHistoricalTimeSeries(final UniqueId uniqueId, final LocalDate start, final boolean inclusiveStart, final LocalDate end, final boolean inclusiveEnd, final int maxPoints) {
+        assertEquals(uniqueId, UniqueId.of("Foo", "Bar"));
+        assertEquals(-1, maxPoints);
+        return result();
+      }
+    });
+    final FetchTimeSeriesFunction function = new FetchTimeSeriesFunction();
+    final Object result = function.invokeImpl(sessionContext, new Object[] {
+        DataUtils.of("Foo~Bar"), null, null, null, null, null, null, null, null, null, -1
+    });
+    assertTrue(result instanceof HistoricalTimeSeries);
+  }
+
   public void testUniqueIdSubset() {
     final SessionContext sessionContext = createSessionContext(new TestHistoricalTimeSeriesSource() {
       @Override

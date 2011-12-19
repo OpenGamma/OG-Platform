@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+  Please see distribution for license.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="viewDefinitionNamesResource" class="com.opengamma.web.server.push.rest.ViewDefinitionEntriesResource">
+    <constructor-arg ref="viewDefinitionRespository"/>
+  </bean>
+
+  <bean id="viewDefinitionRespository" class="com.opengamma.web.server.push.TestViewDefinitionRepository">
+    <constructor-arg>
+      <map>
+        <entry key="TST~vd1" value="viewDef1"/>
+        <entry key="TST~vd2" value="viewDef2"/>
+      </map>
+    </constructor-arg>
+  </bean>
+
+  <bean id="updateManager" class="com.opengamma.web.server.push.TestConnectionManager"/>
+
+</beans>

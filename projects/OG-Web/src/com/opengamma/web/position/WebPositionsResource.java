@@ -29,6 +29,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.opengamma.web.server.push.rest.MasterType;
+import com.opengamma.web.server.push.rest.Subscribe;
+import com.opengamma.web.server.push.rest.SubscribeMaster;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
@@ -87,6 +90,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
+  @SubscribeMaster(MasterType.POSITION)
   public String getHTML(
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
@@ -103,6 +107,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
+  @SubscribeMaster(MasterType.POSITION)
   public String getJSON(
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
@@ -312,7 +317,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
 
   //-------------------------------------------------------------------------
   @Path("{positionId}")
-  public WebPositionResource findPosition(@PathParam("positionId") String idStr) {
+  public WebPositionResource findPosition(@Subscribe @PathParam("positionId") String idStr) {
     data().setUriPositionId(idStr);
     UniqueId oid = UniqueId.parse(idStr);
     try {

@@ -32,7 +32,7 @@ public class WebViewPrimitivesGrid extends RequirementBasedWebViewGrid {
     // TODO: resolve the target and use a more sensible name
     details.put("name", target.toString());
   }
-  
+
   //-------------------------------------------------------------------------
 
   @Override
@@ -54,5 +54,5 @@ public class WebViewPrimitivesGrid extends RequirementBasedWebViewGrid {
   protected int getCsvDataColumnOffset() {
     return 1;
   }
-  
+
 }

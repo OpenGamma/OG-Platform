@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+  Please see distribution for license.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="longPollingConnectionManager" class="com.opengamma.web.server.push.LongPollingConnectionManager"/>
+
+  <bean id="updateManager" class="com.opengamma.web.server.push.ConnectionManagerImpl">
+    <constructor-arg index="0" ref="changeManager"/>
+    <constructor-arg index="1" ref="masterChangeManager"/>
+    <constructor-arg index="2"><bean class="com.opengamma.web.server.push.TestViewportManager"/></constructor-arg>
+    <constructor-arg index="3" ref="longPollingConnectionManager"/>
+  </bean>
+
+  <bean id="changeManager" class="com.opengamma.web.server.push.TestChangeManager"/>
+
+  <bean id="positionChangeManager" class="com.opengamma.web.server.push.TestChangeManager"/>
+
+  <bean id="masterChangeManager" class="com.opengamma.web.server.push.MasterChangeManager">
+    <constructor-arg>
+      <map>
+        <entry key="POSITION" value-ref="positionChangeManager"/>
+      </map>
+    </constructor-arg>
+  </bean>
+
+</beans>
