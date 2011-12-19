@@ -54,6 +54,6 @@ public class FunctionExample {
     // @end
     public static void main(String[] args) throws Exception {
         String[] ogargs = {"FunctionExample", "../dexy--function-output.json"};
-        OpenGammaExample.main(ogargs);
+        OpenGammaExampleClass.main(ogargs);
     }
 }

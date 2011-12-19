@@ -26,6 +26,7 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.instrument.index.GeneratorDeposit;
+import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -134,6 +135,17 @@ public final class ScheduleCalculator {
   public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final Period tenor, final GeneratorDeposit generator) {
     Validate.notNull(generator, "Generator");
     return getAdjustedDate(startDate, tenor, generator.getBusinessDayConvention(), generator.getCalendar(), generator.isEndOfMonth());
+  }
+
+  /**
+   * Compute the end date of a period from the start date and a Ibor index. The period between the start date and the end date is the index tenor.
+   * @param startDate The period start date.
+   * @param index The Ibor index.
+   * @return The end date.
+   */
+  public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final IborIndex index) {
+    Validate.notNull(index, "Index");
+    return getAdjustedDate(startDate, index.getTenor(), index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth());
   }
 
   // TODO: review the different methods.
@@ -277,13 +289,6 @@ public final class ScheduleCalculator {
       return true;
     }
     return false;
-  }
-
-  public static ZonedDateTime getAdjustedDate(final ZonedDateTime date, final BusinessDayConvention convention, final Calendar calendar, final int settlementDays) {
-    Validate.notNull(date);
-    Validate.notNull(convention);
-    Validate.notNull(calendar);
-    return getAdjustedDateSchedule(new ZonedDateTime[] {date}, convention, calendar, settlementDays)[0];
   }
 
   public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar) {

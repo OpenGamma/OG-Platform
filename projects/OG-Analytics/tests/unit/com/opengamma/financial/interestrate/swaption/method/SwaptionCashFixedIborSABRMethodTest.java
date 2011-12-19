@@ -77,7 +77,7 @@ public class SwaptionCashFixedIborSABRMethodTest {
   private static final boolean IS_EOM = true;
   private static final int ANNUITY_TENOR_YEAR = 5;
   private static final Period ANNUITY_TENOR = Period.ofYears(ANNUITY_TENOR_YEAR);
-  private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, BUSINESS_DAY, CALENDAR, SETTLEMENT_DAYS);
+  private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, SETTLEMENT_DAYS, CALENDAR);
   private static final double NOTIONAL = 100000000; //100m
   //  Fixed leg: Semi-annual bond
   private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);

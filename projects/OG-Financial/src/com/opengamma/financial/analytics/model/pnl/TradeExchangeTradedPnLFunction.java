@@ -18,6 +18,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
@@ -37,7 +38,7 @@ public class TradeExchangeTradedPnLFunction extends AbstractTradeOrDailyPosition
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
     Security security = target.getTrade().getSecurity();
-    return (target.getType() == ComputationTargetType.TRADE && FinancialSecurityUtils.isExchangedTraded(security));
+    return (target.getType() == ComputationTargetType.TRADE && (FinancialSecurityUtils.isExchangedTraded(security)) || security instanceof BondSecurity);
   }
 
   @Override
