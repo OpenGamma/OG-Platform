@@ -42,7 +42,8 @@
  * queries are cheap.</p>
  * <p>To enable subscriptions for queries the REST method must be annotated with {@link com.opengamma.web.server.push.rest.SubscribeMaster} and
  * the type(s) of master specified as annotation parameters.  See
- * {@link com.opengamma.web.portfolio.WebPortfoliosResource#getJSON(Integer, Integer, Integer, String, String, List, List)} for an example.</p>
+ * {@link com.opengamma.web.portfolio.WebPortfoliosResource#getJSON(Integer, Integer, Integer, String, String, java.util.List, java.util.List, Boolean)}
+ * for an example.</p>
  *
  * <h2>Views</h2>
  * <p>Before a client can receive data for a view it must create a viewport.  This is done by making a {@code POST}
@@ -161,8 +162,6 @@
  *   and a timeout mechanism are required.</li>
  *   <li>There is no validation that a client ID belongs to the user who is requesting it.  This should work once
  *   we have user logins.</li>
- *   <li>REST endpoints haven't been implemented for pausing and resuming a viewport's view and for switching between
- *   full and summary mode.</li>
  *   <li>There is no way to close a client connection apart from waiting for it to time out.  There is support
  *   in the back end but no RESTful interface.</li>
  *   <li>Query subscriptions are created when the user just visits the query page, e.g. /jax/portfolios.  This
