@@ -58,11 +58,6 @@
       <param-name>com.sun.jersey.spi.container.ResourceFilters</param-name>
       <param-value>com.opengamma.web.server.push.rest.SubscribingFilterFactory</param-value>
     </init-param>
-    <!--TODO this is only here for testing. REMOVE-->
-    <!--<init-param>
-      <param-name>com.sun.jersey.spi.container.ResourceFilters</param-name>
-      <param-value>com.opengamma.web.server.push.web.TestFilterFactory</param-value>
-    </init-param>-->
     <load-on-startup>3</load-on-startup>
   </servlet>
   <servlet-mapping>
