@@ -100,7 +100,7 @@ public class RemoteExchangeMaster implements ExchangeMaster {
   @Override
   public ExchangeDocument add(final ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getExchange(), "document.position");
+    ArgumentChecker.notNull(document.getExchange(), "document.exchange");
     
     URI uri = DataExchangesResource.uri(_baseUri, null);
     return accessRemote(uri).post(ExchangeDocument.class, document);
@@ -110,7 +110,7 @@ public class RemoteExchangeMaster implements ExchangeMaster {
   @Override
   public ExchangeDocument update(final ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getExchange(), "document.position");
+    ArgumentChecker.notNull(document.getExchange(), "document.exchange");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     URI uri = DataExchangeResource.uri(_baseUri, document.getUniqueId(), VersionCorrection.LATEST);
@@ -141,7 +141,7 @@ public class RemoteExchangeMaster implements ExchangeMaster {
   @Override
   public ExchangeDocument correct(final ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getExchange(), "document.position");
+    ArgumentChecker.notNull(document.getExchange(), "document.exchange");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     URI uri = DataExchangeResource.uriVersion(_baseUri, document.getUniqueId());

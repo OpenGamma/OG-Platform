@@ -100,7 +100,7 @@ public class RemoteRegionMaster implements RegionMaster {
   @Override
   public RegionDocument add(final RegionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getRegion(), "document.position");
+    ArgumentChecker.notNull(document.getRegion(), "document.region");
     
     URI uri = DataRegionsResource.uri(_baseUri, null);
     return accessRemote(uri).post(RegionDocument.class, document);
@@ -110,7 +110,7 @@ public class RemoteRegionMaster implements RegionMaster {
   @Override
   public RegionDocument update(final RegionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getRegion(), "document.position");
+    ArgumentChecker.notNull(document.getRegion(), "document.region");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     URI uri = DataRegionResource.uri(_baseUri, document.getUniqueId(), VersionCorrection.LATEST);
@@ -141,7 +141,7 @@ public class RemoteRegionMaster implements RegionMaster {
   @Override
   public RegionDocument correct(final RegionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getRegion(), "document.position");
+    ArgumentChecker.notNull(document.getRegion(), "document.region");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     URI uri = DataRegionResource.uriVersion(_baseUri, document.getUniqueId());
