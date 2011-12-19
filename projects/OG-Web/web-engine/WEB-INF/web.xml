@@ -44,6 +44,7 @@
     <!-- Jersey - JAXRS support -->
     <servlet>
         <servlet-name>jersey-spring</servlet-name>
+        <!--servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class-->
         <servlet-class>com.opengamma.integration.component.OpenGammaServletContainer</servlet-class>
         <init-param>
             <param-name>com.sun.jersey.spi.container.ContainerRequestFilters</param-name>

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.exchange.rest;
+package com.opengamma.master.holiday.impl;
 
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
@@ -12,46 +12,47 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 
 import java.net.URI;
+import java.util.ArrayList;
 
-import javax.time.calendar.TimeZone;
+import javax.time.calendar.LocalDate;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.exchange.ExchangeDocument;
-import com.opengamma.master.exchange.ExchangeMaster;
-import com.opengamma.master.exchange.ManageableExchange;
+import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.holiday.ManageableHoliday;
+import com.opengamma.util.money.Currency;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
- * Tests DataExchangesResource.
+ * Tests DataHolidaysResource.
  */
-public class DataExchangesResourceTest {
+public class DataHolidaysResourceTest {
 
-  private ExchangeMaster _underlying;
+  private HolidayMaster _underlying;
   private UriInfo _uriInfo;
-  private DataExchangesResource _resource;
+  private DataHolidaysResource _resource;
 
   @BeforeMethod
   public void setUp() {
-    _underlying = mock(ExchangeMaster.class);
+    _underlying = mock(HolidayMaster.class);
     _uriInfo = mock(UriInfo.class);
     when(_uriInfo.getBaseUri()).thenReturn(URI.create("testhost"));
-    _resource = new DataExchangesResource(_underlying);
+    _resource = new DataHolidaysResource(_underlying);
   }
 
   //-------------------------------------------------------------------------
   @Test
-  public void testAddExchange() {
-    final ManageableExchange exchange = new ManageableExchange(ExternalIdBundle.of("A", "B"), "Test", ExternalIdBundle.EMPTY, TimeZone.of("Europe/London"));
-    final ExchangeDocument request = new ExchangeDocument(exchange);
+  public void testAddHoliday() {
+    final ManageableHoliday holiday = new ManageableHoliday(Currency.GBP, new ArrayList<LocalDate>());
+    final HolidayDocument request = new HolidayDocument(holiday);
     
-    final ExchangeDocument result = new ExchangeDocument(exchange);
+    final HolidayDocument result = new HolidayDocument(holiday);
     result.setUniqueId(UniqueId.of("Test", "PosA"));
     when(_underlying.add(same(request))).thenReturn(result);
     
@@ -61,10 +62,10 @@ public class DataExchangesResourceTest {
   }
 
   @Test
-  public void testFindExchange() {
-    DataExchangeResource test = _resource.findExchange("Test~PosA");
-    assertSame(_resource, test.getExchangesResource());
-    assertEquals(ObjectId.of("Test", "PosA"), test.getUrlExchangeId());
+  public void testFindHoliday() {
+    DataHolidayResource test = _resource.findHoliday("Test~PosA");
+    assertSame(_resource, test.getHolidaysResource());
+    assertEquals(ObjectId.of("Test", "PosA"), test.getUrlHolidayId());
   }
 
 }

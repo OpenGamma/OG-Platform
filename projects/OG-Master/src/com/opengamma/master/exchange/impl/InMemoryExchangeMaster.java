@@ -35,7 +35,7 @@ import com.opengamma.util.paging.Paging;
 /**
  * A simple, in-memory implementation of {@code ExchangeMaster}.
  * <p>
- * This exchange master does not support versioning of exchanges.
+ * This master does not support versioning of exchanges.
  * <p>
  * This implementation does not copy stored elements, making it thread-hostile.
  * As such, this implementation is currently most useful for testing scenarios.

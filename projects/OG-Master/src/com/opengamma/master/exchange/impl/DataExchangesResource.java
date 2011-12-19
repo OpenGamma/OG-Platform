@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.exchange.rest;
+package com.opengamma.master.exchange.impl;
 
 import java.net.URI;
 
@@ -34,11 +34,11 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * The exchanges resource receives and processes RESTful calls to the exchange master.
  */
-@Path("/data/exchangeMaster")
+@Path("/exgMaster")
 public class DataExchangesResource extends AbstractDataResource {
 
   /**
-   * The injected exchange master.
+   * The exchange master.
    */
   private final ExchangeMaster _exgMaster;
 
@@ -102,7 +102,7 @@ public class DataExchangesResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchangeMaster/exchanges");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchanges");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }

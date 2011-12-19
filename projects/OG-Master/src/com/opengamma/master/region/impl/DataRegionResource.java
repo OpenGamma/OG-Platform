@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.exchange.rest;
+package com.opengamma.master.region.impl;
 
 import java.net.URI;
 
@@ -24,24 +24,24 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.exchange.ExchangeDocument;
-import com.opengamma.master.exchange.ExchangeHistoryRequest;
-import com.opengamma.master.exchange.ExchangeHistoryResult;
-import com.opengamma.master.exchange.ExchangeMaster;
+import com.opengamma.master.region.RegionDocument;
+import com.opengamma.master.region.RegionHistoryRequest;
+import com.opengamma.master.region.RegionHistoryResult;
+import com.opengamma.master.region.RegionMaster;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for an exchange.
+ * RESTful resource for an region.
  */
-@Path("/data/exchanges/{exchangeId}")
-public class DataExchangeResource extends AbstractDataResource {
+@Path("/data/regions/{regionId}")
+public class DataRegionResource extends AbstractDataResource {
 
   /**
-   * The exchanges resource.
+   * The regions resource.
    */
-  private final DataExchangesResource _exchangesResource;
+  private final DataRegionsResource _regionsResource;
   /**
    * The identifier specified in the URI.
    */
@@ -50,43 +50,43 @@ public class DataExchangeResource extends AbstractDataResource {
   /**
    * Creates the resource.
    * 
-   * @param exchangesResource  the parent resource, not null
-   * @param exchangeId  the exchange unique identifier, not null
+   * @param regionsResource  the parent resource, not null
+   * @param regionId  the region unique identifier, not null
    */
-  public DataExchangeResource(final DataExchangesResource exchangesResource, final ObjectId exchangeId) {
-    ArgumentChecker.notNull(exchangesResource, "exchangesResource");
-    ArgumentChecker.notNull(exchangeId, "exchange");
-    _exchangesResource = exchangesResource;
-    _urlResourceId = exchangeId;
+  public DataRegionResource(final DataRegionsResource regionsResource, final ObjectId regionId) {
+    ArgumentChecker.notNull(regionsResource, "regionsResource");
+    ArgumentChecker.notNull(regionId, "region");
+    _regionsResource = regionsResource;
+    _urlResourceId = regionId;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the exchanges resource.
+   * Gets the regions resource.
    * 
-   * @return the exchanges resource, not null
+   * @return the regions resource, not null
    */
-  public DataExchangesResource getExchangesResource() {
-    return _exchangesResource;
+  public DataRegionsResource getRegionsResource() {
+    return _regionsResource;
   }
 
   /**
-   * Gets the exchange identifier from the URL.
+   * Gets the region identifier from the URL.
    * 
    * @return the unique identifier, not null
    */
-  public ObjectId getUrlExchangeId() {
+  public ObjectId getUrlRegionId() {
     return _urlResourceId;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the exchange master.
+   * Gets the region master.
    * 
-   * @return the exchange master, not null
+   * @return the region master, not null
    */
-  public ExchangeMaster getExchangeMaster() {
-    return getExchangesResource().getExchangeMaster();
+  public RegionMaster getRegionMaster() {
+    return getRegionsResource().getRegionMaster();
   }
 
   //-------------------------------------------------------------------------
@@ -94,24 +94,24 @@ public class DataExchangeResource extends AbstractDataResource {
   public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo) {
     Instant v = (versionAsOf != null ? Instant.parse(versionAsOf) : null);
     Instant c = (correctedTo != null ? Instant.parse(correctedTo) : null);
-    ExchangeDocument result = getExchangeMaster().get(getUrlExchangeId(), VersionCorrection.of(v, c));
+    RegionDocument result = getRegionMaster().get(getUrlRegionId(), VersionCorrection.of(v, c));
     return Response.ok(result).build();
   }
 
   @PUT
   @Consumes(FudgeRest.MEDIA)
-  public Response put(ExchangeDocument request) {
-    if (getUrlExchangeId().equals(request.getUniqueId().getObjectId()) == false) {
+  public Response put(RegionDocument request) {
+    if (getUrlRegionId().equals(request.getUniqueId().getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
-    ExchangeDocument result = getExchangeMaster().update(request);
+    RegionDocument result = getRegionMaster().update(request);
     return Response.ok(result).build();
   }
 
   @DELETE
   @Consumes(FudgeRest.MEDIA)
   public Response delete() {
-    getExchangeMaster().remove(getUrlExchangeId().atLatestVersion());
+    getRegionMaster().remove(getUrlRegionId().atLatestVersion());
     return Response.noContent().build();
   }
 
@@ -119,18 +119,18 @@ public class DataExchangeResource extends AbstractDataResource {
   @GET
   @Path("versions")
   public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    ExchangeHistoryRequest request = decodeBean(ExchangeHistoryRequest.class, providers, msgBase64);
-    if (getUrlExchangeId().equals(request.getObjectId()) == false) {
+    RegionHistoryRequest request = decodeBean(RegionHistoryRequest.class, providers, msgBase64);
+    if (getUrlRegionId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
-    ExchangeHistoryResult result = getExchangeMaster().history(request);
+    RegionHistoryResult result = getRegionMaster().history(request);
     return Response.ok(result).build();
   }
 
   @GET
   @Path("versions/{versionId}")
   public Response getVersioned(@PathParam("versionId") String versionId) {
-    ExchangeDocument result = getExchangeMaster().get(getUrlExchangeId().atVersion(versionId));
+    RegionDocument result = getRegionMaster().get(getUrlRegionId().atVersion(versionId));
     return Response.ok(result).build();
   }
 
@@ -144,7 +144,7 @@ public class DataExchangeResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    UriBuilder b = UriBuilder.fromUri(baseUri).path("/exchangeMaster/exchanges/{exchangeId}");
+    UriBuilder b = UriBuilder.fromUri(baseUri).path("/regions/{regionId}");
     if (versionCorrection != null && versionCorrection.getVersionAsOf() != null) {
       b.queryParam("versionAsOf", versionCorrection.getVersionAsOf());
     }
@@ -163,7 +163,7 @@ public class DataExchangeResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchangeMaster/exchanges/{exchangeId}/versions");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/regions/{regionId}/versions");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }
@@ -178,7 +178,7 @@ public class DataExchangeResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriVersion(URI baseUri, UniqueId uniqueId) {
-    return UriBuilder.fromUri(baseUri).path("/exchangeMaster/exchanges/{exchangeId}/versions/{versionId}")
+    return UriBuilder.fromUri(baseUri).path("/regions/{regionId}/versions/{versionId}")
       .build(uniqueId.toLatest(), uniqueId.getVersion());
   }
 
