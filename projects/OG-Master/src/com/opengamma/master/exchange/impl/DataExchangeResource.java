@@ -35,7 +35,7 @@ import com.opengamma.util.rest.AbstractDataResource;
 /**
  * RESTful resource for an exchange.
  */
-@Path("/data/exchanges/{exchangeId}")
+@Path("/exgMaster/exchanges/{exchangeId}")
 public class DataExchangeResource extends AbstractDataResource {
 
   /**

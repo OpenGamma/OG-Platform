@@ -35,7 +35,7 @@ import com.opengamma.util.rest.AbstractDataResource;
 /**
  * RESTful resource for a security.
  */
-@Path("/data/securities/{securityId}")
+@Path("/secMaster/securities/{securityId}")
 public class DataSecurityResource extends AbstractDataResource {
 
   /**

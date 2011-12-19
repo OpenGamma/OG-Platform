@@ -35,7 +35,7 @@ import com.opengamma.util.rest.AbstractDataResource;
 /**
  * RESTful resource for a holiday.
  */
-@Path("/data/holidays/{holidayId}")
+@Path("/holMaster/holidays/{holidayId}")
 public class DataHolidayResource extends AbstractDataResource {
 
   /**

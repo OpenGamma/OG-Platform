@@ -35,7 +35,7 @@ import com.opengamma.util.rest.AbstractDataResource;
 /**
  * RESTful resource for an region.
  */
-@Path("/data/regions/{regionId}")
+@Path("/regMaster/regions/{regionId}")
 public class DataRegionResource extends AbstractDataResource {
 
   /**
