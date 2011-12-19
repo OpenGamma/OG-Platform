@@ -85,6 +85,7 @@ public class ComponentManager {
    * Starts the components.
    */
   protected void start() {
+    s_logger.info("Starting repository");
     _repo.start();
   }
 
@@ -98,7 +99,7 @@ public class ComponentManager {
   protected void initComponent(String groupName, LinkedHashMap<String, String> groupData) {
     groupData = new LinkedHashMap<String, String>(groupData);
     String typeStr = groupData.remove("factory");
-    s_logger.info("Starting component: {} with properties {}", typeStr, groupData);
+    s_logger.info("Initializing component: {} with properties {}", typeStr, groupData);
     
     // load and init
     ComponentFactory factory = loadFactory(typeStr);
