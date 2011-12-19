@@ -1,5 +1,3 @@
-package com.opengamma.web.server.push;
-
 /**
  * <p>This package provides push notifications when changes occur to resources requested through the REST interface.
  * This includes analytics data, entities and queries for entities.</p>
@@ -29,9 +27,9 @@ package com.opengamma.web.server.push;
  * <h2>Entities</h2>
  * <p>If a client requests an entity (for example a portfolio as shown above) it will receive a notification
  * if the entity is updated.  To enable this the REST method that returns the entity must have a parameter annotated
- * with {@link Subscribe}.  The annotation must be on a string parameter that can be parsed by
- * {@link UniqueId#parse(String)} and the parameter must also have a {@link PathParam} annotation.  See
- * {@link WebPortfoliosResource#findPortfolio(String)} for an example.</p>
+ * with {@link com.opengamma.web.server.push.rest.Subscribe}.  The annotation must be on a string parameter that can be parsed by
+ * {@link com.opengamma.id.UniqueId#parse(String)} and the parameter must also have a {@link javax.ws.rs.PathParam} annotation.  See
+ * {@link com.opengamma.web.portfolio.WebPortfoliosResource#findPortfolio(String)} for an example.</p>
  *
  * <h2>Queries</h2>
  * <p>If a client performs a query to search for multiple entities it will receive a notification if something
@@ -42,9 +40,9 @@ package com.opengamma.web.server.push;
  * This is a very conservative approach which will often lead to a client re-running a query and receiving the same
  * results. A complete solution to this problem would be much more complex and this behaviour is not a problem if the
  * queries are cheap.</p>
- * <p>To enable subscriptions for queries the REST method must be annotated with {@link SubscribeMaster} and
+ * <p>To enable subscriptions for queries the REST method must be annotated with {@link com.opengamma.web.server.push.rest.SubscribeMaster} and
  * the type(s) of master specified as annotation parameters.  See
- * {@link WebPortfoliosResource#getJSON(Integer, Integer, Integer, String, String, List, List)} for an example.</p>
+ * {@link com.opengamma.web.portfolio.WebPortfoliosResource#getJSON(Integer, Integer, Integer, String, String, List, List)} for an example.</p>
  *
  * <h2>Views</h2>
  * <p>Before a client can receive data for a view it must create a viewport.  This is done by making a {@code POST}
@@ -171,18 +169,10 @@ package com.opengamma.web.server.push;
  *   probably isn't what we want, a subscription should probably be created if there are some query params
  *   specifying what to search for.  it might even be necessary to allow the relevant query params to be
  *   specified in the annotation</li>
- *   <li>Subscription annotations have only been added for portfolios and positions ({@link WebPortfoliosResource}
- *   and {@link WebPositionsResource}), they need to be added for other entity types.
+ *   <li>Subscription annotations have only been added for portfolios and positions ({@link com.opengamma.web.portfolio.WebPortfoliosResource}
+ *   and {@link com.opengamma.web.position.WebPositionsResource}), they need to be added for other entity types.
  *   <li>Should subscriptions be created from the POST methods that create entities?  A new filter would be needed
  *   that looked at the redirecting response to find the URL of the new entity.</li>
  * </ul>
  */
-
-import com.opengamma.id.UniqueId;
-import com.opengamma.web.portfolio.WebPortfoliosResource;
-import com.opengamma.web.position.WebPositionsResource;
-import com.opengamma.web.server.push.rest.Subscribe;
-import com.opengamma.web.server.push.rest.SubscribeMaster;
-
-import javax.ws.rs.PathParam;
-import java.util.List;
+package com.opengamma.web.server.push;
