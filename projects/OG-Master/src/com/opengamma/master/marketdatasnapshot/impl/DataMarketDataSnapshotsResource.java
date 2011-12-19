@@ -83,7 +83,7 @@ public class DataMarketDataSnapshotsResource extends AbstractDataResource {
   @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, MarketDataSnapshotDocument request) {
     MarketDataSnapshotDocument result = getMarketDataSnapshotMaster().add(request);
-    return Response.created(DataMarketDataSnapshotResource.uri(uriInfo.getBaseUri(), result.getUniqueId(), null)).entity(result).build();
+    return Response.created(DataMarketDataSnapshotResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId())).entity(result).build();
   }
 
   //-------------------------------------------------------------------------

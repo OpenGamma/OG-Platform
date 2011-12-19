@@ -83,7 +83,7 @@ public class DataExchangesResource extends AbstractDataResource {
   @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, ExchangeDocument request) {
     ExchangeDocument result = getExchangeMaster().add(request);
-    return Response.created(DataExchangeResource.uri(uriInfo.getBaseUri(), result.getUniqueId(), null)).entity(result).build();
+    return Response.created(DataExchangeResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId())).entity(result).build();
   }
 
   //-------------------------------------------------------------------------

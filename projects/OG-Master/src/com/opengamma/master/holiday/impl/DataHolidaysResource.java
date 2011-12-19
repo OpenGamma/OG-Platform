@@ -96,7 +96,7 @@ public class DataHolidaysResource extends AbstractDataResource {
   @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, HolidayDocument request) {
     HolidayDocument result = getHolidayMaster().add(request);
-    return Response.created(DataHolidayResource.uri(uriInfo.getBaseUri(), result.getUniqueId(), null)).entity(result).build();
+    return Response.created(DataHolidayResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId())).entity(result).build();
   }
 
   //-------------------------------------------------------------------------
@@ -108,7 +108,7 @@ public class DataHolidaysResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   /**
-   * Builds a URI for all securities.
+   * Builds a URI for holiday meta-data.
    * 
    * @param baseUri  the base URI, not null
    * @param searchMsg  the search message, may be null
