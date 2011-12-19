@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Returns {@link ReportGenerator}s for different report formats.
+ * Creates {@link Report}s for different report formats.
  */
 public class ReportFactory {
 
@@ -26,10 +26,10 @@ public class ReportFactory {
   }
 
   /**
-   *
+   * Creates a report from {@link ViewportData} using a specified format.
    * @param format The name of the report format
    * @param rawData The view data for the report
-   * @return A generator of reports in the specified format
+   * @return A report in the specified format
    * @throws DataNotFoundException If no generator can be found for the specified format
    */
   public Report generateReport(String format, ViewportData rawData) {
