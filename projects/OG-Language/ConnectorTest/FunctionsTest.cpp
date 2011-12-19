@@ -4,6 +4,7 @@
  * Please see distribution for license.
  */
 
+#include <limits.h>
 #include "stdafx.h"
 
 // Test the function methods
@@ -45,7 +46,7 @@ static void QueryAvailable () {
 
 static void InvokeInvalid () {
 	CFunctionInvoke invoke (g_poConnector);
-	invoke.SetInvocationId (99);
+	invoke.SetInvocationId (INT_MAX);
 	ASSERT (invoke.Send ());
 	com_opengamma_language_function_Result *pResult = invoke.Recv (CRequestBuilder::GetDefaultTimeout ());
 	ASSERT (pResult);

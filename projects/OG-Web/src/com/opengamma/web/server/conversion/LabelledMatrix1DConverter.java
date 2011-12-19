@@ -11,6 +11,7 @@ import java.util.Map;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
+import com.opengamma.id.ExternalId;
 
 /**
  * Converter for {@link LabelledMatrix1D} results.
@@ -28,7 +29,8 @@ public class LabelledMatrix1DConverter implements ResultConverter<LabelledMatrix
       // Only interested in labels and values
       Map<Object, Object> labelledValues = new LinkedHashMap<Object, Object>();
       for (int i = 0; i < length; i++) {
-        Object label = value.getLabels()[i];
+        Object labelObject = value.getLabels()[i];        
+        String label = labelObject instanceof ExternalId ? ((ExternalId) labelObject).getValue() : labelObject.toString(); 
         Object currentLabel = context.convert(label, ConversionMode.SUMMARY);
         Object currentValue = context.getDoubleConverter().convertForDisplay(context, valueSpec, value.getValues()[i], ConversionMode.SUMMARY);
         labelledValues.put(currentLabel, currentValue);

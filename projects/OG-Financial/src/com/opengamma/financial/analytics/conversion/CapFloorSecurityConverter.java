@@ -21,8 +21,8 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCapFloorCMSDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCapFloorIborDefinition;
-import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurityVisitor;
 import com.opengamma.id.ExternalId;
@@ -46,7 +46,7 @@ public class CapFloorSecurityConverter implements CapFloorSecurityVisitor<Instru
   public InstrumentDefinition<?> visitCapFloorSecurity(final CapFloorSecurity capFloorSecurity) {
     Validate.notNull(capFloorSecurity, "cap/floor security");
     final double notional = capFloorSecurity.getNotional();
-    final ZonedDateTime settlementDate = capFloorSecurity.getStartDate(); 
+    final ZonedDateTime settlementDate = capFloorSecurity.getStartDate();
     final ZonedDateTime maturityDate = capFloorSecurity.getMaturityDate();
     final double strike = capFloorSecurity.getStrike();
     final boolean isCap = capFloorSecurity.isCap();
@@ -56,25 +56,25 @@ public class CapFloorSecurityConverter implements CapFloorSecurityVisitor<Instru
     final boolean isIbor = capFloorSecurity.isIbor();
     final boolean isPayer = capFloorSecurity.isPayer();
     final DayCount dayCount = capFloorSecurity.getDayCount();
-    
+
     final ConventionBundle underlyingConvention = _conventionSource.getConventionBundle(underlyingId);
     if (underlyingConvention == null) {
       throw new OpenGammaRuntimeException("Could not get underlying convention for " + currency);
     }
     final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, currency);
     if (isIbor) { // Cap/floor on Ibor
-      final IborIndex index = new IborIndex(currency, getTenor(underlyingConvention.getFrequency()), underlyingConvention.getSettlementDays(), calendar,
-          underlyingConvention.getDayCount(), underlyingConvention.getBusinessDayConvention(), underlyingConvention.isEOMConvention());
+      final IborIndex index = new IborIndex(currency, underlyingConvention.getPeriod(), underlyingConvention.getSettlementDays(), calendar, underlyingConvention.getDayCount(),
+          underlyingConvention.getBusinessDayConvention(), underlyingConvention.isEOMConvention());
       return AnnuityCapFloorIborDefinition.from(settlementDate, maturityDate, notional, index, dayCount, getTenor(tenorPayment), isPayer, strike, isCap);
-    } 
+    }
     // Cap/Floor on CMS    
     final ConventionBundle iborConvention = _conventionSource.getConventionBundle(underlyingConvention.getSwapFloatingLegInitialRate());
-    final IborIndex iborIndex = new IborIndex(currency, iborConvention.getPeriod(), iborConvention.getSettlementDays(), calendar,
-        iborConvention.getDayCount(), iborConvention.getBusinessDayConvention(), iborConvention.isEOMConvention());
+    final IborIndex iborIndex = new IborIndex(currency, iborConvention.getPeriod(), iborConvention.getSettlementDays(), calendar, iborConvention.getDayCount(),
+        iborConvention.getBusinessDayConvention(), iborConvention.isEOMConvention());
     final Period tenorSwap = getUnderlyingTenor(underlyingId);
     final DayCount swapFixedLegDayCount = underlyingConvention.getSwapFixedLegDayCount();
     final Frequency swapFixedLegFrequency = underlyingConvention.getSwapFixedLegFrequency();
-    final IndexSwap swapIndex = new IndexSwap(getTenor(swapFixedLegFrequency), swapFixedLegDayCount, iborIndex, tenorSwap); 
+    final IndexSwap swapIndex = new IndexSwap(getTenor(swapFixedLegFrequency), swapFixedLegDayCount, iborIndex, tenorSwap);
     return AnnuityCapFloorCMSDefinition.from(settlementDate, maturityDate, notional, swapIndex, getTenor(tenorPayment), dayCount, isPayer, strike, isCap);
   }
 
@@ -90,12 +90,11 @@ public class CapFloorSecurityConverter implements CapFloorSecurityVisitor<Instru
     } else if (Frequency.MONTHLY_NAME.equals(freq.getConventionName())) {
       tenor = Period.ofMonths(1);
     } else {
-      throw new OpenGammaRuntimeException(
-          "Can only handle annual, semi-annual, quarterly and monthly frequencies for cap/floors");
+      throw new OpenGammaRuntimeException("Can only handle annual, semi-annual, quarterly and monthly frequencies for cap/floors");
     }
     return tenor;
   }
-  
+
   //TODO this is horrible - we need to add fields to the security
   private Period getUnderlyingTenor(final ExternalId id) {
     if (id.getScheme().equals(SecurityUtils.BLOOMBERG_TICKER)) {

@@ -59,7 +59,7 @@ public class BondFixedTransactionTest {
   private static final double PRICE = 0.90;
   private static final ZonedDateTime BOND_SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 8, 24);
   private static final double BOND_SETTLEMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_Z_1, BOND_SETTLEMENT_DATE);
-  private static final ZonedDateTime STANDARD_SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_Z_1, CALENDAR, SETTLEMENT_DAYS);
+  private static final ZonedDateTime STANDARD_SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_Z_1, SETTLEMENT_DAYS, CALENDAR);
   private static final double STANDARD_SETTLEMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_Z_1, STANDARD_SETTLEMENT_DATE);
   private static final double QUANTITY = 100000000; //100m
   private static final AnnuityCouponFixedDefinition COUPON_DEFINITION = BOND_SECURITY_DEFINITION.getCoupon();

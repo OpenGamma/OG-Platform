@@ -1,7 +1,8 @@
 <article>
   <header class="OG-header-generic">
     <div class="OG-tools"></div>
-    <h1 data-og-editable="name">${name}</h1>
+    <h1 data-og-editable="name">{{if portfolio_name}}${portfolio_name}{{else}}${name}{{/if}}</h1>
+    <div class="OG-js-breadcrumb"></div>
     <div class="OG-js-header-links"></div>
   </header>
   <section style="width: 800px">

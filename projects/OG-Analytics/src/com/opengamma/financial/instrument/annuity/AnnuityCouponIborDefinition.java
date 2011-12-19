@@ -50,7 +50,7 @@ public class AnnuityCouponIborDefinition extends AnnuityDefinition<CouponIborDef
     Validate.notNull(index, "index");
     Validate.notNull(tenor, "tenor");
     Validate.isTrue(notional > 0, "notional <= 0");
-    final ZonedDateTime maturityDate = ScheduleCalculator.getAdjustedDate(settlementDate, index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth(), tenor);
+    final ZonedDateTime maturityDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth());
     return from(settlementDate, maturityDate, notional, index, isPayer);
   }
 
@@ -75,12 +75,12 @@ public class AnnuityCouponIborDefinition extends AnnuityDefinition<CouponIborDef
     //First coupon uses settlement date
     CouponFixedDefinition coupon = new CouponFixedDefinition(index.getCurrency(), paymentDates[0], settlementDate, paymentDates[0], index.getDayCount().getDayCountFraction(settlementDate,
         paymentDates[0]), sign * notional, 0.0);
-    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(settlementDate, index.getBusinessDayConvention(), index.getCalendar(), -index.getSpotLag());
+    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(settlementDate, -index.getSpotLag(), index.getCalendar());
     coupons[0] = CouponIborDefinition.from(coupon, fixingDate, index);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
       coupon = new CouponFixedDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], index.getDayCount().getDayCountFraction(
           paymentDates[loopcpn - 1], paymentDates[loopcpn]), sign * notional, 0.0);
-      fixingDate = ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], index.getBusinessDayConvention(), index.getCalendar(), -index.getSpotLag());
+      fixingDate = ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], -index.getSpotLag(), index.getCalendar());
       coupons[loopcpn] = CouponIborDefinition.from(coupon, fixingDate, index);
     }
     return new AnnuityCouponIborDefinition(coupons);
@@ -108,12 +108,14 @@ public class AnnuityCouponIborDefinition extends AnnuityDefinition<CouponIborDef
     //First coupon uses settlement date
     CouponFixedDefinition coupon = new CouponFixedDefinition(index.getCurrency(), paymentDates[0], settlementDate, paymentDatesUnadjusted[0], index.getDayCount().getDayCountFraction(settlementDate,
         paymentDatesUnadjusted[0]), sign * notional, 0.0);
-    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(settlementDate, index.getBusinessDayConvention(), index.getCalendar(), -index.getSpotLag());
+    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(settlementDate,  -index.getSpotLag(), index.getCalendar());
+//    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(settlementDate, index.getBusinessDayConvention(), index.getCalendar(), -index.getSpotLag());
     coupons[0] = CouponIborDefinition.from(coupon, fixingDate, index);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
       coupon = new CouponFixedDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], index.getDayCount().getDayCountFraction(
           paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn]), sign * notional, 0.0);
-      fixingDate = ScheduleCalculator.getAdjustedDate(paymentDatesUnadjusted[loopcpn - 1], index.getBusinessDayConvention(), index.getCalendar(), -index.getSpotLag());
+      fixingDate = ScheduleCalculator.getAdjustedDate(paymentDatesUnadjusted[loopcpn - 1], -index.getSpotLag(), index.getCalendar());
+//      fixingDate = ScheduleCalculator.getAdjustedDate(paymentDatesUnadjusted[loopcpn - 1], index.getBusinessDayConvention(), index.getCalendar(), -index.getSpotLag());
       coupons[loopcpn] = CouponIborDefinition.from(coupon, fixingDate, index);
     }
     return new AnnuityCouponIborDefinition(coupons);

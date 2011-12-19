@@ -41,8 +41,8 @@ public class CouponIborRatchetTest {
   private static final IborIndex INDEX_IBOR = new IborIndex(CUR, TENOR_IBOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
 
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2014, 9, 5);
-  private static final ZonedDateTime ACCRUAL_START_DATE = ScheduleCalculator.getAdjustedDate(FIXING_DATE, CALENDAR, SETTLEMENT_DAYS);
-  private static final ZonedDateTime ACCRUAL_END_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, BUSINESS_DAY, CALENDAR, IS_EOM, TENOR_IBOR);
+  private static final ZonedDateTime ACCRUAL_START_DATE = ScheduleCalculator.getAdjustedDate(FIXING_DATE, SETTLEMENT_DAYS, CALENDAR);
+  private static final ZonedDateTime ACCRUAL_END_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, TENOR_IBOR, BUSINESS_DAY, CALENDAR, IS_EOM);
   private static final ZonedDateTime PAYMENT_DATE = ACCRUAL_END_DATE;
   private static final DayCount DAY_COUNT_PAYMENT = DayCountFactory.INSTANCE.getDayCount("Actual/365");
   private static final double ACCRUAL_FACTOR = DAY_COUNT_PAYMENT.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);

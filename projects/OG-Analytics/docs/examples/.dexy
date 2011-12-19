@@ -1,17 +1,19 @@
 {
     "$globals" : {
         "title" : "Examples",
-        "env" : { "CLASSPATH" : "../../../../lib/classpath.jar" }
+        "env" : { "CLASSPATH" : "/mnt/bcel-5.2/bcel-5.2.jar:../../../../lib/classpath.jar:../../../lib/classpath.jar" }
     },
     "*.java|idio" : {},
     "*.java|idio|l" : {},
     "*.java|pyg" : {},
     "*.java|pyg|l" : {},
-    "OpenGammaExample.java|javac" : {},
-    "*.java|fn|java" : {
-        "inputs" : ["OpenGammaExample.java|javac"],
-        "args" : { "java" : "-enableassertions" },
-        "except" : ".*penGammaExample.java"
+    "OpenGammaExampleClass.java|javac" : {},
+    "ParseExamples.java|fn|java" : {
+        "inputs" : ["*Example.java|fn|javac"]
+    },
+    "*Example.java|fn|java" : {
+        "inputs" : ["OpenGammaExampleClass.java|javac"],
+        "args" : { "java" : "-enableassertions" }
     },
     "*.R|idio" : {},
     "*.R|idio|l" : {},

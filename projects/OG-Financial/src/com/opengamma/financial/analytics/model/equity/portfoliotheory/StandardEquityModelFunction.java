@@ -37,7 +37,6 @@ public class StandardEquityModelFunction extends AbstractFunction.NonCompiledInv
             MarketDataRequirementNames.MARKET_VALUE,
             ComputationTargetType.SECURITY,
             equity.getUniqueId()));
-    // TODO this needs to annotate the result value with the currency of the value. 
     return Collections.<ComputedValue>singleton(
         new ComputedValue(
             new ValueSpecification(

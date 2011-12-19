@@ -118,16 +118,12 @@ public class RequirementBasedGridStructure {
       Collection<RequirementBasedColumnKey> requirements, EnumSet<ComputationTargetType> targetTypes, List<ComputationTargetSpecification> targets) {
     Map<Pair<String, String>, Set<RequirementBasedColumnKey>> requirementsByConfigValueName = getRequirementsMap(requirements);
     Set<ComputationTargetSpecification> impliedTargets = targets == null ? new HashSet<ComputationTargetSpecification>() : null;
-    Map<RequirementBasedColumnKey, Set<RequirementBasedColumnKey>> specificationsToRequirementCandidates = new HashMap<RequirementBasedColumnKey, Set<RequirementBasedColumnKey>>();
     Map<RequirementBasedColumnKey, Collection<RequirementBasedColumnKey>> specToRequirements = new HashMap<RequirementBasedColumnKey, Collection<RequirementBasedColumnKey>>();
     Map<RequirementBasedColumnKey, Set<ComputationTargetSpecification>> specToTargets = new HashMap<RequirementBasedColumnKey, Set<ComputationTargetSpecification>>();
 
     for (CompiledViewCalculationConfiguration compiledCalcConfig : compiledViewDefinition.getCompiledCalculationConfigurations()) {
-      Set<RequirementBasedColumnKey> requirementsMatchedToSpec = new HashSet<RequirementBasedColumnKey>();
       String calcConfigName = compiledCalcConfig.getName();
       
-      // Process each value specification, recording the requirement if a single one can be identified, or the set of
-      // requirements if there is more than one candidate.
       for (ValueSpecification valueSpec : compiledCalcConfig.getTerminalOutputSpecifications().keySet()) {
         if (!targetTypes.contains(valueSpec.getTargetSpecification().getType())) {
           // Not relevant
@@ -149,7 +145,7 @@ public class RequirementBasedGridStructure {
         }
         targetsForSpec.add(valueSpec.getTargetSpecification());
         
-        if (specToRequirements.containsKey(specificationBasedKey) || specificationsToRequirementCandidates.containsKey(specificationBasedKey)) {
+        if (specToRequirements.containsKey(specificationBasedKey)) {
           // Seen this specification before for a different target, so it has been / will be dealt with
           continue;
         }
@@ -158,31 +154,10 @@ public class RequirementBasedGridStructure {
         if (requirementsSatisfiedBySpec.isEmpty()) {
           s_logger.warn("Could not find any original requirements satisfied by terminal value specification {}. Assuming this is an unwanted output, so ignoring.", valueSpec);
           continue;
-        } else if (requirementsSatisfiedBySpec.size() == 1) {
-          // The specification satisfies only one requirement, so we've found a definite match.
-          RequirementBasedColumnKey requirementMatch = requirementsSatisfiedBySpec.iterator().next();
-          specToRequirements.put(specificationBasedKey, Collections.singleton(requirementMatch));
-          requirementsMatchedToSpec.add(requirementMatch);
         } else {
-          // Cannot yet identify the requirement behind this specification. Store for later elimination.
-          specificationsToRequirementCandidates.put(specificationBasedKey, requirementsSatisfiedBySpec);
+          specToRequirements.put(specificationBasedKey, requirementsSatisfiedBySpec);
         }
-      }
-      
-      // Eliminate the requirements which have been identified as the cause of a specification from the candidates.
-      for (Map.Entry<RequirementBasedColumnKey, Set<RequirementBasedColumnKey>> specificationToRequirementCandidates : specificationsToRequirementCandidates.entrySet()) {
-        RequirementBasedColumnKey specificationBasedKey = specificationToRequirementCandidates.getKey();
-        Set<RequirementBasedColumnKey> requirementCandidates = specificationToRequirementCandidates.getValue();
-        requirementCandidates.removeAll(requirementsMatchedToSpec);
-        
-        if (requirementCandidates.size() == 0) {
-          s_logger.warn("Eliminated all requirement candidates for specification {}, indicating an error in the algorithm. This specification will not map to a column.", specificationBasedKey);
-          continue;
-        }
-        
-        // Specification must be present to satisfy all remaining requirement candidates
-        specToRequirements.put(specificationBasedKey, requirementCandidates);
-      }
+      }      
     }
     
     if (targets == null) {
