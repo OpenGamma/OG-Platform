@@ -130,16 +130,10 @@ $.register_module({
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        state = {filter: true};
-                        batches.load(args);
-                        args.id
-                            ? routes.go(routes.hash(module.rules.load_batches, args))
-                            : routes.go(routes.hash(module.rules.load, args));
-                    }}
+                    {new_value: 'id', stop: true, method: function () {if (args.id) batches.load_batches(args);}},
+                    {new_page: function () {batches.load(args);}}
                 ]});
-                delete args['filter'];
-                search.filter($.extend(args, {filter: true}));
+                search.filter(args);
             },
             load_batches: function (args) {
                 check_state({args: args, conditions: [{new_page: batches.load}]});

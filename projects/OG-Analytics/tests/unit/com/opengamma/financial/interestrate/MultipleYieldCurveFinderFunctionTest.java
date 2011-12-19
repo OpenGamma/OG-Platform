@@ -13,7 +13,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
@@ -49,7 +49,7 @@ public class MultipleYieldCurveFinderFunctionTest {
     for (int i = 0; i < n; i++) {
       t = i / 10.;
       SIMPLE_RATES[i] = Math.random() * 0.05;
-      DERIVATIVES.add(new Cash(CUR, t, 1, SIMPLE_RATES[i], CURVE_NAME));
+      DERIVATIVES.add(new Cash(CUR, 0, t, 1, SIMPLE_RATES[i], t, CURVE_NAME));
       CONTINUOUS_RATES[i] = (t == 0 ? SIMPLE_RATES[i] : Math.log(1 + SIMPLE_RATES[i] * t) / t);
       TIMES[i] = t;
     }
@@ -82,8 +82,8 @@ public class MultipleYieldCurveFinderFunctionTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongNodeNumber() {
     final List<InstrumentDerivative> list = new ArrayList<InstrumentDerivative>();
-    list.add(new Cash(CUR, 1, 1, 0.01, CURVE_NAME));
-    list.add(new Cash(CUR, 0.5, 1, 0.01, CURVE_NAME));
+    list.add(new Cash(CUR, 0, 1, 1, 0.01, 1, CURVE_NAME));
+    list.add(new Cash(CUR, 0, 0.5, 1, 0.01, 0.5, CURVE_NAME));
     new MultipleYieldCurveFinderFunction(new MultipleYieldCurveFinderDataBundle(list, new double[list.size()], null, NODES, INTERPOLATORS, false), CALCULATOR);
   }
 

@@ -45,13 +45,12 @@ $.register_module({
                             'OK': function () {
                                 $(this).dialog('close');
                                 api.rest.portfolios.put({
-                                    handler: function (r) {
-                                        if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                        portfolios.search(routes.last().args);
-                                        routes.go(routes.hash(module.rules.load_portfolios,
-                                                $.extend({}, routes.last().args, {id: r.meta.id}),
-                                                {del: ['node']}
-                                        ));
+                                    handler: function (result) {
+                                        var args = routes.current().args, rule = module.rules.load_portfolios;
+                                        if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                        portfolios.search(args);
+                                        routes.go(routes.hash(rule, args, {
+                                            add: {id: result.meta.id}, del: ['version', 'node', 'sync']}));
                                     },
                                     name: ui.dialog({return_field_value: 'name'})
                                 });
@@ -139,8 +138,8 @@ $.register_module({
                         (function () { /* Hook up add button */
                             var do_update = function () {
                                 api.rest.portfolios.put({
-                                    handler: function (r) {
-                                        if (r.error) {ui.dialog({type: 'error', message: r.message}); return}
+                                    handler: function (result) {
+                                        if (result.error) return ui.dialog({type: 'error', message: result.message});
                                         portfolios.details(args);
                                     },
                                     name: ui.dialog({return_field_value: 'name'}),
@@ -226,8 +225,8 @@ $.register_module({
                         (function () { /* hook up add button */
                             var do_update = function (e, id) {
                                 api.rest.portfolios.put({
-                                    handler: function (r) {
-                                        if (r.error) return ui.dialog({type: 'error', message: r.message});
+                                    handler: function (result) {
+                                        if (result.error) return ui.dialog({type: 'error', message: result.message});
                                         portfolios.details(args);
                                     },
                                     position: id ? id.item.value : $input.val(),
@@ -333,10 +332,14 @@ $.register_module({
                         });
                     },
                     breadcrumb = function (config) {
-                        var data = config.data;
+                        var data = config.data, rule = module.rules.load_portfolios, args = routes.current().args;
                         data.path.shift();
                         api.text({module: 'og.views.portfolios.breadcrumb', handler: function (template) {
                             $(config.selector).html($.tmpl(template, data, {
+                                href: function (node) {
+                                    var change_obj = !node ? {del: ['node']} : {add: {node: node}};
+                                    return routes.prefix() + routes.hash(rule, args, change_obj);
+                                },
                                 title: function (name) {return name.length > 30 ? name : ''},
                                 short_name: function (name) {
                                     return name.length > 30 ? name.slice(0, 27) + '...' : name
@@ -429,6 +432,7 @@ $.register_module({
                 var args = routes.current().args;
                 setTimeout(routes.go.partial(routes.hash(module.rules.load_portfolios, args, {del: ['node']})));
             },
+            filters: ['name'],
             load: function (args) {
                 layout = og.views.common.layout;
                 check_state({args: args, conditions: [
@@ -442,9 +446,13 @@ $.register_module({
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        return args.id ? portfolios.load_portfolios(args) : portfolios.load(args);
-                    }}
+                    {new_value: 'id', stop: true, method: function () {
+                        if (args.id) portfolios.load_portfolios(args);
+                    }},
+                    {new_value: 'node', stop: true, method: function () {
+                        if (args.node) portfolios.load_portfolios(args);
+                    }},
+                    {new_page: function () {portfolios.load(args);}}
                 ]});
                 search.filter(args);
             },

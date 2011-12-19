@@ -50,12 +50,12 @@ public class SimpleFuturePresentValueFunction extends AbstractFunction.NonCompil
   private static final SimpleFutureConverter CONVERTER = new SimpleFutureConverter();
   private static final SimpleFuturePresentValueCalculator CALCULATOR = new SimpleFuturePresentValueCalculator();
   private final String _curveName;
-  
+
   public SimpleFuturePresentValueFunction(final String curveName) {
     Validate.notNull(curveName, "curve name");
     _curveName = curveName;
   }
-  
+
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final FutureSecurity security = (FutureSecurity) target.getSecurity();
@@ -74,11 +74,11 @@ public class SimpleFuturePresentValueFunction extends AbstractFunction.NonCompil
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
     final double spot = (Double) spotObject;
     final SimpleFutureDataBundle data = new SimpleFutureDataBundle(curve, spot, 0);
-    final SimpleInstrument instrument = security.accept(CONVERTER).toDerivative(now);    
-    final CurrencyAmount pv = instrument.accept(CALCULATOR, data); 
+    final SimpleInstrument instrument = security.accept(CONVERTER).toDerivative(now);
+    final CurrencyAmount pv = instrument.accept(CALCULATOR, data);
     final ValueProperties properties = createValueProperties()
-      .with(ValuePropertyNames.CURVE, _curveName)
-      .with(ValuePropertyNames.CURRENCY, pv.getCurrency().getCode()).get();    
+        .with(ValuePropertyNames.CURVE, _curveName)
+        .with(ValuePropertyNames.CURRENCY, pv.getCurrency().getCode()).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, pv.getAmount()));
   }
@@ -100,8 +100,8 @@ public class SimpleFuturePresentValueFunction extends AbstractFunction.NonCompil
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
-      .with(ValuePropertyNames.CURVE, _curveName)
-      .withAny(ValuePropertyNames.CURRENCY).get();
+        .with(ValuePropertyNames.CURVE, _curveName)
+        .with(ValuePropertyNames.CURRENCY, ((FutureSecurity) target.getSecurity()).getCurrency().getCode()).get();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties));
   }
 

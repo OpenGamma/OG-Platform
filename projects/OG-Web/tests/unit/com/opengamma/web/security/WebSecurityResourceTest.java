@@ -5,15 +5,17 @@
  */
 package com.opengamma.web.security;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
+import static com.opengamma.web.WebResourceTestUtils.assertJSONObjectEquals;
+
+import java.util.List;
 
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.test.SecurityTestCaseMethods;
-import com.opengamma.id.UniqueId;
 
 /**
  * Test {@link WebSecurityResource}.
@@ -39,7 +41,7 @@ public class WebSecurityResourceTest extends AbstractWebSecurityResourceTestCase
   @Test
   @Override
   public void testEquitySecurity() throws Exception {
-    assertGetSecurity(WebSecuritiesResourceTestUtils.getEquitySecurity());
+    assertGetSecurity(_securities.get(EquitySecurity.class));
   }
 
   @Override
@@ -53,7 +55,7 @@ public class WebSecurityResourceTest extends AbstractWebSecurityResourceTestCase
   @Test
   @Override
   public void testBondFutureSecurity() throws Exception {
-    assertGetSecurity(WebSecuritiesResourceTestUtils.getBondFutureSecurity());
+    assertGetSecurity(_securities.get(BondFutureSecurity.class));
   }
 
   @Override
@@ -152,20 +154,14 @@ public class WebSecurityResourceTest extends AbstractWebSecurityResourceTestCase
   public void testEquityVarianceSwapSecurity() {
   }
   
-  private void assertGetSecurity(FinancialSecurity finSecurity) throws Exception {
-    assertNotNull(finSecurity);
-    UniqueId uniqueId = _sec2UniqueId.get(finSecurity);
-    assertNotNull(uniqueId);
-    
-    WebSecurityResource securityResource = _webSecuritiesResource.findSecurity(uniqueId.toString());
-    assertNotNull(securityResource);
-    String json = securityResource.getJSON();
-    assertNotNull(json);
-    JSONObject actualJson = new JSONObject(json); 
-    
-    JSONObject expectedJson = finSecurity.accept(new ExpectedSecurityJsonProvider());
-    assertNotNull(expectedJson);
-    assertEquals(expectedJson.toString(), actualJson.toString());
+  private void assertGetSecurity(final List<FinancialSecurity> securities) throws Exception {
+    for (FinancialSecurity security : securities) {
+      WebSecurityResource securityResource = _webSecuritiesResource.findSecurity(security.getUniqueId().toString());
+      JSONObject actualJson = new JSONObject(securityResource.getJSON());
+      
+      JSONObject expectedJson = security.accept(new ExpectedSecurityJsonProvider());
+      assertJSONObjectEquals(expectedJson, actualJson);
+    }
   }
   
 }
