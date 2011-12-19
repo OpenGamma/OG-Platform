@@ -35,7 +35,8 @@ import static org.testng.AssertJUnit.assertTrue;
 
 public class WebPushTestUtils {
 
-  private static final String URL_BASE = "http://localhost:8080";
+  private static final int PORT = 8084;
+  private static final String URL_BASE = "http://localhost:" + PORT;
 
   private WebPushTestUtils() {
   }
@@ -129,7 +130,7 @@ public class WebPushTestUtils {
    */
   public static Pair<Server, WebApplicationContext> createJettyServer(String springXml) throws Exception {
     SelectChannelConnector connector = new SelectChannelConnector();
-    connector.setPort(8080);
+    connector.setPort(PORT);
     WebAppContext context = new WebAppContext();
     context.setContextPath("/");
     context.setResourceBase("build/classes");
@@ -171,7 +172,7 @@ public class WebPushTestUtils {
     BufferedReader reader = null;
     BufferedWriter writer = null;
     try {
-      URL url = new URL("http://localhost:8080/jax/viewports?clientId=" + clientId);
+      URL url = new URL("http://localhost:" + PORT + "/jax/viewports?clientId=" + clientId);
       HttpURLConnection connection = (HttpURLConnection) url.openConnection();
       connection.setDoOutput(true);
       connection.setRequestMethod("POST");

@@ -27,7 +27,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="OG-Util" exported="" />
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library name="IvyIDEA-OG-Analytics-default">
         <CLASSES>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.jfree/jfreechart/jars/jfreechart-1.0.13.jar!/" />
