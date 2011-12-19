@@ -107,7 +107,7 @@ $.register_module({
                     meta: true,
                     handler: function (result) {
                         config_types = result.data.types.sort().map(function (val) {return {name: val, value: val};});
-                        $('.OG-tools .og-js-new').removeClass('OG-disabled').click(toolbar_buttons['new']);
+                        ui.toolbar(options);
                     },
                     cache_for: 60 * 60 * 1000 // an hour
                 });
@@ -116,17 +116,12 @@ $.register_module({
             // options passed in (options is set to null for default_details)
             default_details = og.views.common.default_details
                 .partial(page_name, 'Configurations', null, toolbar.partial(options.toolbar['default'])),
-            too_large = function (content_length) {
-                var is_too_large = content_length > 1024 * 1024; // > 1MB
-                if (is_too_large) ui.dialog({
-                    type: 'error',
-                    message: 'This configuration is using the default form because it contains too much data (' +
-                        content_length + ' bytes)'
-                });
-                return is_too_large;
-            },
             details_page = function (args, new_config_type) {
-                var rest_options, is_new = !!new_config_type, rest_handler = function (result) {
+                var rest_options, is_new = !!new_config_type, rest_handler;
+                rest_handler = function (result) {
+                    var details_json = result.data, too_large = result.meta.content_length > 0.75 * 1024 * 1024,
+                        config_type = details_json.template_data.type.toLowerCase().split('.').reverse()[0],
+                        render_type, render_options;
                     if (result.error) return ui.dialog({type: 'error', message: result.message});
                     if (is_new) {
                         if (!result.data)
@@ -135,8 +130,6 @@ $.register_module({
                         result.data.template_data.name = 'UNTITLED';
                         result.data.template_data.configJSON.name = 'UNTITLED';
                     }
-                    var details_json = result.data,
-                        config_type = details_json.template_data.type.toLowerCase().split('.').reverse()[0];
                     if (!is_new) history.put({
                         name: details_json.template_data.name,
                         item: 'history.configs.recent',
@@ -146,7 +139,13 @@ $.register_module({
                         ui.message({location: '.ui-layout-inner-center', destroy: true});
                         return ui.dialog({type: 'error', message: 'No renderer for: ' + config_type});
                     }
-                    og.views.config_forms[too_large(result.meta.content_length) ? 'default' : config_type]({
+                    if (too_large && !og.views.config_forms[config_type].is_default) ui.dialog({
+                        type: 'error',
+                        message: 'This configuration is using the default form because it contains too much data (' +
+                            result.meta.content_length + ' bytes)'
+                    });
+                    render_type = too_large ? 'default' : config_type;
+                    render_options = {
                         is_new: is_new,
                         data: details_json,
                         loading: function () {
@@ -207,7 +206,10 @@ $.register_module({
                         },
                         selector: '.ui-layout-inner-center .ui-layout-content',
                         type: details_json.template_data.type
-                    });
+                    };
+                    if (render_type !== config_type)
+                        render_options.type_map = og.views.config_forms[config_type].type_map;
+                    og.views.config_forms[render_type](render_options);
                 };
                 layout.inner.options.south.onclose = null;
                 layout.inner.close('south');
