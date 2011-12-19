@@ -64,11 +64,14 @@ public class JmsByteArrayRequestDispatcher implements SessionAwareMessageListene
     final byte[] responseBytes = getUnderlying().requestReceived(requestBytes);
     s_logger.debug("Returning response of size {} to {}", responseBytes.length, replyTo);
     final MessageProducer mp = session.createProducer(replyTo);
-    final BytesMessage bytesMessage = session.createBytesMessage();
-    bytesMessage.writeBytes(responseBytes);
-    bytesMessage.setJMSCorrelationID(message.getJMSMessageID());
-    mp.send(bytesMessage);
-    mp.close();
+    try {
+      final BytesMessage bytesMessage = session.createBytesMessage();
+      bytesMessage.writeBytes(responseBytes);
+      bytesMessage.setJMSCorrelationID(message.getJMSMessageID());
+      mp.send(bytesMessage);
+    } finally {
+      mp.close();
+    }
   }
 
 }

@@ -78,7 +78,6 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
   public static final String VALUE_REQUIREMENT = ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
 
   private static final String RESULT_PROPERTY_TYPE = "Type";
-  private static final String REQUIREMENT_PROPERTY_TYPE = ValuePropertyNames.OUTPUT_RESERVED_PREFIX + RESULT_PROPERTY_TYPE;
   private static final String TYPE_FORWARD = "Forward";
   private static final String TYPE_FUNDING = "Funding";
 
@@ -171,12 +170,12 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     final String fundingCurve = fundingCurves.iterator().next();
     final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(6);
     if (forwardCurve.equals(fundingCurve)) {
-      requirements.add(getCurveRequirement(target, forwardCurve, null));
-      requirements.add(getJacobianRequirement(target, forwardCurve, fundingCurve));
+      requirements.add(getCurveRequirement(target, forwardCurve, forwardCurve, forwardCurve));
+      requirements.add(getJacobianRequirement(target, forwardCurve, forwardCurve));
       requirements.add(getCurveSpecRequirement(target, forwardCurve));
     } else {
-      requirements.add(getCurveRequirement(target, forwardCurve, TYPE_FORWARD));
-      requirements.add(getCurveRequirement(target, fundingCurve, TYPE_FUNDING));
+      requirements.add(getCurveRequirement(target, forwardCurve, forwardCurve, fundingCurve));
+      requirements.add(getCurveRequirement(target, fundingCurve, forwardCurve, fundingCurve));
       requirements.add(getJacobianRequirement(target, forwardCurve, fundingCurve));
       requirements.add(getCurveSpecRequirement(target, forwardCurve));
       requirements.add(getCurveSpecRequirement(target, fundingCurve));
@@ -192,26 +191,15 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     String forwardCurveName = null;
     String fundingCurveName = null;
     for (Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
-      if (ValueRequirementNames.YIELD_CURVE.equals(input.getKey().getValueName())) {
-        final String curveName = input.getKey().getProperty(ValuePropertyNames.CURVE);
-        final String type = input.getValue().getConstraint(REQUIREMENT_PROPERTY_TYPE);
-        if (type == null) {
-          assert forwardCurveName == null;
-          assert fundingCurveName == null;
-          forwardCurveName = curveName;
-          fundingCurveName = curveName;
-        } else {
-          if (TYPE_FORWARD.equals(type)) {
-            assert forwardCurveName == null;
-            forwardCurveName = curveName;
-          } else {
-            assert TYPE_FUNDING.equals(type);
-            assert fundingCurveName == null;
-            fundingCurveName = curveName;
-          }
-        }
+      if (ValueRequirementNames.YIELD_CURVE_JACOBIAN.equals(input.getKey().getValueName())) {
+        assert forwardCurveName == null;
+        assert fundingCurveName == null;
+        forwardCurveName = input.getKey().getProperty(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+        fundingCurveName = input.getKey().getProperty(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
       }
     }
+    assert forwardCurveName != null;
+    assert fundingCurveName != null;
     final ValueProperties.Builder properties = createValueProperties(target);
     properties.with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
@@ -239,7 +227,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    final ValueRequirement forwardCurveRequirement = getCurveRequirement(target, forwardCurveName, null);
+    final ValueRequirement forwardCurveRequirement = getCurveRequirement(target, forwardCurveName, null, null);
     final Object forwardCurveObject = inputs.getValue(forwardCurveRequirement);
     if (forwardCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + forwardCurveRequirement);
@@ -252,7 +240,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     }
     Object fundingCurveSpecObject = null;
     if (!forwardCurveName.equals(fundingCurveName)) {
-      final ValueRequirement fundingCurveRequirement = getCurveRequirement(target, fundingCurveName, null);
+      final ValueRequirement fundingCurveRequirement = getCurveRequirement(target, fundingCurveName, null, null);
       fundingCurveObject = inputs.getValue(fundingCurveRequirement);
       if (fundingCurveObject == null) {
         throw new OpenGammaRuntimeException("Could not get " + fundingCurveRequirement);
@@ -317,12 +305,14 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     return "InterestRateInstrumentYieldCurveNodeSensitivitiesFunction";
   }
 
-  protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String type) {
+  protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String advisoryForwardCurve, final String advisoryFundingCurve) {
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
     final ValueProperties.Builder properties = ValueProperties.with(ValuePropertyNames.CURVE, curveName);
-    if (type != null) {
-      // Use an optional property that the curve won't recognize
-      properties.withOptional(REQUIREMENT_PROPERTY_TYPE).with(REQUIREMENT_PROPERTY_TYPE, type);
+    if (advisoryForwardCurve != null) {
+      properties.with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, advisoryForwardCurve);
+    }
+    if (advisoryFundingCurve != null) {
+      properties.with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, advisoryFundingCurve);
     }
     properties.with(ValuePropertyNames.CURVE_CALCULATION_METHOD, _curveCalculationType);
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());

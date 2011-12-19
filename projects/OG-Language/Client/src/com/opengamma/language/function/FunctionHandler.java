@@ -6,10 +6,9 @@
 
 package com.opengamma.language.function;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,10 +56,16 @@ public class FunctionHandler implements FunctionVisitor<UserMessagePayload, Sess
   public Result visitInvoke(final Invoke message, final SessionContext context) throws AsynchronousExecution {
     try {
       final FunctionRepository repository = context.getFunctionRepository();
-      final MetaFunction function = repository.get(message.getIdentifier());
+      MetaFunction function = repository.get(message.getIdentifier());
       if (function == null) {
-        s_logger.error("Invalid function invocation ID {}", message.getIdentifier());
-        return null;
+        if (repository.initialize(context.getFunctionProvider(), false)) {
+          s_logger.info("Initialized function repository");
+          function = repository.get(message.getIdentifier());
+        }
+        if (function == null) {
+          s_logger.error("Invalid function invocation ID {}", message.getIdentifier());
+          return null;
+        }
       }
       s_logger.debug("Invoking {}", function.getName());
       final List<Data> parameters = message.getParameter();
@@ -78,22 +83,17 @@ public class FunctionHandler implements FunctionVisitor<UserMessagePayload, Sess
 
   @Override
   public Available visitQueryAvailable(final QueryAvailable message, final SessionContext context) {
-    final List<MetaFunction> definitions = new ArrayList<MetaFunction>(context.getFunctionProvider().getDefinitions());
-    Collections.sort(definitions, new Comparator<MetaFunction>() {
-      @Override
-      public int compare(MetaFunction o1, MetaFunction o2) {
-        return o1.getName().compareTo(o2.getName());
-      }
-    });
     final FunctionRepository repository = context.getFunctionRepository();
+    repository.initialize(context.getFunctionProvider(), true);
+    final Map<Integer, MetaFunction> definitions = repository.getAll();
     s_logger.info("{} functions available", definitions.size());
     final Available available = new Available();
-    for (MetaFunction definition : definitions) {
-      Definition logical = context.getGlobalContext().getFunctionDefinitionFilter().createDefinition(definition);
+    final FunctionDefinitionFilter filter = context.getGlobalContext().getFunctionDefinitionFilter();
+    for (Map.Entry<Integer, MetaFunction> definition : definitions.entrySet()) {
+      Definition logical = filter.createDefinition(definition.getValue());
       if (logical != null) {
-        final int identifier = repository.add(definition);
-        s_logger.debug("Publishing {} as {}", logical, identifier);
-        available.addFunction(new Available.Entry(identifier, logical));
+        s_logger.debug("Publishing {} as {}", logical, definition.getKey());
+        available.addFunction(new Available.Entry(definition.getKey(), logical));
       } else {
         s_logger.debug("Discarding {} after applying filter", definition);
       }

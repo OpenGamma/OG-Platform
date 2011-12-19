@@ -14,7 +14,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.InstrumentDefinitionWithData;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -85,7 +85,7 @@ public class CouponInflationZeroCouponInterpolationGearingDefinition extends Cou
    * @param factor The multiplicative factor.
    */
   public CouponInflationZeroCouponInterpolationGearingDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate,
-      double paymentYearFraction, double notional, PriceIndex priceIndex, int monthLag, ZonedDateTime referenceStartDate, double indexStartValue, ZonedDateTime[] referenceEndDate,
+      double paymentYearFraction, double notional, IndexPrice priceIndex, int monthLag, ZonedDateTime referenceStartDate, double indexStartValue, ZonedDateTime[] referenceEndDate,
       ZonedDateTime fixingEndDate, boolean payNotional, double factor) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
     Validate.notNull(referenceStartDate, "Reference start date");
@@ -116,7 +116,7 @@ public class CouponInflationZeroCouponInterpolationGearingDefinition extends Cou
    * @param factor The multiplicative factor.
    * @return The coupon.
    */
-  public static CouponInflationZeroCouponInterpolationGearingDefinition from(ZonedDateTime accrualStartDate, ZonedDateTime paymentDate, double notional, PriceIndex priceIndex, int monthLag,
+  public static CouponInflationZeroCouponInterpolationGearingDefinition from(ZonedDateTime accrualStartDate, ZonedDateTime paymentDate, double notional, IndexPrice priceIndex, int monthLag,
       double indexStartValue, ZonedDateTime[] referenceEndDate, ZonedDateTime fixingEndDate, boolean payNotional, double factor) {
     Validate.notNull(priceIndex, "Price index");
     return new CouponInflationZeroCouponInterpolationGearingDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, monthLag, accrualStartDate,
@@ -135,7 +135,7 @@ public class CouponInflationZeroCouponInterpolationGearingDefinition extends Cou
    * @param factor The multiplicative factor.
    * @return The inflation zero-coupon.
    */
-  public static CouponInflationZeroCouponInterpolationGearingDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional, final PriceIndex priceIndex,
+  public static CouponInflationZeroCouponInterpolationGearingDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional, final IndexPrice priceIndex,
       final double indexStartValue, final int monthLag, boolean payNotional, double factor) {
     ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(monthLag);
     ZonedDateTime refInterpolatedDate = paymentDate.minusMonths(monthLag);
@@ -161,7 +161,7 @@ public class CouponInflationZeroCouponInterpolationGearingDefinition extends Cou
    * @return The inflation zero-coupon.
    */
   public static CouponInflationZeroCouponInterpolationGearingDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
-      final double notional, final PriceIndex priceIndex, final double indexStartValue, final int monthLag, boolean payNotional, double factor) {
+      final double notional, final IndexPrice priceIndex, final double indexStartValue, final int monthLag, boolean payNotional, double factor) {
     ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(monthLag);
     ZonedDateTime refInterpolatedDate = accrualEndDate.minusMonths(monthLag);
     ZonedDateTime[] referenceEndDate = new ZonedDateTime[2];

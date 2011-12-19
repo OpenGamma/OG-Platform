@@ -5,13 +5,13 @@
  */
 package com.opengamma.financial.interestrate.future.definition;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.money.Currency;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 /**
  * Description of an interest rate future security.
@@ -212,6 +212,7 @@ public class InterestRateFuture implements InstrumentDerivative {
     result += " Start fixing date: " + _fixingPeriodStartTime;
     result += " End fixing date: " + _fixingPeriodEndTime;
     result += " Notional: " + _notional;
+    result += " Rate: " + _referencePrice;
     return result;
   }
 

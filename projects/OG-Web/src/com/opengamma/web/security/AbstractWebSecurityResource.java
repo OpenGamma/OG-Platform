@@ -14,6 +14,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
@@ -45,6 +46,9 @@ import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
@@ -65,16 +69,30 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
   private final WebSecuritiesData _data;
   
   /**
+   * The HTS resolver (for getting an HTS Id)
+   */
+  private final HistoricalTimeSeriesResolver _htsResolver;
+  
+  /**
    * Creates the resource.
    * @param securityMaster  the security master, not null
    * @param securityLoader  the security loader, not null
+   * @param htsMaster       the HTS master, not null (needed for fetching HTS object ID)
+   * @param cfgSource       the config source, not null (needed for fetching HTS object ID)
    */
-  protected AbstractWebSecurityResource(final SecurityMaster securityMaster, final SecurityLoader securityLoader) {
+  protected AbstractWebSecurityResource(
+      final SecurityMaster securityMaster, final SecurityLoader securityLoader, 
+      final HistoricalTimeSeriesMaster htsMaster, final ConfigSource cfgSource) {
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(securityLoader, "securityLoader");
     _data = new WebSecuritiesData();
     data().setSecurityMaster(securityMaster);
     data().setSecurityLoader(securityLoader);
+
+    //ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext("com/opengamma/financial/demoMasters.xml");
+    //HistoricalTimeSeriesMaster htsMaster = appContext.getBean("dbHtsMaster", HistoricalTimeSeriesMaster.class);
+    //ConfigSource cfgSource = appContext.getBean("sharedConfigSource", ConfigSource.class);
+    _htsResolver = new DefaultHistoricalTimeSeriesResolver(htsMaster, cfgSource);    
   }
 
   /**
@@ -84,6 +102,7 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
   protected AbstractWebSecurityResource(final AbstractWebSecurityResource parent) {
     super(parent);
     _data = parent._data;
+    _htsResolver = parent._htsResolver;
   }
 
   /**
@@ -116,6 +135,14 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
    */
   protected WebSecuritiesData data() {
     return _data;
+  }
+  
+  /**
+   * Gets the HTS resolver
+   * @return the HTS resolver, not null
+   */
+  protected HistoricalTimeSeriesResolver htsResolver() {
+    return _htsResolver;
   }
   
   protected void addSecuritySpecificMetaData(ManageableSecurity security, FlexiBean out) {
@@ -197,14 +224,14 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
     return search.getFirstSecurity();
   }
 
-  private Map<String, Double> getBondFutureBasket(ManageableSecurity security) {
-    Map<String, Double> result = new TreeMap<String, Double>();
+  private Map<String, String> getBondFutureBasket(ManageableSecurity security) {
+    Map<String, String> result = new TreeMap<String, String>();
     if (security instanceof BondFutureSecurity) {
       BondFutureSecurity bondFutureSecurity = (BondFutureSecurity) security;
       List<BondFutureDeliverable> basket = bondFutureSecurity.getBasket();
       for (BondFutureDeliverable bondFutureDeliverable : basket) {
         String identifierValue = bondFutureDeliverable.getIdentifiers().getValue(SecurityUtils.BLOOMBERG_BUID);
-        result.put("BLOOMBERG BUID - " + identifierValue, bondFutureDeliverable.getConversionFactor());
+        result.put(SecurityUtils.BLOOMBERG_BUID.getName() + "-" + identifierValue, String.valueOf(bondFutureDeliverable.getConversionFactor()));
       }
     }
     return result;

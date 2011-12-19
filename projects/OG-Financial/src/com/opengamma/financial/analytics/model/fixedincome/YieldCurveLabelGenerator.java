@@ -21,7 +21,7 @@ public class YieldCurveLabelGenerator {
     final Object[] labels = new Object[n];
     int i = 0;
     for (final FixedIncomeStripWithSecurity strip : strips) {
-      labels[i++] = strip.getSecurityIdentifier().getExternalId().getValue();
+      labels[i++] = strip.getSecurityIdentifier().getExternalId();
     }
     return labels;
   }

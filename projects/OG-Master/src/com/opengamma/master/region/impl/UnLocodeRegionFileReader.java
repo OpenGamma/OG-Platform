@@ -95,7 +95,6 @@ class UnLocodeRegionFileReader {
     store(regions);
   }
 
-  @SuppressWarnings("unchecked")
   private Set<String> parseRequired() {
     InputStream stream = getClass().getResourceAsStream(LOAD_RESOURCE);
     if (stream == null) {

@@ -23,6 +23,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractSearchRequest;
+import com.opengamma.master.DocumentVisibility;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.RegexUtils;
@@ -70,6 +71,11 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
    */
   @PropertyDefinition
   private int _depth = -1;
+  /**
+   * The lowest visibility level to return.  
+   */
+  @PropertyDefinition(validate = "notNull")
+  private DocumentVisibility _visibility = DocumentVisibility.VISIBLE;
 
   /**
    * Creates an instance.
@@ -190,6 +196,8 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
         return getSortOrder();
       case 95472323:  // depth
         return getDepth();
+      case 1941332754:  // visibility
+        return getVisibility();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -213,6 +221,9 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
       case 95472323:  // depth
         setDepth((Integer) newValue);
         return;
+      case 1941332754:  // visibility
+        setVisibility((DocumentVisibility) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -220,6 +231,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_sortOrder, "sortOrder");
+    JodaBeanUtils.notNull(_visibility, "visibility");
     super.validate();
   }
 
@@ -235,6 +247,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
           JodaBeanUtils.equal(getDepth(), other.getDepth()) &&
+          JodaBeanUtils.equal(getVisibility(), other.getVisibility()) &&
           super.equals(obj);
     }
     return false;
@@ -248,6 +261,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDepth());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVisibility());
     return hash ^ super.hashCode();
   }
 
@@ -378,6 +392,32 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the lowest visibility level to return.
+   * @return the value of the property, not null
+   */
+  public DocumentVisibility getVisibility() {
+    return _visibility;
+  }
+
+  /**
+   * Sets the lowest visibility level to return.
+   * @param visibility  the new value of the property, not null
+   */
+  public void setVisibility(DocumentVisibility visibility) {
+    JodaBeanUtils.notNull(visibility, "visibility");
+    this._visibility = visibility;
+  }
+
+  /**
+   * Gets the the {@code visibility} property.
+   * @return the property, not null
+   */
+  public final Property<DocumentVisibility> visibility() {
+    return metaBean().visibility().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code PortfolioSearchRequest}.
    */
   public static class Meta extends AbstractSearchRequest.Meta {
@@ -414,6 +454,11 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
     private final MetaProperty<Integer> _depth = DirectMetaProperty.ofReadWrite(
         this, "depth", PortfolioSearchRequest.class, Integer.TYPE);
     /**
+     * The meta-property for the {@code visibility} property.
+     */
+    private final MetaProperty<DocumentVisibility> _visibility = DirectMetaProperty.ofReadWrite(
+        this, "visibility", PortfolioSearchRequest.class, DocumentVisibility.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
@@ -422,7 +467,8 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
         "nodeObjectIds",
         "name",
         "sortOrder",
-        "depth");
+        "depth",
+        "visibility");
 
     /**
      * Restricted constructor.
@@ -443,6 +489,8 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
           return _sortOrder;
         case 95472323:  // depth
           return _depth;
+        case 1941332754:  // visibility
+          return _visibility;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -501,6 +549,14 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<Integer> depth() {
       return _depth;
+    }
+
+    /**
+     * The meta-property for the {@code visibility} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<DocumentVisibility> visibility() {
+      return _visibility;
     }
 
   }

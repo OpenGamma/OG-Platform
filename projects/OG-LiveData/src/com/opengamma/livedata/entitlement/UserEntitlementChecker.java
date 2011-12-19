@@ -32,20 +32,26 @@ import com.opengamma.util.ArgumentChecker;
  * If the user for example has <code>Authority</code>
  * LiveData/Reuters/&#42;, access is granted. But if the user has no
  * compatible <code>Authority</code>, access is denied.
- * 
  */
 public class UserEntitlementChecker extends AbstractEntitlementChecker {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(UserEntitlementChecker.class);
 
+  /**
+   * The user manager.
+   */
   private final UserManager _userManager;
+  /**
+   * The resolver.
+   */
   private final DistributionSpecificationResolver _resolver;
 
   /**
-   * @param userManager
-   *          Used to load users (their permissions really)
-   * @param resolver Used to map from {@link LiveDataSpecification} to {@link DistributionSpecification} 
+   * Creates an instance.
+   * 
+   * @param userManager  the user manager used to load users (their permissions really), not null
+   * @param resolver  the resolver used to map from {@link LiveDataSpecification} to {@link DistributionSpecification}, not null
    */
   public UserEntitlementChecker(UserManager userManager, DistributionSpecificationResolver resolver) {
     ArgumentChecker.notNull(userManager, "User manager");
@@ -54,10 +60,10 @@ public class UserEntitlementChecker extends AbstractEntitlementChecker {
     _resolver = resolver;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Map<LiveDataSpecification, Boolean> isEntitled(UserPrincipal userPrincipal, Collection<LiveDataSpecification> requestedSpecifications) {
     Map<LiveDataSpecification, Boolean> returnValue = new HashMap<LiveDataSpecification, Boolean>();
-    
     User user = _userManager.getUser(userPrincipal.getUserName());
     if (user == null) {
       s_logger.debug("User {} does not exist - no permissions are granted", userPrincipal.getUserName());
@@ -66,7 +72,7 @@ public class UserEntitlementChecker extends AbstractEntitlementChecker {
       }
       return returnValue;
     }
-
+    
     Map<LiveDataSpecification, DistributionSpecification> distributionSpecs = _resolver.resolve(requestedSpecifications);
     
     for (LiveDataSpecification requestedSpec : requestedSpecifications) {
@@ -80,7 +86,6 @@ public class UserEntitlementChecker extends AbstractEntitlementChecker {
         returnValue.put(requestedSpec, false);
       }
     }
-    
     return returnValue;
   }
 

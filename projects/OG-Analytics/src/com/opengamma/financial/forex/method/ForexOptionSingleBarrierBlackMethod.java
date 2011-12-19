@@ -22,6 +22,7 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.surface.SurfaceValue;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -186,7 +187,7 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @param smile The volatility and curves description.
    * @return The curve sensitivity.
    */
-  public PresentValueVolatilitySensitivityDataBundle presentValueVolatilitySensitivity(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile) {
+  public PresentValueForexBlackVolatilitySensitivity presentValueVolatilitySensitivity(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smile, "Smile");
     final String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
@@ -205,9 +206,10 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
     BLACK_FUNCTION.getPriceAdjoint(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spot, rateForeign, rateDomestic, volatility, priceDerivatives);
     final double volatilitySensitivityValue = priceDerivatives[4] * Math.abs(foreignAmount) * sign;
     final DoublesPair point = DoublesPair.of(optionForex.getUnderlyingOption().getTimeToExpiry(), optionForex.getUnderlyingOption().getStrike());
-    Map<DoublesPair, Double> result = new HashMap<DoublesPair, Double>();
-    result.put(point, volatilitySensitivityValue);
-    final PresentValueVolatilitySensitivityDataBundle sensi = new PresentValueVolatilitySensitivityDataBundle(optionForex.getUnderlyingOption().getUnderlyingForex().getCurrency1(), optionForex
+    //    Map<DoublesPair, Double> result = new HashMap<DoublesPair, Double>();
+    //    result.put(point, volatilitySensitivityValue);
+    SurfaceValue result = SurfaceValue.from(point, volatilitySensitivityValue);
+    final PresentValueForexBlackVolatilitySensitivity sensi = new PresentValueForexBlackVolatilitySensitivity(optionForex.getUnderlyingOption().getUnderlyingForex().getCurrency1(), optionForex
         .getUnderlyingOption().getUnderlyingForex().getCurrency2(), result);
     return sensi;
   }
@@ -218,7 +220,7 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @param curves The volatility and curves description (SmileDeltaTermStructureDataBundle).
    * @return The volatility sensitivity.
    */
-  public PresentValueVolatilitySensitivityDataBundle presentValueVolatilitySensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
+  public PresentValueForexBlackVolatilitySensitivity presentValueVolatilitySensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ForexOptionSingleBarrier, "Single barrier Forex option");
     Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
     return presentValueVolatilitySensitivity((ForexOptionSingleBarrier) instrument, (SmileDeltaTermStructureDataBundle) curves);
@@ -234,7 +236,7 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
   public PresentValueVolatilityNodeSensitivityDataBundle presentValueVolatilityNodeSensitivity(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smile, "Smile");
-    final PresentValueVolatilitySensitivityDataBundle pointSensitivity = presentValueVolatilitySensitivity(optionForex, smile);
+    final PresentValueForexBlackVolatilitySensitivity pointSensitivity = presentValueVolatilitySensitivity(optionForex, smile);
     final double[][] nodeWeight = new double[smile.getSmile().getNumberExpiration()][smile.getSmile().getNumberStrike()];
     final double df = smile.getCurve(optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(
         optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime());
@@ -247,7 +249,7 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
     final double[][] vega = new double[smile.getSmile().getNumberExpiration()][smile.getSmile().getNumberStrike()];
     for (int loopexp = 0; loopexp < smile.getSmile().getNumberExpiration(); loopexp++) {
       for (int loopstrike = 0; loopstrike < smile.getSmile().getNumberStrike(); loopstrike++) {
-        vega[loopexp][loopstrike] = nodeWeight[loopexp][loopstrike] * pointSensitivity.getVega().get(point);
+        vega[loopexp][loopstrike] = nodeWeight[loopexp][loopstrike] * pointSensitivity.getVega().getMap().get(point);
       }
     }
     return new PresentValueVolatilityNodeSensitivityDataBundle(optionForex.getUnderlyingOption().getUnderlyingForex().getCurrency1(), optionForex.getUnderlyingOption().getUnderlyingForex()

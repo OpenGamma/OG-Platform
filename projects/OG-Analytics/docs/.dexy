@@ -1,9 +1,5 @@
 {
-        "api.html|hd|ft|jinja|split" : {
-            "inputs" : ["javadoc-data.json|javadocs", "_header.html", "_footer.html"],
-            "canonical-name" : "index.html"
-        },
-        "@list-files.sh|jinja|sh" : { "propagate" : true, "contents" : "cd ../{{ s.canonical_dir() }}; find ." },
+        "@list-files.sh|jinja|sh" : { "final" : false, "propagate" : true, "contents" : "cd ../{{ s.canonical_dir() }}; find -printf '%P\n'" },
         "writing-docs.tex|hd|ft|jinja|latex" : {
             "title" : "Writing OpenGamma Examples",
             "allinputs" : true,
@@ -14,14 +10,18 @@
             "allinputs" : true,
             "priority" : 10
         },
+        "og-analytics.tex|hd|ft|ogjinja|latex" : {
+            "allinputs" : true,
+            "header" : "_header_book.tex",
+            "footer" : "_footer_book.tex",
+            "priority" : 10
+        },
         "og_docs_yield_curve_maths.tex|hd|ft|jinja|latex" : {
-            "disabled" : true,
             "allinputs" : true,
             "title" : "Yield Curve Maths",
             "priority" : 10
         },
         "og_docs_true_primitives.tex|hd|ft|jinja|latex" : {
-            "disabled" : true,
             "allinputs" : true,
             "priority" : 10
         },
@@ -31,8 +31,6 @@
         },
         "sync.sh|jinja" : {},
         "debug.txt|jinja" : { "allinputs" : true },
-        "javadoc-data.json|javadocs" : {},
-        "javadoc-data.json|ppjson" : {},
         "_*.html" : {},
         "_*.tex" : {},
         "*.jpg" : {},

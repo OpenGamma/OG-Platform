@@ -21,11 +21,11 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.instrument.index.IndexOIS;
+import com.opengamma.financial.instrument.index.IndexON;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -60,14 +60,14 @@ public abstract class SimpleInstrumentFactory {
   private static final Currency DUMMY_CUR = Currency.USD;
   private static final IborIndex DUMMY_INDEX = new IborIndex(DUMMY_CUR, Period.ofMonths(1), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
       BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
-  private static final IndexOIS DUMMY_OIS_INDEX = new IndexOIS("OIS", DUMMY_CUR, DayCountFactory.INSTANCE.getDayCount("Actual/365"), 0, new MondayToFridayCalendar("A"));
+  private static final IndexON DUMMY_OIS_INDEX = new IndexON("OIS", DUMMY_CUR, DayCountFactory.INSTANCE.getDayCount("Actual/365"), 0, new MondayToFridayCalendar("A"));
 
   public static InstrumentDerivative makeCash(final double time, final String fundCurveName, final double rate, final double notional) {
-    return new Cash(DUMMY_CUR, time, notional, rate, fundCurveName);
+    return new Cash(DUMMY_CUR, 0, time, notional, rate, time, fundCurveName);
   }
 
   public static InstrumentDerivative makeLibor(final double time, final String indexCurveName, final double rate, final double notional) {
-    return new Cash(DUMMY_CUR, time, notional, rate, indexCurveName);
+    return new Cash(DUMMY_CUR, 0, time, notional, rate, time, indexCurveName);
   }
 
   /**

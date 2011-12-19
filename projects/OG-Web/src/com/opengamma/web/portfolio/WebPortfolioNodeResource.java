@@ -6,6 +6,8 @@
 package com.opengamma.web.portfolio;
 
 import java.net.URI;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -29,6 +31,7 @@ import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * RESTful resource for a node in a portfolio.
@@ -60,7 +63,9 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
     if (!doc.isLatest()) {
       return Response.status(Status.NOT_FOUND).build();
     }
-    return Response.ok(getFreemarker().build("portfolios/jsonportfolionode.ftl", out)).build();
+    
+    String s = getFreemarker().build("portfolios/jsonportfolionode.ftl", out);
+    return Response.ok(s).build();
   }
 
   private FlexiBean createPortfolioNodeData() {
@@ -213,7 +218,27 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
     out.put("node", node);
     out.put("childNodes", node.getChildNodes());
     out.put("deleted", !doc.isLatest());
+    out.put("pathNodes", getPathNodes(node));
     return out;
+  }
+
+  /**
+   * Extracts the path from the root node to the current node, for web breadcrumb display.
+   * The nodes are returned in a list, ordered from root to current node.
+   * @param node  the current node
+   * @return      a list of <UniqueId, String> pairs denoting all nodes on the path from root to current node
+   */
+  private List<ObjectsPair<UniqueId, String>> getPathNodes(ManageablePortfolioNode node) {
+    LinkedList<ObjectsPair<UniqueId, String>> result = new LinkedList<ObjectsPair<UniqueId, String>>();
+
+    ManageablePortfolioNode currentNode = node;
+    while (currentNode != null) {
+      result.addFirst(new ObjectsPair<UniqueId, String>(currentNode.getUniqueId(), currentNode.getName()));
+      currentNode = (currentNode.getParentNodeId() == null) 
+          ? null 
+          : data().getPortfolioMaster().getNode(currentNode.getParentNodeId());       
+    }
+    return result;
   }
 
   //-------------------------------------------------------------------------

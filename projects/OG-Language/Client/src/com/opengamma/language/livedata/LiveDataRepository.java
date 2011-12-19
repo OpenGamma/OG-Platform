@@ -13,8 +13,4 @@ import com.opengamma.language.definition.DefinitionRepository;
  */
 public class LiveDataRepository extends DefinitionRepository<MetaLiveData> {
 
-  public LiveDataRepository(final DefinitionRepository<?> underlying) {
-    super(underlying);
-  }
-
 }

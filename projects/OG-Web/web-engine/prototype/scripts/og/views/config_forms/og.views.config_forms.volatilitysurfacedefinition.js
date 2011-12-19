@@ -10,9 +10,8 @@ $.register_module({
     ],
     obj: function () {
         var module = this, Form = og.common.util.ui.Form,
-            INDX = '<INDEX>';
-        return og.views.config_forms['default'].preload({
-            type_map: [
+            INDX = '<INDEX>',
+            type_map = [
                 ['0',                                           Form.type.STR],
                 ['currency',                                    Form.type.STR],
                 ['name',                                        Form.type.STR],
@@ -35,7 +34,17 @@ $.register_module({
                 [['ys', INDX, 'tenor'].join('.'),               Form.type.STR],
                 [['ys', INDX, 'second', '0'].join('.'),         Form.type.STR],
                 [['ys', INDX, 'second', '1'].join('.'),         Form.type.STR]
-            ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {})
-        });
+            ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {});
+        return og.views.config_forms['default'].preload({type_map: type_map});
+        /* dead code below */
+        return function (config) {
+            var selector = config.selector,
+                form = new Form({
+                    module: 'og.views.forms.volatility-surface-definition',
+                    type_map: type_map,
+                    selector: selector
+                });
+            form.dom();
+        };
     }
 });

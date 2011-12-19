@@ -4,16 +4,15 @@
     <h1>${template_data.name}</h1>
   </header>
   <section>
-    <div class="OG-details-content OG-exchanges OG-js-details-panel">
-      <section>
-        <div class="OG-mod-1 OG-c6">
-          <table>
+    <div class="OG-details-content OG-js-details-panel">
+      <section style="width: 800px">
+          <table class="OG-table">
             <col style="width: 40%" />
             <col style="width: 60%" />
             <thead>
-              <tr><td colspan="2">Exchange details</td></tr>
+              <tr><th><span>Exchange details</span></th><th>&nbsp;</th></tr>
             </thead>
-            <tbody class="og-mod-content og-js-info">
+            <tbody class="og-js-info">
               <tr>
                 <td><span>Region ID</span></td>
                 <td>${regionKey['Region id']}</td>
@@ -24,7 +23,6 @@
               </tr>
             </tbody>
           </table>
-        </div>
       </section>
     </div>
   </section>

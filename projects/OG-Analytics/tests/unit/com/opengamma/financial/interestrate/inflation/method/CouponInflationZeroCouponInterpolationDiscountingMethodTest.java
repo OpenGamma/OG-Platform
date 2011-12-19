@@ -18,7 +18,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
@@ -37,10 +37,10 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
   private static final MarketBundle MARKET = MarketDataSets.createMarket1();
-  private static final PriceIndex[] PRICE_INDEXES = MarketDataSets.getPriceIndexes();
-  private static final PriceIndex PRICE_INDEX_EUR = PRICE_INDEXES[0];
+  private static final IndexPrice[] PRICE_INDEXES = MarketDataSets.getPriceIndexes();
+  private static final IndexPrice PRICE_INDEX_EUR = PRICE_INDEXES[0];
   //  private static final PriceIndex PRICE_INDEX_UK = PRICE_INDEXES[1];
-  private static final PriceIndex PRICE_INDEX_US = PRICE_INDEXES[2];
+  private static final IndexPrice PRICE_INDEX_US = PRICE_INDEXES[2];
   private static final IborIndex[] IBOR_INDEXES = MarketDataSets.getIborIndexes();
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
   //  private static final IborIndex EURIBOR6M = IBOR_INDEXES[1];
@@ -50,7 +50,7 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final Period COUPON_TENOR = Period.ofYears(10);
-  private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, BUSINESS_DAY, CALENDAR_EUR, COUPON_TENOR);
+  private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, COUPON_TENOR, BUSINESS_DAY, CALENDAR_EUR);
   private static final double NOTIONAL = 98765432;
   private static final int MONTH_LAG = 3;
   private static final double INDEX_MAY_2008_INT = 108.4548387; // May index: 108.23 - June Index = 108.64
@@ -126,8 +126,8 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
     MarketBundle marketSeason = MarketDataSets.createMarket2(PRICING_DATE);
     int tenorYear = 5;
     double notional = 100000000;
-    ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(PRICING_DATE, CALENDAR_USD, USDLIBOR3M.getSettlementDays());
-    ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(settleDate, BUSINESS_DAY, CALENDAR_USD, USDLIBOR3M.isEndOfMonth(), Period.ofYears(tenorYear));
+    ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(PRICING_DATE, USDLIBOR3M.getSpotLag(), CALENDAR_USD);
+    ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(settleDate, Period.ofYears(tenorYear), BUSINESS_DAY, CALENDAR_USD, USDLIBOR3M.isEndOfMonth());
     double weightSettle = 1.0 - (settleDate.getDayOfMonth() - 1.0) / settleDate.getMonthOfYear().getLastDayOfMonth(settleDate.isLeapYear());
     double indexStart = weightSettle * 225.964 + (1 - weightSettle) * 225.722;
     CouponInflationZeroCouponInterpolationDefinition zeroCouponUsdDefinition = CouponInflationZeroCouponInterpolationDefinition.from(settleDate, paymentDate, notional, PRICE_INDEX_US, indexStart,

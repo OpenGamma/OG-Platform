@@ -79,8 +79,12 @@ public class RepositoryFactory {
       int used = 0;
       for (int i = 0; i < parameters.length; i++) {
         if (parameters[i] == String.class) {
-          args[i] = (String) parameterList.get(i);
-          used++;
+          if (i < parameterList.size()) {
+            args[i] = (String) parameterList.get(i);
+            used++;
+          } else {
+            continue constructors;
+          }
         } else {
           if (i == parameters.length - 1) {
             used = parameterList.size();

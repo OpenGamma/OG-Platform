@@ -156,7 +156,7 @@ public final class PresentValueSABRSensitivitySABRCalculator extends AbstractIns
     Validate.notNull(annuity);
     PresentValueSABRSensitivityDataBundle pvss = new PresentValueSABRSensitivityDataBundle();
     for (final Payment p : annuity.getPayments()) {
-      pvss = pvss.plus(visit(p, curves));
+      pvss = PresentValueSABRSensitivityDataBundle.plus(pvss, visit(p, curves));
     }
     return pvss;
   }
@@ -172,7 +172,7 @@ public final class PresentValueSABRSensitivitySABRCalculator extends AbstractIns
     pvss.addRho(expiryMaturity, 0);
     return pvss;
   }
-  
+
   @Override
   public PresentValueSABRSensitivityDataBundle visitCouponIborFixed(final CouponIborFixed coupon, final YieldCurveBundle curves) {
     Validate.notNull(curves);
@@ -184,21 +184,21 @@ public final class PresentValueSABRSensitivitySABRCalculator extends AbstractIns
     pvss.addRho(expiryMaturity, 0);
     return pvss;
   }
-  
+
   @Override
   public PresentValueSABRSensitivityDataBundle visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(swap);
     PresentValueSABRSensitivityDataBundle pvss = new PresentValueSABRSensitivityDataBundle();
     for (final Payment p : swap.getFirstLeg().getPayments()) {
-      pvss = pvss.plus(visit(p, curves));
+      pvss = PresentValueSABRSensitivityDataBundle.plus(pvss, visit(p, curves));
     }
     for (final Payment p : swap.getSecondLeg().getPayments()) {
-      pvss = pvss.plus(visit(p, curves));
+      pvss = PresentValueSABRSensitivityDataBundle.plus(pvss, visit(p, curves));
     }
     return pvss;
   }
-  
+
   @Override
   public PresentValueSABRSensitivityDataBundle visitCouponIbor(final CouponIbor coupon, final YieldCurveBundle curves) {
     final CapFloorIbor capFloor = CapFloorIbor.from(coupon, 0, true);

@@ -10,6 +10,11 @@
     font-style: normal;
 }
 
+pre {
+    width: 840px;
+    overflow: auto;
+}
+
 body,div,p,ul,ol,li,dl,dt,dd,pre,blockquote,form,fieldset,table,tr,th,td,h1,h2,h3,h4,h5,h6 {
 	margin: 0;
 	padding: 0;

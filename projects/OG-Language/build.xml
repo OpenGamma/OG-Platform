@@ -21,8 +21,9 @@
   </path>
 
   <import file="${basedir}/build-suffix.xml" />
+  <import file="${basedir}/delete-unused-jars.xml" />
 
-  <target name="deploy-jars" depends="build-suffix.deploy-jars,make-config">
+  <target name="deploy-jars" depends="build-suffix.deploy-jars,make-config,delete-unused-jars">
     <mkdir dir="${build.dir}/ext" />
     <copy file="${basedir}/config/0${ant.project.name}.xml" todir="${build.dir}/ext" failonerror="true" />
     <copy file="${basedir}/config/logback.xml" todir="${build.dir}" failonerror="false" />
@@ -53,5 +54,14 @@
   </target>
 
   <target name="test-batch"/>
+
+ <target name="windows-installer" depends="set-version" description="Builds the windows installation packages (assumes a dist has already been done and Advanced Installer is available)">
+    <exec executable="AdvancedInstaller.com" failifexecutionfails="true">
+      <arg line="/edit Installer\setup.aip /SetVersion ${module.version}.${build.number}" />
+    </exec>
+    <exec executable="AdvancedInstaller.com" failifexecutionfails="true">
+      <arg line="/build Installer\setup.aip" />
+    </exec>
+  </target>
 
 </project>

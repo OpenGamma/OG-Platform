@@ -41,6 +41,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
   protected Instant _version1Instant;
   protected Instant _version2Instant;
   protected int _totalPortfolios;
+  protected int _visiblePortfolios;
   protected int _totalPositions;
   protected OffsetDateTime _now;
 
@@ -62,15 +63,18 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     s_logger.debug("test data now:   {}", _version1Instant);
     s_logger.debug("test data later: {}", _version2Instant);
     final SimpleJdbcTemplate template = _prtMaster.getDbConnector().getJdbcTemplate();
-    template.update("INSERT INTO prt_portfolio VALUES (?,?,?,?,?, ?,?)",
-        101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestPortfolio101");
-    template.update("INSERT INTO prt_portfolio VALUES (?,?,?,?,?, ?,?)",
-        102, 102, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestPortfolio102");
-    template.update("INSERT INTO prt_portfolio VALUES (?,?,?,?,?, ?,?)",
-        201, 201, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestPortfolio201");
-    template.update("INSERT INTO prt_portfolio VALUES (?,?,?,?,?, ?,?)",
-        202, 201, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, "TestPortfolio202");
-    _totalPortfolios = 3;
+    template.update("INSERT INTO prt_portfolio VALUES (?,?,?,?,?, ?,?,?)",
+        101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestPortfolio101", 25);
+    template.update("INSERT INTO prt_portfolio VALUES (?,?,?,?,?, ?,?,?)",
+        102, 102, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestPortfolio102", 25);
+    template.update("INSERT INTO prt_portfolio VALUES (?,?,?,?,?, ?,?,?)",
+        201, 201, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestPortfolio201", 25);
+    template.update("INSERT INTO prt_portfolio VALUES (?,?,?,?,?, ?,?,?)",
+        202, 201, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, "TestPortfolio202", 25);
+    template.update("INSERT INTO prt_portfolio VALUES (?,?,?,?,?, ?,?,?)",
+        301, 301, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestPortfolio301", 75);
+    _visiblePortfolios = 3;
+    _totalPortfolios = 4;
     
     template.update("INSERT INTO prt_node VALUES (?,?,?,?,?, ?,?,?,?,?)",
         111, 111, 101, 101, null, null, 0, 1, 6, "TestNode111");
@@ -84,6 +88,8 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
         211, 211, 201, 201, null, null, 0, 1, 2, "TestNode211");
     template.update("INSERT INTO prt_node VALUES (?,?,?,?,?, ?,?,?,?,?)",
         212, 211, 202, 201, null, null, 0, 1, 2, "TestNode212");
+    template.update("INSERT INTO prt_node VALUES (?,?,?,?,?, ?,?,?,?,?)",
+        311, 311, 301, 301, null, null, 0, 1, 2, "TestNode311");
     
     template.update("INSERT INTO prt_position VALUES (?,?,?)",
         112, "DbPos", "500");
@@ -95,6 +101,8 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
         211, "DbPos", "500");
     template.update("INSERT INTO prt_position VALUES (?,?,?)",
         212, "DbPos", "500");
+    template.update("INSERT INTO prt_position VALUES (?,?,?)",
+        311, "DbPos", "500");
     
     template.update("INSERT INTO prt_portfolio_attribute VALUES (?,?,?,?,?)",
         10, 101, 101, "K101a", "V101a");
@@ -244,6 +252,34 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
   protected void assertNode212(final ManageablePortfolioNode node, final UniqueId portfolioId) {
     assertEquals(UniqueId.of("DbPrt", "211", "1"), node.getUniqueId());
     assertEquals("TestNode212", node.getName());
+    assertEquals(null, node.getParentNodeId());
+    assertEquals(portfolioId, node.getPortfolioId());
+    assertEquals(0, node.getChildNodes().size());
+    assertEquals(1, node.getPositionIds().size());
+    assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
+  }
+  
+  protected void assert301(final PortfolioDocument test) {
+    UniqueId uniqueId = UniqueId.of("DbPrt", "301", "0");
+    assertNotNull(test);
+    assertEquals(uniqueId, test.getUniqueId());
+    assertEquals(_version1Instant, test.getVersionFromInstant());
+    assertEquals(null, test.getVersionToInstant());
+    assertEquals(_version1Instant, test.getCorrectionFromInstant());
+    assertEquals(null, test.getCorrectionToInstant());
+    ManageablePortfolio portfolio = test.getPortfolio();
+    assertEquals(uniqueId, portfolio.getUniqueId());
+    assertEquals("TestPortfolio301", portfolio.getName());
+    ManageablePortfolioNode rootNode = portfolio.getRootNode();
+    assertNode311(rootNode, uniqueId);
+    
+    assertNotNull(portfolio.getAttributes());
+    assertTrue(portfolio.getAttributes().isEmpty());
+  }
+  
+  protected void assertNode311(final ManageablePortfolioNode node, final UniqueId portfolioId) {
+    assertEquals(UniqueId.of("DbPrt", "311", "0"), node.getUniqueId());
+    assertEquals("TestNode311", node.getName());
     assertEquals(null, node.getParentNodeId());
     assertEquals(portfolioId, node.getPortfolioId());
     assertEquals(0, node.getChildNodes().size());
