@@ -5,8 +5,10 @@
     {{each path}}
     <li {{if $index == path.length - 1}} class="og-current" {{/if}}><a
             title="${$item.title(name)}" class="og-js-live-anchor"
-            {{if $index == path.length - 1}} data-og-editable="name" {{/if}}
-            href="${$item.href(object_id)}">${$item.short_name(name)}</a></li>
+            {{if $index == path.length - 1}}
+              data-og-editable="name" data-og-node="${node}" data-og-id="${object_id}"
+            {{/if}}
+            href="${$item.href(node)}">${$item.short_name(name)}</a></li>
     {{/each}}
   </ul>
 </nav>

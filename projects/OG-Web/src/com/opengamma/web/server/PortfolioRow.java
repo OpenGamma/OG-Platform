@@ -8,7 +8,7 @@ package com.opengamma.web.server;
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTargetSpecification;
 
-/*package*/ class PortfolioRow {
+public class PortfolioRow {
 
   private final int _depth;
   private final PortfolioRow _parentRow;

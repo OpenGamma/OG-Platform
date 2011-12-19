@@ -89,6 +89,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ProgramDataBaseFileName>$(OutDir)\$(ProjectName).pdb</ProgramDataBaseFileName>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <PreLinkEvent>
       <Command>xcopy /D /Y "$(SolutionDir)\lib\dll\$(Configuration)$(PlatformName)\*.dll" "$(OutDir)"</Command>
@@ -107,6 +109,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ProgramDataBaseFileName>$(OutDir)\$(ProjectName).pdb</ProgramDataBaseFileName>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <PreLinkEvent>
       <Command>xcopy /D /Y "$(SolutionDir)\lib\dll\$(Configuration)$(PlatformName)\*.dll" "$(OutDir)"</Command>
@@ -125,6 +129,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ProgramDataBaseFileName>$(OutDir)\$(ProjectName).pdb</ProgramDataBaseFileName>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <PreLinkEvent>
       <Command>xcopy /D /Y "$(SolutionDir)\lib\dll\$(Configuration)$(PlatformName)\*.dll" "$(OutDir)"</Command>
@@ -143,6 +149,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ProgramDataBaseFileName>$(OutDir)\$(ProjectName).pdb</ProgramDataBaseFileName>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <PreLinkEvent>
       <Command>xcopy /D /Y "$(SolutionDir)\lib\dll\$(Configuration)$(PlatformName)\*.dll" "$(OutDir)"</Command>

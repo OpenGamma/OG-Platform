@@ -34,5 +34,4 @@ public class DoubleTimeSeriesStatisticsCalculator implements Function<DoubleTime
     }
     return _statistic.evaluate(arrays);
   }
-
 }

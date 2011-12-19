@@ -9,8 +9,8 @@ $.register_module({
         'og.common.util.ui'
     ],
     obj: function () {
-        var module = this, Form = og.common.util.ui.Form, api = og.api.rest;
-        return function (config) {
+        var module = this, Form = og.common.util.ui.Form, api = og.api.rest, constructor;
+        constructor = function (config) {
             var load_handler = config.handler || $.noop, selector = config.selector,
                 master = config.data.template_data.configJSON.data, config_type = config.type,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
@@ -65,5 +65,7 @@ $.register_module({
             ]);
             form.dom();
         };
+        constructor.is_default = true;
+        return constructor;
     }
 });

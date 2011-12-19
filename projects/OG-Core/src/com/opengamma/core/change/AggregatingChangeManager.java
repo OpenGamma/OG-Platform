@@ -5,6 +5,10 @@
  */
 package com.opengamma.core.change;
 
+import com.opengamma.util.ArgumentChecker;
+
+import java.util.List;
+
 /**
  * Manager for aggregating entity change events from multiple underlying change managers.
  * <p>
@@ -13,6 +17,16 @@ package com.opengamma.core.change;
  * This class is mutable and thread-safe using concurrent collections.
  */
 public class AggregatingChangeManager extends BasicChangeManager implements ChangeListener {
+
+  public AggregatingChangeManager() {
+  }
+
+  public AggregatingChangeManager(List<ChangeProvider> changeProviders) {
+    ArgumentChecker.notNull(changeProviders, "changeProviders");
+    for (ChangeProvider changeProvider : changeProviders) {
+      addChangeManager(changeProvider.changeManager());
+    }
+  }
 
   public void addChangeManager(ChangeManager changeManager) {
     changeManager.addChangeListener(this);

@@ -31,6 +31,7 @@
     <fragment>/styles/common/og.common.OG-table.css</fragment>
     <fragment>/styles/common/og.common.OG-tools.css</fragment>
     <fragment>/styles/common/og.common.OG-lang.css</fragment>
+    <fragment>/styles/common/og.common.OG-dialog-form.css</fragment>
   </bundle>
   <bundle id="common.util.css">
     <fragment>/styles/common/util/og.common.util.OG-clearFix.css</fragment>

@@ -19,6 +19,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.opengamma.web.server.push.rest.MasterType;
+import com.opengamma.web.server.push.rest.Subscribe;
+import com.opengamma.web.server.push.rest.SubscribeMaster;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
@@ -59,6 +62,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
+  @SubscribeMaster(MasterType.PORTFOLIO)
   public String getHTML(
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
@@ -76,6 +80,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
+  @SubscribeMaster(MasterType.PORTFOLIO)
   public String getJSON(
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
@@ -139,8 +144,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
     ManageablePortfolio portfolio = new ManageablePortfolio(name);
     PortfolioDocument doc = new PortfolioDocument(portfolio);
     PortfolioDocument added = data().getPortfolioMaster().add(doc);
-    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
-    return uri;
+    return data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
   }
 
   @POST
@@ -154,7 +158,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
 
   //-------------------------------------------------------------------------
   @Path("{portfolioId}")
-  public WebPortfolioResource findPortfolio(@PathParam("portfolioId") String idStr) {
+  public WebPortfolioResource findPortfolio(@Subscribe @PathParam("portfolioId") String idStr) {
     data().setUriPortfolioId(idStr);
     UniqueId oid = UniqueId.parse(idStr);
     try {

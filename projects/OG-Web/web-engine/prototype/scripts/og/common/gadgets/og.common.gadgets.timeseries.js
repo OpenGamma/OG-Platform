@@ -131,7 +131,7 @@ $.register_module({
                     var SLICK_SELECTOR = '.OG-timeseries .og-data-points .og-slick-' + index, slick, data,
                     columns = [
                         {id: 'time', name: 'Time', field: 'time', width: 200,
-                            formatter: function (row, cell, value, columnDef, dataContext) {
+                            formatter: function (row, cell, value) {
                                 return og.common.util.date(value);
                             }
                         },
@@ -149,6 +149,11 @@ $.register_module({
                         return acc.push({time: val[0], value: val[1]}) && acc;
                     }, []);
                     $(SLICK_SELECTOR).css({opacity: '0.1'});
+                    columns = og.common.slickgrid.calibrate_columns({
+                        container: SLICK_SELECTOR,
+                        columns: columns,
+                        buffer: 17
+                    });
                     try {slick = new Slick.Grid(SLICK_SELECTOR, data, columns, options);}
                     catch(e) {$(SLICK_SELECTOR + ' .og-loading').html('' + e);}
                     finally {$(SLICK_SELECTOR).animate({opacity: '1'});}
