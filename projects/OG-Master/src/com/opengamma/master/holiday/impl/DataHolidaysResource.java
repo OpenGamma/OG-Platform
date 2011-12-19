@@ -79,7 +79,7 @@ public class DataHolidaysResource extends AbstractDataResource {
   @HEAD
   @Path("holidays")
   public Response status() {
-    // simple GET to quickly return, avoiding loading the whole database
+    // simple HEAD to quickly return, avoiding loading the whole database
     return Response.ok().build();
   }
 

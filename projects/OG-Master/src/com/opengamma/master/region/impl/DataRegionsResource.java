@@ -66,7 +66,7 @@ public class DataRegionsResource extends AbstractDataResource {
   @HEAD
   @Path("regions")
   public Response status() {
-    // simple GET to quickly return, avoiding loading the whole database
+    // simple HEAD to quickly return, avoiding loading the whole database
     return Response.ok().build();
   }
 
