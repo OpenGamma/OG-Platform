@@ -254,7 +254,12 @@ public class RequirementBasedGridStructure {
     }
     return null;
   }
-  
+
+  /**
+   * Returns the column numbers of the cells which are unsatisfied in the dependency graph.
+   * @param rowId The zero based row index
+   * @return The column indices of cells on the specified row which are unsatisfied in the dependency graph
+   */
   public Set<Integer> getUnsatisfiedCells(int rowId) {
     return _unsatisfiedCells.get(rowId);
   }

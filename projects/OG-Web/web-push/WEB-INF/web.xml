@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         version="2.5">
+
+  <servlet>
+    <servlet-name>rest</servlet-name>
+    <servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
+    <init-param>
+      <param-name>javax.ws.rs.Application</param-name>
+      <param-value>com.opengamma.web.server.push.TestApplication</param-value>
+    </init-param>
+    <init-param>
+      <param-name>com.sun.jersey.spi.container.ResourceFilters</param-name>
+      <param-value>com.opengamma.web.server.push.rest.SubscribingFilterFactory</param-value>
+    </init-param>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>rest</servlet-name>
+    <url-pattern>/jax/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>handshake</servlet-name>
+    <servlet-class>com.opengamma.web.server.push.HandshakeServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>handshake</servlet-name>
+    <url-pattern>/handshake</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>updates</servlet-name>
+    <servlet-class>com.opengamma.web.server.push.LongPollingServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>updates</servlet-name>
+    <url-pattern>/updates/*</url-pattern>
+  </servlet-mapping>
+
+</web-app>
