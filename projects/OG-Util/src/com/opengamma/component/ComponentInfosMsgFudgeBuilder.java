@@ -49,8 +49,8 @@ public class ComponentInfosMsgFudgeBuilder extends AbstractFudgeBuilder implemen
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, ComponentInfosMsg object) {
     FudgeMsg infos = msg.getMessage(INFOS_FIELD_NAME);
     for (FudgeField field : infos) {
-      if (field instanceof FudgeMsg) {
-        object.getInfos().add(ComponentInfoFudgeBuilder.fromFudgeMsg(deserializer, (FudgeMsg) field));
+      if (field.getValue() instanceof FudgeMsg) {
+        object.getInfos().add(ComponentInfoFudgeBuilder.fromFudgeMsg(deserializer, (FudgeMsg) field.getValue()));
       }
     }
   }
