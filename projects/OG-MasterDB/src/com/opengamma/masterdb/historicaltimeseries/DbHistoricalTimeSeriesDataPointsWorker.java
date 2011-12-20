@@ -105,8 +105,11 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
   //-------------------------------------------------------------------------
   
   public ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection, HistoricalTimeSeriesGetFilter filter) {
+    
     final long oid = extractOid(objectId); 
     final VersionCorrection vc = versionCorrection.withLatestFixed(now());
+
+    // Set up the basic query arguments
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("doc_oid", oid)
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
@@ -115,14 +118,25 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       .addValue("end_date", DbDateUtils.toSqlDateNullFarFuture(filter.getLatestDate()));
     final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
     
-    // get metadata
-    final String sqlCommon = getExtSqlBundle().getSql("SelectDataPointsCommon", args);
-    ManageableHistoricalTimeSeries result = namedJdbc.query(sqlCommon, args, new ManageableHTSExtractor(oid));
+    // Get version metadata from the data-points and set up a Manageable HTS accordingly
+    // While the HTS doc itself might have been deleted, the data-points can still be retrieved here
+    final String sqlVersion = getExtSqlBundle().getSql("SelectDataPointsVersion", args);
+    ManageableHistoricalTimeSeries result = namedJdbc.query(sqlVersion, args, new ManageableHTSExtractor(oid));
     if (result == null) {
-      throw new DataNotFoundException("Unable to find time-series: " + objectId);
+      // No data-points were found, check if the time-series doc exists or existed at some point
+      final String sqlExists = getExtSqlBundle().getSql("SelectExistential", args);
+      result = namedJdbc.query(sqlExists, args, new ManageableHTSExtractor(oid));
+      if (result != null) {
+        // The time series doc exists or existed at some point, it's just that there are no data-points
+        result.setTimeSeries(new ArrayLocalDateDoubleTimeSeries());
+        return result;
+      } else {
+        // The time series with the supplied id never existed
+        throw new DataNotFoundException("Unable to find time-series: " + objectId);              
+      }
     }
 
-    // set up limit on number of points to return
+    // Set up query arguments to limit the number of points to return
     if (filter.getMaxPoints() == null) {
       // return all points (limit all)
       args.addValue("order", "ASC");
@@ -140,7 +154,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       return result;
     }
 
-    // get data points
+    // Get the actual data points and attach to the Manageable HTS
     if (filter.getLatestDate() == null || filter.getEarliestDate() == null || !filter.getLatestDate().isBefore(filter.getEarliestDate())) {
       final String sqlPoints = getExtSqlBundle().getSql("SelectDataPoints", args);
       LocalDateDoubleTimeSeries series = namedJdbc.query(sqlPoints, args, new DataPointsExtractor());
@@ -502,21 +516,12 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       while (rs.next()) {
         Timestamp ver = rs.getTimestamp("max_ver_instant");
         Timestamp corr = rs.getTimestamp("max_corr_instant");
-        if (ver == null) {
-          ver = rs.getTimestamp("ver_from_instant");
-          corr = rs.getTimestamp("corr_from_instant");
-        }
-        Instant verInstant = DbDateUtils.fromSqlTimestamp(ver);
+        Instant verInstant = ver != null ? DbDateUtils.fromSqlTimestamp(ver) : null;
         Instant corrInstant = (corr != null ? DbDateUtils.fromSqlTimestamp(corr) : verInstant);
         ManageableHistoricalTimeSeries hts = new ManageableHistoricalTimeSeries();
         hts.setUniqueId(createTimeSeriesUniqueId(_objectId, verInstant, corrInstant));
         hts.setVersionInstant(verInstant);
         hts.setCorrectionInstant(corrInstant);
-        
-//        hts.setEarliestDate(DbDateUtils.fromSqlDateAllowNull(rs.getDate("min_point_date")));
-//        hts.setLatestDate(DbDateUtils.fromSqlDateAllowNull(rs.getDate("max_point_date")));        
-//        hts.setEarliestValue(rs.getDouble("earliest_point_value"));
-//        hts.setLatestValue(rs.getDouble("latest_point_value"));
         
         return hts;
       }

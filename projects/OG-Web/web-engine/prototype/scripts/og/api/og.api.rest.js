@@ -99,7 +99,8 @@ $.register_module({
                                 });
                             },
                             success: function (data, status, xhr) {
-                                var meta = {}, location = xhr.getResponseHeader('Location'), result, cache_for;
+                                var meta = {content_length: xhr.responseText.length},
+                                    location = xhr.getResponseHeader('Location'), result, cache_for;
                                 delete outstanding_requests[id];
                                 if (location && ~!location.indexOf('?')) meta.id = location.split('/').pop();
                                 if (config.meta.type in no_post_body) meta.url = url;

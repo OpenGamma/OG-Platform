@@ -168,7 +168,7 @@ $.register_module({
                             var $html, error_html, json_id = json.identifiers, title, header, content;
                             error_html = '\
                                 <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
-                                    This position has been deleted\
+                                    This time series has been deleted\
                                 </section>\
                             ';
                             // check if any of the following scheme types are in json.identifiers, in
@@ -218,7 +218,7 @@ $.register_module({
                                 id: result.data.template_data.object_id
                             });
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
-                            layout.inner.resizeAll();
+                            setTimeout(layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,
