@@ -10,15 +10,17 @@ $.register_module({
     ],
     obj: function () {
         var module = this, Form = og.common.util.ui.Form,
-            INDX = '<INDEX>';
-        return og.views.config_forms['default'].preload({
-            type_map: [
+            INDX = '<INDEX>',
+            type_map = [
                 ['0', Form.type.STR],
                 ['name', Form.type.STR],
                 [['target', '0', INDX].join('.'), Form.type.STR],
                 [['target', 'currency'].join('.'), Form.type.STR],
                 [['xs', INDX].join('.'), Form.type.BYT]
-            ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {})
-        });
+            ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {}),
+            constructor;
+        constructor = og.views.config_forms['default'].preload({type_map: type_map});
+        constructor.type_map = type_map;
+        return constructor;
     }
 });

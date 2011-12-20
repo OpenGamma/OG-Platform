@@ -12,31 +12,30 @@ $.register_module({
     ],
     obj: function () {
         var ui = og.common.util.ui, forms = og.views.forms, api = og.api.rest, Form = ui.Form,
+            CONV = 'conventionName', NUMF = 'numFutures',
+            CURV = 'CurveSpecificationBuilderConfiguration', INTR = 'interpolatorName',
+            INDX = '<INDEX>',
+            type_map = [
+                [['0', INDX].join('.'),                 Form.type.STR],
+                ['currency',                            Form.type.STR],
+                [INTR,                                  Form.type.STR],
+                ['name',                                Form.type.STR],
+                ['region',                              Form.type.STR],
+                [['strip', INDX, CONV].join('.'),       Form.type.STR],
+                [['strip', INDX, NUMF].join('.'),       Form.type.BYT],
+                [['strip', INDX, 'tenor'].join('.'),    Form.type.STR],
+                [['strip', INDX, 'type'].join('.'),     Form.type.STR],
+                ['uniqueId',                            Form.type.STR]
+            ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {}),
+            constructor,
             arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
-        return function (config) {
+        constructor = function (config) {
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.name,
                 resource_id = config.data.template_data.object_id,
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler,
-                master = config.data.template_data.configJSON.data, strips,
-                CONV = 'conventionName', NUMF = 'numFutures',
-                CURV = 'CurveSpecificationBuilderConfiguration', INTR = 'interpolatorName',
-                INDX = '<INDEX>',
-                sep = '~',
-                config_type = config.type,
-                type_map = [
-                    [['0', INDX].join('.'),                 Form.type.STR],
-                    ['currency',                            Form.type.STR],
-                    [INTR,                                  Form.type.STR],
-                    ['name',                                Form.type.STR],
-                    ['region',                              Form.type.STR],
-                    [['strip', INDX, CONV].join('.'),       Form.type.STR],
-                    [['strip', INDX, NUMF].join('.'),       Form.type.BYT],
-                    [['strip', INDX, 'tenor'].join('.'),    Form.type.STR],
-                    [['strip', INDX, 'type'].join('.'),     Form.type.STR],
-                    ['uniqueId',                            Form.type.STR]
-                ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {}),
+                master = config.data.template_data.configJSON.data, strips, sep = '~', config_type = config.type,
                 form = new Form({
                     module: 'og.views.forms.yield-curve-definition',
                     data: master,
@@ -179,5 +178,7 @@ $.register_module({
                 Array.prototype.push.apply(strips.children, master.strip.map(new_strip));
             form.dom();
         };
+        constructor.type_map = type_map;
+        return constructor;
     }
 });

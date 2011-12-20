@@ -29,7 +29,7 @@ $.register_module({
                 if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions.clear()}
                 // if options are not passed in, do not create a toolbar
                 if (options) og.common.util.ui.toolbar(options.toolbar['default']);
-                layout.inner.resizeAll();
+                setTimeout(layout.inner.resizeAll);
                 if (handler) handler();
             }});
         }
