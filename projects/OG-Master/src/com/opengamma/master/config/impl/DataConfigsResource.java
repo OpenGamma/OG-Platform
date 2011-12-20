@@ -91,10 +91,11 @@ public class DataConfigsResource extends AbstractDataResource {
     return Response.ok(result).build();
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked" })  // necessary to stop Jersey issuing warnings due to <?>
   @POST
   @Path("configs")
   @Consumes(FudgeRest.MEDIA)
-  public Response add(@Context UriInfo uriInfo, ConfigDocument<?> request) {
+  public Response add(@Context UriInfo uriInfo, ConfigDocument request) {
     ConfigDocument<?> result = getConfigMaster().add(request);
     return Response.created(DataConfigResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId(), result.getType())).entity(result).build();
   }
