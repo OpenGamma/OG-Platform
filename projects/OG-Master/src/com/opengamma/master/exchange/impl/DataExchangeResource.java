@@ -31,6 +31,7 @@ import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * RESTful resource for an exchange.
@@ -92,8 +93,8 @@ public class DataExchangeResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   @GET
   public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo) {
-    Instant v = (versionAsOf != null ? Instant.parse(versionAsOf) : null);
-    Instant c = (correctedTo != null ? Instant.parse(correctedTo) : null);
+    Instant v = (versionAsOf != null ? DateUtils.parseInstant(versionAsOf) : null);
+    Instant c = (correctedTo != null ? DateUtils.parseInstant(correctedTo) : null);
     ExchangeDocument result = getExchangeMaster().get(getUrlExchangeId(), VersionCorrection.of(v, c));
     return Response.ok(result).build();
   }
