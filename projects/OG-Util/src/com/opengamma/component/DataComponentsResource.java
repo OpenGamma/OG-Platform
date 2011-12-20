@@ -5,6 +5,7 @@
  */
 package com.opengamma.component;
 
+import java.net.URI;
 import java.util.Map;
 
 import javax.ws.rs.GET;
@@ -12,6 +13,7 @@ import javax.ws.rs.HEAD;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
@@ -75,6 +77,30 @@ public class DataComponentsResource extends AbstractDataResource {
       }
     }
     return null;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Builds a URI to fetch all components.
+   * 
+   * @param baseUri  the base URI, not null
+   * @return the URI, not null
+   */
+  public static URI uri(URI baseUri) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/components");
+    return bld.build();
+  }
+
+  /**
+   * Builds a URI for a single component.
+   * 
+   * @param baseUri  the base URI, not null
+   * @param info  the component info, not null
+   * @return the URI, not null
+   */
+  public static URI uri(URI baseUri, ComponentInfo info) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/components/{type}/{classifier}");
+    return bld.build(info.getType().getSimpleName(), info.getClassifier());
   }
 
 }
