@@ -30,7 +30,9 @@ import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ReflectionUtils;
 import com.opengamma.util.rest.AbstractDataResource;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * RESTful resource for a config.
@@ -91,10 +93,11 @@ public class DataConfigResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   @GET
-  public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo, @QueryParam("type") Class<?> type) {
-    Instant v = (versionAsOf != null ? Instant.parse(versionAsOf) : null);
-    Instant c = (correctedTo != null ? Instant.parse(correctedTo) : null);
-    if (type != null) {
+  public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo, @QueryParam("type") String typeStr) {
+    Instant v = (versionAsOf != null ? DateUtils.parseInstant(versionAsOf) : null);
+    Instant c = (correctedTo != null ? DateUtils.parseInstant(correctedTo) : null);
+    if (typeStr != null) {
+      Class<?> type = ReflectionUtils.loadClass(typeStr);
       ConfigDocument<?> result = getConfigMaster().get(getUrlConfigId(), VersionCorrection.of(v, c), type);
       return Response.ok(result).build();
     } else {
@@ -103,9 +106,10 @@ public class DataConfigResource extends AbstractDataResource {
     }
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked" })  // necessary to stop Jersey issuing warnings due to <?>
   @PUT
   @Consumes(FudgeRest.MEDIA)
-  public Response put(ConfigDocument<?> request) {
+  public Response put(ConfigDocument request) {
     if (getUrlConfigId().equals(request.getUniqueId().getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
@@ -134,8 +138,9 @@ public class DataConfigResource extends AbstractDataResource {
 
   @GET
   @Path("versions/{versionId}")
-  public Response getVersioned(@PathParam("versionId") String versionId, @QueryParam("type") Class<?> type) {
-    if (type != null) {
+  public Response getVersioned(@PathParam("versionId") String versionId, @QueryParam("type") String typeStr) {
+    if (typeStr != null) {
+      Class<?> type = ReflectionUtils.loadClass(typeStr);
       ConfigDocument<?> result = getConfigMaster().get(getUrlConfigId().atVersion(versionId), type);
       return Response.ok(result).build();
     } else {
