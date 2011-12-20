@@ -44,7 +44,7 @@ public class ReportMessageBodyWriter implements MessageBodyWriter<Report> {
   }
 
   /**
-   * Writes from {@link Report#getReportStream()} to {@code entityStream}.
+   * Writes from {@link Report#getInputStream()} to {@code entityStream}.
    */
   @Override
   public void writeTo(Report report,
@@ -56,7 +56,7 @@ public class ReportMessageBodyWriter implements MessageBodyWriter<Report> {
                       OutputStream entityStream) throws IOException, WebApplicationException {
     InputStream inputStream = null;
     try {
-      inputStream = report.getReportStream();
+      inputStream = report.getInputStream();
       IOUtils.copy(inputStream, entityStream);
     } finally {
       IOUtils.closeQuietly(inputStream);

@@ -30,9 +30,9 @@ public class Report {
   }
 
   /**
-   * @return Stream for reading the report
+   * @return Input stream for reading the report
    */
-  public InputStream getReportStream() {
+  public InputStream getInputStream() {
     return _inputStream;
   }
 
