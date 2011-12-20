@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.PlatformConfigUtils;
 
 /**
  * Manages the process of starting OpenGamma components.
@@ -61,11 +62,25 @@ public class ComponentManager {
     ComponentConfigLoader loader = new ComponentConfigLoader();
     ComponentConfig config = loader.load(resource, new HashMap<String, String>());
     _repo.pushThreadLocal();
+    initGlobal(config);
     init(config);
     start();
   }
 
   //-------------------------------------------------------------------------
+  protected void initGlobal(ComponentConfig config) {
+    LinkedHashMap<String, String> global = config.getGroup("global");
+    if (global != null) {
+      String runMode = global.get("run.mode");
+      String mds = global.get("market.data.source");
+      if (runMode != null && mds != null) {
+        PlatformConfigUtils.configureSystemProperties(runMode, mds);
+      } else if (runMode != null && mds == null) {
+        PlatformConfigUtils.configureSystemProperties(runMode);
+      }
+    }
+  }
+
   /**
    * Initializes the repository from the config.
    * 
