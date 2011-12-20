@@ -104,6 +104,18 @@ public class ComponentRepository implements Lifecycle {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets all the type information for the component.
+   * <p>
+   * This method will not return infrastructure instances.
+   * 
+   * @return the component type information, not null
+   * @throws IllegalArgumentException if no component is available
+   */
+  public Collection<ComponentTypeInfo> getTypeInfo() {
+    return new ArrayList<ComponentTypeInfo>(_infoMap.values());
+  }
+
+  /**
    * Gets the type information for the component.
    * <p>
    * This method will not find infrastructure instances.

@@ -62,9 +62,7 @@
 
   <!-- ================================================================== -->
   <!--  Remote masters -->
-  <bean class="com.opengamma.financial.spring.RemoteMastersBeanPostProcessor">
-    <property name="baseUri" value="http://localhost:8081/jax" />
-  </bean>
+  <bean class="com.opengamma.financial.spring.ComponentRepositoryBeanPostProcessor" />
   <alias name="centralConfigMaster" alias="sharedConfigMaster" />
   <alias name="centralExchangeMaster" alias="dbExchangeMaster" />
   <alias name="centralHolidayMaster" alias="dbHolidayMaster" />
