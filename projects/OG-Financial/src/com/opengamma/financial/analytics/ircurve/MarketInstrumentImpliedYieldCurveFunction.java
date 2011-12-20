@@ -269,15 +269,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         InstrumentDerivative derivative = null;
         final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper
             .getCurveNamesForForwardCurveInstrument(strip.getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
-        try {
-          final InstrumentDefinition<?> definition = _securityConverter.visit(financialSecurity);
+        final InstrumentDefinition<?> definition = _securityConverter.visit(financialSecurity);
         derivative = _definitionConverter.convert(financialSecurity, definition, now, curveNames, dataSource);
-        } catch(Exception e) {
-          
-          @SuppressWarnings("unused")
-          final InstrumentDefinition<?> definition = _securityConverter.visit(financialSecurity);
-          System.err.println(financialSecurity);          
-        }
         if (derivative == null) {
           throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);
         }
@@ -328,10 +321,10 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final YieldAndDiscountCurve forwardCurve = new YieldCurve(InterpolatedDoublesCurve.from(forwardNodeTimes, forwardYields, _forwardInterpolator));
       final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(yields));
       final Set<ComputedValue> result = Sets.newHashSet(
-          new ComputedValue(_fundingCurveResult, fundingCurve), 
-          new ComputedValue(_forwardCurveResult, forwardCurve), 
-          new ComputedValue(_jacobianResult, jacobianMatrix.getData()), 
-          new ComputedValue(_fundingCurveSpecResult, fundingCurveSpecificationWithSecurities), 
+          new ComputedValue(_fundingCurveResult, fundingCurve),
+          new ComputedValue(_forwardCurveResult, forwardCurve),
+          new ComputedValue(_jacobianResult, jacobianMatrix.getData()),
+          new ComputedValue(_fundingCurveSpecResult, fundingCurveSpecificationWithSecurities),
           new ComputedValue(_forwardCurveSpecResult, forwardCurveSpecificationWithSecurities));
       if (_calculationType.equals(PRESENT_VALUE_STRING)) {
         if (_couponSensitivityCalculator == null) {
@@ -339,8 +332,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         }
         final double[] couponSensitivities = new double[derivatives.size()];
         int ii = 0;
-        final String[] curveNames = new String[] {_forwardCurveDefinitionName, _fundingCurveDefinitionName};
-        final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {forwardCurve, fundingCurve};
+        final String[] curveNames = new String[] {_forwardCurveDefinitionName, _fundingCurveDefinitionName };
+        final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {forwardCurve, fundingCurve };
         final YieldCurveBundle curveBundle = new YieldCurveBundle(curveNames, curves);
         for (final InstrumentDerivative derivative : derivatives) {
           couponSensitivities[ii++] = _couponSensitivityCalculator.visit(derivative, curveBundle);
@@ -456,8 +449,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         }
         final double[] couponSensitivities = new double[derivatives.size()];
         int ii = 0;
-        final String[] curveNames = new String[] {_forwardCurveDefinitionName, _fundingCurveDefinitionName};
-        final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {forwardCurve, fundingCurve};
+        final String[] curveNames = new String[] {_forwardCurveDefinitionName, _fundingCurveDefinitionName };
+        final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {forwardCurve, fundingCurve };
         final YieldCurveBundle curveBundle = new YieldCurveBundle(curveNames, curves);
         for (final InstrumentDerivative derivative : derivatives) {
           couponSensitivities[ii++] = _couponSensitivityCalculator.visit(derivative, curveBundle);
@@ -502,7 +495,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   public int getPriority() {
     if (isSecondary()) {
       return -1;
-    } 
+    }
     return 0;
   }
 

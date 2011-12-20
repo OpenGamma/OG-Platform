@@ -15,12 +15,14 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.FRASecurityVisitor;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -44,7 +46,7 @@ public class FRASecurityConverter implements FRASecurityVisitor<InstrumentDefini
   public ForwardRateAgreementDefinition visitFRASecurity(final FRASecurity security) {
     Validate.notNull(security, "security");
     final Currency currency = security.getCurrency();
-    final ConventionBundle fraConvention = _conventionSource.getConventionBundle(security.getUnderlyingId());
+    final ConventionBundle fraConvention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_FRA"));
     if (fraConvention == null) {
       throw new OpenGammaRuntimeException("Could not get convention for " + security.getUnderlyingId());
     }

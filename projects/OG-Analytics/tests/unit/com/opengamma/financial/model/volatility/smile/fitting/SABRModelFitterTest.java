@@ -91,7 +91,7 @@ public class SABRModelFitterTest {
 
   @Test
   public void testExactFitOddStart() {
-    final double[] start = new double[] {0.01, 1.2, 0.9, 0.4 };
+    final double[] start = new double[] {0.01, 0.99, 0.9, 0.4 };
     final LeastSquareResultsWithTransform results = FITTER.solve(new DoubleMatrix1D(start));
     final double[] res = results.getModelParameters().getData();
     final double eps = 1e-6;

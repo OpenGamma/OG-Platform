@@ -6,6 +6,7 @@
 package com.opengamma.financial.model.volatility.surface;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
@@ -26,12 +27,13 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.MatrixAlgebra;
 import com.opengamma.math.matrix.OGMatrixAlgebra;
 import com.opengamma.math.minimization.ParameterLimitsTransform;
+import com.opengamma.math.minimization.UncoupledParameterTransforms;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 
 /**
- * 
+ * @param <T> The type of data (i.e. model parameters) used by the smile model
  */
 public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
 
@@ -55,8 +57,19 @@ public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
   private final List<Function1D<T, double[]>> _volFuncs;
   private final List<Function1D<T, double[][]>> _volAdjointFuncs;
 
+  /**
+   * @param forwards Forward values of the underlying at the (increasing) expiry times
+   * @param strikes An array of arrays that gives a set of strikes at each maturity (the outer array corresponds to the expiries and the
+   *  inner arrays to the set of strikes at a particular expiry)
+   * @param expiries The set of (increasing) expiry times
+   * @param impliedVols An array of arrays that gives a set of implied volatilities at each maturity (with the same structure as strikes)
+   * @param errors An array of arrays that gives a set of 'measurement' errors at each maturity (with the same structure as strikes)
+   * @param model A smile model
+   * @param nodePoints The time position of the nodes on each model parameter curve
+   * @param interpolators The base interpolator used for each model parameter curve
+   */
   public VolatilitySurfaceFitter(final double[] forwards, final double[][] strikes, final double[] expiries, final double[][] impliedVols,
-      final double[][] errors, final VolatilityFunctionProvider<T> model, final LinkedHashMap<String, double[]> knotPoints, LinkedHashMap<String, Interpolator1D> interpolators) {
+      final double[][] errors, final VolatilityFunctionProvider<T> model, final LinkedHashMap<String, double[]> nodePoints, LinkedHashMap<String, Interpolator1D> interpolators) {
 
     Validate.notNull(forwards, "null forwards");
     Validate.notNull(strikes, "null strikes");
@@ -109,29 +122,31 @@ public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
 
     ParameterLimitsTransform[] transforms = getTransforms();
 
-
-    _parameterNames = knotPoints.keySet();
+    _parameterNames = nodePoints.keySet();
     _nSmileModelParameters = _parameterNames.size();
 
     LinkedHashMap<String, Interpolator1D> transformedInterpolators = new LinkedHashMap<String, Interpolator1D>(_nSmileModelParameters);
     sum = 0;
-    index=0;
+    index = 0;
     for (String name : _parameterNames) {
-      sum += knotPoints.get(name).length;
+      sum += nodePoints.get(name).length;
       Interpolator1D tInter = new TransformedInterpolator1D(interpolators.get(name), transforms[index++]);
       transformedInterpolators.put(name, tInter);
     }
 
-    _curveBuilder = new InterpolatedCurveBuildingFunction(knotPoints, transformedInterpolators);
+    _curveBuilder = new InterpolatedCurveBuildingFunction(nodePoints, transformedInterpolators);
     _nKnotPoints = sum;
 
   }
 
   public LeastSquareResultsWithTransform solve(final DoubleMatrix1D start) {
     LeastSquareResults lsRes = SOLVER.solve(_vols, _errors, getModelValueFunction(), getModelJacobianFunction(), start);
-    return new LeastSquareResultsWithTransform(lsRes);
+    return new LeastSquareResultsWithTransform(lsRes, new UncoupledParameterTransforms(start, getTransforms(), new BitSet()));
   }
 
+  /**
+   * @return Returns a function that takes the fitting parameters (node values in the transformed fitting space) and returned the set of (model) volatilities
+   */
   protected Function1D<DoubleMatrix1D, DoubleMatrix1D> getModelValueFunction() {
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
@@ -163,7 +178,13 @@ public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
     };
   }
 
+  /**
+   * @return Returns a function that takes the fitting parameters (node values in the transformed fitting space) and returned the
+   * model Jacobian (i.e. the sensitivity of the model vols to the fitting parameters).
+   */
   protected Function1D<DoubleMatrix1D, DoubleMatrix2D> getModelJacobianFunction() {
+
+    final ParameterLimitsTransform[] transform = getTransforms();
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
       @Override
@@ -175,12 +196,14 @@ public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
 
         for (int i = 0; i < _nExpiries; i++) {
           double t = _expiries[i];
-          double[] theta = new double[_nSmileModelParameters];
+          double[] theta = new double[_nSmileModelParameters]; //the model parameters
+          double[] thetaHat = new double[_nSmileModelParameters]; //the fitting parameters
           double[][] sense = new double[_nSmileModelParameters][];
           int p = 0;
           for (String name : _parameterNames) {
             InterpolatedDoublesCurve curve = curves.get(name);
             theta[p] = curve.getYValue(t);
+            thetaHat[p] = transform[p].transform(theta[p]);
             sense[p] = curve.getInterpolator().getNodeSensitivitiesForValue(curve.getDataBundle(), t);
             p++;
           }
@@ -193,7 +216,7 @@ public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
             int paramOffset = 0;
             for (p = 0; p < _nSmileModelParameters; p++) {
               final int nSense = sense[p].length;
-              final double paramSense = temp[j][p];
+              final double paramSense = temp[j][p] * transform[p].inverseTransformGradient(thetaHat[p]);
               final double[] nodeSense = sense[p];
               for (int q = 0; q < nSense; q++) {
                 res[j + optionOffset][q + paramOffset] = paramSense * nodeSense[q];
