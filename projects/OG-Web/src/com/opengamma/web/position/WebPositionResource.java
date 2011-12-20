@@ -145,10 +145,12 @@ public class WebPositionResource extends AbstractWebPositionResource {
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     PositionDocument doc = data().getPosition();
-    doc.getPosition().getSecurityLink().resolveQuiet(data().getSecuritySource());
-
-    // Get the last price HTS for the security
-    UniqueId htsId = htsResolver().resolve(HistoricalTimeSeriesFields.LAST_PRICE, doc.getPosition().getSecurity().getExternalIdBundle(), null, null);
+    
+    UniqueId htsId = null;
+    if (doc.getPosition().getSecurityLink().resolveQuiet(data().getSecuritySource()) != null) {
+      // Get the last price HTS for the security
+      htsId = htsResolver().resolve(HistoricalTimeSeriesFields.LAST_PRICE, doc.getPosition().getSecurity().getExternalIdBundle(), null, null);
+    }
 
     out.put("positionDoc", doc);
     out.put("position", doc.getPosition());
