@@ -23,7 +23,8 @@ import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction
 import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.bond.method.BondTransactionDiscountingMethod;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.financial.interestrate.cash.method.CashDiscountingMethod;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
@@ -58,22 +59,32 @@ import com.opengamma.util.tuple.DoublesPair;
  * (i.e. dPV/dR at that time). <b>Note:</b> The length of the list is instrument dependent and may have repeated times (with the understanding the sensitivities should be summed).
  */
 public class PresentValueCurveSensitivityCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> {
-  //TODO: Change the output format to PresentValueSensitivity.
-  //TODO Rename me to be consistent with descendants and the par rate calculators
+  //TODO: Change the output format to InterestRateSensitivity.
+
+  /**
+   * The method unique instance.
+   */
+  private static final PresentValueCurveSensitivityCalculator INSTANCE = new PresentValueCurveSensitivityCalculator();
+
+  /**
+   * Return the unique instance of the class.
+   * @return The instance.
+   */
+  public static PresentValueCurveSensitivityCalculator getInstance() {
+    return INSTANCE;
+  }
+
+  /**
+   * Constructor.
+   */
+  PresentValueCurveSensitivityCalculator() {
+  }
 
   /**
    * The method used for OIS coupons.
    */
   private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
-
-  private static PresentValueCurveSensitivityCalculator s_instance = new PresentValueCurveSensitivityCalculator();
-
-  public static PresentValueCurveSensitivityCalculator getInstance() {
-    return s_instance;
-  }
-
-  PresentValueCurveSensitivityCalculator() {
-  }
+  private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
 
   @Override
   public Map<String, List<DoublesPair>> visit(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
@@ -82,18 +93,7 @@ public class PresentValueCurveSensitivityCalculator extends AbstractInstrumentDe
 
   @Override
   public Map<String, List<DoublesPair>> visitCash(final Cash cash, final YieldCurveBundle curves) {
-    final String curveName = cash.getYieldCurveName();
-    final YieldAndDiscountCurve curve = curves.getCurve(curveName);
-    final double ta = cash.getTradeTime();
-    final double tb = cash.getMaturity();
-    final DoublesPair s1 = new DoublesPair(ta, cash.getNotional() * ta * curve.getDiscountFactor(ta));
-    final DoublesPair s2 = new DoublesPair(tb, -cash.getNotional() * tb * curve.getDiscountFactor(tb) * (1 + cash.getYearFraction() * cash.getRate()));
-    final List<DoublesPair> temp = new ArrayList<DoublesPair>();
-    temp.add(s1);
-    temp.add(s2);
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    result.put(curveName, temp);
-    return result;
+    return METHOD_DEPOSIT.presentValueCurveSensitivity(cash, curves).getSensitivities();
   }
 
   @Override
@@ -115,7 +115,7 @@ public class PresentValueCurveSensitivityCalculator extends AbstractInstrumentDe
   @Override
   public Map<String, List<DoublesPair>> visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
     final BondSecurityDiscountingMethod method = BondSecurityDiscountingMethod.getInstance();
-    return method.presentValueSensitivity(bond, curves).getSensitivities();
+    return method.presentValueCurveSensitivity(bond, curves).getSensitivities();
   }
 
   @Override

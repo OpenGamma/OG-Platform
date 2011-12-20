@@ -7,7 +7,7 @@ package com.opengamma.financial.interestrate.market;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 
 /**
  * A market bundle decorated for a given price index curve and a specific time. The price index is shifted by the shift provided.
@@ -17,7 +17,7 @@ public class MarketPriceIndexTimeDecorated extends MarketBundle {
   /**
    * The Price index for which the market is decorated.
    */
-  private final PriceIndex _index;
+  private final IndexPrice _index;
   /**
    * The time at which the price index value is decorated.
    */
@@ -34,7 +34,7 @@ public class MarketPriceIndexTimeDecorated extends MarketBundle {
    * @param time The time.
    * @param shift The shift.
    */
-  public MarketPriceIndexTimeDecorated(MarketBundle market, PriceIndex index, double time, double shift) {
+  public MarketPriceIndexTimeDecorated(MarketBundle market, IndexPrice index, double time, double shift) {
     super(market);
     Validate.notNull(index, "Index");
     _index = index;
@@ -43,7 +43,7 @@ public class MarketPriceIndexTimeDecorated extends MarketBundle {
   }
 
   @Override
-  public double getPriceIndex(PriceIndex index, Double time) {
+  public double getPriceIndex(IndexPrice index, Double time) {
     double price = super.getPriceIndex(index, time);
     if ((index == _index) && (_time == time)) {
       return price + _shift;

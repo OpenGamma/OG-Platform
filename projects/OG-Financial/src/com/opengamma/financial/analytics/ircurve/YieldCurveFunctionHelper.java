@@ -147,18 +147,21 @@ public class YieldCurveFunctionHelper {
 
   public Map<ExternalId, Double> buildMarketDataMap(final FunctionInputs inputs) {
     final SnapshotDataBundle marketDataBundle = (SnapshotDataBundle) inputs.getValue(getMarketDataValueRequirement());
-    Map<UniqueId, Double> dataPoints = marketDataBundle.getDataPoints();
-    
-    HashMap<ExternalId, Double> ret = new HashMap<ExternalId, Double>();
+    return buildMarketDataMap(marketDataBundle);
+  }
+
+  public static Map<ExternalId, Double> buildMarketDataMap(final SnapshotDataBundle marketDataBundle) {
+    final Map<UniqueId, Double> dataPoints = marketDataBundle.getDataPoints();
+    final HashMap<ExternalId, Double> ret = new HashMap<ExternalId, Double>();
     for (Entry<UniqueId, Double> entry : dataPoints.entrySet()) {
-      UniqueId uid = entry.getKey();
-      ExternalId identifier = getIdentifier(uid);
+      final UniqueId uid = entry.getKey();
+      final ExternalId identifier = getIdentifier(uid);
       ret.put(identifier, entry.getValue());
     }
     return ret;
   }
 
-  private ExternalId getIdentifier(UniqueId uid) {
+  private static ExternalId getIdentifier(UniqueId uid) {
     ExternalId identifier = new ComputationTargetSpecification(ComputationTargetType.SECURITY, uid).getIdentifier(); // TODO hack after PLAT-966, should the analytics be using UIDs?
     return identifier;
   }

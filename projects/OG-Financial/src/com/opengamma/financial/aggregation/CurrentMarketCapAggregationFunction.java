@@ -9,10 +9,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
-import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.SecuritySource;
@@ -23,6 +21,7 @@ import com.opengamma.financial.security.equity.EquitySecurityVisitor;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurityVisitor;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Function to classify positions by Currency.
@@ -79,12 +78,9 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
   
   private String getCurrentMarketCap(ExternalIdBundle externalIdBundle) {
     try {
-      LocalDate yesterday = Clock.systemDefaultZone().yesterday();
-      LocalDate oneWeekAgo = yesterday.minusDays(7);
-      HistoricalTimeSeries historicalTimeSeries = _htsSource.getHistoricalTimeSeries(FIELD, externalIdBundle, 
-                                                                                     RESOLUTION_KEY, oneWeekAgo, true, yesterday, true);
-      if (historicalTimeSeries != null && historicalTimeSeries.getTimeSeries() != null && !historicalTimeSeries.getTimeSeries().isEmpty()) {
-        double currentMarketCap = historicalTimeSeries.getTimeSeries().getLatestValue();
+      Pair<LocalDate, Double> latest = _htsSource.getLatestDataPoint(FIELD, externalIdBundle, RESOLUTION_KEY);
+      if (latest != null && latest.getValue() != null) {
+        double currentMarketCap = latest.getValue();
         if (currentMarketCap < NANO_CAP_UPPER_THRESHOLD) {
           return NANO_CAP;
         } else if (currentMarketCap < MICRO_CAP_UPPER_THRESHOLD) {

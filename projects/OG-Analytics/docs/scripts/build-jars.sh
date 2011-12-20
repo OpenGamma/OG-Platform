@@ -1,3 +1,4 @@
+dexy reset
 cd ../../..
 
 ### @export "ant"

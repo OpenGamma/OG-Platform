@@ -6,6 +6,7 @@
 package com.opengamma.engine.function;
 
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.function.resolver.ComputationTargetResults;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.util.PublicAPI;
 
@@ -19,6 +20,10 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public class FunctionCompilationContext extends AbstractFunctionContext {
 
+  /**
+   * The name under which the {@link ComputationTargetResults} instance should be bound.
+   */
+  public static final String COMPUTATION_TARGET_RESULTS_NAME = "computationTargetResults";
   /**
    * The name under which an instance of {@link SecuritySource} should be bound.
    */
@@ -56,6 +61,28 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the source of result information on a target.
+   * 
+   * @return the source of target results, null if none is available
+   */
+  public ComputationTargetResults getComputationTargetResults() {
+    return (ComputationTargetResults) get(COMPUTATION_TARGET_RESULTS_NAME);
+  }
+
+  /**
+   * Sets the source of result information on a target.
+   * 
+   * @param computationTargetResults the source of target results
+   */
+  public void setComputationTargetResults(final ComputationTargetResults computationTargetResults) {
+    if (computationTargetResults == null) {
+      remove(COMPUTATION_TARGET_RESULTS_NAME);
+    } else {
+      put(COMPUTATION_TARGET_RESULTS_NAME, computationTargetResults);
+    }
+  }
+
   /**
    * Gets the source of securities.
    * 

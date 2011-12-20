@@ -1,0 +1,14 @@
+{
+    "header": {
+        "type": "Securities",
+        "pgIdx": 0,
+        "pgSze": 20,
+        "pgTtl": 2,
+        "dataFields": ["id","name" , "type"]
+    },
+    "data" : [
+        "MemSec~2|US LONG BOND(CBT) Jun10|FUTURE",
+     
+        "MemSec~1|APPLE INC|EQUITY"
+      ]
+}

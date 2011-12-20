@@ -155,18 +155,6 @@ import com.opengamma.util.tuple.Pair;
       s_logger.info("Function inputs available {} for {}", inputs, getValueSpecification());
       // Late resolution of the output based on the actual inputs used (skip if everything was strict)
       ValueSpecification resolvedOutput = getValueSpecification();
-      boolean strictConstraints = resolvedOutput.getProperties().isStrict();
-      if (strictConstraints) {
-        for (ValueRequirement input : inputs.values()) {
-          if (!input.getConstraints().isStrict()) {
-            strictConstraints = false;
-            break;
-          }
-        }
-      }
-      if (strictConstraints) {
-        return pushResult(context, getWorker(), null, inputs, resolvedOutput, getOutputs());
-      }
       Set<ValueSpecification> newOutputValues = null;
       try {
         newOutputValues = getFunction().getFunction().getResults(context.getCompilationContext(), getComputationTarget(), inputs);

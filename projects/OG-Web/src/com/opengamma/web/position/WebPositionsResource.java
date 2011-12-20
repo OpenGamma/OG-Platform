@@ -7,10 +7,16 @@ package com.opengamma.web.position;
 
 import java.math.BigDecimal;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.LocalTime;
+import javax.time.calendar.ZoneOffset;
+import javax.time.calendar.ZonedDateTime;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -23,25 +29,40 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.opengamma.web.server.push.rest.MasterType;
+import com.opengamma.web.server.push.rest.Subscribe;
+import com.opengamma.web.server.push.rest.SubscribeMaster;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.position.Counterparty;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionHistoryRequest;
 import com.opengamma.master.position.PositionHistoryResult;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
+import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.web.WebPaging;
 
@@ -52,20 +73,24 @@ import com.opengamma.web.WebPaging;
  */
 @Path("/positions")
 public class WebPositionsResource extends AbstractWebPositionResource {
-
+  
   /**
    * Creates the resource.
    * @param positionMaster  the position master, not null
    * @param securityLoader  the security loader, not null
    * @param securitySource  the security source, not null
+   * @param htsMaster       the HTS master, not null (for resolving relevant HTS Id)
+   * @param cfgSource       the config master, not null (for resolving relevant HTS Id)
    */
-  public WebPositionsResource(final PositionMaster positionMaster, final SecurityLoader securityLoader, final SecuritySource securitySource) {
-    super(positionMaster, securityLoader, securitySource);
+  public WebPositionsResource(final PositionMaster positionMaster, final SecurityLoader securityLoader, final SecuritySource securitySource,
+      final HistoricalTimeSeriesMaster htsMaster, final ConfigSource cfgSource) {
+    super(positionMaster, securityLoader, securitySource, htsMaster, cfgSource);
   }
 
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
+  @SubscribeMaster(MasterType.POSITION)
   public String getHTML(
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
@@ -82,6 +107,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
+  @SubscribeMaster(MasterType.POSITION)
   public String getJSON(
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
@@ -157,8 +183,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       return Response.ok(html).build();
     }
     ExternalIdBundle id = ExternalIdBundle.of(ExternalId.of(idScheme, idValue));
-    Map<ExternalIdBundle, UniqueId> loaded = data().getSecurityLoader().loadSecurity(Collections.singleton(id));
-    UniqueId secUid = loaded.get(id);
+    UniqueId secUid = getSecurityUniqueId(id);
     if (secUid == null) {
       FlexiBean out = createRootData();
       out.put("err_idvalueNotFound", true);
@@ -175,30 +200,115 @@ public class WebPositionsResource extends AbstractWebPositionResource {
   public Response postJSON(
       @FormParam("quantity") String quantityStr,
       @FormParam("idscheme") String idScheme,
-      @FormParam("idvalue") String idValue) {
+      @FormParam("idvalue") String idValue,
+      @FormParam("tradesJson") String tradesJson) {
     
     quantityStr = StringUtils.replace(StringUtils.trimToNull(quantityStr), ",", "");
     BigDecimal quantity = quantityStr != null && NumberUtils.isNumber(quantityStr) ? new BigDecimal(quantityStr) : null;
     idScheme = StringUtils.trimToNull(idScheme);
     idValue = StringUtils.trimToNull(idValue);
+    tradesJson = StringUtils.trimToNull(tradesJson);
     
     if (quantity == null || idScheme == null || idValue == null) {
       return Response.status(Status.BAD_REQUEST).build();
     }
     
     ExternalIdBundle id = ExternalIdBundle.of(ExternalId.of(idScheme, idValue));
-    Map<ExternalIdBundle, UniqueId> loaded = data().getSecurityLoader().loadSecurity(Collections.singleton(id));
-    UniqueId secUid = loaded.get(id);
+    UniqueId secUid = getSecurityUniqueId(id);
     if (secUid == null) {
       throw new DataNotFoundException("invalid " + idScheme + "~" + idValue);
     }
-    URI uri = addPosition(quantity, secUid);
+    Collection<ManageableTrade> trades = null;
+    if (tradesJson != null) {
+      trades = parseTrades(tradesJson);
+    } else {
+      trades = Collections.<ManageableTrade>emptyList();
+    }
+    URI uri = addPosition(quantity, secUid, trades);
     return Response.created(uri).build();
   }
 
+  private UniqueId getSecurityUniqueId(ExternalIdBundle id) {
+    UniqueId result = null;
+    Security security = data().getSecuritySource().getSecurity(id);
+    if (security != null) {
+      result = security.getUniqueId();
+    } else {
+      Map<ExternalIdBundle, UniqueId> loaded = data().getSecurityLoader().loadSecurity(Collections.singleton(id));
+      result = loaded.get(id);
+    }
+    return result;
+  }
+
+  private Set<ManageableTrade> parseTrades(String tradesJson) {
+    Set<ManageableTrade> trades = Sets.newHashSet();
+    try {
+      JSONObject jsonObject = new JSONObject(tradesJson);
+      if (jsonObject.has("trades")) {
+        JSONArray jsonArray = jsonObject.getJSONArray("trades");
+        for (int i = 0; i < jsonArray.length(); i++) {
+          JSONObject tradeJson = jsonArray.getJSONObject(i);
+          ManageableTrade trade = new ManageableTrade();
+          ZoneOffset offset = ZoneOffset.UTC;
+          if (tradeJson.has("offset")) {
+            String offsetId = StringUtils.trimToNull(tradeJson.getString("offset"));
+            if (offsetId != null) {
+              offset = ZoneOffset.of(offsetId);
+            } 
+          }
+          if (tradeJson.has("premium")) {
+            trade.setPremium(tradeJson.getDouble("premium"));
+          }
+          if (tradeJson.has("counterParty")) {
+            trade.setCounterpartyExternalId(ExternalId.of(Counterparty.DEFAULT_SCHEME, tradeJson.getString("counterParty")));
+          }
+          if (tradeJson.has("premiumCurrency")) {
+            trade.setPremiumCurrency(Currency.of(tradeJson.getString("premiumCurrency")));
+          }
+          if (tradeJson.has("premiumDate")) {
+            LocalDate premiumDate = LocalDate.parse(tradeJson.getString("premiumDate"));
+            trade.setPremiumDate(premiumDate);
+            if (tradeJson.has("premiumTime")) {
+              LocalTime premiumTime = LocalTime.parse(tradeJson.getString("premiumTime"));
+              ZonedDateTime zonedDateTime = ZonedDateTime.of(premiumDate, premiumTime, offset.toTimeZone());
+              trade.setPremiumTime(zonedDateTime.toOffsetTime());
+            }
+          }
+          if (tradeJson.has("quantity")) {
+            trade.setQuantity(new BigDecimal(tradeJson.getString("quantity")));
+          }
+          if (tradeJson.has("tradeDate")) {
+            LocalDate tradeDate = LocalDate.parse(tradeJson.getString("tradeDate"));
+            trade.setTradeDate(tradeDate);
+            if (tradeJson.has("tradeTime")) {
+              LocalTime tradeTime = LocalTime.parse(tradeJson.getString("tradeTime"));
+              ZonedDateTime zonedDateTime = ZonedDateTime.of(tradeDate, tradeTime, offset.toTimeZone());
+              trade.setTradeTime(zonedDateTime.toOffsetTime());
+            }    
+          }
+          trades.add(trade);
+        }
+      } else {
+        throw new OpenGammaRuntimeException("missing trades field in trades json document");
+      }
+    } catch (JSONException ex) {
+      throw new OpenGammaRuntimeException("Error parsing Json document for Trades", ex);
+    }
+    return trades;
+  }
+
   private URI addPosition(BigDecimal quantity, UniqueId secUid) {
+    return addPosition(quantity, secUid, Collections.<ManageableTrade>emptyList());
+  }
+  
+  private URI addPosition(BigDecimal quantity, UniqueId secUid, Collection<ManageableTrade> trades) {
     SecurityDocument secDoc = data().getSecurityLoader().getSecurityMaster().get(secUid);
-    ManageablePosition position = new ManageablePosition(quantity, secDoc.getSecurity().getExternalIdBundle());
+    ExternalIdBundle secId = secDoc.getSecurity().getExternalIdBundle();
+    ManageablePosition position = new ManageablePosition(quantity, secId);
+    for (ManageableTrade trade : trades) {
+      trade.setSecurityLink(new ManageableSecurityLink(secId));
+      position.addTrade(trade);
+    }
     PositionDocument doc = new PositionDocument(position);
     doc = data().getPositionMaster().add(doc);
     data().setPosition(doc);
@@ -207,7 +317,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
 
   //-------------------------------------------------------------------------
   @Path("{positionId}")
-  public WebPositionResource findPosition(@PathParam("positionId") String idStr) {
+  public WebPositionResource findPosition(@Subscribe @PathParam("positionId") String idStr) {
     data().setUriPositionId(idStr);
     UniqueId oid = UniqueId.parse(idStr);
     try {

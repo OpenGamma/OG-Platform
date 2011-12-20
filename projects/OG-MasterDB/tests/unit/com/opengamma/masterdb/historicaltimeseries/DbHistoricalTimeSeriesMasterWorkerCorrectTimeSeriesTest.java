@@ -63,7 +63,7 @@ public class DbHistoricalTimeSeriesMasterWorkerCorrectTimeSeriesTest extends Abs
     ObjectId oid = ObjectId.of("DbHts", "DP101");
     UniqueId uniqueId = _htsMaster.correctTimeSeriesDataPoints(oid, series);
     
-    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uniqueId, null, null);
+    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uniqueId);
     assertEquals(uniqueId, testCorrected.getUniqueId());
     LocalDateDoubleTimeSeries timeSeries = testCorrected.getTimeSeries();
     assertEquals(3, timeSeries.size());
@@ -84,7 +84,7 @@ public class DbHistoricalTimeSeriesMasterWorkerCorrectTimeSeriesTest extends Abs
     ObjectId oid = ObjectId.of("DbHts", "DP101");
     UniqueId uniqueId = _htsMaster.correctTimeSeriesDataPoints(oid, series);
     
-    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uniqueId, null, null);
+    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uniqueId);
     assertEquals(uniqueId, testCorrected.getUniqueId());
     LocalDateDoubleTimeSeries timeSeries = testCorrected.getTimeSeries();
     assertEquals(4, timeSeries.size());

@@ -30,7 +30,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFix
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -80,7 +80,7 @@ public class PV01CalculatorTest {
     final YieldAndDiscountCurve curve = CURVES.getCurve(FUNDING_CURVE_NAME);
     final double df = curve.getDiscountFactor(t);
     final double r = 1 / t * (1 / df - 1);
-    final Cash cash = new Cash(CUR, t, 1, r, FUNDING_CURVE_NAME);
+    final Cash cash = new Cash(CUR, 0, t, 1, r, t, FUNDING_CURVE_NAME);
     doTest(cash, CURVES);
   }
 

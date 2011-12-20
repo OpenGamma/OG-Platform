@@ -6,17 +6,6 @@
 package com.opengamma.masterdb.batch;
 
 import com.opengamma.engine.value.ValueProperties;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * Hibernate bean.

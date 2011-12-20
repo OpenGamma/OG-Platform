@@ -14,9 +14,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
  */
 public class SharpeRatioPortfolioNodeFunction extends SharpeRatioFunction {
 
-  public SharpeRatioPortfolioNodeFunction(final String returnCalculatorName, final String expectedReturnCalculatorName, final String standardDeviationCalculatorName,
-      final String startDate) {
-    super(returnCalculatorName, expectedReturnCalculatorName, standardDeviationCalculatorName, startDate);
+  public SharpeRatioPortfolioNodeFunction(final String resolutionKey) {
+    super(resolutionKey);
   }
 
   @Override
@@ -27,11 +26,6 @@ public class SharpeRatioPortfolioNodeFunction extends SharpeRatioFunction {
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     return target.getType() == ComputationTargetType.PORTFOLIO_NODE;
-  }
-
-  @Override
-  public String getShortName() {
-    return "SharpeRatioPortfolioNodeFunction";
   }
 
   @Override

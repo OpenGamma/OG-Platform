@@ -94,6 +94,8 @@ public class Loader extends ContextInitializationBean {
         SetYieldCurvePointFunction.INSTANCE,
         SnapshotsFunction.INSTANCE,
         SnapshotVersionsFunction.INSTANCE,
+        TakeSnapshotNowFunction.INSTANCE,
+        // REVIEW 2011-12-01 andrew -- Why did I do the following? Why not put entries into ObjectFunctionProvider?
         new GetAttributeFunction(Categories.MARKET_DATA, "GetSnapshotName", "Fetches the name of a snapshot", ManageableMarketDataSnapshot.meta().name(),
             new MetaParameter("snapshot", JavaTypeInfo.builder(ManageableMarketDataSnapshot.class).get()).description("The snapshot to query")),
         new SetAttributeFunction(Categories.MARKET_DATA, "SetSnapshotName", "Updates the name of a snapshot, returning the updated snapshot", ManageableMarketDataSnapshot.meta().name(),
@@ -106,6 +108,7 @@ public class Loader extends ContextInitializationBean {
             new MetaParameter("snapshot", JavaTypeInfo.builder(ManageableMarketDataSnapshot.class).get()).description("The snapshot to update"),
             new MetaParameter("name", JavaTypeInfo.builder(String.class).get()).description("The new basis view name for the snapshot"))));
     globalContext.getProcedureProvider().addProvider(new ProcedureProviderBean(
+        SnapshotViewResultProcedure.INSTANCE,
         StoreSnapshotProcedure.INSTANCE));
     // TODO: type converters
   }

@@ -18,6 +18,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.forex.calculator.CurrencyExposureBlackForexCalculator;
+import com.opengamma.financial.forex.calculator.ForwardRateForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueBlackForexCalculator;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexNonDeliverableForwardDefinition;
@@ -72,21 +73,22 @@ public class ForexNonDeliverableOptionBlackMethodTest {
 
   private static final ForexNonDeliverableOptionBlackMethod METHOD_NDO = ForexNonDeliverableOptionBlackMethod.getInstance();
   private static final ForexOptionVanillaBlackMethod METHOD_FXO = ForexOptionVanillaBlackMethod.getInstance();
+  private static final ForexNonDeliverableForwardDiscountingMethod METHOD_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
   private static final PresentValueBlackForexCalculator PVC_BLACK = PresentValueBlackForexCalculator.getInstance();
   private static final CurrencyExposureBlackForexCalculator CE_BLACK = CurrencyExposureBlackForexCalculator.getInstance();
 
   // Smile data
   private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5)};
   private static final int NB_EXP = EXPIRY_PERIOD.length;
-  private static final ZonedDateTime REFERENCE_SPOT = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, CALENDAR, SETTLEMENT_DAYS);
+  private static final ZonedDateTime REFERENCE_SPOT = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
   private static final ZonedDateTime[] PAY_DATE = new ZonedDateTime[NB_EXP];
   private static final ZonedDateTime[] EXPIRY_DATE = new ZonedDateTime[NB_EXP];
   private static final double[] TIME_TO_EXPIRY = new double[NB_EXP + 1];
   static {
     TIME_TO_EXPIRY[0] = 0.0;
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
-      PAY_DATE[loopexp] = ScheduleCalculator.getAdjustedDate(REFERENCE_SPOT, BUSINESS_DAY, CALENDAR, EXPIRY_PERIOD[loopexp]);
-      EXPIRY_DATE[loopexp] = ScheduleCalculator.getAdjustedDate(PAY_DATE[loopexp], CALENDAR, -SETTLEMENT_DAYS);
+      PAY_DATE[loopexp] = ScheduleCalculator.getAdjustedDate(REFERENCE_SPOT, EXPIRY_PERIOD[loopexp], BUSINESS_DAY, CALENDAR);
+      EXPIRY_DATE[loopexp] = ScheduleCalculator.getAdjustedDate(PAY_DATE[loopexp], -SETTLEMENT_DAYS, CALENDAR);
       TIME_TO_EXPIRY[loopexp + 1] = TimeCalculator.getTimeBetween(REFERENCE_DATE, EXPIRY_DATE[loopexp]);
     }
   }
@@ -150,14 +152,35 @@ public class ForexNonDeliverableOptionBlackMethodTest {
 
   @Test
   /**
+   * Tests the forward rate of NDO.
+   */
+  public void forwardForexRate() {
+    double fwd = METHOD_NDO.forwardForexRate(NDO, SMILE_BUNDLE);
+    double fwdExpected = METHOD_NDF.forwardForexRate(NDO.getUnderlyingNDF(), SMILE_BUNDLE);
+    assertEquals("Forex non-deliverable option: forward rate", fwdExpected, fwd, 1.0E-10);
+  }
+
+  @Test
+  /**
+   * Tests the forward Forex rate through the method and through the calculator.
+   */
+  public void forwardRateMethodVsCalculator() {
+    double fwdMethod = METHOD_NDO.forwardForexRate(NDO, SMILE_BUNDLE);
+    ForwardRateForexCalculator FWDC = ForwardRateForexCalculator.getInstance();
+    double fwdCalculator = FWDC.visit(NDO, SMILE_BUNDLE);
+    assertEquals("Forex: forward rate", fwdMethod, fwdCalculator, 1.0E-10);
+  }
+
+  @Test
+  /**
    * Tests the present value curve sensitivity of NDO by comparison with vanilla European options.
    */
   public void presentValueVolatilitySensitivity() {
     double tolerance = 1.0E-2;
-    PresentValueVolatilitySensitivityDataBundle pvvsNDO = METHOD_NDO.presentValueVolatilitySensitivity(NDO, SMILE_BUNDLE);
-    PresentValueVolatilitySensitivityDataBundle pvvsFXO = METHOD_FXO.presentValueVolatilitySensitivity(FOREX_OPT, SMILE_BUNDLE);
+    PresentValueForexBlackVolatilitySensitivity pvvsNDO = METHOD_NDO.presentValueVolatilitySensitivity(NDO, SMILE_BUNDLE);
+    PresentValueForexBlackVolatilitySensitivity pvvsFXO = METHOD_FXO.presentValueVolatilitySensitivity(FOREX_OPT, SMILE_BUNDLE);
     final DoublesPair point = DoublesPair.of(NDO.getExpiryTime(), NDO.getStrike());
-    assertEquals("Forex non-deliverable option: present value curve sensitivity", pvvsFXO.getVega().get(point), pvvsNDO.getVega().get(point), tolerance);
+    assertEquals("Forex non-deliverable option: present value curve sensitivity", pvvsFXO.getVega().getMap().get(point), pvvsNDO.getVega().getMap().get(point), tolerance);
   }
 
   @Test

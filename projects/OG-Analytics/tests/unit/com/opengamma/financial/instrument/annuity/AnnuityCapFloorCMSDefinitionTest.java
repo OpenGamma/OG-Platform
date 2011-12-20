@@ -18,7 +18,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.index.CMSIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
@@ -40,7 +40,7 @@ public class AnnuityCapFloorCMSDefinitionTest {
   private static final Period CMS_TENOR = Period.ofYears(10);
   private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
-  private static final CMSIndex CMS_INDEX = new CMSIndex(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, CMS_TENOR);
+  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, CMS_TENOR);
   // Annuity
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2011, 3, 17);
   private static final Period ANNUITY_TENOR = Period.ofYears(5);

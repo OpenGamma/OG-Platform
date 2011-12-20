@@ -12,7 +12,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Currency-related utilities.
  */
-public class CurrencyUtils {
+public final class CurrencyUtils {
 
   private CurrencyUtils() {
   }

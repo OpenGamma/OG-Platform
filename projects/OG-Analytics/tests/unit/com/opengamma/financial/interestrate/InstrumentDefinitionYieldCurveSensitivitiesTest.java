@@ -36,7 +36,7 @@ import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -70,7 +70,7 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
   private static final InstrumentSensitivityCalculator ISC = InstrumentSensitivityCalculator.getInstance();
   private static final PresentValueCouponSensitivityCalculator PVCS = PresentValueCouponSensitivityCalculator.getInstance();
   private static final PresentValueNodeSensitivityCalculator PVNS = PresentValueNodeSensitivityCalculator.getDefaultInstance();
-  private static final LastDateCalculator MATURITY_CALCULATOR = LastDateCalculator.getInstance();
+  private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
   private static final Currency CCY = Currency.USD;
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2011, 1, 3);
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");

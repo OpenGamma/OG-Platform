@@ -77,6 +77,7 @@ $.register_module({
                 layout.inner.options.south.onclose = null;
                 layout.inner.close('south');
                 api.rest.holidays.get({
+                    dependencies: ['id'],
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var json = result.data;
@@ -105,7 +106,7 @@ $.register_module({
                             ui.toolbar(options.toolbar.active);
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             details.calendar_ui_changes(json.dates);
-                            layout.inner.resizeAll();
+                            setTimeout(layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,
@@ -137,16 +138,10 @@ $.register_module({
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        state = {filter: true};
-                        holidays.load(args);
-                        args.id
-                            ? routes.go(routes.hash(module.rules.load_holidays, args))
-                            : routes.go(routes.hash(module.rules.load, args));
-                    }}
+                    {new_value: 'id', stop: true, method: function () {if (args.id) holidays.load_holidays(args);}},
+                    {new_page: function () {holidays.load(args);}}
                 ]});
-                delete args['filter'];
-                search.filter($.extend(args, {filter: true}));
+                search.filter(args);
             },
             load_holidays: function (args) {
                 check_state({args: args, conditions: [{new_page: holidays.load}]});

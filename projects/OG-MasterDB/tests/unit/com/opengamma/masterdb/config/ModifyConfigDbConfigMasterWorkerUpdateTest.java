@@ -136,7 +136,7 @@ public class ModifyConfigDbConfigMasterWorkerUpdateTest extends AbstractDbConfig
   @Test
   public void test_update_rollback() {
     DbConfigWorker w = new DbConfigWorker(_cfgMaster.getDbConnector(), _cfgMaster.getUniqueIdScheme());
-    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("Invalid"), DbConfigMaster.class));
+    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("TestRollback"), DbConfigMaster.class));
     final ConfigDocument<ExternalId> base = _cfgMaster.get(UniqueId.of("DbCfg", "101", "0"), ExternalId.class);
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
     ConfigDocument<ExternalId> input = new ConfigDocument<ExternalId>(ExternalId.class);

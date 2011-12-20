@@ -89,7 +89,12 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ProgramDataBaseFileName>$(OutDir)\$(ProjectName).pdb</ProgramDataBaseFileName>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
+    <PreLinkEvent>
+      <Command>xcopy /D /Y "$(SolutionDir)\lib\dll\$(Configuration)$(PlatformName)\*.dll" "$(OutDir)"</Command>
+    </PreLinkEvent>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
@@ -104,7 +109,12 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ProgramDataBaseFileName>$(OutDir)\$(ProjectName).pdb</ProgramDataBaseFileName>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
+    <PreLinkEvent>
+      <Command>xcopy /D /Y "$(SolutionDir)\lib\dll\$(Configuration)$(PlatformName)\*.dll" "$(OutDir)"</Command>
+    </PreLinkEvent>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -119,7 +129,12 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ProgramDataBaseFileName>$(OutDir)\$(ProjectName).pdb</ProgramDataBaseFileName>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
+    <PreLinkEvent>
+      <Command>xcopy /D /Y "$(SolutionDir)\lib\dll\$(Configuration)$(PlatformName)\*.dll" "$(OutDir)"</Command>
+    </PreLinkEvent>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
@@ -134,7 +149,12 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ProgramDataBaseFileName>$(OutDir)\$(ProjectName).pdb</ProgramDataBaseFileName>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
+    <PreLinkEvent>
+      <Command>xcopy /D /Y "$(SolutionDir)\lib\dll\$(Configuration)$(PlatformName)\*.dll" "$(OutDir)"</Command>
+    </PreLinkEvent>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

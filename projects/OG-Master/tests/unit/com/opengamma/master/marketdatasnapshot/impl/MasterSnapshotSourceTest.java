@@ -50,11 +50,11 @@ public class MasterSnapshotSourceTest {
   @Test(expectedExceptions = DataNotFoundException.class, expectedExceptionsMessageRegExp = "Some message")
   public void test_getSnapshot_noOverride_notFound() throws Exception {
     MarketDataSnapshotMaster mock = mock(MarketDataSnapshotMaster.class);
-
-    MarketDataSnapshotDocument doc = new MarketDataSnapshotDocument(example());
+    
+    new MarketDataSnapshotDocument(example());
     when(mock.get(UID)).thenThrow(new DataNotFoundException("Some message"));
     MasterSnapshotSource test = new MasterSnapshotSource(mock);
-    StructuredMarketDataSnapshot testResult = test.getSnapshot(UID);
+    test.getSnapshot(UID);
   }
 
   //-------------------------------------------------------------------------

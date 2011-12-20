@@ -20,7 +20,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
-import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedInflationZeroCouponDefinition;
@@ -39,8 +39,8 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
  * Tests the zero-coupon inflation constructors.
  */
 public class CouponInflationZeroCouponInterpolationDefinitionTest {
-  private static final PriceIndex[] PRICE_INDEXES = MarketDataSets.getPriceIndexes();
-  private static final PriceIndex PRICE_INDEX_EUR = PRICE_INDEXES[0];
+  private static final IndexPrice[] PRICE_INDEXES = MarketDataSets.getPriceIndexes();
+  private static final IndexPrice PRICE_INDEX_EUR = PRICE_INDEXES[0];
   private static final Currency CUR = PRICE_INDEX_EUR.getCurrency();
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
@@ -48,7 +48,7 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final int COUPON_TENOR_YEAR = 10;
   private static final Period COUPON_TENOR = Period.ofYears(COUPON_TENOR_YEAR);
-  private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, BUSINESS_DAY, CALENDAR, EOM, COUPON_TENOR);
+  private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, COUPON_TENOR, BUSINESS_DAY, CALENDAR, EOM);
   private static final ZonedDateTime ACCRUAL_END_DATE = PAYMENT_DATE.minusDays(1); // For getter test
   private static final double NOTIONAL = 98765432;
   private static final int MONTH_LAG = 3;

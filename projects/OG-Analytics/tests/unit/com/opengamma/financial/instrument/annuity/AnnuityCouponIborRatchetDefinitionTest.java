@@ -75,7 +75,7 @@ public class AnnuityCouponIborRatchetDefinitionTest {
     cpn[0] = new CouponFixedDefinition(CUR, paymentDates[0], SETTLEMENT_DATE, paymentDates[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, paymentDates[0]), NOTIONAL, FIRST_CPN_RATE);
     for (int loopcpn = 1; loopcpn < NB_COUPON; loopcpn++) {
       cpn[loopcpn] = new CouponIborRatchetDefinition(CUR, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], DAY_COUNT.getDayCountFraction(paymentDates[loopcpn - 1],
-          paymentDates[loopcpn]), NOTIONAL, ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], CALENDAR, -SETTLEMENT_DAYS), IBOR_INDEX, MAIN_COEF, FLOOR_COEF, CAP_COEF);
+          paymentDates[loopcpn]), NOTIONAL, ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], -SETTLEMENT_DAYS, CALENDAR), IBOR_INDEX, MAIN_COEF, FLOOR_COEF, CAP_COEF);
     }
     AnnuityCouponIborRatchetDefinition annuity = new AnnuityCouponIborRatchetDefinition(cpn);
     for (int loopcpn = 0; loopcpn < NB_COUPON; loopcpn++) {
@@ -93,7 +93,7 @@ public class AnnuityCouponIborRatchetDefinitionTest {
     cpn[0] = CouponIborGearingDefinition.from(SETTLEMENT_DATE, paymentDates[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, paymentDates[0]), NOTIONAL, IBOR_INDEX, MAIN_COEF[2], MAIN_COEF[1]);
     for (int loopcpn = 1; loopcpn < NB_COUPON; loopcpn++) {
       cpn[loopcpn] = new CouponIborRatchetDefinition(CUR, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], DAY_COUNT.getDayCountFraction(paymentDates[loopcpn - 1],
-          paymentDates[loopcpn]), NOTIONAL, ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], CALENDAR, -SETTLEMENT_DAYS), IBOR_INDEX, MAIN_COEF, FLOOR_COEF, CAP_COEF);
+          paymentDates[loopcpn]), NOTIONAL, ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], -SETTLEMENT_DAYS, CALENDAR), IBOR_INDEX, MAIN_COEF, FLOOR_COEF, CAP_COEF);
     }
     AnnuityCouponIborRatchetDefinition annuity = new AnnuityCouponIborRatchetDefinition(cpn);
     for (int loopcpn = 0; loopcpn < NB_COUPON; loopcpn++) {

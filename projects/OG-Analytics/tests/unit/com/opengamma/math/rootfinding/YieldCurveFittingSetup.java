@@ -27,7 +27,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.instrument.index.IndexOIS;
+import com.opengamma.financial.instrument.index.IndexON;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
@@ -38,7 +38,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -78,7 +78,7 @@ public abstract class YieldCurveFittingSetup {
   private static final Currency DUMMY_CUR = Currency.USD;
   private static final IborIndex DUMMY_INDEX = new IborIndex(DUMMY_CUR, Period.ofMonths(1), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
       BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
-  private static final IndexOIS DUMMY_OIS_INDEX = new IndexOIS("OIS", DUMMY_CUR, DayCountFactory.INSTANCE.getDayCount("Actual/365"), 0, new MondayToFridayCalendar("A"));
+  private static final IndexON DUMMY_OIS_INDEX = new IndexON("OIS", DUMMY_CUR, DayCountFactory.INSTANCE.getDayCount("Actual/365"), 0, new MondayToFridayCalendar("A"));
 
   /** Accuracy */
   protected static final double EPS = 1e-8;
@@ -91,16 +91,16 @@ public abstract class YieldCurveFittingSetup {
 
   protected abstract int getBenchmarkCycles();
 
-  protected static YieldCurveFittingTestDataBundle getYieldCurveFittingTestDataBundle(final List<InstrumentDerivative> instruments, final YieldCurveBundle knownCurves,
-      final List<String> curveNames, final List<double[]> curvesKnots, final Interpolator1D extrapolator, final InstrumentDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
+  protected static YieldCurveFittingTestDataBundle getYieldCurveFittingTestDataBundle(final List<InstrumentDerivative> instruments, final YieldCurveBundle knownCurves, final List<String> curveNames,
+      final List<double[]> curvesKnots, final Interpolator1D extrapolator, final InstrumentDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
       final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator, final double[] marketRates, final DoubleMatrix1D startPosition,
       final List<double[]> curveYields) {
     return getYieldCurveFittingTestDataBundle(instruments, knownCurves, curveNames, curvesKnots, extrapolator, marketValueCalculator, marketValueSensitivityCalculator, marketRates, startPosition,
         curveYields, false);
   }
 
-  protected static YieldCurveFittingTestDataBundle getYieldCurveFittingTestDataBundle(final List<InstrumentDerivative> instruments, final YieldCurveBundle knownCurves,
-      final List<String> curveNames, final List<double[]> curvesKnots, final Interpolator1D extrapolator, final InstrumentDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
+  protected static YieldCurveFittingTestDataBundle getYieldCurveFittingTestDataBundle(final List<InstrumentDerivative> instruments, final YieldCurveBundle knownCurves, final List<String> curveNames,
+      final List<double[]> curvesKnots, final Interpolator1D extrapolator, final InstrumentDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
       final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator, final double[] marketRates, final DoubleMatrix1D startPosition,
       final List<double[]> curveYields, boolean useFiniteDifferenceByDefault) {
 
@@ -279,11 +279,11 @@ public abstract class YieldCurveFittingSetup {
   }
 
   protected static InstrumentDerivative makeCash(final double time, final String fundCurveName, final double rate, final double notional) {
-    return new Cash(DUMMY_CUR, time, notional, rate, fundCurveName);
+    return new Cash(DUMMY_CUR, 0, time, notional, rate, time, fundCurveName);
   }
 
   protected static InstrumentDerivative makeLibor(final double time, final String indexCurveName, final double rate, final double notional) {
-    return new Cash(DUMMY_CUR, time, notional, rate, indexCurveName);
+    return new Cash(DUMMY_CUR, 0, time, notional, rate, time, indexCurveName);
   }
 
   /**
@@ -297,13 +297,13 @@ public abstract class YieldCurveFittingSetup {
    * @param notional the notional amount 
    * @return A FRA
    */
-  protected static InstrumentDerivative makeFRA(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName, final double rate,
+  protected static InstrumentDerivative makeFRA(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName, final double rate, 
       final double notional) {
     double tau = 1. / paymentFreq.getPeriodsPerYear();
     return new ForwardRateAgreement(DUMMY_CUR, time - tau, fundCurveName, tau, notional, DUMMY_INDEX, time - tau, time - tau, time, tau, rate, indexCurveName);
   }
 
-  protected static InstrumentDerivative makeFuture(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName, final double rate,
+  protected static InstrumentDerivative makeFuture(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName, final double rate, 
       final int contracts) {
     final double referencePrice = 0.0; // TODO CASE - Future refactor - Confirm referencePrice
     double tau = 1. / paymentFreq.getPeriodsPerYear();

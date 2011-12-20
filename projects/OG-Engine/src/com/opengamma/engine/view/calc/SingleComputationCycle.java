@@ -83,7 +83,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private final CompiledViewDefinitionWithGraphsImpl _compiledViewDefinition;
   private final ViewCycleExecutionOptions _executionOptions;
   private final VersionCorrection _versionCorrection;
-  
+
   private final ComputationResultListener _cycleFragmentResultListener;
   private final DependencyGraphExecutor<?> _dependencyGraphExecutor;
   private final GraphExecutorStatisticsGatherer _statisticsGatherer;
@@ -116,7 +116,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     _viewProcessId = viewProcessId;
     _viewProcessContext = viewProcessContext;
     _compiledViewDefinition = compiledViewDefinition;
-    
+
     _cycleFragmentResultListener = cycleFragmentResultListener;
 
     _executionOptions = executionOptions;
@@ -190,16 +190,16 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   public Set<String> getAllCalculationConfigurationNames() {
     return new HashSet<String>(getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurationNames());
   }
-  
+
   //-------------------------------------------------------------------------
   private UniqueId getCycleId() {
     return _cycleId;
   }
-  
+
   private VersionCorrection getVersionCorrection() {
     return _versionCorrection;
   }
-  
+
   private ViewCycleExecutionOptions getExecutionOptions() {
     return _executionOptions;
   }
@@ -288,50 +288,56 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
     final BlockingQueue<CalculationJobResult> calcJobResultQueue = new LinkedBlockingQueue<CalculationJobResult>();
     CalculationJobResultStreamConsumer calculationJobResultStreamConsumer = new CalculationJobResultStreamConsumer(calcJobResultQueue, this);
-    Future<?> resultStreamConsumerJobInProgress = calcJobResultExecutorService.submit(calculationJobResultStreamConsumer);
+    Future<?> resultStreamConsumerJobInProgress;
+    try {
+      resultStreamConsumerJobInProgress = calcJobResultExecutorService.submit(calculationJobResultStreamConsumer);
 
-    LinkedList<Future<?>> futures = new LinkedList<Future<?>>();
+      LinkedList<Future<?>> futures = new LinkedList<Future<?>>();
 
-    for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
-      s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
-      DependencyGraph depGraph = getExecutableDependencyGraph(calcConfigurationName);
+      for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
+        s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
+        DependencyGraph depGraph = getExecutableDependencyGraph(calcConfigurationName);
 
-      s_logger.info("Submitting {} for execution by {}", depGraph, getDependencyGraphExecutor());
+        s_logger.info("Submitting {} for execution by {}", depGraph, getDependencyGraphExecutor());
 
-      Future<?> future = getDependencyGraphExecutor().execute(depGraph, calcJobResultQueue, _statisticsGatherer);
-      futures.add(future);
-    }
-
-    while (!futures.isEmpty()) {
-      Future<?> future = futures.poll();
-      try {
-        future.get(5, TimeUnit.SECONDS);
-      } catch (TimeoutException e) {
-        s_logger.info("Waiting for " + future);
+        Future<?> future = getDependencyGraphExecutor().execute(depGraph, calcJobResultQueue, _statisticsGatherer);
         futures.add(future);
-      } catch (InterruptedException e) {
-        Thread.interrupted();
-        // Cancel all outstanding jobs to free up resources
-        future.cancel(true);
-        for (Future<?> incompleteFuture : futures) {
-          incompleteFuture.cancel(true);
-        }
-        _state = ViewCycleState.EXECUTION_INTERRUPTED;
-        s_logger.info("Execution interrupted before completion.");
-        throw e;
-      } catch (ExecutionException e) {
-        s_logger.error("Unable to execute dependency graph", e);
-        // Should we be swallowing this or not?
-        throw new OpenGammaRuntimeException("Unable to execute dependency graph", e);
       }
+
+      while (!futures.isEmpty()) {
+        Future<?> future = futures.poll();
+        try {
+          future.get(5, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+          s_logger.info("Waiting for " + future);
+          futures.add(future);
+        } catch (InterruptedException e) {
+          Thread.interrupted();
+          // Cancel all outstanding jobs to free up resources
+          future.cancel(true);
+          for (Future<?> incompleteFuture : futures) {
+            incompleteFuture.cancel(true);
+          }
+          _state = ViewCycleState.EXECUTION_INTERRUPTED;
+          s_logger.info("Execution interrupted before completion.");
+          throw e;
+        } catch (ExecutionException e) {
+          s_logger.error("Unable to execute dependency graph", e);
+          // Should we be swallowing this or not?
+          throw new OpenGammaRuntimeException("Unable to execute dependency graph", e);
+        }
+      }
+
+      _endTime = Instant.now();
+    } finally {
+      calculationJobResultStreamConsumer.terminate();
     }
 
-    _endTime = Instant.now();
-
-    calculationJobResultStreamConsumer.terminate();
     //wait for StreamCalculationJobResultConsumer to finish
     try {
-      resultStreamConsumerJobInProgress.get();
+      if (resultStreamConsumerJobInProgress != null) {
+        resultStreamConsumerJobInProgress.get();
+      }
     } catch (ExecutionException e) {
       Thread.currentThread().interrupt();
     }
@@ -391,7 +397,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         dataAsValue = new ComputedValue(marketDataRequirement.getValue(), MissingMarketDataSentinel.getInstance());
       } else {
         dataAsValue = new ComputedValue(marketDataRequirement.getValue(), data);
-        
+
         // REVIEW jonathan 2011-11-17 -- do we really need to include all market data in the result by default?
         getResultModel().addMarketData(dataAsValue);
         addMarketDataToResultFragment(marketDataResultFragment, marketDataRequirement.getValue(), dataAsValue);
@@ -432,7 +438,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     for (Map.Entry<ViewComputationCache, OverrideOperation> cacheMarketData : cacheMarketDataInfo.entrySet()) {
       final ViewComputationCache cache = cacheMarketData.getKey();
       final ComputedValue cacheValue;
-      if (cacheMarketData.getValue() == null) {
+      if ((dataAsValue.getValue() instanceof MissingMarketDataSentinel) || (cacheMarketData.getValue() == null)) {
         cacheValue = dataAsValue;
       } else {
         final Object newValue = cacheMarketData.getValue().apply(valueRequirement, dataAsValue.getValue());
@@ -527,7 +533,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   private void populateResultModel(String calcConfigurationName, DependencyGraph depGraph) {
     ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
-    
+
     for (Pair<ValueSpecification, Object> value : computationCache.getValues(getOutputSpecificationsForResultModel(depGraph), CacheSelectHint.allShared())) {
       if (value.getValue() == null) {
         continue;
@@ -539,9 +545,9 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
     getResultModel().addRequirements(depGraph.getTerminalOutputs());
   }
-  
+
   //-------------------------------------------------------------------------
-  /*package*/ void calculationJobsCompleted(List<CalculationJobResult> results) {
+  /*package*/void calculationJobsCompleted(List<CalculationJobResult> results) {
     try {
       ViewComputationResultModel fragmentResult = generateCycleFragmentResult(results);
       if (fragmentResult != null) {
@@ -551,7 +557,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       s_logger.warn("Error forming cycle fragment result after calculation jobs completed: " + results, e);
     }
   }
-  
+
   private void notifyFragmentCompleted(ViewComputationResultModel fragmentResult) {
     try {
       _cycleFragmentResultListener.resultAvailable(fragmentResult);
@@ -559,13 +565,13 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       s_logger.warn("Error notifying listener of cycle fragment completion", e);
     }
   }
-  
+
   private ViewComputationResultModel generateCycleFragmentResult(List<CalculationJobResult> calculationJobResults) {
     InMemoryViewComputationResultModel resultModel = constructTemplateResultModel();
     for (CalculationJobResult calculationJobResult : calculationJobResults) {
       String calcConfigurationName = calculationJobResult.getSpecification().getCalcConfigName();
       DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
-  
+
       ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
       Set<ValueSpecification> specifications = flatMap(new HashSet<ValueSpecification>(),
           calculationJobResult.getResultItems(), new Function1<CalculationJobResultItem, Collection<ValueSpecification>>() {
@@ -579,7 +585,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         continue;
       }
       resultModel.addRequirements(requirements);
-      
+
       for (Pair<ValueSpecification, Object> value : computationCache.getValues(specifications, CacheSelectHint.allShared())) {
         ValueSpecification valueSpec = value.getFirst();
         Object calculatedValue = value.getSecond();
@@ -595,7 +601,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
     return !resultModel.getAllResults().isEmpty() ? resultModel : null;
   }
-  
+
   private void addMarketDataToResultFragment(InMemoryViewComputationResultModel result, ValueSpecification marketDataSpecification, ComputedValue marketData) {
     result.addMarketData(marketData);
     for (DependencyGraph depGraph : getCompiledViewDefinition().getAllDependencyGraphs()) {

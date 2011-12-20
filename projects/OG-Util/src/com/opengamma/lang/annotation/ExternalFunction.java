@@ -45,7 +45,9 @@ public @interface ExternalFunction {
    * <ul>
    * With any of the above omitted if they match the published primary name.
    */
-  String[] alias() default {};
+  String[] alias() default {
+  // empty
+  };
 
   /**
    * Category describing the function's behavior. Typically omit.

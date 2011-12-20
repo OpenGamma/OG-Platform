@@ -34,26 +34,26 @@ public class CMSIndexTest {
   private static final Period FIXED_LEG_PERIOD = Period.ofMonths(6);
   private static final DayCount DAY_COUNT_FIXED = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final Period CMS_TENOR = Period.ofYears(2);
-  private static final CMSIndex CMS_INDEX = new CMSIndex(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX, CMS_TENOR);
+  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX, CMS_TENOR);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFixedLegPeriod() {
-    new CMSIndex(null, DAY_COUNT_FIXED, IBOR_INDEX, CMS_TENOR);
+    new IndexSwap(null, DAY_COUNT_FIXED, IBOR_INDEX, CMS_TENOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFixedDayCount() {
-    new CMSIndex(FIXED_LEG_PERIOD, null, IBOR_INDEX, CMS_TENOR);
+    new IndexSwap(FIXED_LEG_PERIOD, null, IBOR_INDEX, CMS_TENOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIborIndex() {
-    new CMSIndex(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, null, CMS_TENOR);
+    new IndexSwap(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, null, CMS_TENOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCMSTenor() {
-    new CMSIndex(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX, null);
+    new IndexSwap(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX, null);
   }
 
   @Test
@@ -72,19 +72,19 @@ public class CMSIndexTest {
   @Test
   public void testEqualHash() {
     assertEquals(CMS_INDEX, CMS_INDEX);
-    CMSIndex indexDuplicate = new CMSIndex(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX, CMS_TENOR);
+    IndexSwap indexDuplicate = new IndexSwap(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX, CMS_TENOR);
     assertEquals(CMS_INDEX, indexDuplicate);
     assertEquals(CMS_INDEX.hashCode(), indexDuplicate.hashCode());
-    CMSIndex indexModified;
+    IndexSwap indexModified;
     Period otherPeriod = Period.ofMonths(12);
-    indexModified = new CMSIndex(otherPeriod, DAY_COUNT_FIXED, IBOR_INDEX, CMS_TENOR);
+    indexModified = new IndexSwap(otherPeriod, DAY_COUNT_FIXED, IBOR_INDEX, CMS_TENOR);
     assertFalse(CMS_INDEX.equals(indexModified));
-    indexModified = new CMSIndex(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX, otherPeriod);
+    indexModified = new IndexSwap(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX, otherPeriod);
     assertFalse(CMS_INDEX.equals(indexModified));
-    indexModified = new CMSIndex(FIXED_LEG_PERIOD, DAY_COUNT_IBOR, IBOR_INDEX, CMS_TENOR);
+    indexModified = new IndexSwap(FIXED_LEG_PERIOD, DAY_COUNT_IBOR, IBOR_INDEX, CMS_TENOR);
     assertFalse(CMS_INDEX.equals(indexModified));
     IborIndex otherIborIndex = new IborIndex(CUR, IBOR_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_IBOR, BUSINESS_DAY, !IS_EOM);
-    indexModified = new CMSIndex(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, otherIborIndex, CMS_TENOR);
+    indexModified = new IndexSwap(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, otherIborIndex, CMS_TENOR);
     assertFalse(CMS_INDEX.equals(indexModified));
     assertFalse(CMS_INDEX.equals(null));
     assertFalse(CMS_INDEX.equals(CUR));

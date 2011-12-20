@@ -31,7 +31,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
@@ -87,14 +87,14 @@ public class PresentValueCalculatorTest {
     final double t = 7 / 365.0;
     final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
     double r = 1 / t * (1 / curve.getDiscountFactor(t) - 1);
-    Cash cash = new Cash(CUR, t, 1, r, FIVE_PC_CURVE_NAME);
+    Cash cash = new Cash(CUR, 0, t, 1, r, t, FIVE_PC_CURVE_NAME);
     double pv = PVC.visit(cash, CURVES);
     assertEquals(0.0, pv, 1e-12);
 
     final double tradeTime = 2.0 / 365.0;
     final double yearFrac = 5.0 / 360.0;
     r = 1 / yearFrac * (curve.getDiscountFactor(tradeTime) / curve.getDiscountFactor(t) - 1);
-    cash = new Cash(CUR, t, 1, r, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
+    cash = new Cash(CUR, tradeTime, t, 1, r, yearFrac, FIVE_PC_CURVE_NAME);
     pv = PVC.visit(cash, CURVES);
     assertEquals(0.0, pv, 1e-12);
   }

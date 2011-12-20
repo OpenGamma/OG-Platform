@@ -79,6 +79,7 @@ $.register_module({
                 layout.inner.options.south.onclose = null;
                 layout.inner.close('south');
                 api.rest.batches.get({
+                    dependencies: ['id'],
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var f = details.batch_functions, json = result.data;
@@ -98,7 +99,7 @@ $.register_module({
                             f.errors('.OG-batch .og-js-errors', json.data.batch_errors);
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             ui.toolbar(options.toolbar.active);
-                            layout.inner.resizeAll();
+                            setTimeout(layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,
@@ -129,16 +130,10 @@ $.register_module({
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        state = {filter: true};
-                        batches.load(args);
-                        args.id
-                            ? routes.go(routes.hash(module.rules.load_batches, args))
-                            : routes.go(routes.hash(module.rules.load, args));
-                    }}
+                    {new_value: 'id', stop: true, method: function () {if (args.id) batches.load_batches(args);}},
+                    {new_page: function () {batches.load(args);}}
                 ]});
-                delete args['filter'];
-                search.filter($.extend(args, {filter: true}));
+                search.filter(args);
             },
             load_batches: function (args) {
                 check_state({args: args, conditions: [{new_page: batches.load}]});

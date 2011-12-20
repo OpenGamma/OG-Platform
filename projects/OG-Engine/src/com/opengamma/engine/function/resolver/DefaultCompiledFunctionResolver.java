@@ -19,6 +19,9 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
@@ -38,9 +41,12 @@ import com.opengamma.util.tuple.Pair;
  * In addition, a priority mechanism is used to return functions in priority order
  * from highest to lowest.
  * <p>
- * This class is not thread-safe.
+ * This class is not thread-safe. It is possible to call {@link #resolveFunction} concurrently
+ * from multiple threads, the rule manipulation methods require external locking.
  */
 public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(DefaultCompiledFunctionResolver.class);
 
   /**
    * The rules by target type, where the inner map is sorted high to low.
@@ -50,6 +56,10 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
    * The compilation context.
    */
   private final FunctionCompilationContext _functionCompilationContext;
+  /**
+   * Cache of targets.
+   */
+  private final ConcurrentMap<ComputationTarget, List<Pair<ResolutionRule, Set<ValueSpecification>>>> _targetCache = new MapMaker().weakKeys().makeMap();
 
   /**
    * Creates a resolver.
@@ -126,26 +136,6 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
     return _functionCompilationContext;
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Comparator to give a fixed ordering of value specifications for use by the rule comparator.
-   * This is not a robust implementation, working only within the confines of the rule comparator's limited use.
-   */
-  private static final Comparator<ValueSpecification> VALUE_SPECIFICATION_COMPARATOR = new Comparator<ValueSpecification>() {
-    @Override
-    public int compare(ValueSpecification o1, ValueSpecification o2) {
-      int c = o1.getValueName().compareTo(o2.getValueName());
-      if (c != 0) {
-        return c;
-      }
-      c = o1.getProperties().compareTo(o2.getProperties());
-      if (c != 0) {
-        return c;
-      }
-      return 0;
-    }
-  };
-
   /**
    * Comparator to give a fixed ordering of functions at the same priority so that we at
    * least have deterministic behavior between runs.
@@ -153,31 +143,14 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
   private static final Comparator<Pair<ResolutionRule, Set<ValueSpecification>>> RULE_COMPARATOR = new Comparator<Pair<ResolutionRule, Set<ValueSpecification>>>() {
     @Override
     public int compare(Pair<ResolutionRule, Set<ValueSpecification>> o1, Pair<ResolutionRule, Set<ValueSpecification>> o2) {
-      final Set<ValueSpecification> s1 = o1.getSecond();
-      final Set<ValueSpecification> s2 = o2.getSecond();
-      if (s1.size() < s2.size()) {
-        return -1;
-      } else if (s1.size() > s2.size()) {
-        return 1;
+      final int c = o1.getFirst().getFunction().getFunction().getFunctionDefinition().getUniqueId().compareTo(o2.getFirst().getFunction().getFunction().getFunctionDefinition().getUniqueId());
+      if (c != 0) {
+        return c;
       }
-      final List<ValueSpecification> s1list = new ArrayList<ValueSpecification>(s1);
-      final List<ValueSpecification> s2list = new ArrayList<ValueSpecification>(s2);
-      Collections.sort(s1list, VALUE_SPECIFICATION_COMPARATOR);
-      Collections.sort(s2list, VALUE_SPECIFICATION_COMPARATOR);
-      for (int i = 0; i < s1list.size(); i++) {
-        final int c = VALUE_SPECIFICATION_COMPARATOR.compare(s1list.get(i), s2list.get(i));
-        if (c != 0) {
-          return c;
-        }
-      }
+      // Have the same function, can't prioritize the "FunctionInputs"
       throw new OpenGammaRuntimeException("Rule priority conflict - cannot order " + o1 + " against " + o2);
     }
   };
-
-  /**
-   * Cache of targets.
-   */
-  private final ConcurrentMap<ComputationTarget, List<Pair<ResolutionRule, Set<ValueSpecification>>>> _targetCache = new MapMaker().weakKeys().makeMap();
 
   @SuppressWarnings("unchecked")
   @Override
@@ -185,33 +158,38 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
     List<Pair<ResolutionRule, Set<ValueSpecification>>> cached = _targetCache.get(target);
     if (cached == null) {
       final LinkedList<Pair<ResolutionRule, Set<ValueSpecification>>> applicableRules = new LinkedList<Pair<ResolutionRule, Set<ValueSpecification>>>();
-      for (Collection<ResolutionRule> rules : _type2Priority2Rules.get(target.getType()).values()) {
-        int rulesFound = 0;
-        for (ResolutionRule rule : rules) {
-          final Set<ValueSpecification> results = rule.getResults(target, getFunctionCompilationContext());
-          if ((results != null) && !results.isEmpty()) {
-            applicableRules.add(Pair.of(rule, results));
-            rulesFound++;
+      final SortedMap<Integer, Collection<ResolutionRule>> priority2Rules = _type2Priority2Rules.get(target.getType());
+      if (priority2Rules != null) {
+        for (Collection<ResolutionRule> rules : priority2Rules.values()) {
+          int rulesFound = 0;
+          for (ResolutionRule rule : rules) {
+            final Set<ValueSpecification> results = rule.getResults(target, getFunctionCompilationContext());
+            if ((results != null) && !results.isEmpty()) {
+              applicableRules.add(Pair.of(rule, results));
+              rulesFound++;
+            }
+          }
+          if (rulesFound > 1) {
+            // sort only the sub-list of rules associated with the priority
+            final Iterator<Pair<ResolutionRule, Set<ValueSpecification>>> iterator = applicableRules.descendingIterator();
+            final Pair<ResolutionRule, Set<ValueSpecification>>[] found = new Pair[rulesFound];
+            for (int i = 0; i < rulesFound; i++) {
+              found[i] = iterator.next();
+              iterator.remove();
+            }
+            // TODO [ENG-260] re-order the last "rulesFound" rules in the list with a cost-based heuristic (cheapest first)
+            // TODO [ENG-260] throw an exception if there are two rules which can't be re-ordered
+            // REVIEW 2010-10-27 Andrew -- Could the above be done with a Comparator<Pair<ParameterizedFunction, ValueSpecification>>
+            // provided in the compilation context? This could do away with the need for our "priority" levels as that can do ALL ordering.
+            // We should wrap it at construction in something that will detect the equality case and trigger an exception.
+            Arrays.sort(found, RULE_COMPARATOR);
+            for (int i = 0; i < rulesFound; i++) {
+              applicableRules.add(found[i]);
+            }
           }
         }
-        if (rulesFound > 1) {
-          // sort only the sub-list of rules associated with the priority
-          final Iterator<Pair<ResolutionRule, Set<ValueSpecification>>> iterator = applicableRules.descendingIterator();
-          final Pair<ResolutionRule, Set<ValueSpecification>>[] found = new Pair[rulesFound];
-          for (int i = 0; i < rulesFound; i++) {
-            found[i] = iterator.next();
-            iterator.remove();
-          }
-          // TODO [ENG-260] re-order the last "rulesFound" rules in the list with a cost-based heuristic (cheapest first)
-          // TODO [ENG-260] throw an exception if there are two rules which can't be re-ordered
-          // REVIEW 2010-10-27 Andrew -- Could the above be done with a Comparator<Pair<ParameterizedFunction, ValueSpecification>>
-          // provided in the compilation context? This could do away with the need for our "priority" levels as that can do ALL ordering.
-          // We should wrap it at construction in something that will detect the equality case and trigger an exception.
-          Arrays.sort(found, RULE_COMPARATOR);
-          for (int i = 0; i < rulesFound; i++) {
-            applicableRules.add(found[i]);
-          }
-        }
+      } else {
+        s_logger.warn("No rules for target type {}", target);
       }
       final List<Pair<ResolutionRule, Set<ValueSpecification>>> existing = _targetCache.putIfAbsent(target, applicableRules);
       cached = (existing != null) ? existing : applicableRules;

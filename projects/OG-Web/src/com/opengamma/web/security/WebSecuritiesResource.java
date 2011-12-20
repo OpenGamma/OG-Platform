@@ -34,11 +34,13 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
@@ -65,9 +67,13 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
    * Creates the resource.
    * @param securityMaster  the security master, not null
    * @param securityLoader  the security loader, not null
+   * @param htsMaster       the HTS master, not null (for resolving relevant HTS Id)
+   * @param cfgSource       the config master, not null (for resolving relevant HTS Id)
    */
-  public WebSecuritiesResource(final SecurityMaster securityMaster, final SecurityLoader securityLoader) {
-    super(securityMaster, securityLoader);
+  public WebSecuritiesResource(
+    final SecurityMaster securityMaster, final SecurityLoader securityLoader, 
+    final HistoricalTimeSeriesMaster htsMaster, final ConfigSource cfgSource) {
+    super(securityMaster, securityLoader, htsMaster, cfgSource);
   }
 
   //-------------------------------------------------------------------------

@@ -6,8 +6,9 @@
 package com.opengamma.financial.analytics.model.pnl;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,8 +56,7 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
   private final String _markDataField;
   private final String _costOfCarryField;
   private final String _resolutionKey;
-  
-  
+
   private final Map<Pair<ExternalIdBundle, LocalDate>, Double> _costOfCarryCache = new ConcurrentHashMap<Pair<ExternalIdBundle, LocalDate>, Double>();
 
   /**
@@ -69,28 +69,34 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
     ArgumentChecker.notNull(resolutionKey, "resolutionKey");
     ArgumentChecker.notNull(markDataField, "mark data field");
     ArgumentChecker.notNull(costOfCarryField, "cost of carry data field");
-    
+
     _resolutionKey = resolutionKey;
     _markDataField = markDataField;
     _costOfCarryField = costOfCarryField;
   }
-  
+
   protected abstract LocalDate getPreferredTradeDate(Clock valuationClock, PositionOrTrade positionOrTrade);
-  
+
   protected abstract HistoricalTimeSeries getMarkToMarketSeries(HistoricalTimeSeriesSource historicalSource, String fieldName, ExternalIdBundle bundle, String resolutionKey, LocalDate tradeDate);
-  
+
   protected abstract LocalDate checkAvailableData(LocalDate originalTradeDate, HistoricalTimeSeries markToMarketSeries, Security security, String markDataField, String resolutionKey);
-  
+
   protected abstract String getResultValueRequirementName();
-  
+
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
     final PositionOrTrade trade = target.getPositionOrTrade();
-    final Object currentTradeValue = inputs.getValue(new ValueRequirement(getValueRequirementName(), ComputationTargetType.SECURITY, trade.getSecurity().getUniqueId()));
+    Object currentTradeValue = null;
+    for (String valueRequirementName : getValueRequirementNames()) {
+      currentTradeValue = inputs.getValue(valueRequirementName);
+      if (currentTradeValue != null) {
+        break;
+      }
+    }
     if (currentTradeValue != null) {
       final Double tradeValue = (Double) currentTradeValue;
       final Security security = trade.getSecurity();
-      
+
       LocalDate tradeDate = getPreferredTradeDate(executionContext.getValuationClock(), trade);
 
       final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
@@ -98,10 +104,10 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
 
       if (markToMarketSeries == null || markToMarketSeries.getTimeSeries() == null) {
         s_logger.debug("Could not get identifier / mark to market series pair for security {} for {} using {}",
-            new Object[]{security.getExternalIdBundle(), _markDataField, _resolutionKey});
+            new Object[] {security.getExternalIdBundle(), _markDataField, _resolutionKey });
         return Collections.emptySet();
       }
-      
+
       tradeDate = checkAvailableData(tradeDate, markToMarketSeries, security, _markDataField, _resolutionKey);
 
       final Currency ccy = FinancialSecurityUtils.getCurrency(trade.getSecurity());
@@ -142,23 +148,23 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
     return cachedCost == UN_AVAILABLE_COST ? 0.0d : cachedCost;
   }
 
-//  @Override
-//  public ComputationTargetType getTargetType() {
-//    return _dailyPositionPnL ? ComputationTargetType.POSITION : ComputationTargetType.TRADE;
-//  }
+  //  @Override
+  //  public ComputationTargetType getTargetType() {
+  //    return _dailyPositionPnL ? ComputationTargetType.POSITION : ComputationTargetType.TRADE;
+  //  }
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    if (canApplyTo(context, target)) {
-      final PositionOrTrade positionOrTrade = target.getPositionOrTrade();
-      final Security security = positionOrTrade.getSecurity();
-      final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      requirements.add(new ValueRequirement(getValueRequirementName(), ComputationTargetType.SECURITY, security.getUniqueId(), getCurrencyProperty(security)));
-      return requirements;
+    final PositionOrTrade positionOrTrade = target.getPositionOrTrade();
+    final Security security = positionOrTrade.getSecurity();
+    final List<String> valueRequirementNames = getValueRequirementNames();
+    final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(valueRequirementNames.size());
+    for (String valueRequirementName : valueRequirementNames) {
+      requirements.add(new ValueRequirement(valueRequirementName, ComputationTargetType.SECURITY, security.getUniqueId(), getCurrencyProperty(security)));
     }
-    return null;
+    return requirements;
   }
-  
+
   protected ValueProperties getCurrencyProperty(Security security) {
     Currency ccy = FinancialSecurityUtils.getCurrency(security);
     if (ccy != null) {
@@ -169,25 +175,36 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
   }
 
   /**
-   * @return the value requirement name
+   * @return the value requirement names in order of preference
    */
-  protected String getValueRequirementName() {
-    return ValueRequirementNames.FAIR_VALUE;
+  protected List<String> getValueRequirementNames() {
+    return Arrays.asList(ValueRequirementNames.FAIR_VALUE, ValueRequirementNames.PRESENT_VALUE);
   }
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      Currency ccy = FinancialSecurityUtils.getCurrency(target.getPositionOrTrade().getSecurity());
-      final String valueRequirementName = getResultValueRequirementName();
-      if (ccy == null) {
-        return Sets.newHashSet(new ValueSpecification(new ValueRequirement(valueRequirementName, target.getPositionOrTrade()), getUniqueId()));
-      } else {
-        return Sets.newHashSet(new ValueSpecification(new ValueRequirement(valueRequirementName, target.getPositionOrTrade(),
-                                 ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get()), getUniqueId()));
-      }
+    Currency ccy = FinancialSecurityUtils.getCurrency(target.getPositionOrTrade().getSecurity());
+    final String valueRequirementName = getResultValueRequirementName();
+    if (ccy == null) {
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(valueRequirementName, target.getPositionOrTrade()), getUniqueId()));
+    } else {
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(valueRequirementName, target.getPositionOrTrade(),
+                               ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get()), getUniqueId()));
     }
-    return null;
+  }
+
+  @Override
+  public boolean canHandleMissingRequirements() {
+    return true;
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    if (inputs.isEmpty()) {
+      return null;
+    } else {
+      return getResults(context, target);
+    }
   }
 
 }

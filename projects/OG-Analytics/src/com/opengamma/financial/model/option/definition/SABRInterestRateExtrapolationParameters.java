@@ -6,7 +6,7 @@
 package com.opengamma.financial.model.option.definition;
 
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.math.surface.InterpolatedDoublesSurface;
 
 /**
  * Class describing the SABR parameter surfaces and the extrapolation parameters used in interest rate modelling.
@@ -32,8 +32,8 @@ public class SABRInterestRateExtrapolationParameters extends SABRInterestRatePar
    * @param cutOffStrike The cut-off strike.
    * @param mu The tail thickness parameter.
    */
-  public SABRInterestRateExtrapolationParameters(final VolatilitySurface alpha, final VolatilitySurface beta, final VolatilitySurface rho, final VolatilitySurface nu, final DayCount dayCount,
-      final double cutOffStrike, final double mu) {
+  public SABRInterestRateExtrapolationParameters(final InterpolatedDoublesSurface alpha, final InterpolatedDoublesSurface beta, final InterpolatedDoublesSurface rho,
+      final InterpolatedDoublesSurface nu, final DayCount dayCount, final double cutOffStrike, final double mu) {
     super(alpha, beta, rho, nu, dayCount);
     this._cutOffStrike = cutOffStrike;
     this._mu = mu;

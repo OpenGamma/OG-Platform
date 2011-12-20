@@ -8,8 +8,8 @@ package com.opengamma.financial.interestrate.future.method;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -22,10 +22,11 @@ import com.opengamma.util.money.CurrencyAmount;
  */
 public final class InterestRateFutureOptionMarginTransactionSABRMethod extends InterestRateFutureOptionMarginTransactionMethod {
   private static final InterestRateFutureOptionMarginTransactionSABRMethod INSTANCE = new InterestRateFutureOptionMarginTransactionSABRMethod();
-  
+
   public static InterestRateFutureOptionMarginTransactionSABRMethod getInstance() {
     return INSTANCE;
   }
+
   /**
    * The method used to compute the underlying security price.
    */
@@ -86,7 +87,7 @@ public final class InterestRateFutureOptionMarginTransactionSABRMethod extends I
    */
   public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final InterestRateFutureOptionMarginTransaction transaction, final SABRInterestRateDataBundle sabrData) {
     PresentValueSABRSensitivityDataBundle securitySensitivity = METHOD_SECURITY.priceSABRSensitivity(transaction.getUnderlyingOption(), sabrData);
-    securitySensitivity.multiply(transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
+    securitySensitivity = PresentValueSABRSensitivityDataBundle.multiplyBy(securitySensitivity, transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
         * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor());
     return securitySensitivity;
   }

@@ -107,7 +107,7 @@ $.register_module({
                     meta: true,
                     handler: function (result) {
                         config_types = result.data.types.sort().map(function (val) {return {name: val, value: val};});
-                        $('.OG-tools .og-js-new').removeClass('OG-disabled').click(toolbar_buttons['new']);
+                        ui.toolbar(options);
                     },
                     cache_for: 60 * 60 * 1000 // an hour
                 });
@@ -117,7 +117,11 @@ $.register_module({
             default_details = og.views.common.default_details
                 .partial(page_name, 'Configurations', null, toolbar.partial(options.toolbar['default'])),
             details_page = function (args, new_config_type) {
-                var rest_options, is_new = !!new_config_type, rest_handler = function (result) {
+                var rest_options, is_new = !!new_config_type, rest_handler;
+                rest_handler = function (result) {
+                    var details_json = result.data, too_large = result.meta.content_length > 0.75 * 1024 * 1024,
+                        config_type = details_json.template_data.type.toLowerCase().split('.').reverse()[0],
+                        render_type, render_options;
                     if (result.error) return ui.dialog({type: 'error', message: result.message});
                     if (is_new) {
                         if (!result.data)
@@ -126,8 +130,6 @@ $.register_module({
                         result.data.template_data.name = 'UNTITLED';
                         result.data.template_data.configJSON.name = 'UNTITLED';
                     }
-                    var details_json = result.data,
-                        config_type = details_json.template_data.type.toLowerCase().split('.').reverse()[0];
                     if (!is_new) history.put({
                         name: details_json.template_data.name,
                         item: 'history.configs.recent',
@@ -137,14 +139,20 @@ $.register_module({
                         ui.message({location: '.ui-layout-inner-center', destroy: true});
                         return ui.dialog({type: 'error', message: 'No renderer for: ' + config_type});
                     }
-                    og.views.config_forms[config_type]({
+                    if (too_large && !og.views.config_forms[config_type].is_default) ui.dialog({
+                        type: 'error',
+                        message: 'This configuration is using the default form because it contains too much data (' +
+                            result.meta.content_length + ' bytes)'
+                    });
+                    render_type = too_large ? 'default' : config_type;
+                    render_options = {
                         is_new: is_new,
                         data: details_json,
                         loading: function () {
                             ui.message({location: '.ui-layout-inner-center', message: 'saving...'});
                         },
                         save_new_handler: function (result) {
-                            var args = $.extend({}, routes.last().args, {id: result.meta.id});
+                            var args = $.extend({}, routes.current().args, {id: result.meta.id});
                             ui.message({location: '.OG-js-details-panel', destroy: true});
                             if (result.error) {
                                 ui.message({location: '.ui-layout-inner-center', destroy: true});
@@ -154,13 +162,13 @@ $.register_module({
                             routes.go(routes.hash(module.rules.load_configs, args));
                         },
                         save_handler: function (result) {
+                            var args = routes.current().args;
                             if (result.error) {
                                 ui.message({location: '.ui-layout-inner-center', destroy: true});
-                                ui.dialog({type: 'error', message: result.message});
-                                return;
+                                return ui.dialog({type: 'error', message: result.message});
                             }
                             ui.message({location: '.ui-layout-inner-center', message: 'saved'});
-                            setTimeout(function () {routes.handler(); details_page(args);}, 300);
+                            setTimeout(function () {configs.search(args), details_page(args);}, 300);
                         },
                         handler: function (form) {
                             var json = details_json.template_data,
@@ -194,15 +202,19 @@ $.register_module({
                                 location: '.OG-tools'
                             });
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
-                            layout.inner.resizeAll();
+                            setTimeout(layout.inner.resizeAll);
                         },
                         selector: '.ui-layout-inner-center .ui-layout-content',
                         type: details_json.template_data.type
-                    });
+                    };
+                    if (render_type !== config_type)
+                        render_options.type_map = og.views.config_forms[config_type].type_map;
+                    og.views.config_forms[render_type](render_options);
                 };
                 layout.inner.options.south.onclose = null;
                 layout.inner.close('south');
                 rest_options = {
+                    dependencies: ['id'],
                     handler: rest_handler,
                     loading: function () {
                         ui.message({
@@ -237,10 +249,10 @@ $.register_module({
                         return setTimeout(search_filter, 500);
                     search.filter($.extend(args, {filter: true}));
                 };
-                check_state({args: args, conditions: [{new_page: function () {
-                    if (args.id) return configs.load_configs(args);
-                    configs.load(args);
-                }}]});
+                check_state({args: args, conditions: [
+                    {new_value: 'id', stop: true, method: function () {if (args.id) configs.load_configs(args);}},
+                    {new_page: function () {configs.load(args);}}
+                ]});
                 search_filter();
             },
             load_configs: function (args) {
@@ -251,7 +263,7 @@ $.register_module({
             },
             load_new: function (args) {
                 check_state({args: args, conditions: [{new_page: configs.load}]});
-                details_page(args, args.config_type);
+                configs.details(args, args.config_type);
             },
             search: function (args) {
                 if (!search) search = common.search_results.core();

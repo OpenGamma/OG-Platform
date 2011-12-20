@@ -45,11 +45,12 @@ $.register_module({
                             'OK': function () {
                                 $(this).dialog('close');
                                 api.rest.portfolios.put({
-                                    handler: function (r) {
-                                        if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                        routes.go(routes.hash(module.rules.load_new_portfolios,
-                                                $.extend({}, routes.last().args, {id: r.meta.id, 'new': true})
-                                        ));
+                                    handler: function (result) {
+                                        var args = routes.current().args, rule = module.rules.load_portfolios;
+                                        if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                        portfolios.search(args);
+                                        routes.go(routes.hash(rule, args, {
+                                            add: {id: result.meta.id}, del: ['version', 'node', 'sync']}));
                                     },
                                     name: ui.dialog({return_field_value: 'name'})
                                 });
@@ -61,25 +62,21 @@ $.register_module({
                     ui.dialog({
                         type: 'confirm',
                         title: 'Delete portfolio?',
-                        message: 'Are you sure you want to permanently delete this portfolio?',
+                        message: 'Are you sure you want to permanently delete ' +
+                            '<strong style="white-space: nowrap">' + portfolio_name + '</strong>?',
                         buttons: {
                             'Delete': function () {
-                                var obj = {
-                                    id: routes.last().args.id,
-                                    handler: function (r) {
-                                        var last = routes.last(), args_obj = {};
-                                        if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                        if (json.template_data.parent_node_id) {
-                                            args_obj.node = json.template_data.parent_node_id;
-                                            args_obj.id = json.template_data.object_id;
-                                        }
-                                        portfolios.deleted = true;
-                                        routes.handler();
+                                var args = routes.current().args, rest_options = {
+                                    id: args.id,
+                                    handler: function (result) {
+                                        var args = routes.current().args, rule = module.rules.load;
+                                        if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                        portfolios.search(args);
+                                        routes.go(routes.hash(rule, args));
                                     }
                                 };
-                                if (routes.last().args.node) obj.node = routes.last().args.node;
                                 $(this).dialog('close');
-                                api.rest.portfolios.del(obj);
+                                api.rest.portfolios.del(rest_options);
                             }
                         }
                     })
@@ -141,11 +138,9 @@ $.register_module({
                         (function () { /* Hook up add button */
                             var do_update = function () {
                                 api.rest.portfolios.put({
-                                    handler: function (r) {
-                                        if (r.error) {ui.dialog({type: 'error', message: r.message}); return}
-                                        routes.go(routes.hash(module.rules.load_new_portfolios,
-                                                $.extend({},routes.current().args, {'new': true})
-                                        ));
+                                    handler: function (result) {
+                                        if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                        portfolios.details(args);
                                     },
                                     name: ui.dialog({return_field_value: 'name'}),
                                     id: json.template_data.object_id,
@@ -172,40 +167,45 @@ $.register_module({
                         if (json.portfolios[0]) {
                             display_columns = [{
                                 id: 'name', name: 'Name', field: 'name', cssClass: 'og-link',
-                                width: 300, formatter: format
+                                width: 250, formatter: format
                             }],
                             data_columns = [{
                                 id: 'id', name: 'Id', field: 'id', width: 100, formatter: format
                             }];
                         } else {
-                            display_columns = [{id: 'name', name: 'Name', field: 'name', width: 300}],
+                            display_columns = [{id: 'name', name: 'Name', field: 'name', width: 250}],
                             json.portfolios = [{name: 'No portfolios', id: ''}]
                         }
+                        display_columns = common.slickgrid.calibrate_columns({
+                            container: selector + ' .og-js-portfolios-grid',
+                            columns: display_columns,
+                            buffer: 17
+                        });
                         slick = new Slick.Grid(selector + ' .og-js-portfolios-grid',
-                            json.portfolios, display_columns.concat(data_columns));
+                            json.portfolios, display_columns.concat(data_columns), {headerHeight: 33});
                         slick.setColumns(display_columns);
+                        slick.setSelectionModel(new Slick.RowSelectionModel());
                         slick.onClick.subscribe(function (e, dd) {
-                            var rule = module.rules.load_portfolios,
-                                node = json.portfolios[dd.row].id,
-                                href = routes.hash(rule, {id: routes.current().args.id, node: node});
-                            if ($(e.target).hasClass('og-icon-delete')) {
-                                ui.dialog({
-                                    type: 'confirm',
-                                    title: 'Delete sub portfolio?',
-                                    message: 'Are you sure you want to permanently delete this sub portfolio?',
-                                    buttons: {'Delete': function () {
-                                        api.rest.portfolios.del({
-                                            id: routes.last().args.id, node: node,
-                                            handler: function (r) {
-                                                if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                                portfolios.deleted = true;
-                                                routes.handler();
-                                            }
-                                        });
-                                        $(this).dialog('close');
-                                    }}
-                                });
-                            } else routes.go(href);
+                            var rule = module.rules.load_portfolios, node = json.portfolios[dd.row];
+                            if (!$(e.target).hasClass('og-icon-delete'))
+                                return routes.go(routes.hash(rule, routes.current().args, {add: {node: node.id}}));
+                            ui.dialog({
+                                type: 'confirm',
+                                title: 'Delete sub portfolio?',
+                                message: 'Are you sure you want to permanently delete ' +
+                                    '<strong style="white-space: nowrap">' + node.name + '</strong>?',
+                                buttons: {'Delete': function () {
+                                    api.rest.portfolios.del({
+                                        id: routes.current().args.id, node: node.id,
+                                        handler: function (result) {
+                                            if (result.error)
+                                                return ui.dialog({type: 'error', message: result.message});
+                                            portfolios.details(routes.current().args);
+                                        }
+                                    });
+                                    $(this).dialog('close');
+                                }}
+                            });
                         });
                         slick.onMouseEnter.subscribe(function (e) {
                            $(e.currentTarget).closest('.slick-row').find('.og-button').show();
@@ -225,13 +225,9 @@ $.register_module({
                         (function () { /* hook up add button */
                             var do_update = function (e, id) {
                                 api.rest.portfolios.put({
-                                    handler: function (r) {
-                                        if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                        // TODO: prevent search from reloading
-                                        routes.go(routes.hash(module.rules.load_new_portfolios,
-                                             $.extend({}, routes.last().args,
-                                                 {id: json.template_data.object_id, 'new': true})
-                                        ));
+                                    handler: function (result) {
+                                        if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                        portfolios.details(args);
                                     },
                                     position: id ? id.item.value : $input.val(),
                                     id: json.template_data.object_id,
@@ -275,7 +271,7 @@ $.register_module({
                         }());
                         if (json.positions[0]) {
                             display_columns = [
-                                {id:"name", name:"Name", field:"name", width: 300, cssClass: 'og-link'},
+                                {id:"name", name:"Name", field:"name", width: 250, cssClass: 'og-link'},
                                 {id:"quantity", name:"Quantity", field:"quantity", width: 80, formatter: format}
                             ],
                             data_columns = [
@@ -283,40 +279,50 @@ $.register_module({
                             ];
                         } else {
                             display_columns = [
-                                {id:"name", name:"Name", field:"name", width: 300},
+                                {id:"name", name:"Name", field:"name", width: 250},
                                 {id:"quantity", name:"Quantity", field:"quantity", width: 80}
                             ],
                             json.positions = [{name: 'No positions', quantity:'', id: ''}]
                         }
+                        display_columns = og.common.slickgrid.calibrate_columns({
+                            container: selector + ' .og-js-position-grid',
+                            columns: display_columns,
+                            buffer: 17
+                        });
                         slick = new Slick.Grid(selector + ' .og-js-position-grid',
-                            json.positions, display_columns.concat(data_columns));
+                            json.positions, display_columns.concat(data_columns), {headerHeight: 33});
                         slick.setColumns(display_columns);
+                        slick.setSelectionModel(new Slick.RowSelectionModel());
                         slick.onClick.subscribe(function (e, dd) {
-                            var rule = og.views.positions.rules['load_positions'], row = json.positions[dd.row],
-                                position = row.id, position_name = row.name,
-                                href = routes.hash(rule, {id: position});
-                            if ($(e.target).hasClass('og-icon-unhook')) {
-                                ui.dialog({
-                                    type: 'confirm',
-                                    title: 'Remove Position?',
-                                    message: 'Are you sure you want to remove the position '
-                                        + '<strong style="white-space: nowrap">' + position_name + '</strong>'
-                                        + ' from this portfolio?',
-                                    buttons: {'Delete': function () {
-                                        api.rest.portfolios.del({
-                                            id: routes.last().args.id,
-                                            node: json.template_data.node,
-                                            position: position,
-                                            handler: function (r) {
-                                                if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                                routes.handler();
-                                            }
-                                        });
-                                        $(this).dialog('close');
-                                    }}
+                            var row = json.positions[dd.row], position = row.id, position_name = row.name;
+                            if (!$(e.target).hasClass('og-icon-unhook')) {
+                                common.gadgets.positions({
+                                    id: position, selector: '.og-js-details-positions', editable: false
                                 });
-                            } else routes.go(href);
-
+                                common.gadgets.trades({id: position, selector: '.og-js-trades-table'});
+                                return;
+                            }
+                            ui.dialog({
+                                type: 'confirm',
+                                title: 'Remove Position?',
+                                message: 'Are you sure you want to remove the position '
+                                    + '<strong style="white-space: nowrap">' + position_name + '</strong>'
+                                    + ' from this portfolio?',
+                                buttons: {'Delete': function () {
+                                    var args = routes.current().args;
+                                    api.rest.portfolios.del({
+                                        id: args.id,
+                                        node: json.template_data.node,
+                                        position: position,
+                                        handler: function (result) {
+                                            if (result.error)
+                                                return ui.dialog({type: 'error', message: result.message});
+                                            portfolios.details(routes.current().args);
+                                        }
+                                    });
+                                    $(this).dialog('close');
+                                }}
+                            });
                         });
                         slick.onMouseEnter.subscribe(function (e) {
                            $(e.currentTarget).closest('.slick-row').find('.og-button').show();
@@ -324,6 +330,22 @@ $.register_module({
                         slick.onMouseLeave.subscribe(function (e) {
                            $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
                         });
+                    },
+                    breadcrumb = function (config) {
+                        var data = config.data, rule = module.rules.load_portfolios, args = routes.current().args;
+                        data.path.shift();
+                        api.text({module: 'og.views.portfolios.breadcrumb', handler: function (template) {
+                            $(config.selector).html($.tmpl(template, data, {
+                                href: function (node) {
+                                    var change_obj = !node ? {del: ['node']} : {add: {node: node}};
+                                    return routes.prefix() + routes.hash(rule, args, change_obj);
+                                },
+                                title: function (name) {return name.length > 30 ? name : ''},
+                                short_name: function (name) {
+                                    return name.length > 30 ? name.slice(0, 27) + '...' : name
+                                }
+                            }));
+                        }});
                     };
                 if (args.version || args.sync) { // load versions
                     layout.inner.open('south');
@@ -331,11 +353,12 @@ $.register_module({
                     if (args.sync) og.views.portfolios_sync.load(args);
                 } else layout.inner.close('south');
                 api.rest.portfolios.get({
+                    dependencies: ['id'],
                     handler: function (result) {
                         if (result.error) return alert(result.message); // TODO: replace with UI error dialog
                         json = result.data;
                         history.put({
-                            name: json.template_data.name,
+                            name: portfolio_name = json.template_data.name,
                             item: 'history.portfolios.recent',
                             value: routes.current().hash
                         });
@@ -362,16 +385,18 @@ $.register_module({
                             }
                             render_portfolio_rows('.OG-js-details-panel .og-js-portfolios', json);
                             render_position_rows('.OG-js-details-panel .og-js-positions', json);
+                            if (json.template_data.path) breadcrumb({
+                                selector: '.OG-header-generic .OG-js-breadcrumb',
+                                data: json.template_data
+                            });
                             ui.content_editable({
-                                attribute: 'data-og-editable',
                                 handler: function () {
-                                    routes.go(routes.hash(module.rules.load_edit_portfolios, $.extend(args, {
-                                        edit: 'true'
-                                    })));
+                                    portfolios.search(args);
+                                    portfolios.details(args);
                                 }
                             });
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
-                            layout.inner.resizeAll();
+                            setTimeout(layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,
@@ -385,33 +410,28 @@ $.register_module({
                         });
                     }
                 });
-            },
-            load_portfolios_without = function (field, args) {
-                check_state({args: args, conditions: [{new_page: portfolios.load}]});
-                delete args[field];
-                portfolios.search(args);
-                routes.go(routes.hash(module.rules.load_portfolios, args));
             };
         module.rules = {
             load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
             load_filter: {
-                route: '/' + page_name + '/filter:/:id?/version:?/name:?/sync:?',
+                route: '/' + page_name + '/filter:/:id?/node:?/version:?/name:?/sync:?',
                 method: module.name + '.load_filter'
             },
             load_portfolios: {
-                route: '/' + page_name + '/:id/:node?/version:?/name:?/sync:?',
+                route: '/' + page_name + '/:id/node:?/version:?/name:?/sync:?',
                 method: module.name + '.load_' + page_name
-            },
-            load_new_portfolios: {
-                route: '/' + page_name + '/:id/:node?/new:/name:?',
-                method: module.name + '.load_new_' + page_name
-            },
-            load_edit_portfolios: {
-                route: '/' + page_name + '/:id/:node?/edit:/name:?',
-                method: module.name + '.load_edit_' + page_name
             }
         };
         return portfolios = {
+            breadcrumb_node: function (node) {
+                var args = routes.current().args;
+                setTimeout(routes.go.partial(routes.hash(module.rules.load_portfolios, args, {add: {node: node}})));
+            },
+            breadcrumb_root: function () {
+                var args = routes.current().args;
+                setTimeout(routes.go.partial(routes.hash(module.rules.load_portfolios, args, {del: ['node']})));
+            },
+            filters: ['name'],
             load: function (args) {
                 layout = og.views.common.layout;
                 check_state({args: args, conditions: [
@@ -425,26 +445,17 @@ $.register_module({
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        state = {filter: true};
-                        portfolios.load(args);
-                        args.id
-                            ? routes.go(routes.hash(module.rules.load_portfolios, args))
-                            : routes.go(routes.hash(module.rules.load, args));
-                    }}
+                    {new_value: 'id', stop: true, method: function () {
+                        if (args.id) portfolios.load_portfolios(args);
+                    }},
+                    {new_value: 'node', stop: true, method: function () {
+                        if (args.node) portfolios.load_portfolios(args);
+                    }},
+                    {new_page: function () {portfolios.load(args);}}
                 ]});
-                delete args['filter'];
-                search.filter($.extend(args, {filter: true}));
+                search.filter(args);
             },
-            load_delete: function (args) {
-                portfolios.deleted = false;
-                portfolios.search(args);
-                portfolios.details($.extend({name: args.name}, args));
-            },
-            load_new_portfolios: load_portfolios_without.partial('new'),
-            load_edit_portfolios: load_portfolios_without.partial('edit'),
             load_portfolios: function (args) {
-                if (portfolios.deleted) return portfolios.load_delete(args);
                 check_state({args: args, conditions: [
                     {new_page: function () {
                         portfolios.load(args);

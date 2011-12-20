@@ -14,9 +14,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
  */
 public class SharpeRatioPositionFunction extends SharpeRatioFunction {
 
-  public SharpeRatioPositionFunction(final String returnCalculatorName, final String expectedReturnCalculatorName, final String standardDeviationCalculatorName,
-      final String startDate) {
-    super(returnCalculatorName, expectedReturnCalculatorName, standardDeviationCalculatorName, startDate);
+  public SharpeRatioPositionFunction(final String resolutionKey) {
+    super(resolutionKey);
   }
 
   @Override
@@ -27,11 +26,6 @@ public class SharpeRatioPositionFunction extends SharpeRatioFunction {
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     return target.getType() == ComputationTargetType.POSITION;
-  }
-
-  @Override
-  public String getShortName() {
-    return "SharpeRatioPositionFunction";
   }
 
   @Override
