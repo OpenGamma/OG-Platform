@@ -7,21 +7,31 @@ package com.opengamma.financial.aggregation;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
-import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.security.Security;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Function to classify positions by Currency.
  *
  */
 public class EquityBetaAggregationFunction implements AggregationFunction<String> {
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityBetaAggregationFunction.class);
+  
   private boolean _useAttributes;
+  private boolean _includeEmptyCategories;
+  
   private static final String MORE_THAN_1_25 = "E) > 1.25";
   private static final String FROM_0_9_TO_1_25 = "D) 0.9 - 1.25";
   private static final String FROM_0_75_TO_0_9 = "C) 0.75 - 0.9";
@@ -33,10 +43,15 @@ public class EquityBetaAggregationFunction implements AggregationFunction<String
   private static final String NO_BETA = "N/A";
 
   private HistoricalTimeSeriesSource _htsSource;
-
-  public EquityBetaAggregationFunction(HistoricalTimeSeriesSource htsSource, boolean useAttributes) {
+  
+  public EquityBetaAggregationFunction(HistoricalTimeSeriesSource htsSource, boolean useAttributes, boolean includeEmptyCategories) {
     _htsSource = htsSource;
     _useAttributes = useAttributes;
+    _includeEmptyCategories = includeEmptyCategories;
+  }
+
+  public EquityBetaAggregationFunction(HistoricalTimeSeriesSource htsSource, boolean useAttributes) {
+    this(htsSource, useAttributes, true);
   }
   
   public EquityBetaAggregationFunction(HistoricalTimeSeriesSource htsSource) {
@@ -54,12 +69,19 @@ public class EquityBetaAggregationFunction implements AggregationFunction<String
       }
     } else {
       try {
-        LocalDate yesterday = Clock.systemDefaultZone().yesterday();
-        LocalDate oneWeekAgo = yesterday.minusDays(7);
-        HistoricalTimeSeries historicalTimeSeries = _htsSource.getHistoricalTimeSeries(FIELD, position.getSecurity().getExternalIdBundle(), 
-                                                                                       RESOLUTION_KEY, oneWeekAgo, true, yesterday, true);
-        if (historicalTimeSeries != null && historicalTimeSeries.getTimeSeries() != null && !historicalTimeSeries.getTimeSeries().isEmpty()) {
-          Double beta = historicalTimeSeries.getTimeSeries().getLatestValue();
+        ExternalIdBundle id = position.getSecurityLink().getExternalId();
+        if (position.getSecurityLink().getTarget() != null) {
+          Security target = position.getSecurityLink().getTarget();
+          if (target.getSecurityType().equals(EquityOptionSecurity.SECURITY_TYPE)) {
+            EquityOptionSecurity equityOption = (EquityOptionSecurity) target;
+            id = equityOption.getUnderlyingId().toBundle();
+          }
+        } else {
+          s_logger.warn("Position security is null");
+        }
+        Pair<LocalDate, Double> results = _htsSource.getLatestDataPoint(FIELD, id, RESOLUTION_KEY);
+        if (results != null && results.getFirst() != null && results.getSecond() != null) {
+          Double beta = results.getSecond();
           if (beta < 0.5) {
             return LESS_THAN_0_5;
           } else if (beta < 0.75) {
@@ -86,6 +108,10 @@ public class EquityBetaAggregationFunction implements AggregationFunction<String
 
   @Override
   public Collection<String> getRequiredEntries() {
-    return Arrays.asList(LESS_THAN_0_5, FROM_0_5_TO_0_75, FROM_0_75_TO_0_9, FROM_0_9_TO_1_25, MORE_THAN_1_25, NO_BETA);
+    if (_includeEmptyCategories) {
+      return Arrays.asList(LESS_THAN_0_5, FROM_0_5_TO_0_75, FROM_0_75_TO_0_9, FROM_0_9_TO_1_25, MORE_THAN_1_25, NO_BETA);
+    } else {
+      return Collections.emptyList();
+    }
   }
 }
