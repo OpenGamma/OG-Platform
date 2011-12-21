@@ -16,8 +16,10 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.ext.Providers;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -93,10 +95,11 @@ public class DataHistoricalDataPointsResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   @GET
-  public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo, @QueryParam("filter") HistoricalTimeSeriesGetFilter filter) {
+  public Response get(@Context Providers providers, @QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo, @QueryParam("filter") String filterBase64) {
     Instant v = (versionAsOf != null ? DateUtils.parseInstant(versionAsOf) : null);
     Instant c = (correctedTo != null ? DateUtils.parseInstant(correctedTo) : null);
     VersionCorrection vc = VersionCorrection.of(v, c);
+    HistoricalTimeSeriesGetFilter filter = decodeBean(HistoricalTimeSeriesGetFilter.class, providers, filterBase64);
     if (filter != null) {
       ManageableHistoricalTimeSeries result = getHistoricalTimeSeriesMaster().getTimeSeries(getUrlDataPointsId(), vc, filter);
       return Response.ok(result).build();
@@ -136,7 +139,8 @@ public class DataHistoricalDataPointsResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   @GET
   @Path("versions/{versionId}")
-  public Response getVersioned(@PathParam("versionId") String versionId, @QueryParam("filter") HistoricalTimeSeriesGetFilter filter) {
+  public Response getVersioned(@Context Providers providers, @PathParam("versionId") String versionId, @QueryParam("filter") String filterBase64) {
+    HistoricalTimeSeriesGetFilter filter = decodeBean(HistoricalTimeSeriesGetFilter.class, providers, filterBase64);
     if (filter != null) {
       ManageableHistoricalTimeSeries result = getHistoricalTimeSeriesMaster().getTimeSeries(getUrlDataPointsId().atVersion(versionId), filter);
       return Response.ok(result).build();
