@@ -283,7 +283,7 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
       return Collections.emptySet();
     }
     final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(underlyingResults.size());
-    for (ComputedValue underlyingResult : results) {
+    for (ComputedValue underlyingResult : underlyingResults) {
       final ValueSpecification resultSpec = underlyingResult.getSpecification();
       final ValueProperties.Builder properties = resultSpec.getProperties().copy();
       properties.with(ValuePropertyNames.AGGREGATION, getAggregationStyleMissing());
