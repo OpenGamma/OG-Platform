@@ -43,19 +43,6 @@
     <property name="dialectName" value="${opengamma.financial.db.dbdialect}"/>
   </bean>
   
-  <bean id="htsDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-    <property name="driverClassName" value="${opengamma.hts.jdbc.driver}" />
-    <property name="url" value="${opengamma.hts.jdbc.url}" />
-    <property name="username" value="${opengamma.hts.jdbc.username}" />
-    <property name="password" value="${opengamma.hts.jdbc.password}" />
-  </bean>
-  
-  <bean id="htsDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean">
-    <property name="name" value="TimeSeries"/>
-    <property name="dataSource" ref="htsDataSource"/>
-    <property name="dialectName" value="${opengamma.hts.db.dbdialect}"/>
-  </bean>
-  
   <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     <property name="shared" value="true"/>
   </bean>
