@@ -25,7 +25,7 @@ import com.opengamma.id.UniqueId;
  * Unit test for InMemoryConventionBundleMaster.
  */
 public class InMemoryConventionBundleMasterTest {
-  private static final int OFFSET = 571;
+  private static final int OFFSET = 572;
 
   @Test
   public void testRepository() {
