@@ -38,7 +38,7 @@ public class WebPortfolioNodesResource extends AbstractWebPortfolioResource {
     PortfolioDocument portfolioDoc = data().getPortfolio();
     Stack<ManageablePortfolioNode> nodes = portfolioDoc.getPortfolio().getRootNode().findNodeStackByObjectId(oid);
     if (nodes.isEmpty()) {
-      throw new DataNotFoundException("PortfoloNode not found: " + idStr);
+      throw new DataNotFoundException("PortfolioNode not found: " + idStr);
     }
     data().setNode(nodes.pop());
     if (nodes.size() > 0) {

@@ -5,6 +5,7 @@
  */
 package com.opengamma.master.marketdatasnapshot;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,10 @@ import com.opengamma.util.RegexUtils;
  */
 @PublicSPI
 @BeanDefinition
-public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
+public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest implements Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The set of marketDataSnapshot object identifiers, null to not limit by marketDataSnapshot object identifiers.
@@ -46,7 +50,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
   @PropertyDefinition(set = "manual")
   private List<ObjectId> _snapshotIds;
   /**
-   * The marketDataSnapshot name, wildcards allowed, null to not match on name.
+   * The market data snapshot name, wildcards allowed, null to not match on name.
    */
   @PropertyDefinition
   private String _name;
@@ -205,7 +209,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the marketDataSnapshot name, wildcards allowed, null to not match on name.
+   * Gets the market data snapshot name, wildcards allowed, null to not match on name.
    * @return the value of the property
    */
   public String getName() {
@@ -213,7 +217,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
   }
 
   /**
-   * Sets the marketDataSnapshot name, wildcards allowed, null to not match on name.
+   * Sets the market data snapshot name, wildcards allowed, null to not match on name.
    * @param name  the new value of the property
    */
   public void setName(String name) {

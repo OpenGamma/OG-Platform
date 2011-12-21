@@ -201,7 +201,7 @@
   </bean>
   
   <!-- Portfolios RESTful service -->
-  <bean id="dataPortfoliosRestBean" class="com.opengamma.financial.portfolio.rest.DataPortfoliosResource">
+  <bean id="dataPortfoliosRestBean" class="com.opengamma.master.portfolio.impl.DataPortfoliosResource">
     <constructor-arg ref="dbPortfolioMaster" />
   </bean>
   <bean id="webPortfoliosRestBean" class="com.opengamma.web.portfolio.WebPortfoliosResource" scope="request">
@@ -210,7 +210,7 @@
   </bean>
 
   <!-- Positions RESTful service -->
-  <bean id="dataPositionsRestBean" class="com.opengamma.financial.position.rest.DataPositionsResource">
+  <bean id="dataPositionsRestBean" class="com.opengamma.master.position.impl.DataPositionsResource">
     <constructor-arg ref="dbPositionMaster" />
   </bean>
   <bean id="webPositionsRestBean" class="com.opengamma.web.position.WebPositionsResource" scope="request">
