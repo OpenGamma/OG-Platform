@@ -31,7 +31,7 @@ $.register_module({
             page_name = module.name.split('.').pop(),
             filter_rule_str = '/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
             check_state = og.views.common.state.check.partial('/' + page_name),
-            timeseries,
+            view,
             toolbar_buttons = {
                 'new': function () {
                     ui.dialog({
@@ -60,9 +60,9 @@ $.register_module({
                                 $(this).dialog('close');
                                 api.rest.timeseries.put({
                                     handler: function (result) {
-                                        var args = routes.current().args, rule = module.rules.load_timeseries;
+                                        var args = routes.current().args, rule = module.rules.load_item;
                                         if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                        timeseries.search(args);
+                                        view.search(args);
                                         if (result.meta.id)
                                             return routes.go(routes.hash(rule, args, {add: {id: result.meta.id}}));
                                         routes.go(routes.hash(module.rules.load, args));
@@ -100,7 +100,7 @@ $.register_module({
             },
             options = {
                 slickgrid: {
-                    'selector': '.OG-js-search', 'page_type': 'timeseries',
+                    'selector': '.OG-js-search', 'page_type': page_name,
                     'columns': [
                         {
                             id: 'data_source', toolTip: 'data source',
@@ -188,7 +188,7 @@ $.register_module({
                             }));
                             history.put({
                                 name: title + ' (' + json.template_data.data_field + ')',
-                                item: 'history.timeseries.recent',
+                                item: 'history.' + page_name + '.recent',
                                 value: routes.current().hash
                             });
                             // Initial html setup
@@ -236,16 +236,14 @@ $.register_module({
             load_filter: {
                 route: '/' + page_name + '/filter:/:id?' + filter_rule_str, method: module.name + '.load_filter'
             },
-            load_timeseries: {
-                route: '/' + page_name + '/:id' + filter_rule_str, method: module.name + '.load_' + page_name
-            }
+            load_item: {route: '/' + page_name + '/:id' + filter_rule_str, method: module.name + '.load_item'}
         };
-        return timeseries = {
+        return view = {
             load: function (args) {
                 layout = og.views.common.layout;
                 check_state({args: args, conditions: [
                     {new_page: function () {
-                        timeseries.search(args);
+                        view.search(args);
                         masthead.menu.set_tab(page_name);
                     }}
                 ]});
@@ -254,14 +252,14 @@ $.register_module({
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [
-                    {new_value: 'id', stop: true, method: function () {if (args.id) timeseries.load_timeseries(args);}},
-                    {new_page: function () {timeseries.load(args);}}
+                    {new_value: 'id', stop: true, method: function () {if (args.id) view.load_item(args);}},
+                    {new_page: function () {view.load(args);}}
                 ]});
                 search.filter(args);
             },
-            load_timeseries: function (args) {
-                check_state({args: args, conditions: [{new_page: timeseries.load}]});
-                timeseries.details(args);
+            load_item: function (args) {
+                check_state({args: args, conditions: [{new_page: view.load}]});
+                view.details(args);
             },
             search: function (args) {
                 if (!search) search = common.search_results.core();
