@@ -193,8 +193,8 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteMaster imple
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(series, "series");
     
-    URI uri = DataHistoricalDataPointsResource.uri(getBaseUri(), objectId);
-    return accessRemote(uri).put(UniqueId.class, series);
+    URI uri = DataHistoricalDataPointsResource.uriUpdates(getBaseUri(), objectId);
+    return accessRemote(uri).post(UniqueId.class, series);
   }
 
   @Override
@@ -202,13 +202,16 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteMaster imple
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(series, "series");
     
-    URI uri = DataHistoricalDataPointsResource.uriCorrection(getBaseUri(), objectId);
-    return accessRemote(uri).put(UniqueId.class, series);
+    URI uri = DataHistoricalDataPointsResource.uriCorrections(getBaseUri(), objectId);
+    return accessRemote(uri).post(UniqueId.class, series);
   }
 
   @Override
   public UniqueId removeTimeSeriesDataPoints(ObjectIdentifiable objectId, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
-    throw new UnsupportedOperationException();
+    ArgumentChecker.notNull(objectId, "objectId");
+    
+    URI uri = DataHistoricalDataPointsResource.uriRemovals(getBaseUri(), objectId, fromDateInclusive, toDateInclusive);
+    return accessRemote(uri).delete(UniqueId.class);
   }
 
 }

@@ -8,14 +8,18 @@ package com.opengamma.master.historicaltimeseries.impl;
 import java.net.URI;
 
 import javax.time.Instant;
+import javax.time.calendar.LocalDate;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+
+import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
@@ -102,18 +106,30 @@ public class DataHistoricalDataPointsResource extends AbstractDataResource {
     }
   }
 
-  @PUT
+  @POST
+  @Path("updates")
   @Consumes(FudgeRest.MEDIA)
-  public Response put(LocalDateDoubleTimeSeries newPoints) {
+  public Response postUpdates(LocalDateDoubleTimeSeries newPoints) {
     UniqueId result = getHistoricalTimeSeriesMaster().updateTimeSeriesDataPoints(getUrlDataPointsId(), newPoints);
     return Response.ok(result).build();
   }
 
-  @PUT
+  @POST
   @Path("corrections")
   @Consumes(FudgeRest.MEDIA)
-  public Response putCorrection(LocalDateDoubleTimeSeries newPoints) {
+  public Response postCorrections(LocalDateDoubleTimeSeries newPoints) {
     UniqueId result = getHistoricalTimeSeriesMaster().correctTimeSeriesDataPoints(getUrlDataPointsId(), newPoints);
+    return Response.ok(result).build();
+  }
+
+  @DELETE
+  @Path("removals/{startDate}/{endDate}")
+  @Consumes(FudgeRest.MEDIA)
+  public Response remove(@PathParam("startDate") String startDateStr, @PathParam("endDate") String endDateStr) {
+    LocalDate fromDateInclusive = (startDateStr != null ? LocalDate.parse(startDateStr) : null);
+    LocalDate toDateInclusive = (endDateStr != null ? LocalDate.parse(endDateStr) : null);
+    
+    UniqueId result = getHistoricalTimeSeriesMaster().removeTimeSeriesDataPoints(getUrlDataPointsId(), fromDateInclusive, toDateInclusive);
     return Response.ok(result).build();
   }
 
@@ -171,14 +187,14 @@ public class DataHistoricalDataPointsResource extends AbstractDataResource {
   }
 
   /**
-   * Builds a URI for the resource.
+   * Builds a URI for the corrections resource.
    * 
    * @param baseUri  the base URI, not null
    * @param objectId  the resource identifier, not null
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, ObjectIdentifiable objectId) {
-    UriBuilder b = UriBuilder.fromUri(baseUri).path("/dataPoints/{dpId}");
+  public static URI uriUpdates(URI baseUri, ObjectIdentifiable objectId) {
+    UriBuilder b = UriBuilder.fromUri(baseUri).path("/dataPoints/{dpId}/updates");
     return b.build(objectId.getObjectId());
   }
 
@@ -189,9 +205,23 @@ public class DataHistoricalDataPointsResource extends AbstractDataResource {
    * @param objectId  the resource identifier, not null
    * @return the URI, not null
    */
-  public static URI uriCorrection(URI baseUri, ObjectIdentifiable objectId) {
+  public static URI uriCorrections(URI baseUri, ObjectIdentifiable objectId) {
     UriBuilder b = UriBuilder.fromUri(baseUri).path("/dataPoints/{dpId}/corrections");
     return b.build(objectId.getObjectId());
+  }
+
+  /**
+   * Builds a URI for the corrections resource.
+   * 
+   * @param baseUri  the base URI, not null
+   * @param objectId  the resource identifier, not null
+   * @param fromDateInclusive  the start date, may be null
+   * @param toDateInclusive  the end date, may be null
+   * @return the URI, not null
+   */
+  public static URI uriRemovals(URI baseUri, ObjectIdentifiable objectId, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
+    UriBuilder b = UriBuilder.fromUri(baseUri).path("/dataPoints/{dpId}/removals/{startDate}/{endDate}");
+    return b.build(objectId.getObjectId(), ObjectUtils.toString(fromDateInclusive, ""), ObjectUtils.toString(toDateInclusive, ""));
   }
 
 }
