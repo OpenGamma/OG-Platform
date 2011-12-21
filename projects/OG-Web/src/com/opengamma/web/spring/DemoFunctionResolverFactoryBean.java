@@ -65,7 +65,7 @@ public class DemoFunctionResolverFactoryBean extends SingletonFactoryBean<Functi
         if (function instanceof BondPV01CurrencyCurveFunction) {
           return 5;
         }
-        if ((function instanceof FilteringSummingFunction) || (function instanceof MissingInputSummingFunction)) {
+        if (function instanceof FilteringSummingFunction) {
           // Anything that filters should be lower priority than a conventional summing operation that can apply
           // to all of its inputs
           return -1;
