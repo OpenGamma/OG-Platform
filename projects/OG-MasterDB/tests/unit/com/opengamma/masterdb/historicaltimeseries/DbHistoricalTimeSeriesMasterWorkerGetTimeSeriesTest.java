@@ -6,6 +6,7 @@
 package com.opengamma.masterdb.historicaltimeseries;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import javax.time.calendar.LocalDate;
 
@@ -84,12 +85,12 @@ public class DbHistoricalTimeSeriesMasterWorkerGetTimeSeriesTest extends Abstrac
     assertEquals(0, timeSeries.size());
   }
 
-  @Test(expectedExceptions = DataNotFoundException.class)
+  @Test
   public void test_get_UID_101_removed() {
     UniqueId uniqueId = UniqueId.of("DbHts", "101");
-    _htsMaster.remove(uniqueId);
-    
-    _htsMaster.getTimeSeries(UniqueId.of("DbHts", "DP101"));
+    _htsMaster.remove(uniqueId);   
+    // the data-points should still be there after deleting the time series itself
+    assertNotNull(_htsMaster.getTimeSeries(UniqueId.of("DbHts", "DP101")));
   }
 
   //-------------------------------------------------------------------------

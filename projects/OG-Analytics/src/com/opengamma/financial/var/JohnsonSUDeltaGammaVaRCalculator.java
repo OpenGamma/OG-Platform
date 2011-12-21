@@ -13,41 +13,24 @@ import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
-import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  * @param <T> The type of the data
  */
-public class JohnsonSUDeltaGammaVaRCalculator<T> implements Function<T, Double> {
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
+public class JohnsonSUDeltaGammaVaRCalculator<T> implements VaRCalculator<NormalVaRParameters, T> {
   private static final RealSingleRootFinder ROOT_FINDER = new BisectionSingleRootFinder();
-  private final double _z;
   private final Function<T, Double> _meanCalculator;
   private final Function<T, Double> _stdCalculator;
   private final Function<T, Double> _skewCalculator;
   private final Function<T, Double> _kurtosisCalculator;
-  private final double _horizon;
-  private final double _periods;
-  private final double _quantile;
 
-  public JohnsonSUDeltaGammaVaRCalculator(final double horizon, final double periods, final double quantile, final Function<T, Double> meanCalculator, final Function<T, Double> stdCalculator,
+  public JohnsonSUDeltaGammaVaRCalculator(final Function<T, Double> meanCalculator, final Function<T, Double> stdCalculator,
       final Function<T, Double> skewCalculator, final Function<T, Double> kurtosisCalculator) {
-    Validate.isTrue(horizon > 0, "horizon");
-    Validate.isTrue(periods > 0, "periods");
-    if (!ArgumentChecker.isInRangeInclusive(0, 1, quantile)) {
-      throw new IllegalArgumentException("Quantile must be between 0 and 1");
-    }
     Validate.notNull(meanCalculator, "mean calculator");
     Validate.notNull(stdCalculator, "standard deviation calculator");
     Validate.notNull(skewCalculator, "skew calculator");
     Validate.notNull(kurtosisCalculator, "kurtosis calculator");
-    _z = NORMAL.getInverseCDF(quantile);
-    _horizon = horizon;
-    _periods = periods;
-    _quantile = quantile;
     _meanCalculator = meanCalculator;
     _stdCalculator = stdCalculator;
     _skewCalculator = skewCalculator;
@@ -70,32 +53,22 @@ public class JohnsonSUDeltaGammaVaRCalculator<T> implements Function<T, Double> 
     return _kurtosisCalculator;
   }
 
-  public double getHorizon() {
-    return _horizon;
-  }
-
-  public double getPeriods() {
-    return _periods;
-  }
-
-  public double getQuantile() {
-    return _quantile;
-  }
-
   @Override
-  public Double evaluate(final T... data) {
+  public Double evaluate(final NormalVaRParameters parameters, final T... data) {
+    Validate.notNull(parameters, "parameters");
     Validate.notNull(data, "data");
     // TODO if skewness is positive then need to fit to -x and take from upper tail of distribution
     final double k = _kurtosisCalculator.evaluate(data);
     if (k < 0) {
       throw new IllegalArgumentException("Johnson SU distribution cannot be used for data with negative excess kurtosis");
     }
+    final double mult = parameters.getTimeScaling();
+    final double z = parameters.getZ();
     final double t = _skewCalculator.evaluate(data);
-    final double scale = _horizon / _periods;
-    final double mu = _meanCalculator.evaluate(data) * scale;
-    final double sigma = _stdCalculator.evaluate(data) * Math.sqrt(scale);
+    final double mu = _meanCalculator.evaluate(data) * mult * mult;
+    final double sigma = _stdCalculator.evaluate(data) * mult;
     if (t == 0 && k == 0) {
-      return _z * sigma - mu;
+      return z * sigma - mu;
     }
     final double wUpper = Math.sqrt(Math.sqrt(2 * (k + 2)) - 1);
     final double wLower = Math.max(getW0(t), getW1(k + 3));
@@ -117,7 +90,7 @@ public class JohnsonSUDeltaGammaVaRCalculator<T> implements Function<T, Double> 
     final double gamma = omega / u;
     final double lambda = sigma / (w - 1) * Math.sqrt(2 * m / (w + 1));
     final double ksi = mu - sign * sigma * Math.sqrt(w - 1 - m) / (w - 1);
-    return -lambda * Math.sinh((-_z - gamma) / delta) - ksi;
+    return -lambda * Math.sinh((-z - gamma) / delta) - ksi;
   }
 
   private double getW0(final double t) {
@@ -151,15 +124,8 @@ public class JohnsonSUDeltaGammaVaRCalculator<T> implements Function<T, Double> 
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    long temp;
-    temp = Double.doubleToLongBits(_horizon);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + _kurtosisCalculator.hashCode();
     result = prime * result + _meanCalculator.hashCode();
-    temp = Double.doubleToLongBits(_periods);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_quantile);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + _skewCalculator.hashCode();
     result = prime * result + _stdCalculator.hashCode();
     return result;
@@ -177,15 +143,6 @@ public class JohnsonSUDeltaGammaVaRCalculator<T> implements Function<T, Double> 
       return false;
     }
     final JohnsonSUDeltaGammaVaRCalculator<?> other = (JohnsonSUDeltaGammaVaRCalculator<?>) obj;
-    if (Double.doubleToLongBits(_horizon) != Double.doubleToLongBits(other._horizon)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_periods) != Double.doubleToLongBits(other._periods)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_quantile) != Double.doubleToLongBits(other._quantile)) {
-      return false;
-    }
     if (!ObjectUtils.equals(_kurtosisCalculator, other._kurtosisCalculator)) {
       return false;
     }

@@ -224,14 +224,14 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
     return search.getFirstSecurity();
   }
 
-  private Map<String, Double> getBondFutureBasket(ManageableSecurity security) {
-    Map<String, Double> result = new TreeMap<String, Double>();
+  private Map<String, String> getBondFutureBasket(ManageableSecurity security) {
+    Map<String, String> result = new TreeMap<String, String>();
     if (security instanceof BondFutureSecurity) {
       BondFutureSecurity bondFutureSecurity = (BondFutureSecurity) security;
       List<BondFutureDeliverable> basket = bondFutureSecurity.getBasket();
       for (BondFutureDeliverable bondFutureDeliverable : basket) {
         String identifierValue = bondFutureDeliverable.getIdentifiers().getValue(SecurityUtils.BLOOMBERG_BUID);
-        result.put("BLOOMBERG BUID - " + identifierValue, bondFutureDeliverable.getConversionFactor());
+        result.put(SecurityUtils.BLOOMBERG_BUID.getName() + "-" + identifierValue, String.valueOf(bondFutureDeliverable.getConversionFactor()));
       }
     }
     return result;

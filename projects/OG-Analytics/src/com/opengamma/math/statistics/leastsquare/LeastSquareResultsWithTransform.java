@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.statistics.leastsquare;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.MatrixAlgebra;
@@ -23,8 +25,16 @@ public class LeastSquareResultsWithTransform extends LeastSquareResults {
   private final DoubleMatrix1D _modelParamters;
   private DoubleMatrix2D _inverseJacobianModelPararms;
 
+  public LeastSquareResultsWithTransform(final LeastSquareResults transformedFitResult) {
+    super(transformedFitResult);
+    _transform = null;
+    _modelParamters = transformedFitResult.getFitParameters();
+    _inverseJacobianModelPararms = getFittingParameterSensitivityToData();
+  }
+
   public LeastSquareResultsWithTransform(final LeastSquareResults transformedFitResult, final NonLinearParameterTransforms transform) {
     super(transformedFitResult);
+    Validate.notNull(transform, "null transform");
     _transform = transform;
     _modelParamters = transform.inverseTransform(getFitParameters());
   }

@@ -392,29 +392,11 @@
 -- ==========================================================================
 -- DECISION: time-series data points table has no primary key
 -- to have one would have more downsides than upsides
-
--- select document to handle empty series and to check/use first doc instants
-@NAME(SelectDataPointsCommon)
-  SELECT
-    main.ver_from_instant AS ver_from_instant,
-    main.corr_from_instant AS corr_from_instant,
-    common.*
-  FROM
-    hts_document main
-    LEFT JOIN ( @INCLUDE(SelectDataPointsCommonInner) ) common ON main.oid = common.doc_oid
-  WHERE main.oid = :doc_oid
-    AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant
-    AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant
-
-
--- ==========================================================================
-@NAME(SelectDataPointsCommonInner)
+@NAME(SelectDataPointsVersion)
   SELECT
     doc_oid,
     MAX(ver_instant) AS max_ver_instant,
     MAX(corr_instant) AS max_corr_instant
---    MAX(point_date) AS max_point_date,
---    MIN(point_date) AS min_point_date
   FROM
     hts_point
   WHERE doc_oid = :doc_oid
@@ -423,6 +405,19 @@
   GROUP BY
     doc_oid
 
+-- ==========================================================================
+@NAME(SelectExistential)
+  SELECT
+    oid,
+    ver_from_instant AS max_ver_instant,
+    corr_from_instant AS max_corr_instant
+  FROM
+    hts_document
+  WHERE oid = :doc_oid
+    AND ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
+    AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant     
+  ORDER BY ver_from_instant DESC, corr_from_instant DESC
+   
 
 -- ==========================================================================
 @NAME(SelectDataPoints)
@@ -455,52 +450,6 @@
       @OFFSETFETCH
     ) AS points
   ORDER BY point_date ASC
-
--- ==========================================================================
-@NAME(SelectEarliestDataPoint)
-  SELECT
-    doc_oid,
-    point_date,
-    point_value
-  FROM
-    hts_point
-  WHERE point_date =
-    (
-      SELECT min(point_date)
-      FROM hts_point
-      WHERE doc_oid = :doc_oid
-        AND ver_instant <= :version_as_of_instant AND corr_instant <= :corrected_to_instant
-    )
-    AND doc_oid=:doc_oid
-    AND ver_instant <= :version_as_of_instant
-    AND corr_instant <= :corrected_to_instant
-  ORDER BY
-    ver_instant DESC,
-    corr_instant DESC
-
-
--- ==========================================================================
-@NAME(SelectLatestDataPoint)
-  SELECT
-    doc_oid,
-    point_date,
-    point_value
-  FROM
-    hts_point
-  WHERE point_date =
-    (
-      SELECT max(point_date)
-      FROM hts_point
-      WHERE doc_oid = :doc_oid
-        AND ver_instant <= :version_as_of_instant AND corr_instant <= :corrected_to_instant
-    )
-    AND doc_oid=:doc_oid
-    AND ver_instant <= :version_as_of_instant
-    AND corr_instant <= :corrected_to_instant
-  ORDER BY
-    ver_instant DESC,
-    corr_instant DESC
-
 
 -- ==========================================================================
 @NAME(SelectMaxPointDate)

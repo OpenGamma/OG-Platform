@@ -107,7 +107,6 @@ public class YieldCurveNodeSensitivityPnLFunction extends AbstractFunction.NonCo
       throw new OpenGammaRuntimeException("Could not get sensitivities for " + forwardCurveName);
     }
     final DoubleLabelledMatrix1D forwardCurveSensitivities = (DoubleLabelledMatrix1D) forwardCurveSensitivitiesObject;
-    final ValueRequirement temp = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, position, fundingCurveProperties);
     final Object fundingCurveSensitivitiesObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, position, fundingCurveProperties));
     if (fundingCurveSensitivitiesObject == null) {
       throw new OpenGammaRuntimeException("Could not get sensitivities for " + fundingCurveName);

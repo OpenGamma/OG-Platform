@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,6 +36,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Implementation of {@link AvailableOutputs} that scans a function repository to give possible outputs available on a portfolio.
@@ -128,8 +131,54 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
       private final FunctionCompilationContext _context = functionRepository.getCompilationContext();
       private final Map<ComputationTarget, Map<CompiledFunctionDefinition, Set<ValueSpecification>>> _resultsCache =
           new HashMap<ComputationTarget, Map<CompiledFunctionDefinition, Set<ValueSpecification>>>();
+      private final Map<ValueRequirement, List<Pair<List<ValueRequirement>, Set<ValueSpecification>>>> _resolutionCache =
+          new HashMap<ValueRequirement, List<Pair<List<ValueRequirement>, Set<ValueSpecification>>>>();
 
-      private Set<ValueSpecification> satisfyRequirement(final Set<CompiledFunctionDefinition> visited, final ComputationTarget target, final ValueRequirement requirement) {
+      private Set<ValueSpecification> getCachedResult(final Set<ValueRequirement> visited, final ValueRequirement requirement) {
+        final List<Pair<List<ValueRequirement>, Set<ValueSpecification>>> entries = _resolutionCache.get(requirement);
+        if (entries == null) {
+          return null;
+        }
+        for (Pair<List<ValueRequirement>, Set<ValueSpecification>> entry : entries) {
+          boolean subset = true;
+          for (ValueRequirement entryKey : entry.getKey()) {
+            if (!visited.contains(entryKey)) {
+              subset = false;
+              break;
+            }
+          }
+          if (subset) {
+            //s_logger.debug("Cache hit on {}", requirement);
+            //s_logger.debug("Cached parent = {}", entry.getKey());
+            //s_logger.debug("Active parent = {}", visited);
+            return entry.getValue();
+          }
+        }
+        return null;
+      }
+
+      @SuppressWarnings("unchecked")
+      private void setCachedResult(final Set<ValueRequirement> visited, final ValueRequirement requirement, final Set<ValueSpecification> results) {
+        s_logger.debug("Caching result for {} on {}", requirement, visited);
+        List<Pair<List<ValueRequirement>, Set<ValueSpecification>>> entries = _resolutionCache.get(requirement);
+        if (entries == null) {
+          entries = new LinkedList<Pair<List<ValueRequirement>, Set<ValueSpecification>>>();
+          _resolutionCache.put(requirement, entries);
+        }
+        entries.add((Pair<List<ValueRequirement>, Set<ValueSpecification>>) (Pair<?, ?>) Pair.of(new ArrayList<ValueRequirement>(visited), (results != null) ? results : Collections.emptySet()));
+      }
+
+      private Set<ValueSpecification> satisfyRequirement(final Set<ValueRequirement> visited, final ComputationTarget target, final ValueRequirement requirement) {
+        Set<ValueSpecification> allResults = getCachedResult(visited, requirement);
+        if (allResults != null) {
+          if (allResults.isEmpty()) {
+            s_logger.debug("Cache failure hit on {}", requirement);
+            return null;
+          } else {
+            s_logger.debug("Cache result hit on {}", requirement);
+            return allResults;
+          }
+        }
         Map<CompiledFunctionDefinition, Set<ValueSpecification>> functionResults = _resultsCache.get(target);
         if (functionResults == null) {
           functionResults = new HashMap<CompiledFunctionDefinition, Set<ValueSpecification>>();
@@ -148,28 +197,30 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
           }
           _resultsCache.put(target, functionResults);
         }
-        Set<ValueSpecification> allResults = null;
+        if (!visited.add(requirement)) {
+          // This shouldn't happen
+          throw new IllegalStateException();
+        }
         for (Map.Entry<CompiledFunctionDefinition, Set<ValueSpecification>> functionResult : functionResults.entrySet()) {
           final CompiledFunctionDefinition function = functionResult.getKey();
-          if (visited.add(function)) {
-            for (ValueSpecification result : functionResult.getValue()) {
-              if (requirement.isSatisfiedBy(result)) {
-                final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visited, function, target, requirement, result.compose(requirement));
-                if (resolved != null) {
-                  if (allResults == null) {
-                    allResults = new HashSet<ValueSpecification>();
-                  }
-                  allResults.addAll(resolved);
+          for (ValueSpecification result : functionResult.getValue()) {
+            if (requirement.isSatisfiedBy(result)) {
+              final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visited, function, target, requirement, result.compose(requirement));
+              if (resolved != null) {
+                if (allResults == null) {
+                  allResults = new HashSet<ValueSpecification>();
                 }
+                allResults.addAll(resolved);
               }
             }
-            visited.remove(function);
           }
         }
+        visited.remove(requirement);
+        setCachedResult(visited, requirement, allResults);
         return allResults;
       }
 
-      private Set<ValueSpecification> resultWithSatisfiedRequirements(final Set<CompiledFunctionDefinition> visited, final CompiledFunctionDefinition function,
+      private Set<ValueSpecification> resultWithSatisfiedRequirements(final Set<ValueRequirement> visited, final CompiledFunctionDefinition function,
           final ComputationTarget target, final ValueRequirement requiredOutputValue, final ValueSpecification resolvedOutputValue) {
         final Set<ValueRequirement> requirements = function.getRequirements(_context, target, requiredOutputValue);
         if (requirements == null) {
@@ -177,6 +228,11 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
         }
         if (requirements.isEmpty()) {
           return Collections.singleton(resolvedOutputValue);
+        }
+        for (ValueRequirement requirement : requirements) {
+          if (visited.contains(requirement)) {
+            return null;
+          }
         }
         final Map<Iterator<ValueSpecification>, ValueRequirement> inputs = new HashMap<Iterator<ValueSpecification>, ValueRequirement>();
         for (ValueRequirement requirement : requirements) {
@@ -191,9 +247,12 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
                 final Set<ValueSpecification> satisfied = satisfyRequirement(visited, new ComputationTarget(requirementTarget), requirement);
                 if (satisfied == null) {
                   s_logger.debug("Can't satisfy {} for function {}", requirement, function);
-                  return null;
+                  if (!function.canHandleMissingRequirements()) {
+                    return null;
+                  }
+                } else {
+                  inputs.put(satisfied.iterator(), requirement);
                 }
-                inputs.put(satisfied.iterator(), requirement);
               } else {
                 s_logger.debug("No target cached for {}, assuming ok", targetSpec);
                 inputs.put(new SingleItem<ValueSpecification>(new ValueSpecification(requirement, "")), requirement);
@@ -251,19 +310,22 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
           return;
         }
         final ComputationTarget target = new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, portfolioNode);
-        final Set<CompiledFunctionDefinition> visitedFunctions = new HashSet<CompiledFunctionDefinition>();
+        final Set<ValueRequirement> visitedRequirements = new HashSet<ValueRequirement>();
         for (CompiledFunctionDefinition function : functions) {
           try {
             if ((function.getTargetType() == ComputationTargetType.PORTFOLIO_NODE) && function.canApplyTo(_context, target)) {
               final Set<ValueSpecification> results = function.getResults(_context, target);
               for (ValueSpecification result : results) {
-                visitedFunctions.clear();
-                final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visitedFunctions, function, target, new ValueRequirement(result.getValueName(), result
+                visitedRequirements.clear();
+                final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visitedRequirements, function, target, new ValueRequirement(result.getValueName(), result
                     .getTargetSpecification()), result);
                 if (resolved != null) {
+                  s_logger.info("Resolved {} on {}", result.getValueName(), portfolioNode);
                   for (ValueSpecification resolvedItem : resolved) {
                     portfolioNodeOutput(resolvedItem.getValueName(), resolvedItem.getProperties());
                   }
+                } else {
+                  s_logger.info("Did not resolve {} on {}", result.getValueName(), portfolioNode);
                 }
               }
             }
@@ -277,19 +339,22 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
       @Override
       public void preOrderOperation(final Position position) {
         final ComputationTarget target = new ComputationTarget(ComputationTargetType.POSITION, position);
-        final Set<CompiledFunctionDefinition> visitedFunctions = new HashSet<CompiledFunctionDefinition>();
+        final Set<ValueRequirement> visitedRequirements = new HashSet<ValueRequirement>();
         for (CompiledFunctionDefinition function : functions) {
           try {
             if ((function.getTargetType() == ComputationTargetType.POSITION) && function.canApplyTo(_context, target)) {
               final Set<ValueSpecification> results = function.getResults(_context, target);
               for (ValueSpecification result : results) {
-                visitedFunctions.clear();
-                final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visitedFunctions, function, target, new ValueRequirement(result.getValueName(), result
+                visitedRequirements.clear();
+                final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visitedRequirements, function, target, new ValueRequirement(result.getValueName(), result
                     .getTargetSpecification()), result);
                 if (resolved != null) {
+                  s_logger.info("Resolved {} on {}", result.getValueName(), position);
                   for (ValueSpecification resolvedItem : resolved) {
                     positionOutput(resolvedItem.getValueName(), position.getSecurity().getSecurityType(), resolvedItem.getProperties());
                   }
+                } else {
+                  s_logger.info("Did not resolve {} on {}", result.getValueName(), position);
                 }
               }
             }

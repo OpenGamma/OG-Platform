@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.finitedifference;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.Validate;
 
 /**
@@ -142,6 +144,22 @@ public class PDEGrid1D {
     return _dx[i];
   }
 
+  public double[] getTimeNodes() {
+    return _tNodes;
+  }
+
+  public double[] getSpaceNodes() {
+    return _xNodes;
+  }
+
+  public int getLowerBoundIndexForTime(final double time) {
+    return getLowerBoundIndex(_tNodes, time);
+  }
+
+  public int getLowerBoundIndexForSpace(final double space) {
+    return getLowerBoundIndex(_xNodes, space);
+  }
+
   public double[] getFirstDerivativeCoefficients(final int i) {
     Validate.isTrue(i > 0 && i < _nSpaceNodes - 1, "Can't take central difference at first or last node. Use Forward or backwards");
     return _x1st[i - 1];
@@ -174,6 +192,27 @@ public class PDEGrid1D {
     }
     timeGrid[2 * (_tNodes.length - 1)] = _tNodes[_tNodes.length - 1];
     return new PDEGrid1D(timeGrid, _xNodes);
+  }
+
+  private int getLowerBoundIndex(final double[] array, final double t) {
+    final int n = array.length;
+    if (t < array[0]) {
+      return 0;
+    }
+    if (t > array[n - 1]) {
+      return n - 1;
+    }
+
+    int index = Arrays.binarySearch(array, t);
+    if (index >= 0) {
+      // Fast break out if it's an exact match.
+      return index;
+    }
+    if (index < 0) {
+      index = -(index + 1);
+      index--;
+    }
+    return index;
   }
 
 }

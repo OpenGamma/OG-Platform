@@ -50,7 +50,7 @@ public class SABRModelFitter2Test extends SmileModelFitterTest<SABRFormulaData> 
 
   @Override
   double[][] getStartValues() {
-    return new double[][] { {0.1, 0.7, 0.0, 0.3 }, {0.01, 1.2, 0.9, 0.4 }, {0.01, 0.5, -0.7, 0.6 } };
+    return new double[][] { {0.1, 0.7, 0.0, 0.3 }, {0.01, 0.95, 0.9, 0.4 }, {0.01, 0.5, -0.7, 0.6 } };
   }
 
   @Override

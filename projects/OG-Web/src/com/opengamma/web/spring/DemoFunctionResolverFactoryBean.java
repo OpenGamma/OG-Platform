@@ -11,7 +11,6 @@ import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionPriority;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
-import com.opengamma.financial.analytics.MissingInputSummingFunction;
 import com.opengamma.financial.analytics.model.bond.BondPV01CountryCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondPV01CurrencyCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondPresentValueCountryCurveFunction;

@@ -10,7 +10,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 // @export "classDefinition"
-public class OpenGammaExample {
+public class OpenGammaExampleClass {
 
     // @export "runMethod"
     public static void runMethod(Method method, PrintStream out, ByteArrayOutputStream byteStream, JSONObject outputStreams) throws Exception {

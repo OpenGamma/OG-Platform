@@ -11,7 +11,7 @@ $.register_module({
             <thead>\
               <tr>\
                 <th><span>Trades</span></th>\
-                <th>Quality</th>\
+                <th>Quantity</th>\
                 <th>Counterparty</th>\
                 <th>Trade Date / Time</th>\
                 <th>Premium</th>\
@@ -87,7 +87,7 @@ $.register_module({
                     handler(result);
                 },
                 id: config.id,
-                cache_for: 10000,
+                cache_for: 500,
                 loading: function () {}
             });
         }
