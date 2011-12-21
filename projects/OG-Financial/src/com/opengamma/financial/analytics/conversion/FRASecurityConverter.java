@@ -46,7 +46,7 @@ public class FRASecurityConverter implements FRASecurityVisitor<InstrumentDefini
   public ForwardRateAgreementDefinition visitFRASecurity(final FRASecurity security) {
     Validate.notNull(security, "security");
     final Currency currency = security.getCurrency();
-    final ConventionBundle fraConvention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_FRA"));
+    final ConventionBundle fraConvention = _conventionSource.getConventionBundle(security.getUnderlyingId());
     if (fraConvention == null) {
       throw new OpenGammaRuntimeException("Could not get convention for " + security.getUnderlyingId());
     }
