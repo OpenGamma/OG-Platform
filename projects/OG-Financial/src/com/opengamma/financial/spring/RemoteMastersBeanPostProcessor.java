@@ -32,6 +32,8 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.RemoteConfigMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.impl.RemoteExchangeMaster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesMaster;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.impl.RemoteHolidayMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
@@ -68,6 +70,7 @@ public class RemoteMastersBeanPostProcessor extends DirectBean implements BeanFa
     _remoteWrappers.put(SecurityMaster.class, RemoteSecurityMaster.class);
     _remoteWrappers.put(PositionMaster.class, RemotePositionMaster.class);
     _remoteWrappers.put(PortfolioMaster.class, RemotePortfolioMaster.class);
+    _remoteWrappers.put(HistoricalTimeSeriesMaster.class, RemoteHistoricalTimeSeriesMaster.class);
   }
 
   /**

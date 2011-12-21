@@ -70,6 +70,7 @@
   <alias name="centralSecurityMaster" alias="dbSecurityMaster" />
   <alias name="centralPositionMaster" alias="dbPositionMaster" />
   <alias name="centralPortfolioMaster" alias="dbPortfolioMaster" />
+  <alias name="centralHistoricalTimeSeriesMaster" alias="dbHtsMaster" />
   
   <!-- Sources -->
   <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource">
@@ -94,6 +95,11 @@
     <property name="positionMaster" ref="dbPositionMaster" />
     <property name="cacheManager" ref="cacheManager" />
   </bean>
+  <bean id="sharedHistoricalTimeSeriesSource" class="com.opengamma.financial.spring.HistoricalTimeSeriesSourceFactoryBean">
+    <property name="historicalTimeSeriesMaster" ref="dbHtsMaster"/>
+    <property name="cacheManager" ref="cacheManager" />
+    <property name="configSource" ref="sharedConfigSource"/>
+  </bean>
 
   <!-- Config loaders, should be commented out most of the time -->
   <!-- bean class="com.opengamma.financial.spring.ConfigMasterPopulatorsFactoryBean">
@@ -110,17 +116,6 @@
   <!-- FunctionCostsMaster --> 
   <bean id="dbFunctionCostsMaster" class="com.opengamma.masterdb.spring.DbFunctionCostsMasterFactoryBean">
     <property name="dbConnector" ref="finDbConnector" />
-  </bean>
-
-  <!-- HistoricalTimeSeriesMaster -->
-  <bean id="dbHtsMaster" class="com.opengamma.masterdb.spring.DbHistoricalTimeSeriesMasterFactoryBean">
-    <property name="dbConnector" ref="htsDbConnector"/>
-    <property name="uniqueIdScheme" value="${opengamma.financial.db.htsmaster.scheme}" />
-  </bean>
-  <bean id="sharedHistoricalTimeSeriesSource" class="com.opengamma.financial.spring.HistoricalTimeSeriesSourceFactoryBean">
-    <property name="historicalTimeSeriesMaster" ref="dbHtsMaster"/>
-    <property name="cacheManager" ref="cacheManager" />
-    <property name="configSource" ref="sharedConfigSource"/>
   </bean>
 
   <!-- ================================================================== -->
