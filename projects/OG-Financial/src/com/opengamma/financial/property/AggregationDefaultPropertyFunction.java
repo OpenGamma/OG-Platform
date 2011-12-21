@@ -13,6 +13,7 @@ import java.util.Set;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 
 /**
@@ -22,13 +23,13 @@ public class AggregationDefaultPropertyFunction extends StaticDefaultPropertyFun
   
   private final Set<String> _styles;
 
-  public AggregationDefaultPropertyFunction(final String propertyName, final String valueName, final String style) {
-    super(ComputationTargetType.PORTFOLIO_NODE, propertyName, false, valueName);
+  public AggregationDefaultPropertyFunction(final String valueName, final String style) {
+    super(ComputationTargetType.PORTFOLIO_NODE, ValuePropertyNames.AGGREGATION, false, valueName);
     _styles = Collections.singleton(style);
   }
 
-  public AggregationDefaultPropertyFunction(final String propertyName, final String valueName, final String... styles) {
-    super(ComputationTargetType.PORTFOLIO_NODE, propertyName, false, valueName);
+  public AggregationDefaultPropertyFunction(final String valueName, final String... styles) {
+    super(ComputationTargetType.PORTFOLIO_NODE, ValuePropertyNames.AGGREGATION, false, valueName);
     _styles = new HashSet<String>(Arrays.asList(styles));
   }
 
