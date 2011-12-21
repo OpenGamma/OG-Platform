@@ -91,7 +91,7 @@ public class DataPortfolioNodeResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, UniqueId nodeId) {
-    return UriBuilder.fromUri(baseUri).path("/nodes/{nodeId}")
+    return UriBuilder.fromUri(baseUri).path("/prtMaster/nodes/{nodeId}")
       .build(nodeId);
   }
 

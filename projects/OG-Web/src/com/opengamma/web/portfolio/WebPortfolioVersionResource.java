@@ -5,15 +5,25 @@
  */
 package com.opengamma.web.portfolio;
 
+import java.net.URI;
+
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.joda.beans.impl.flexi.FlexiBean;
+
+import com.opengamma.id.UniqueId;
+import com.opengamma.master.portfolio.PortfolioDocument;
+import com.opengamma.master.position.PositionSearchRequest;
+import com.opengamma.master.position.PositionSearchResult;
 
 /**
  * RESTful resource for a version of a portfolio.
  */
 @Path("/portfolios/{portfolioId}/versions/{versionId}")
-@Produces(MediaType.TEXT_HTML)
 public class WebPortfolioVersionResource extends WebPortfolioResource {
 
   /**
@@ -23,4 +33,75 @@ public class WebPortfolioVersionResource extends WebPortfolioResource {
   public WebPortfolioVersionResource(final AbstractWebPortfolioResource parent) {
     super(parent);
   }
+    
+  //-------------------------------------------------------------------------
+  @GET
+  @Produces(MediaType.TEXT_HTML)
+  public String getHTML() {
+    FlexiBean out = createPortfolioData();
+    return getFreemarker().build("portfolios/portfolio.ftl", out);
+  }
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getJSON() {
+    FlexiBean out = createPortfolioData();
+    return Response.ok(getFreemarker().build("portfolios/jsonportfolio.ftl", out)).build();
+  }
+
+  private FlexiBean createPortfolioData() {
+    PortfolioDocument doc = data().getVersioned();
+    PositionSearchRequest positionSearch = new PositionSearchRequest();
+    positionSearch.setPositionObjectIds(doc.getPortfolio().getRootNode().getPositionIds());
+    PositionSearchResult positionsResult = data().getPositionMaster().search(positionSearch);
+    
+    FlexiBean out = createRootData();
+    out.put("positionsResult", positionsResult);
+    out.put("positions", positionsResult.getPositions());
+    return out;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates the output root data.
+   * @return the output root data, not null
+   */
+  protected FlexiBean createRootData() {
+    FlexiBean out = super.createRootData();
+    PortfolioDocument doc = data().getVersioned();
+    out.put("portfolioDoc", doc);
+    out.put("portfolio", doc.getPortfolio());
+    out.put("childNodes", doc.getPortfolio().getRootNode().getChildNodes());
+    out.put("deleted", !doc.isLatest());
+    out.put("rootNode", doc.getPortfolio().getRootNode());
+    return out;
+  }
+
+  //-------------------------------------------------------------------------
+  @Path("nodes")
+  public WebPortfolioNodesResource findNodes() {
+    return new WebPortfolioVersionNodesResource(this);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Builds a URI for this resource.
+   * @param data  the data, not null
+   * @return the URI, not null
+   */
+  public static URI uri(final WebPortfoliosData data) {
+    return uri(data, null);
+  }
+
+  /**
+   * Builds a URI for this resource.
+   * @param data  the data, not null
+   * @param overridePortfolioId  the override portfolio id, null uses information from data
+   * @return the URI, not null
+   */
+  public static URI uri(final WebPortfoliosData data, final UniqueId overridePortfolioId) {
+    String portfolioId = data.getBestPortfolioUriId(overridePortfolioId);
+    return data.getUriInfo().getBaseUriBuilder().path(WebPortfolioResource.class).build(portfolioId);
+  }
+
 }

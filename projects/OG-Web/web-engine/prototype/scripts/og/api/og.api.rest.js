@@ -99,7 +99,8 @@ $.register_module({
                                 });
                             },
                             success: function (data, status, xhr) {
-                                var meta = {}, location = xhr.getResponseHeader('Location'), result, cache_for;
+                                var meta = {content_length: xhr.responseText.length},
+                                    location = xhr.getResponseHeader('Location'), result, cache_for;
                                 delete outstanding_requests[id];
                                 if (location && ~!location.indexOf('?')) meta.id = location.split('/').pop();
                                 if (config.meta.type in no_post_body) meta.url = url;
@@ -322,7 +323,8 @@ $.register_module({
                     if (id_search) data.portfolioId = ids;
                     if (node_search) data.nodeId = nodes;
                     version = version ? [id, 'versions', version_search ? false : version].filter(Boolean) : id;
-                    if (id) method = method.concat(node ? [version, 'nodes', node] : version);
+                    if (id) method = method.concat(version);
+                    if (node) method.push('nodes', node);
                     return request(method, {data: data, meta: meta});
                 },
                 put: function (config) {

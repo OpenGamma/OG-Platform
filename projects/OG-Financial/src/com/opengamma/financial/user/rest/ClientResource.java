@@ -15,8 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.analytics.ircurve.rest.InterpolatedYieldCurveDefinitionMasterResource;
 import com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotMasterResource;
-import com.opengamma.financial.portfolio.rest.DataPortfoliosResource;
-import com.opengamma.financial.position.rest.DataPositionsResource;
 import com.opengamma.financial.security.rest.SecurityMasterResource;
 import com.opengamma.financial.user.UserInterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.user.UserManageableViewDefinitionRepository;
@@ -25,6 +23,8 @@ import com.opengamma.financial.user.UserPositionMaster;
 import com.opengamma.financial.user.UserSecurityMaster;
 import com.opengamma.financial.user.UserSnapshotMaster;
 import com.opengamma.financial.view.rest.DataManageableViewDefinitionRepositoryResource;
+import com.opengamma.master.portfolio.impl.DataPortfoliosResource;
+import com.opengamma.master.position.impl.DataPositionsResource;
 
 /**
  * RESTful resource representing a user's client session.

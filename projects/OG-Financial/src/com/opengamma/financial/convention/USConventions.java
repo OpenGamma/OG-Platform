@@ -222,6 +222,9 @@ public class USConventions {
         thirty360, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD FF EFFECTIVE"), usgb);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_OIS_CASH")), "USD_OIS_CASH", thirty360, modified, annual, 2, usgb,
         thirty360, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD FF EFFECTIVE"), usgb);
+    conventionMaster.addConventionBundle(
+        ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_FRA")), "USD_FRA", act360,
+        following, Period.ofMonths(3), 2, false, null);
 
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_TENOR_SWAP")), "USD_TENOR_SWAP", act360, modified, quarterly, 2,
         ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD FF 3m"), usgb, act360, modified, quarterly, 2,

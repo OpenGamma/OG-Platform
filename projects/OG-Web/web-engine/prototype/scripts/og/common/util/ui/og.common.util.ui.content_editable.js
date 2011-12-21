@@ -7,96 +7,38 @@ $.register_module({
     name: 'og.common.util.ui.content_editable',
     dependencies: ['og.common.util.ui', 'og.common.routes', 'og.api.rest'],
     obj: function () {
-        var html, editing = false, routes = og.common.routes, ui = og.common.util.ui, api = og.api.rest,
-            css_edit = {'background-color': '#fffee5'}, css_not_edit = {'background-color': 'transparent'};
-        html = '<div class="og-js-buttons OG-shadow OG-rounded" style="'
-             + '        position: absolute; padding: 0; background-color: #eee; border: 1px solid #fff">'
-             + '  <div style="white-space: nowrap; display: inline-block; margin: 3px;">'
-             + '    <button class="OG-small-button og-button-primary og-js-update">update</button>'
-             + '    <button class="OG-small-button og-button-secondary og-js-cancel">cancel</button>'
-             + '    <span class="og-js-msg" style="font-size: 12px;"></span>'
-             + '  </div>'
-             + '</div>'
-             + '<input type="text" />';
-
+        var ui = og.common.util.ui;
         return function (config) {
-            var attr = config.attribute, handler = config.handler, $attr = $('[' + attr + ']');
-            if (typeof attr !== 'string') throw new TypeError(': config.attribute must be a string');
+            var attr = 'data-og-editable', $attr = $('[' + attr + ']'), rest_properties = {}, handler = config.handler,
+                css_edit = {'background-color': '#fffee5'}, css_not_edit = {'background-color': 'transparent'};
             if (typeof handler !== 'function') throw new TypeError(': config.handler must be a function');
-            $attr.css({position: 'relative', 'z-index': '6'});
-            $attr.hover(function () {if (!editing) $(this).css(css_edit);}, function () {$(this).css(css_not_edit);});
-            $attr.click(function (e) {
-                var $this = $(this), $editable_element = $(e.target), cur_content = $this.text(),
-                    width = $this.css('width'), font_size = $this.css('font-size'),
-                    line_height = $this.css('line-height'),
-                    cancel_update = function (error_message) {
-                        $editable_element.html(cur_content);
-                        editing = false;
-                        if (error_message) ui.dialog({type: 'error', message: error_message});
-                    },
-                    update_field = function () {
-                        var current = routes.current(), put_config,
-                            new_content = $editable_element.find('input[type=text]').attr('value');
-                        if (!new_content) return;
-                        put_config = {
-                            handler: function (result) {
-                                if (result.error) return cancel_update(result.message);
-                                $('.og-js-msg').html('saved');
-                                ui.message({location: '.OG-details', message: 'saved', css: {'left': '7px'}});
-                                handler(e);
-                                setTimeout(function () {
-                                    $editable_element.html(new_content);
-                                    ui.message({location: '.OG-details', destroy: true});
-                                    editing = false;
-                                }, 250)
-                            },
-                            id: current.args.id,
-                            loading: function () {
-                                $('.og-js-msg').html('saving...');
-                                ui.message({location: '.OG-details', message: 'saving...', css: {'left': '7px'}});
-                            }
-                        };
-                        put_config[$editable_element.attr(attr)] = new_content;
-                        api[current.page.substring(1)].put(put_config);
-                };
-                /**
-                 * Setup input field fit content.
-                 * Format container box.
-                 */
-                if (!editing) {
-                    editing = true;
-                    $this.css(css_not_edit).html(html).find('input[type=text]').css({
-                            'width': parseInt(width) + 10 + 'px',
-                            'font-size': font_size,
-                            'line-height': line_height,
-                            'position': 'relative',
-                            'top': '5px',
-                            'left': '3px'
-                        }).val(cur_content).select();
-                    $($editable_element).find('.og-js-buttons').css({
-                        'top': '0',
-                        'left': '0',
-                        'min-width': parseInt(width) + 19 + 'px',
-                        'padding-top': parseInt(line_height) + 10 + 'px'
-                    });
-                }
-                $this.find('.og-js-update').click(function (e) {
-                    update_field();
-                    e.stopImmediatePropagation();
+            $attr.hover(function () {$(this).css(css_edit);}, function () {$(this).css(css_not_edit);});
+            $attr.die().live('click', function (e) {
+                e.preventDefault();
+                var target = e.target, value = $(target).html(), type = $(target).attr(attr);
+                // get any additional information from data attributes on the element (like node, id, quantity)
+                $.outer(target).split(' ').map(function (val) {
+                    if (/^data-og/.test(val))
+                        rest_properties[val.replace(/^data-og-(.+?)=.+$/, '$1')] = val.replace(/^.+="(.+?)".*/, '$1');
                 });
-                $this.find('.og-js-cancel').click(function (e) {
-                    cancel_update();
-                    e.stopImmediatePropagation();
-                });
-                /**
-                 * Keyboard shortcuts
-                 */
-                $this.keydown(function (e) {
-                    if ((e.keyCode === $.ui.keyCode.ENTER) || (e.keyCode === $.ui.keyCode.NUMPAD_ENTER)) update_field();
-                    if (e.keyCode === $.ui.keyCode.ESCAPE) cancel_update();
+                delete rest_properties.editable;
+                ui.dialog({
+                    type: 'input',
+                    title: 'Edit ' + type + ': "' + value + '"',
+                    fields: [{type: 'input', name: 'New Value', id: type, value: value}],
+                    buttons: {
+                        'OK': function () {
+                            ui.dialog({action: 'close', type: 'input'});
+                            rest_properties[type] = ui.dialog({return_field_value: type});
+                            rest_properties.handler = function (result) {
+                                if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                handler();
+                            };
+                            og.api.rest[og.common.routes.current().page.substring(1)].put(rest_properties);
+                        }
+                    }
                 });
             });
-
         };
 
     }

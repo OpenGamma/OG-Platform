@@ -106,7 +106,7 @@ $.register_module({
                             ui.toolbar(options.toolbar.active);
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             details.calendar_ui_changes(json.dates);
-                            layout.inner.resizeAll();
+                            setTimeout(layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,

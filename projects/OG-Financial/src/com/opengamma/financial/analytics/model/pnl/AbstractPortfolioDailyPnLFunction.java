@@ -52,7 +52,12 @@ public abstract class AbstractPortfolioDailyPnLFunction extends AbstractFunction
   }
 
   private ValueProperties extractCurrencyProperty(ValueRequirement desiredValue) {
-    return ValueProperties.with(ValuePropertyNames.CURRENCY, desiredValue.getConstraint(ValuePropertyNames.CURRENCY)).get();
+    if (desiredValue.getConstraint(ValuePropertyNames.CURRENCY) != null) {
+      return ValueProperties.with(ValuePropertyNames.CURRENCY, desiredValue.getConstraint(ValuePropertyNames.CURRENCY)).get();
+    } else {
+      s_logger.warn("Expecting currency property on " + desiredValue + " but was none");
+      return ValueProperties.none();
+    }
   }
 
   @Override

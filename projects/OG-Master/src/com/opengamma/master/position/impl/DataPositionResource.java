@@ -154,7 +154,7 @@ public class DataPositionResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    UriBuilder b = UriBuilder.fromUri(baseUri).path("/positions/{positionId}");
+    UriBuilder b = UriBuilder.fromUri(baseUri).path("/posMaster/positions/{positionId}");
     if (versionCorrection != null && versionCorrection.getVersionAsOf() != null) {
       b.queryParam("versionAsOf", versionCorrection.getVersionAsOf());
     }
@@ -173,7 +173,7 @@ public class DataPositionResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/positions/{positionId}/versions");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/posMaster/positions/{positionId}/versions");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }
@@ -188,7 +188,7 @@ public class DataPositionResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriVersion(URI baseUri, UniqueId uniqueId) {
-    return UriBuilder.fromUri(baseUri).path("/positions/{positionId}/versions/{versionId}")
+    return UriBuilder.fromUri(baseUri).path("/posMaster/positions/{positionId}/versions/{versionId}")
       .build(uniqueId.toLatest(), uniqueId.getVersion());
   }
 
@@ -200,7 +200,7 @@ public class DataPositionResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriTrade(URI baseUri, UniqueId tradeId) {
-    return UriBuilder.fromUri(baseUri).path("/positions/{positionId}/trades/{tradeId}")
+    return UriBuilder.fromUri(baseUri).path("/posMaster/positions/{positionId}/trades/{tradeId}")
       .build("-", tradeId);  // TODO: probably could do with a better URI
   }
 
