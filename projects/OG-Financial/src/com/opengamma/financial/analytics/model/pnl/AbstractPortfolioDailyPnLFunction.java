@@ -43,7 +43,6 @@ public abstract class AbstractPortfolioDailyPnLFunction extends AbstractFunction
 
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
-    final PortfolioNode node = target.getPortfolioNode();
     BigDecimal currentSum = BigDecimal.ZERO;
     ValueProperties currentProperties = null;
     for (ComputedValue value : inputs.getAllValues()) {
@@ -52,6 +51,9 @@ public abstract class AbstractPortfolioDailyPnLFunction extends AbstractFunction
     }
     if (currentProperties == null) {
       return Collections.emptySet();
+    }
+    for (ValueSpecification valueSpec : inputs.getMissingValues()) {
+      currentProperties = SumUtils.addProperties(currentProperties, valueSpec.getProperties());
     }
     currentProperties = currentProperties.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
     final ValueSpecification valueSpecification = new ValueSpecification(ValueRequirementNames.DAILY_PNL, target.toSpecification(), currentProperties);

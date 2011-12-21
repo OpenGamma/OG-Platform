@@ -502,13 +502,16 @@
     <property name="sourceList">
       <list>
         <!-- TODO: shared aggregation function config -->
-        <bean class="com.opengamma.financial.aggregation.AssetClassAggregationFunction" />
+        <bean class="com.opengamma.financial.aggregation.AssetClassAggregationFunction">
+          <constructor-arg value="false" />
+        </bean>
         <bean class="com.opengamma.financial.aggregation.CurrencyAggregationFunction" />
         <bean class="com.opengamma.financial.aggregation.DetailedAssetClassAggregationFunction" />
         <bean class="com.opengamma.financial.aggregation.RegionAggregationFunction">
           <constructor-arg ref="combinedSecuritySource" />
           <constructor-arg ref="regionSource" />
           <constructor-arg ref="sharedExchangeSource" />
+          <constructor-arg value="false" />
           <constructor-arg value="false" />
         </bean>
         <bean class="com.opengamma.financial.aggregation.UnderlyingAggregationFunction">
@@ -519,6 +522,7 @@
         <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
           <constructor-arg ref="combinedSecuritySource" />
           <constructor-arg value="SECTOR" />
+          <constructor-arg value="false" />
           <constructor-arg value="false" />
         </bean>
         <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
@@ -539,6 +543,7 @@
         <bean class="com.opengamma.financial.aggregation.EquityBetaAggregationFunction">
           <constructor-arg ref="sharedHistoricalTimeSeriesSource" />
           <constructor-arg value="false" />
+          <constructor-arg value="true" />
         </bean>
         <bean class="com.opengamma.financial.aggregation.CurrentMarketCapAggregationFunction">
           <constructor-arg ref="combinedSecuritySource" />
