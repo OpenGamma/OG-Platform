@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.rest;
+package com.opengamma.master.position.impl;
 
 import java.net.URI;
 
@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.ext.Providers;
 
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -31,11 +32,12 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * RESTful resource for a position.
  */
-@Path("/data/positions/{positionId}")
+@Path("/posMaster/positions/{positionId}")
 public class DataPositionResource extends AbstractDataResource {
 
   /**
@@ -45,14 +47,15 @@ public class DataPositionResource extends AbstractDataResource {
   /**
    * The identifier specified in the URI.
    */
-  private UniqueId _urlResourceId;
+  private ObjectId _urlResourceId;
 
   /**
    * Creates the resource.
+   * 
    * @param positionsResource  the parent resource, not null
    * @param positionId  the position unique identifier, not null
    */
-  public DataPositionResource(final DataPositionsResource positionsResource, final UniqueId positionId) {
+  public DataPositionResource(final DataPositionsResource positionsResource, final ObjectId positionId) {
     ArgumentChecker.notNull(positionsResource, "positionsResource");
     ArgumentChecker.notNull(positionId, "position");
     _positionsResource = positionsResource;
@@ -62,6 +65,7 @@ public class DataPositionResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   /**
    * Gets the positions resource.
+   * 
    * @return the positions resource, not null
    */
   public DataPositionsResource getPositionsResource() {
@@ -70,15 +74,17 @@ public class DataPositionResource extends AbstractDataResource {
 
   /**
    * Gets the position identifier from the URL.
+   * 
    * @return the unique identifier, not null
    */
-  public UniqueId getUrlPositionId() {
+  public ObjectId getUrlPositionId() {
     return _urlResourceId;
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the position master.
+   * 
    * @return the position master, not null
    */
   public PositionMaster getPositionMaster() {
@@ -88,8 +94,8 @@ public class DataPositionResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   @GET
   public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo) {
-    Instant v = (versionAsOf != null ? Instant.parse(versionAsOf) : null);
-    Instant c = (correctedTo != null ? Instant.parse(correctedTo) : null);
+    Instant v = (versionAsOf != null ? DateUtils.parseInstant(versionAsOf) : null);
+    Instant c = (correctedTo != null ? DateUtils.parseInstant(correctedTo) : null);
     PositionDocument result = getPositionMaster().get(getUrlPositionId(), VersionCorrection.of(v, c));
     return Response.ok(result).build();
   }
@@ -97,8 +103,8 @@ public class DataPositionResource extends AbstractDataResource {
   @PUT
   @Consumes(FudgeRest.MEDIA)
   public Response put(PositionDocument request) {
-    if (getUrlPositionId().equalObjectId(request.getUniqueId()) == false) {
-      throw new IllegalArgumentException("Document uniqueId does not match URI");
+    if (getUrlPositionId().equals(request.getUniqueId().getObjectId()) == false) {
+      throw new IllegalArgumentException("Document objectId does not match URI");
     }
     PositionDocument result = getPositionMaster().update(request);
     return Response.ok(result).build();
@@ -107,7 +113,7 @@ public class DataPositionResource extends AbstractDataResource {
   @DELETE
   @Consumes(FudgeRest.MEDIA)
   public Response delete() {
-    getPositionMaster().remove(getUrlPositionId());
+    getPositionMaster().remove(getUrlPositionId().atLatestVersion());
     return Response.noContent().build();
   }
 
@@ -116,7 +122,7 @@ public class DataPositionResource extends AbstractDataResource {
   @Path("versions")
   public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
     PositionHistoryRequest request = decodeBean(PositionHistoryRequest.class, providers, msgBase64);
-    if (getUrlPositionId().getObjectId().equals(request.getObjectId()) == false) {
+    if (getUrlPositionId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
     PositionHistoryResult result = getPositionMaster().history(request);
@@ -126,7 +132,7 @@ public class DataPositionResource extends AbstractDataResource {
   @GET
   @Path("versions/{versionId}")
   public Response getVersioned(@PathParam("versionId") String versionId) {
-    PositionDocument result = getPositionMaster().get(getUrlPositionId().withVersion(versionId));
+    PositionDocument result = getPositionMaster().get(getUrlPositionId().atVersion(versionId));
     return Response.ok(result).build();
   }
 
@@ -141,13 +147,14 @@ public class DataPositionResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   /**
    * Builds a URI for the resource.
+   * 
    * @param baseUri  the base URI, not null
    * @param objectId  the resource identifier, not null
    * @param versionCorrection  the version-correction locator, null for latest
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    UriBuilder b = UriBuilder.fromUri(baseUri).path("/positions/{positionId}");
+    UriBuilder b = UriBuilder.fromUri(baseUri).path("/posMaster/positions/{positionId}");
     if (versionCorrection != null && versionCorrection.getVersionAsOf() != null) {
       b.queryParam("versionAsOf", versionCorrection.getVersionAsOf());
     }
@@ -159,13 +166,14 @@ public class DataPositionResource extends AbstractDataResource {
 
   /**
    * Builds a URI for the versions of the resource.
+   * 
    * @param baseUri  the base URI, not null
    * @param objectId  the resource identifier, not null
    * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
   public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/positions/{positionId}/versions");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/posMaster/positions/{positionId}/versions");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }
@@ -174,23 +182,25 @@ public class DataPositionResource extends AbstractDataResource {
 
   /**
    * Builds a URI for a specific version of the resource.
+   * 
    * @param baseUri  the base URI, not null
    * @param uniqueId  the resource unique identifier, not null
    * @return the URI, not null
    */
   public static URI uriVersion(URI baseUri, UniqueId uniqueId) {
-    return UriBuilder.fromUri(baseUri).path("/positions/{positionId}/versions/{versionId}")
+    return UriBuilder.fromUri(baseUri).path("/posMaster/positions/{positionId}/versions/{versionId}")
       .build(uniqueId.toLatest(), uniqueId.getVersion());
   }
 
   /**
    * Builds a URI for a specific node.
+   * 
    * @param baseUri  the base URI, not null
    * @param tradeId  the resource unique identifier, not null
    * @return the URI, not null
    */
   public static URI uriTrade(URI baseUri, UniqueId tradeId) {
-    return UriBuilder.fromUri(baseUri).path("/positions/{positionId}/trades/{tradeId}")
+    return UriBuilder.fromUri(baseUri).path("/posMaster/positions/{positionId}/trades/{tradeId}")
       .build("-", tradeId);  // TODO: probably could do with a better URI
   }
 

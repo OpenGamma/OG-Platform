@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.rest;
+package com.opengamma.master.position.impl;
 
 import java.net.URI;
 
@@ -20,7 +20,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Providers;
 
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.ObjectId;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
@@ -30,22 +30,22 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for all positions.
+ * RESTful resource for positions.
  * <p>
- * The positions resource represents the whole of a position master.
- * This is a logical URL as positions have unique identifiers.
+ * The positions resource receives and processes RESTful calls to the position master.
  */
-@Path("/data/positions")
+@Path("/data/posMaster")
 public class DataPositionsResource extends AbstractDataResource {
 
   /**
-   * The injected position master.
+   * The position master.
    */
   private final PositionMaster _posMaster;
 
   /**
-   * Creates the resource.
-   * @param positionMaster  the position master, not null
+   * Creates the resource, exposing the underlying master over REST.
+   * 
+   * @param positionMaster  the underlying position master, not null
    */
   public DataPositionsResource(final PositionMaster positionMaster) {
     ArgumentChecker.notNull(positionMaster, "positionMaster");
@@ -55,6 +55,7 @@ public class DataPositionsResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   /**
    * Gets the position master.
+   * 
    * @return the position master, not null
    */
   public PositionMaster getPositionMaster() {
@@ -63,13 +64,14 @@ public class DataPositionsResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   @HEAD
+  @Path("positions")
   public Response status() {
-    // The root GET handler tries to return the entire content of the position master. Something faster
-    // to respond is needed for head requests that are used to check whether the master is available. 
+    // simple HEAD to quickly return, avoiding loading the whole database
     return Response.ok().build();
   }
 
   @GET
+  @Path("positions")
   public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
     PositionSearchRequest request = decodeBean(PositionSearchRequest.class, providers, msgBase64);
     PositionSearchResult result = getPositionMaster().search(request);
@@ -77,28 +79,31 @@ public class DataPositionsResource extends AbstractDataResource {
   }
 
   @POST
+  @Path("positions")
   @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, PositionDocument request) {
     PositionDocument result = getPositionMaster().add(request);
-    return Response.created(DataPositionResource.uri(uriInfo.getBaseUri(), result.getUniqueId(), null)).entity(result).build();
+    URI createdUri = DataPositionResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    return Response.created(createdUri).entity(result).build();
   }
 
   //-------------------------------------------------------------------------
-  @Path("{positionId}")
+  @Path("positions/{positionId}")
   public DataPositionResource findPosition(@PathParam("positionId") String idStr) {
-    UniqueId id = UniqueId.parse(idStr);
+    ObjectId id = ObjectId.parse(idStr);
     return new DataPositionResource(this, id);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Builds a URI for all positions.
+   * 
    * @param baseUri  the base URI, not null
    * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/positions");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/posMaster/positions");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.portfolio.rest;
+package com.opengamma.master.exchange.impl;
 
 import java.net.URI;
 
@@ -20,97 +20,99 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.ext.Providers;
 
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.portfolio.PortfolioDocument;
-import com.opengamma.master.portfolio.PortfolioHistoryRequest;
-import com.opengamma.master.portfolio.PortfolioHistoryResult;
-import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.master.exchange.ExchangeDocument;
+import com.opengamma.master.exchange.ExchangeHistoryRequest;
+import com.opengamma.master.exchange.ExchangeHistoryResult;
+import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
+import com.opengamma.util.time.DateUtils;
 
 /**
- * RESTful resource for a portfolio.
+ * RESTful resource for an exchange.
  */
-@Path("/data/portfolios/{portfolioId}")
-public class DataPortfolioResource extends AbstractDataResource {
+@Path("/exgMaster/exchanges/{exchangeId}")
+public class DataExchangeResource extends AbstractDataResource {
 
   /**
-   * The portfolios resource.
+   * The exchanges resource.
    */
-  private final DataPortfoliosResource _portfoliosResource;
+  private final DataExchangesResource _exchangesResource;
   /**
    * The identifier specified in the URI.
    */
-  private UniqueId _urlResourceId;
+  private ObjectId _urlResourceId;
 
   /**
    * Creates the resource.
    * 
-   * @param portfoliosResource  the parent resource, not null
-   * @param portfolioId  the portfolio unique identifier, not null
+   * @param exchangesResource  the parent resource, not null
+   * @param exchangeId  the exchange unique identifier, not null
    */
-  public DataPortfolioResource(final DataPortfoliosResource portfoliosResource, final UniqueId portfolioId) {
-    ArgumentChecker.notNull(portfoliosResource, "portfoliosResource");
-    ArgumentChecker.notNull(portfolioId, "portfolio");
-    _portfoliosResource = portfoliosResource;
-    _urlResourceId = portfolioId;
+  public DataExchangeResource(final DataExchangesResource exchangesResource, final ObjectId exchangeId) {
+    ArgumentChecker.notNull(exchangesResource, "exchangesResource");
+    ArgumentChecker.notNull(exchangeId, "exchange");
+    _exchangesResource = exchangesResource;
+    _urlResourceId = exchangeId;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the portfolios resource.
+   * Gets the exchanges resource.
    * 
-   * @return the portfolios resource, not null
+   * @return the exchanges resource, not null
    */
-  public DataPortfoliosResource getPortfoliosResource() {
-    return _portfoliosResource;
+  public DataExchangesResource getExchangesResource() {
+    return _exchangesResource;
   }
 
   /**
-   * Gets the portfolio identifier from the URL.
+   * Gets the exchange identifier from the URL.
    * 
    * @return the unique identifier, not null
    */
-  public UniqueId getUrlPortfolioId() {
+  public ObjectId getUrlExchangeId() {
     return _urlResourceId;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the portfolio master.
+   * Gets the exchange master.
    * 
-   * @return the portfolio master, not null
+   * @return the exchange master, not null
    */
-  public PortfolioMaster getPortfolioMaster() {
-    return getPortfoliosResource().getPortfolioMaster();
+  public ExchangeMaster getExchangeMaster() {
+    return getExchangesResource().getExchangeMaster();
   }
 
   //-------------------------------------------------------------------------
   @GET
   public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo) {
-    Instant v = (versionAsOf != null ? Instant.parse(versionAsOf) : null);
-    Instant c = (correctedTo != null ? Instant.parse(correctedTo) : null);
-    PortfolioDocument result = getPortfolioMaster().get(getUrlPortfolioId(), VersionCorrection.of(v, c));
+    Instant v = (versionAsOf != null ? DateUtils.parseInstant(versionAsOf) : null);
+    Instant c = (correctedTo != null ? DateUtils.parseInstant(correctedTo) : null);
+    ExchangeDocument result = getExchangeMaster().get(getUrlExchangeId(), VersionCorrection.of(v, c));
     return Response.ok(result).build();
   }
 
   @PUT
   @Consumes(FudgeRest.MEDIA)
-  public Response put(PortfolioDocument request) {
-    if (getUrlPortfolioId().equalObjectId(request.getUniqueId()) == false) {
-      throw new IllegalArgumentException("Document portfolioId does not match URI");
+  public Response put(ExchangeDocument request) {
+    if (getUrlExchangeId().equals(request.getUniqueId().getObjectId()) == false) {
+      throw new IllegalArgumentException("Document objectId does not match URI");
     }
-    PortfolioDocument result = getPortfolioMaster().update(request);
+    ExchangeDocument result = getExchangeMaster().update(request);
     return Response.ok(result).build();
   }
 
   @DELETE
   @Consumes(FudgeRest.MEDIA)
   public Response delete() {
-    getPortfolioMaster().remove(getUrlPortfolioId());
+    getExchangeMaster().remove(getUrlExchangeId().atLatestVersion());
     return Response.noContent().build();
   }
 
@@ -118,18 +120,18 @@ public class DataPortfolioResource extends AbstractDataResource {
   @GET
   @Path("versions")
   public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    PortfolioHistoryRequest request = decodeBean(PortfolioHistoryRequest.class, providers, msgBase64);
-    if (getUrlPortfolioId().getObjectId().equals(request.getObjectId()) == false) {
-      throw new IllegalArgumentException("Document portfolioId does not match URI");
+    ExchangeHistoryRequest request = decodeBean(ExchangeHistoryRequest.class, providers, msgBase64);
+    if (getUrlExchangeId().equals(request.getObjectId()) == false) {
+      throw new IllegalArgumentException("Document objectId does not match URI");
     }
-    PortfolioHistoryResult result = getPortfolioMaster().history(request);
+    ExchangeHistoryResult result = getExchangeMaster().history(request);
     return Response.ok(result).build();
   }
 
   @GET
   @Path("versions/{versionId}")
   public Response getVersioned(@PathParam("versionId") String versionId) {
-    PortfolioDocument result = getPortfolioMaster().get(getUrlPortfolioId().withVersion(versionId));
+    ExchangeDocument result = getExchangeMaster().get(getUrlExchangeId().atVersion(versionId));
     return Response.ok(result).build();
   }
 
@@ -142,8 +144,8 @@ public class DataPortfolioResource extends AbstractDataResource {
    * @param versionCorrection  the version-correction locator, null for latest
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
-    UriBuilder b = UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}");
+  public static URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    UriBuilder b = UriBuilder.fromUri(baseUri).path("/exchanges/{exchangeId}");
     if (versionCorrection != null && versionCorrection.getVersionAsOf() != null) {
       b.queryParam("versionAsOf", versionCorrection.getVersionAsOf());
     }
@@ -162,7 +164,7 @@ public class DataPortfolioResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}/versions");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchanges/{exchangeId}/versions");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }
@@ -177,7 +179,7 @@ public class DataPortfolioResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriVersion(URI baseUri, UniqueId uniqueId) {
-    return UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}/versions/{versionId}")
+    return UriBuilder.fromUri(baseUri).path("/exchanges/{exchangeId}/versions/{versionId}")
       .build(uniqueId.toLatest(), uniqueId.getVersion());
   }
 

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.portfolio.rest;
+package com.opengamma.master.portfolio.impl;
 
 import java.net.URI;
 
@@ -21,7 +21,7 @@ import com.opengamma.util.rest.AbstractDataResource;
 /**
  * RESTful resource for a portfolio node.
  */
-@Path("/data/portfolios/nodes/{nodeId}")
+@Path("/prtMaster/nodes/{nodeId}")
 public class DataPortfolioNodeResource extends AbstractDataResource {
 
   /**
@@ -91,7 +91,7 @@ public class DataPortfolioNodeResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, UniqueId nodeId) {
-    return UriBuilder.fromUri(baseUri).path("/portfolios/nodes/{nodeId}")
+    return UriBuilder.fromUri(baseUri).path("/prtMaster/nodes/{nodeId}")
       .build(nodeId);
   }
 

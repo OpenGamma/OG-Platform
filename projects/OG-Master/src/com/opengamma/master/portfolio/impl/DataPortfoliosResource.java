@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.portfolio.rest;
+package com.opengamma.master.portfolio.impl;
 
 import java.net.URI;
 
@@ -20,7 +20,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Providers;
 
-import com.opengamma.financial.rest.ChangeManagerResource;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -31,22 +31,22 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for all portfolios.
+ * RESTful resource for portfolios.
  * <p>
- * The portfolios resource represents the whole of a portfolio master.
+ * The portfolios resource receives and processes RESTful calls to the portfolio master.
  */
-@Path("/data/portfolios")
+@Path("/data/prtMaster")
 public class DataPortfoliosResource extends AbstractDataResource {
 
   /**
-   * The injected portfolio master.
+   * The portfolio master.
    */
   private final PortfolioMaster _prtMaster;
 
   /**
-   * Creates the resource.
+   * Creates the resource, exposing the underlying master over REST.
    * 
-   * @param portfolioMaster  the portfolio master, not null
+   * @param portfolioMaster  the underlying portfolio master, not null
    */
   public DataPortfoliosResource(final PortfolioMaster portfolioMaster) {
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
@@ -65,29 +65,27 @@ public class DataPortfoliosResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   @HEAD
+  @Path("portfolios")
   public Response status() {
-    // The root GET handler tries to return the entire content of the portfolio master. Something faster
-    // to respond is needed for head requests that are used to check whether the master is available. 
+    // simple HEAD to quickly return, avoiding loading the whole database
     return Response.ok().build();
   }
 
   @GET
+  @Path("portfolios")
   public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
     PortfolioSearchRequest request = decodeBean(PortfolioSearchRequest.class, providers, msgBase64);
     PortfolioSearchResult result = getPortfolioMaster().search(request);
     return Response.ok(result).build();
   }
 
-  @Path("changeManager")
-  public ChangeManagerResource getChangeManager() {
-    return new ChangeManagerResource(getPortfolioMaster().changeManager());
-  }
-  
   @POST
+  @Path("portfolios")
   @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, PortfolioDocument request) {
     PortfolioDocument result = getPortfolioMaster().add(request);
-    return Response.created(DataPortfolioResource.uri(uriInfo.getBaseUri(), result.getUniqueId(), null)).entity(result).build();
+    URI createdUri = DataPortfolioResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    return Response.created(createdUri).entity(result).build();
   }
 
   //-------------------------------------------------------------------------
@@ -97,9 +95,9 @@ public class DataPortfoliosResource extends AbstractDataResource {
     return new DataPortfolioNodeResource(this, id);
   }
 
-  @Path("{portfolioId}")
+  @Path("portfolios/{portfolioId}")
   public DataPortfolioResource findPortfolio(@PathParam("portfolioId") String idStr) {
-    UniqueId id = UniqueId.parse(idStr);
+    ObjectId id = ObjectId.parse(idStr);
     return new DataPortfolioResource(this, id);
   }
 
@@ -112,7 +110,7 @@ public class DataPortfoliosResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/portfolios");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/prtMaster/portfolios");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.rest;
+package com.opengamma.master.position.impl;
 
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
@@ -20,7 +20,7 @@ import javax.ws.rs.core.UriInfo;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.ExternalId;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
@@ -32,6 +32,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 public class DataPositionsResourceTest {
 
+  private static final UniqueId UID = UniqueId.of("Test", "A", "B");
   private PositionMaster _underlying;
   private UriInfo _uriInfo;
   private DataPositionsResource _resource;
@@ -47,11 +48,12 @@ public class DataPositionsResourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void testAddPosition() {
-    final ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
-    final PositionDocument request = new PositionDocument(position);
+    final ManageablePosition target = new ManageablePosition();
+    target.setQuantity(BigDecimal.ONE);
+    final PositionDocument request = new PositionDocument(target);
     
-    final PositionDocument result = new PositionDocument(position);
-    result.setUniqueId(UniqueId.of("Test", "PosA"));
+    final PositionDocument result = new PositionDocument(target);
+    result.setUniqueId(UID);
     when(_underlying.add(same(request))).thenReturn(result);
     
     Response test = _resource.add(_uriInfo, request);
@@ -61,9 +63,9 @@ public class DataPositionsResourceTest {
 
   @Test
   public void testFindPosition() {
-    DataPositionResource test = _resource.findPosition("Test~PosA");
+    DataPositionResource test = _resource.findPosition("Test~A");
     assertSame(_resource, test.getPositionsResource());
-    assertEquals(UniqueId.of("Test", "PosA"), test.getUrlPositionId());
+    assertEquals(ObjectId.of("Test", "A"), test.getUrlPositionId());
   }
 
 }

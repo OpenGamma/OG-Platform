@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.portfolio.rest;
+package com.opengamma.master.portfolio.impl;
 
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
@@ -19,6 +19,7 @@ import javax.ws.rs.core.UriInfo;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
@@ -31,6 +32,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 public class DataPortfoliosResourceTest {
 
+  private static final UniqueId UID = UniqueId.of("Test", "A", "B");
   private PortfolioMaster _underlying;
   private UriInfo _uriInfo;
   private DataPortfoliosResource _resource;
@@ -46,13 +48,13 @@ public class DataPortfoliosResourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void testAddPortfolio() {
-    final ManageablePortfolio portfolio = new ManageablePortfolio("Portfolio A");
-    portfolio.getRootNode().setName("RootNode");
-    portfolio.getRootNode().addChildNode(new ManageablePortfolioNode("Child"));
-    final PortfolioDocument request = new PortfolioDocument(portfolio);
+    final ManageablePortfolio target = new ManageablePortfolio("Portfolio A");
+    target.getRootNode().setName("RootNode");
+    target.getRootNode().addChildNode(new ManageablePortfolioNode("Child"));
+    final PortfolioDocument request = new PortfolioDocument(target);
     
-    final PortfolioDocument result = new PortfolioDocument(portfolio);
-    result.setUniqueId(UniqueId.of("Test", "PortA"));
+    final PortfolioDocument result = new PortfolioDocument(target);
+    result.setUniqueId(UID);
     when(_underlying.add(same(request))).thenReturn(result);
     
     Response test = _resource.add(_uriInfo, request);
@@ -64,7 +66,7 @@ public class DataPortfoliosResourceTest {
   public void testFindPortfolio() {
     DataPortfolioResource test = _resource.findPortfolio("Test~PortA");
     assertSame(_resource, test.getPortfoliosResource());
-    assertEquals(UniqueId.of("Test", "PortA"), test.getUrlPortfolioId());
+    assertEquals(ObjectId.of("Test", "PortA"), test.getUrlPortfolioId());
   }
 
   @Test

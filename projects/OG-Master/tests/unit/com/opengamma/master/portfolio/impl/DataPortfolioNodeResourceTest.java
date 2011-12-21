@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.portfolio.rest;
+package com.opengamma.master.portfolio.impl;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -38,12 +38,12 @@ public class DataPortfolioNodeResourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void testGetPortfolio() {
-    final ManageablePortfolioNode node = new ManageablePortfolioNode("Node");
-    when(_underlying.getNode(UID)).thenReturn(node);
+    final ManageablePortfolioNode target = new ManageablePortfolioNode("Node");
+    when(_underlying.getNode(UID)).thenReturn(target);
     
     Response test = _resource.get();
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
-    assertSame(node, test.getEntity());
+    assertSame(target, test.getEntity());
   }
 
 }
