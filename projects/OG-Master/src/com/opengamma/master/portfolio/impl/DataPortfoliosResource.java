@@ -35,7 +35,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * The portfolios resource receives and processes RESTful calls to the portfolio master.
  */
-@Path("/data/prtMaster")
+@Path("/prtMaster")
 public class DataPortfoliosResource extends AbstractDataResource {
 
   /**
@@ -110,7 +110,7 @@ public class DataPortfoliosResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/prtMaster/portfolios");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/portfolios");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }

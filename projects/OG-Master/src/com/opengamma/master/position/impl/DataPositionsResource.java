@@ -34,7 +34,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * The positions resource receives and processes RESTful calls to the position master.
  */
-@Path("/data/posMaster")
+@Path("/posMaster")
 public class DataPositionsResource extends AbstractDataResource {
 
   /**
@@ -103,7 +103,7 @@ public class DataPositionsResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/posMaster/positions");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/positions");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }
