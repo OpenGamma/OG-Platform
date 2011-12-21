@@ -351,7 +351,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     ManageableHistoricalTimeSeries reference = testPopulated.getTimeSeries(doc1.getUniqueId());
     
     // Get entire series using blank filter
-    HistoricalTimeSeriesGetFilter filter = new HistoricalTimeSeriesGetFilter();
+    HistoricalTimeSeriesGetFilter filter = HistoricalTimeSeriesGetFilter.ofAll();
     ManageableHistoricalTimeSeries test = testPopulated.getTimeSeries(doc1.getUniqueId(), filter);
     assertEquals(reference.getTimeSeries(), test.getTimeSeries());
     assertEquals(input, test.getTimeSeries());
