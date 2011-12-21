@@ -17,16 +17,16 @@ import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 
 /**
- * RESTful resource for all nodes in a portfolio.
+ * RESTful resource for all nodes in a portfolio version.
  */
-@Path("/portfolios/{portfolioId}/nodes")
-public class WebPortfolioNodesResource extends AbstractWebPortfolioResource {
+@Path("/portfolios/{portfolioId}/versions/{versionId}/nodes")
+public class WebPortfolioVersionNodesResource extends WebPortfolioNodesResource {
 
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
    */
-  public WebPortfolioNodesResource(final AbstractWebPortfolioResource parent) {
+  public WebPortfolioVersionNodesResource(AbstractWebPortfolioResource parent) {
     super(parent);
   }
 
@@ -35,7 +35,7 @@ public class WebPortfolioNodesResource extends AbstractWebPortfolioResource {
   public WebPortfolioNodeResource findNode(@PathParam("nodeId") String idStr) {
     data().setUriNodeId(idStr);
     UniqueId oid = UniqueId.parse(idStr);
-    PortfolioDocument portfolioDoc = data().getPortfolio();
+    PortfolioDocument portfolioDoc = data().getVersioned();
     Stack<ManageablePortfolioNode> nodes = portfolioDoc.getPortfolio().getRootNode().findNodeStackByObjectId(oid);
     if (nodes.isEmpty()) {
       throw new DataNotFoundException("PortfolioNode not found: " + idStr);
@@ -44,7 +44,7 @@ public class WebPortfolioNodesResource extends AbstractWebPortfolioResource {
     if (nodes.size() > 0) {
       data().setParentNode(nodes.pop());
     }
-    return new WebPortfolioNodeResource(this);
+    return new WebPortfolioVersionNodeResource(this);
   }
 
   //-------------------------------------------------------------------------
