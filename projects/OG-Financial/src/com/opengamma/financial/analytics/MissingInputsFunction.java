@@ -126,6 +126,7 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
     if (getUnderlyingDefinition() instanceof AbstractFunction) {
       ((AbstractFunction) getUnderlyingDefinition()).setUniqueId(identifier);
     }
+    super.setUniqueId(identifier);
   }
 
   // FunctionDefinition
@@ -139,8 +140,10 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
     final CompiledFunctionDefinition underlying = getUnderlyingDefinition().compile(context, atInstant);
     if (underlying == getUnderlyingCompiled()) {
+      s_logger.debug("Compiling underlying on {} gives self", this);
       return this;
     } else {
+      s_logger.debug("Creating delegate for compiled underlying on {}", this);
       return create(underlying);
     }
   }
