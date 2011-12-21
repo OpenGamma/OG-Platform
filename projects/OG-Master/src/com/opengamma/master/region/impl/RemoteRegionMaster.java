@@ -7,39 +7,23 @@ package com.opengamma.master.region.impl;
 
 import java.net.URI;
 
-import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.impl.AbstractRemoteMaster;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionHistoryRequest;
 import com.opengamma.master.region.RegionHistoryResult;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.master.region.RegionSearchResult;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.rest.FudgeRestClient;
-import com.sun.jersey.api.client.WebResource.Builder;
 
 /**
  * Provides access to a remote {@link RegionMaster}.
  */
-public class RemoteRegionMaster implements RegionMaster {
-
-  /**
-   * The base URI to call.
-   */
-  private final URI _baseUri;
-  /**
-   * The client API.
-   */
-  private final FudgeRestClient _client;
-  /**
-   * The change manager.
-   */
-  private final ChangeManager _changeManager;
+public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMaster {
 
   /**
    * Creates an instance.
@@ -47,7 +31,7 @@ public class RemoteRegionMaster implements RegionMaster {
    * @param baseUri  the base target URI for all RESTful web services, not null
    */
   public RemoteRegionMaster(final URI baseUri) {
-    this(baseUri, new BasicChangeManager());
+    super(baseUri);
   }
 
   /**
@@ -57,11 +41,7 @@ public class RemoteRegionMaster implements RegionMaster {
    * @param changeManager  the change manager, not null
    */
   public RemoteRegionMaster(final URI baseUri, ChangeManager changeManager) {
-    ArgumentChecker.notNull(baseUri, "baseUri");
-    ArgumentChecker.notNull(changeManager, "changeManager");
-    _baseUri = baseUri;
-    _client = FudgeRestClient.create();
-    _changeManager = changeManager;
+    super(baseUri, changeManager);
   }
 
   //-------------------------------------------------------------------------
@@ -69,8 +49,8 @@ public class RemoteRegionMaster implements RegionMaster {
   public RegionSearchResult search(final RegionSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     
-    String msgBase64 = _client.encodeBean(request);
-    URI uri = DataRegionsResource.uri(_baseUri, msgBase64);
+    String msgBase64 = getRestClient().encodeBean(request);
+    URI uri = DataRegionsResource.uri(getBaseUri(), msgBase64);
     return accessRemote(uri).get(RegionSearchResult.class);
   }
 
@@ -80,7 +60,7 @@ public class RemoteRegionMaster implements RegionMaster {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     if (uniqueId.isVersioned()) {
-      URI uri = DataRegionResource.uriVersion(_baseUri, uniqueId);
+      URI uri = DataRegionResource.uriVersion(getBaseUri(), uniqueId);
       return accessRemote(uri).get(RegionDocument.class);
     } else {
       return get(uniqueId, VersionCorrection.LATEST);
@@ -92,7 +72,7 @@ public class RemoteRegionMaster implements RegionMaster {
   public RegionDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     
-    URI uri = DataRegionResource.uri(_baseUri, objectId, versionCorrection);
+    URI uri = DataRegionResource.uri(getBaseUri(), objectId, versionCorrection);
     return accessRemote(uri).get(RegionDocument.class);
   }
 
@@ -102,7 +82,7 @@ public class RemoteRegionMaster implements RegionMaster {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getRegion(), "document.region");
     
-    URI uri = DataRegionsResource.uri(_baseUri, null);
+    URI uri = DataRegionsResource.uri(getBaseUri(), null);
     return accessRemote(uri).post(RegionDocument.class, document);
   }
 
@@ -113,7 +93,7 @@ public class RemoteRegionMaster implements RegionMaster {
     ArgumentChecker.notNull(document.getRegion(), "document.region");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataRegionResource.uri(_baseUri, document.getUniqueId(), VersionCorrection.LATEST);
+    URI uri = DataRegionResource.uri(getBaseUri(), document.getUniqueId(), VersionCorrection.LATEST);
     return accessRemote(uri).put(RegionDocument.class, document);
   }
 
@@ -122,7 +102,7 @@ public class RemoteRegionMaster implements RegionMaster {
   public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    URI uri = DataRegionResource.uri(_baseUri, uniqueId, VersionCorrection.LATEST);
+    URI uri = DataRegionResource.uri(getBaseUri(), uniqueId, VersionCorrection.LATEST);
     accessRemote(uri).delete();
   }
 
@@ -132,8 +112,8 @@ public class RemoteRegionMaster implements RegionMaster {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
-    String msgBase64 = _client.encodeBean(request);
-    URI uri = DataRegionResource.uriVersions(_baseUri, request.getObjectId(), msgBase64);
+    String msgBase64 = getRestClient().encodeBean(request);
+    URI uri = DataRegionResource.uriVersions(getBaseUri(), request.getObjectId(), msgBase64);
     return accessRemote(uri).get(RegionHistoryResult.class);
   }
 
@@ -144,47 +124,8 @@ public class RemoteRegionMaster implements RegionMaster {
     ArgumentChecker.notNull(document.getRegion(), "document.region");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataRegionResource.uriVersion(_baseUri, document.getUniqueId());
+    URI uri = DataRegionResource.uriVersion(getBaseUri(), document.getUniqueId());
     return accessRemote(uri).get(RegionDocument.class);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public ChangeManager changeManager() {
-    return _changeManager;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Accesses the remote master.
-   * 
-   * @param uri  the URI to call, not null
-   * @return the resource, suitable for calling get/post/put/delete on, not null
-   */
-  protected Builder accessRemote(URI uri) {
-    // TODO: Better solution to this limitation in JAX-RS (we shouldn't have "data" in URI)
-    // this code removes a second duplicate "data"
-    String uriStr = uri.toString();
-    int pos = uriStr.indexOf("/jax/data/");
-    if (pos > 0) {
-      pos = uriStr.indexOf("/data/", pos + 10);
-      if (pos > 0) {
-        uriStr = uriStr.substring(0, pos) + uriStr.substring(pos + 5);
-      }
-    }
-    uri = URI.create(uriStr);
-    return _client.access(uri).type(FudgeRest.MEDIA_TYPE).accept(FudgeRest.MEDIA_TYPE);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Returns a string summary of this master.
-   * 
-   * @return the string summary, not null
-   */
-  @Override
-  public String toString() {
-    return getClass().getSimpleName() + "[" + _baseUri + "]";
   }
 
 }
