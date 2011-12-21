@@ -15,12 +15,14 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.FRASecurityVisitor;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**

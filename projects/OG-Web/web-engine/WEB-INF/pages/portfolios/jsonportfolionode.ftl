@@ -14,7 +14,7 @@
         "node": "${node.uniqueId.objectId}",
         "path" : [
             <#list pathNodes as item>
-               {"name": "${item.second}", "object_id": "${item.first.objectId}", "version_id": "${item.first.version}"}<#if item_has_next>,</#if>
+               {"name": "${item.second}", "node": "${item.first.objectId}", "version_id": "${item.first.version}"}<#if item_has_next>,</#if>
 	    </#list>
         ]
     },

@@ -126,6 +126,7 @@ public class WebHistoricalTimeSeriesResource extends AbstractWebHistoricalTimeSe
     out.put("infoDoc", doc);
     out.put("info", doc.getInfo());
     out.put("timeseries", data().getTimeSeries());
+    out.put("deleted", !doc.isLatest());
     return out;
   }
 

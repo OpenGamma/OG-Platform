@@ -6,7 +6,8 @@
             "data_field": "${info.dataField}",
             "data_source": "${info.dataSource}",
             "data_provider": "${info.dataProvider}",
-            "observation_time": "${info.observationTime}"
+            "observation_time": "${info.observationTime}"<#if deleted>,
+	    "deleted": "${infoDoc.versionToInstant}"</#if>
     },
     "identifiers": [
     <#list info.externalIdBundle.externalIds as item>

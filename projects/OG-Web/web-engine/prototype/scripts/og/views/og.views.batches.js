@@ -99,7 +99,7 @@ $.register_module({
                             f.errors('.OG-batch .og-js-errors', json.data.batch_errors);
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             ui.toolbar(options.toolbar.active);
-                            layout.inner.resizeAll();
+                            setTimeout(layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,

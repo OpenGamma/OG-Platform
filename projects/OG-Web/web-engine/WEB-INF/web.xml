@@ -4,74 +4,101 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          version="2.5">
 
-    <!-- Cometd -->
-    <servlet>
-        <servlet-name>cometd</servlet-name>
-        <servlet-class>org.cometd.server.continuation.ContinuationCometdServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>cometd</servlet-name>
-        <url-pattern>/cometd/*</url-pattern>
-    </servlet-mapping>
-    <filter>
-        <filter-name>cross-origin</filter-name>
-        <filter-class>org.eclipse.jetty.servlets.CrossOriginFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>cross-origin</filter-name>
-        <url-pattern>/cometd/*</url-pattern>
-    </filter-mapping>
+  <!-- Cometd -->
+  <servlet>
+      <servlet-name>cometd</servlet-name>
+      <servlet-class>org.cometd.server.continuation.ContinuationCometdServlet</servlet-class>
+      <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+      <servlet-name>cometd</servlet-name>
+      <url-pattern>/cometd/*</url-pattern>
+  </servlet-mapping>
+  <filter>
+      <filter-name>cross-origin</filter-name>
+      <filter-class>org.eclipse.jetty.servlets.CrossOriginFilter</filter-class>
+  </filter>
+  <filter-mapping>
+      <filter-name>cross-origin</filter-name>
+      <url-pattern>/cometd/*</url-pattern>
+  </filter-mapping>
 
-    <!--  LiveResultsServiceBean depends on the cometd servlet, so we have a dummy servlet
-          here to trigger LiveResultsServiceBean initialization after the cometd
-          servlet has been initialized -->
-    <servlet>
-        <servlet-name>ConfigurationServlet</servlet-name>
-        <servlet-class>com.opengamma.web.server.ConfigurationServlet</servlet-class>
-        <load-on-startup>2</load-on-startup>
-    </servlet>
+  <!--  LiveResultsServiceBean depends on the cometd servlet, so we have a dummy servlet
+        here to trigger LiveResultsServiceBean initialization after the cometd
+        servlet has been initialized -->
+  <servlet>
+      <servlet-name>ConfigurationServlet</servlet-name>
+      <servlet-class>com.opengamma.web.server.ConfigurationServlet</servlet-class>
+      <load-on-startup>2</load-on-startup>
+  </servlet>
 
-    <filter>
-        <filter-name>spring-request</filter-name>
-        <filter-class>org.springframework.web.filter.RequestContextFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>spring-request</filter-name>
-        <url-pattern>/jax/*</url-pattern>
-    </filter-mapping>
+  <filter>
+    <filter-name>spring-request</filter-name>
+    <filter-class>org.springframework.web.filter.RequestContextFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>spring-request</filter-name>
+    <url-pattern>/jax/*</url-pattern>
+  </filter-mapping>
 
-    <!-- Jersey - JAXRS support -->
-    <servlet>
-        <servlet-name>jersey-spring</servlet-name>
-        <servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
-        <init-param>
-            <param-name>com.sun.jersey.spi.container.ContainerRequestFilters</param-name>
-            <param-value>com.opengamma.util.rest.HttpMethodFilter,com.opengamma.util.rest.UrlSuffixFilter</param-value>
-        </init-param>
-        <init-param>
-          <param-name>com.sun.jersey.spi.container.ContainerResponseFilters</param-name>
-          <param-value>com.opengamma.util.rest.NoCachingFilter</param-value>
-        </init-param>
-        <load-on-startup>3</load-on-startup>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>jersey-spring</servlet-name>
-        <url-pattern>/jax/*</url-pattern>
-    </servlet-mapping>
+  <!-- Jersey - JAXRS support -->
+  <servlet>
+    <servlet-name>jersey-spring</servlet-name>
+    <servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
+    <init-param>
+      <param-name>com.sun.jersey.spi.container.ContainerRequestFilters</param-name>
+      <param-value>com.opengamma.util.rest.HttpMethodFilter,com.opengamma.util.rest.UrlSuffixFilter</param-value>
+    </init-param>
+    <init-param>
+      <param-name>com.sun.jersey.spi.container.ContainerResponseFilters</param-name>
+      <param-value>com.opengamma.util.rest.NoCachingFilter</param-value>
+    </init-param>
+    <!--for creating subscriptions to entity updates-->
+    <init-param>
+      <param-name>com.sun.jersey.spi.container.ResourceFilters</param-name>
+      <param-value>com.opengamma.web.server.push.rest.SubscribingFilterFactory</param-value>
+    </init-param>
+    <load-on-startup>3</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>jersey-spring</servlet-name>
+    <url-pattern>/jax/*</url-pattern>
+  </servlet-mapping>
 
-    <!-- Ehcache shutdown hook -->
-    <listener>
-        <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
-    </listener>
+  <!--HTTP push support-->
+  <servlet>
+    <servlet-name>handshake</servlet-name>
+    <servlet-class>com.opengamma.web.server.push.HandshakeServlet</servlet-class>
+  </servlet>
 
-    <!-- Disable Jetty's locking of static files -->
-    <servlet>
-        <servlet-name>default</servlet-name>
-        <init-param>
-            <param-name>useFileMappedBuffer</param-name>
-            <param-value>false</param-value>
-        </init-param>
-    </servlet>
+  <servlet-mapping>
+    <servlet-name>handshake</servlet-name>
+    <url-pattern>/handshake</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>updates</servlet-name>
+    <servlet-class>com.opengamma.web.server.push.LongPollingServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>updates</servlet-name>
+    <url-pattern>/updates/*</url-pattern>
+  </servlet-mapping>
+  <!--end of HTTP push support-->
+
+  <!-- Ehcache shutdown hook -->
+  <listener>
+    <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
+  </listener>
+
+  <!-- Disable Jetty's locking of static files -->
+  <servlet>
+    <servlet-name>default</servlet-name>
+    <init-param>
+      <param-name>useFileMappedBuffer</param-name>
+      <param-value>false</param-value>
+    </init-param>
+  </servlet>
 
 </web-app>

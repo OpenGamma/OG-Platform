@@ -8,6 +8,7 @@ package com.opengamma.web.historicaltimeseries;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -36,17 +37,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryRequest;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.web.WebPaging;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
@@ -260,24 +265,35 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     ExternalScheme scheme = ExternalScheme.of(idScheme);
     Set<ExternalId> identifiers = buildSecurityRequest(scheme, idValue);
     Map<ExternalId, UniqueId> added = addTimeSeries(dataProvider, dataField, identifiers, startDate, endDate);
-    
-    URI uri = null;
-    if (!identifiers.isEmpty()) {
-      if (identifiers.size() == 1) {
-        ExternalId requestIdentifier = identifiers.iterator().next();
-        UniqueId uniqueId = added.get(requestIdentifier);
-        if (uniqueId != null) {
-          uri = data().getUriInfo().getAbsolutePathBuilder().path(uniqueId.toString()).build();
-        } else {
-          s_logger.warn("No time-series added for {} ", requestIdentifier);
-          uri = uri(data());
-        }
-      } else {
-        uri = uri(data(), identifiers);
-      }
-    } 
-    
-    return Response.created(uri).build();
+
+    FlexiBean out = createPostJSONOutput(added, identifiers, scheme, dataProvider, dataField, startDate, endDate);    
+    Response response = Response.ok(getFreemarker().build("timeseries/jsontimeseries-added.ftl", out)).build();
+    return response;
+  }
+
+  private FlexiBean createPostJSONOutput(
+      Map<ExternalId, UniqueId> added, Collection<ExternalId> requests, ExternalScheme scheme,
+      String dataProvider, String dataField, LocalDate startDate, LocalDate endDate) {
+    Map<String, String> result = new HashMap<String, String>();
+    for (ExternalId identifier : requests) {
+      UniqueId uniqueIdentifier = added.get(identifier);
+      String objectIdentifier = uniqueIdentifier != null ? uniqueIdentifier.getObjectId().toString() : null;
+      result.put(identifier.getValue(), objectIdentifier);
+    }
+    FlexiBean out = createRootData();
+    out.put("requestScheme", scheme);
+    out.put("requestDataField", dataField);
+    if (dataProvider != null) {
+      out.put("requestDataProvider", dataProvider);
+    }
+    if (startDate != null) {
+      out.put("requestStartDate", startDate.toString());
+    }
+    if (endDate != null) {
+      out.put("requestEndDate", endDate.toString());      
+    }
+    out.put("addedTimeSeries", result);
+    return out;
   }
 
   private Map<ExternalId, UniqueId> addTimeSeries(String dataProvider, String dataField, Set<ExternalId> identifiers, LocalDate startDate, LocalDate endDate) {
@@ -307,12 +323,39 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
   //-------------------------------------------------------------------------
   @Path("{timeseriesId}")
   public WebHistoricalTimeSeriesResource findSeries(@PathParam("timeseriesId") String idStr) {
+    
     data().setUriHistoricalTimeSeriesId(idStr);
-    HistoricalTimeSeriesInfoDocument info = data().getHistoricalTimeSeriesMaster().get(UniqueId.parse(idStr));
+    UniqueId oid = UniqueId.parse(idStr);
+    HistoricalTimeSeriesInfoDocument info;
+    ManageableHistoricalTimeSeries series;
+    
+    try {
+      // Try to fetch HTS info
+      info = data().getHistoricalTimeSeriesMaster().get(UniqueId.parse(idStr));
+    } catch (DataNotFoundException ex) {
+      // If not there, try fetching a deleted one from history
+      HistoricalTimeSeriesInfoHistoryRequest historyRequest = new HistoricalTimeSeriesInfoHistoryRequest(oid);
+      historyRequest.setPagingRequest(PagingRequest.ONE);
+      HistoricalTimeSeriesInfoHistoryResult historyResult = data().getHistoricalTimeSeriesMaster().history(historyRequest);
+      if (historyResult.getDocuments().size() == 0) {
+        // None found in history either; just return
+        return null;
+      }
+      info = historyResult.getFirstDocument();
+    }
     data().setInfo(info);
-    ManageableHistoricalTimeSeries series = data().getHistoricalTimeSeriesMaster().getTimeSeries(
-        info.getInfo().getTimeSeriesObjectId(), VersionCorrection.LATEST);
+    
+    try {
+      // Try to fetch the data-points
+      series = data().getHistoricalTimeSeriesMaster().getTimeSeries(
+          info.getInfo().getTimeSeriesObjectId(), VersionCorrection.LATEST);
+    } catch (DataNotFoundException ex) {
+      // If not there, return an empty collection of data-points
+      series = new ManageableHistoricalTimeSeries();
+      series.setTimeSeries(new ArrayLocalDateDoubleTimeSeries());
+    }
     data().setTimeSeries(series);
+    
     return new WebHistoricalTimeSeriesResource(this);
   }
 

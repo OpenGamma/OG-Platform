@@ -94,6 +94,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <CompileAsManaged>true</CompileAsManaged>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -120,6 +122,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <CompileAsManaged>true</CompileAsManaged>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -146,6 +150,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <CompileAsManaged>true</CompileAsManaged>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -172,6 +178,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <CompileAsManaged>true</CompileAsManaged>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

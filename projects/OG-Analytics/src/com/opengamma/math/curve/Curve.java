@@ -9,9 +9,11 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.math.function.Function1D;
+
 /**
  * Defines a general curve <i>(x, y)</i> class. The <i>x</i> and <i>y</i> data can be any type. The curves are named; if a name is not provided then a unique
- * ID will be used. 
+ * ID will be used.
  * @param <T> The type of the <i>x</i> data
  * @param <U> The type of the <i>y</i> data
  */
@@ -66,6 +68,19 @@ public abstract class Curve<T extends Comparable<T>, U> {
    * @return The <i>y</i> value
    */
   public abstract U getYValue(T x);
+
+  /**
+   * converts a curve to a Function1D
+   * @return
+   */
+  public Function1D<T, U> toFunction1D() {
+    return new Function1D<T, U>() {
+      @Override
+      public U evaluate(T x) {
+        return Curve.this.getYValue(x);
+      }
+    };
+  }
 
   @Override
   public int hashCode() {

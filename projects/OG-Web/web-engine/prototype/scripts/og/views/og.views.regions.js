@@ -90,7 +90,7 @@ $.register_module({
                             f.render_regions('.OG-region .og-js-child_regions', json.child);
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             ui.toolbar(options.toolbar.active);
-                            layout.inner.resizeAll();
+                            setTimeout(layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,
