@@ -11,7 +11,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -35,8 +35,8 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.CompareUtils;
 
 /**
- * Get the single fixed rate that makes the PV of the instrument zero. For  fixed-float swaps this is the swap rate, for FRAs it is the forward etc. For instruments that 
- * cannot PV to zero, e.g. bonds, a single payment of -1.0 is assumed at zero (i.e. the bond must PV to 1.0)
+ * Get the single fixed rate that makes the PV of the instrument zero. For  fixed-float swaps this is the swap rate, for FRAs it is the forward etc. 
+ * For instruments that cannot PV to zero, e.g. bonds, a single payment of -1.0 is assumed at zero (i.e. the bond must PV to 1.0)
  */
 public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
 
@@ -64,6 +64,8 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
    */
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
+  private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
+  private static final InterestRateFutureDiscountingMethod METHOD_IRFUT = InterestRateFutureDiscountingMethod.getInstance();
 
   @Override
   public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
@@ -72,12 +74,13 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
     return derivative.accept(this, curves);
   }
 
+  // TODO: review
   @Override
   public Double visitCash(final Cash cash, final YieldCurveBundle curves) {
     final YieldAndDiscountCurve curve = curves.getCurve(cash.getYieldCurveName());
-    final double ta = cash.getTradeTime();
-    final double tb = cash.getMaturity();
-    final double yearFrac = cash.getYearFraction();
+    final double ta = cash.getStartTime();
+    final double tb = cash.getEndTime();
+    final double yearFrac = cash.getAccrualFactor();
     // TODO need a getForwardRate method on YieldAndDiscountCurve
     if (yearFrac == 0.0) {
       if (!CompareUtils.closeEquals(ta, tb, 1e-16)) {
@@ -93,9 +96,7 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
 
   @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(fra);
-    return ForwardRateAgreementDiscountingMethod.getInstance().parRate(fra, curves);
+    return METHOD_FRA.parRate(fra, curves);
   }
 
   @Override
@@ -103,8 +104,7 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
    * Compute the future rate (1-price) without convexity adjustment.
    */
   public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    final InterestRateFutureDiscountingMethod method = InterestRateFutureDiscountingMethod.getInstance();
-    return method.parRate(future, curves);
+    return METHOD_IRFUT.parRate(future, curves);
   }
 
   /**
@@ -167,6 +167,7 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
     return (dPV - fx * fPV) / fx / fAnnuityPV;
   }
 
+  // TODO: review
   @Override
   public Double visitForexForward(final ForexForward fx, final YieldCurveBundle curves) {
     //TODO this is not a par rate, it is a forward FX rate
@@ -176,6 +177,7 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
     return fx.getSpotForexRate() * curve2.getDiscountFactor(t) / curve1.getDiscountFactor(t);
   }
 
+  // TODO: review
   /**
    * This gives you the bond coupon, for a given yield curve, that renders the bond par (present value of all cash flows equal to 1.0)
    * For a bonds yield use ??????????????? //TODO

@@ -175,7 +175,7 @@ public class MarketDataSets {
     market.setCurve(PRICE_INDEX_GBP, PRICE_INDEX_CURVE_GBP);
     market.setCurve(ISSUER_UK_GOVT, CURVE_GBP_30);
     market.setCurve(ISSUER_US_GOVT, CURVE_USD_30);
-    ZonedDateTime spotUs = ScheduleCalculator.getAdjustedDate(pricingDate, CALENDAR_USD, SPOT_LAG_US);
+    ZonedDateTime spotUs = ScheduleCalculator.getAdjustedDate(pricingDate, SPOT_LAG_US, CALENDAR_USD);
     ZonedDateTime referenceInterpolatedDate = spotUs.minusMonths(MONTH_LAG_US);
     ZonedDateTime[] referenceDate = new ZonedDateTime[2];
     referenceDate[0] = referenceInterpolatedDate.withDayOfMonth(1);
@@ -190,8 +190,8 @@ public class MarketDataSets {
     ZonedDateTime[] maturityDateUs = new ZonedDateTime[2 * yearUs.length];
     //    double[] maturityTimeUs = new double[yearUs.length];
     for (int loopus = 0; loopus < yearUs.length; loopus++) {
-      maturityDateUs[2 * loopus] = ScheduleCalculator.getAdjustedDate(referenceDate[0], BUSINESS_DAY_USD, CALENDAR_USD, Period.ofYears(yearUs[loopus]));
-      maturityDateUs[2 * loopus + 1] = ScheduleCalculator.getAdjustedDate(referenceDate[1], BUSINESS_DAY_USD, CALENDAR_USD, Period.ofYears(yearUs[loopus]));
+      maturityDateUs[2 * loopus] = ScheduleCalculator.getAdjustedDate(referenceDate[0], Period.ofYears(yearUs[loopus]), BUSINESS_DAY_USD, CALENDAR_USD);
+      maturityDateUs[2 * loopus + 1] = ScheduleCalculator.getAdjustedDate(referenceDate[1], Period.ofYears(yearUs[loopus]), BUSINESS_DAY_USD, CALENDAR_USD);
       timeValueUs[2 + 2 * loopus] = TimeCalculator.getTimeBetween(pricingDate, maturityDateUs[2 * loopus]);
       timeValueUs[2 + 2 * loopus + 1] = TimeCalculator.getTimeBetween(pricingDate, maturityDateUs[2 * loopus + 1]);
       indexValueUs[2 + 2 * loopus] = indexValueUs[0] * Math.pow(1 + 0.02, yearUs[loopus]); // 2% inflation a year.

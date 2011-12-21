@@ -24,7 +24,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -71,9 +71,9 @@ public class PresentValueCouponSensitivityCalculatorTest {
     final double r = 0.0456;
     final double tradeTime = 2.0 / 365.0;
     final double yearFrac = 5.0 / 360.0;
-    final Cash cash = new Cash(CUR, t, 1, r, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
-    final Cash cashUp = new Cash(CUR, t, 1, r + DELTA, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
-    final Cash cashDown = new Cash(CUR, t, 1, r - DELTA, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
+    final Cash cash = new Cash(CUR, tradeTime, t, 1, r, yearFrac, FIVE_PC_CURVE_NAME);
+    final Cash cashUp = new Cash(CUR, tradeTime, t, 1, r + DELTA, yearFrac, FIVE_PC_CURVE_NAME);
+    final Cash cashDown = new Cash(CUR, tradeTime, t, 1, r - DELTA, yearFrac, FIVE_PC_CURVE_NAME);
     final double pvUp = PVC.visit(cashUp, CURVES);
     final double pvDown = PVC.visit(cashDown, CURVES);
     final double temp = (pvUp - pvDown) / 2 / DELTA;

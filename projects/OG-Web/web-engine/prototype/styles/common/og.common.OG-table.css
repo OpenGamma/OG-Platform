@@ -3,98 +3,106 @@
  * @license See distribution for license
  */
 .OG-table {
-  width: 100%;
-  position: relative;
+    width: 100%;
+    position: relative;
 }
 
 .OG-table:after {
-  clear: both;
-  content: ' ';
-  display: block;
-  font-size: 0;
-  height: 0;
-  visibility: hidden;
+    clear: both;
+    content: ' ';
+    display: block;
+    font-size: 0;
+    height: 0;
+    visibility: hidden;
 }
 
 .OG-table th,
 .OG-table td {
-  padding-right: 2px;
-  padding-bottom: 2px;
+    padding-right: 2px;
+    padding-bottom: 2px;
 }
 
 .OG-table td {
-  padding: 4px;
-  background-color: #ecf5fa;
+    padding: 4px;
+    background-color: #ecf5fa;
 }
 
 .OG-table tr:first-child td {
-  padding-top: 10px;
+    padding-top: 10px;
 }
 
 .OG-table tr:last-child td {
-  padding-bottom: 10px;
+    padding-bottom: 10px;
 }
 
 .OG-table th:last-child,
 .OG-table td:last-child {
-  padding-right: 0;
+    padding-right: 0;
 }
 
 .OG-table td:first-child {
-  padding-left: 10px;
+    padding-left: 10px;
 }
 
 .OG-table th {
-  color: #999;
-  text-align: left;
-  font-weight: normal;
-  padding-top: 7px;
+    color: #999;
+    text-align: left;
+    font-weight: normal;
+    padding-top: 7px;
 }
 
 .OG-table thead span {
-  font-size: 16px;
-  line-height: 12px;
-  padding: 5px 10px 5px 8px;
-  border-left: 2px solid #c6c6c6;
-  color: #555;
-  background-color: #f3f3f3;
+    font-size: 16px;
+    line-height: 12px;
+    padding: 5px 10px 5px 8px;
+    border-left: 2px solid #c6c6c6;
+    color: #555;
+    background-color: #f3f3f3;
 }
 
 .OG-table thead tr th {
-  background-color: #fff;
+    background-color: #fff;
 }
 
 .OG-table th:after {
-  display: block;
-  content: '';
-  border-bottom: 4px solid #f3f3f3;
+    display: block;
+    content: '';
+    border-bottom: 4px solid #f3f3f3;
 }
 
-/* Sub list content */
+    /* Sub list content */
 
-.OG-table .og-sub-list {
-  width: 100%;
-}
+    .OG-table .og-sub-list {
+        width: 100%;
+    }
 
-.OG-table .og-sub-list td {
-  background-color: inherit;
-}
+    .OG-table .og-sub-list td {
+        background-color: inherit;
+    }
 
-.OG-table .og-sub-list tr td:first-child {
-  color: #999;
-}
+    .OG-table .og-sub-list tr td:first-child {
+        color: #999;
+    }
 
-.OG-table .og-sub-list .og-header {
-  background-color: #fafcfe;
-  border-top: 1px solid #d0e4f1;
-  border-bottom: 1px solid #d0e4f1;
-  color: inherit!important;
-  padding-top: 2px;
-  padding-bottom: 2px;
-}
+    .OG-table .og-sub-list .og-header {
+        background-color: #fafcfe;
+        border-top: 1px solid #d0e4f1;
+        border-bottom: 1px solid #d0e4f1;
+        color: inherit!important;
+        padding-top: 2px;
+        padding-bottom: 2px;
+    }
 
-.OG-table .og-divider td {
-  background-color: #fff;
-  height: 2px;
-  padding: 0;
-}
+    /* Extras */
+
+    .OG-table .og-divider td {
+        background-color: #fff;
+        height: 2px;
+        padding: 0;
+    }
+
+    /* Delete row */
+
+    .OG-table.og-delete {
+        color: #999;
+    }

@@ -5,16 +5,15 @@
  */
 package com.opengamma.web.security;
 
-import static org.testng.AssertJUnit.assertNotNull;
+import java.util.List;
+import java.util.Map;
 
-import java.io.File;
-import java.net.URL;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 
-import com.opengamma.OpenGammaRuntimeException;
+import com.google.common.collect.Maps;
+import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
@@ -24,6 +23,7 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
+import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
@@ -48,25 +48,16 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.time.Expiry;
 
 /**
  * Gets expected Json document for different security types
  */
 /* package */ class ExpectedSecurityJsonProvider implements FinancialSecurityVisitor<JSONObject> {
   
-  private JSONObject loadJsonFile(String filename) {
-    assertNotNull(filename);
-    URL jsonResource = getClass().getResource(filename);
-    assertNotNull(jsonResource);
-    JSONObject expectedJson = null;
-    try {
-      expectedJson = new JSONObject(FileUtils.readFileToString(new File(jsonResource.getPath())));
-    } catch (Exception ex) {
-      throw new OpenGammaRuntimeException("Problem creating json document from " + filename, ex);
-    }
-    return expectedJson;
-  }
-
+  private static final String TEMPLATE_DATA = "template_data";
+ 
   @Override
   public JSONObject visitBondSecurity(BondSecurity security) {
     return null;
@@ -79,7 +70,32 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 
   @Override
   public JSONObject visitEquitySecurity(EquitySecurity security) {
-    return loadJsonFile("equityJson.txt");
+    Map<String, Object> secMap = Maps.newHashMap();
+    
+    Map<String, Object> templateData = Maps.newHashMap();
+    addDefaultFields(security, templateData);
+    
+    if (StringUtils.isNotBlank(security.getShortName())) {
+      templateData.put("shortName", security.getShortName());
+    }
+    if (StringUtils.isNotBlank(security.getExchange())) {
+      templateData.put("exchange", security.getExchange());
+    }
+    if (security.getCurrency() != null && StringUtils.isNotBlank(security.getCurrency().getCode())) {
+      templateData.put("currency", security.getCurrency().getCode());
+    }
+    if (StringUtils.isNotBlank(security.getCompanyName())) {
+      templateData.put("companyName", security.getCompanyName());
+    }
+    if (StringUtils.isNotBlank(security.getExchangeCode())) {
+      templateData.put("exchangeCode", security.getExchangeCode());
+    }
+    if (security.getGicsCode() != null && StringUtils.isNotBlank(security.getGicsCode().toString())) {
+      templateData.put("gicsCode", security.getGicsCode().toString());
+    }
+    secMap.put(TEMPLATE_DATA, templateData);
+    addExternalIds(security, secMap);
+    return new JSONObject(secMap);
   }
 
   @Override
@@ -98,7 +114,33 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 
       @Override
       public JSONObject visitBondFutureSecurity(BondFutureSecurity security) {
-        return loadJsonFile("bondFutureJson.txt");
+        Map<String, Object> secMap = Maps.newHashMap();
+        
+        Map<String, Object> templateData = Maps.newHashMap();
+        addDefaultFields(security, templateData);
+        addExpiry(templateData, security.getExpiry());
+        
+        if (StringUtils.isNotBlank(security.getTradingExchange())) {
+          templateData.put("tradingExchange", security.getTradingExchange());
+        }
+        if (StringUtils.isNotBlank(security.getSettlementExchange())) {
+          templateData.put("settlementExchange", security.getSettlementExchange());
+        }
+        if (security.getCurrency() != null && StringUtils.isNotBlank(security.getCurrency().getCode())) {
+          templateData.put("redemptionValue", security.getCurrency().getCode());
+        }
+        List<BondFutureDeliverable> basket = security.getBasket();
+        if (!basket.isEmpty()) {
+          Map<String, String> underlyingBond = Maps.newHashMap();
+          for (BondFutureDeliverable bondFutureDeliverable : basket) {
+            underlyingBond.put(SecurityUtils.BLOOMBERG_BUID.getName() + "-" + bondFutureDeliverable.getIdentifiers().getValue(SecurityUtils.BLOOMBERG_BUID), 
+                String.valueOf(bondFutureDeliverable.getConversionFactor()));
+          }
+          templateData.put("underlyingBond", underlyingBond);
+        }
+        secMap.put(TEMPLATE_DATA, templateData);
+        addExternalIds(security, secMap);
+        return new JSONObject(secMap);
       }
 
       @Override
@@ -177,7 +219,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
   @Override
   public JSONObject visitEquityIndexDividendFutureOptionSecurity(
       EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
-    throw new NotImplementedException();
+    return null;
   }
 
   @Override
@@ -223,6 +265,50 @@ import com.opengamma.financial.security.swap.SwapSecurity;
   @Override
   public JSONObject visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
     return null;
+  }
+  
+  private void addExternalIds(FinancialSecurity security, Map<String, Object> secMap) {
+    Map<String, String> identifiers = Maps.newHashMap();
+    ExternalIdBundle externalIdBundle = security.getExternalIdBundle();
+    if (externalIdBundle.getExternalId(SecurityUtils.BLOOMBERG_BUID) != null) {
+      identifiers.put(SecurityUtils.BLOOMBERG_BUID.getName(),  SecurityUtils.BLOOMBERG_BUID.getName() + "-" + externalIdBundle.getValue(SecurityUtils.BLOOMBERG_BUID));
+    }
+    if (externalIdBundle.getExternalId(SecurityUtils.BLOOMBERG_TICKER) != null) {
+      identifiers.put(SecurityUtils.BLOOMBERG_TICKER.getName(), SecurityUtils.BLOOMBERG_TICKER.getName() + "-" + externalIdBundle.getValue(SecurityUtils.BLOOMBERG_TICKER));
+    }
+    if (externalIdBundle.getExternalId(SecurityUtils.CUSIP) != null) {
+      identifiers.put(SecurityUtils.CUSIP.getName(), SecurityUtils.CUSIP.getName() + "-" + externalIdBundle.getValue(SecurityUtils.CUSIP));
+    }
+    if (externalIdBundle.getExternalId(SecurityUtils.ISIN) != null) {
+      identifiers.put(SecurityUtils.ISIN.getName(), SecurityUtils.ISIN.getName() + "-" + externalIdBundle.getValue(SecurityUtils.ISIN));
+    }
+    if (externalIdBundle.getExternalId(SecurityUtils.SEDOL1) != null) {
+      identifiers.put(SecurityUtils.SEDOL1.getName(), SecurityUtils.SEDOL1.getName() + "-" + externalIdBundle.getValue(SecurityUtils.SEDOL1));
+    }
+    secMap.put("identifiers", identifiers);
+  }
+  
+  private void addDefaultFields(FinancialSecurity security, Map<String, Object> templateData) {
+    if (StringUtils.isNotBlank(security.getName())) {
+      templateData.put("name", security.getName());
+    }
+    if (StringUtils.isNotBlank(security.getSecurityType())) {
+      templateData.put("securityType", security.getSecurityType());
+    }
+    if (security.getUniqueId() != null && security.getUniqueId().getObjectId() != null && StringUtils.isNotBlank(security.getUniqueId().getObjectId().toString())) {
+      templateData.put("object_id", security.getUniqueId().getObjectId().toString());
+    }
+    if (security.getUniqueId() != null && StringUtils.isNotBlank(security.getUniqueId().getVersion())) {
+      templateData.put("version_id", security.getUniqueId().getVersion());
+    }
+  }
+  
+  private void addExpiry(Map<String, Object> templateData, Expiry expiry) {
+    Map<String, Object> expiryDateMap = Maps.newHashMap();
+    expiryDateMap.put("datetime", expiry.getExpiry().toOffsetDateTime().toString());
+    expiryDateMap.put("timezone", expiry.getExpiry().getZone().toString());
+    templateData.put("expiryAccuracy", expiry.getAccuracy().toString().replace("_", " "));
+    templateData.put("expirydate", expiryDateMap);
   }
 
 }

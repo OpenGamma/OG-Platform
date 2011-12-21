@@ -5,100 +5,23 @@
  */
 package com.opengamma.web.security;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
+import static com.opengamma.web.WebResourceTestUtils.assertJSONObjectEquals;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 
-import org.apache.commons.io.FileUtils;
-import org.joda.beans.JodaBeanUtils;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.core.io.FileSystemResourceLoader;
-import org.springframework.mock.web.MockServletContext;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.Maps;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.test.SecurityTestCaseMethods;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.UniqueId;
-import com.opengamma.master.config.impl.InMemoryConfigMaster;
-import com.opengamma.master.config.impl.MasterConfigSource;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
-import com.opengamma.master.historicaltimeseries.impl.InMemoryHistoricalTimeSeriesMaster;
-import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.master.security.SecurityLoader;
-import com.opengamma.master.security.SecurityMaster;
-import com.opengamma.master.security.impl.InMemorySecurityMaster;
 
 /**
  * Test {@link WebSecurityResource}.
  */
-public class WebSecurityResourceTest implements SecurityTestCaseMethods {
-  
-  private SecurityMaster _secMaster;
-  private SecurityLoader _secLoader;
-  private HistoricalTimeSeriesMaster _htsMaster;
-  private ConfigSource _cfgSource;
-  private WebSecuritiesResource _webSecuritiesResource;
-  private Map<FinancialSecurity, UniqueId> _sec2UniqueId = Maps.newHashMap();
-  
-  @BeforeMethod
-  public void setUp() throws Exception {
-    _secMaster = new InMemorySecurityMaster();
-    _secLoader = new SecurityLoader() {
-      
-      @Override
-      public Map<ExternalIdBundle, UniqueId> loadSecurity(Collection<ExternalIdBundle> identifiers) {
-        throw new UnsupportedOperationException("load security not supported");
-      }
-      
-      @Override
-      public SecurityMaster getSecurityMaster() {
-        return _secMaster;
-      }
-    };
-    
-    _htsMaster = new InMemoryHistoricalTimeSeriesMaster();
-    _cfgSource = new MasterConfigSource(new InMemoryConfigMaster());
-    
-    addSecurity(WebSecuritiesResourceTestUtils.getEquitySecurity());
-    addSecurity(WebSecuritiesResourceTestUtils.getBondFutureSecurity());
-        
-    _webSecuritiesResource = new WebSecuritiesResource(_secMaster, _secLoader, _htsMaster, _cfgSource);
-    _webSecuritiesResource.setServletContext(new MockServletContext("/web-engine", new FileSystemResourceLoader()));
-  }
-  
-  private void addSecurity(FinancialSecurity security) {
-    FinancialSecurity clone = JodaBeanUtils.clone(security);
-    SecurityDocument secDoc = _secMaster.add(new SecurityDocument(security));
-    _sec2UniqueId.put(clone, secDoc.getUniqueId());
-  }
-
-  @Test
-  public void testGetMetaDataJSON() throws Exception {
-    JSONObject expectedJson = getExceptedMetaDataJson();
-    String metaDataJSON = _webSecuritiesResource.getMetaDataJSON();
-    assertNotNull(metaDataJSON);
-    JSONObject actualJson = new JSONObject(metaDataJSON); 
-    assertEquals(expectedJson.toString(), actualJson.toString());
-  }
-
-  private JSONObject getExceptedMetaDataJson() throws IOException, JSONException {
-    URL jsonResource = getClass().getResource("securitiesMetaDataJson.txt");
-    assertNotNull(jsonResource);
-    String expectedJsonStr = FileUtils.readFileToString(new File(jsonResource.getPath()));
-    JSONObject expectedJson = new JSONObject(expectedJsonStr);
-    return expectedJson;
-  }
-
+public class WebSecurityResourceTest extends AbstractWebSecurityResourceTestCase implements SecurityTestCaseMethods {
+ 
   @Override
   public void testCorporateBondSecurity() {
   }
@@ -118,7 +41,7 @@ public class WebSecurityResourceTest implements SecurityTestCaseMethods {
   @Test
   @Override
   public void testEquitySecurity() throws Exception {
-    assertGetSecurity(WebSecuritiesResourceTestUtils.getEquitySecurity());
+    assertGetSecurity(_securities.get(EquitySecurity.class));
   }
 
   @Override
@@ -132,7 +55,7 @@ public class WebSecurityResourceTest implements SecurityTestCaseMethods {
   @Test
   @Override
   public void testBondFutureSecurity() throws Exception {
-    assertGetSecurity(WebSecuritiesResourceTestUtils.getBondFutureSecurity());
+    assertGetSecurity(_securities.get(BondFutureSecurity.class));
   }
 
   @Override
@@ -231,20 +154,14 @@ public class WebSecurityResourceTest implements SecurityTestCaseMethods {
   public void testEquityVarianceSwapSecurity() {
   }
   
-  private void assertGetSecurity(FinancialSecurity finSecurity) throws Exception {
-    assertNotNull(finSecurity);
-    UniqueId uniqueId = _sec2UniqueId.get(finSecurity);
-    assertNotNull(uniqueId);
-    
-    WebSecurityResource securityResource = _webSecuritiesResource.findSecurity(uniqueId.toString());
-    assertNotNull(securityResource);
-    String json = securityResource.getJSON();
-    assertNotNull(json);
-    JSONObject actualJson = new JSONObject(json); 
-    
-    JSONObject expectedJson = finSecurity.accept(new ExpectedSecurityJsonProvider());
-    assertNotNull(expectedJson);
-    assertEquals(expectedJson.toString(), actualJson.toString());
+  private void assertGetSecurity(final List<FinancialSecurity> securities) throws Exception {
+    for (FinancialSecurity security : securities) {
+      WebSecurityResource securityResource = _webSecuritiesResource.findSecurity(security.getUniqueId().toString());
+      JSONObject actualJson = new JSONObject(securityResource.getJSON());
+      
+      JSONObject expectedJson = security.accept(new ExpectedSecurityJsonProvider());
+      assertJSONObjectEquals(expectedJson, actualJson);
+    }
   }
   
 }

@@ -82,7 +82,7 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
    */
   public static CouponOISSimplifiedDefinition from(final IndexON index, final ZonedDateTime settlementDate, final Period tenor, final double notional, final int settlementDays,
       final BusinessDayConvention businessDayConvention, final boolean isEOM) {
-    ZonedDateTime endFixingPeriodDate = ScheduleCalculator.getAdjustedDate(settlementDate, businessDayConvention, index.getCalendar(), isEOM, tenor);
+    ZonedDateTime endFixingPeriodDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, businessDayConvention, index.getCalendar(), isEOM);
     return CouponOISSimplifiedDefinition.from(index, settlementDate, endFixingPeriodDate, notional, settlementDays);
   }
 
@@ -97,9 +97,9 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
    * @return The OIS coupon.
    */
   public static CouponOISSimplifiedDefinition from(final IndexON index, final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final int settlementDays) {
-    ZonedDateTime lastFixingDate = ScheduleCalculator.getAdjustedDate(endFixingPeriodDate, index.getCalendar(), -1); // Overnight
-    lastFixingDate = ScheduleCalculator.getAdjustedDate(lastFixingDate, index.getCalendar(), index.getPublicationLag()); // Lag
-    ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(lastFixingDate, index.getCalendar(), settlementDays);
+    ZonedDateTime lastFixingDate = ScheduleCalculator.getAdjustedDate(endFixingPeriodDate, -1, index.getCalendar()); // Overnight
+    lastFixingDate = ScheduleCalculator.getAdjustedDate(lastFixingDate, index.getPublicationLag(), index.getCalendar()); // Lag
+    ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(lastFixingDate, settlementDays, index.getCalendar());
     double payementAccrualFactor = index.getDayCount().getDayCountFraction(settlementDate, endFixingPeriodDate);
     return new CouponOISSimplifiedDefinition(index.getCurrency(), paymentDate, settlementDate, endFixingPeriodDate, payementAccrualFactor, notional, index, settlementDate, endFixingPeriodDate,
         payementAccrualFactor);

@@ -9,13 +9,13 @@ import java.util.Set;
 
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.PositionAccumulator;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.bond.BondSecurity;
 
 /**
  * 
@@ -29,7 +29,7 @@ public class PortfolioExchangeTradedDailyPnLFunction extends AbstractPortfolioDa
       final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
       for (Position position : allPositions) {
         Security positionSecurity = position.getSecurity();
-        if (!FinancialSecurityUtils.isExchangedTraded(positionSecurity)) {
+        if (!FinancialSecurityUtils.isExchangedTraded(positionSecurity) && !(positionSecurity instanceof BondSecurity)) {
           return false;
         }
       }

@@ -157,7 +157,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     CurrencyAmount pv = METHOD_BOND_INFLATION.presentValueFromCleanPriceReal(BOND_SECURITY_TIPS_1, MARKET, cleanPriceReal);
 
     double dirtyReal = cleanPriceReal + BOND_SECURITY_TIPS_1.getAccruedInterest() / NOTIONAL_TIPS_1;
-    ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(PRICING_DATE, CALENDAR_USD, SETTLEMENT_DAYS_TIPS_1);
+    ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(PRICING_DATE, SETTLEMENT_DAYS_TIPS_1, CALENDAR_USD);
     ZonedDateTime refInterpolatedDate = spot.minusMonths(MONTH_LAG_TIPS_1);
     ZonedDateTime[] referenceEndDate = new ZonedDateTime[2];
     referenceEndDate[0] = refInterpolatedDate.withDayOfMonth(1);

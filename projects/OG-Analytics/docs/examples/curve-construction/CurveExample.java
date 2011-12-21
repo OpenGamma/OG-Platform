@@ -83,6 +83,6 @@ public class CurveExample {
     // @end
     public static void main(String[] args) throws Exception {
         String[] ogargs = {"CurveExample", "../dexy--curve-output.json"};
-        OpenGammaExample.main(ogargs);
+        OpenGammaExampleClass.main(ogargs);
     }
 }

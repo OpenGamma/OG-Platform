@@ -30,6 +30,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -178,36 +179,32 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-//    HistoricalTimeSeries hts = getHistoricalTimeSeries(uniqueId);
-//    return getSubSeries(hts, start, includeStart, end, includeEnd, null);
     return doGetHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd, null);
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
-//    HistoricalTimeSeries hts = getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd); // to fix - need to cache with maxPoints too
-//    return getSubSeries(hts, start, includeStart, end, includeEnd, maxPoints);
     return doGetHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd, maxPoints);
   }
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId) {
     HistoricalTimeSeries hts = doGetHistoricalTimeSeries(uniqueId, null, true, null, true, -1);
-    if (hts != null && hts.getTimeSeries() != null) {
-      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
-    } else {
+    if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
       return null;
+    } else {
+      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
     }
   }  
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     HistoricalTimeSeries hts = doGetHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd, -1);
-    if (hts != null && hts.getTimeSeries() != null) {
-      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
-    } else {
+    if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
       return null;
+    } else {
+      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
     }
   }
 
@@ -310,12 +307,12 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(
       ExternalIdBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
-    HistoricalTimeSeries hts = doGetHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField, null, false, null, false, -1);
-    if (hts != null && hts.getTimeSeries() != null) {
-      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
-    } else {
+    HistoricalTimeSeries hts = doGetHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField, null, true, null, true, -1);
+    if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
       return null;
-    }        
+    } else {
+      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+    }
   }
 
   @Override
@@ -323,11 +320,11 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       ExternalIdBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField, 
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     HistoricalTimeSeries hts = doGetHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, -1);
-    if (hts != null && hts.getTimeSeries() != null) {
-      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
-    } else {
+    if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
       return null;
-    }           
+    } else {
+      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+    }
   }
 
   @Override
@@ -533,7 +530,11 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     HistoricalTimeSeries hts = getHistoricalTimeSeries(
         dataField, identifierBundle, identifierValidityDate, resolutionKey, 
         start, includeStart, end, includeEnd, -1);
-    return hts == null ? null : new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+    if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
+      return null;
+    } else {
+      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+    }
   }
 
   private HistoricalTimeSeries doGetHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle,
@@ -663,19 +664,28 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
    */
   private HistoricalTimeSeries getSubSeries(
       HistoricalTimeSeries hts, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
+    
     if (hts == null) {
       return null;
     }
-    if (hts.getTimeSeries().isEmpty()) {
+    LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) hts.getTimeSeries();
+    if (timeSeries == null || timeSeries.isEmpty()) { 
       return hts;
     }
-    LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) hts.getTimeSeries().subSeries(start, includeStart, end, includeEnd);
-    if ((maxPoints != null) && (Math.abs(maxPoints) < timeSeries.size())) {
+    if (start == null || start.isBefore(timeSeries.getEarliestTime())) {
+      start = timeSeries.getEarliestTime();
+    }
+    if (end == null || end.isAfter(timeSeries.getLatestTime())) {
+      end = timeSeries.getLatestTime();
+    }
+    if (start.isAfter(timeSeries.getLatestTime()) || end.isBefore(timeSeries.getEarliestTime())) {
+      return new SimpleHistoricalTimeSeries(hts.getUniqueId(), new ListLocalDateDoubleTimeSeries());
+    }
+    timeSeries = timeSeries.subSeries(start, includeStart, end, includeEnd);
+    if (((maxPoints != null) && (Math.abs(maxPoints) < timeSeries.size()))) {
       timeSeries = maxPoints >= 0 ? timeSeries.head(maxPoints) : timeSeries.tail(-maxPoints);
     }
     return new SimpleHistoricalTimeSeries(hts.getUniqueId(), timeSeries);
   }
-
-  
 
 }
