@@ -97,11 +97,6 @@ public abstract class AbstractPortfolioDailyPnLFunction extends AbstractFunction
   }
 
   @Override
-  public boolean canHandleMissingInputs() {
-    return true;
-  }
-
-  @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.PORTFOLIO_NODE;
   }
