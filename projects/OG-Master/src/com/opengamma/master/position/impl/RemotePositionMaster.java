@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.region.impl;
+package com.opengamma.master.position.impl;
 
 import java.net.URI;
 
@@ -12,21 +12,23 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.region.RegionDocument;
-import com.opengamma.master.region.RegionHistoryRequest;
-import com.opengamma.master.region.RegionHistoryResult;
-import com.opengamma.master.region.RegionMaster;
-import com.opengamma.master.region.RegionSearchRequest;
-import com.opengamma.master.region.RegionSearchResult;
+import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.master.position.ManageableTrade;
+import com.opengamma.master.position.PositionDocument;
+import com.opengamma.master.position.PositionHistoryRequest;
+import com.opengamma.master.position.PositionHistoryResult;
+import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.position.PositionSearchRequest;
+import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.FudgeRestClient;
 import com.sun.jersey.api.client.WebResource.Builder;
 
 /**
- * Provides access to a remote {@link RegionMaster}.
+ * Provides access to a remote {@link PortfolioMaster}.
  */
-public class RemoteRegionMaster implements RegionMaster {
+public class RemotePositionMaster implements PositionMaster {
 
   /**
    * The base URI to call.
@@ -46,7 +48,7 @@ public class RemoteRegionMaster implements RegionMaster {
    * 
    * @param baseUri  the base target URI for all RESTful web services, not null
    */
-  public RemoteRegionMaster(final URI baseUri) {
+  public RemotePositionMaster(final URI baseUri) {
     this(baseUri, new BasicChangeManager());
   }
 
@@ -56,7 +58,7 @@ public class RemoteRegionMaster implements RegionMaster {
    * @param baseUri  the base target URI for all RESTful web services, not null
    * @param changeManager  the change manager, not null
    */
-  public RemoteRegionMaster(final URI baseUri, ChangeManager changeManager) {
+  public RemotePositionMaster(final URI baseUri, ChangeManager changeManager) {
     ArgumentChecker.notNull(baseUri, "baseUri");
     ArgumentChecker.notNull(changeManager, "changeManager");
     _baseUri = baseUri;
@@ -66,22 +68,22 @@ public class RemoteRegionMaster implements RegionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public RegionSearchResult search(final RegionSearchRequest request) {
+  public PositionSearchResult search(final PositionSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     
     String msgBase64 = _client.encodeBean(request);
-    URI uri = DataRegionsResource.uri(_baseUri, msgBase64);
-    return accessRemote(uri).get(RegionSearchResult.class);
+    URI uri = DataPositionsResource.uri(_baseUri, msgBase64);
+    return accessRemote(uri).get(PositionSearchResult.class);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public RegionDocument get(final UniqueId uniqueId) {
+  public PositionDocument get(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     if (uniqueId.isVersioned()) {
-      URI uri = DataRegionResource.uriVersion(_baseUri, uniqueId);
-      return accessRemote(uri).get(RegionDocument.class);
+      URI uri = DataPositionResource.uriVersion(_baseUri, uniqueId);
+      return accessRemote(uri).get(PositionDocument.class);
     } else {
       return get(uniqueId, VersionCorrection.LATEST);
     }
@@ -89,32 +91,32 @@ public class RemoteRegionMaster implements RegionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public RegionDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+  public PositionDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     
-    URI uri = DataRegionResource.uri(_baseUri, objectId, versionCorrection);
-    return accessRemote(uri).get(RegionDocument.class);
+    URI uri = DataPositionResource.uri(_baseUri, objectId, versionCorrection);
+    return accessRemote(uri).get(PositionDocument.class);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public RegionDocument add(final RegionDocument document) {
+  public PositionDocument add(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getRegion(), "document.region");
+    ArgumentChecker.notNull(document.getPosition(), "document.position");
     
-    URI uri = DataRegionsResource.uri(_baseUri, null);
-    return accessRemote(uri).post(RegionDocument.class, document);
+    URI uri = DataPositionsResource.uri(_baseUri, null);
+    return accessRemote(uri).post(PositionDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public RegionDocument update(final RegionDocument document) {
+  public PositionDocument update(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getRegion(), "document.region");
+    ArgumentChecker.notNull(document.getPosition(), "document.position");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataRegionResource.uri(_baseUri, document.getUniqueId(), VersionCorrection.LATEST);
-    return accessRemote(uri).put(RegionDocument.class, document);
+    URI uri = DataPositionResource.uri(_baseUri, document.getUniqueId(), VersionCorrection.LATEST);
+    return accessRemote(uri).put(PositionDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
@@ -122,30 +124,39 @@ public class RemoteRegionMaster implements RegionMaster {
   public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    URI uri = DataRegionResource.uri(_baseUri, uniqueId, VersionCorrection.LATEST);
+    URI uri = DataPositionResource.uri(_baseUri, uniqueId, VersionCorrection.LATEST);
     accessRemote(uri).delete();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public RegionHistoryResult history(final RegionHistoryRequest request) {
+  public PositionHistoryResult history(final PositionHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     String msgBase64 = _client.encodeBean(request);
-    URI uri = DataRegionResource.uriVersions(_baseUri, request.getObjectId(), msgBase64);
-    return accessRemote(uri).get(RegionHistoryResult.class);
+    URI uri = DataPositionResource.uriVersions(_baseUri, request.getObjectId(), msgBase64);
+    return accessRemote(uri).get(PositionHistoryResult.class);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public RegionDocument correct(final RegionDocument document) {
+  public PositionDocument correct(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getRegion(), "document.region");
+    ArgumentChecker.notNull(document.getPosition(), "document.position");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataRegionResource.uriVersion(_baseUri, document.getUniqueId());
-    return accessRemote(uri).get(RegionDocument.class);
+    URI uri = DataPositionResource.uriVersion(_baseUri, document.getUniqueId());
+    return accessRemote(uri).get(PositionDocument.class);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ManageableTrade getTrade(final UniqueId tradeId) {
+    ArgumentChecker.notNull(tradeId, "tradeId");
+    
+    URI uri = DataPositionResource.uriTrade(_baseUri, tradeId);
+    return accessRemote(uri).get(ManageableTrade.class);
   }
 
   //-------------------------------------------------------------------------

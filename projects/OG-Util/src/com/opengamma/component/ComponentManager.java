@@ -6,6 +6,7 @@
 package com.opengamma.component;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.PlatformConfigUtils;
 
 /**
  * Manages the process of starting OpenGamma components.
@@ -60,11 +62,25 @@ public class ComponentManager {
     ComponentConfigLoader loader = new ComponentConfigLoader();
     ComponentConfig config = loader.load(resource, new HashMap<String, String>());
     _repo.pushThreadLocal();
+    initGlobal(config);
     init(config);
     start();
   }
 
   //-------------------------------------------------------------------------
+  protected void initGlobal(ComponentConfig config) {
+    LinkedHashMap<String, String> global = config.getGroup("global");
+    if (global != null) {
+      String runMode = global.get("run.mode");
+      String mds = global.get("market.data.source");
+      if (runMode != null && mds != null) {
+        PlatformConfigUtils.configureSystemProperties(runMode, mds);
+      } else if (runMode != null && mds == null) {
+        PlatformConfigUtils.configureSystemProperties(runMode);
+      }
+    }
+  }
+
   /**
    * Initializes the repository from the config.
    * 
@@ -84,6 +100,7 @@ public class ComponentManager {
    * Starts the components.
    */
   protected void start() {
+    s_logger.info("Starting repository");
     _repo.start();
   }
 
@@ -97,12 +114,12 @@ public class ComponentManager {
   protected void initComponent(String groupName, LinkedHashMap<String, String> groupData) {
     groupData = new LinkedHashMap<String, String>(groupData);
     String typeStr = groupData.remove("factory");
-    s_logger.info("Starting component: {} with properties {}", typeStr, groupData);
+    s_logger.info("Initializing component: {} with properties {}", typeStr, groupData);
     
     // load and init
     ComponentFactory factory = loadFactory(typeStr);
     setFactoryProperties(factory, groupData);
-    initFactory(factory);
+    initFactory(factory, groupData);
   }
 
   //-------------------------------------------------------------------------
@@ -138,10 +155,12 @@ public class ComponentManager {
   protected void setFactoryProperties(ComponentFactory factory, LinkedHashMap<String, String> groupData) {
     if (factory instanceof Bean) {
       Bean bean = (Bean) factory;
-      for (Entry<String, String> entry : groupData.entrySet()) {
+      for (Iterator<Entry<String, String>> it = groupData.entrySet().iterator(); it.hasNext(); ) {
+        Entry<String, String> entry = it.next();
         if (bean.propertyNames().contains(entry.getKey())) {
           MetaProperty<Object> mp = bean.metaBean().metaProperty(entry.getKey());
           setFactoryProperty(bean, mp, entry.getValue());
+          it.remove();
         }
       }
     }
@@ -186,10 +205,11 @@ public class ComponentManager {
    * The factory may also publish a RESTful view and/or a life-cycle method.
    * 
    * @param factory  the factory to initialize, not null
+   * @param groupData  the remaining configuration data, not null
    */
-  protected void initFactory(ComponentFactory factory) {
+  protected void initFactory(ComponentFactory factory, LinkedHashMap<String, String> groupData) {
     try {
-      factory.init(_repo);
+      factory.init(_repo, groupData);
     } catch (Exception ex) {
       throw new OpenGammaRuntimeException(ex.getMessage(), ex);
     }

@@ -66,7 +66,7 @@ public class DataRegionsResource extends AbstractDataResource {
   @HEAD
   @Path("regions")
   public Response status() {
-    // simple GET to quickly return, avoiding loading the whole database
+    // simple HEAD to quickly return, avoiding loading the whole database
     return Response.ok().build();
   }
 
@@ -83,7 +83,7 @@ public class DataRegionsResource extends AbstractDataResource {
   @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, RegionDocument request) {
     RegionDocument result = getRegionMaster().add(request);
-    return Response.created(DataRegionResource.uri(uriInfo.getBaseUri(), result.getUniqueId(), null)).entity(result).build();
+    return Response.created(DataRegionResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId())).entity(result).build();
   }
 
   //-------------------------------------------------------------------------

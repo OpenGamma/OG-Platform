@@ -146,12 +146,18 @@ public class OpenGammaComponentServer {
     @Override
     protected void initComponent(String groupName, LinkedHashMap<String, String> groupData) {
       long startInstant = System.nanoTime();
-      System.out.println("--- Starting " + groupName + " ---");
+      System.out.println("--- Initializing " + groupName + " ---");
       
       super.initComponent(groupName, groupData);
       
       long endInstant = System.nanoTime();
-      System.out.println("--- Started " + groupName + " in " + ((endInstant - startInstant) / 1000000L) + "ms ---");
+      System.out.println("--- Initialized " + groupName + " in " + ((endInstant - startInstant) / 1000000L) + "ms ---");
+    }
+    @Override
+    protected void start() {
+      System.out.println("--- Starting Lifecycle ---");
+      super.start();
+      System.out.println("--- Started Lifecycle ---");
     }
   }
 

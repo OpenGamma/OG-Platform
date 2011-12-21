@@ -5,6 +5,8 @@
  */
 package com.opengamma.component;
 
+import java.util.LinkedHashMap;
+
 /**
  * A factory capable of creating component(s) in the OpenGamma system.
  */
@@ -16,8 +18,9 @@ public interface ComponentFactory {
    * The factory is responsible for registering the component(s) with the repository.
    * 
    * @param repo  the repository to register the component(s) with, not null
+   * @param configuration  the config data, not null
    * @throws Exception allows the implementation to throw checked exceptions
    */
-  void init(ComponentRepository repo) throws Exception;
+  void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception;
 
 }

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.exchange.impl;
+package com.opengamma.master.marketdatasnapshot.impl;
 
 import java.net.URI;
 
@@ -24,25 +24,25 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.exchange.ExchangeDocument;
-import com.opengamma.master.exchange.ExchangeHistoryRequest;
-import com.opengamma.master.exchange.ExchangeHistoryResult;
-import com.opengamma.master.exchange.ExchangeMaster;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * RESTful resource for an exchange.
+ * RESTful resource for a snapshot.
  */
-@Path("/exgMaster/exchanges/{exchangeId}")
-public class DataExchangeResource extends AbstractDataResource {
+@Path("/snpMaster/snapshots/{snapshotId}")
+public class DataMarketDataSnapshotResource extends AbstractDataResource {
 
   /**
-   * The exchanges resource.
+   * The snapshots resource.
    */
-  private final DataExchangesResource _exchangesResource;
+  private final DataMarketDataSnapshotsResource _snapshotsResource;
   /**
    * The identifier specified in the URI.
    */
@@ -51,43 +51,43 @@ public class DataExchangeResource extends AbstractDataResource {
   /**
    * Creates the resource.
    * 
-   * @param exchangesResource  the parent resource, not null
-   * @param exchangeId  the exchange unique identifier, not null
+   * @param snapshotsResource  the parent resource, not null
+   * @param snapshotId  the snapshot unique identifier, not null
    */
-  public DataExchangeResource(final DataExchangesResource exchangesResource, final ObjectId exchangeId) {
-    ArgumentChecker.notNull(exchangesResource, "exchangesResource");
-    ArgumentChecker.notNull(exchangeId, "exchange");
-    _exchangesResource = exchangesResource;
-    _urlResourceId = exchangeId;
+  public DataMarketDataSnapshotResource(final DataMarketDataSnapshotsResource snapshotsResource, final ObjectId snapshotId) {
+    ArgumentChecker.notNull(snapshotsResource, "snapshotsResource");
+    ArgumentChecker.notNull(snapshotId, "snapshot");
+    _snapshotsResource = snapshotsResource;
+    _urlResourceId = snapshotId;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the exchanges resource.
+   * Gets the snapshots resource.
    * 
-   * @return the exchanges resource, not null
+   * @return the snapshots resource, not null
    */
-  public DataExchangesResource getExchangesResource() {
-    return _exchangesResource;
+  public DataMarketDataSnapshotsResource getMarketDataSnapshotsResource() {
+    return _snapshotsResource;
   }
 
   /**
-   * Gets the exchange identifier from the URL.
+   * Gets the snapshot identifier from the URL.
    * 
    * @return the unique identifier, not null
    */
-  public ObjectId getUrlExchangeId() {
+  public ObjectId getUrlMarketDataSnapshotId() {
     return _urlResourceId;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the exchange master.
+   * Gets the snapshot master.
    * 
-   * @return the exchange master, not null
+   * @return the snapshot master, not null
    */
-  public ExchangeMaster getExchangeMaster() {
-    return getExchangesResource().getExchangeMaster();
+  public MarketDataSnapshotMaster getMarketDataSnapshotMaster() {
+    return getMarketDataSnapshotsResource().getMarketDataSnapshotMaster();
   }
 
   //-------------------------------------------------------------------------
@@ -95,24 +95,24 @@ public class DataExchangeResource extends AbstractDataResource {
   public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo) {
     Instant v = (versionAsOf != null ? DateUtils.parseInstant(versionAsOf) : null);
     Instant c = (correctedTo != null ? DateUtils.parseInstant(correctedTo) : null);
-    ExchangeDocument result = getExchangeMaster().get(getUrlExchangeId(), VersionCorrection.of(v, c));
+    MarketDataSnapshotDocument result = getMarketDataSnapshotMaster().get(getUrlMarketDataSnapshotId(), VersionCorrection.of(v, c));
     return Response.ok(result).build();
   }
 
   @PUT
   @Consumes(FudgeRest.MEDIA)
-  public Response put(ExchangeDocument request) {
-    if (getUrlExchangeId().equals(request.getUniqueId().getObjectId()) == false) {
+  public Response put(MarketDataSnapshotDocument request) {
+    if (getUrlMarketDataSnapshotId().equals(request.getUniqueId().getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
-    ExchangeDocument result = getExchangeMaster().update(request);
+    MarketDataSnapshotDocument result = getMarketDataSnapshotMaster().update(request);
     return Response.ok(result).build();
   }
 
   @DELETE
   @Consumes(FudgeRest.MEDIA)
   public Response delete() {
-    getExchangeMaster().remove(getUrlExchangeId().atLatestVersion());
+    getMarketDataSnapshotMaster().remove(getUrlMarketDataSnapshotId().atLatestVersion());
     return Response.noContent().build();
   }
 
@@ -120,18 +120,18 @@ public class DataExchangeResource extends AbstractDataResource {
   @GET
   @Path("versions")
   public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    ExchangeHistoryRequest request = decodeBean(ExchangeHistoryRequest.class, providers, msgBase64);
-    if (getUrlExchangeId().equals(request.getObjectId()) == false) {
+    MarketDataSnapshotHistoryRequest request = decodeBean(MarketDataSnapshotHistoryRequest.class, providers, msgBase64);
+    if (getUrlMarketDataSnapshotId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
-    ExchangeHistoryResult result = getExchangeMaster().history(request);
+    MarketDataSnapshotHistoryResult result = getMarketDataSnapshotMaster().history(request);
     return Response.ok(result).build();
   }
 
   @GET
   @Path("versions/{versionId}")
   public Response getVersioned(@PathParam("versionId") String versionId) {
-    ExchangeDocument result = getExchangeMaster().get(getUrlExchangeId().atVersion(versionId));
+    MarketDataSnapshotDocument result = getMarketDataSnapshotMaster().get(getUrlMarketDataSnapshotId().atVersion(versionId));
     return Response.ok(result).build();
   }
 
@@ -145,7 +145,7 @@ public class DataExchangeResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    UriBuilder b = UriBuilder.fromUri(baseUri).path("/exchanges/{exchangeId}");
+    UriBuilder b = UriBuilder.fromUri(baseUri).path("/snapshots/{snapshotId}");
     if (versionCorrection != null && versionCorrection.getVersionAsOf() != null) {
       b.queryParam("versionAsOf", versionCorrection.getVersionAsOf());
     }
@@ -164,7 +164,7 @@ public class DataExchangeResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchanges/{exchangeId}/versions");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/snapshots/{snapshotId}/versions");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }
@@ -179,7 +179,7 @@ public class DataExchangeResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriVersion(URI baseUri, UniqueId uniqueId) {
-    return UriBuilder.fromUri(baseUri).path("/exchanges/{exchangeId}/versions/{versionId}")
+    return UriBuilder.fromUri(baseUri).path("/snapshots/{snapshotId}/versions/{versionId}")
       .build(uniqueId.toLatest(), uniqueId.getVersion());
   }
 

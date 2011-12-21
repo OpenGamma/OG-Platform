@@ -30,19 +30,6 @@
     <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
   </bean>
 
-  <bean id="cfgDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-    <property name="driverClassName" value="${opengamma.config.jdbc.driver}" />
-    <property name="url" value="${opengamma.config.jdbc.url}" />
-    <property name="username" value="${opengamma.config.jdbc.username}" />
-    <property name="password" value="${opengamma.config.jdbc.password}" />
-  </bean>
-
-  <bean id="cfgDbConnector" parent="abstractDbConnector">
-    <property name="name" value="Config"/>
-    <property name="dataSource" ref="cfgDataSource"/>
-    <property name="dialectName" value="${opengamma.config.db.dbdialect}"/>
-  </bean>
-  
   <bean id="finDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="${opengamma.financial.jdbc.driver}" />
     <property name="url" value="${opengamma.financial.jdbc.url}" />
@@ -54,24 +41,6 @@
     <property name="name" value="Integration"/>
     <property name="dataSource" ref="finDataSource"/>
     <property name="dialectName" value="${opengamma.financial.db.dbdialect}"/>
-  </bean>
-  
-  <bean id="secDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-    <property name="driverClassName" value="${opengamma.financial.jdbc.driver}" />
-    <property name="url" value="${opengamma.financial.jdbc.url}" />
-    <property name="username" value="${opengamma.financial.jdbc.username}" />
-    <property name="password" value="${opengamma.financial.jdbc.password}" />
-  </bean>
-
-  <bean id="secDbConnector" parent="abstractDbConnector">
-    <property name="name" value="Security"/>
-    <property name="dataSource" ref="secDataSource"/>
-    <property name="dialectName" value="${opengamma.financial.db.dbdialect}"/>
-    <property name="hibernateMappingFiles">
-      <list>
-        <bean class="com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles"/>
-      </list>
-    </property>
   </bean>
   
   <bean id="htsDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
@@ -92,13 +61,38 @@
   </bean>
 
   <!-- ================================================================== -->
-  <!-- ConfigMaster -->
-  <bean id="sharedConfigMaster" class="com.opengamma.masterdb.spring.DbConfigMasterFactoryBean">
-    <property name="dbConnector" ref="cfgDbConnector" />
-    <property name="uniqueIdScheme" value="${opengamma.config.db.configmaster.scheme}" />
-  </bean>
+  <!--  Remote masters -->
+  <bean class="com.opengamma.financial.spring.ComponentRepositoryBeanPostProcessor" />
+  <alias name="centralConfigMaster" alias="sharedConfigMaster" />
+  <alias name="centralExchangeMaster" alias="dbExchangeMaster" />
+  <alias name="centralHolidayMaster" alias="dbHolidayMaster" />
+  <alias name="centralMarketDataSnapshotMaster" alias="dbSnapshotMaster" />
+  <alias name="centralSecurityMaster" alias="dbSecurityMaster" />
+  <alias name="centralPositionMaster" alias="dbPositionMaster" />
+  <alias name="centralPortfolioMaster" alias="dbPortfolioMaster" />
+  
+  <!-- Sources -->
   <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource">
     <constructor-arg ref="sharedConfigMaster" />
+  </bean>
+  <bean id="sharedExchangeSource" class="com.opengamma.financial.spring.ExchangeSourceFactoryBean">
+    <property name="exchangeMaster" ref="dbExchangeMaster" />
+  </bean>
+  <bean id="sharedHolidaySource" class="com.opengamma.financial.spring.HolidaySourceFactoryBean">
+    <property name="holidayMaster" ref="dbHolidayMaster"/>
+  </bean>
+  <bean id="sharedSnapshotSource" class="com.opengamma.financial.spring.MarketDataSnapshotSourceFactoryBean">
+    <property name="snapshotMaster" ref="dbSnapshotMaster"/>
+    <property name="cacheManager" ref="cacheManager" />
+  </bean>
+  <bean id="sharedSecuritySource" class="com.opengamma.financial.spring.FinancialSecuritySourceFactoryBean">
+    <property name="securityMaster" ref="dbSecurityMaster" />
+    <property name="cacheManager" ref="cacheManager" />
+  </bean>
+  <bean id="sharedPositionSource" class="com.opengamma.financial.spring.PositionSourceFactoryBean">
+    <property name="portfolioMaster" ref="dbPortfolioMaster" />
+    <property name="positionMaster" ref="dbPositionMaster" />
+    <property name="cacheManager" ref="cacheManager" />
   </bean>
 
   <!-- Config loaders, should be commented out most of the time -->
@@ -112,52 +106,6 @@
     <property name="equityOptionSurface" value="true" />
     <property name="volatilityCube" value="true" />
   </bean-->
-
-  <!-- ExchangeMaster -->
-  <bean id="dbExchangeMaster" class="com.opengamma.masterdb.spring.DbExchangeMasterFactoryBean">
-    <property name="dbConnector" ref="finDbConnector" />
-    <property name="uniqueIdScheme" value="${opengamma.financial.db.exchangemaster.scheme}" />
-  </bean>
-  <bean id="sharedExchangeSource" class="com.opengamma.financial.spring.ExchangeSourceFactoryBean">
-    <property name="exchangeMaster" ref="dbExchangeMaster" />
-  </bean>
-
-  <!-- HolidayMaster -->
-  <bean id="dbHolidayMaster" class="com.opengamma.masterdb.spring.DbHolidayMasterFactoryBean">
-    <property name="dbConnector" ref="finDbConnector" />
-    <property name="uniqueIdScheme" value="${opengamma.financial.db.holidaymaster.scheme}" />
-  </bean>
-  <bean id="sharedHolidaySource" class="com.opengamma.financial.spring.HolidaySourceFactoryBean">
-    <property name="holidayMaster" ref="dbHolidayMaster"/>
-  </bean>
-
-  <!-- SecurityMaster -->
-  <bean id="dbSecurityMaster" class="com.opengamma.masterdb.spring.DbSecurityMasterFactoryBean">
-    <property name="dbConnector" ref="secDbConnector" />
-    <property name="uniqueIdScheme" value="${opengamma.financial.db.securitymaster.scheme}" />
-    <property name="cacheManager" ref="cacheManager" />
-  </bean>
-  <bean id="sharedSecuritySource" class="com.opengamma.financial.spring.FinancialSecuritySourceFactoryBean">
-    <property name="securityMaster" ref="dbSecurityMaster" />
-    <property name="cacheManager" ref="cacheManager" />
-  </bean>
-
-  <!-- PortfolioMaster/PositionMaster -->
-  <bean id="dbPortfolioMaster" class="com.opengamma.masterdb.spring.DbPortfolioMasterFactoryBean">
-    <property name="dbConnector" ref="finDbConnector" />
-    <property name="uniqueIdScheme" value="${opengamma.financial.db.portfoliomaster.scheme}" />
-    <property name="jmsConnector" ref="jmsConnector" />
-    <property name="jmsChangeManagerTopic" value="dbPortfolioMasterChangeManager" />
-  </bean>
-  <bean id="dbPositionMaster" class="com.opengamma.masterdb.spring.DbPositionMasterFactoryBean">
-    <property name="dbConnector" ref="finDbConnector" />
-    <property name="uniqueIdScheme" value="${opengamma.financial.db.positionmaster.scheme}" />
-  </bean>
-  <bean id="sharedPositionSource" class="com.opengamma.financial.spring.PositionSourceFactoryBean">
-    <property name="portfolioMaster" ref="dbPortfolioMaster" />
-    <property name="positionMaster" ref="dbPositionMaster" />
-    <property name="cacheManager" ref="cacheManager" />
-  </bean>
 
   <!-- FunctionCostsMaster --> 
   <bean id="dbFunctionCostsMaster" class="com.opengamma.masterdb.spring.DbFunctionCostsMasterFactoryBean">
@@ -173,18 +121,6 @@
     <property name="historicalTimeSeriesMaster" ref="dbHtsMaster"/>
     <property name="cacheManager" ref="cacheManager" />
     <property name="configSource" ref="sharedConfigSource"/>
-  </bean>
-
-  <!-- MarketDataSnapshotMaster -->
-  <bean id="dbSnapshotMaster" class="com.opengamma.masterdb.spring.DbMarketDataSnapshotMasterFactoryBean">
-    <property name="dbConnector" ref="finDbConnector" />
-    <property name="uniqueIdScheme" value="${opengamma.financial.db.snapshotmaster.scheme}" />
-    <property name="jmsConnector" ref="jmsConnector" />
-    <property name="jmsChangeManagerTopic" value="dbSnapshotMasterChangeManager" />
-  </bean>
-  <bean id="sharedSnapshotSource" class="com.opengamma.financial.spring.MarketDataSnapshotSourceFactoryBean">
-    <property name="snapshotMaster" ref="dbSnapshotMaster"/>
-    <property name="cacheManager" ref="cacheManager" />
   </bean>
 
   <!-- ================================================================== -->

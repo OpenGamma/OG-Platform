@@ -79,7 +79,7 @@ public class DataSecuritiesResource extends AbstractDataResource {
   @HEAD
   @Path("securities")
   public Response status() {
-    // simple GET to quickly return, avoiding loading the whole database
+    // simple HEAD to quickly return, avoiding loading the whole database
     return Response.ok().build();
   }
 
@@ -96,7 +96,7 @@ public class DataSecuritiesResource extends AbstractDataResource {
   @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, SecurityDocument request) {
     SecurityDocument result = getSecurityMaster().add(request);
-    return Response.created(DataSecurityResource.uri(uriInfo.getBaseUri(), result.getUniqueId(), null)).entity(result).build();
+    return Response.created(DataSecurityResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId())).entity(result).build();
   }
 
   //-------------------------------------------------------------------------
@@ -108,7 +108,7 @@ public class DataSecuritiesResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   /**
-   * Builds a URI for all securities.
+   * Builds a URI for security meta-data.
    * 
    * @param baseUri  the base URI, not null
    * @param searchMsg  the search message, may be null

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.region.impl;
+package com.opengamma.master.marketdatasnapshot.impl;
 
 import java.net.URI;
 
@@ -12,21 +12,21 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.region.RegionDocument;
-import com.opengamma.master.region.RegionHistoryRequest;
-import com.opengamma.master.region.RegionHistoryResult;
-import com.opengamma.master.region.RegionMaster;
-import com.opengamma.master.region.RegionSearchRequest;
-import com.opengamma.master.region.RegionSearchResult;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.FudgeRestClient;
 import com.sun.jersey.api.client.WebResource.Builder;
 
 /**
- * Provides access to a remote {@link RegionMaster}.
+ * Provides access to a remote {@link MarketDataSnapshotMaster}.
  */
-public class RemoteRegionMaster implements RegionMaster {
+public class RemoteMarketDataSnapshotMaster implements MarketDataSnapshotMaster {
 
   /**
    * The base URI to call.
@@ -46,7 +46,7 @@ public class RemoteRegionMaster implements RegionMaster {
    * 
    * @param baseUri  the base target URI for all RESTful web services, not null
    */
-  public RemoteRegionMaster(final URI baseUri) {
+  public RemoteMarketDataSnapshotMaster(final URI baseUri) {
     this(baseUri, new BasicChangeManager());
   }
 
@@ -56,7 +56,7 @@ public class RemoteRegionMaster implements RegionMaster {
    * @param baseUri  the base target URI for all RESTful web services, not null
    * @param changeManager  the change manager, not null
    */
-  public RemoteRegionMaster(final URI baseUri, ChangeManager changeManager) {
+  public RemoteMarketDataSnapshotMaster(final URI baseUri, ChangeManager changeManager) {
     ArgumentChecker.notNull(baseUri, "baseUri");
     ArgumentChecker.notNull(changeManager, "changeManager");
     _baseUri = baseUri;
@@ -66,22 +66,22 @@ public class RemoteRegionMaster implements RegionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public RegionSearchResult search(final RegionSearchRequest request) {
+  public MarketDataSnapshotSearchResult search(final MarketDataSnapshotSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     
     String msgBase64 = _client.encodeBean(request);
-    URI uri = DataRegionsResource.uri(_baseUri, msgBase64);
-    return accessRemote(uri).get(RegionSearchResult.class);
+    URI uri = DataMarketDataSnapshotsResource.uri(_baseUri, msgBase64);
+    return accessRemote(uri).get(MarketDataSnapshotSearchResult.class);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public RegionDocument get(final UniqueId uniqueId) {
+  public MarketDataSnapshotDocument get(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     if (uniqueId.isVersioned()) {
-      URI uri = DataRegionResource.uriVersion(_baseUri, uniqueId);
-      return accessRemote(uri).get(RegionDocument.class);
+      URI uri = DataMarketDataSnapshotResource.uriVersion(_baseUri, uniqueId);
+      return accessRemote(uri).get(MarketDataSnapshotDocument.class);
     } else {
       return get(uniqueId, VersionCorrection.LATEST);
     }
@@ -89,32 +89,32 @@ public class RemoteRegionMaster implements RegionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public RegionDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+  public MarketDataSnapshotDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     
-    URI uri = DataRegionResource.uri(_baseUri, objectId, versionCorrection);
-    return accessRemote(uri).get(RegionDocument.class);
+    URI uri = DataMarketDataSnapshotResource.uri(_baseUri, objectId, versionCorrection);
+    return accessRemote(uri).get(MarketDataSnapshotDocument.class);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public RegionDocument add(final RegionDocument document) {
+  public MarketDataSnapshotDocument add(final MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getRegion(), "document.region");
+    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
     
-    URI uri = DataRegionsResource.uri(_baseUri, null);
-    return accessRemote(uri).post(RegionDocument.class, document);
+    URI uri = DataMarketDataSnapshotsResource.uri(_baseUri, null);
+    return accessRemote(uri).post(MarketDataSnapshotDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public RegionDocument update(final RegionDocument document) {
+  public MarketDataSnapshotDocument update(final MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getRegion(), "document.region");
+    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataRegionResource.uri(_baseUri, document.getUniqueId(), VersionCorrection.LATEST);
-    return accessRemote(uri).put(RegionDocument.class, document);
+    URI uri = DataMarketDataSnapshotResource.uri(_baseUri, document.getUniqueId(), VersionCorrection.LATEST);
+    return accessRemote(uri).put(MarketDataSnapshotDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
@@ -122,30 +122,30 @@ public class RemoteRegionMaster implements RegionMaster {
   public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    URI uri = DataRegionResource.uri(_baseUri, uniqueId, VersionCorrection.LATEST);
+    URI uri = DataMarketDataSnapshotResource.uri(_baseUri, uniqueId, VersionCorrection.LATEST);
     accessRemote(uri).delete();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public RegionHistoryResult history(final RegionHistoryRequest request) {
+  public MarketDataSnapshotHistoryResult history(final MarketDataSnapshotHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     String msgBase64 = _client.encodeBean(request);
-    URI uri = DataRegionResource.uriVersions(_baseUri, request.getObjectId(), msgBase64);
-    return accessRemote(uri).get(RegionHistoryResult.class);
+    URI uri = DataMarketDataSnapshotResource.uriVersions(_baseUri, request.getObjectId(), msgBase64);
+    return accessRemote(uri).get(MarketDataSnapshotHistoryResult.class);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public RegionDocument correct(final RegionDocument document) {
+  public MarketDataSnapshotDocument correct(final MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getRegion(), "document.region");
+    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataRegionResource.uriVersion(_baseUri, document.getUniqueId());
-    return accessRemote(uri).get(RegionDocument.class);
+    URI uri = DataMarketDataSnapshotResource.uriVersion(_baseUri, document.getUniqueId());
+    return accessRemote(uri).get(MarketDataSnapshotDocument.class);
   }
 
   //-------------------------------------------------------------------------

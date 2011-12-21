@@ -112,7 +112,7 @@ public class RemoteHolidayMaster implements HolidayMaster {
   @Override
   public HolidayDocument add(final HolidayDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getHoliday(), "document.position");
+    ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
     
     URI uri = DataHolidaysResource.uri(_baseUri, null);
     return accessRemote(uri).post(HolidayDocument.class, document);
@@ -122,7 +122,7 @@ public class RemoteHolidayMaster implements HolidayMaster {
   @Override
   public HolidayDocument update(final HolidayDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getHoliday(), "document.position");
+    ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     URI uri = DataHolidayResource.uri(_baseUri, document.getUniqueId(), VersionCorrection.LATEST);
@@ -153,7 +153,7 @@ public class RemoteHolidayMaster implements HolidayMaster {
   @Override
   public HolidayDocument correct(final HolidayDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getHoliday(), "document.position");
+    ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     URI uri = DataHolidayResource.uriVersion(_baseUri, document.getUniqueId());

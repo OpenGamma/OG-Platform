@@ -37,7 +37,7 @@ public class ComponentConfig {
    * Gets a group by name.
    * 
    * @param groupKey  the group key, not null
-   * @return the group, not null
+   * @return a modifiable copy of the configured group, not null
    * @throws IllegalArgumentException if the group is not found
    */
   public LinkedHashMap<String, String> getGroup(String groupKey) {
@@ -45,7 +45,7 @@ public class ComponentConfig {
     if (config == null) {
       throw new IllegalArgumentException("Config key not found: " + groupKey);
     }
-    return config;
+    return new LinkedHashMap<String, String>(config);
   }
 
   /**

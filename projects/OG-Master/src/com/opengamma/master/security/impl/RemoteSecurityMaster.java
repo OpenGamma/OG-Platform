@@ -112,7 +112,7 @@ public class RemoteSecurityMaster implements SecurityMaster {
   @Override
   public SecurityDocument add(final SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getSecurity(), "document.position");
+    ArgumentChecker.notNull(document.getSecurity(), "document.security");
     
     URI uri = DataSecuritiesResource.uri(_baseUri, null);
     return accessRemote(uri).post(SecurityDocument.class, document);
@@ -122,7 +122,7 @@ public class RemoteSecurityMaster implements SecurityMaster {
   @Override
   public SecurityDocument update(final SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getSecurity(), "document.position");
+    ArgumentChecker.notNull(document.getSecurity(), "document.security");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     URI uri = DataSecurityResource.uri(_baseUri, document.getUniqueId(), VersionCorrection.LATEST);
@@ -153,7 +153,7 @@ public class RemoteSecurityMaster implements SecurityMaster {
   @Override
   public SecurityDocument correct(final SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getSecurity(), "document.position");
+    ArgumentChecker.notNull(document.getSecurity(), "document.security");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     URI uri = DataSecurityResource.uriVersion(_baseUri, document.getUniqueId());

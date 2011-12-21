@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.region.impl;
+package com.opengamma.master.config.impl;
 
 import java.net.URI;
 
@@ -12,21 +12,23 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.region.RegionDocument;
-import com.opengamma.master.region.RegionHistoryRequest;
-import com.opengamma.master.region.RegionHistoryResult;
-import com.opengamma.master.region.RegionMaster;
-import com.opengamma.master.region.RegionSearchRequest;
-import com.opengamma.master.region.RegionSearchResult;
+import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigHistoryRequest;
+import com.opengamma.master.config.ConfigHistoryResult;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.ConfigMetaDataRequest;
+import com.opengamma.master.config.ConfigMetaDataResult;
+import com.opengamma.master.config.ConfigSearchRequest;
+import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.FudgeRestClient;
 import com.sun.jersey.api.client.WebResource.Builder;
 
 /**
- * Provides access to a remote {@link RegionMaster}.
+ * Provides access to a remote {@link ConfigMaster}.
  */
-public class RemoteRegionMaster implements RegionMaster {
+public class RemoteConfigMaster implements ConfigMaster {
 
   /**
    * The base URI to call.
@@ -46,7 +48,7 @@ public class RemoteRegionMaster implements RegionMaster {
    * 
    * @param baseUri  the base target URI for all RESTful web services, not null
    */
-  public RemoteRegionMaster(final URI baseUri) {
+  public RemoteConfigMaster(final URI baseUri) {
     this(baseUri, new BasicChangeManager());
   }
 
@@ -56,7 +58,7 @@ public class RemoteRegionMaster implements RegionMaster {
    * @param baseUri  the base target URI for all RESTful web services, not null
    * @param changeManager  the change manager, not null
    */
-  public RemoteRegionMaster(final URI baseUri, ChangeManager changeManager) {
+  public RemoteConfigMaster(final URI baseUri, ChangeManager changeManager) {
     ArgumentChecker.notNull(baseUri, "baseUri");
     ArgumentChecker.notNull(changeManager, "changeManager");
     _baseUri = baseUri;
@@ -66,55 +68,81 @@ public class RemoteRegionMaster implements RegionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public RegionSearchResult search(final RegionSearchRequest request) {
+  public ConfigMetaDataResult metaData(ConfigMetaDataRequest request) {
     ArgumentChecker.notNull(request, "request");
     
     String msgBase64 = _client.encodeBean(request);
-    URI uri = DataRegionsResource.uri(_baseUri, msgBase64);
-    return accessRemote(uri).get(RegionSearchResult.class);
+    URI uri = DataConfigsResource.uriMetaData(_baseUri, msgBase64);
+    return accessRemote(uri).get(ConfigMetaDataResult.class);
+  }
+
+  //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> ConfigSearchResult<T> search(final ConfigSearchRequest<T> request) {
+    ArgumentChecker.notNull(request, "request");
+    
+    String msgBase64 = _client.encodeBean(request);
+    URI uri = DataConfigsResource.uri(_baseUri, msgBase64);
+    return accessRemote(uri).get(ConfigSearchResult.class);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public RegionDocument get(final UniqueId uniqueId) {
+  public ConfigDocument<?> get(final UniqueId uniqueId) {
+    return get(uniqueId, (Class<?>) null);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> ConfigDocument<T> get(UniqueId uniqueId, Class<T> clazz) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     if (uniqueId.isVersioned()) {
-      URI uri = DataRegionResource.uriVersion(_baseUri, uniqueId);
-      return accessRemote(uri).get(RegionDocument.class);
+      URI uri = DataConfigResource.uriVersion(_baseUri, uniqueId, clazz);
+      return accessRemote(uri).get(ConfigDocument.class);
     } else {
-      return get(uniqueId, VersionCorrection.LATEST);
+      return get(uniqueId, VersionCorrection.LATEST, null);
     }
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public RegionDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+  public ConfigDocument<?> get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+    return get(objectId, versionCorrection, null);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> ConfigDocument<T> get(ObjectIdentifiable objectId, VersionCorrection versionCorrection, Class<T> clazz) {
     ArgumentChecker.notNull(objectId, "objectId");
     
-    URI uri = DataRegionResource.uri(_baseUri, objectId, versionCorrection);
-    return accessRemote(uri).get(RegionDocument.class);
+    URI uri = DataConfigResource.uri(_baseUri, objectId, versionCorrection, clazz);
+    return accessRemote(uri).get(ConfigDocument.class);
   }
 
+
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   @Override
-  public RegionDocument add(final RegionDocument document) {
+  public <T> ConfigDocument<T> add(final ConfigDocument<T> document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getRegion(), "document.region");
+    ArgumentChecker.notNull(document.getValue(), "document.config");
     
-    URI uri = DataRegionsResource.uri(_baseUri, null);
-    return accessRemote(uri).post(RegionDocument.class, document);
+    URI uri = DataConfigsResource.uri(_baseUri, null);
+    return accessRemote(uri).post(ConfigDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   @Override
-  public RegionDocument update(final RegionDocument document) {
+  public <T> ConfigDocument<T> update(final ConfigDocument<T> document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getRegion(), "document.region");
+    ArgumentChecker.notNull(document.getValue(), "document.config");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataRegionResource.uri(_baseUri, document.getUniqueId(), VersionCorrection.LATEST);
-    return accessRemote(uri).put(RegionDocument.class, document);
+    URI uri = DataConfigResource.uri(_baseUri, document.getUniqueId(), VersionCorrection.LATEST, null);
+    return accessRemote(uri).put(ConfigDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
@@ -122,30 +150,32 @@ public class RemoteRegionMaster implements RegionMaster {
   public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    URI uri = DataRegionResource.uri(_baseUri, uniqueId, VersionCorrection.LATEST);
+    URI uri = DataConfigResource.uri(_baseUri, uniqueId, VersionCorrection.LATEST, null);
     accessRemote(uri).delete();
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   @Override
-  public RegionHistoryResult history(final RegionHistoryRequest request) {
+  public <T> ConfigHistoryResult<T> history(final ConfigHistoryRequest<T> request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     String msgBase64 = _client.encodeBean(request);
-    URI uri = DataRegionResource.uriVersions(_baseUri, request.getObjectId(), msgBase64);
-    return accessRemote(uri).get(RegionHistoryResult.class);
+    URI uri = DataConfigResource.uriVersions(_baseUri, request.getObjectId(), msgBase64);
+    return accessRemote(uri).get(ConfigHistoryResult.class);
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   @Override
-  public RegionDocument correct(final RegionDocument document) {
+  public <T> ConfigDocument<T> correct(final ConfigDocument<T> document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getRegion(), "document.region");
+    ArgumentChecker.notNull(document.getValue(), "document.config");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataRegionResource.uriVersion(_baseUri, document.getUniqueId());
-    return accessRemote(uri).get(RegionDocument.class);
+    URI uri = DataConfigResource.uriVersion(_baseUri, document.getUniqueId(), null);
+    return accessRemote(uri).get(ConfigDocument.class);
   }
 
   //-------------------------------------------------------------------------

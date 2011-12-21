@@ -6,6 +6,7 @@
 package com.opengamma.component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +35,11 @@ public class ComponentInfosMsg extends DirectBean {
    */
   @PropertyDefinition(validate = "notNull")
   private final List<ComponentInfo> _infos = new ArrayList<ComponentInfo>();
+  /**
+   * The map of default classifiers.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final Map<Class<?>, String> _defaultClassifier = new HashMap<Class<?>, String>();
 
   /**
    * Creates an instance.
@@ -73,6 +79,8 @@ public class ComponentInfosMsg extends DirectBean {
     switch (propertyName.hashCode()) {
       case 100348293:  // infos
         return getInfos();
+      case 31240002:  // defaultClassifier
+        return getDefaultClassifier();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -84,6 +92,9 @@ public class ComponentInfosMsg extends DirectBean {
       case 100348293:  // infos
         setInfos((List<ComponentInfo>) newValue);
         return;
+      case 31240002:  // defaultClassifier
+        setDefaultClassifier((Map<Class<?>, String>) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -91,6 +102,7 @@ public class ComponentInfosMsg extends DirectBean {
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_infos, "infos");
+    JodaBeanUtils.notNull(_defaultClassifier, "defaultClassifier");
     super.validate();
   }
 
@@ -101,7 +113,8 @@ public class ComponentInfosMsg extends DirectBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ComponentInfosMsg other = (ComponentInfosMsg) obj;
-      return JodaBeanUtils.equal(getInfos(), other.getInfos());
+      return JodaBeanUtils.equal(getInfos(), other.getInfos()) &&
+          JodaBeanUtils.equal(getDefaultClassifier(), other.getDefaultClassifier());
     }
     return false;
   }
@@ -110,6 +123,7 @@ public class ComponentInfosMsg extends DirectBean {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getInfos());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDefaultClassifier());
     return hash;
   }
 
@@ -141,6 +155,32 @@ public class ComponentInfosMsg extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the map of default classifiers.
+   * @return the value of the property, not null
+   */
+  public Map<Class<?>, String> getDefaultClassifier() {
+    return _defaultClassifier;
+  }
+
+  /**
+   * Sets the map of default classifiers.
+   * @param defaultClassifier  the new value of the property
+   */
+  public void setDefaultClassifier(Map<Class<?>, String> defaultClassifier) {
+    this._defaultClassifier.clear();
+    this._defaultClassifier.putAll(defaultClassifier);
+  }
+
+  /**
+   * Gets the the {@code defaultClassifier} property.
+   * @return the property, not null
+   */
+  public final Property<Map<Class<?>, String>> defaultClassifier() {
+    return metaBean().defaultClassifier().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ComponentInfosMsg}.
    */
   public static class Meta extends DirectMetaBean {
@@ -156,11 +196,18 @@ public class ComponentInfosMsg extends DirectBean {
     private final MetaProperty<List<ComponentInfo>> _infos = DirectMetaProperty.ofReadWrite(
         this, "infos", ComponentInfosMsg.class, (Class) List.class);
     /**
+     * The meta-property for the {@code defaultClassifier} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Map<Class<?>, String>> _defaultClassifier = DirectMetaProperty.ofReadWrite(
+        this, "defaultClassifier", ComponentInfosMsg.class, (Class) Map.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
         this, null,
-        "infos");
+        "infos",
+        "defaultClassifier");
 
     /**
      * Restricted constructor.
@@ -173,6 +220,8 @@ public class ComponentInfosMsg extends DirectBean {
       switch (propertyName.hashCode()) {
         case 100348293:  // infos
           return _infos;
+        case 31240002:  // defaultClassifier
+          return _defaultClassifier;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -199,6 +248,14 @@ public class ComponentInfosMsg extends DirectBean {
      */
     public final MetaProperty<List<ComponentInfo>> infos() {
       return _infos;
+    }
+
+    /**
+     * The meta-property for the {@code defaultClassifier} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Map<Class<?>, String>> defaultClassifier() {
+      return _defaultClassifier;
     }
 
   }
