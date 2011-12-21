@@ -14,6 +14,9 @@ import javax.time.Instant;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.ObjectIdentifiable;
@@ -32,7 +35,7 @@ import com.opengamma.util.paging.Paging;
 /**
  * A simple, in-memory implementation of {@code ExchangeMaster}.
  * <p>
- * This exchange master does not support versioning of exchanges.
+ * This master does not support versioning of exchanges.
  * <p>
  * This implementation does not copy stored elements, making it thread-hostile.
  * As such, this implementation is currently most useful for testing scenarios.
@@ -52,22 +55,48 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
    * The supplied of identifiers.
    */
   private final Supplier<ObjectId> _objectIdSupplier;
+  /**
+   * The change manager.
+   */
+  private final ChangeManager _changeManager;
 
   /**
-   * Creates an empty exchange master using the default scheme for any {@link ObjectId}s created.
+   * Creates an instance.
    */
   public InMemoryExchangeMaster() {
     this(new ObjectIdSupplier(DEFAULT_OID_SCHEME));
   }
 
   /**
-   * Creates an instance specifying the supplier of unique identifiers.
+   * Creates an instance specifying the change manager.
+   * 
+   * @param changeManager  the change manager, not null
+   */
+  public InMemoryExchangeMaster(final ChangeManager changeManager) {
+    this(new ObjectIdSupplier(DEFAULT_OID_SCHEME), changeManager);
+  }
+
+  /**
+   * Creates an instance specifying the supplier of object identifiers.
    * 
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
   public InMemoryExchangeMaster(final Supplier<ObjectId> objectIdSupplier) {
+    this(objectIdSupplier, new BasicChangeManager());
+  }
+
+
+  /**
+   * Creates an instance specifying the supplier of object identifiers and change manager.
+   * 
+   * @param objectIdSupplier  the supplier of object identifiers, not null
+   * @param changeManager  the change manager, not null
+   */
+  public InMemoryExchangeMaster(final Supplier<ObjectId> objectIdSupplier, final ChangeManager changeManager) {
     ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
+    ArgumentChecker.notNull(changeManager, "changeManager");
     _objectIdSupplier = objectIdSupplier;
+    _changeManager = changeManager;
   }
 
   //-------------------------------------------------------------------------
@@ -122,6 +151,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     doc.setVersionFromInstant(now);
     doc.setCorrectionFromInstant(now);
     _store.put(objectId, doc);
+    _changeManager.entityChanged(ChangeType.ADDED, null, uniqueId, now);
     return doc;
   }
 
@@ -145,6 +175,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
+    _changeManager.entityChanged(ChangeType.UPDATED, uniqueId, document.getUniqueId(), now);
     return document;
   }
 
@@ -155,6 +186,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     if (_store.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Exchange not found: " + uniqueId);
     }
+    _changeManager.entityChanged(ChangeType.REMOVED, uniqueId, null, Instant.now());
   }
 
   //-------------------------------------------------------------------------
@@ -176,6 +208,12 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     }
     result.setPaging(Paging.ofAll(result.getDocuments()));
     return result;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 
 }

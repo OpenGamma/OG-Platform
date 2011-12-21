@@ -31,6 +31,7 @@ import com.opengamma.id.UniqueId;
  */
 public class RegionAggregationFunction implements AggregationFunction<String> {
   private boolean _useAttributes;
+  private boolean _includeEmptyCategories;
   
   private static final Logger s_logger = LoggerFactory.getLogger(RegionAggregationFunction.class);
   private static final String NAME = "Region";
@@ -51,16 +52,22 @@ public class RegionAggregationFunction implements AggregationFunction<String> {
   private SecuritySource _secSource;
   private RegionSource _regionSource;
   private ExchangeSource _exchangeSource;
+  
     
   public RegionAggregationFunction(SecuritySource secSource, RegionSource regionSource, ExchangeSource exchangeSource) {
     this(secSource, regionSource, exchangeSource, true);
   }
   
   public RegionAggregationFunction(SecuritySource secSource, RegionSource regionSource, ExchangeSource exchangeSource, boolean useAttributes) {
+    this(secSource, regionSource, exchangeSource, useAttributes, true);
+  }
+  
+  public RegionAggregationFunction(SecuritySource secSource, RegionSource regionSource, ExchangeSource exchangeSource, boolean useAttributes, boolean includeEmptyCategories) {
     _secSource = secSource;
     _regionSource = regionSource;
     _exchangeSource = exchangeSource;
     _useAttributes = useAttributes;
+    _includeEmptyCategories = includeEmptyCategories;
   }
   
   /**
@@ -156,6 +163,10 @@ public class RegionAggregationFunction implements AggregationFunction<String> {
 
   @Override
   public Collection<String> getRequiredEntries() {
-    return Collections.unmodifiableSet(s_requiredEntries);
+    if (_includeEmptyCategories) {
+      return Collections.unmodifiableSet(s_requiredEntries);
+    } else {
+      return Collections.emptyList();
+    }
   }
 }

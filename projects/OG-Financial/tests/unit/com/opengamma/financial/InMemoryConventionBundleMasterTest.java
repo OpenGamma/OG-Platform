@@ -6,6 +6,7 @@
 package com.opengamma.financial;
 
 import org.testng.AssertJUnit;
+import static org.testng.Assert.*;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.security.SecurityUtils;
@@ -25,7 +26,6 @@ import com.opengamma.id.UniqueId;
  * Unit test for InMemoryConventionBundleMaster.
  */
 public class InMemoryConventionBundleMasterTest {
-  private static final int OFFSET = 571;
 
   @Test
   public void testRepository() {
@@ -39,7 +39,8 @@ public class InMemoryConventionBundleMasterTest {
     AssertJUnit.assertEquals("USD LIBOR O/N", conventions.getName());
     AssertJUnit.assertEquals("US00O/N Index", conventions.getIdentifiers().getValue(SecurityUtils.BLOOMBERG_TICKER));
     AssertJUnit.assertEquals("USD LIBOR O/N", conventions.getIdentifiers().getValue(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME));
-    AssertJUnit.assertEquals(UniqueId.of(InMemoryConventionBundleMaster.IN_MEMORY_UNIQUE_SCHEME.getName(), String.valueOf(OFFSET)), conventions.getUniqueId());
+    final UniqueId uidON = conventions.getUniqueId();
+    AssertJUnit.assertEquals(InMemoryConventionBundleMaster.IN_MEMORY_UNIQUE_SCHEME.getName(), uidON.getScheme());
     AssertJUnit.assertEquals(actact, conventions.getDayCount());
     AssertJUnit.assertEquals(following, conventions.getBusinessDayConvention());
     AssertJUnit.assertEquals(0, conventions.getSettlementDays());
@@ -49,10 +50,14 @@ public class InMemoryConventionBundleMasterTest {
     AssertJUnit.assertEquals("US0003M Index", conventions2.getIdentifiers().getValue(SecurityUtils.BLOOMBERG_TICKER));
     AssertJUnit.assertEquals("USD LIBOR 3m", conventions2.getIdentifiers().getValue(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME));
     AssertJUnit.assertEquals("USDLIBORP3M", conventions2.getIdentifiers().getValue(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER));
-    AssertJUnit.assertEquals(UniqueId.of(InMemoryConventionBundleMaster.IN_MEMORY_UNIQUE_SCHEME.getName(), String.valueOf(OFFSET + 6)), conventions2.getUniqueId());
+    final UniqueId uid3M = conventions2.getUniqueId ();
+    AssertJUnit.assertEquals(InMemoryConventionBundleMaster.IN_MEMORY_UNIQUE_SCHEME.getName(), uid3M.getScheme ());
     AssertJUnit.assertEquals(actact, conventions2.getDayCount());
     AssertJUnit.assertEquals(modified, conventions2.getBusinessDayConvention());
     AssertJUnit.assertEquals(2, conventions2.getSettlementDays());
+    
+    assertFalse(uidON.equals (uid3M));
+    
   }
 
 }

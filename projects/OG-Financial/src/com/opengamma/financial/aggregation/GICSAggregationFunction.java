@@ -7,6 +7,7 @@ package com.opengamma.financial.aggregation;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 import com.opengamma.core.position.Position;
@@ -34,16 +35,22 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
   public enum Level { SECTOR, INDUSTRY_GROUP, INDUSTRY, SUB_INDUSTRY }
 
   private Level _level;
-  private SecuritySource _secSource;;
+  private SecuritySource _secSource;
+  private boolean _includeEmptyCategories;;
   
   public GICSAggregationFunction(SecuritySource secSource, Level level) {
     this(secSource, level, true);
   }
   
   public GICSAggregationFunction(SecuritySource secSource, Level level, boolean useAttributes) {
+    this(secSource, level, useAttributes, true);
+  }
+  
+  public GICSAggregationFunction(SecuritySource secSource, Level level, boolean useAttributes, boolean includeEmptyCategories) {
     _secSource = secSource;
     _level = level;
     _useAttributes = useAttributes;
+    _includeEmptyCategories = includeEmptyCategories;
   }
   
   public GICSAggregationFunction(SecuritySource secSource, String level) {
@@ -116,23 +123,27 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
 
   @Override
   public Collection<String> getRequiredEntries() {
-    Collection<String> baseList = new ArrayList<String>();
-    switch (_level) {
-      case SECTOR:
-        baseList.addAll(GICSCode.getAllSectorDescriptions());
-        break;
-      case INDUSTRY_GROUP:
-        baseList.addAll(GICSCode.getAllIndustryGroupDescriptions());
-        break;
-      case INDUSTRY:
-        baseList.addAll(GICSCode.getAllIndustryDescriptions());
-        break;
-      case SUB_INDUSTRY:
-        baseList.addAll(GICSCode.getAllSubIndustryDescriptions());
-        break;
+    if (_includeEmptyCategories) {
+      Collection<String> baseList = new ArrayList<String>();
+      switch (_level) {
+        case SECTOR:
+          baseList.addAll(GICSCode.getAllSectorDescriptions());
+          break;
+        case INDUSTRY_GROUP:
+          baseList.addAll(GICSCode.getAllIndustryGroupDescriptions());
+          break;
+        case INDUSTRY:
+          baseList.addAll(GICSCode.getAllIndustryDescriptions());
+          break;
+        case SUB_INDUSTRY:
+          baseList.addAll(GICSCode.getAllSubIndustryDescriptions());
+          break;
+      }
+      baseList.add(UNKNOWN);
+      return baseList;
+    } else {
+      return Collections.emptyList();
     }
-    baseList.add(UNKNOWN);
-    return baseList;
   }
 
 }

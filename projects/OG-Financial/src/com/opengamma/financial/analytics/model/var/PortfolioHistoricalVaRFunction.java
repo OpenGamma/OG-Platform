@@ -25,7 +25,4 @@ public class PortfolioHistoricalVaRFunction extends NormalHistoricalVaRFunction 
     return ComputationTargetType.PORTFOLIO_NODE;
   }
 
-  protected Object getTarget(final ComputationTarget target) {
-    return target.getPortfolioNode();
-  }
 }

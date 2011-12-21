@@ -9,12 +9,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
-import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.Position;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Function to classify positions by Currency.
@@ -56,12 +55,9 @@ public class LiquidityAggregationFunction implements AggregationFunction<String>
       }
     } else {
       try {
-        LocalDate yesterday = Clock.systemDefaultZone().yesterday();
-        LocalDate oneWeekAgo = yesterday.minusDays(7);
-        HistoricalTimeSeries historicalTimeSeries = _htsSource.getHistoricalTimeSeries(FIELD, position.getSecurity().getExternalIdBundle(), 
-                                                                                       RESOLUTION_KEY, oneWeekAgo, true, yesterday, true);
-        if (historicalTimeSeries != null && historicalTimeSeries.getTimeSeries() != null && !historicalTimeSeries.getTimeSeries().isEmpty()) {
-          Double volume = historicalTimeSeries.getTimeSeries().getLatestValue();
+        Pair<LocalDate, Double> latestDataPoint = _htsSource.getLatestDataPoint(FIELD, position.getSecurityLink().getExternalId(), RESOLUTION_KEY);
+        if (latestDataPoint != null && latestDataPoint.getFirst() != null && latestDataPoint.getSecond() != null) {
+          Double volume = latestDataPoint.getValue();
           double daysToLiquidate = (volume / position.getQuantity().doubleValue()) * 0.1;
           if (daysToLiquidate < 0.2) {
             return LESS_THAN_0_2;
