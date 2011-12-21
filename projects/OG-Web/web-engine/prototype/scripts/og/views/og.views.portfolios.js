@@ -34,7 +34,7 @@ $.register_module({
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             json = {},
-            portfolios,
+            view,
             toolbar_buttons = {
                 'new': function () {
                     ui.dialog({
@@ -46,9 +46,9 @@ $.register_module({
                                 $(this).dialog('close');
                                 api.rest.portfolios.put({
                                     handler: function (result) {
-                                        var args = routes.current().args, rule = module.rules.load_portfolios;
+                                        var args = routes.current().args, rule = module.rules.load_item;
                                         if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                        portfolios.search(args);
+                                        view.search(args);
                                         routes.go(routes.hash(rule, args, {
                                             add: {id: result.meta.id}, del: ['version', 'node', 'sync']}));
                                     },
@@ -71,7 +71,7 @@ $.register_module({
                                     handler: function (result) {
                                         var args = routes.current().args, rule = module.rules.load;
                                         if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                        portfolios.search(args);
+                                        view.search(args);
                                         routes.go(routes.hash(rule, args));
                                     }
                                 };
@@ -82,7 +82,7 @@ $.register_module({
                     })
                 },
                 'versions': function () {
-                    var rule = module.rules.load_portfolios, args = routes.current().args;
+                    var rule = module.rules.load_item, args = routes.current().args;
                     routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
                     if (!layout.inner.state.south.isClosed && args.version) {
                         layout.inner.close('south');
@@ -140,7 +140,7 @@ $.register_module({
                                 api.rest.portfolios.put({
                                     handler: function (result) {
                                         if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                        portfolios.details(args);
+                                        view.details(args);
                                     },
                                     name: ui.dialog({return_field_value: 'name'}),
                                     id: json.template_data.object_id,
@@ -186,7 +186,7 @@ $.register_module({
                         slick.setColumns(display_columns);
                         slick.setSelectionModel(new Slick.RowSelectionModel());
                         slick.onClick.subscribe(function (e, dd) {
-                            var rule = module.rules.load_portfolios, node = json.portfolios[dd.row];
+                            var rule = module.rules.load_item, node = json.portfolios[dd.row];
                             if (!$(e.target).hasClass('og-icon-delete'))
                                 return routes.go(routes.hash(rule, routes.current().args, {add: {node: node.id}}));
                             ui.dialog({
@@ -200,7 +200,7 @@ $.register_module({
                                         handler: function (result) {
                                             if (result.error)
                                                 return ui.dialog({type: 'error', message: result.message});
-                                            portfolios.details(routes.current().args);
+                                            view.details(routes.current().args);
                                         }
                                     });
                                     $(this).dialog('close');
@@ -227,7 +227,7 @@ $.register_module({
                                 api.rest.portfolios.put({
                                     handler: function (result) {
                                         if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                        portfolios.details(args);
+                                        view.details(args);
                                     },
                                     position: id ? id.item.value : $input.val(),
                                     id: json.template_data.object_id,
@@ -317,7 +317,7 @@ $.register_module({
                                         handler: function (result) {
                                             if (result.error)
                                                 return ui.dialog({type: 'error', message: result.message});
-                                            portfolios.details(routes.current().args);
+                                            view.details(routes.current().args);
                                         }
                                     });
                                     $(this).dialog('close');
@@ -332,7 +332,7 @@ $.register_module({
                         });
                     },
                     breadcrumb = function (config) {
-                        var data = config.data, rule = module.rules.load_portfolios, args = routes.current().args;
+                        var data = config.data, rule = module.rules.load_item, args = routes.current().args;
                         data.path.shift();
                         api.text({module: 'og.views.portfolios.breadcrumb', handler: function (template) {
                             $(config.selector).html($.tmpl(template, data, {
@@ -359,7 +359,7 @@ $.register_module({
                         json = result.data;
                         history.put({
                             name: portfolio_name = json.template_data.name,
-                            item: 'history.portfolios.recent',
+                            item: 'history.' + page_name + '.recent',
                             value: routes.current().hash
                         });
                         og.api.text({module: module.name, handler: function (template) {
@@ -391,8 +391,8 @@ $.register_module({
                             });
                             ui.content_editable({
                                 handler: function () {
-                                    portfolios.search(args);
-                                    portfolios.details(args);
+                                    view.search(args);
+                                    view.details(args);
                                 }
                             });
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
@@ -417,26 +417,25 @@ $.register_module({
                 route: '/' + page_name + '/filter:/:id?/node:?/version:?/name:?/sync:?',
                 method: module.name + '.load_filter'
             },
-            load_portfolios: {
-                route: '/' + page_name + '/:id/node:?/version:?/name:?/sync:?',
-                method: module.name + '.load_' + page_name
+            load_item: {
+                route: '/' + page_name + '/:id/node:?/version:?/name:?/sync:?', method: module.name + '.load_item'
             }
         };
-        return portfolios = {
+        return view = {
             breadcrumb_node: function (node) {
                 var args = routes.current().args;
-                setTimeout(routes.go.partial(routes.hash(module.rules.load_portfolios, args, {add: {node: node}})));
+                setTimeout(routes.go.partial(routes.hash(module.rules.load_item, args, {add: {node: node}})));
             },
             breadcrumb_root: function () {
                 var args = routes.current().args;
-                setTimeout(routes.go.partial(routes.hash(module.rules.load_portfolios, args, {del: ['node']})));
+                setTimeout(routes.go.partial(routes.hash(module.rules.load_item, args, {del: ['node']})));
             },
             filters: ['name'],
             load: function (args) {
                 layout = og.views.common.layout;
                 check_state({args: args, conditions: [
                     {new_page: function (args) {
-                        portfolios.search(args);
+                        view.search(args);
                         masthead.menu.set_tab(page_name);
                     }}
                 ]});
@@ -446,19 +445,19 @@ $.register_module({
             load_filter: function (args) {
                 check_state({args: args, conditions: [
                     {new_value: 'id', stop: true, method: function () {
-                        if (args.id) portfolios.load_portfolios(args);
+                        if (args.id) view.load_item(args);
                     }},
                     {new_value: 'node', stop: true, method: function () {
-                        if (args.node) portfolios.load_portfolios(args);
+                        if (args.node) view.load_item(args);
                     }},
-                    {new_page: function () {portfolios.load(args);}}
+                    {new_page: function () {view.load(args);}}
                 ]});
                 search.filter(args);
             },
-            load_portfolios: function (args) {
+            load_item: function (args) {
                 check_state({args: args, conditions: [
                     {new_page: function () {
-                        portfolios.load(args);
+                        view.load(args);
                         layout.inner.options.south.onclose = null;
                         layout.inner.close.partial('south');
                     }},
@@ -467,7 +466,7 @@ $.register_module({
                         layout.inner.close.partial('south');
                     }}
                 ]});
-                portfolios.details(args);
+                view.details(args);
             },
             search: function (args) {
                 if (!search) search = common.search_results.core();

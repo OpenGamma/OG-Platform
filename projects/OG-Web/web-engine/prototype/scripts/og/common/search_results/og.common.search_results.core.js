@@ -36,7 +36,7 @@ $.register_module({
                     og.common.search.filter({location: obj.selector});
                     // Handle click
                     $(obj.selector).undelegate().delegate('[row]', 'click', function (e) {
-                        var last = routes.last(), obj_url = obj.url,
+                        var last = routes.last(), args = obj.url,
                             params = {
                                 id: slick_manager.data[$(e.currentTarget).attr('row')].id,
                                 name: (last && last.args.name) || '',
@@ -46,9 +46,8 @@ $.register_module({
                                 version: '',
                                 sync: ''
                             };
-                        delete obj_url.node;
-                        routes.go(routes.hash(
-                            og.views[obj.page_type].rules['load_' + obj.page_type], $.extend({}, obj.url, params)));
+                        delete args.node;
+                        routes.go(routes.hash(og.views[obj.page_type].rules.load_item, args, {add: params}));
                     });
 
                     grid.onViewportChanged.subscribe(function () {
