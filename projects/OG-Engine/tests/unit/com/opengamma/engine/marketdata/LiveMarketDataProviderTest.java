@@ -18,6 +18,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.marketdata.availability.FixedMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.live.LiveMarketDataProvider;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.ExternalId;

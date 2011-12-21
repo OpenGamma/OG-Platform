@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.marketdatasnapshot;
+package com.opengamma.engine.marketdata.snapshot;
 
 import java.util.Map;
 

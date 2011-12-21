@@ -14,10 +14,10 @@ import javax.time.calendar.TimeZone;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaltimeseries.impl.MockHistoricalTimeSeriesSource;
-import com.opengamma.engine.marketdata.DefaultHistoricalMarketDataFieldResolver;
-import com.opengamma.engine.marketdata.HistoricalMarketDataProvider;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.historical.DefaultHistoricalMarketDataFieldResolver;
+import com.opengamma.engine.marketdata.historical.HistoricalMarketDataProvider;
 import com.opengamma.engine.marketdata.historical.IdentityDataNormalizer;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;

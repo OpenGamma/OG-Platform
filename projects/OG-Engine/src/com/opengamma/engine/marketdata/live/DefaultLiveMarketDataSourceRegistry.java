@@ -3,10 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.marketdata;
+package com.opengamma.engine.marketdata.live;
 
 import java.util.Collection;
 import java.util.Collections;
+
 
 /**
  * A registry containing a single default entry

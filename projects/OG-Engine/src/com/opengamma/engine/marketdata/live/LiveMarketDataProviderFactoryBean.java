@@ -3,9 +3,10 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.marketdata;
+package com.opengamma.engine.marketdata.live;
 
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.util.ArgumentChecker;
