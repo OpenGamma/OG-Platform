@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.marketdata;
+package com.opengamma.engine.marketdata.snapshot;
 
 import static org.testng.AssertJUnit.assertNull;
 import static org.mockito.Mockito.mock;
