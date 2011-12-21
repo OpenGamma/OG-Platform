@@ -356,13 +356,13 @@
             </entry>
             <entry key="portfolioMaster">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/data/portfolios" />
+                <property name="local" value="/jax/data/prtMaster/portfolios" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
             <entry key="positionMaster">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/data/positions" />
+                <property name="local" value="/jax/data/posMaster/positions" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
