@@ -205,7 +205,7 @@ $.register_module({
                                     });
                                     $(this).dialog('close');
                                 }}
-                            });                                
+                            });
                         });
                         slick.onMouseEnter.subscribe(function (e) {
                            $(e.currentTarget).closest('.slick-row').find('.og-button').show();
@@ -390,14 +390,13 @@ $.register_module({
                                 data: json.template_data
                             });
                             ui.content_editable({
-                                attribute: 'data-og-editable',
                                 handler: function () {
                                     portfolios.search(args);
                                     portfolios.details(args);
                                 }
                             });
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
-                            layout.inner.resizeAll();
+                            setTimeout(layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,

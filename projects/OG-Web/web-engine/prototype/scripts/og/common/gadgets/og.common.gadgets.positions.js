@@ -58,7 +58,7 @@ $.register_module({
                         });
                     },
                     id: id,
-                    cache_for: 60000
+                    cache_for: 500
                 });
             };
             api.rest.positions.get({
@@ -72,14 +72,12 @@ $.register_module({
                         timeseries(result, $(selector + ' .og-js-sec-time').outerHeight() - 2);
                         if ((!args.version || args.version === '*') && config.editable) {
                             common.util.ui.content_editable({
-                                attribute: 'data-og-editable',
                                 handler: function () {views.positions.search(args), views.positions.details(args);}
                             });
                         }
                     }});
                 },
                 id: config.id,
-                cache_for: 10000,
                 loading: function () {}
             });
         }

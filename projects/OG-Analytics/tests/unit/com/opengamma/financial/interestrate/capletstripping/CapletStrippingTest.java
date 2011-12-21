@@ -294,7 +294,7 @@ public class CapletStrippingTest {
     assertTrue("chi^2 too large", lsRes.getChiSq() < 0.3);
 
     //We don't recover exactly the initial curves. Why?
-    LinkedHashMap<String, Curve<Double, Double>> curves = CURVE_BUILDER.evaluate(res);
+    LinkedHashMap<String, InterpolatedDoublesCurve> curves = CURVE_BUILDER.evaluate(res);
     for (String name : NAMES) {
       Curve<Double, Double> fitCurve = curves.get(name);
       ParameterLimitsTransform trans = TRANSFORMS.get(name);

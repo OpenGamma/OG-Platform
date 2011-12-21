@@ -77,7 +77,7 @@ public class SabrExtrapolationExample {
             "../dexy--sabr-extrapolation-output.json",
             "../dexy--sabr-extrapolation-fields.json"
         };
-        OpenGammaExample.main(ogargs);
+        OpenGammaExampleClass.main(ogargs);
     }
     // @end
 }

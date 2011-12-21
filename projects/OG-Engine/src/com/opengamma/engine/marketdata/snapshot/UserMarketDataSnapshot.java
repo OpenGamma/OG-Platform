@@ -34,6 +34,7 @@ import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -52,6 +53,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
+  private static final String INSTRUMENT_TYPE_PROPERTY = "InstrumentType";
   private static final Map<String, StructuredMarketDataKeyFactory> s_structuredKeyFactories = new HashMap<String, StructuredMarketDataKeyFactory>();
   
   private final MarketDataSnapshotSource _snapshotSource;
@@ -102,9 +104,17 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
         if (currency == null) {
           return null;
         }
+        
+        ValueProperties.Builder effectiveProperties = ValueProperties.builder();
+        
         String curveName = valueRequirement.getConstraint(ValuePropertyNames.CURVE);
-        if (curveName == null) {
-          return new YieldCurveKey(currency, null);
+        if (curveName != null) {
+          effectiveProperties.with(ValuePropertyNames.CURVE, curveName);
+        }
+        
+        if (!valueRequirement.getConstraints().isSatisfiedBy(effectiveProperties.get())) {
+          // [PLAT-1776] Ensure that constraints not encoded in the key are not ignored
+          return null;
         }
         return new YieldCurveKey(currency, curveName);
       }
@@ -119,9 +129,17 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
         if (currency == null) {
           return null;
         }
+        
+        ValueProperties.Builder effectiveProperties = ValueProperties.builder();
+        
         String cubeName = valueRequirement.getConstraint(ValuePropertyNames.CUBE);
-        if (cubeName == null) {
-          return new VolatilityCubeKey(currency, null);
+        if (cubeName != null) {
+          effectiveProperties.with(ValuePropertyNames.CUBE, cubeName);
+        }
+        
+        if (!valueRequirement.getConstraints().isSatisfiedBy(effectiveProperties.get())) {
+          // [PLAT-1776] Ensure that constraints not encoded in the key are not ignored
+          return null;
         }
         return new VolatilityCubeKey(currency, cubeName);
       }
@@ -136,10 +154,21 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
         if (target == null) {
           return null;
         }
+        
+        ValueProperties.Builder effectiveProperties = ValueProperties.builder();
+        
         String name = valueRequirement.getConstraint(ValuePropertyNames.SURFACE);
-        String instrumentType = valueRequirement.getConstraint("InstrumentType");
-        if (valueRequirement.getConstraints().getProperties() != null && valueRequirement.getConstraints().getProperties().size() > 2) {
-          //Don't satisfy random constraints, perhaps this is a derived surface
+        if (name != null) {
+          effectiveProperties.with(ValuePropertyNames.SURFACE, name);
+        }
+        
+        String instrumentType = valueRequirement.getConstraint(INSTRUMENT_TYPE_PROPERTY);
+        if (instrumentType != null) {
+          effectiveProperties.with(INSTRUMENT_TYPE_PROPERTY, instrumentType);
+        }
+        
+        if (!valueRequirement.getConstraints().isSatisfiedBy(effectiveProperties.get())) {
+          // [PLAT-1776] Ensure that constraints not encoded in the key are not ignored
           return null;
         }
         return new VolatilitySurfaceKey(target, name, instrumentType);

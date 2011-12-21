@@ -29,25 +29,25 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
  * Represents a portfolio grid
  */
 public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
-  
+
   private Map<Integer, PortfolioRow> _rowIdToRowMap;
-  
+
   public WebViewPortfolioGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, ResultConverterCache resultConverterCache, Client local, Client remote) {
     this(viewClient, compiledViewDefinition, flattenPortfolio(compiledViewDefinition.getPortfolio()), resultConverterCache, local, remote);
   }
-  
+
   private WebViewPortfolioGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, List<PortfolioRow> rows, ResultConverterCache resultConverterCache,
-      Client local, Client remote) {
+                               Client local, Client remote) {
     super("portfolio", viewClient, compiledViewDefinition, getTargets(rows),
         EnumSet.of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION), resultConverterCache, local,
-        remote, "Loading..."); 
+        remote, "Loading...");
     _rowIdToRowMap = new HashMap<Integer, PortfolioRow>();
     for (PortfolioRow row : rows) {
       int rowId = getGridStructure().getRowId(row.getTarget());
       _rowIdToRowMap.put(rowId, row);
     }
   }
-  
+
   @Override
   protected void addRowDetails(UniqueId target, int rowId, Map<String, Object> details) {
     PortfolioRow row = _rowIdToRowMap.get(rowId);
@@ -73,7 +73,7 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
     }
     return rowName;
   }
-  
+
   private static List<ComputationTargetSpecification> getTargets(List<PortfolioRow> rows) {
     List<ComputationTargetSpecification> targets = new ArrayList<ComputationTargetSpecification>(rows.size());
     for (PortfolioRow row : rows) {
@@ -81,7 +81,7 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
     }
     return targets;
   }
-  
+
   private static List<PortfolioRow> flattenPortfolio(final Portfolio portfolio) {
     List<PortfolioRow> rows = new ArrayList<PortfolioRow>();
     if (portfolio == null) {
@@ -90,13 +90,13 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
     flattenPortfolio(portfolio.getRootNode(), null, 0, portfolio.getName(), rows);
     return rows;
   }
-    
+
   private static void flattenPortfolio(final PortfolioNode portfolio, final PortfolioRow parentRow, final int depth,
-      final String nodeName, final List<PortfolioRow> rows) {
+                                       final String nodeName, final List<PortfolioRow> rows) {
     PortfolioRow aggregateRow = new PortfolioRow(depth, parentRow,
         new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, portfolio.getUniqueId()), null, nodeName);
     rows.add(aggregateRow);
-    
+
     for (Position position : portfolio.getPositions()) {
       PortfolioRow portfolioRow = new PortfolioRow(depth + 1, aggregateRow,
           new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueId()), position, null);
@@ -109,9 +109,9 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
       }
     }
   }
-  
+
   //-------------------------------------------------------------------------
-  
+
   @Override
   protected int getAdditionalCsvColumnCount() {
     return 3;
@@ -138,6 +138,6 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
     row[0] = Integer.toString(rowId);
     row[1] = parentRowIdText;
     row[2] = getRowName(portfolioRow, target.getType());
-  }  
-  
+  }
+
 }

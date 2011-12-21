@@ -5,11 +5,11 @@
  */
 package com.opengamma.web.position;
 
+import static com.opengamma.web.WebResourceTestUtils.assertJSONObjectEquals;
 import static com.opengamma.web.WebResourceTestUtils.loadJson;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import static com.opengamma.web.WebResourceTestUtils.assertJSONObjectEquals;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -29,7 +29,6 @@ import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.mock.web.MockServletContext;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 

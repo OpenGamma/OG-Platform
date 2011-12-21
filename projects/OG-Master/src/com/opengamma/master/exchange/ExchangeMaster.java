@@ -5,6 +5,7 @@
  */
 package com.opengamma.master.exchange;
 
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.master.AbstractMaster;
 import com.opengamma.util.PublicSPI;
 
@@ -15,7 +16,7 @@ import com.opengamma.util.PublicSPI;
  * This interface provides methods that allow the master to be searched and updated.
  */
 @PublicSPI
-public interface ExchangeMaster extends AbstractMaster<ExchangeDocument> {
+public interface ExchangeMaster extends AbstractMaster<ExchangeDocument>, ChangeProvider {
 
   /**
    * Searches for exchanges matching the specified search criteria.
