@@ -97,7 +97,8 @@ public class DataConfigsResource extends AbstractDataResource {
   @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, ConfigDocument request) {
     ConfigDocument<?> result = getConfigMaster().add(request);
-    return Response.created(DataConfigResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId(), result.getType())).entity(result).build();
+    URI createdUri = DataConfigResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId(), result.getType());
+    return Response.created(createdUri).entity(result).build();
   }
 
   //-------------------------------------------------------------------------

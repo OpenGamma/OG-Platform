@@ -32,6 +32,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 public class DataSecuritiesResourceTest {
 
+  private static final UniqueId UID = UniqueId.of("Test", "A", "B");
   private SecurityMaster _underlying;
   private UriInfo _uriInfo;
   private DataSecuritiesResource _resource;
@@ -47,11 +48,11 @@ public class DataSecuritiesResourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void testAddSecurity() {
-    final ManageableSecurity security = new ManageableSecurity(null, "Name", "Type", ExternalIdBundle.of("C", "D"));
-    final SecurityDocument request = new SecurityDocument(security);
+    final ManageableSecurity target = new ManageableSecurity(null, "Name", "Type", ExternalIdBundle.of("C", "D"));
+    final SecurityDocument request = new SecurityDocument(target);
     
-    final SecurityDocument result = new SecurityDocument(security);
-    result.setUniqueId(UniqueId.of("Test", "PosA"));
+    final SecurityDocument result = new SecurityDocument(target);
+    result.setUniqueId(UID);
     when(_underlying.add(same(request))).thenReturn(result);
     
     Response test = _resource.add(_uriInfo, request);
@@ -61,9 +62,9 @@ public class DataSecuritiesResourceTest {
 
   @Test
   public void testFindSecurity() {
-    DataSecurityResource test = _resource.findSecurity("Test~PosA");
+    DataSecurityResource test = _resource.findSecurity("Test~A");
     assertSame(_resource, test.getSecuritiesResource());
-    assertEquals(ObjectId.of("Test", "PosA"), test.getUrlSecurityId());
+    assertEquals(ObjectId.of("Test", "A"), test.getUrlSecurityId());
   }
 
 }

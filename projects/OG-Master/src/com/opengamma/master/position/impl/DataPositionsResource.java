@@ -83,7 +83,8 @@ public class DataPositionsResource extends AbstractDataResource {
   @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, PositionDocument request) {
     PositionDocument result = getPositionMaster().add(request);
-    return Response.created(DataPositionResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId())).entity(result).build();
+    URI createdUri = DataPositionResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    return Response.created(createdUri).entity(result).build();
   }
 
   //-------------------------------------------------------------------------

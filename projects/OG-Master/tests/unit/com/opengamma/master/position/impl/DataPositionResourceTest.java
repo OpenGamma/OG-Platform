@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.exchange.impl;
+package com.opengamma.master.position.impl;
 
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
@@ -12,40 +12,41 @@ import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 
-import javax.time.calendar.TimeZone;
+import java.math.BigDecimal;
+
 import javax.ws.rs.core.Response;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.exchange.ExchangeDocument;
-import com.opengamma.master.exchange.ExchangeMaster;
-import com.opengamma.master.exchange.ManageableExchange;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.PositionDocument;
+import com.opengamma.master.position.PositionMaster;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
- * Tests DataExchangeResource.
+ * Tests DataPositionResource.
  */
-public class DataExchangeResourceTest {
+public class DataPositionResourceTest {
 
   private static final ObjectId OID = ObjectId.of("Test", "PosA");
-  private ExchangeMaster _underlying;
-  private DataExchangeResource _resource;
+  private PositionMaster _underlying;
+  private DataPositionResource _resource;
 
   @BeforeMethod
   public void setUp() {
-    _underlying = mock(ExchangeMaster.class);
-    _resource = new DataExchangeResource(new DataExchangesResource(_underlying), OID.getObjectId());
+    _underlying = mock(PositionMaster.class);
+    _resource = new DataPositionResource(new DataPositionsResource(_underlying), OID.getObjectId());
   }
 
   //-------------------------------------------------------------------------
   @Test
-  public void testGetExchange() {
-    final ManageableExchange target = new ManageableExchange(ExternalIdBundle.of("A", "B"), "Test", ExternalIdBundle.EMPTY, TimeZone.of("Europe/London"));
-    final ExchangeDocument result = new ExchangeDocument(target);
+  public void testGetPosition() {
+    final ManageablePosition target = new ManageablePosition();
+    target.setQuantity(BigDecimal.ONE);
+    final PositionDocument result = new PositionDocument(target);
     when(_underlying.get(OID, VersionCorrection.LATEST)).thenReturn(result);
     
     Response test = _resource.get(null, null);
@@ -54,12 +55,13 @@ public class DataExchangeResourceTest {
   }
 
   @Test
-  public void testUpdateExchange() {
-    final ManageableExchange target = new ManageableExchange(ExternalIdBundle.of("A", "B"), "Test", ExternalIdBundle.EMPTY, TimeZone.of("Europe/London"));
-    final ExchangeDocument request = new ExchangeDocument(target);
+  public void testUpdatePosition() {
+    final ManageablePosition target = new ManageablePosition();
+    target.setQuantity(BigDecimal.ONE);
+    final PositionDocument request = new PositionDocument(target);
     request.setUniqueId(OID.atLatestVersion());
     
-    final ExchangeDocument result = new ExchangeDocument(target);
+    final PositionDocument result = new PositionDocument(target);
     result.setUniqueId(OID.atLatestVersion());
     when(_underlying.update(same(request))).thenReturn(result);
     
@@ -69,7 +71,7 @@ public class DataExchangeResourceTest {
   }
 
   @Test
-  public void testDeleteExchange() {
+  public void testDeletePosition() {
     Response test = _resource.delete();
     verify(_underlying).remove(OID.atLatestVersion());
     assertEquals(Status.NO_CONTENT.getStatusCode(), test.getStatus());

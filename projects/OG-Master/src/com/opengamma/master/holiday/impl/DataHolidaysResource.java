@@ -96,7 +96,8 @@ public class DataHolidaysResource extends AbstractDataResource {
   @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, HolidayDocument request) {
     HolidayDocument result = getHolidayMaster().add(request);
-    return Response.created(DataHolidayResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId())).entity(result).build();
+    URI createdUri = DataHolidayResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    return Response.created(createdUri).entity(result).build();
   }
 
   //-------------------------------------------------------------------------

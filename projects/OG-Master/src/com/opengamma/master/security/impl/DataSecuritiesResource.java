@@ -96,7 +96,8 @@ public class DataSecuritiesResource extends AbstractDataResource {
   @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, SecurityDocument request) {
     SecurityDocument result = getSecurityMaster().add(request);
-    return Response.created(DataSecurityResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId())).entity(result).build();
+    URI createdUri = DataSecurityResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    return Response.created(createdUri).entity(result).build();
   }
 
   //-------------------------------------------------------------------------

@@ -83,7 +83,8 @@ public class DataRegionsResource extends AbstractDataResource {
   @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, RegionDocument request) {
     RegionDocument result = getRegionMaster().add(request);
-    return Response.created(DataRegionResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId())).entity(result).build();
+    URI createdUri = DataRegionResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    return Response.created(createdUri).entity(result).build();
   }
 
   //-------------------------------------------------------------------------

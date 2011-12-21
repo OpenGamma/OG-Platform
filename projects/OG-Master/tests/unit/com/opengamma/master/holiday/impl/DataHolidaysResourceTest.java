@@ -34,6 +34,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 public class DataHolidaysResourceTest {
 
+  private static final UniqueId UID = UniqueId.of("Test", "A", "B");
   private HolidayMaster _underlying;
   private UriInfo _uriInfo;
   private DataHolidaysResource _resource;
@@ -49,11 +50,11 @@ public class DataHolidaysResourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void testAddHoliday() {
-    final ManageableHoliday holiday = new ManageableHoliday(Currency.GBP, new ArrayList<LocalDate>());
-    final HolidayDocument request = new HolidayDocument(holiday);
+    final ManageableHoliday target = new ManageableHoliday(Currency.GBP, new ArrayList<LocalDate>());
+    final HolidayDocument request = new HolidayDocument(target);
     
-    final HolidayDocument result = new HolidayDocument(holiday);
-    result.setUniqueId(UniqueId.of("Test", "PosA"));
+    final HolidayDocument result = new HolidayDocument(target);
+    result.setUniqueId(UID);
     when(_underlying.add(same(request))).thenReturn(result);
     
     Response test = _resource.add(_uriInfo, request);
@@ -63,9 +64,9 @@ public class DataHolidaysResourceTest {
 
   @Test
   public void testFindHoliday() {
-    DataHolidayResource test = _resource.findHoliday("Test~PosA");
+    DataHolidayResource test = _resource.findHoliday("Test~A");
     assertSame(_resource, test.getHolidaysResource());
-    assertEquals(ObjectId.of("Test", "PosA"), test.getUrlHolidayId());
+    assertEquals(ObjectId.of("Test", "A"), test.getUrlHolidayId());
   }
 
 }

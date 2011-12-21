@@ -84,7 +84,8 @@ public class DataPortfoliosResource extends AbstractDataResource {
   @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, PortfolioDocument request) {
     PortfolioDocument result = getPortfolioMaster().add(request);
-    return Response.created(DataPortfolioResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId())).entity(result).build();
+    URI createdUri = DataPortfolioResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    return Response.created(createdUri).entity(result).build();
   }
 
   //-------------------------------------------------------------------------
