@@ -134,7 +134,7 @@
     </bean>
   
   <!-- Data normalization -->
-  <bean id="normalizationJmsContainer" class="org.springframework.jms.listener.DefaultMessagelistenerContainer" init-method="start">
+  <bean id="normalizationJmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer" init-method="start">
     <property name="connectionFactory" ref="jmsConnectionFactory" />
     <property name="destination">
       <bean class="org.apache.activemq.command.ActiveMQTopic">
