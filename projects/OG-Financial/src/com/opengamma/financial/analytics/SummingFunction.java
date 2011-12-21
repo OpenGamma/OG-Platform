@@ -51,7 +51,7 @@ public class SummingFunction extends MissingInputsFunction {
     protected String getRequirementName() {
       return _requirementName;
     }
-    
+
     @Override
     public String getShortName() {
       return "Sum(" + _requirementName + ")";
@@ -120,8 +120,8 @@ public class SummingFunction extends MissingInputsFunction {
         // Can't have been any inputs ... ?
         return null;
       }
-      for (ValueSpecification input : inputs.getMissingValues ()) {
-        properties = SumUtils.addProperties(properties, input.getProperties ());
+      for (ValueSpecification input : inputs.getMissingValues()) {
+        properties = SumUtils.addProperties(properties, input.getProperties());
       }
       return Collections.singleton(new ComputedValue(new ValueSpecification(getRequirementName(), target.toSpecification(), createValueProperties(properties).get()), value));
     }
