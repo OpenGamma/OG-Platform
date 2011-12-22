@@ -58,11 +58,8 @@
   <alias name="centralPositionMaster" alias="dbPositionMaster" />
   <alias name="centralPortfolioMaster" alias="dbPortfolioMaster" />
   <alias name="centralHistoricalTimeSeriesMaster" alias="dbHtsMaster" />
-  
+
   <!-- Sources -->
-  <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource">
-    <constructor-arg ref="sharedConfigMaster" />
-  </bean>
   <bean id="sharedExchangeSource" class="com.opengamma.financial.spring.ExchangeSourceFactoryBean">
     <property name="exchangeMaster" ref="dbExchangeMaster" />
   </bean>
@@ -103,34 +100,6 @@
   <!-- FunctionCostsMaster --> 
   <bean id="dbFunctionCostsMaster" class="com.opengamma.masterdb.spring.DbFunctionCostsMasterFactoryBean">
     <property name="dbConnector" ref="finDbConnector" />
-  </bean>
-
-  <!-- ================================================================== -->
-  <!-- Curves -->
-  <bean id="sharedInterpolatedYieldCurveDefinitionSource" class="com.opengamma.financial.analytics.ircurve.EHCachingInterpolatedYieldCurveDefinitionSource">
-        <constructor-arg ref="configDBInterpolatedYieldCurveDefinitionSource" />
-        <constructor-arg ref="cacheManager" />
-  </bean>
-  <bean id="configDBInterpolatedYieldCurveDefinitionSource" class="com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveDefinitionSource">
-    <constructor-arg ref="sharedConfigSource" />
-  </bean>
-  <bean id="sharedInterpolatedYieldCurveSpecificationBuilder" class="com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder">
-    <constructor-arg ref="sharedConfigSource" />
-  </bean>
-
-  <!-- Vol Cubes-->
-  <!-- TODO: this properly, user source and cacheing -->
-  <bean id="combinedVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.ConfigDBVolatilityCubeDefinitionSource">
-    <constructor-arg ref="sharedConfigSource" />
-  </bean>
-
-  <!-- Currency conversion -->
-  <bean id="sharedCurrencyMatrixSource" class="com.opengamma.financial.currency.ConfigDBCurrencyMatrixSource">
-    <constructor-arg ref="sharedConfigSource" />
-  </bean>
-
-  <bean id="sharedCurrencyPairsSource" class="com.opengamma.financial.currency.ConfigDBCurrencyPairsSource">
-    <constructor-arg ref="sharedConfigSource" />
   </bean>
 
   <!-- ================================================================== -->

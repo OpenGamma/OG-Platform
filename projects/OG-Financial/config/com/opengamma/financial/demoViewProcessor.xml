@@ -113,26 +113,6 @@
     </constructor-arg>
   </bean>
 
-  <!-- User Vol Cubes-->
-  <!-- TODO: this properly, user source and cacheing -->
-  
-  <bean id="combinedVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.AggregatingVolatilityCubeDefinitionSource">
-    <constructor-arg>
-      <list>
-        <ref bean="bloombergVolatilityCubeDefinitionSource" />
-        <ref bean="sharedVolatilityCubeDefinitionSource" />
-      </list>
-    </constructor-arg>
-  </bean>
-  
-  
-  <bean id="sharedVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.ConfigDBVolatilityCubeDefinitionSource">
-    <constructor-arg ref="sharedConfigSource" />
-  </bean>
-  
-  <bean id="bloombergVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.BloombergVolatilityCubeDefinitionSource">
-  </bean>
-  
   <!-- marketDataProviderResolver -->
   <import resource="classpath:marketData-${opengamma.platform.runmode}.xml" />
   
