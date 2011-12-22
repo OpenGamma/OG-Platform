@@ -28,6 +28,8 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentInfosMsg;
 import com.opengamma.component.DataComponentsResource;
+import com.opengamma.engine.view.calcnode.stats.FunctionCostsMaster;
+import com.opengamma.engine.view.calcnode.stats.RemoteFunctionCostsMaster;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.RemoteConfigMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
@@ -71,6 +73,7 @@ public class RemoteMastersBeanPostProcessor extends DirectBean implements BeanFa
     _remoteWrappers.put(PositionMaster.class, RemotePositionMaster.class);
     _remoteWrappers.put(PortfolioMaster.class, RemotePortfolioMaster.class);
     _remoteWrappers.put(HistoricalTimeSeriesMaster.class, RemoteHistoricalTimeSeriesMaster.class);
+    _remoteWrappers.put(FunctionCostsMaster.class, RemoteFunctionCostsMaster.class);
   }
 
   /**

@@ -30,19 +30,6 @@
     <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
   </bean>
 
-  <bean id="finDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-    <property name="driverClassName" value="${opengamma.financial.jdbc.driver}" />
-    <property name="url" value="${opengamma.financial.jdbc.url}" />
-    <property name="username" value="${opengamma.financial.jdbc.username}" />
-    <property name="password" value="${opengamma.financial.jdbc.password}" />
-  </bean>
-
-  <bean id="finDbConnector" parent="abstractDbConnector">
-    <property name="name" value="Integration"/>
-    <property name="dataSource" ref="finDataSource"/>
-    <property name="dialectName" value="${opengamma.financial.db.dbdialect}"/>
-  </bean>
-  
   <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     <property name="shared" value="true"/>
   </bean>
@@ -58,6 +45,7 @@
   <alias name="centralPositionMaster" alias="dbPositionMaster" />
   <alias name="centralPortfolioMaster" alias="dbPortfolioMaster" />
   <alias name="centralHistoricalTimeSeriesMaster" alias="dbHtsMaster" />
+  <alias name="centralFunctionCostsMaster" alias="dbFunctionCostsMaster" />
 
   <!-- Sources -->
   <bean id="sharedExchangeSource" class="com.opengamma.financial.spring.ExchangeSourceFactoryBean">
@@ -96,11 +84,6 @@
     <property name="equityOptionSurface" value="true" />
     <property name="volatilityCube" value="true" />
   </bean-->
-
-  <!-- FunctionCostsMaster --> 
-  <bean id="dbFunctionCostsMaster" class="com.opengamma.masterdb.spring.DbFunctionCostsMasterFactoryBean">
-    <property name="dbConnector" ref="finDbConnector" />
-  </bean>
 
   <!-- ================================================================== -->
   <!-- Batch -->
