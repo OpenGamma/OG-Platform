@@ -31,7 +31,7 @@ import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.marketdata.LiveMarketDataSourceRegistry;
+import com.opengamma.engine.marketdata.live.LiveMarketDataSourceRegistry;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewDefinition;

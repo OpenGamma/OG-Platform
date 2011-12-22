@@ -5,12 +5,9 @@
  */
 package com.opengamma.examples.marketdata;
 
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 import javax.time.Instant;
 
-import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
 import com.opengamma.engine.value.ValueRequirement;
 
 /**
@@ -19,20 +16,12 @@ import com.opengamma.engine.value.ValueRequirement;
  * For fully-supported implementations supporting major data vendors like Bloomberg and Thomson-Reuters, please
  * contact sales@opengamma.com
  */
-public class MockMarketDataSnapshot implements MarketDataSnapshot {
+public class MockMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   @Override
   public Instant getSnapshotTimeIndication() {
     MockMarketDataProviderFactoryBean.printWarning();
     return Instant.now();
-  }
-
-  @Override
-  public void init() {
-  }
-  
-  @Override
-  public void init(Set<ValueRequirement> valuesRequired, long timeout, TimeUnit unit) {
   }
 
   @Override

@@ -31,7 +31,7 @@ $.register_module({
                     add = og.views[page].filters.reduce(function (acc, val) {
                         return (acc[val] = current.args[val]), acc;
                     }, {});
-                    rule = parsed.args.id ? 'load_' + page : 'load';
+                    rule = parsed.args.id ? 'load_item' : 'load';
                     href = routes.prefix() + routes.hash(og.views[page].rules[rule], parsed.args, {add: add});
                     anchor.attr('href', href);
                 });

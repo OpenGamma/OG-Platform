@@ -204,9 +204,9 @@
   //-----------------------------------------------------------------------
   // Static API
     
-  SlickGridHelper.makeGridColumns = function(viewer, titleColumn, columns, userConfig) {
+  SlickGridHelper.makeGridColumns = function(viewer, leadingColumns, columns, defaultWidth, userConfig) {
     var gridColumns = [];
-    gridColumns.push(titleColumn);
+    gridColumns = gridColumns.concat(leadingColumns);
     if (columns) {
       for (colId in columns) {
         var column = columns[colId];
@@ -216,7 +216,7 @@
           name : column.header,
           toolTip: column.description,
           field : column.colId,
-          width : column.width ? column.width : 150, 
+          width : column.width ? column.width : defaultWidth, 
           formatter: formatter.formatCell,
           asyncPostRender: formatter.postRender
         });

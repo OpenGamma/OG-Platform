@@ -70,7 +70,6 @@ $.register_module({
                     timer = setTimeout(function () {
                         og.api.rest[RESOURCE].get($.extend({}, rest_options, {page_size: 50, page: 2}));
                         var vp = slick.getViewport();
-                        console.log(vp.top, vp.bottom);
                     }, 150);
                 });
                 og.api.rest[RESOURCE].get($.extend({}, rest_options, {page_size: 50, page: 1}));

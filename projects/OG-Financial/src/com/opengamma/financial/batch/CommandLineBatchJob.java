@@ -29,7 +29,7 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
-import com.opengamma.engine.marketdata.HistoricalMarketDataProvider;
+import com.opengamma.engine.marketdata.historical.HistoricalMarketDataProvider;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.view.client.ViewClient;

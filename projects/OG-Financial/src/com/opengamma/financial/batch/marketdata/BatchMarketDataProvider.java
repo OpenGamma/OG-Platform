@@ -10,7 +10,6 @@ import java.util.Set;
 import javax.time.Duration;
 import javax.time.Instant;
 
-import com.opengamma.engine.marketdata.HistoricalMarketDataProvider;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataSnapshot;
 import com.opengamma.engine.marketdata.MarketDataListener;
@@ -18,6 +17,7 @@ import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.historical.HistoricalMarketDataProvider;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
