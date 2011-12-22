@@ -26,6 +26,7 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.aggregation.BottomPositionValues;
@@ -781,15 +782,9 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 //    functionConfigs.add(functionConfiguration(PositionWeightFromNAVFunction.class, "56000000"));
   }
 
+  //-------------------------------------------------------------------------
   public static RepositoryConfigurationSource constructRepositoryConfigurationSource() {
-    return new RepositoryConfigurationSource() {
-      private final RepositoryConfiguration _config = constructRepositoryConfiguration();
-
-      @Override
-      public RepositoryConfiguration getRepositoryConfiguration() {
-        return _config;
-      }
-    };
+    return new SimpleRepositoryConfigurationSource(constructRepositoryConfiguration());
   }
 
   @Override
