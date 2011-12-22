@@ -32,7 +32,43 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
   /**
    * Enumerated type representing how specific the GICS code should be interpreted.
    */
-  public enum Level { SECTOR, INDUSTRY_GROUP, INDUSTRY, SUB_INDUSTRY }
+  public enum Level {
+    
+    /**
+     * Sector
+     */
+    SECTOR("Sector"),
+    
+    /**
+     * Industry Group
+     */
+    INDUSTRY_GROUP("Industry Group"),
+    
+    /**
+     * Industry
+     */
+    INDUSTRY("Industry"),
+    
+    /**
+     * Sub-industry
+     */
+    SUB_INDUSTRY("Sub-industry");
+    
+    private final String _displayName;
+    
+    private Level(String displayName) {
+      _displayName = displayName;
+    }
+    
+    public String getDisplayName() {
+      return _displayName;
+    }
+    
+    public int getNumber() {
+      return ordinal() + 1;
+    }
+    
+  }
 
   private Level _level;
   private SecuritySource _secSource;
@@ -118,7 +154,7 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
 
   @Override
   public String getName() {
-    return "GICS by " + _level;
+    return "GICS - level " + _level.getNumber() + " (" + _level.getDisplayName() + ")";
   }
 
   @Override
