@@ -185,13 +185,13 @@ public class RemoteClient {
 
     @Override
     public URI getPortfolioMaster() {
-      // The remote portfolio master is broken and assumes a "portfolio" prefix on its URLs 
+      // The remote portfolio master is broken and assumes a "prtMaster/portfolio" prefix on its URLs 
       return _baseTarget.getURI();
     }
 
     @Override
     public URI getPositionMaster() {
-      // The remote position master is broken and assumes a "position" prefix on its URLs
+      // The remote position master is broken and assumes a "posMaster/position" prefix on its URLs
       return _baseTarget.getURI();
     }
 
