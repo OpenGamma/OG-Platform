@@ -38,6 +38,11 @@ public class ExpandComputedValuesFunction extends AbstractFunctionInvoker implem
 
   private static final Logger s_logger = LoggerFactory.getLogger(ExpandComputedValuesFunction.class);
 
+  /**
+   * Default instance.
+   */
+  public static final ExpandComputedValuesFunction INSTANCE = new ExpandComputedValuesFunction();
+
   private final MetaFunction _meta;
 
   private static List<MetaParameter> parameters() {

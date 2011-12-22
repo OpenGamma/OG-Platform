@@ -24,6 +24,11 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNamesHelper;
  */
 public class MarketDataRequirementNamesFunction implements PublishedFunction {
 
+  /**
+   * Default instance.
+   */
+  public static final MarketDataRequirementNamesFunction INSTANCE = new MarketDataRequirementNamesFunction();
+
   private static final Set<String> s_marketDataRequirementNames = MarketDataRequirementNamesHelper.constructValidRequirementNames();
 
   public static Set<String> getMarketDataRequirementNames() {

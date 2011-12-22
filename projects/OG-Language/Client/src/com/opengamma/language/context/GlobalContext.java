@@ -17,6 +17,7 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.currency.CurrencyPairsSource;
 import com.opengamma.financial.user.rest.RemoteClient;
@@ -43,6 +44,11 @@ import com.opengamma.language.procedure.ProcedureDefinitionFilter;
  * OpenGamma installation the language integration framework is connecting to.
  */
 public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> {
+
+  /**
+   * Name under which the available outputs provider is bound.
+   */
+  protected static final String AVAILABLE_OUTPUTS_PROVIDER = "availableOutputsProvider";
 
   /**
    * Name under which the shared engine client is bound.
@@ -264,6 +270,10 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
   }
 
   // Standard context members
+
+  public AvailableOutputsProvider getAvailableOutputsProvider() {
+    return getValue(AVAILABLE_OUTPUTS_PROVIDER);
+  }
 
   public RemoteClient getClient() {
     return getValue(CLIENT);
