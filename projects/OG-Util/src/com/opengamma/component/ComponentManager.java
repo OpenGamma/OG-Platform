@@ -109,17 +109,17 @@ public class ComponentManager {
    * Initialize the component.
    * 
    * @param groupName  the group name, not null
-   * @param groupData  the config data, not null
+   * @param groupConfig  the config data, not null
    */
-  protected void initComponent(String groupName, LinkedHashMap<String, String> groupData) {
-    groupData = new LinkedHashMap<String, String>(groupData);
-    String typeStr = groupData.remove("factory");
-    s_logger.info("Initializing component: {} with properties {}", typeStr, groupData);
+  protected void initComponent(String groupName, LinkedHashMap<String, String> groupConfig) {
+    LinkedHashMap<String, String> remainingConfig = new LinkedHashMap<String, String>(groupConfig);
+    String typeStr = remainingConfig.remove("factory");
+    s_logger.info("Initializing component: {} with properties {}", typeStr, remainingConfig);
     
     // load and init
     ComponentFactory factory = loadFactory(typeStr);
-    setFactoryProperties(factory, groupData);
-    initFactory(factory, groupData);
+    setFactoryProperties(factory, remainingConfig);
+    initFactory(factory, remainingConfig, groupName, groupConfig);
   }
 
   //-------------------------------------------------------------------------
@@ -150,12 +150,12 @@ public class ComponentManager {
    * Sets the properties on the factory
    * 
    * @param factory  the factory, not null
-   * @param groupData  the config data, not null
+   * @param remainingConfig  the config data, not null
    */
-  protected void setFactoryProperties(ComponentFactory factory, LinkedHashMap<String, String> groupData) {
+  protected void setFactoryProperties(ComponentFactory factory, LinkedHashMap<String, String> remainingConfig) {
     if (factory instanceof Bean) {
       Bean bean = (Bean) factory;
-      for (Iterator<Entry<String, String>> it = groupData.entrySet().iterator(); it.hasNext(); ) {
+      for (Iterator<Entry<String, String>> it = remainingConfig.entrySet().iterator(); it.hasNext(); ) {
         Entry<String, String> entry = it.next();
         if (bean.propertyNames().contains(entry.getKey())) {
           MetaProperty<Object> mp = bean.metaBean().metaProperty(entry.getKey());
@@ -205,13 +205,16 @@ public class ComponentManager {
    * The factory may also publish a RESTful view and/or a life-cycle method.
    * 
    * @param factory  the factory to initialize, not null
-   * @param groupData  the remaining configuration data, not null
+   * @param remainingConfig  the remaining configuration data, not null
+   * @param groupName  the group name, not null
+   * @param originalGroupConfig  the original group config data, not null
    */
-  protected void initFactory(ComponentFactory factory, LinkedHashMap<String, String> groupData) {
+  protected void initFactory(ComponentFactory factory, LinkedHashMap<String, String> remainingConfig,
+      String groupName, LinkedHashMap<String, String> originalGroupConfig) {
     try {
-      factory.init(_repo, groupData);
+      factory.init(_repo, remainingConfig);
     } catch (Exception ex) {
-      throw new OpenGammaRuntimeException(ex.getMessage(), ex);
+      throw new OpenGammaRuntimeException("Failed to init component factory: '" + groupName + "' with " + originalGroupConfig, ex);
     }
   }
 
