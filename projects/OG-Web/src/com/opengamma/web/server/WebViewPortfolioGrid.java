@@ -17,7 +17,6 @@ import org.cometd.Client;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.view.client.ViewClient;
@@ -58,20 +57,14 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
     }
     ComputationTargetType targetType = row.getTarget().getType();
     details.put("type", targetType.toString());
-    String rowName = getRowName(row, targetType);
-    details.put("position", rowName);
-  }
-
-  private String getRowName(PortfolioRow row, ComputationTargetType targetType) {
-    String rowName;
+    
     if (targetType == ComputationTargetType.POSITION) {
-      Security security = row.getPosition().getSecurityLink().getTarget();
-      String des = security.getName();
-      rowName = des + " (" + row.getPosition().getQuantity().toPlainString() + ")";
+      Position position = row.getPosition();
+      details.put("position", position.getSecurity().getName());
+      details.put("quantity", position.getQuantity().toPlainString());
     } else {
-      rowName = row.getAggregateName();
+      details.put("position", row.getAggregateName());
     }
-    return rowName;
   }
 
   private static List<ComputationTargetSpecification> getTargets(List<PortfolioRow> rows) {
@@ -114,13 +107,13 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
 
   @Override
   protected int getAdditionalCsvColumnCount() {
-    return 3;
+    return 4;
   }
 
   @Override
   protected int getCsvDataColumnOffset() {
     // All at start
-    return 3;
+    return 4;
   }
 
   @Override
@@ -128,6 +121,7 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
     headers[0] = "ID";
     headers[1] = "Parent ID";
     headers[2] = "Position";
+    headers[3] = "Quantity";
   }
 
   @Override
@@ -135,9 +129,22 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
     PortfolioRow portfolioRow = _rowIdToRowMap.get(rowId);
     PortfolioRow parentRow = portfolioRow.getParentRow();
     String parentRowIdText = parentRow != null ? getGridStructure().getRowId(parentRow.getTarget()).toString() : null;
+    
+    String name;
+    String quantity;
+    if (target.getType() == ComputationTargetType.POSITION) {
+      Position position = portfolioRow.getPosition();
+      name = position.getSecurity().getName();
+      quantity = position.getQuantity().toPlainString();
+    } else {
+      name = portfolioRow.getAggregateName();
+      quantity = "";
+    }
+    
     row[0] = Integer.toString(rowId);
     row[1] = parentRowIdText;
-    row[2] = getRowName(portfolioRow, target.getType());
+    row[2] = name;
+    row[3] = quantity;
   }
 
 }
