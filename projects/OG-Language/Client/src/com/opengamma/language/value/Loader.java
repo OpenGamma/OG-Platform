@@ -15,6 +15,7 @@ import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
 import com.opengamma.language.function.FunctionProviderBean;
+import com.opengamma.language.invoke.TypeConverterProviderBean;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
@@ -80,6 +81,9 @@ public class Loader extends ContextInitializationBean {
       s_logger.warn("Available output support not available");
     }
     globalContext.getFunctionProvider().addProvider(functions);
+    globalContext.getTypeConverterProvider().addTypeConverterProvider(new TypeConverterProviderBean(
+        AvailableOutputsConverter.INSTANCE,
+        ValuePropertiesConverter.INSTANCE));
   }
 
 }

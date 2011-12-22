@@ -23,7 +23,7 @@ import com.opengamma.master.security.ManageableSecurity;
 public class CreateSecurityFunction<T extends ManageableSecurity> extends CreateObjectFunction<T> {
 
   public CreateSecurityFunction(final Class<T> clazz, final String description, final String[] parameterNames, final String[] parameterDescriptions) {
-    super(Categories.SECURITY, clazz, description, parameterNames, parameterDescriptions);
+    super(Categories.SECURITY, clazz.getSimpleName(), clazz, description, parameterNames, parameterDescriptions);
   }
 
   protected List<MetaParameter> getPrependedParameters() {
