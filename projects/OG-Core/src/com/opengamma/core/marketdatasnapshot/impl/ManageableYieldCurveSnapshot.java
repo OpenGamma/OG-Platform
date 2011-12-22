@@ -7,6 +7,7 @@ package com.opengamma.core.marketdatasnapshot.impl;
 
 import javax.time.Instant;
 
+import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
@@ -74,15 +75,15 @@ public class ManageableYieldCurveSnapshot implements YieldCurveSnapshot {
   }
 
   public static ManageableYieldCurveSnapshot fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {
-    UnstructuredMarketDataSnapshot values = deserializer.fieldValueToObject(ManageableUnstructuredMarketDataSnapshot.class,
-        msg.getByName("values"));
-    Instant valuationTime = deserializer.fieldValueToObject(Instant.class, msg.getByName("valuationTime"));
     ManageableYieldCurveSnapshot ret = new ManageableYieldCurveSnapshot();
-
-    ret.setValuationTime(valuationTime);
-    ret.setValues(values);
-
+    FudgeField field = msg.getByName("values");
+    if (field != null) {
+      ret.setValues(deserializer.fieldValueToObject(ManageableUnstructuredMarketDataSnapshot.class, field));
+    }
+    field = msg.getByName("valuationTime");
+    if (field != null) {
+      ret.setValuationTime(deserializer.fieldValueToObject(Instant.class, field));
+    }
     return ret;
   }
-
 }
