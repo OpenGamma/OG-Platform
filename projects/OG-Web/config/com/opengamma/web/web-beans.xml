@@ -31,7 +31,7 @@
   </bean>
   <bean id="historicalTimeSeriesMasterRestBean" class="com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesMasterService">
     <constructor-arg ref="fudgeContext" />
-    <property name="underlying" ref="dbHtsMaster" />
+    <property name="underlying" ref="centralHistoricalTimeSeriesMaster" />
   </bean>
 
   <!-- View processor service -->
@@ -84,7 +84,7 @@
     <constructor-arg ref="fudgeContext" />
     <property name="underlyingMap">
       <map>
-        <entry key="0" value-ref="dbSecurityMaster" />
+        <entry key="0" value-ref="centralSecurityMaster" />
         <entry key="test" value-ref="testSecurityMaster" />
       </map>
     </property>
@@ -194,36 +194,36 @@
   
   <!-- Securities RESTful service -->
   <bean id="webSecuritiesRestBean" class="com.opengamma.web.security.WebSecuritiesResource" scope="request">
-    <constructor-arg ref="dbSecurityMaster" />
+    <constructor-arg ref="centralSecurityMaster" />
     <constructor-arg ref="securityLoader"/>
-    <constructor-arg ref="dbHtsMaster"/>
+    <constructor-arg ref="centralHistoricalTimeSeriesMaster"/>
     <constructor-arg ref="sharedConfigSource"/>
   </bean>
   
   <!-- Portfolios RESTful service -->
   <bean id="dataPortfoliosRestBean" class="com.opengamma.master.portfolio.impl.DataPortfoliosResource">
-    <constructor-arg ref="dbPortfolioMaster" />
+    <constructor-arg ref="centralPortfolioMaster" />
   </bean>
   <bean id="webPortfoliosRestBean" class="com.opengamma.web.portfolio.WebPortfoliosResource" scope="request">
-    <constructor-arg ref="dbPortfolioMaster" />
-    <constructor-arg ref="dbPositionMaster" />
+    <constructor-arg ref="centralPortfolioMaster" />
+    <constructor-arg ref="centralPositionMaster" />
   </bean>
 
   <!-- Positions RESTful service -->
   <bean id="dataPositionsRestBean" class="com.opengamma.master.position.impl.DataPositionsResource">
-    <constructor-arg ref="dbPositionMaster" />
+    <constructor-arg ref="centralPositionMaster" />
   </bean>
   <bean id="webPositionsRestBean" class="com.opengamma.web.position.WebPositionsResource" scope="request">
-    <constructor-arg ref="dbPositionMaster" />
+    <constructor-arg ref="centralPositionMaster" />
     <constructor-arg ref="securityLoader"/>
     <constructor-arg ref="sharedSecuritySource"/>
-    <constructor-arg ref="dbHtsMaster"/>
+    <constructor-arg ref="centralHistoricalTimeSeriesMaster"/>
     <constructor-arg ref="sharedConfigSource"/>
   </bean>
   
   <!-- Exchanges RESTful service -->
   <bean id="webExchangesRestBean" class="com.opengamma.web.exchange.WebExchangesResource" scope="request">
-    <constructor-arg ref="dbExchangeMaster" />
+    <constructor-arg ref="centralExchangeMaster" />
   </bean>
   <bean id="dataExchangesRestBean" class="com.opengamma.financial.exchange.rest.ExchangeSourceService">
     <constructor-arg ref="fudgeContext" />
@@ -232,7 +232,7 @@
   
   <!-- Holidays RESTful service -->
   <bean id="webHolidaysRestBean" class="com.opengamma.web.holiday.WebHolidaysResource" scope="request">
-    <constructor-arg ref="dbHolidayMaster" />
+    <constructor-arg ref="centralHolidayMaster" />
   </bean>
   <bean id="dataHolidaysRestBean" class="com.opengamma.financial.holiday.rest.HolidaySourceService">
     <constructor-arg ref="fudgeContext" />
@@ -454,12 +454,12 @@
     
   <!-- Config RESTful service -->
   <bean id="webConfigsRestBean" class="com.opengamma.web.config.WebConfigsResource" scope="request">
-    <constructor-arg ref="sharedConfigMaster" />
+    <constructor-arg ref="centralConfigMaster" />
   </bean>
   
   <!-- Time series RESTful service -->
   <bean id="webTimeSeriesRestBean" class="com.opengamma.web.historicaltimeseries.WebAllHistoricalTimeSeriesResource" scope="request">
-    <constructor-arg ref="dbHtsMaster" />
+    <constructor-arg ref="centralHistoricalTimeSeriesMaster" />
     <constructor-arg ref="htsLoader"/>
   </bean>
   
@@ -602,8 +602,8 @@
   <bean id="changeManager" class="com.opengamma.core.change.AggregatingChangeManager">
     <constructor-arg>
       <list>
-        <ref bean="dbPortfolioMaster"/>
-        <ref bean="dbPositionMaster"/>
+        <ref bean="centralPortfolioMaster"/>
+        <ref bean="centralPositionMaster"/>
         <!--TODO what other data are we interested in?-->
       </list>
     </constructor-arg>
@@ -612,8 +612,8 @@
   <bean id="masterChangeManager" class="com.opengamma.web.server.push.MasterChangeManager">
     <constructor-arg>
       <map>
-        <entry key="POSITION" value-ref="dbPositionMaster"/>
-        <entry key="PORTFOLIO" value-ref="dbPortfolioMaster"/>
+        <entry key="POSITION" value-ref="centralPositionMaster"/>
+        <entry key="PORTFOLIO" value-ref="centralPortfolioMaster"/>
       </map>
     </constructor-arg>
   </bean>
@@ -632,7 +632,7 @@
     <property name="userPositionMaster" ref="userFinancialPositionMaster" />
     <property name="userViewDefinitionRepository" ref="userViewDefinitionRepository" />
     <property name="portfolioAggregators" ref="portfolioAggregationFunctions" />
-    <property name="snapshotMaster" ref="dbSnapshotMaster" />
+    <property name="snapshotMaster" ref="centralMarketDataSnapshotMaster" />
     <property name="executorService">
       <bean class="com.opengamma.util.ExecutorServiceFactoryBean">
         <property name="styleName" value="CACHED" />
@@ -650,7 +650,7 @@
     <constructor-arg ref="fudgeContext" />
     <property name="underlyingMap">
       <map>
-        <entry key="0" value-ref="dbSnapshotMaster" />
+        <entry key="0" value-ref="centralMarketDataSnapshotMaster" />
         <entry key="test" value-ref="testSnapshotMaster" />
       </map>
     </property>

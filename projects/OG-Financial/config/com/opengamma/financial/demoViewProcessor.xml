@@ -119,7 +119,7 @@
   <bean id="testUser" class="${testUser.factory}" />  
   <!-- ViewDefinitionRepository -->
   <bean id="demoViewDefinitionRepository" class="com.opengamma.web.spring.ConfigDbViewDefinitionRepositoryFactoryBean">
-  	<property name="configMaster" ref="sharedConfigMaster" />
+  	<property name="configMaster" ref="centralConfigMaster" />
   </bean>
   
   <bean id="userViewDefinitionRepository" class="com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository" />
@@ -217,7 +217,7 @@
   </bean>
   <bean id="jobDispatchStatistics" class="com.opengamma.engine.view.calcnode.stats.TotallingNodeStatisticsGatherer" />
   <bean id="functionCosts" class="com.opengamma.engine.view.calcnode.stats.FunctionCosts">
-    <constructor-arg ref="dbFunctionCostsMaster" />
+    <constructor-arg ref="centralFunctionCostsMaster" />
   </bean>
   <bean id="demoComputationJobDispatcher" class="com.opengamma.engine.view.calcnode.JobDispatcher">
     <constructor-arg>
@@ -316,7 +316,7 @@
     <property name="viewProcessor" ref="demoViewProcessor" />
     <property name="mastersAndSources">
       <map>
-        <entry key-ref="sharedConfigMaster" value-ref="sharedConfigSource" />
+        <entry key-ref="centralConfigMaster" value-ref="sharedConfigSource" />
         <entry key-ref="userInterpolatedYieldCurveDefinitions" value-ref="userInterpolatedYieldCurveDefinitions" />
       </map>
     </property>
@@ -324,7 +324,7 @@
       <set>
         <bean class="com.opengamma.financial.view.ConfigDbOverrideWatchSetProvider">
           <constructor-arg value="${opengamma.config.db.configmaster.scheme}" />
-          <constructor-arg ref="sharedConfigMaster" />
+          <constructor-arg ref="centralConfigMaster" />
           <constructor-arg>
             <set>
               <value>UserCurves</value>

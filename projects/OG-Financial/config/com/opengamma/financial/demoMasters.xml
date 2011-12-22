@@ -37,45 +37,36 @@
   <!-- ================================================================== -->
   <!--  Remote masters -->
   <bean class="com.opengamma.financial.spring.ComponentRepositoryBeanPostProcessor" />
-  <alias name="centralConfigMaster" alias="sharedConfigMaster" />
-  <alias name="centralExchangeMaster" alias="dbExchangeMaster" />
-  <alias name="centralHolidayMaster" alias="dbHolidayMaster" />
-  <alias name="centralMarketDataSnapshotMaster" alias="dbSnapshotMaster" />
-  <alias name="centralSecurityMaster" alias="dbSecurityMaster" />
-  <alias name="centralPositionMaster" alias="dbPositionMaster" />
-  <alias name="centralPortfolioMaster" alias="dbPortfolioMaster" />
-  <alias name="centralHistoricalTimeSeriesMaster" alias="dbHtsMaster" />
-  <alias name="centralFunctionCostsMaster" alias="dbFunctionCostsMaster" />
 
   <!-- Sources -->
   <bean id="sharedExchangeSource" class="com.opengamma.financial.spring.ExchangeSourceFactoryBean">
-    <property name="exchangeMaster" ref="dbExchangeMaster" />
+    <property name="exchangeMaster" ref="centralExchangeMaster" />
   </bean>
   <bean id="sharedHolidaySource" class="com.opengamma.financial.spring.HolidaySourceFactoryBean">
-    <property name="holidayMaster" ref="dbHolidayMaster"/>
+    <property name="holidayMaster" ref="centralHolidayMaster"/>
   </bean>
   <bean id="sharedSnapshotSource" class="com.opengamma.financial.spring.MarketDataSnapshotSourceFactoryBean">
-    <property name="snapshotMaster" ref="dbSnapshotMaster"/>
+    <property name="snapshotMaster" ref="centralMarketDataSnapshotMaster"/>
     <property name="cacheManager" ref="cacheManager" />
   </bean>
   <bean id="sharedSecuritySource" class="com.opengamma.financial.spring.FinancialSecuritySourceFactoryBean">
-    <property name="securityMaster" ref="dbSecurityMaster" />
+    <property name="securityMaster" ref="centralSecurityMaster" />
     <property name="cacheManager" ref="cacheManager" />
   </bean>
   <bean id="sharedPositionSource" class="com.opengamma.financial.spring.PositionSourceFactoryBean">
-    <property name="portfolioMaster" ref="dbPortfolioMaster" />
-    <property name="positionMaster" ref="dbPositionMaster" />
+    <property name="portfolioMaster" ref="centralPortfolioMaster" />
+    <property name="positionMaster" ref="centralPositionMaster" />
     <property name="cacheManager" ref="cacheManager" />
   </bean>
   <bean id="sharedHistoricalTimeSeriesSource" class="com.opengamma.financial.spring.HistoricalTimeSeriesSourceFactoryBean">
-    <property name="historicalTimeSeriesMaster" ref="dbHtsMaster"/>
+    <property name="historicalTimeSeriesMaster" ref="centralHistoricalTimeSeriesMaster"/>
     <property name="cacheManager" ref="cacheManager" />
     <property name="configSource" ref="sharedConfigSource"/>
   </bean>
 
   <!-- Config loaders, should be commented out most of the time -->
   <!-- bean class="com.opengamma.financial.spring.ConfigMasterPopulatorsFactoryBean">
-    <property name="configMaster" ref="sharedConfigMaster" />
+    <property name="configMaster" ref="centralConfigMaster" />
     <property name="yieldCurve" value="true" />
     <property name="currencyMatrix" value="true" />
     <property name="swaptionVolatilitySurface" value="true" />
@@ -115,11 +106,11 @@
       <list>
         <bean class="com.opengamma.web.spring.DemoStandardFunctionConfiguration" />
         <bean class="com.opengamma.web.spring.DemoCurveFunctionConfiguration">
-          <property name="configMaster" ref="sharedConfigMaster" />
+          <property name="configMaster" ref="centralConfigMaster" />
           <property name="conventionBundleSource" ref="conventionBundleSource" />
         </bean>
         <bean class="com.opengamma.web.spring.DemoSurfaceFunctionConfiguration">
-          <property name="configMaster" ref="sharedConfigMaster" />
+          <property name="configMaster" ref="centralConfigMaster" />
         </bean>
        </list>
     </constructor-arg>
