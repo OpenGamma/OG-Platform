@@ -38,6 +38,8 @@
   <!-- ================================================================== -->
   <!--  Remote masters -->
   <bean class="com.opengamma.financial.spring.ComponentRepositoryBeanPostProcessor" />
+  <!--alias name="sharedMarketDataSnapshotSource" alias="sharedSnapshotSource" />
+  <alias name="sharedRepositoryConfigurationSource" alias="demoFunctionRepositoryConfiguration" /-->
 
   <!-- Sources -->
   <bean id="sharedExchangeSource" class="com.opengamma.financial.spring.ExchangeSourceFactoryBean">
