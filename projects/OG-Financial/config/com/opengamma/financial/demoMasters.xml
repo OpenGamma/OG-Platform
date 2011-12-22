@@ -23,8 +23,6 @@
     <property name="connectionFactory" ref="jmsConnectionFactory"/>
   </bean>
 
-  <import resource="classpath:com/opengamma/financial/common.xml" />
-
   <bean id="abstractDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean" abstract="true">
     <property name="transactionIsolationLevelName" value="ISOLATION_READ_COMMITTED" />
     <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
@@ -34,6 +32,9 @@
     <property name="shared" value="true"/>
   </bean>
 
+  <!-- A global Fudge context configured with all of the relevant builders --> 
+  <bean id="fudgeContext" class="com.opengamma.util.fudgemsg.OpenGammaFudgeContext" factory-method="getInstance" />
+  
   <!-- ================================================================== -->
   <!--  Remote masters -->
   <bean class="com.opengamma.financial.spring.ComponentRepositoryBeanPostProcessor" />
@@ -107,7 +108,7 @@
         <bean class="com.opengamma.web.spring.DemoStandardFunctionConfiguration" />
         <bean class="com.opengamma.web.spring.DemoCurveFunctionConfiguration">
           <property name="configMaster" ref="centralConfigMaster" />
-          <property name="conventionBundleSource" ref="conventionBundleSource" />
+          <property name="conventionBundleSource" ref="sharedConventionBundleSource" />
         </bean>
         <bean class="com.opengamma.web.spring.DemoSurfaceFunctionConfiguration">
           <property name="configMaster" ref="centralConfigMaster" />

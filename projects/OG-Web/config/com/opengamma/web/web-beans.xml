@@ -241,11 +241,11 @@
   
   <!-- Exchanges RESTful service -->
   <bean id="webRegionsRestBean" class="com.opengamma.web.region.WebRegionsResource" scope="request">
-    <constructor-arg ref="regionMaster" />
+    <constructor-arg ref="centralRegionMaster" />
   </bean>
   <bean id="dataRegionsRestBean" class="com.opengamma.financial.region.rest.RegionSourceService">
     <constructor-arg ref="fudgeContext" />
-    <property name="underlying" ref="regionSource" />
+    <property name="underlying" ref="sharedRegionSource" />
   </bean>
   
   <!-- Distributed component configuration data -->
@@ -509,7 +509,7 @@
         <bean class="com.opengamma.financial.aggregation.DetailedAssetClassAggregationFunction" />
         <bean class="com.opengamma.financial.aggregation.RegionAggregationFunction">
           <constructor-arg ref="combinedSecuritySource" />
-          <constructor-arg ref="regionSource" />
+          <constructor-arg ref="sharedRegionSource" />
           <constructor-arg ref="sharedExchangeSource" />
           <constructor-arg value="false" />
           <constructor-arg value="false" />

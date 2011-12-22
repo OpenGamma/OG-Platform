@@ -136,9 +136,9 @@
   <bean id="demoFunctionCompilationContext" class="com.opengamma.financial.OpenGammaCompilationContextFactoryBean">
     <property name="securitySource" ref="combinedSecuritySource" />
     <property name="positionSource" ref="combinedPositionSource" />
-    <property name="regionSource" ref="regionSource"/>
+    <property name="regionSource" ref="sharedRegionSource"/>
     <property name="configSource" ref="sharedConfigSource" />
-    <property name="conventionBundleSource" ref="conventionBundleSource"/>
+    <property name="conventionBundleSource" ref="sharedConventionBundleSource"/>
     <property name="interpolatedYieldCurveDefinitionSource" ref="combinedInterpolatedYieldCurveDefinitionSource" />
     <property name="interpolatedYieldCurveSpecificationBuilder" ref="sharedInterpolatedYieldCurveSpecificationBuilder" />
     <property name="volatilityCubeDefinitionSource" ref="combinedVolatilityCubeDefinitionSource" />
@@ -153,10 +153,10 @@
     <property name="historicalTimeSeriesSource" ref="sharedHistoricalTimeSeriesSource" />
     <property name="securitySource" ref="combinedSecuritySource" />
     <property name="positionSource" ref="combinedPositionSource" />
-    <property name="regionSource" ref="regionSource"/>
+    <property name="regionSource" ref="sharedRegionSource"/>
     <property name="exchangeSource" ref="sharedExchangeSource"/>
     <property name="holidaySource" ref="sharedHolidaySource"/>
-    <property name="conventionBundleSource" ref="conventionBundleSource"/>
+    <property name="conventionBundleSource" ref="sharedConventionBundleSource"/>
     <property name="configSource" ref="sharedConfigSource" />
     <property name="overrideOperationCompiler" ref="demoOverrideOperationCompiler" />
   </bean>
