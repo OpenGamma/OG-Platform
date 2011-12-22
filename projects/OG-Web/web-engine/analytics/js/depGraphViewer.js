@@ -63,7 +63,7 @@
             nullValue: ""
           }
       ];
-      var gridColumns = SlickGridHelper.makeGridColumns(self, targetColumn, _columns, _userConfig);
+      var gridColumns = SlickGridHelper.makeGridColumns(self, [targetColumn], _columns, 150, _userConfig);
       
       var gridOptions = {
           editable: false,
