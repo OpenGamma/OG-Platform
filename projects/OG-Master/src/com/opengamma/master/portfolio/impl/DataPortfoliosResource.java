@@ -110,7 +110,11 @@ public class DataPortfoliosResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/prtMaster/portfolios");
+    UriBuilder bld = UriBuilder.fromUri(baseUri);
+    if (!baseUri.getPath().endsWith("prtMaster/")) {
+      bld.path("/prtMaster");
+    }
+    bld.path("/portfolios");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }
