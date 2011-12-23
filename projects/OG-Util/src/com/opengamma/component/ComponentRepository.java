@@ -231,6 +231,27 @@ public class ComponentRepository implements Lifecycle {
     }
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Publishes the object as a RESTful API.
+   * <p>
+   * This method is used if the object is not to be managed by {@link DataComponentsResource}.
+   * 
+   * @param resource  the RESTful resource, not null
+   */
+  public void publishRest(Object resource) {
+    ArgumentChecker.notNull(resource, "resource");
+    checkStatus(Status.CREATING);
+    
+    try {
+      _restPublished.addAdditionalSingleton(resource);
+      
+    } catch (RuntimeException ex) {
+      _status = Status.FAILED;
+      throw new RuntimeException("Failed during publishing: " + resource, ex);
+    }
+  }
+
   /**
    * Publishes the component as a RESTful API.
    * 

@@ -168,7 +168,7 @@
     <property name="userSecurityMaster" ref="userFinancialSecurityMaster" />
     <property name="userViewDefinitionRepository" ref="userViewDefinitionRepository" />
     <property name="userInterpolatedYieldCurveDefinitionMaster" ref="userInterpolatedYieldCurveDefinitions" />
-    <property name="userSnapshotMaster" ref="userFinancialSnapshotMaster" />
+    <property name="userSnapshotMaster" ref="userFinancialMarketDataSnapshotMaster" />
   </bean>
   
   <!-- Users Tracker -->
