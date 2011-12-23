@@ -7,9 +7,7 @@ package com.opengamma.component;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -44,7 +42,7 @@ public class ComponentRepository implements Lifecycle {
   /**
    * The repository of RESTful published components.
    */
-  private final ConcurrentMap<ComponentKey, Object> _restPublished = new ConcurrentHashMap<ComponentKey, Object>();
+  private final PublishedComponents _restPublished = new PublishedComponents();
   /**
    * The objects with {@code Lifecycle}.
    */
@@ -133,19 +131,10 @@ public class ComponentRepository implements Lifecycle {
   /**
    * Gets the published components.
    * 
-   * @return an unmodifiable copy of the published components, not null
+   * @return the published components, not null
    */
-  public Collection<Object> getPublished() {
-    return new ArrayList<Object>(_restPublished.values());
-  }
-
-  /**
-   * Gets the published component map.
-   * 
-   * @return an unmodifiable copy of the published components, not null
-   */
-  Map<ComponentKey, Object> getPublishedMap() {
-    return Collections.unmodifiableMap(_restPublished);
+  public PublishedComponents getPublished() {
+    return _restPublished;
   }
 
   //-------------------------------------------------------------------------
@@ -253,13 +242,12 @@ public class ComponentRepository implements Lifecycle {
     ArgumentChecker.notNull(resource, "resource");
     checkStatus(Status.CREATING);
     
-    ComponentKey key = info.toComponentKey();
     try {
-      _restPublished.put(key, resource);
+      _restPublished.addManagedComponent(info, resource);
       
     } catch (RuntimeException ex) {
       _status = Status.FAILED;
-      throw new RuntimeException("Failed during publishing: " + key, ex);
+      throw new RuntimeException("Failed during publishing: " + info.toComponentKey(), ex);
     }
   }
 

@@ -6,7 +6,7 @@
 package com.opengamma.component;
 
 import java.net.URI;
-import java.util.Map;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
@@ -15,40 +15,41 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for exchanges.
+ * RESTful resource for exposing managed components.
  * <p>
- * The exchanges resource receives and processes RESTful calls to the exchange master.
+ * This resource receives and processes RESTful calls to all managed components.
  */
 @Path("/components")
 public class DataComponentsResource extends AbstractDataResource {
 
   /**
-   * The repository.
+   * The components.
    */
-  private final ComponentRepository _repo;
+  private final List<PublishedComponent> _components;
 
   /**
-   * Creates the resource around the repository.
+   * Creates the resource.
    * 
-   * @param repo  the component repository, not null
+   * @param components  the managed components, not null
    */
-  public DataComponentsResource(final ComponentRepository repo) {
-    ArgumentChecker.notNull(repo, "repo");
-    _repo = repo;
+  public DataComponentsResource(final Iterable<PublishedComponent> components) {
+    ArgumentChecker.notNull(components, "components");
+    _components = ImmutableList.copyOf(components);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the repository.
+   * Gets the components.
    * 
-   * @return the repository, not null
+   * @return the components, not null
    */
-  public ComponentRepository getComponentRepository() {
-    return _repo;
+  public List<PublishedComponent> getComponents() {
+    return _components;
   }
 
   //-------------------------------------------------------------------------
@@ -60,20 +61,18 @@ public class DataComponentsResource extends AbstractDataResource {
 
   @GET
   public Response getComponentInfos() {
-    Map<ComponentKey, Object> published = _repo.getPublishedMap();
     ComponentInfosMsg infos = new ComponentInfosMsg();
-    for (ComponentKey key : published.keySet()) {
-      infos.getInfos().add(_repo.getInfo(key.getType(), key.getClassifier()));
+    for (PublishedComponent component : _components) {
+      infos.getInfos().add(component.getInfo());
     }
     return Response.ok(infos).build();
   }
 
   @Path("{type}/{classifier}")
   public Object findComponent(@PathParam("type") String type, @PathParam("classifier") String classifier) {
-    Map<ComponentKey, Object> published = _repo.getPublishedMap();
-    for (ComponentKey key : published.keySet()) {
-      if (key.getType().getSimpleName().equalsIgnoreCase(type) && key.getClassifier().equalsIgnoreCase(classifier)) {
-        return published.get(key);
+    for (PublishedComponent component : _components) {
+      if (component.getInfo().getType().getSimpleName().equalsIgnoreCase(type) && component.getInfo().getClassifier().equalsIgnoreCase(classifier)) {
+        return component.getInstance();
       }
     }
     return null;
