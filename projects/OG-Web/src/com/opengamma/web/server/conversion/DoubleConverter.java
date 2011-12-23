@@ -18,6 +18,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * General converter for doubles that applies rounding rules.
@@ -168,22 +169,11 @@ public class DoubleConverter implements ResultConverter<Object> {
   //TODO putting the conversion for CurrencyAmount into here right now, but this is probably not the place for it.
   @Override
   public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, Object value, ConversionMode mode) {
-    Double doubleValue = null;
     String displayValue = null;
-    BigDecimal bigDecimalValue = null;
-    String ccy = null;
     
-    if (value instanceof Double) {
-      doubleValue = (Double) value;
-    } else if (value instanceof CurrencyAmount) {
-      CurrencyAmount currencyAmount = (CurrencyAmount) value;
-      doubleValue = currencyAmount.getAmount();
-      ccy = currencyAmount.getCurrency().getCode();
-    } else if (value instanceof BigDecimal) {
-      bigDecimalValue = (BigDecimal) value;
-    } else {
-      throw new OpenGammaRuntimeException(getClass().getSimpleName() + " is unable to process value of type " + value.getClass());
-    }
+    Pair<Double, BigDecimal> processedValue = processValue(value);
+    Double doubleValue = processedValue.getFirst();
+    BigDecimal bigDecimalValue = processedValue.getSecond();
 
     if (doubleValue != null) {
       if (Double.isInfinite(doubleValue) || Double.isNaN(doubleValue)) {
@@ -201,7 +191,10 @@ public class DoubleConverter implements ResultConverter<Object> {
     }
     
     if (formatter.isCurrencyAmount()) {
-      if (ccy == null) {
+      String ccy;
+      if (value instanceof CurrencyAmount) {
+        ccy = ((CurrencyAmount) value).getCurrency().getCode();
+      } else {
         Set<String> currencyValues = valueSpec.getProperties().getValues(ValuePropertyNames.CURRENCY);
         if (currencyValues == null) {
           ccy = DISPLAY_UNKNOWN_CCY ? "?" : "";
@@ -216,6 +209,40 @@ public class DoubleConverter implements ResultConverter<Object> {
     return displayValue;
   }
 
+  //TODO putting the conversion for CurrencyAmount into here right now, but this is probably not the place for it.
+  @Override
+  public Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, Object value) {
+    Pair<Double, BigDecimal> processedValue = processValue(value);
+    Double doubleValue = processedValue.getFirst();
+    BigDecimal bigDecimalValue = processedValue.getSecond();
+    
+    if (doubleValue != null) {
+      if (Double.isInfinite(doubleValue) || Double.isNaN(doubleValue)) {
+        //REVIEW emcleod 7-6-2011 This is awful - 0 is a legitimate value to return, whereas NaN or infinity show an error in the calculation
+        bigDecimalValue = BigDecimal.ZERO; 
+      } else {
+        bigDecimalValue = BigDecimal.valueOf(doubleValue);
+      }
+    }
+
+    DoubleValueFormatter formatter = getFormatter(valueSpec);
+    return formatter.getRoundedValue(bigDecimalValue);
+  }
+  
+  private Pair<Double, BigDecimal> processValue(Object value) {
+    if (value instanceof Double) {
+      return Pair.of((Double) value, null);
+    }
+    if (value instanceof CurrencyAmount) {
+      CurrencyAmount currencyAmount = (CurrencyAmount) value;
+      return Pair.of((Double) currencyAmount.getAmount(), null);
+    }
+    if (value instanceof BigDecimal) {
+      return Pair.of(null, ((BigDecimal) value));
+    }
+    throw new OpenGammaRuntimeException(getClass().getSimpleName() + " is unable to process value of type " + value.getClass());
+  }
+
   private DoubleValueFormatter getFormatter(ValueSpecification valueSpec) {
     DoubleValueFormatter conversion = null;
     if (valueSpec != null) {
@@ -225,26 +252,6 @@ public class DoubleConverter implements ResultConverter<Object> {
       conversion = DEFAULT_CONVERSION;
     }
     return conversion;
-  }
-
-  //TODO putting the conversion for CurrencyAmount into here right now, but this is probably not the place for it.
-  @Override
-  public Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, Object value) {
-    double doubleValue;
-    if (value instanceof Double) {
-      doubleValue = (Double) value;
-    } else if (value instanceof CurrencyAmount) {
-      doubleValue = ((CurrencyAmount) value).getAmount();
-    } else if (value instanceof BigDecimal) {
-      doubleValue = ((BigDecimal) value).doubleValue();
-    } else {
-      throw new OpenGammaRuntimeException("Cannot convert objects of type " + value.getClass());
-    }
-    //REVIEW emcleod 7-6-2011 This is awful - 0 is a legitimate value to return, whereas NaN or infinity show an error in the calculation
-    if (Double.isNaN(doubleValue) || Double.isInfinite(doubleValue)) {
-      doubleValue = 0; 
-    }
-    return doubleValue;
   }
 
   @Override
