@@ -53,27 +53,4 @@
     <property name="volatilityCube" value="true" />
   </bean-->
 
-  <!-- ================================================================== -->
-  <!-- Batch -->
-  <bean id="batchDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-    <property name="driverClassName" value="${opengamma.overnight-batch.jdbc.driver}" />
-    <property name="url" value="${opengamma.overnight-batch.jdbc.url}" />
-    <property name="username" value="${opengamma.overnight-batch.jdbc.username}" />
-    <property name="password" value="${opengamma.overnight-batch.jdbc.password}" />
-  </bean>
-  <bean id="batchDbConnector" parent="abstractDbConnector">
-    <property name="name" value="Batch"/>
-    <property name="dataSource" ref="batchDataSource"/>
-    <property name="dialectName" value="${opengamma.overnight-batch.db.dbdialect}"/>
-    <property name="allowHibernateThreadBoundSession" value="true"/>
-    <property name="hibernateMappingFiles">
-      <list>
-        <bean class="com.opengamma.masterdb.batch.HibernateBatchDbFiles"/>
-      </list> 
-    </property>
-  </bean>
-  <bean id="dbBatchMaster" class="com.opengamma.masterdb.batch.DbBatchMaster">
-    <constructor-arg ref="batchDbConnector"/>  	
-  </bean>
-
 </beans>

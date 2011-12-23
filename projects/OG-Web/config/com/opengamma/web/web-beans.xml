@@ -121,7 +121,7 @@
 
   <!-- Ad hoc batches -->
   <bean id="adHocBatchRestBean" class="com.opengamma.financial.batch.AdHocBatchDbManagerService">
-    <constructor-arg ref="dbBatchMaster" />
+    <constructor-arg ref="sharedBatchMaster" />
     <constructor-arg ref="fudgeContext" />
   </bean>
   
@@ -465,7 +465,7 @@
   
   <!-- Batch RESTful service -->
   <bean id="webBatchesRestBean" class="com.opengamma.web.batch.WebBatchesResource" scope="request">
-    <constructor-arg ref="dbBatchMaster" />
+    <constructor-arg ref="sharedBatchMaster" />
   </bean>
   
   <!-- Bundles RESTful service -->
