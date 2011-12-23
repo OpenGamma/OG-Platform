@@ -331,7 +331,7 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
     for (int i = 0; i < parameterNames.length; i++) {
       parameterDescriptions[i] = object.getParameterDescription(parameterNames[i]);
     }
-    return new CreateObjectFunction(category, object.getObjectClass(), object.getConstructorDescription(), parameterNames, parameterDescriptions).getMetaFunction();
+    return new CreateObjectFunction(category, object.getName(), object.getObjectClass(), object.getConstructorDescription(), parameterNames, parameterDescriptions).getMetaFunction();
   }
 
   protected void loadObjectDefinitions(final ObjectInfo object, final Collection<MetaFunction> definitions, final String category) {

@@ -203,6 +203,13 @@ public class WebView {
     if (getPortfolioGrid() != null) {
       Map<String, Object> portfolioViewport = (Map<String, Object>) dataMap.get("portfolioViewport");
       getPortfolioGrid().setViewport(processViewportData(portfolioViewport));
+      
+      Map<String, Map<String, Object>> depGraphViewportMap = (Map<String, Map<String, Object>>) dataMap.get("depGraphViewport");
+      for (Map.Entry<String, Map<String, Object>> depGraphViewportEntry : depGraphViewportMap.entrySet()) {
+        WebGridCell depGraphCell = processCellId(depGraphViewportEntry.getKey());
+        SortedMap<Integer, Long> viewportMap = processViewportData(depGraphViewportEntry.getValue());
+        getPortfolioGrid().setDepGraphViewport(depGraphCell, viewportMap);
+      }
     }
 
     if (getPrimitivesGrid() != null) {
@@ -225,7 +232,14 @@ public class WebView {
     }
   }
 
-  private SortedMap<Integer, Long> processViewportData(Map<String, Object> viewportData) {
+  private static WebGridCell processCellId(String encodedCellId) {
+    String[] rowColumn = encodedCellId.split("-");
+    int rowId = Integer.parseInt(rowColumn[0]);
+    int colId = Integer.parseInt(rowColumn[1]);
+    return new WebGridCell(rowId, colId);
+  }
+  
+  private static SortedMap<Integer, Long> processViewportData(Map<String, Object> viewportData) {
     SortedMap<Integer, Long> result = new TreeMap<Integer, Long>();
     if (viewportData.isEmpty()) {
       return result;

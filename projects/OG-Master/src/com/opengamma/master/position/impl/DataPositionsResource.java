@@ -103,7 +103,11 @@ public class DataPositionsResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/posMaster/positions");
+    UriBuilder bld = UriBuilder.fromUri(baseUri);
+    if (!baseUri.getPath().endsWith("posMaster/")) {
+      bld.path("/posMaster");
+    }
+    bld.path("/positions");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }
