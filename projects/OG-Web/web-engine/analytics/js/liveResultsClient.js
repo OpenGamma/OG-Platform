@@ -201,6 +201,7 @@
       var updateMetadata = {
           portfolioViewport : {},
           primitiveViewport : {},
+          depGraphViewport : {}
       }
       
       // Get the UI components to complete the metadata

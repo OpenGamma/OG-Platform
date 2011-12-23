@@ -15,6 +15,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -236,7 +237,6 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   protected abstract void addRowDetails(UniqueId target, int rowId, Map<String, Object> details);
   
   //-------------------------------------------------------------------------
-  
   protected RequirementBasedGridStructure getGridStructure() {
     return _gridStructure;
   }
@@ -253,7 +253,6 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   }
   
   //-------------------------------------------------------------------------
-  
   public WebViewGrid setIncludeDepGraph(WebGridCell cell, boolean includeDepGraph) {
     if (includeDepGraph) {
       String gridName = getName() + ".depgraph-" + cell.getRowId() + "-" + cell.getColumnId();
@@ -268,6 +267,14 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
       WebViewDepGraphGrid grid = _depGraphGrids.remove(cell);
       return grid;
     }
+  }
+  
+  public void setDepGraphViewport(WebGridCell cell, SortedMap<Integer, Long> viewportMap) {
+    WebViewDepGraphGrid grid = _depGraphGrids.get(cell);
+    if (grid == null) {
+      return;
+    }
+    grid.setViewport(viewportMap);
   }
   
   //-------------------------------------------------------------------------  
