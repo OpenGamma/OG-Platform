@@ -8,6 +8,7 @@ package com.opengamma.component;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -111,6 +112,7 @@ public class ComponentRepository implements Lifecycle {
     return typeInfo;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the component information.
    * <p>
@@ -125,6 +127,24 @@ public class ComponentRepository implements Lifecycle {
     ArgumentChecker.notNull(type, "type");
     ComponentTypeInfo typeInfo = getTypeInfo(type);
     return typeInfo.getInfo(classifier);
+  }
+
+  /**
+   * Gets the component information for an instance.
+   * <p>
+   * This method will not find infrastructure instances.
+   * 
+   * @param instance  the instance to find info for, not null
+   * @return the component information, not null
+   * @throws IllegalArgumentException if no component is available
+   */
+  public ComponentInfo getInfo(Object instance) {
+    for (Entry<ComponentKey, Object> entry : _instanceMap.entrySet()) {
+      if (entry.getValue() == instance) {
+        return getInfo(entry.getKey().getType(), entry.getKey().getClassifier());
+      }
+    }
+    throw new IllegalArgumentException("Unknown component instance: " + instance);
   }
 
   //-------------------------------------------------------------------------
