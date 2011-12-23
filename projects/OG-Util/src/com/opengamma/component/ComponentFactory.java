@@ -16,9 +16,14 @@ public interface ComponentFactory {
    * Invokes the factory to create the component(s).
    * <p>
    * The factory is responsible for registering the component(s) with the repository.
+   * <p>
+   * The remaining config data is a live map that is normally empty.
+   * If the implementation can handle additional config items, it must ensure that the map
+   * if empty after the completion of this method, otherwise initialization will stop.
+   * This is normally accomplished using {@link java.util.Map#remove(Object)) to extract the config.
    * 
    * @param repo  the repository to register the component(s) with, not null
-   * @param configuration  the config data, not null
+   * @param configuration  the remaining config data, not null
    * @throws Exception allows the implementation to throw checked exceptions
    */
   void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception;

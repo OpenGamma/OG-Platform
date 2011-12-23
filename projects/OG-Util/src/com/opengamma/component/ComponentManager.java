@@ -213,6 +213,9 @@ public class ComponentManager {
       String groupName, LinkedHashMap<String, String> originalGroupConfig) {
     try {
       factory.init(_repo, remainingConfig);
+      if (remainingConfig.size() > 0) {
+        throw new IllegalStateException("Configuration was specified but not used: " + remainingConfig);
+      }
     } catch (Exception ex) {
       throw new OpenGammaRuntimeException("Failed to init component factory: '" + groupName + "' with " + originalGroupConfig, ex);
     }
