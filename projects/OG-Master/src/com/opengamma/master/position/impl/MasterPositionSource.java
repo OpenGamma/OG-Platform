@@ -391,7 +391,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    String str = getClass().getSimpleName() + "[" + getPositionMaster() + "," + getPositionMaster();
+    String str = getClass().getSimpleName() + "[" + getPortfolioMaster() + "," + getPositionMaster();
     if (getVersionCorrection() != null) {
       str += ",versionCorrection=" + getVersionCorrection();
     }
