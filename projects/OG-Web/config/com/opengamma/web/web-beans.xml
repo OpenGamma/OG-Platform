@@ -659,9 +659,9 @@
     <constructor-arg ref="fudgeContext" />
     <property name="underlyingMap">
       <map>
-        <entry key="0" value-ref="combinedSnapshotSource" />
+        <entry key="0" value-ref="combinedMarketDataSnapshotSource" />
         <entry key="shared" value-ref="sharedMarketDataSnapshotSource" />
-        <entry key="user" value-ref="userFinancialSnapshotSource" />
+        <entry key="user" value-ref="userFinancialMarketDataSnapshotSource" />
       </map>
     </property>
   </bean>

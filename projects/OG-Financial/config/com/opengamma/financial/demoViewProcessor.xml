@@ -39,50 +39,6 @@
   <bean class="com.opengamma.financial.spring.ComponentRepositoryBeanPostProcessor" />
 
   <!-- ================================================================== -->
-  <!-- User supplied Positions --> 
-  <bean id="userFinancialPositionSource" class="com.opengamma.master.position.impl.MasterPositionSource">
-    <constructor-arg ref="userFinancialPortfolioMaster" />
-    <constructor-arg ref="userFinancialPositionMaster" />
-  </bean>
-  <bean id="combinedPositionSource" class="com.opengamma.core.position.impl.DelegatingPositionSource">
-    <constructor-arg ref="sharedPositionSource" />
-    <constructor-arg>
-      <map>
-        <entry key="${opengamma.financial-user.db.portfoliomaster.scheme}" value-ref="userFinancialPositionSource" />
-      </map>
-    </constructor-arg>
-  </bean>
-  
-  <!-- User supplied Securities -->
-  <bean id="userFinancialSecuritySource" class="com.opengamma.financial.security.MasterFinancialSecuritySource">
-    <constructor-arg ref="userFinancialSecurityMaster" />
-  </bean>
-  <bean id="combinedSecuritySourceUnderlying" class="com.opengamma.financial.security.DelegatingFinancialSecuritySource">
-    <constructor-arg ref="sharedSecuritySource" />
-    <constructor-arg>
-      <map>
-        <entry key="${opengamma.financial-user.db.securitymaster.scheme}" value-ref="userFinancialSecuritySource" />
-      </map>
-    </constructor-arg>
-  </bean>
-  <bean id="combinedSecuritySource" class="com.opengamma.financial.security.EHCachingFinancialSecuritySource">
-    <constructor-arg ref="combinedSecuritySourceUnderlying" />
-    <constructor-arg ref="cacheManager" />
-  </bean>
-  
-  <!-- User market data snapshots -->
-  <bean id="userFinancialSnapshotSource" class="com.opengamma.master.marketdatasnapshot.impl.MasterSnapshotSource">
-    <constructor-arg ref="userFinancialMarketDataSnapshotMaster" />
-  </bean>
-  <bean id="combinedSnapshotSource" class="com.opengamma.core.marketdatasnapshot.impl.DelegatingSnapshotSource">
-    <constructor-arg ref="sharedMarketDataSnapshotSource" />
-    <constructor-arg>
-      <map>
-        <entry key="${opengamma.financial-user.db.snapshotmaster.scheme}" value-ref="userFinancialSnapshotSource" />
-      </map>
-    </constructor-arg>
-  </bean>
-  
   <!-- User Yield curves -->
   <bean id="userInterpolatedYieldCurveDefinitions" class="com.opengamma.financial.analytics.ircurve.InMemoryInterpolatedYieldCurveDefinitionMaster">
     <property name="uniqueIdScheme" value="UserCurves" />
