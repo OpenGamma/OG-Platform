@@ -12,6 +12,7 @@ import com.opengamma.financial.currency.rest.RemoteCurrencyPairsSource;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
+import com.opengamma.language.function.FunctionProviderBean;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
@@ -56,6 +57,9 @@ public class Loader extends ContextInitializationBean {
       return;
     }
     s_logger.info("Configuring currency pair support");
+    globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
+        CurrencyPairFunction.INSTANCE,
+        FxRateFunction.INSTANCE));
     globalContext.setCurrencyPairsSource(new RemoteCurrencyPairsSource(getConfiguration().getFudgeContext(), restTarget));
   }
 

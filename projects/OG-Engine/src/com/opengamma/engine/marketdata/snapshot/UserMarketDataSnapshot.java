@@ -243,6 +243,9 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   private Object queryUnstructured(ValueRequirement requirement) {
     UnstructuredMarketDataSnapshot globalValues = getSnapshot().getGlobalValues();
+    if (globalValues == null) {
+      return null;
+    }
     MarketDataValueSpecification marketDataValueSpecification = new MarketDataValueSpecification(
         getTargetType(requirement), requirement.getTargetSpecification().getUniqueId());
     
@@ -277,6 +280,9 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
   }
 
   private YieldCurveSnapshot getYieldCurveSnapshot(YieldCurveKey yieldcurveKey) {
+    if (getSnapshot().getYieldCurves() == null) {
+      return null;
+    }
     if (yieldcurveKey.getName() == null) {
       //Any curve will do
       for (Entry<YieldCurveKey, YieldCurveSnapshot> entry : getSnapshot().getYieldCurves().entrySet()) {
@@ -293,6 +299,9 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
   }
 
   private VolatilityCubeSnapshot getVolCubeSnapshot(VolatilityCubeKey volCubeKey) {
+    if (getSnapshot().getVolatilityCubes() == null) {
+      return null;
+    }
     if (volCubeKey.getName() == null) {
       //Any cube will do
       for (Entry<VolatilityCubeKey, VolatilityCubeSnapshot> entry : getSnapshot().getVolatilityCubes().entrySet()) {
@@ -309,15 +318,16 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
   }
   
   private VolatilitySurfaceData<Object, Object> getVolSurfaceSnapshot(VolatilitySurfaceKey volSurfaceKey) {
-    if (volSurfaceKey.getName() != null && volSurfaceKey.getInstrumentType() != null)
-    {
+    if (getSnapshot().getVolatilitySurfaces() == null) {
+      return null;
+    }
+    if (volSurfaceKey.getName() != null && volSurfaceKey.getInstrumentType() != null) {
       VolatilitySurfaceSnapshot volatilitySurfaceSnapshot = getSnapshot().getVolatilitySurfaces().get(volSurfaceKey);
       if (volatilitySurfaceSnapshot == null) {
         return null;
       }
       return buildVolatilitySurfaceData(volatilitySurfaceSnapshot, (VolatilitySurfaceKey) volSurfaceKey);
     }
-    
     //Match with wildcards
     for (Entry<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> entry : getSnapshot().getVolatilitySurfaces().entrySet()) {
       //This could return any old surface, but hey, that's what they asked for right?
