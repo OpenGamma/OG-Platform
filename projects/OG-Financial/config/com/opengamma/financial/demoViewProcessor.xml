@@ -22,10 +22,12 @@
     <property name="username" value="${opengamma.financial-user.jdbc.username}" />
     <property name="password" value="${opengamma.financial-user.jdbc.password}" />
   </bean>
-  <bean id="userFinancialDbConnector" parent="abstractDbConnector">
+  <bean id="userFinancialDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean">
     <property name="name" value="UserFinancial"/>
     <property name="dataSource" ref="userFinancialDataSource"/>
     <property name="dialectName" value="${opengamma.financial-user.db.dialect}"/>
+    <property name="transactionIsolationLevelName" value="ISOLATION_READ_COMMITTED" />
+    <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
     <property name="hibernateMappingFiles">
       <list>
         <bean class="com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles"/>
@@ -92,7 +94,7 @@
     <constructor-arg ref="userFinancialSnapshotMaster" />
   </bean>
   <bean id="combinedSnapshotSource" class="com.opengamma.core.marketdatasnapshot.impl.DelegatingSnapshotSource">
-    <constructor-arg ref="sharedSnapshotSource" />
+    <constructor-arg ref="sharedMarketDataSnapshotSource" />
     <constructor-arg>
       <map>
         <entry key="${opengamma.financial-user.db.snapshotmaster.scheme}" value-ref="userFinancialSnapshotSource" />
@@ -163,7 +165,7 @@
   <bean id="demoFunctionCompilation" class="com.opengamma.engine.function.CompiledFunctionService">
     <constructor-arg>
       <bean class="com.opengamma.engine.function.config.RepositoryFactoryBean">
-        <property name="repositoryConfigurationSource" ref="demoFunctionRepositoryConfiguration" />
+        <property name="repositoryConfigurationSource" ref="sharedRepositoryConfigurationSource" />
       </bean>
     </constructor-arg>
     <constructor-arg>

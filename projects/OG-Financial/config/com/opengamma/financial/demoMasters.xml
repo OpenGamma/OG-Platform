@@ -23,11 +23,6 @@
     <property name="connectionFactory" ref="jmsConnectionFactory"/>
   </bean>
 
-  <bean id="abstractDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean" abstract="true">
-    <property name="transactionIsolationLevelName" value="ISOLATION_READ_COMMITTED" />
-    <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
-  </bean>
-
   <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     <property name="shared" value="true"/>
   </bean>
@@ -38,8 +33,6 @@
   <!-- ================================================================== -->
   <!--  Remote masters -->
   <bean class="com.opengamma.financial.spring.ComponentRepositoryBeanPostProcessor" />
-  <alias name="sharedMarketDataSnapshotSource" alias="sharedSnapshotSource" />
-  <alias name="sharedRepositoryConfigurationSource" alias="demoFunctionRepositoryConfiguration" />
 
   <!-- Config loaders, should be commented out most of the time -->
   <!-- bean class="com.opengamma.financial.spring.ConfigMasterPopulatorsFactoryBean">

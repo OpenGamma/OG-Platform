@@ -93,7 +93,7 @@
   <!-- Function repository configuration -->
   <bean id="functionRepositoryConfigurationRestBean" class="com.opengamma.financial.function.rest.RepositoryConfigurationSourceService">
     <constructor-arg ref="fudgeContext" />
-    <property name="underlying" ref="demoFunctionRepositoryConfiguration" />
+    <property name="underlying" ref="sharedRepositoryConfigurationSource" />
   </bean>
   <bean id="functionRepositoryRestBean" class="com.opengamma.financial.function.rest.FunctionRepositoryService">
     <constructor-arg ref="fudgeContext" />
@@ -660,7 +660,7 @@
     <property name="underlyingMap">
       <map>
         <entry key="0" value-ref="combinedSnapshotSource" />
-        <entry key="shared" value-ref="sharedSnapshotSource" />
+        <entry key="shared" value-ref="sharedMarketDataSnapshotSource" />
         <entry key="user" value-ref="userFinancialSnapshotSource" />
       </map>
     </property>
