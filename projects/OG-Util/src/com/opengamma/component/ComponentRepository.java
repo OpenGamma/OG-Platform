@@ -62,25 +62,6 @@ public class ComponentRepository implements Lifecycle {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the default instance of a component.
-   * <p>
-   * This finds an instance, choosing the instance registered as the default.
-   * This may be used to find both component and infrastructure instances.
-   * 
-   * @param <T>  the type
-   * @param type  the type to get, not null
-   * @return the component, not null
-   * @throws IllegalArgumentException if no component is available
-   */
-  public <T> T getInstance(Class<T> type) {
-    ComponentTypeInfo typeInfo = getTypeInfo(type);
-    if (typeInfo.getDefaultClassifier() == null) {
-      throw new IllegalArgumentException("No default component available: " + type);
-    }
-    return getInstance(type, typeInfo.getDefaultClassifier());
-  }
-
-  /**
    * Gets an instance of a component.
    * <p>
    * This finds an instance that matches the specified type.
@@ -175,10 +156,9 @@ public class ComponentRepository implements Lifecycle {
    * 
    * @param info  the component info to register, not null
    * @param instance  the component instance to register, not null
-   * @param makeDefault  true to make it the default
    * @throws IllegalArgumentException if unable to register
    */
-  public void registerComponent(ComponentInfo info, Object instance, boolean makeDefault) {
+  public void registerComponent(ComponentInfo info, Object instance) {
     ArgumentChecker.notNull(info, "info");
     ArgumentChecker.notNull(instance, "instance");
     checkStatus(Status.CREATING);
@@ -190,9 +170,6 @@ public class ComponentRepository implements Lifecycle {
       _infoMap.putIfAbsent(info.getType(), new ComponentTypeInfo(info.getType()));
       ComponentTypeInfo typeInfo = getTypeInfo(info.getType());
       typeInfo.getInfoMap().put(info.getClassifier(), info);
-      if (makeDefault) {
-        typeInfo.setDefaultClassifier(info.getClassifier());
-      }
       
     } catch (RuntimeException ex) {
       _status = Status.FAILED;

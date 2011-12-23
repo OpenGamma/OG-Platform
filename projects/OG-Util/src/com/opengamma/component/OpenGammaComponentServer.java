@@ -107,6 +107,7 @@ public class OpenGammaComponentServer {
    * @param configFile  the config file, not null
    */
   protected void run(int verbosity, String configFile) {
+    long start = System.nanoTime();
     if (verbosity > 0) {
       System.out.println("======== STARTING OPEN GAMMA ========");
       if (verbosity > 1) {
@@ -118,7 +119,8 @@ public class OpenGammaComponentServer {
     manager.start(resource);
     
     if (verbosity > 0) {
-      System.out.println("======== OPEN GAMMA STARTED ========");
+      long end = System.nanoTime();
+      System.out.println("======== OPEN GAMMA STARTED in " + ((end - start) / 1000000) + "ms ========");
     }
   }
 

@@ -38,10 +38,6 @@ public class ComponentRepositoryBeanPostProcessor extends DirectBean implements 
         String beanName = info.getClassifier() + info.getType().getSimpleName();
         beanFactory.registerSingleton(beanName, repo.getInstance(info.getType(), info.getClassifier()));
       }
-      if (typeInfo.getDefaultClassifier() != null) {
-        String beanName = "default" + typeInfo.getType().getSimpleName();
-        beanFactory.registerSingleton(beanName, repo.getInstance(typeInfo.getType(), typeInfo.getDefaultClassifier()));
-      }
     }
   }
 

@@ -36,11 +36,6 @@ public class ComponentTypeInfo extends DirectBean {
   @PropertyDefinition(validate = "notNull")
   private Class<?> _type;
   /**
-   * The default classifier.
-   */
-  @PropertyDefinition
-  private String _defaultClassifier;
-  /**
    * The component info.
    */
   @PropertyDefinition(validate = "notNull")
@@ -101,8 +96,6 @@ public class ComponentTypeInfo extends DirectBean {
     switch (propertyName.hashCode()) {
       case 3575610:  // type
         return getType();
-      case 31240002:  // defaultClassifier
-        return getDefaultClassifier();
       case 1945395662:  // infoMap
         return getInfoMap();
     }
@@ -115,9 +108,6 @@ public class ComponentTypeInfo extends DirectBean {
     switch (propertyName.hashCode()) {
       case 3575610:  // type
         setType((Class<?>) newValue);
-        return;
-      case 31240002:  // defaultClassifier
-        setDefaultClassifier((String) newValue);
         return;
       case 1945395662:  // infoMap
         setInfoMap((Map<String, ComponentInfo>) newValue);
@@ -141,7 +131,6 @@ public class ComponentTypeInfo extends DirectBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       ComponentTypeInfo other = (ComponentTypeInfo) obj;
       return JodaBeanUtils.equal(getType(), other.getType()) &&
-          JodaBeanUtils.equal(getDefaultClassifier(), other.getDefaultClassifier()) &&
           JodaBeanUtils.equal(getInfoMap(), other.getInfoMap());
     }
     return false;
@@ -151,7 +140,6 @@ public class ComponentTypeInfo extends DirectBean {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDefaultClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getInfoMap());
     return hash;
   }
@@ -180,31 +168,6 @@ public class ComponentTypeInfo extends DirectBean {
    */
   public final Property<Class<?>> type() {
     return metaBean().type().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the default classifier.
-   * @return the value of the property
-   */
-  public String getDefaultClassifier() {
-    return _defaultClassifier;
-  }
-
-  /**
-   * Sets the default classifier.
-   * @param defaultClassifier  the new value of the property
-   */
-  public void setDefaultClassifier(String defaultClassifier) {
-    this._defaultClassifier = defaultClassifier;
-  }
-
-  /**
-   * Gets the the {@code defaultClassifier} property.
-   * @return the property, not null
-   */
-  public final Property<String> defaultClassifier() {
-    return metaBean().defaultClassifier().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -250,11 +213,6 @@ public class ComponentTypeInfo extends DirectBean {
     private final MetaProperty<Class<?>> _type = DirectMetaProperty.ofReadWrite(
         this, "type", ComponentTypeInfo.class, (Class) Class.class);
     /**
-     * The meta-property for the {@code defaultClassifier} property.
-     */
-    private final MetaProperty<String> _defaultClassifier = DirectMetaProperty.ofReadWrite(
-        this, "defaultClassifier", ComponentTypeInfo.class, String.class);
-    /**
      * The meta-property for the {@code infoMap} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -266,7 +224,6 @@ public class ComponentTypeInfo extends DirectBean {
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
         this, null,
         "type",
-        "defaultClassifier",
         "infoMap");
 
     /**
@@ -280,8 +237,6 @@ public class ComponentTypeInfo extends DirectBean {
       switch (propertyName.hashCode()) {
         case 3575610:  // type
           return _type;
-        case 31240002:  // defaultClassifier
-          return _defaultClassifier;
         case 1945395662:  // infoMap
           return _infoMap;
       }
@@ -310,14 +265,6 @@ public class ComponentTypeInfo extends DirectBean {
      */
     public final MetaProperty<Class<?>> type() {
       return _type;
-    }
-
-    /**
-     * The meta-property for the {@code defaultClassifier} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> defaultClassifier() {
-      return _defaultClassifier;
     }
 
     /**
