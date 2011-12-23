@@ -234,13 +234,9 @@ $.register_module({
             load: function (args) {
                 layout = og.views.common.layout;
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        view.search(args);
-                        masthead.menu.set_tab(page_name);
-                    }}
+                    {new_page: function (args) {view.search(args), masthead.menu.set_tab(page_name);}}
                 ]});
-                if (args.id) return;
-                default_details();
+                if (!args.id) default_details();
             },
             load_filter: function (args) {
                 var search_filter = function () {
@@ -249,20 +245,19 @@ $.register_module({
                             return setTimeout(search_filter, 500);
                         search.filter(args);
                 };
-                check_state({args: args, conditions: [
-                    {new_value: 'id', stop: true, method: function () {if (args.id) view.load_item(args);}},
-                    {new_page: function () {view.load(args);}}
-                ]});
+                check_state({args: args, conditions: [{new_value: 'id', stop: true, method: function (args) {
+                    view[args.id ? 'load_item' : 'load'](args);
+                }}]});
                 search_filter();
             },
             load_item: function (args) {
                 check_state({args: args, conditions: [
-                    {new_page: function () {
+                    {new_page: function (args) {
                         view.load(args);
                         layout.inner.options.south.onclose = null;
                         layout.inner.close.partial('south');
                     }},
-                    {new_value: 'id', method: function () {
+                    {new_value: 'id', method: function (args) {
                         layout.inner.options.south.onclose = null;
                         layout.inner.close.partial('south');
                     }}

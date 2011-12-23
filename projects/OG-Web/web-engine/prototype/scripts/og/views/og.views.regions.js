@@ -53,11 +53,7 @@ $.register_module({
                     ]
                 }
             },
-            default_details = og.views.common.default_details.partial(page_name, 'Regions', options),
-            new_page = function (args) {
-                masthead.menu.set_tab(page_name);
-                view.search(args);
-            };
+            default_details = og.views.common.default_details.partial(page_name, 'Regions', options);
         module.rules = {
             load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
             load_filter: {route: '/' + page_name + '/filter:/:id?/name:?', method: module.name + '.load_filter'},
@@ -103,16 +99,18 @@ $.register_module({
                     update: view.details.partial(args)
                 });
             },
+            filters: ['name'],
             load: function (args) {
                 layout = og.views.common.layout;
-                check_state({args: args, conditions: [{new_page: new_page}]});
+                check_state({args: args, conditions: [
+                    {new_page: function (args) {view.search(args), masthead.menu.set_tab(page_name);}}
+                ]});
                 if (!args.id) default_details();
             },
             load_filter: function (args) {
-                check_state({args: args, conditions: [
-                    {new_value: 'id', stop: true, method: function () {if (args.id) view.load_item(args);}},
-                    {new_page: function () {view.load(args);}}
-                ]});
+                check_state({args: args, conditions: [{new_value: 'id', stop: true, method: function (args) {
+                    view[args.id ? 'load_item' : 'load'](args);
+                }}]});
                 search.filter(args);
             },
             load_item: function (args) {
