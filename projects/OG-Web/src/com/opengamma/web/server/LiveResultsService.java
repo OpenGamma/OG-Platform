@@ -8,6 +8,7 @@ package com.opengamma.web.server;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -258,7 +259,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   private void sendInitData(boolean includeSnapshots) {
     Map<String, Object> reply = new HashMap<String, Object>();
     
-    Map<String, String> availableViewDefinitions = getViewDefinitions();
+    Object availableViewDefinitions = getViewDefinitions();
     reply.put("viewDefinitions", availableViewDefinitions);
     
     List<String> aggregatorNames = getAggregatorNames();
@@ -274,8 +275,8 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     getBayeux().getChannel("/initData", true).publish(getClient(), reply, null);
   }
 
-  private Map<String, String> getViewDefinitions() {
-    Map<String, String> result = new HashMap<String, String>();
+  private List<Map<String, String>> getViewDefinitions() {
+    List<Map<String, String>> result = new ArrayList<Map<String, String>>();
     Map<UniqueId, String> availableViewEntries = _viewProcessor.getViewDefinitionRepository().getDefinitionEntries();
     s_logger.debug("Available view entries: " + availableViewEntries);
     for (Map.Entry<UniqueId, String> entry : availableViewEntries.entrySet()) {
@@ -283,8 +284,19 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
         s_logger.debug("Ignoring view definition which appears to have an auto-generated name: {}", entry.getValue());
         continue;
       }
-      result.put(entry.getKey().toString(), entry.getValue());
+      Map<String, String> resultEntry = new HashMap<String, String>();
+      resultEntry.put("id", entry.getKey().toString());
+      resultEntry.put("name", entry.getValue());
+      result.add(resultEntry);
     }
+    Collections.sort(result, new Comparator<Map<String, String>>() {
+
+      @Override
+      public int compare(Map<String, String> o1, Map<String, String> o2) {
+        return o1.get("name").compareTo(o2.get("name"));
+      }
+      
+    });
     return result;
   }
   

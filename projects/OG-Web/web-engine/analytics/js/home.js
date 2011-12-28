@@ -112,7 +112,7 @@
   
   function onInitDataReceived(initData) {
     if (_init) {
-      updateList($("#viewlist"), initData.viewDefinitions);
+      updateViewDefinitions($("#viewlist"), initData.viewDefinitions);
     } else {
       initControls(initData);
     }
@@ -126,7 +126,7 @@
     var $backingAggregatorsList = $("<select id='aggregatorslist'></select>");
     var $backingSnapshotList = $("<select id='snapshotlist'></select>");
 
-    updateList($backingViewList, initData.viewDefinitions);
+    updateViewDefinitions($backingViewList, initData.viewDefinitions);
     $backingViewList.combobox({
       change: function(item) {
         populateSnapshots($backingSnapshotList, initData.liveSources, initData.snapshots, $(item).val());
@@ -176,12 +176,12 @@
     _init = true;
   }
   
-  function updateList($backingList, contents) {
+  function updateViewDefinitions($backingList, contents) {
     var existingSelection = $backingList.val();
     $backingList.empty();
     $('<option value=""></option>').appendTo($backingList);
-    $.each(contents, function(id, name) {
-      var $opt = $('<option value="' + id + '">' + name + '</option>');
+    $.each(contents, function(idx, viewDef) {
+      var $opt = $('<option value="' + viewDef.id + '">' + viewDef.name + '</option>');
       $opt.appendTo($backingList);
     });
     $backingList.val(existingSelection);
