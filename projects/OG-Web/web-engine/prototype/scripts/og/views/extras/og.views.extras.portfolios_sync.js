@@ -3,7 +3,7 @@
  * @license See distribution for license
  */
 $.register_module({
-    name: 'og.views.portfolios_sync',
+    name: 'og.views.extras.portfolios_sync',
     dependencies: [
         'og.api.rest',
         'og.common.util.ui.message',
@@ -24,7 +24,7 @@ $.register_module({
                         sync.setup();
                         sync.clear();
                         form = new Form({
-                            module: 'og.views.portfolios_sync', selector: PANEL,
+                            module: 'og.views.portfolios.sync', selector: PANEL,
                             data: result.data,
                             extras: {
                                 data: result.data.data,

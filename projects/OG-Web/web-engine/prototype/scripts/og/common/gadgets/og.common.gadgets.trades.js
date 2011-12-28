@@ -87,8 +87,7 @@ $.register_module({
                     handler(result);
                 },
                 id: config.id,
-                cache_for: 500,
-                loading: function () {}
+                cache_for: 500
             });
         }
     }

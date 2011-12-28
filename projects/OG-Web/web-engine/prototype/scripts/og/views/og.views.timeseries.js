@@ -242,19 +242,14 @@ $.register_module({
             load: function (args) {
                 layout = og.views.common.layout;
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        view.search(args);
-                        masthead.menu.set_tab(page_name);
-                    }}
+                    {new_page: function (args) {view.search(args), masthead.menu.set_tab(page_name);}}
                 ]});
-                if (args.id) return;
-                default_details();
+                if (!args.id) default_details();
             },
             load_filter: function (args) {
-                check_state({args: args, conditions: [
-                    {new_value: 'id', stop: true, method: function () {if (args.id) view.load_item(args);}},
-                    {new_page: function () {view.load(args);}}
-                ]});
+                check_state({args: args, conditions: [{new_value: 'id', stop: true, method: function (args) {
+                    view[args.id ? 'load_item' : 'load'](args);
+                }}]});
                 search.filter(args);
             },
             load_item: function (args) {
@@ -266,9 +261,7 @@ $.register_module({
                 search.load($.extend(options.slickgrid, {url: args}));
             },
             details: details_page,
-            init: function () {
-                for (var rule in module.rules) routes.add(module.rules[rule]);
-            },
+            init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules
         };
     }

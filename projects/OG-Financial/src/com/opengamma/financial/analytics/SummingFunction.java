@@ -39,9 +39,15 @@ public class SummingFunction extends MissingInputsFunction {
   protected static class Impl extends AbstractFunction.NonCompiledInvoker {
 
     private final String _requirementName;
+    private final String[] _homogenousProperties;
 
     protected Impl(final String requirementName) {
       _requirementName = requirementName;
+      _homogenousProperties = new String[] {ValuePropertyNames.CURRENCY };
+      // TODO: Handle this more generically. Requiring a value with a wildcard constraint
+      // forces the homogeneity. This would work for currencies, but those specifying
+      // the value requirements have certain intuitive expectations of how currencies
+      // should behave.
     }
 
     private static CompiledFunctionDefinition of(final String requirementName) {
@@ -76,7 +82,11 @@ public class SummingFunction extends MissingInputsFunction {
     @Override
     public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
       // Requirement has all constraints asked of us
-      final ValueProperties resultConstraints = desiredValue.getConstraints();
+      final ValueProperties.Builder resultConstraintsBuilder = desiredValue.getConstraints().copy();
+      for (String homogenousProperty : _homogenousProperties) {
+        resultConstraintsBuilder.withOptional(homogenousProperty);
+      }
+      final ValueProperties resultConstraints = resultConstraintsBuilder.get();
       final PortfolioNode node = target.getPortfolioNode();
       final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
@@ -98,12 +108,34 @@ public class SummingFunction extends MissingInputsFunction {
     public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
       // Result properties are anything that was common to the input requirements
       ValueProperties common = null;
+      final boolean[] homogenousProperties = new boolean[_homogenousProperties.length];
       for (ValueSpecification input : inputs.keySet()) {
-        common = SumUtils.addProperties(common, input.getProperties());
+        final ValueProperties properties = input.getProperties();
+        if (common == null) {
+          common = properties;
+          for (int i = 0; i < homogenousProperties.length; i++) {
+            homogenousProperties[i] = properties.getValues(_homogenousProperties[i]) != null;
+          }
+        } else {
+          for (int i = 0; i < homogenousProperties.length; i++) {
+            if ((properties.getValues(_homogenousProperties[i]) != null) != homogenousProperties[i]) {
+              // Either defines one of the properties that something else doesn't, or doesn't define
+              // one that something else does
+              return null;
+            }
+          }
+          common = SumUtils.addProperties(common, properties);
+        }
       }
       if (common == null) {
         // Can't have been any inputs ... ?
         return null;
+      }
+      for (int i = 0; i < homogenousProperties.length; i++) {
+        if ((common.getValues(_homogenousProperties[i]) != null) != homogenousProperties[i]) {
+          // No common intersection of values for homogenous property
+          return null;
+        }
       }
       return Collections.singleton(new ValueSpecification(getRequirementName(), target.toSpecification(), createValueProperties(common).get()));
     }

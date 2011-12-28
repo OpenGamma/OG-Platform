@@ -252,9 +252,9 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(PortfolioNodeCurrencyConversionFunction.class, requirementName));
     functionConfigs.add(functionConfiguration(PositionCurrencyConversionFunction.class, requirementName));
     functionConfigs.add(functionConfiguration(SecurityCurrencyConversionFunction.class, requirementName));
-    functionConfigs.add(functionConfiguration(PortfolioNodeDefaultCurrencyFunction.Strict.class, requirementName));
-    functionConfigs.add(functionConfiguration(PositionDefaultCurrencyFunction.Strict.class, requirementName));
-    functionConfigs.add(functionConfiguration(SecurityDefaultCurrencyFunction.Strict.class, requirementName));
+    functionConfigs.add(functionConfiguration(PortfolioNodeDefaultCurrencyFunction.Permissive.class, requirementName));
+    functionConfigs.add(functionConfiguration(PositionDefaultCurrencyFunction.Permissive.class, requirementName));
+    functionConfigs.add(functionConfiguration(SecurityDefaultCurrencyFunction.Permissive.class, requirementName));
   }
 
   protected static void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {

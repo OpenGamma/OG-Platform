@@ -19,7 +19,7 @@ $.register_module({
         'og.views.common.state',
         'og.views.common.default_details',
         'og.views.common.versions',
-        'og.views.portfolios_sync'
+        'og.views.extras.portfolios_sync'
     ],
     obj: function () {
         var api = og.api,
@@ -350,7 +350,7 @@ $.register_module({
                 if (args.version || args.sync) { // load versions
                     layout.inner.open('south');
                     if (args.version) og.views.common.versions.load();
-                    if (args.sync) og.views.portfolios_sync.load(args);
+                    if (args.sync) og.views.extras.portfolios_sync.load(args);
                 } else layout.inner.close('south');
                 api.rest.portfolios.get({
                     dependencies: ['id'],
@@ -434,34 +434,29 @@ $.register_module({
             load: function (args) {
                 layout = og.views.common.layout;
                 check_state({args: args, conditions: [
-                    {new_page: function (args) {
-                        view.search(args);
-                        masthead.menu.set_tab(page_name);
-                    }}
+                    {new_page: function (args) {view.search(args), masthead.menu.set_tab(page_name);}}
                 ]});
-                if (args.id) return;
-                default_details();
+                if (!args.id) default_details();
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [
-                    {new_value: 'id', stop: true, method: function () {
-                        if (args.id) view.load_item(args);
+                    {new_value: 'id', stop: true, method: function (args) {
+                        view[args.id ? 'load_item' : 'load'](args);
                     }},
-                    {new_value: 'node', stop: true, method: function () {
-                        if (args.node) view.load_item(args);
-                    }},
-                    {new_page: function () {view.load(args);}}
+                    {new_value: 'node', stop: true, method: function (args) {
+                        view[args.node ? 'load_item' : 'load'](args);
+                    }}
                 ]});
                 search.filter(args);
             },
             load_item: function (args) {
                 check_state({args: args, conditions: [
-                    {new_page: function () {
+                    {new_page: function (args) {
                         view.load(args);
                         layout.inner.options.south.onclose = null;
                         layout.inner.close.partial('south');
                     }},
-                    {new_value: 'id', method: function () {
+                    {new_value: 'id', method: function (args) {
                         layout.inner.options.south.onclose = null;
                         layout.inner.close.partial('south');
                     }}
