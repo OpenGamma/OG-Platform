@@ -11,13 +11,12 @@ import java.util.Set;
 import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.PublicAPI;
 
 /**
- * Allows modules, specifically the {@link ViewProcessor}, access to
- * {@link ViewDefinition}s.
- *
- * @author kirk
+ * Allows modules, specifically the {@link ViewProcessor}, access to {@link ViewDefinition}s.
  */
+@PublicAPI
 public interface ViewDefinitionRepository extends ChangeProvider {
   
   /**
@@ -34,8 +33,9 @@ public interface ViewDefinitionRepository extends ChangeProvider {
    */
   Map<UniqueId, String> getDefinitionEntries();
   
+  // REVIEW kevin --  this should really return a matching set
   /**
-   * Returns a view definition matching the supplied name (KV: this should really return a matching set)
+   * Returns a view definition matching the supplied name
    * 
    * @param definitionName the name of the view definitions to be returned
    * @return a view definitions matching the supplied name, or null if none found
