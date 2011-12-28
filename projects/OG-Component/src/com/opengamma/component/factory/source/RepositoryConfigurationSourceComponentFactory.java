@@ -67,12 +67,13 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
     source3Factory.setConfigMaster(getConfigMaster());
     RepositoryConfigurationSource source3 = source3Factory.constructRepositoryConfigurationSource();
     
-    ComponentInfo info = new ComponentInfo(RepositoryConfigurationSource.class, getClassifier());
     List<RepositoryConfigurationSource> underlying = new ArrayList<RepositoryConfigurationSource>();
     underlying.add(source1);
     underlying.add(source2);
     underlying.add(source3);
     RepositoryConfigurationSource source = new CombiningRepositoryConfigurationSource((RepositoryConfigurationSource[]) underlying.toArray(new RepositoryConfigurationSource[underlying.size()]));
+    
+    ComponentInfo info = new ComponentInfo(RepositoryConfigurationSource.class, getClassifier());
     repo.registerComponent(info, source);
   }
 
