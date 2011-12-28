@@ -157,7 +157,7 @@ public class ComponentManager {
 
   //-------------------------------------------------------------------------
   /**
-   * Sets the properties on the factory
+   * Sets the properties on the factory.
    * 
    * @param factory  the factory, not null
    * @param remainingConfig  the config data, not null
@@ -169,7 +169,10 @@ public class ComponentManager {
         String value = remainingConfig.remove(mp.name());
         if (value == null) {
           // set to ensure validated by factory
-          mp.set(bean, mp.propertyType().isPrimitive() ? mp.get(bean) : null);
+          mp.set(bean, mp.get(bean));
+        } else if ("null".equals(value)) {
+          // forcibly set to null
+          mp.set(bean, null);
         } else {
           // set value
           setFactoryProperty(bean, mp, value);
