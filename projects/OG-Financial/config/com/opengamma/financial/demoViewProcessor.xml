@@ -39,19 +39,6 @@
   <bean class="com.opengamma.financial.spring.ComponentRepositoryBeanPostProcessor" />
 
   <!-- ================================================================== -->
-  <!-- User Yield curves -->
-  <bean id="userInterpolatedYieldCurveDefinitions" class="com.opengamma.financial.analytics.ircurve.InMemoryInterpolatedYieldCurveDefinitionMaster">
-    <property name="uniqueIdScheme" value="UserCurves" />
-  </bean>
-  <bean id="combinedInterpolatedYieldCurveDefinitionSource" class="com.opengamma.financial.analytics.ircurve.AggregatingInterpolatedYieldCurveDefinitionSource">
-    <constructor-arg>
-      <list>
-        <ref bean="userInterpolatedYieldCurveDefinitions" />
-        <ref bean="sharedInterpolatedYieldCurveDefinitionSource" />
-      </list>
-    </constructor-arg>
-  </bean>
-
   <!-- marketDataProviderResolver -->
   <import resource="classpath:marketData-${opengamma.platform.runmode}.xml" />
   
@@ -256,7 +243,7 @@
     <property name="mastersAndSources">
       <map>
         <entry key-ref="centralConfigMaster" value-ref="sharedConfigSource" />
-        <entry key-ref="userInterpolatedYieldCurveDefinitions" value-ref="userInterpolatedYieldCurveDefinitions" />
+        <entry key-ref="userInterpolatedYieldCurveDefinitionMaster" value-ref="userInterpolatedYieldCurveDefinitionSource" />
       </map>
     </property>
     <property name="watchSetProviders">

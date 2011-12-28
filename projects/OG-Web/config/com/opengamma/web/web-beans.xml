@@ -135,7 +135,7 @@
       <map>
         <entry key="0" value-ref="combinedInterpolatedYieldCurveDefinitionSource" />
         <entry key="shared" value-ref="sharedInterpolatedYieldCurveDefinitionSource" />
-        <entry key="user" value-ref="userInterpolatedYieldCurveDefinitions" />
+        <entry key="user" value-ref="userInterpolatedYieldCurveDefinitionSource" />
         <entry key="test" value-ref="testInterpolatedYieldCurveDefinitions" />
       </map>
     </property>
@@ -144,7 +144,7 @@
     <constructor-arg ref="fudgeContext" />
     <property name="underlyingMap">
       <map>
-        <entry key="user" value-ref="userInterpolatedYieldCurveDefinitions" />
+        <entry key="user" value-ref="userInterpolatedYieldCurveDefinitionMaster" />
         <entry key="test" value-ref="testInterpolatedYieldCurveDefinitions" />
       </map>
     </property>
@@ -167,7 +167,7 @@
     <property name="userPositionMaster" ref="userFinancialPositionMaster" />
     <property name="userSecurityMaster" ref="userFinancialSecurityMaster" />
     <property name="userViewDefinitionRepository" ref="userViewDefinitionRepository" />
-    <property name="userInterpolatedYieldCurveDefinitionMaster" ref="userInterpolatedYieldCurveDefinitions" />
+    <property name="userInterpolatedYieldCurveDefinitionMaster" ref="userInterpolatedYieldCurveDefinitionMaster" />
     <property name="userSnapshotMaster" ref="userFinancialMarketDataSnapshotMaster" />
   </bean>
   
