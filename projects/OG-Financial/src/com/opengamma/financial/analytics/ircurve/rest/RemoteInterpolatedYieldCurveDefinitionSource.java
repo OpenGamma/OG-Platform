@@ -17,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Provides access to a remote {@link InterpolatedYieldCurveDefinitionSource}.
  */
 public class RemoteInterpolatedYieldCurveDefinitionSource implements InterpolatedYieldCurveDefinitionSource {
 
