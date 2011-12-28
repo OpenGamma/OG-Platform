@@ -17,7 +17,7 @@
   <!-- Jersey -->
   <servlet>
     <servlet-name>jersey-spring</servlet-name>
-    <servlet-class>com.opengamma.integration.component.OpenGammaServletContainer</servlet-class>
+    <servlet-class>com.opengamma.component.OpenGammaServletContainer</servlet-class>
     <load-on-startup>3</load-on-startup>
   </servlet>
   <servlet-mapping>

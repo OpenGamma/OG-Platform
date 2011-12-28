@@ -1,0 +1,17 @@
+*~
+foo~
+*.class
+*.log
+build/
+dist/
+ivy/
+lib/
+temp/
+tests/classes/
+tests/output/
+!src/com/opengamma/util/db/
+!tests/unit/com/opengamma/util/db/
+/MANIFEST.MF
+.clover/
+build.number
+.settings/
