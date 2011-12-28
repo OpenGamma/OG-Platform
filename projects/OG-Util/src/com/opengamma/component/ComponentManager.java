@@ -6,9 +6,7 @@
 package com.opengamma.component;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.Map.Entry;
 
 import org.joda.beans.Bean;
 import org.joda.beans.MetaProperty;
@@ -116,10 +114,22 @@ public class ComponentManager {
     String typeStr = remainingConfig.remove("factory");
     s_logger.info("Initializing component: {} with properties {}", typeStr, remainingConfig);
     
-    // load and init
+    // load factory
     ComponentFactory factory = loadFactory(typeStr);
-    setFactoryProperties(factory, remainingConfig);
-    initFactory(factory, remainingConfig, groupName, groupConfig);
+    
+    // set properties
+    try {
+      setFactoryProperties(factory, remainingConfig);
+    } catch (Exception ex) {
+      throw new OpenGammaRuntimeException("Failed to set component factory properties: '" + groupName + "' with " + groupConfig, ex);
+    }
+    
+    // init
+    try {
+      initFactory(factory, remainingConfig);
+    } catch (Exception ex) {
+      throw new OpenGammaRuntimeException("Failed to init component factory: '" + groupName + "' with " + groupConfig, ex);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -155,12 +165,14 @@ public class ComponentManager {
   protected void setFactoryProperties(ComponentFactory factory, LinkedHashMap<String, String> remainingConfig) {
     if (factory instanceof Bean) {
       Bean bean = (Bean) factory;
-      for (Iterator<Entry<String, String>> it = remainingConfig.entrySet().iterator(); it.hasNext(); ) {
-        Entry<String, String> entry = it.next();
-        if (bean.propertyNames().contains(entry.getKey())) {
-          MetaProperty<Object> mp = bean.metaBean().metaProperty(entry.getKey());
-          setFactoryProperty(bean, mp, entry.getValue());
-          it.remove();
+      for (MetaProperty<Object> mp : bean.metaBean().metaPropertyIterable()) {
+        String value = remainingConfig.remove(mp.name());
+        if (value == null) {
+          // set to ensure validated by factory
+          mp.set(bean, mp.propertyType().isPrimitive() ? mp.get(bean) : null);
+        } else {
+          // set value
+          setFactoryProperty(bean, mp, value);
         }
       }
     }
@@ -173,11 +185,11 @@ public class ComponentManager {
    * 
    * @param bean  the bean, not null
    * @param mp  the property, not null
-   * @param value  the value
+   * @param value  the value, not null
    */
   protected void setFactoryProperty(Bean bean, MetaProperty<Object> mp, String value) {
-    Class<?> cls = mp.propertyType();
-    if (cls == ComponentRepository.class) {
+    Class<?> propertyType = mp.propertyType();
+    if (propertyType == ComponentRepository.class) {
       // set the repo
       mp.set(bean, _repo);
       
@@ -189,7 +201,7 @@ public class ComponentManager {
       } catch (RuntimeException ex) {
         // set property by repo lookup
         try {
-          mp.set(bean, _repo.getInstance(cls, value));
+          mp.set(bean, _repo.getInstance(propertyType, value));
         } catch (RuntimeException ex2) {
           throw new IllegalArgumentException("Unable to convert value for " + mp, ex2);
         }
@@ -206,18 +218,12 @@ public class ComponentManager {
    * 
    * @param factory  the factory to initialize, not null
    * @param remainingConfig  the remaining configuration data, not null
-   * @param groupName  the group name, not null
-   * @param originalGroupConfig  the original group config data, not null
+   * @throws Exception to allow components to throw checked exceptions
    */
-  protected void initFactory(ComponentFactory factory, LinkedHashMap<String, String> remainingConfig,
-      String groupName, LinkedHashMap<String, String> originalGroupConfig) {
-    try {
-      factory.init(_repo, remainingConfig);
-      if (remainingConfig.size() > 0) {
-        throw new IllegalStateException("Configuration was specified but not used: " + remainingConfig);
-      }
-    } catch (Exception ex) {
-      throw new OpenGammaRuntimeException("Failed to init component factory: '" + groupName + "' with " + originalGroupConfig, ex);
+  protected void initFactory(ComponentFactory factory, LinkedHashMap<String, String> remainingConfig) throws Exception {
+    factory.init(_repo, remainingConfig);
+    if (remainingConfig.size() > 0) {
+      throw new IllegalStateException("Configuration was specified but not used: " + remainingConfig);
     }
   }
 
