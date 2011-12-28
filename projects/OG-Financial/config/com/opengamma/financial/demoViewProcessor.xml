@@ -45,33 +45,6 @@
   <bean id="testUser" class="${testUser.factory}" />  
 
   <!-- Functions -->
-  <bean id="demoFunctionCompilationContext" class="com.opengamma.financial.OpenGammaCompilationContextFactoryBean">
-    <property name="securitySource" ref="combinedSecuritySource" />
-    <property name="positionSource" ref="combinedPositionSource" />
-    <property name="regionSource" ref="sharedRegionSource"/>
-    <property name="configSource" ref="sharedConfigSource" />
-    <property name="conventionBundleSource" ref="sharedConventionBundleSource"/>
-    <property name="interpolatedYieldCurveDefinitionSource" ref="combinedInterpolatedYieldCurveDefinitionSource" />
-    <property name="interpolatedYieldCurveSpecificationBuilder" ref="sharedInterpolatedYieldCurveSpecificationBuilder" />
-    <property name="volatilityCubeDefinitionSource" ref="combinedVolatilityCubeDefinitionSource" />
-    <property name="currencyMatrixSource" ref="sharedCurrencyMatrixSource" />
-    <property name="holidaySource" ref="sharedHolidaySource" />
-    <property name="exchangeSource" ref="sharedExchangeSource" />
-  </bean>
-  <bean id="demoOverrideOperationCompiler" class="com.opengamma.financial.marketdata.MarketDataELCompiler">
-    <constructor-arg ref="sharedSecuritySource" />
-  </bean>
-  <bean id="demoFunctionExecutionContext" class="com.opengamma.financial.OpenGammaExecutionContextFactoryBean">
-    <property name="historicalTimeSeriesSource" ref="sharedHistoricalTimeSeriesSource" />
-    <property name="securitySource" ref="combinedSecuritySource" />
-    <property name="positionSource" ref="combinedPositionSource" />
-    <property name="regionSource" ref="sharedRegionSource"/>
-    <property name="exchangeSource" ref="sharedExchangeSource"/>
-    <property name="holidaySource" ref="sharedHolidaySource"/>
-    <property name="conventionBundleSource" ref="sharedConventionBundleSource"/>
-    <property name="configSource" ref="sharedConfigSource" />
-    <property name="overrideOperationCompiler" ref="demoOverrideOperationCompiler" />
-  </bean>
   <bean id="demoFunctionCompilation" class="com.opengamma.engine.function.CompiledFunctionService">
     <constructor-arg>
       <bean class="com.opengamma.engine.function.config.RepositoryFactoryBean">
@@ -81,7 +54,7 @@
     <constructor-arg>
       <bean class="com.opengamma.engine.function.CachingFunctionRepositoryCompiler" />
     </constructor-arg>
-    <constructor-arg ref="demoFunctionCompilationContext" />
+    <constructor-arg ref="engineFunctionCompilationContext" />
   </bean>
   <bean id="demoFunctionResolver" class="com.opengamma.web.spring.DemoFunctionResolverFactoryBean">
     <property name="functionCompilationService" ref="demoFunctionCompilation" />
@@ -138,7 +111,7 @@
 				  <bean class="com.opengamma.engine.view.calcnode.LocalCalculationNodeSet">
 				    <property name="viewComputationCache" ref="demoComputationCacheSource" />
 				    <property name="functionCompilationService" ref="demoFunctionCompilation" />
-				    <property name="functionExecutionContext" ref="demoFunctionExecutionContext" />
+				    <property name="functionExecutionContext" ref="engineFunctionExecutionContext" />
 				    <property name="computationTargetResolver" ref="demoTargetResolver" />
 				    <property name="viewProcessorQuery" ref="demoViewProcessorQuerySender" />
 				    <property name="writeBehindExecutorService">
@@ -178,7 +151,7 @@
           <bean factory-bean="demoComputationCacheSource" factory-method="getIdentifierMap" />
         </constructor-arg>
         <constructor-arg ref="functionCosts" />
-        <constructor-arg ref="demoFunctionCompilationContext" />
+        <constructor-arg ref="engineFunctionCompilationContext" />
       </bean>
     </constructor-arg>
   </bean>
@@ -221,7 +194,7 @@
     <property name="viewPermissionProvider">
       <bean class="com.opengamma.engine.view.permission.DefaultViewPermissionProvider" />
     </property>
-    <property name="overrideOperationCompiler" ref="demoOverrideOperationCompiler" />
+    <property name="overrideOperationCompiler" ref="engineOverrideOperationCompiler" />
   </bean>
   
   <bean id="viewProcessorManager" class="com.opengamma.financial.view.ViewProcessorManager" init-method="start">
