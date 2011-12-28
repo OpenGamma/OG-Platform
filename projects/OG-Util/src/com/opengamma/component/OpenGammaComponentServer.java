@@ -116,7 +116,13 @@ public class OpenGammaComponentServer {
     }
     ComponentManager manager = (verbosity == 2 ? new VerboseManager() : new ComponentManager());
     FileSystemResource resource = new FileSystemResource(configFile);
-    manager.start(resource);
+    try {
+      manager.start(resource);
+    } catch (Exception ex) {
+      ex.printStackTrace(System.err);
+      System.out.println("======== OPEN GAMMA FAILED ========");
+      System.exit(1);
+    }
     
     if (verbosity > 0) {
       long end = System.nanoTime();
