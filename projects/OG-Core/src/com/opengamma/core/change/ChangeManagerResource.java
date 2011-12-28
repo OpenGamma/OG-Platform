@@ -3,14 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.rest;
+package com.opengamma.core.change;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
-import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.change.JmsChangeManager;
 
 /**
  * RESTful resource for a {@link ChangeManager}.
