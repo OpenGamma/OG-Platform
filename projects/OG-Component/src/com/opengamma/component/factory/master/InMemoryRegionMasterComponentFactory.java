@@ -42,7 +42,7 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
   /**
    * The classifier that the factory should publish under.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private String _classifier;
   /**
    * The flag determining whether the component should be published by REST.
@@ -149,6 +149,12 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
   }
 
   @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_classifier, "classifier");
+    super.validate();
+  }
+
+  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -179,7 +185,7 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier that the factory should publish under.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public String getClassifier() {
     return _classifier;
@@ -187,9 +193,10 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
 
   /**
    * Sets the classifier that the factory should publish under.
-   * @param classifier  the new value of the property
+   * @param classifier  the new value of the property, not null
    */
   public void setClassifier(String classifier) {
+    JodaBeanUtils.notNull(classifier, "classifier");
     this._classifier = classifier;
   }
 

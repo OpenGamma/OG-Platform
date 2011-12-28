@@ -35,12 +35,12 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
   /**
    * The classifier that the factory should publish under.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private String _classifier;
   /**
    * The database connector.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private DbConnector _dbConnector;
   /**
    * The scheme used by the {@code UniqueId}.
@@ -112,6 +112,13 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
   }
 
   @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_classifier, "classifier");
+    JodaBeanUtils.notNull(_dbConnector, "dbConnector");
+    super.validate();
+  }
+
+  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -138,7 +145,7 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier that the factory should publish under.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public String getClassifier() {
     return _classifier;
@@ -146,9 +153,10 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the classifier that the factory should publish under.
-   * @param classifier  the new value of the property
+   * @param classifier  the new value of the property, not null
    */
   public void setClassifier(String classifier) {
+    JodaBeanUtils.notNull(classifier, "classifier");
     this._classifier = classifier;
   }
 
@@ -163,7 +171,7 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the database connector.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public DbConnector getDbConnector() {
     return _dbConnector;
@@ -171,9 +179,10 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the database connector.
-   * @param dbConnector  the new value of the property
+   * @param dbConnector  the new value of the property, not null
    */
   public void setDbConnector(DbConnector dbConnector) {
+    JodaBeanUtils.notNull(dbConnector, "dbConnector");
     this._dbConnector = dbConnector;
   }
 

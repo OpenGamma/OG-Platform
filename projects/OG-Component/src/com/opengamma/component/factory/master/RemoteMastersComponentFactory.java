@@ -81,7 +81,7 @@ public class RemoteMastersComponentFactory extends AbstractComponentFactory {
   /**
    * The remote URI.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private URI _baseUri;
   /**
    * The JMS connector.
@@ -171,6 +171,12 @@ public class RemoteMastersComponentFactory extends AbstractComponentFactory {
   }
 
   @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_baseUri, "baseUri");
+    super.validate();
+  }
+
+  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -195,7 +201,7 @@ public class RemoteMastersComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the remote URI.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public URI getBaseUri() {
     return _baseUri;
@@ -203,9 +209,10 @@ public class RemoteMastersComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the remote URI.
-   * @param baseUri  the new value of the property
+   * @param baseUri  the new value of the property, not null
    */
   public void setBaseUri(URI baseUri) {
+    JodaBeanUtils.notNull(baseUri, "baseUri");
     this._baseUri = baseUri;
   }
 
