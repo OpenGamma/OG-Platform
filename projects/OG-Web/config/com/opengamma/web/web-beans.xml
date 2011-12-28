@@ -392,18 +392,6 @@
               </bean>
             </entry>
             <!-- BEGIN DEPRECATED -->
-            <entry key="sharedPositionMaster">
-              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/data/positions" />
-                <property name="port" value="${jetty.port}" />
-              </bean>
-            </entry>
-            <entry key="sharedPortfolioMaster">
-              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/data/portfolios" />
-                <property name="port" value="${jetty.port}" />
-              </bean>
-            </entry>
             <entry key="sharedSecurityMaster">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/securityMaster/0/" />
