@@ -21,8 +21,8 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.ChangeManagerResource;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
-import com.opengamma.financial.rest.ChangeManagerResource;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdFudgeBuilder;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
