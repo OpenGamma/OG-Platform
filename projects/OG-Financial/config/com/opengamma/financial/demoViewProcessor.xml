@@ -43,21 +43,7 @@
   <import resource="classpath:marketData-${opengamma.platform.runmode}.xml" />
   
   <bean id="testUser" class="${testUser.factory}" />  
-  <!-- ViewDefinitionRepository -->
-  <bean id="demoViewDefinitionRepository" class="com.opengamma.web.spring.ConfigDbViewDefinitionRepositoryFactoryBean">
-  	<property name="configMaster" ref="centralConfigMaster" />
-  </bean>
-  
-  <bean id="userViewDefinitionRepository" class="com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository" />
-  <bean id="combinedViewDefinitionRepository" class="com.opengamma.engine.view.AggregatingViewDefinitionRepository">
-    <constructor-arg>
-      <list>
-        <ref bean="demoViewDefinitionRepository" />
-        <ref bean="userViewDefinitionRepository" />
-      </list>
-    </constructor-arg>
-  </bean>
-  
+
   <!-- Functions -->
   <bean id="demoFunctionCompilationContext" class="com.opengamma.financial.OpenGammaCompilationContextFactoryBean">
     <property name="securitySource" ref="combinedSecuritySource" />
