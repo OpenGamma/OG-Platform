@@ -29,14 +29,14 @@ import com.sun.jersey.spi.container.servlet.WebConfig;
 /**
  * The OpenGamma servlet that integrates Jetty and OpenGamma components.
  */
-public class OpenGammaServletContainer extends ServletContainer {
+public class OpenGammaServlet extends ServletContainer {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ComponentManager.class);
 
-  public OpenGammaServletContainer() {
+  public OpenGammaServlet() {
     super();
   }
 
