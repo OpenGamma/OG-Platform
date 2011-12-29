@@ -13,6 +13,7 @@
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma.core.change"/>
+<listEntry value="com.opengamma.core.exchange.impl"/>
 <listEntry value="com.opengamma.core.fudgemsg"/>
 <listEntry value="com.opengamma.core.historicaltimeseries.impl"/>
 <listEntry value="com.opengamma.core.marketdatasnapshot"/>

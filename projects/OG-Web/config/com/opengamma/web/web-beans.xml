@@ -225,10 +225,6 @@
   <bean id="webExchangesRestBean" class="com.opengamma.web.exchange.WebExchangesResource" scope="request">
     <constructor-arg ref="centralExchangeMaster" />
   </bean>
-  <bean id="dataExchangesRestBean" class="com.opengamma.financial.exchange.rest.ExchangeSourceService">
-    <constructor-arg ref="fudgeContext" />
-    <property name="underlying" ref="sharedExchangeSource" />
-  </bean>
   
   <!-- Holidays RESTful service -->
   <bean id="webHolidaysRestBean" class="com.opengamma.web.holiday.WebHolidaysResource" scope="request">
@@ -290,7 +286,7 @@
             </entry>
             <entry key="exchangeSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/exchangeSource/0/" />
+                <property name="local" value="/jax/components/exchangeSource/shared/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>

@@ -33,6 +33,7 @@
 <listEntry value="com.opengamma.util.timeseries.object"/>
 <listEntry value="com.opengamma.util.tuple"/>
 <listEntry value="com.opengamma.core.change"/>
+<listEntry value="com.opengamma.core.exchange.impl"/>
 <listEntry value="com.opengamma.core.fudgemsg"/>
 <listEntry value="com.opengamma.core.historicaltimeseries.impl"/>
 <listEntry value="com.opengamma.core.marketdatasnapshot"/>

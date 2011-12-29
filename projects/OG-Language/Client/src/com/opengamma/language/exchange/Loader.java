@@ -11,7 +11,7 @@ import net.sf.ehcache.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.exchange.rest.RemoteExchangeSource;
+import com.opengamma.core.exchange.impl.RemoteExchangeSource;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
@@ -72,7 +72,7 @@ public class Loader extends ContextInitializationBean {
       return;
     }
     s_logger.info("Configuring exchange support");
-    globalContext.setExchangeSource(new EHCachingExchangeSource(new RemoteExchangeSource(getConfiguration().getFudgeContext(), restTarget), getCacheManager()));
+    globalContext.setExchangeSource(new EHCachingExchangeSource(new RemoteExchangeSource(restTarget.getURI()), getCacheManager()));
     // TODO:
   }
 
