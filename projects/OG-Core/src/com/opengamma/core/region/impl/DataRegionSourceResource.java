@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.core.exchange.impl;
+package com.opengamma.core.region.impl;
 
 import java.net.URI;
 import java.util.Collection;
@@ -16,8 +16,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
-import com.opengamma.core.exchange.Exchange;
-import com.opengamma.core.exchange.ExchangeSource;
+import com.opengamma.core.region.Region;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -27,65 +27,65 @@ import com.opengamma.util.fudgemsg.FudgeListWrapper;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for exchanges.
+ * RESTful resource for regions.
  * <p>
- * The exchanges resource receives and processes RESTful calls to the exchange source.
+ * The regions resource receives and processes RESTful calls to the region source.
  */
-@Path("/exgSource")
-public class DataExchangeSourceResource extends AbstractDataResource {
+@Path("/regSource")
+public class DataRegionSourceResource extends AbstractDataResource {
 
   /**
-   * The exchange source.
+   * The region source.
    */
-  private final ExchangeSource _exgSource;
+  private final RegionSource _regSource;
 
   /**
    * Creates the resource, exposing the underlying source over REST.
    * 
-   * @param exchangeSource  the underlying exchange source, not null
+   * @param regionSource  the underlying region source, not null
    */
-  public DataExchangeSourceResource(final ExchangeSource exchangeSource) {
-    ArgumentChecker.notNull(exchangeSource, "exchangeSource");
-    _exgSource = exchangeSource;
+  public DataRegionSourceResource(final RegionSource regionSource) {
+    ArgumentChecker.notNull(regionSource, "regionSource");
+    _regSource = regionSource;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the exchange source.
+   * Gets the region source.
    * 
-   * @return the exchange source, not null
+   * @return the region source, not null
    */
-  public ExchangeSource getExchangeSource() {
-    return _exgSource;
+  public RegionSource getRegionSource() {
+    return _regSource;
   }
 
   //-------------------------------------------------------------------------
   @GET
-  @Path("exchanges")
+  @Path("regions")
   public Response search(
       @QueryParam("versionAsOf") String versionAsOf,
       @QueryParam("correctedTo") String correctedTo,
       @QueryParam("id") List<String> externalIdStrs) {
     final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
-    Collection<? extends Exchange> result = getExchangeSource().getExchanges(bundle, vc);
+    Collection<? extends Region> result = getRegionSource().getRegions(bundle, vc);
     return Response.ok(FudgeListWrapper.of(result)).build();
   }
 
   @GET
-  @Path("exchanges/{exchangeId}")
+  @Path("regions/{regionId}")
   public Response get(
-      @PathParam("exchangeId") String idStr,
+      @PathParam("regionId") String idStr,
       @QueryParam("version") String version,
       @QueryParam("versionAsOf") String versionAsOf,
       @QueryParam("correctedTo") String correctedTo) {
     final ObjectId objectId = ObjectId.parse(idStr);
     if (version != null) {
-      final Exchange result = getExchangeSource().getExchange(objectId.atVersion(version));
+      final Region result = getRegionSource().getRegion(objectId.atVersion(version));
       return Response.ok(result).build();
     } else {
       final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
-      Exchange result = getExchangeSource().getExchange(objectId, vc);
+      Region result = getRegionSource().getRegion(objectId, vc);
       return Response.ok(result).build();
     }
   }
@@ -100,9 +100,9 @@ public class DataExchangeSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriSearch(URI baseUri, VersionCorrection vc, ExternalIdBundle bundle) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchanges");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/regions");
     if (vc != null) {
-      bld.queryParam("versionAsOf", vc.getVersionAsOfString());
+      bld.queryParam("versionAsof", vc.getVersionAsOfString());
       bld.queryParam("correctedTo", vc.getCorrectedToString());
     }
     bld.queryParam("id", bundle.toStringList().toArray());
@@ -117,7 +117,7 @@ public class DataExchangeSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriGet(URI baseUri, UniqueId uniqueId) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchanges/{exchangeId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/regions/{regionId}");
     if (uniqueId.getVersion() != null) {
       bld.queryParam("version", uniqueId.getVersion());
     }
@@ -133,7 +133,7 @@ public class DataExchangeSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriGet(URI baseUri, ObjectId objectId, VersionCorrection vc) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchanges/{exchangeId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/regions/{regionId}");
     if (vc != null) {
       bld.queryParam("versionAsOf", vc.getVersionAsOfString());
       bld.queryParam("correctedTo", vc.getCorrectedToString());
@@ -144,10 +144,10 @@ public class DataExchangeSourceResource extends AbstractDataResource {
   // deprecated
   //-------------------------------------------------------------------------
   @GET
-  @Path("exchanges/searchSingle")
-  public Response searchSingle(@QueryParam("id") List<String> externalIdStrs) {
+  @Path("regions/searchHighest")
+  public Response searchHighest(@QueryParam("id") List<String> externalIdStrs) {
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
-    Exchange result = getExchangeSource().getSingleExchange(bundle);
+    Region result = getRegionSource().getHighestLevelRegion(bundle);
     return Response.ok(result).build();
   }
 
@@ -158,8 +158,8 @@ public class DataExchangeSourceResource extends AbstractDataResource {
    * @param bundle  the bundle, may be null
    * @return the URI, not null
    */
-  public static URI uriSearchSingle(URI baseUri, ExternalIdBundle bundle) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchanges/searchSingle");
+  public static URI uriSearchHighest(URI baseUri, ExternalIdBundle bundle) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/regions/searchHighest");
     bld.queryParam("id", bundle.toStringList().toArray());
     return bld.build();
   }

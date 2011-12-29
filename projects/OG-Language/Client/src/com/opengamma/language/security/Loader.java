@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.security.EHCachingFinancialSecuritySource;
-import com.opengamma.financial.security.rest.RemoteFinancialSecuritySource;
+import com.opengamma.financial.security.RemoteFinancialSecuritySource;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
@@ -74,7 +74,7 @@ public class Loader extends ContextInitializationBean {
       return;
     }
     s_logger.info("Configuring security support");
-    globalContext.setSecuritySource(new EHCachingFinancialSecuritySource(new RemoteFinancialSecuritySource(getConfiguration().getFudgeContext(), restTarget), getCacheManager()));
+    globalContext.setSecuritySource(new EHCachingFinancialSecuritySource(new RemoteFinancialSecuritySource(restTarget.getURI()), getCacheManager()));
     globalContext.getFunctionProvider().addProvider(
         new FunctionProviderBean(FetchSecurityFunction.INSTANCE));
     globalContext.getProcedureProvider().addProvider(

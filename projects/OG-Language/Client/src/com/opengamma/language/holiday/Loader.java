@@ -9,7 +9,7 @@ package com.opengamma.language.holiday;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.holiday.rest.RemoteHolidaySource;
+import com.opengamma.core.holiday.impl.RemoteHolidaySource;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
@@ -59,7 +59,7 @@ public class Loader extends ContextInitializationBean {
       return;
     }
     s_logger.info("Configuring holiday support");
-    globalContext.setHolidaySource(new RemoteHolidaySource(getConfiguration().getFudgeContext(), restTarget));
+    globalContext.setHolidaySource(new RemoteHolidaySource(restTarget.getURI()));
     // TODO:
   }
 

@@ -64,28 +64,13 @@
   </bean>
   
   <!-- Security source/master service -->
-  <bean id="testSecurityMaster" class="com.opengamma.master.security.impl.InMemorySecurityMaster" />
-  <bean id="securitySourceRestBean" class="com.opengamma.financial.security.rest.SecuritySourceService">
-    <constructor-arg ref="fudgeContext" />
-    <property name="underlyingMap">
-      <map>
-        <entry key="0" value-ref="combinedSecuritySource" />
-        <entry key="shared" value-ref="sharedSecuritySource" />
-        <entry key="user" value-ref="userFinancialSecuritySource" />
-        <entry key="test">
-          <bean class="com.opengamma.financial.security.MasterFinancialSecuritySource">
-            <constructor-arg ref="testSecurityMaster" />
-          </bean>
-        </entry>
-      </map>
-    </property>
-  </bean>
+  <!--bean id="testSecurityMaster" class="com.opengamma.master.security.impl.InMemorySecurityMaster" /-->
   <bean id="securityMasterRestBean" class="com.opengamma.financial.security.rest.SecurityMasterService">
     <constructor-arg ref="fudgeContext" />
     <property name="underlyingMap">
       <map>
         <entry key="0" value-ref="centralSecurityMaster" />
-        <entry key="test" value-ref="testSecurityMaster" />
+        <!--entry key="test" value-ref="testSecurityMaster" /-->
       </map>
     </property>
   </bean>
@@ -230,18 +215,10 @@
   <bean id="webHolidaysRestBean" class="com.opengamma.web.holiday.WebHolidaysResource" scope="request">
     <constructor-arg ref="centralHolidayMaster" />
   </bean>
-  <bean id="dataHolidaysRestBean" class="com.opengamma.financial.holiday.rest.HolidaySourceService">
-    <constructor-arg ref="fudgeContext" />
-    <property name="underlying" ref="sharedHolidaySource" />
-  </bean>
   
   <!-- Exchanges RESTful service -->
   <bean id="webRegionsRestBean" class="com.opengamma.web.region.WebRegionsResource" scope="request">
     <constructor-arg ref="centralRegionMaster" />
-  </bean>
-  <bean id="dataRegionsRestBean" class="com.opengamma.financial.region.rest.RegionSourceService">
-    <constructor-arg ref="fudgeContext" />
-    <property name="underlying" ref="sharedRegionSource" />
   </bean>
   
   <!-- Distributed component configuration data -->
@@ -310,7 +287,7 @@
             </entry>
             <entry key="holidaySource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/holidaySource/0/" />
+                <property name="local" value="/jax/components/holidaySource/shared/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
@@ -370,7 +347,7 @@
             </entry>
             <entry key="regionSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/regionSource/0/" />
+                <property name="local" value="/jax/components/regionSource/shared/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
@@ -383,7 +360,7 @@
             </entry>
             <entry key="securitySource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/securitySource/0/" />
+                <property name="local" value="/jax/components/securitySource/combined/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>

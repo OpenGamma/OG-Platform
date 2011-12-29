@@ -11,7 +11,7 @@ import net.sf.ehcache.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.region.rest.RemoteRegionSource;
+import com.opengamma.core.region.impl.RemoteRegionSource;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
@@ -72,7 +72,7 @@ public class Loader extends ContextInitializationBean {
       return;
     }
     s_logger.info("Configuring region support");
-    globalContext.setRegionSource(new EHCachingRegionSource(new RemoteRegionSource(getConfiguration().getFudgeContext(), restTarget), getCacheManager()));
+    globalContext.setRegionSource(new EHCachingRegionSource(new RemoteRegionSource(restTarget.getURI()), getCacheManager()));
     // TODO:
   }
 
