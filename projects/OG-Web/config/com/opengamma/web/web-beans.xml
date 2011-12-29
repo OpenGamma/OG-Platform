@@ -142,12 +142,12 @@
   <!-- Users resource context -->
   <bean id="usersResourceContext" class="com.opengamma.financial.user.rest.UsersResourceContext">
     <property name="fudgeContext" ref="fudgeContext" />
-    <property name="userPortfolioMaster" ref="userFinancialPortfolioMaster" />
-    <property name="userPositionMaster" ref="userFinancialPositionMaster" />
-    <property name="userSecurityMaster" ref="userFinancialSecurityMaster" />
+    <property name="userPortfolioMaster" ref="userPortfolioMaster" />
+    <property name="userPositionMaster" ref="userPositionMaster" />
+    <property name="userSecurityMaster" ref="userSecurityMaster" />
     <property name="userViewDefinitionRepository" ref="userViewDefinitionRepository" />
     <property name="userInterpolatedYieldCurveDefinitionMaster" ref="userInterpolatedYieldCurveDefinitionMaster" />
-    <property name="userSnapshotMaster" ref="userFinancialMarketDataSnapshotMaster" />
+    <property name="userSnapshotMaster" ref="userMarketDataSnapshotMaster" />
   </bean>
   
   <!-- Users Tracker -->
@@ -515,8 +515,8 @@
     <constructor-arg ref="demoViewProcessor" />
     <constructor-arg ref="combinedPositionSource" />
     <constructor-arg ref="combinedSecuritySource" />
-    <constructor-arg ref="userFinancialPortfolioMaster" />
-    <constructor-arg ref="userFinancialPositionMaster" />
+    <constructor-arg ref="userPortfolioMaster" />
+    <constructor-arg ref="userPositionMaster" />
     <constructor-arg ref="userViewDefinitionRepository" />
     <constructor-arg ref="testUser" />
     <constructor-arg ref="fudgeContext" />
@@ -576,8 +576,8 @@
     <property name="viewProcessor" ref="demoViewProcessor" />
     <property name="positionSource" ref="combinedPositionSource" />
     <property name="securitySource" ref="combinedSecuritySource" />
-    <property name="userPortfolioMaster" ref="userFinancialPortfolioMaster" />
-    <property name="userPositionMaster" ref="userFinancialPositionMaster" />
+    <property name="userPortfolioMaster" ref="userPortfolioMaster" />
+    <property name="userPositionMaster" ref="userPositionMaster" />
     <property name="userViewDefinitionRepository" ref="userViewDefinitionRepository" />
     <property name="portfolioAggregators" ref="portfolioAggregationFunctions" />
     <property name="snapshotMaster" ref="centralMarketDataSnapshotMaster" />
