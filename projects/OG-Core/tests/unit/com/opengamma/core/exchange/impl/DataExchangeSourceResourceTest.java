@@ -54,7 +54,7 @@ public class DataExchangeSourceResourceTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void testGetExchangebyUid() {
+  public void testGetExchangeByUid() {
     final SimpleExchange target = new SimpleExchange();
     target.setExternalIdBundle(BUNDLE);
     target.setName("Test");
@@ -67,7 +67,7 @@ public class DataExchangeSourceResourceTest {
   }
 
   @Test
-  public void testGetExchangebyOid() {
+  public void testGetExchangeByOid() {
     final SimpleExchange target = new SimpleExchange();
     target.setExternalIdBundle(BUNDLE);
     target.setName("Test");

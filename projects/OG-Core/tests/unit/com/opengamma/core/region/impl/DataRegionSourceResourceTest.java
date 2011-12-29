@@ -54,7 +54,7 @@ public class DataRegionSourceResourceTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void testGetRegionbyUid() {
+  public void testGetRegionByUid() {
     final SimpleRegion target = new SimpleRegion();
     target.setExternalIdBundle(BUNDLE);
     target.setName("Test");
@@ -67,7 +67,7 @@ public class DataRegionSourceResourceTest {
   }
 
   @Test
-  public void testGetRegionbyOid() {
+  public void testGetRegionByOid() {
     final SimpleRegion target = new SimpleRegion();
     target.setExternalIdBundle(BUNDLE);
     target.setName("Test");

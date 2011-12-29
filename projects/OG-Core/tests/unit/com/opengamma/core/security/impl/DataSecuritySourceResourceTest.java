@@ -54,7 +54,7 @@ public class DataSecuritySourceResourceTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void testGetSecuritybyUid() {
+  public void testGetSecurityByUid() {
     final SimpleSecurity target = new SimpleSecurity("TEST");
     target.setExternalIdBundle(BUNDLE);
     target.setName("Test");
@@ -67,7 +67,7 @@ public class DataSecuritySourceResourceTest {
   }
 
   @Test
-  public void testGetSecuritybyOid() {
+  public void testGetSecurityByOid() {
     final SimpleSecurity target = new SimpleSecurity("TEST");
     target.setExternalIdBundle(BUNDLE);
     target.setName("Test");

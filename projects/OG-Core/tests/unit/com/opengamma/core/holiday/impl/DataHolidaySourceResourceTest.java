@@ -51,7 +51,7 @@ public class DataHolidaySourceResourceTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void testGetHolidaybyUid() {
+  public void testGetHolidayByUid() {
     final SimpleHoliday target = new SimpleHoliday();
     target.setType(HolidayType.BANK);
     target.setRegionExternalId(EID);
@@ -64,7 +64,7 @@ public class DataHolidaySourceResourceTest {
   }
 
   @Test
-  public void testGetHolidaybyOid() {
+  public void testGetHolidayByOid() {
     final SimpleHoliday target = new SimpleHoliday();
     target.setType(HolidayType.BANK);
     target.setRegionExternalId(EID);
