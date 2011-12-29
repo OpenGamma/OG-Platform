@@ -26,6 +26,7 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.position.impl.DataPositionSourceResource;
 import com.opengamma.core.position.impl.DelegatingPositionSource;
 import com.opengamma.core.position.impl.EHCachingPositionSource;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -43,6 +44,11 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
    */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
+  /**
+   * The flag determining whether the component should be published by REST.
+   */
+  @PropertyDefinition
+  private boolean _publishRest;
   /**
    * The cache manager.
    */
@@ -96,6 +102,9 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
     // register
     ComponentInfo info = new ComponentInfo(PositionSource.class, getClassifier());
     repo.registerComponent(info, source);
+    if (isPublishRest()) {
+      repo.publishRest(info, new DataPositionSourceResource(source));
+    }
   }
 
   protected PositionSource initUnderlying(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
@@ -106,6 +115,9 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
     if (getUnderlyingClassifier() != null) {
       ComponentInfo info = new ComponentInfo(PositionSource.class, getUnderlyingClassifier());
       repo.registerComponent(info, source);
+      if (isPublishRest()) {
+        repo.publishRest(info, new DataPositionSourceResource(source));
+      }
     }
     return source;
   }
@@ -118,6 +130,9 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
     if (getUserClassifier() != null) {
       ComponentInfo info = new ComponentInfo(PositionSource.class, getUserClassifier());
       repo.registerComponent(info, source);
+      if (isPublishRest()) {
+        repo.publishRest(info, new DataPositionSourceResource(source));
+      }
     }
     return source;
   }
@@ -145,6 +160,8 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
+      case -614707837:  // publishRest
+        return isPublishRest();
       case -1452875317:  // cacheManager
         return getCacheManager();
       case 1705602398:  // underlyingClassifier
@@ -168,6 +185,9 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         setClassifier((String) newValue);
+        return;
+      case -614707837:  // publishRest
+        setPublishRest((Boolean) newValue);
         return;
       case -1452875317:  // cacheManager
         setCacheManager((CacheManager) newValue);
@@ -210,6 +230,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
     if (obj != null && obj.getClass() == this.getClass()) {
       UserFinancialPositionSourceComponentFactory other = (UserFinancialPositionSourceComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
           JodaBeanUtils.equal(getUnderlyingClassifier(), other.getUnderlyingClassifier()) &&
           JodaBeanUtils.equal(getUnderlyingPortfolioMaster(), other.getUnderlyingPortfolioMaster()) &&
@@ -226,6 +247,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingPortfolioMaster());
@@ -260,6 +282,31 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
    */
   public final Property<String> classifier() {
     return metaBean().classifier().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the flag determining whether the component should be published by REST.
+   * @return the value of the property
+   */
+  public boolean isPublishRest() {
+    return _publishRest;
+  }
+
+  /**
+   * Sets the flag determining whether the component should be published by REST.
+   * @param publishRest  the new value of the property
+   */
+  public void setPublishRest(boolean publishRest) {
+    this._publishRest = publishRest;
+  }
+
+  /**
+   * Gets the the {@code publishRest} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> publishRest() {
+    return metaBean().publishRest().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -455,6 +502,11 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
         this, "classifier", UserFinancialPositionSourceComponentFactory.class, String.class);
     /**
+     * The meta-property for the {@code publishRest} property.
+     */
+    private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
+        this, "publishRest", UserFinancialPositionSourceComponentFactory.class, Boolean.TYPE);
+    /**
      * The meta-property for the {@code cacheManager} property.
      */
     private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
@@ -495,6 +547,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
+        "publishRest",
         "cacheManager",
         "underlyingClassifier",
         "underlyingPortfolioMaster",
@@ -514,6 +567,8 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
+        case -614707837:  // publishRest
+          return _publishRest;
         case -1452875317:  // cacheManager
           return _cacheManager;
         case 1705602398:  // underlyingClassifier
@@ -554,6 +609,14 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
      */
     public final MetaProperty<String> classifier() {
       return _classifier;
+    }
+
+    /**
+     * The meta-property for the {@code publishRest} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> publishRest() {
+      return _publishRest;
     }
 
     /**

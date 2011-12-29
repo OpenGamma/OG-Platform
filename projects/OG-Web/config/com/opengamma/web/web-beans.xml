@@ -87,12 +87,6 @@
     </property>
   </bean>
   
-  <!-- Position source -->
-  <bean id="dataPositionSourceRestBean" class="com.opengamma.engine.position.rest.DataPositionSourceResource">
-    <constructor-arg ref="fudgeContext" />
-    <constructor-arg ref="combinedPositionSource" />
-  </bean>
-  
   <!-- Currency conversions -->
   <bean id="currencyMatrixSourceRestBean" class="com.opengamma.financial.currency.rest.CurrencyMatrixSourceService">
     <constructor-arg ref="fudgeContext" />
@@ -304,7 +298,7 @@
             </entry>
             <entry key="positionSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/positionSource/" />
+                <property name="local" value="/jax/components/positionSource/combined/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>

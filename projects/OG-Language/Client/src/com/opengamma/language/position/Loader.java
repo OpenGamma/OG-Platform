@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.position.impl.EHCachingPositionSource;
-import com.opengamma.engine.position.rest.RemotePositionSource;
+import com.opengamma.core.position.impl.RemotePositionSource;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
@@ -74,7 +74,7 @@ public class Loader extends ContextInitializationBean {
       return;
     }
     s_logger.info("Configuring position support");
-    globalContext.setPositionSource(new EHCachingPositionSource(new RemotePositionSource(getConfiguration().getFudgeContext(), restTarget), getCacheManager()));
+    globalContext.setPositionSource(new EHCachingPositionSource(new RemotePositionSource(restTarget.getURI()), getCacheManager()));
     globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
         FetchPortfolioFunction.INSTANCE,
         GetPositionAttributeFunction.INSTANCE,
