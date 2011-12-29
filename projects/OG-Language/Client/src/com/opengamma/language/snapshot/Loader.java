@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
-import com.opengamma.financial.marketdatasnapshot.rest.RemoteMarketDataSnapshotSource;
+import com.opengamma.core.marketdatasnapshot.impl.RemoteMarketDataSnapshotSource;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
@@ -79,7 +79,7 @@ public class Loader extends ContextInitializationBean {
       return;
     }
     s_logger.info("Configuring snapshot support");
-    globalContext.setMarketDataSnapshotSource(new RemoteMarketDataSnapshotSource(getConfiguration().getFudgeContext(), restTarget));
+    globalContext.setMarketDataSnapshotSource(new RemoteMarketDataSnapshotSource(restTarget.getURI()));
     globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
         FetchSnapshotFunction.INSTANCE,
         GetSnapshotGlobalValueFunction.INSTANCE,

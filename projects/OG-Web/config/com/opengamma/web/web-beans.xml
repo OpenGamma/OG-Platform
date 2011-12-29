@@ -268,7 +268,7 @@
             </entry>
             <entry key="marketDataSnapshotSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/marketDataSnapshotSource/0/" />
+                <property name="local" value="/jax/components/marketDataSnapshotSource/combined/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
@@ -600,16 +600,6 @@
       <map>
         <entry key="0" value-ref="centralMarketDataSnapshotMaster" />
         <entry key="test" value-ref="testSnapshotMaster" />
-      </map>
-    </property>
-  </bean>
-  <bean id="snapshotSourceRestBean" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotSourceService">
-    <constructor-arg ref="fudgeContext" />
-    <property name="underlyingMap">
-      <map>
-        <entry key="0" value-ref="combinedMarketDataSnapshotSource" />
-        <entry key="shared" value-ref="sharedMarketDataSnapshotSource" />
-        <entry key="user" value-ref="userFinancialMarketDataSnapshotSource" />
       </map>
     </property>
   </bean>
