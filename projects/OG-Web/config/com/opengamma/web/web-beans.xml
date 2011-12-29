@@ -25,10 +25,6 @@
   </bean>
 
   <!-- Historical data source service -->
-  <bean id="historicalTimeSeriesSourceRestBean" class="com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceService">
-    <constructor-arg ref="fudgeContext" />
-    <property name="underlying" ref="sharedHistoricalTimeSeriesSource" />
-  </bean>
   <bean id="historicalTimeSeriesMasterRestBean" class="com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesMasterService">
     <constructor-arg ref="fudgeContext" />
     <property name="underlying" ref="centralHistoricalTimeSeriesMaster" />
@@ -238,7 +234,7 @@
             </entry>
             <entry key="historicalTimeSeriesSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/historicalTimeSeriesSource/0/" />
+                <property name="local" value="/jax/components/historicalTimeSeriesSource/shared/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>

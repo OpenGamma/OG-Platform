@@ -9,7 +9,7 @@ package com.opengamma.language.timeseries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.historicaltimeseries.rest.RemoteHistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.impl.RemoteHistoricalTimeSeriesSource;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
@@ -62,7 +62,7 @@ public class Loader extends ContextInitializationBean {
       return;
     }
     s_logger.info("Configuring time-series support");
-    globalContext.setHistoricalTimeSeriesSource(new RemoteHistoricalTimeSeriesSource(getConfiguration().getFudgeContext(), restTarget));
+    globalContext.setHistoricalTimeSeriesSource(new RemoteHistoricalTimeSeriesSource(restTarget.getURI()));
     globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
         FetchTimeSeriesFunction.INSTANCE));
     globalContext.getProcedureProvider().addProvider(new ProcedureProviderBean(
