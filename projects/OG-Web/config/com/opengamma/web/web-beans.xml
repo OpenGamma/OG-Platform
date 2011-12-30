@@ -84,11 +84,6 @@
   </bean>
   
   <!-- Currency conversions -->
-  <bean id="currencyMatrixSourceRestBean" class="com.opengamma.financial.currency.rest.CurrencyMatrixSourceService">
-    <constructor-arg ref="fudgeContext" />
-    <property name="underlying" ref="sharedCurrencyMatrixSource" />
-  </bean>
-  
   <bean id="currencyPairsSourceRestBean" class="com.opengamma.financial.currency.rest.CurrencyPairsSourceService">
     <constructor-arg ref="fudgeContext" />
     <property name="underlying" ref="sharedCurrencyPairsSource" />
@@ -198,7 +193,7 @@
             </entry>
             <entry key="currencyMatrixSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/currencyMatrixSource/0/" />
+                <property name="local" value="/jax/components/currencyMatrixSource/shared/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
