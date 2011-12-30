@@ -31,7 +31,7 @@ public class RemoteCurrencyMatrixSource extends AbstractRemoteClient implements 
   public CurrencyMatrix getCurrencyMatrix(String name) {
     ArgumentChecker.notNull(name, "name");
     
-    URI uri = DataCurrencyMatrixSourceResource.uriSearchByName(getBaseUri(), name);
+    URI uri = DataCurrencyMatrixSourceResource.uriGetMatrix(getBaseUri(), name);
     return accessRemote(uri).get(CurrencyMatrix.class);
   }
 

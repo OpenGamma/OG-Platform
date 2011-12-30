@@ -9,7 +9,7 @@ import java.net.URI;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
@@ -52,8 +52,8 @@ public class DataCurrencyMatrixSourceResource {
 
   //-------------------------------------------------------------------------
   @GET
-  @Path("currencyMatrices")
-  public Response search(@QueryParam("name") String name) {
+  @Path("currencyMatrices/{name}")
+  public Response getMatrix(@PathParam("name") String name) {
     CurrencyMatrix result = getCurrencyMatrixSource().getCurrencyMatrix(name);
     return Response.ok(result).build();
   }
@@ -66,10 +66,9 @@ public class DataCurrencyMatrixSourceResource {
    * @param name  the name, not null
    * @return the URI, not null
    */
-  public static URI uriSearchByName(URI baseUri, String name) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/currencyMatrices");
-    bld.queryParam("name", name);
-    return bld.build();
+  public static URI uriGetMatrix(URI baseUri, String name) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/currencyMatrices/{name}");
+    return bld.build(name);
   }
 
 }
