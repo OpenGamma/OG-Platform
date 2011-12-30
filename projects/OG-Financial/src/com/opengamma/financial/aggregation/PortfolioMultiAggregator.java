@@ -7,6 +7,8 @@ package com.opengamma.financial.aggregation;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -74,7 +76,8 @@ public class PortfolioMultiAggregator {
   protected void aggregate(SimplePortfolioNode inputNode, List<Position> flattenedPortfolio, Queue<AggregationFunction<?>> functionList) {
     AggregationFunction<?> nextFunction = functionList.remove();
     s_logger.debug("Aggregating {} positions by {}", flattenedPortfolio, nextFunction);
-    Map<String, List<Position>> buckets = new TreeMap<String, List<Position>>();
+    @SuppressWarnings("unchecked")
+    Map<String, List<Position>> buckets = new TreeMap<String, List<Position>>((Comparator<? super String>) nextFunction);
     for (Object entry : nextFunction.getRequiredEntries()) {
       buckets.put(entry.toString(), new ArrayList<Position>());
     }
@@ -99,6 +102,7 @@ public class PortfolioMultiAggregator {
       newNode.setName(bucketName);
       inputNode.addChildNode(newNode);
       List<Position> bucket = buckets.get(bucketName);
+      Collections.sort(bucket, nextFunction.getPositionComparator());
       if (functionList.isEmpty() || bucket.isEmpty()) { //IGN-138 - don't build huge empty portfolios
         for (Position position : bucket) {
           newNode.addPosition(position);

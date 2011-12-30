@@ -7,8 +7,10 @@ package com.opengamma.financial.aggregation;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
@@ -105,6 +107,8 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   /* package */static final String NONDELIVERABLE_FX_FORWARDS = "Non-deliverable FX forwards";
   /* package */static final String CAP_FLOOR = "Cap/Floor";
   /* package */static final String CAP_FLOOR_CMS_SPREAD = "Cap/Floor CMS Spread";
+  
+  private Comparator<Position> _comparator = new SimplePositionComparator();
 
   @Override
   public String classifyPosition(final Position position) {
@@ -312,6 +316,16 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   @Override
   public Collection<String> getRequiredEntries() {
     return Collections.emptyList();
+  }
+
+  @Override
+  public int compare(String detailedAssetClass1, String detailedAssetClass2) {
+    return detailedAssetClass1.compareTo(detailedAssetClass2);
+  }
+
+  @Override
+  public Comparator<Position> getPositionComparator() {
+    return _comparator;
   }
 
 }
