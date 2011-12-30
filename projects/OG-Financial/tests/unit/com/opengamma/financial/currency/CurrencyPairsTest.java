@@ -5,13 +5,13 @@
  */
 package com.opengamma.financial.currency;
 
-import com.google.common.collect.ImmutableSet;
-import com.opengamma.util.money.Currency;
-import org.testng.annotations.BeforeClass;
+import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import static org.testng.AssertJUnit.assertEquals;
+import com.google.common.collect.ImmutableSet;
+import com.opengamma.util.money.Currency;
 
 public class CurrencyPairsTest {
 
@@ -20,7 +20,7 @@ public class CurrencyPairsTest {
 
   @BeforeMethod
   protected void setUp() throws Exception {
-    _pairs = new CurrencyPairs(ImmutableSet.of(CurrencyPair.of(Currency.EUR, Currency.USD), CurrencyPair.of(Currency.GBP, Currency.USD)));
+    _pairs = CurrencyPairs.of(ImmutableSet.of(CurrencyPair.of(Currency.EUR, Currency.USD), CurrencyPair.of(Currency.GBP, Currency.USD)));
     _currencyPairsSource = new CurrencyPairsSource() {
       
       @Override
@@ -60,4 +60,5 @@ public class CurrencyPairsTest {
   public void zeroAmount2() {
     CurrencyUtils.getRate(Currency.GBP, Currency.USD, 100, 0, _currencyPairsSource, null);
   }
+
 }
