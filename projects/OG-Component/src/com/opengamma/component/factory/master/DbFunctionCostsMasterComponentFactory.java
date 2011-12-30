@@ -61,7 +61,7 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractComponentFact
     
     // publish
     if (isPublishRest()) {
-      repo.publishRest(info, new DataFunctionCostsMasterResource(master));
+      repo.getRestComponents().publish(info, new DataFunctionCostsMasterResource(master));
     }
   }
 

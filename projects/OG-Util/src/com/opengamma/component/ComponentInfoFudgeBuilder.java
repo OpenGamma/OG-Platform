@@ -5,6 +5,7 @@
  */
 package com.opengamma.component;
 
+import java.net.URI;
 import java.util.Map.Entry;
 
 import org.fudgemsg.FudgeField;
@@ -29,6 +30,8 @@ public class ComponentInfoFudgeBuilder extends AbstractFudgeBuilder implements F
   /** Field name. */
   public static final String CLASSIFIER_FIELD_NAME = "classifier";
   /** Field name. */
+  public static final String URI_FIELD_NAME = "uri";
+  /** Field name. */
   public static final String ATTRIBUTES_FIELD_NAME = "attributes";
 
   @Override
@@ -47,6 +50,9 @@ public class ComponentInfoFudgeBuilder extends AbstractFudgeBuilder implements F
   public static void toFudgeMsg(FudgeSerializer serializer, ComponentInfo object, final MutableFudgeMsg msg) {
     addToMessage(msg, TYPE_FIELD_NAME, object.getType().getName());
     addToMessage(msg, CLASSIFIER_FIELD_NAME, object.getClassifier());
+    if (object.getUri() != null) {
+      addToMessage(msg, URI_FIELD_NAME, object.getUri().toString());
+    }
     MutableFudgeMsg attributesMsg = serializer.newMessage();
     for (Entry<String, String> entry : object.getAttributes().entrySet()) {
       attributesMsg.add(entry.getKey(), entry.getValue());
@@ -75,6 +81,10 @@ public class ComponentInfoFudgeBuilder extends AbstractFudgeBuilder implements F
       throw new OpenGammaRuntimeException(ex.getMessage(), ex);
     }
     object.setClassifier(msg.getString(CLASSIFIER_FIELD_NAME));
+    String uriStr = msg.getString(URI_FIELD_NAME);
+    if (uriStr != null) {
+      object.setUri(URI.create(uriStr));
+    }
     FudgeMsg attributes = msg.getMessage(ATTRIBUTES_FIELD_NAME);
     for (FudgeField field : attributes) {
       object.addAttribute(field.getName(), field.getValue().toString());

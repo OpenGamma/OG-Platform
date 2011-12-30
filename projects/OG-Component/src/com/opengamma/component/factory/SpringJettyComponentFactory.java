@@ -21,6 +21,7 @@ import org.springframework.context.support.GenericApplicationContext;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentFactory;
 import com.opengamma.component.ComponentRepository;
+import com.opengamma.component.RestComponents;
 import com.opengamma.transport.jaxrs.FudgeBinaryProducer;
 import com.opengamma.transport.jaxrs.FudgeJSONConsumer;
 import com.opengamma.transport.jaxrs.FudgeJSONProducer;
@@ -53,19 +54,20 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
     repo.registerInfrastructure(Server.class, "jetty", server);
     repo.registerLifecycle(new ServerLifecycle(server));
     
-    repo.publishRest(new FudgeJSONConsumer());
-    repo.publishRest(new FudgeJSONProducer());
-    repo.publishRest(new FudgeXMLConsumer());
-    repo.publishRest(new FudgeXMLProducer());
-    repo.publishRest(new FudgeBinaryProducer());
-    repo.publishRest(new FudgeObjectBinaryConsumer());
-    repo.publishRest(new FudgeObjectBinaryProducer());
-    repo.publishRest(new DataNotFoundExceptionMapper());
-    repo.publishRest(new DataDuplicationExceptionMapper());
-    repo.publishRest(new IllegalArgumentExceptionMapper());
-    repo.publishRest(new UnsupportedOperationExceptionMapper());
-    repo.publishRest(new WebApplicationExceptionMapper());
-    repo.publishRest(new ThrowableExceptionMapper());
+    RestComponents restComponents = repo.getRestComponents();
+    restComponents.publishHelper(new FudgeJSONConsumer());
+    restComponents.publishHelper(new FudgeJSONProducer());
+    restComponents.publishHelper(new FudgeXMLConsumer());
+    restComponents.publishHelper(new FudgeXMLProducer());
+    restComponents.publishHelper(new FudgeBinaryProducer());
+    restComponents.publishHelper(new FudgeObjectBinaryConsumer());
+    restComponents.publishHelper(new FudgeObjectBinaryProducer());
+    restComponents.publishHelper(new DataNotFoundExceptionMapper());
+    restComponents.publishHelper(new DataDuplicationExceptionMapper());
+    restComponents.publishHelper(new IllegalArgumentExceptionMapper());
+    restComponents.publishHelper(new UnsupportedOperationExceptionMapper());
+    restComponents.publishHelper(new WebApplicationExceptionMapper());
+    restComponents.publishHelper(new ThrowableExceptionMapper());
   }
 
   //-------------------------------------------------------------------------

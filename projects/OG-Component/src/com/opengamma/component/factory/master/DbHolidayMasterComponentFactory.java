@@ -97,7 +97,7 @@ public class DbHolidayMasterComponentFactory extends AbstractComponentFactory {
     
     // publish
     if (isPublishRest()) {
-      repo.publishRest(info, new DataHolidaysResource(master));
+      repo.getRestComponents().publish(info, new DataHolidaysResource(master));
     }
   }
 

@@ -97,7 +97,7 @@ public class DbMarketDataSnapshotMasterComponentFactory extends AbstractComponen
     
     // publish
     if (isPublishRest()) {
-      repo.publishRest(info, new DataMarketDataSnapshotsResource(master));
+      repo.getRestComponents().publish(info, new DataMarketDataSnapshotsResource(master));
     }
   }
 

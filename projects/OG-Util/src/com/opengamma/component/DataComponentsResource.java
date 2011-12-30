@@ -28,18 +28,24 @@ import com.opengamma.util.rest.AbstractDataResource;
 public class DataComponentsResource extends AbstractDataResource {
 
   /**
-   * The components.
+   * The local components.
    */
-  private final List<PublishedComponent> _components;
+  private final List<RestComponent> _localComponents;
+  /**
+   * The remote components.
+   */
+  private final List<ComponentInfo> _remoteComponents;
 
   /**
    * Creates the resource.
    * 
-   * @param components  the managed components, not null
+   * @param localComponents  the managed components, not null
+   * @param remoteComponents  the republished remote components, not null
    */
-  public DataComponentsResource(final Iterable<PublishedComponent> components) {
-    ArgumentChecker.notNull(components, "components");
-    _components = ImmutableList.copyOf(components);
+  public DataComponentsResource(final Iterable<RestComponent> localComponents, final Iterable<ComponentInfo> remoteComponents) {
+    ArgumentChecker.notNull(localComponents, "localComponents");
+    _localComponents = ImmutableList.copyOf(localComponents);
+    _remoteComponents = ImmutableList.copyOf(remoteComponents);
   }
 
   //-------------------------------------------------------------------------
@@ -48,8 +54,8 @@ public class DataComponentsResource extends AbstractDataResource {
    * 
    * @return the components, not null
    */
-  public List<PublishedComponent> getComponents() {
-    return _components;
+  public List<RestComponent> getComponents() {
+    return _localComponents;
   }
 
   //-------------------------------------------------------------------------
@@ -62,7 +68,8 @@ public class DataComponentsResource extends AbstractDataResource {
   @GET
   public Response getComponentInfos() {
     ComponentInfosMsg infos = new ComponentInfosMsg();
-    for (PublishedComponent component : _components) {
+    infos.getInfos().addAll(_remoteComponents);
+    for (RestComponent component : _localComponents) {
       infos.getInfos().add(component.getInfo());
     }
     return Response.ok(infos).build();
@@ -70,7 +77,7 @@ public class DataComponentsResource extends AbstractDataResource {
 
   @Path("{type}/{classifier}")
   public Object findComponent(@PathParam("type") String type, @PathParam("classifier") String classifier) {
-    for (PublishedComponent component : _components) {
+    for (RestComponent component : _localComponents) {
       if (component.getInfo().getType().getSimpleName().equalsIgnoreCase(type) && component.getInfo().getClassifier().equalsIgnoreCase(classifier)) {
         return component.getInstance();
       }
@@ -99,6 +106,17 @@ public class DataComponentsResource extends AbstractDataResource {
    */
   public static URI uri(URI baseUri, ComponentInfo info) {
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("/components/{type}/{classifier}");
+    return bld.build(info.getType().getSimpleName(), info.getClassifier());
+  }
+
+  /**
+   * Builds a URI for a single component.
+   * 
+   * @param info  the component info, not null
+   * @return the URI, not null
+   */
+  public static URI relativeUri(ComponentInfo info) {
+    UriBuilder bld = UriBuilder.fromPath("components/{type}/{classifier}");
     return bld.build(info.getType().getSimpleName(), info.getClassifier());
   }
 

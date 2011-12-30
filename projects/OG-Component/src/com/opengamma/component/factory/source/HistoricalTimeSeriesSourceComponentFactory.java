@@ -76,7 +76,7 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
     
     repo.registerComponent(info, source);
     if (isPublishRest()) {
-      repo.publishRest(info, new DataHistoricalTimeSeriesSourceResource(source));
+      repo.getRestComponents().publish(info, new DataHistoricalTimeSeriesSourceResource(source));
     }
   }
 

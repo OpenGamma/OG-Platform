@@ -57,7 +57,7 @@ public class SecuritySourceComponentFactory extends AbstractComponentFactory {
     repo.registerComponent(info, source);
     
     if (isPublishRest()) {
-      repo.publishRest(info, new DataSecuritySourceResource(source));
+      repo.getRestComponents().publish(info, new DataSecuritySourceResource(source));
     }
   }
 

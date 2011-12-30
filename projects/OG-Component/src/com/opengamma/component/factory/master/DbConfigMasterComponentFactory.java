@@ -97,7 +97,7 @@ public class DbConfigMasterComponentFactory extends AbstractComponentFactory {
     
     // publish
     if (isPublishRest()) {
-      repo.publishRest(info, new DataConfigsResource(master));
+      repo.getRestComponents().publish(info, new DataConfigsResource(master));
     }
   }
 

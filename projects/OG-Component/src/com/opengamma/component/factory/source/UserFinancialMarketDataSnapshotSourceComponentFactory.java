@@ -91,7 +91,7 @@ public class UserFinancialMarketDataSnapshotSourceComponentFactory extends Abstr
     ComponentInfo info = new ComponentInfo(MarketDataSnapshotSource.class, getClassifier());
     repo.registerComponent(info, source);
     if (isPublishRest()) {
-      repo.publishRest(info, new DataMarketDataSnapshotSourceResource(source));
+      repo.getRestComponents().publish(info, new DataMarketDataSnapshotSourceResource(source));
     }
   }
 
@@ -101,7 +101,7 @@ public class UserFinancialMarketDataSnapshotSourceComponentFactory extends Abstr
       ComponentInfo info = new ComponentInfo(MarketDataSnapshotSource.class, getUnderlyingClassifier());
       repo.registerComponent(info, source);
       if (isPublishRest()) {
-        repo.publishRest(info, new DataMarketDataSnapshotSourceResource(source));
+        repo.getRestComponents().publish(info, new DataMarketDataSnapshotSourceResource(source));
       }
     }
     return source;
@@ -116,7 +116,7 @@ public class UserFinancialMarketDataSnapshotSourceComponentFactory extends Abstr
       ComponentInfo info = new ComponentInfo(MarketDataSnapshotSource.class, getUserClassifier());
       repo.registerComponent(info, source);
       if (isPublishRest()) {
-        repo.publishRest(info, new DataMarketDataSnapshotSourceResource(source));
+        repo.getRestComponents().publish(info, new DataMarketDataSnapshotSourceResource(source));
       }
     }
     return source;

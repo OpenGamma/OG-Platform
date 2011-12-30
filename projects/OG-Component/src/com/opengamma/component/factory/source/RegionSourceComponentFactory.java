@@ -68,7 +68,7 @@ public class RegionSourceComponentFactory extends AbstractComponentFactory {
     repo.registerComponent(info, source);
     
     if (isPublishRest()) {
-      repo.publishRest(info, new DataRegionSourceResource(source));
+      repo.getRestComponents().publish(info, new DataRegionSourceResource(source));
     }
   }
 

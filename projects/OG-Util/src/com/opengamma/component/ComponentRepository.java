@@ -43,7 +43,7 @@ public class ComponentRepository implements Lifecycle {
   /**
    * The repository of RESTful published components.
    */
-  private final PublishedComponents _restPublished = new PublishedComponents();
+  private final RestComponents _restPublished = new RestComponents();
   /**
    * The objects with {@code Lifecycle}.
    */
@@ -149,11 +149,13 @@ public class ComponentRepository implements Lifecycle {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the published components.
+   * Gets the RESTful components.
+   * <p>
+   * To publish a component over REST, use the methods on this class.
    * 
    * @return the published components, not null
    */
-  public PublishedComponents getPublished() {
+  public RestComponents getRestComponents() {
     return _restPublished;
   }
 
@@ -248,47 +250,6 @@ public class ComponentRepository implements Lifecycle {
     } catch (RuntimeException ex) {
       _status = Status.FAILED;
       throw new RuntimeException("Failed during registering lifecycle: " + lifecycleObject, ex);
-    }
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Publishes the object as a RESTful API.
-   * <p>
-   * This method is used if the object is not to be managed by {@link DataComponentsResource}.
-   * 
-   * @param resource  the RESTful resource, not null
-   */
-  public void publishRest(Object resource) {
-    ArgumentChecker.notNull(resource, "resource");
-    checkStatus(Status.CREATING);
-    
-    try {
-      _restPublished.addAdditionalSingleton(resource);
-      
-    } catch (RuntimeException ex) {
-      _status = Status.FAILED;
-      throw new RuntimeException("Failed during publishing: " + resource, ex);
-    }
-  }
-
-  /**
-   * Publishes the component as a RESTful API.
-   * 
-   * @param info  the component info to register, not null
-   * @param resource  the RESTful resource, not null
-   */
-  public void publishRest(ComponentInfo info, Object resource) {
-    ArgumentChecker.notNull(info, "info");
-    ArgumentChecker.notNull(resource, "resource");
-    checkStatus(Status.CREATING);
-    
-    try {
-      _restPublished.addManagedComponent(info, resource);
-      
-    } catch (RuntimeException ex) {
-      _status = Status.FAILED;
-      throw new RuntimeException("Failed during publishing: " + info.toComponentKey(), ex);
     }
   }
 

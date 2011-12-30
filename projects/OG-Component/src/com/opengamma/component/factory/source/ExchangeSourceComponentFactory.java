@@ -68,7 +68,7 @@ public class ExchangeSourceComponentFactory extends AbstractComponentFactory {
     repo.registerComponent(info, source);
     
     if (isPublishRest()) {
-      repo.publishRest(info, new DataExchangeSourceResource(source));
+      repo.getRestComponents().publish(info, new DataExchangeSourceResource(source));
     }
   }
 

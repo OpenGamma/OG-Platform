@@ -120,7 +120,7 @@ public class DbSecurityMasterComponentFactory extends AbstractComponentFactory {
     
     // publish
     if (isPublishRest()) {
-      repo.publishRest(info, new DataSecuritiesResource(master));
+      repo.getRestComponents().publish(info, new DataSecuritiesResource(master));
     }
   }
 

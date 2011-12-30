@@ -73,7 +73,7 @@ public class PositionSourceComponentFactory extends AbstractComponentFactory {
     
     repo.registerComponent(info, source);
     if (isPublishRest()) {
-      repo.publishRest(info, new DataPositionSourceResource(source));
+      repo.getRestComponents().publish(info, new DataPositionSourceResource(source));
     }
   }
 

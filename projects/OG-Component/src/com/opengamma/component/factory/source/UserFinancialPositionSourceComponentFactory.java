@@ -103,7 +103,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
     ComponentInfo info = new ComponentInfo(PositionSource.class, getClassifier());
     repo.registerComponent(info, source);
     if (isPublishRest()) {
-      repo.publishRest(info, new DataPositionSourceResource(source));
+      repo.getRestComponents().publish(info, new DataPositionSourceResource(source));
     }
   }
 
@@ -116,7 +116,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
       ComponentInfo info = new ComponentInfo(PositionSource.class, getUnderlyingClassifier());
       repo.registerComponent(info, source);
       if (isPublishRest()) {
-        repo.publishRest(info, new DataPositionSourceResource(source));
+        repo.getRestComponents().publish(info, new DataPositionSourceResource(source));
       }
     }
     return source;
@@ -131,7 +131,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
       ComponentInfo info = new ComponentInfo(PositionSource.class, getUserClassifier());
       repo.registerComponent(info, source);
       if (isPublishRest()) {
-        repo.publishRest(info, new DataPositionSourceResource(source));
+        repo.getRestComponents().publish(info, new DataPositionSourceResource(source));
       }
     }
     return source;

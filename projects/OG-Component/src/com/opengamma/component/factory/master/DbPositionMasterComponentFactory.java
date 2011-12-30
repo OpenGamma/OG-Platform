@@ -97,7 +97,7 @@ public class DbPositionMasterComponentFactory extends AbstractComponentFactory {
     
     // publish
     if (isPublishRest()) {
-      repo.publishRest(info, new DataPositionsResource(master));
+      repo.getRestComponents().publish(info, new DataPositionsResource(master));
     }
   }
 

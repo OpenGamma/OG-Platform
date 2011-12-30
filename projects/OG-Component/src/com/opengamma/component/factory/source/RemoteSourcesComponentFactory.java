@@ -22,9 +22,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.component.ComponentInfo;
-import com.opengamma.component.ComponentInfosMsg;
 import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.DataComponentsResource;
+import com.opengamma.component.RemoteComponents;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.ChangeManager;
@@ -43,11 +42,8 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.RemoteRegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.RemoteSecuritySource;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ReflectionUtils;
 import com.opengamma.util.jms.JmsConnector;
-import com.opengamma.util.rest.FudgeRestClient;
-import com.sun.jersey.api.client.WebResource.Builder;
 
 /**
  * Component factory for accessing remote sources from the local machine.
@@ -75,6 +71,11 @@ public class RemoteSourcesComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private URI _baseUri;
   /**
+   * The flag determining whether the component should be published by REST.
+   */
+  @PropertyDefinition
+  private boolean _publishRest;
+  /**
    * The JMS connector.
    */
   @PropertyDefinition
@@ -83,12 +84,9 @@ public class RemoteSourcesComponentFactory extends AbstractComponentFactory {
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    FudgeRestClient client = FudgeRestClient.create();
-    URI uri = DataComponentsResource.uri(_baseUri);
-    Builder accessor = client.access(uri).type(FudgeRest.MEDIA_TYPE).accept(FudgeRest.MEDIA_TYPE);
-    ComponentInfosMsg infoMsg = accessor.get(ComponentInfosMsg.class);
-    for (ComponentInfo info : infoMsg.getInfos()) {
-      initComponent(repo, infoMsg, info);
+    RemoteComponents remote = new RemoteComponents(_baseUri);
+    for (ComponentInfo info : remote.getComponentInfos()) {
+      initComponent(repo, info);
     }
   }
 
@@ -96,11 +94,10 @@ public class RemoteSourcesComponentFactory extends AbstractComponentFactory {
    * Initialize the remote component.
    * 
    * @param repo  the local repository, not null
-   * @param infoMsg  the remote information message, not null
    * @param info  the remote information, not null
    */
-  protected void initComponent(ComponentRepository repo, ComponentInfosMsg infoMsg, ComponentInfo info) {
-    URI componentUri = DataComponentsResource.uri(_baseUri, info);
+  protected void initComponent(ComponentRepository repo, ComponentInfo info) {
+    URI componentUri = info.getUri();
     Class<?> remoteType = _remoteWrappers.get(info.getType());
     if (remoteType != null) {
       String jmsTopic = info.getAttributes().get(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC);
@@ -115,6 +112,9 @@ public class RemoteSourcesComponentFactory extends AbstractComponentFactory {
         target = ReflectionUtils.newInstance(con, componentUri);
       }
       repo.registerComponent(info, target);
+      if (isPublishRest()) {
+        repo.getRestComponents().republish(info);
+      }
     }
   }
 
@@ -141,6 +141,8 @@ public class RemoteSourcesComponentFactory extends AbstractComponentFactory {
     switch (propertyName.hashCode()) {
       case -332625701:  // baseUri
         return getBaseUri();
+      case -614707837:  // publishRest
+        return isPublishRest();
       case -1495762275:  // jmsConnector
         return getJmsConnector();
     }
@@ -152,6 +154,9 @@ public class RemoteSourcesComponentFactory extends AbstractComponentFactory {
     switch (propertyName.hashCode()) {
       case -332625701:  // baseUri
         setBaseUri((URI) newValue);
+        return;
+      case -614707837:  // publishRest
+        setPublishRest((Boolean) newValue);
         return;
       case -1495762275:  // jmsConnector
         setJmsConnector((JmsConnector) newValue);
@@ -174,6 +179,7 @@ public class RemoteSourcesComponentFactory extends AbstractComponentFactory {
     if (obj != null && obj.getClass() == this.getClass()) {
       RemoteSourcesComponentFactory other = (RemoteSourcesComponentFactory) obj;
       return JodaBeanUtils.equal(getBaseUri(), other.getBaseUri()) &&
+          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
           super.equals(obj);
     }
@@ -184,6 +190,7 @@ public class RemoteSourcesComponentFactory extends AbstractComponentFactory {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getBaseUri());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
     return hash ^ super.hashCode();
   }
@@ -212,6 +219,31 @@ public class RemoteSourcesComponentFactory extends AbstractComponentFactory {
    */
   public final Property<URI> baseUri() {
     return metaBean().baseUri().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the flag determining whether the component should be published by REST.
+   * @return the value of the property
+   */
+  public boolean isPublishRest() {
+    return _publishRest;
+  }
+
+  /**
+   * Sets the flag determining whether the component should be published by REST.
+   * @param publishRest  the new value of the property
+   */
+  public void setPublishRest(boolean publishRest) {
+    this._publishRest = publishRest;
+  }
+
+  /**
+   * Gets the the {@code publishRest} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> publishRest() {
+    return metaBean().publishRest().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -255,6 +287,11 @@ public class RemoteSourcesComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<URI> _baseUri = DirectMetaProperty.ofReadWrite(
         this, "baseUri", RemoteSourcesComponentFactory.class, URI.class);
     /**
+     * The meta-property for the {@code publishRest} property.
+     */
+    private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
+        this, "publishRest", RemoteSourcesComponentFactory.class, Boolean.TYPE);
+    /**
      * The meta-property for the {@code jmsConnector} property.
      */
     private final MetaProperty<JmsConnector> _jmsConnector = DirectMetaProperty.ofReadWrite(
@@ -265,6 +302,7 @@ public class RemoteSourcesComponentFactory extends AbstractComponentFactory {
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "baseUri",
+        "publishRest",
         "jmsConnector");
 
     /**
@@ -278,6 +316,8 @@ public class RemoteSourcesComponentFactory extends AbstractComponentFactory {
       switch (propertyName.hashCode()) {
         case -332625701:  // baseUri
           return _baseUri;
+        case -614707837:  // publishRest
+          return _publishRest;
         case -1495762275:  // jmsConnector
           return _jmsConnector;
       }
@@ -306,6 +346,14 @@ public class RemoteSourcesComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<URI> baseUri() {
       return _baseUri;
+    }
+
+    /**
+     * The meta-property for the {@code publishRest} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> publishRest() {
+      return _publishRest;
     }
 
     /**

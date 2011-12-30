@@ -5,6 +5,7 @@
  */
 package com.opengamma.component;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,6 +40,12 @@ public class ComponentInfo extends DirectBean {
    */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
+  /**
+   * The URI that the component is available at.
+   * This may be absolute (typically another server) or relative (effectively relative to this server).
+   */
+  @PropertyDefinition
+  private URI _uri;
   /**
    * The extensible set of attributes that help describe the component.
    */
@@ -124,6 +131,8 @@ public class ComponentInfo extends DirectBean {
         return getType();
       case -281470431:  // classifier
         return getClassifier();
+      case 116076:  // uri
+        return getUri();
       case 405645655:  // attributes
         return getAttributes();
     }
@@ -139,6 +148,9 @@ public class ComponentInfo extends DirectBean {
         return;
       case -281470431:  // classifier
         setClassifier((String) newValue);
+        return;
+      case 116076:  // uri
+        setUri((URI) newValue);
         return;
       case 405645655:  // attributes
         setAttributes((Map<String, String>) newValue);
@@ -164,6 +176,7 @@ public class ComponentInfo extends DirectBean {
       ComponentInfo other = (ComponentInfo) obj;
       return JodaBeanUtils.equal(getType(), other.getType()) &&
           JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getUri(), other.getUri()) &&
           JodaBeanUtils.equal(getAttributes(), other.getAttributes());
     }
     return false;
@@ -174,6 +187,7 @@ public class ComponentInfo extends DirectBean {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUri());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
     return hash;
   }
@@ -235,6 +249,34 @@ public class ComponentInfo extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the URI that the component is available at.
+   * This may be absolute (typically another server) or relative (effectively relative to this server).
+   * @return the value of the property
+   */
+  public URI getUri() {
+    return _uri;
+  }
+
+  /**
+   * Sets the URI that the component is available at.
+   * This may be absolute (typically another server) or relative (effectively relative to this server).
+   * @param uri  the new value of the property
+   */
+  public void setUri(URI uri) {
+    this._uri = uri;
+  }
+
+  /**
+   * Gets the the {@code uri} property.
+   * This may be absolute (typically another server) or relative (effectively relative to this server).
+   * @return the property, not null
+   */
+  public final Property<URI> uri() {
+    return metaBean().uri().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the extensible set of attributes that help describe the component.
    * @return the value of the property, not null
    */
@@ -281,6 +323,11 @@ public class ComponentInfo extends DirectBean {
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
         this, "classifier", ComponentInfo.class, String.class);
     /**
+     * The meta-property for the {@code uri} property.
+     */
+    private final MetaProperty<URI> _uri = DirectMetaProperty.ofReadWrite(
+        this, "uri", ComponentInfo.class, URI.class);
+    /**
      * The meta-property for the {@code attributes} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -293,6 +340,7 @@ public class ComponentInfo extends DirectBean {
         this, null,
         "type",
         "classifier",
+        "uri",
         "attributes");
 
     /**
@@ -308,6 +356,8 @@ public class ComponentInfo extends DirectBean {
           return _type;
         case -281470431:  // classifier
           return _classifier;
+        case 116076:  // uri
+          return _uri;
         case 405645655:  // attributes
           return _attributes;
       }
@@ -344,6 +394,14 @@ public class ComponentInfo extends DirectBean {
      */
     public final MetaProperty<String> classifier() {
       return _classifier;
+    }
+
+    /**
+     * The meta-property for the {@code uri} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<URI> uri() {
+      return _uri;
     }
 
     /**

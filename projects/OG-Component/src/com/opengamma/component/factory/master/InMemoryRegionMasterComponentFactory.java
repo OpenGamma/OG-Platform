@@ -87,7 +87,7 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
     
     // publish
     if (isPublishRest()) {
-      repo.publishRest(info, new DataRegionsResource(master));
+      repo.getRestComponents().publish(info, new DataRegionsResource(master));
     }
   }
 

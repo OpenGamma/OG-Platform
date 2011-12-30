@@ -58,7 +58,7 @@ public class MarketDataSnapshotSourceComponentFactory extends AbstractComponentF
     
     repo.registerComponent(info, source);
     if (isPublishRest()) {
-      repo.publishRest(info, new DataMarketDataSnapshotSourceResource(source));
+      repo.getRestComponents().publish(info, new DataMarketDataSnapshotSourceResource(source));
     }
   }
 

@@ -93,7 +93,7 @@ public class UserFinancialSecuritySourceComponentFactory extends AbstractCompone
     ComponentInfo info = new ComponentInfo(SecuritySource.class, getClassifier());
     repo.registerComponent(info, source);
     if (isPublishRest()) {
-      repo.publishRest(info, new DataFinancialSecuritySourceResource(source));
+      repo.getRestComponents().publish(info, new DataFinancialSecuritySourceResource(source));
     }
   }
 
@@ -106,7 +106,7 @@ public class UserFinancialSecuritySourceComponentFactory extends AbstractCompone
       ComponentInfo info = new ComponentInfo(SecuritySource.class, getUnderlyingClassifier());
       repo.registerComponent(info, source);
       if (isPublishRest()) {
-        repo.publishRest(info, new DataFinancialSecuritySourceResource(source));
+        repo.getRestComponents().publish(info, new DataFinancialSecuritySourceResource(source));
       }
     }
     return source;
@@ -121,7 +121,7 @@ public class UserFinancialSecuritySourceComponentFactory extends AbstractCompone
       ComponentInfo info = new ComponentInfo(SecuritySource.class, getUserClassifier());
       repo.registerComponent(info, source);
       if (isPublishRest()) {
-        repo.publishRest(info, new DataFinancialSecuritySourceResource(source));
+        repo.getRestComponents().publish(info, new DataFinancialSecuritySourceResource(source));
       }
     }
     return source;

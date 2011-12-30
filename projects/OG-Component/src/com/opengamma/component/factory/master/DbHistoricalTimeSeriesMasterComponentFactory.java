@@ -97,7 +97,7 @@ public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractCompon
     
     // publish
     if (isPublishRest()) {
-      repo.publishRest(info, new DataHistoricalTimeSeriesMasterResource(master));
+      repo.getRestComponents().publish(info, new DataHistoricalTimeSeriesMasterResource(master));
     }
   }
 

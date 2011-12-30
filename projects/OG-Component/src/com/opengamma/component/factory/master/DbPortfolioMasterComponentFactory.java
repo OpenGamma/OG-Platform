@@ -97,7 +97,7 @@ public class DbPortfolioMasterComponentFactory extends AbstractComponentFactory 
     
     // publish
     if (isPublishRest()) {
-      repo.publishRest(info, new DataPortfoliosResource(master));
+      repo.getRestComponents().publish(info, new DataPortfoliosResource(master));
     }
   }
 

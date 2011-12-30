@@ -60,7 +60,7 @@ public class HolidaySourceComponentFactory extends AbstractComponentFactory {
     repo.registerComponent(info, source);
     
     if (isPublishRest()) {
-      repo.publishRest(info, new DataHolidaySourceResource(source));
+      repo.getRestComponents().publish(info, new DataHolidaySourceResource(source));
     }
   }
 

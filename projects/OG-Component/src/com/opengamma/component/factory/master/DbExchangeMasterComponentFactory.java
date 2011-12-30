@@ -97,7 +97,7 @@ public class DbExchangeMasterComponentFactory extends AbstractComponentFactory {
     
     // publish
     if (isPublishRest()) {
-      repo.publishRest(info, new DataExchangesResource(master));
+      repo.getRestComponents().publish(info, new DataExchangesResource(master));
     }
   }
 
