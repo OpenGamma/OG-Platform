@@ -19,6 +19,7 @@ import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
+import com.opengamma.language.error.InvokeInvalidArgumentException;
 import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
@@ -29,7 +30,7 @@ import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchSortOrder;
 
 /**
- * Returns the identifier of a view definition with a given name.
+ * Returns the identifier of a portfolio with a given name.
  */
 public class PortfolioIdFunction extends AbstractFunctionInvoker implements PublishedFunction {
 
@@ -84,7 +85,7 @@ public class PortfolioIdFunction extends AbstractFunctionInvoker implements Publ
     if (resultIds.size() > 0) {
       return resultIds.get(0);
     } else {
-      return null;
+      throw new InvokeInvalidArgumentException("No matching portfolio found");
     }    
   }
 

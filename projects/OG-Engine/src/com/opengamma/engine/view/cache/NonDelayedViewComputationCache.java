@@ -19,6 +19,8 @@ public class NonDelayedViewComputationCache extends DelayedViewComputationCache 
     super(cache, filter);
   }
 
+  // REVIEW 2011-12-13 andrew -- DirectWriteViewComputationCache would be a better name
+
   @Override
   public void putValues(Collection<ComputedValue> values, DeferredInvocationStatistics statistics) {
     super.putValues(values);
@@ -29,6 +31,6 @@ public class NonDelayedViewComputationCache extends DelayedViewComputationCache 
 
   @Override
   public void waitForPendingWrites() {
-    //No-op
+    // No-op - all writes already completed by definition
   }
 }

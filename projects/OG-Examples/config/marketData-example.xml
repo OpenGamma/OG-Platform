@@ -18,7 +18,7 @@
   </bean>
   
   <!-- User market data -->
-  <bean id="userMarketDataProviderFactory" class="com.opengamma.engine.marketdata.UserMarketDataProviderFactoryFactoryBean">
+  <bean id="userMarketDataProviderFactory" class="com.opengamma.engine.marketdata.snapshot.UserMarketDataProviderFactoryFactoryBean">
     <property name="snapshotSource" ref="combinedSnapshotSource" />
   </bean>
 

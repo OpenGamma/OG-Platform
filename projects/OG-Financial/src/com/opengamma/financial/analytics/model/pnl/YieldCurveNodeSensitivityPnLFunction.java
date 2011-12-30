@@ -84,7 +84,7 @@ public class YieldCurveNodeSensitivityPnLFunction extends AbstractFunction.NonCo
     final Object forwardCurveSpecObject = inputs.getValue(forwardCurveSpecRequirement);
     if (forwardCurveSpecObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + forwardCurveSpecRequirement);
-    }    
+    }
     final ValueProperties.Builder fundingCurveSpecProperties = ValueProperties.builder().with(ValuePropertyNames.CURVE, fundingCurveName);
     final ValueRequirement fundingCurveSpecRequirement = 
       new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), fundingCurveSpecProperties.get());    

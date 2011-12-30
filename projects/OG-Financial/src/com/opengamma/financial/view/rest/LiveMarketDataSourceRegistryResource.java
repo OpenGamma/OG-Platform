@@ -9,7 +9,7 @@ import java.util.Collection;
 
 import javax.ws.rs.GET;
 
-import com.opengamma.engine.marketdata.LiveMarketDataSourceRegistry;
+import com.opengamma.engine.marketdata.live.LiveMarketDataSourceRegistry;
 
 /**
  * RESTful resource for {@link LiveMarketDataSourceRegistry}

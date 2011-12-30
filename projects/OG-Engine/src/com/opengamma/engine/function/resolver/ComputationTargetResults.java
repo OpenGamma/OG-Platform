@@ -169,7 +169,7 @@ public class ComputationTargetResults {
           result.add(spec);
           continue resultsLoop;
         }
-        final ValueSpecification resolvedSpec = resolvePartialSpecification(spec, target, function, new HashSet<ValueRequirement>());
+        final ValueSpecification resolvedSpec = resolvePartialSpecification(spec, target, function, new HashSet<ValueRequirement>(), ValueProperties.none());
         if (resolvedSpec != null) {
           result.add(resolvedSpec);
         }
@@ -189,6 +189,7 @@ public class ComputationTargetResults {
    */
   protected ValueSpecification resolvePartialRequirement(final ValueRequirement requirement, final Set<ValueRequirement> visited) {
     if (!visited.add(requirement)) {
+      s_logger.debug("Recursive request for {}", requirement);
       return null;
     }
     final ComputationTarget target = getTargetResolver().resolve(requirement.getTargetSpecification());
@@ -197,6 +198,7 @@ public class ComputationTargetResults {
       visited.remove(requirement);
       return null;
     }
+    s_logger.debug("Partially resolving {}", requirement);
     for (ResolutionRule rule : getRules()) {
       final CompiledFunctionDefinition function = rule.getFunction().getFunction();
       if (function.getTargetType() != target.getType()) {
@@ -218,7 +220,7 @@ public class ComputationTargetResults {
         visited.remove(requirement);
         return result;
       }
-      final ValueSpecification resolvedResult = resolvePartialSpecification(result, target, function, visited);
+      final ValueSpecification resolvedResult = resolvePartialSpecification(result, target, function, visited, requirement.getConstraints());
       if (resolvedResult != null) {
         s_logger.debug("Partial resolution of {} to {}", requirement, resolvedResult);
         visited.remove(requirement);
@@ -238,13 +240,14 @@ public class ComputationTargetResults {
    * @param target computation target the function is to operate on, not null
    * @param function function to apply, not null
    * @param visited requirements visited so far, to detect recursion, not null
+   * @param constraints requirement constraints, not null
    * @return the partially resolved specification, or null if resolution is not possible
    */
   protected ValueSpecification resolvePartialSpecification(final ValueSpecification specification, final ComputationTarget target, final CompiledFunctionDefinition function,
-      final Set<ValueRequirement> visited) {
+      final Set<ValueRequirement> visited, final ValueProperties constraints) {
     final Set<ValueRequirement> reqs;
     try {
-      reqs = function.getRequirements(getContext(), target, new ValueRequirement(specification.getValueName(), specification.getTargetSpecification(), ValueProperties.none()));
+      reqs = function.getRequirements(getContext(), target, new ValueRequirement(specification.getValueName(), specification.getTargetSpecification(), constraints));
       if (reqs == null) {
         return null;
       }
