@@ -29,7 +29,7 @@ public class CurrencyPairsTest {
       }
 
       @Override
-      public CurrencyPair getCurrencyPair(Currency currency1, Currency currency2, String name) {
+      public CurrencyPair getCurrencyPair(String name, Currency currency1, Currency currency2) {
         return _pairs.getCurrencyPair(currency1, currency2);
       }
     };

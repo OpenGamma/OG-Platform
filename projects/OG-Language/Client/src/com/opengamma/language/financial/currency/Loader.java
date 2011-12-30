@@ -60,7 +60,7 @@ public class Loader extends ContextInitializationBean {
     globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
         CurrencyPairFunction.INSTANCE,
         FxRateFunction.INSTANCE));
-    globalContext.setCurrencyPairsSource(new RemoteCurrencyPairsSource(getConfiguration().getFudgeContext(), restTarget));
+    globalContext.setCurrencyPairsSource(new RemoteCurrencyPairsSource(restTarget.getURI()));
   }
 
 }

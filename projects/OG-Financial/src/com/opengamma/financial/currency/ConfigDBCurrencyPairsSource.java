@@ -43,7 +43,7 @@ public class ConfigDBCurrencyPairsSource implements CurrencyPairsSource {
   }
 
   @Override
-  public CurrencyPair getCurrencyPair(Currency currency1, Currency currency2, String name) {
+  public CurrencyPair getCurrencyPair(String name, Currency currency1, Currency currency2) {
     ArgumentChecker.notNull(currency1, "currency1");
     ArgumentChecker.notNull(currency2, "currency2");
     CurrencyPairs currencyPairs = getCurrencyPairs(name);
