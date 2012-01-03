@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="EclipseModuleManager">
+    <conelement value="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?ivyXmlPath=ivy.xml&amp;confs=*" />
+    <src_description expected_position="1">
+      <src_folder value="file://$MODULE_DIR$/src" expected_position="1" />
+      <src_folder value="file://$MODULE_DIR$/tests/unit" expected_position="2" />
+    </src_description>
+  </component>
+  <component name="FacetManager">
+    <facet type="IvyIDEA" name="IvyIDEA">
+      <configuration ivyFile="$MODULE_DIR$/ivy.xml" useProjectSettings="true" useCustomIvySettings="true" ivySettingsFile="" onlyResolveSelectedConfigs="false">
+        <propertiesSettings>
+          <propertiesFiles includeProjectLevelPropertiesFiles="true" />
+        </propertiesSettings>
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/build/classes" />
+    <output-test url="file://$MODULE_DIR$/tests/classes" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tests/unit" isTestSource="true" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="OG-Util" exported="" />
+    <orderEntry type="module-library" exported="">
+      <library name="IvyIDEA-OG-Maths-default">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.jfree/jfreechart/jars/jfreechart-1.0.13.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.jfree/jcommon/jars/jcommon-xml-1.0.16.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.jfree/jcommon/jars/jcommon-1.0.16.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/cern/colt/jars/colt-1.2.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/edu.oswego.cs/concurrent/jars/concurrent-1.3.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/cern/parallelcolt/jars/parallelcolt-0.9.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/edu.emory.mathcs/jtransforms/jars/jtransforms-2.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/edu.emory.mathcs/csparsej/jars/csparsej-1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/us.fed.fs/optimization/jars/optimization-0.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.netlib/jarpack/jars/jarpack-0.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.netlib/jplasma/jars/jplasma-1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.netlib/netlib-java/jars/netlib-java-0.9.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/latexlet/latexlet/jars/LaTeXlet-1.11.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-math/jars/commons-math-2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/it.dexy/json-doclet/jars/json-doclet-0.3.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.json/simple/jars/json-simple-1.1.jar!/" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-math/javadocs/commons-math-javadoc-2.1.jar!/" />
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.jfree/jfreechart/sources/jfreechart-src-1.0.13.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.jfree/jcommon/sources/jcommon-src-1.0.16.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/cern/colt/sources/colt-src-1.2.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/cern/parallelcolt/sources/parallelcolt-src-0.9.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/edu.emory.mathcs/jtransforms/sources/jtransforms-src-2.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/latexlet/latexlet/sources/LaTeXlet-src-1.11.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-math/sources/commons-math-src-2.1.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+  </component>
+</module>
+
