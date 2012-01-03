@@ -132,7 +132,6 @@ public final class CalculationJobItem {
     return Collections.unmodifiableSet(_desiredValues);
   }
 
-  //TODO this is fake delete it !!!!
   public Set<ValueSpecification> getOutputs() {
     Set<ValueSpecification> outputs = new HashSet<ValueSpecification>();
     for (ValueRequirement requirement : getDesiredValues()) {

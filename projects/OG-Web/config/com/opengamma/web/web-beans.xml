@@ -121,12 +121,6 @@
     <property name="underlying" ref="sharedCurrencyPairsSource" />
   </bean>
   
-  <!-- Ad hoc batches -->
-  <bean id="adHocBatchRestBean" class="com.opengamma.masterdb.batch.AdHocBatchDbManagerService">
-    <constructor-arg ref="dbBatchMaster" />
-    <constructor-arg ref="fudgeContext" />
-  </bean>
-  
   <!-- Curves service -->
   <bean id="testInterpolatedYieldCurveDefinitions" class="com.opengamma.financial.analytics.ircurve.InMemoryInterpolatedYieldCurveDefinitionMaster">
     <property name="uniqueIdScheme" value="TestCurves" />
@@ -463,11 +457,6 @@
   <bean id="webTimeSeriesRestBean" class="com.opengamma.web.historicaltimeseries.WebAllHistoricalTimeSeriesResource" scope="request">
     <constructor-arg ref="dbHtsMaster" />
     <constructor-arg ref="htsLoader"/>
-  </bean>
-  
-  <!-- Batch RESTful service -->
-  <bean id="webBatchesRestBean" class="com.opengamma.web.batch.WebBatchesResource" scope="request">
-    <constructor-arg ref="dbBatchMaster" />
   </bean>
   
   <!-- Bundles RESTful service -->

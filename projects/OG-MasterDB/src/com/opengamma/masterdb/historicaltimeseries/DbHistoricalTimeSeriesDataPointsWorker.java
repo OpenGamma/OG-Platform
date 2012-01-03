@@ -19,6 +19,7 @@ import javax.time.Duration;
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.util.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;

@@ -33,6 +33,8 @@
     <property name="name" value="FinancialTestsHSQL"/>
     <property name="dataSource" ref="hsqldbDataSource"/>
     <property name="dialectName" value="com.opengamma.util.db.HSQLDbDialect"/>
+    <property name="transactionIsolationLevelName" value="ISOLATION_READ_COMMITTED" />
+        <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
   </bean>
 
   <bean id="hsqldbDbConfigMaster" class="com.opengamma.masterdb.config.DbConfigMaster">

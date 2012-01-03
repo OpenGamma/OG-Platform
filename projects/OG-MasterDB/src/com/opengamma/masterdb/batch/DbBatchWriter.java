@@ -5,6 +5,8 @@
  */
 package com.opengamma.masterdb.batch;
 
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
@@ -15,6 +17,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationResultModel;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calcnode.InvocationResult;
@@ -29,6 +32,7 @@ import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.functional.Function1;
 import com.opengamma.util.tuple.Pair;
+import org.apache.commons.io.output.StringBuilderWriter;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -45,18 +49,19 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
 import javax.time.Instant;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newConcurrentMap;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.opengamma.util.db.DbUtil.eqOrIsNull;
 import static com.opengamma.util.functional.Functional.any;
+import static com.opengamma.util.functional.Functional.map;
 import static com.opengamma.util.functional.Functional.newArray;
 
 /**
@@ -83,6 +88,7 @@ public class DbBatchWriter extends AbstractDbMaster {
   final public Map<ValueSpecification, Long> _riskValueSpecifications = newConcurrentMap();
   final public Map<ComputationTargetSpecification, Long> _computationTargets = newConcurrentMap();
 
+  final public Map<Long, Batch> _batchByRunId = newConcurrentMap();
   final public Map<Long, Map<Pair<Long, Long>, StatusEntry>> _statusCacheByRunId = newConcurrentMap();
   final public Map<Long, Map<ComputeFailureKey, ComputeFailure>> _computeFailureCacheByRunId = newConcurrentMap();
 
@@ -393,28 +399,46 @@ public class DbBatchWriter extends AbstractDbMaster {
   }
 
   protected void populateRiskValueNames(Batch batch) {
-    Collection<Pair<String, Map<String, Object>>> data = newLinkedList();
+    Map<Map<String, Object>, Collection<String>> data = newHashMapWithDefaultCollection();
     for (final String configName : batch.getCycleInfo().getAllCalculationConfigurationNames()) {
       Map<ValueSpecification, Set<ValueRequirement>> outputs = batch.getCycleInfo().getTerminalOutputsByConfigName(configName);
       for (ValueSpecification specification : outputs.keySet()) {
         Map<String, Object> attribs = newHashMap();
         attribs.put("name", specification.getValueName());
-        data.add(Pair.of(specification.getValueName(), attribs));
+        data.get(attribs).add(specification.getValueName());
       }
     }
     _riskValueNames.putAll(populate(data, getExtSqlBundle().getSql("SelectRiskValueName"), getExtSqlBundle().getSql("InsertRiskValueName"), "rsk_batch_seq"));
   }
 
+  /**
+   * Creates a, empty {@code ConcurrentMap} instance. With default ArrayList value 
+   *
+   * @return a new, empty {@code ConcurrentMap}
+   */
+  private static <K, V> Map<K, Collection<V>> newHashMapWithDefaultCollection() {
+    return (new MapMaker()).makeComputingMap(new Function<K, Collection<V>>() {
+      @Override
+      public Collection<V> apply(K input) {
+        return newArrayList();
+      }
+    });
+  }
+
 
   protected void populateRiskValueRequirements(Batch batch) {
-    Collection<Pair<ValueRequirement, Map<String, Object>>> data = newLinkedList();
+    populateRiskValueSpecifications(batch);
+    
+    Map<Map<String, Object>, Collection<ValueRequirement>> data = newHashMapWithDefaultCollection();
     for (final String configName : batch.getCycleInfo().getAllCalculationConfigurationNames()) {
       Map<ValueSpecification, Set<ValueRequirement>> outputs = batch.getCycleInfo().getTerminalOutputsByConfigName(configName);
       for (ValueSpecification specification : outputs.keySet()) {
+        Long specificationId = _riskValueSpecifications.get(specification);
         for (ValueRequirement requirement : outputs.get(specification)) {
           Map<String, Object> attribs = newHashMap();
           attribs.put("synthetic_form", RiskValueSpecification.synthesize(requirement.getConstraints()));
-          data.add(Pair.of(requirement, attribs));
+          attribs.put("specification_id", specificationId);
+          data.get(attribs).add(requirement);
         }
       }
     }
@@ -422,12 +446,12 @@ public class DbBatchWriter extends AbstractDbMaster {
   }
 
   protected void populateRiskValueSpecifications(Batch batch) {
-    Collection<Pair<ValueSpecification, Map<String, Object>>> data = newLinkedList();
+    Map<Map<String, Object>, Collection<ValueSpecification>> data = newHashMapWithDefaultCollection();
     for (final String configName : batch.getCycleInfo().getAllCalculationConfigurationNames()) {
       for (ValueSpecification specification : batch.getCycleInfo().getTerminalOutputsByConfigName(configName).keySet()) {
         Map<String, Object> attribs = newHashMap();
         attribs.put("synthetic_form", RiskValueSpecification.synthesize(specification.getProperties()));
-        data.add(Pair.of(specification, attribs));
+        data.get(attribs).add(specification);
       }
     }
     _riskValueSpecifications.putAll(populate(data, getExtSqlBundle().getSql("SelectRiskValueSpecification"), getExtSqlBundle().getSql("InsertRiskValueSpecification"), "rsk_batch_seq"));
@@ -437,7 +461,7 @@ public class DbBatchWriter extends AbstractDbMaster {
   protected void populateComputationTargets(Batch batch) {
     Map<ComputationTargetType, Long> targetsTypes = populateComputationTargetsTypes(batch);
 
-    Collection<Pair<ComputationTargetSpecification, Map<String, Object>>> computationTargetsData = newLinkedList();
+    Map<Map<String, Object>, Collection<ComputationTargetSpecification>> computationTargetsData = newHashMapWithDefaultCollection();
     for (final String configName : batch.getCycleInfo().getAllCalculationConfigurationNames()) {
       for (com.opengamma.engine.ComputationTarget computationTarget : batch.getCycleInfo().getComputationTargetsByConfigName(configName)) {
         Map<String, Object> attribs = newHashMap();
@@ -446,63 +470,65 @@ public class DbBatchWriter extends AbstractDbMaster {
         attribs.put("id_value", computationTarget.getUniqueId().getValue());
         attribs.put("id_version", computationTarget.getUniqueId().getVersion());
         attribs.put("type_id", targetsTypes.get(computationTarget.getType()));
-        computationTargetsData.add(Pair.of(computationTarget.toSpecification(), attribs));
+        computationTargetsData.get(attribs).add(computationTarget.toSpecification());
       }
     }
     _computationTargets.putAll(populate(computationTargetsData, getExtSqlBundle().getSql("SelectComputationTarget"), getExtSqlBundle().getSql("InsertComputationTarget"), "rsk_batch_seq"));
   }
 
   protected Map<ComputationTargetType, Long> populateComputationTargetsTypes(Batch batch) {
-    Collection<Pair<ComputationTargetType, Map<String, Object>>> data = newLinkedList();
+    Map<Map<String, Object>, Collection<ComputationTargetType>> data = newHashMapWithDefaultCollection();
     for (final String configName : batch.getCycleInfo().getAllCalculationConfigurationNames()) {
       for (com.opengamma.engine.ComputationTarget computationTarget : batch.getCycleInfo().getComputationTargetsByConfigName(configName)) {
         Map<String, Object> attribs = newHashMap();
         attribs.put("name", computationTarget.getType().name());
-        data.add(Pair.of(computationTarget.getType(), attribs));
+        data.get(attribs).add(computationTarget.getType());
       }
     }
     return populate(data, getExtSqlBundle().getSql("SelectComputationTargetType"), getExtSqlBundle().getSql("InsertComputationTargetType"), "rsk_batch_seq");
   }
 
   protected void populateCalculationConfigurations(Batch batch) {
-    Collection<Pair<String, Map<String, Object>>> data = newLinkedList();
+    Map<Map<String, Object>, Collection<String>> data = newHashMapWithDefaultCollection();
     for (final String configName : batch.getCycleInfo().getAllCalculationConfigurationNames()) {
       Map<String, Object> map = newHashMap();
       map.put("name", configName);
-      data.add(Pair.of(configName, map));
+      map.put("run_id", extractOid(batch.getUniqueId()));
+      data.get(map).add(configName);
     }
     _calculationConfigurations.putAll(populate(data, getExtSqlBundle().getSql("SelectConfigName"), getExtSqlBundle().getSql("InsertConfigName"), "rsk_batch_seq"));
   }
 
-  protected <T> Map<T, Long> populate(Collection<Pair<T, Map<String, Object>>> data, String selectSql, String insertSql, String pkSequenceName) {
+  protected <T> Map<T, Long> populate(Map<Map<String, Object>, Collection<T>> data, String selectSql, String insertSql, String pkSequenceName) {
     final List<DbMapSqlParameterSource> insertArgsList = new ArrayList<DbMapSqlParameterSource>();
 
     Map<T, Long> cache = newHashMap();
-    for (Pair<T, Map<String, Object>> objectWithParams : data) {
-      T object = objectWithParams.getFirst();
-      Map<String, Object> params = objectWithParams.getSecond();
+    for (Map.Entry<Map<String, Object>, Collection<T>> attribsToObjects : data.entrySet()) {
+      Map<String, Object> attribs = attribsToObjects.getKey();
       final DbMapSqlParameterSource selectArgs = new DbMapSqlParameterSource();
-      for (String paramName : params.keySet()) {
-        selectArgs.addValue(paramName, params.get(paramName));
+      for (String attribName : attribs.keySet()) {
+        selectArgs.addValue(attribName, attribs.get(attribName));
       }
       List<Map<String, Object>> results = getJdbcTemplate().queryForList(selectSql, selectArgs);
       if (results.isEmpty()) {
         // select avoids creating unecessary id, but id may still not be used
         final long id = nextId(pkSequenceName);
         final DbMapSqlParameterSource insertArgs = new DbMapSqlParameterSource().addValue("id", id);
-        for (String paramName : params.keySet()) {
-          insertArgs.addValue(paramName, params.get(paramName));
+        for (String attribName : attribs.keySet()) {
+          insertArgs.addValue(attribName, attribs.get(attribName));
         }
         insertArgsList.add(insertArgs);
         //
-        cache.put(object, id);
+        for (T obj : attribsToObjects.getValue()) {
+          cache.put(obj, id);
+        }
       } else {
-        for (Map<String, Object> result : results) {
-          cache.put(object, (Long) result.get("ID"));
+        Map<String, Object> result = results.get(0);
+        for (T obj : attribsToObjects.getValue()) {
+          cache.put(obj, (Long) result.get("ID"));
         }
       }
     }
-
     getJdbcTemplate().batchUpdate(insertSql, insertArgsList.toArray(new DbMapSqlParameterSource[insertArgsList.size()]));
 
     return cache;
@@ -559,6 +585,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     //
     _statusCacheByRunId.remove(run.getId());
     _computeFailureCacheByRunId.remove(run.getId());
+    _batchByRunId.remove(run.getId());
     //
     Instant now = now();
     run.setEndInstant(now);
@@ -584,6 +611,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     deleteRiskValuesInTransaction(run);
     deleteRiskFailuresInTransaction(run);
     getHibernateTemplate().deleteAll(run.getProperties());
+    getHibernateTemplate().deleteAll(run.getCalculationConfigurations());
     getHibernateTemplate().delete(run);
     getHibernateTemplate().flush();
   }
@@ -682,6 +710,8 @@ public class DbBatchWriter extends AbstractDbMaster {
     getHibernateTemplate().saveOrUpdateAll(riskRun.getProperties());
     getHibernateTemplate().flush();
 
+    batch.setUniqueId(UniqueId.of(IDENTIFIER_SCHEME_DEFAULT, Long.toString(riskRun.getId())));
+
     return riskRun;
   }
 
@@ -740,13 +770,14 @@ public class DbBatchWriter extends AbstractDbMaster {
     populateCalculationConfigurations(batch);
     populateRiskValueNames(batch);
     populateRiskValueRequirements(batch);
-    populateRiskValueSpecifications(batch);
     populateComputationTargets(batch);
 
     _statusCacheByRunId.put(run.getId(), new ConcurrentHashMap<Pair<Long, Long>, StatusEntry>());
     _computeFailureCacheByRunId.put(run.getId(), new ConcurrentHashMap<ComputeFailureKey, ComputeFailure>());
 
     batch.setUniqueId(UniqueId.of(IDENTIFIER_SCHEME_DEFAULT, Long.toString(run.getId())));
+    batch.setSnapshotMode(snapshotMode);
+    _batchByRunId.put(run.getId(), batch);
   }
 
   public LiveDataSnapshot createOrGetLiveDataSnapshotInTransaction(final UniqueId marketDataSnapshotUniqueId) {
@@ -804,11 +835,25 @@ public class DbBatchWriter extends AbstractDbMaster {
   // -------------------------------------------------------------------------------------------------------------------
 
 
-  public void addJobResultsInTransaction(UniqueId runUniqueId, ViewResultModel resultModel) {
+  public void addJobResultsInTransaction(UniqueId runUniqueId, ViewComputationResultModel resultModel) {          
+    
 
     ArgumentChecker.notNull(runUniqueId, "runUniqueId");
     ArgumentChecker.notNull(resultModel, "resultModel");
     final Long riskRunId = extractOid(runUniqueId);
+
+    Batch batch = _batchByRunId.get(riskRunId);
+    if (batch.getSnapshotMode().equals(SnapshotMode.WRITE_THROUGH)) {
+      Set<ComputedValue> marketData = resultModel.getAllMarketData();
+      addValuesToSnapshotInTransaction(batch.getCycleInfo().getMarketDataSnapshotUniqueId(),
+        map(new HashSet<LiveDataValue>(), marketData, new Function1<ComputedValue, LiveDataValue>() {
+          @Override
+          public LiveDataValue execute(ComputedValue computedValue) {
+            return new LiveDataValue(computedValue, computedValue.getSpecification().getValueName());
+          }
+        })
+      );
+    }
 
     Map<ComputeFailureKey, ComputeFailure> computeFailureCache = _computeFailureCacheByRunId.get(riskRunId);
     Map<Pair<Long, Long>, StatusEntry> statusCache = _statusCacheByRunId.get(riskRunId);
@@ -850,6 +895,12 @@ public class DbBatchWriter extends AbstractDbMaster {
                 _resultConverterCache.getConverter(value);
               } catch (IllegalArgumentException e) {
                 s_logger.error("Cannot insert value of type " + value.getClass() + " for " + cv.getSpecification(), e);
+                cv.setInvocationResult(InvocationResult.FUNCTION_THREW_EXCEPTION);
+                cv.setExceptionClass("IllegalArgumentException");
+                cv.setExceptionMsg(e.getMessage());
+                StringBuilderWriter sbw = new StringBuilderWriter();
+                e.printStackTrace(new PrintWriter(sbw));
+                cv.setStackTrace(sbw.toString());
                 return true;
               }
               return false;
@@ -895,9 +946,6 @@ public class DbBatchWriter extends AbstractDbMaster {
             for (Map.Entry<String, Double> riskValueEntry : valuesAsDoubles.entrySet()) {
               ValueSpecification specification = computedValue.getSpecification();
 
-              ValueRequirement requirement = computedValue.getRequirement();
-
-              Long valueRequirementId = _riskValueRequirements.get(requirement);
               Long valueSpecificationId = _riskValueSpecifications.get(specification);
               Long valueNameId = _riskValueNames.get(specification.getValueName());
               Long functionUniqueId = getFunctionUniqueIdInTransaction(specification.getFunctionUniqueId()).getId();
@@ -905,7 +953,6 @@ public class DbBatchWriter extends AbstractDbMaster {
 
               ArgumentChecker.notNull(calcConfId, "calcConfId");
               ArgumentChecker.notNull(valueNameId, "valueNameId");
-              ArgumentChecker.notNull(valueRequirementId, "valueRequirementId");
               ArgumentChecker.notNull(valueSpecificationId, "valueSpecificationId");
               ArgumentChecker.notNull(functionUniqueId, "functionUniqueId");
               ArgumentChecker.notNull(computationTargetId, "computationTargetId");
@@ -916,8 +963,8 @@ public class DbBatchWriter extends AbstractDbMaster {
               final long successId = nextId("rsk_batch_seq");
               insertArgs.addValue("id", successId);
               insertArgs.addValue("calculation_configuration_id", calcConfId);
+              insertArgs.addValue("value_label", riskValueEntry.getKey());
               insertArgs.addValue("value_name_id", valueNameId);
-              insertArgs.addValue("value_requirement_id", valueRequirementId);
               insertArgs.addValue("value_specification_id", valueSpecificationId);
               insertArgs.addValue("function_unique_id", functionUniqueId);
               insertArgs.addValue("computation_target_id", computationTargetId);
@@ -939,9 +986,6 @@ public class DbBatchWriter extends AbstractDbMaster {
           for (ComputedValue computedValue : viewCalculationResultModel.getAllValues(compTargetSpec)) {
             ValueSpecification specification = computedValue.getSpecification();
 
-            ValueRequirement requirement = computedValue.getRequirement();
-
-            Long valueRequirementId = _riskValueRequirements.get(requirement);
             Long valueSpecificationId = _riskValueSpecifications.get(specification);
             Long valueNameId = _riskValueNames.get(specification.getValueName());
             Long functionUniqueId = getFunctionUniqueIdInTransaction(specification.getFunctionUniqueId()).getId();
@@ -949,7 +993,6 @@ public class DbBatchWriter extends AbstractDbMaster {
 
             ArgumentChecker.notNull(calcConfId, "calcConfId");
             ArgumentChecker.notNull(valueNameId, "valueNameId");
-            ArgumentChecker.notNull(valueRequirementId, "valueRequirementId");
             ArgumentChecker.notNull(valueSpecificationId, "valueSpecificationId");
             ArgumentChecker.notNull(functionUniqueId, "functionUniqueId");
             ArgumentChecker.notNull(computationTargetId, "computationTargetId");
@@ -961,7 +1004,6 @@ public class DbBatchWriter extends AbstractDbMaster {
             insertArgs.addValue("id", failureId);
             insertArgs.addValue("calculation_configuration_id", calcConfId);
             insertArgs.addValue("value_name_id", valueNameId);
-            insertArgs.addValue("value_requirement_id", valueRequirementId);
             insertArgs.addValue("value_specification_id", valueSpecificationId);
             insertArgs.addValue("function_unique_id", functionUniqueId);
             insertArgs.addValue("computation_target_id", computationTargetId);
@@ -980,7 +1022,8 @@ public class DbBatchWriter extends AbstractDbMaster {
                   for (Number computeFailureId : cachedFailure.getComputeFailureIds()) {
                     ArgumentChecker.notNull(computeFailureId, "computeFailureId");
                     final DbMapSqlParameterSource failureReasonsInsertArgs = new DbMapSqlParameterSource();
-
+                    final long failureReasonId = nextId("rsk_batch_seq");        
+                    failureReasonsInsertArgs.addValue("id", failureReasonId);
                     failureReasonsInsertArgs.addValue("rsk_failure_id", failureId);
                     failureReasonsInsertArgs.addValue("compute_failure_id", computeFailureId);
                     failureReasons.add(failureReasonsInsertArgs);
@@ -1019,8 +1062,8 @@ public class DbBatchWriter extends AbstractDbMaster {
         return;
       }
 
-      getJdbcTemplate().batchUpdate(getExtSqlBundle().getSql("InsertRiskSuccess"), successes.toArray(new DbMapSqlParameterSource[failureReasons.size()]));
-      getJdbcTemplate().batchUpdate(getExtSqlBundle().getSql("InsertRiskFailure"), failures.toArray(new DbMapSqlParameterSource[failureReasons.size()]));
+      getJdbcTemplate().batchUpdate(getExtSqlBundle().getSql("InsertRiskSuccess"), successes.toArray(new DbMapSqlParameterSource[successes.size()]));
+      getJdbcTemplate().batchUpdate(getExtSqlBundle().getSql("InsertRiskFailure"), failures.toArray(new DbMapSqlParameterSource[failures.size()]));
       getJdbcTemplate().batchUpdate(getExtSqlBundle().getSql("InsertRiskFailureReason"), failureReasons.toArray(new DbMapSqlParameterSource[failureReasons.size()]));
 
       upsertStatusEntries(statusCache, calcConfigName, StatusEntry.Status.SUCCESS, successfulTargets);

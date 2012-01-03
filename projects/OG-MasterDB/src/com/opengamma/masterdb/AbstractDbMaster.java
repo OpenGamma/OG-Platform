@@ -78,7 +78,6 @@ public abstract class AbstractDbMaster {
     _timeSource = dbConnector.timeSource();
     _uniqueIdScheme = defaultScheme;
     _hibernateTemplate = dbConnector.getHibernateTemplate();
-    _hibernateTemplate.setAllowCreate(false);
   }
 
   /**
@@ -228,6 +227,16 @@ public abstract class AbstractDbMaster {
     return getDbConnector().getHibernateTransactionTemplate();
   }
 
+  /**
+   * Gets the retrying hibernate transaction template.
+   *
+   * @param retries number of retries of execution before considering the execution failed
+   * @return the hibernate transaction template, not null if correctly initialized
+   */
+  protected DbConnector.HibernateTransactionTemplateRetrying getHibernateTransactionTemplateRetrying(int retries) {
+    return getDbConnector().getHibernateTransactionTemplateRetrying(retries);
+  }
+  
   /**
    * Gets the database dialect.
    * 

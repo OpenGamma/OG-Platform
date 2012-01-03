@@ -12,6 +12,15 @@ import com.opengamma.engine.value.ValueProperties;
  */
 public class RiskValueRequirement extends RiskValueProperties {
 
+  private RiskValueSpecification _specification;
+
+  public RiskValueSpecification getSpecification() {
+    return _specification;
+  }
+
+  public void setSpecification(RiskValueSpecification specification) {
+    _specification = specification;
+  }
 
   public RiskValueRequirement() {
   }

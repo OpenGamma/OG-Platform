@@ -5,7 +5,7 @@
  */
 package com.opengamma.masterdb.batch;
 
-import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.id.UniqueId;
 import com.opengamma.masterdb.AbstractDbMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -147,10 +147,8 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster {
   public int delete(final UniqueId uniqueId) {
     s_logger.info("Deleting Batch by unique id: ", uniqueId);
     final Long id = extractOid(uniqueId);
-    return getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<Integer>() {
-      @Override
-      public Integer doInTransaction(final TransactionStatus status) {
-        return getHibernateTemplate().execute(new HibernateCallback<Integer>() {
+
+    return getHibernateTransactionTemplateRetrying(getMaxRetries()).execute(new HibernateCallback<Integer>() {
           @Override
           public Integer doInHibernate(Session session) throws HibernateException, SQLException {
             Query query = session.getNamedQuery("RiskRun.delete.byId");
@@ -159,12 +157,9 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster {
           }
         });
       }
-    });
-  }
 
   //--------------------------------------------------------------------------------------------------------------------
 
-  
   @Override
     public void addValuesToSnapshot(final UniqueId marketDataSnapshotUniqueId, final Set<LiveDataValue> values) {
       getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<Void>() {
@@ -242,7 +237,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster {
     // -------------------------------------------------------------------------------------------------------------------
   
     @Override
-    public void addJobResults(final UniqueId batchUniqueId, final ViewResultModel result) {
+    public void addJobResults(final UniqueId batchUniqueId, final ViewComputationResultModel result) {
       getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<Void>() {
         @Override
         public Void doInTransaction(final TransactionStatus status) {

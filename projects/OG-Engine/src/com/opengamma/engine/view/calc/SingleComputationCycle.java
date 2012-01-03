@@ -564,6 +564,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
     DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
 
+    Map<ValueSpecification, Set<ValueRequirement>> specsToRequirementsMapping = depGraph.getTerminalOutputs();
+    
     /*Map<ValueSpecification, Set<ValueRequirement>> mapping = depGraph.getTerminalOutputs();
 
     final Map<ValueRequirement, ValueSpecification> reverseMapping = new HashMap<ValueRequirement, ValueSpecification>();
@@ -577,43 +579,23 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
 
     for (CalculationJobResultItem calculationJobResultItem : calculationJobResult.getResultItems()) {
-      // get desired values from calc job result (value requirements)
-      Set<ValueRequirement> desiredValues = calculationJobResultItem.getItem().getDesiredValues();
-
-      // using information from dependency graph build set of value specifactions originated from the value requirements
-      /*Set<ValueSpecification> specifications = reduce(new HashSet<ValueSpecification>(), desiredValues,
-          new Function2<HashSet<ValueSpecification>, ValueRequirement, HashSet<ValueSpecification>>() {
-            @Override
-            public HashSet<ValueSpecification> execute(HashSet<ValueSpecification> acc, ValueRequirement requirement) {
-              acc.add(reverseMapping.get(requirement));
-              return acc;
-            }
-          });*/
       
       if (calculationJobResultItem.failed()) {
         // build computed values denoting failure
-        for (ValueRequirement requirement : desiredValues) {
-          // We can do it because value requirements from calcJobResItems are actually constructed from value specifications
-          ValueSpecification specification = new ValueSpecification(requirement.getValueName(), requirement.getTargetSpecification(), requirement.getConstraints());
+        for (ValueSpecification specification : calculationJobResultItem.getOutputs()) {                     
           ComputedValue computedValue = new ComputedValue(specification, null);
           computedValue.setInvocationResult(calculationJobResultItem.getResult());
           computedValue.setMissingInputs(calculationJobResultItem.getMissingInputs());
           computedValue.setExceptionClass(calculationJobResultItem.getExceptionClass());
           computedValue.setExceptionMsg(calculationJobResultItem.getExceptionMsg());
           computedValue.setStackTrace(calculationJobResultItem.getStackTrace());
-          //TODO we need original requirement !!!
-          computedValue.setRequirement(requirement);
+          computedValue.setRequirements(specsToRequirementsMapping.get(specification));
+          computedValue.setComputeNodeId(calculationJobResult.getComputeNodeId());
           resultModel.addValue(calcConfigurationName, computedValue);
         }
       } else {
         // build computed values denoting success
-
-        Collection<ValueSpecification> specifications = map(desiredValues, new Function1<ValueRequirement, ValueSpecification>() {
-          @Override
-          public ValueSpecification execute(ValueRequirement requirement) {
-            return new ValueSpecification(requirement.getValueName(), requirement.getTargetSpecification(), requirement.getConstraints());
-          }
-        });
+        Set<ValueSpecification> specifications = calculationJobResultItem.getOutputs();
 
         // lookup computed values from cache by specifications, and build mapping from these specifications to actual values
         Map<ValueSpecification, Object> valuesFromCacheBySpecification = reduce(new HashMap<ValueSpecification, Object>(),
@@ -627,17 +609,16 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
             });
 
         // iterate trough all specifications of the calc job result item and build computed values
-        for (ValueRequirement requirement : desiredValues) {
-          // We can do it because value requirements from calcJobResItems are actually constructed from value specifications
-          ValueSpecification specification = new ValueSpecification(requirement.getValueName(), requirement.getTargetSpecification(), requirement.getConstraints());
+        for (ValueSpecification specification : specifications) {
           Object actualValue = valuesFromCacheBySpecification.get(specification);
           if(actualValue == null){
             throw new OpenGammaRuntimeException("Encountered cache miss for successful CalculationJobResultItem [spec: "+specification+"]");
           } else {
             ComputedValue computedValue = new ComputedValue(specification, actualValue);
             computedValue.setInvocationResult(InvocationResult.SUCCESS);
-            //TODO we need original requirement !!!
-            computedValue.setRequirement(requirement);
+            computedValue.setRequirements(specsToRequirementsMapping.get(specification));
+            computedValue.setRequirements(specsToRequirementsMapping.get(specification));
+            computedValue.setComputeNodeId(calculationJobResult.getComputeNodeId());
             resultModel.addValue(calcConfigurationName, computedValue);
           }
         }
@@ -675,30 +656,32 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
 
       ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
-      Set<ValueSpecification> specifications = flatMap(new HashSet<ValueSpecification>(),
-          calculationJobResult.getResultItems(), new Function1<CalculationJobResultItem, Collection<ValueSpecification>>() {
-            @Override
-            public Set<ValueSpecification> execute(CalculationJobResultItem calculationJobResultItem) {
-              return calculationJobResultItem.getOutputs();
-            }
-          });
+      for (CalculationJobResultItem calculationJobResultItem : calculationJobResult.getResultItems()) {
+        Set<ValueSpecification> specifications = calculationJobResultItem.getOutputs();
       Map<ValueSpecification, Set<ValueRequirement>> requirements = submapByKeySet(depGraph.getTerminalOutputs(), specifications);
-      if (requirements == null || requirements.isEmpty()) {
-        continue;
-      }
       resultModel.addRequirements(requirements);
-
+        //
       for (Pair<ValueSpecification, Object> value : computationCache.getValues(specifications, CacheSelectHint.allShared())) {
         ValueSpecification valueSpec = value.getFirst();
         Object calculatedValue = value.getSecond();
-        if (calculatedValue == null || !requirements.containsKey(valueSpec)) {
-          // Nothing calculated or not a terminal output
+          if (!requirements.containsKey(valueSpec)) {
+            // Not in cache or not a terminal output
           continue;
         }
         if (calculatedValue instanceof MissingMarketDataSentinel) {
           continue;
         }
-        resultModel.addValue(calcConfigurationName, new ComputedValue(valueSpec, calculatedValue));
+          ComputedValue computedValue = new ComputedValue(valueSpec, calculatedValue);
+          
+          computedValue.setInvocationResult(calculationJobResultItem.getResult());
+          computedValue.setMissingInputs(calculationJobResultItem.getMissingInputs());
+          computedValue.setExceptionClass(calculationJobResultItem.getExceptionClass());
+          computedValue.setExceptionMsg(calculationJobResultItem.getExceptionMsg());
+          computedValue.setStackTrace(calculationJobResultItem.getStackTrace());
+          computedValue.setRequirements(depGraph.getTerminalOutputs().get(valueSpec));
+          computedValue.setComputeNodeId(calculationJobResult.getComputeNodeId());
+          resultModel.addValue(calcConfigurationName, computedValue);
+        }
       }
     }
     return !resultModel.getAllResults().isEmpty() ? resultModel : null;

@@ -12,6 +12,15 @@ import com.opengamma.id.VersionCorrection;
 import org.joda.beans.*;
 import org.joda.beans.impl.direct.*;
 import java.util.Map;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 @BeanDefinition
 public class Batch extends DirectBean {
@@ -27,6 +36,9 @@ public class Batch extends DirectBean {
 
   @PropertyDefinition
   private UniqueId _uniqueId;
+
+  @PropertyDefinition
+  private SnapshotMode _snapshotMode;
 
   public Batch(){
   }
@@ -67,6 +79,8 @@ public class Batch extends DirectBean {
         return getParametersMap();
       case -294460212:  // uniqueId
         return getUniqueId();
+      case -931724921:  // snapshotMode
+        return getSnapshotMode();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -76,20 +90,19 @@ public class Batch extends DirectBean {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -331744779:  // batchId
-        if (quiet) {
+        setBatchId((BatchId) newValue);
           return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: batchId");
       case -1561620812:  // cycleInfo
-        if (quiet) {
+        setCycleInfo((CycleInfo) newValue);
           return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: cycleInfo");
       case -378524910:  // parametersMap
         setParametersMap((Map<String, String>) newValue);
         return;
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
+        return;
+      case -931724921:  // snapshotMode
+        setSnapshotMode((SnapshotMode) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -105,7 +118,8 @@ public class Batch extends DirectBean {
       return JodaBeanUtils.equal(getBatchId(), other.getBatchId()) &&
           JodaBeanUtils.equal(getCycleInfo(), other.getCycleInfo()) &&
           JodaBeanUtils.equal(getParametersMap(), other.getParametersMap()) &&
-          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId());
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getSnapshotMode(), other.getSnapshotMode());
     }
     return false;
   }
@@ -117,6 +131,7 @@ public class Batch extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getCycleInfo());
     hash += hash * 31 + JodaBeanUtils.hashCode(getParametersMap());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotMode());
     return hash;
   }
 
@@ -127,6 +142,14 @@ public class Batch extends DirectBean {
    */
   public BatchId getBatchId() {
     return _batchId;
+  }
+
+  /**
+   * Sets the batchId.
+   * @param batchId  the new value of the property
+   */
+  public void setBatchId(BatchId batchId) {
+    this._batchId = batchId;
   }
 
   /**
@@ -144,6 +167,14 @@ public class Batch extends DirectBean {
    */
   public CycleInfo getCycleInfo() {
     return _cycleInfo;
+  }
+
+  /**
+   * Sets the cycleInfo.
+   * @param cycleInfo  the new value of the property
+   */
+  public void setCycleInfo(CycleInfo cycleInfo) {
+    this._cycleInfo = cycleInfo;
   }
 
   /**
@@ -206,6 +237,31 @@ public class Batch extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the snapshotMode.
+   * @return the value of the property
+   */
+  public SnapshotMode getSnapshotMode() {
+    return _snapshotMode;
+  }
+
+  /**
+   * Sets the snapshotMode.
+   * @param snapshotMode  the new value of the property
+   */
+  public void setSnapshotMode(SnapshotMode snapshotMode) {
+    this._snapshotMode = snapshotMode;
+  }
+
+  /**
+   * Gets the the {@code snapshotMode} property.
+   * @return the property, not null
+   */
+  public final Property<SnapshotMode> snapshotMode() {
+    return metaBean().snapshotMode().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code Batch}.
    */
   public static class Meta extends DirectMetaBean {
@@ -236,6 +292,11 @@ public class Batch extends DirectBean {
     private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
         this, "uniqueId", Batch.class, UniqueId.class);
     /**
+     * The meta-property for the {@code snapshotMode} property.
+     */
+    private final MetaProperty<SnapshotMode> _snapshotMode = DirectMetaProperty.ofReadWrite(
+        this, "snapshotMode", Batch.class, SnapshotMode.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
@@ -243,7 +304,8 @@ public class Batch extends DirectBean {
         "batchId",
         "cycleInfo",
         "parametersMap",
-        "uniqueId");
+        "uniqueId",
+        "snapshotMode");
 
     /**
      * Restricted constructor.
@@ -262,6 +324,8 @@ public class Batch extends DirectBean {
           return _parametersMap;
         case -294460212:  // uniqueId
           return _uniqueId;
+        case -931724921:  // snapshotMode
+          return _snapshotMode;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -312,6 +376,14 @@ public class Batch extends DirectBean {
      */
     public final MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
+    }
+
+    /**
+     * The meta-property for the {@code snapshotMode} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<SnapshotMode> snapshotMode() {
+      return _snapshotMode;
     }
 
   }

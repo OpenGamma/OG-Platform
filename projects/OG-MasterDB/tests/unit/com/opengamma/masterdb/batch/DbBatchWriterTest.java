@@ -15,6 +15,7 @@ import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.engine.value.*;
 import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calcnode.InvocationResult;
 import com.opengamma.id.*;
@@ -34,6 +35,7 @@ import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.emptyList;
 import static org.testng.AssertJUnit.*;
 
@@ -443,14 +445,14 @@ public class DbBatchWriterTest extends DbTest {
       @Override
       public Void doInTransaction(TransactionStatus status) {
         // create
-        RiskValueRequirement valueRequirement1 = _DbBatchWriter.getRiskValueRequirement(ValueProperties.parse("currency=USD"));
-        assertNotNull(valueRequirement1);
-        assertEquals("{\"properties\":[{\"values\":[\"USD\"],\"name\":\"currency\"}]}", valueRequirement1.getSyntheticForm());
+        RiskValueSpecification valueSpecification1 = _DbBatchWriter.getRiskValueSpecification(ValueProperties.parse("currency=USD"));
+        assertNotNull(valueSpecification1);
+        assertEquals("{\"properties\":[{\"values\":[\"USD\"],\"name\":\"currency\"}]}", valueSpecification1.getSyntheticForm());
 
         // getId
-        RiskValueRequirement valueRequirement2 = _DbBatchWriter.getRiskValueRequirement(ValueProperties.parse("currency=USD"));
-        assertEquals(valueRequirement1, valueRequirement2);
-        assertEquals(valueRequirement1.getId(), valueRequirement2.getId());
+        RiskValueSpecification valueSpecification2 = _DbBatchWriter.getRiskValueSpecification(ValueProperties.parse("currency=USD"));
+        assertEquals(valueSpecification1, valueSpecification2);
+        assertEquals(valueSpecification1.getId(), valueSpecification2.getId());
         return null;
       }
     });
@@ -512,7 +514,7 @@ public class DbBatchWriterTest extends DbTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void addJobResultsToUnstartedBatch() {
     Batch batch = new Batch(_cycleInfoStub);
-    ViewResultModel result = new InMemoryViewComputationResultModel();
+    ViewComputationResultModel result = new InMemoryViewComputationResultModel();
     _batchMaster.addJobResults(batch.getUniqueId(), result);
   }
 
@@ -529,7 +531,7 @@ public class DbBatchWriterTest extends DbTest {
           new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Sec", "APPL")), ValueProperties.with(ValuePropertyNames.FUNCTION, "asd").get()),
         1000.0) {{
         this.setInvocationResult(InvocationResult.SUCCESS);
-        this.setRequirement(_requirement);
+        this.setRequirements(newHashSet(_requirement));
       }});
     _batchMaster.addJobResults(batch.getUniqueId(), result);
   }
@@ -545,7 +547,7 @@ public class DbBatchWriterTest extends DbTest {
         _specification,
         1000.0) {{
         this.setInvocationResult(InvocationResult.SUCCESS);
-        this.setRequirement(_requirement);
+        this.setRequirements(newHashSet(_requirement));
         this.setComputeNodeId("someComputeNode");
       }});
     _batchMaster.addJobResults(batch.getUniqueId(), result);

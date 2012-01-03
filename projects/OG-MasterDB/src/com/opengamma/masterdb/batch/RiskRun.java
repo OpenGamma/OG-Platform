@@ -107,6 +107,14 @@ public class RiskRun {
     _properties.add(property);
   }
   
+  public Set<CalculationConfiguration> getCalculationConfigurations() {
+    return _calculationConfigurations;
+  }
+
+  public void setCalculationConfigurations(Set<CalculationConfiguration> calculationConfigurations) {
+    _calculationConfigurations = calculationConfigurations;
+  }
+
   public void addProperty(String key, String value) {
     RiskRunProperty property = new RiskRunProperty();
     property.setRiskRun(this);

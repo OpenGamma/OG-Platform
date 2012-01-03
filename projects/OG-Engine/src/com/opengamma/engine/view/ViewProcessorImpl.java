@@ -291,12 +291,6 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       if (existingAttachment != null) {
         throw new IllegalStateException("View client " + client.getUniqueId() + " is already attached to view process " + existingAttachment.getFirst().getUniqueId());
       }
-      if(process.getExecutionOptions().getFlags().contains(ViewExecutionFlags.BATCH)){
-        ViewResultListener viewResultListener = _viewResultListenerFactory.createViewResultListener();
-        if(listener != null){
-            process.attachListener(viewResultListener);
-        }
-      }
       ViewPermissionProvider permissionProvider = process.attachListener(listener);
       _clientToProcess.put(client.getUniqueId(), processListenerPair);
       return permissionProvider;

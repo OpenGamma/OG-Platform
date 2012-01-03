@@ -132,13 +132,16 @@
     id
   FROM
     rsk_value_requirement
-  WHERE synthetic_form = :synthetic_form       
+  WHERE 
+    synthetic_form = :synthetic_form
+  AND         
+    specification_id = :specification_id       
 -- ==========================================================================
 @NAME(InsertRiskValueRequirement)
   INSERT INTO rsk_value_requirement
-    (id, synthetic_form)
+    (id, specification_id, synthetic_form)
   VALUES
-    (:id, :synthetic_form)
+    (:id, :specification_id, :synthetic_form)
     
 -- ==========================================================================
 @NAME(SelectRiskValueSpecification)
@@ -190,28 +193,31 @@
     id
   FROM
     rsk_calculation_configuration
-  WHERE name = :name
+  WHERE 
+    name = :name
+  AND
+    run_id = :run_id
 -- ==========================================================================
 @NAME(InsertConfigName)
   INSERT INTO rsk_calculation_configuration
-    (id, name)
+    (id, run_id, name)
   VALUES
-    (:id, :name)
+    (:id, :run_id, :name)
   
 
 
 -- ==========================================================================
 @NAME(InsertRiskSuccess)
   INSERT INTO rsk_value
-    (id, calculation_configuration_id, value_name_id, value_requirement_id, value_specification_id, function_unique_id, computation_target_id, run_id, value, eval_instant, compute_node_id)
+    (id, calculation_configuration_id, value_label, value_name_id, value_specification_id, function_unique_id, computation_target_id, run_id, value, eval_instant, compute_node_id)
   VALUES
-    (:id, :calculation_configuration_id, :value_name_id, :value_requirement_id, :value_specification_id, :function_unique_id, :computation_target_id, :run_id, :value, :eval_instant, :compute_node_id)
+    (:id, :calculation_configuration_id, :value_label, :value_name_id, :value_specification_id, :function_unique_id, :computation_target_id, :run_id, :value, :eval_instant, :compute_node_id)
 
 @NAME(InsertRiskFailure)
   INSERT INTO rsk_failure 
-    (id, calculation_configuration_id, value_name_id, value_requirement_id, value_specification_id, function_unique_id, computation_target_id, run_id, eval_instant, compute_node_id) 
+    (id, calculation_configuration_id, value_name_id, value_specification_id, function_unique_id, computation_target_id, run_id, eval_instant, compute_node_id) 
   VALUES 
-    (:id, :calculation_configuration_id, :value_name_id, :value_requirement_id, :value_specification_id, :function_unique_id, :computation_target_id, :run_id, :eval_instant, :compute_node_id)
+    (:id, :calculation_configuration_id, :value_name_id, :value_specification_id, :function_unique_id, :computation_target_id, :run_id, :eval_instant, :compute_node_id)
     
 @NAME(InsertRiskFailureReason)
   INSERT INTO rsk_failure_reason 

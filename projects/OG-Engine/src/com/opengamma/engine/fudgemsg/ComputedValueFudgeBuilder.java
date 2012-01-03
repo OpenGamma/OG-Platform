@@ -39,7 +39,7 @@ public class ComputedValueFudgeBuilder implements FudgeBuilder<ComputedValue> {
   private static final String EXCEPTION_MSG_FIELD_NAME = "exceptionMsg";
   private static final String STACK_TRACE_FIELD_NAME = "stackTrace";
   private static final String MISSING_INPUTS_FIELD_NAME = "missingInputs";
-  private static final String REQUIREMENT_FIELD_NAME = "requirements";
+  private static final String REQUIREMENTS_FIELD_NAME = "requirements";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ComputedValue object) {
@@ -60,8 +60,8 @@ public class ComputedValueFudgeBuilder implements FudgeBuilder<ComputedValue> {
     if (object.getMissingInputs() != null) {
       serializer.addToMessage(msg, MISSING_INPUTS_FIELD_NAME, null, object.getMissingInputs());
     }
-    if (object.getRequirement() != null) {
-      serializer.addToMessage(msg, REQUIREMENT_FIELD_NAME, null, object.getRequirement());
+    if (object.getRequirements() != null) {
+      serializer.addToMessage(msg, REQUIREMENTS_FIELD_NAME, null, object.getRequirements());
     }
     if (object.getStackTrace() != null) {
       serializer.addToMessage(msg, STACK_TRACE_FIELD_NAME, null, object.getStackTrace());
@@ -101,10 +101,10 @@ public class ComputedValueFudgeBuilder implements FudgeBuilder<ComputedValue> {
     if (stackTrace != null) {
       computedValue.setStackTrace(stackTrace);
     }
-    FudgeField requirementField = message.getByName(REQUIREMENT_FIELD_NAME);
+    FudgeField requirementField = message.getByName(REQUIREMENTS_FIELD_NAME);
     if (requirementField != null){
-      ValueRequirement requirement = deserializer.fieldValueToObject(ValueRequirement.class, requirementField);
-      computedValue.setRequirement(requirement);
+      Set<ValueRequirement> requirements = deserializer.fieldValueToObject(Set.class, requirementField);
+      computedValue.setRequirements(requirements);
     }
     FudgeField missingInputsField = message.getByName(MISSING_INPUTS_FIELD_NAME);
     if(missingInputsField != null){

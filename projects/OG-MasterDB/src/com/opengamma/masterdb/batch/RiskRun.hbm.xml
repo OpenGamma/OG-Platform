@@ -38,6 +38,11 @@
             <one-to-many class="RiskRunProperty"/>
         </set>
 
+    <set name="calculationConfigurations" inverse="true">
+      <key column="run_id"/>
+      <one-to-many class="CalculationConfiguration"/>
+    </set>
+
         <property name="complete" not-null="true"/>
 
         <!-- EXAMPLE OF CompositeUserType (mulit column user type)

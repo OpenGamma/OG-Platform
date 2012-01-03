@@ -13,6 +13,8 @@
     </id>
 
     <property name="syntheticForm" column="synthetic_form" not-null="true"/>
+
+
   </class>
 
   <query name="RiskValueRequirement.one.bySynthesizedForm">

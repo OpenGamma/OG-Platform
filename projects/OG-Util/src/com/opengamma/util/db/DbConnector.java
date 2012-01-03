@@ -93,6 +93,7 @@ public class DbConnector {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the display name of the connector.
    * 
@@ -130,6 +131,7 @@ public class DbConnector {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the Hibernate session factory.
    * <p>
@@ -156,6 +158,7 @@ public class DbConnector {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the transaction manager.
    * <p>
@@ -189,6 +192,7 @@ public class DbConnector {
     return new TransactionTemplateRetrying(retries);
   }
   //-------------------------------------------------------------------------
+
   /**
    * Gets the current instant using the database clock.
    * 
@@ -216,6 +220,7 @@ public class DbConnector {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Returns a description of this object suitable for debugging.
    * 
@@ -224,6 +229,16 @@ public class DbConnector {
   @Override
   public String toString() {
     return getClass().getSimpleName() + "[" + _name + "]";
+  }
+
+  /**
+   * Gets the retrying hibernate transaction template.
+   * <p>
+   * @param retries how many maximum retires should be tried
+   * @return the retrying hibernate transaction template
+   */
+  public HibernateTransactionTemplateRetrying getHibernateTransactionTemplateRetrying(int retries) {
+    return new HibernateTransactionTemplateRetrying(retries);
   }
 
   public class TransactionTemplateRetrying {
@@ -262,6 +277,7 @@ public class DbConnector {
     private HibernateTransactionTemplate() {
       _tt = getTransactionTemplate();
       _ht = getHibernateTemplate();
+      _ht.setAllowCreate(false);
     }
 
     public <T> T execute(final HibernateCallback<T> action) throws TransactionException {
@@ -287,6 +303,7 @@ public class DbConnector {
       _retries = retries;
       _tt = getTransactionTemplate();
       _ht = getHibernateTemplate();
+      _ht.setAllowCreate(false);
     }
 
     public <T> T execute(final HibernateCallback<T> action) throws TransactionException {

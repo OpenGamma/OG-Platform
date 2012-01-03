@@ -29,11 +29,7 @@ ALTER TABLE rsk_run DROP CONSTRAINT rsk_fk_run2opengamma_version;
 DROP TABLE rsk_opengamma_version;
 
 -------------------------------------
-
-ALTER TABLE rsk_calculation_configuration DROP CONSTRAINT rsk_fk_calc_conf2run;
-ALTER TABLE rsk_calculation_configuration DROP CONSTRAINT rsk_chk_uq_calc_conf;
-ALTER TABLE rsk_calculation_configuration DROP COLUMN run_id;
-ALTER TABLE rsk_calculation_configuration ADD CONSTRAINT rsk_chk_uq_calc_conf UNIQUE (name);
+ALTER TABLE rsk_calculation_configuration ALTER COLUMN run_id SET DATA TYPE bigint
 
 -------------------------------------
 -- Risk run
@@ -130,6 +126,15 @@ ALTER TABLE rsk_value_name ALTER COLUMN id SET DATA TYPE bigint
 ALTER TABLE rsk_value_specification ALTER COLUMN id SET DATA TYPE bigint
 
 ALTER TABLE rsk_value_requirement ALTER COLUMN id SET DATA TYPE bigint
+ALTER TABLE rsk_value_requirement ADD COLUMN specification_id BIGINT NOT NULL;
+ALTER TABLE rsk_value_requirement DROP CONSTRAINT rsk_chk_uq_value_requirement;
+ALTER TABLE rsk_value_requirement ADD CONSTRAINT rsk_chk_uq_value_requirement unique (specification_id, synthetic_form);
+
+ALTER TABLE rsk_value DROP CONSTRAINT rsk_chk_uq_value;
+ALTER TABLE rsk_value DROP CONSTRAINT rsk_fk_value2value_requirement;
+ALTER TABLE rsk_value DROP COLUMN value_requirement_id;
+ALTER TABLE rsk_value ADD COLUMN value_label varchar(255);
+ALTER TABLE rsk_value ADD CONSTRAINT rsk_chk_uq_value unique (calculation_configuration_id, value_label, value_name_id, value_specification_id, computation_target_id);
 
 ALTER TABLE rsk_value ALTER COLUMN id SET DATA TYPE bigint
 ALTER TABLE rsk_value ALTER COLUMN calculation_configuration_id SET DATA TYPE bigint
@@ -158,6 +163,11 @@ ALTER TABLE rsk_failure_reason ALTER COLUMN id SET DATA TYPE bigint
 ALTER TABLE rsk_failure_reason ALTER COLUMN rsk_failure_id SET DATA TYPE bigint
 ALTER TABLE rsk_failure_reason ALTER COLUMN compute_failure_id SET DATA TYPE bigint
 
+ALTER TABLE rsk_failure DROP CONSTRAINT rsk_chk_uq_failure;
+ALTER TABLE rsk_failure DROP CONSTRAINT rsk_fk_failure2value_requirement;
+ALTER TABLE rsk_failure DROP COLUMN value_requirement_id;
+ALTER TABLE rsk_failure ADD CONSTRAINT rsk_chk_uq_failure unique (calculation_configuration_id, value_name_id, value_specification_id, computation_target_id);
+        
 -------------------------------------
 -- Views
 -------------------------------------
@@ -201,7 +211,6 @@ rsk_run.version_correction_id = rsk_version_correction.id and
 rsk_run.live_data_snapshot_id = rsk_live_data_snapshot.id and
 rsk_value.calculation_configuration_id = rsk_calculation_configuration.id and
 rsk_value.value_name_id = rsk_value_name.id and
-rsk_value.value_requirement_id = rsk_value_requirement.id and
 rsk_value.value_specification_id = rsk_value_specification.id and
 rsk_value.function_unique_id = rsk_function_unique_id.id and
 rsk_value.computation_target_id = rsk_computation_target.id and
@@ -251,7 +260,6 @@ rsk_run.version_correction_id = rsk_version_correction.id and
 rsk_run.live_data_snapshot_id = rsk_live_data_snapshot.id and
 rsk_failure.calculation_configuration_id = rsk_calculation_configuration.id and
 rsk_failure.value_name_id = rsk_value_name.id and
-rsk_failure.value_requirement_id = rsk_value_requirement.id and
 rsk_failure.value_specification_id = rsk_value_specification.id and
 rsk_failure.function_unique_id = rsk_function_unique_id.id and
 rsk_failure.computation_target_id = rsk_computation_target.id and

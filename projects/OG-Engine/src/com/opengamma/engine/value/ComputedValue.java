@@ -49,7 +49,7 @@ public class ComputedValue implements Serializable {
   private String _exceptionMsg = null;
   private String _stackTrace = null;
   private Set<ValueSpecification> _missingInputs = null;
-  private ValueRequirement _originalRequirement = null;
+  private Set<ValueRequirement> _originalRequirements = null;
   private String _nodeId;
 
   /**
@@ -129,12 +129,12 @@ public class ComputedValue implements Serializable {
     this._missingInputs = missingInputs;
   }
 
-  public ValueRequirement getRequirement() {
-    return _originalRequirement;
+  public Set<ValueRequirement> getRequirements() {
+    return _originalRequirements;
   }
 
-  public void setRequirement(ValueRequirement requirement) {
-    _originalRequirement = requirement;
+  public void setRequirements(Set<ValueRequirement> requirements) {
+    _originalRequirements = requirements;
   }
 
   public String getComputeNodeId() {
@@ -158,7 +158,7 @@ public class ComputedValue implements Serializable {
           ObjectUtils.equals(_exceptionClass, other._exceptionClass) &&
           ObjectUtils.equals(_missingInputs, other._missingInputs) &&
           ObjectUtils.equals(_exceptionMsg, other._exceptionMsg) &&
-          ObjectUtils.equals(_originalRequirement, other._originalRequirement) &&
+          ObjectUtils.equals(_originalRequirements, other._originalRequirements) &&
           ObjectUtils.equals(_stackTrace, other._stackTrace) &&
           ObjectUtils.equals(_result, other._result) &&
           ObjectUtils.equals(_value, other._value);
@@ -175,7 +175,7 @@ public class ComputedValue implements Serializable {
     result = 31 * result + (_exceptionMsg != null ? _exceptionMsg.hashCode() : 0);
     result = 31 * result + (_stackTrace != null ? _stackTrace.hashCode() : 0);
     result = 31 * result + (_missingInputs != null ? _missingInputs.hashCode() : 0);
-    result = 31 * result + (_originalRequirement != null? _originalRequirement.hashCode() : 0);
+    result = 31 * result + (_originalRequirements != null? _originalRequirements.hashCode() : 0);
     return result;
   }
 

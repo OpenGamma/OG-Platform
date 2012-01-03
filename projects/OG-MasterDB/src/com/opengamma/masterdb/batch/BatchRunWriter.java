@@ -5,7 +5,7 @@
  */
 package com.opengamma.masterdb.batch;
 
-import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.id.UniqueId;
 
 import java.util.Set;
@@ -50,7 +50,7 @@ public interface BatchRunWriter {
    * @param batchUniqueId the uid of the running batch, not null
    * @param result the result of computation of the batch
    */
-  void addJobResults(UniqueId batchUniqueId, ViewResultModel result);
+  void addJobResults(UniqueId batchUniqueId, ViewComputationResultModel result);
 
   //-------------------------------------------------------------------------
   /**

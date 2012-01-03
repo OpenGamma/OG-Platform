@@ -12,8 +12,6 @@ import com.opengamma.engine.value.ValueProperties;
  */
 public class RiskValueSpecification extends RiskValueProperties {
 
-  private int _valueRequirementId;
-
   public RiskValueSpecification() {
   }
 
@@ -21,11 +19,4 @@ public class RiskValueSpecification extends RiskValueProperties {
     super(properties);
   }
 
-  public int getValueRequirementId() {
-    return _valueRequirementId;
-  }
-
-  public void setValueRequirementId(int valueRequirementId) {
-    this._valueRequirementId = valueRequirementId;
-  }
 }

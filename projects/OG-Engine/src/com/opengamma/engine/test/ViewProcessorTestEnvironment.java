@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 
 import javax.time.Instant;
 
+import com.opengamma.engine.view.calc.ViewResultListenerFactory;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.core.position.PositionSource;
@@ -94,6 +95,7 @@ public class ViewProcessorTestEnvironment {
   private FunctionResolver _functionResolver;
   private CachingComputationTargetResolver _cachingComputationTargetResolver;
   private ViewDefinitionRepository _viewDefinitionRepository;
+  private ViewResultListenerFactory _viewResultListenerFactory;
 
   public void init() {
     ViewProcessorFactoryBean vpFactBean = new ViewProcessorFactoryBean();
@@ -144,7 +146,7 @@ public class ViewProcessorTestEnvironment {
     LocalNodeJobInvoker jobInvoker = new LocalNodeJobInvoker(localCalcNode);
     vpFactBean.setComputationJobDispatcher(new JobDispatcher(jobInvoker));
     vpFactBean.setFunctionResolver(generateFunctionResolver(compiledFunctions));
-    
+    vpFactBean.setViewResultListenerFactory(_viewResultListenerFactory);
     _viewProcessor = (ViewProcessorImpl) vpFactBean.createObject();
   }
   
@@ -197,6 +199,10 @@ public class ViewProcessorTestEnvironment {
     _viewDefinitionRepository = viewDefinitionRepository;
   }
   
+  public void setViewResultListenerFactory(ViewResultListenerFactory viewResultListenerFactory) {
+    _viewResultListenerFactory = viewResultListenerFactory;
+  }
+
   private ViewDefinitionRepository generateViewDefinitionRepository() {
     MockViewDefinitionRepository repository = new MockViewDefinitionRepository();
     ViewDefinition defaultDefinition = getViewDefinition() != null ? getViewDefinition() : generateViewDefinition();

@@ -160,11 +160,15 @@ create table rsk_run (
 
 create table rsk_calculation_configuration (
 	id bigint not null,
+	run_id bigint not null,
 	name varchar(255) not null,
 	
 	primary key (id),
 	
-	constraint rsk_chk_uq_calc_conf unique (name)
+	constraint rsk_fk_calc_conf2run
+		    foreign key (run_id) references rsk_run (id),
+		    
+	constraint rsk_chk_uq_calc_conf unique (run_id, name)
 );
 
 -- Properties should be filled once only. If already there, use existing value.
@@ -245,22 +249,23 @@ create table rsk_value_specification (
 create table rsk_value_requirement (
     id bigint not null,
     synthetic_form varchar(1024) not null,
+    specification_id bigint not null,
 
     primary key (id),
 
-    constraint rsk_chk_uq_value_requirement unique (synthetic_form)
+    constraint rsk_chk_uq_value_requirement unique (specification_id, synthetic_form)
 );
 
 create table rsk_value (
     id bigint not null,
     calculation_configuration_id bigint not null,
     value_name_id bigint not null,
-    value_requirement_id bigint not null,
     value_specification_id bigint not null,
     function_unique_id bigint not null,
     computation_target_id bigint not null,        
     run_id bigint not null,             	       -- shortcut
     value double precision not null,
+    value_label varchar(255),
     eval_instant timestamp without time zone not null,
     compute_node_id bigint not null,
     
@@ -273,8 +278,6 @@ create table rsk_value (
         foreign key (run_id) references rsk_run (id),
     constraint rsk_fk_value2value_name
         foreign key (value_name_id) references rsk_value_name (id),
-    constraint rsk_fk_value2value_requirement
-        foreign key (value_requirement_id) references rsk_value_requirement (id),
     constraint rsk_fk_value2value_specification
         foreign key (value_specification_id) references rsk_value_specification (id),
     constraint rsk_fk_value2function_id
@@ -284,7 +287,7 @@ create table rsk_value (
     constraint rsk_fk_value2compute_node
         foreign key (compute_node_id) references rsk_compute_node (id),
         
-    constraint rsk_chk_uq_value unique (calculation_configuration_id, value_name_id, value_requirement_id, computation_target_id)
+    constraint rsk_chk_uq_value unique (calculation_configuration_id, value_label, value_name_id, value_specification_id, computation_target_id)
 );
 
 
@@ -305,7 +308,6 @@ create table rsk_failure (
     id bigint not null,
     calculation_configuration_id bigint not null,
     value_name_id bigint not null,
-    value_requirement_id bigint not null,
     value_specification_id bigint not null,
     function_unique_id bigint not null,
     computation_target_id bigint not null,
@@ -321,8 +323,6 @@ create table rsk_failure (
         foreign key (run_id) references rsk_run (id),
     constraint rsk_fk_failure2value_name
         foreign key (value_name_id) references rsk_value_name (id),
-    constraint rsk_fk_failure2value_requirement
-        foreign key (value_requirement_id) references rsk_value_requirement (id),
     constraint rsk_fk_failure2value_specification
         foreign key (value_specification_id) references rsk_value_specification (id),
     constraint rsk_fk_failure2function_id
@@ -332,7 +332,7 @@ create table rsk_failure (
     constraint rsk_fk_failure2node
        foreign key (compute_node_id) references rsk_compute_node (id),
         
-    constraint rsk_chk_uq_failure unique (calculation_configuration_id, value_name_id, value_requirement_id, computation_target_id)
+    constraint rsk_chk_uq_failure unique (calculation_configuration_id, value_name_id, value_specification_id, computation_target_id)
 );    
 
 create table rsk_failure_reason (
@@ -394,7 +394,6 @@ rsk_run.version_correction_id = rsk_version_correction.id and
 rsk_run.live_data_snapshot_id = rsk_live_data_snapshot.id and
 rsk_value.calculation_configuration_id = rsk_calculation_configuration.id and
 rsk_value.value_name_id = rsk_value_name.id and
-rsk_value.value_requirement_id = rsk_value_requirement.id and
 rsk_value.value_specification_id = rsk_value_specification.id and
 rsk_value.function_unique_id = rsk_function_unique_id.id and
 rsk_value.computation_target_id = rsk_computation_target.id and
@@ -444,7 +443,6 @@ rsk_run.version_correction_id = rsk_version_correction.id and
 rsk_run.live_data_snapshot_id = rsk_live_data_snapshot.id and
 rsk_failure.calculation_configuration_id = rsk_calculation_configuration.id and
 rsk_failure.value_name_id = rsk_value_name.id and
-rsk_failure.value_requirement_id = rsk_value_requirement.id and
 rsk_failure.value_specification_id = rsk_value_specification.id and
 rsk_failure.function_unique_id = rsk_function_unique_id.id and
 rsk_failure.computation_target_id = rsk_computation_target.id and
