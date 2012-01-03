@@ -84,6 +84,7 @@ public class SummingFunction extends MissingInputsFunction {
       // Requirement has all constraints asked of us
       final ValueProperties.Builder resultConstraintsBuilder = desiredValue.getConstraints().copy();
       for (String homogenousProperty : _homogenousProperties) {
+        // TODO: this should probably only be optional if absent from the desired constraints
         resultConstraintsBuilder.withOptional(homogenousProperty);
       }
       final ValueProperties resultConstraints = resultConstraintsBuilder.get();
