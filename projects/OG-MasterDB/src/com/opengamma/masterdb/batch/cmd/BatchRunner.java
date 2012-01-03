@@ -11,7 +11,7 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.*;
-import com.opengamma.masterdb.batch.RunCreationMode;
+import com.opengamma.financial.batch.RunCreationMode;
 import com.opengamma.masterdb.batch.SnapshotMode;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;

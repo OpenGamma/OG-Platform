@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.batch;
+package com.opengamma.financial.batch;
 
 /**
  * Enum defining whether a new run should be created in the batch database 

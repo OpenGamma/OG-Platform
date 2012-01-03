@@ -6,6 +6,7 @@
 package com.opengamma.masterdb.batch;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.financial.batch.RunCreationMode;
 import com.opengamma.id.UniqueId;
 import com.opengamma.masterdb.AbstractDbMaster;
 import com.opengamma.util.ArgumentChecker;

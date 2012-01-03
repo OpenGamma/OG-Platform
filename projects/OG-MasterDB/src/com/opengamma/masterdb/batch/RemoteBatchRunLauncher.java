@@ -66,7 +66,7 @@ public class RemoteBatchRunLauncher {
         vpBase,
         jmsConnector,
         heartbeatScheduler);
-      ViewClient vc = vp.createViewClient(new UserPrincipal(props.getProperty("opengamma.engine.username"), props.getProperty("opengamma.engine.ip-address")));
+      ViewClient vc = vp.createViewClient(UserPrincipal.getLocalUser());
 
       Map<UniqueId, String> viewDefinitions = vp.getViewDefinitionRepository().getDefinitionEntries();
 
