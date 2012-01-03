@@ -48,6 +48,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveShiftFunction;
 import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromYieldFunction;
 import com.opengamma.financial.analytics.model.bond.BondCouponPaymentDiaryFunction;
+import com.opengamma.financial.analytics.model.bond.BondDefaultCurveNameFunction;
 import com.opengamma.financial.analytics.model.bond.BondDirtyPriceFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.BondDirtyPriceFromYieldFunction;
 import com.opengamma.financial.analytics.model.bond.BondMacaulayDurationFromCurvesFunction;
@@ -59,8 +60,8 @@ import com.opengamma.financial.analytics.model.bond.BondModifiedDurationFromCurv
 import com.opengamma.financial.analytics.model.bond.BondModifiedDurationFromYieldFunction;
 import com.opengamma.financial.analytics.model.bond.BondTenorFunction;
 import com.opengamma.financial.analytics.model.bond.BondYieldFromCurvesFunction;
-import com.opengamma.financial.analytics.model.bond.BondZSpreadFromCurvesFunction;
-import com.opengamma.financial.analytics.model.bond.BondZSpreadSensitivityFromCurvesFunction;
+import com.opengamma.financial.analytics.model.bond.BondZSpreadFunction;
+import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFutureYieldCurveNodeSensitivityFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
@@ -583,18 +584,21 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(BondMarketCleanPriceFunction.class));
     functionConfigs.add(functionConfiguration(BondMarketDirtyPriceFunction.class));
     functionConfigs.add(functionConfiguration(BondMarketYieldFunction.class));
-    functionConfigs.add(functionConfiguration(BondYieldFromCurvesFunction.class, "USD", "FUNDING", "FUNDING"));
-    functionConfigs.add(functionConfiguration(BondCleanPriceFromCurvesFunction.class, "USD", "FUNDING", "FUNDING"));
-    functionConfigs.add(functionConfiguration(BondDirtyPriceFromCurvesFunction.class, "USD", "FUNDING", "FUNDING"));
-    functionConfigs.add(functionConfiguration(BondMacaulayDurationFromCurvesFunction.class, "USD", "FUNDING", "FUNDING"));
-    functionConfigs.add(functionConfiguration(BondModifiedDurationFromCurvesFunction.class, "USD", "FUNDING", "FUNDING"));
-    functionConfigs.add(functionConfiguration(BondCleanPriceFromYieldFunction.class, "USD", "FUNDING", "FUNDING"));
-    functionConfigs.add(functionConfiguration(BondDirtyPriceFromYieldFunction.class, "USD", "FUNDING", "FUNDING"));
-    functionConfigs.add(functionConfiguration(BondMacaulayDurationFromYieldFunction.class, "USD", "FUNDING", "FUNDING"));
-    functionConfigs.add(functionConfiguration(BondModifiedDurationFromYieldFunction.class, "USD", "FUNDING", "FUNDING"));
-    functionConfigs.add(functionConfiguration(BondZSpreadFromCurvesFunction.class, "USD", "FUNDING", "FUNDING"));
-    functionConfigs.add(functionConfiguration(BondZSpreadSensitivityFromCurvesFunction.class, "USD", "FUNDING", "FUNDING"));
-    functionConfigs.add(functionConfiguration(NelsonSiegelSvenssonBondCurveFunction.class, "USD"));
+    functionConfigs.add(functionConfiguration(BondYieldFromCurvesFunction.class));
+    functionConfigs.add(functionConfiguration(BondCleanPriceFromCurvesFunction.class));
+    functionConfigs.add(functionConfiguration(BondDirtyPriceFromCurvesFunction.class));
+    functionConfigs.add(functionConfiguration(BondMacaulayDurationFromCurvesFunction.class));
+    functionConfigs.add(functionConfiguration(BondModifiedDurationFromCurvesFunction.class));
+    functionConfigs.add(functionConfiguration(BondCleanPriceFromYieldFunction.class));
+    functionConfigs.add(functionConfiguration(BondDirtyPriceFromYieldFunction.class));
+    functionConfigs.add(functionConfiguration(BondMacaulayDurationFromYieldFunction.class));
+    functionConfigs.add(functionConfiguration(BondModifiedDurationFromYieldFunction.class));
+    functionConfigs.add(functionConfiguration(BondZSpreadFunction.class));
+    functionConfigs.add(functionConfiguration(BondZSpreadPresentValueSensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(NelsonSiegelSvenssonBondCurveFunction.class));
+    functionConfigs.add(functionConfiguration(BondDefaultCurveNameFunction.class, "FUNDING", "FUNDING", ValueRequirementNames.CLEAN_PRICE, 
+        ValueRequirementNames.DIRTY_PRICE, ValueRequirementNames.MACAULAY_DURATION, ValueRequirementNames.MODIFIED_DURATION, ValueRequirementNames.YTM, 
+        ValueRequirementNames.Z_SPREAD, ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY));
   }
 
   private static void addForexSingleBarrierOptionCalculators(List<FunctionConfiguration> functionConfigs) {
