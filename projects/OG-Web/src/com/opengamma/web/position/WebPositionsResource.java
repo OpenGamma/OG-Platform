@@ -13,10 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalTime;
-import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZoneOffset;
 import javax.time.calendar.ZonedDateTime;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -30,6 +29,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.opengamma.web.server.push.rest.MasterType;
+import com.opengamma.web.server.push.rest.Subscribe;
+import com.opengamma.web.server.push.rest.SubscribeMaster;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
@@ -72,8 +74,6 @@ import com.opengamma.web.WebPaging;
 @Path("/positions")
 public class WebPositionsResource extends AbstractWebPositionResource {
   
-  private static final TimeZone DEFAULT_TIMEZONE = Clock.systemDefaultZone().getZone();
-
   /**
    * Creates the resource.
    * @param positionMaster  the position master, not null
@@ -90,6 +90,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
+  @SubscribeMaster(MasterType.POSITION)
   public String getHTML(
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
@@ -106,6 +107,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
+  @SubscribeMaster(MasterType.POSITION)
   public String getJSON(
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
@@ -247,14 +249,12 @@ public class WebPositionsResource extends AbstractWebPositionResource {
         for (int i = 0; i < jsonArray.length(); i++) {
           JSONObject tradeJson = jsonArray.getJSONObject(i);
           ManageableTrade trade = new ManageableTrade();
-          TimeZone timeZone = null;
-          if (tradeJson.has("timeZone")) {
-            String timeZoneId = StringUtils.trimToNull(tradeJson.getString("timeZone"));
-            if (timeZoneId != null) {
-              timeZone = TimeZone.of(timeZoneId);
-            } else {
-              timeZone = DEFAULT_TIMEZONE;
-            }
+          ZoneOffset offset = ZoneOffset.UTC;
+          if (tradeJson.has("offset")) {
+            String offsetId = StringUtils.trimToNull(tradeJson.getString("offset"));
+            if (offsetId != null) {
+              offset = ZoneOffset.of(offsetId);
+            } 
           }
           if (tradeJson.has("premium")) {
             trade.setPremium(tradeJson.getDouble("premium"));
@@ -270,7 +270,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
             trade.setPremiumDate(premiumDate);
             if (tradeJson.has("premiumTime")) {
               LocalTime premiumTime = LocalTime.parse(tradeJson.getString("premiumTime"));
-              ZonedDateTime zonedDateTime = ZonedDateTime.of(premiumDate, premiumTime, timeZone);
+              ZonedDateTime zonedDateTime = ZonedDateTime.of(premiumDate, premiumTime, offset.toTimeZone());
               trade.setPremiumTime(zonedDateTime.toOffsetTime());
             }
           }
@@ -282,7 +282,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
             trade.setTradeDate(tradeDate);
             if (tradeJson.has("tradeTime")) {
               LocalTime tradeTime = LocalTime.parse(tradeJson.getString("tradeTime"));
-              ZonedDateTime zonedDateTime = ZonedDateTime.of(tradeDate, tradeTime, timeZone);
+              ZonedDateTime zonedDateTime = ZonedDateTime.of(tradeDate, tradeTime, offset.toTimeZone());
               trade.setTradeTime(zonedDateTime.toOffsetTime());
             }    
           }
@@ -317,7 +317,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
 
   //-------------------------------------------------------------------------
   @Path("{positionId}")
-  public WebPositionResource findPosition(@PathParam("positionId") String idStr) {
+  public WebPositionResource findPosition(@Subscribe @PathParam("positionId") String idStr) {
     data().setUriPositionId(idStr);
     UniqueId oid = UniqueId.parse(idStr);
     try {

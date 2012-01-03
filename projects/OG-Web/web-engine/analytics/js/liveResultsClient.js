@@ -53,7 +53,7 @@
         _cometd.batch(function() {
           _cometd.subscribe('/status', handleStatusUpdate);
           _cometd.subscribe('/initData', handleInitDataUpdate);
-          _cometd.subscribe('/changeView', handleViewInitialized);          
+          _cometd.subscribe('/changeView', handleChangeViewResponse);          
           
           _cometd.subscribe('/updates/portfolio', handlePortfolioUpdate);
           _cometd.subscribe('/updates/primitives', handlePrimitivesUpdate);
@@ -93,18 +93,23 @@
       self.onInitDataReceived.fire(message.data);
     }
     
-    function handleViewInitialized(message) {
+    function handleChangeViewResponse(message) {
       _changingView = false;
       
+      if (message.data.isError) {
+        self.onViewChangeFailed.fire(message.data.message);
+        return;
+      }
+      
+      // Normal response
       if (message.data.primitives) {
         assignFormatters(message.data.primitives.columns);
       }
       if (message.data.portfolio) {
         assignFormatters(message.data.portfolio.columns);
       }
-      
       _gridStructures = message.data;
-      self.onViewInitialized.fire(_gridStructures);
+      self.onViewChanged.fire(_gridStructures);
     }
     
     function assignFormatters(columns) {
@@ -201,6 +206,7 @@
       var updateMetadata = {
           portfolioViewport : {},
           primitiveViewport : {},
+          depGraphViewport : {}
       }
       
       // Get the UI components to complete the metadata
@@ -232,7 +238,7 @@
     //-----------------------------------------------------------------------
     // Public API
     
-    this.changeView = function(viewName, aggregatorName, marketDataSpec) {
+    this.changeView = function(viewId, aggregatorName, marketDataSpec) {
       _logger.info("Sending change view request");
       _portfolioDetails = null;
       _primitiveDetails = null;
@@ -240,7 +246,7 @@
       _isRunning = false;
       
       var changeViewRequest = {};
-      changeViewRequest["viewName"] = viewName;
+      changeViewRequest["viewId"] = viewId;
       changeViewRequest["aggregatorName"] = aggregatorName;
       $.extend(changeViewRequest, marketDataSpec);
       _cometd.publish('/service/changeView', changeViewRequest);
@@ -302,7 +308,8 @@
     this.beforeUpdateRequested = new EventManager();
     
     this.onInitDataReceived = new EventManager();
-    this.onViewInitialized = new EventManager();
+    this.onViewChanged = new EventManager();
+    this.onViewChangeFailed = new EventManager();
     this.onStatusUpdateReceived = new EventManager();
     this.afterUpdateReceived = new EventManager();
     

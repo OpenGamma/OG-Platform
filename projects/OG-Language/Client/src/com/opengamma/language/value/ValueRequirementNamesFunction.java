@@ -27,6 +27,11 @@ import com.opengamma.language.function.PublishedFunction;
  */
 public class ValueRequirementNamesFunction implements PublishedFunction {
 
+  /**
+   * Default instance.
+   */
+  public static final ValueRequirementNamesFunction INSTANCE = new ValueRequirementNamesFunction();
+
   private static final Set<String> s_valueRequirementNames;
 
   static {

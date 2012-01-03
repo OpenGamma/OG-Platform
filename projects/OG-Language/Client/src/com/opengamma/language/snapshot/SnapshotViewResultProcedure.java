@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
-import com.opengamma.engine.marketdatasnapshot.MarketDataSnapshotter;
+import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;

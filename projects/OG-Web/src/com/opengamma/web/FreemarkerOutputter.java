@@ -53,7 +53,7 @@ public class FreemarkerOutputter {
     // TODO: TIMEZONE
     data.put("now", ZonedDateTime.now());
     data.put("timeFormatter", DateTimeFormatters.pattern("HH:mm:ss"));
-    data.put("offsetFormatter", DateTimeFormatters.pattern("UTC+Z"));
+    data.put("offsetFormatter", DateTimeFormatters.pattern("Z"));
     return data;
   }
 

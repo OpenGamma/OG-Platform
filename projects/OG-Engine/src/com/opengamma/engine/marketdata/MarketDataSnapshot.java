@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.marketdata;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -45,12 +46,12 @@ public interface MarketDataSnapshot {
    * @param unit  the timeout unit, not null
    */
   void init(Set<ValueRequirement> valuesRequired, long timeout, TimeUnit unit);
-  
+
   /**
    * Gets the time associated with the snapshot.
    * 
    * @return the snapshot time, not null
-   * @throws IllegalStateException  if the snapshot has not been initialised by calling {@link #init(Set, long, TimeUnit)}
+   * @throws IllegalStateException  if the snapshot has not been initialized by calling {@link #init(Set, long, TimeUnit)}
    */
   Instant getSnapshotTime();
 
@@ -60,8 +61,17 @@ public interface MarketDataSnapshot {
    * @param requirement  the value required from the snapshot, not null
    * @return  the value found in the snapshot, null if the snapshot does not exist or no such value was
    *          found in the snapshot.
-   * @throws IllegalStateException  if the snapshot has not been initialised by calling {@link #init(Set, long, TimeUnit)}
+   * @throws IllegalStateException  if the snapshot has not been initialized by calling {@link #init(Set, long, TimeUnit)}
    */
-  Object query(ValueRequirement requirement); 
+  Object query(ValueRequirement requirement);
+
+  /**
+   * Queries the snapshot for multiple pieces of data.
+   * 
+   * @param requirements the values required from the snapshot, not null
+   * @return the values found in the snapshot, not null but missing entries if values were not found in the snapshot
+   * @throws IllegalStateException  if the snapshot has not been initialized by calling {@link #init(Set, long, TimeUnit)}
+   */
+  Map<ValueRequirement, Object> query(Set<ValueRequirement> requirements);
   
 }

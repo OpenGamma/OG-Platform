@@ -14,7 +14,9 @@ import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.DepositCounterpart;
+import com.opengamma.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
@@ -57,7 +59,17 @@ public final class LastTimeCalculator extends AbstractInstrumentDerivativeVisito
 
   @Override
   public Double visitCash(final Cash cash) {
-    return cash.getMaturity();
+    return cash.getEndTime();
+  }
+
+  @Override
+  public Double visitDepositIbor(final DepositIbor deposit) {
+    return deposit.getEndTime();
+  }
+
+  @Override
+  public Double visitDepositCounterpart(final DepositCounterpart deposit) {
+    return deposit.getEndTime();
   }
 
   @Override

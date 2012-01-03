@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -60,7 +60,7 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInstr
   @Override
   public Double visitCash(final Cash cash, final YieldCurveBundle curves) {
     final YieldAndDiscountCurve curve = curves.getCurve(cash.getYieldCurveName());
-    return curve.getDiscountFactor(cash.getMaturity()) * cash.getYearFraction();
+    return curve.getDiscountFactor(cash.getEndTime()) * cash.getAccrualFactor();
   }
 
   @Override

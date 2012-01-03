@@ -5,9 +5,6 @@
  */
 package com.opengamma.engine.marketdata;
 
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 import javax.time.Instant;
 
 import com.opengamma.engine.value.ValueRequirement;
@@ -15,7 +12,7 @@ import com.opengamma.engine.value.ValueRequirement;
 /**
  * Mock {@link MarketDataSnapshot}
  */
-public class MockMarketDataSnapshot implements MarketDataSnapshot {
+public class MockMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   private final Instant _snapshotTime = Instant.now();
   private final MockMarketDataProvider _provider;
@@ -27,14 +24,6 @@ public class MockMarketDataSnapshot implements MarketDataSnapshot {
   @Override
   public Instant getSnapshotTimeIndication() {
     return _snapshotTime;
-  }
-
-  @Override
-  public void init() {
-  }
-  
-  @Override
-  public void init(Set<ValueRequirement> valuesRequired, long timeout, TimeUnit unit) {
   }
 
   @Override

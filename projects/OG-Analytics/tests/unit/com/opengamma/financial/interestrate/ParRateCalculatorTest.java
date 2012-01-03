@@ -24,7 +24,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
@@ -70,9 +70,9 @@ public class ParRateCalculatorTest {
     final double tradeTime = 2.0 / 365.0;
     final double yearFrac = 5.0 / 360.0;
 
-    Cash cash = new Cash(CUR, t, 1, 0, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
+    Cash cash = new Cash(CUR, tradeTime, t, 1, 0, yearFrac, FIVE_PC_CURVE_NAME);
     final double rate = PRC.visit(cash, CURVES);
-    cash = new Cash(CUR, t, 1, rate, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
+    cash = new Cash(CUR, tradeTime, t, 1, rate, yearFrac, FIVE_PC_CURVE_NAME);
     assertEquals(0.0, PVC.visit(cash, CURVES), 1e-12);
   }
 

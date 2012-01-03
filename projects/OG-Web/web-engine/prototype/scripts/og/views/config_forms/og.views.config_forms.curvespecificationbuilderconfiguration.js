@@ -39,7 +39,7 @@ $.register_module({
                 [['*', '*', 'type'].join('.'),  Form.type.STR]
             ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {}),
             arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];},
-            form_builder;
+            form_builder, constructor;
         form_builder = function (config) {
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
@@ -269,12 +269,14 @@ $.register_module({
             ];
             form.dom();
         };
-        return function (config) {
+        constructor = function (config) {
             api.configs.get({meta: true, handler: function (result) {
                 if (result.error) return ui.dialog({type: 'error', message: result.message});
                 field_names = result.data[CURV];
                 form_builder(config);
             }});
         };
+        constructor.type_map = type_map;
+        return constructor;
     }
 });

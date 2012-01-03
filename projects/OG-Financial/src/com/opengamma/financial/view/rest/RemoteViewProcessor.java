@@ -12,7 +12,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.marketdata.LiveMarketDataSourceRegistry;
+import com.opengamma.engine.marketdata.live.LiveMarketDataSourceRegistry;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;

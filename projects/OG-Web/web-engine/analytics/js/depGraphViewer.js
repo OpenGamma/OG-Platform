@@ -63,7 +63,7 @@
             nullValue: ""
           }
       ];
-      var gridColumns = SlickGridHelper.makeGridColumns(self, targetColumn, _columns, _userConfig);
+      var gridColumns = SlickGridHelper.makeGridColumns(self, [targetColumn], _columns, 150, _userConfig);
       
       var gridOptions = {
           editable: false,
@@ -78,6 +78,8 @@
       _gridHelper = new SlickGridHelper(_grid, _dataView, _liveResultsClient.triggerImmediateUpdate, false);
       _gridHelper.afterViewportStable.subscribe(afterGridViewportStable);
       
+      _liveResultsClient.beforeUpdateRequested.subscribe(beforeUpdateRequested);
+      
       _userConfig.onSparklinesToggled.subscribe(onSparklinesToggled);
     }
     
@@ -87,6 +89,12 @@
     
     //-----------------------------------------------------------------------
     // Event handling
+    
+    function beforeUpdateRequested(updateMetadata) {
+      var cellId = rowId + "-" + colId;
+      updateMetadata.depGraphViewport[cellId] = {};
+      _gridHelper.populateViewportData(updateMetadata.depGraphViewport[cellId]);
+    }
     
     function onGridClicked(e, row, cell) {
       if ($(e.target).hasClass("toggle")) {
@@ -100,7 +108,7 @@
           _dataView.updateItem(item.rowId, item);
           _grid.removeAllRows();
           _grid.render();
-          _grid.reprocessAllRows();
+          _liveResultsClient.triggerImmediateUpdate();
         }
         return true;
       }
@@ -108,7 +116,7 @@
     }
     
     function afterGridViewportStable() {
-      _grid.reprocessAllRows();
+      _liveResultsClient.triggerImmediateUpdate();
     }
     
     function onSparklinesToggled(sparklinesEnabled) {
@@ -176,6 +184,8 @@
 
     this.destroy = function() {
       _userConfig.onSparklinesToggled.unsubscribe(onSparklinesToggled);
+      
+      _liveResultsClient.beforeUpdateRequested.unsubscribe(beforeUpdateRequested);
       
       _gridHelper.destroy();
       _grid.onClick = null;

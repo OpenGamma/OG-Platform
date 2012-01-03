@@ -16,7 +16,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
@@ -51,8 +51,8 @@ public class MultipleYieldCurveFinderDataBundleTest {
     for (int i = 0; i < n; i++) {
       final double t1 = i / 10.;
       final double t2 = t1 + 0.005;
-      DERIVATIVES.add(new Cash(CUR, t1, 1, Math.random(), CURVE_NAME1));
-      DERIVATIVES.add(new Cash(CUR, t2, 1, Math.random(), CURVE_NAME2));
+      DERIVATIVES.add(new Cash(CUR, 0, t1, 1, Math.random(), t1, CURVE_NAME1));
+      DERIVATIVES.add(new Cash(CUR, 0, t2, 1, Math.random(), t2, CURVE_NAME2));
       TIMES1[i] = t1;
       TIMES2[i] = t2;
       PAR_RATES[i] = 0.05;
@@ -188,7 +188,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
     assertEquals(DATA, other);
     assertEquals(DATA.hashCode(), other.hashCode());
     final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>(DERIVATIVES);
-    derivatives.set(0, new Cash(CUR, 1000, 1, 0.05, CURVE_NAME1));
+    derivatives.set(0, new Cash(CUR, 0, 1000, 1, 0.05, 1000, CURVE_NAME1));
     other = new MultipleYieldCurveFinderDataBundle(derivatives, PAR_RATES, null, NODES, INTERPOLATORS, false);
     assertFalse(other.equals(DATA));
     other = new MultipleYieldCurveFinderDataBundle(derivatives, new double[PAR_RATES.length], null, NODES, INTERPOLATORS, false);

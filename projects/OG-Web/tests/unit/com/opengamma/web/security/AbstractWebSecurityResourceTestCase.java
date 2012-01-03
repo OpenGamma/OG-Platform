@@ -6,6 +6,7 @@
 package com.opengamma.web.security;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
@@ -15,6 +16,7 @@ import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.mock.web.MockServletContext;
 import org.testng.annotations.BeforeMethod;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -29,6 +31,7 @@ import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.web.MockUriInfo;
+import com.opengamma.web.WebResourceTestUtils;
 
 /**
  * 
@@ -40,7 +43,7 @@ public abstract class AbstractWebSecurityResourceTestCase {
   protected SecurityMaster _secMaster;
   protected SecurityLoader _secLoader;
   protected WebSecuritiesResource _webSecuritiesResource;
-  protected Map<FinancialSecurity, UniqueId> _sec2UniqueId = Maps.newHashMap();
+  protected Map<Class<?>, List<FinancialSecurity>> _securities = Maps.newHashMap();
   protected UriInfo _uriInfo;
 
   @BeforeMethod
@@ -63,8 +66,8 @@ public abstract class AbstractWebSecurityResourceTestCase {
     _htsMaster = new InMemoryHistoricalTimeSeriesMaster();
     _cfgSource = new MasterConfigSource(new InMemoryConfigMaster());
     
-    addSecurity(WebSecuritiesResourceTestUtils.getEquitySecurity());
-    addSecurity(WebSecuritiesResourceTestUtils.getBondFutureSecurity());
+    addSecurity(WebResourceTestUtils.getEquitySecurity());
+    addSecurity(WebResourceTestUtils.getBondFutureSecurity());
         
     _webSecuritiesResource = new WebSecuritiesResource(_secMaster, _secLoader, _htsMaster, _cfgSource);
     _webSecuritiesResource.setServletContext(new MockServletContext("/web-engine", new FileSystemResourceLoader()));
@@ -75,7 +78,12 @@ public abstract class AbstractWebSecurityResourceTestCase {
   private void addSecurity(FinancialSecurity security) {
     FinancialSecurity clone = JodaBeanUtils.clone(security);
     SecurityDocument secDoc = _secMaster.add(new SecurityDocument(security));
-    _sec2UniqueId.put(clone, secDoc.getUniqueId());
+    List<FinancialSecurity> securities = _securities.get(clone.getClass());
+    if (securities == null) {
+      securities = Lists.newArrayList();
+      _securities.put(clone.getClass(), securities);
+    }
+    securities.add((FinancialSecurity) secDoc.getSecurity());
   }
 
 }

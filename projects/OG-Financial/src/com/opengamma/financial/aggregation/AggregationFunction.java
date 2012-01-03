@@ -6,6 +6,7 @@
 package com.opengamma.financial.aggregation;
 
 import java.util.Collection;
+import java.util.Comparator;
 
 import com.opengamma.core.position.Position;
 
@@ -14,8 +15,9 @@ import com.opengamma.core.position.Position;
  *
  * @param <T> type of bucket.
  */
-public interface AggregationFunction<T> {
+public interface AggregationFunction<T> extends Comparator<T> {
   Collection<T> getRequiredEntries();
   T classifyPosition(Position position);
+  Comparator<Position> getPositionComparator();
   String getName();
 }

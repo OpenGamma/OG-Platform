@@ -131,12 +131,10 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
   public HistoricalTimeSeries getHistoricalTimeSeries(
       UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    ArgumentChecker.notNull(start, "start");
-    ArgumentChecker.notNull(end, "end");
     final RestTarget target = getTargetBase().resolveBase(REQUEST_UID_BY_DATE).resolveBase(uniqueId.toString())
-        .resolveBase(start.toString())
+        .resolveBase(start == null ? NULL_VALUE : start.toString())
         .resolveBase(String.valueOf(includeStart))
-        .resolveBase(end.toString())
+        .resolveBase(end == null ? NULL_VALUE : end.toString())
         .resolveBase(String.valueOf(includeEnd));
     try {
       return decodeMessage(getRestClient().getMsg(target));
@@ -149,12 +147,10 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
   public HistoricalTimeSeries getHistoricalTimeSeries(
       UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    ArgumentChecker.notNull(start, "start");
-    ArgumentChecker.notNull(end, "end");
     final RestTarget target = getTargetBase().resolveBase(REQUEST_UID_BY_DATE_LIMIT).resolveBase(uniqueId.toString())
-        .resolveBase(start.toString())
+        .resolveBase(start == null ? NULL_VALUE : start.toString())
         .resolveBase(String.valueOf(includeStart))
-        .resolveBase(end.toString())
+        .resolveBase(end == null ? NULL_VALUE : end.toString())
         .resolveBase(String.valueOf(includeEnd))
         .resolveBase(String.valueOf(maxPoints));
     try {
@@ -168,13 +164,11 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
   public Pair<LocalDate, Double> getLatestDataPoint(
       UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    ArgumentChecker.notNull(start, "start");
-    ArgumentChecker.notNull(end, "end");
     HistoricalTimeSeries hts;
     final RestTarget target = getTargetBase().resolveBase(REQUEST_UID_BY_DATE).resolveBase(uniqueId.toString())
-        .resolveBase(start.toString())
+        .resolveBase(start == null ? NULL_VALUE : start.toString())
         .resolveBase(String.valueOf(includeStart))
-        .resolveBase(end.toString())
+        .resolveBase(end == null ? NULL_VALUE : end.toString())
         .resolveBase(String.valueOf(includeEnd))
         .resolveBase("-1");
     try {
@@ -251,14 +245,12 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     ArgumentChecker.notNull(identifierBundle, "identifierBundle");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataField, "dataField");
-    ArgumentChecker.notNull(start, "start");
-    ArgumentChecker.notNull(end, "end");
     final RestTarget target = getTargetBase().resolveBase(REQUEST_ALL_BY_DATE)
         .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
         .resolveBase(dataSource).resolveBase((dataProvider != null) ? dataProvider : NULL_VALUE).resolveBase(dataField)
-        .resolveBase(start.toString())
+        .resolveBase(start == null ? NULL_VALUE : start.toString())
         .resolveBase(String.valueOf(includeStart))
-        .resolveBase(end.toString())
+        .resolveBase(end == null ? NULL_VALUE : end.toString())
         .resolveBase(String.valueOf(includeEnd))
         .resolveQuery("id", identifierBundle.toStringList());
     try {
@@ -275,14 +267,12 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     ArgumentChecker.notNull(identifierBundle, "identifierBundle");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataField, "dataField");
-    ArgumentChecker.notNull(start, "start");
-    ArgumentChecker.notNull(end, "end");
     final RestTarget target = getTargetBase().resolveBase(REQUEST_ALL_BY_DATE_LIMIT)
         .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
         .resolveBase(dataSource).resolveBase((dataProvider != null) ? dataProvider : NULL_VALUE).resolveBase(dataField)
-        .resolveBase(start.toString())
+        .resolveBase(start == null ? NULL_VALUE : start.toString())
         .resolveBase(String.valueOf(includeStart))
-        .resolveBase(end.toString())
+        .resolveBase(end == null ? NULL_VALUE : end.toString())
         .resolveBase(String.valueOf(includeEnd))
         .resolveBase(String.valueOf(maxPoints))
         .resolveQuery("id", identifierBundle.toStringList());
@@ -374,15 +364,13 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
     ArgumentChecker.notNull(dataField, "dataField");
     ArgumentChecker.notEmpty(identifierBundle, "identifierBundle");
-    ArgumentChecker.notNull(start, "start");
-    ArgumentChecker.notNull(end, "end");
     final RestTarget target = getTargetBase().resolveBase(REQUEST_RESOLVED_BY_DATE_LIMIT)
         .resolveBase(dataField)
         .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
         .resolveBase((resolutionKey != null) ? resolutionKey : NULL_VALUE)
-        .resolveBase(start.toString())
+        .resolveBase(start == null ? NULL_VALUE : start.toString())
         .resolveBase(String.valueOf(includeStart))
-        .resolveBase(end.toString())
+        .resolveBase(end == null ? NULL_VALUE : end.toString())
         .resolveBase(String.valueOf(includeEnd))
         .resolveBase(String.valueOf(maxPoints))
         .resolveQuery("id", identifierBundle.toStringList());
@@ -399,15 +387,13 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     ArgumentChecker.notNull(dataField, "dataField");
     ArgumentChecker.notEmpty(identifierBundle, "identifierBundle");
-    ArgumentChecker.notNull(start, "start");
-    ArgumentChecker.notNull(end, "end");
     final RestTarget target = getTargetBase().resolveBase(REQUEST_RESOLVED_BY_DATE)
         .resolveBase(dataField)
         .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
         .resolveBase((resolutionKey != null) ? resolutionKey : NULL_VALUE)
-        .resolveBase(start.toString())
+        .resolveBase(start == null ? NULL_VALUE : start.toString())
         .resolveBase(String.valueOf(includeStart))
-        .resolveBase(end.toString())
+        .resolveBase(end == null ? NULL_VALUE : end.toString())
         .resolveBase(String.valueOf(includeEnd))
         .resolveQuery("id", identifierBundle.toStringList());
     try {

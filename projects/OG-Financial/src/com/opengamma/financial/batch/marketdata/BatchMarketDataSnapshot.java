@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 
+import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataSnapshot;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
@@ -36,7 +37,7 @@ import com.opengamma.financial.batch.SnapshotId;
  * the data in the historical data provider is completely fixed, 
  * then this step would not strictly be necessary. 
  */
-public class BatchMarketDataSnapshot implements MarketDataSnapshot {
+public class BatchMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   private final SnapshotId _batchSnapshotId;
   private final BatchRunMaster _batchRunMaster;

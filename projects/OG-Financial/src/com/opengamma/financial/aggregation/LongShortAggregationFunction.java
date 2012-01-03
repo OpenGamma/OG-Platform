@@ -7,6 +7,8 @@ package com.opengamma.financial.aggregation;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 import com.opengamma.core.position.Position;
@@ -34,6 +36,7 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.util.CompareUtils;
 
 /**
  * Function to classify positions by Currency.
@@ -46,6 +49,9 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
   private static final String NOT_LONG_SHORT = "N/A"; 
   private static final String LONG = "Long";
   private static final String SHORT = "Short";
+
+  private static final List<String> REQUIRED = Arrays.asList(LONG, SHORT, NOT_LONG_SHORT);
+  private final Comparator<Position> _comparator = new PositionComparator();
   private SecuritySource _secSource;
   
   public LongShortAggregationFunction(SecuritySource secSource) {
@@ -191,6 +197,23 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
 
   @Override
   public Collection<String> getRequiredEntries() {
-    return Arrays.asList(LONG, SHORT, NOT_LONG_SHORT, NOT_LONG_SHORT);
+    return REQUIRED;
+  }
+
+  @Override
+  public int compare(String o1, String o2) {
+    return CompareUtils.compareByList(REQUIRED, o1, o2);
+  }
+  
+  private class PositionComparator implements Comparator<Position> {
+    @Override
+    public int compare(Position o1, Position o2) {
+      return CompareUtils.compareWithNullLow(o1.getQuantity(), o2.getQuantity());
+    }
+  }
+
+  @Override
+  public Comparator<Position> getPositionComparator() {
+    return _comparator;
   }
 }

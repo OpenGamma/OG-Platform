@@ -11,7 +11,7 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.math.function.Function;
+import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 
 /**
@@ -22,95 +22,65 @@ public class StudentTLinearVaRCalculatorTest {
   private static final double PERIODS = 250;
   private static final double QUANTILE = new NormalDistribution(0, 1).getCDF(3.);
   private static final double DOF = 4;
-  private static final Function<Double, Double> MEAN = new Function<Double, Double>() {
+  private static final NormalVaRParameters NORMAL_PARAMETERS = new NormalVaRParameters(HORIZON, PERIODS, QUANTILE);
+  private static final StudentTVaRParameters HIGH_DOF_PARAMETERS = new StudentTVaRParameters(HORIZON, PERIODS, QUANTILE, 1000000);
+  private static final StudentTVaRParameters STUDENT_T_PARAMETERS = new StudentTVaRParameters(HORIZON, PERIODS, QUANTILE, DOF);
+  private static final Function1D<Double, Double> MEAN = new Function1D<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double... x) {
+    public Double evaluate(final Double x) {
       return 0.4;
     }
 
   };
-  private static final Function<Double, Double> STD = new Function<Double, Double>() {
+  private static final Function1D<Double, Double> STD = new Function1D<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double... x) {
+    public Double evaluate(final Double x) {
       return 1.;
     }
 
   };
-  private static final NormalLinearVaRCalculator<Double> NORMAL = new NormalLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, MEAN, STD);
-  private static final StudentTLinearVaRCalculator<Double> HIGH_DOF = new StudentTLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, 1000000, MEAN, STD);
-  private static final StudentTLinearVaRCalculator<Double> STUDENT_T = new StudentTLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, DOF, MEAN, STD);
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNegativeHorizon() {
-    new StudentTLinearVaRCalculator<Double>(-HORIZON, PERIODS, QUANTILE, DOF, MEAN, STD);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNegativePeriod() {
-    new StudentTLinearVaRCalculator<Double>(HORIZON, -PERIODS, QUANTILE, DOF, MEAN, STD);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNegativeQuantile() {
-    new StudentTLinearVaRCalculator<Double>(HORIZON, PERIODS, -QUANTILE, DOF, MEAN, STD);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testHighQuantile() {
-    new StudentTLinearVaRCalculator<Double>(HORIZON, PERIODS, 1 + QUANTILE, DOF, MEAN, STD);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNegativeDOF() {
-    new StudentTLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, -DOF, MEAN, STD);
-  }
+  private static final NormalLinearVaRCalculator<Double> NORMAL_VAR = new NormalLinearVaRCalculator<Double>(MEAN, STD);
+  private static final StudentTLinearVaRCalculator<Double> STUDENT_T_VAR = new StudentTLinearVaRCalculator<Double>(MEAN, STD);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator1() {
-    new StudentTLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, DOF, null, STD);
+    new StudentTLinearVaRCalculator<Double>(null, STD);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator2() {
-    new StudentTLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, DOF, MEAN, null);
+    new StudentTLinearVaRCalculator<Double>(MEAN, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullParameters() {
+    STUDENT_T_VAR.evaluate(null, 0.);
+  }
+  
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
-    STUDENT_T.evaluate((Double[]) null);
+    STUDENT_T_VAR.evaluate(STUDENT_T_PARAMETERS, (Double[]) null);
   }
 
   @Test
   public void test() {
-    final Double[] data = new Double[0];
-    assertEquals(NORMAL.evaluate(data), HIGH_DOF.evaluate(data), 1e-6);
-    assertTrue(STUDENT_T.evaluate(data) > NORMAL.evaluate(data));
+    final Double data = 0.;
+    assertEquals(NORMAL_VAR.evaluate(NORMAL_PARAMETERS, data), STUDENT_T_VAR.evaluate(HIGH_DOF_PARAMETERS, data), 1e-6);
+    assertTrue(STUDENT_T_VAR.evaluate(STUDENT_T_PARAMETERS, data) > NORMAL_VAR.evaluate(NORMAL_PARAMETERS, data));
   }
 
   @Test
   public void testEqualsAndHashCode() {
-    assertEquals(STUDENT_T.getDegreesOfFreedom(), DOF, 0);
-    assertEquals(STUDENT_T.getHorizon(), HORIZON, 0);
-    assertEquals(STUDENT_T.getPeriods(), PERIODS, 0);
-    assertEquals(STUDENT_T.getQuantile(), QUANTILE, 0);
-    assertEquals(STUDENT_T.getMeanCalculator(), MEAN);
-    assertEquals(STUDENT_T.getStandardDeviationCalculator(), STD);
-    StudentTLinearVaRCalculator<Double> other = new StudentTLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, DOF, MEAN, STD);
-    assertEquals(other, STUDENT_T);
-    assertEquals(other.hashCode(), STUDENT_T.hashCode());
-    other = new StudentTLinearVaRCalculator<Double>(HORIZON + 1, PERIODS, QUANTILE, DOF, MEAN, STD);
-    assertFalse(other.equals(STUDENT_T));
-    other = new StudentTLinearVaRCalculator<Double>(HORIZON, PERIODS + 1, QUANTILE, DOF, MEAN, STD);
-    assertFalse(other.equals(STUDENT_T));
-    other = new StudentTLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE * 0.5, DOF, MEAN, STD);
-    assertFalse(other.equals(STUDENT_T));
-    other = new StudentTLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, DOF + 1, MEAN, STD);
-    assertFalse(other.equals(STUDENT_T));
-    other = new StudentTLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, DOF, STD, STD);
-    assertFalse(other.equals(STUDENT_T));
-    other = new StudentTLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, DOF, MEAN, MEAN);
-    assertFalse(other.equals(STUDENT_T));
+    assertEquals(STUDENT_T_VAR.getMeanCalculator(), MEAN);
+    assertEquals(STUDENT_T_VAR.getStandardDeviationCalculator(), STD);
+    StudentTLinearVaRCalculator<Double> other = new StudentTLinearVaRCalculator<Double>(MEAN, STD);
+    assertEquals(other, STUDENT_T_VAR);
+    assertEquals(other.hashCode(), STUDENT_T_VAR.hashCode());
+    other = new StudentTLinearVaRCalculator<Double>(STD, STD);
+    assertFalse(other.equals(STUDENT_T_VAR));
+    other = new StudentTLinearVaRCalculator<Double>(MEAN, MEAN);
+    assertFalse(other.equals(STUDENT_T_VAR));
   }
 }

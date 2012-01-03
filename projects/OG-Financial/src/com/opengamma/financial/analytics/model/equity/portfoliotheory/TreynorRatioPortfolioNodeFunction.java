@@ -14,8 +14,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
  */
 public class TreynorRatioPortfolioNodeFunction extends TreynorRatioFunction {
 
-  public TreynorRatioPortfolioNodeFunction(final String expectedReturnCalculatorName, final String expectedRiskFreeReturnCalculatorName, final String startDate) {
-    super(expectedReturnCalculatorName, expectedRiskFreeReturnCalculatorName, startDate);
+  public TreynorRatioPortfolioNodeFunction(final String resolutionKey) {
+    super(resolutionKey);
   }
 
   @Override
@@ -26,11 +26,6 @@ public class TreynorRatioPortfolioNodeFunction extends TreynorRatioFunction {
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     return target.getType() == ComputationTargetType.PORTFOLIO_NODE;
-  }
-
-  @Override
-  public String getShortName() {
-    return "TreynorRatioPortfolioNodeFunction";
   }
 
   @Override

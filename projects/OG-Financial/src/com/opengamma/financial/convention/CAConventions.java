@@ -179,6 +179,9 @@ public class CAConventions {
         act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBC OVERNIGHT REPO"), ca, true);
     conventionMaster
         .addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CAD_OIS_CASH")), "CAD_OIS_CASH", act365, following, null, 2, false, null);
+    conventionMaster.addConventionBundle(
+        ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CAD_FRA")), "CAD_FRA", act365,
+        following, Period.ofMonths(3), 2, false, null);
 
     //TODO according to my information:
     //"Floating leg compounded quarterly at CDOR Flat paid semi-annually or annually for 1y"

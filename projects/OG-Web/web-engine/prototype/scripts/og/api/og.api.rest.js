@@ -48,19 +48,30 @@ $.register_module({
             },
             /** @ignore */
             get_cache = function (key) {
-                return cache['getItem'](module.name + key) ? JSON.parse(cache['getItem'](module.name + key)) : null;
+                try { // if cache is restricted, bail
+                    return cache['getItem'](module.name + key) ? JSON.parse(cache['getItem'](module.name + key)) : null;
+                } catch (error) {
+                    og.dev.warn(module.name + ': get_cache failed\n', error);
+                    return null;
+                }
             },
             /** @ignore */
             set_cache = function (key, value) {
                 try { // if the cache is too full, fail gracefully
                     cache['setItem'](module.name + key, JSON.stringify(value));
                 } catch (error) {
-                    og.dev.warn('set_cache failed: ', error);
+                    og.dev.warn(module.name + ': set_cache failed\n', error);
                     del_cache(key);
                 }
             },
             /** @ignore */
-            del_cache = function (key) {cache['removeItem'](module.name + key);},
+            del_cache = function (key) {
+                try { // if cache is restricted, bail
+                    cache['removeItem'](module.name + key);
+                } catch (error) {
+                    og.dev.warn(module.name + ': del_cache failed\n', error);
+                }
+            },
             /** @ignore */
             request = function (method, config) {
                 var id = request_id++, no_post_body = {GET: 0, DELETE: 0},
@@ -99,9 +110,10 @@ $.register_module({
                                 });
                             },
                             success: function (data, status, xhr) {
-                                var meta = {}, location = xhr.getResponseHeader('Location'), result, cache_for;
+                                var meta = {content_length: xhr.responseText.length},
+                                    location = xhr.getResponseHeader('Location'), result, cache_for;
                                 delete outstanding_requests[id];
-                                if (location) meta.id = location.split('/').pop();
+                                if (location && ~!location.indexOf('?')) meta.id = location.split('/').pop();
                                 if (config.meta.type in no_post_body) meta.url = url;
                                 result = {error: false, message: status, data: data, meta: meta};
                                 if (cache_for = config.meta.cache_for)
@@ -118,14 +130,14 @@ $.register_module({
                     if (og.app.READ_ONLY) return setTimeout(config.meta.handler.partial({
                         error: true, data: null, meta: {}, message: 'This application is in read-only mode.'
                     }), 0), id;
-                if (config.meta.update && !is_get) og.dev.warn('update functions are only for GETs');
+                if (config.meta.update && !is_get) og.dev.warn(module.name + ': update functions are only for GETs');
                 if (config.meta.cache_for && !is_get)
-                    og.dev.warn('only GETs can be cached'), delete config.meta.cache_for;
+                    og.dev.warn(module.name + ': only GETs can be cached'), delete config.meta.cache_for;
                 start_loading(config.meta.loading);
-                if (get_cache(url) && typeof get_cache(url) === 'object')
+                if (is_get && get_cache(url) && typeof get_cache(url) === 'object')
                     return (setTimeout(config.meta.handler.partial(get_cache(url)), 0)), id;
-                if (get_cache(url)) return (setTimeout(request.partial(method, config), 500)), id;
-                if (config.meta.cache_for) set_cache(url, true);
+                if (is_get && get_cache(url)) return (setTimeout(request.partial(method, config), 500)), id;
+                if (is_get && config.meta.cache_for) set_cache(url, true);
                 outstanding_requests[id] = {current: current, dependencies: config.meta.dependencies};
                 return send();
             },
@@ -207,8 +219,12 @@ $.register_module({
                 throw new Error(this.root + '#' + method + ' exists in the REST API, but does not have a JS version');
             };
         (function () { // initialize cache so nothing leaks from other sessions (e.g. from a FF crash)
-            for (var key, lcv = 0; lcv < cache.length; lcv += 1) // do not cache length, since we remove items
-                if (0 === (key = cache.key(lcv)).indexOf(module.name)) cache['removeItem'](key);
+            try { // if the cache is restricted, just bail
+                for (var key, lcv = 0; lcv < cache.length; lcv += 1) // do not cache length, since we remove items
+                    if (0 === (key = cache.key(lcv)).indexOf(module.name)) cache['removeItem'](key);
+            } catch (error) {
+                og.dev.warn(module.name + ': cache initalize failed\n', error);
+            }
         })();
         return api = {
             abort: function (id) {
@@ -322,7 +338,8 @@ $.register_module({
                     if (id_search) data.portfolioId = ids;
                     if (node_search) data.nodeId = nodes;
                     version = version ? [id, 'versions', version_search ? false : version].filter(Boolean) : id;
-                    if (id) method = method.concat(node ? [version, 'nodes', node] : version);
+                    if (id) method = method.concat(version);
+                    if (node) method.push('nodes', node);
                     return request(method, {data: data, meta: meta});
                 },
                 put: function (config) {

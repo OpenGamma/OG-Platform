@@ -5,6 +5,7 @@
  */
 package com.opengamma.master.marketdatasnapshot;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.joda.beans.BeanBuilder;
@@ -24,12 +25,19 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
 /**
- * A document used to pass into and out of the market data snapshot master.
+ * A document used to pass into and out of the snapshot master.
+ * <p>
+ * The snapshot master provides full management of the snapshot database.
+ * Each element is stored in a document.
+ * 
  * @see MarketDataSnapshotMaster
  */
 @PublicSPI
 @BeanDefinition
-public class MarketDataSnapshotDocument extends AbstractDocument {
+public class MarketDataSnapshotDocument extends AbstractDocument implements Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The snapshot document unique identifier.
