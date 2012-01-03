@@ -5,5 +5,12 @@
  */
 package com.opengamma.maths;
 
-interface EmptyTest {
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
+
+public class EmptyTest {
+  @Test
+  public void testStuff() {
+    assertTrue(true);
+  }
 }
