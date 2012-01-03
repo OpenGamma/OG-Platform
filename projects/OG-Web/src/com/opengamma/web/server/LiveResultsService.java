@@ -361,11 +361,11 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
       try {
         baseViewDefinitionId = UniqueId.parse(viewIdString);
       } catch (IllegalArgumentException e) {
-        sendChangeViewError("Invalid view definition identifier format: '" + viewIdString + "'.");
+        sendChangeViewError(remote, "Invalid view definition identifier format: '" + viewIdString);
         return;
       }
       if (!validateViewDefinitionId(baseViewDefinitionId)) {
-        sendChangeViewError("No view definition with identifier " + baseViewDefinitionId + " could be found.");
+        sendChangeViewError(remote, "No view definition with identifier " + baseViewDefinitionId + " could be found");
         return;
       }
       String aggregatorName = (String) data.get("aggregatorName");
@@ -376,7 +376,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
       if ("snapshot".equals(marketDataType)) {
         String snapshotIdString = (String) data.get("snapshotId");
         if (StringUtils.isBlank(snapshotIdString)) {
-          sendChangeViewError("Unknown snapshot.");
+          sendChangeViewError(remote, "Unknown snapshot");
           return;
         }
         UniqueId snapshotId = UniqueId.parse(snapshotIdString);
@@ -397,16 +397,16 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
       s_logger.info("Initializing view '{}', aggregated by '{}' with execution options '{}' for client '{}'", new Object[] {baseViewDefinitionId, aggregatorName, executionOptions, remote});
       initializeClientView(remote, baseViewDefinitionId, aggregatorName, executionOptions, getUser(remote));
     } catch (Exception e) {
-      sendChangeViewError("Unexpected error with message: " + e.getMessage());
+      sendChangeViewError(remote, "Unexpected error with message: " + e.getMessage());
     }
   }
 
-  private void sendChangeViewError(String errorMessage) {
+  private void sendChangeViewError(Client remote, String errorMessage) {
     s_logger.info("Notifying client of error changing view: " + errorMessage);
     Map<String, String> reply = new HashMap<String, String>();
     reply.put("isError", "true");
     reply.put("message", "Unable to change view. " + errorMessage + ".");
-    getBayeux().getChannel("/changeView", true).publish(getClient(), reply, null);
+    remote.deliver(getClient(), "/changeView", reply, null);
   }
   
   private boolean validateViewDefinitionId(UniqueId viewDefinitionId) {

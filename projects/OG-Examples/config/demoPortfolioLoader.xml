@@ -10,6 +10,12 @@
       <value>classpath:demoPortfolioLoader.properties</value>
     </property>
   </bean>
+  
+    <!-- Embedded Active MQ broker -->
+  <bean id="broker" class="org.apache.activemq.xbean.BrokerFactoryBean">
+    <property name="config" value="classpath:activemq.xml" />
+    <property name="start" value="true" />
+  </bean>
 
   <!-- Exports: dbPositionMaster, sharedSecuritySource -->
   <import resource="classpath:com/opengamma/financial/portfolio/loader/loaderContext.xml" />
