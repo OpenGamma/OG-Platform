@@ -10,7 +10,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
 
-import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 
@@ -22,31 +21,54 @@ double _array[][]={{1,2,3,4,5},{6,7,8,9,10},{11,12,13,14,15}};
 double _ragged[][]={{1,2,3,4},{5,6,7},{11,12,13,14,15}};
 double _square[][]={{1,2,3},{4,5,6},{7,8,9}};
 double _vectorwithzeros[]={0,1,0,2,3,0,4,0,5,0,0,6};
+double _arraywithzeros[][]={{1,2,0,4,5},{6,0,8,9,10},{11,12,13,0,15}};
+
+int _intarray[][]={{1,2,3,4,5},{6,7,8,9,10},{11,12,13,14,15}};
+int _intragged[][]={{1,2,3,4},{5,6,7},{11,12,13,14,15}};
+int _intsquare[][]={{1,2,3},{4,5,6},{7,8,9}};
+int _intvectorwithzeros[]={0,1,0,2,3,0,4,0,5,0,0,6};
+int _intarraywithzeros[][]={{1,2,0,4,5},{6,0,8,9,10},{11,12,13,0,15}};
 
 @Test
 public void testIsRagged() {
-AssertJUnit.assertTrue(MatrixPrimitiveUtils.isRagged(_ragged));
-AssertJUnit.assertFalse(MatrixPrimitiveUtils.isRagged(_array));
+assertTrue(MatrixPrimitiveUtils.isRagged(_ragged));
+assertFalse(MatrixPrimitiveUtils.isRagged(_array));
+assertTrue(MatrixPrimitiveUtils.isRagged(_intragged));
+assertFalse(MatrixPrimitiveUtils.isRagged(_intarray));
 }
 
 @Test
 public void testIsSquare() {
-AssertJUnit.assertTrue(MatrixPrimitiveUtils.isSquare(_square));
-AssertJUnit.assertFalse(MatrixPrimitiveUtils.isSquare(_array));
-AssertJUnit.assertFalse(MatrixPrimitiveUtils.isSquare(_ragged));
+assertTrue(MatrixPrimitiveUtils.isSquare(_square));
+assertFalse(MatrixPrimitiveUtils.isSquare(_array));
+assertFalse(MatrixPrimitiveUtils.isSquare(_ragged));
+assertTrue(MatrixPrimitiveUtils.isSquare(_intsquare));
+assertFalse(MatrixPrimitiveUtils.isSquare(_intarray));
+assertFalse(MatrixPrimitiveUtils.isSquare(_intragged));
 }
 
 @Test
 public void testGetNumberOfElementsInArray() {
-  AssertJUnit.assertEquals(15,MatrixPrimitiveUtils.getNumberOfElementsInArray(_array));
-  AssertJUnit.assertEquals(12,MatrixPrimitiveUtils.getNumberOfElementsInArray(_ragged));
-  AssertJUnit.assertEquals(9,MatrixPrimitiveUtils.getNumberOfElementsInArray(_square));
+  assertTrue(MatrixPrimitiveUtils.getNumberOfElementsInArray(_array)==15);
+  assertTrue(MatrixPrimitiveUtils.getNumberOfElementsInArray(_ragged)==12);
+  assertTrue(MatrixPrimitiveUtils.getNumberOfElementsInArray(_square)==9);
+  assertTrue(MatrixPrimitiveUtils.getNumberOfElementsInArray(_intarray)==15);
+  assertTrue(MatrixPrimitiveUtils.getNumberOfElementsInArray(_intragged)==12);
+  assertTrue(MatrixPrimitiveUtils.getNumberOfElementsInArray(_intsquare)==9);
 }
 
 @Test
 public void testNumberOfNonZeroElementsInVector() {
-  AssertJUnit.assertEquals(6,MatrixPrimitiveUtils.numberOfNonZeroElementsInVector(_vectorwithzeros));
+  assertTrue(MatrixPrimitiveUtils.numberOfNonZeroElementsInVector(_vectorwithzeros)==6);
+  assertTrue(MatrixPrimitiveUtils.numberOfNonZeroElementsInVector(_intvectorwithzeros)==6);
 }
+
+@Test
+public void testNumberOfNonZeroElementsInMatrix() {
+  assertTrue(MatrixPrimitiveUtils.numberOfNonZeroElementsInMatrix(_arraywithzeros)==12);
+  assertTrue(MatrixPrimitiveUtils.numberOfNonZeroElementsInMatrix(_intarraywithzeros)==12);
+}
+
 
 @Test
 public void testArrayHasContiguousNonZeros() {

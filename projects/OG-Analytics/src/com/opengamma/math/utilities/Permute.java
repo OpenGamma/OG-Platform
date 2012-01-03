@@ -19,7 +19,7 @@ public class Permute {
    * @param v the vector to permute
    * @param p the permutation
    */
-  public static void inplace(int[] v, int[] p) {
+  public static void inPlace(int[] v, int[] p) {
     inputValidator(v, p);
     final int[] tmp = permuter(v, p);
     System.arraycopy(tmp, 0, v, 0, v.length);
@@ -63,7 +63,7 @@ public class Permute {
    * @param v the vector to permute
    * @param p the permutation
    */
-  public static void inplace(long[] v, int[] p) {
+  public static void inPlace(long[] v, int[] p) {
     inputValidator(v, p);
     final long[] tmp = permuter(v, p);
     System.arraycopy(tmp, 0, v, 0, v.length);
@@ -107,7 +107,7 @@ public class Permute {
    * @param v the vector to permute
    * @param p the permutation
    */
-  public static void inplace(float[] v, int[] p) {
+  public static void inPlace(float[] v, int[] p) {
     inputValidator(v, p);
     final float[] tmp = permuter(v, p);
     System.arraycopy(tmp, 0, v, 0, v.length);
@@ -151,7 +151,7 @@ public class Permute {
    * @param v the vector to permute
    * @param p the permutation
    */
-  public static void inplace(double[] v, int[] p) {
+  public static void inPlace(double[] v, int[] p) {
     inputValidator(v, p);
     final double[] tmp = permuter(v, p);
     System.arraycopy(tmp, 0, v, 0, v.length);

@@ -20,6 +20,7 @@ import com.opengamma.math.BLAS.BLAS2KernelImplementations.DGEMVForCSRMatrix;
 import com.opengamma.math.BLAS.BLAS2KernelImplementations.DGEMVForDenseMatrix;
 import com.opengamma.math.BLAS.BLAS2KernelImplementations.DGEMVForDenseSymmetricMatrix;
 import com.opengamma.math.BLAS.BLAS2KernelImplementations.DGEMVForPackedMatrix;
+import com.opengamma.math.highlevelapi.OGArray;
 import com.opengamma.math.matrix.CompressedSparseColumnFormatMatrix;
 import com.opengamma.math.matrix.CompressedSparseRowFormatMatrix;
 import com.opengamma.math.matrix.DenseMatrix;
@@ -64,6 +65,8 @@ public class BLAS2 {
    */
   private static Map<Class<?>, BLAS2DGEMVKernelAbstraction<?>> s_dgemvFunctionPointers = new HashMap<Class<?>, BLAS2DGEMVKernelAbstraction<?>>();
   static {
+    s_dgemvFunctionPointers.put(OGArray.class, DGEMVForDenseMatrix.getInstance()); // this is the wrapper for the high level API
+
     s_dgemvFunctionPointers.put(DenseMatrix.class, DGEMVForDenseMatrix.getInstance());
     s_dgemvFunctionPointers.put(CompressedSparseRowFormatMatrix.class, DGEMVForCSRMatrix.getInstance());
     s_dgemvFunctionPointers.put(CompressedSparseColumnFormatMatrix.class, DGEMVForCSCMatrix.getInstance());
@@ -1568,83 +1571,6 @@ public class BLAS2 {
    */
   public static <T extends MatrixPrimitive> void dgemvInPlaceTransposed(DoubleMatrix1D y, double alpha, T aMatrix, double beta, DoubleMatrix1D aVector) {
     dgemvInPlaceTransposed(y.getData(), alpha, aMatrix, beta, aVector.getData());
-  }
-
-  /* Statefull manipulators on the CompressedSparseRowFormatMatrix type */
-
-  /**
-   * DGEMV simplified: y:=A*x
-   * @param y a double vector that will be altered to contain A*x
-   * @param aMatrix a CompressedSparseRowFormatMatrix
-   * @param aVector a double[] vector
-   */
-  public static void dgemvInPlace(double[] y, CompressedSparseRowFormatMatrix aMatrix, double[] aVector) {
-    dgemvInputSanityChecker(y, aMatrix, aVector);
-    final int[] rowPtr = aMatrix.getRowPtr();
-    final int[] colIdx = aMatrix.getColumnIndex();
-    final double[] values = aMatrix.getNonZeroElements();
-    final int rows = aMatrix.getNumberOfRows();
-    int ptr = 0;
-    for (int i = 0; i < rows; i++) {
-      y[i] = 0;
-      for (int j = rowPtr[i]; j < rowPtr[i + 1]; j++) {
-        y[i] += values[ptr] * aVector[colIdx[ptr]];
-        ptr++;
-      }
-    }
-  }
-
-  /**
-   * DGEMV simplified: y:=alpha*A*x + beta*y OR y:=alpha*A*x
-   * NOTE: This method uses a short cut if beta is set to 0
-   * @param y a double vector that will be altered to contain alpha*A*x
-   * @param alpha a double indicating the scaling of A*x
-   * @param beta a double indicating the scaling of y
-   * @param aMatrix a CompressedSparseRowFormatMatrix
-   * @param aVector a double[] vector
-   */
-  public static void dgemvInPlace(double[] y, double alpha, CompressedSparseRowFormatMatrix aMatrix, double[] aVector, double beta) {
-    dgemvInputSanityChecker(y, aMatrix, aVector);
-    if (beta == 0) {
-      csralphaAx(y, alpha, aMatrix, aVector);
-    } else {
-      csralphaAxplusbetay(y, alpha, aMatrix, beta, aVector);
-    }
-  }
-
-  /** 2 helper functions for alpha*A*x ?+ beta*y */
-  private static void csralphaAx(double[] y, double alpha, CompressedSparseRowFormatMatrix aMatrix, double[] aVector) {
-    final int[] rowPtr = aMatrix.getRowPtr();
-    final int[] colIdx = aMatrix.getColumnIndex();
-    final double[] values = aMatrix.getNonZeroElements();
-    final int rows = aMatrix.getNumberOfRows();
-    int ptr = 0;
-    double alphaTmp;
-    for (int i = 0; i < rows; i++) {
-      alphaTmp = 0;
-      for (int j = rowPtr[i]; j < rowPtr[i + 1]; j++) {
-        alphaTmp += values[ptr] * aVector[colIdx[ptr]];
-        ptr++;
-      }
-      y[i] = alpha * alphaTmp;
-    }
-  }
-
-  private static void csralphaAxplusbetay(double[] y, double alpha, CompressedSparseRowFormatMatrix aMatrix, double beta, double[] aVector) {
-    final int[] rowPtr = aMatrix.getRowPtr();
-    final int[] colIdx = aMatrix.getColumnIndex();
-    final double[] values = aMatrix.getNonZeroElements();
-    final int rows = aMatrix.getNumberOfRows();
-    int ptr = 0;
-    double alphaTmp;
-    for (int i = 0; i < rows; i++) {
-      alphaTmp = 0;
-      for (int j = rowPtr[i]; j < rowPtr[i + 1]; j++) {
-        alphaTmp += values[ptr] * aVector[colIdx[ptr]];
-        ptr++;
-      }
-      y[i] = alpha * alphaTmp + beta * y[i];
-    }
   }
 
 } // class end
