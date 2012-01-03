@@ -169,7 +169,7 @@ public class TwoStateMarkovChainFitter {
         final PDEFullResults1D res = mc.solve(grid, _theta);
         //        System.out.println("time1 " + ((System.nanoTime() - timer1)/1e6)+"ms");
         //        long timer2 = System.nanoTime();
-        final Map<DoublesPair, Double> data = PDEUtilityTools.priceToImpliedVol(forward, res, minT, maxT, minK, maxK);
+        final Map<DoublesPair, Double> data = PDEUtilityTools.priceToImpliedVol(forward, res, minT, maxT, minK, maxK, true);
         //        System.out.println("time2 " + ((System.nanoTime() - timer2)/1e6)+"ms");
         //        long timer3 = System.nanoTime();
         final Map<Double, Interpolator1DDataBundle> dataBundle = GRID_INTERPOLATOR2D.getDataBundle(data);

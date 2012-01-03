@@ -27,7 +27,7 @@ import com.opengamma.math.surface.FunctionalDoublesSurface;
  */
 public class PiecewiseSABRSurfaceFitter {
 
-  private static Interpolator1D EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static Interpolator1D EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
 
   private final ForwardCurve _forwardCurve;
   private final double[] _forwards;
@@ -82,6 +82,34 @@ public class PiecewiseSABRSurfaceFitter {
     checkMoneyness();
   }
 
+  public PiecewiseSABRSurfaceFitter(final double[] forwards, final double[] expiries, final double[][] strikes, double[][] impliedVols) {
+    Validate.notNull(forwards, "null forwards");
+    Validate.notNull(expiries, "null expiries");
+    Validate.notNull(strikes, "null strikes");
+    Validate.notNull(impliedVols, "null impliedVols");
+    _nExpiries = expiries.length;
+    Validate.isTrue(_nExpiries == forwards.length, "forwards wrong length");
+    Validate.isTrue(_nExpiries == strikes.length, "strikes wrong length");
+    Validate.isTrue(_nExpiries == impliedVols.length, "impVols wrong length");
+
+    _expiries = expiries;
+    _forwards = forwards;
+    _strikes = strikes;
+    _vols = impliedVols;
+    _atmVols = null;
+
+    checkVols();
+
+    //fit each time slice with piecewise SABR
+    _fitters = new PiecewiseSABRFitter[_nExpiries];
+    for (int i = 0; i < _nExpiries; i++) {
+      _fitters[i] = new PiecewiseSABRFitter(_forwards[i], _strikes[i], _expiries[i], _vols[i]);
+    }
+
+    checkMoneyness();
+    _forwardCurve = new ForwardCurve(InterpolatedDoublesCurve.from(_expiries, _forwards, EXTRAPOLATOR));
+  }
+
   private void checkVols() {
     final int n = _vols[0].length;
     for (int i = 0; i < n; i++) {
@@ -118,7 +146,11 @@ public class PiecewiseSABRSurfaceFitter {
     _forwards = Arrays.copyOf(from._forwards, from._nExpiries);
     _expiries = Arrays.copyOf(from._expiries, from._nExpiries);
     _forwardCurve = new ForwardCurve(InterpolatedDoublesCurve.from(_expiries, _forwards, EXTRAPOLATOR));
-    _atmVols = Arrays.copyOf(from._atmVols, from._nExpiries);
+    if (from._atmVols != null) {
+      _atmVols = Arrays.copyOf(from._atmVols, from._nExpiries);
+    } else {
+      _atmVols = null;
+    }
     _strikes = new double[_nExpiries][];
     _vols = new double[_nExpiries][];
     _fitters = new PiecewiseSABRFitter[_nExpiries];
@@ -130,7 +162,7 @@ public class PiecewiseSABRSurfaceFitter {
   }
 
   public BlackVolatilitySurface getImpliedVolatilitySurface() {
-    return getSurfaceMoneyness();
+    return getSurfaceDoubleQuad();
   }
 
   public PiecewiseSABRSurfaceFitter withBumpedPoint(final int expiryIndex, final int strikeIndex, final double amount) {
@@ -318,7 +350,7 @@ public class PiecewiseSABRSurfaceFitter {
   }
 
   private BlackVolatilitySurface getSurfaceMoneyness() {
-    final double eps = 1e-4;
+    final double lambda = 100;
 
     Function<Double, Double> surFunc = new Function<Double, Double>() {
 
@@ -333,16 +365,17 @@ public class PiecewiseSABRSurfaceFitter {
         //          t = 1e-6;
         //        }
 
+        final double x = Math.log(forward / k) / Math.sqrt(1 + lambda * t);
+
         if (t <= _expiries[0]) {
           //         double k1 = _forwards[0] * Math.exp(Math.log(k / forward) * Math.sqrt((_expiries[0] + eps) / (t + eps)));
-          return _fitters[0].getVol(k);
+          double k1 = _forwards[0] * Math.exp(-Math.sqrt(1 + lambda * _expiries[0]) * x);
+          return _fitters[0].getVol(k1);
         }
         if (t >= _expiries[_nExpiries - 1]) {
-          double k1 = _forwards[_nExpiries - 1] * Math.exp(Math.log(k / forward) * Math.sqrt(_expiries[_nExpiries - 1] / t));
+          double k1 = _forwards[_nExpiries - 1] * Math.exp(-Math.sqrt(1 + lambda * _expiries[_nExpiries - 1]) * x);
           return _fitters[_nExpiries - 1].getVol(k1);
         }
-
-        final double x = Math.log(k / forward) / Math.sqrt(t);
 
         int index = getLowerBoundIndex(t);
 
@@ -357,8 +390,8 @@ public class PiecewiseSABRSurfaceFitter {
 
         final double t1 = _expiries[lower];
         final double t2 = _expiries[lower + 1];
-        double k1 = _forwards[lower] * Math.exp(Math.sqrt(t1) * x);
-        double k2 = _forwards[lower + 1] * Math.exp(Math.sqrt(t2) * x);
+        double k1 = _forwards[lower] * Math.exp(-Math.sqrt(1 + lambda * t1) * x);
+        double k2 = _forwards[lower + 1] * Math.exp(-Math.sqrt(1 + lambda * t2) * x);
 
         double vol1 = _fitters[lower].getVol(k1);
         double vol2 = _fitters[lower + 1].getVol(k2);
@@ -399,14 +432,14 @@ public class PiecewiseSABRSurfaceFitter {
         //          t = 1e-6;
         //        }
 
-        if (t <= _expiries[0]) {
-          //         double k1 = _forwards[0] * Math.exp(Math.log(k / forward) * Math.sqrt((_expiries[0] + eps) / (t + eps)));
-          return _fitters[0].getVol(k);
-        }
-        if (t >= _expiries[_nExpiries - 1]) {
-          double k1 = _forwards[_nExpiries - 1] * Math.exp(Math.log(k / forward) * Math.sqrt(_expiries[_nExpiries - 1] / t));
-          return _fitters[_nExpiries - 1].getVol(k1);
-        }
+        //        if (t <= _expiries[0]) {
+        //          //         double k1 = _forwards[0] * Math.exp(Math.log(k / forward) * Math.sqrt((_expiries[0] + eps) / (t + eps)));
+        //          return _fitters[0].getVol(k);
+        //        }
+        //        if (t >= _expiries[_nExpiries - 1]) {
+        //          double k1 = _forwards[_nExpiries - 1] * Math.exp(Math.log(k / forward) * Math.sqrt(_expiries[_nExpiries - 1] / t));
+        //          return _fitters[_nExpiries - 1].getVol(k1);
+        //        }
 
         final double x = Math.log(k / forward) / Math.sqrt(t);
 
@@ -450,6 +483,8 @@ public class PiecewiseSABRSurfaceFitter {
   }
 
   private BlackVolatilitySurface getSurfaceDoubleQuad() {
+    final double lambda = 100;
+
     Function<Double, Double> surFunc = new Function<Double, Double>() {
 
       @Override
@@ -457,23 +492,20 @@ public class PiecewiseSABRSurfaceFitter {
         double t = tk[0];
         double k = tk[1];
 
-        final double atmVol = interpolatedATMVol(t);
+        //       final double atmVol = interpolatedATMVol(t);
         final double forward = _forwardCurve.getForward(t);
 
-        //        if (t > 1.0) {
-        //          System.out.println("debug");
-        //        }
-
+        final double x = Math.log(forward / k) / Math.sqrt(1 + lambda * t);
+        //
         if (t <= _expiries[0]) {
-          // double k1 = getStrike(d1, _forwards[0], _atmVols[0], _expiries[0]);
-          return _fitters[0].getVol(k);
+          double k1 = _forwards[0] * Math.exp(-x * Math.sqrt(1 + lambda * _expiries[0]));
+          return _fitters[0].getVol(k1);
         }
-
-        final double d1 = getD1(forward, k, atmVol, t);
-        if (t >= _expiries[_nExpiries - 1]) {
-          double k1 = getStrike(d1, _forwards[_nExpiries - 1], _atmVols[_nExpiries - 1], _expiries[_nExpiries - 1]);
-          return _fitters[_nExpiries - 1].getVol(k1);
-        }
+        //
+        //        if (t >= _expiries[_nExpiries - 1]) {
+        //          double k1 = _forwards[_nExpiries - 1] * Math.exp(-x * Math.sqrt(1 + lambda * _expiries[_nExpiries - 1]));
+        //          return _fitters[_nExpiries - 1].getVol(k1);
+        //        }
 
         int index = getLowerBoundIndex(t);
 
@@ -487,25 +519,28 @@ public class PiecewiseSABRSurfaceFitter {
         } else {
           lower = index - 1;
         }
-
         final double[] times = Arrays.copyOfRange(_expiries, lower, lower + 4);
-        final double[] forwards = Arrays.copyOfRange(_forwards, lower, lower + 4);
-        final double[] atm = Arrays.copyOfRange(_atmVols, lower, lower + 4);
+        final double[] logTimes = new double[4];
+        for (int i = 0; i < 4; i++) {
+          logTimes[i] = Math.log(times[i]);
+        }
+        // final double[] forwards = Arrays.copyOfRange(_forwards, lower, lower + 4);
+        // final double[] atm = Arrays.copyOfRange(_atmVols, lower, lower + 4);
         final double[] strikes = new double[4];
         final double[] vols = new double[4];
-        // final double[] intVar = new double[4];
+        final double[] intVar = new double[4];
 
         for (int i = 0; i < 4; i++) {
-          strikes[i] = getStrike(d1, forwards[i], atm[i], times[i]);
+          strikes[i] = _forwards[lower + i] * Math.exp(-x * Math.sqrt(1 + lambda * times[i]));
           vols[i] = _fitters[lower + i].getVol(strikes[i]);
-          //          intVar[i] = vols[i]*vols[i]*times[i];
+          //   intVar[i] = vols[i] * vols[i] * times[i];
           //          if(i>0) {
           //            Validate.isTrue(intVar[i] > intVar[i-1], "variance must increase");
           //          }
         }
 
-        Interpolator1DDataBundle db = EXTRAPOLATOR.getDataBundle(times, vols);
-        double sigma = EXTRAPOLATOR.interpolate(db, t);
+        Interpolator1DDataBundle db = EXTRAPOLATOR.getDataBundle(logTimes, vols);
+        double sigma = (EXTRAPOLATOR.interpolate(db, Math.log(t)));
         return sigma;
       }
     };
