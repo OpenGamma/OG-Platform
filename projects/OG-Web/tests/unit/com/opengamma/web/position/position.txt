@@ -1,0 +1,27 @@
+{
+    "template_data": {
+        "name": "50 x AAPL US Equity",
+        "object_id": "MemPos~1",
+        "security_name": "APPLE INC",
+        "security_unique_id": "Mock~1",
+        "security_type": "EQUITY",
+        "quantity": "50"
+    },
+    "securities": [
+        {
+            "scheme": "BLOOMBERG_TICKER",
+            "value": "AAPL US Equity"
+        }
+    ],
+    "trades": [
+        {
+            "id": "MemPos~2",
+            "date_time": "2011-12-07  @ 15:04:00(+0100)",
+            "premium": "10 USD",
+            "premium_date_time": "10 @ 15:04:00 (+0100)",
+            "quantity": "50",
+            "counterParty": "COUNTER_PARTY~BACS",
+            "tradeDate": "2011-12-07"
+        }
+    ]
+}
