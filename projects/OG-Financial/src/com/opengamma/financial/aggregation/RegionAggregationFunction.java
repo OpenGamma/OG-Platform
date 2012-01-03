@@ -5,18 +5,22 @@
  */
 package com.opengamma.financial.aggregation;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.collections.Lists;
 
-import com.google.common.collect.Sets;
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -24,6 +28,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.CompareUtils;
 
 /**
  * Function to classify positions by Currency.
@@ -31,15 +36,16 @@ import com.opengamma.id.UniqueId;
  */
 public class RegionAggregationFunction implements AggregationFunction<String> {
   private boolean _useAttributes;
+  private boolean _includeEmptyCategories;
   
   private static final Logger s_logger = LoggerFactory.getLogger(RegionAggregationFunction.class);
   private static final String NAME = "Region";
   private static final String OTHER = "Other";
   private static final String NO_REGION = "N/A";
   
-  private static final Set<String> s_topLevelRegions = Sets.newHashSet("Africa", "Asia", "South America", "Europe");
-  private static final Set<String> s_specialCountriesRegions = Sets.newHashSet("United States", "Canada");
-  private static final Set<String> s_requiredEntries = Sets.newHashSet();
+  private static final List<String> s_topLevelRegions = Arrays.asList("Africa", "Asia", "South America", "Europe");
+  private static final List<String> s_specialCountriesRegions = Arrays.asList("United States", "Canada");
+  private static final List<String> s_requiredEntries = Lists.newArrayList();
   
   static {
     s_requiredEntries.addAll(s_topLevelRegions);
@@ -51,16 +57,23 @@ public class RegionAggregationFunction implements AggregationFunction<String> {
   private SecuritySource _secSource;
   private RegionSource _regionSource;
   private ExchangeSource _exchangeSource;
+  private final Comparator<Position> _comparator = new SimplePositionComparator();
+  
     
   public RegionAggregationFunction(SecuritySource secSource, RegionSource regionSource, ExchangeSource exchangeSource) {
     this(secSource, regionSource, exchangeSource, true);
   }
   
   public RegionAggregationFunction(SecuritySource secSource, RegionSource regionSource, ExchangeSource exchangeSource, boolean useAttributes) {
+    this(secSource, regionSource, exchangeSource, useAttributes, true);
+  }
+  
+  public RegionAggregationFunction(SecuritySource secSource, RegionSource regionSource, ExchangeSource exchangeSource, boolean useAttributes, boolean includeEmptyCategories) {
     _secSource = secSource;
     _regionSource = regionSource;
     _exchangeSource = exchangeSource;
     _useAttributes = useAttributes;
+    _includeEmptyCategories = includeEmptyCategories;
   }
   
   /**
@@ -83,7 +96,10 @@ public class RegionAggregationFunction implements AggregationFunction<String> {
       }
     } else {
       try {
-        Security security = position.getSecurityLink().resolve(_secSource);
+        Security security = position.getSecurityLink().getTarget();
+        if (security == null) {
+          security = position.getSecurityLink().resolve(_secSource);
+        }
         ExternalId id = FinancialSecurityUtils.getRegion(security);
         if (_regionSource != null) {
           if (id != null) {
@@ -156,6 +172,20 @@ public class RegionAggregationFunction implements AggregationFunction<String> {
 
   @Override
   public Collection<String> getRequiredEntries() {
-    return Collections.unmodifiableSet(s_requiredEntries);
+    if (_includeEmptyCategories) {
+      return s_requiredEntries;
+    } else {
+      return Collections.emptyList();
+    }
+  }
+
+  @Override
+  public int compare(String o1, String o2) {
+    return CompareUtils.compareByList(s_requiredEntries, o1, o2);
+  }
+
+  @Override
+  public Comparator<Position> getPositionComparator() {
+    return _comparator;
   }
 }

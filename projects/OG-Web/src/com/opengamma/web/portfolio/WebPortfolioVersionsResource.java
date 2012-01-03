@@ -40,16 +40,6 @@ public class WebPortfolioVersionsResource extends AbstractWebPortfolioResource {
   }
 
   //-------------------------------------------------------------------------
-//  @GET
-//  public String getHTML() {
-//    PortfolioHistoryRequest request = new PortfolioHistoryRequest(data().getPortfolio().getUniqueId());
-//    PortfolioHistoryResult result = data().getPortfolioMaster().history(request);
-//    
-//    FlexiBean out = createRootData();
-//    out.put("versionsResult", result);
-//    out.put("versions", result.getPortfolios());
-//    return getFreemarker().build("portfolios/portfolioversions.ftl", out);
-//  }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)

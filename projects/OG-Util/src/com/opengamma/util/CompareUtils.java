@@ -5,6 +5,8 @@
  */
 package com.opengamma.util;
 
+import java.util.List;
+
 /**
  * Utility methods to simplify comparisons.
  * <p>
@@ -170,4 +172,33 @@ public final class CompareUtils {
     return (a < b) ? -1 : 1;
   }
 
+  /**
+   * Compare two items, with the ordering determined by a list of those items.
+   * <p>
+   * nulls are permitted and sort low, and if a or b are not in the list, then
+   * the result of comparing the toString() output is used instead.
+   * @param list
+   * @param a
+   * @param b
+   * @return 0, if equal, -1 if a < b, +1 if a > b
+   */
+  public static <T> int compareByList(List<T> list, T a, T b) {
+    if (a == null) {
+      if (b == null) {
+        return 0;
+      } else {
+        return -1;
+      }
+    } else {
+      if (b == null) {
+        return 1;
+      } else {
+        if (list.contains(a) && list.contains(b)) {
+          return list.indexOf(a) - list.indexOf(b);
+        } else {
+          return compareWithNullLow(a.toString(), b.toString());
+        }
+      }
+    }
+  }
 }

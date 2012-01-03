@@ -132,6 +132,29 @@
     <bean id="entitlementServer" class="com.opengamma.livedata.entitlement.EntitlementServer">
         <constructor-arg index="0" ref="entitlementChecker"/>
     </bean>
+  
+  <!-- Data normalization -->
+  <bean id="normalizationJmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer" init-method="start">
+    <property name="connectionFactory" ref="jmsConnectionFactory" />
+    <property name="destination">
+      <bean class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="${normalization.topic.name}" />
+      </bean>
+    </property>
+    <property name="messageListener">
+      <bean class="com.opengamma.transport.jms.JmsByteArrayRequestDispatcher">
+        <constructor-arg>
+          <bean class="com.opengamma.transport.FudgeRequestDispatcher">
+            <constructor-arg>
+              <bean class="com.opengamma.livedata.server.NormalizerServer">
+                <constructor-arg ref="normalizer" />
+              </bean>
+            </constructor-arg>
+          </bean>
+        </constructor-arg>
+      </bean>
+    </property>
+  </bean>
 
   <!-- Persistent subscriptions -->
   <bean id="mongoConnector" class="com.opengamma.util.mongo.MongoConnectorFactoryBean">

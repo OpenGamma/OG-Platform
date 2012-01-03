@@ -14,7 +14,7 @@ import com.opengamma.math.minimization.ParameterLimitsTransform;
  * This allows one to fit an interpolated curve, where the y-coordinates of the curve must lie in a certain range (e.g. nowhere must the
  * curve be below 0 or above 1 for any value of x), using any base interpolator and a function (and its inverse) that maps the constrained range
  * (e.g. 0 to 1 inclusive) to -infinity to +infinity. <p>
- * Let y(x) be and interpolated value and y_i the set of node values. An interpolated value can 
+ * Let y(x) be an interpolated value and y_i the set of node values. An interpolated value can
  * be written as y(x) = I(x, (x_i,y_i)) - for a given interpolator, it is a function of x, and the node coordinates (x_i,y_i). However even
  * if all the node values (y_i) are constrained to the required range, there is no guarantee that y(x) will be in the range for all x (it depends
  * on the interpolator).<p>
@@ -32,8 +32,8 @@ public class TransformedInterpolator1D extends Interpolator1D {
 
   /**
    * 
-   * @param baseInterpolator The interpolator used for interpolating in the transformed space 
-   * @param transform a two way mapping between a limited range and the real line 
+   * @param baseInterpolator The interpolator used for interpolating in the transformed space
+   * @param transform a two way mapping between a limited range and the real line
    */
   public TransformedInterpolator1D(final Interpolator1D baseInterpolator, final ParameterLimitsTransform transform) {
     Validate.notNull(baseInterpolator, "null baseInterpolator");
@@ -62,10 +62,10 @@ public class TransformedInterpolator1D extends Interpolator1D {
   }
 
   /**
-   * The node values must be in the transformed space 
-   * @param x The positions of the nodes (not necessarily in order) 
-   * @param y The values of the nodes - these must be in the transformed space 
-   * @return a data bundle 
+   * The node values must be in the transformed space
+   * @param x The positions of the nodes (not necessarily in order)
+   * @param y The values of the nodes - these must be in the transformed space
+   * @return a data bundle
    */
   @Override
   public Interpolator1DDataBundle getDataBundle(double[] x, double[] y) {
@@ -73,10 +73,10 @@ public class TransformedInterpolator1D extends Interpolator1D {
   }
 
   /**
-   * The node values must be in the transformed space 
+   * The node values must be in the transformed space
    * @param x The positions of the nodes. <b>These must be in ascending order</b>
-   * @param y The values of the nodes - these must be in the transformed space 
-   * @return a data bundle 
+   * @param y The values of the nodes - these must be in the transformed space
+   * @return a data bundle
    */
   @Override
   public Interpolator1DDataBundle getDataBundleFromSortedArrays(double[] x, double[] y) {

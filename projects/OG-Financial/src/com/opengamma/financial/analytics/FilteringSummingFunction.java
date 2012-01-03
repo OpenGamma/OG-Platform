@@ -22,25 +22,20 @@ public class FilteringSummingFunction extends SummingFunction {
   public FilteringSummingFunction(final String valueName) {
     super(valueName);
   }
-  
+
   @Override
-  protected String getAggregationStyle() {
+  protected String getAggregationStyleFull() {
     return AGGREGATION_STYLE_FILTERED;
   }
 
   @Override
   public String getShortName() {
-    return "Filtered" + super.getShortName();
-  }
-  
-  @Override
-  public boolean canHandleMissingRequirements() {
-    return true;
+    return AGGREGATION_STYLE_FILTERED + super.getShortName();
   }
 
   @Override
-  public String toString() {
-    return getShortName();
+  public boolean canHandleMissingRequirements() {
+    return true;
   }
 
 }

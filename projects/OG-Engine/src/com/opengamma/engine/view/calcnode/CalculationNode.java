@@ -15,6 +15,5 @@ public interface CalculationNode {
   ViewComputationCache getCache(CalculationJobSpecification spec);
 
   String getNodeId();
-  
 
 }

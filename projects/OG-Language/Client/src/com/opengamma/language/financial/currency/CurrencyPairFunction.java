@@ -5,6 +5,8 @@
  */
 package com.opengamma.language.financial.currency;
 
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairsSource;
@@ -18,12 +20,15 @@ import com.opengamma.language.function.PublishedFunction;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
-import java.util.List;
-
 /**
  * Returns the market convention {@link com.opengamma.financial.currency.CurrencyPair} for the two currencies in an FX trade.
  */
 public class CurrencyPairFunction implements PublishedFunction {
+
+  /**
+   * Default instance.
+   */
+  public static final CurrencyPairFunction INSTANCE = new CurrencyPairFunction();
 
   private final MetaFunction _metaFunction;
 

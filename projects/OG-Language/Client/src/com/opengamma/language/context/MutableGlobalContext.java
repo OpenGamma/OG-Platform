@@ -15,6 +15,7 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.currency.CurrencyPairsSource;
 import com.opengamma.financial.user.rest.RemoteClient;
@@ -56,6 +57,10 @@ public class MutableGlobalContext extends GlobalContext {
   }
 
   // Standard context members
+
+  public void setAvailableOutputsProvider(final AvailableOutputsProvider availableOutputsProvider) {
+    removeOrReplaceValue(AVAILABLE_OUTPUTS_PROVIDER, availableOutputsProvider);
+  }
 
   public void setClient(final RemoteClient client) {
     removeOrReplaceValue(CLIENT, client);

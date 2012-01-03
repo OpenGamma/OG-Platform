@@ -39,6 +39,4 @@ public interface IdResolver extends Resolver<ExternalIdBundle, ExternalId> {
    */
   Map<ExternalIdBundle, ExternalId> resolve(Collection<ExternalIdBundle> ids);
   
-  
-
 }

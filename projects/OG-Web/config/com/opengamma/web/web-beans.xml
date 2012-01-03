@@ -201,7 +201,7 @@
   </bean>
   
   <!-- Portfolios RESTful service -->
-  <bean id="dataPortfoliosRestBean" class="com.opengamma.financial.portfolio.rest.DataPortfoliosResource">
+  <bean id="dataPortfoliosRestBean" class="com.opengamma.master.portfolio.impl.DataPortfoliosResource">
     <constructor-arg ref="dbPortfolioMaster" />
   </bean>
   <bean id="webPortfoliosRestBean" class="com.opengamma.web.portfolio.WebPortfoliosResource" scope="request">
@@ -210,7 +210,7 @@
   </bean>
 
   <!-- Positions RESTful service -->
-  <bean id="dataPositionsRestBean" class="com.opengamma.financial.position.rest.DataPositionsResource">
+  <bean id="dataPositionsRestBean" class="com.opengamma.master.position.impl.DataPositionsResource">
     <constructor-arg ref="dbPositionMaster" />
   </bean>
   <bean id="webPositionsRestBean" class="com.opengamma.web.position.WebPositionsResource" scope="request">
@@ -356,13 +356,13 @@
             </entry>
             <entry key="portfolioMaster">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/data/portfolios" />
+                <property name="local" value="/jax/data/prtMaster/portfolios" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
             <entry key="positionMaster">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/data/positions" />
+                <property name="local" value="/jax/data/posMaster/positions" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
@@ -392,18 +392,6 @@
               </bean>
             </entry>
             <!-- BEGIN DEPRECATED -->
-            <entry key="sharedPositionMaster">
-              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/data/positions" />
-                <property name="port" value="${jetty.port}" />
-              </bean>
-            </entry>
-            <entry key="sharedPortfolioMaster">
-              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/data/portfolios" />
-                <property name="port" value="${jetty.port}" />
-              </bean>
-            </entry>
             <entry key="sharedSecurityMaster">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/securityMaster/0/" />
@@ -502,13 +490,16 @@
     <property name="sourceList">
       <list>
         <!-- TODO: shared aggregation function config -->
-        <bean class="com.opengamma.financial.aggregation.AssetClassAggregationFunction" />
+        <bean class="com.opengamma.financial.aggregation.AssetClassAggregationFunction">
+          <constructor-arg value="false" />
+        </bean>
         <bean class="com.opengamma.financial.aggregation.CurrencyAggregationFunction" />
         <bean class="com.opengamma.financial.aggregation.DetailedAssetClassAggregationFunction" />
         <bean class="com.opengamma.financial.aggregation.RegionAggregationFunction">
           <constructor-arg ref="combinedSecuritySource" />
           <constructor-arg ref="regionSource" />
           <constructor-arg ref="sharedExchangeSource" />
+          <constructor-arg value="false" />
           <constructor-arg value="false" />
         </bean>
         <bean class="com.opengamma.financial.aggregation.UnderlyingAggregationFunction">
@@ -519,6 +510,7 @@
         <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
           <constructor-arg ref="combinedSecuritySource" />
           <constructor-arg value="SECTOR" />
+          <constructor-arg value="false" />
           <constructor-arg value="false" />
         </bean>
         <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
@@ -537,8 +529,10 @@
           <constructor-arg value="false" />
         </bean>
         <bean class="com.opengamma.financial.aggregation.EquityBetaAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
           <constructor-arg ref="sharedHistoricalTimeSeriesSource" />
           <constructor-arg value="false" />
+          <constructor-arg value="true" />
         </bean>
         <bean class="com.opengamma.financial.aggregation.CurrentMarketCapAggregationFunction">
           <constructor-arg ref="combinedSecuritySource" />
@@ -546,6 +540,7 @@
           <constructor-arg value="false" />
         </bean>
         <bean class="com.opengamma.financial.aggregation.LiquidityAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
           <constructor-arg ref="sharedHistoricalTimeSeriesSource" />
           <constructor-arg value="false" />
         </bean>

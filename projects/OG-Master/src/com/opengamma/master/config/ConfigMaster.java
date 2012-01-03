@@ -57,8 +57,8 @@ public interface ConfigMaster extends ChangeProvider {
    * that the master supports history.
    * 
    * @param <T>  the configuration element type
-   * @param clazz the class of the configuration element
    * @param uniqueId  the unique identifier, not null
+   * @param clazz the class of the configuration element
    * @return the document, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
@@ -72,9 +72,9 @@ public interface ConfigMaster extends ChangeProvider {
    * that the master supports history.
    * 
    * @param <T>  the configuration element type
-   * @param clazz the class of the configuration element
    * @param objectId  the object identifier, not null
    * @param versionCorrection  the version-correction locator to search at, not null
+   * @param clazz the class of the configuration element
    * @return the document, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier

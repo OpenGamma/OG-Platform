@@ -160,7 +160,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     cache.waitForPendingWrites();
     executionTime = System.nanoTime() - executionTime;
     CalculationJobResult jobResult = new CalculationJobResult(spec, executionTime, resultItems, getNodeId());
-    s_logger.info("Executed {}", job);
+    s_logger.info("Executed {} in {}ns", job, executionTime);
     return jobResult;
   }
 

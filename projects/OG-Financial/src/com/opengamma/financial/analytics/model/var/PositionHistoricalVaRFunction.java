@@ -25,7 +25,4 @@ public class PositionHistoricalVaRFunction extends NormalHistoricalVaRFunction {
     return ComputationTargetType.POSITION;
   }
 
-  protected Object getTarget(final ComputationTarget target) {
-    return target.getPosition();
-  }
 }
