@@ -147,14 +147,14 @@ public class PiecewiseSABRSurfaceFitterTest {
   @Test
   (enabled = false)
   public void printSurface() {
-    BlackVolatilitySurface surface = SURFACE_FITTER.getImpliedVolatilitySurface();
+    BlackVolatilitySurface surface = SURFACE_FITTER.getImpliedVolatilitySurface(true,false,LAMBDA);
     PDEUtilityTools.printSurface("vol surface", surface.getSurface(), 0, 10, 0.3, 3.0, 200, 100);
     LocalVolatilitySurface lv = DUPIRE.getLocalVolatility(surface, FORWARD_CURVE);
     PDEUtilityTools.printSurface("LV surface", lv.getSurface(), 0, 10, 0.3, 3.0, 200, 100);
   }
 
   /**
-   * Print the fitted implied vol surface and the derived implied vol as a function of moneyness m = log(k/f)/sqrt(t)
+   * Print the fitted implied vol surface and the derived implied vol as a function of moneyness m = log(k/f)/(1+lambda*sqrt(t))
    */
   @Test
   (enabled = false)
@@ -162,7 +162,7 @@ public class PiecewiseSABRSurfaceFitterTest {
     final double xMin = 4 / Math.sqrt(1 + LAMBDA * EXPIRIES[0]) * Math.log(STRIKES[0][0] / FORWARDS[0]);
     final double xMax = 4 / Math.sqrt(1 + LAMBDA * EXPIRIES[0]) * Math.log(STRIKES[0][STRIKES[0].length - 1] / FORWARDS[0]);
 
-    BlackVolatilitySurface surface = SURFACE_FITTER.getImpliedVolatilitySurface();
+    BlackVolatilitySurface surface = SURFACE_FITTER.getImpliedVolatilitySurface(true,false,LAMBDA);
     Surface<Double, Double, Double> moneyNessSurface = toMoneynessSurface(surface.getSurface());
     PDEUtilityTools.printSurface("moneyness surface", moneyNessSurface, 0, 10, xMin, xMax, 200, 100);
 
